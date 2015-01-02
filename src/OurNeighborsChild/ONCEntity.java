@@ -11,6 +11,7 @@ public abstract class ONCEntity extends ONCObject implements Serializable
 	 * It is a superclass for all ONC pojo classes that require both change tracking and a stop light
 	 */
 	private static final long serialVersionUID = -1348547623757168307L;
+	protected static final int STOPLIGHT_RED = 2;
 	protected static final int STOPLIGHT_OFF = 3;
 	
 	protected Calendar dateChanged;

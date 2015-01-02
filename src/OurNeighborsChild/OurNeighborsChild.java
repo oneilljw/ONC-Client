@@ -17,8 +17,6 @@ import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
@@ -33,13 +31,12 @@ import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.border.BevelBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import au.com.bytecode.opencsv.CSVWriter;
 
-public class OurNeighborsChild implements DatabaseListener, ServerListener, TableSelectionListener
+public class OurNeighborsChild implements DatabaseListener, ServerListener
 {
 	/**
 	 * Executable Main Class for ONC application
@@ -52,7 +49,7 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener, Tabl
 	private static final int ONC_ADMIN = 1;
 	private static final int ONC_USER = 0;
 	private static final int ONC_SAVE_FILE = 1;	
-	private static final String ONC_VERSION = "2.19";
+	private static final String ONC_VERSION = "2.30";
 	private static final String ONC_COPYRIGHT = "\u00A92014 John W. O'Neill";	
 	private static final String APPNAME = "Our Neighbor's Child";
 	private static final int DB_UNLOCKED_IMAGE_INDEX = 17;
@@ -64,11 +61,11 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener, Tabl
 	private JPanel oncContentPane, oncSplashPanel;	
 	private GlobalVariables oncGVs;
 	private FamilyPanel oncFamilyPanel;
-	private StatusPanel oncStatusPanel;
+//	private StatusPanel oncStatusPanel;
 	private ONCMenuBar oncMenuBar;
 	private PreferencesDialog prefsDlg;
-	private ChildCheckDialog dcDlg;
-	private FamilyCheckDialog dfDlg;
+//	private ChildCheckDialog dcDlg;
+//	private FamilyCheckDialog dfDlg;
 		
 	//Local Data Base Structures
 	private UserDB oncUserDB;
@@ -84,8 +81,7 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener, Tabl
 	private ONCRegions oncRegions;
 	
 	//indexes that track families being displayed
-	private int fn, rn; 							//Indexes for the family and search lists
-	private List<Integer> srchResAL;				//list of search result family ID's
+	private int fn;		 							//Indexes for the family and search lists
 	
 	//Server Connection
 	private ServerIF serverIF;	
@@ -213,16 +209,16 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener, Tabl
         oncChildDB = ChildDB.getInstance();
         oncChildWishDB = ChildWishDB.getInstance();
         oncFamDB = Families.getInstance();
-        srchResAL = new ArrayList<Integer>();
         
         //Initialize the family data base indexes
         fn = 0;
-        rn = 0;
+//      rn = 0;
         
         //Initialize the chat manager
         ChatManager.getInstance();
          
         //create mainframe window for the application
+//      FamilyChildSelectionListener fcsl = new FamilyChildSelectionListener();
         createandshowGUI();
         
         // set up the preferences dialog
@@ -238,12 +234,12 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener, Tabl
         });
         
         //set up the data check dialog and table row selection listener
-        dcDlg = new ChildCheckDialog(oncFrame);
-        dcDlg.addTableSelectionListener(this);
+//        dcDlg = new ChildCheckDialog(oncFrame);
+//        dcDlg.addTableSelectionListener(fcsl);
         
         //set up the family check dialog and table row selection listener
-        dfDlg = new FamilyCheckDialog(oncFrame);
-        dfDlg.addTableSelectionListener(this);
+//        dfDlg = new FamilyCheckDialog(oncFrame);
+//        dfDlg.addTableSelectionListener(fcsl);
         
         //Get and authenticate user and privileges with Authentication dialog. Can't get past this
         //modal dialog unless a valid user id and password is authenticated by the server. 
@@ -253,6 +249,7 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener, Tabl
 		
 		//if we get here, the server has authenticated this client's userID and password
 		ONCUser user = oncGVs.setUser(authDlg.getUser());
+		setLoginStatusMssg();
 		
 		//Connected & logged in to server. Register for server event notifications
 		if(serverIF != null && serverIF.isConnected())
@@ -279,7 +276,7 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener, Tabl
         else
         	oncGVs.setUserPermission(ONC_USER);
                      	
-        oncFamilyPanel.SetFamilyPanelDisplayPermission(oncGVs.isUserAdmin());	//Restrict personal data for general user
+        oncFamilyPanel.setFamilyPanelDisplayPermission(oncGVs.isUserAdmin());	//Restrict personal data for general user
         
         //get database years from server to set the data menu item for user to select and get user db so 
         //a chat can start
@@ -310,8 +307,6 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener, Tabl
         	//get user data base
         	oncUserDB.importUserDatabase();		//imported here to support chat prior to loading a year
         }
-       
-        setGenericStatusMssg();
         
         //remove splash panel after authentication
         oncContentPane.remove(oncSplashPanel);
@@ -389,14 +384,17 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener, Tabl
 	    									createImageIcon("onclogosmall.gif", "ONC Logo"));
 			
 			return serverIPAddress;
+			
 		}
-     
-    	try {
-			br.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+    	finally
+    	{
+    		try {
+    			br.close();
+    		} catch (IOException e) {
+    			// TODO Auto-generated catch block
+    			e.printStackTrace();
+    		}
+    	}
     	
     	return serverIPAddress;
     }
@@ -425,12 +423,12 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener, Tabl
 		}
     }
     
-    void setGenericStatusMssg()
+    void setLoginStatusMssg()
     {
     	if(oncGVs.getUser().getFirstname().isEmpty())
-    		oncStatusPanel.setStatusMssg("Welcome to Our Neighbor's Child!");        	
-    	else       
-    		oncStatusPanel.setStatusMssg(oncGVs.getUser().getFirstname() + ", welcome to Our Neighbor's Child!");
+    		oncFamilyPanel.setMssg("Welcome to Our Neighbor's Child!", true);
+    	else
+    		oncFamilyPanel.setMssg(oncGVs.getUser().getFirstname() + ", welcome to Our Neighbor's Child!", true);
     }
     
     // General quit handler; fed to the OSXAdapter as the method to call when a system quit event occurs
@@ -518,18 +516,7 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener, Tabl
         ONCMenuBar.importCallResultMI.addActionListener(menuItemListener);
         ONCMenuBar.exportMI.addActionListener(menuItemListener);        
         ONCMenuBar.clearMI.addActionListener(menuItemListener);       
-        ONCMenuBar.exitMI.addActionListener(menuItemListener);
-        ONCMenuBar.font8.addActionListener(menuItemListener);
-        ONCMenuBar.font10.addActionListener(menuItemListener);
-        ONCMenuBar.font12.addActionListener(menuItemListener);
-        ONCMenuBar.font13.addActionListener(menuItemListener);
-        ONCMenuBar.font14.addActionListener(menuItemListener);
-        ONCMenuBar.font16.addActionListener(menuItemListener);
-        ONCMenuBar.font18.addActionListener(menuItemListener);
-        ONCMenuBar.compODBtoONCfamMI.addActionListener(menuItemListener);      
-        ONCMenuBar.compWFCMtoONCfamMI.addActionListener(menuItemListener);       
-        ONCMenuBar.compODBtoONCdataMI.addActionListener(menuItemListener);             
-        ONCMenuBar.compWFCMtoONCdataMI.addActionListener(menuItemListener);        
+        ONCMenuBar.exitMI.addActionListener(menuItemListener);       
         ONCMenuBar.findDupFamsMI.addActionListener(menuItemListener);
         ONCMenuBar.findDupChldrnMI.addActionListener(menuItemListener);
         ONCMenuBar.manageDelMI.addActionListener(menuItemListener);
@@ -554,7 +541,6 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener, Tabl
         ONCMenuBar.oncAddUserMI.addActionListener(menuItemListener);
         ONCMenuBar.newChildMI.addActionListener(menuItemListener);
         ONCMenuBar.delChildMI.addActionListener(menuItemListener);
-        ONCMenuBar.corrPhoneMI.addActionListener(menuItemListener);
         ONCMenuBar.onlineMI.addActionListener(menuItemListener);
         ONCMenuBar.chatMI.addActionListener(menuItemListener);
         ONCMenuBar.changePWMI.addActionListener(menuItemListener);
@@ -562,7 +548,7 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener, Tabl
         ONCMenuBar.showServerLogMI.addActionListener(menuItemListener);
         ONCMenuBar.showServerClientIDMI.addActionListener(menuItemListener);
         ONCMenuBar.showCurrDirMI.addActionListener(menuItemListener);
-      
+/*      
         //Create the Status Panel and add Action Listener for Family Array List Navigation
         oncStatusPanel = new StatusPanel(oncFrame, oncFamDB);       
         oncStatusPanel.setBorder(new BevelBorder(BevelBorder.LOWERED));            
@@ -573,7 +559,7 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener, Tabl
         oncStatusPanel.rbSrchNext.addActionListener(new NAVButtonListener());
         oncStatusPanel.rbSrchPrev.addActionListener(new NAVButtonListener());
         oncContentPane.add(oncStatusPanel); 
-        
+*/      
         //Create the family panel
         oncFamilyPanel = new FamilyPanel(oncFrame);
         oncContentPane.add(oncFamilyPanel);       
@@ -582,11 +568,13 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener, Tabl
         //driver dialogs. When a table row selection event occurs in the tables in these dialogs,
         //the family and child (if applicable) that is selected in the tables is displayed in
         //the family panel
-        oncFamilyPanel.sortFamiliesDlg.addTableSelectionListener(this);
-        oncFamilyPanel.assignDeliveryDlg.addTableSelectionListener(this);
-        oncFamilyPanel.sortAgentDlg.addTableSelectionListener(this);
-        oncFamilyPanel.sortWishesDlg.addTableSelectionListener(this);
-        oncFamilyPanel.recGiftsDlg.addTableSelectionListener(this);
+/*        
+        oncFamilyPanel.sortFamiliesDlg.addTableSelectionListener(fcsl);
+        oncFamilyPanel.assignDeliveryDlg.addTableSelectionListener(fcsl);
+        oncFamilyPanel.sortAgentDlg.addTableSelectionListener(fcsl);
+        oncFamilyPanel.sortWishesDlg.addTableSelectionListener(fcsl);
+        oncFamilyPanel.recGiftsDlg.addTableSelectionListener(fcsl);
+*/
 	}
     
     String exportFamilyReportToCSV()
@@ -605,7 +593,7 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener, Tabl
 	    	
 	    	try 
 	    	{
-	    		ONCFamilyReportRowBuilder rb = new ONCFamilyReportRowBuilder(oncChildDB, oncChildWishDB, oncAgentDB);
+	    		ONCFamilyReportRowBuilder rb = new ONCFamilyReportRowBuilder();
 	    		
 	    		CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
 	    	    writer.writeNext(rb.getFamilyReportHeader());
@@ -638,25 +626,9 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener, Tabl
     	int olddbsize = oncFamDB.size();
     	
     	oncFamDB.importCSVFile(source, oncFrame);
-    	oncStatusPanel.setStatusMssg(Integer.toString(oncFamDB.size() - olddbsize) + " families were imported");
+    	oncFamilyPanel.setMssg(Integer.toString(oncFamDB.size() - olddbsize) + " families were imported", false);
     	
-    	if(oncFamDB.size() > 0)
-    	{
-    		oncStatusPanel.SetEnabledNavButtons(true);
-    		oncMenuBar.SetEnabledMenuItems(true);
-    		oncFamilyPanel.SetEnabledButtons(true);
-    		oncFamilyPanel.setEditableGUIFields(true);
-    		oncStatusPanel.updateDBStatus(oncFamDB.getServedFamilyAndChildCount());
-    		oncFamilyPanel.displayFamily(oncFamDB.getObjectAtIndex(fn), null);
-    		oncStatusPanel.setStoplightEntity(oncFamDB.getObjectAtIndex(fn));
-    		
-    		if(oncGVs.isUserAdmin())
-    		{
-    			oncFamilyPanel.SetRestrictedEnabledButtons(true);
-    			oncMenuBar.SetEnabledRestrictedMenuItems(true);
-    			oncMenuBar.setEnabledDeleteChildMenuItem(oncChildDB.getNumberOfChildrenInFamily(oncFamDB.getObjectAtIndex(fn).getID()) > 0);
-    		}
-    	}
+    	checkFamilyDataLoaded();
 	}
 
     void OnClearMenuItemClicked()
@@ -691,30 +663,6 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener, Tabl
     	
     	return;
 */    	  	
-    }
-    
-    void onCheckForDuplicateChildren()
-    {
-    	if(!dcDlg.isVisible())
-    	{
-    		dcDlg.buildDupTable();
-    		dcDlg.setVisible(true);
-    	}
-    }
-    
-    void onCheckForDuplicateFamilies()
-    {
-    	if(!dfDlg.isVisible())
-    	{
-    		dfDlg.buildDupTable();
-    		dfDlg.setVisible(true);
-    	}
-    }
-    
-    void OnChangeFontMenuItemClicked(int fontIndex)
-    {
-    	oncGVs.setFontIndex(fontIndex);
-    	oncFamilyPanel.setTextPaneFontSize();   	
     }
     
     void exit(String command)
@@ -985,26 +933,20 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener, Tabl
 	    dataImporter.execute();
     }
     
+    /*******************************************************************************************
+     * This method is called when a server ADDED_FAMILY message is processed. If there were
+     * no families in the local database and the ADDED_FAMILY is the first, it will display
+     * that family and enable the navigation controls as well as the Menu Bar permissions
+     */
     void checkFamilyDataLoaded()
     {
     	if(oncFamDB.size() > 0)
 		{
-			oncStatusPanel.SetEnabledNavButtons(true);
 			oncMenuBar.SetEnabledMenuItems(true);
-			oncFamilyPanel.SetEnabledButtons(true);
-			oncFamilyPanel.setEditableGUIFields(true);
-			
-			if(oncFamDB.size() == 1) //Don't display each update from server
-				oncFamilyPanel.displayFamily(oncFamDB.getObjectAtIndex(fn), null);
-			
-			oncStatusPanel.setStoplightEntity(oncFamDB.getObjectAtIndex(fn));
+			oncFamilyPanel.onFamilyDataLoaded();
 		
-			if(oncGVs.isUserAdmin())
-			{
-				oncFamilyPanel.SetRestrictedEnabledButtons(true);   			
+			if(oncGVs.isUserAdmin())  			
 				oncMenuBar.SetEnabledRestrictedMenuItems(true);
-				oncMenuBar.setEnabledDeleteChildMenuItem(oncChildDB.getNumberOfChildrenInFamily(oncFamDB.getObjectAtIndex(fn).getID()) > 0);
-			} 		
 		}
     }
     
@@ -1031,7 +973,7 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener, Tabl
     	{
     		String[] fieldNames = {"First Name", "Last Name", "User ID", "Password", "Permission"};
     		AddUserDialog auDlg = new AddUserDialog(oncFrame, fieldNames);
-    		auDlg.setLocationRelativeTo(oncStatusPanel.searchTF);
+    		auDlg.setLocationRelativeTo(oncFamilyPanel);
     		if(auDlg.showDialog())
     		{
     			String response = oncUserDB.add(this, auDlg.getAddUserReq());
@@ -1100,7 +1042,7 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener, Tabl
     {
     	String[] fieldNames = {"Current Password", "New Password", "Re-enter New Password"};
 		ChangePasswordDialog cpDlg = new ChangePasswordDialog(oncFrame, fieldNames);
-		cpDlg.setLocationRelativeTo(oncStatusPanel.searchTF);
+		cpDlg.setLocationRelativeTo(oncFamilyPanel);
 		String result = "<html>New and re-entered passwords didn't match.<br>Please try again.</html>";
 		
 		if(cpDlg.showDialog())
@@ -1120,23 +1062,8 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener, Tabl
 			JOptionPane.showMessageDialog(oncFrame, result,"Change Password Result",
         			 JOptionPane.ERROR_MESSAGE,oncGVs.getImageIcon(0));
 		}
-    }
-    
-    /*********************************************************************************************
-     * This method imports a .csv file that contains a ONC Family Referral Worksheet. It creates
-     * a RAFamilyImporter object and registers the main screen to receive family selection 
-     * events from the importer. Then it executes the importer which will interface with 
-     * the user to select and import a sequence of ONC Family Referral Worksheets
-     *********************************************************************************************/
-    private void onImportRAFMenuItemClicked()
-    {
-    	RAFamilyImporter importer = new RAFamilyImporter(oncFrame);
-    	importer.addTableSelectionListener(this);
-    	importer.onImportRAFMenuItemClicked();
-    	importer.removeTableSelectionListener(this);
-    }
-    
-    
+    } 
+/*    
     private class NAVButtonListener implements ActionListener
     {
     	public void actionPerformed(ActionEvent e)
@@ -1147,7 +1074,7 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener, Tabl
     			//Only admin user can make family changes
     			if(oncGVs.isUserAdmin())	
     			{
-    				oncFamilyPanel.updateFamily();
+    				oncFamilyPanel.update();
 //    				oncStatusPanel.updateDBStatus(oncFamDB.getServedFamilyAndChildCount());
     			}
 			
@@ -1163,7 +1090,7 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener, Tabl
     			}
 			
     			//display new family info, including delivery status and directions if visible
-    			oncFamilyPanel.displayFamily(oncFamDB.getObjectAtIndex(fn), null);
+    			oncFamilyPanel.display(oncFamDB.getObjectAtIndex(fn), null);
     			
     			if(oncGVs.isUserAdmin())
     				oncMenuBar.setEnabledDeleteChildMenuItem(oncChildDB.getNumberOfChildrenInFamily(oncFamDB.getObjectAtIndex(fn).getID()) > 0);
@@ -1181,7 +1108,7 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener, Tabl
     				//Save changes, if any to both family and child info
         			if(oncGVs.isUserAdmin())	//Only admin user can make family changes
         			{
-        				oncFamilyPanel.updateFamily();
+        				oncFamilyPanel.update();
  //       				oncStatusPanel.updateDBStatus(oncFamDB.getServedFamilyAndChildCount());
         			}
         			
@@ -1202,7 +1129,7 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener, Tabl
         				setGenericStatusMssg();
         			}
         			
-        			oncFamilyPanel.displayFamily(oncFamDB.getObjectAtIndex(fn), null);
+        			oncFamilyPanel.display(oncFamDB.getObjectAtIndex(fn), null);
         			if(oncGVs.isUserAdmin())
         				oncMenuBar.setEnabledDeleteChildMenuItem(oncChildDB.getNumberOfChildrenInFamily(oncFamDB.getObjectAtIndex(fn).getID()) > 0);
         			
@@ -1216,7 +1143,7 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener, Tabl
     			//Save changes, if any to both family and child info
     			if(oncGVs.isUserAdmin())	//Only admin user can make family changes
     			{
-    				oncFamilyPanel.updateFamily();
+    				oncFamilyPanel.update();
 //    				oncStatusPanel.updateDBStatus(oncFamDB.getServedFamilyAndChildCount());
     			}
     			
@@ -1226,7 +1153,7 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener, Tabl
     			  			
     			fn = oncFamDB.searchForFamilyIndexByID(srchResAL.get(rn));
     			
-    			oncFamilyPanel.displayFamily(oncFamDB.getObjectAtIndex((fn)), null);
+    			oncFamilyPanel.display(oncFamDB.getObjectAtIndex((fn)), null);
     			if(oncGVs.isUserAdmin())
     				oncMenuBar.setEnabledDeleteChildMenuItem(oncChildDB.getNumberOfChildrenInFamily(oncFamDB.getObjectAtIndex(fn).getID()) > 0);
     			
@@ -1237,7 +1164,7 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener, Tabl
     			//Save changes, if any to both family and child info
     			if(oncGVs.isUserAdmin())	//Only admin user can make family changes
     			{
-    				oncFamilyPanel.updateFamily();
+    				oncFamilyPanel.update();
 //    				oncStatusPanel.updateDBStatus(oncFamDB.getServedFamilyAndChildCount());
     			}
     			
@@ -1248,7 +1175,7 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener, Tabl
     	//		fn = srchEng.searchForFamilyIndexByID(oncFamDB, srchResAL.get(rn));
     			fn = oncFamDB.searchForFamilyIndexByID(srchResAL.get(rn));
     			
-    			oncFamilyPanel.displayFamily(oncFamDB.getObjectAtIndex((fn)), null);
+    			oncFamilyPanel.display(oncFamDB.getObjectAtIndex((fn)), null);
     			if(oncGVs.isUserAdmin())
     				oncMenuBar.setEnabledDeleteChildMenuItem(oncChildDB.getNumberOfChildrenInFamily(oncFamDB.getObjectAtIndex(fn).getID()) > 0);
     			
@@ -1285,7 +1212,7 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener, Tabl
 			}	
 		}
     }
-
+*/
     private class MenuItemDBYearsListener implements ActionListener
     {
     	public void actionPerformed(ActionEvent e)
@@ -1346,7 +1273,7 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener, Tabl
     		}
     		else if(e.getSource() == ONCMenuBar.importODBMI) {OnImportMenuItemClicked("ODB");}
     		else if(e.getSource() == ONCMenuBar.importWFCMMI) {OnImportMenuItemClicked("WFCM");}
-    		else if(e.getSource() == ONCMenuBar.importRAFMI) {onImportRAFMenuItemClicked();}
+    		else if(e.getSource() == ONCMenuBar.importRAFMI) { oncFamilyPanel.onImportRAFMenuItemClicked(); }
     		else if(e.getSource() == ONCMenuBar.importCallResultMI)
     		{
     			AngelAutoCallDialog angDlg = new AngelAutoCallDialog();
@@ -1365,9 +1292,9 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener, Tabl
     			if(selectedValue != null && selectedValue.toString().equals("Process Call Items"))
     			{
     				angDlg.writeAngelCallResults(oncFrame);
-    				if(angDlg.updateFamilyDeliveryStatus(oncFamDB, oncDDB, oncDelDB, oncGVs))
+    				if(angDlg.updateFamilyDeliveryStatus())
     				{
-    					oncFamilyPanel.displayFamily(oncFamDB.getObjectAtIndex(fn), oncFamilyPanel.getDisplayedChild());	//Refresh Family Panel, keep cn same
+    					oncFamilyPanel.display(oncFamDB.getObjectAtIndex(fn), oncFamilyPanel.getDisplayedChild());	//Refresh Family Panel, keep cn same
     					oncFamilyPanel.notifyFamilyUpdateOccurred();
     				}
     			}
@@ -1378,19 +1305,8 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener, Tabl
     		else if(e.getSource() == ONCMenuBar.exportMI){ exportObjectDBToCSV(); }
     		else if(e.getSource() == ONCMenuBar.clearMI) {OnClearMenuItemClicked();} 			       	
     		else if(e.getSource() == ONCMenuBar.exitMI)	{OnExitMenuItemClicked();}
-    		else if(e.getSource() == ONCMenuBar.font8)	{OnChangeFontMenuItemClicked(0);}
-            else if(e.getSource() == ONCMenuBar.font10)	{OnChangeFontMenuItemClicked(1);}   		
-    		else if(e.getSource() == ONCMenuBar.font12)	{OnChangeFontMenuItemClicked(2);}
-    		else if(e.getSource() == ONCMenuBar.font13)	{OnChangeFontMenuItemClicked(3);}
-    		else if(e.getSource() == ONCMenuBar.font14)	{OnChangeFontMenuItemClicked(4);}   		
-    		else if(e.getSource() == ONCMenuBar.font16)	{OnChangeFontMenuItemClicked(5);}
-    		else if(e.getSource() == ONCMenuBar.font18)	{OnChangeFontMenuItemClicked(6);}
-//    		else if(e.getSource() == ONCMenuBar.compODBtoONCfamMI)	{OnComparetoONCFamilyMenuItemClicked("ODB");}   		
-//    		else if(e.getSource() == ONCMenuBar.compWFCMtoONCfamMI)	{onComparetoONCFamilyMenuItemClicked("WFCM");}   		
-//    		else if(e.getSource() == ONCMenuBar.compODBtoONCdataMI)	{OnComparetoONCDataMenuItemClicked("ODB");}   		
-//    		else if(e.getSource() == ONCMenuBar.compWFCMtoONCdataMI) {OnComparetoONCDataMenuItemClicked("WFCM");}    		
-    		else if(e.getSource() == ONCMenuBar.findDupFamsMI) {onCheckForDuplicateFamilies();}
-    		else if(e.getSource() == ONCMenuBar.findDupChldrnMI) {onCheckForDuplicateChildren();}
+    		else if(e.getSource() == ONCMenuBar.findDupFamsMI) {oncFamilyPanel.onCheckForDuplicateFamilies();}
+    		else if(e.getSource() == ONCMenuBar.findDupChldrnMI) {oncFamilyPanel.onCheckForDuplicateChildren();}
     		else if(e.getSource() == ONCMenuBar.assignDelMI) {oncFamilyPanel.showAssignDelivererDialog();}
     		else if(e.getSource() == ONCMenuBar.manageDelMI) {oncFamilyPanel.showDriverDialog();}
     		else if(e.getSource() == ONCMenuBar.importDrvrMI)
@@ -1404,17 +1320,17 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener, Tabl
     		    JOptionPane.showMessageDialog(oncFrame, mssg,
     					"Import Result", JOptionPane.INFORMATION_MESSAGE, oncGVs.getImageIcon(0));
     		}
-    		else if(e.getSource() == ONCMenuBar.mapsMI) {oncFamilyPanel.ShowDrivingDirections();}
-    		else if(e.getSource() == ONCMenuBar.distMI) {oncFamilyPanel.ShowClientMap(oncFamDB.getList());}
+    		else if(e.getSource() == ONCMenuBar.mapsMI) {oncFamilyPanel.showDrivingDirections();}
+    		else if(e.getSource() == ONCMenuBar.distMI) {oncFamilyPanel.showClientMap(oncFamDB.getList());}
     		else if(e.getSource() == ONCMenuBar.changeONCMI) { oncFamilyPanel.showChangeONCNumberDialog(); }
-    		else if(e.getSource() == ONCMenuBar.delstatusMI) {oncFamilyPanel.ShowDeliveryStatus();}
-    		else if(e.getSource() == ONCMenuBar.viewDBMI) {oncFamilyPanel.ShowEntireDatabase(oncFamDB);}
-    		else if(e.getSource() == ONCMenuBar.sortWishesMI) {oncFamilyPanel.ShowSortWishesDialog(oncFamDB.getList());}
+    		else if(e.getSource() == ONCMenuBar.delstatusMI) {oncFamilyPanel.showDeliveryStatus();}
+    		else if(e.getSource() == ONCMenuBar.viewDBMI) {oncFamilyPanel.showEntireDatabase(oncFamDB);}
+    		else if(e.getSource() == ONCMenuBar.sortWishesMI) {oncFamilyPanel.showSortWishesDialog(oncFamDB.getList());}
     		else if(e.getSource() == ONCMenuBar.recGiftsMI) {oncFamilyPanel.showReceiveGiftsDialog(oncFamDB.getList());}
     		else if(e.getSource() == ONCMenuBar.catMI) {oncFamilyPanel.showWishCatalogDialog(); }
     		else if(e.getSource() == ONCMenuBar.orgMI) {oncFamilyPanel.showOrgDialog();}
     		else if(e.getSource() == ONCMenuBar.sortOrgsMI) {oncFamilyPanel.showSortOrgsDialog();}
-    		else if(e.getSource() == ONCMenuBar.sortFamiliesMI) {oncFamilyPanel.ShowSortFamiliesDialog(oncFamDB.getList());}
+    		else if(e.getSource() == ONCMenuBar.sortFamiliesMI) {oncFamilyPanel.showSortFamiliesDialog(oncFamDB.getList());}
     		else if(e.getSource() == ONCMenuBar.agentMI) {oncFamilyPanel.showSortAgentDialog(oncAgentDB, oncFamDB.getList()); }
     		else if(e.getSource() == ONCMenuBar.aboutONCMI)
     		{
@@ -1442,7 +1358,6 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener, Tabl
     		}
     		else if(e.getSource() == ONCMenuBar.delChildMI) { oncFamilyPanel.deleteChild(); }
     		else if(e.getSource() == ONCMenuBar.newChildMI) { oncFamilyPanel.onAddNewChildClicked(); }
-    		else if(e.getSource() == ONCMenuBar.corrPhoneMI) { oncFamDB.correctPhoneNumbers(); }
     		else if(e.getSource() == ONCMenuBar.onlineMI) { onWhoIsOnline(); }
     		else if(e.getSource() == ONCMenuBar.chatMI) { onChat(); }
     		else if(e.getSource() == ONCMenuBar.changePWMI) { onChangePassword(); }
@@ -1456,14 +1371,14 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener, Tabl
     		else if(e.getSource() == ONCMenuBar.showServerClientIDMI)
     		{
     			ONCPopupMessage clientIDPU = new ONCPopupMessage( oncGVs.getImageIcon(0));
-    			clientIDPU.setLocationRelativeTo(oncStatusPanel);
+    			clientIDPU.setLocationRelativeTo(oncFamilyPanel);
     			String mssg = String.format("Your ONC Server Client ID is: %d", oncGVs.getUser().getClientID());
     			clientIDPU.show("ONC Server Client ID", mssg);
     		}    		
     		else if(e.getSource() == ONCMenuBar.showCurrDirMI)
     		{
     			ONCPopupMessage clientIDPU = new ONCPopupMessage( oncGVs.getImageIcon(0));
-    			clientIDPU.setLocationRelativeTo(oncStatusPanel);
+    			clientIDPU.setLocationRelativeTo(oncFamilyPanel);
     			String mssg = String.format("Current folder is: %s", System.getProperty("user.dir"));
     			clientIDPU.show("ONC Client Current Folder", mssg);
     		}
@@ -1560,7 +1475,8 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener, Tabl
 				mssg = Integer.toString(year) + " season data has been loaded";
 			else
 				mssg = oncGVs.getUser().getFirstname() + ", " + Integer.toString(year) + " season data has been loaded";
-    		oncStatusPanel.setStatusMssg(mssg);
+//    		oncStatusPanel.setStatusMssg(mssg);
+    		oncFamilyPanel.setMssg(mssg, true);
     		
     		oncMenuBar.setEnabledYear(false);
     	
@@ -1572,25 +1488,7 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener, Tabl
     		oncFamilyPanel.initializeCatalogWishCounts();
     	
 			//check to see if family data is present and enable controls
-			if(oncFamDB.size() > 0)
-			{
-				oncStatusPanel.SetEnabledNavButtons(true);
-				oncMenuBar.SetEnabledMenuItems(true);
-				oncFamilyPanel.SetEnabledButtons(true);
-				oncFamilyPanel.setEditableGUIFields(true);
-				oncStatusPanel.updateDBStatus(oncFamDB.getServedFamilyAndChildCount());
-				
-				oncFamilyPanel.displayFamily(oncFamDB.getObjectAtIndex(fn), null);
-				
-				oncStatusPanel.setStoplightEntity(oncFamDB.getObjectAtIndex(fn));
-			
-				if(oncGVs.isUserAdmin())
-				{
-					oncFamilyPanel.SetRestrictedEnabledButtons(true);   			
-					oncMenuBar.SetEnabledRestrictedMenuItems(true);
-					oncMenuBar.setEnabledDeleteChildMenuItem(oncChildDB.getNumberOfChildrenInFamily(oncFamDB.getObjectAtIndex(fn).getID()) > 0);
-				} 		
-			}
+			checkFamilyDataLoaded();
 		
 			//Families may not have been imported from ODB yet, however, agents exist from prior year
 			if(!oncAgentDB.getAgentsAL().isEmpty())	//Families may be empty
@@ -1612,7 +1510,8 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener, Tabl
 	@Override
 	public void dataChanged(DatabaseEvent dbe) 
 	{
-		if(dbe.getSource() != this && dbe.getType().equals("ADDED_FAMILY"))
+		//if this is the first family loaded locally, show it on the display
+		if(dbe.getSource() != this && dbe.getType().equals("ADDED_FAMILY")  && oncFamDB.size() == 1)
 			checkFamilyDataLoaded();
 	}
 
@@ -1627,26 +1526,31 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener, Tabl
 			popup.show("Message from ONC Server", ue.getJson());
 		}	
 	}
-
-	@Override
-	public void tableRowSelected(ONCTableSelectionEvent tse)
-	{
-		if(tse.getType().equals("FAMILY_SELECTED") || tse.getType().equals("WISH_SELECTED"))
+/*
+	private class FamilyChildSelectionListener implements TableSelectionListener
+    {
+		@Override
+		public void tableRowSelected(TableSelectionEvent tse)
 		{
-			ONCFamily fam = (ONCFamily) tse.getObject1();
-			ONCChild child = (ONCChild) tse.getObject2();
-			
-			int rtn;
-			if((rtn=oncFamDB.searchForFamilyIndexByID(fam.getID())) >= 0)
+			if(tse.getType().equals("FAMILY_SELECTED") || tse.getType().equals("WISH_SELECTED"))
 			{
-				fn = rtn;
-				oncFamilyPanel.displayFamily(fam, child);
+				ONCFamily fam = (ONCFamily) tse.getObject1();
+				ONCChild child = (ONCChild) tse.getObject2();
+			
+				int rtn;
+				if((rtn=oncFamDB.searchForFamilyIndexByID(fam.getID())) >= 0)
+				{
+					fn = rtn;
+					oncFamilyPanel.display(fam, child);
 				
-				if(oncGVs.isUserAdmin())
-					oncMenuBar.setEnabledDeleteChildMenuItem(oncChildDB.getNumberOfChildrenInFamily(fam.getID()) > 0);
+					if(oncGVs.isUserAdmin())
+						oncMenuBar.setEnabledDeleteChildMenuItem(oncChildDB.getNumberOfChildrenInFamily(fam.getID()) > 0);
 				
-				oncStatusPanel.setStoplightEntity(fam);
+					oncStatusPanel.setStoplightEntity(fam);
+				}
 			}
 		}
-	}
+    }
+*/    
+    
 }

@@ -2,7 +2,6 @@ package OurNeighborsChild;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import javax.swing.BoxLayout;
@@ -28,7 +27,7 @@ public class WishHistoryDialog extends JDialog
 	private JTable wishHistoryTable;
 	private DefaultTableModel wishHistoryTableModel;
 
-	WishHistoryDialog(JFrame parentFrame, ArrayList<ONCChildWish> cwhAL, int wn, String name)
+	WishHistoryDialog(JFrame parentFrame, ArrayList<String[]> whTable, int wn, String name)
 	{
 		super(parentFrame, true);	//Make the dialog modal
 		this.setTitle(name +"'s Wish " + Integer.toString(wn+1) + " History");
@@ -105,9 +104,9 @@ public class WishHistoryDialog extends JDialog
     	wishHistoryTable.getColumnModel().getColumn(2).setCellRenderer(dtcr);
     	
     	//Add wishes in history from current wish revision to creation
-    	int index = cwhAL.size() - 1; //iterator for wish history array
+    	int index = whTable.size() - 1; //iterator for wish history array
     	while(index >= 0)
-    		wishHistoryTableModel.addRow(cwhAL.get(index--).getWishHistoryTableRow());
+    		wishHistoryTableModel.addRow(whTable.get(index--));
     	   
     	wishHistoryTable.setBorder(UIManager.getBorder("Table.scrollPaneBorder"));
     	wishHistoryTable.setFillsViewportHeight(true);
@@ -122,7 +121,5 @@ public class WishHistoryDialog extends JDialog
     	pack();
     	setSize(tablewidth, 120);
     	setResizable(true);
-    	Point pt = parentFrame.getLocation();
-    	setLocation(pt.x + 800-tablewidth, pt.y + 280);
 	}
 }

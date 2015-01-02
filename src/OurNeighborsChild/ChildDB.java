@@ -8,13 +8,16 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
 
@@ -53,13 +56,13 @@ public class ChildDB extends ONCDatabase
 			
 			//if the server added the child,  add the new child to the data base and notify ui's
 			if(response.startsWith("ADDED_CHILD"))		
-				addedChild =  processAddedChild(response.substring(11));
+				addedChild =  processAddedChild(source, response.substring(11));
 		}
 		
 		return addedChild;
 	}
 	
-	ONCObject processAddedChild(String json)
+	ONCObject processAddedChild(Object source, String json)
 	{
 		ONCChild addedChild = null;
 		Gson gson = new Gson();
@@ -68,12 +71,12 @@ public class ChildDB extends ONCDatabase
 		if(addedChild != null)
 		{
 			childAL.add(addedChild);
-			fireDataChanged(this, "ADDED_CHILD", addedChild);
+			fireDataChanged(source, "ADDED_CHILD", addedChild);
 			
 			Families fDB = Families.getInstance();
 			int[] countsChange = fDB.getServedFamilyAndChildCount();
 			DataChange servedCountsChange = new DataChange(countsChange[0], countsChange[1]);
-			fireDataChanged(this, "UPDATED_SERVED_COUNTS", servedCountsChange);
+			fireDataChanged(source, "UPDATED_SERVED_COUNTS", servedCountsChange);
 		}
 		
 		return addedChild;
@@ -86,7 +89,7 @@ public class ChildDB extends ONCDatabase
 	 * family objects child array list, the method checks for wish assignees and, if any, removes the child's
 	 * assigned ornament count prior to removal from the child array list. 
 	 **********************************************************************************************************/
-	void deleteChild(ONCChild reqDelChild)
+	void delete(Object source, ONCChild reqDelChild)
 	{
 		String response = "";
 		if(serverIF != null && serverIF.isConnected())
@@ -97,11 +100,11 @@ public class ChildDB extends ONCDatabase
 			
 			//if the server added the child,  add the new child to the data base and notify ui's
 			if(response.startsWith("DELETED_CHILD"))		
-				processDeletedChild(response.substring(13));
+				processDeletedChild(source, response.substring(13));
 		}
 	}
 	
-	void processDeletedChild(String json)
+	void processDeletedChild(Object source, String json)
 	{
 		ChildWishDB cwDB = ChildWishDB.getInstance();
 		ONCOrgs partnerDB = ONCOrgs.getInstance();
@@ -122,14 +125,14 @@ public class ChildDB extends ONCDatabase
 			childAL.remove(index);
 			for(WishBaseOrOrgChange change: wishbasechanges)
 				//deleted wish - need to tell wish catalog dialog to adjust wish counts
-				fireDataChanged(this, "WISH_BASE_CHANGED", change);
+				fireDataChanged(source, "WISH_BASE_CHANGED", change);
 			
 			Families fDB = Families.getInstance();
 			int[] countsChange = fDB.getServedFamilyAndChildCount();
 			DataChange servedCountsChange = new DataChange(countsChange[0], countsChange[1]);
-			fireDataChanged(this, "UPDATED_SERVED_COUNTS", servedCountsChange);
+			fireDataChanged(source, "UPDATED_SERVED_COUNTS", servedCountsChange);
 						
-			fireDataChanged(this, "DELETED_CHILD", deletedChild);
+			fireDataChanged(source, "DELETED_CHILD", deletedChild);
 		}
 		else
 			System.out.println("Child DB: Child removal failed, childID not found");
@@ -152,12 +155,12 @@ public class ChildDB extends ONCDatabase
 		//create and store the updated child in the local data base and notify local
 		//ui listeners of a change. The server may have updated the prior year ID
 		if(response.startsWith("UPDATED_CHILD"))
-			processUpdatedChild(response.substring(13));
+			processUpdatedChild(source, response.substring(13));
 		
 		return response;
 	}
 	
-	void processUpdatedChild(String json)
+	void processUpdatedChild(Object source, String json)
 	{
 		//Create a child object for the updated child
 		Gson gson = new Gson();
@@ -172,7 +175,7 @@ public class ChildDB extends ONCDatabase
 		if(index < childAL.size())
 		{
 			childAL.set(index, updatedChild);
-			fireDataChanged(this, "UPDATED_CHILD", updatedChild);
+			fireDataChanged(source, "UPDATED_CHILD", updatedChild);
 		}
 		else
 			System.out.println(String.format("ChildDB processUpdatedChild - child id %d not found",
@@ -376,15 +379,15 @@ public class ChildDB extends ONCDatabase
 	{
 		if(ue.getType().equals("UPDATED_CHILD"))
 		{
-			processUpdatedChild(ue.getJson());
+			processUpdatedChild(this, ue.getJson());
 		}
 		else if(ue.getType().equals("ADDED_CHILD"))
 		{
-			processAddedChild(ue.getJson());
+			processAddedChild(this, ue.getJson());
 		}
 		else if(ue.getType().equals("DELETED_CHILD"))
 		{
-			processDeletedChild(ue.getJson());
+			processDeletedChild(this, ue.getJson());
 		}			
 	}
 	

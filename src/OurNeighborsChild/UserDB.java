@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -164,7 +165,7 @@ public class UserDB extends ONCDatabase
 		GlobalVariables gvs = GlobalVariables.getInstance();
 		
 		ONCPopupMessage popup = new ONCPopupMessage(gvs.getImageIcon(0));
-		Point loc = gvs.getFrame().getLocationOnScreen();
+		Point loc = GlobalVariables.getFrame().getLocationOnScreen();
 		popup.setLocation(loc.x+450, loc.y+70);
 		popup.show("ONC Elf Status Change", u.getFirstname() + " " + u.getLastname() + " is  now " + status);
 	}

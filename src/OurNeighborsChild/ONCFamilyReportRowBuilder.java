@@ -21,12 +21,14 @@ public class ONCFamilyReportRowBuilder
 	private ChildDB cDB;
 	private ChildWishDB cwDB;
 	private ONCAgents agentDB;
+	private ONCWishCatalog cat;
 	
-	ONCFamilyReportRowBuilder(ChildDB cdb, ChildWishDB cwdb, ONCAgents adb)
+	ONCFamilyReportRowBuilder()
 	{
-		cDB = cdb;
-		cwDB = cwdb;
-		agentDB = adb;
+		cDB = ChildDB.getInstance();
+		cwDB = ChildWishDB.getInstance();
+		agentDB = ONCAgents.getInstance();
+		cat = ONCWishCatalog.getInstance();
 	}
 	
 	String[] getFamilyReportCSVRowData(ONCFamily f)	//Used when writing the database to a .csv file
@@ -104,6 +106,29 @@ public class ONCFamilyReportRowBuilder
 
 		return row;		
 	}
+	
+	private String getFullWish(ONCChild c, int wn)
+	{
+		ONCChildWish cw = cwDB.getWish(c.getChildWishID(wn));
+		if(c.getChildWishID(wn) == -1 || cw == null)
+			return "";
+		else
+		{
+			ONCWish wish = cat.getWishByID(cw.getWishID());
+		
+			if(wish == null)
+				return "";
+			else
+			{
+				String[] restrictions = {" ", "*", "#"};
+				String restriction = restrictions[cw.getChildWishIndicator()];
+				String wishbase = wish.getName();
+				String detail = cw.getChildWishDetail();
+		
+				return restriction + wishbase + "- " +  detail;
+			}
+		}
+	}
 
 	private String[] getFamilyChildReportCSVRowData(ONCFamily f)
 	{
@@ -123,9 +148,12 @@ public class ONCFamilyReportRowBuilder
 				row[i+3] = c.getChildGender();
 				row[i+4] = c.getChildDOBString();
 				row[i+5] = c.getChildAge();
-				row[i+6] = c.getChildWishID(0) == -1 ? "" : cwDB.getWish(c.getChildWishID(0)).getChildWishAll();
-				row[i+7] = c.getChildWishID(1) == -1 ? "" : cwDB.getWish(c.getChildWishID(1)).getChildWishAll();
-				row[i+8] = c.getChildWishID(2) == -1 ? "" : cwDB.getWish(c.getChildWishID(2)).getChildWishAll();
+//				row[i+6] = c.getChildWishID(0) == -1 ? "" : cwDB.getWish(c.getChildWishID(0)).getChildWishAll();
+//				row[i+7] = c.getChildWishID(1) == -1 ? "" : cwDB.getWish(c.getChildWishID(1)).getChildWishAll();
+//				row[i+7] = c.getChildWishID(2) == -1 ? "" : cwDB.getWish(c.getChildWishID(2)).getChildWishAll();
+				row[i+6] = getFullWish(c, 0);
+				row[i+7] = getFullWish(c, 1);
+				row[i+8] = getFullWish(c, 2);
 			}
 			else	//If there are less than 9 children, the remaining columns are left empty
 			{

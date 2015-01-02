@@ -8,6 +8,8 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
+
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -54,27 +56,39 @@ public class ONCWishCatalog extends ONCDatabase
 	ArrayList<ONCWish> getWishCatalog() { return wishCatalog; }
 	ONCWish getWish(int index) { return wishCatalog.get(index); }
 	
-	int findWishRow(String wishname)
+	public ONCWish getWishByID(int wishID)
 	{
 		int index = 0;
-		while(index < wishCatalog.size() && !wishCatalog.get(index).getName().equals(wishname))
+		while(index < wishCatalog.size() && wishCatalog.get(index).getID() != wishID)
 			index++;
 		
-		if(index == wishCatalog.size())
-			return -1;
+		if(index < wishCatalog.size())
+			return wishCatalog.get(index);
 		else
+			return null;
+	}
+	
+	int findWishRow(int wishID)
+	{
+		int index = 0;
+		while(index < wishCatalog.size() && wishCatalog.get(index).getID() != wishID)
+			index++;
+		
+		if(index < wishCatalog.size())
 			return index;
+		else
+			return -1;
 	}
 	int getNumberOfItems() { return wishCatalog.size(); }
 	int getWishID(int index) { return wishCatalog.get(index).getID(); }
 	String getWishName(int index) { return wishCatalog.get(index).getName(); }
-	ArrayList<String> getWishNames()
+	ArrayList<Integer> getWishIDs()
 	{
-		ArrayList<String> wishnames = new ArrayList<String>();
+		ArrayList<Integer> wishIDs = new ArrayList<Integer>();
 		for(ONCWish w:wishCatalog)
-			wishnames.add(w.getName());
+			wishIDs.add(w.getID());
 		
-		return wishnames;
+		return wishIDs;
 	}
 //	int getListWishCount(int index, int listindex) { return wishCatalog.get(index).getWishCount(listindex); }
 //	int getTotalWishCount(int index) { return wishCatalog.get(index).getTotalWishCount(); }
@@ -100,10 +114,10 @@ public class ONCWishCatalog extends ONCDatabase
 	
 	//Returns detail required array list by searching for wish name. If wish not found
 	//or if detail required array list is empty, returns null
-	ArrayList<WishDetail> getWishDetail(String wishname)	
+	ArrayList<WishDetail> getWishDetail(int wishID)	
 	{
 		int index = 0;
-		while(index < wishCatalog.size() && !wishname.equals(wishCatalog.get(index).getName()))
+		while(index < wishCatalog.size() && wishID != wishCatalog.get(index).getID())
 			index++;
 		
 		if(index < wishCatalog.size() && wishCatalog.get(index).getNumberOfDetails() > 0)
@@ -130,7 +144,7 @@ public class ONCWishCatalog extends ONCDatabase
 		
 		if(response.startsWith("UPDATED_CATALOG_WISH"))
 		{
-			processUpdatedWish(this, response.substring(20));
+			processUpdatedWish(source, response.substring(20));
 		}
 		
 		return response;	
@@ -252,7 +266,7 @@ public class ONCWishCatalog extends ONCDatabase
 	
 	/******************************************************************************************************
 	 * This method returns a subset of the names of wishes in the wish catalog based on the requested
-	 * type and purpose of the list Three purposes are supported: SORT lists put "Any" in element 0 and 
+	 * type and purpose of the list. Three purposes are supported: SORT lists put "Any" in element 0 and 
 	 * SELECTION lists put "None" in element 0 of the list. COMPARE returns the names of wishes in the 
 	 * catalog without modification. 3 types of lists are supported and use the
 	 * binary representation of the wish list index to determine inclusion in a list. All wishes that
@@ -261,9 +275,11 @@ public class ONCWishCatalog extends ONCDatabase
 	 * or 7 are included in type 1 wish list requests. 
 	 * @param list - Valid lists are 0 - 2.  @return an array of strings of wish names
 	 ******************************************************************************************************/
-	String[] getWishList(int listtype, int listpurpose)
+	List<ONCWish> getWishList(int listtype, int listpurpose)
+//	String[] getWishList(int listtype, int listpurpose)
 	{
-		ArrayList<String> wishlist = new ArrayList<String>();
+//		ArrayList<String> wishlist = new ArrayList<String>();
+		List<ONCWish> wishlist = new ArrayList<ONCWish>();
 	
 		//Add catalog items to the list based on type of list requested
 		int bitmask = WISH_CATALOG_LIST_ALL;	//include wish in all lists
@@ -273,7 +289,8 @@ public class ONCWishCatalog extends ONCDatabase
 		for(ONCWish w:wishCatalog)
 		{
 			if((w.getListindex() & bitmask) > 0)
-				wishlist.add(w.getName());
+//				wishlist.add(w.getName());
+				wishlist.add(w);
 		}
 		
 		//Add appropriate elements based on purpose. For selection lists, "None" must be at the
@@ -282,18 +299,23 @@ public class ONCWishCatalog extends ONCDatabase
 		if(listpurpose == WISH_CATALOG_SELECTION_LIST)
 		{
 			Collections.sort(wishlist, new WishListComparator());	//Alphabetize the list
-			wishlist.add(0,"None");			
+//			wishlist.add(0,"None");
+			wishlist.add(0, new ONCWish(-1, "None", 7));
 		}
 		else if(listpurpose == WISH_CATALOG_SORT_LIST)
 		{	
-			wishlist.add("None");	//Add "None" to the list
+//			wishlist.add("None");	//Add "None" to the list
+			wishlist.add(new ONCWish(-1, "None", 7));	//Add "None" to the list
 			Collections.sort(wishlist, new WishListComparator());	//Alphabetize the list
-			wishlist.add(0,"Any");	//Add "Any" to list in position 0
+//			wishlist.add(0,"Any");	//Add "Any" to list in position 0
+			wishlist.add(0, new ONCWish(-2, "Any", 7));
+			
 		}
 		
-		return  wishlist.toArray(new String[wishlist.size()]);
+//		return  wishlist.toArray(new String[wishlist.size()]);
+		return  wishlist;
 	}
-	
+/*	
 	ONCWish findWish(String wishname)
 	{
 		int index=0;
@@ -307,10 +329,10 @@ public class ONCWishCatalog extends ONCDatabase
 		else
 			return wishCatalog.get(index);
 	}
-	
+*/	
 	void initializeWishCounts(Families fDB)
 	{		
-		wishCountsAL = fDB.getWishBaseSelectedCounts(getWishNames());
+		wishCountsAL = fDB.getWishBaseSelectedCounts(getWishIDs());
 	}
 	
 	/***************************************************************************************************
@@ -321,18 +343,20 @@ public class ONCWishCatalog extends ONCDatabase
 	 **************************************************************************************************/
 	void changeWishCounts(WishBaseOrOrgChange wbc)
 	{
-		if(!wbc.getOldItem().equals("None"))	//Search for from wish if it's not "None"
+		if(wbc.getOldObject().getID() != -1)	//Search for from wish if it's not "None"
 		{
 			//Decrement the count of the first wish and update the table
-			int row = findWishRow(wbc.getOldItem());
-			wishCountsAL.get(row)[wbc.getWishNum()]--;
+			int row = findWishRow(wbc.getOldObject().getID());
+			if(row > -1)
+				wishCountsAL.get(row)[wbc.getValue()]--;
 		}
 		
-		if(!wbc.getNewItem().equals("None"))	//Search for second wish if it's not "None"
+		if(wbc.getNewObject().getID() != -1)	//Search for second wish if it's not "None"
 		{
 			//Increment the count of the second wish and update the table
-			int row = findWishRow(wbc.getNewItem());
-			wishCountsAL.get(row)[wbc.getWishNum()]++;
+			int row = findWishRow(wbc.getNewObject().getID());
+			if(row > -1)
+				wishCountsAL.get(row)[wbc.getValue()]++;
 		}		
 	}
 	
@@ -531,68 +555,21 @@ public class ONCWishCatalog extends ONCDatabase
 		wishCatalog.clear();	
 	}
 
-	/*************************************************************************************************
-     * This method takes a wish catalog and merges it with the master wish catalog. It uses a two 
-     * step process. In step one, each wish in the merge catalog is located in the master. If it isn't
-     * located, it is added. If it is located, if the master wish assigned count is 0, the master is
-     * replaced with the merge wish catalog item. If the master wish count is > 0, the merge wish 
-     * catalog item is ignored. In step two, each item in the master catalog is checked against the 
-     * merge catalog. First, if the master wish count > 0, it is ignored. If it is zero, if it is not
-     * located in the merge catalog, the master wish time is deleted. 
-     **************************************************************************************************/
-	void mergeWishCatalogs(ArrayList<ONCWish> mergeWishAL)
-	{
-//		ONCWish masterWish;
-//		for(ONCWish mw:mergeWishAL)	//Step 1, compare merge wish catalog to master catalog
-//		{
-//			if((masterWish = findWish(mw.getName())) != null)	//merge wish located in master
-//			{
-//				if(masterWish.getTotalWishCount() == 0)	//master wish count is zero, replace master wish with merge wish
-//				{
-//					masterWish.setListindex(mw.getListindex());	//Copy list index
-//					masterWish.getWishDetailAL().clear();
-//					for(int i=0; i<mw.getWishDetailAL().size(); i++)	//Copy wish detail AL
-//						masterWish.getWishDetailAL().add(new WishDetail(mw.getWishDetailAL().get(i).getWishDetailName(),
-//								mw.getWishDetailAL().get(i).getWishDetailChoices()));
-//				}			
-//			}
-//			else	//merge wish not in master catalog, add it
-//			{
-//				addWish(mw);
-//			}
-//		}
-//		
-		//Step 2 - Delete wish catalog items in the master catalog not found in the merge catalog, Only
-		//delete if the master wish is not in use. To delete, create a list of unused master wishes not
-		//in the merge wish catalog. Then delete each catalog item in the unused list.
-		
-		//Create Step 2 list of catalog wishes to delete
-//		ArrayList<ONCWish> delCatalogWishAL = new ArrayList<ONCWish>();
-		
-		//Step 2: Delete wish catalog items in master not found in merge catalog
-//		for(ONCWish w:wishCatalog)	
-//		{	
-//			if(w.getTotalWishCount() == 0)	//Only delete wish cat items that are unused
-//			{
-//				int mergeindex = 0;	//Check if wish is in merge wish catalog
-//				while(mergeindex < mergeWishAL.size() && !mergeWishAL.get(mergeindex).getName().equals(w.getName()))
-//					mergeindex++;
-//				
-//				if(mergeindex == mergeWishAL.size())	//Master wish cat item not found in merge cat, delete it										//Add wish to deletion list
-//					delCatalogWishAL.add(w);	
-//			}
-//		}
-//		
-//		for(ONCWish dw:delCatalogWishAL)	//Delete wishes not found in merge catalog and were unused
-//			deleteWish(dw);
-	}
 	
-	private class WishListComparator implements Comparator<String>
+	
+//	private class WishListComparator implements Comparator<String>
+	private class WishListComparator implements Comparator<ONCWish>
 	{
+//		@Override
+//		public int compare(String s1, String s2)
+//		{
+//			return s1.compareTo(s2);
+//		}
+		
 		@Override
-		public int compare(String s1, String s2)
+		public int compare(ONCWish w1, ONCWish w2)
 		{
-			return s1.compareTo(s2);
+			return w1.getName().compareTo(w2.getName());
 		}
 	}
 
@@ -613,6 +590,4 @@ public class ONCWishCatalog extends ONCDatabase
 			processDeletedWish(this, ue.getJson());
 		}
 	}
-
-	
 }

@@ -12,6 +12,7 @@ public abstract class ONCDatabase implements ServerListener
 		serverIF = ServerIF.getInstance();
 		serverIF.addServerListener(this);
 	}
+	
 	//All databases must implement an update class for notifications of changes
 	abstract String update(Object source, ONCObject entity);
 	

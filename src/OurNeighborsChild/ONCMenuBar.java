@@ -2,6 +2,7 @@ package OurNeighborsChild;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.swing.ImageIcon;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -17,12 +18,12 @@ public class ONCMenuBar extends JMenuBar
 	public static JMenuItem importODBMI, importWFCMMI, importRAFMI;
 	public static JMenuItem importONCMI, importPYMI, importPYORGMI,importWishCatMI, importCallResultMI;
 	public static JMenuItem exportMI, clearMI, exitMI;
-	public static JMenuItem font8, font10, font12, font13, font14, font16, font18;
-	public static JMenuItem compODBtoONCfamMI, compODBtoONCdataMI, compWFCMtoONCfamMI, compWFCMtoONCdataMI;
+//	public static JMenuItem font8, font10, font12, font13, font14, font16, font18;
+//	public static JMenuItem compODBtoONCfamMI, compODBtoONCdataMI, compWFCMtoONCfamMI, compWFCMtoONCdataMI;
 	public static JMenuItem findDupFamsMI, findDupChldrnMI;
 	public static JMenuItem assignDelMI, manageDelMI, importDrvrMI, mapsMI, delstatusMI, distMI;
-	public static JMenuItem newFamMI, changeONCMI, delFamMI, newChildMI, delChildMI, corrPhoneMI;
-	public static JMenu submenuImport, submenuodbwlFont, submenuCompareRecords;
+	public static JMenuItem newFamMI, changeONCMI, delFamMI, newChildMI, delChildMI;
+	public static JMenu submenuImport, submenuFamilyDataChecks;
 	public static JMenu submenuExport, submenuCompareData, submenuDatabase;
 	public static JMenuItem viewDBMI, sortWishesMI, sortFamiliesMI, sortOrgsMI, recGiftsMI, agentMI, orgMI, catMI;
 	public static JMenuItem aboutONCMI, oncPrefrencesMI, oncAddUserMI, onlineMI, chatMI, changePWMI, stopPollingMI;
@@ -31,10 +32,10 @@ public class ONCMenuBar extends JMenuBar
 	
 	public ONCMenuBar()
 	{
-		JMenu menuFile, menuView, menuFamilies, menuWishes, menuDataChecks, menuDelivery, menuSettings;	    
+		JMenu menuFile, menuAgents, menuFamilies, menuWishes, menuGiftPartners, menuDelivery, menuSettings;	    
         
-	    //Build the first menu.
-	    menuFile = new JMenu("Data");
+	    //Build the Database menu.
+	    menuFile = new JMenu("Database");
 	    this.add(menuFile);
 	 
 	   //a group of JMenuItems for the File Menu
@@ -44,7 +45,7 @@ public class ONCMenuBar extends JMenuBar
 	    
 //	    menuFile.addSeparator();
 	    
-	    submenuDatabase = new JMenu("Year");
+	    submenuDatabase = new JMenu("Select Year");
 	    submenuDatabase.setEnabled(false);   
 	    dbYears = new ArrayList<JMenuItem>();
 	    menuFile.add(submenuDatabase);
@@ -108,41 +109,15 @@ public class ONCMenuBar extends JMenuBar
 	    exitMI = new JMenuItem("Log Out");
 	    menuFile.add(exitMI);
 	    	    
-	    //Build the view menu.
-	    menuView = new JMenu("View");
-	    this.add(menuView);
+	    //Build the Agents menu.
+	    menuAgents = new JMenu("Agents");
 	    
-	    submenuodbwlFont = new JMenu("Select Font Size");
+	    agentMI = new JMenuItem("Manage Agents");
+	    agentMI.setEnabled(false);	    
+	    menuAgents.add(agentMI);
 	    
-	    font8 = new JMenuItem("8 pt.");
-	    submenuodbwlFont.add(font8);
-	    
-	    font10 = new JMenuItem("10 pt.");
-	    submenuodbwlFont.add(font10);
-	    
-	    font12 = new JMenuItem("12 pt.");
-	    submenuodbwlFont.add(font12);
-	    
-	    font13 = new JMenuItem("13 pt.");
-	    submenuodbwlFont.add(font13);
-	    
-	    font14 = new JMenuItem("14 pt.");
-	    submenuodbwlFont.add(font14);
-	    
-	    font16 = new JMenuItem("16 pt.");
-	    submenuodbwlFont.add(font16);
-	    
-	    font18 = new JMenuItem("18 pt.");
-	    submenuodbwlFont.add(font18);
-	    
-	    menuView.add(submenuodbwlFont);
-	    
-	    menuView.addSeparator();
-	    
-	    viewDBMI = new JMenuItem("View Family Data");
-	    viewDBMI.setEnabled(false);
-	    menuView.add(viewDBMI);
-	    
+	    this.add(menuAgents);
+
 	    //Build Families Menu Structure
 	    menuFamilies = new JMenu("Families");
 	    this.add(menuFamilies);
@@ -150,10 +125,6 @@ public class ONCMenuBar extends JMenuBar
 	    sortFamiliesMI = new JMenuItem("Manage Families");
 	    sortFamiliesMI.setEnabled(false);	    
 	    menuFamilies.add(sortFamiliesMI);
-	    
-	    agentMI = new JMenuItem("Manage Agents");
-	    agentMI.setEnabled(false);	    
-	    menuFamilies.add(agentMI);
 	    
 	    menuFamilies.addSeparator();
 	    	    
@@ -181,9 +152,28 @@ public class ONCMenuBar extends JMenuBar
 	    delChildMI.setEnabled(false);
 	    menuFamilies.add(delChildMI);
 	    
-	    corrPhoneMI = new JMenuItem("Correct Family Phone Data");
-	    corrPhoneMI.setEnabled(false);
-	    menuFamilies.add(corrPhoneMI);
+	    menuFamilies.addSeparator();
+	    
+	    //Build Family Data Checks Sub menu Structure
+	    submenuFamilyDataChecks = new JMenu("Data Checks");
+	    
+	    findDupFamsMI = new JMenuItem("Duplicate Family Check");
+	    findDupFamsMI.setEnabled(false);
+	    submenuFamilyDataChecks.add(findDupFamsMI);
+	    
+	    findDupChldrnMI = new JMenuItem("Duplicate Children Check");
+	    findDupChldrnMI.setEnabled(false);
+	    submenuFamilyDataChecks.add(findDupChldrnMI);
+	    
+	    menuFamilies.add(submenuFamilyDataChecks);
+	    
+	    menuFamilies.addSeparator();
+	    
+	    viewDBMI = new JMenuItem("View All Family Data");
+	    viewDBMI.setEnabled(false);
+	    menuFamilies.add(viewDBMI);
+	    
+	    this.add(menuFamilies);
 	    
 	    //Build Wishes Menu Structure
 	    menuWishes = new JMenu("Wishes");
@@ -203,18 +193,21 @@ public class ONCMenuBar extends JMenuBar
 	    recGiftsMI.setEnabled(false);
 	    menuWishes.add(recGiftsMI);
 	    
-	    menuWishes.addSeparator();
+	    //Build Gift Partners Menu
+	    menuGiftPartners = new JMenu("Gift Partners");
 	    
 	    orgMI = new JMenuItem("Edit Gift Partners");
 	    orgMI.setEnabled(false);
-	    menuWishes.add(orgMI);
+	    menuGiftPartners.add(orgMI);
 	    
 	    sortOrgsMI = new JMenuItem("Manage Gift Partners");
 	    sortOrgsMI.setEnabled(false);
-	    menuWishes.add(sortOrgsMI);
-	   
+	    menuGiftPartners.add(sortOrgsMI);
+	    
+	    this.add(menuGiftPartners);
+	    
 	    //Build Delivery Menu
-	    menuDelivery = new JMenu("Delivery");
+	    menuDelivery = new JMenu("Deliveries");
 	    menuDelivery.setEnabled(true);
 	    this.add(menuDelivery);
 	    
@@ -240,46 +233,6 @@ public class ONCMenuBar extends JMenuBar
 	    distMI = new JMenuItem("Delivery Distribution");	
 	    distMI.setEnabled(false);
 	    menuDelivery.add(distMI);
-	    
-	    //Build Data Checks Menu Structure
-	    menuDataChecks = new JMenu("Data Checks");
-	    this.add(menuDataChecks);
-	    
-	    findDupFamsMI = new JMenuItem("Duplicate Family Check");
-	    findDupFamsMI.setEnabled(false);
-	    menuDataChecks.add(findDupFamsMI);
-	    
-	    findDupChldrnMI = new JMenuItem("Duplicate Children Check");
-	    findDupChldrnMI.setEnabled(false);
-	    menuDataChecks.add(findDupChldrnMI);
-	    
-	    menuDataChecks.addSeparator();
-	           
-	    submenuCompareRecords = new JMenu("Compare Family Record Count:");
-	    submenuCompareRecords.setEnabled(false);
-	    
-	    compODBtoONCfamMI = new JMenuItem("Against ODB File");
-//	    compODBtoONCfamMI.setEnabled(false);
-	    submenuCompareRecords.add(compODBtoONCfamMI);
-	    
-	    compWFCMtoONCfamMI = new JMenuItem("Against WFCM File");
-//	    compWFCMtoONCfamMI.setEnabled(false);
-	    submenuCompareRecords.add(compWFCMtoONCfamMI);
-	    
-	    menuDataChecks.add(submenuCompareRecords);
-	    
-	    submenuCompareData = new JMenu("Compare Family Data:");
-	    submenuCompareData.setEnabled(false);
-	    
-	    compODBtoONCdataMI = new JMenuItem("Against ODB file");
-//	    compODBtoONCdataMI.setEnabled(false);
-	    submenuCompareData.add(compODBtoONCdataMI);
-	    
-	    compWFCMtoONCdataMI = new JMenuItem("Against WFCM file");
-//	    compWFCMtoONCdataMI.setEnabled(false);
-	    submenuCompareData.add(compWFCMtoONCdataMI);
-	    
-	    menuDataChecks.add(submenuCompareData);
 	    	    
 	    //Build About Menu
 	    menuSettings = new JMenu("Tools/Settings");
@@ -354,6 +307,7 @@ public class ONCMenuBar extends JMenuBar
 		newChildMI.setEnabled(tf);
 		importCallResultMI.setEnabled(tf);
 		oncAddUserMI.setEnabled(tf);
+//		corrPhoneMI.setEnabled(tf);		Disabled after corrections made 11-26-14
 	}
 	
 	void setEnabledWishCatalogAndOrgMenuItems(boolean tf)
@@ -372,8 +326,6 @@ public class ONCMenuBar extends JMenuBar
     	submenuImport.setEnabled(true);
     	
     	stopPollingMI.setVisible(true);
-    	
-    	corrPhoneMI.setEnabled(tf);
     }
 	
 	void setEnabledServerConnected(boolean tf)
@@ -385,6 +337,6 @@ public class ONCMenuBar extends JMenuBar
 	void setEnabledNewMenuItem(boolean tf) { newMI.setEnabled(tf); }
 	void setEnabledPriorYearSpecialImport(boolean tf) { importPYMI.setEnabled(tf); }
 	void setEnabledImportMenuItems(boolean tf) { submenuImport.setEnabled(tf); }
-	void setEnabledDeleteChildMenuItem(boolean tf) { delChildMI.setEnabled(tf); }
-	void setEnabledAgentMenuItem(boolean tf) { agentMI.setEnabled(tf); }	
+	static void setEnabledDeleteChildMenuItem(boolean tf) { delChildMI.setEnabled(tf); }
+	void setEnabledAgentMenuItem(boolean tf) { agentMI.setEnabled(tf); }
 }

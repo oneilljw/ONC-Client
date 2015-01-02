@@ -9,10 +9,12 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
+
 import au.com.bytecode.opencsv.CSVReader;
 
 public class RAFamilyImporter extends ONCSortTableDialog
@@ -20,7 +22,7 @@ public class RAFamilyImporter extends ONCSortTableDialog
 	/*************************************************************************************************
 	 * This class imports families from locally stored .csv files that contain ONC Family Referral 
 	 * work sheets. Even though it is not a dialog, this class subclasses ONCSortTableDialog to 
-	 * implement the ability to registered listeners that a family has been imported. This importer
+	 * implement the ability to notify registered listeners that a family has been imported. This importer
 	 * interfaces with the user to loop thru a process of selecting a .csv file that contains an 
 	 * ONC Family Referral work sheet, assigning a batch number (for the first family imported, all 
 	 * others imported in the loop reuse the batch number), and then open the file, read  the family
@@ -77,7 +79,7 @@ public class RAFamilyImporter extends ONCSortTableDialog
 			
 			String filename = "";
 			File pyfile = null;
-			returnVal = chooser.showOpenDialog(gvs.getFrame());
+			returnVal = chooser.showOpenDialog(GlobalVariables.getFrame());
 			List<String[]> inputRows = new ArrayList<String[]>();
 	    
 			if(returnVal == JFileChooser.APPROVE_OPTION)	//will exit if user doesn't select a file
@@ -124,7 +126,7 @@ public class RAFamilyImporter extends ONCSortTableDialog
 								ONCFamily addedFam;
 								if((addedFam = processRAFInput(inputRows)) != null)
 								{
-									fireDataChanged(this, "FAMILY_SELECTED", addedFam, null);
+									fireEntitySelected(this, "FAMILY_SELECTED", addedFam, null);
 									result = addedFam.getHOHLastName() + " family imported";
 									mssgType = JOptionPane.INFORMATION_MESSAGE;
 								}
@@ -160,7 +162,7 @@ public class RAFamilyImporter extends ONCSortTableDialog
 				
 				//show a import result dialog for each attempted family import
 				String title = mssgType == JOptionPane.ERROR_MESSAGE ? "Family Import Error" : "Family Import Result";
-				JOptionPane.showMessageDialog(gvs.getFrame(), result, title, mssgType, gvs.getImageIcon(0));
+				JOptionPane.showMessageDialog(GlobalVariables.getFrame(), result, title, mssgType, gvs.getImageIcon(0));
 			}
 		}
 		//loop until user wants to quit importing, which is indicated thru a confirm dialog,
@@ -297,92 +299,7 @@ public class RAFamilyImporter extends ONCSortTableDialog
 	    		
 	    		index++;
 	    	}
-		}
-
-/**********************
-		//Diagnostic println statements
-    	System.out.println(String.format("ODB #: %s", oncODBNum));
-    	System.out.println(String.format("Batch Number: %s", batchNum));
-    	System.out.println(String.format("RA First Name: %s", inputRows.get(2)[2]));
-    	System.out.println(String.format("RA Last Name: %s", inputRows.get(2)[3]));
-    	System.out.println(String.format("RA E-mail: %s", inputRows.get(2)[4]));
-    	System.out.println(String.format("RA Phone #: %s", processPhoneNumber(inputRows.get(2)[5])));
-    	System.out.println(String.format("RA Title: %s", inputRows.get(2)[6]));
-    	System.out.println(String.format("RA Organization: %s", inputRows.get(2)[7]));
-   
-    	System.out.println(String.format("HOH First Name: %s", inputRows.get(7)[2]));
-    	System.out.println(String.format("HOH Last Name: %s", inputRows.get(7)[3]));
-    	System.out.println(String.format("E-mail: %s", inputRows.get(7)[4]));
-    	System.out.println(String.format("Home Phone #: %s", processPhoneNumber(inputRows.get(7)[5])));
-    	System.out.println(String.format("Other Phone: %s", processPhoneNumber(inputRows.get(7)[6])));
-    	
-    	System.out.println(String.format("House #: %s", addParts[0]));
-    	System.out.println(String.format("Street: %s", addParts[1]));
-    	System.out.println(String.format("Unit: %s", ""));
-    	System.out.println(String.format("City: %s", inputRows.get(7)[8]));
-    	System.out.println(String.format("Zip Code: %s", inputRows.get(7)[10]));
-    	
-    	//this code handles determining the language for the family
-    	if(inputRows.get(9)[4].contains("Yes") || inputRows.get(9)[4].contains("yes"))
-    	{
-    		System.out.println(String.format("Speak English: %s", "Yes"));
-        	System.out.println(String.format("If No, Language They Speak: %s", "English"));
-    	}
-    	else
-    	{
-    		String famLanguage = "Other";
-    		String[] languages = {"?", "English", "Spanish", "Arabic", "Korean", "Vietnamese", "Other"};
-    		String lang = inputRows.get(10)[4].toLowerCase();
-    		index = 0;
-    		while(index < languages.length)
-    		{
-    			if(lang.contains(languages[index].toLowerCase()))
-    			{
-    				famLanguage = languages[index];
-    				break;
-    			}
-    		
-    			index++;	
-    		}
-    		
-    		System.out.println(String.format("Speak English: %s", "No"));
-        	System.out.println(String.format("If No, Language They Speak: %s", famLanguage));
-    	}
-    	
-    	System.out.println(String.format("Details: %s", inputRows.get(13)[4].trim()));
-    	
-    	
-    	//add the children
-    	index = findChildTableStartingRow(inputRows);
-    	while(index < inputRows.size())
-    	{
-    		if(!inputRows.get(index)[2].isEmpty())
-    		{
-    			String cfn = inputRows.get(index)[2].trim();
-    			String cln = inputRows.get(index)[3].trim();
-    			System.out.println(String.format("Child %d First Name: %s", index+1, cfn));
-    			System.out.println(String.format("Child %d Last Name: %s", index+1, cln));
-    			
-    			//Determine child gender
-    			String cGender = "Boy";
-    			String inGender = inputRows.get(index)[4];
-    			if(inGender.contains("F") || inGender.contains("f"))
-    				cGender = "Girl";
-    			
-    			System.out.println(String.format("Child %d Gender: %s", index+1, cGender));
-    			System.out.println(String.format("Child %d DoB: %s", index+1, inputRows.get(index)[5]));
-    			System.out.println(String.format("Child %d School: %s", index+1, inputRows.get(index)[6]));
-    			
-    			if(index > 0)
-    				odbWishList.append("\n");
-    			odbWishList.append(String.format("%s %s: %s", cfn, cln, inputRows.get(index)[7]));
-    		}
-    		
-    		index++;
-    	}
-    	
-    	System.out.println("ODB Wish List: " + odbWishList.toString());
-******************///End Diagnostics    	
+		} 	
     	
     	return addedFam;
     }
@@ -429,7 +346,7 @@ public class RAFamilyImporter extends ONCSortTableDialog
 	 ***************************************************************************************************/
     int continueToImportFamilies()
     {
-    	return JOptionPane.showConfirmDialog(gvs.getFrame(), "Do you wish to import another family?",
+    	return JOptionPane.showConfirmDialog(GlobalVariables.getFrame(), "Do you wish to import another family?",
     			"More Families to Import?", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, gvs.getImageIcon(0));	
     }
     
@@ -453,8 +370,8 @@ public class RAFamilyImporter extends ONCSortTableDialog
     		catch (ParseException e)
     		{
     			String errMssg = "Couldn't determine DOB from input: " + dob;
-    			 JOptionPane.showMessageDialog(gvs.getFrame(), errMssg, "DoB Error", JOptionPane.ERROR_MESSAGE,
-												gvs.getImageIcon(0));
+    			 JOptionPane.showMessageDialog(GlobalVariables.getFrame(), errMssg, "DoB Error", 
+    					 						JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
 			}
     	}
     	else if(dob.contains("/"))	//format two
@@ -467,8 +384,8 @@ public class RAFamilyImporter extends ONCSortTableDialog
     		catch (ParseException e)
     		{
     			String errMssg = "Couldn't determine DOB from input: " + dob;
-   			 	JOptionPane.showMessageDialog(gvs.getFrame(), errMssg, "DoB Error", JOptionPane.ERROR_MESSAGE,
-												gvs.getImageIcon(0));
+   			 	JOptionPane.showMessageDialog(GlobalVariables.getFrame(), errMssg, "DoB Error",
+   			 									JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
 			}
     	}
     	

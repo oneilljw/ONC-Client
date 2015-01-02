@@ -59,19 +59,11 @@ public class ONCUser extends ONCEntity
 	public int getPermission() {
 		return permission;
 	}
-	
-//	public boolean isUserOnline() {
-//		return bOnline;
-//	}
 
 	public void setPermission(int permission) {
 		this.permission = permission;
 	}
-	
-//	public void setUserOnline(boolean tf) {
-//		 bOnline = tf;
-//	}
-	
+
 	public String getLNFI()
 	{
 		if(firstname.isEmpty())
@@ -86,5 +78,10 @@ public class ONCUser extends ONCEntity
 	public String[] getDBExportRow() {
 		// TODO Auto-generated method stub
 		return null;
-	}	
+	}
+	@Override
+	public String toString()
+	{
+		return firstname + " " + lastname;	
+	}
 }

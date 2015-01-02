@@ -22,6 +22,14 @@ public class WishDetail extends ONCObject implements Serializable
 		this.zChoices = choices;			
 	}
 	
+	//constructor used when making a copy of a WishDetail
+	public WishDetail(WishDetail wd)
+	{
+		super(wd.id);
+		this.name = wd.name;
+		this.zChoices = wd.zChoices;			
+	}
+	
 	//Constructor used when wish detail objects are imported from .csv file
 	public WishDetail(String[] wishdetail)	
 	{

@@ -9,6 +9,7 @@ import java.io.ObjectOutputStream;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Calendar;
+
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -344,5 +345,19 @@ public class DeliveryDB extends ONCDatabase
 		else
 			System.out.println(String.format("DeliveryDB processUpdatedObject - delivery id %d not found",
 					updatedObj.getID()));
+	}
+
+	/**************************************************************************************************
+	 * Return the number of deliveries made by a specifc driver. The driver number is passes and
+	 * the count is returned.
+	 */
+	public int getNumberOfDeliveries(String drvNum) 
+	{
+		int nDeliveries = 0;
+		for(ONCDelivery del: dAL)
+			if(del.getdDelBy().equals(drvNum))
+				nDeliveries++;
+		
+		return nDeliveries;
 	}
 }

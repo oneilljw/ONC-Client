@@ -10,6 +10,7 @@ public class ONCDriver extends ONCEntity
 	 */
 	private static final long serialVersionUID = -5277718159822649083L;
 	
+	private String drvNum;
 	private String fName;
 	private String lName;
 	private String hNum;
@@ -24,12 +25,13 @@ public class ONCDriver extends ONCEntity
 	private String car;
 	private int delAssigned; 
 	
-	public ONCDriver(int driverid, String fName, String lName, String email, String hNum, 
+	public ONCDriver(int driverid, String drvNum, String fName, String lName, String email, String hNum, 
 						String street, String unit, String city, String zipcode, 
 						String homePhone, String cellPhone, String drLicense,
 						String car, Date today, String changedBy)
 	{
 		super(driverid, new Date(), changedBy, STOPLIGHT_OFF, "Driver created", changedBy);
+		this.drvNum = drvNum;
 		this.fName = fName;
 		this.lName = lName;
 		this.hNum = hNum;
@@ -48,6 +50,8 @@ public class ONCDriver extends ONCEntity
 	public ONCDriver(String[] nextLine, int driverid, Date today, String changedBy)
 	{
 		super(driverid, new Date(), changedBy, STOPLIGHT_OFF, "Driver created", changedBy);
+		
+		drvNum = "N/A";
 		
 		if(nextLine[6].isEmpty())
 			fName = "No First Name";
@@ -73,7 +77,7 @@ public class ONCDriver extends ONCEntity
 		
 		this.unit = "";
 		this.city = nextLine[13];
-		this.zipcode = nextLine[14];
+		this.zipcode = nextLine[15];
 		if(nextLine[18].contains("Home"))
 		{
 			this.homePhone = nextLine[17];
@@ -103,27 +107,29 @@ public class ONCDriver extends ONCEntity
 	
 	public ONCDriver(String[] nextLine)
 	{
-		super(Integer.parseInt(nextLine[0]), Long.parseLong(nextLine[14]), nextLine[17],
-				Integer.parseInt(nextLine[15]), nextLine[16], nextLine[17]);
-		fName = getDBString(nextLine[1]);
-		lName = getDBString(nextLine[2]);
-		hNum = getDBString(nextLine[3]);
-		street = getDBString(nextLine[4]);
-		unit = getDBString(nextLine[5]);
-		city = getDBString(nextLine[6]);;
-		zipcode = getDBString(nextLine[7]);
-		email = getDBString(nextLine[8]);
-		homePhone = getDBString(nextLine[9]);
-		cellPhone = getDBString(nextLine[10]);
-		drLicense = getDBString(nextLine[11]);
-		car = getDBString(nextLine[12]);
-		delAssigned = Integer.parseInt(nextLine[13]); 
+		super(Integer.parseInt(nextLine[0]), Long.parseLong(nextLine[15]), nextLine[18],
+				Integer.parseInt(nextLine[16]), nextLine[17], nextLine[18]);
+		drvNum = getDBString(nextLine[1]);
+		fName = getDBString(nextLine[2]);
+		lName = getDBString(nextLine[3]);
+		hNum = getDBString(nextLine[4]);
+		street = getDBString(nextLine[5]);
+		unit = getDBString(nextLine[6]);
+		city = getDBString(nextLine[7]);;
+		zipcode = getDBString(nextLine[8]);
+		email = getDBString(nextLine[9]);
+		homePhone = getDBString(nextLine[10]);
+		cellPhone = getDBString(nextLine[11]);
+		drLicense = getDBString(nextLine[12]);
+		car = getDBString(nextLine[13]);
+		delAssigned = Integer.parseInt(nextLine[14]); 
 	}
 	
 	public ONCDriver(ONCDriver d)	//copy constructor
 	{
 		super(d.getID(), d.getDateChanged(), d.getChangedBy(), d.getStoplightPos(),
 				d.getStoplightMssg(), d.getStoplightChangedBy());
+		drvNum = d.drvNum;
 		fName = d.fName;
 		lName = d.lName;
 		hNum = d.hNum;
@@ -145,6 +151,7 @@ public class ONCDriver extends ONCEntity
 	}
 
 	//getters
+	public String getDrvNum() { return drvNum; }
 	public String getfName() { return fName; }
 	public String getlName() { return lName; }
 	public String gethNum() { return hNum; }
@@ -160,6 +167,7 @@ public class ONCDriver extends ONCEntity
 	public int getDelAssigned() { return delAssigned; }
 	
 	//setters
+	public void setDrvNum(String drvNum) { this.drvNum = drvNum; }
 	public void setfName(String fName) { this.fName = fName; }
 	public void setlName(String lName) { this.lName = lName; }
 	public void sethNum(String hNum) {this.hNum = hNum; }
@@ -177,7 +185,7 @@ public class ONCDriver extends ONCEntity
 	@Override
 	public String[] getDBExportRow()
 	{
-		String[] row = {Integer.toString(id), fName, lName, hNum, street, unit, city, zipcode,
+		String[] row = {Integer.toString(id), drvNum, fName, lName, hNum, street, unit, city, zipcode,
 						email, homePhone, cellPhone, drLicense, car, Integer.toString(delAssigned),
 						Long.toString(dateChanged.getTimeInMillis()), Integer.toString(slPos),
 						slMssg, slChangedBy};

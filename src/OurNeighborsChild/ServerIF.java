@@ -16,6 +16,7 @@ import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+
 import javax.swing.JOptionPane;
 import javax.swing.Timer;
 
@@ -151,7 +152,7 @@ public class ServerIF
 	    			"<br>Server errors detected: %d", request, nServerErrorsDetected); 			   		
 	    	
 	    	ONCPopupMessage clientIDPU = new ONCPopupMessage(gvs.getImageIcon(0));
-			clientIDPU.setLocationRelativeTo(gvs.getFrame());
+			clientIDPU.setLocationRelativeTo(GlobalVariables.getFrame());
 			clientIDPU.show("ONC Server I/F Exception", mssg);
 	    	
 			e1.printStackTrace();
@@ -177,16 +178,17 @@ public class ServerIF
 	    									elapsedTime/1000);
 	    	
 	    	ONCPopupMessage clientIDPU = new ONCPopupMessage(gvs.getImageIcon(0));
-			clientIDPU.setLocationRelativeTo(gvs.getFrame());
+			clientIDPU.setLocationRelativeTo(GlobalVariables.getFrame());
 			clientIDPU.show("ONC Server I/F Notification", mssg);
 		}
+		
     	if(response == null)
 		{
 			GlobalVariables gvs = GlobalVariables.getInstance();
 	    	String mssg = "Server did not respond,<br>netwok connection may be lost"; 			   		
 	    	
 	    	ONCPopupMessage clientIDPU = new ONCPopupMessage(gvs.getImageIcon(0));
-			clientIDPU.setLocationRelativeTo(gvs.getFrame());
+			clientIDPU.setLocationRelativeTo(GlobalVariables.getFrame());
 			clientIDPU.show("ONC Server I/F Exception", mssg);
 			
 	    	response ="ERROR_SERVER_DID_NOT_RESPOND";
@@ -209,7 +211,7 @@ public class ServerIF
     	String mssg = "<html>Server I/F: Connection with ONC Server lost<br>" +
     				"all changes have been saved</html>";
         		
-    	JOptionPane.showMessageDialog(gvs.getFrame(), mssg, "ONC Server Connecton Error", 
+    	JOptionPane.showMessageDialog(GlobalVariables.getFrame(), mssg, "ONC Server Connecton Error", 
     									JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
     	
     	//need to write server log to disk prior to exit
@@ -384,18 +386,18 @@ public class ServerIF
 				}
 				else if(response.equals("NO_CHANGES"))
 				{
-					timer.setDelay(NORMAL_POLLING_RATE);
+					timer.setInitialDelay(NORMAL_POLLING_RATE);
 				}
 				else
 				{
 					processChange(response);
-					timer.setDelay(ACTIVE_POLLING_RATE);
+					timer.setInitialDelay(ACTIVE_POLLING_RATE);
 				}
         	
 				if(System.currentTimeMillis() > timeLastLogWritten + SERVER_LOG_TIME_INTERVAL)
 					writeServerLogFile();
-        	
-				timer.restart();
+				
+				timer.start();
 			}
         }
     }

@@ -8,6 +8,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.print.PrinterException;
 import java.text.MessageFormat;
+
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -203,7 +204,7 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 				else
 				{
 					String err_mssg = "ONC Server denied add catalog wish request, try again later";
-					JOptionPane.showMessageDialog(wcGVs.getFrame(), err_mssg, "Add Catalog Wish Request Failure",
+					JOptionPane.showMessageDialog(this, err_mssg, "Add Catalog Wish Request Failure",
 												JOptionPane.ERROR_MESSAGE, wcGVs.getImageIcon(0));
 				}
 			}
@@ -243,7 +244,7 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 			else
 			{
 				String err_mssg = "ONC Server denied add catalog wish request, try again later";
-				JOptionPane.showMessageDialog(wcGVs.getFrame(), err_mssg, "Add Catalog Wish Request Failure",
+				JOptionPane.showMessageDialog(this, err_mssg, "Add Catalog Wish Request Failure",
 											JOptionPane.ERROR_MESSAGE, wcGVs.getImageIcon(0));
 			}
 		}
@@ -284,7 +285,7 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 				else
 				{
 					String err_mssg = "ONC Server denied delete catalog wish request, try again later";
-					JOptionPane.showMessageDialog(wcGVs.getFrame(), err_mssg, "Delete Catalog Wish Request Failure",
+					JOptionPane.showMessageDialog(this, err_mssg, "Delete Catalog Wish Request Failure",
 											JOptionPane.ERROR_MESSAGE, wcGVs.getImageIcon(0));
 				}
 			}
@@ -424,7 +425,7 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
         			//request failed
         			GlobalVariables gvs = GlobalVariables.getInstance();
 					String err_mssg = "ONC Server denied update catalog wish  request, try again later";
-					JOptionPane.showMessageDialog(gvs.getFrame(), err_mssg, "Update Catalog Request Failure",
+					JOptionPane.showMessageDialog(GlobalVariables.getFrame(), err_mssg, "Update Catalog Request Failure",
 													JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
         		}
         	}                      
@@ -440,12 +441,14 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 			WishBaseOrOrgChange wbc = (WishBaseOrOrgChange) dbe.getObject();
 			
 			//get row deleted from catalog and update
-			int row = cat.findWishRow(wbc.getOldItem());
-			wcTableModel.fireTableCellUpdated(row, WISH_COUNT_COLUMN);
+			int row = cat.findWishRow(wbc.getOldObject().getID());
+			if(row > -1)
+				wcTableModel.fireTableCellUpdated(row, WISH_COUNT_COLUMN);
 			
 			//get row incremented from catalog and update
-			row = cat.findWishRow(wbc.getNewItem());
-			wcTableModel.fireTableCellUpdated(row, WISH_COUNT_COLUMN);
+			row = cat.findWishRow(wbc.getNewObject().getID());
+			if(row > -1)
+				wcTableModel.fireTableCellUpdated(row, WISH_COUNT_COLUMN);
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("ADDED_CATALOG_WISH"))
 		{
@@ -458,20 +461,20 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 		{
 			//determine which row the updated wish is in
 			ONCWish updatedWish = (ONCWish) dbe.getObject();
-			int tablerow = cat.findWishRow(updatedWish.getName());
+			int tablerow = cat.findWishRow(updatedWish.getID());
 			
 			wcTableModel.fireTableRowsUpdated(tablerow, tablerow);
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("DELETED_CATALOG_WISH"))
 		{
-			System.out.println(String.format("WishCatDlg - dataChanged: Source: %s, Type %s, Object: %s",
-					dbe.getSource().toString(), dbe.getType(), dbe.getObject().toString()));
+//			System.out.println(String.format("WishCatDlg - dataChanged: Source: %s, Type %s, Object: %s",
+//					dbe.getSource().toString(), dbe.getType(), dbe.getObject().toString()));
 			//determine which row the updated wish is in
-			ONCWish deletedWish = (ONCWish) dbe.getObject();
-			System.out.println(String.format("WishCatDlg - dataChanged: Wish ID: %d, Name: %s",
-					deletedWish.getID(), deletedWish.getName()));
-			int tablerow = cat.findWishRow(deletedWish.getName());
-			System.out.println(String.format("WishCatDlg - dataChanged: tablerow: %d", tablerow));
+//			ONCWish deletedWish = (ONCWish) dbe.getObject();
+//			System.out.println(String.format("WishCatDlg - dataChanged: Wish ID: %d, Name: %s",
+//					deletedWish.getID(), deletedWish.getName()));
+//			int tablerow = cat.findWishRow(deletedWish.getID());
+//			System.out.println(String.format("WishCatDlg - dataChanged: tablerow: %d", tablerow));
 			
 //			wcTableModel.fireTableRowsDeleted(tablerow, tablerow);
 			wcTableModel.fireTableDataChanged();

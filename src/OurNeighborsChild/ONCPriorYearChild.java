@@ -63,9 +63,9 @@ public class ONCPriorYearChild extends ONCObject implements Serializable
 	}
 	
 	//Constructor used when retaining a prior year child for a new year
-	public ONCPriorYearChild(ONCPriorYearChild pyc)
+	public ONCPriorYearChild(int id, ONCPriorYearChild pyc)
 	{
-		super(pyc.getID());
+		super(id);
 //		childFirstName = c.getChildFirstName();
 		childLastName = pyc.childLastName;
 		childGender = pyc.childGender;

@@ -5,7 +5,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
-public class ChangeONCNumberDialog extends InfoDialog implements DatabaseListener, TableSelectionListener 
+public class ChangeONCNumberDialog extends InfoDialog implements DatabaseListener, EntitySelectionListener 
 {
 	/**
 	 * This dialog allows the user to change a family's ONC Number.
@@ -83,7 +83,7 @@ public class ChangeONCNumberDialog extends InfoDialog implements DatabaseListene
 			Object[] options= {"Cancel", "Change ONC #"};
 			JOptionPane confirmOP = new JOptionPane(confirmMssg, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION,
 														gvs.getImageIcon(0), options, "Cancel");
-			JDialog confirmDlg = confirmOP.createDialog(gvs.getFrame(), "*** Confirm ONC Number Change ***");
+			JDialog confirmDlg = confirmOP.createDialog(this, "*** Confirm ONC Number Change ***");
 			confirmDlg.setLocationRelativeTo(this);
 			this.setAlwaysOnTop(false);
 			confirmDlg.setVisible(true);
@@ -104,7 +104,7 @@ public class ChangeONCNumberDialog extends InfoDialog implements DatabaseListene
 					if(!response.startsWith("UPDATED_FAMILY"))
 					{
 						//display an error message that update request failed
-						JOptionPane.showMessageDialog(gvs.getFrame(), "ONC Server denied ONC Number change," +
+						JOptionPane.showMessageDialog(this, "ONC Server denied ONC Number change," +
 														"try again later","ONC Number Change Failed",  
 														JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
 					}
@@ -126,7 +126,7 @@ public class ChangeONCNumberDialog extends InfoDialog implements DatabaseListene
 	}
 	
 	@Override
-	public void tableRowSelected(ONCTableSelectionEvent tse) 
+	public void entitySelected(EntitySelectionEvent tse) 
 	{
 		if(tse.getType().equals("FAMILY_SELECTED"))
 		{

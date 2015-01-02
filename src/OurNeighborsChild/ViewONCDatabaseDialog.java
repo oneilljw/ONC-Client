@@ -35,8 +35,7 @@ public class ViewONCDatabaseDialog extends JDialog
 		super(parentFrame);
 		this.setTitle("ONC Database");
 		
-		rb = new ONCFamilyReportRowBuilder(ChildDB.getInstance(), ChildWishDB.getInstance(), 
-				ONCAgents.getInstance());
+		rb = new ONCFamilyReportRowBuilder();
 	
 		dbTable = new JTable()
 		{

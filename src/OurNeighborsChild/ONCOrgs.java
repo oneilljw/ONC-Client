@@ -7,22 +7,21 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.Type;
-import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
-
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
 
-public class ONCOrgs extends ONCDatabase
+public class ONCOrgs extends ONCSearchableDatabase
 {
 	/**
 	 * This method provides an interface to the organizations managed by the ONC application.
@@ -31,16 +30,17 @@ public class ONCOrgs extends ONCDatabase
 	 * a user to import an external .csv formatted file of organizations. Read and write 
 	 * object methods provide for persistent storage of the organization array list. 
 	 */
+	private static final String DB_TYPE = "PARTNER";
 	private static final int ORGANIZATION_DB_HEADER_LENGTH = 27;
 	private static final int STATUS_NO_ACTION_YET = 0;
 	private static final int STATUS_CONFIRMED = 5;
 	private static final int ORG_TYPE_CLOTHING = 4;
-	private static final int ORG_TYPE_COAT = 5;
+//	private static final int ORG_TYPE_COAT = 5;
 	private static final int MAX_ORGANIZATION_ID_LENGTH = 10;
 	
 	private static ONCOrgs instance = null;
 	private ArrayList<Organization> orgsAL;	//The list of Organizations
-	private ArrayList<String> cOrgs;	//The list of confirmed Organizations
+//	private ArrayList<String> cOrgs;	//The list of confirmed Organizations
 	private GlobalVariables orgGVs;
 	
 	private ONCOrgs()
@@ -48,7 +48,7 @@ public class ONCOrgs extends ONCDatabase
 		super();
 		//Instantiate the organization and confirmed organization lists
 		orgsAL = new ArrayList<Organization>();
-		cOrgs = new ArrayList<String>();
+//		cOrgs = new ArrayList<String>();
 		orgGVs = GlobalVariables.getInstance();
 	}
 	
@@ -71,8 +71,8 @@ public class ONCOrgs extends ONCDatabase
 			for(Organization o: orgDB)
 			{
 				orgsAL.add(o);
-				if(o.getStatus() == STATUS_CONFIRMED)			
-					cOrgs.add(o.getName());
+//				if(o.getStatus() == STATUS_CONFIRMED)			
+//					cOrgs.add(o.getName());
 			}
 			
 			orgDB.clear();
@@ -120,7 +120,7 @@ public class ONCOrgs extends ONCDatabase
 			o.setStatus(STATUS_CONFIRMED);
 			o.setDateChanged(orgGVs.getTodaysDate());
 			o.setStoplightChangedBy(orgGVs.getUserLNFI());
-			addConfirmedOrganization(o.getName());
+//			addConfirmedOrganization(o.getName());
 		}
 		else if(o.getStatus() == STATUS_CONFIRMED && newstatus != STATUS_CONFIRMED)
 		{
@@ -132,7 +132,7 @@ public class ONCOrgs extends ONCDatabase
 				o.setStatus(newstatus);
 				o.setDateChanged(orgGVs.getTodaysDate());
 				o.setStoplightChangedBy(orgGVs.getUserLNFI());
-				deleteConfirmedOrganization(o.getName());
+//				deleteConfirmedOrganization(o.getName());
 			}		
 		}
 		else	//Status change does not involve to/from confirmed status
@@ -148,32 +148,50 @@ public class ONCOrgs extends ONCDatabase
 	void clear()
 	{
 		orgsAL.clear();
-		cOrgs.clear();
+//		cOrgs.clear();
 	}
 	
-	ArrayList<Organization> getList() {return orgsAL; }
+	//implementation of abstract classes
+	List<Organization> getList() {return orgsAL; }
 	
 	Organization getObjectAtIndex(int on) { return orgsAL.get(on); }
 	
+	Organization getOrganizationByID(int id )
+	{
+		int index = 0;
+		while(index < orgsAL.size() && orgsAL.get(index).getID() != id)
+			index++;
+		
+		if(index < orgsAL.size())
+			return orgsAL.get(index);
+		else
+			return null;
+	}
+	
+	String getDBType() { return DB_TYPE; }
+	
 	int size() { return orgsAL.size(); }
 	
-	void searchForListItem(ArrayList<Integer> searchAL, String data)
+	String searchForListItem(ArrayList<Integer> searchAL, String data)
 	{
+		String searchType = "";
 		searchAL.clear();
 		
     	int sn; 	//-1 indicates family number not found
     	
     	if(isNumeric(data) && data.length() < MAX_ORGANIZATION_ID_LENGTH)
     	{
+    		searchType = "Partner ID";
     		if(data.matches("-?\\d+(\\.\\d+)?"))	//Check for numeric string
     		{
-    			if((sn = getListIndexByID(Integer.parseInt(data))) > -1)
+    			if((sn = getListIndexByID(orgsAL, Integer.parseInt(data))) > -1)
     				searchAL.add(getObjectAtIndex(sn).getID());
     		}	
     	}
     	else	//Check for partner name, email matches, 1st or 2nd contact matches
     	{
 //			for(int i=0; i<this.getNumberOfOrganizations(); i++)
+    		searchType = "Partner Name, Email or Contacts";
 			for(Organization o:orgsAL)
 			{
 				if(o.getName().toLowerCase().contains(data.toLowerCase()) ||
@@ -188,6 +206,8 @@ public class ONCOrgs extends ONCDatabase
 				}
 			}
     	}
+    	
+    	return searchType;
 	}
 	
 	/***************************************************************************************
@@ -218,17 +238,52 @@ public class ONCOrgs extends ONCDatabase
 	 * @param orgname. The method receives the organization name to be added as a string
 	 * passed in the method call. 
 	 **********************************************************************************/
-	void addConfirmedOrganization(String orgname)
+//	void addConfirmedOrganization(String orgname)
+//	{
+//		cOrgs.add(orgname);
+//		structureConfirmedOrgsList();	//Sort by org type and alphabetically
+//	}
+	
+//	void deleteConfirmedOrganization(String orgname) { cOrgs.remove(orgname); }
+	
+//	int getNumberOfConfirmedOrganizations() { return cOrgs.size(); }
+	
+//	ArrayList<String> getConfirmedOrgs() { return cOrgs; }
+	
+	/*****************************************************************************************
+	 * Creates a list of confirmed organizations, broken into two parts. The top half of the
+	 * list are confirmed businesses, churches and schools, sorted alphabetically. The bottom
+	 * half of the list are all other confirmed organizations sorted alphabetically
+	 * @return
+	 *****************************************************************************************/
+	List<Organization> getConfirmedOrgList()
 	{
-		cOrgs.add(orgname);
-		structureConfirmedOrgsList();	//Sort by org type and alphabetically
+		//Create two lists, the list to be returned and a temporary list
+		ArrayList<Organization> confOrgList = new ArrayList<Organization>();
+		ArrayList<Organization> confOrgOtherList = new ArrayList<Organization>();
+		
+		//Add the confirmed business, church and schools to the returned list and add all other 
+		//confirmed organizations to the temporary list
+		for(Organization o: orgsAL)
+		{
+			if(o.getStatus() == STATUS_CONFIRMED && o.getType() < ORG_TYPE_CLOTHING)
+				confOrgList.add(o);
+			else if(o.getStatus() == STATUS_CONFIRMED)
+				confOrgOtherList.add(o);		
+		}
+		
+		//Sort the two lists alphabetically by organization name
+		OrgNameComparator nameComparator = new OrgNameComparator();
+		Collections.sort(confOrgList, nameComparator);	//Sort alphabetically
+		Collections.sort(confOrgOtherList, nameComparator);	//Sort alphabetically
+		
+		//Append the all other temporary confirmed list to the bottom of the confirmed list
+		for(Organization otherOrg:confOrgOtherList)
+			confOrgList.add(otherOrg);
+		
+		//return the integrated list
+		return confOrgList;
 	}
-	
-	void deleteConfirmedOrganization(String orgname) { cOrgs.remove(orgname); }
-	
-	int getNumberOfConfirmedOrganizations() { return cOrgs.size(); }
-	
-	ArrayList<String> getConfirmedOrgs() { return cOrgs; }
 	
 	/******************************************************************************************
 	 * This method returns an list of the names of confirmed organizations. The top part of the
@@ -238,6 +293,7 @@ public class ONCOrgs extends ONCDatabase
 	 * name to make it easy to find alphabetically
 	 * @return
 	 *****************************************************************************************/
+/*	
 	void structureConfirmedOrgsList()
 	{
 		ArrayList<String> cOrgsGifts = new ArrayList<String>();
@@ -287,7 +343,7 @@ public class ONCOrgs extends ONCDatabase
 			return orgName;
 	}
 
-	String getConfirmedOrganizationName(long orgID)
+	String getConfirmedOrganizationName(int orgID)
 	{
 		String name = "None";
 		if(orgID > 0) 	//Org has been assigned 
@@ -304,7 +360,7 @@ public class ONCOrgs extends ONCDatabase
 		
 		return name;
 	}
-	
+*/	
 	/***************************************************************************************************************
 	 * This method takes the selected index from a COrgs combo box and returns the ID of the selected organization.
 	 * The method compares the name of the selected organization to the name of the organizations in the data base.
@@ -312,6 +368,7 @@ public class ONCOrgs extends ONCDatabase
 	 * @param selnum
 	 * @return
 	 *************************************************************************************************************/
+/*	
 	int getConfirmedOrganizationID(int selnum)
 	{
 		int id = 0;
@@ -328,8 +385,10 @@ public class ONCOrgs extends ONCDatabase
 		}
 		return id;
 	}
-	
-	int getListIndexByID(int orgID)	//returns position in array list or -1 if not found
+*/	
+/*	
+	@Override
+	Integer getListIndexByID(Integer orgID)	//returns position in array list or -1 if not found
 	{
 		int index = 0;
 		
@@ -359,7 +418,7 @@ public class ONCOrgs extends ONCDatabase
 		
 		return cbIndex;	//Org isn't in the org array list or the org isn't confirmed currently
 	}
-	
+*/	
 //	int incrementConfirmedOrgOrnAssigned(int orgID)
 //	{
 //		//find org by id
@@ -423,7 +482,7 @@ public class ONCOrgs extends ONCDatabase
 	{
 		for(Organization o:orgsAL)
 			o.setStatus(STATUS_NO_ACTION_YET);
-		cOrgs.clear();	
+//		cOrgs.clear();	
 	}
 	
 	//Overloaded sortDB methods allow user to specify a data base to be sorted
@@ -475,11 +534,11 @@ public class ONCOrgs extends ONCDatabase
 			response = serverIF.sendRequest("GET<partners>");
 			orgsAL = gson.fromJson(response, listtype);	
 				
-			for(Organization o:orgsAL)
-				if(o.getStatus() == STATUS_CONFIRMED)
-					cOrgs.add(o.getName());				
-				
-			structureConfirmedOrgsList();	//Sort by org type and alphabetically
+//			for(Organization o:orgsAL)
+//				if(o.getStatus() == STATUS_CONFIRMED)
+//					cOrgs.add(o.getName());				
+//				
+//			structureConfirmedOrgsList();	//Sort by org type and alphabetically
 			
 			if(!response.startsWith("NO_PARTNERS"))
 				response = "PARTNERS_LOADED";		
@@ -528,11 +587,11 @@ public class ONCOrgs extends ONCDatabase
 	    					Organization newOrg = new Organization(nextLine);
 	    					orgsAL.add(newOrg);
 	    				
-	    					if(newOrg.getStatus() == STATUS_CONFIRMED)
-	    						cOrgs.add(orgsAL.get(orgsAL.size()-1).getName());	
+//	    					if(newOrg.getStatus() == STATUS_CONFIRMED)
+//	    						cOrgs.add(orgsAL.get(orgsAL.size()-1).getName());	
 	    				}
 	    				
-	    				structureConfirmedOrgsList();	//Sort by org type and alphabetically
+//	    				structureConfirmedOrgsList();	//Sort by org type and alphabetically
 	    			}
 	    			else
 	    				JOptionPane.showMessageDialog(pf, "Organization DB file corrupted, header length = " + Integer.toString(header.length), 
@@ -555,11 +614,10 @@ public class ONCOrgs extends ONCDatabase
 	String exportDBToCSV(String filename)
     {
 		File oncwritefile = null;
-		GlobalVariables gvs = GlobalVariables.getInstance();
 		
     	if(filename == null)
     	{
-    		ONCFileChooser fc = new ONCFileChooser(gvs.getFrame());
+    		ONCFileChooser fc = new ONCFileChooser(GlobalVariables.getFrame());
     		oncwritefile= fc.getFile("Select .csv file to save Org DB to",
 										new FileNameExtensionFilter("CSV Files", "csv"), 1);
     	}
@@ -596,7 +654,7 @@ public class ONCOrgs extends ONCDatabase
 	    	catch (IOException x)
 	    	{
 	    		System.err.format("IO Exception: %s%n", x);
-	    		JOptionPane.showMessageDialog(gvs.getFrame(), oncwritefile.getName() + " could not be saved", 
+	    		JOptionPane.showMessageDialog(GlobalVariables.getFrame(), oncwritefile.getName() + " could not be saved", 
 						"ONC File Save Error", JOptionPane.ERROR_MESSAGE);
 	    	}
 	    }
@@ -659,7 +717,7 @@ public class ONCOrgs extends ONCDatabase
 		//Organization list
 		if(addedOrg.getStatus() == STATUS_CONFIRMED)
 		{
-			addConfirmedOrganization(addedOrg.getName());
+//			addConfirmedOrganization(addedOrg.getName());
 			
 			//Notify ui's that a confirmed organization is added
 			fireDataChanged(source, "ADDED_CONFIRMED_PARTNER", addedOrg);
@@ -701,7 +759,7 @@ public class ONCOrgs extends ONCDatabase
 		//organization list
 		if(deletedOrg.getStatus() == STATUS_CONFIRMED)
 		{
-			deleteConfirmedOrganization(deletedOrg.getName());
+//			deleteConfirmedOrganization(deletedOrg.getName());
 			
 			//Notify ui's that a confirmed organization is added
 			fireDataChanged(source, "DELETED_CONFIRMED_PARTNER", deletedOrg);
@@ -726,8 +784,24 @@ public class ONCOrgs extends ONCDatabase
 			//Notify local user IFs that a change occurred
 			fireDataChanged(source, "UPDATED_PARTNER", updatedOrg);
 			
-			//Also if type changed or status changed to or from confirmed, rebuild confirmed list
-			//and notify ui's that handle gift assignment
+			//If status has changed to or from confirmed or if the organization is still confirmed
+			//and the type has changed, update the wish assignee lists by
+			//firing an UPDATED_CONFIRMED_PARTNER message
+			if(updatedOrg.getStatus() == STATUS_CONFIRMED && replacedOrg.getStatus() != STATUS_CONFIRMED ||
+			    updatedOrg.getStatus() != STATUS_CONFIRMED && replacedOrg.getStatus() == STATUS_CONFIRMED ||
+			     updatedOrg.getStatus() == STATUS_CONFIRMED && updatedOrg.getType() != replacedOrg.getType())
+			{
+				fireDataChanged(source, "UPDATED_CONFIRMED_PARTNER", updatedOrg);
+			}
+			
+			//If status is still confirmed and the name has changed by firing an 
+			//UPDATED_CONFIRMED_PARTNER_NAME message
+			if(updatedOrg.getStatus() == STATUS_CONFIRMED && !updatedOrg.getName().equals(replacedOrg.getName()))
+			{
+				fireDataChanged(source, "UPDATED_CONFIRMED_PARTNER_NAME", updatedOrg);
+			}
+			
+/*			
 			if(replacedOrg.getStatus() == STATUS_CONFIRMED && updatedOrg.getStatus() != STATUS_CONFIRMED)
 			{
 				deleteConfirmedOrganization(updatedOrg.getName());
@@ -747,6 +821,7 @@ public class ONCOrgs extends ONCDatabase
 				structureConfirmedOrgsList();
 				fireDataChanged(source, "UPDATED_CONFIRMED_PARTNER", updatedOrg);
 			}
+*/			
 		}
 	}
 	
@@ -755,12 +830,11 @@ public class ONCOrgs extends ONCDatabase
 	{
 		Gson gson = new Gson();
 		String response = "";
-		response = serverIF.sendRequest("POST<update_partner>" + 
-											gson.toJson(entity, Organization.class));
+		response = serverIF.sendRequest("POST<update_partner>" + gson.toJson(entity, Organization.class));
 		
-		if(response.startsWith("UPDATED_PARTNER"))
+		if(response != null && response.startsWith("UPDATED_PARTNER"))
 		{
-			processUpdatedPartner(this, response.substring(15));
+			processUpdatedPartner(source, response.substring(15));
 		}
 		
 		return response;

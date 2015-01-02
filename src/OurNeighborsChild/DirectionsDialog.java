@@ -29,6 +29,7 @@ import javax.swing.UIManager;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
+
 import org.json.JSONException;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -174,14 +175,24 @@ public class DirectionsDialog extends JDialog implements ActionListener, Databas
 		//UpdateDialog Title
 		this.setTitle("Driving directions for ONC family #" + f.getONCNum());
 		
-		//Update the header displayed in the top panel
-		lblHeader.setText("ONC Family #"+ f.getONCNum() +" address: " + f.getHouseNum().trim() + " " + 
+		//Update the header displayed in the top panel. Determine if using alternate delivery address
+		if(f.getSubstituteDeliveryAddress()!= null && !f.getSubstituteDeliveryAddress().isEmpty() &&
+			f.getSubstituteDeliveryAddress().split("_").length == 5)
+		{
+			String[] addPart = f.getSubstituteDeliveryAddress().split("_");
+//			String unit = addPart[2].equals("None") ? "" : addPart[2];
+			lblHeader.setText("ONC Family #"+ f.getONCNum() +" address: " + addPart[0]+ " " + 
+					addPart[1] + " " + addPart[3] + ", VA " + addPart[4]);	
+		}
+		else	//no alternate delivery address
+			lblHeader.setText("ONC Family #"+ f.getONCNum() +" address: " + f.getHouseNum().trim() + " " + 
 								f.getStreet().trim() + " " + f.getCity().trim() + ", VA " + f.getUnitNum());
 						
 		//Get family address and format it for the URL request to Google Maps
-		String dbdestAddress = f.getHouseNum().trim() + "+" + f.getStreet().trim() + 
-								"+" + f.getCity().trim() + ",VA";		
-		destAddress = dbdestAddress.replaceAll(" ", "+");
+//		String dbdestAddress = f.getHouseNum().trim() + "+" + f.getStreet().trim() + 
+//								"+" + f.getCity().trim() + ",VA";
+//		dbdestAddress.replaceAll(" ", "+");
+		destAddress = f.getGoogleMapAddress();
 		
 		//Get direction JSON
 		JSONObject dirJSONObject = ddir.getGoogleDirections(ddGVs.getWarehouseAddress(), destAddress);

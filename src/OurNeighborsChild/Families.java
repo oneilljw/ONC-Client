@@ -9,17 +9,20 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
 
-public class Families extends ONCDatabase
+public class Families extends ONCSearchableDatabase
 {
 	/**
 	 * This class implements a data base that holds families managed by Our
@@ -31,6 +34,7 @@ public class Families extends ONCDatabase
 	 * In addition, it provides support for managing families such as
 	 * generation of ONC Numbers.
 	 */
+	private static final String DB_TYPE = "FAMILY";
 	private static final int ONC_OPEN_FILE = 0;
 	
 	private static final Integer MAXIMUM_ONC_NUMBER = 9999;
@@ -74,6 +78,7 @@ public class Families extends ONCDatabase
 	}
 	
 	ONCFamily getObjectAtIndex(int index) { return oncFamAL.get(index); }
+	String getDBType() { return DB_TYPE; }
 	int size() { return oncFamAL.size(); }
 	void clear() { oncFamAL.clear(); }
 	ArrayList<ONCFamily> getList() { return oncFamAL; }
@@ -234,12 +239,12 @@ public class Families extends ONCDatabase
 		
 		//response will determine if agent already existed or a new agent was added
 		if(response != null && response.startsWith("ADDED_FAMILY"))
-			return processAddedObject(response.substring(12));
+			return processAddedObject(source, response.substring(12));
 		else
 			return null;
 	}
 	
-	ONCObject processAddedObject(String json)
+	ONCObject processAddedObject(Object source, String json)
 	{
 		ONCFamily addedFamily = null;
 		
@@ -254,7 +259,7 @@ public class Families extends ONCDatabase
 			if(oncFamAL.size() > 1)	//Sort if we have more than one family
 				sortDB("ONC");
 			
-			fireDataChanged(this, "ADDED_FAMILY", addedFamily);
+			fireDataChanged(source, "ADDED_FAMILY", addedFamily);
 		}
 		
 		return addedFamily;
@@ -579,7 +584,7 @@ public class Families extends ONCDatabase
 			searchForONCNumber(s, rAL);
 			searchtype = "ONC Number";
 		}
-		else if(s.matches("-?\\d+(\\.\\d+)?") && s.length() < 7)
+		else if((s.startsWith("ONC") || s.matches("-?\\d+(\\.\\d+)?")) && s.length() < 7)
 		{
 			searchForODBNumber(s, rAL);
 			searchtype = "ODB Number";
@@ -925,8 +930,22 @@ public class Families extends ONCDatabase
 		String[] ycData = new String[15];
 		ycData[0] = f.getONCNum();
 		ycData[1] = f.getHOHFirstName() + " " + f.getHOHLastName();
-		ycData[2] =	f.getHouseNum() + " " + f.getStreet() + " " + f.getUnitNum() ;
-		ycData[3] = f.getCity() + ", VA " + f.getZipCode();
+		
+		//determine whether using alternate delivery address
+		if(f.getSubstituteDeliveryAddress()!= null && !f.getSubstituteDeliveryAddress().isEmpty() &&
+				f.getSubstituteDeliveryAddress().split("_").length == 5)
+		{
+			String[] addPart = f.getSubstituteDeliveryAddress().split("_");
+			String unit = addPart[2].equals("None") ? "" : addPart[2];
+			ycData[2] = addPart[0] + " " + addPart[1] + " " + unit;
+			ycData[3] = addPart[3] + ", VA " + addPart[4];
+		}
+		else	//no alternate delivery address
+		{
+			ycData[2] =	f.getHouseNum() + " " + f.getStreet() + " " + f.getUnitNum() ;
+			ycData[3] = f.getCity() + ", VA " + f.getZipCode();
+		}
+		
 		ycData[4] = "?";
 			
 		//Format the first two phone numbers in Home and Other phone strings
@@ -978,24 +997,25 @@ public class Families extends ONCDatabase
 	int getNumberOfBikesSelectedForFamily(ONCFamily f)
 	{
 		int nBikes = 0;
+		ONCWishCatalog cat = ONCWishCatalog.getInstance();
 		
 		for(ONCChild c: childDB.getChildren(f.getID()))	
 			for(int wn=0; wn<NUMBER_OF_WISHES_PER_CHILD; wn++)
 			{
-				int wishID = c.getChildWishID(wn);
-				if(wishID > -1 && childwishDB.getWish(wishID).getChildWishBase().equals("Bike"))
+				int childwishID = c.getChildWishID(wn);
+				if(childwishID > -1 && childwishDB.getWish(childwishID).getWishID() == cat.getWishID("Bike"))
 					nBikes++;
 			}
 			
 		return nBikes;
 	}
 	
-	ArrayList<int[]> getWishBaseSelectedCounts(ArrayList<String> wishnames)
+	ArrayList<int[]> getWishBaseSelectedCounts(ArrayList<Integer> wishIDs)
 	{
 		ArrayList<int[]> wishcountAL = new ArrayList<int[]>();
 	
 		//Initialize the array list
-		for(int i=0; i<wishnames.size(); i++)
+		for(int i=0; i<wishIDs.size(); i++)
 		{
 			int[] counts = new int[NUMBER_OF_WISHES_PER_CHILD];
 			counts[0] = 0;
@@ -1020,17 +1040,14 @@ public class Families extends ONCDatabase
 						//cw is null if child doesn't have this wish yet
 						if(cw != null && cw.getChildWishStatus() > CHILD_WISH_STATUS_EMPTY)
 						{
-							//what wish are we looking for to count
-							String wishname = cw.getChildWishBase();
-							
 							//Find wish in array list and increment the count
 							int index = 0;
-							while(index < wishcountAL.size() && !wishname.equals(wishnames.get(index)))
+							while(index < wishcountAL.size() && cw.getWishID() != wishIDs.get(index))
 								index++;
 						
 							if(index == wishcountAL.size())
 								System.out.println(String.format("Error: Creating Wish Catalog counts: " +
-									"child wish not found, family %s, wish %s", f.getONCNum(), wishname));
+									"child wish not found, family %s, wish %d", f.getONCNum(), cw.getWishID()));
 							else
 								wishcountAL.get(index)[wn]++;
 						}
@@ -1046,24 +1063,6 @@ public class Families extends ONCDatabase
     {
       return str.matches("-?\\d+(\\.\\d+)?");  //match a number with optional '-' and decimal.
     }
-	
-	void correctPhoneNumbers()
-	{
-		for(ONCFamily currFamily:oncFamAL)
-		{
-			//make a copy of the family object
-			ONCFamily reqFamUpdate = new ONCFamily(currFamily);
-			
-			//parse family phone data provided by odb
-			reqFamUpdate.parsePhoneData(reqFamUpdate.getAllPhoneNumbers());
-			
-			System.out.println(String.format("FamilyDB_correctPhoneNumbers: ONC #%s Home Phone: %s, Other Phone: %s", 
-					reqFamUpdate.getONCNum(), reqFamUpdate.getHomePhone(), reqFamUpdate.getOtherPhon()));
-			
-			//Update the family on the server
-//			update(this, reqFamUpdate);
-		}
-	}
 	
 	//Overloaded sortDB methods allow user to specify a data base to be sorted
 	//or use the current data base
@@ -1132,7 +1131,7 @@ public class Families extends ONCDatabase
 	
 	String importFamilyDB(JFrame pf, ImageIcon oncIcon)	//Only used by superuser to import from .csv file
 	{
-		ONCFamilyReportRowBuilder rb = new ONCFamilyReportRowBuilder(childDB, childwishDB, oncAgentDB);
+		ONCFamilyReportRowBuilder rb = new ONCFamilyReportRowBuilder();
     		
     	JFileChooser chooser = new JFileChooser();
     	chooser.setDialogTitle("Select Family DB .csv file to import");	
@@ -1180,7 +1179,7 @@ public class Families extends ONCDatabase
 	
 	String exportDBToCSV(JFrame pf)
     {
-		ONCFamilyReportRowBuilder rb = new ONCFamilyReportRowBuilder(childDB, childwishDB, oncAgentDB);
+		ONCFamilyReportRowBuilder rb = new ONCFamilyReportRowBuilder();
     	
     	ONCFileChooser fc = new ONCFileChooser(pf);
     	File oncwritefile= fc.getFile("Select .csv file to save Family DB to",
@@ -1223,7 +1222,7 @@ public class Families extends ONCDatabase
 		}
 		else if(ue.getType().equals("ADDED_FAMILY"))
 		{
-			processAddedObject(ue.getJson());
+			processAddedObject(this, ue.getJson());
 		}			
 	}
 	
@@ -1380,8 +1379,39 @@ public class Families extends ONCDatabase
 		@Override
 		public int compare(ONCFamily o1, ONCFamily o2)
 		{
-			return driverDB.getDriverLNFI(deliveryDB.getDeliveredBy(o1.getDeliveryID())).compareTo
-					(driverDB.getDriverLNFI(deliveryDB.getDeliveredBy(o2.getDeliveryID())));
+			return driverDB.getDriverLNFN(deliveryDB.getDeliveredBy(o1.getDeliveryID())).compareTo
+					(driverDB.getDriverLNFN(deliveryDB.getDeliveredBy(o2.getDeliveryID())));
 		}
+	}
+
+	@Override
+	String searchForListItem(ArrayList<Integer> searchAL, String data)
+	{
+		String searchtype;
+		searchAL.clear();
+		
+		//Determine the type of search based on characteristics of search string
+		if(data.matches("-?\\d+(\\.\\d+)?") && data.length() < 5)
+		{
+			searchForONCNumber(data, searchAL);
+			searchtype = "ONC Number";
+		}
+		else if((data.startsWith("ONC") || data.matches("-?\\d+(\\.\\d+)?")) && data.length() < 7)
+		{
+			searchForODBNumber(data, searchAL);
+			searchtype = "ODB Number";
+		}
+		else if(data.matches("-?\\d+(\\.\\d+)?") && data.length() < 13)
+		{
+			searchForPhoneNumber(data, searchAL);
+			searchtype = "Phone Number";
+		}
+		else
+		{
+			searchForLastName(data, searchAL);
+			searchtype = "Last Name";
+		}
+		
+		return searchtype;
 	}
 }

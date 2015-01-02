@@ -3,26 +3,18 @@ package OurNeighborsChild;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
 import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.Date;
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.border.BevelBorder;
-
 import com.google.gson.Gson;
 
-public class DriverDialog extends JDialog implements ActionListener, DatabaseListener, TableSelectionListener
+public class DriverDialog extends EntityDialog
 {
 	/**
 	 * Implements a dialog to manage ONC Delivery Drivers
@@ -30,28 +22,22 @@ public class DriverDialog extends JDialog implements ActionListener, DatabaseLis
 	private static final long serialVersionUID = 1L;
 	private static final String NO_DRIVER_MSSG = "No Partners";
 	
-	private static DriverDB ddb;
+	//database references
+	private DriverDB ddb;
 	private DeliveryDB deliveryDB;
-	private JPanel orgpanel;
-	private static JLabel lblMssg;
-	private JLabel lblDriverID, lblFamDel;
-	private GlobalVariables ddGVs;
-   
-    private JTextField searchTF, firstnameTF,lastnameTF;
+	
+	//ui components
+	private JLabel lblFamDel;
+    private JTextField drvNumTF, firstnameTF,lastnameTF;
     private JTextField streetnumTF, streetnameTF, unitTF, cityTF, zipTF, hPhoneTF, cPhoneTF;
     private JTextField emailTF;
-    private JButton btnNext, btnPrevious, btnNew, btnCancel, btnDelete;
-    private JButton btnSave;
-    private Stoplight sl;
-    private Color pBkColor; //Used to restore background for panels 1-3, btnShowPriorHistory when changed
     
-    private int dn;	//Index for organization array list
-    private boolean bAddingNewObject;
+    private ONCDriver currDriver;	//reference to the current ONCDriver object being displayed
     
 	public DriverDialog(JFrame pf)
 	{
 		super(pf);
-		this.setTitle("Our Neighbor's Child - Delivery Partner Management");
+		this.setTitle("Our Neighbor's Child - Driver Management");
 		
 		//Initialize object variables
 		ddb = DriverDB.getInstance();	//Reference to the driver data base
@@ -59,195 +45,122 @@ public class DriverDialog extends JDialog implements ActionListener, DatabaseLis
 			ddb.addDatabaseListener(this);
 		
 		deliveryDB = DeliveryDB.getInstance();
-		ddGVs = GlobalVariables.getInstance();	//Reference to the one global variable object
-		dn = 0;	//Set the index for the driver array list
-		
-		//Create a content panel for the dialog and add panel components to it.
-        JPanel odContentPane = new JPanel();
-        odContentPane.setLayout(new BoxLayout(odContentPane, BoxLayout.PAGE_AXIS));
+		currDriver = null;
         
-		//Top panel
-		JPanel toppanel = new JPanel();
-		toppanel.setBorder(new BevelBorder(BevelBorder.LOWERED));
-    	JPanel tp1 = new JPanel(new FlowLayout(FlowLayout.LEFT));
-    	JPanel tp2 = new JPanel(new GridLayout(2,2));
-    	JPanel tp3 = new JPanel(new GridLayout(2,0));
-    	JPanel tp4 = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-    	
-    	JLabel lblONCicon = new JLabel(ddGVs.getImageIcon(0));
-    	tp1.add(lblONCicon);
-    	   	
-    	btnNext = new JButton("Next Driver", ddGVs.getImageIcon(2));
-    	btnNext.setHorizontalTextPosition(JButton.LEFT);
-    	btnNext.setToolTipText("Click to see next ONC Delivery Partner");
-        btnNext.setEnabled(false);
-        btnNext.addActionListener(this);
-               
-        btnPrevious = new JButton("Prev. Driver", ddGVs.getImageIcon(3));
-        btnPrevious.setHorizontalTextPosition(JButton.RIGHT);
-        btnPrevious.setToolTipText("Click to see previous ONC Delivery Partner");
-        btnPrevious.setEnabled(false);
-        btnPrevious.addActionListener(this);
-       
-        tp2.add(new JLabel());
-        tp2.add(new JLabel());
-        tp2.add(btnPrevious);
-        tp2.add(btnNext);
-        
-        JPanel searchsubpanel = new JPanel();
-    	JLabel lblSearch = new JLabel("Search For:");
-    	
-    	searchTF = new JTextField(10);
-    	searchTF.setToolTipText("Type ID # or Last Name, then press <Enter> to search");
-    	searchTF.addActionListener(this);
-    	searchsubpanel.add(lblSearch);
-    	searchsubpanel.add(searchTF);
-    	tp3.add(searchsubpanel);
-    	
-    	JPanel mssgsubpanel = new JPanel();
-    	mssgsubpanel.setLayout(new GridBagLayout());
-    	lblMssg = new JLabel("ONC's Delivery Partners");
-    	mssgsubpanel.add(lblMssg);
-    	tp3.add(mssgsubpanel);
+        //set up the navigation panel at the top of dialog
+        nav = new ONCNavPanel(pf, ddb);
+        nav.setDefaultMssg("Our Neighbor's Child Drivers");
+        nav.setCount1("Attempted: " + Integer.toString(0));
+        nav.setCount2("Delivered: " + Integer.toString(0));
+        nav.setNextButtonText("Next Driver");
+        nav.setPreviousButtonText("Previous Driver");
+//      nav.addNavigationListener(this);
+        nav.addEntitySelectionListener(this);
 
-    	sl = new Stoplight(pf, ddb);
-    	tp4.add(sl);
-   	
-    	toppanel.setLayout(new BoxLayout(toppanel, BoxLayout.X_AXIS));
-    	toppanel.add(tp1);
-        toppanel.add(tp2);
-        toppanel.add(tp3);
-        toppanel.add(tp4);
-        
-        //Set up organization panel
-        orgpanel = new JPanel();
-        orgpanel.setLayout(new BoxLayout(orgpanel, BoxLayout.Y_AXIS));
-        pBkColor = orgpanel.getBackground();
-        orgpanel.setBorder(BorderFactory.createTitledBorder("Delivery Partner Information"));
+        //Set up driver panel
+        entityPanel.setBorder(BorderFactory.createTitledBorder("Delivery Partner Information"));
         JPanel op1 = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JPanel op2 = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JPanel op3 = new JPanel(new FlowLayout(FlowLayout.LEFT));
         
-        lblDriverID = new JLabel(NO_DRIVER_MSSG);
-        lblDriverID.setPreferredSize(new Dimension (80, 48));
-        lblDriverID.setBorder(BorderFactory.createTitledBorder("Partner ID"));
-        lblDriverID.setHorizontalAlignment(JLabel.RIGHT);
-        
-        
-        DataChangeListener dcl = new DataChangeListener();
+        drvNumTF = new JTextField(NO_DRIVER_MSSG);
+        drvNumTF.setPreferredSize(new Dimension (72, 48));
+        drvNumTF.setBorder(BorderFactory.createTitledBorder("Driver #"));
+        drvNumTF.setHorizontalAlignment(JLabel.RIGHT);
+        drvNumTF.addActionListener(dcListener);
         
         firstnameTF = new JTextField(12);
         firstnameTF.setBorder(BorderFactory.createTitledBorder("First Name"));
-        firstnameTF.addActionListener(dcl);
+        firstnameTF.addActionListener(dcListener);
         
         lastnameTF = new JTextField(12);
         lastnameTF.setBorder(BorderFactory.createTitledBorder("Last Name"));
-        lastnameTF.addActionListener(dcl);
+        lastnameTF.addActionListener(dcListener);
         
         lblFamDel = new JLabel("0", JLabel.RIGHT);
-        lblFamDel.setPreferredSize(new Dimension (96, 48));
-        lblFamDel.setToolTipText("Delieries Made");
-        lblFamDel.setBorder(BorderFactory.createTitledBorder("# Deliveries"));
+        lblFamDel.setPreferredSize(new Dimension (52, 48));
+        lblFamDel.setToolTipText("# Deliveries Partner Made");
+        lblFamDel.setBorder(BorderFactory.createTitledBorder("# Del"));
+        
+        hPhoneTF = new JTextField(9);
+        hPhoneTF.setToolTipText("Delivery partner home phone #");
+        hPhoneTF.setBorder(BorderFactory.createTitledBorder("Home Phone #"));
+        hPhoneTF.addActionListener(dcListener);
+        
+        cPhoneTF = new JTextField(9);
+        cPhoneTF.setToolTipText("Delivery partner cell phone #");
+        cPhoneTF.setBorder(BorderFactory.createTitledBorder(" Cell Phone #"));
+        cPhoneTF.addActionListener(dcListener);
                 
-        op1.add(lblDriverID);
+        op1.add(drvNumTF);
         op1.add(firstnameTF);
         op1.add(lastnameTF);
+        op1.add(hPhoneTF);
+        op1.add(cPhoneTF);
         op1.add(lblFamDel);
                                            
-        emailTF = new JTextField(20);
+        emailTF = new JTextField(18);
         emailTF.setToolTipText("Delivery partner email address");
         emailTF.setBorder(BorderFactory.createTitledBorder("Email Address"));
         emailTF.setHorizontalAlignment(JTextField.LEFT);
-        emailTF.addActionListener(dcl);
-        
-        hPhoneTF = new JTextField(10);
-        hPhoneTF.setToolTipText("Delivery partner home phone #");
-        hPhoneTF.setBorder(BorderFactory.createTitledBorder("Home Phone #"));
-        hPhoneTF.addActionListener(dcl);
-        
-        cPhoneTF = new JTextField(10);
-        cPhoneTF.setToolTipText("Delivery partner cell phone #");
-        cPhoneTF.setBorder(BorderFactory.createTitledBorder(" Cell Phone #"));
-        cPhoneTF.addActionListener(dcl);
-        
-        op2.add(emailTF);
-        op2.add(hPhoneTF);
-        op2.add(cPhoneTF); 
-              
+        emailTF.addActionListener(dcListener);
+ 
         streetnumTF = new JTextField(4);
         streetnumTF.setToolTipText("Address of delivery partner");
         streetnumTF.setBorder(BorderFactory.createTitledBorder("St. #"));
-        streetnumTF.addActionListener(dcl);
+        streetnumTF.addActionListener(dcListener);
         
-        streetnameTF = new JTextField(14);
+        streetnameTF = new JTextField(13);
         streetnameTF.setToolTipText("Address of delivery partner");
         streetnameTF.setBorder(BorderFactory.createTitledBorder("Street"));
-        streetnameTF.addActionListener(dcl);
+        streetnameTF.addActionListener(dcListener);
             
-        unitTF = new JTextField(7);
+        unitTF = new JTextField(5);
         unitTF.setToolTipText("Address of delivery partner");
         unitTF.setBorder(BorderFactory.createTitledBorder("Unit #"));
-        unitTF.addActionListener(dcl);
+        unitTF.addActionListener(dcListener);
         
         cityTF = new JTextField(7);
         cityTF.setToolTipText("Address of delivery partner");
         cityTF.setBorder(BorderFactory.createTitledBorder("City"));
-        cityTF.addActionListener(dcl);
+        cityTF.addActionListener(dcListener);
         
         zipTF = new JTextField(4);
         zipTF.setToolTipText("Address of deliverer");
         zipTF.setBorder(BorderFactory.createTitledBorder("Zip"));
-        zipTF.addActionListener(dcl);
+        zipTF.addActionListener(dcListener);
               
-        op3.add(streetnumTF);
-        op3.add(streetnameTF);
-        op3.add(unitTF);
-        op3.add(cityTF);
-        op3.add(zipTF);
+        op2.add(streetnumTF);
+        op2.add(streetnameTF);
+        op2.add(unitTF);
+        op2.add(cityTF);
+        op2.add(zipTF);
+        op2.add(emailTF);
                       
-        orgpanel.add(op1);
-        orgpanel.add(op2);
-        orgpanel.add(op3);
+        entityPanel.add(op1);
+        entityPanel.add(op2);
         
         //Set up control panel
-        JPanel cntlpanel = new JPanel();
+        btnNew.setText("Add New Driver");
+    	btnNew.setToolTipText("Click to add a new driverr");
+     
+        btnDelete.setText("Delete Driver");
+    	btnDelete.setToolTipText("Click to delete this driver");
+    	
         
-        btnNew = new JButton("Add New Delivery Partner");
-    	btnNew.setToolTipText("Click to add a new delivery partner");
-        btnNew.setEnabled(true);
-        btnNew.addActionListener(this);
+        btnSave.setText("Save NewDriver");
+    	btnSave.setToolTipText("Click to save the new driver");
         
-        btnDelete = new JButton("Delete Delivey Partner");
-    	btnDelete.setToolTipText("Click to delete this delivery partner");
-    	btnDelete.setEnabled(false);
-    	btnDelete.setVisible(true);
-        btnDelete.addActionListener(this);
-        
-        btnSave = new JButton("Save New Delivery Partner");
-    	btnSave.setToolTipText("Click to save the new delivery partner");
-    	btnSave.setVisible(false);
-        btnSave.addActionListener(this);
-        
-        btnCancel = new JButton("Cancel Add New Delivery Partner");
-    	btnCancel.setToolTipText("Click to cancel adding a new delivery partner");
-    	btnCancel.setVisible(false);
-        btnCancel.addActionListener(this);
-        
-        cntlpanel.add(btnNew);
-        cntlpanel.add(btnDelete);
-        cntlpanel.add(btnSave);
-        cntlpanel.add(btnCancel);
+        btnCancel.setText("Cancel Add New Driver");
+    	btnCancel.setToolTipText("Click to cancel adding a new drivonconer");
 
-        odContentPane.add(toppanel);
-        odContentPane.add(orgpanel);
-        odContentPane.add(cntlpanel);
+    	//add the panels to the content pane
+        contentPane.add(nav);
+        contentPane.add(entityPanel);
+        contentPane.add(cntlPanel);
         
-        this.setContentPane(odContentPane);
-        
-        btnNext.requestFocus();
-        
+        //add the content pane to the dialog and arrange
+        this.setContentPane(contentPane);
         pack();
- //     setSize(780, 220);
         setResizable(true);
         Point pt = pf.getLocation();
         setLocation(pt.x + 20, pt.y + 20);
@@ -256,101 +169,106 @@ public class DriverDialog extends JDialog implements ActionListener, DatabaseLis
 	void update()
 	{
 		//Check to see if user has changed any field, if so, save it	
-		ONCDriver d = new ONCDriver(ddb.getDriver(dn));	//make a copy of current driver
+		ONCDriver updateDriver = new ONCDriver(currDriver);	//make a copy of current driver
 		boolean bCD = false; //used to indicate a change has been detected
 		
-		if(!firstnameTF.getText().equals(d.getfName()))
+		if(!drvNumTF.getText().equals(updateDriver.getDrvNum()))
 		{
-//			System.out.println(String.format("DriverDialog updateDriver, firstname change detected: %s", d.getfName()));
-			d.setfName(firstnameTF.getText());
-//			System.out.println(String.format("DriverDialog updateDriver, firstname changed: %s", d.getfName()));
+			updateDriver.setDrvNum(drvNumTF.getText());
 			bCD = true;
 		}
-		if(!lastnameTF.getText().equals(d.getlName())) { d.setlName(lastnameTF.getText()); bCD = true; }
-		if(!hPhoneTF.getText().equals(d.getHomePhone())) { d.setHomePhone(hPhoneTF.getText()); bCD = true; }
-		if(!cPhoneTF.getText().equals(d.getCellPhone())) { d.setCellPhone(cPhoneTF.getText()); bCD = true; }
-		if(!emailTF.getText().equals(d.getEmail())) { d.setEmail(emailTF.getText()); bCD = true; }
-		if(!streetnumTF.getText().equals(d.gethNum())) { d.sethNum(streetnumTF.getText()); bCD = true; }
-		if(!streetnameTF.getText().equals(d.getStreet())) { d.setStreet(streetnameTF.getText()); bCD = true; }		
-		if(!unitTF.getText().equals(d.getUnit())) { d.setUnit(unitTF.getText()); bCD = true; }
-		if(!cityTF.getText().equals(d.getCity())) { d.setCity(cityTF.getText()); bCD = true; }
-		if(!zipTF.getText().equals(d.getZipcode())) { d.setZipcode(zipTF.getText()); bCD = true; }
+		if(!firstnameTF.getText().equals(updateDriver.getfName()))
+		{
+			updateDriver.setfName(firstnameTF.getText());
+			bCD = true;
+		}
+		if(!lastnameTF.getText().equals(updateDriver.getlName())) { updateDriver.setlName(lastnameTF.getText()); bCD = true; }
+		if(!hPhoneTF.getText().equals(updateDriver.getHomePhone())) { updateDriver.setHomePhone(hPhoneTF.getText()); bCD = true; }
+		if(!cPhoneTF.getText().equals(updateDriver.getCellPhone())) { updateDriver.setCellPhone(cPhoneTF.getText()); bCD = true; }
+		if(!emailTF.getText().equals(updateDriver.getEmail())) { updateDriver.setEmail(emailTF.getText()); bCD = true; }
+		if(!streetnumTF.getText().equals(updateDriver.gethNum())) { updateDriver.sethNum(streetnumTF.getText()); bCD = true; }
+		if(!streetnameTF.getText().equals(updateDriver.getStreet())) { updateDriver.setStreet(streetnameTF.getText()); bCD = true; }		
+		if(!unitTF.getText().equals(updateDriver.getUnit())) { updateDriver.setUnit(unitTF.getText()); bCD = true; }
+		if(!cityTF.getText().equals(updateDriver.getCity())) { updateDriver.setCity(cityTF.getText()); bCD = true; }
+		if(!zipTF.getText().equals(updateDriver.getZipcode())) { updateDriver.setZipcode(zipTF.getText()); bCD = true; }
 		
 		if(bCD)	//If an update to organization data (not stop light data) was detected
 		{
-			d.setDateChanged(ddGVs.getTodaysDate());
+			updateDriver.setDateChanged(gvs.getTodaysDate());
 			
 			//request an update from the server
-			String response = ddb.update(this, d);
+			String response = ddb.update(this, updateDriver);
 			
 			if(response.startsWith("UPDATED_DRIVER"))
 			{
-				displayDriver();
+				display(updateDriver);
 			}
 			else
 			{
 				//display an error message that update request failed
-				JOptionPane.showMessageDialog(ddGVs.getFrame(), "ONC Server denied Driver Update," +
+				JOptionPane.showMessageDialog(this, "ONC Server denied Driver Update," +
 						"try again later","Driver Update Failed",  
-						JOptionPane.ERROR_MESSAGE, ddGVs.getImageIcon(0));
+						JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
 			}
 			
 			bCD = false;
 		}
 	}
 	
-	void displayDriver()
-	{
-//		System.out.println(String.format("DriverDlg displayDriver - # of drivers: %d",
-//				ddb.getNumOfDrivers()));
-		
-		if(ddb.getNumOfDrivers() > 0)
+	void display(ONCEntity driver)
+	{	
+		if(ddb.size() <= 0)
 		{
-			ONCDriver d = ddb.getDriver(dn);
-			
-//			System.out.println(String.format("DriverDlg displayDriver - driver last name: %s",
-//					d.getlName()));
-			
-			lblDriverID.setText(Long.toString(d.getID()));
-			firstnameTF.setText(d.getfName());
+			currDriver = null;
+			clear();
+			drvNumTF.setText("None");	//If no organizations, display this message
+			nav.btnNextSetEnabled(false);
+			nav.btnPreviousSetEnabled(false);
+		}
+		else 
+		{
+			//Determine what to display based on currDriver and driver
+			if(currDriver == null && driver == null)
+				currDriver = ddb.getObjectAtIndex(0);
+			else if(driver != null  && driver != currDriver)
+				currDriver = (ONCDriver) driver;
+				
+			//display the current driver
+			drvNumTF.setText(currDriver.getDrvNum());
+			firstnameTF.setText(currDriver.getfName());
 			firstnameTF.setCaretPosition(0);
-			lastnameTF.setText(d.getlName());
+			lastnameTF.setText(currDriver.getlName());
 			lastnameTF.setCaretPosition(0);
-			emailTF.setText(d.getEmail());
+			emailTF.setText(currDriver.getEmail());
 			emailTF.setCaretPosition(0);
-			hPhoneTF.setText(d.getHomePhone());
+			hPhoneTF.setText(currDriver.getHomePhone());
 			hPhoneTF.setCaretPosition(0);
-			cPhoneTF.setText(d.getCellPhone());
+			cPhoneTF.setText(currDriver.getCellPhone());
 			cPhoneTF.setCaretPosition(0);
-						
-			lblFamDel.setText("0");
+				
+			int nDel = deliveryDB.getNumberOfDeliveries(currDriver.getDrvNum());
+			lblFamDel.setText(Integer.toString(nDel));
 			
-			streetnumTF.setText(d.gethNum());
-			streetnameTF.setText(d.getStreet());
-			unitTF.setText(d.getUnit());
-			cityTF.setText(d.getCity());
-			zipTF.setText(d.getZipcode());
-			
-			sl.setEntity(d);
-
-			if(d.getDelAssigned() == 0)	//Can only delete if not assigned to fulfill a wish
+			if(nDel == 0)	//Can only delete if a delivery was assigned
 				btnDelete.setEnabled(true);
 			else
 				btnDelete.setEnabled(false);
 			
-			btnNext.setEnabled(true);
-			btnPrevious.setEnabled(true);
-		}
-		else
-		{
-			clearDisplay();
-			lblDriverID.setText(NO_DRIVER_MSSG);	//If no organizations, display this message
+			streetnumTF.setText(currDriver.gethNum());
+			streetnameTF.setText(currDriver.getStreet());
+			unitTF.setText(currDriver.getUnit());
+			cityTF.setText(currDriver.getCity());
+			zipTF.setText(currDriver.getZipcode());
+
+			nav.setStoplightEntity(currDriver);
+			nav.btnNextSetEnabled(true);
+			nav.btnPreviousSetEnabled(true);
 		}
 	}
 	
-	void clearDisplay()
+	void clear()
 	{
-		lblDriverID.setText("");
+		drvNumTF.setText("");
 		firstnameTF.setText("");
 		lastnameTF.setText("");
 		lblFamDel.setText("0");
@@ -362,197 +280,104 @@ public class DriverDialog extends JDialog implements ActionListener, DatabaseLis
 		unitTF.setText("");
 		cityTF.setText("");
 		zipTF.setText("");
-		sl.clear();
+		nav.clearStoplight();
+	}
+
+	void onNew()
+	{
+		bAddingNewEntity = true;
+		
+		nav.navSetEnabled(false);
+		entityPanel.setBorder(BorderFactory.createTitledBorder("Enter New Partner's Information"));
+		clear();
+		entityPanel.setBackground(Color.CYAN);	//Use color to indicate add org mode vs. review mode
+		setControlState();
+		
+		drvNumTF.setText("New");
 	}
 	
-	int searchForDriver(String data)
-    {
-    	int sn = -1; 	//-1 indicates driver not found
-    	int foundcount = 0;
-    	String upper1stchar = "";
-    		  	
-    	//If a numeric string, then search for ID match, else search for last name match
-		if(!data.isEmpty() && data.matches("-?\\d+(\\.\\d+)?"))
-		{
-    		sn = ddb.getDriverIndex(Integer.parseInt(data));
+	void onDelete()
+	{
+		ONCDriver delDriver = ddb.getObjectAtIndex(nav.getIndex());
 		
-    		if(sn > -1)
-    			foundcount = 1;
-		}
-		else
+		//Confirm with the user that the deletion is really intended
+		String confirmMssg = String.format("Are you sure you want to delete %s from the data base?", 
+											delDriver.getfName() + " " + delDriver.getlName());
+	
+		Object[] options= {"Cancel", "Delete"};
+		JOptionPane confirmOP = new JOptionPane(confirmMssg, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION,
+							gvs.getImageIcon(0), options, "Cancel");
+		JDialog confirmDlg = confirmOP.createDialog(this, "*** Confirm Partner Database Deletion ***");
+		confirmDlg.setVisible(true);
+	
+		Object selectedValue = confirmOP.getValue();
+		if(selectedValue != null && selectedValue.toString().equals("Delete"))
 		{
-			if(data.length() == 1)	//Convert character to upper case for search? 
-    				upper1stchar = data.toUpperCase();
-			else   				
-				upper1stchar = Character.toUpperCase(data.charAt(0)) + data.substring(1);
-    				
-    		for(int i=0; i<ddb.getNumOfDrivers(); i++)   			
-    			if(ddb.getDriver(i).getlName().contains(upper1stchar))
-    			{
-    				sn=i;
-    				foundcount++;
-    			}
+			//send request to data base
+			String response = ddb.delete(this, delDriver);
+			
+			if(response.startsWith("DELETED_DRIVER"))
+			{
+				processDeletedPartner(ddb);
+			}
+			else
+			{
+				String err_mssg = "ONC Server denied delete partner request, try again later";
+				JOptionPane.showMessageDialog(this, err_mssg, "Delete Partner Request Failure",
+												JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
+				display(currDriver);
+			}
 		}
-    		    	    	
-    	//If the requested driver is found, save changes, if any to currently displayed driver
-    	//then set the driver index to the new driver and display that driver
-    	if(!bAddingNewObject && sn >= 0)
-    	{   		
-    		update();
-    		
-    		dn = sn;   				      			
-    		displayDriver();
-    	}
-    	
-    	return foundcount;
-    }
-
-	void onSaveNewDriver()
+	}
+	
+	void onSaveNew()
 	{
 		//construct a new driver from user input	
-		ONCDriver newDriver = new ONCDriver(-1, firstnameTF.getText(), lastnameTF.getText(),
-				emailTF.getText(), streetnumTF.getText(), streetnameTF.getText(), 
-				unitTF.getText(), cityTF.getText(), zipTF.getText(), 
-				hPhoneTF.getText(), cPhoneTF.getText(), "", "", new Date(), ddGVs.getUserLNFI());
-				
+		ONCDriver newDriver = new ONCDriver(-1, "N/A", firstnameTF.getText(), lastnameTF.getText(),
+					emailTF.getText(), streetnumTF.getText(), streetnameTF.getText(), 
+					unitTF.getText(), cityTF.getText(), zipTF.getText(), 
+					hPhoneTF.getText(), cPhoneTF.getText(), "", "", new Date(), gvs.getUserLNFI());
+						
 		//send add request to the local data base
 		String response = ddb.add(this, newDriver);
-				
+						
 		if(response.startsWith("ADDED_DRIVER"))
 		{
 			//update the ui with new id assigned by the server 
 			Gson gson = new Gson();
 			ONCDriver addedDriver = gson.fromJson(response.substring(12), ONCDriver.class);
-					
+							
 			//set the display index, on, to the new partner added and display organization
-			dn = ddb.getDriverIndex(addedDriver.getID());
+			display(addedDriver);
+			nav.setIndex(ddb.getListIndexByID(ddb.getList(), addedDriver.getID()));
 		}
 		else
 		{
 			String err_mssg = "ONC Server denied add driver request, try again later";
-			JOptionPane.showMessageDialog(ddGVs.getFrame(), err_mssg, "Add Driver Request Failure",
-											JOptionPane.ERROR_MESSAGE, ddGVs.getImageIcon(0));
+			JOptionPane.showMessageDialog(this, err_mssg, "Add Driver Request Failure",
+											JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
+			display(currDriver);
 		}
-		
-		btnNext.setEnabled(true);
-		btnPrevious.setEnabled(true);
-		searchTF.setEnabled(true);
-		orgpanel.setBorder(BorderFactory.createTitledBorder("Delivery Partner Information"));
-		displayDriver();
-		orgpanel.setBackground(pBkColor);
-		btnNew.setVisible(true);
-		btnDelete.setVisible(true);
-		btnSave.setVisible(false);
-		btnCancel.setVisible(false);
-		
-		bAddingNewObject = false;
+				
+		//reset to review mode and display the proper organization
+		nav.navSetEnabled(true);
+		entityPanel.setBorder(BorderFactory.createTitledBorder("Partner Information"));
+		entityPanel.setBackground(pBkColor);
+
+		bAddingNewEntity = false;
+		setControlState();
 	}
 	
-	/***********************************************************************************************
-	 * This class implements a listener for the fields that need to check for 
-	 * data updates when the user presses the <Enter> key. The only action this listener takes is to
-	 * call the update method which checks if the data has changed, if it has 
-	 * it sends a change request to the server.
-	 ***********************************************************************************************/
-	private class DataChangeListener implements ActionListener
+	void onCancelNew()
 	{
-		@Override
-		public void actionPerformed(ActionEvent e)
-		{
-			if(!bAddingNewObject)
-			{
-				update();
-			}
-		}
+		nav.navSetEnabled(true);
+		entityPanel.setBorder(BorderFactory.createTitledBorder("Partner Information"));
+		display(currDriver);
+		entityPanel.setBackground(pBkColor);
+		bAddingNewEntity = false;
+		setControlState();
 	}
-
-	@Override
-	public void actionPerformed(ActionEvent e)
-	{
-		if(!bAddingNewObject && (e.getSource() == btnNext || e.getSource() == btnPrevious))
-		{
-			//Save changes, if any to both family and child info
-			if(ddGVs.isUserAdmin())	//Only admin user can make driver changes
-				update();
-		
-			if(e.getSource() == btnNext)
-			{						
-				if(++dn == ddb.getNumOfDrivers())
-					dn=0;
-			}
-			else if(e.getSource() == btnPrevious)
-			{
-				if(--dn< 0)
-					dn = ddb.getNumOfDrivers()-1;
-			}
-		
-			//display new organization
-			displayDriver();
-			
-		}
-		else if(e.getSource() == searchTF  && !bAddingNewObject)
-		{
-			//>=0:successful search, on is valid; <0:data not found
-			int foundcount = searchForDriver(searchTF.getText());	
-			if(foundcount > 1)  	
-	    		lblMssg.setText(Integer.toString(foundcount) + " drivers with the same name found");
-	    	else if(foundcount == 1)
-	    		lblMssg.setText("Driver sucessfully located");
-	    	else
-	    		lblMssg.setText("Driver not found in database");
-			
-			searchTF.selectAll();			
-		}
-		else if(!bAddingNewObject && e.getSource() == firstnameTF && !firstnameTF.getText().equals(ddb.getDriver(dn).getfName()) ||
-				!bAddingNewObject && e.getSource() == lastnameTF && !lastnameTF.getText().equals(ddb.getDriver(dn).getlName()))
-		{
-			ddb.getDriver(dn).setfName(firstnameTF.getText());
-			ddb.getDriver(dn).setlName(lastnameTF.getText());
-
-//				assignDeliveryDlg.buildSortTable();
-		}
-		else if(e.getSource() == btnNew)
-		{
-			bAddingNewObject = true; //Used to disable certain action listeners
-			
-			btnNext.setEnabled(false);
-			btnPrevious.setEnabled(false);
-			searchTF.setEnabled(false);
-			orgpanel.setBorder(BorderFactory.createTitledBorder("Enter New Delivery Partner's Information"));
-			clearDisplay();
-			orgpanel.setBackground(Color.CYAN);	//Use color to indicate add org mode vs. review mode
-			btnNew.setVisible(false);
-			btnDelete.setVisible(false);
-			btnSave.setVisible(true);
-			btnCancel.setVisible(true);
-			
-			lblDriverID.setText("New");
-		}		
-		else if(e.getSource() == btnCancel)
-		{
-			btnNext.setEnabled(true);
-			btnPrevious.setEnabled(true);
-			searchTF.setEnabled(true);
-			orgpanel.setBorder(BorderFactory.createTitledBorder("Delivery Partner Information"));
-			displayDriver();
-			orgpanel.setBackground(pBkColor);
-			btnNew.setVisible(true);
-			btnDelete.setVisible(true);
-			btnSave.setVisible(false);
-			btnCancel.setVisible(false);
-			
-			bAddingNewObject = false;
-		}
-		else if(e.getSource() == btnSave)
-		{
-			onSaveNewDriver();	
-		}
-		else if(e.getSource() == btnDelete)
-		{			
-			//TODO: add Delete Driver processing here			
-		}
-	}
-
+	
 	public void dataChanged(DatabaseEvent dbe)
 	{
 		if(dbe.getSource() != this && dbe.getType().equals("UPDATED_DRIVER"))
@@ -560,61 +385,91 @@ public class DriverDialog extends JDialog implements ActionListener, DatabaseLis
 			ONCDriver updatedDriver = (ONCDriver) dbe.getObject();
 			
 			//If current driver is being displayed has changed, re-display it
-			if(Integer.parseInt(lblDriverID.getText()) == updatedDriver.getID() && !bAddingNewObject)
-				displayDriver();
+			if(currDriver.getID() == updatedDriver.getID() && !bAddingNewEntity)
+				display(updatedDriver);
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("ADDED_DRIVER"))
 		{
+			ONCDriver addedDriver = (ONCDriver) dbe.getObject();
 			//If no driver is being displayed, display the added one
-			if(lblDriverID.getText().equals(NO_DRIVER_MSSG) && ddb.getNumOfDrivers() > 0 &&
-			    !bAddingNewObject)
-				
-				displayDriver();
+			if(currDriver == null && ddb.size() > 0 && !bAddingNewEntity)
+				display(addedDriver);
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("DELETED_DRIVER"))
 		{
 			//if the deleted driver was the only driver in data base, clear the display
 			//otherwise, if the deleted driver is currently being displayed, change the
 			//index to the previous driver in the database and display.
-			if(ddb.getNumOfDrivers() == 0)
+			if(ddb.size() == 0)
 			{
-				dn = 0;
-				clearDisplay();
+				currDriver = null;
+				nav.setIndex(0);
+				clear();
 				btnDelete.setEnabled(false);
 			}
 			else
 			{
 				ONCDriver deletedDriver = (ONCDriver) dbe.getObject();
-				if(Integer.parseInt(lblDriverID.getText()) == deletedDriver.getID())
+				if(currDriver.getID() == deletedDriver.getID())
 				{
-					if(dn == 0)
-						dn = ddb.getNumOfDrivers() - 1;
+					if(nav.getIndex() == 0)
+						nav.setIndex(ddb.size() - 1);
 					else
-						dn--;
+						nav.setIndex(nav.getIndex() - 1);
 					
-					displayDriver();
+					display(ddb.getDriver(nav.getIndex()));
 				}
 			}
 		}
+		else if(dbe.getSource() != this && dbe.getType().equals("ADDED_DELIVERY"))
+		{
+			//If the added delivery is associated with the current driver being displayed,
+			//update the display so the # of deliveries assigned field updates
+			ONCDelivery del = (ONCDelivery) dbe.getObject();
+			
+			if(!bAddingNewEntity && del != null && currDriver != null && 
+					del.getdDelBy().equals(currDriver.getDrvNum()))
+				
+				display(currDriver);
+		}
 	}
 
+	/*************************************************************************************
+	 * If the entity selection event is fired by a ONCFamilyTableDialog or by the nav panel, 
+	 * and the current mode is not adding a new partner, save any changes to the 
+	 * currently displayed partner and display the partner selected in the sort partner 
+	 * dialog partner table. The listeners are currently registered by the FamilyPanel
+	 * when this dialog is created.
+	 ************************************************************************************/
 	@Override
-	public void tableRowSelected(ONCTableSelectionEvent tse)
+	public void entitySelected(EntitySelectionEvent tse)
 	{
-		if(tse.getType().equals("FAMILY_SELECTED"))
+		if(this.isVisible() && !bAddingNewEntity)
 		{
-			ONCFamily fam = (ONCFamily) tse.getObject1();
-			if(fam.getDeliveryID() > -1)
+			if(tse.getType().equals("FAMILY_SELECTED") || tse.getType().equals("WISH_SELECTED"))
 			{
-				ONCDelivery delivery = deliveryDB.getDelivery(fam.getDeliveryID());
-				
-				int rtn = ddb.getDriverIndex(delivery.getdDelBy());
-				if(rtn > -1)
+//				System.out.println("DriverDialog.entitySelected - Event Type: " + tse.getType());
+				ONCFamily fam = (ONCFamily) tse.getObject1();
+				ONCDelivery del = deliveryDB.getDelivery(fam.getDeliveryID());
+					
+				if(del != null && !del.getdDelBy().isEmpty())
 				{
-					update();
-					dn = rtn;
-					displayDriver();
+					//There is s driver assigned. Determine who it is from the driver number
+					//and display that driver, if they have been entered into the driver data base.
+					int index = ddb.getDriverIndex(del.getdDelBy());
+					if(index > -1)
+					{		
+						update();
+						nav.setIndex(index);
+						display(ddb.getDriver(index));
+						}
+					}
 				}
+			else if(tse.getType().equals("DRIVER_SELECTED"))
+			{
+				ONCDriver driver = (ONCDriver) tse.getObject1();
+				update();
+				display(driver);
 			}
 		}
 	}

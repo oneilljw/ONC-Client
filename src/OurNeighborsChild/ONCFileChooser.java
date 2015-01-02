@@ -1,19 +1,19 @@
 package OurNeighborsChild;
 
+import java.awt.Window;
 import java.io.File;
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class ONCFileChooser 
 {
 	private static final int ONC_OPEN_FILE = 0;
 	
-	JFrame parentFrame;
+	Window parentWindow;
 	
-	public ONCFileChooser(JFrame pf)
+	public ONCFileChooser(Window pf)
 	{
-		parentFrame = pf;
+		parentWindow = pf;
 	}
 	
 	public File getFile(String title, FileNameExtensionFilter fnef, int op)
@@ -31,9 +31,9 @@ public class ONCFileChooser
     	//null File object if user cancels or an error occurs
     	int returnVal;
     	if(op == ONC_OPEN_FILE)
-    		returnVal = chooser.showOpenDialog(parentFrame);
+    		returnVal = chooser.showOpenDialog(parentWindow);
     	else
-    		returnVal = chooser.showSaveDialog(parentFrame);
+    		returnVal = chooser.showSaveDialog(parentWindow);
 	    
 	    if(returnVal == JFileChooser.APPROVE_OPTION)
 	    {

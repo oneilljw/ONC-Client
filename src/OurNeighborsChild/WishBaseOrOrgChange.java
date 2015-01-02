@@ -2,19 +2,19 @@ package OurNeighborsChild;
 
 public class WishBaseOrOrgChange
 {
-	private String olditem;
-	private String newitem;
-	private int wishnum;
+	private ONCObject oldObject;
+	private ONCObject newObject;
+	private int value;
 	
-	WishBaseOrOrgChange(String olditem, String newitem, int wishnum)
+	WishBaseOrOrgChange(ONCObject oldObject, ONCObject newObject, int value)
 	{
-		this.olditem = olditem;
-		this.newitem = newitem;
-		this.wishnum = wishnum;
+		this.oldObject = oldObject;
+		this.newObject = newObject;
+		this.value = value;
 	}
 	
 	//getters
-	String getOldItem() { return  olditem; }
-	String getNewItem() { return  newitem; }
-	int getWishNum() { return wishnum; }
+	ONCObject getOldObject() { return  oldObject; }
+	ONCObject getNewObject() { return  newObject; }
+	int getValue() { return value; }
 }

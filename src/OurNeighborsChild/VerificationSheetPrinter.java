@@ -31,11 +31,14 @@ public abstract class VerificationSheetPrinter implements Printable
 	Image img;
 	String oncSeason;
 	ChildWishDB cwDB;
+	ONCWishCatalog cat;
 	
-	VerificationSheetPrinter(ArrayList<ONCVerificationSheet> vsal, ChildWishDB cwdb)
+	VerificationSheetPrinter(ArrayList<ONCVerificationSheet> vsal)
 	{
 		vsAL = vsal;
-		cwDB = cwdb;
+		cwDB = ChildWishDB.getInstance();
+		cat = ONCWishCatalog.getInstance();
+		
 	}
 	
 	/*********************************************************************************************
@@ -111,6 +114,7 @@ public abstract class VerificationSheetPrinter implements Printable
 		
 		String childdata;
 		String[] giftdata = new String[3];
+		String[] restrictions = {" ", "*", "#"};
 				
 		int y = 64;
 		while(childnum < nchildrenonpage)
@@ -120,7 +124,11 @@ public abstract class VerificationSheetPrinter implements Printable
 			for(int wn=0; wn < NUM_GIFTS_PER_CHILD; wn++)
 			{
 				ONCChild c = vsAL.get(page).getChildArrayList().get(childnum);
-				giftdata[wn] = cwDB.getWish(c.getChildWishID(wn)).getChildWishAll();
+				ONCChildWish cw = cwDB.getWish(c.getChildWishID(wn));
+				String restriction = restrictions[cw.getChildWishIndicator()];
+				String wish = cat.getWishByID(cw.getWishID()).getName();
+				String detail = cw.getChildWishDetail();
+				giftdata[wn] = restriction + wish + "- " +  detail;
 			}
 			
 			printVerificationSheetChild(26, y, childnum+1, childdata, giftdata, cFonts, g2d);

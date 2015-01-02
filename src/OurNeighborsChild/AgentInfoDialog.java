@@ -5,7 +5,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
-public class AgentInfoDialog extends InfoDialog implements DatabaseListener, TableSelectionListener
+public class AgentInfoDialog extends InfoDialog implements DatabaseListener, EntitySelectionListener
 {
 	/**
 	 *  This class implements a dialog allowing application client users to edit 
@@ -102,7 +102,7 @@ public class AgentInfoDialog extends InfoDialog implements DatabaseListener, Tab
 				//display an error message that update request failed
 				GlobalVariables gvs = GlobalVariables.getInstance();
 				
-				JOptionPane.showMessageDialog(gvs.getFrame(), "ONC Server denied agent update," +
+				JOptionPane.showMessageDialog(this, "ONC Server denied agent update," +
 						"try again later","Agent Update Failed",  
 						JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
 			}
@@ -175,7 +175,7 @@ public class AgentInfoDialog extends InfoDialog implements DatabaseListener, Tab
 	}
 
 	@Override
-	public void tableRowSelected(ONCTableSelectionEvent tse) 
+	public void entitySelected(EntitySelectionEvent tse) 
 	{
 		if(tse.getType().equals("AGENT_SELECTED"))
 		{

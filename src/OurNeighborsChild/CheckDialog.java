@@ -244,7 +244,7 @@ public abstract class CheckDialog extends ONCSortTableDialog implements ActionLi
 			ONCFamily fam = di.getFamily1();
 			ONCChild child = di.getChild1();
 			
-			fireDataChanged(this, "FAMILY_SELECTED", fam, child);
+			fireEntitySelected(this, "FAMILY_SELECTED", fam, child);
 			requestFocus();
 		}
 	}

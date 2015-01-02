@@ -33,7 +33,7 @@ public class ONCWish extends ONCObject implements Serializable
 	}
 	
 	//constructor used to make a copy of an ONCWish
-	ONCWish(ONCWish w)
+	public ONCWish(ONCWish w)
 	{
 		super(w.getID());
 		this.name = w.getName();
@@ -57,7 +57,7 @@ public class ONCWish extends ONCObject implements Serializable
 	}
 	
 	//getters
-	String getName() {return name;}
+	public String getName() {return name;}
 	int getListindex() {return listindex;}
 //	ArrayList<WishDetail> getWishDetailAL() { return drAL; }
 	int getWishDetailID(int dn)
@@ -105,5 +105,11 @@ public class ONCWish extends ONCObject implements Serializable
 		
 		return exportRow;
 		
+	}
+	
+	@Override
+	public String toString()
+	{
+		return name;
 	}
 }

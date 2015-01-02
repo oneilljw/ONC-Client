@@ -15,7 +15,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
 
-public class AssignDeliveryDialog extends ONCFamilyDialog 
+public class AssignDeliveryDialog extends ONCFamilyTableDialog 
 {
 	/**
 	 * This class implements a dialog that allows the user to assign delivery drivers to families
@@ -187,7 +187,7 @@ public class AssignDeliveryDialog extends ONCFamilyDialog
 				 regions.getRegionID(si.getRegion()),
 				 si.getChangedBy(),
 				 stoplt[si.getStoplightPos()+1].substring(0, 1), 
-				 driverDB.getDriverLNFI(deliveryDB.getDeliveredBy(si.getDeliveryID()))};
+				 driverDB.getDriverLNFN(deliveryDB.getDeliveredBy(si.getDeliveryID()))};
 		
 		return deliverytablerow;
 	}
@@ -250,7 +250,7 @@ public class AssignDeliveryDialog extends ONCFamilyDialog
 				{
 					//display an error message that update request failed
 					GlobalVariables gvs = GlobalVariables.getInstance();
-					JOptionPane.showMessageDialog(gvs.getFrame(), "ONC Server denied Driver Update," +
+					JOptionPane.showMessageDialog(this, "ONC Server denied Driver Update," +
 							"try again later","Driver Update Failed",  
 							JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
 				}

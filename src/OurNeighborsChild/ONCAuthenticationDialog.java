@@ -50,7 +50,7 @@ public class ONCAuthenticationDialog extends ONCConnectDialog
 	{
 		super(parent);
 		this.setTitle("Our Neighbor's Child Login");
-		
+
 		//Initialize the class variables
 		userObj = null;
        	count = 0;
@@ -127,7 +127,12 @@ public class ONCAuthenticationDialog extends ONCConnectDialog
 				{
 					String reason = response.substring(7);
 					
-					lblMssg2.setText("<html><font color=red><b>" + reason + ", please try again</b></font></html>");
+					if(reason.startsWith("Downlevel"))
+						lblMssg2.setText("<html><font color=red><b>" + reason + "</b></font></html>");
+					else
+						lblMssg2.setText("<html><font color=red><b>" + reason + ", please try agian</b></font></html>");
+					
+//					lblMssg2.setText("<html><font color=red><b>" + reason + remedy + "</b></font></html>");
 					btnAction.setText("Login Try " + Integer.toString(++count));
 					passwdPF.requestFocus();
 					passwdPF.selectAll();

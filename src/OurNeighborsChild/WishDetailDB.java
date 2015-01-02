@@ -8,6 +8,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -50,13 +51,13 @@ public class WishDetailDB extends ONCDatabase
 											 gson.toJson(entity, WishDetail.class));
 		
 		if(response != null && response.startsWith("UPDATED_WISH_DETAIL"))
-			processUpdatedWishDetail(response.substring(19));
+			processUpdatedWishDetail(source, response.substring(19));
 		
 		return response;
 		
 	}
 	
-	void processUpdatedWishDetail(String json)
+	void processUpdatedWishDetail(Object source, String json)
 	{
 		//create an object from the response
 		Gson gson = new Gson();
@@ -80,12 +81,12 @@ public class WishDetailDB extends ONCDatabase
 											 gson.toJson(entity, WishDetail.class));
 		
 		if(response.startsWith("ADDED_WISH_DETAIL"))
-			processAddedWishDetail(response.substring(17));
+			processAddedWishDetail(source, response.substring(17));
 		
 		return response;
 	}
 	
-	void processAddedWishDetail(String json)
+	void processAddedWishDetail(Object source, String json)
 	{
 		Gson gson = new Gson();
 		WishDetail addedWishDetail = gson.fromJson(json, WishDetail.class);
@@ -106,12 +107,12 @@ public class WishDetailDB extends ONCDatabase
 											 gson.toJson(entity, WishDetail.class));
 		
 		if(response.startsWith("DELETED_WISH_DETAIL"))
-			processDeletedWishDetail(response.substring(19));
+			processDeletedWishDetail(source, response.substring(19));
 		
 		return response;
 	}
 	
-	void processDeletedWishDetail(String json)
+	void processDeletedWishDetail(Object source, String json)
 	{
 		Gson gson = new Gson();
 		WishDetail deletedWishDetail = gson.fromJson(json, WishDetail.class);
@@ -244,7 +245,8 @@ public class WishDetailDB extends ONCDatabase
 	    		}
 	    		else
 	    			JOptionPane.showMessageDialog(pf, "Couldn't read header in wish detail db file: " + filename, 
-	    					"Invalid Wish Detail DB File", JOptionPane.ERROR_MESSAGE, oncIcon); 
+	    					"Invalid Wish Detail DB File", JOptionPane.ERROR_MESSAGE, oncIcon);
+	    		reader.close();
 	    	} 
 	    	catch (IOException x)
 	    	{
@@ -306,11 +308,11 @@ public class WishDetailDB extends ONCDatabase
 	{
 		if(ue.getType().equals("ADDED_WISH_DETAIL"))
 		{
-			processAddedWishDetail(ue.getJson());
+			processAddedWishDetail(this, ue.getJson());
 		}
 		if(ue.getType().equals("UPDATED_WISH_DETAIL"))
 		{
-			processUpdatedWishDetail(ue.getJson());
+			processUpdatedWishDetail(this, ue.getJson());
 		}
-	}	
+	}
 }

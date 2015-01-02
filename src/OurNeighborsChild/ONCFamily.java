@@ -32,7 +32,7 @@ public class ONCFamily extends ONCEntity
 	private String		UnitNum;
 	private String		City;
 	private String		ZipCode;
-	private String		SubstituteDeliveryAddress;
+	private String		substituteDeliveryAddress;	//in Google Map Address format
 	private String		AllPhoneNumbers;			
 	private String		HomePhone;
 	private String		OtherPhone;
@@ -71,7 +71,7 @@ public class ONCFamily extends ONCEntity
 		UnitNum = f.UnitNum;
 		City = f.City;
 		ZipCode = f.ZipCode;
-		SubstituteDeliveryAddress = f.SubstituteDeliveryAddress;
+		substituteDeliveryAddress = f.substituteDeliveryAddress;
 		AllPhoneNumbers = f.AllPhoneNumbers;
 		HomePhone = f.HomePhone;
 		OtherPhone = f.OtherPhone;
@@ -111,7 +111,7 @@ public class ONCFamily extends ONCEntity
 			UnitNum = Suffix.concat(UnitNumber.concat(AddL2.concat(AddL3)));	//for batch 3 this was changed from UnitNumber
 			City = Cty;
 			ZipCode = Zip;
-			SubstituteDeliveryAddress = "";
+			substituteDeliveryAddress = "";
 			AllPhoneNumbers = ClientFamPhone;			
 			FamilyEmail = ClientFamEmail;
 			ODBDetails = Details;
@@ -155,7 +155,7 @@ public class ONCFamily extends ONCEntity
 		UnitNum = AddL2;	//for batch 3 this was changed from UnitNumber
 		City = Cty;
 		ZipCode = Zip;
-		SubstituteDeliveryAddress = "";
+		substituteDeliveryAddress = "";
 		AllPhoneNumbers = ClientFamPhone;			
 		FamilyEmail = ClientFamEmail;
 		ODBDetails = Details;
@@ -199,7 +199,7 @@ public class ONCFamily extends ONCEntity
 		UnitNum = Suffix;
 		City = Cty;
 		ZipCode = Zip;
-		SubstituteDeliveryAddress = "";
+		substituteDeliveryAddress = "";
 		AllPhoneNumbers = ClientFamPhone;			
 		FamilyEmail = ClientFamEmail;
 		ODBDetails = Details;
@@ -241,7 +241,7 @@ public class ONCFamily extends ONCEntity
 			UnitNum = AddL2;
 			City = Cty;
 			ZipCode = Zip;
-			SubstituteDeliveryAddress = "";
+			substituteDeliveryAddress = "";
 			AllPhoneNumbers = ClientFamPhone;			
 			FamilyEmail = ClientFamEmail;
 			ODBDetails = Details;
@@ -282,7 +282,7 @@ public class ONCFamily extends ONCEntity
 		UnitNum = getDBString(nextLine[18]);
 		City = getDBString(nextLine[19]);
 		ZipCode = getDBString(nextLine[20]);
-		SubstituteDeliveryAddress = getDBString(nextLine[21]);
+		substituteDeliveryAddress = getDBString(nextLine[21]);
 		AllPhoneNumbers = getDBString(nextLine[22]);
 		HomePhone = getDBString(nextLine[23]);
 		OtherPhone = getDBString(nextLine[24]);
@@ -329,7 +329,7 @@ public class ONCFamily extends ONCEntity
 		this.UnitNum = unitNum;
 		this.City = city;
 		this.ZipCode = zipCode;
-		this.SubstituteDeliveryAddress = "";
+		this.substituteDeliveryAddress = "";
 		this.AllPhoneNumbers = homePhone + "\n" + otherPhone;			
 		this.HomePhone = homePhone;
 		this.OtherPhone = otherPhone;
@@ -669,7 +669,7 @@ public class ONCFamily extends ONCEntity
 	public String	getUnitNum() {return UnitNum;}
 	public String	getCity() {return City;}
 	public String	getZipCode() {return ZipCode;}
-	public String	getSubstituteDeliveryAddress() {return SubstituteDeliveryAddress;}
+	public String	getSubstituteDeliveryAddress() {return substituteDeliveryAddress;}
 	public String	getAllPhoneNumbers() {return AllPhoneNumbers;}			
 	public String	getHomePhone() {return HomePhone;}
 	public String	getOtherPhon() {return OtherPhone;}
@@ -682,7 +682,6 @@ public class ONCFamily extends ONCEntity
 	public int		getAgentID() { return agentID; }
 	public int		getDeliveryID() { return deliveryID; }
 
-	
 	//Setters
 	public void setONCNum(String s) { oncNum = s;}
 	public void setRegion(int r) { region = r;}
@@ -705,7 +704,7 @@ public class ONCFamily extends ONCEntity
 	public void setUnitNum(String s) { UnitNum = s;}
 	public void setCity(String s) { City = s;}
 	public void setZipCode(String s) { ZipCode = s;}
-	public void setSubstituteDeliveryAddress(String s) { SubstituteDeliveryAddress = s;}
+	public void setSubstituteDeliveryAddress(String s) { substituteDeliveryAddress = s;}
 	public void setAllPhoneNumbers(String s) { AllPhoneNumbers = s;}			
 	public void setHomePhone(String s) { HomePhone = s;}
 	public void setOtherPhon(String s) { OtherPhone = s;}
@@ -717,6 +716,21 @@ public class ONCFamily extends ONCEntity
 	public void setAgentID(int  aid) { agentID = aid; }
 	public void setDeliveryID(int did) { deliveryID = did; }
 	
+	public String getGoogleMapAddress()
+	{
+		String dbdestAddress;
+		
+		if(substituteDeliveryAddress != null && substituteDeliveryAddress.split("_").length == 5)
+		{
+			//format the substituteDeliveryAddress for the URL request to Google Maps
+			String[] addPart = substituteDeliveryAddress.split("_");
+			dbdestAddress = addPart[0] + "+" + addPart[1] + "+" + addPart[3] + ",VA" + "+" + addPart[4];
+		}
+		else	//Get actual family address and format it for the URL request to Google Maps
+			dbdestAddress = HouseNum.trim() + "+" + Street.trim() + "+" + City.trim() + ",VA" + "+" + ZipCode.trim();
+		
+		return dbdestAddress.replaceAll(" ", "+");
+	}
 
 	/*********************************************************************************************************
 	 * This method compares an ONC Family passed as a parameter to this family based on five user changeable 

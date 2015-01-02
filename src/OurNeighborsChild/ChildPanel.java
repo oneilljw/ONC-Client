@@ -11,6 +11,7 @@ import java.beans.PropertyChangeListener;
 import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
@@ -22,6 +23,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.toedter.calendar.JDateChooser;
@@ -91,7 +93,7 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 		
 		//Set parent frame and share app data structures
 		cpGVs = GlobalVariables.getInstance();
-		pFrame = cpGVs.getFrame();
+//		pFrame = cpGVs.getFrame();
 		orgs = ONCOrgs.getInstance();
 		cat = ONCWishCatalog.getInstance();
 		cDB = ChildDB.getInstance();
@@ -187,7 +189,7 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
         {
         	//Get a catalog for type=selection
         	wishCBM[i] = new DefaultComboBoxModel();
-        	wishCBM[i].addElement("None");
+        	wishCBM[i].addElement(new ONCWish(-1, "None", 7));
         	wishCB[i] = new JComboBox();
         	wishCB[i].setModel(wishCBM[i]);
             wishCB[i].setPreferredSize(new Dimension(144, 24));
@@ -218,7 +220,7 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
             wishstatusCB[i].addActionListener(cuListener);
             
         	assigneeCBM[i] = new DefaultComboBoxModel();
-        	assigneeCBM[i].addElement("None");
+        	assigneeCBM[i].addElement(new Organization(-1, "None"));
         	wishassigneeCB[i] = new JComboBox();
         	wishassigneeCB[i].setModel(assigneeCBM[i]);
         	wishassigneeCB[i].setPreferredSize(dwa);
@@ -364,12 +366,22 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 		bChildDataChanging = true;
 		if(cw !=null)
 		{	
-			wishCB[wn].setSelectedItem(cw.getChildWishBase());
+			ONCWish wish = cat.getWishByID(cw.getWishID());
+			if(wish != null)
+				wishCB[wn].setSelectedItem(wish);
+			else
+				wishCB[wn].setSelectedIndex(0);
+			
 			wishindCB[wn].setSelectedIndex(cw.getChildWishIndicator());
 			wishdetailTF[wn].setText(cw.getChildWishDetail());
 			wishdetailTF[wn].setCaretPosition(0);
 			wishstatusCB[wn].setSelectedIndex(cw.getChildWishStatus());
-			wishassigneeCB[wn].setSelectedIndex(orgs.getConfirmedOrganizationIndex(cw.getChildWishAssigneeID()));
+			
+			Organization org = orgs.getOrganizationByID(cw.getChildWishAssigneeID());
+			if(org != null)
+				wishassigneeCB[wn].setSelectedItem(org);
+			else
+				wishassigneeCB[wn].setSelectedIndex(0);
 		}
 		else	//child wish doesn't exist yet
 		{
@@ -395,15 +407,19 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 		schoolTF.setText("");
 		genderTF.setText("");
 		
-		for(int i=0; i<wishCB.length; i++)
-		{
-			wishCB[i].setSelectedIndex(0);
-			wishdetailTF[i].setText("");
-			wishindCB[i].setSelectedIndex(0);
-			wishstatusCB[i].setSelectedIndex(0);
-			wishassigneeCB[i].setSelectedIndex(0);
-		}
+		for(int wishID=0; wishID<wishCB.length; wishID++)
+			clearChildWish(wishID);
+		
 		bChildDataChanging = false;
+	}
+	
+	void clearChildWish(int wishID)
+	{
+		wishCB[wishID].setSelectedIndex(0);
+		wishdetailTF[wishID].setText("");
+		wishindCB[wishID].setSelectedIndex(0);
+		wishstatusCB[wishID].setSelectedIndex(0);
+		wishassigneeCB[wishID].setSelectedIndex(0);
 	}
 	
 	//Store new data for the child if any text field changed and the user has permission to change the data
@@ -434,7 +450,7 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 			else
 			{
 				//display an error message that update request failed
-				JOptionPane.showMessageDialog(cpGVs.getFrame(), "ONC Server denied Child Update," +
+				JOptionPane.showMessageDialog(GlobalVariables.getFrame(), "ONC Server denied Child Update," +
 						"try again later","Child Update Failed",  
 						JOptionPane.ERROR_MESSAGE, cpGVs.getImageIcon(0));
 				displayChild(c);
@@ -471,20 +487,24 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 		{
 			wishCBM[wn].removeAllElements();	//Clear the combo box selection list
 		
-			for(String s: cat.getWishList(wn, WISH_CATALOG_SELECTION_LISTTYPE))	//Add new list elements
-				wishCBM[wn].addElement(s);
+//			for(String s: cat.getWishList(wn, WISH_CATALOG_SELECTION_LISTTYPE))	//Add new list elements
+//				wishCBM[wn].addElement(s);
+			
+			for(ONCWish w: cat.getWishList(wn, WISH_CATALOG_SELECTION_LISTTYPE))	//Add new list elements
+				wishCBM[wn].addElement(w);
 			
 			//Reselect the proper wish for the currently displayed child
 			ONCChildWish cw;
 			if(c != null && (cw = cwDB.getWish(c.getChildWishID(wn))) != null) 
-				wishCB[wn].setSelectedItem(cw.getChildWishBase());
+//				wishCB[wn].setSelectedItem(cw.getChildWishBase());
+				wishCB[wn].setSelectedItem(cat.getWishByID(cw.getWishID()));
 			else
 				wishCB[wn].setSelectedIndex(0);
 		}
 		
 		bChildDataChanging = false;
 	}
-	
+/*	
 	void updateWishAssigneeSelectionList()
 	{
 		bChildDataChanging = true;
@@ -502,7 +522,7 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 			for(int i=0; i<assigneeCBM.length; i++)
 				assigneeCBM[i].addElement(s);
 		
-		//Restore selection to prior selection, if they exist 
+		//Restore selection to prior selection, if they are still confirmed
 		if(c != null)
 		{
 			for(int wn=0; wn<wishassigneeCB.length; wn++)
@@ -510,6 +530,40 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 				ONCChildWish cw = cwDB.getWish(c.getChildWishID(wn));
 				if(cw != null)
 					wishassigneeCB[wn].setSelectedIndex(orgs.getConfirmedOrganizationIndex(cw.getChildWishAssigneeID()));
+			}
+		}	
+		bChildDataChanging = false;
+	}
+*/	
+	/*****************************************************************************************************
+	 * The combo box model holds organization objects with CONFIRMED status. Each time a CONFIRMED_PARTNER
+	 * event occurs, the combo box is updated with a new set of organization objects. The first 
+	 * organization object at the top of the box is a non-assigned organization named None
+	 ***********************************************************************************************/
+	
+	void updateWishAssigneeSelectionList()
+	{
+		bChildDataChanging = true;
+		
+		
+		for(int i=0; i<assigneeCBM.length; i++)
+		{
+			assigneeCBM[i].removeAllElements();
+			assigneeCBM[i].addElement(new Organization(-1, "None"));
+		}
+		
+		for(Organization confOrg: orgs.getConfirmedOrgList())
+			for(int i=0; i<assigneeCBM.length; i++)
+				assigneeCBM[i].addElement(confOrg);
+		
+		//Restore selection to prior selection, if they are still confirmed
+		if(c != null)
+		{
+			for(int wn=0; wn<wishassigneeCB.length; wn++)
+			{
+				ONCChildWish cw = cwDB.getWish(c.getChildWishID(wn));
+				if(cw != null)
+					wishassigneeCB[wn].setSelectedItem(orgs.getOrganizationByID(cw.getChildWishAssigneeID()));
 			}
 		}	
 		bChildDataChanging = false;
@@ -527,21 +581,25 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 	void updateWish(int wn)	//NEED TO HANDLE IF CURRET WISH IS NULL, ADDING THE FIRST WISH TO HISTORY
 	{
 		ONCChildWish cw = cwDB.getWish(c.getChildWishID(wn));
-		String oldWishBase = cw.getChildWishBase();
+//		String oldWishBase = cw.getChildWishBase();
+		int oldWishID = cw.getWishID();
 		
 		//Test to see that the wish has changed and not simply a combo box event without a change
 		//to the selected item.
-		if(!wishCB[wn].getSelectedItem().toString().equals(cw.getChildWishBase()) ||
+		ONCWish selectedCBWish = (ONCWish) wishCB[wn].getSelectedItem();
+		Organization selectedCBOrg = (Organization) wishassigneeCB[wn].getSelectedItem();
+		
+		if(selectedCBWish.getID() != cw.getWishID() ||
 			wishindCB[wn].getSelectedIndex() != cw.getChildWishIndicator() ||
 			 wishstatusCB[wn].getSelectedIndex() != cw.getChildWishStatus() ||
 			  !wishdetailTF[wn].getText().equals(cw.getChildWishDetail()) ||
-			   !wishassigneeCB[wn].getSelectedItem().toString().equals(cw.getChildWishAssigneeName()))
+//			   !wishassigneeCB[wn].getSelectedItem().toString().equals(cw.getChildWishAssigneeName()))
+			   selectedCBOrg.getID() != (cw.getChildWishAssigneeID()))
 		{
 			
 			//A change to the wish has occurred, test to see if it's a change to the base
 			//If it is a change to the base, additional detail may be required.
-			String newWishName = wishCB[wn].getSelectedItem().toString();
-			if(!cw.getChildWishBase().equals(newWishName)) 	
+			if(selectedCBWish.getID() != cw.getWishID()) 	
 			{
 				//It was a change to the wish base
 				//Check if a detail dialog is required. It is required if the wish name is found
@@ -549,11 +607,12 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 				//contains data. If required, construct and show the modal dialog. If not required, clear
 				//the wish detail text field so the user can create new detail. This prevents inadvertent
 				//legacy wish detail from being carried forward with a wish change
-				ArrayList<WishDetail> drDlgData = cat.getWishDetail(newWishName);
+				ArrayList<WishDetail> drDlgData = cat.getWishDetail(selectedCBWish.getID());
 				if(drDlgData != null)
 				{
 					//Construct and show the wish detail required dialog
-					DetailDialog dDlg = new DetailDialog(pFrame, newWishName, drDlgData);
+					String newWishName = wishCB[wn].getSelectedItem().toString();
+					DetailDialog dDlg = new DetailDialog(GlobalVariables.getFrame(), newWishName, drDlgData);
 					Point pt = pFrame.getLocation();	//Used to set dialog location
 					dDlg.setLocation(pt.x + (wn*200) + 20, pt.y + 400);
 					dDlg.setVisible(true);
@@ -568,26 +627,45 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 			}
 			
 			int orgID;
-			String orgName;
+//			String orgName;
 			
-			if(cw != null && !wishassigneeCB[wn].getSelectedItem().toString().equals(cw.getChildWishAssigneeName()))
+//			if(cw != null && !wishassigneeCB[wn].getSelectedItem().toString().equals(cw.getChildWishAssigneeName()))
+			if(cw != null && selectedCBOrg.getID() != cw.getChildWishAssigneeID())	
 			{		
-				//A change to the wish assignee has occurred set the new child wish
-				orgID = orgs.getConfirmedOrganizationID(wishassigneeCB[wn].getSelectedIndex());
-				orgName = orgs.getConfirmedOrganizationName(orgID);
+				//A change to the wish assignee has occurred, set the new child wish
+				orgID = selectedCBOrg.getID();
+//				orgName = selectedCBOrg.getName();
 			}
 			else	//use the existing assignee with the new wish
 			{
 				orgID = cw.getChildWishAssigneeID();
-				orgName = cw.getChildWishAssigneeName();
+//				orgName = cw.getChildWishAssigneeName();
 			}
 			
 			//Now that we have assessed/received base,  detail and assignee changes, create a new wish			
-			int wishtypeid = 0; 	//Not implemented yet
-			cwDB.add(c.getID(), wishtypeid, wishCB[wn].getSelectedItem().toString(),
-					wishdetailTF[wn].getText(), wn, wishindCB[wn].getSelectedIndex(),
-					wishstatusCB[wn].getSelectedIndex(),orgID, orgName, cpGVs.getUserLNFI(),
-					cpGVs.getTodaysDate());
+			int wishID = cwDB.add(this, c.getID(), selectedCBWish.getID(),
+						wishdetailTF[wn].getText(), wn, wishindCB[wn].getSelectedIndex(),
+						wishstatusCB[wn].getSelectedIndex(),orgID, cpGVs.getUserLNFI(),
+						cpGVs.getTodaysDate());
+			
+			//if adding the wish was successful, we need to fetch and display the wish. The db may have changed
+			//the status of the wish.
+			if(wishID != -1)
+			{
+				ONCChildWish addedWish = cwDB.getWish(wishID);
+				if(addedWish != null)
+					displayWish(addedWish, addedWish.getWishNumber());	
+			}
+			else	//an error occurred, display original wish
+			{
+				ONCChildWish origWish = cwDB.getWish(c.getChildWishID(wn));
+				if(origWish != null)
+					displayWish(origWish, origWish.getWishNumber());
+				else
+				{
+					clearChildWish(wn);
+				}		
+			}
 			
 			//if child wish selected was a Bike as wish 1, make wish 2 a helmet. If child wish 1 was a bike and
 			//and has been changed, make wish 2 empty
@@ -599,15 +677,16 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 			if(c.getChildWishID(1) != -1)
 				System.out.println("Child Wish 1 Wish Base: " + cwDB.getWish(c.getChildWishID(1)).getChildWishBase());
 *********************************/			
-			if(wn==0 && wishCB[0].getSelectedItem().toString().equals(ONC_BIKE_NAME) &&
+			if(wn==0 && ((ONCWish)wishCB[0].getSelectedItem()).getID() == cat.getWishID(ONC_BIKE_NAME) &&
 					(c.getChildWishID(1) == -1 || (c.getChildWishID(1) != -1 &&
-						cwDB.getWish(c.getChildWishID(1)).getWishID() != ONC_HELMET_WISHID)))
+						cwDB.getWish(c.getChildWishID(1)).getWishID() != cat.getWishID(ONC_HELMET_NAME))))
 			{
 				autoAddHelmetAsWish1();
 			}
-			else if(wn==0 && oldWishBase.equals(ONC_BIKE_NAME) &&
-					!wishCB[0].getSelectedItem().toString().equals(ONC_BIKE_NAME) && 
-					 c.getChildWishID(1) != -1 && cwDB.getWish(c.getChildWishID(1)).getChildWishBase().equals(ONC_HELMET_NAME))
+			else if(wn==0 && oldWishID == cat.getWishID(ONC_BIKE_NAME) &&
+					((ONCWish)wishCB[0].getSelectedItem()).getID() != cat.getWishID(ONC_BIKE_NAME) && 
+					 c.getChildWishID(1) != -1 &&
+					  cwDB.getWish(c.getChildWishID(1)).getWishID() == cat.getWishID(ONC_HELMET_NAME))
 			{
 				//set the combo boxes in the panel
 				bChildDataChanging = true;
@@ -616,12 +695,30 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 				wishdetailTF[1].setText("");
 				wishindCB[1].setSelectedIndex(0);
 				wishstatusCB[1].setSelectedIndex(CHILD_WISH_STATUS_EMPTY);
-				wishassigneeCB[1].setSelectedItem("None");
+				wishassigneeCB[1].setSelectedIndex(0);
 				
 				//set wish 1 to none	
-				wishtypeid = 0; 	//Not implemented yet
-				cwDB.add(c.getID(), wishtypeid, "None", "", 1, 0, CHILD_WISH_STATUS_EMPTY, 
-							0, "None", cpGVs.getUserLNFI(), cpGVs.getTodaysDate());
+				wishID = cwDB.add(this, c.getID(), -1, "", 1, 0, CHILD_WISH_STATUS_EMPTY, 
+							0, cpGVs.getUserLNFI(), cpGVs.getTodaysDate());
+				
+				//if adding the wish was successful, we need to fetch and display the wish. The db may have changed
+				//the status of the wish.
+				if(wishID != -1)
+				{
+					ONCChildWish addedWish = cwDB.getWish(wishID);
+					if(addedWish != null)
+						displayWish(addedWish, addedWish.getWishNumber());	
+				}
+				else	//an error occurred, display original wish
+				{
+					ONCChildWish origWish = cwDB.getWish(c.getChildWishID(1));
+					if(origWish != null)
+						displayWish(origWish, origWish.getWishNumber());
+					else
+					{
+						clearChildWish(1);
+					}		
+				}
 				
 				bChildDataChanging = false;
 			}
@@ -632,13 +729,14 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 	void createWish(int wn)
 	{
 		String newWishName = wishCB[wn].getSelectedItem().toString();
+		ONCWish selectedCBWish = (ONCWish) wishCB[wn].getSelectedItem();
 		
 		//Check if a detail dialog is required. It is required if the wish name is found
 		//in the catalog (return != null) and the ONC Wish object detail required array list
 		//contains data. If required, construct and show the modal dialog. If not required, clear
 		//the wish detail text field so the user can create new detail. This prevents inadvertent
 		//legacy wish detail from being carried forward with a wish change
-		ArrayList<WishDetail> drDlgData = cat.getWishDetail(newWishName);
+		ArrayList<WishDetail> drDlgData = cat.getWishDetail(selectedCBWish.getID());
 		if(drDlgData != null)
 		{
 			//Construct and show the wish detail required dialog
@@ -655,15 +753,34 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 			wishdetailTF[wn].setText("");	//Clear the text field if base wish changed so user can complete
 		}
 		
-		int orgID = orgs.getConfirmedOrganizationID(wishassigneeCB[wn].getSelectedIndex());
-		String orgName = orgs.getConfirmedOrganizationName(orgID);
+
+		ONCWish selectedWish = (ONCWish) wishCB[wn].getSelectedItem();
+		Organization selectedCBOrg = (Organization) wishassigneeCB[wn].getSelectedItem();
 		
 		//Now that we have assessed/received base,  detail and assignee changes, create a new wish			
-		int wishtypeid = 0; 	//Not implemented yet
-		cwDB.add(c.getID(), wishtypeid, wishCB[wn].getSelectedItem().toString(),
-				wishdetailTF[wn].getText(), wn, wishindCB[wn].getSelectedIndex(),
-				wishstatusCB[wn].getSelectedIndex(), orgID, orgName, cpGVs.getUserLNFI(),
-				cpGVs.getTodaysDate());
+		int wishID = cwDB.add(this, c.getID(), selectedWish.getID(),
+							wishdetailTF[wn].getText(), wn, wishindCB[wn].getSelectedIndex(),
+							wishstatusCB[wn].getSelectedIndex(), selectedCBOrg.getID(),
+							cpGVs.getUserLNFI(), cpGVs.getTodaysDate());
+		
+		//if adding the wish was successful, we need to fetch and display the wish. The db may have changed
+		//the status of the wish.
+		if(wishID != -1)
+		{
+			ONCChildWish addedWish = cwDB.getWish(wishID);
+			if(addedWish != null)
+				displayWish(addedWish, addedWish.getWishNumber());	
+		}
+		else	//an error occurred, display original wish
+		{
+			ONCChildWish origWish = cwDB.getWish(c.getChildWishID(wn));
+			if(origWish != null)
+				displayWish(origWish, origWish.getWishNumber());
+			else
+			{
+				clearChildWish(wn);
+			}		
+		}
 		
 		//if child wish selected was a Bike as wish 1, make wish 2 a helmet
 		if(wn==0 && wishCB[wn].getSelectedItem().toString().equals(ONC_BIKE_NAME) &&
@@ -684,12 +801,31 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 		wishdetailTF[1].setText("");
 		wishindCB[1].setSelectedIndex(0);
 		wishstatusCB[1].setSelectedIndex(CHILD_WISH_STATUS_SELECTED);
-		wishassigneeCB[1].setSelectedItem("None");
+		wishassigneeCB[1].setSelectedIndex(0);
 		
 		//add the helmet as wish 1		
-		int wishtypeid = 0; 	//Not implemented yet
-		cwDB.add(c.getID(), wishtypeid, ONC_HELMET_NAME, "", 1, 0, CHILD_WISH_STATUS_SELECTED, 
-					0, "None", cpGVs.getUserLNFI(), cpGVs.getTodaysDate());
+		int wishtypeid = cat.getWishID(ONC_HELMET_NAME); 	//Not implemented yet
+		int wishID = cwDB.add(this, c.getID(), wishtypeid, "", 1, 0, CHILD_WISH_STATUS_SELECTED, 
+					0, cpGVs.getUserLNFI(), cpGVs.getTodaysDate());
+		
+		//if adding the wish was successful, we need to fetch and display the wish. The db may have changed
+		//the status of the wish.
+		if(wishID != -1)
+		{
+			ONCChildWish addedWish = cwDB.getWish(wishID);
+			if(addedWish != null)
+				displayWish(addedWish, addedWish.getWishNumber());	
+		}
+		else	//an error occurred, display original wish
+		{
+			ONCChildWish origWish = cwDB.getWish(c.getChildWishID(1));
+			if(origWish != null)
+				displayWish(origWish, origWish.getWishNumber());
+			else
+			{
+				clearChildWish(1);
+			}		
+		}
 		
 		bChildDataChanging = false;
 	}
@@ -714,7 +850,30 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 			Type listtype = new TypeToken<ArrayList<ONCChildWish>>(){}.getType();
 			
 			cwh = gson.fromJson(response, listtype);
-			WishHistoryDialog whDlg = new WishHistoryDialog(pFrame, cwh, wn, firstnameTF.getText());		
+			
+			//need to add the assignee name based on the assignee ID for the table
+			String [] status = {"", "Empty", "Selected", "Assigned", "Received", 
+					"Distributed", "Verified"};
+			String[] indicators = {"", "*", "#"};
+			ArrayList<String[]> wishHistoryTable = new ArrayList<String[]>();
+			for(ONCChildWish cw:cwh)
+			{
+				ONCWish wish = cat.getWishByID(cw.getWishID());
+				Organization assignee = orgs.getOrganizationByID(cw.getChildWishAssigneeID());
+				
+				String[] whTR = new String[7];
+				whTR[0] = wish == null ? "None" : wish.getName();
+				whTR[1] = cw.getChildWishDetail();
+				whTR[2] = indicators[cw.getChildWishIndicator()];
+				whTR[3] = status[cw.getChildWishStatus()];
+				whTR[4] = assignee == null ? "None" : assignee.getName();
+				whTR[5] = cw.getChildWishChangedBy();
+				whTR[6] = new SimpleDateFormat("MM/dd H:mm").format(cw.getChildWishDateChanged().getTime());
+				
+				wishHistoryTable.add(whTR);
+			}
+			WishHistoryDialog whDlg = new WishHistoryDialog(pFrame, wishHistoryTable, wn, firstnameTF.getText());
+			whDlg.setLocationRelativeTo(wishRB[wn]);
 			whDlg.setVisible(true);
 		}
 		else
@@ -747,17 +906,17 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 			//If the current child being displayed wishes has been updated, update the 
 			//wish display. The wish number is contained in the updated wish object
 			if(addedWish.getChildID() == c.getID())	
-			{
 				displayWish(addedWish, addedWish.getWishNumber());
-			}
+			
 		}
 		else if(dbe.getSource() != this && (dbe.getType().equals("ADDED_CONFIRMED_PARTNER") ||
 											dbe.getType().equals("DELETED_CONFIRMED_PARTNER")) ||
-											dbe.getType().equals("UPDATED_CONFIRMED_PARTNER"))
+											dbe.getType().equals("UPDATED_CONFIRMED_PARTNER") ||
+											dbe.getType().equals("UPDATED_CONFIRMED_PARTNER_NAME"))
 		{
 			updateWishAssigneeSelectionList();
 		}
-		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_CATALOG_WISH"))
+		else if(dbe.getSource() != this && dbe.getType().contains("_CATALOG_WISH"))
 		{
 			updateWishSelectionList();
 		}

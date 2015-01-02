@@ -8,12 +8,15 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
+
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
+
 import com.google.gson.Gson;
+
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
 
@@ -28,9 +31,9 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 	
 	private static GlobalVariables instance = null;
 	
-	private transient JFrame oncFrame;
+	private static JFrame oncFrame;
 	private transient Calendar oncDateToday;
-	private Calendar oncDeliveryDate,  oncSeasonStartDate;
+	private Calendar oncDeliveryDate,  oncSeasonStartDate, oncGiftsReceivedDate;
 	private String warehouseAddress;
 	private transient String[] fontSizes = {"8", "10", "12", "13", "14", "16", "18"};
 	private transient int user_permission;
@@ -63,13 +66,19 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 	    oncDeliveryDate.set(Calendar.SECOND, 0);
 	    oncDeliveryDate.set(Calendar.MILLISECOND, 0);
 	    
+	    oncGiftsReceivedDate = Calendar.getInstance();
+	    oncGiftsReceivedDate.set(Calendar.HOUR_OF_DAY, 0);
+	    oncGiftsReceivedDate.set(Calendar.MINUTE, 0);
+	    oncGiftsReceivedDate.set(Calendar.SECOND, 0);
+	    oncGiftsReceivedDate.set(Calendar.MILLISECOND, 0);
+	    
 	    oncSeasonStartDate = Calendar.getInstance();
 	    oncSeasonStartDate.set(Calendar.HOUR_OF_DAY, 0);
 	    oncSeasonStartDate.set(Calendar.MINUTE, 0);
 	    oncSeasonStartDate.set(Calendar.SECOND, 0);
 	    oncSeasonStartDate.set(Calendar.MILLISECOND, 0);
 	   
-	    imageIcons = new ImageIcon[19];
+	    imageIcons = new ImageIcon[21];
 		imageIcons[0] = createImageIcon("onclogosmall.gif", "ONC Logo");
 		imageIcons[1] = createImageIcon("InfoIcon.gif", "Info Icon");
 		imageIcons[2] = createImageIcon("Button-Next-icon.gif", "Next Icon");
@@ -94,6 +103,9 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 		imageIcons[16] = createImageIcon("undo.gif", "ONC Undo Icon");
 		imageIcons[17] = createImageIcon("lock_open.gif", "Open Lock");
 		imageIcons[18] = createImageIcon("lock_locked.gif", "Open Lock");
+		
+		imageIcons[19] = createImageIcon("address-icon-none.png", "No Alt Address Icon");
+		imageIcons[20] = createImageIcon("address-icon-one.png", "Alt Address Icon");
 	
 		warehouseAddress = "6476+Trillium+House+Lane+Centreville,VA";
 		fontIndex = 3;
@@ -104,7 +116,7 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 	}
 	
 	//Getters
-	JFrame getFrame() { return oncFrame; }
+	static JFrame getFrame() { return oncFrame; }
 	Date getTodaysDate() { return Calendar.getInstance().getTime(); }
 	
 	Date getTomorrowsDate()
@@ -125,6 +137,7 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 	int getCurrentSeason() { return oncSeasonStartDate.get(Calendar.YEAR); }
 	int getCurrentYear() { return oncDateToday.get(Calendar.YEAR); }
 	public Date getDeliveryDate() { return oncDeliveryDate.getTime(); }
+	public Date getGiftsReceivedDate() { return oncGiftsReceivedDate.getTime(); }
 	public Date getSeasonStartDate() { return oncSeasonStartDate.getTime(); }
 	public String getWarehouseAddress() { return warehouseAddress; }
 	int getStartONCNum() { return startONCNum; }
@@ -160,6 +173,7 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 	
 	//setters globally used - need to update at the server and broadcast
 	public void setDeliveryDate(Date dd) { oncDeliveryDate.setTime(dd); }
+	public void setGiftsReceivedDate(Date grd) { oncGiftsReceivedDate.setTime(grd); }
 	public void setSeasonStartDate(Date ssd) { oncSeasonStartDate.setTime(ssd); }
 	public void setWarehouseAddress(String address) {warehouseAddress = address; }
 	
@@ -198,6 +212,7 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 			if(gvs != null && !response.startsWith("NO_GLOBALS"))
 			{
 				oncDeliveryDate.setTime(gvs.getDeliveryDate());
+				oncGiftsReceivedDate.setTime(gvs.getGiftsReceivedDate());
 				oncSeasonStartDate.setTime(gvs.getSeasonStartDate());
 				warehouseAddress = gvs.getWarehouseAddress();
 				
@@ -249,6 +264,7 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 	    					oncDeliveryDate.setTimeInMillis(Long.parseLong(nextLine[0]));
 	    					oncSeasonStartDate.setTimeInMillis(Long.parseLong(nextLine[1]));
 	    					warehouseAddress = nextLine[2].isEmpty() ? "6476+Trillium+House+Lane+Centreville,VA" : nextLine[2];
+	    					oncGiftsReceivedDate.setTimeInMillis(Long.parseLong(nextLine[3]));
 	    					
 	    					//Read the second line, it's the oncnumRegionRanges
 	    					nextLine = reader.readNext();	
@@ -302,7 +318,7 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 	    	
 	    	try 
 	    	{
-	    		 String[] header = {"Delivery Date", "Season Start Date", "Warehouse Address"};
+	    		 String[] header = {"Delivery Date", "Season Start Date", "Warehouse Address", "Gifts Received Date"};
 	    		
 	    		CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
 	    	    writer.writeNext(header);
@@ -310,7 +326,8 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 	    	    //Crate the gv row
 	    	    String[] row = {Long.toString(oncDeliveryDate.getTimeInMillis()),
 	    	    				Long.toString(oncSeasonStartDate.getTimeInMillis()),
-	    	    				warehouseAddress};
+	    	    				warehouseAddress,
+	    	    				Long.toString(oncGiftsReceivedDate.getTimeInMillis())};
 	    	    
 	    	    writer.writeNext(row);	//Write gv row
 	    	    writer.writeNext(oncnumRanges);	//Write the ONC Number region range array
@@ -349,7 +366,7 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 											gson.toJson(entity, ServerGVs.class));
 		if(response.startsWith("UPDATED_GLOBALS"))
 		{
-			processUpdatedObject(this, response.substring(15));
+			processUpdatedObject(source, response.substring(15));
 		}
 		
 		return response;
@@ -364,6 +381,7 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 		oncDeliveryDate.setTime(updatedObj.getDeliveryDate());
 		oncSeasonStartDate.setTime(updatedObj.getSeasonStartDate());
 		warehouseAddress = updatedObj.getWarehouseAddress();
+		oncGiftsReceivedDate.setTime(updatedObj.getDeliveryDate());
 		
 		//Notify local user IFs that a change occurred
 		fireDataChanged(source, "UPDATED_GLOBALS", updatedObj);

@@ -116,7 +116,7 @@ public class DeliveryStatusDialog extends JDialog implements TableModelListener,
 		for(int i=nDeliveries; i>=0; i--)
 		{
 			ONCDelivery del = deliveryDB.getDeliveryHistoryAL(fam.getID()).get(i);
-			String[] tr = {dstat[del.getdStatus()], driverDB.getDriverLNFI(del.getdDelBy()),
+			String[] tr = {dstat[del.getdStatus()], driverDB.getDriverLNFN(del.getdDelBy()),
 							del.getdNotes(), del.dChangedBy, del.getdChanged()};
 			
 			dsTableModel.addRow(tr);
@@ -161,7 +161,7 @@ public class DeliveryStatusDialog extends JDialog implements TableModelListener,
 			{
 				//display an error message that update request failed
 				GlobalVariables gvs = GlobalVariables.getInstance();
-				JOptionPane.showMessageDialog(gvs.getFrame(), "ONC Server denied Delivery Update," +
+				JOptionPane.showMessageDialog(this, "ONC Server denied Delivery Update," +
 						"try again later","Delivery Update Failed",  
 						JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
 			}

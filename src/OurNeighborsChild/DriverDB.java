@@ -23,8 +23,9 @@ import com.google.gson.reflect.TypeToken;
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
 
-public class DriverDB extends ONCDatabase
+public class DriverDB extends ONCSearchableDatabase
 {
+	private static final String DB_TYPE = "DRIVER";
 	private static final int DRIVER_OBJECT_CSV_HEADER_LENGTH = 18;
 	private static final int DRIVER_CSVFILE_HEADER_LENGTH = 20;
 	private static DriverDB instance = null;
@@ -44,9 +45,16 @@ public class DriverDB extends ONCDatabase
 		return instance;
 	}
 	
-	void addDriver(ONCDriver d) { driverAL.add(d); }
-	ONCDriver getDriver(int index) { return driverAL.get(index); }	
-	int getNumOfDrivers() {return driverAL.size(); }
+	@Override
+	List<ONCDriver> getList() { return driverAL; }
+	
+	ONCDriver getDriver(int index) { return driverAL.get(index); }
+	
+	//implementation of abstract classes
+	ONCDriver getObjectAtIndex(int index) { return driverAL.get(index); }
+	
+	String getDBType() { return DB_TYPE; }
+	
 	public List<ONCDriver> getDriverDB() { return driverAL; }
 	
 	String importDrivers(JFrame pFrame, Date today, String user, ImageIcon oncIcon)	
@@ -63,9 +71,10 @@ public class DriverDB extends ONCDatabase
 	    {	    
 	    	File pyfile = chooser.getSelectedFile();
 	    	filename = pyfile.getName();
+	    	CSVReader reader = null;
 	    	try 
 	    	{
-	    		CSVReader reader = new CSVReader(new FileReader(pyfile.getAbsoluteFile()));
+	    		reader = new CSVReader(new FileReader(pyfile.getAbsoluteFile()));
 	    		String[] nextLine, header;
     		
 	    		if((header = reader.readNext()) != null)
@@ -107,6 +116,15 @@ public class DriverDB extends ONCDatabase
 	    	{
 	    		JOptionPane.showMessageDialog(pFrame, "Unable to open Driver file: " + filename, 
     				"Organizations file not found", JOptionPane.ERROR_MESSAGE, oncIcon);
+	    	}
+	    	finally
+	    	{
+	    		try {
+					reader.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 	    	}
 	    }
 	    
@@ -186,11 +204,11 @@ public class DriverDB extends ONCDatabase
 			return Long.toString(driverID);
 	}
 	
-	//THIS IS NOT A GOOD TEST, CAN BE MORE THAN ONE DRIVER WITH SAME LAST NAME
-	int getDriverIndex(String lnfi)
+	//Get index of driver in list by searching for driver number
+	int getDriverIndex(String dNumber)
 	{
 		int index = 0;
-		while(index < driverAL.size() && !lnfi.contains(driverAL.get(index).getlName()))
+		while(index < driverAL.size() && !driverAL.get(index).getDrvNum().equals(dNumber))
 			index++;
 		
 		if(index < driverAL.size())
@@ -199,6 +217,7 @@ public class DriverDB extends ONCDatabase
 			return -1;
 	}
 	
+/*	CHANGED WHEN DRIVER NOW HAS BOTH AN ID and a DRV NUM
 	String getDriverLNFI(String dID)
 	{
 		String result = dID;
@@ -217,6 +236,28 @@ public class DriverDB extends ONCDatabase
 		
 			if(index < driverAL.size())	//Valid ID found in database
 				result = driverAL.get(index).getlName() + ", " + driverAL.get(index).getfName().charAt(0);
+		}
+		
+		return result;	
+	}
+*/	
+	String getDriverLNFN(String dNumber)
+	{
+		String result = dNumber;
+		
+		//If a numeric string (valid driver ID) search the data base. If a match is found
+		//return the last name, first initial. If the ID is valid and no match is found 
+		//it means the ID hasn't been entered in the data base yet. In that case, return it. 
+		//id. If the ID isn't valid, simply return it as well 
+		if(!dNumber.isEmpty() && dNumber.matches("-?\\d+(\\.\\d+)?"))
+		{
+		
+			int index = 0;
+			while(index < driverAL.size() && !driverAL.get(index).getDrvNum().equals(dNumber))
+				index++;
+		
+			if(index < driverAL.size())	//Valid ID found in database
+				result = driverAL.get(index).getlName() + ", " + driverAL.get(index).getfName();
 		}
 		
 		return result;	
@@ -383,7 +424,7 @@ public class DriverDB extends ONCDatabase
 		
 		if(response.startsWith("UPDATED_DRIVER"))
 		{
-			processUpdatedObject(this, response.substring(14), driverAL);
+			processUpdatedObject(source, response.substring(14), driverAL);
 		}
 		
 		return response;
@@ -472,4 +513,48 @@ public class DriverDB extends ONCDatabase
 			processDeletedObject(this, ue.getJson());
 		}
 	}
+
+	@Override
+	String searchForListItem(ArrayList<Integer> searchAL, String data)
+	{
+		searchAL.clear();
+		String searchType = "";
+		
+//    	int sn; 	//-1 indicates family number not found
+    	
+    	if(!data.isEmpty() && isNumeric(data))
+    	{
+    		//If a numeric string, then search for Driver Number match, else search for last name match
+    		searchType = "Driver #";
+    		if(data.matches("-?\\d+(\\.\\d+)?"))
+    		{
+    			int index = 0;
+    			while(index < driverAL.size() && !driverAL.get(index).getDrvNum().equals(data))
+    				index++;
+    			
+    			if(index < driverAL.size())
+    				searchAL.add(driverAL.get(index).getID());
+    		}
+    	}
+    	else	//Check for driver first name or last name
+    	{
+    		searchType = "Driver Name";
+//			for(int i=0; i<this.getNumberOfOrganizations(); i++)
+			for(ONCDriver d:driverAL)
+			{
+				if(d.getfName().toLowerCase().contains(data.toLowerCase()) ||
+					d.getlName().toLowerCase().contains(data.toLowerCase()))
+				{
+					searchAL.add(d.getID());
+				}
+			}
+    	}
+    	
+		return searchType;
+	}
+
+	@Override
+	int size() { return driverAL.size(); }
+
+	
 }

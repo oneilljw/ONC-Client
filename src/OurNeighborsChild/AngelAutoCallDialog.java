@@ -15,6 +15,9 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
+
+import com.google.gson.Gson;
+
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
 
@@ -44,7 +47,7 @@ public class AngelAutoCallDialog extends JDialog implements ActionListener
 	
 //	private int sortCallResult = 0, sortDirection = 0, sortDStatus=0;
 
-	String[] callResult = {"Any", "Empty", "Info Verified", "Gifts Selected", "Gifts Received", "Gifts Verified", "Packaged"};
+//	String[] callResult = {"Any", "Empty", "Info Verified", "Gifts Selected", "Gifts Received", "Gifts Verified", "Packaged"};
 	
 	AngelAutoCallDialog()
 	{
@@ -82,32 +85,38 @@ public class AngelAutoCallDialog extends JDialog implements ActionListener
 	    			//Determine the Angel file is in the proper format
 	    			if(header.length == 9)
 	    			{
-	    				
-	    				ArrayList<Integer> rAL = new ArrayList<Integer>();
+	    				ArrayList<Integer> resultAL = new ArrayList<Integer>();
 	    				int oncID;
 	    				String oncNum = "N/A/";
 	    				
 	    				while ((nextLine = reader.readNext()) != null)	// nextLine[] is an array of values from the line
 	    				{
-	    					//Match the phone number called outbound  or used to call in-bound
-	    					rAL.clear();
-	    					String srchNum = nextLine[4].replaceAll("-", "");
-	    					if(srchNum.charAt(0) == '1' && srchNum.length() == 11)
-	    						srchNum = srchNum.substring(1);	
-	    					fdb.searchDB(srchNum, rAL);
+	    					//clear the result list from the last search
+	    					resultAL.clear();
 	    					
-	    					if(rAL.size() == 0)	//Search for phone number failed
+	    					//eliminate any dashes in the phone number
+	    					String srchNum = nextLine[4].replaceAll("-", "");
+	    					
+	    					//eliminate a leading 1 in the number if it has 11 digits
+	    					if(srchNum.charAt(0) == '1' && srchNum.length() == 11)
+	    						srchNum = srchNum.substring(1);
+	    					
+	    					//search the family data base for the number and see if we can match it
+	    					//to an ONC #. Returns a list of family IDs that match the phone #
+	    					fdb.searchDB(srchNum, resultAL);
+	    					
+	    					if(resultAL.size() == 0)	//Search for phone number failed
 	    					{
 	    						oncID = 0;
 	    						oncNum = "N/A";
 	    					}
 	    					else
 	    					{
-	    						oncID = rAL.get(0);
+	    						oncID = resultAL.get(0);
 	    						oncNum = fdb.searchForFamilyByID(oncID).getONCNum();
 	    					}
 	    					
-	    					//Strip out Page History from PersistedVariables
+	    					//Strip out Page History from Persisted Variables
 	    					String pageHistory;
 	    					String[] varParts = nextLine[8].split(";");
 	    					int part = 0;
@@ -244,50 +253,102 @@ public class AngelAutoCallDialog extends JDialog implements ActionListener
 		return filename;
 	 }
 	 
-	 boolean updateFamilyDeliveryStatus(Families fdb, DriverDB ddb, DeliveryDB delDB, GlobalVariables gvs)
+	 boolean updateFamilyDeliveryStatus()
 	 {
 		 boolean bChangedDeliveryStatus = false;
 		 
+		 Families familyDB = Families.getInstance();
+//		 DriverDB driverDB = DriverDB.getInstance();
+		 DeliveryDB deliveryDB = DeliveryDB.getInstance();
+		 GlobalVariables gvs = GlobalVariables.getInstance();
+				 
 		 for(int i=stAL.size()-1; i >=0; i--)
 		 {
 			 int oncID = stAL.get(i).getONCID();
 			 if(oncID > 0)
 			 {
-				 ONCFamily f = fdb.searchForFamilyByID(stAL.get(i).getONCID());
+				 ONCFamily f = familyDB.searchForFamilyByID(stAL.get(i).getONCID());
+				 ONCFamily reqFamUpdate = new ONCFamily(f); //make a copy of the family object
 			 
 				 //If status == confirmed is an upgrade to status, change the family status and
 				 //create a new ONCDelivery object
 				 if(f.getDeliveryStatus() < DELIVERY_STATUS_CONFIRMED && 
 						 stAL.get(i).getCallResult().equals(ANGEL_DELIVERY_CONFIRMED))
 				 {
-					 int did = delDB.addDelivery(f.getID(),
-							 	DELIVERY_STATUS_CONFIRMED,
-//								ddb.getDriverLNFI(fdb.getDeliveredBy(f.getONCID())),
-								ddb.getDriverLNFI(delDB.getDeliveredBy(f.getDeliveryID())),
-								"Angel Call Result: Confirmed",
-								gvs.getUserLNFI(),
-								Calendar.getInstance());
-	
-					 f.setDeliveryID(did);
-					 f.setChangedBy(gvs.getUserLNFI());
+					 //add a new delivery to the delivery data base
+					 ONCDelivery reqDelivery = new ONCDelivery(-1, f.getID(), DELIVERY_STATUS_CONFIRMED,
+							 					deliveryDB.getDeliveredBy(f.getDeliveryID()),
+							 					"Angel Call Result: Confirmed",
+							 					gvs.getUserLNFI(),
+							 					Calendar.getInstance());
+					 
+					 String response = deliveryDB.add(this, reqDelivery);
+					 if(response.startsWith("ADDED_DELIVERY"))
+					 {
+						Gson gson = new Gson();
+						ONCDelivery addedDelivery = gson.fromJson(response.substring(14), ONCDelivery.class);
+						reqFamUpdate.setDeliveryID(addedDelivery.getID());
+						reqFamUpdate.setDeliveryStatus(DELIVERY_STATUS_CONFIRMED);
 
-					 f.setDeliveryStatus(DELIVERY_STATUS_CONFIRMED);
+					 }
+					 else
+					 {
+						//display an error message that update request failed
+						JOptionPane.showMessageDialog(this, "ONC Server denied Delivery Update," +
+								"try again later","Driver Update Failed",  
+								JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
+ 					 }
+					 
+//					 int did = delDB.addDelivery(f.getID(),
+//							 	DELIVERY_STATUS_CONFIRMED,
+//								ddb.getDriverLNFI(delDB.getDeliveredBy(f.getDeliveryID())),
+//								"Angel Call Result: Confirmed",
+//								gvs.getUserLNFI(),
+//								Calendar.getInstance());
+	
+					 //update the family in the data base
+//					 f.setDeliveryID(did);
+//					 f.setChangedBy(gvs.getUserLNFI());
+//
+//					 f.setDeliveryStatus(DELIVERY_STATUS_CONFIRMED);
 					 bChangedDeliveryStatus = true;
 				 }
 				 
 				 else if(f.getDeliveryStatus() < DELIVERY_STATUS_CONTACTED)
 				 {
+					//add a new delivery to the delivery data base
+					 ONCDelivery reqDelivery = new ONCDelivery(-1, f.getID(), DELIVERY_STATUS_CONTACTED,
+							 					deliveryDB.getDeliveredBy(f.getDeliveryID()),
+							 					"Angel Call Result: Contacted",
+							 					gvs.getUserLNFI(),
+							 					Calendar.getInstance());
 					 
-					 int did = delDB.addDelivery(f.getID(),
-							 	DELIVERY_STATUS_CONTACTED,
-								ddb.getDriverLNFI(delDB.getDeliveredBy(f.getDeliveryID())),
-								"Angel Call Result: Contacted",
-								gvs.getUserLNFI(),
-								Calendar.getInstance());
-	
-					 f.setDeliveryID(did);
-					 f.setChangedBy(gvs.getUserLNFI());
-					 f.setDeliveryStatus(DELIVERY_STATUS_CONTACTED);
+					 String response = deliveryDB.add(this, reqDelivery);
+					 if(response.startsWith("ADDED_DELIVERY"))
+					 {
+						Gson gson = new Gson();
+						ONCDelivery addedDelivery = gson.fromJson(response.substring(14), ONCDelivery.class);
+						reqFamUpdate.setDeliveryID(addedDelivery.getID());
+						reqFamUpdate.setDeliveryStatus(DELIVERY_STATUS_CONFIRMED);
+
+					 }
+					 else
+					 {
+						//display an error message that update request failed
+						JOptionPane.showMessageDialog(this, "ONC Server denied Driver Update," +
+								"try again later","Driver Update Failed",  
+								JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
+ 					 }
+//					 int did = delDB.addDelivery(f.getID(),
+//							 	DELIVERY_STATUS_CONTACTED,
+//								ddb.getDriverLNFI(delDB.getDeliveredBy(f.getDeliveryID())),
+//								"Angel Call Result: Contacted",
+//								gvs.getUserLNFI(),
+//								Calendar.getInstance());
+//	
+//					 f.setDeliveryID(did);
+//					 f.setChangedBy(gvs.getUserLNFI());
+//					 f.setDeliveryStatus(DELIVERY_STATUS_CONTACTED);
 					 bChangedDeliveryStatus = true;
 				 }
 			 }

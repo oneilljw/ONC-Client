@@ -1,7 +1,6 @@
 package OurNeighborsChild;
 
 import java.io.Serializable;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -19,7 +18,7 @@ public class ONCChildWish extends ONCObject implements Serializable
 	
 	private int childID;	//Id of the child the wish belongs to
 	private int wishID;	//Id of the wish from the catalog
-	private String childWishBase = "None";
+//	private String childWishBase = "None";
 	private String childWishDetail = "";
 	private int wishnumber;
 	private int childWishIndicator = 0;	//0 - Blank, 1-*, 2-#
@@ -27,7 +26,7 @@ public class ONCChildWish extends ONCObject implements Serializable
 	private String changedBy = "";	
 	private Calendar dateChanged = Calendar.getInstance();
 	private int childWishAssigneeID = 0;
-	private String childWishAssigneeName = "None";
+//	private String childWishAssigneeName = "None";
 
 /*	
 	public ONCChildWish(String cw, String cb, Date dc)	//constructor for wish read from ONC .csv file
@@ -66,36 +65,36 @@ public class ONCChildWish extends ONCObject implements Serializable
 	}
 */	
 	//Constructor for wish merge		
-	public ONCChildWish(String wb, String wd, int wi, int ws, int waID, String waName, String cb, Date dc)
+	public ONCChildWish( String wd, int wi, int ws, int waID, String cb, Date dc)
 	{
 		super(0);
 		this.id=0;
 		childID = 0;
 		wishID = 0;
-		childWishBase = wb;
+//		childWishBase = wb;
 		childWishIndicator = wi;
 		childWishDetail = wd;
 		wishnumber = 0;
 		childWishStatus = ws;
 		childWishAssigneeID = waID;
-		childWishAssigneeName = waName;
+//		childWishAssigneeName = waName;
 		changedBy = cb;
 		dateChanged.setTime(dc);	    
 	}
 	
 	//Constructor for wish created or changed internally		
-	public ONCChildWish(int id, int childid, int wishid, String wb, String wd, int wishnum, int wi, int ws, int waID, String waName, String cb, Date dc)
+	public ONCChildWish(int id, int childid, int wishid, String wd, int wishnum, int wi, int ws, int waID, String cb, Date dc)
 	{
 		super(id);
 		childID = childid;
 		wishID = wishid;
-		childWishBase = wb;
+//		childWishBase = wb;
 		childWishIndicator = wi;
 		childWishDetail = wd;
 		wishnumber = wishnum;
 		childWishStatus = ws;
 		childWishAssigneeID = waID;
-		childWishAssigneeName = waName;
+//		childWishAssigneeName = waName;
 		changedBy = cb;
 		dateChanged.setTime(dc);	    
 	}
@@ -106,15 +105,15 @@ public class ONCChildWish extends ONCObject implements Serializable
 		super(Integer.parseInt(nextLine[0]));
 		childID = Integer.parseInt(nextLine[1]);
 		wishID = Integer.parseInt(nextLine[2]);
-		childWishBase = getDBString(nextLine[3]);
-		childWishDetail = getDBString(nextLine[4]);
-		wishnumber = Integer.parseInt(nextLine[5]);
-		childWishIndicator = Integer.parseInt(nextLine[6]);
-		childWishStatus = Integer.parseInt(nextLine[7]);
-		changedBy = getDBString(nextLine[8]);
-		dateChanged.setTimeInMillis(Long.parseLong(nextLine[9]));
-		childWishAssigneeID = Integer.parseInt(nextLine[10]);
-		childWishAssigneeName = getDBString(nextLine[11]);
+//		childWishBase = getDBString(nextLine[3]);
+		childWishDetail = getDBString(nextLine[3]);
+		wishnumber = Integer.parseInt(nextLine[4]);
+		childWishIndicator = Integer.parseInt(nextLine[5]);
+		childWishStatus = Integer.parseInt(nextLine[6]);
+		changedBy = getDBString(nextLine[6]);
+		dateChanged.setTimeInMillis(Long.parseLong(nextLine[8]));
+		childWishAssigneeID = Integer.parseInt(nextLine[9]);
+//		childWishAssigneeName = getDBString(nextLine[11]);
 	}
 	
 	String getDBString(String s)
@@ -123,18 +122,18 @@ public class ONCChildWish extends ONCObject implements Serializable
 	}
 	
 	public int getChildID() { return childID; }
-	int getWishID() { return wishID; }
-	public String getChildWishBase() {return childWishBase;}
-	String getChildWishDetail() { return childWishDetail; }
+	public int getWishID() { return wishID; }
+//	public String getChildWishBase() {return childWishBase;}
+	public String getChildWishDetail() { return childWishDetail; }
 	public int getWishNumber() { return wishnumber; }
 	int getChildWishIndicator() { return childWishIndicator; }
 	public int getChildWishStatus() {return childWishStatus;}
 	public int getChildWishAssigneeID() {return childWishAssigneeID;}
-	String getChildWishAssigneeName() {return childWishAssigneeName;}
+//	String getChildWishAssigneeName() {return childWishAssigneeName;}
 	String getChildWishChangedBy() {return changedBy;}
 	Calendar getChildWishDateChanged() {return dateChanged;}
-	public String getChildWishBaseAndDetail() { return childWishBase + "- " + childWishDetail; }
-	
+//	public String getChildWishBaseAndDetail() { return childWishBase + "- " + childWishDetail; }
+/*	
 	String getChildWishAll()
 	{		
 		String s = "";
@@ -145,36 +144,19 @@ public class ONCChildWish extends ONCObject implements Serializable
 		
 		return s + childWishBase + "- " +  childWishDetail;
 	}
-		
-	String[] getWishHistoryTableRow()
-	{
-		String [] status = {"", "Empty", "Selected", "Assigned", "Received", 
-							"Distributed", "Verified"};
-		
-		String[] indicators = {"", "*", "#"};
-
-		String[] whTR = new String[7];
-		whTR[0] = childWishBase;
-		whTR[1] = childWishDetail;
-		whTR[2] = indicators[childWishIndicator];
-		whTR[3] = status[childWishStatus];
-		whTR[4] = childWishAssigneeName;
-		whTR[5] = changedBy;
-		whTR[6] = new SimpleDateFormat("MM/dd H:mm").format(dateChanged.getTime());
-		return whTR;
-	}
-	
+*/		
+	public void setWishID(int id) { wishID = id; }
 	void setChildWishDetail(String cwd) { childWishDetail = cwd; }
 	void setChildWishIndicator(int cwi) { childWishIndicator = cwi; }
 	void setChildWishStatus(int cws) { childWishStatus = cws;}
 	void setChildWishAssigneeID(int id) {childWishAssigneeID = id;}
-	void setChildWishAssigneeName(String n) {childWishAssigneeName = n; }
+//	void setChildWishAssigneeName(String n) {childWishAssigneeName = n; }
 	void setChildWishChangedBy(String name) {changedBy = name;}
 	void setChildWishDateChanged(Calendar dc) {dateChanged = dc;}
 	
 	boolean isComparisonWishIdentical(ONCChildWish compWish)
 	{		
-		return compWish.getChildWishBase().equals(childWishBase) &&
+		return compWish.getWishID() == wishID &&
 				compWish.getChildWishDetail().equals(childWishDetail) &&
 					compWish.getChildWishIndicator() == childWishIndicator &&
 						compWish.getChildWishStatus() == childWishStatus &&
@@ -190,10 +172,10 @@ public class ONCChildWish extends ONCObject implements Serializable
 	public String[] getDBExportRow()
 	{
 		String[] row= {Integer.toString(id), Integer.toString(childID),Integer.toString(wishID), 
-						childWishBase, childWishDetail, Integer.toString(wishnumber),
+						childWishDetail, Integer.toString(wishnumber),
 						Integer.toString(childWishIndicator), Integer.toString(childWishStatus), 
 						changedBy, Long.toString(dateChanged.getTimeInMillis()),
-						Integer.toString(childWishAssigneeID), childWishAssigneeName};
+						Integer.toString(childWishAssigneeID)};
 		return row;
 	}
 }

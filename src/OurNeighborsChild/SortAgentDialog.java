@@ -18,6 +18,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+
 import javax.mail.internet.MimeBodyPart;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -376,8 +377,8 @@ public class SortAgentDialog extends ONCSortTableDialog implements ActionListene
         
         //set up the Agent Info Dialog
         String[] tfNames = {"Name", "Organization", "Title", "Email", "Phone"};
-    	aiDlg = new AgentInfoDialog(gvs.getFrame(), tfNames);
-    	this.addTableSelectionListener(aiDlg);
+    	aiDlg = new AgentInfoDialog(GlobalVariables.getFrame(), tfNames);
+    	this.addEntitySelectionListener(aiDlg);
         
         //Add the components to the control panel
         cntlPanel.add(printCB);
@@ -1208,7 +1209,7 @@ public class SortAgentDialog extends ONCSortTableDialog implements ActionListene
 			Object[] options= {"Cancel", "Send"};
 			JOptionPane confirmOP = new JOptionPane(confirmMssg, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION,
 								gvs.getImageIcon(0), options, "Cancel");
-			JDialog confirmDlg = confirmOP.createDialog(gvs.getFrame(), "*** Confirm Send Partner Email ***");
+			JDialog confirmDlg = confirmOP.createDialog(this, "*** Confirm Send Partner Email ***");
 			confirmDlg.setLocationRelativeTo(this);
 			confirmDlg.setVisible(true);
 		
@@ -1450,14 +1451,14 @@ public class SortAgentDialog extends ONCSortTableDialog implements ActionListene
 //						aiDlg.display(getAgentSelected());	//Display newly selected agent
 //					}
 					
-				fireDataChanged(this, "AGENT_SELECTED", atAL.get(sortAgentTable.getSelectedRow()), null);
+				fireEntitySelected(this, "AGENT_SELECTED", atAL.get(sortAgentTable.getSelectedRow()), null);
 				requestFocus();
 			}		
 		}
 		else if (!lse.getValueIsAdjusting() && lse.getSource() == familyTable.getSelectionModel() &&
 					!bChangingFamilyTable)
 		{
-			fireDataChanged(this, "FAMILY_SELECTED", stAL.get(familyTable.getSelectedRow()), null);
+			fireEntitySelected(this, "FAMILY_SELECTED", stAL.get(familyTable.getSelectedRow()), null);
 			requestFocus();
 		}
 	

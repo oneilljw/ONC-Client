@@ -62,6 +62,35 @@ public class Organization extends ONCEntity
 		contact2_phone = "";
 	}
 	
+	Organization(int orgid, String name)
+	{
+		//constructor used when adding creating a non-assigned organization for wishes
+		super(orgid, new Date(), "", STOPLIGHT_RED, "Non-Assigned Partner created", "");
+		status = 0;
+		type = 0;
+		this.name = name;
+		ornamentDelivery = "";
+		streetnum = 0;
+		streetname = "";
+		unit = "";
+		city = "";
+		zipcode = "";
+		region = 0;
+		phone = "";
+		orn_req = 0;
+		orn_assigned = 0;
+		other = "";
+		confirmed = "";
+		deliverTo = "";
+		specialNotes = "";
+		contact = "";
+		contact_email = "";
+		contact_phone = "";
+		contact2 = "";
+		contact2_email = "";
+		contact2_phone = "";
+	}
+	
 	Organization(int orgid, Date date, int slPos, String slMssg, String slChangedBy,
 			int status, int type, String name, String ornDelivery, int streetnum, String streetname,
 			String unit, String city, String zipcode, String phone, int orn_req, String other, 
@@ -185,7 +214,7 @@ public class Organization extends ONCEntity
 	String getContact2_phone()	{ return contact2_phone; }
 	
 	//setters
-	void setStatus(int s)	{ status = s; }
+	public void setStatus(int s)	{ status = s; }
 	void setType(int t)		{ type = t; }
 	void setName(String n)	{ name = n; }
 	void setOrnamentDelivery(String od)	{ ornamentDelivery = od; }
@@ -238,4 +267,9 @@ public class Organization extends ONCEntity
 		return row;
 	}
 	
+	 @Override
+	 public String toString()
+	 {
+	     return name;
+	 }
 }

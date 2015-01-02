@@ -23,12 +23,12 @@ public class ONCWishDlgSortItem
 	private String		sortItemchildWishChangedBy;
 	private Calendar	sortItemchildWishDateChanged;
 	
-	public ONCWishDlgSortItem(ONCFamily fam, int id, String fnum, ONCChild c, int cwn, String ca, Calendar dob, String cg, 
+	public ONCWishDlgSortItem(ONCFamily fam, int oncID, String fnum, ONCChild c, int cwn, String ca, Calendar dob, String cg, 
 							int cwi, String cwb, String cwd,
 							String cws, String cwa, String cwcb, Calendar cdc)
 	{
 		sortItemFamily = fam;
-		sortItemONCID = id;
+		sortItemONCID = oncID;
 		sortItemoncFamNum = fnum;
 		sortItemChild = c;
 		sortItemchildWishNum = cwn;
@@ -82,9 +82,13 @@ public class ONCWishDlgSortItem
 	{
 		SimpleDateFormat dob = new SimpleDateFormat("MM-dd-yyyy");
 		String childDoB = dob.format(sortItemchildDateOfBirth.getTime());
+		String dateChanged = dob.format(sortItemchildWishDateChanged.getTime());
 		
 		String[] exportRow = {sortItemoncFamNum, sortItemchildGender, sortItemchildAge,
-								childDoB, sortItemchildWishInd, sortItemchildWishBase, sortItemchildWishDetail};
+								childDoB, sortItemchildWishInd, sortItemchildWishBase, 
+								sortItemchildWishDetail, sortItemchildWishStatus,
+								sortItemchildWishAssignee, sortItemchildWishChangedBy,
+								dateChanged};
 		return exportRow;
 	}
 	
@@ -163,8 +167,4 @@ public class ONCWishDlgSortItem
 
 		return line;
 	}
-	
-	void setSortItemChildWishInd(String cwi) { sortItemchildWishInd = cwi; }
-	void setSortItemChildWishStatus(String cws) { sortItemchildWishStatus = cws; }
-	void setSortItemChildWishAssignee(String cwa) { sortItemchildWishAssignee = cwa; }
 }

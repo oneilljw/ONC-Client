@@ -27,7 +27,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 
-public abstract class ONCFamilyDialog extends ONCSortTableDialog implements ActionListener, DatabaseListener,
+public abstract class ONCFamilyTableDialog extends ONCSortTableDialog implements ActionListener, DatabaseListener,
 																				ListSelectionListener
 {
 	/**
@@ -74,11 +74,10 @@ public abstract class ONCFamilyDialog extends ONCSortTableDialog implements Acti
 	protected static String[] delstatus = {"Any", "Empty", "Contacted", "Confirmed", "Assigned", "Attempted", "Returned", "Delivered", "Counselor Pick-Up"};
 	protected static String[] stoplt = {"Any", "Green", "Yellow", "Red", "Off"};
 	
-	public ONCFamilyDialog(JFrame pf, String[] colToolTips, String[] cols, int[] colWidths, int[] center_cols)
+	public ONCFamilyTableDialog(JFrame pf, String[] colToolTips, String[] cols, int[] colWidths, int[] center_cols)
 	{
 		super(pf);
 		oncGVs = GlobalVariables.getInstance();
-		parentFrame = oncGVs.getFrame();
 		
 		driverDB = DriverDB.getInstance();
 		deliveryDB = DeliveryDB.getInstance();
@@ -275,7 +274,7 @@ public abstract class ONCFamilyDialog extends ONCSortTableDialog implements Acti
 		{
 			ONCFamily fam = stAL.get(sortTable.getSelectedRow());
 			
-			fireDataChanged(this, "FAMILY_SELECTED", fam, null);
+			fireEntitySelected(this, "FAMILY_SELECTED", fam, null);
 			this.requestFocus();
 		}
 		

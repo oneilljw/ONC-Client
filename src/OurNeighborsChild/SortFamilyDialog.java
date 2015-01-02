@@ -19,8 +19,6 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
@@ -30,9 +28,11 @@ import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 import javax.swing.SwingWorker;
 import javax.swing.filechooser.FileNameExtensionFilter;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import au.com.bytecode.opencsv.CSVWriter;
 
 /* These imports were removed when Jasper Reports was no longer used for Yellow Card print
@@ -43,7 +43,7 @@ import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 */
 
-public class SortFamilyDialog extends ONCFamilyDialog implements PropertyChangeListener								
+public class SortFamilyDialog extends ONCFamilyTableDialog implements PropertyChangeListener								
 {
 	private static final long serialVersionUID = 1L;
 	private static final String DEFAULT_NO_CHANGE_LIST_ITEM = "No Change";
@@ -86,7 +86,7 @@ public class SortFamilyDialog extends ONCFamilyDialog implements PropertyChangeL
 	private int sortZip = 0, sortRegion = 0, sortChangedBy = 0, sortStoplight = 0;
 	private String sortONC = "Any", sortLN = "Any", sortStreet= "Any", sortDNSCode = "Any";
 
-	private static String[] dnsCodes = {"Any","SA", "DUP", "NISA", "NC"};	
+	private static String[] dnsCodes = {"Any","SA", "DUP", "NISA", "NC", "WA"};	
 	private static String[] batchNums = {"Any","B-01","B-02","B-03","B-04","B-05","B-06","B-07","B-08","B-09","B-10", "B-CR"};	
 	private static String[] printChoices = {"Print", "Print Listing", "Print Book Labels", 
 											"Print Family Receiving Sheets",
@@ -209,6 +209,8 @@ public class SortFamilyDialog extends ONCFamilyDialog implements PropertyChangeL
 		changeDNSCB.setEditable(true);
 		changeDNSCBM = new DefaultComboBoxModel();
 	    changeDNSCBM.addElement(DEFAULT_NO_CHANGE_LIST_ITEM);
+	    for(int index=1; index < dnsCodes.length; index++)
+	    	changeDNSCBM.addElement(dnsCodes[index]);
 	    changeDNSCB.setModel(changeDNSCBM);
 		changeDNSCB.setPreferredSize(new Dimension(172, 56));
 		changeDNSCB.setBorder(BorderFactory.createTitledBorder("Change DNS Code"));
@@ -402,28 +404,37 @@ public class SortFamilyDialog extends ONCFamilyDialog implements PropertyChangeL
 				//and the status set to assigned.
 				ONCDelivery reqDelivery = new ONCDelivery(-1, f.getID(),
 						changeDStatusCB.getSelectedIndex()-1,
-						driverDB.getDriverLNFI(deliveryDB.getDeliveredBy(f.getDeliveryID())),
+						deliveryDB.getDeliveredBy(f.getDeliveryID()),
 						"Delivery Driver Assigned",
 						oncGVs.getUserLNFI(),
 						Calendar.getInstance());
 
 				String response = deliveryDB.add(this, reqDelivery);
 				if(response.startsWith("ADDED_DELIVERY"))
-				{
 					bDataChanged = true;
-				}
 				else
 				{
 					//display an error message that update request failed
 					GlobalVariables gvs = GlobalVariables.getInstance();
-					JOptionPane.showMessageDialog(gvs.getFrame(), "ONC Server denied Driver Update," +
-							"try again later","Driver Update Failed",  
+					JOptionPane.showMessageDialog(this, "ONC Server denied Delivery Update," +
+							"try again later","Delivery Update Failed",  
 							JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
 				}
 			}
 			
-			if(bFamilyChangeDetected)
-				fDB.update(this, f);
+			if(bFamilyChangeDetected)	//submit change to local db. If successful, set table to rebuild
+			{
+				String response = fDB.update(this, f);
+				if(response.startsWith("UPDATED_FAMILY"))
+					bDataChanged = true;
+				else
+				{	//display an error message that update request failed
+					GlobalVariables gvs = GlobalVariables.getInstance();
+					JOptionPane.showMessageDialog(this, "ONC Server denied Family Update," +
+						"try again later","Family Update Failed",  
+						JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
+				}
+			}
 		}
 		
 		if(bDataChanged);
@@ -618,9 +629,11 @@ public class SortFamilyDialog extends ONCFamilyDialog implements PropertyChangeL
 			ONCFamily f = stAL.get(row_sel[i]);
 				
 			//Get family address and format it for the URL request to Google Maps
-			String dbdestAddress = f.getHouseNum().trim() + "+" + f.getStreet().trim() + 
-										"+" + f.getCity().trim() + ",VA";		
-			String destAddress = dbdestAddress.replaceAll(" ", "+");
+//			String dbdestAddress = f.getHouseNum().trim() + "+" + f.getStreet().trim() + 
+//										"+" + f.getCity().trim() + ",VA";		
+//			String destAddress = dbdestAddress.replaceAll(" ", "+");
+			
+			String destAddress = f.getGoogleMapAddress();
 				
 			//Get direction JSON, then trip route and steps
 			JSONObject dirJSONObject = ddir.getGoogleDirections(oncGVs.getWarehouseAddress(), destAddress);
@@ -776,7 +789,8 @@ public class SortFamilyDialog extends ONCFamilyDialog implements PropertyChangeL
 									{"ln", "Lane"},
 									{"pl", "Place"},
 									{"st", "Street"},
-									{"sq", "Square"}};
+									{"sq", "Square"},
+									{"trl", "Trail"}};
 		
 		//Solicit user on which phone number to export for each family
 		Object[] options= {"Cancel", "Home Phone", "Other Phone"};
@@ -832,38 +846,61 @@ public class SortFamilyDialog extends ONCFamilyDialog implements PropertyChangeL
     					phonenum = phonenum.replaceAll("-", "");
 			
     					//Build the address to call. Convert a street suffix to a whole word if abbreviated
-    					//Also, include the unit, if there is one
+    					//Also, include the unit, if there is one. Check to see if were using the actual address
+    					//or the substitute delivery address
+
+    			        //determine whether family has a substitute delivery address
     					StringBuffer address = new StringBuffer("");
-    					if(!f.getHouseNum().isEmpty())
-    						address.append(f.getHouseNum() + " ");
-			
-    					String[] streetname = f.getStreet().split(" ");
-    					if(streetname.length > 1)	//Must be a valid street name with a name and suffix
-    					{
-    						//Check for street direction. If found append it. Then append the street name.
-    						//If a street direction was found, start with streetname[1], else
-    						//start with streetname[0]
-    						int index = appendStreetDirection(streetname[0], address) ? 1 : 0;
+    					String houseNum, streetName, unit;
+    					
+    			        if(f.getSubstituteDeliveryAddress()!= null && !f.getSubstituteDeliveryAddress().isEmpty() &&
+    			      		f.getSubstituteDeliveryAddress().split("_").length == 5)
+    			      	{
+    			        	//use the substitute delivery address
+    			      		String[] addPart = f.getSubstituteDeliveryAddress().split("_");
+    			      		houseNum = addPart[0];
+    			      		streetName = addPart[1];
+    			      		unit = addPart[2].equals("None") ? "" : addPart[2];
+    			      		
+    			      	}
+    			        else	//use the actual address
+    			        {
+    			        	houseNum = f.getHouseNum();
+    			        	streetName = f.getStreet();
+    			        	unit = f.getUnitNum();
+    			        }
+    			        
+    			        //process the address
+    			        String[] streetname = streetName.split(" ");
+    			        if(streetname.length > 1)	//Must be a valid street name with a name and suffix
+    			        {
+        			        if(!houseNum.isEmpty())
+        			        	address.append(houseNum + " ");
+    			        	
+    			        	//Check for street direction. If found append it. Then append the street name.
+    			        	//If a street direction was found, start with streetname[1], else
+    			        	//start with streetname[0]
+    			        	int index = appendStreetDirection(streetname[0], address) ? 1 : 0;
 				
-    						while(index < streetname.length -1)
-    							address.append(streetname[index++] + " ");
+    			        	while(index < streetname.length -1)
+    			        		address.append(streetname[index++] + " ");
 				
-    						//Append the suffix
-    						String suffix = streetname[streetname.length-1];
-    						suffix = suffix.replace(".", "");	//Check for period and replace it
+    			        	//Append the suffix
+    			        	String suffix = streetname[streetname.length-1];
+    			        	suffix = suffix.replace(".", "");	//Check for period and replace it
     			
-    						for(int abbr=0; abbr < abbreviations.length; abbr++)	//Check for abbreviations and replace them
-    							if(suffix.equalsIgnoreCase(abbreviations[abbr][0]))
-    								suffix = abbreviations[abbr][1];
+    			        	for(int abbr=0; abbr < abbreviations.length; abbr++)	//Check for abbreviations and replace them
+    			        		if(suffix.equalsIgnoreCase(abbreviations[abbr][0]))
+    			        			suffix = abbreviations[abbr][1];
 	    	    		
-    						address.append(suffix);
+    			        	address.append(suffix);
 	    	    		
-    						//Append the unit, if any. If it has the abbrev Apt or Apt., spell out Apartment
-    						String unit = f.getUnitNum();
-    						unit = unit.replace(".", "");
-    						unit = unit.replace("Apt", "Apartment");
-    						address.append(" " + unit);
-    					}
+    			        	//Append the unit, if any. If it has the abbrev Apt or Apt., spell out Apartment
+    			        	unit = unit.replace(".", "");
+    			        	unit = unit.replace("Apt", "Apartment");
+    			        	address.append(" " + unit);
+    			        
+    			        }
 			
     					String[] exportRow = {phonenum, address.toString().trim(), f.getONCNum()};
     					writer.writeNext(exportRow);
@@ -1143,6 +1180,20 @@ public class SortFamilyDialog extends ONCFamilyDialog implements PropertyChangeL
         String familyname = fam.getClientFamily();
         String streetaddress = fam.getHouseNum() + " " + fam.getStreet() + " " + fam.getUnitNum();
         String citystatezip = fam.getCity() + ", VA " + fam.getZipCode();
+        
+        String altstreetaddress = "";
+        String altcitystatezip = "";
+  
+        //determine whether family has a substitute delivery address
+        if(fam.getSubstituteDeliveryAddress()!= null && !fam.getSubstituteDeliveryAddress().isEmpty() &&
+      		fam.getSubstituteDeliveryAddress().split("_").length == 5)
+      	{
+      		String[] addPart = fam.getSubstituteDeliveryAddress().split("_");
+      		String unit = addPart[2].equals("None") ? "" : addPart[2];
+      		altstreetaddress = addPart[0] + " " + addPart[1] + " " + unit;
+      		altcitystatezip = addPart[3] + ", VA " + addPart[4];
+      	}
+        
         String homephones = fam.getHomePhone();
         String otherphones = fam.getOtherPhon();
         String emailaddress = fam.getFamilyEmail().length() > MIN_EMAIL_ADDRESS_LENGTH ? fam.getFamilyEmail() : "None Found";
@@ -1164,6 +1215,8 @@ public class SortFamilyDialog extends ONCFamilyDialog implements PropertyChangeL
     		"&emsp;<b>Home Phone #:</b>  %s<br>" +
     		"&emsp;<b>Other Phone #:</b>  %s<br>" +
     		"&emsp;<b>Email Address:</b>  %s<br>" + 
+    		"&emsp;<b>Alternate Delivery Address:</b>  %s<br>" +
+    		"&emsp;<b>Alternate Delivery Address:</b>  %s<br>" + 
         	"<p>An Our Neighbor's Child volunteer will deliver your children's gifts to the address listed above " +
         	"on <b>Sunday, December 14th between 1 and 4PM.</b>  You will receive an automated phone call reminder and " +
         	"an adult must be home to receive the gifts.</p>" +
@@ -1193,6 +1246,8 @@ public class SortFamilyDialog extends ONCFamilyDialog implements PropertyChangeL
     		"&emsp;<b>Numero de tel&#233;fono:</b>  %s<br>" +
     		"&emsp;<b>Numero alternativo:</b>  %s<br>" +
     		"&emsp;<b>Correo electr&#243;nico:</b>  %s<br>" + 
+    		"&emsp;<b>Direcci&#243;n alternativo:</b>  %s<br>" +
+    		"&emsp;<b>Direcci&#243;n alternativo:</b>  %s<br>" +
         	"<p>Un voluntario de Our Neighbor's Child entregar&#225; los regalos para su hijo/hijos a la direcci&#243;n de " +
         	"arriba el domingo, 14 de diciembre entre la 1 y la 4 de la tarde. Recibir&#225; una llamada de tel&#233;fono " +
         	"automatizada como un recordatorio y un adulto debe estar en casa para recibir los regalos</p>" +
@@ -1208,7 +1263,8 @@ public class SortFamilyDialog extends ONCFamilyDialog implements PropertyChangeL
         	"<p>Gracias para su asistencia y Feliz Navidad!</p>" +
         	"<p><b>Our Neighbor's Child</b></p>" +
         	"</div></body></html>", hohFirstName, familyname, streetaddress, citystatezip, homephones, otherphones, 
-        	emailaddress, hohFirstName, familyname, streetaddress, citystatezip, homephones, otherphones, emailaddress);
+        	emailaddress, altstreetaddress, altcitystatezip, hohFirstName, familyname, streetaddress, citystatezip, 
+        	homephones, otherphones, emailaddress, altstreetaddress, altcitystatezip);
         return msg;
 	}
 	
@@ -1373,20 +1429,20 @@ public class SortFamilyDialog extends ONCFamilyDialog implements PropertyChangeL
 		{
 			if(callCB.getSelectedIndex() == 1)	//Place immediate call
 			{
-				System.out.println("Requesting automated call");
-				
-				OutboundApiInvoker roboCaller = new OutboundApiInvoker();
-				
-				roboCaller.setApiKey("0a140220-0b-13af5fb0a48-b1c2dd47-777@0a140225-04-13af5011fcf-8f6bc6a2-" +
-									 "c74@c7ff532e@1352746601032@10@8020c008eb24ff586599107f630e7bba");
-				roboCaller.setSiteNumber("200000126686");
-				roboCaller.setSubscriberId("0a140225-04-13af5011fcf-8f6bc6a2-c74");
-				
-				Map<String,String> variableMap = new HashMap<String,String>();
+//				System.out.println("Requesting automated call");
+//				
+//				OutboundApiInvoker roboCaller = new OutboundApiInvoker();
+//				
+//				roboCaller.setApiKey("0a140220-0b-13af5fb0a48-b1c2dd47-777@0a140225-04-13af5011fcf-8f6bc6a2-" +
+//									 "c74@c7ff532e@1352746601032@10@8020c008eb24ff586599107f630e7bba");
+//				roboCaller.setSiteNumber("200000126686");
+//				roboCaller.setSubscriberId("0a140225-04-13af5011fcf-8f6bc6a2-c74");
+//				
+//				Map<String,String> variableMap = new HashMap<String,String>();
 //				variableMap.put("zipcode", "20120");
-				variableMap.put("Address", "6211 Point Circle, Centreville VA");
-				
-				roboCaller.immediateCall(5,"5713440902", variableMap);
+//				variableMap.put("Address", "6211 Point Circle, Centreville VA");
+//				
+//				roboCaller.immediateCall(5,"5713440902", variableMap);
 			}
 			else if(callCB.getSelectedItem().toString().equals("Export Call File"))
 			{
@@ -1579,7 +1635,7 @@ public class SortFamilyDialog extends ONCFamilyDialog implements PropertyChangeL
 	{	
 		PackagingSheetPrinter(ArrayList<ONCVerificationSheet> psal, Image img, String season, ChildWishDB cwdb)
 		{
-			super(psal, cwdb);
+			super(psal);
 			this.img = img;
 			oncSeason = season;
 		}
@@ -1705,7 +1761,7 @@ public class SortFamilyDialog extends ONCFamilyDialog implements PropertyChangeL
 	{	
 		GiftInventorytSheetPrinter(ArrayList<ONCVerificationSheet> vsal, Image img, String season, ChildWishDB cwdb) 
 		{
-			super(vsal, cwdb);
+			super(vsal);
 			this.img = img;
 			oncSeason = season;
 		}
@@ -1816,7 +1872,7 @@ public class SortFamilyDialog extends ONCFamilyDialog implements PropertyChangeL
 	{	
 		FamilyReceivingCheckSheetPrinter(ArrayList<ONCVerificationSheet> vsal, Image img, String season, ChildWishDB cwdb) 
 		{
-			super(vsal, cwdb);
+			super(vsal);
 			this.img = img;
 			oncSeason = season;
 		}

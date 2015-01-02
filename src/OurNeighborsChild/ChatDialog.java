@@ -116,7 +116,8 @@ public class ChatDialog extends JDialog implements ActionListener, DatabaseListe
 			if(onlineuser.getClientID() != gvs.getUser().getClientID())	//can't chat with yourself
 			{
 				onlineUserList.add(onlineuser);
-				chattersCBM.addElement(onlineuser.getFirstname() + " " + onlineuser.getLastname());
+//				chattersCBM.addElement(onlineuser.toString());
+				chattersCBM.addElement(onlineuser);
 			}
 		}
 		
@@ -188,26 +189,35 @@ public class ChatDialog extends JDialog implements ActionListener, DatabaseListe
 		contentPane.add(chatterspanel);
 		contentPane.add(textpanel);
 		
-		String username;
-		if(!bInitiateChat)
+//		String username;
+		if(!bInitiateChat)	//dialog instantiated in response to chat request
 		{
+			ONCUser chatPartner = getChatPartnerUser(chatTargetClientID);
+			if(chatPartner != null)
 			//find the target client ID in the list of onlineUsers
-			int index = 0;
-			while(index < onlineUserList.size() && onlineUserList.get(index).getClientID() != chatTargetClientID)
-				index++;
+//			int index = 0;
+//			while(index < onlineUserList.size() && onlineUserList.get(index).getClientID() != chatTargetClientID)
+//				index++;
 			
-			if(index < onlineUserList.size())
+			//find the target client ID in the combobox model
+//			int index = 1;	//first entry is the header
+//			while(index < chattersCBM.getSize() && ((ONCUser) chattersCBM.getElementAt(index)).getClientID() != chatTargetClientID)
+//				index++;
+			
+//			if(index < onlineUserList.size())
+//			if(index < chattersCBM.getSize())
 			{
 				//found the requester client ID in the list of online users
-				username = onlineUserList.get(index).getFirstname() + " " + onlineUserList.get(index).getLastname();
+//				username = onlineUserList.get(index).getFirstname() + " " + onlineUserList.get(index).getLastname();
+//				username = chattersCBM.getElementAt(index).toString();
 			
-				this.setTitle("Chat Request From " + username);
+				this.setTitle("Chat Request From " + chatPartner.toString());
 				lblChatters.setText("Request from:");
-				displayChatText("Accept or Reject Chat Request from " + username, systemAttribs);
+				displayChatText("Accept or Reject Chat Request from " + chatPartner.toString(), systemAttribs);
 				chattersCB.setEnabled(false);
 				bIgnoreChatCBRequests = true;
 			
-				chattersCB.setSelectedItem(username);
+				chattersCB.setSelectedItem(chatPartner);
 				contentPane.add(requestpanel);
 				try {
 					SoundUtils.tone(250,50);
@@ -243,7 +253,8 @@ public class ChatDialog extends JDialog implements ActionListener, DatabaseListe
 	void sendChatRequest()
 	{
 		//form the chat request ChatMessage Object
-		chatTargetClientID = onlineUserList.get(chattersCB.getSelectedIndex()-1).getClientID();
+//		chatTargetClientID = onlineUserList.get(chattersCB.getSelectedIndex()-1).getClientID();
+		chatTargetClientID = ((ONCUser) chattersCBM.getSelectedItem()).getClientID();
 		
 		ChatMessage reqMssg = new ChatMessage(gvs.getUser().getClientID(), chatTargetClientID);
 		
@@ -254,7 +265,8 @@ public class ChatDialog extends JDialog implements ActionListener, DatabaseListe
 			chatState = ChatState.REQUESTED;	//set state to requested
 			this.setTitle("Chat Requested");
 			chattersCB.setEnabled(false);	//disable another request until chat has ended or request is denied
-			displayChatText("Chat request sent to " + (String) chattersCB.getSelectedItem(), systemAttribs);
+//			displayChatText("Chat request sent to " + (String) chattersCB.getSelectedItem(), systemAttribs);
+			displayChatText("Chat request sent to " + chattersCB.getSelectedItem().toString(), systemAttribs);
 		}
 		else
 			displayChatText("CHAT ERROR: Chat request failed, please try again", systemAttribs);
@@ -300,7 +312,7 @@ public class ChatDialog extends JDialog implements ActionListener, DatabaseListe
 			this.setTitle("Chatting with " + user.getFirstname());
 			
 			lblChatters.setText("Chatting with:");
-			displayChatText("You're now chatting with " + user.getFirstname() + " " + user.getLastname(), systemAttribs);
+			displayChatText("You're now chatting with " + user.toString(), systemAttribs);
 			
 			chatState = ChatState.ACTIVE;
 			dataTF.setEditable(true);
@@ -338,15 +350,31 @@ public class ChatDialog extends JDialog implements ActionListener, DatabaseListe
 	/*************************************************************************************
 	 * Helper method to find chat partner user
 	 ************************************************************************************/
+//	ONCUser getChatPartnerUser(long chatPartnerClientID)
+//	{
+//		//find the target client ID in the list of onlineUsers
+//		int index = 0;
+//		while(index < onlineUserList.size() && onlineUserList.get(index).getClientID() != chatTargetClientID)
+//			index++;
+//		
+//		if(index < onlineUserList.size())
+//			return onlineUserList.get(index);
+//		else
+//			return null;
+//	}
+	
+	/*************************************************************************************
+	 * Helper method to find chat partner ONCUser
+	 ************************************************************************************/
 	ONCUser getChatPartnerUser(long chatPartnerClientID)
 	{
 		//find the target client ID in the list of onlineUsers
-		int index = 0;
-		while(index < onlineUserList.size() && onlineUserList.get(index).getClientID() != chatTargetClientID)
+		int index = 1;
+		while(index < chattersCBM.getSize() && ((ONCUser) chattersCBM.getElementAt(index)).getClientID() != chatTargetClientID)
 			index++;
 		
-		if(index < onlineUserList.size())
-			return onlineUserList.get(index);
+		if(index < chattersCBM.getSize())
+			return (ONCUser) chattersCBM.getElementAt(index);
 		else
 			return null;
 	}
@@ -424,7 +452,7 @@ public class ChatDialog extends JDialog implements ActionListener, DatabaseListe
 				chattersCB.setEnabled(true);
 				bIgnoreChatCBRequests = false;
 				
-				String username = getChatPartnerUser(chatTargetClientID).getFirstname() + " " + getChatPartnerUser(chatTargetClientID).getLastname();
+				String username = getChatPartnerUser(chatTargetClientID).toString();
 				displayChatText("Chat request not accepted by " + username +
 						", Select another elf to chat with using the above list", systemAttribs);
 			}

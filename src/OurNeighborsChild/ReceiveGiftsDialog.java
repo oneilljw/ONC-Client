@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -12,6 +11,7 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Calendar;
+
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -42,7 +42,6 @@ public class ReceiveGiftsDialog extends ONCSortTableDialog implements ActionList
 	private static final int CHILD_WISH_IND_NOT_ASSIGNED = 1;
 	private static final int NUM_ROWS_TO_DISPLAY = 15;
 	
-	private JFrame parentFrame;
 	private GlobalVariables sdGVs;
 	
 	public JTable sortTable;
@@ -55,6 +54,8 @@ public class ReceiveGiftsDialog extends ONCSortTableDialog implements ActionList
 	private Families fDB;
 	private ChildDB cDB;
 	private ChildWishDB cwDB;
+	private ONCOrgs orgDB;
+	private ONCWishCatalog cat;
 	private ArrayList<ONCRecGiftSortItem> stAL;
 	private LastWishReceived lastWishReceived;	//Holds the last wish received for undo function
 	private boolean bChangingTable = false;	//Semaphore used to indicate the sort table is being changed
@@ -75,8 +76,10 @@ public class ReceiveGiftsDialog extends ONCSortTableDialog implements ActionList
 		fDB = Families.getInstance();
 		cDB = ChildDB.getInstance();
 		cwDB = ChildWishDB.getInstance();
+		orgDB = ONCOrgs.getInstance();
+		cat = ONCWishCatalog.getInstance();
 		sdGVs = GlobalVariables.getInstance();
-		parentFrame = sdGVs.getFrame();
+//		parentFrame = sdGVs.getFrame();
 		
 		cDB.addDatabaseListener(this);	//Child updates
 		cwDB.addDatabaseListener(this);	//Wish updates
@@ -87,8 +90,6 @@ public class ReceiveGiftsDialog extends ONCSortTableDialog implements ActionList
 		this.setTitle("Our Neighbor's Child - Receive Gifts");
 		
 		//Set up the search criteria panel      
-//        JPanel sortCriteriaPanel = new JPanel();
-//        sortCriteriaPanel.setLayout(new BoxLayout(sortCriteriaPanel, BoxLayout.Y_AXIS));
 		JPanel sortCriteriaPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));		
     	JLabel lblONCicon = new JLabel(sdGVs.getImageIcon(0));
     	
@@ -219,7 +220,7 @@ public class ReceiveGiftsDialog extends ONCSortTableDialog implements ActionList
 //      sortTablePanel.add(sortScrollPane);
 		
         //Set up the button control panel
-		JPanel cntlPanel = new JPanel();
+		JPanel cntlPanel = new JPanel(new FlowLayout());
 		
 		btnUndo = new JButton(sdGVs.getImageIcon(16));
         btnUndo.setToolTipText("Click to undo last gift received");
@@ -250,8 +251,6 @@ public class ReceiveGiftsDialog extends ONCSortTableDialog implements ActionList
         pack();
         setSize(tablewidth, 400);
         setResizable(true);
-        Point pt = parentFrame.getLocation();
-        setLocation(pt.x + parentFrame.getWidth() - tablewidth, pt.y + 20);
 	}
 	
 	void displaySortTable()
@@ -289,11 +288,14 @@ public class ReceiveGiftsDialog extends ONCSortTableDialog implements ActionList
 							if(cw != null && cw.getChildWishStatus() < CHILD_WISH_STATUS_RECEIVED && 
 								cw.getChildWishIndicator() != CHILD_WISH_IND_NOT_ASSIGNED)
 							{
+								Organization org =  orgDB.getOrganizationByID(cw.getChildWishAssigneeID());
+								
 								stAL.add(new ONCRecGiftSortItem(f, f.getID(),f.getONCNum(), c.getChildAge(), i, 
 										c, c.getChildDOB(), c.getChildGender(),
-										cw.getChildWishIndicator(), cw.getChildWishBase(),
+										cw.getChildWishIndicator(), 
+										cat.getWishByID(cw.getWishID()).getName(),
 										cw.getChildWishDetail(), status[cw.getChildWishStatus()],
-										cw.getChildWishAssigneeName()));
+										org == null ? "None" : org.getName()));
 							}
 						}
 					}
@@ -310,43 +312,35 @@ public class ReceiveGiftsDialog extends ONCSortTableDialog implements ActionList
 		
 		int row_sel = sortTable.getSelectedRow();
 		
-			//Find child and wish number for selected
-			int oncID = stAL.get(row_sel).getSortItemONCID();
+		//Find child and wish number for selected
+		int oncID = stAL.get(row_sel).getSortItemONCID();
 		
-			ONCFamily fam = fDB.searchForFamilyByID(oncID);
+		ONCFamily fam = fDB.searchForFamilyByID(oncID);
 			
-			ONCChild c = stAL.get(row_sel).getSortItemChild();
-			int wn = stAL.get(row_sel).getSortItemChildWishNumber();
-			ONCChildWish cw = cwDB.getWish(c.getChildWishID(wn));
+		ONCChild c = stAL.get(row_sel).getSortItemChild();
+		int wn = stAL.get(row_sel).getSortItemChildWishNumber();
+		ONCChildWish cw = cwDB.getWish(c.getChildWishID(wn));
 
-			//Get current wish information
-			String cwb = cw.getChildWishBase();
-			String cwd = cw.getChildWishDetail();
-			int cwi = cw.getChildWishIndicator();
-			int cwaID = cw.getChildWishAssigneeID();
-			String cwaName = cw.getChildWishAssigneeName();
+		//Get current wish information
+		int wishtypeid = cw.getWishID(); //Not implemented yet
+//		String cwb = cat.getWishByID(cw.getWishID()).getName();
+		String cwd = cw.getChildWishDetail();
+		int cwi = cw.getChildWishIndicator();
+		int cwaID = cw.getChildWishAssigneeID();
+//		String cwaName = cw.getChildWishAssigneeName();
 			
-			//Process change to wish status
-			//Store the new wish to be added in case of an undo operation and add the new wish 
-			//to the child wish history
-			lastWishReceived = new LastWishReceived(fam, c, cw);
+		//Process change to wish status. Store the new wish to be added in case of an undo operation 
+		//and add the new wish to the child wish history
+		lastWishReceived = new LastWishReceived(fam, c, cw);
 			
-			int wishtypeid = 0; //Not implemented yet
-			int wishid = cwDB.add(c.getID(), wishtypeid, cwb, cwd, wn, cwi, CHILD_WISH_STATUS_RECEIVED,
-										cwaID, cwaName, sdGVs.getUserLNFI(), sdGVs.getTodaysDate());
+		int wishid = cwDB.add(this, c.getID(), wishtypeid, cwd, wn, cwi, CHILD_WISH_STATUS_RECEIVED,
+								cwaID, sdGVs.getUserLNFI(), sdGVs.getTodaysDate());
 			
-			c.setChildWishID(wishid, wn);				
+		c.setChildWishID(wishid, wn);				
 				
-			//Update the sort table itself
-			buildSortTableArrayList();
-				
-			//check to see if family status should change as well. Family status will change 
-			//automatically when the last child wish status changes if status change rules are met
-			//the getLowestFamilyStatus() method implements those rules. 
-//			int lowestfamilystatus = fDB.getLowestFamilyStatus(fam, cDB, cwDB);
-//			if(fam.getFamilyStatus() < lowestfamilystatus)
-//				fam.setFamilyStatus(lowestfamilystatus);
-			
+		//Update the sort table itself
+		buildSortTableArrayList();
+		
 		sortTable.clearSelection();
 		
 		btnReceiveGift.setEnabled(false);
@@ -364,15 +358,15 @@ public class ReceiveGiftsDialog extends ONCSortTableDialog implements ActionList
 		ONCChild lastChild = lastWishReceived.getLastChild();
 		ONCChildWish lastWish = lastWishReceived.getLastWishReceived();
 		
-		int wishid = cwDB.add(lastWishReceived.getLastChild().getID(),
+		int wishid = cwDB.add(this, lastWishReceived.getLastChild().getID(),
 									lastWish.getWishID(),
-									lastWish.getChildWishBase(),
+//									cat.getWishByID(lastWish.getWishID()).getName(),
 									lastWish.getChildWishDetail(),
 									lastWish.getWishNumber(),
 									lastWish.getChildWishIndicator(),
 									lastWish.getChildWishStatus(),
 									lastWish.getChildWishAssigneeID(),
-									lastWish.getChildWishAssigneeName(),
+//									lastWish.getChildWishAssigneeName(),
 									sdGVs.getUserLNFI(),
 									sdGVs.getTodaysDate());
 		
@@ -496,7 +490,8 @@ public class ReceiveGiftsDialog extends ONCSortTableDialog implements ActionList
 		{
 			ONCFamily fam = stAL.get(sortTable.getSelectedRow()).getSortItemFamily();
 			ONCChild child = stAL.get(sortTable.getSelectedRow()).getSortItemChild();
-			fireDataChanged(this, "WISH_SELECTED", fam, child);
+			fireEntitySelected(this, "WISH_SELECTED", fam, child);
+			sortTable.requestFocus();
 		}
 		
 		checkReceiveGiftEnabled();	//Check to see if user postured to change status or assignee.
@@ -622,9 +617,10 @@ public class ReceiveGiftsDialog extends ONCSortTableDialog implements ActionList
 	@Override
 	public void dataChanged(DatabaseEvent dbe)
 	{
-		if(dbe.getSource() != this && (dbe.getType().equals("WISH_ADDED") ||
-										dbe.getType().equals("UPDATED_CHILD") || 
-										 dbe.getType().equals("DELETED_CHILD")))
+		if(dbe.getSource() != this && (dbe.getType().equals("UPDATED_CHILD") || 
+										dbe.getType().equals("DELETED_CHILD")
+//										 dbe.getType().equals("WISH_ADDED")
+										 ))
 		{
 			buildSortTableArrayList();
 		}		

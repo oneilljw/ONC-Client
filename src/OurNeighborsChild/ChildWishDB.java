@@ -22,7 +22,7 @@ import au.com.bytecode.opencsv.CSVWriter;
 
 public class ChildWishDB extends ONCDatabase
 {
-	private static final int CHILD_WISH_DB_HEADER_LENGTH = 12;
+	private static final int CHILD_WISH_DB_HEADER_LENGTH = 10;
 	private static final int CHILD_WISH_STATUS_EMPTY = 1;
 	private static final int CHILD_WISH_STATUS_SELECTED = 2;
 	private static final int CHILD_WISH_STATUS_ASSIGNED = 3;
@@ -53,19 +53,19 @@ public class ChildWishDB extends ONCDatabase
 	 * an automatic change needs to occur as well. The new wish, with correct status is 
 	 * then sent to the server. 
 	 */
-	int add(int childid, int wishid, String wb, String wd, int wn, int wi, int ws, int waID, String waName, String cb, Date dc)
+	int add(Object source, int childid, int wishid, String wd, int wn, int wi, int ws, int waID, String cb, Date dc)
 	{		
 		//Get the old wish being replaced. getWish method returns null if wish not found
 		ONCChildWish oldWish = getWish(childid, wn);
 		
 		//Determine if the status needs to change automatically
-		int wishstatus = checkForStatusChange(oldWish, wb, ws, waID);
+		int wishstatus = checkForStatusChange(oldWish, wishid, ws, waID);
 		
 		//create the new wish, with childwishID = -1, meaning no wish selected
 		//the server will add the childwishID and return it
 		int newWishID = -1;
-		ONCChildWish cw = new ONCChildWish(-1, childid, wishid, wb, wd, wn, wi,
-											wishstatus, waID, waName, cb, dc);		
+		ONCChildWish cw = new ONCChildWish(-1, childid, wishid, wd, wn, wi,
+											wishstatus, waID, cb, dc);		
 		Gson gson = new Gson();
 		String response = null;
 		
@@ -79,13 +79,13 @@ public class ChildWishDB extends ONCDatabase
 		if(response != null && response.startsWith("WISH_ADDED"))
 		{
 //			System.out.println("ChildWish DB_add: Server Response: " + response);
-			newWishID = processAddedWish(response.substring(10));
+			newWishID = processAddedWish(source, response.substring(10));
 		}
 		
 		return newWishID;
 	}
 	
-	int processAddedWish(String json)
+	int processAddedWish(Object source, String json)
 	{
 		//create the new wish object from the json and get the wish it's replacing
 		Gson gson = new Gson();
@@ -121,18 +121,16 @@ public class ChildWishDB extends ONCDatabase
 		}
 			
 		//data bases have been updated, notify ui's of changes
-		fireDataChanged(this, "WISH_ADDED", addedWish);
+		fireDataChanged(source, "WISH_ADDED", addedWish);
 		
-		if(replacedWish != null && !replacedWish.getChildWishBase().equals(addedWish.getChildWishBase()))
+		if(replacedWish != null && replacedWish.getWishID() != addedWish.getWishID())
 		{
 			//base change - need to tell wish catalog dialog to adjust wish counts
-			WishBaseOrOrgChange wbc= new WishBaseOrOrgChange(replacedWish.getChildWishBase(),
-															  addedWish.getChildWishBase(),
-															   addedWish.getWishNumber());
+			WishBaseOrOrgChange wbc= new WishBaseOrOrgChange(replacedWish, addedWish, addedWish.getWishNumber());
 			
 			cat.changeWishCounts(wbc);	//notify the catalog to update counts
 			
-			fireDataChanged(this, "WISH_BASE_CHANGED", wbc); //notify the UI's			
+			fireDataChanged(source, "WISH_BASE_CHANGED", wbc); //notify the UI's			
 		}
 		
 		if(replacedWish != null && replacedWish.getChildWishStatus() != addedWish.getChildWishStatus())
@@ -141,11 +139,11 @@ public class ChildWishDB extends ONCDatabase
 			DataChange wsc= new DataChange(replacedWish.getChildWishStatus(), 
 											addedWish.getChildWishStatus());	
 				
-			fireDataChanged(this, "WISH_STATUS_CHANGED", wsc);
+			fireDataChanged(source, "WISH_STATUS_CHANGED", wsc);
 		}
 		
 		if(wac != null)
-			fireDataChanged(this, "WISH_PARTNER_CHANGED", wac);
+			fireDataChanged(source, "WISH_PARTNER_CHANGED", wac);
 		
 		
 		return newWishID;
@@ -160,7 +158,7 @@ public class ChildWishDB extends ONCDatabase
 	 * method will set the wish status to CHILD_WISH_SELECTED. Conversely, if a wish was selected from the catalog
 	 * and is reset to empty, the wish status is set to CHILD_WISH_EMPTY.
 	 ************************************************************************************************************/
-	int checkForStatusChange(ONCChildWish oldWish, String wb, int ws, int waID)
+	int checkForStatusChange(ONCChildWish oldWish, int wb, int ws, int waID)
 	{
 		int currentwishstatus;
 		if(oldWish == null)	//Creating first wish
@@ -170,11 +168,11 @@ public class ChildWishDB extends ONCDatabase
 		
 		if(currentwishstatus > CHILD_WISH_STATUS_EMPTY && ws > CHILD_WISH_STATUS_ASSIGNED)
 			return ws;		//Can receive, distribute or verify any gift  without automatic change
-		else if(wb.equals("None"))
+		else if(wb < 0)
 			return CHILD_WISH_STATUS_EMPTY;
-		else if(!wb.equals("None") && waID == 0)
+		else if(wb >= 0  && waID == 0)
 			return CHILD_WISH_STATUS_SELECTED;
-		else if(!wb.equals("None") && waID > 0  && currentwishstatus < CHILD_WISH_STATUS_SELECTED)
+		else if(wb >= 0 && waID > 0  && currentwishstatus < CHILD_WISH_STATUS_SELECTED)
 			return CHILD_WISH_STATUS_SELECTED;
 		else
 			return ws;				
@@ -188,12 +186,13 @@ public class ChildWishDB extends ONCDatabase
 	 * @param oldWish
 	 * @param addedWish
 	 **********************************************************************************/
+/*
 	void processWishAdded(ONCChildWish oldWish, ONCChildWish addedWish)
 	{
 		//test to see if base, status or assignee are changing, if the old wish exists
 		if(oldWish != null)
 		{	
-			if(!oldWish.getChildWishBase().equals(addedWish.getChildWishBase()))
+			if(oldWish.getWishID() != addedWish.getWishID())
 			{
 				//base change - need to tell wish catalog dialog to adjust wish counts
 				WishBaseOrOrgChange wbc= new WishBaseOrOrgChange(oldWish.getChildWishBase(),
@@ -213,11 +212,7 @@ public class ChildWishDB extends ONCDatabase
 					
 				fireDataChanged(this, "WISH_STATUS_CHANGED", wsc);
 			}
-			
-//			System.out.println(String.format("ChildWishDB: Old Org ID %d, New Org ID: %d",
-//					oldWish.getChildWishAssigneeID(), addedWish.getChildWishAssigneeID()));
-			
-			
+
 			if(oldWish.getChildWishAssigneeID() != addedWish.getChildWishAssigneeID())
 			{				
 				//assignee change -- need to notify to adjust partner gift assignment counts
@@ -228,7 +223,7 @@ public class ChildWishDB extends ONCDatabase
 			}
 		}
 	}
-/*	
+	
 	void processWishDeleted(ONCChildWish oldWish)
 	{
 		//test to see if base, status or assignee are changing, if the old wish exists
@@ -272,7 +267,7 @@ public class ChildWishDB extends ONCDatabase
 		{
 			ONCChildWish cw = getWish(delChild.getChildWishID(wn));
 			if(cw != null && cw.getChildWishStatus() >= CHILD_WISH_STATUS_SELECTED)
-				wishbasechangelist.add(new WishBaseOrOrgChange(cw.getChildWishBase(), "None", wn));	
+				wishbasechangelist.add(new WishBaseOrOrgChange(cat.getWishByID(cw.getWishID()), new ONCWish(-1, "None", 7), wn));	
 		}
 		
 		//delete the wishes from local cache
@@ -293,7 +288,7 @@ public class ChildWishDB extends ONCDatabase
 		//preserved for a season. 
 		return null;
 	}
-	
+/*	
 	ArrayList<ONCChildWish> getChildWishHistory(int childid, int wn)
 	{	
 		ArrayList<ONCChildWish> cwh = new ArrayList<ONCChildWish>();
@@ -304,7 +299,7 @@ public class ChildWishDB extends ONCDatabase
 		
 		return cwh;		
 	}
-	
+*/	
 	ONCChildWish getWish(int wishid)
 	{
 		int index = childwishAL.size() -1;
@@ -334,7 +329,7 @@ public class ChildWishDB extends ONCDatabase
 			return childwishAL.get(index);
 	}
 	
-	long getTotalNumberOfChildWishes() { return childwishAL.size(); }
+//	long getTotalNumberOfChildWishes() { return childwishAL.size(); }
 	
 	int getNumberOfWishesPerChild() { return NUMBER_OF_WISHES_PER_CHILD; }
 	
@@ -359,7 +354,7 @@ public class ChildWishDB extends ONCDatabase
 		
 		return response;
 	}
-	
+/*	
 	String importChildWishDB(JFrame pf, ImageIcon oncIcon, String path)	//Only used by superuser to import from .csv file
 	{
     		
@@ -416,7 +411,7 @@ public class ChildWishDB extends ONCDatabase
 	    
 	    return filename;    
 	}
-	
+*/	
 	String exportChildWishDBToCSV(JFrame pf, String filename)
     {
 		File oncwritefile = null;
@@ -439,9 +434,9 @@ public class ChildWishDB extends ONCDatabase
 	    	
 	    	try 
 	    	{
-	    		 String[] header = {"Child Wish ID", "Child ID", "Wish ID", "Base", "Detail",
+	    		 String[] header = {"Child Wish ID", "Child ID", "Wish ID", "Detail",
 	    				 			"Wish #", "Restrictions", "Status",
-	    				 			"Changed By", "Time Stamp", "Org ID", "Org Name"};
+	    				 			"Changed By", "Time Stamp", "Org ID"};
 	    		
 	    		CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
 	    	    writer.writeNext(header);
@@ -473,7 +468,7 @@ public class ChildWishDB extends ONCDatabase
 //					ue.getSource().toString(), ue.getType(), ue.getJson()));
 			//Create a child wish object for the added child wish and add it to
 			//the local child wish cache
-			processAddedWish(ue.getJson());
+			processAddedWish(this, ue.getJson());
 		}		
 	}
 }

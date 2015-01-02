@@ -78,8 +78,8 @@ public class ChatManager extends ONCDatabase implements ActionListener
 		{
 			//create and display a new chat dialog with the combo box set to the requesting user
 			//and state sent to chat
-			ChatDialog chatDlg = new ChatDialog(gvs.getFrame(), false, reqMssg.getSenderClientID());	//false = user accepted chat
-			chatDlg.setLocationRelativeTo(gvs.getFrame());
+			ChatDialog chatDlg = new ChatDialog(GlobalVariables.getFrame(), false, reqMssg.getSenderClientID());	//false = user accepted chat
+			chatDlg.setLocationRelativeTo(GlobalVariables.getFrame());
 			chatDlg.setVisible(true);
 		}
 	}
@@ -144,5 +144,4 @@ public class ChatManager extends ONCDatabase implements ActionListener
 		// TODO Auto-generated method stub
 		
 	}
-
 }

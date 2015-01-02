@@ -28,7 +28,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 	private static final String ONC_NUMBER_START = "100";
 	private GlobalVariables pdGVs;
 	private JLabel lblMssg;
-	private JDateChooser dc_today, dc_delivery, dc_seasonstart;
+	private JDateChooser dc_today, dc_delivery, dc_seasonstart, dc_giftsreceived;
 	private JTextArea oncWarehouseAddressTA;
 	private JTextField startONCNumTF;
 	public JComboBox oncFontSizeCB, ytyGrwthPctCB;
@@ -50,7 +50,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		
 		String mssg ="<html><b><FONT COLOR=BLUE>Set Preferences, then click OK</FONT></b></html>";		
 		lblMssg = new JLabel(mssg, JLabel.CENTER);
-		p1.add(lblMssg);
+//		p1.add(lblMssg);
 		
 		Dimension dateSize = new Dimension(144, 56);
 		dc_today = new JDateChooser(pdGVs.getTodaysDate());
@@ -87,6 +87,25 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 			}
 		});
 		p1.add(dc_seasonstart);
+		
+		dc_giftsreceived = new JDateChooser(pdGVs.getTodaysDate());
+		dc_giftsreceived.setPreferredSize(dateSize);
+		dc_giftsreceived.setToolTipText("Last day gifts are received from partners");
+		dc_giftsreceived.setBorder(BorderFactory.createTitledBorder("Gift's Received Date"));
+		dc_giftsreceived.setEnabled(false);
+		dc_giftsreceived.getDateEditor().addPropertyChangeListener(new PropertyChangeListener() 
+		{
+			@Override
+			public void propertyChange(PropertyChangeEvent pce)
+			{
+				if(!bIgnoreDialogEvents && "date".equals(pce.getPropertyName()))
+				{
+//					pdGVs.setSeasonStartDate(dc_seasonstart.getDate());
+					update();
+				}							
+			}
+		});
+		p1.add(dc_giftsreceived);
 		
 		dc_delivery = new JDateChooser(pdGVs.getDeliveryDate());
 		dc_delivery.setPreferredSize(dateSize);
@@ -168,18 +187,20 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		if(!pdGVs.getSeasonStartDate().equals(dc_seasonstart.getDate())) { cf |= 1;}
 		if(!pdGVs.getDeliveryDate().equals(dc_delivery.getDate())) { cf |= 2; }
 		if(!pdGVs.getWarehouseAddress().equals(oncWarehouseAddressTA.getText())) {cf |= 4;}
+		if(!pdGVs.getGiftsReceivedDate().equals(dc_giftsreceived.getDate())) {cf |= 8;}
 		
 		if(cf > 0)
 		{
 			ServerGVs updateGVreq = new ServerGVs(dc_delivery.getDate(), 
 													dc_seasonstart.getDate(), 
-														oncWarehouseAddressTA.getText());
+														oncWarehouseAddressTA.getText(),
+														dc_giftsreceived.getDate());
 			
 			String response = pdGVs.update(this, updateGVreq);
 			if(!response.startsWith("UPDATED_GLOBALS"))
 			{
 				//display an error message that update request failed
-				JOptionPane.showMessageDialog(pdGVs.getFrame(), "ONC Server denied global update," +
+				JOptionPane.showMessageDialog(this, "ONC Server denied global update," +
 						"try again later","Global Update Failed",  
 						JOptionPane.ERROR_MESSAGE, pdGVs.getImageIcon(0));
 			}
@@ -194,6 +215,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 	void setEnabledRestrictedPrefrences(boolean tf)
 	{
 		dc_delivery.setEnabled(tf);
+		dc_giftsreceived.setEnabled(tf);
 		dc_seasonstart.setEnabled(tf);
 		oncWarehouseAddressTA.setEnabled(tf);
 		ytyGrwthPctCB.setEnabled(tf);

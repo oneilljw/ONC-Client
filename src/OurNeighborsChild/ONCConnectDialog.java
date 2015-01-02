@@ -39,11 +39,11 @@ public abstract class ONCConnectDialog extends JDialog implements ActionListener
 		{
 			public void windowClosing(WindowEvent we)
 			{
-				String response = "NO_RESPONSE_FROM_SERVER";
+//				String response = "NO_RESPONSE_FROM_SERVER";
 				
 				if(serverIF != null && serverIF.isConnected())
 		    	{
-					response = serverIF.sendRequest("LOGOUT");
+					serverIF.sendRequest("LOGOUT");
 					
 //		    		System.out.println(response);
 		    		serverIF.close();
