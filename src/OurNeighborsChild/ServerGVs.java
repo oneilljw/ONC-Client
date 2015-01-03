@@ -44,7 +44,7 @@ public class ServerGVs extends ONCObject
 	Date getDeliveryDate() { return oncDeliveryDate.getTime(); }
 	Date getSeasonStartDate() { return oncSeasonStartDate.getTime(); }
 	String getWarehouseAddress() { return warehouseAddress; }
-	Date getGiftsReceivedDate() { return oncGiftsReceivedDate.getTime(); }
+	public Date getGiftsReceivedDate() { return oncGiftsReceivedDate.getTime(); }
 
 	@Override
 	public String[] getDBExportRow()

@@ -131,7 +131,7 @@ public class ONCChildWish extends ONCObject implements Serializable
 	public int getChildWishAssigneeID() {return childWishAssigneeID;}
 //	String getChildWishAssigneeName() {return childWishAssigneeName;}
 	String getChildWishChangedBy() {return changedBy;}
-	Calendar getChildWishDateChanged() {return dateChanged;}
+	public Calendar getChildWishDateChanged() {return dateChanged;}
 //	public String getChildWishBaseAndDetail() { return childWishBase + "- " + childWishDetail; }
 /*	
 	String getChildWishAll()
