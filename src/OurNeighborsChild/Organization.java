@@ -32,6 +32,9 @@ public class Organization extends ONCEntity
 	private String contact2;
 	private String contact2_email;
 	private String contact2_phone;
+	private int pyRequested;
+	private int pyAssigned;
+	private int pyReceived;
 	
 	Organization(int orgid)
 	{
@@ -60,6 +63,9 @@ public class Organization extends ONCEntity
 		contact2 = "";
 		contact2_email = "";
 		contact2_phone = "";
+		pyRequested = 0;
+		pyAssigned = 0;
+		pyReceived = 0;
 	}
 	
 	Organization(int orgid, String name)
@@ -89,6 +95,9 @@ public class Organization extends ONCEntity
 		contact2 = "";
 		contact2_email = "";
 		contact2_phone = "";
+		pyRequested = 0;
+		pyAssigned = 0;
+		pyReceived = 0;
 	}
 	
 	Organization(int orgid, Date date, int slPos, String slMssg, String slChangedBy,
@@ -122,6 +131,9 @@ public class Organization extends ONCEntity
 		this.contact2 = contact2;
 		this.contact2_email = contact2_email;
 		this.contact2_phone = contact2_phone;
+		this.pyRequested = 0;
+		this.pyAssigned = 0;
+		this.pyReceived = 0;
 	}
 	
 	//copy constructor - makes a copy of the organanization
@@ -152,6 +164,9 @@ public class Organization extends ONCEntity
 		this.contact2 = o.getContact2();
 		this.contact2_email = o.getContact2_email();
 		this.contact2_phone = o.getContact2_phone();
+		this.pyRequested = 0;
+		this.pyAssigned = 0;
+		this.pyReceived = 0;
 	}
 	
 	//Constructor for import from .csv
@@ -181,6 +196,9 @@ public class Organization extends ONCEntity
 		contact2 = getDBString(nextLine[20]);
 		contact2_email = getDBString(nextLine[21]);
 		contact2_phone = getDBString(nextLine[22]);
+		pyRequested = Integer.parseInt(nextLine[27]);
+		pyAssigned = Integer.parseInt(nextLine[28]);
+		pyReceived = Integer.parseInt(nextLine[29]);
 	}
 	
 	String getDBString(String s)
@@ -212,6 +230,9 @@ public class Organization extends ONCEntity
 	String getContact2()	{ return contact2; }
 	String getContact2_email()	{ return contact2_email; }
 	String getContact2_phone()	{ return contact2_phone; }
+	int getPriorYearRequested() { return pyRequested; }
+	int getPriorYearAssigned() { return pyAssigned; }
+	int getPriorYearReceived() { return pyReceived; }
 	
 	//setters
 	public void setStatus(int s)	{ status = s; }
@@ -225,8 +246,8 @@ public class Organization extends ONCEntity
 	void setZipcode(String z)	{ zipcode = z; }
 	public void setRegion(int r)	{ region = r; }
 	void setPhone(String p)	{ phone = p; }
-	void setNumberOfOrnamentsRequested(int n)	{ orn_req = n; }
-	void setNumberOfOrnamentsAssigned(int n)	{ orn_assigned = n; }
+	public void setNumberOfOrnamentsRequested(int n)	{ orn_req = n; }
+	public void setNumberOfOrnamentsAssigned(int n)	{ orn_assigned = n; }
 	void setOther(String o)	{ other = o; }
 	void setConfirmed(String c) { confirmed = c;}
 	void setDeliverTo(String dt) { deliverTo = dt; }
@@ -237,6 +258,10 @@ public class Organization extends ONCEntity
 	void setContact2(String c)	{ contact2 = c; }
 	void setContact2_email(String e)	{ contact2_email = e; }
 	void setContact2_phone(String p)	{ contact2_phone = p; }
+	public void setPriorYearRequested(int n) { pyRequested = n; }
+	void setPriorYearAssigned(int n) { pyAssigned = n; }
+	void setPriorYearReceived(int n) { pyReceived = n; }
+	
 	
 	public int incrementOrnAssigned() { return ++orn_assigned; }
 	public int decrementOrnAssigned()
@@ -245,6 +270,9 @@ public class Organization extends ONCEntity
 			orn_assigned--;
 		return orn_assigned;
 	}
+	
+	public int incrementPYAssigned() { return ++pyAssigned; }
+	public int incrementPYReceived() { return ++pyReceived; }
 	
 	String[] getOrgInfoTableRow()
 	{
@@ -263,7 +291,8 @@ public class Organization extends ONCEntity
 						contact, contact_email, contact_phone, 
 						contact2, contact2_email, contact2_phone, 
 						Long.toString(dateChanged.getTimeInMillis()), Integer.toString(slPos),
-						slMssg, slChangedBy};
+						slMssg, slChangedBy, Integer.toString(pyRequested), Integer.toString(pyAssigned),
+						Integer.toString(pyReceived)};
 		return row;
 	}
 	
