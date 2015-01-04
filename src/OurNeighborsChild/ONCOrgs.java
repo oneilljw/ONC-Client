@@ -251,10 +251,9 @@ public class ONCOrgs extends ONCSearchableDatabase
 //	ArrayList<String> getConfirmedOrgs() { return cOrgs; }
 	
 	/*****************************************************************************************
-	 * Creates a list of confirmed organizations, broken into two parts. The top half of the
-	 * list are confirmed businesses, churches and schools, sorted alphabetically. The bottom
-	 * half of the list are all other confirmed organizations sorted alphabetically
-	 * @return
+	 * Creates a list of confirmed organizations that take ornaments, broken into two parts.
+	 * The top half of the list are confirmed businesses, churches and schools, sorted alphabetically.
+	 * The bottom half of the list are all other confirmed organizations sorted alphabetically
 	 *****************************************************************************************/
 	List<Organization> getConfirmedOrgList()
 	{
@@ -266,9 +265,10 @@ public class ONCOrgs extends ONCSearchableDatabase
 		//confirmed organizations to the temporary list
 		for(Organization o: orgsAL)
 		{
-			if(o.getStatus() == STATUS_CONFIRMED && o.getType() < ORG_TYPE_CLOTHING)
+			if(o.getStatus() == STATUS_CONFIRMED && o.getGiftCollectionType() == GiftCollection.Ornament && 
+				o.getType() < ORG_TYPE_CLOTHING)
 				confOrgList.add(o);
-			else if(o.getStatus() == STATUS_CONFIRMED)
+			else if(o.getStatus() == STATUS_CONFIRMED && o.getGiftCollectionType() == GiftCollection.Ornament)
 				confOrgOtherList.add(o);		
 		}
 		
@@ -785,11 +785,13 @@ public class ONCOrgs extends ONCSearchableDatabase
 			fireDataChanged(source, "UPDATED_PARTNER", updatedOrg);
 			
 			//If status has changed to or from confirmed or if the organization is still confirmed
-			//and the type has changed, update the wish assignee lists by
-			//firing an UPDATED_CONFIRMED_PARTNER message
+			//and the type has changed, or if the collection type has changed, update the wish assignee 
+			//lists by firing an UPDATED_CONFIRMED_PARTNER message
 			if(updatedOrg.getStatus() == STATUS_CONFIRMED && replacedOrg.getStatus() != STATUS_CONFIRMED ||
 			    updatedOrg.getStatus() != STATUS_CONFIRMED && replacedOrg.getStatus() == STATUS_CONFIRMED ||
-			     updatedOrg.getStatus() == STATUS_CONFIRMED && updatedOrg.getType() != replacedOrg.getType())
+			     updatedOrg.getStatus() == STATUS_CONFIRMED && updatedOrg.getType() != replacedOrg.getType() ||
+			      updatedOrg.getStatus() == STATUS_CONFIRMED  && 
+			      !updatedOrg.getGiftCollectionType().equals(replacedOrg.getGiftCollectionType()))
 			{
 				fireDataChanged(source, "UPDATED_CONFIRMED_PARTNER", updatedOrg);
 			}

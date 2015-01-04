@@ -1483,6 +1483,9 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
     		//Set wish and wish assignee combo box lists in child panel and wish sort dialog
     		oncFamilyPanel.updateWishLists();
     		oncFamilyPanel.updateWishAssignees();
+    		
+    		//set dates in partner dialog combo box borders
+    		oncFamilyPanel.updateComboBoxBorders();
  
     		oncMenuBar.setEnabledWishCatalogAndOrgMenuItems(true);
     		oncFamilyPanel.initializeCatalogWishCounts();

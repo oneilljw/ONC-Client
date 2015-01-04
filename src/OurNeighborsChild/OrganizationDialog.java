@@ -12,6 +12,7 @@ import java.util.Date;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -47,7 +48,7 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
     private JComboBox typeCB, statusCB, collTypeCB;
     private JTextPane otherTP, specialNotesTP;
     private JLabel lblPYReq, lblPYAssigned, lblPYRec;
-    private JTextField nameTF, cyReqTF, cyAssignedTF, cyRecTF;
+    private JTextField nameTF, cyReqTF;
     private JTextField streetnumTF, streetnameTF, unitTF, cityTF, zipTF, phoneTF;
     private JTextField deliverToTF;
     private JTextField contact1TF, email1TF, phone1TF;
@@ -107,7 +108,7 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
         lblOrgID.setBorder(BorderFactory.createTitledBorder("Partner ID"));
         lblOrgID.setHorizontalAlignment(JLabel.RIGHT);
         
-        nameTF = new JTextField(24);
+        nameTF = new JTextField(23);
         nameTF.setBorder(BorderFactory.createTitledBorder("Name (Last, First if individual)"));
         nameTF.addActionListener(dcListener);
                 
@@ -115,26 +116,26 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
         typeCB = new JComboBox(types);
         typeCB.setToolTipText("Type of organization e.g. Business");
         typeCB.setPreferredSize(new Dimension (132, 48));
-        typeCB.setBorder(BorderFactory.createTitledBorder("Type"));
+        typeCB.setBorder(BorderFactory.createTitledBorder("Partner Type"));
         typeCB.addActionListener(dcListener);
         
+        collTypeCB = new JComboBox();
+        collTypeCB.setModel(new DefaultComboBoxModel(GiftCollection.values()));
+        collTypeCB.setPreferredSize(new Dimension (132, 48));
+        collTypeCB.setBorder(BorderFactory.createTitledBorder("Collection Type"));
+        collTypeCB.addActionListener(dcListener);
+                     
         String[] status = {"No Action Yet", "1st Email Sent", "Responded", "2nd Email Sent", "Called, Left Mssg", "Confirmed", "Not Participating"}; 
         statusCB = new JComboBox(status);
         statusCB.setPreferredSize(new Dimension (132, 48));
         statusCB.setBorder(BorderFactory.createTitledBorder("Status"));
         statusCB.addActionListener(dcListener);
         
-        String[] cType = {"Unknown", "General", "Ornament"}; 
-        collTypeCB = new JComboBox(cType);
-        collTypeCB.setPreferredSize(new Dimension (132, 48));
-        collTypeCB.setBorder(BorderFactory.createTitledBorder("Collection Type"));
-        collTypeCB.addActionListener(dcListener);
-                     
         op1.add(lblOrgID);
         op1.add(nameTF);
         op1.add(typeCB);
-        op1.add(statusCB);
         op1.add(collTypeCB);
+        op1.add(statusCB);
         
         //set up the third panel for ornament information
         //determine year
@@ -151,40 +152,43 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
         lblPYReq = new JLabel();
         lblPYReq.setPreferredSize(ornDimension);
         lblPYReq.setToolTipText("Number of prior year ornaments reqeusted by partner");
-        lblPYReq.setBorder(BorderFactory.createTitledBorder(priorYear + " Requested"));
-//        pyReqTF.setHorizontalAlignment(JTextField.RIGHT);
+        lblPYReq.setBorder(BorderFactory.createTitledBorder("Prior Yr Req"));
+        lblPYReq.setHorizontalAlignment(JLabel.RIGHT);
 //        pyReqTF.addActionListener(dcListener);
         
         lblPYAssigned = new JLabel();
         lblPYAssigned.setPreferredSize(ornDimension);
         lblPYAssigned.setToolTipText("Number of prior year ornaments assigned to partner");
-        lblPYAssigned.setBorder(BorderFactory.createTitledBorder(priorYear + " Assigned"));
+        lblPYAssigned.setBorder(BorderFactory.createTitledBorder(priorYear + "Prior Yr Assig"));
+        lblPYAssigned.setHorizontalAlignment(JLabel.RIGHT);
 //        pyAssignedTF.setHorizontalAlignment(JTextField.RIGHT);
 //        pyAssignedTF.addActionListener(dcListener);
         
         lblPYRec = new JLabel();
         lblPYRec.setPreferredSize(ornDimension);
         lblPYRec.setToolTipText("Number of prior year gifts received from partner");
-        lblPYRec.setBorder(BorderFactory.createTitledBorder(priorYear + " Received"));
+        lblPYRec.setBorder(BorderFactory.createTitledBorder("Prior Yr Rec"));
+        lblPYRec.setHorizontalAlignment(JLabel.RIGHT);
 //        pyRecTF.setHorizontalAlignment(JT.RIGHT);
 //        pyRecTF.addActionListener(dcListener);
         
         cyReqTF = new JTextField();
         cyReqTF.setPreferredSize(ornDimension);
         cyReqTF.setToolTipText("Number of ornaments reqeusted by partner");
-        cyReqTF.setBorder(BorderFactory.createTitledBorder(currentYear + " Requested"));
+        cyReqTF.setBorder(BorderFactory.createTitledBorder("Curr Yr Req"));
         cyReqTF.setHorizontalAlignment(JTextField.RIGHT);
         cyReqTF.addActionListener(dcListener);
         
         lblCYAssigned = new JLabel();
         lblCYAssigned.setPreferredSize(ornDimension);
         lblCYAssigned.setToolTipText("Number of ornnaments assigned to this partner");
-        lblCYAssigned.setBorder(BorderFactory.createTitledBorder(currentYear + " Assigned"));
+        lblCYAssigned.setBorder(BorderFactory.createTitledBorder("Curr Yr Assig"));
+        lblCYAssigned.setHorizontalAlignment(JLabel.RIGHT);
         
         lblCYRec = new JLabel();
         lblCYRec.setPreferredSize(ornDimension);
         lblCYRec.setToolTipText("Number of current year gifts received partner");
-        lblCYRec.setBorder(BorderFactory.createTitledBorder(currentYear + " Received"));
+        lblCYRec.setBorder(BorderFactory.createTitledBorder("Curr Yr Rec"));
         
         op3.add(lblPYReq);
         op3.add(lblPYAssigned);
@@ -193,9 +197,9 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
         op3.add(lblCYAssigned);
         op3.add(lblCYRec);
                      
-        cyAssignedTF = new JTextField(8);
-        cyAssignedTF.setToolTipText("Enter Current Year Ornaments Assigned to Partner");
-        cyAssignedTF.setBorder(BorderFactory.createTitledBorder(currentYear + " Assigned"));
+ //       cyAssignedTF = new JTextField(8);
+ //       cyAssignedTF.setToolTipText("Enter Current Year Ornaments Assigned to Partner");
+ //       cyAssignedTF.setBorder(BorderFactory.createTitledBorder("Curr Yr Assign"));
         
         otherTP = new JTextPane();
         otherTP.setPreferredSize(new Dimension (168, 88));
@@ -396,6 +400,29 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
         setLocation(pt.x + 20, pt.y + 20);
 	}
 	
+	void updateComboBoxBorders()
+	{
+        //determine year
+        GlobalVariables gvs = GlobalVariables.getInstance();
+        Calendar seasonStartCal = Calendar.getInstance();
+        seasonStartCal.setTime(gvs.getSeasonStartDate());
+        
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy");
+        
+        String currentYear = sdf.format(seasonStartCal.getTime());
+        
+        seasonStartCal.add(Calendar.YEAR, -1);
+        String priorYear = sdf.format(seasonStartCal.getTime());
+        
+        lblPYReq.setBorder(BorderFactory.createTitledBorder(priorYear + " Request"));
+        lblPYAssigned.setBorder(BorderFactory.createTitledBorder(priorYear + " Assigned"));
+        lblPYRec.setBorder(BorderFactory.createTitledBorder(priorYear + " Received"));
+        
+        cyReqTF.setBorder(BorderFactory.createTitledBorder(currentYear + " Request"));
+        lblCYAssigned.setBorder(BorderFactory.createTitledBorder(currentYear + " Assigned"));
+        lblCYRec.setBorder(BorderFactory.createTitledBorder(currentYear + " Received"));
+	}
+	
 	void display(ONCEntity partner)	//displays currOrg
 	{
 		if(odOrgs.size() <=0 )
@@ -422,21 +449,28 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
 			nameTF.setText(currOrg.getName());
 			nameTF.setCaretPosition(0);
 			statusCB.setSelectedIndex(currOrg.getStatus());
+			typeCB.setSelectedIndex(currOrg.getType());
+			collTypeCB.setSelectedItem(currOrg.getGiftCollectionType());
 			
-			//CANNOT CHAGE STATUS OF A CONFIRMED ORGANIZATION WITH ASSIGNED ORNAMENTS
-			if(currOrg.getNumberOfOrnammentsAssigned() == 0)	
-				statusCB.setEnabled(true);	
+			//Can't change stats or collection type of organization with ornaments assigned
+			if(currOrg.getNumberOfOrnammentsAssigned() == 0)
+			{
+				statusCB.setEnabled(true);
+				collTypeCB.setEnabled(true);
+			}
 			else
+			{
 				statusCB.setEnabled(false);
+				collTypeCB.setEnabled(false);
+			}
 			
 			//CANNOT DELETE A ORGANIZATION THAT IS CONFIRMED
 			if(currOrg.getStatus() != CONFIRMED_STATUS_INDEX)
 				btnDelete.setEnabled(true);	
 			else
 				btnDelete.setEnabled(false);
-	
-			typeCB.setSelectedIndex(currOrg.getType());		
-			cyAssignedTF.setText(currOrg.getOrnamentDelivery());
+			
+//			cyAssignedTF.setText(currOrg.getOrnamentDelivery());
 			cyReqTF.setText(Integer.toString(currOrg.getNumberOfOrnamentsRequested()));
 			lblCYAssigned.setText(Integer.toString(currOrg.getNumberOfOrnammentsAssigned()));
 			otherTP.setText(currOrg.getOther());
@@ -465,6 +499,9 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
 			email2TF.setCaretPosition(0);
 			phone2TF.setText(currOrg.getContact2_phone());
 			phone1TF.setCaretPosition(0);
+			lblPYReq.setText(Integer.toString(currOrg.getPriorYearRequested()));
+			lblPYAssigned.setText(Integer.toString(currOrg.getPriorYearAssigned()));
+			lblPYRec.setText(Integer.toString(currOrg.getPriorYearReceived()));
 		
 			int[] counts = odOrgs.getOrnamentAndWishCounts();
 			orgcount = counts[0];
@@ -519,7 +556,15 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
 //			odOrgs.structureConfirmedOrgsList();
 			bCD = true;
 		}
-		if(!cyAssignedTF.getText().equals(reqOrg.getOrnamentDelivery())) { reqOrg.setOrnamentDelivery(cyAssignedTF.getText()); bCD = true; }
+		if(!collTypeCB.getSelectedItem().equals(reqOrg.getGiftCollectionType()))
+		{
+			//The organization collection type has changed, store the new type and update the 
+			//confirmed organization list since changes between general and ornament affect 
+			//the organization selection lists in other ui's
+			reqOrg.setGiftCollectionType((GiftCollection) collTypeCB.getSelectedItem());
+			bCD = true;
+		}
+//		if(!cyAssignedTF.getText().equals(reqOrg.getOrnamentDelivery())) { reqOrg.setOrnamentDelivery(cyAssignedTF.getText()); bCD = true; }
 		
 		if(cyReqTF.getText().isEmpty())
 			reqOrg.setNumberOfOrnamentsRequested(0);
@@ -592,8 +637,9 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
 		lblOrgID.setText("");
 		nameTF.setText("");		
 		statusCB.setSelectedIndex(0);
-		typeCB.setSelectedIndex(0);		
-		cyAssignedTF.setText("");
+		typeCB.setSelectedIndex(0);
+		collTypeCB.setSelectedIndex(0);
+//		cyAssignedTF.setText("");
 		cyReqTF.setText("");
 		lblCYAssigned.setText("0");
 		otherTP.setText("");
@@ -612,6 +658,9 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
 		contact2TF.setText("");
 		email2TF.setText("");
 		phone2TF.setText("");
+		lblPYReq.setText("");
+		lblPYAssigned.setText("");
+		lblPYRec.setText("");
 		nav.clearStoplight();
 		
 		bIgnoreEvents = false;
@@ -678,7 +727,8 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
 	{
 		//construct a new organization from user input	
 		Organization newOrg = new Organization(-1, new Date(), 3, "Partner Created", gvs.getUserLNFI(),
-				statusCB.getSelectedIndex(), typeCB.getSelectedIndex(), nameTF.getText(), "", 
+				statusCB.getSelectedIndex(), typeCB.getSelectedIndex(),
+				(GiftCollection) collTypeCB.getSelectedItem(), nameTF.getText(), "", 
 				streetnumTF.getText().isEmpty() ? 0 : Integer.parseInt(streetnumTF.getText()),
 				streetnameTF.getText(), unitTF.getText(), cityTF.getText(), zipTF.getText(), 
 				phoneTF.getText(), cyReqTF.getText().isEmpty() ? 0 : Integer.parseInt(cyReqTF.getText()),

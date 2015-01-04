@@ -1485,6 +1485,12 @@ public class FamilyPanel extends JPanel implements ActionListener, ListSelection
 		oncChildPanel.updateWishAssigneeSelectionList();
 		sortWishesDlg.updateWishAssigneeSelectionList();
 	}
+	
+	void updateComboBoxBorders()
+	{
+		orgDlg.updateComboBoxBorders();
+	}
+	
 	void onAddNewChildClicked()
 	{
 		String[] fieldNames = {"First Name", "Last Name", "School", "Gender", "Date of Birth"};

@@ -11,6 +11,7 @@ public class Organization extends ONCEntity
 	
 	private int status;
 	private int type;
+	private GiftCollection collection;
 	private String name;
 	private String ornamentDelivery;
 	private int streetnum;
@@ -42,6 +43,7 @@ public class Organization extends ONCEntity
 		super(orgid, new Date(), "", STOPLIGHT_OFF, "Partner created", "");
 		status = 0;
 		type = 0;
+		collection = GiftCollection.Unknown;
 		name = "";
 		ornamentDelivery = "";
 		streetnum = 0;
@@ -74,6 +76,7 @@ public class Organization extends ONCEntity
 		super(orgid, new Date(), "", STOPLIGHT_RED, "Non-Assigned Partner created", "");
 		status = 0;
 		type = 0;
+		collection = GiftCollection.Unknown;
 		this.name = name;
 		ornamentDelivery = "";
 		streetnum = 0;
@@ -101,7 +104,7 @@ public class Organization extends ONCEntity
 	}
 	
 	Organization(int orgid, Date date, int slPos, String slMssg, String slChangedBy,
-			int status, int type, String name, String ornDelivery, int streetnum, String streetname,
+			int status, int type, GiftCollection collection, String name, String ornDelivery, int streetnum, String streetname,
 			String unit, String city, String zipcode, String phone, int orn_req, String other, 
 			String deliverTo, String specialNotes, String contact, String contact_email,
 			String contact_phone, String contact2, String contact2_email, String contact2_phone)
@@ -110,6 +113,7 @@ public class Organization extends ONCEntity
 		super(orgid, date, "", STOPLIGHT_OFF, slMssg, slChangedBy);
 		this.status = status;
 		this.type = type;
+		this.collection = collection;
 		this.name = name;
 		this.ornamentDelivery = ornDelivery;
 		this.streetnum = streetnum;
@@ -141,29 +145,30 @@ public class Organization extends ONCEntity
 	{
 		super(o.getID(), o.getDateChanged(), o.getChangedBy(), o.getStoplightPos(),
 				o.getStoplightMssg(), o.getStoplightChangedBy());
-		this.status = o.getStatus();
-		this.type = o.getType();
-		this.name = o.getName();
-		this.ornamentDelivery = o.getOrnamentDelivery();
-		this.streetnum = o.getStreetnum();
-		this.streetname = o.getStreetname();
-		this.unit = o.getUnit();;
-		this.city = o.getCity();
-		this.zipcode = o.getZipcode();
-		this.region = o.getRegion();
-		this.phone = o.getPhone();
-		this.orn_req = o.getNumberOfOrnamentsRequested();
-		this.orn_assigned = o.getNumberOfOrnammentsAssigned();
-		this.other = o.getOther();
+		this.status = o.status;
+		this.type = o.type;
+		this.collection = o.collection;
+		this.name = o.name;
+		this.ornamentDelivery = o.ornamentDelivery;
+		this.streetnum = o.streetnum;
+		this.streetname = o.streetname;
+		this.unit = o.unit;
+		this.city = o.city;
+		this.zipcode = o.zipcode;
+		this.region = o.region;
+		this.phone = o.phone;
+		this.orn_req = o.orn_req;
+		this.orn_assigned = o.orn_assigned;
+		this.other = o.other;
 		this.confirmed = "";
-		this.deliverTo = o.getDeliverTo();
-		this.specialNotes = o.getSpecialNotes();
-		this.contact = o.getContact();
-		this.contact_email = o.getContact_email();
-		this.contact_phone = o.getContact_phone();
-		this.contact2 = o.getContact2();
-		this.contact2_email = o.getContact2_email();
-		this.contact2_phone = o.getContact2_phone();
+		this.deliverTo = o.deliverTo;
+		this.specialNotes = o.specialNotes;
+		this.contact = o.contact;
+		this.contact_email = o.contact_email;
+		this.contact_phone = o.contact_phone;
+		this.contact2 = o.contact2;
+		this.contact2_email = o.contact2_email;
+		this.contact2_phone = o.contact2_phone;
 		this.pyRequested = 0;
 		this.pyAssigned = 0;
 		this.pyReceived = 0;
@@ -172,33 +177,34 @@ public class Organization extends ONCEntity
 	//Constructor for import from .csv
 	public Organization(String[] nextLine)	
 	{
-		super(Integer.parseInt(nextLine[0]), Long.parseLong(nextLine[23]), "",
-				Integer.parseInt(nextLine[24]), nextLine[25], nextLine[26]);
+		super(Integer.parseInt(nextLine[0]), Long.parseLong(nextLine[24]), "",
+				Integer.parseInt(nextLine[25]), nextLine[26], nextLine[27]);
 		status = Integer.parseInt(nextLine[1]);
 		type = Integer.parseInt(nextLine[2]);
-		name = getDBString(nextLine[3]);
-		ornamentDelivery = getDBString(nextLine[4]);
-		streetnum = Integer.parseInt(nextLine[5]);
-		streetname = getDBString(nextLine[6]);
-		unit = getDBString(nextLine[7]);
-		city =getDBString(nextLine[8]);
-		zipcode = getDBString(nextLine[9]);
-		region = Integer.parseInt(nextLine[10]);
-		phone = getDBString(nextLine[11]);
-		orn_req = Integer.parseInt(nextLine[12]);
-		orn_assigned = Integer.parseInt(nextLine[13]);
-		other = getDBString(nextLine[14]);
-		deliverTo = getDBString(nextLine[15]);
-		specialNotes = getDBString(nextLine[16]);
-		contact = getDBString(nextLine[17]);
-		contact_email = getDBString(nextLine[18]);
-		contact_phone = getDBString(nextLine[19]);
-		contact2 = getDBString(nextLine[20]);
-		contact2_email = getDBString(nextLine[21]);
-		contact2_phone = getDBString(nextLine[22]);
-		pyRequested = Integer.parseInt(nextLine[27]);
-		pyAssigned = Integer.parseInt(nextLine[28]);
-		pyReceived = Integer.parseInt(nextLine[29]);
+		collection = nextLine[3].isEmpty() ? GiftCollection.Unknown : GiftCollection.valueOf(nextLine[3]);
+		name = getDBString(nextLine[4]);
+		ornamentDelivery = getDBString(nextLine[5]);
+		streetnum = Integer.parseInt(nextLine[6]);
+		streetname = getDBString(nextLine[7]);
+		unit = getDBString(nextLine[8]);
+		city =getDBString(nextLine[9]);
+		zipcode = getDBString(nextLine[10]);
+		region = Integer.parseInt(nextLine[11]);
+		phone = getDBString(nextLine[12]);
+		orn_req = Integer.parseInt(nextLine[13]);
+		orn_assigned = Integer.parseInt(nextLine[14]);
+		other = getDBString(nextLine[15]);
+		deliverTo = getDBString(nextLine[16]);
+		specialNotes = getDBString(nextLine[17]);
+		contact = getDBString(nextLine[18]);
+		contact_email = getDBString(nextLine[19]);
+		contact_phone = getDBString(nextLine[20]);
+		contact2 = getDBString(nextLine[21]);
+		contact2_email = getDBString(nextLine[22]);
+		contact2_phone = getDBString(nextLine[23]);
+		pyRequested = Integer.parseInt(nextLine[28]);
+		pyAssigned = Integer.parseInt(nextLine[29]);
+		pyReceived = Integer.parseInt(nextLine[30]);
 	}
 	
 	String getDBString(String s)
@@ -209,6 +215,7 @@ public class Organization extends ONCEntity
 	//getters
 	public int getStatus()	{ return status; }
 	int getType()		{ return type; }
+	GiftCollection getGiftCollectionType() {return collection; }
 	public String getName()	{ return name; }
 	String getOrnamentDelivery()	{ return ornamentDelivery; }
 	public int getStreetnum()	{ return streetnum; }
@@ -237,6 +244,7 @@ public class Organization extends ONCEntity
 	//setters
 	public void setStatus(int s)	{ status = s; }
 	void setType(int t)		{ type = t; }
+	void setGiftCollectionType(GiftCollection gc)	{ collection = gc; }
 	void setName(String n)	{ name = n; }
 	void setOrnamentDelivery(String od)	{ ornamentDelivery = od; }
 	void setStreetnum(int sn)	{ streetnum = sn; }
