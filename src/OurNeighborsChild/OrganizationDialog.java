@@ -3,13 +3,10 @@ package OurNeighborsChild;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.Point;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
@@ -44,16 +41,15 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
 	private ONCRegions regions;
 	
 	private JLabel lblCYAssigned, lblCYRec;
-	private JLabel lblOrgID, lblRegion, lblDateChanged;
+	private JLabel lblOrgID, lblRegion, lblDateChanged, lblChangedBy;
     private JComboBox typeCB, statusCB, collTypeCB;
-    private JTextPane otherTP, specialNotesTP;
+    private JTextPane otherTP, specialNotesTP, deliverToTP;
     private JLabel lblPYReq, lblPYAssigned, lblPYRec;
     private JTextField nameTF, cyReqTF;
     private JTextField streetnumTF, streetnameTF, unitTF, cityTF, zipTF, phoneTF;
-    private JTextField deliverToTF;
+//  private JTextField deliverToTF;
     private JTextField contact1TF, email1TF, phone1TF;
     private JTextField contact2TF, email2TF, phone2TF;
-  
     private ONCOrgs odOrgs;
     private int orgcount = 0, wishcount = 0;	//Holds the status panel overall counts
     
@@ -98,11 +94,12 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
         JPanel op1 = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JPanel op2 = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JPanel op3 = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JPanel op4 = new JPanel(new GridBagLayout());
-		GridBagConstraints c = new GridBagConstraints();
+        JPanel op4 = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JPanel op5 = new JPanel(new FlowLayout(FlowLayout.LEFT));
+//      JPanel op5 = new JPanel(new GridBagLayout());
         JPanel op6 = new JPanel(new FlowLayout(FlowLayout.LEFT));
         
+        //set up panel 1
         lblOrgID = new JLabel("No Orgs Yet");
         lblOrgID.setPreferredSize(new Dimension (80, 48));
         lblOrgID.setBorder(BorderFactory.createTitledBorder("Partner ID"));
@@ -115,19 +112,19 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
         String[] types = {"?","Business","Church","School", "Clothing", "Coat", "ONC Shopper"};
         typeCB = new JComboBox(types);
         typeCB.setToolTipText("Type of organization e.g. Business");
-        typeCB.setPreferredSize(new Dimension (132, 48));
+        typeCB.setPreferredSize(new Dimension (128, 48));
         typeCB.setBorder(BorderFactory.createTitledBorder("Partner Type"));
         typeCB.addActionListener(dcListener);
         
         collTypeCB = new JComboBox();
         collTypeCB.setModel(new DefaultComboBoxModel(GiftCollection.values()));
-        collTypeCB.setPreferredSize(new Dimension (132, 48));
+        collTypeCB.setPreferredSize(new Dimension (128, 48));
         collTypeCB.setBorder(BorderFactory.createTitledBorder("Collection Type"));
         collTypeCB.addActionListener(dcListener);
                      
         String[] status = {"No Action Yet", "1st Email Sent", "Responded", "2nd Email Sent", "Called, Left Mssg", "Confirmed", "Not Participating"}; 
         statusCB = new JComboBox(status);
-        statusCB.setPreferredSize(new Dimension (132, 48));
+        statusCB.setPreferredSize(new Dimension (128, 48));
         statusCB.setBorder(BorderFactory.createTitledBorder("Status"));
         statusCB.addActionListener(dcListener);
         
@@ -137,18 +134,179 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
         op1.add(collTypeCB);
         op1.add(statusCB);
         
-        //set up the third panel for ornament information
-        //determine year
-        GlobalVariables gvs = GlobalVariables.getInstance();
-        Calendar seasonStartCal = Calendar.getInstance();
-        seasonStartCal.setTime(gvs.getSeasonStartDate());
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy");
-        String currentYear = sdf.format(seasonStartCal.getTime());
+        //set up panel 2
+        streetnumTF = new JTextField(6);
+        streetnumTF.setToolTipText("Address of partner");
+        streetnumTF.setBorder(BorderFactory.createTitledBorder("St. #"));
+        streetnumTF.addActionListener(dcListener);
         
-        seasonStartCal.add(Calendar.YEAR, -1);
-        String priorYear = sdf.format(seasonStartCal.getTime());
+        streetnameTF = new JTextField(14);
+        streetnameTF.setToolTipText("Address of partner");
+        streetnameTF.setBorder(BorderFactory.createTitledBorder("Street"));
+        streetnameTF.addActionListener(dcListener);
+            
+        unitTF = new JTextField(7);
+        unitTF.setToolTipText("Address of partner");
+        unitTF.setBorder(BorderFactory.createTitledBorder("Unit #"));
+        unitTF.addActionListener(dcListener);
         
-        Dimension ornDimension = new Dimension(112,48);
+        cityTF = new JTextField(8);
+        cityTF.setToolTipText("Address of partner");
+        cityTF.setBorder(BorderFactory.createTitledBorder("City"));
+        cityTF.addActionListener(dcListener);
+        
+        zipTF = new JTextField(4);
+        zipTF.setToolTipText("Address of partner");
+        zipTF.setBorder(BorderFactory.createTitledBorder("Zip"));
+        zipTF.addActionListener(dcListener);
+        
+        phoneTF = new JTextField(10);
+        phoneTF.setToolTipText("Partner phone #");
+        phoneTF.setBorder(BorderFactory.createTitledBorder("Phone #")); 
+        phoneTF.addActionListener(dcListener);
+              
+        lblRegion = new JLabel("?", JLabel.CENTER);
+        lblRegion.setToolTipText("ONC Region Location of this fulfillment partner");
+        lblRegion.setPreferredSize(new Dimension (60, 48));
+        lblRegion.setBorder(BorderFactory.createTitledBorder("Region"));
+        
+        op2.add(streetnumTF);
+        op2.add(streetnameTF);
+        op2.add(unitTF);
+        op2.add(cityTF);
+        op2.add(zipTF);
+        op2.add(phoneTF);
+        op2.add(lblRegion);
+        
+        //set up panel 3     
+        contact1TF = new JTextField(15);
+        contact1TF.setToolTipText("Primary Contact");
+        contact1TF.setBorder(BorderFactory.createTitledBorder("1st Contact"));
+        contact1TF.addActionListener(dcListener);
+        
+        email1TF = new JTextField(20);
+        email1TF.setToolTipText("Primary Contact e-mail");
+        email1TF.setBorder(BorderFactory.createTitledBorder("1st Contact Email"));
+        email1TF.addActionListener(dcListener);
+        
+        phone1TF = new JTextField(12);
+        phone1TF.setToolTipText("Primary Contact phone #");
+        phone1TF.setBorder(BorderFactory.createTitledBorder("1st Contact Phone"));
+        phone1TF.addActionListener(dcListener);
+        
+        lblDateChanged = new JLabel();
+        lblDateChanged.setPreferredSize(new Dimension (136, 48));
+        lblDateChanged.setToolTipText("When this information last changed");
+        lblDateChanged.setBorder(BorderFactory.createTitledBorder("Date Changed"));
+        
+        op3.add(contact1TF);
+        op3.add(email1TF);
+        op3.add(phone1TF);
+        op3.add(lblDateChanged);
+        
+        //set up panel 4
+        contact2TF = new JTextField(15);
+        contact2TF.setToolTipText("Secondary Contact");
+        contact2TF.setBorder(BorderFactory.createTitledBorder("2nd Contact"));
+        contact2TF.addActionListener(dcListener);
+        
+        email2TF = new JTextField(20);
+        email2TF.setToolTipText("Secondary Contact e-mail");
+        email2TF.setBorder(BorderFactory.createTitledBorder("2nd Contact Email"));
+        email2TF.addActionListener(dcListener);
+        
+        phone2TF = new JTextField(12);
+        phone2TF.setToolTipText("Secondary Contact phone #");
+        phone2TF.setBorder(BorderFactory.createTitledBorder("2nd Contact Phone"));
+        phone2TF.addActionListener(dcListener);
+        
+        lblChangedBy = new JLabel();
+        lblChangedBy.setPreferredSize(new Dimension (136, 48));
+        lblChangedBy.setToolTipText("Who last changed this partner's information");
+        lblChangedBy.setBorder(BorderFactory.createTitledBorder("Changed By"));
+       
+        op4.add(contact2TF);
+        op4.add(email2TF);
+        op4.add(phone2TF);
+        op4.add(lblChangedBy);
+        
+        //set up panel 5
+        otherTP = new JTextPane();
+        otherTP.setPreferredSize(new Dimension (264, 100));
+        SimpleAttributeSet attribs = new SimpleAttributeSet(); 
+        StyleConstants.setAlignment(attribs , StyleConstants.ALIGN_LEFT);
+        StyleConstants.setFontSize(attribs, gvs.getFontSize());
+        StyleConstants.setSpaceBelow(attribs, 3);
+        otherTP.setParagraphAttributes(attribs,true);             
+	   	otherTP.setEditable(true);
+	   	
+	    //Create a scroll pane and add the other text pane to it.
+        JScrollPane otherTPSP = new JScrollPane(otherTP);
+        otherTPSP.setBorder(BorderFactory.createTitledBorder("Other Partner Info"));
+              
+        specialNotesTP = new JTextPane();
+        specialNotesTP.setPreferredSize(new Dimension (264, 100));  
+//      StyleConstants.setAlignment(attribs , StyleConstants.ALIGN_LEFT);
+//      StyleConstants.setFontSize(attribs, gvs.getFontSize());
+//      StyleConstants.setSpaceBelow(attribs, 3);
+        specialNotesTP.setParagraphAttributes(attribs,true);             
+	   	specialNotesTP.setEditable(true);
+	   	
+        JScrollPane specialNotesTPSP = new JScrollPane(specialNotesTP);
+        specialNotesTPSP.setBorder(BorderFactory.createTitledBorder("Special Notes About Partner"));
+                   
+        deliverToTP = new JTextPane();
+        deliverToTP.setPreferredSize(new Dimension (180, 100));  
+//      deliverToTP.setToolTipText("Instructions on where gifts will be delivered");
+//      deliverToTP.setBorder(BorderFactory.createTitledBorder("Gift Delivery Info"));
+        deliverToTP.setParagraphAttributes(attribs,true);             
+        deliverToTP.setEditable(true);
+//      deliverToTP.addActionListener(dcListener);
+        
+        JScrollPane deliverToTPSP = new JScrollPane(deliverToTP);
+        deliverToTPSP.setBorder(BorderFactory.createTitledBorder("Gift Delivery Info"));
+/*        
+        //Set up gridbag layout for 5th panel
+        GridBagConstraints c = new GridBagConstraints();
+        c.gridx=0;
+        c.gridy=0;
+        c.gridwidth=2;
+        c.gridheight = 2;
+        c.fill = GridBagConstraints.BOTH;
+        c.weightx=1.0;
+        c.weighty=1.0;
+        op5.add(otherTPSP, c);
+        c.gridx=2;
+        c.gridy=0;
+        c.gridwidth=2;
+        c.gridheight = 2;
+        c.fill = GridBagConstraints.BOTH;
+        c.weightx=1.0;
+        c.weighty=1.0;
+        op5.add(specialNotesTPSP, c);
+        c.gridx=4;
+        c.gridy=0;
+        c.gridwidth=1;
+        c.gridheight = 1;
+        c.fill = GridBagConstraints.BOTH;
+        c.weightx=0.5;
+        c.weighty=0.5;
+//        op5.add(cyReqTF, c);
+        c.gridx=4;
+        c.gridy=1;
+        c.gridwidth=1;
+        c.gridheight = 1;
+        c.fill = GridBagConstraints.BOTH;
+        c.weightx=0.5;
+        c.weighty=0.5;
+        op5.add(deliverToTPSP, c);
+*/        
+        op5.add(otherTPSP);
+        op5.add(specialNotesTPSP);
+        op5.add(deliverToTPSP);
+        
+        //set up panel 6
+        Dimension ornDimension = new Dimension(122,48);
         lblPYReq = new JLabel();
         lblPYReq.setPreferredSize(ornDimension);
         lblPYReq.setToolTipText("Number of prior year ornaments reqeusted by partner");
@@ -159,7 +317,7 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
         lblPYAssigned = new JLabel();
         lblPYAssigned.setPreferredSize(ornDimension);
         lblPYAssigned.setToolTipText("Number of prior year ornaments assigned to partner");
-        lblPYAssigned.setBorder(BorderFactory.createTitledBorder(priorYear + "Prior Yr Assig"));
+        lblPYAssigned.setBorder(BorderFactory.createTitledBorder("Prior Yr Assig"));
         lblPYAssigned.setHorizontalAlignment(JLabel.RIGHT);
 //        pyAssignedTF.setHorizontalAlignment(JTextField.RIGHT);
 //        pyAssignedTF.addActionListener(dcListener);
@@ -189,184 +347,14 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
         lblCYRec.setPreferredSize(ornDimension);
         lblCYRec.setToolTipText("Number of current year gifts received partner");
         lblCYRec.setBorder(BorderFactory.createTitledBorder("Curr Yr Rec"));
+        lblCYRec.setHorizontalAlignment(JLabel.RIGHT);
         
-        op3.add(lblPYReq);
-        op3.add(lblPYAssigned);
-        op3.add(lblPYRec);
-        op3.add(cyReqTF);
-        op3.add(lblCYAssigned);
-        op3.add(lblCYRec);
-                     
- //       cyAssignedTF = new JTextField(8);
- //       cyAssignedTF.setToolTipText("Enter Current Year Ornaments Assigned to Partner");
- //       cyAssignedTF.setBorder(BorderFactory.createTitledBorder("Curr Yr Assign"));
-        
-        otherTP = new JTextPane();
-        otherTP.setPreferredSize(new Dimension (168, 88));
-        SimpleAttributeSet attribs = new SimpleAttributeSet(); 
-        StyleConstants.setAlignment(attribs , StyleConstants.ALIGN_LEFT);
-        StyleConstants.setFontSize(attribs, gvs.getFontSize());
-        StyleConstants.setSpaceBelow(attribs, 3);
-        otherTP.setParagraphAttributes(attribs,true);             
-	   	otherTP.setEditable(true);
-	   	
-	    //Create a scroll pane and add the other text pane to it.
-        JScrollPane otherTPSP = new JScrollPane(otherTP);
-        otherTPSP.setToolTipText("Other Information");
-        otherTPSP.setBorder(BorderFactory.createTitledBorder("Other"));
-              
-        specialNotesTP = new JTextPane();
-        specialNotesTP.setPreferredSize(new Dimension (168, 88));  
-        StyleConstants.setAlignment(attribs , StyleConstants.ALIGN_LEFT);
-        StyleConstants.setFontSize(attribs, gvs.getFontSize());
-        StyleConstants.setSpaceBelow(attribs, 3);
-        specialNotesTP.setParagraphAttributes(attribs,true);             
-	   	specialNotesTP.setEditable(true);
-	   	
-        JScrollPane specialNotesTPSP = new JScrollPane(specialNotesTP);
-        specialNotesTPSP.setToolTipText("Special Notes");
-        specialNotesTPSP.setBorder(BorderFactory.createTitledBorder("Special Notes"));
-                   
-        deliverToTF = new JTextField(10);
-        deliverToTF.setToolTipText("Instructions on where gifts will be delivered");
-        deliverToTF.setBorder(BorderFactory.createTitledBorder("Gift Delivery"));
-        deliverToTF.addActionListener(dcListener);
-        
-        lblDateChanged = new JLabel();
-        lblDateChanged.setPreferredSize(new Dimension (120, 48));
-        lblDateChanged.setToolTipText("When this information last changed");
-        lblDateChanged.setBorder(BorderFactory.createTitledBorder("Date Changed"));
-        
-        //Set up gridbag layout for 4th panel
-        c.gridx=0;
-        c.gridy=0;
-        c.gridwidth=2;
-        c.gridheight = 2;
-        c.fill = GridBagConstraints.BOTH;
-        c.weightx=1.0;
-        c.weighty=1.0;
-        op4.add(otherTPSP, c);
-        c.gridx=2;
-        c.gridy=0;
-        c.gridwidth=2;
-        c.gridheight = 2;
-        c.fill = GridBagConstraints.BOTH;
-        c.weightx=1.0;
-        c.weighty=1.0;
-        op4.add(specialNotesTPSP, c);
-        c.gridx=4;
-        c.gridy=0;
-        c.gridwidth=1;
-        c.gridheight = 1;
-        c.fill = GridBagConstraints.BOTH;
-        c.weightx=0.5;
-        c.weighty=0.5;
-//        op4.add(cyReqTF, c);
-        c.gridx=4;
-        c.gridy=1;
-        c.gridwidth=1;
-        c.gridheight = 1;
-        c.fill = GridBagConstraints.BOTH;
-        c.weightx=0.5;
-        c.weighty=0.5;
-        op4.add(deliverToTF, c);
-        c.gridx=5;
-        c.gridy=0;
-        c.gridwidth=1;
-        c.gridheight = 1;
-        c.fill = GridBagConstraints.BOTH;
-        c.weightx=0.5;
-        c.weighty=0.5;
-//        op4.add(lblCYAssigned, c);
-        c.gridx=5;
-        c.gridy=1;
-        c.gridwidth=1;
-        c.gridheight = 1;
-        c.fill = GridBagConstraints.BOTH;
-        c.weightx=0.5;
-        c.weighty=0.5;
-        op4.add(lblDateChanged, c);
-        
-        streetnumTF = new JTextField(4);
-        streetnumTF.setToolTipText("Address of partner");
-        streetnumTF.setBorder(BorderFactory.createTitledBorder("St. #"));
-        streetnumTF.addActionListener(dcListener);
-        
-        streetnameTF = new JTextField(14);
-        streetnameTF.setToolTipText("Address of partner");
-        streetnameTF.setBorder(BorderFactory.createTitledBorder("Street"));
-        streetnameTF.addActionListener(dcListener);
-            
-        unitTF = new JTextField(7);
-        unitTF.setToolTipText("Address of partner");
-        unitTF.setBorder(BorderFactory.createTitledBorder("Unit #"));
-        unitTF.addActionListener(dcListener);
-        
-        cityTF = new JTextField(7);
-        cityTF.setToolTipText("Address of partner");
-        cityTF.setBorder(BorderFactory.createTitledBorder("City"));
-        cityTF.addActionListener(dcListener);
-        
-        zipTF = new JTextField(4);
-        zipTF.setToolTipText("Address of partner");
-        zipTF.setBorder(BorderFactory.createTitledBorder("Zip"));
-        zipTF.addActionListener(dcListener);
-        
-        phoneTF = new JTextField(10);
-        phoneTF.setToolTipText("Partner phone #");
-        phoneTF.setBorder(BorderFactory.createTitledBorder("Phone #")); 
-        phoneTF.addActionListener(dcListener);
-              
-        lblRegion = new JLabel("?", JLabel.CENTER);
-        lblRegion.setToolTipText("ONC Region Location of this fulfillment partner");
-        lblRegion.setPreferredSize(new Dimension (60, 48));
-        lblRegion.setBorder(BorderFactory.createTitledBorder("Region"));
-        
-        op2.add(streetnumTF);
-        op2.add(streetnameTF);
-        op2.add(unitTF);
-        op2.add(cityTF);
-        op2.add(zipTF);
-        op2.add(phoneTF);
-        op2.add(lblRegion);   
-              
-        contact1TF = new JTextField(16);
-        contact1TF.setToolTipText("Primary Contact");
-        contact1TF.setBorder(BorderFactory.createTitledBorder("1st Contact"));
-        contact1TF.addActionListener(dcListener);
-        
-        email1TF = new JTextField(22);
-        email1TF.setToolTipText("Primary Contact e-mail");
-        email1TF.setBorder(BorderFactory.createTitledBorder("1st Contact Email"));
-        email1TF.addActionListener(dcListener);
-        
-        phone1TF = new JTextField(20);
-        phone1TF.setToolTipText("Primary Contact phone #");
-        phone1TF.setBorder(BorderFactory.createTitledBorder("1st Contact Phone"));
-        phone1TF.addActionListener(dcListener);
-        
-        op5.add(contact1TF);
-        op5.add(email1TF);
-        op5.add(phone1TF);
-              
-        contact2TF = new JTextField(16);
-        contact2TF.setToolTipText("Secondary Contact");
-        contact2TF.setBorder(BorderFactory.createTitledBorder("2nd Contact"));
-        contact2TF.addActionListener(dcListener);
-        
-        email2TF = new JTextField(22);
-        email2TF.setToolTipText("Secondary Contact e-mail");
-        email2TF.setBorder(BorderFactory.createTitledBorder("2nd Contact Email"));
-        email2TF.addActionListener(dcListener);
-        
-        phone2TF = new JTextField(20);
-        phone2TF.setToolTipText("Secondary Contact phone #");
-        phone2TF.setBorder(BorderFactory.createTitledBorder("2nd Contact Phone"));
-        phone2TF.addActionListener(dcListener);
-       
-        op6.add(contact2TF);
-        op6.add(email2TF);
-        op6.add(phone2TF);
+        op6.add(lblPYReq);
+        op6.add(lblPYAssigned);
+        op6.add(lblPYRec);
+        op6.add(cyReqTF);
+        op6.add(lblCYAssigned);
+        op6.add(lblCYRec);
         
         entityPanel.add(op1);
         entityPanel.add(op2);
@@ -473,6 +461,7 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
 //			cyAssignedTF.setText(currOrg.getOrnamentDelivery());
 			cyReqTF.setText(Integer.toString(currOrg.getNumberOfOrnamentsRequested()));
 			lblCYAssigned.setText(Integer.toString(currOrg.getNumberOfOrnammentsAssigned()));
+			lblCYRec.setText(Integer.toString(currOrg.getNumberOfOrnammentsReceived()));
 			otherTP.setText(currOrg.getOther());
 			otherTP.setCaretPosition(0);
 			specialNotesTP.setText(currOrg.getSpecialNotes());
@@ -485,16 +474,19 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
 			phoneTF.setText(currOrg.getPhone());
 			phoneTF.setCaretPosition(0);
 			lblRegion.setText(regions.getRegionID(currOrg.getRegion()));
-			deliverToTF.setText(currOrg.getDeliverTo());
-			deliverToTF.setCaretPosition(0);
-			SimpleDateFormat sdf = new SimpleDateFormat("MMMMM dd, yyyy");
+			deliverToTP.setText(currOrg.getDeliverTo());
+			deliverToTP.setCaretPosition(0);
+			SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy");
 			lblDateChanged.setText(sdf.format(currOrg.getDateChanged()));
+			lblChangedBy.setText(currOrg.getChangedBy());
 			contact1TF.setText(currOrg.getContact());
+			contact1TF.setCaretPosition(0);
 			email1TF.setText(currOrg.getContact_email());
 			email1TF.setCaretPosition(0);
 			phone1TF.setText(currOrg.getContact_phone());
 			phone1TF.setCaretPosition(0);
 			contact2TF.setText(currOrg.getContact2());
+			contact2TF.setCaretPosition(0);
 			email2TF.setText(currOrg.getContact2_email());
 			email2TF.setCaretPosition(0);
 			phone2TF.setText(currOrg.getContact2_phone());
@@ -598,7 +590,7 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
 		if(!cityTF.getText().equals(reqOrg.getCity())) { reqOrg.setCity(cityTF.getText()); bCD = true; }
 		if(!zipTF.getText().equals(reqOrg.getZipcode())) { reqOrg.setZipcode(zipTF.getText()); bCD = true; }
 		if(!phoneTF.getText().equals(reqOrg.getPhone())) { reqOrg.setPhone(phoneTF.getText()); bCD = true; }
-		if(!deliverToTF.getText().equals(reqOrg.getDeliverTo())) { reqOrg.setDeliverTo(deliverToTF.getText()); bCD = true; }
+		if(!deliverToTP.getText().equals(reqOrg.getDeliverTo())) { reqOrg.setDeliverTo(deliverToTP.getText()); bCD = true; }
 		if(!contact1TF.getText().equals(reqOrg.getContact())) { reqOrg.setContact(contact1TF.getText()); bCD = true; }
 		if(!email1TF.getText().equals(reqOrg.getContact_email())) { reqOrg.setContact_email(email1TF.getText()); bCD = true; }
 		if(!phone1TF.getText().equals(reqOrg.getContact_phone())) { reqOrg.setContact_phone(phone1TF.getText()); bCD = true; }
@@ -609,7 +601,8 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
 		if(bCD)	//If an update to organization data (not stop light data) was detected
 		{
 			reqOrg.setDateChanged(gvs.getTodaysDate());
-			reqOrg.setStoplightChangedBy(gvs.getUserLNFI());
+			reqOrg.setChangedBy(gvs.getUserLNFI());
+//			reqOrg.setStoplightChangedBy(gvs.getUserLNFI());
 			
 			String response = odOrgs.update(this, reqOrg);	//notify the database of the change
 			
@@ -651,7 +644,7 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
 		zipTF.setText("");
 		phoneTF.setText("");
 		lblRegion.setText("?");
-		deliverToTF.setText("");
+		deliverToTP.setText("");
 		contact1TF.setText("");
 		email1TF.setText("");
 		phone1TF.setText("");
@@ -726,13 +719,13 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
 	void onSaveNew()
 	{
 		//construct a new organization from user input	
-		Organization newOrg = new Organization(-1, new Date(), 3, "Partner Created", gvs.getUserLNFI(),
+		Organization newOrg = new Organization(-1, new Date(), gvs.getUserLNFI(), 3, "Partner Created", gvs.getUserLNFI(),
 				statusCB.getSelectedIndex(), typeCB.getSelectedIndex(),
 				(GiftCollection) collTypeCB.getSelectedItem(), nameTF.getText(), "", 
 				streetnumTF.getText().isEmpty() ? 0 : Integer.parseInt(streetnumTF.getText()),
 				streetnameTF.getText(), unitTF.getText(), cityTF.getText(), zipTF.getText(), 
 				phoneTF.getText(), cyReqTF.getText().isEmpty() ? 0 : Integer.parseInt(cyReqTF.getText()),
-				otherTP.getText(), deliverToTF.getText(), specialNotesTP.getText(), 
+				otherTP.getText(), deliverToTP.getText(), specialNotesTP.getText(), 
 				contact1TF.getText(), email1TF.getText(), phone1TF.getText(),
 				contact2TF.getText(), email2TF.getText(), phone2TF.getText());
 		
@@ -812,7 +805,8 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
 				}
 			}
 		}
-		else if(dbe.getSource() != this && dbe.getType().equals("WISH_PARTNER_CHANGED"))
+		else if(dbe.getSource() != this &&
+				(dbe.getType().equals("WISH_PARTNER_CHANGED") || dbe.getType().equals("WISH_RECEIVED")))
 		{
 			DataChange change = (DataChange) dbe.getObject();
 			
@@ -820,7 +814,7 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
 //					dbe.getSource().toString(), dbe.getType(), dbe.getObject().toString()));
 			
 			//if current partner being displayed gifts assigned or received have changed,
-			//refresh the data
+			//refresh the displayed data
 			if(!bAddingNewEntity && currOrg != null && (currOrg.getID() == change.getOldData() ||
 															currOrg.getID() == change.getNewData()))
 				display(currOrg); 

@@ -689,6 +689,34 @@ public class ONCOrgs extends ONCSearchableDatabase
 			orgsAL.get(index).incrementOrnAssigned();
 	}
 	
+	public void processGiftReceivedChange(DataChange wgr) 
+	{
+		int index;
+		//If there is a  current partner being decremented, find them
+		if(wgr.getOldData() > -1)
+		{
+			index = 0;
+			while(index < orgsAL.size() && orgsAL.get(index).getID() != wgr.getOldData())
+				index++;
+				
+			//Decrement the gift received count for the partner being replaced
+			if(index < orgsAL.size())
+				orgsAL.get(index).decrementOrnReceived();
+		}
+				
+		//Find the the current partner the gift was received from, if any
+		if(wgr.getNewData() > -1)
+		{
+			index = 0;
+			while(index < orgsAL.size() && orgsAL.get(index).getID() != wgr.getNewData())
+				index++;
+						
+			//Increment the gift received count for the partner 
+			if(index < orgsAL.size())
+			orgsAL.get(index).incrementOrnReceived();
+		}
+	}
+	
 	String add(Object source, ONCObject entity)
 	{
 		Gson gson = new Gson();
@@ -980,4 +1008,6 @@ public class ONCOrgs extends ONCSearchableDatabase
 			return slp1.compareTo(slp2);
 		}
 	}
+	
+	
  }

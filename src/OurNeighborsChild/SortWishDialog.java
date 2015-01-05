@@ -211,8 +211,8 @@ public class SortWishDialog extends ONCSortTableDialog implements ActionListener
 		
 		assignCB = new JComboBox();
 		assignCBM = new DefaultComboBoxModel();
-	    assignCBM.addElement(new Organization(0, "Any"));
-	    assignCBM.addElement(new Organization(-1, "None"));
+	    assignCBM.addElement(new Organization(0, "Any", "Any"));
+	    assignCBM.addElement(new Organization(-1, "None", "None"));
 	    assignCB.setModel(assignCBM);
 		assignCB.setPreferredSize(new Dimension(192, 56));
 		assignCB.setBorder(BorderFactory.createTitledBorder("Assigned To"));
@@ -392,8 +392,8 @@ public class SortWishDialog extends ONCSortTableDialog implements ActionListener
         
         changeAssigneeCB = new JComboBox();
         changeAssigneeCBM = new DefaultComboBoxModel();
-	    changeAssigneeCBM.addElement(new Organization(0, "No Change"));
-	    changeAssigneeCBM.addElement(new Organization(-1, "None"));
+	    changeAssigneeCBM.addElement(new Organization(0, "No Change", "No Change"));
+	    changeAssigneeCBM.addElement(new Organization(-1, "None", "None"));
         changeAssigneeCB.setModel(changeAssigneeCBM);
         changeAssigneeCB.setPreferredSize(new Dimension(192, 56));
 		changeAssigneeCB.setBorder(BorderFactory.createTitledBorder("Change Assignee To:"));
@@ -682,10 +682,10 @@ public class SortWishDialog extends ONCSortTableDialog implements ActionListener
 		assignCBM.removeAllElements();
 		changeAssigneeCBM.removeAllElements();
 		
-		assignCBM.addElement(new Organization(0, "Any"));
-		assignCBM.addElement(new Organization(-1, "None"));
-		changeAssigneeCBM.addElement(new Organization(-1, "No Change"));
-		changeAssigneeCBM.addElement(new Organization(-1, "None"));
+		assignCBM.addElement(new Organization(0, "Any", "Any"));
+		assignCBM.addElement(new Organization(-1, "None", "None"));
+		changeAssigneeCBM.addElement(new Organization(-1, "No Change", "No Change"));
+		changeAssigneeCBM.addElement(new Organization(-1, "None", "None"));
 		
 		for(Organization confOrg :orgs.getConfirmedOrgList())
 		{

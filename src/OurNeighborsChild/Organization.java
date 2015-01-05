@@ -23,6 +23,7 @@ public class Organization extends ONCEntity
 	private String phone;
 	private int orn_req;
 	private int orn_assigned;
+	private int orn_rec;
 	private String other;
 	private String confirmed;
 	private String deliverTo;
@@ -37,10 +38,10 @@ public class Organization extends ONCEntity
 	private int pyAssigned;
 	private int pyReceived;
 	
-	Organization(int orgid)
+	Organization(int orgid, String createdBy)
 	{
 		//constructor used when adding a new organization
-		super(orgid, new Date(), "", STOPLIGHT_OFF, "Partner created", "");
+		super(orgid, new Date(), createdBy, STOPLIGHT_OFF, "Partner created", createdBy);
 		status = 0;
 		type = 0;
 		collection = GiftCollection.Unknown;
@@ -55,6 +56,7 @@ public class Organization extends ONCEntity
 		phone = "";
 		orn_req = 0;
 		orn_assigned = 0;
+		orn_rec = 0;
 		other = "";
 		confirmed = "";
 		deliverTo = "";
@@ -70,10 +72,11 @@ public class Organization extends ONCEntity
 		pyReceived = 0;
 	}
 	
-	Organization(int orgid, String name)
+	Organization(int orgid, String name, String createdBy)
 	{
-		//constructor used when adding creating a non-assigned organization for wishes
-		super(orgid, new Date(), "", STOPLIGHT_RED, "Non-Assigned Partner created", "");
+		//constructor used when adding creating a non-assigned organization for wish filter and 
+		//selection lists
+		super(orgid, new Date(), createdBy, STOPLIGHT_RED, "Non-Assigned Partner created", createdBy);
 		status = 0;
 		type = 0;
 		collection = GiftCollection.Unknown;
@@ -88,6 +91,7 @@ public class Organization extends ONCEntity
 		phone = "";
 		orn_req = 0;
 		orn_assigned = 0;
+		orn_rec = 0;
 		other = "";
 		confirmed = "";
 		deliverTo = "";
@@ -103,14 +107,14 @@ public class Organization extends ONCEntity
 		pyReceived = 0;
 	}
 	
-	Organization(int orgid, Date date, int slPos, String slMssg, String slChangedBy,
+	Organization(int orgid, Date date, String changedBy, int slPos, String slMssg, String slChangedBy,
 			int status, int type, GiftCollection collection, String name, String ornDelivery, int streetnum, String streetname,
 			String unit, String city, String zipcode, String phone, int orn_req, String other, 
 			String deliverTo, String specialNotes, String contact, String contact_email,
 			String contact_phone, String contact2, String contact2_email, String contact2_phone)
 	{
 		//constructor used when adding a new organization
-		super(orgid, date, "", STOPLIGHT_OFF, slMssg, slChangedBy);
+		super(orgid, date, changedBy, STOPLIGHT_OFF, slMssg, slChangedBy);
 		this.status = status;
 		this.type = type;
 		this.collection = collection;
@@ -125,6 +129,7 @@ public class Organization extends ONCEntity
 		this.phone = phone;
 		this.orn_req = orn_req;
 		this.orn_assigned = 0;
+		this.orn_rec = 0;
 		this.other = other;
 		this.confirmed = "";
 		this.deliverTo = deliverTo;
@@ -159,6 +164,7 @@ public class Organization extends ONCEntity
 		this.phone = o.phone;
 		this.orn_req = o.orn_req;
 		this.orn_assigned = o.orn_assigned;
+		this.orn_rec = o.orn_rec;
 		this.other = o.other;
 		this.confirmed = "";
 		this.deliverTo = o.deliverTo;
@@ -177,34 +183,35 @@ public class Organization extends ONCEntity
 	//Constructor for import from .csv
 	public Organization(String[] nextLine)	
 	{
-		super(Integer.parseInt(nextLine[0]), Long.parseLong(nextLine[24]), "",
-				Integer.parseInt(nextLine[25]), nextLine[26], nextLine[27]);
+		super(Integer.parseInt(nextLine[0]), Long.parseLong(nextLine[25]), nextLine[26],
+				Integer.parseInt(nextLine[27]), nextLine[28], nextLine[29]);
 		status = Integer.parseInt(nextLine[1]);
 		type = Integer.parseInt(nextLine[2]);
 		collection = nextLine[3].isEmpty() ? GiftCollection.Unknown : GiftCollection.valueOf(nextLine[3]);
 		name = getDBString(nextLine[4]);
 		ornamentDelivery = getDBString(nextLine[5]);
-		streetnum = Integer.parseInt(nextLine[6]);
+		streetnum = nextLine[6].isEmpty() ? 0 : Integer.parseInt(nextLine[6]);
 		streetname = getDBString(nextLine[7]);
 		unit = getDBString(nextLine[8]);
 		city =getDBString(nextLine[9]);
 		zipcode = getDBString(nextLine[10]);
-		region = Integer.parseInt(nextLine[11]);
+		region = nextLine[11].isEmpty() ? 0 : Integer.parseInt(nextLine[11]);
 		phone = getDBString(nextLine[12]);
-		orn_req = Integer.parseInt(nextLine[13]);
-		orn_assigned = Integer.parseInt(nextLine[14]);
-		other = getDBString(nextLine[15]);
-		deliverTo = getDBString(nextLine[16]);
-		specialNotes = getDBString(nextLine[17]);
-		contact = getDBString(nextLine[18]);
-		contact_email = getDBString(nextLine[19]);
-		contact_phone = getDBString(nextLine[20]);
-		contact2 = getDBString(nextLine[21]);
-		contact2_email = getDBString(nextLine[22]);
-		contact2_phone = getDBString(nextLine[23]);
-		pyRequested = Integer.parseInt(nextLine[28]);
-		pyAssigned = Integer.parseInt(nextLine[29]);
-		pyReceived = Integer.parseInt(nextLine[30]);
+		orn_req = nextLine[13].isEmpty() ? 0 : Integer.parseInt(nextLine[13]);
+		orn_assigned = nextLine[14].isEmpty() ? 0 : Integer.parseInt(nextLine[14]);
+		orn_rec = nextLine[15].isEmpty() ? 0 : Integer.parseInt(nextLine[15]);
+		other = getDBString(nextLine[16]);
+		deliverTo = getDBString(nextLine[17]);
+		specialNotes = getDBString(nextLine[18]);
+		contact = getDBString(nextLine[19]);
+		contact_email = getDBString(nextLine[20]);
+		contact_phone = getDBString(nextLine[21]);
+		contact2 = getDBString(nextLine[22]);
+		contact2_email = getDBString(nextLine[23]);
+		contact2_phone = getDBString(nextLine[24]);
+		pyRequested = nextLine[30].isEmpty() ? 0 : Integer.parseInt(nextLine[30]);
+		pyAssigned = nextLine[31].isEmpty() ? 0 : Integer.parseInt(nextLine[31]);
+		pyReceived = nextLine[32].isEmpty() ? 0 : Integer.parseInt(nextLine[32]);
 	}
 	
 	String getDBString(String s)
@@ -227,6 +234,7 @@ public class Organization extends ONCEntity
 	String getPhone()	{ return phone; }
 	int getNumberOfOrnamentsRequested()	{ return orn_req; }
 	public int getNumberOfOrnammentsAssigned() { return orn_assigned; }
+	public int getNumberOfOrnammentsReceived() { return orn_rec; }
 	String getOther()	{ return other; }
 	String getConfirmed() { return confirmed;}
 	String getDeliverTo() { return deliverTo; }
@@ -256,6 +264,7 @@ public class Organization extends ONCEntity
 	void setPhone(String p)	{ phone = p; }
 	public void setNumberOfOrnamentsRequested(int n)	{ orn_req = n; }
 	public void setNumberOfOrnamentsAssigned(int n)	{ orn_assigned = n; }
+	public void setNumberOfOrnamentsReceiveded(int n)	{ orn_rec = n; }
 	void setOther(String o)	{ other = o; }
 	void setConfirmed(String c) { confirmed = c;}
 	void setDeliverTo(String dt) { deliverTo = dt; }
@@ -268,8 +277,7 @@ public class Organization extends ONCEntity
 	void setContact2_phone(String p)	{ contact2_phone = p; }
 	public void setPriorYearRequested(int n) { pyRequested = n; }
 	void setPriorYearAssigned(int n) { pyAssigned = n; }
-	void setPriorYearReceived(int n) { pyReceived = n; }
-	
+	void setPriorYearReceived(int n) { pyReceived = n; }	
 	
 	public int incrementOrnAssigned() { return ++orn_assigned; }
 	public int decrementOrnAssigned()
@@ -277,6 +285,14 @@ public class Organization extends ONCEntity
 		if(orn_assigned > 0)
 			orn_assigned--;
 		return orn_assigned;
+	}
+	
+	public int incrementOrnReceived() { return ++orn_rec; }
+	public int decrementOrnReceived()
+	{
+		if(orn_rec > 0)
+			orn_rec--;
+		return orn_rec;
 	}
 	
 	public int incrementPYAssigned() { return ++pyAssigned; }
@@ -295,10 +311,10 @@ public class Organization extends ONCEntity
 		String[] row= {Integer.toString(id), Integer.toString(status), Integer.toString(type),
 						name, ornamentDelivery, Integer.toString(streetnum), streetname, unit, 
 						city, zipcode, Integer.toString(region), phone, Integer.toString(orn_req),
-						Integer.toString(orn_assigned), other, deliverTo, specialNotes, 
-						contact, contact_email, contact_phone, 
+						Integer.toString(orn_assigned), Integer.toString(orn_rec), other, 
+						deliverTo, specialNotes, contact, contact_email, contact_phone, 
 						contact2, contact2_email, contact2_phone, 
-						Long.toString(dateChanged.getTimeInMillis()), Integer.toString(slPos),
+						Long.toString(dateChanged.getTimeInMillis()), changedBy, Integer.toString(slPos),
 						slMssg, slChangedBy, Integer.toString(pyRequested), Integer.toString(pyAssigned),
 						Integer.toString(pyReceived)};
 		return row;

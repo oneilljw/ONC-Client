@@ -220,7 +220,7 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
             wishstatusCB[i].addActionListener(cuListener);
             
         	assigneeCBM[i] = new DefaultComboBoxModel();
-        	assigneeCBM[i].addElement(new Organization(-1, "None"));
+        	assigneeCBM[i].addElement(new Organization(-1, "None", "None"));
         	wishassigneeCB[i] = new JComboBox();
         	wishassigneeCB[i].setModel(assigneeCBM[i]);
         	wishassigneeCB[i].setPreferredSize(dwa);
@@ -549,7 +549,7 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 		for(int i=0; i<assigneeCBM.length; i++)
 		{
 			assigneeCBM[i].removeAllElements();
-			assigneeCBM[i].addElement(new Organization(-1, "None"));
+			assigneeCBM[i].addElement(new Organization(-1, "None", "None"));
 		}
 		
 		for(Organization confOrg: orgs.getConfirmedOrgList())

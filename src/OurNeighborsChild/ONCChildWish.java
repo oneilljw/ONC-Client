@@ -110,7 +110,7 @@ public class ONCChildWish extends ONCObject implements Serializable
 		wishnumber = Integer.parseInt(nextLine[4]);
 		childWishIndicator = Integer.parseInt(nextLine[5]);
 		childWishStatus = Integer.parseInt(nextLine[6]);
-		changedBy = getDBString(nextLine[6]);
+		changedBy = getDBString(nextLine[7]);
 		dateChanged.setTimeInMillis(Long.parseLong(nextLine[8]));
 		childWishAssigneeID = Integer.parseInt(nextLine[9]);
 //		childWishAssigneeName = getDBString(nextLine[11]);
@@ -130,7 +130,7 @@ public class ONCChildWish extends ONCObject implements Serializable
 	public int getChildWishStatus() {return childWishStatus;}
 	public int getChildWishAssigneeID() {return childWishAssigneeID;}
 //	String getChildWishAssigneeName() {return childWishAssigneeName;}
-	String getChildWishChangedBy() {return changedBy;}
+	public String getChildWishChangedBy() {return changedBy;}
 	public Calendar getChildWishDateChanged() {return dateChanged;}
 //	public String getChildWishBaseAndDetail() { return childWishBase + "- " + childWishDetail; }
 /*	

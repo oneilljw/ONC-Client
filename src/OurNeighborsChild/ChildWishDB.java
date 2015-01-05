@@ -19,6 +19,7 @@ public class ChildWishDB extends ONCDatabase
 	private static final int CHILD_WISH_STATUS_EMPTY = 1;
 	private static final int CHILD_WISH_STATUS_SELECTED = 2;
 	private static final int CHILD_WISH_STATUS_ASSIGNED = 3;
+	private static final int CHILD_WISH_STATUS_RECEIVED = 4;
 	
 	private static ChildWishDB instance = null;
 	private ONCWishCatalog cat;
@@ -100,16 +101,46 @@ public class ChildWishDB extends ONCDatabase
 		
 		//determine if gift assignments have changed. If they have, notify the Organization DB
 		//to update partner assignment counts
+		ONCOrgs orgDB = ONCOrgs.getInstance();
 		DataChange  wac = null;
 		if(replacedWish != null && replacedWish.getChildWishAssigneeID() != 
 									addedWish.getChildWishAssigneeID())
 		{	
-			ONCOrgs orgDB = ONCOrgs.getInstance();
 			//assignee change -- need to notify to adjust partner gift assignment counts
 			wac= new DataChange(replacedWish.getChildWishAssigneeID(), 
 								 addedWish.getChildWishAssigneeID());
 			
 			orgDB.processGiftAssignmentChange(wac);
+		}
+		
+		//determine if gift has been received. If it has, notify the Organization DB
+		//to update partner gift received counts
+		DataChange  wgr = null;
+		if(replacedWish != null && replacedWish.getChildWishStatus() == CHILD_WISH_STATUS_ASSIGNED  && 
+				addedWish.getChildWishStatus() == CHILD_WISH_STATUS_RECEIVED &&
+				replacedWish.getChildWishAssigneeID() == addedWish.getChildWishAssigneeID())
+		{	
+			//gift was received from partner it was assigned to
+			wgr= new DataChange(-1, addedWish.getChildWishAssigneeID());	
+			orgDB.processGiftReceivedChange(wgr);
+		}
+		else if(replacedWish != null && replacedWish.getChildWishStatus() == CHILD_WISH_STATUS_RECEIVED  && 
+				 addedWish.getChildWishStatus() == CHILD_WISH_STATUS_ASSIGNED &&
+				 replacedWish.getChildWishAssigneeID() == addedWish.getChildWishAssigneeID())
+		{
+			//gift was un-received from partner it was assigned to. This occurs when an undo
+			//action is performed by the user
+			wgr= new DataChange(addedWish.getChildWishAssigneeID(), -1);
+			orgDB.processGiftReceivedChange(wgr);
+		}
+		else if(replacedWish != null && replacedWish.getChildWishStatus() == CHILD_WISH_STATUS_RECEIVED  && 
+				 addedWish.getChildWishStatus() == CHILD_WISH_STATUS_RECEIVED &&
+				 replacedWish.getChildWishAssigneeID() != addedWish.getChildWishAssigneeID())
+		{
+			//In theory, this should never occur. However, if a gift is received twice from two
+			//different partners, decrement the first and credit the receipt to the second
+			wgr= new DataChange(replacedWish.getChildWishAssigneeID(), addedWish.getChildWishAssigneeID());
+			orgDB.processGiftReceivedChange(wgr);
 		}
 			
 		//data bases have been updated, notify ui's of changes
@@ -136,6 +167,9 @@ public class ChildWishDB extends ONCDatabase
 		
 		if(wac != null)
 			fireDataChanged(source, "WISH_PARTNER_CHANGED", wac);
+		
+		if(wgr != null)
+			fireDataChanged(source, "WISH_RECEIVED", wgr);
 		
 		
 		return addedWish.getID();
