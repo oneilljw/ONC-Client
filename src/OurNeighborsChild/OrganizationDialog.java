@@ -819,7 +819,8 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
 //			System.out.println(String.format("OrgDlg DB Event: Source: %s, Type: %s, Object: %s",
 //					dbe.getSource().toString(), dbe.getType(), dbe.getObject().toString()));
 			
-			//If current partner being displayed gifts assigned have changed, refresh the UI
+			//if current partner being displayed gifts assigned or received have changed,
+			//refresh the data
 			if(!bAddingNewEntity && currOrg != null && (currOrg.getID() == change.getOldData() ||
 															currOrg.getID() == change.getNewData()))
 				display(currOrg); 

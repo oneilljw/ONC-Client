@@ -645,7 +645,7 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 			//Now that we have assessed/received base,  detail and assignee changes, create a new wish			
 			int wishID = cwDB.add(this, c.getID(), selectedCBWish.getID(),
 						wishdetailTF[wn].getText(), wn, wishindCB[wn].getSelectedIndex(),
-						wishstatusCB[wn].getSelectedIndex(),orgID, cpGVs.getUserLNFI(),
+						wishstatusCB[wn].getSelectedIndex(), orgID, cpGVs.getUserLNFI(),
 						cpGVs.getTodaysDate());
 			
 			//if adding the wish was successful, we need to fetch and display the wish. The db may have changed

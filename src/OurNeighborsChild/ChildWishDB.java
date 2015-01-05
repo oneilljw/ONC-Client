@@ -92,7 +92,6 @@ public class ChildWishDB extends ONCDatabase
 		
 		//add the new wish to the data base
 		childwishAL.add(addedWish);
-		int	newWishID =  addedWish.getID();
 			
 		//Set the new wish ID in the child object that has been assigned this wish
 		//in the child data base
@@ -139,7 +138,7 @@ public class ChildWishDB extends ONCDatabase
 			fireDataChanged(source, "WISH_PARTNER_CHANGED", wac);
 		
 		
-		return newWishID;
+		return addedWish.getID();
 	}
 	
 	/************************************************************************************************************
@@ -151,7 +150,7 @@ public class ChildWishDB extends ONCDatabase
 	 * method will set the wish status to CHILD_WISH_SELECTED. Conversely, if a wish was selected from the catalog
 	 * and is reset to empty, the wish status is set to CHILD_WISH_EMPTY.
 	 ************************************************************************************************************/
-	int checkForStatusChange(ONCChildWish oldWish, int wb, int ws, int waID)
+	int checkForStatusChange(ONCChildWish oldWish, int wishBase, int wishStatus, int wishAssigneeID)
 	{
 		int currentwishstatus;
 		if(oldWish == null)	//Creating first wish
@@ -159,16 +158,16 @@ public class ChildWishDB extends ONCDatabase
 		else	
 			currentwishstatus = oldWish.getChildWishStatus();
 		
-		if(currentwishstatus > CHILD_WISH_STATUS_EMPTY && ws > CHILD_WISH_STATUS_ASSIGNED)
-			return ws;		//Can receive, distribute or verify any gift  without automatic change
-		else if(wb < 0)
+		if(currentwishstatus > CHILD_WISH_STATUS_EMPTY && wishStatus > CHILD_WISH_STATUS_ASSIGNED)
+			return wishStatus;		//Can receive, distribute or verify any gift without automatic change
+		else if(wishBase < 0)
 			return CHILD_WISH_STATUS_EMPTY;
-		else if(wb >= 0  && waID == 0)
+		else if(wishBase >= 0  && wishAssigneeID <= 0)
 			return CHILD_WISH_STATUS_SELECTED;
-		else if(wb >= 0 && waID > 0  && currentwishstatus < CHILD_WISH_STATUS_SELECTED)
+		else if(wishBase >= 0 && wishAssigneeID > 0  && currentwishstatus < CHILD_WISH_STATUS_SELECTED)
 			return CHILD_WISH_STATUS_SELECTED;
 		else
-			return ws;				
+			return wishStatus;				
 	}
 		
 	/******************************************************************************************
