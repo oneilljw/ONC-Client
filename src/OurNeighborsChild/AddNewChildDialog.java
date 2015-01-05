@@ -41,6 +41,7 @@ public class AddNewChildDialog extends InfoDialog
 		genderCB.setPreferredSize(new Dimension(158,36));
 		infopanel[3].add(genderCB);
 		
+		//set up the data chooser
 		dobDC = new JDateChooser(gvs.getTodaysDate());
 		dobDC.setPreferredSize(new Dimension(144, 28));
 		infopanel[4].add(dobDC);
