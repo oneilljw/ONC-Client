@@ -16,5 +16,5 @@ public class DBYear
 	public boolean isLocked() { return bLocked; }
 	
 	//setters
-	void setLock(boolean tf) { bLocked = tf; }
+	public void setLock(boolean tf) { bLocked = tf; }
 }

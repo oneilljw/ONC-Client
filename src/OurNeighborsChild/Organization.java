@@ -264,7 +264,7 @@ public class Organization extends ONCEntity
 	void setPhone(String p)	{ phone = p; }
 	public void setNumberOfOrnamentsRequested(int n)	{ orn_req = n; }
 	public void setNumberOfOrnamentsAssigned(int n)	{ orn_assigned = n; }
-	public void setNumberOfOrnamentsReceiveded(int n)	{ orn_rec = n; }
+	public void setNumberOfOrnamentsReceived(int n)	{ orn_rec = n; }
 	void setOther(String o)	{ other = o; }
 	void setConfirmed(String c) { confirmed = c;}
 	void setDeliverTo(String dt) { deliverTo = dt; }
