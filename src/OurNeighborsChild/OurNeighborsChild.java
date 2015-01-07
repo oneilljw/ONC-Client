@@ -12,6 +12,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Toolkit;
@@ -30,10 +31,14 @@ import java.lang.reflect.Type;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
+
 import javax.swing.filechooser.FileNameExtensionFilter;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+
 import au.com.bytecode.opencsv.CSVWriter;
 
 public class OurNeighborsChild implements DatabaseListener, ServerListener
@@ -263,14 +268,12 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
         	oncGVs.setUserPermission(ONC_SUPERUSER);
         	prefsDlg.setEnabledDateToday(true);
         	prefsDlg.setEnabledRestrictedPrefrences(true);
-        	oncMenuBar.setEnabledNewMenuItem(true);
         	oncMenuBar.setVisibleSpecialImports(true);
         	oncFamilyPanel.setEnabledSuperuserPrivileges(true);
         }
         else if(user.getPermission() == ONC_ADMIN)
         {
         	oncGVs.setUserPermission(ONC_ADMIN);
-        	oncMenuBar.setEnabledNewMenuItem(true);
         	prefsDlg.setEnabledRestrictedPrefrences(true);
         }
         else
@@ -293,15 +296,7 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
         		Gson gson = new Gson();
         		List<DBYear> dbYears = gson.fromJson(response.substring(9), listOfDBs);
         		
-        		MenuItemDBYearsListener menuItemDBYearListener = new MenuItemDBYearsListener();
-        		
-        		for(DBYear dbYear:dbYears)
-        		{
-        			String zYear = Integer.toString(dbYear.getYear());
-        			JMenuItem mi = oncMenuBar.addDBYear(zYear, oncGVs.getImageIcon(dbYear.isLocked() ? 
-        					DB_LOCKED_IMAGE_INDEX : DB_UNLOCKED_IMAGE_INDEX));
-        			mi.addActionListener(menuItemDBYearListener);
-        		}
+        		processDBYears(dbYears);	
         	}
         	
         	//get user data base
@@ -325,6 +320,29 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
         //everything is initialized, start polling server for changes
         if(serverIF != null && serverIF.isConnected())
         	serverIF.setEnabledServerPolling(true);   	
+    }
+    
+    void processDBYears(List<DBYear> dbYears)
+    {
+    	MenuItemDBYearsListener menuItemDBYearListener = new MenuItemDBYearsListener();
+		
+		for(DBYear dbYear:dbYears)
+		{
+			String zYear = Integer.toString(dbYear.getYear());
+			JMenuItem mi = oncMenuBar.addDBYear(zYear, oncGVs.getImageIcon(dbYear.isLocked() ? 
+					DB_LOCKED_IMAGE_INDEX : DB_UNLOCKED_IMAGE_INDEX));
+			mi.addActionListener(menuItemDBYearListener);
+		}
+		
+		//determine if we can allow the user to add a new season. Enable adding a new
+		//season if the current date is in the year to be added, the year hasn't already
+		//been added, the user has administrative privileges and a data base has not been loaded
+		Calendar today = Calendar.getInstance();
+		today.setTime(oncGVs.getTodaysDate());
+		int currYear = today.get(Calendar.YEAR);
+		
+		if(currYear != dbYears.get(dbYears.size()-1).getYear() && oncGVs.isUserAdmin())
+			oncMenuBar.setEnabledNewMenuItem(true);	
     }
     
     String getServerIPAddress(String serverIPAddress)
@@ -852,66 +870,61 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
     }
 */    
     /********************************************************************************************
-     * This method is called to start a new ONC season. First, a check is performed to determine
-     * if family data, organization data or prior year child data is loaded. If so, the user is
-     * queried if they would like to continue, as that data will be overwritten. Then a dialog
-     * box is shown that notifies the user of two steps that will be performed. First, the
-     * preferences dialog appears asking the user for global parameters for the new season. Second
-     * an open file dialog appears asking for the file that contains the prior year family/org/
-     * child information. The second step occurs by this method calling the importprioryearobject
-     * method.
+     * This method is called to add a new ONC season to the server.The user is asked to confirm
+     * they really want to add a new year. If confirmed, the request is sent to the server. If
+     * the server successfully adds the year, it responds with a new DBYear list that includes
+     * the new year at the end. The list is processed to update the Menu Bar Database available
+     * years list
      *******************************************************************************************/
-    void newONCSeason()
-    {
-    	//If data is already loaded make sure user wants to proceed
-//    	if(oncFamDB.size() > 0 || oncOrgDB.getNumberOfOrganizations() > 0  || oncPYCDB.getNumberOfPriorYearChildren() > 0)
-    	if(oncFamDB.size() > 0 || oncOrgDB.size() > 0)
-    	{
-    		if (JOptionPane.showConfirmDialog(oncFrame, "**** NEW ONC SEASON WARNING ****\n" + 
-    				"Data is already loaded and will be lost\n " +
-    				"Are you sure you want to proceed?", "WARNING - DATA WILL BE LOST",
-    		        JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE, oncGVs.getImageIcon(0)) == JOptionPane.NO_OPTION) 
-    		{
-    		    return;
-    		}
-    	}
+    void addONCSeason()
+    {    	
+    	//determine what year we'll be adding to the ONC Server 
+		Calendar today = Calendar.getInstance();
+		today.setTime(oncGVs.getTodaysDate());
+		
+		//ask the user to confirm the add of the new year
+    	String confirmMssg = String.format("<html>%s, please confirm you want to add<br>the %d year to the ONC Server</html>", 
+    			oncGVs.getUser().getFirstname(), today.get(Calendar.YEAR));
     	
-    	String mssg = oncGVs.getUser().getFirstname() + ", you have chosen to start a new ONC season.\n"+
-    					"You will be guided through the following three steps:\n\n" + 
-    					"1. Setting parameters for the new season.\n" + 
-    					"2. Review and update the wish catalog for the new season\n\n" +
-    					"Click Ok to proceed or Cancel to abort";
-    	
-    	if(JOptionPane.showConfirmDialog(oncFrame, mssg, "Start New ONC Season? ",
-		        JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE, oncGVs.getImageIcon(0)) == JOptionPane.OK_OPTION) 
+    	Object[] options= {"Cancel", "Add " + today.get(Calendar.YEAR) };
+		JOptionPane confirmOP = new JOptionPane(confirmMssg, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION,
+							oncGVs.getImageIcon(0), options, "Cancel");
+		JDialog confirmDlg = confirmOP.createDialog(oncFrame, "*** Confirm Add New Year ***");
+		confirmDlg.setVisible(true);
+	
+		Object selectedValue = confirmOP.getValue();
+		
+		//if confirmed, send the add request to the server and await the response
+		if(selectedValue != null && selectedValue.toString().startsWith("Add"))
 		{
-    		//To start a new season, first have the user set preferences
-			prefsDlg.setLocation((int)oncFrame.getLocation().getX() + 22, 
-									(int)oncFrame.getLocation().getY() + 22);
-	    	prefsDlg.updateData();
-	        prefsDlg.setVisible(true);
-	        
-	        //Request new season from server
-	        
-	        //Then we have to get last years data base file
-//	        try
-//	        {
-//				if(importPriorYearObjectData() == 0);
-//				{
-//					if(oncGVs.isUserAdmin()) { oncMenuBar.setEnabledImportMenuItems(true); }
-//					oncMenuBar.setEnabledSaveAsMenuItem(true);
-//				}
-//			}
-//	    	catch (FileNotFoundException e1) { e1.printStackTrace();} 
-//			catch (IOException e1) { e1.printStackTrace();} 
-//			catch (ClassNotFoundException e1) { e1.printStackTrace();}
-	        
-	        //Then we have to reset prior year wish counts, update the wish selection lists, 
-	        //and let the user review last years wish catalog for changes. 
-//	        oncWishCat.clearCatalogWishCounts();
-	        oncFamilyPanel.updateWishLists();
-	        oncFamilyPanel.showWishCatalogDialog();
-	        oncMenuBar.setEnabledWishCatalogAndOrgMenuItems(true);
+			//send add new year request to server and process response
+			String response = "";
+			if(serverIF != null && serverIF.isConnected())
+			{
+				response = serverIF.sendRequest("POST<add_newseason>");
+
+				//if the response indicates the server successfully add the year, it returns a list
+				//of new DBYear objects with the new year added to the end. Process the list
+				if(response != null && response.equals("ADDED_NEW_YEAR"))
+				{
+					Type listOfDBs = new TypeToken<ArrayList<DBYear>>(){}.getType();
+        		
+					Gson gson = new Gson();
+					List<DBYear> dbYears = gson.fromJson(response.substring(14), listOfDBs);
+        		
+					processDBYears(dbYears);	//replace the Menu Bar Database years list with the new list
+					
+					//alert the user that the add was successful
+					JOptionPane.showMessageDialog(oncFrame, today.get(Calendar.YEAR) + " sucessfully added to ONC Server", 
+							"Add Year Successful", JOptionPane.INFORMATION_MESSAGE);
+				}
+				else
+				{
+					//alert the user the add failed
+					JOptionPane.showMessageDialog(oncFrame, "Error: ONC Server failed to add " + today.get(Calendar.YEAR), 
+							"Add Year Failed", JOptionPane.ERROR_MESSAGE);					
+				}
+			}
 		}
     }
     
@@ -1229,24 +1242,7 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
     {
     	public void actionPerformed(ActionEvent e)
     	{
-    		if(e.getSource() == ONCMenuBar.newMI) 
-    		{
-    			//TEMPORARY HIJACK OF newONCSeason
-//    			newONCSeason();
-//    			
-//    			//send request to server and print response
-//  			if(serverIF != null && serverIF.isConnected())
-//  			{
-//    				String response = "";
-//					try {
-//						response = serverIF.sendRequest("POST<add_newseason>");
-//					} catch (IOException e1) {
-//						// TODO Auto-generated catch block
-//						e1.printStackTrace();
-//					}
-//   				System.out.println("Our Neighbors Child New Season: " + response);
-//    			}
-    		}
+    		if(e.getSource() == ONCMenuBar.newMI) { addONCSeason(); }
 //   		else if(e.getSource() == ONCMenuBar.importONCMI) {OnImportMenuItemClicked("ONC");}
     		else if(e.getSource() == ONCMenuBar.importONCMI) { }
     		else if(e.getSource() == ONCMenuBar.importWishCatMI)
@@ -1479,6 +1475,7 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
     		oncFamilyPanel.setMssg(mssg, true);
     		
     		oncMenuBar.setEnabledYear(false);
+    		oncMenuBar.setEnabledNewMenuItem(false);
     	
     		//Set wish and wish assignee combo box lists in child panel and wish sort dialog
     		oncFamilyPanel.updateWishLists();
