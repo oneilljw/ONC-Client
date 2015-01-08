@@ -86,7 +86,7 @@ public class SortFamilyDialog extends ONCFamilyTableDialog implements PropertyCh
 	private int sortZip = 0, sortRegion = 0, sortChangedBy = 0, sortStoplight = 0;
 	private String sortONC = "Any", sortLN = "Any", sortStreet= "Any", sortDNSCode = "Any";
 
-	private static String[] dnsCodes = {"Any","SA", "DUP", "NISA", "NC", "WA"};	
+	private static String[] dnsCodes = {"Any", "DUP", "NC", "NISA", "OPT-OUT", "SA", "WA"};	
 	private static String[] batchNums = {"Any","B-01","B-02","B-03","B-04","B-05","B-06","B-07","B-08","B-09","B-10", "B-CR"};	
 	private static String[] printChoices = {"Print", "Print Listing", "Print Book Labels", 
 											"Print Family Receiving Sheets",

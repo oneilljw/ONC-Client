@@ -38,17 +38,14 @@ public class ONCMenuBar extends JMenuBar
 	    menuFile = new JMenu("Database");
 	    this.add(menuFile);
 	 
-	   //a group of JMenuItems for the File Menu
-	    newMI = new JMenuItem("New Season");
-	    newMI.setEnabled(false);
-//	    menuFile.add(newMI);	//Taken out temporairly until new season functionality fixed - Oct 2014
-	    
-//	    menuFile.addSeparator();
-	    
 	    submenuDatabase = new JMenu("Select Year");
 	    submenuDatabase.setEnabled(false);   
 	    dbYears = new ArrayList<JMenuItem>();
 	    menuFile.add(submenuDatabase);
+	    
+	    newMI = new JMenuItem("Add Year");
+	    newMI.setEnabled(false);
+	    menuFile.add(newMI);	
 
 	    menuFile.addSeparator();
 	    
