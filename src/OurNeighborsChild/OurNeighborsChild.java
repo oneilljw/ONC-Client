@@ -887,7 +887,7 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
      * years list
      *******************************************************************************************/
     void addONCSeason()
-    {    	
+    {    
     	//determine what year we'll be adding to the ONC Server 
 		Calendar today = Calendar.getInstance();
 		today.setTime(oncGVs.getTodaysDate());
@@ -907,8 +907,13 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
 		//if confirmed, send the add request to the server and await the response
 		if(selectedValue != null && selectedValue.toString().startsWith("Add"))
 		{
+			//set up user notification of result
+	    	String mssg ="";
+	    	String title = "Add Year Failed";
+	    	int mssgType = JOptionPane.ERROR_MESSAGE;
+	    	
 			//send add new year request to server and process response
-			String response = "";
+			String response = "Error message missing";
 			if(serverIF != null && serverIF.isConnected())
 			{
 				response = serverIF.sendRequest("POST<add_newseason>");
@@ -917,28 +922,20 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
 				//of new DBYear objects with the new year added to the end. Process the list
 				if(response != null && response.startsWith("ADDED_NEW_YEAR"))
 				{
-//					Gson gson = new Gson();
-//					DBYear newDBYear = gson.fromJson(response.substring(14), DBYear.class);
-					
-					processAddedONCSeason(response.substring(14));
-        		
-//					MenuItemDBYearsListener menuItemDBYearListener = new MenuItemDBYearsListener();
-//					addDBYear(newDBYear, menuItemDBYearListener);
-//					
-//					//now that the year is added, disable adding another year
-//					oncMenuBar.setEnabledNewMenuItem(false);
-					
-					//alert the user that the add was successful
-					JOptionPane.showMessageDialog(oncFrame, today.get(Calendar.YEAR) + " sucessfully added to ONC Server", 
-							"Add Year Successful", JOptionPane.INFORMATION_MESSAGE, oncGVs.getImageIcon(0));
+					int newYear = processAddedONCSeason(response.substring(14));
+					mssg = String.format("%d sucessfully added to ONC Server", newYear);
+					title = "Add Year Successful";
+					mssgType = JOptionPane.INFORMATION_MESSAGE;
 				}
-				else
-				{
-					//alert the user the add failed
-					JOptionPane.showMessageDialog(oncFrame, "Error: ONC Server failed to add " + today.get(Calendar.YEAR), 
-							"Add Year Failed", JOptionPane.ERROR_MESSAGE, oncGVs.getImageIcon(0));					
-				}
+				else if(response != null && response.startsWith("ADD_NEW_YEAR_FAILED")) //alert the user the add failed
+					mssg = response.substring(19);					
+				else //general server error - didn't respond
+					mssg = "Error: ONC Server failed to respond";	
 			}
+			else //server is not connected
+				mssg = "Error: Client is not connected to the ONC Server";
+			
+			JOptionPane.showMessageDialog(oncFrame, mssg, title, mssgType, oncGVs.getImageIcon(0));
 		}
     }
     

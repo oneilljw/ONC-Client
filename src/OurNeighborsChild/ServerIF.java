@@ -293,7 +293,7 @@ public class ServerIF
     	
     	String[] chatResponses = {"CHAT_REQUESTED", "CHAT_ACCEPTED", "CHAT_MESSAGE", "CHAT_ENDED",  "ADDED_NEW_YEAR"};
     	
-    //	String[] menuBarResponses = {"ADDED_NEW_YEAR"};
+    	String[] menuBarResponses = {"ADDED_NEW_YEAR"};
     	
     	if(change.startsWith("CHAT_"))
     	{
@@ -306,9 +306,15 @@ public class ServerIF
     		if(index < chatResponses.length)
     			fireDataChanged(chatResponses[index], change.substring(chatResponses[index].length()));
     	}
-    	else if(change.startsWith("ADDED_NEW_YEAR"))
+    	else if(change.contains("_NEW_YEAR"))
     	{
-    		fireDataChanged("ADDED_NEW_YEAR", change.substring(14));
+    		int index = 0;
+    		while(index < menuBarResponses.length && !change.startsWith(menuBarResponses[index]))
+    			index++;
+    	
+    		if(index < menuBarResponses.length)
+    			fireDataChanged(menuBarResponses[index], change.substring(dbResponses[index].length()));
+    		
     	}
     	else if(bDatabaseLoaded)
     	{
