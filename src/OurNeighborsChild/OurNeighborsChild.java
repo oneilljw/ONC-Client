@@ -942,7 +942,7 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
 		}
     }
     
-    void processAddedONCSeason(String newYearJson)
+    int processAddedONCSeason(String newYearJson)
     {
     	MenuItemDBYearsListener menuItemDBYearListener = new MenuItemDBYearsListener();
     	
@@ -953,6 +953,8 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
 		
 		//now that the year is added, disable adding another year
 		oncMenuBar.setEnabledNewMenuItem(false);
+		
+		return newDBYear.getYear();
     }
     
     void importObjectsFromDB(int year)
@@ -1554,12 +1556,13 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
 		}
 		else if(ue.getType().equals("ADDED_NEW_YEAR"))
 		{
-			processAddedONCSeason(ue.getJson());
+			int addedYear = processAddedONCSeason(ue.getJson());
+			String mssg = String.format("%d database added, now available", addedYear);
 			
 			ONCPopupMessage popup = new ONCPopupMessage( oncGVs.getImageIcon(0));
 			Point loc = oncFrame.getLocationOnScreen();
 			popup.setLocation(loc.x+450, loc.y+70);
-			popup.show("Message from ONC Server", "New Season has been added to the ONC Server");
+			popup.show("Message from ONC Server", mssg);
 		}
 	}
 /*
