@@ -232,9 +232,9 @@ public class Organization extends ONCEntity
 	public String getZipcode()	{ return zipcode; }
 	int getRegion()	{ return region; }
 	String getPhone()	{ return phone; }
-	int getNumberOfOrnamentsRequested()	{ return orn_req; }
-	public int getNumberOfOrnammentsAssigned() { return orn_assigned; }
-	public int getNumberOfOrnammentsReceived() { return orn_rec; }
+	public int getNumberOfOrnamentsRequested()	{ return orn_req; }
+	public int getNumberOfOrnamentsAssigned() { return orn_assigned; }
+	public int getNumberOfOrnamentsReceived() { return orn_rec; }
 	String getOther()	{ return other; }
 	String getConfirmed() { return confirmed;}
 	String getDeliverTo() { return deliverTo; }

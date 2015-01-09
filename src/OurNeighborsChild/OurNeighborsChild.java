@@ -324,15 +324,11 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
     
     void processDBYears(List<DBYear> dbYears)
     {
+    	//create the listener for each year in the year list in the menu
     	MenuItemDBYearsListener menuItemDBYearListener = new MenuItemDBYearsListener();
 		
 		for(DBYear dbYear:dbYears)
-		{
-			String zYear = Integer.toString(dbYear.getYear());
-			JMenuItem mi = oncMenuBar.addDBYear(zYear, oncGVs.getImageIcon(dbYear.isLocked() ? 
-					DB_LOCKED_IMAGE_INDEX : DB_UNLOCKED_IMAGE_INDEX));
-			mi.addActionListener(menuItemDBYearListener);
-		}
+			addDBYear(dbYear, menuItemDBYearListener);
 		
 		//determine if we can allow the user to add a new season. Enable adding a new
 		//season if the current date is in the year to be added, the year hasn't already
@@ -343,6 +339,20 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
 		
 		if(currYear != dbYears.get(dbYears.size()-1).getYear() && oncGVs.isUserAdmin())
 			oncMenuBar.setEnabledNewMenuItem(true);	
+    }
+    
+    /******************************************************************************************
+     * The  addDBYear method is separate as it is called when the application instantiates as well
+     * as when the user requests addition of a new ONC season by adding a year to the list
+     * @param dbYear
+     * @param menuItemDBYearListener
+     ****************************************************************************************/
+    void addDBYear(DBYear dbYear, MenuItemDBYearsListener menuItemDBYearListener)
+    {	
+    	String zYear = Integer.toString(dbYear.getYear());
+		JMenuItem mi = oncMenuBar.addDBYear(zYear, oncGVs.getImageIcon(dbYear.isLocked() ? 
+				DB_LOCKED_IMAGE_INDEX : DB_UNLOCKED_IMAGE_INDEX));
+		mi.addActionListener(menuItemDBYearListener);
     }
     
     String getServerIPAddress(String serverIPAddress)
@@ -477,7 +487,7 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
     public void preferences()
     {
     	prefsDlg.setLocation((int)oncFrame.getLocation().getX() + 22, (int)oncFrame.getLocation().getY() + 22);
-    	prefsDlg.updateData();
+    	prefsDlg.display();
         prefsDlg.setVisible(true);   	
     }
     
@@ -902,30 +912,47 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
 			if(serverIF != null && serverIF.isConnected())
 			{
 				response = serverIF.sendRequest("POST<add_newseason>");
-
+				
 				//if the response indicates the server successfully add the year, it returns a list
 				//of new DBYear objects with the new year added to the end. Process the list
-				if(response != null && response.equals("ADDED_NEW_YEAR"))
+				if(response != null && response.startsWith("ADDED_NEW_YEAR"))
 				{
-					Type listOfDBs = new TypeToken<ArrayList<DBYear>>(){}.getType();
+//					Gson gson = new Gson();
+//					DBYear newDBYear = gson.fromJson(response.substring(14), DBYear.class);
+					
+					processAddedONCSeason(response.substring(14));
         		
-					Gson gson = new Gson();
-					List<DBYear> dbYears = gson.fromJson(response.substring(14), listOfDBs);
-        		
-					processDBYears(dbYears);	//replace the Menu Bar Database years list with the new list
+//					MenuItemDBYearsListener menuItemDBYearListener = new MenuItemDBYearsListener();
+//					addDBYear(newDBYear, menuItemDBYearListener);
+//					
+//					//now that the year is added, disable adding another year
+//					oncMenuBar.setEnabledNewMenuItem(false);
 					
 					//alert the user that the add was successful
 					JOptionPane.showMessageDialog(oncFrame, today.get(Calendar.YEAR) + " sucessfully added to ONC Server", 
-							"Add Year Successful", JOptionPane.INFORMATION_MESSAGE);
+							"Add Year Successful", JOptionPane.INFORMATION_MESSAGE, oncGVs.getImageIcon(0));
 				}
 				else
 				{
 					//alert the user the add failed
 					JOptionPane.showMessageDialog(oncFrame, "Error: ONC Server failed to add " + today.get(Calendar.YEAR), 
-							"Add Year Failed", JOptionPane.ERROR_MESSAGE);					
+							"Add Year Failed", JOptionPane.ERROR_MESSAGE, oncGVs.getImageIcon(0));					
 				}
 			}
 		}
+    }
+    
+    void processAddedONCSeason(String newYearJson)
+    {
+    	MenuItemDBYearsListener menuItemDBYearListener = new MenuItemDBYearsListener();
+    	
+    	Gson gson = new Gson();
+		DBYear newDBYear = gson.fromJson(newYearJson, DBYear.class);
+		
+		addDBYear(newDBYear, menuItemDBYearListener);
+		
+		//now that the year is added, disable adding another year
+		oncMenuBar.setEnabledNewMenuItem(false);
     }
     
     void importObjectsFromDB(int year)
@@ -1340,7 +1367,7 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
     			//User has chosen to view the preferences dialog
     			prefsDlg.setLocation((int)oncFrame.getLocation().getX() + 22, 
     									(int)oncFrame.getLocation().getY() + 22);
-    	    	prefsDlg.updateData();
+    	    	prefsDlg.display();
     	        prefsDlg.setVisible(true); 
     		}
     		else if(e.getSource() == ONCMenuBar.oncAddUserMI)
@@ -1524,7 +1551,16 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
 			Point loc = oncFrame.getLocationOnScreen();
 			popup.setLocation(loc.x+450, loc.y+70);
 			popup.show("Message from ONC Server", ue.getJson());
-		}	
+		}
+		else if(ue.getType().equals("ADDED_NEW_YEAR"))
+		{
+			processAddedONCSeason(ue.getJson());
+			
+			ONCPopupMessage popup = new ONCPopupMessage( oncGVs.getImageIcon(0));
+			Point loc = oncFrame.getLocationOnScreen();
+			popup.setLocation(loc.x+450, loc.y+70);
+			popup.show("Message from ONC Server", "New Season has been added to the ONC Server");
+		}
 	}
 /*
 	private class FamilyChildSelectionListener implements TableSelectionListener

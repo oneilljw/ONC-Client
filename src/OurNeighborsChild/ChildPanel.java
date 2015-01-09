@@ -868,7 +868,7 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 				whTR[3] = status[cw.getChildWishStatus()];
 				whTR[4] = assignee == null ? "None" : assignee.getName();
 				whTR[5] = cw.getChildWishChangedBy();
-				whTR[6] = new SimpleDateFormat("MM/dd H:mm").format(cw.getChildWishDateChanged().getTime());
+				whTR[6] = new SimpleDateFormat("MM/dd H:mm:ss").format(cw.getChildWishDateChanged().getTime());
 				
 				wishHistoryTable.add(whTR);
 			}

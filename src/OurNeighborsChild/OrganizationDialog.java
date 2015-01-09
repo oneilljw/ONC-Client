@@ -124,7 +124,7 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
                      
         String[] status = {"No Action Yet", "1st Email Sent", "Responded", "2nd Email Sent", "Called, Left Mssg", "Confirmed", "Not Participating"}; 
         statusCB = new JComboBox(status);
-        statusCB.setPreferredSize(new Dimension (128, 48));
+        statusCB.setPreferredSize(new Dimension (136, 48));
         statusCB.setBorder(BorderFactory.createTitledBorder("Status"));
         statusCB.addActionListener(dcListener);
         
@@ -441,7 +441,7 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
 			collTypeCB.setSelectedItem(currOrg.getGiftCollectionType());
 			
 			//Can't change stats or collection type of organization with ornaments assigned
-			if(currOrg.getNumberOfOrnammentsAssigned() == 0)
+			if(currOrg.getNumberOfOrnamentsAssigned() == 0)
 			{
 				statusCB.setEnabled(true);
 				collTypeCB.setEnabled(true);
@@ -460,8 +460,8 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
 			
 //			cyAssignedTF.setText(currOrg.getOrnamentDelivery());
 			cyReqTF.setText(Integer.toString(currOrg.getNumberOfOrnamentsRequested()));
-			lblCYAssigned.setText(Integer.toString(currOrg.getNumberOfOrnammentsAssigned()));
-			lblCYRec.setText(Integer.toString(currOrg.getNumberOfOrnammentsReceived()));
+			lblCYAssigned.setText(Integer.toString(currOrg.getNumberOfOrnamentsAssigned()));
+			lblCYRec.setText(Integer.toString(currOrg.getNumberOfOrnamentsReceived()));
 			otherTP.setText(currOrg.getOther());
 			otherTP.setCaretPosition(0);
 			specialNotesTP.setText(currOrg.getSpecialNotes());
@@ -532,7 +532,7 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
 		if(statusCB.getSelectedIndex() !=reqOrg.getStatus())
 		{
 			//Can only change status if not confirmed or if confirmed and no ornaments assigned
-			if(reqOrg.getStatus() != CONFIRMED_STATUS_INDEX || reqOrg.getNumberOfOrnammentsAssigned() == 0)
+			if(reqOrg.getStatus() != CONFIRMED_STATUS_INDEX || reqOrg.getNumberOfOrnamentsAssigned() == 0)
 			{
 				reqOrg.setStatus(statusCB.getSelectedIndex());
 				bCD = true;

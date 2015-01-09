@@ -291,7 +291,9 @@ public class ServerIF
     						  "ADDED_DELIVERY","UPDATED_DELIVERY",
     						  "ADDED_DRIVER", "UPDATED_DRIVER", "DELETED_DRIVER"};
     	
-    	String[] chatResponses = {"CHAT_REQUESTED", "CHAT_ACCEPTED", "CHAT_MESSAGE", "CHAT_ENDED"};
+    	String[] chatResponses = {"CHAT_REQUESTED", "CHAT_ACCEPTED", "CHAT_MESSAGE", "CHAT_ENDED",  "ADDED_NEW_YEAR"};
+    	
+    //	String[] menuBarResponses = {"ADDED_NEW_YEAR"};
     	
     	if(change.startsWith("CHAT_"))
     	{
@@ -303,6 +305,10 @@ public class ServerIF
     	
     		if(index < chatResponses.length)
     			fireDataChanged(chatResponses[index], change.substring(chatResponses[index].length()));
+    	}
+    	else if(change.startsWith("ADDED_NEW_YEAR"))
+    	{
+    		fireDataChanged("ADDED_NEW_YEAR", change.substring(14));
     	}
     	else if(bDatabaseLoaded)
     	{

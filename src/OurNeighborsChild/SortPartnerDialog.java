@@ -383,7 +383,7 @@ public class SortPartnerDialog extends ONCSortTableDialog implements ActionListe
 		SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yy");
 		String[] sorttablerow = {o.getName(), status[o.getStatus()+1], types[o.getType()],
 								 Integer.toString(o.getNumberOfOrnamentsRequested()),
-								 Integer.toString(o.getNumberOfOrnammentsAssigned()),
+								 Integer.toString(o.getNumberOfOrnamentsAssigned()),
 								 o.getSpecialNotes(),
 								 sdf.format(o.getDateChanged().getTime()),
 								 o.getStoplightChangedBy(),
@@ -1274,7 +1274,7 @@ public class SortPartnerDialog extends ONCSortTableDialog implements ActionListe
 						o.getOther(),
 						o.getSpecialNotes(),
 						Integer.toString(o.getNumberOfOrnamentsRequested()),
-						Integer.toString(o.getNumberOfOrnammentsAssigned()),
+						Integer.toString(o.getNumberOfOrnamentsAssigned()),
 						o.getDeliverTo(),
 						Integer.toString(o.getStreetnum()) + " " + o.getStreetname(),
 						o.getUnit(),

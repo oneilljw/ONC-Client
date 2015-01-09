@@ -278,6 +278,8 @@ public class ONCMenuBar extends JMenuBar
 		return mi;
 	}
 	
+	void clearDBYearList() { dbYears.clear(); }
+	
 	void SetEnabledMenuItems(boolean tf)	//Only with at least one family present in db
 	{
 //		clearMI.setEnabled(tf);		//Disable clear until fixed after migration to Client Server Architecture

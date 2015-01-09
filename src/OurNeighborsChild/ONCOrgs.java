@@ -127,7 +127,7 @@ public class ONCOrgs extends ONCSearchableDatabase
 			//A change request from confirmed status to a different status has occurred. If the number of
 			//ornaments is not zero, can't change the status If the number or ornaments
 			//assigned is zero, delete the organization from the confirmed array list
-			if(o.getNumberOfOrnammentsAssigned() == 0)
+			if(o.getNumberOfOrnamentsAssigned() == 0)
 			{
 				o.setStatus(newstatus);
 				o.setDateChanged(orgGVs.getTodaysDate());
@@ -224,7 +224,7 @@ public class ONCOrgs extends ONCSearchableDatabase
 			if(org.getStatus() == STATUS_CONFIRMED) 
 			{ 
 				orgcount++;
-				wishcount += org.getNumberOfOrnammentsAssigned();
+				wishcount += org.getNumberOfOrnamentsAssigned();
 			}
 		}
 		
@@ -956,8 +956,8 @@ public class ONCOrgs extends ONCSearchableDatabase
 		@Override
 		public int compare(Organization o1, Organization o2)
 		{
-			Integer oa1 = o1.getNumberOfOrnammentsAssigned();
-			Integer oa2 = o2.getNumberOfOrnammentsAssigned();
+			Integer oa1 = o1.getNumberOfOrnamentsAssigned();
+			Integer oa2 = o2.getNumberOfOrnamentsAssigned();
 			return oa1.compareTo(oa2);
 		}
 	}

@@ -39,6 +39,8 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 	{
 		super(parentFrame, true);
 		pdGVs = GlobalVariables.getInstance();
+		if(pdGVs != null)
+			pdGVs.addDatabaseListener(this);
 		this.setTitle("Our Neighbor's Child Preferences");
 		
 		bIgnoreDialogEvents = false;
@@ -88,10 +90,10 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		});
 		p1.add(dc_seasonstart);
 		
-		dc_giftsreceived = new JDateChooser(pdGVs.getTodaysDate());
+		dc_giftsreceived = new JDateChooser(pdGVs.getGiftsReceivedDate());
 		dc_giftsreceived.setPreferredSize(dateSize);
-		dc_giftsreceived.setToolTipText("Last day gifts are received from partners");
-		dc_giftsreceived.setBorder(BorderFactory.createTitledBorder("Gift's Received Date"));
+		dc_giftsreceived.setToolTipText("All gifts must be received from partners before this date");
+		dc_giftsreceived.setBorder(BorderFactory.createTitledBorder("Gift's Received Deadline"));
 		dc_giftsreceived.setEnabled(false);
 		dc_giftsreceived.getDateEditor().addPropertyChangeListener(new PropertyChangeListener() 
 		{
@@ -165,13 +167,14 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
         btnOK.requestFocusInWindow();
 	}
 	
-	void updateData()	//Update gui with preference data changes (called when an saved ONC object loaded)
+	void display()	//Update gui with preference data changes (called when an saved ONC object loaded)
 	{
 		bIgnoreDialogEvents = true;
 		
 		dc_today.setDate(pdGVs.getTodaysDate());
 		dc_delivery.setDate(pdGVs.getDeliveryDate());
 		dc_seasonstart.setDate(pdGVs.getSeasonStartDate());
+		dc_giftsreceived.setDate(pdGVs.getGiftsReceivedDate());
 		oncWarehouseAddressTA.setText(pdGVs.getWarehouseAddress());
 		oncFontSizeCB.setSelectedIndex(pdGVs.getFontIndex());
 		ytyGrwthPctCB.setSelectedIndex(pdGVs.getYTYGrwthIndex());
@@ -193,8 +196,8 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		{
 			ServerGVs updateGVreq = new ServerGVs(dc_delivery.getDate(), 
 													dc_seasonstart.getDate(), 
-														oncWarehouseAddressTA.getText(),
-														dc_giftsreceived.getDate());
+													 oncWarehouseAddressTA.getText(),
+													  dc_giftsreceived.getDate());
 			
 			String response = pdGVs.update(this, updateGVreq);
 			if(!response.startsWith("UPDATED_GLOBALS"))
@@ -206,7 +209,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 			}
 			else
 			{
-				updateData();
+				display();
 			}
 		}
 	}
@@ -237,8 +240,11 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 	}
 
 	@Override
-	public void dataChanged(DatabaseEvent dbe) {
-		// TODO Auto-generated method stub
-		
+	public void dataChanged(DatabaseEvent dbe)
+	{
+		if(dbe.getSource() != this && dbe.getType().equals("UPDATED_GLOBALS"))
+		{
+			display();
+		}	
 	}	
 }

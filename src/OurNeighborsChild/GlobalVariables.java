@@ -381,7 +381,7 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 		oncDeliveryDate.setTime(updatedObj.getDeliveryDate());
 		oncSeasonStartDate.setTime(updatedObj.getSeasonStartDate());
 		warehouseAddress = updatedObj.getWarehouseAddress();
-		oncGiftsReceivedDate.setTime(updatedObj.getDeliveryDate());
+		oncGiftsReceivedDate.setTime(updatedObj.getGiftsReceivedDate());
 		
 		//Notify local user IFs that a change occurred
 		fireDataChanged(source, "UPDATED_GLOBALS", updatedObj);
