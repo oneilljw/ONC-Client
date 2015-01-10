@@ -11,6 +11,7 @@ import java.beans.PropertyChangeListener;
 import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -308,7 +309,7 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 		
 		firstnameTF.setText(child.getChildFirstName());
 		lastnameTF.setText(child.getChildLastName());
-		
+
 		dobDC.setCalendar(child.getChildDOB());
 		
 		//If the child is older than the max, use RED to COLOR the background
@@ -343,6 +344,8 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 			lastnameTF.setText("");
 		}
 		
+		System.out.println("ChildPanel.displayChild: CalendarDOB: " + c.getChildDOB());
+		System.out.println(String.format("ChildPanel.displayChild: DOB in millis: %d", c.getChildDOB().getTimeInMillis()));
 		dobDC.setCalendar(child.getChildDOB());
 		
 		//If the child is older than the max, use RED to COLOR the background

@@ -6,6 +6,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
+
 import javax.swing.JOptionPane;
 
 public class ONCChild extends ONCObject implements Serializable
@@ -26,7 +29,7 @@ public class ONCChild extends ONCObject implements Serializable
 	private String		sChildDOB;
 	private String		sChildAge;
 	private int 		nChildAge = -1;	//-1: Unknown, else age in years is valid from 0 (DOB) and older
-	private Calendar	childDOB = Calendar.getInstance();
+	private Calendar	childDOB;
 	private int			childWish1ID;
 	private int			childWish2ID;
 	private int			childWish3ID;
@@ -89,12 +92,14 @@ public class ONCChild extends ONCObject implements Serializable
 		childFirstName = nextLine[3].isEmpty() ? "" : nextLine[3];
 		childLastName = nextLine[4].isEmpty() ? "" : nextLine[4];
 		childGender = nextLine[5];
-		childDOB = Calendar.getInstance();
+		Locale locale = new Locale("en", "US");
+		TimeZone timezone = TimeZone.getTimeZone("GMT");
+		childDOB = Calendar.getInstance(timezone, locale);
 		childDOB.setTimeInMillis(Long.parseLong(nextLine[6]));
-		childDOB.set(Calendar.HOUR_OF_DAY, 0);
-	    childDOB.set(Calendar.MINUTE, 0);
-	    childDOB.set(Calendar.SECOND, 0);
-	    childDOB.set(Calendar.MILLISECOND, 0);
+//		childDOB.set(Calendar.HOUR_OF_DAY, 0);
+//	    childDOB.set(Calendar.MINUTE, 0);
+//	    childDOB.set(Calendar.SECOND, 0);
+//	    childDOB.set(Calendar.MILLISECOND, 0);
 		sChildAge = calculateAge();
 		childSchool = nextLine[7].isEmpty() ? "" : nextLine[7];
 		childWish1ID = Integer.parseInt(nextLine[8]);	//Set the wish id's to "no wish selected"
@@ -103,6 +108,7 @@ public class ONCChild extends ONCObject implements Serializable
     	pyChildID = Integer.parseInt(nextLine[11]);
     	
     	SimpleDateFormat sdf = new SimpleDateFormat("M/dd/yy");
+    	sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
     	sChildDOB = sdf.format(childDOB.getTime());
 	}
 	
@@ -318,6 +324,25 @@ public class ONCChild extends ONCObject implements Serializable
 						Long.toString(childWish3ID), Long.toString(pyChildID)};
 						
 		return row;
+	}
+	
+	public static Calendar convertToGmt(Calendar cal) {
+
+		Date date = cal.getTime();
+		TimeZone tz = cal.getTimeZone();
+
+		//Returns the number of milliseconds since January 1, 1970, 00:00:00 GMT 
+		long msFromEpochGmt = date.getTime();
+
+		//gives you the current offset in ms from GMT at the current date
+		int offsetFromUTC = tz.getOffset(msFromEpochGmt);
+
+		//create a new calendar in GMT timezone, set to this date and add the offset
+		Calendar gmtCal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+		gmtCal.setTime(date);
+		gmtCal.add(Calendar.MILLISECOND, offsetFromUTC);
+
+		return gmtCal;
 	}
 /*	
 	boolean mergeWishes(ONCChild mc)
