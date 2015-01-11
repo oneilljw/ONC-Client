@@ -1175,12 +1175,12 @@ public class FamilyPanel extends JPanel implements ActionListener, ListSelection
     		if(bDispAll)
     			childTableModel.addRow(new String[]{child.getChildFirstName(), 
     												child.getChildLastName(),
-        											child.getChildDOBString(),
+        											child.getChildDOBString("MM/dd/yy"),
         											child.getChildGender()});
     		else
     			childTableModel.addRow(new String[]{"Child " + Integer.toString(index+1),
     												"",
-													child.getChildDOBString(),
+													child.getChildDOBString("MM/dd/yy"),
 													child.getChildGender()});		
     	}
     	
@@ -1967,16 +1967,13 @@ public class FamilyPanel extends JPanel implements ActionListener, ListSelection
 					//update the table row
 					bChildTableDataChanging = true;
 				
-					SimpleDateFormat oncdf = new SimpleDateFormat("M/d/yy");
-					String updatedChildDOB = oncdf.format(updatedChild.getChildDOB().getTime());
-				
 					if(gvs.isUserAdmin())
 					{
 						childTableModel.setValueAt(updatedChild.getChildFirstName(), row, 0);
 						childTableModel.setValueAt(updatedChild.getChildLastName(), row, 1);
 					}
 				
-					childTableModel.setValueAt(updatedChildDOB, row, 2);
+					childTableModel.setValueAt(updatedChild.getChildDOBString("M/d/yy"), row, 2);
 					childTableModel.setValueAt(updatedChild.getChildGender(), row, 3);
 				
 					bChildTableDataChanging = false;

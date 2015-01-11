@@ -34,9 +34,9 @@ public class DupItem
 		else if(name.equals("Child"))
 		{
 			String[] duptablerow = {f1.getONCNum(), c1.getChildFirstName(), c1.getChildLastName(), 
-									c1.getChildGender(), c1.getChildDOBString(), result,
+									c1.getChildGender(), c1.getChildDOBString("M/dd/yy"), result,
 									f2.getONCNum(), c2.getChildFirstName(), c2.getChildLastName(), 
-									c2.getChildGender(), c2.getChildDOBString()};
+									c2.getChildGender(), c2.getChildDOBString("M/dd/yy")};
 			return duptablerow;
 		}
 		else

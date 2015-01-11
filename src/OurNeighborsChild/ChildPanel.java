@@ -386,23 +386,12 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 		return localCal;
 	}
 	
-	public static Calendar convertToGMT(Calendar cal) {
-
-		Date date = cal.getTime();
-		TimeZone tz = cal.getTimeZone();
-
-		//Returns the number of milliseconds since January 1, 1970, 00:00:00 GMT 
-		long msFromEpochGmt = date.getTime();
-
+	public long convertCalendarDOBToGMT(Calendar dobCal)
+	{
 		//gives you the current offset in ms from GMT at the current date
-		int offsetFromUTC = tz.getOffset(msFromEpochGmt);
-
-		//create a new calendar in GMT timezone, set to this date and add the offset
-		Calendar gmtCal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-		gmtCal.setTime(date);
-		gmtCal.add(Calendar.MILLISECOND, offsetFromUTC);
-
-		return gmtCal;
+		TimeZone tz = dobCal.getTimeZone();
+		int offsetFromUTC = tz.getOffset(dobCal.getTimeInMillis());
+		return dobCal.getTimeInMillis() + offsetFromUTC;
 	}
 	
 	void displayWish(ONCChildWish cw, int wn)
@@ -482,7 +471,7 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 			ONCChild reqUpdateChild = new ONCChild(c);
 			reqUpdateChild.updateChildData(firstnameTF.getText(), lastnameTF.getText(),
 											schoolTF.getText(), genderTF.getText(),
-											 dobDC.getCalendar().getTimeInMillis());
+											 convertCalendarDOBToGMT(dobDC.getCalendar()));
 			
 			String response = cDB.update(this, reqUpdateChild);	//notify child has changed
 			if(response.startsWith("UPDATED_CHILD"))
@@ -512,9 +501,9 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 //		gmtDOB.setTimeInMillis(c.getChildDateOfBirth());
 		
 		//get the CAL for the dateChooser date
-		long dcDOB  = dobDC.getCalendar().getTimeInMillis();
+		long dcDOBGMT = convertCalendarDOBToGMT(dobDC.getCalendar());
 			
-		if(dcDOB != c.getChildDateOfBirth())
+		if(dcDOBGMT != c.getChildDateOfBirth())
 			return true;
 		else
 			return false;
@@ -1050,7 +1039,8 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 				 !bChildDataChanging && c != null && cpGVs.isUserAdmin())
 				  
 			{
-				if(!c.getChildDOB().equals(dobDC.getCalendar()))
+				
+				if(c.getChildDateOfBirth() != convertCalendarDOBToGMT(dobDC.getCalendar()))
 				{
 					updateChild(c);
 			        displayChild(c);

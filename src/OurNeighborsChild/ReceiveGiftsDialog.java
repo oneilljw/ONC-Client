@@ -275,7 +275,6 @@ public class ReceiveGiftsDialog extends ONCSortTableDialog implements ActionList
 			//ONC number is valid and matches criteria
 			if(isNumeric(f.getONCNum()) && doesONCNumMatch(f.getONCNum()))	
 			{
-//				for(ONCChild c:f.getChildArrayList())
 				for(ONCChild c:cDB.getChildren(f.getID()))
 				{
 					if(isAgeInRange(c) && doesGenderMatch(c))	//Children criteria pass
@@ -288,14 +287,9 @@ public class ReceiveGiftsDialog extends ONCSortTableDialog implements ActionList
 							if(cw != null && cw.getChildWishStatus() < CHILD_WISH_STATUS_RECEIVED && 
 								cw.getChildWishIndicator() != CHILD_WISH_IND_NOT_ASSIGNED)
 							{
-								Organization org =  orgDB.getOrganizationByID(cw.getChildWishAssigneeID());
-								
 								stAL.add(new ONCRecGiftSortItem(f, f.getID(),f.getONCNum(), c.getChildAge(), i, 
-										c, c.getChildDOB(), c.getChildGender(),
-										cw.getChildWishIndicator(), 
-										cat.getWishByID(cw.getWishID()).getName(),
-										cw.getChildWishDetail(), status[cw.getChildWishStatus()],
-										org == null ? "None" : org.getName()));
+										c, c.getChildGender(), cat.getWishByID(cw.getWishID()).getName(),
+										cw.getChildWishDetail()));
 							}
 						}
 					}
@@ -513,9 +507,8 @@ public class ReceiveGiftsDialog extends ONCSortTableDialog implements ActionList
 //		private String 		sortItemchildWishStatus;
 //		private String		sortItemchildWishAssignee;
 		
-		public ONCRecGiftSortItem(ONCFamily fam, int id, String fnum, String ca, int cwn, ONCChild c, Calendar dob, String cg, 
-								int cwi, String cwb, String cwd,
-								String cws, String cwa)
+		public ONCRecGiftSortItem(ONCFamily fam, int id, String fnum, String ca, int cwn, ONCChild c, String cg, 
+									String cwb, String cwd)
 		{
 			sortItemFamily = fam;
 			sortItemONCID = id;
@@ -524,17 +517,8 @@ public class ReceiveGiftsDialog extends ONCSortTableDialog implements ActionList
 			sortItemchildWishNum = cwn;
 			sortItemchildGender = cg;
 			sortItemchildAge = ca.trim();	
-//			sortItemchildDateOfBirth = dob;
-//			if(cwi == 2)
-//				sortItemchildWishInd = "#";
-//			else if(cwi == 1)
-//				sortItemchildWishInd = "*";
-//			else
-//				sortItemchildWishInd = "";
 			sortItemchildWishBase = cwb;
 			sortItemchildWishDetail = cwd.trim();
-//			sortItemchildWishStatus = cws;
-//			sortItemchildWishAssignee = cwa;
 		}
 		
 		//getters

@@ -146,7 +146,7 @@ public class ONCFamilyReportRowBuilder
 				row[i+1] = c.getChildLastName();
 				row[i+2] = c.getChildSchool();
 				row[i+3] = c.getChildGender();
-				row[i+4] = c.getChildDOBString();
+				row[i+4] = c.getChildDOBString("MM/dd/yy");
 				row[i+5] = c.getChildAge();
 //				row[i+6] = c.getChildWishID(0) == -1 ? "" : cwDB.getWish(c.getChildWishID(0)).getChildWishAll();
 //				row[i+7] = c.getChildWishID(1) == -1 ? "" : cwDB.getWish(c.getChildWishID(1)).getChildWishAll();

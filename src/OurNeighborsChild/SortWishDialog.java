@@ -524,7 +524,7 @@ public class SortWishDialog extends ONCSortTableDialog implements ActionListener
 								Organization org =  orgs.getOrganizationByID(cw.getChildWishAssigneeID());
 								
 								stAL.add(new ONCWishDlgSortItem(f, f.getID(),f.getONCNum(),
-									c, i, c.getChildAge(), c.getChildDOB(), c.getChildGender(),
+									c, i, c.getChildAge(), c.getChildDateOfBirth(), c.getChildGender(),
 									cw.getChildWishIndicator(),
 									cat.getWishByID(cw.getWishID()).getName(),
 									cw.getChildWishDetail(), status[cw.getChildWishStatus()],

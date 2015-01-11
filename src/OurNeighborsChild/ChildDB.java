@@ -396,7 +396,7 @@ public class ChildDB extends ONCDatabase
 	    @Override
 	    public int compare(ONCChild o1, ONCChild o2)
 	    {
-	        return o1.getChildDOB().compareTo(o2.getChildDOB());
+	        return o1.getChildDateOfBirth().compareTo(o2.getChildDateOfBirth());
 	    }
 	}
 }

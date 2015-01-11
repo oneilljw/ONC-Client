@@ -175,7 +175,7 @@ public class DuplicateDataCheck
 		{
 			if(criteria[0])	//Children must be in different families
 				return !cc.getFamily().getONCNum().equals(f.getONCNum()) &&
-					doesDOBMatch(cc.getChild().getChildDOB(), criteria[1]) &&
+					doesDOBMatch(cc.getChild().getChildDateOfBirth(), criteria[1]) &&
 					 doesGenderMatch(cc.getChild().getChildGender(), criteria[2]) &&
 					  doesFirstNameMatch(cc.getChild().getChildFirstName(), criteria[3]) &&
 					   doesLastNameMatch(cc.getChild().getChildLastName(), criteria[4]) &&
@@ -183,14 +183,14 @@ public class DuplicateDataCheck
 			
 			else	//Children must be in the same family
 				return cc.getFamily().getONCNum().equals(f.getONCNum()) &&
-						doesDOBMatch(cc.getChild().getChildDOB(), criteria[1]) &&
+						doesDOBMatch(cc.getChild().getChildDateOfBirth(), criteria[1]) &&
 						 doesGenderMatch(cc.getChild().getChildGender(), criteria[2]) &&
 						  doesFirstNameMatch(cc.getChild().getChildFirstName(), criteria[3]) &&
 						   doesLastNameMatch(cc.getChild().getChildLastName(), criteria[4]) &&
 						    doesLastNamePartiallyMatch(cc.getChild().getChildLastName(), criteria[5]);		
 		}
 	
-		boolean doesDOBMatch(Calendar ccdob, boolean criteria) { return !criteria || (criteria && c.getChildDOB().equals(ccdob)); }
+		boolean doesDOBMatch(long ccdob, boolean criteria) { return !criteria || (criteria && c.getChildDateOfBirth() == ccdob); }
 		boolean doesGenderMatch(String gen, boolean criteria) { return !criteria || (criteria && c.getChildGender().equalsIgnoreCase(gen)); }
 		boolean doesFirstNameMatch(String fn, boolean criteria) { return !criteria || (criteria && c.getChildFirstName().equalsIgnoreCase(fn)); }
 		boolean doesLastNameMatch(String ln, boolean criteria) { return !criteria || (criteria && c.getChildLastName().equalsIgnoreCase(ln)); }

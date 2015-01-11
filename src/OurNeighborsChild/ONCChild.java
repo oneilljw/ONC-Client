@@ -5,7 +5,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -176,7 +175,7 @@ public class ONCChild extends ONCObject implements Serializable
 	String		getChildAge(){return sChildAge;}
 	int			getChildIntegerAge(){return nChildAge;}
 	public int	getPriorYearChildID() { return pyChildID; }
-	public long getChildDateOfBirth() { return childDOB; }
+	public Long getChildDateOfBirth() { return childDOB; }
 	
 	/**********************************************************************************************
 	 * return a GMT based Calendar for DOB
@@ -192,12 +191,17 @@ public class ONCChild extends ONCObject implements Serializable
 		return gmtDOB;
 	}
 	
-	String	getChildDOBString()
+	String	getChildDOBString(String format)
 	{
-    	SimpleDateFormat sdf = new SimpleDateFormat("M/dd/yy");
+    	SimpleDateFormat sdf = new SimpleDateFormat(format);
     	sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
     	
-    	return sdf.format(getChildDOB().getTime());
+    	Locale locale = new Locale("en", "US");
+		TimeZone timezone = TimeZone.getTimeZone("GMT");
+		Calendar gmtDOB = Calendar.getInstance(timezone, locale);
+		gmtDOB.setTimeInMillis(childDOB);
+    	
+    	return sdf.format(gmtDOB.getTime());
 	}
 
 	public int getChildWishID(int wn)

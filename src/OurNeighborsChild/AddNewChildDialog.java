@@ -1,9 +1,13 @@
 package OurNeighborsChild;
 
 import java.awt.Dimension;
+import java.util.Calendar;
+import java.util.TimeZone;
+
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JTextField;
+
 import com.toedter.calendar.JDateChooser;
 
 public class AddNewChildDialog extends InfoDialog
@@ -54,11 +58,19 @@ public class AddNewChildDialog extends InfoDialog
 	
 	ONCChild getNewChild() { return newchild; }
 	
+	public long convertCalendarDOBToGMT(Calendar dobCal)
+	{
+		//gives you the current offset in ms from GMT at the current date
+		TimeZone tz = dobCal.getTimeZone();
+		int offsetFromUTC = tz.getOffset(dobCal.getTimeInMillis());
+		return dobCal.getTimeInMillis() + offsetFromUTC;
+	}
+	
 	@Override
 	void update()
 	{
 		newchild = new ONCChild(0, fam.getID(), tf[0].getText(), tf[1].getText(),
-				genderCB.getSelectedItem().toString(), dobDC.getCalendar().getTimeInMillis(), tf[2].getText());
+				genderCB.getSelectedItem().toString(), convertCalendarDOBToGMT(dobDC.getCalendar()), tf[2].getText());
 		
 		result = true;
 		dispose();

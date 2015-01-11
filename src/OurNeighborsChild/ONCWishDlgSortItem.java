@@ -13,7 +13,7 @@ public class ONCWishDlgSortItem
 	private ONCChild	sortItemChild;
 	private int			sortItemchildWishNum;
 	private String 		sortItemchildAge;
-	private Calendar	sortItemchildDateOfBirth;
+	private long		sortItemchildDateOfBirth;
 	private String 		sortItemchildGender;
 	private String		sortItemchildWishInd;
 	private String		sortItemchildWishBase;
@@ -23,7 +23,7 @@ public class ONCWishDlgSortItem
 	private String		sortItemchildWishChangedBy;
 	private Calendar	sortItemchildWishDateChanged;
 	
-	public ONCWishDlgSortItem(ONCFamily fam, int oncID, String fnum, ONCChild c, int cwn, String ca, Calendar dob, String cg, 
+	public ONCWishDlgSortItem(ONCFamily fam, int oncID, String fnum, ONCChild c, int cwn, String ca, long dob, String cg, 
 							int cwi, String cwb, String cwd,
 							String cws, String cwa, String cwcb, Calendar cdc)
 	{
@@ -55,7 +55,7 @@ public class ONCWishDlgSortItem
 	String getSortItemONCFamilyNum()	{ return sortItemoncFamNum; }
 	ONCChild getSortItemChild() { return sortItemChild; }
 	Integer	getSortItemChildWishNumber() { return sortItemchildWishNum; }
-	Calendar getSortItemChildDOB() { return sortItemchildDateOfBirth; }
+	Long getSortItemChildDOB() { return sortItemchildDateOfBirth; }
 	String getSortItemChildGender() { return sortItemchildGender; }
 	String getSortItemChildWishIndicator() { return sortItemchildWishInd; }
 	String getSortItemChildWishBase() { return sortItemchildWishBase; }
@@ -80,12 +80,12 @@ public class ONCWishDlgSortItem
 	
 	String[] getExportRow()
 	{
+		
 		SimpleDateFormat dob = new SimpleDateFormat("MM-dd-yyyy");
-		String childDoB = dob.format(sortItemchildDateOfBirth.getTime());
 		String dateChanged = dob.format(sortItemchildWishDateChanged.getTime());
 		
 		String[] exportRow = {sortItemoncFamNum, sortItemchildGender, sortItemchildAge,
-								childDoB, sortItemchildWishInd, sortItemchildWishBase, 
+								sortItemChild.getChildDOBString("MM-dd-yyyy"), sortItemchildWishInd, sortItemchildWishBase, 
 								sortItemchildWishDetail, sortItemchildWishStatus,
 								sortItemchildWishAssignee, sortItemchildWishChangedBy,
 								dateChanged};

@@ -14,7 +14,7 @@ public class ONCPriorYearChild extends ONCObject implements Serializable
 //	private String		childFirstName;		//Removed from match criteria due to nicknames
 	private String		childLastName;
 	private String		childGender;
-	private Calendar	childDOB;
+	private long		childDOB;
 	private String		lychildWish1;
 	private String		lychildWish2;
 	private String 		lychildWish3;
@@ -28,12 +28,7 @@ public class ONCPriorYearChild extends ONCObject implements Serializable
 		super(Integer.parseInt(nextLine[0]));
 		childLastName = nextLine[1].isEmpty() ? "" : nextLine[1];
 		childGender = nextLine[2].isEmpty() ? "" : nextLine[2];
-		childDOB = Calendar.getInstance();
-		childDOB.setTimeInMillis(Long.parseLong(nextLine[3]));
-		childDOB.set(Calendar.HOUR_OF_DAY, 0);
-	    childDOB.set(Calendar.MINUTE, 0);
-	    childDOB.set(Calendar.SECOND, 0);
-	    childDOB.set(Calendar.MILLISECOND, 0);
+		childDOB= Long.parseLong(nextLine[3]);
 		lychildWish1 =  nextLine[4].isEmpty() ? "" : nextLine[4];
 		lychildWish2 =  nextLine[5].isEmpty() ? "" : nextLine[5];
 		lychildWish3 =  nextLine[6].isEmpty() ? "" : nextLine[6];
@@ -49,11 +44,7 @@ public class ONCPriorYearChild extends ONCObject implements Serializable
 //		childFirstName = c.getChildFirstName();
 		childLastName = c.getChildLastName();
 		childGender = c.getChildGender();
-		childDOB = c.getChildDOB();
-		childDOB.set(Calendar.HOUR_OF_DAY, 0);
-	    childDOB.set(Calendar.MINUTE, 0);
-	    childDOB.set(Calendar.SECOND, 0);
-	    childDOB.set(Calendar.MILLISECOND, 0);
+		childDOB = c.getChildDateOfBirth();
 		lychildWish1 = wish1.isEmpty() ? "" : wish1;
 		lychildWish2 = wish2.isEmpty() ? "" : wish2;
 		lychildWish3 = wish3.isEmpty() ? "" : wish3;
@@ -80,8 +71,8 @@ public class ONCPriorYearChild extends ONCObject implements Serializable
 	
 	public String getLastName() { return childLastName; }
 	public String getGetnder() { return childGender; }
-	public Calendar getDOB() { return childDOB; }
-	public int getYearOfBirth() { return childDOB.get(Calendar.YEAR); }
+	public long getDOB() { return childDOB; }
+//	public int getYearOfBirth() { return childDOB.get(Calendar.YEAR); }
 		
 	public String[] getPriorYearWishes()
 	{
@@ -93,10 +84,10 @@ public class ONCPriorYearChild extends ONCObject implements Serializable
 
 	//Determines if a child is a match with this prior year child. Returns true if the child's
 	//last Name, gender and date of birth match			
-	public boolean isMatch(String cfn, String cln, String gender, Calendar dob)
+	public boolean isMatch(String cfn, String cln, String gender, long dob)
 	{
 		return childLastName.equalsIgnoreCase(cln) && 	// REMOVED CHILD FIRST NAME COMPARISON - NICKNAME ISSUE
-				childGender.equalsIgnoreCase(gender) && childDOB.equals(dob);	
+				childGender.equalsIgnoreCase(gender) && childDOB == dob;	
 	}
 	
 	public void makeLastYearWishesPriorYearWishes()
@@ -130,7 +121,7 @@ public class ONCPriorYearChild extends ONCObject implements Serializable
 	public String[] getDBExportRow()
 	{
 		String[] row= {Integer.toString(id), childLastName, childGender, 
-						Long.toString(childDOB.getTimeInMillis()),
+						Long.toString(childDOB),
 						lychildWish1, lychildWish2, lychildWish3,
 						pychildWish1, pychildWish2, pychildWish3};				
 		return row;
