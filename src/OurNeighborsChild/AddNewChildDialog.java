@@ -60,6 +60,10 @@ public class AddNewChildDialog extends InfoDialog
 	
 	public long convertCalendarDOBToGMT(Calendar dobCal)
 	{
+		dobCal.set(Calendar.HOUR, 0);
+		dobCal.set(Calendar.MINUTE, 0);
+		dobCal.set(Calendar.SECOND, 0);
+		dobCal.set(Calendar.MILLISECOND, 0);
 		//gives you the current offset in ms from GMT at the current date
 		TimeZone tz = dobCal.getTimeZone();
 		int offsetFromUTC = tz.getOffset(dobCal.getTimeInMillis());

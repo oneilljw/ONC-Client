@@ -367,6 +367,7 @@ public class RAFamilyImporter extends ONCSortTableDialog
     	if(dob.length() == 10 && dob.contains("-"))	//format one
     	{			
     		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+    		sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
     		try
     		{
 				gmtDOB.setTime(sdf.parse(dob));
@@ -381,6 +382,7 @@ public class RAFamilyImporter extends ONCSortTableDialog
     	else if(dob.contains("/"))	//format two
     	{
     		SimpleDateFormat oncdf = new SimpleDateFormat("M/d/yy");
+    		oncdf.setTimeZone(TimeZone.getTimeZone("GMT"));
     		try
     		{
 				gmtDOB.setTime(oncdf.parse(dob));
@@ -396,7 +398,7 @@ public class RAFamilyImporter extends ONCSortTableDialog
     	//then convert the Calendar to a Date and return it
     	return gmtDOB.getTimeInMillis();
     }
-    
+
     /**************************************************************************************************
    	 * This method takes a .csv file in a List<String[]> format and searches column C of each row looking
    	 * for the target string. When found, it returns the index of the first field in that row.

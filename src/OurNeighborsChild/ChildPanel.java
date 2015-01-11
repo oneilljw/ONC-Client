@@ -396,6 +396,11 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 	public long convertCalendarDOBToGMT(Calendar dobCal)
 	{
 		//gives you the current offset in ms from GMT at the current date
+		dobCal.set(Calendar.HOUR, 0);
+		dobCal.set(Calendar.MINUTE, 0);
+		dobCal.set(Calendar.SECOND, 0);
+		dobCal.set(Calendar.MILLISECOND, 0);
+		
 		TimeZone tz = dobCal.getTimeZone();
 		int offsetFromUTC = tz.getOffset(dobCal.getTimeInMillis());
 		return dobCal.getTimeInMillis() + offsetFromUTC;
