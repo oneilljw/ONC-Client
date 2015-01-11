@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -354,9 +356,11 @@ public class RAFamilyImporter extends ONCSortTableDialog
 	 * This method takes a string date in one of two formats (yyyy-MM-dd or M/D/yy) and returns a Date
 	 * object from the string. If the input string is not of either format, the current date is returned.
 	 ***************************************************************************************************/
-    Date createChildDOB(String dob)
+    Long createChildDOB(String dob)
     {
-    	Calendar childDOB = Calendar.getInstance();
+    	Locale locale = new Locale("en", "US");
+		TimeZone timezone = TimeZone.getTimeZone("GMT");
+		Calendar gmtDOB = Calendar.getInstance(timezone, locale);
     	
     	//First, parse the input string based on format to create an Calendar variable for DOB
     	//If it can't be determined, set DOB = today. 
@@ -365,7 +369,7 @@ public class RAFamilyImporter extends ONCSortTableDialog
     		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
     		try
     		{
-				childDOB.setTime(sdf.parse(dob));
+				gmtDOB.setTime(sdf.parse(dob));
 			}
     		catch (ParseException e)
     		{
@@ -379,7 +383,7 @@ public class RAFamilyImporter extends ONCSortTableDialog
     		SimpleDateFormat oncdf = new SimpleDateFormat("M/d/yy");
     		try
     		{
-				childDOB.setTime(oncdf.parse(dob));
+				gmtDOB.setTime(oncdf.parse(dob));
 			}
     		catch (ParseException e)
     		{
@@ -390,7 +394,7 @@ public class RAFamilyImporter extends ONCSortTableDialog
     	}
     	
     	//then convert the Calendar to a Date and return it
-    	return childDOB.getTime();
+    	return gmtDOB.getTimeInMillis();
     }
     
     /**************************************************************************************************

@@ -12,6 +12,9 @@ import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -310,7 +313,8 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 		firstnameTF.setText(child.getChildFirstName());
 		lastnameTF.setText(child.getChildLastName());
 
-		dobDC.setCalendar(child.getChildDOB());
+//		dobDC.setCalendar(child.getChildDOB());
+		dobDC.setCalendar(convertDOBFromGMT(child.getChildDateOfBirth()));
 		
 		//If the child is older than the max, use RED to COLOR the background
 		if(c.getChildIntegerAge() > ONC_MAX_CHILD_AGE || c.getChildIntegerAge() < 0)
@@ -346,7 +350,10 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 		
 		System.out.println("ChildPanel.displayChild: CalendarDOB: " + c.getChildDOB());
 		System.out.println(String.format("ChildPanel.displayChild: DOB in millis: %d", c.getChildDOB().getTimeInMillis()));
-		dobDC.setCalendar(child.getChildDOB());
+		
+		
+		
+		dobDC.setCalendar(convertDOBFromGMT(child.getChildDateOfBirth()));
 		
 		//If the child is older than the max, use RED to COLOR the background
 		if(c.getChildIntegerAge() > ONC_MAX_CHILD_AGE || c.getChildIntegerAge() < 0)
@@ -362,6 +369,40 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 			displayWish(cwDB.getWish(child.getChildWishID(wn)), wn);	
 		
 		bChildDataChanging = false;
+	}
+	
+	public static Calendar convertDOBFromGMT(long gmtDOB)
+	{
+		//gives you the current offset in ms from GMT at the current date
+		TimeZone tz = TimeZone.getDefault();	//Local time zone
+		int offsetFromUTC = tz.getOffset(gmtDOB);
+		System.out.println(String.format("ChildPanel.convertDOB offset: %d", offsetFromUTC));
+
+		//create a new calendar in local time zone, set to gmtDOB and add the offset
+		Calendar localCal = Calendar.getInstance();
+		localCal.setTimeInMillis(gmtDOB);
+		localCal.add(Calendar.MILLISECOND, (offsetFromUTC * -1));
+
+		return localCal;
+	}
+	
+	public static Calendar convertToGMT(Calendar cal) {
+
+		Date date = cal.getTime();
+		TimeZone tz = cal.getTimeZone();
+
+		//Returns the number of milliseconds since January 1, 1970, 00:00:00 GMT 
+		long msFromEpochGmt = date.getTime();
+
+		//gives you the current offset in ms from GMT at the current date
+		int offsetFromUTC = tz.getOffset(msFromEpochGmt);
+
+		//create a new calendar in GMT timezone, set to this date and add the offset
+		Calendar gmtCal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+		gmtCal.setTime(date);
+		gmtCal.add(Calendar.MILLISECOND, offsetFromUTC);
+
+		return gmtCal;
 	}
 	
 	void displayWish(ONCChildWish cw, int wn)
@@ -434,13 +475,14 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 				  !lastnameTF.getText().equals(c.getChildLastName()) ||
 				   !schoolTF.getText().equals(c.getChildSchool()) ||
 				    !genderTF.getText().equals(c.getChildGender()) ||
-				     !dobDC.getDate().equals(c.getChildDOB().getTime()))	
+				     hasDOBChanged(c))	
 		{
 			//child change detected, create change request object and send to the server
 			//the child prior wish history may have changed when the child data changed
 			ONCChild reqUpdateChild = new ONCChild(c);
 			reqUpdateChild.updateChildData(firstnameTF.getText(), lastnameTF.getText(),
-											schoolTF.getText(), genderTF.getText(), dobDC.getDate());
+											schoolTF.getText(), genderTF.getText(),
+											 dobDC.getCalendar().getTimeInMillis());
 			
 			String response = cDB.update(this, reqUpdateChild);	//notify child has changed
 			if(response.startsWith("UPDATED_CHILD"))
@@ -459,6 +501,23 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 				displayChild(c);
 			}
 		}
+	}
+	
+	boolean hasDOBChanged(ONCChild c)
+	{
+		//create a CAL for current DOB (GMT)
+//		Locale locale = new Locale("en", "US");
+//		TimeZone timezone = TimeZone.getTimeZone("GMT");
+//		Calendar gmtDOB = Calendar.getInstance(timezone, locale);
+//		gmtDOB.setTimeInMillis(c.getChildDateOfBirth());
+		
+		//get the CAL for the dateChooser date
+		long dcDOB  = dobDC.getCalendar().getTimeInMillis();
+			
+		if(dcDOB != c.getChildDateOfBirth())
+			return true;
+		else
+			return false;
 	}
 	
 	//Check all three wish detail fields for changes. Process changes if they occur. If a 

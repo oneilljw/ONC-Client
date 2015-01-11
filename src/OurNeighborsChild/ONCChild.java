@@ -26,35 +26,36 @@ public class ONCChild extends ONCObject implements Serializable
 	private String		childLastName;
 	private String		childSchool;
 	private String		childGender;
-	private String		sChildDOB;
+//	private String		sChildDOB;
 	private String		sChildAge;
 	private int 		nChildAge = -1;	//-1: Unknown, else age in years is valid from 0 (DOB) and older
-	private Calendar	childDOB;
+	private long		childDOB;	//GMT time in milliseconds 
 	private int			childWish1ID;
 	private int			childWish2ID;
 	private int			childWish3ID;
 	private int			pyChildID;
 		
 	//Constructor for a new child created by the user
-	ONCChild(int id, int famid, String fn, String ln, String gender, Date dob, String school)
+	ONCChild(int id, int famid, String fn, String ln, String gender, long dob, String school)
 	{
 		super(id);
 		this.famid = famid;
 		childNumber = 0; //Will be set once children are sorted in chronological order
 		childFirstName = fn;
 		childGender = gender;
-		childDOB = Calendar.getInstance();
-		childDOB.setTime(dob);
-		childDOB.set(Calendar.HOUR_OF_DAY, 0);
-	    childDOB.set(Calendar.MINUTE, 0);
-	    childDOB.set(Calendar.SECOND, 0);
-	    childDOB.set(Calendar.MILLISECOND, 0);
+		childDOB = dob;
+//		childDOB = Calendar.getInstance();
+//		childDOB.setTime(dob);
+//		childDOB.set(Calendar.HOUR_OF_DAY, 0);
+//	    childDOB.set(Calendar.MINUTE, 0);
+//	    childDOB.set(Calendar.SECOND, 0);
+//	    childDOB.set(Calendar.MILLISECOND, 0);
 		sChildAge = calculateAge();
 		childLastName = ln;
 		childSchool = school;
     	
-    	SimpleDateFormat sdf = new SimpleDateFormat("M/dd/yy");
-    	sChildDOB = sdf.format(childDOB.getTime());
+//    	SimpleDateFormat sdf = new SimpleDateFormat("M/dd/yy");
+//    	sChildDOB = sdf.format(childDOB.getTime());
     	
     	childWish1ID = -1;	//Set the wish id's to "no wish selected"
     	childWish2ID = -1;
@@ -79,8 +80,8 @@ public class ONCChild extends ONCObject implements Serializable
     	childWish3ID = c.childWish3ID;
     	pyChildID = c.pyChildID;
     	
-    	SimpleDateFormat sdf = new SimpleDateFormat("M/dd/yy");
-    	sChildDOB = sdf.format(childDOB.getTime());
+//    	SimpleDateFormat sdf = new SimpleDateFormat("M/dd/yy");
+//    	sChildDOB = sdf.format(childDOB.getTime());
 	}
 	
 	//Constructor used when importing data base from CSV
@@ -92,14 +93,21 @@ public class ONCChild extends ONCObject implements Serializable
 		childFirstName = nextLine[3].isEmpty() ? "" : nextLine[3];
 		childLastName = nextLine[4].isEmpty() ? "" : nextLine[4];
 		childGender = nextLine[5];
-		Locale locale = new Locale("en", "US");
-		TimeZone timezone = TimeZone.getTimeZone("GMT");
-		childDOB = Calendar.getInstance(timezone, locale);
-		childDOB.setTimeInMillis(Long.parseLong(nextLine[6]));
-//		childDOB.set(Calendar.HOUR_OF_DAY, 0);
-//	    childDOB.set(Calendar.MINUTE, 0);
-//	    childDOB.set(Calendar.SECOND, 0);
-//	    childDOB.set(Calendar.MILLISECOND, 0);
+
+		if(nextLine[6].isEmpty())
+		{
+			Locale locale = new Locale("en", "US");
+			TimeZone timezone = TimeZone.getTimeZone("GMT");
+			Calendar today = Calendar.getInstance(timezone, locale);
+			today.set(Calendar.HOUR_OF_DAY, 0);
+		    today.set(Calendar.MINUTE, 0);
+		    today.set(Calendar.SECOND, 0);
+		    today.set(Calendar.MILLISECOND, 0);
+			childDOB = today.getTimeInMillis();
+		}
+		else
+			childDOB = Long.parseLong(nextLine[6]);
+
 		sChildAge = calculateAge();
 		childSchool = nextLine[7].isEmpty() ? "" : nextLine[7];
 		childWish1ID = Integer.parseInt(nextLine[8]);	//Set the wish id's to "no wish selected"
@@ -107,9 +115,9 @@ public class ONCChild extends ONCObject implements Serializable
     	childWish3ID = Integer.parseInt(nextLine[10]);
     	pyChildID = Integer.parseInt(nextLine[11]);
     	
-    	SimpleDateFormat sdf = new SimpleDateFormat("M/dd/yy");
-    	sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-    	sChildDOB = sdf.format(childDOB.getTime());
+//    	SimpleDateFormat sdf = new SimpleDateFormat("M/dd/yy");
+//    	sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+//    	sChildDOB = sdf.format(childDOB.getTime());
 	}
 	
 	//Constructor that uses ODB/WFCM child name string which has format First Name Last Name - Gender - DOB
@@ -136,8 +144,8 @@ public class ONCChild extends ONCObject implements Serializable
     		else
     			childGender = "Unknown";
     	   		
-    		sChildDOB = childdata[2].trim();
-       		sChildAge = CalculateChildsAgeAndCalendarDOB();
+//    		sChildDOB = childdata[2].trim();
+       		sChildAge = calculateChildsAgeAndCalendarDOB(childdata[2].trim());
     	}
     		
     	else
@@ -145,7 +153,7 @@ public class ONCChild extends ONCObject implements Serializable
     		childFirstName = "MISSING";
     		childLastName = "MISSING";
     		childGender = "Unknown";
-    		sChildDOB = "Unknown";
+//    		sChildDOB = "Unknown";
     		sChildAge = "Unknown";
     	}
     	
@@ -164,11 +172,33 @@ public class ONCChild extends ONCObject implements Serializable
 	public String		getChildLastName() {return childLastName;}
 	String		getChildSchool() {return childSchool;}
 	public String		getChildGender() {return childGender;}
-	String		getChildDOBString() {return sChildDOB;}
+	
 	String		getChildAge(){return sChildAge;}
 	int			getChildIntegerAge(){return nChildAge;}
-	public int			getPriorYearChildID() { return pyChildID; }
-	public Calendar	getChildDOB() {return childDOB;}
+	public int	getPriorYearChildID() { return pyChildID; }
+	public long getChildDateOfBirth() { return childDOB; }
+	
+	/**********************************************************************************************
+	 * return a GMT based Calendar for DOB
+	 * @return
+	 */
+	public Calendar	getChildDOB()
+	{
+		Locale locale = new Locale("en", "US");
+		TimeZone timezone = TimeZone.getTimeZone("GMT");
+		Calendar gmtDOB = Calendar.getInstance(timezone, locale);
+		gmtDOB.setTimeInMillis(childDOB);
+		
+		return gmtDOB;
+	}
+	
+	String	getChildDOBString()
+	{
+    	SimpleDateFormat sdf = new SimpleDateFormat("M/dd/yy");
+    	sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+    	
+    	return sdf.format(getChildDOB().getTime());
+	}
 
 	public int getChildWishID(int wn)
 	{
@@ -197,15 +227,15 @@ public class ONCChild extends ONCObject implements Serializable
 	
 	public void setPriorYearChildID(int pyid) { pyChildID = pyid; }
 	
-	void updateChildData(String first, String last, String school, String gender, Date dob)
+	void updateChildData(String first, String last, String school, String gender, long dob)
 	{
 		childFirstName = first;
 		childLastName = last;
 		childSchool = school;
 		childGender = gender;
-		childDOB.setTime(dob);
-		SimpleDateFormat oncdf = new SimpleDateFormat("M/d/yy");
-		sChildDOB = oncdf.format(dob);
+		childDOB = dob;
+//		SimpleDateFormat oncdf = new SimpleDateFormat("M/d/yy");
+//		sChildDOB = oncdf.format(dob);
 		sChildAge = calculateAge();
 	}
 
@@ -214,20 +244,29 @@ public class ONCChild extends ONCObject implements Serializable
 	//This method takes the sChildDOB string, determines if its in legitimate date format, and if it is
 	//set the childDOB Calendar field and return a string of the childs age. It also sets a member 
 	//integer variable, nChildAge, to the actual age (0 and older) or leaves it -1 for invalid DOB's
-	String CalculateChildsAgeAndCalendarDOB()
-	{		
-		Calendar now = Calendar.getInstance();	//Need to zero the hour, min, sec fields
+	String calculateChildsAgeAndCalendarDOB(String zDOB)
+	{	
+		Locale locale = new Locale("en", "US");
+		TimeZone timezone = TimeZone.getTimeZone("GMT");
+		Calendar now = Calendar.getInstance(timezone, locale);
+		now.clear(Calendar.HOUR_OF_DAY);
+		now.clear(Calendar.MINUTE);
+		now.clear(Calendar.SECOND);
+		now.clear(Calendar.MILLISECOND);
 		SimpleDateFormat oncdf = new SimpleDateFormat("M/d/yy");
 		
 		//First, parse the sChildDOB string to create an Calendar variable for DOB
 		//If it can't be determined, set DOB = today. 
-		if(sChildDOB.contains("-"))	//ODB format
+		if(zDOB.contains("-"))	//ODB format
 		{			
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		    try 
 		    {
-				childDOB.setTime(sdf.parse(sChildDOB));
-				sChildDOB = oncdf.format(childDOB.getTime());
+		    	
+				Calendar gmtDOB = Calendar.getInstance(timezone, locale);
+				gmtDOB.setTime(sdf.parse(zDOB));
+				childDOB = gmtDOB.getTimeInMillis();
+//				sChildDOB = oncdf.format(childDOB.getTime());
 			}
 		    catch (ParseException e)
 		    {
@@ -235,12 +274,14 @@ public class ONCChild extends ONCObject implements Serializable
 				e.printStackTrace();
 			}// all done
 		}
-		else if(sChildDOB.contains("/"))	//ONC format
+		else if(zDOB.contains("/"))	//ONC format
 		{
 		    try 
 		    {
-				childDOB.setTime(oncdf.parse(sChildDOB));
-				sChildDOB = oncdf.format(childDOB.getTime());
+				Calendar gmtDOB = Calendar.getInstance(timezone, locale);
+				gmtDOB.setTime(oncdf.parse(zDOB));
+				childDOB = gmtDOB.getTimeInMillis();
+//				sChildDOB = oncdf.format(childDOB.getTime());
 			}
 		    catch (ParseException e)
 		    {
@@ -249,54 +290,51 @@ public class ONCChild extends ONCObject implements Serializable
 			}// all done
 		    
 		}
-		else if(sChildDOB.contains("nknown"))
+		else if(zDOB.contains("nknown"))
 		{
-			childDOB = now;
-			sChildDOB = oncdf.format(childDOB.getTime());
+			childDOB = now.getTimeInMillis();
+//			sChildDOB = oncdf.format(childDOB.getTime());
 			return "Unknown";
 		}
 		else
 		{
-			childDOB = now;
-			sChildDOB = oncdf.format(childDOB.getTime());
+			childDOB = now.getTimeInMillis();
+			
+//			sChildDOB = oncdf.format(childDOB.getTime());
 			JOptionPane.showMessageDialog(null, "DOB is not in ONC or ODB format, age cannot be determined", 
 					"Invalid Date of Birth Format", JOptionPane.ERROR_MESSAGE);
 			return "";
 		}
-		
-		//Only use day, month and year in the app
-		 childDOB.clear(Calendar.HOUR_OF_DAY);
-		 childDOB.clear(Calendar.MINUTE);
-		 childDOB.clear(Calendar.SECOND);
-		 childDOB.clear(Calendar.MILLISECOND);
 		
 		return calculateAge();
 	}
 	
 	String calculateAge()
 	{
-		Calendar now = Calendar.getInstance();
+		Calendar nowCal = Calendar.getInstance();
+		Calendar dobCal = Calendar.getInstance();
+		dobCal.setTimeInMillis(childDOB);
 		
-		if (childDOB.after(now))
+		if (dobCal.after(nowCal))
 		{
 		  return "Future DOB";
 		}
 		else
 		{		
-			int year1 = now.get(Calendar.YEAR);
-			int year2 = childDOB.get(Calendar.YEAR);
+			int year1 = nowCal.get(Calendar.YEAR);
+			int year2 = dobCal.get(Calendar.YEAR);
 			nChildAge = year1 - year2;
 		
-			int month1 = now.get(Calendar.MONTH);
-			int month2 = childDOB.get(Calendar.MONTH);
+			int month1 = nowCal.get(Calendar.MONTH);
+			int month2 = dobCal.get(Calendar.MONTH);
 			if (month2 > month1)
 			{
 				nChildAge--;
 			} 
 			else if (month1 == month2)
 			{
-				int day1 = now.get(Calendar.DAY_OF_MONTH);
-				int day2 = childDOB.get(Calendar.DAY_OF_MONTH);
+				int day1 = nowCal.get(Calendar.DAY_OF_MONTH);
+				int day2 = dobCal.get(Calendar.DAY_OF_MONTH);
 				if (day2 > day1)
 				{
 					nChildAge--;
@@ -318,31 +356,11 @@ public class ONCChild extends ONCObject implements Serializable
 	public String[] getDBExportRow()
 	{
 		String[] row= {Long.toString(id), Integer.toString(famid), Integer.toString(childNumber), 
-						childFirstName, childLastName, childGender, 
-						Long.toString(childDOB.getTimeInMillis()), childSchool, 
+						childFirstName, childLastName, childGender, Long.toString(childDOB), childSchool, 
 						Long.toString(childWish1ID), Long.toString(childWish2ID),
 						Long.toString(childWish3ID), Long.toString(pyChildID)};
 						
 		return row;
-	}
-	
-	public static Calendar convertToGmt(Calendar cal) {
-
-		Date date = cal.getTime();
-		TimeZone tz = cal.getTimeZone();
-
-		//Returns the number of milliseconds since January 1, 1970, 00:00:00 GMT 
-		long msFromEpochGmt = date.getTime();
-
-		//gives you the current offset in ms from GMT at the current date
-		int offsetFromUTC = tz.getOffset(msFromEpochGmt);
-
-		//create a new calendar in GMT timezone, set to this date and add the offset
-		Calendar gmtCal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-		gmtCal.setTime(date);
-		gmtCal.add(Calendar.MILLISECOND, offsetFromUTC);
-
-		return gmtCal;
 	}
 /*	
 	boolean mergeWishes(ONCChild mc)
