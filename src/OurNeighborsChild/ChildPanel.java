@@ -12,10 +12,7 @@ import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
 import java.util.TimeZone;
-
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
@@ -27,7 +24,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
-
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.toedter.calendar.JDateChooser;
@@ -380,7 +376,7 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 		//gives you the current offset in ms from GMT at the current date
 		TimeZone tz = TimeZone.getDefault();	//Local time zone
 		int offsetFromUTC = tz.getOffset(gmtDOB);
-		System.out.println(String.format("ChildPanel.convertDOB offset: %d", offsetFromUTC));
+//		System.out.println(String.format("ChildPanel.convertDOB offset: %d", offsetFromUTC));
 
 		//create a new calendar in local time zone, set to gmtDOB and add the offset
 		Calendar localCal = Calendar.getInstance();

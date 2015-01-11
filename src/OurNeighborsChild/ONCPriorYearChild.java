@@ -72,7 +72,8 @@ public class ONCPriorYearChild extends ONCObject implements Serializable
 	public String getLastName() { return childLastName; }
 	public String getGetnder() { return childGender; }
 	public long getDOB() { return childDOB; }
-//	public int getYearOfBirth() { return childDOB.get(Calendar.YEAR); }
+
+	public void setDOB(long dob) { childDOB = dob; }
 		
 	public String[] getPriorYearWishes()
 	{

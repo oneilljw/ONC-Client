@@ -171,11 +171,12 @@ public class ONCChild extends ONCObject implements Serializable
 	public String		getChildLastName() {return childLastName;}
 	String		getChildSchool() {return childSchool;}
 	public String		getChildGender() {return childGender;}
-	
 	String		getChildAge(){return sChildAge;}
 	int			getChildIntegerAge(){return nChildAge;}
 	public int	getPriorYearChildID() { return pyChildID; }
 	public Long getChildDateOfBirth() { return childDOB; }
+	
+	public void setChildDateOfBirth(long dob) { childDOB = dob; }
 	
 	/**********************************************************************************************
 	 * return a GMT based Calendar for DOB

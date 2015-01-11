@@ -167,7 +167,7 @@ public class ONCFamily extends ONCEntity
 		deliveryID = -1;
 		
 		newGetHOHName(HOH);
-		getPhones(ClientFamPhone);
+//		getPhones(ClientFamPhone);
 		parsePhoneData(ClientFamPhone);
 		getChildrenNames(FamMembers);
 		parseAddress(StreetNum, StreetName);
@@ -565,7 +565,7 @@ public class ONCFamily extends ONCEntity
 		else
 			OtherPhone = "None Found";	
 	}
-	
+/*	
 	void getPhones(String cfp)
 	{
 		int ch = 0, startch = 0;
@@ -607,7 +607,7 @@ public class ONCFamily extends ONCEntity
 			bOtherFound = true;
 		}   	
 	}
-	
+*/	
 	void getChildrenNames(String fm)
 	{
 		int ch = 0, startch = 0;
