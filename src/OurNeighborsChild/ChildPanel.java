@@ -348,11 +348,9 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 			lastnameTF.setText("");
 		}
 		
-		System.out.println("ChildPanel.displayChild: CalendarDOB: " + c.getChildDOB());
-		System.out.println(String.format("ChildPanel.displayChild: DOB in millis: %d", c.getChildDOB().getTimeInMillis()));
-		
-		
-		
+//		System.out.println("ChildPanel.displayChild: CalendarDOB: " + c.getChildDOB());
+//		System.out.println(String.format("ChildPanel.displayChild: DOB in millis: %d", c.getChildDOB().getTimeInMillis()));
+			
 		dobDC.setCalendar(convertDOBFromGMT(child.getChildDateOfBirth()));
 		
 		//If the child is older than the max, use RED to COLOR the background
@@ -371,6 +369,12 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 		bChildDataChanging = false;
 	}
 	
+	/****************************************************************************************
+	 * Takes the date of birth in milliseconds (GMT) and returns a local time zone 
+	 * Calendar object of the date of birth
+	 * @param gmtDOB
+	 * @return
+	 ***************************************************************************************/
 	public static Calendar convertDOBFromGMT(long gmtDOB)
 	{
 		//gives you the current offset in ms from GMT at the current date
@@ -386,6 +390,13 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 		return localCal;
 	}
 	
+	/****************************************************************************************
+	 * Takes a local time zone Calendar date of birth and returns teh date of birth 
+	 * in milliseconds (GMT)
+	 * Calendar object of the date of birth
+	 * @param gmtDOB
+	 * @return
+	 ***************************************************************************************/
 	public long convertCalendarDOBToGMT(Calendar dobCal)
 	{
 		//gives you the current offset in ms from GMT at the current date
