@@ -251,9 +251,9 @@ public class ONCChild extends ONCObject implements Serializable
 	//integer variable, nChildAge, to the actual age (0 and older) or leaves it -1 for invalid DOB's
 	String calculateChildsAgeAndCalendarDOB(String zDOB)
 	{	
-		Locale locale = new Locale("en", "US");
+//		Locale locale = new Locale("en", "US");
 		TimeZone timezone = TimeZone.getTimeZone("GMT");
-		Calendar now = Calendar.getInstance(timezone, locale);
+		Calendar now = Calendar.getInstance(timezone);
 		now.clear(Calendar.HOUR_OF_DAY);
 		now.clear(Calendar.MINUTE);
 		now.clear(Calendar.SECOND);
@@ -265,10 +265,11 @@ public class ONCChild extends ONCObject implements Serializable
 		if(zDOB.contains("-"))	//ODB format
 		{			
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+			sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
 		    try 
 		    {
 		    	
-				Calendar gmtDOB = Calendar.getInstance(timezone, locale);
+				Calendar gmtDOB = Calendar.getInstance(timezone);
 				gmtDOB.setTime(sdf.parse(zDOB));
 				childDOB = gmtDOB.getTimeInMillis();
 //				sChildDOB = oncdf.format(childDOB.getTime());
@@ -281,9 +282,11 @@ public class ONCChild extends ONCObject implements Serializable
 		}
 		else if(zDOB.contains("/"))	//ONC format
 		{
+			SimpleDateFormat sdf = new SimpleDateFormat("M/dd/yy");
+			sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
 		    try 
 		    {
-				Calendar gmtDOB = Calendar.getInstance(timezone, locale);
+				Calendar gmtDOB = Calendar.getInstance(timezone);
 				gmtDOB.setTime(oncdf.parse(zDOB));
 				childDOB = gmtDOB.getTimeInMillis();
 //				sChildDOB = oncdf.format(childDOB.getTime());

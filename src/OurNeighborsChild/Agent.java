@@ -65,6 +65,7 @@ public class Agent extends ONCObject implements Serializable
 	public boolean doesAgentNameMatch(String compAgentName)
 	{
 		boolean result = false;
+		
 		String[] compAgentNameParts = compAgentName.split(" ");
 		String[] agentNameParts = name.split(" ");
 		
@@ -75,7 +76,7 @@ public class Agent extends ONCObject implements Serializable
 					compAgentNameParts[index].trim().toLowerCase().equals(agentNameParts[index].trim().toLowerCase()))
 				index++;
 			
-			if(index < agentNameParts.length)	//agent name matches part for part, in order
+			if(index == agentNameParts.length)	//agent name matches part for part, in order
 				result = true;
 		}	
 		

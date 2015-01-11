@@ -324,6 +324,9 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
     
     void processDBYears(List<DBYear> dbYears)
     {
+    	//clear the current list
+    	oncMenuBar.clearDataBaseYears();
+    	
     	//create the listener for each year in the year list in the menu
     	MenuItemDBYearsListener menuItemDBYearListener = new MenuItemDBYearsListener();
 		
@@ -939,19 +942,26 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
 		}
     }
     
-    int processAddedONCSeason(String newYearJson)
+    int processAddedONCSeason(String dbYearListJson)
     {
     	MenuItemDBYearsListener menuItemDBYearListener = new MenuItemDBYearsListener();
     	
+    	//clear the current list
+    	oncMenuBar.clearDataBaseYears();
+    	
+    	//create the dbYear list returned by the server
     	Gson gson = new Gson();
-		DBYear newDBYear = gson.fromJson(newYearJson, DBYear.class);
+		Type listOfDBYears = new TypeToken<ArrayList<DBYear>>(){}.getType();
+		ArrayList<DBYear> dbYearList =  gson.fromJson(dbYearListJson, listOfDBYears);
 		
-		addDBYear(newDBYear, menuItemDBYearListener);
+		for(DBYear dbYear:dbYearList)
+			addDBYear(dbYear, menuItemDBYearListener);
 		
 		//now that the year is added, disable adding another year
 		oncMenuBar.setEnabledNewMenuItem(false);
 		
-		return newDBYear.getYear();
+		//return last year in the list
+		return dbYearList.get(dbYearList.size()-1).getYear();
     }
     
     void importObjectsFromDB(int year)

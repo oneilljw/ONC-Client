@@ -358,9 +358,9 @@ public class RAFamilyImporter extends ONCSortTableDialog
 	 ***************************************************************************************************/
     Long createChildDOB(String dob)
     {
-    	Locale locale = new Locale("en", "US");
+//    	Locale locale = new Locale("en", "US");
 		TimeZone timezone = TimeZone.getTimeZone("GMT");
-		Calendar gmtDOB = Calendar.getInstance(timezone, locale);
+		Calendar gmtDOB = Calendar.getInstance(timezone);
     	
     	//First, parse the input string based on format to create an Calendar variable for DOB
     	//If it can't be determined, set DOB = today. 

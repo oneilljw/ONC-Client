@@ -268,17 +268,22 @@ public class ONCMenuBar extends JMenuBar
 	    menuSettings.add(showCurrDirMI);
 	}
 	
-	JMenuItem addDBYear(String year, ImageIcon lock)
+	JMenuItem addDBYear(String year, ImageIcon lockIcon)
 	{
-		JMenuItem mi = new JMenuItem(year, lock);
+		JMenuItem mi = new JMenuItem(year, lockIcon);
 		mi.setActionCommand(year);
+			
 		dbYears.add(mi);
-		submenuDatabase.add(dbYears.get(dbYears.size() - 1));
+		submenuDatabase.add(mi);
 		
 		return mi;
 	}
 	
-	void clearDBYearList() { dbYears.clear(); }
+	void clearDataBaseYears()
+	{ 
+		submenuDatabase.removeAll();
+		dbYears.clear(); 
+	}
 	
 	void SetEnabledMenuItems(boolean tf)	//Only with at least one family present in db
 	{
