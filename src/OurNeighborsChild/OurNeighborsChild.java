@@ -951,8 +951,8 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
     	
     	//create the dbYear list returned by the server
     	Gson gson = new Gson();
-		Type listOfDBYears = new TypeToken<ArrayList<DBYear>>(){}.getType();
-		ArrayList<DBYear> dbYearList =  gson.fromJson(dbYearListJson, listOfDBYears);
+		Type listtype = new TypeToken<ArrayList<DBYear>>(){}.getType();
+		ArrayList<DBYear> dbYearList =  gson.fromJson(dbYearListJson, listtype);
 		
 		for(DBYear dbYear:dbYearList)
 			addDBYear(dbYear, menuItemDBYearListener);

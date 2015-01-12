@@ -313,7 +313,7 @@ public class ServerIF
     			index++;
     	
     		if(index < menuBarResponses.length)
-    			fireDataChanged(menuBarResponses[index], change.substring(dbResponses[index].length()));
+    			fireDataChanged(menuBarResponses[index], change.substring(menuBarResponses[index].length()));
     		
     	}
     	else if(bDatabaseLoaded)

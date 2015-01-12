@@ -309,11 +309,11 @@ public class Organization extends ONCEntity
 	public String[] getDBExportRow()
 	{
 		String[] row= {Integer.toString(id), Integer.toString(status), Integer.toString(type),
-						name, ornamentDelivery, Integer.toString(streetnum), streetname, unit, 
-						city, zipcode, Integer.toString(region), phone, Integer.toString(orn_req),
-						Integer.toString(orn_assigned), Integer.toString(orn_rec), other, 
-						deliverTo, specialNotes, contact, contact_email, contact_phone, 
-						contact2, contact2_email, contact2_phone, 
+						collection.toString(), name, ornamentDelivery, Integer.toString(streetnum),
+						streetname, unit, city, zipcode, Integer.toString(region), phone,
+						Integer.toString(orn_req),Integer.toString(orn_assigned),
+						Integer.toString(orn_rec), other, deliverTo, specialNotes, contact,
+						contact_email, contact_phone, contact2, contact2_email, contact2_phone, 
 						Long.toString(dateChanged.getTimeInMillis()), changedBy, Integer.toString(slPos),
 						slMssg, slChangedBy, Integer.toString(pyRequested), Integer.toString(pyAssigned),
 						Integer.toString(pyReceived)};

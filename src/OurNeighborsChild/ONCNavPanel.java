@@ -3,6 +3,7 @@ package OurNeighborsChild;
 import java.awt.FlowLayout;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -41,6 +42,7 @@ public class ONCNavPanel extends JPanel implements ActionListener
     //UI objects
     private JButton btnNext, btnPrevious;
     private JButton  rbSrchNext, rbSrchPrev;
+//  private JButton btnLogoff;
     private JTextField searchTF;
     private Stoplight sl;
     private JLabel lblCount1, lblCount2;
@@ -68,6 +70,8 @@ public class ONCNavPanel extends JPanel implements ActionListener
 	    JPanel tp2 = new JPanel(new GridLayout(2,2));
 	    JPanel tp3 = new JPanel(new GridLayout(2,0));
 	    JPanel tp4 = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+//	    JPanel tp4 = new JPanel();
+//	    tp4.setLayout(new BoxLayout(tp4, BoxLayout.Y_AXIS));
 	    	
 	    JLabel lblONCicon = new JLabel(gvs.getImageIcon(0));
 	    tp1.add(lblONCicon);
@@ -122,7 +126,18 @@ public class ONCNavPanel extends JPanel implements ActionListener
 	    tp3.add(mssgsubpanel);
 	    	
 	    sl = new Stoplight(parentFrame, db);
+/*	    
+//	    btnLogoff = new JButton("<html><font color=\"blue\">Log Out</font></html>");
+	    btnLogoff = new JButton("Logoff");
+//	    btnLogoff.setFocusPainted(false);
+        btnLogoff.setMargin(new Insets(0, 0, 0, 0));
+        btnLogoff.setContentAreaFilled(false);
+        btnLogoff.setBorderPainted(false);
+        btnLogoff.setOpaque(false);
+        btnLogoff.addActionListener(this);
+*/	    
 	    tp4.add(sl);
+//	    tp4.add(btnLogoff);
 	   	
 	    this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 	    this.add(tp1);
@@ -298,6 +313,10 @@ public class ONCNavPanel extends JPanel implements ActionListener
 //			fireNavChanged(this, "INDEX_CHANGE", index);
 			fireEntitySelected(this, db.getDBType() +"_SELECTED", db.getObjectAtIndex(index), null);
 		}
+//		else if(e.getSource() == btnLogoff)
+//		{
+//			System.out.println("ONCNavPanel.actionPerformed: btnLogoff Event");
+//		}
 		
 	}
 	
