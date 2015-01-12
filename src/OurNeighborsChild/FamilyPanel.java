@@ -11,10 +11,8 @@ import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -40,9 +38,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
-
 import org.json.JSONException;
-
 import com.google.gson.Gson;
 
 public class FamilyPanel extends JPanel implements ActionListener, ListSelectionListener,
@@ -68,6 +64,7 @@ public class FamilyPanel extends JPanel implements ActionListener, ListSelection
 	private ONCAgents agentDB;
 	
 	private ONCFamily currFam;	//The panel needs to know which family is being displayed
+	private ONCChild currChild;	//The panel needs to know which child is being displayed
 	
 	private static JFrame parentFrame = null;
 	
@@ -738,6 +735,7 @@ public class FamilyPanel extends JPanel implements ActionListener, ListSelection
 			
 			if(index < ctAL.size())
 				cn = index;
+			
 		}		
 //		System.out.println(String.format("FamilyPanel displayFamily - Family ID: %d, cn: %d", fam.getID(), cn));		
 		p1.setBackground(pBkColor);
@@ -894,13 +892,14 @@ public class FamilyPanel extends JPanel implements ActionListener, ListSelection
 		if(ctAL.size() > 0)
 		{		
 			addChildrentoTable(ctAL, bDispAll);
-			displayChild(ctAL.get(cn), cn);
+			displayChild((currChild = ctAL.get(cn)), cn);
 			if(bDispAll)
 				ONCMenuBar.setEnabledDeleteChildMenuItem(true);	//Enable Delete Child Menu Bar item
 		}
 		else
 		{
 			//family has no children, clear the child panel
+			currChild = null;
 			oncChildPanel.clearChildData();
 			ONCMenuBar.setEnabledDeleteChildMenuItem(false);	//Disable Delete Child Menu Bar item
 			
@@ -1299,7 +1298,8 @@ public class FamilyPanel extends JPanel implements ActionListener, ListSelection
 			sortWishesDlg.setSortEndDate(gvs.getTodaysDate());
 			sortWishesDlg.buildSortTableList();
 			
-			sortWishesDlg.setLocationRelativeTo(parentFrame);
+			Point pt = parentFrame.getLocation();
+	        sortWishesDlg.setLocation(pt.x + 5, pt.y + 25);
 			sortWishesDlg.setVisible(true);
 		}
 	}
@@ -2046,8 +2046,10 @@ public class FamilyPanel extends JPanel implements ActionListener, ListSelection
 				ONCFamily fam = (ONCFamily) tse.getObject1();
 				ONCChild child = (ONCChild) tse.getObject2();
 			
-				//if family selected not displayed, then update currFam and display.
-				if(fam.getID() != currFam.getID() && tse.getSource() != nav)
+				//if family and child selected not displayed, then update currFam and display.
+				if(fam.getID() != currFam.getID() && tse.getSource() != nav ||
+						fam.getID() == currFam.getID() && tse.getSource() !=nav &&
+						currChild !=null && child != null && child.getID() != currChild.getID())
 				{
 					int rtn;
 					if((rtn=fDB.searchForFamilyIndexByID(fam.getID())) >= 0)

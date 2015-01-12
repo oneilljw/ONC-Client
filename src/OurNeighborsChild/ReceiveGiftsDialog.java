@@ -442,7 +442,7 @@ public class ReceiveGiftsDialog extends ONCSortTableDialog implements ActionList
 		{
 			bResetInProcess = true;	//Prevent building of new sort table by event handlers
 			
-			oncnumTF.setText("");	//its a text field, not a cb, so need to sclear sortONCNum also
+			oncnumTF.setText("");	//its a text field, not a cb, so need to clear sortONCNum also
 			sortONCNum = "";
 			
 			startAgeCB.setSelectedIndex(0);	//Will trigger the CB event handler which

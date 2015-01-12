@@ -92,7 +92,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		
 		dc_giftsreceived = new JDateChooser(pdGVs.getGiftsReceivedDate());
 		dc_giftsreceived.setPreferredSize(dateSize);
-		dc_giftsreceived.setToolTipText("All gifts must be received from partners before this date");
+		dc_giftsreceived.setToolTipText("<html>All gifts must be received from partners <b><i>BEFORE</i></b> this date</html>");
 		dc_giftsreceived.setBorder(BorderFactory.createTitledBorder("Gift's Received Deadline"));
 		dc_giftsreceived.setEnabled(false);
 		dc_giftsreceived.getDateEditor().addPropertyChangeListener(new PropertyChangeListener() 
