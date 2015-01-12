@@ -405,7 +405,7 @@ public class SortFamilyDialog extends ONCFamilyTableDialog implements PropertyCh
 				ONCDelivery reqDelivery = new ONCDelivery(-1, f.getID(),
 						changeDStatusCB.getSelectedIndex()-1,
 						deliveryDB.getDeliveredBy(f.getDeliveryID()),
-						"Delivery Driver Assigned",
+						"Delivery Status Changed",
 						oncGVs.getUserLNFI(),
 						Calendar.getInstance());
 

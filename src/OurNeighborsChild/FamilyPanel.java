@@ -1100,7 +1100,7 @@ public class FamilyPanel extends JPanel implements ActionListener, ListSelection
 		{
 			ONCDelivery reqDelivery = new ONCDelivery(-1, fam.getID(), delstatCB.getSelectedIndex(),
 					deliveryDB.getDeliveredBy(fam.getDeliveryID()),
-					"Delivery Status Update",
+					"Delivery Status Updated",
 					gvs.getUserLNFI(),
 					Calendar.getInstance());
 
