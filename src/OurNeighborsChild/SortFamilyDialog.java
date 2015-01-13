@@ -84,9 +84,9 @@ public class SortFamilyDialog extends ONCFamilyTableDialog implements PropertyCh
 	
 	private int sortBatchNum = 0, sortFStatus = 0, sortDStatus=0;
 	private int sortZip = 0, sortRegion = 0, sortChangedBy = 0, sortStoplight = 0;
-	private String sortONC = "Any", sortLN = "Any", sortStreet= "Any", sortDNSCode = "Any";
+	private String sortONC = "Any", sortLN = "Any", sortStreet= "Any", sortDNSCode;
 
-	private static String[] dnsCodes = {"Any", "DUP", "NC", "NISA", "OPT-OUT", "SA", "WA"};	
+	private static String[] dnsCodes = {"None", "Any", "DUP", "NC", "NISA", "OPT-OUT", "SA", "WA"};	
 	private static String[] batchNums = {"Any","B-01","B-02","B-03","B-04","B-05","B-06","B-07","B-08","B-09","B-10", "B-CR"};	
 	private static String[] printChoices = {"Print", "Print Listing", "Print Book Labels", 
 											"Print Family Receiving Sheets",
@@ -118,6 +118,9 @@ public class SortFamilyDialog extends ONCFamilyTableDialog implements PropertyCh
 		UserDB userDB = UserDB.getInstance();
 		if(userDB != null)
 			userDB.addDatabaseListener(this);
+		
+		//set up search comparison variables
+		sortDNSCode = dnsCodes[0];
 		
 		//Set up unique serach criteria gui
     	String[] oncStrings = {"Any", "NNA", "OOR", "RNV", "DEL"};
@@ -354,7 +357,19 @@ public class SortFamilyDialog extends ONCFamilyTableDialog implements PropertyCh
 			}
 		}
 		
+		//update the family count. If the sort criteria is set such that only served
+		//family's are displayed, change the panel border to so indicate
 		lblNumOfTableItems.setText(Integer.toString(stAL.size()));
+		if(sortONC.equals("Any") && sortBatchNum == 0 && sortDNSCode.equals(dnsCodes[0])  &&
+			sortFStatus == 0 && sortDStatus == 0 && sortLN.equals("Any") && 
+			sortStreet.equals("Any") && sortZip == 0 && sortRegion == 0 && sortChangedBy == 0 &&
+			sortStoplight == 0)
+		{
+			itemCountPanel.setBorder(BorderFactory.createTitledBorder("Families Served Total"));
+		}
+		else
+			itemCountPanel.setBorder(BorderFactory.createTitledBorder("Families Meeting Criteria"));
+		
 		displaySortTable();		//Display the table after table array list is built					
 	}
 	
@@ -1051,7 +1066,7 @@ public class SortFamilyDialog extends ONCFamilyTableDialog implements PropertyCh
 		
 		dnsCB.setEnabled(false);
 		dnsCB.setSelectedIndex(0);
-		sortDNSCode = "Any";
+		sortDNSCode = dnsCodes[0];
 		dnsCB.setEnabled(true);
 		
 		fstatusCB.setEnabled(false);
@@ -1316,7 +1331,17 @@ public class SortFamilyDialog extends ONCFamilyTableDialog implements PropertyCh
 	
 	boolean doesBatchNumMatch(String bn) {return sortBatchNum == 0 ||  bn.equals(batchCB.getSelectedItem());}
 	
-	boolean doesDNSCodeMatch(String dnsc) {return sortDNSCode.equals("Any") || dnsc.equalsIgnoreCase(dnsCB.getSelectedItem().toString());}
+	boolean doesDNSCodeMatch(String dnsc)
+	{
+		if(sortDNSCode.equals("Any"))
+			return true;
+		else if(sortDNSCode.equals("None") && dnsc.isEmpty())
+			return true;
+		else if(dnsc.equalsIgnoreCase(dnsCB.getSelectedItem().toString()))
+			return true;
+		else
+			return false;
+	}
 	
 	boolean doesFStatusMatch(int fstat) {return sortFStatus == 0  || fstat == fstatusCB.getSelectedIndex()-1;}
 	

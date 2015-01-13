@@ -57,7 +57,7 @@ public abstract class ONCFamilyTableDialog extends ONCSortTableDialog implements
 	
 	//JPanels the inherited class may use to add GUI elements
 	protected JPanel sortCriteriaPanelTop, sortCriteriaPanelBottom;
-	protected JPanel changeDataPanel, cntlPanel;
+	protected JPanel itemCountPanel, changeDataPanel, cntlPanel;
 	
 	public ONCTable sortTable;
 	private DefaultTableModel sortTableModel;
@@ -177,7 +177,7 @@ public abstract class ONCFamilyTableDialog extends ONCSortTableDialog implements
         JPanel thirdPanel = new JPanel();
         thirdPanel.setLayout(new BoxLayout(thirdPanel, BoxLayout.X_AXIS));
         
-        JPanel itemCountPanel = new JPanel();       
+        itemCountPanel = new JPanel();       
         lblNumOfTableItems = new JLabel("0");
         itemCountPanel.setBorder(BorderFactory.createTitledBorder("Families Meeting Criteria"));
         itemCountPanel.setSize(new Dimension(300, 90));
