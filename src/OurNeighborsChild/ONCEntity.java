@@ -68,5 +68,5 @@ public abstract class ONCEntity extends ONCObject implements Serializable
 	public void setStoplightMssg(String s) { slMssg = s; }
 	public void setStoplightChangedBy(String s) { slChangedBy = s; }
 	
-	abstract public String[] getDBExportRow();
+	abstract public String[] getExportRow();
 }

@@ -286,7 +286,7 @@ public class WishDetailDB extends ONCDatabase
 	    	    writer.writeNext(header);
 	    	    
 	    	    for(WishDetail wd:wdAL)
-	    	    	writer.writeNext(wd.getDBExportRow());	//Get family data
+	    	    	writer.writeNext(wd.getExportRow());	//Get family data
 	    	 
 	    	    writer.close();
 	    	    filename = oncwritefile.getName();

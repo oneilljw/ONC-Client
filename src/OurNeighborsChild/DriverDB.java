@@ -370,7 +370,7 @@ public class DriverDB extends ONCSearchableDatabase
 	    	    writer.writeNext(header);
 	    	    
 	    	    for(ONCDriver d:driverAL)
-	    	    	writer.writeNext(d.getDBExportRow());	//Get family data
+	    	    	writer.writeNext(d.getExportRow());	//Get family data
 	    	 
 	    	    writer.close();
 	    	    filename = oncwritefile.getName();

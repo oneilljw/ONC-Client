@@ -3,7 +3,7 @@ package OurNeighborsChild;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-public class ONCWishDlgSortItem
+public class ONCWishDlgSortItem extends ONCObject
 {
 	private static final int MAX_LABEL_LINE_LENGTH = 26;
 	
@@ -23,10 +23,11 @@ public class ONCWishDlgSortItem
 	private String		sortItemchildWishChangedBy;
 	private Calendar	sortItemchildWishDateChanged;
 	
-	public ONCWishDlgSortItem(ONCFamily fam, int oncID, String fnum, ONCChild c, int cwn, String ca, long dob, String cg, 
+	public ONCWishDlgSortItem(int itemID, ONCFamily fam, int oncID, String fnum, ONCChild c, int cwn, String ca, long dob, String cg, 
 							int cwi, String cwb, String cwd,
 							String cws, String cwa, String cwcb, Calendar cdc)
 	{
+		super(itemID);
 		sortItemFamily = fam;
 		sortItemONCID = oncID;
 		sortItemoncFamNum = fnum;
@@ -78,19 +79,6 @@ public class ONCWishDlgSortItem
 		return sorttablerow;
 	}
 	
-	String[] getExportRow()
-	{
-		
-		SimpleDateFormat dob = new SimpleDateFormat("MM-dd-yyyy");
-		String dateChanged = dob.format(sortItemchildWishDateChanged.getTime());
-		
-		String[] exportRow = {sortItemoncFamNum, sortItemchildGender, sortItemchildAge,
-								sortItemChild.getChildDOBString("MM-dd-yyyy"), sortItemchildWishInd, sortItemchildWishBase, 
-								sortItemchildWishDetail, sortItemchildWishStatus,
-								sortItemchildWishAssignee, sortItemchildWishChangedBy,
-								dateChanged};
-		return exportRow;
-	}
 	
 	String[] getReceivingSheetRow()
 	{
@@ -166,5 +154,20 @@ public class ONCWishDlgSortItem
 		}
 
 		return line;
+	}
+	
+	@Override
+	public String[] getExportRow()
+	{
+		
+		SimpleDateFormat dob = new SimpleDateFormat("MM-dd-yyyy");
+		String dateChanged = dob.format(sortItemchildWishDateChanged.getTime());
+		
+		String[] exportRow = {sortItemoncFamNum, sortItemchildGender, sortItemchildAge,
+								sortItemChild.getChildDOBString("MM-dd-yyyy"), sortItemchildWishInd, sortItemchildWishBase, 
+								sortItemchildWishDetail, sortItemchildWishStatus,
+								sortItemchildWishAssignee, sortItemchildWishChangedBy,
+								dateChanged};
+		return exportRow;
 	}
 }

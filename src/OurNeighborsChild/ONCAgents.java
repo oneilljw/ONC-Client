@@ -260,7 +260,7 @@ public class ONCAgents extends ONCDatabase
 	    	    writer.writeNext(header);
 	    	    
 	    	    for(Agent a:agentsAL)
-	    	    	writer.writeNext(a.getDBExportRow());	//Get family data
+	    	    	writer.writeNext(a.getExportRow());	//Get family data
 	    	 
 	    	    writer.close();
 	    	    filename = oncwritefile.getName();

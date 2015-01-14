@@ -306,7 +306,7 @@ public class Organization extends ONCEntity
 		return sorttablerow;
 	}
 	
-	public String[] getDBExportRow()
+	public String[] getExportRow()
 	{
 		String[] row= {Integer.toString(id), Integer.toString(status), Integer.toString(type),
 						collection.toString(), name, ornamentDelivery, Integer.toString(streetnum),

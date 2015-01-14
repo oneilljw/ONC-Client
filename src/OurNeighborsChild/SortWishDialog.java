@@ -8,7 +8,6 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
-import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.awt.event.ActionEvent;
@@ -34,7 +33,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
@@ -99,6 +97,7 @@ public class SortWishDialog extends ONCSortTableDialog implements ActionListener
 //	private boolean bChildDataChanged = false;
 	private boolean bIgnoreSortDialogEvents = false;
 	private int tableSortCol = -1;
+	private ArrayList<Integer> tableRowSelectedItemIDList;
 	private int sortStartAge = 0, sortEndAge = ONC_AGE_LIMIT, sortGender = 0, sortChangedBy = 0;;
 	private int sortWishNum = 0, sortRes = 0, sortStatus = 0, sortAssigneeID = 0;
 	private String sortONCNum = "";
@@ -133,6 +132,9 @@ public class SortWishDialog extends ONCSortTableDialog implements ActionListener
 			orgs.addDatabaseListener(this);
 		if(cat != null)
 			cat.addDatabaseListener(this);
+		
+		//initialize member variables
+		tableRowSelectedItemIDList = new ArrayList<Integer>();
 		        
 		//Set up the search criteria panel
 		String[] ages = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10",
@@ -494,25 +496,54 @@ public class SortWishDialog extends ONCSortTableDialog implements ActionListener
 	{
 		bChangingTable = true;	//don't process table messages while being changed
 		
+		ListSelectionModel lsModel = sortTable.getSelectionModel();
+		
+		lsModel.clearSelection();	//clear any selected rows
+		
 		while (sortTableModel.getRowCount() > 0)	//Clear the current table
 			sortTableModel.removeRow(0);
 		
-		btnExport.setEnabled(false);	//No rows selected, disable export
+		
+		for(ONCWishDlgSortItem si:stAL)	//Build the new table
+			sortTableModel.addRow(si.getSortTableRow());
 		
 		//check to see if the sortTable needs to be sorted by column
 		if(tableSortCol > -1)
 			sortTableByColumn(tableSortCol);
 		
-		for(ONCWishDlgSortItem si:stAL)	//Build the new table
-			sortTableModel.addRow(si.getSortTableRow());
+		//check to see if rows need to be re-selected
+		for(Integer itemID:tableRowSelectedItemIDList)
+		{
+			//find the id in the stAL, getting it's row, the reselect it
+			int index = 0;
+			while(index < stAL.size() && stAL.get(index).getID() != itemID)
+				index++;
+			
+			if(index < stAL.size())
+				lsModel.addSelectionInterval(index, index);	
+		}
+		
+		//set status of export capability
+		btnExport.setEnabled(tableRowSelectedItemIDList.isEmpty() ? false : true);
 				
 		bChangingTable = false;	
 	}
 	
 	public void buildSortTableList()
 	{
-		stAL.clear();	//Clear the prior table information in the array list
+		//archive the table rows selected prior to rebuild so the can be reselected if the
+		//build occurred due to an external modification of the table
+		tableRowSelectedItemIDList.clear();
+		int[] row_sel = sortTable.getSelectedRows();
+		for(int i=0; i<row_sel.length; i++)
+		{
+			System.out.println(String.format("SortWishDialog.buildSortTableList: Added ID %d",
+					stAL.get(row_sel[i]).getID()));
+			tableRowSelectedItemIDList.add(stAL.get(row_sel[i]).getID());
+		}
 		
+		stAL.clear();	//Clear the prior table information in the array list
+		int itemID = 0;
 		for(ONCFamily f:fDB.getList())
 		{
 			if(isNumeric(f.getONCNum()) && doesONCNumMatch(f.getONCNum()))	//Must be a valid family	
@@ -535,7 +566,7 @@ public class SortWishDialog extends ONCSortTableDialog implements ActionListener
 							{
 								Organization org =  orgs.getOrganizationByID(cw.getChildWishAssigneeID());
 								
-								stAL.add(new ONCWishDlgSortItem(f, f.getID(),f.getONCNum(),
+								stAL.add(new ONCWishDlgSortItem(itemID++, f, f.getID(),f.getONCNum(),
 									c, i, c.getChildAge(), c.getChildDateOfBirth(), c.getChildGender(),
 									cw.getChildWishIndicator(),
 									cat.getWishByID(cw.getWishID()).getName(),
@@ -618,7 +649,11 @@ public class SortWishDialog extends ONCSortTableDialog implements ActionListener
 		}
 		
 		if(bRebuildTable)
+		{
+			
+			tableRowSelectedItemIDList.clear();
 			buildSortTableList();
+		}
 
 		//Reset the change combo boxes to "No Change"
 		changeResCB.setSelectedIndex(0);
@@ -1044,6 +1079,7 @@ public class SortWishDialog extends ONCSortTableDialog implements ActionListener
 			changeAssigneeCB.setSelectedIndex(0);
 			
 			tableSortCol = -1;	//reset table to unsorted
+			tableRowSelectedItemIDList.clear(); //clear selected item id list
 			
 			//Check to see if date sort criteria has changed. Since the setDate() method
 			//will not trigger an event, must check for a sort criteria date change here

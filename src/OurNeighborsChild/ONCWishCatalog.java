@@ -481,7 +481,7 @@ public class ONCWishCatalog extends ONCDatabase
 	    	    writer.writeNext(header);
 	    	    
 	    	    for(ONCWish w:wishCatalog)
-	    	    	writer.writeNext(w.getDBExportRow());	//Get family data
+	    	    	writer.writeNext(w.getExportRow());	//Get family data
 	    	 
 	    	    writer.close();
 	    	    filename = oncwritefile.getName();

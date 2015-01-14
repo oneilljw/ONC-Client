@@ -370,7 +370,7 @@ public class ONCChild extends ONCObject implements Serializable
 	}
 	
 	@Override
-	public String[] getDBExportRow()
+	public String[] getExportRow()
 	{
 		String[] row= {Long.toString(id), Integer.toString(famid), Integer.toString(childNumber), 
 						childFirstName, childLastName, childGender, Long.toString(childDOB), childSchool, 

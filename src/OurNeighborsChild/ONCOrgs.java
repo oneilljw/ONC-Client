@@ -645,7 +645,7 @@ public class ONCOrgs extends ONCSearchableDatabase
 	    	    writer.writeNext(header);
 	    	    
 	    	    for(Organization o: orgsAL)
-	    	    	writer.writeNext(o.getDBExportRow());	//Get family data
+	    	    	writer.writeNext(o.getExportRow());	//Get family data
 	    	 
 	    	    writer.close();
 	    	    filename = oncwritefile.getName();

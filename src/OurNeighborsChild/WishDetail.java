@@ -59,7 +59,7 @@ public class WishDetail extends ONCObject implements Serializable
 	}
 	
 	@Override
-	public String[] getDBExportRow()
+	public String[] getExportRow()
 	{
 		String[] exportRow = {Long.toString(id), name, zChoices};
 		

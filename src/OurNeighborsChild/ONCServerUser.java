@@ -44,7 +44,7 @@ public class ONCServerUser extends ONCUser
 	}
 	
 	@Override
-	public String[] getDBExportRow()
+	public String[] getExportRow()
 	{
 		String[] row = {Integer.toString(id), userid, password, Integer.toString(permission), firstname, lastname,
 						Long.toString(dateChanged.getTimeInMillis()), changedBy, Integer.toString(slPos), slMssg,

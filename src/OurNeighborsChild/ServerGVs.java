@@ -47,7 +47,7 @@ public class ServerGVs extends ONCObject
 	public Date getGiftsReceivedDate() { return oncGiftsReceivedDate.getTime(); }
 
 	@Override
-	public String[] getDBExportRow()
+	public String[] getExportRow()
 	{	
 		 String[] row = {Long.toString(oncDeliveryDate.getTimeInMillis()),
  						 Long.toString(oncSeasonStartDate.getTimeInMillis()),

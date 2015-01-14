@@ -97,7 +97,7 @@ public class ONCWish extends ONCObject implements Serializable
 	}
 	
 	@Override
-	public String[] getDBExportRow()
+	public String[] getExportRow()
 	{
 		String[] exportRow = {Integer.toString(id), name, Integer.toString(listindex),
 				Integer.toString(wishDetail1ID), Integer.toString(wishDetail2ID),

@@ -269,7 +269,7 @@ public class DeliveryDB extends ONCDatabase
 	    	    writer.writeNext(header);
 	    	    
 	    	    for(ONCDelivery d:dAL)
-	    	    	writer.writeNext(d.getDBExportRow());	//Get family data
+	    	    	writer.writeNext(d.getExportRow());	//Get family data
 	    	 
 	    	    writer.close();
 	    	    filename = oncwritefile.getName();

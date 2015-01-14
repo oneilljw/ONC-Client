@@ -169,7 +169,7 @@ public class ONCChildWish extends ONCObject implements Serializable
 	}
 	
 	@Override
-	public String[] getDBExportRow()
+	public String[] getExportRow()
 	{
 		String[] row= {Integer.toString(id), Integer.toString(childID),Integer.toString(wishID), 
 						childWishDetail, Integer.toString(wishnumber),

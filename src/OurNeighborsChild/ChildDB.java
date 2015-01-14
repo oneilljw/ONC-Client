@@ -357,7 +357,7 @@ public class ChildDB extends ONCDatabase
 	    	    writer.writeNext(header);
 	    	    
 	    	    for(ONCChild c:childAL)
-	    	    	writer.writeNext(c.getDBExportRow());	//Get family data
+	    	    	writer.writeNext(c.getExportRow());	//Get family data
 	    	 
 	    	    writer.close();
 	    	    filename = oncwritefile.getName();

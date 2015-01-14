@@ -75,7 +75,7 @@ public class ONCUser extends ONCEntity
 	public ONCUser getUser() { return this; }
 
 	@Override
-	public String[] getDBExportRow() {
+	public String[] getExportRow() {
 		// TODO Auto-generated method stub
 		return null;
 	}

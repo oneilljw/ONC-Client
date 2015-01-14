@@ -12,5 +12,5 @@ public abstract class ONCObject
 	public int getID() { return id; }
 	public void setID(int id) { this.id = id; }
 	
-	abstract public String[] getDBExportRow();
+	abstract public String[] getExportRow();
 }

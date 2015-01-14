@@ -119,7 +119,7 @@ public class ONCPriorYearChild extends ONCObject implements Serializable
 		lychildWish3 = wish3;
 	}
 	
-	public String[] getDBExportRow()
+	public String[] getExportRow()
 	{
 		String[] row= {Integer.toString(id), childLastName, childGender, 
 						Long.toString(childDOB),

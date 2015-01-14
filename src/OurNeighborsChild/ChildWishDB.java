@@ -468,7 +468,7 @@ public class ChildWishDB extends ONCDatabase
 	    	    writer.writeNext(header);
 	    	    
 	    	    for(ONCChildWish cw:childwishAL)
-	    	    	writer.writeNext(cw.getDBExportRow());	//Get family data
+	    	    	writer.writeNext(cw.getExportRow());	//Get family data
 	    	 
 	    	    writer.close();
 	    	    filename = oncwritefile.getName();

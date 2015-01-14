@@ -84,7 +84,7 @@ public class ONCDelivery extends ONCObject implements Serializable
 	}
 	
 	@Override
-	public String[] getDBExportRow()
+	public String[] getExportRow()
 	{
 		String[] exportRow = {Integer.toString(id), Integer.toString(famID), Integer.toString(dStatus),
 							  dDelBy, dNotes, dChangedBy, Long.toString(dDateChanged.getTimeInMillis())};

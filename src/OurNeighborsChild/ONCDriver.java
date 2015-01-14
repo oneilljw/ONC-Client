@@ -183,7 +183,7 @@ public class ONCDriver extends ONCEntity
 	public void setDelAssigned(int da) { delAssigned = da; }
 	
 	@Override
-	public String[] getDBExportRow()
+	public String[] getExportRow()
 	{
 		String[] row = {Integer.toString(id), drvNum, fName, lName, hNum, street, unit, city, zipcode,
 						email, homePhone, cellPhone, drLicense, car, Integer.toString(delAssigned),

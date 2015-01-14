@@ -90,7 +90,7 @@ public class Agent extends ONCObject implements Serializable
 	}
 	
 	@Override
-	public String[] getDBExportRow()
+	public String[] getExportRow()
 	{
 		String[] row= {Integer.toString(id), name, org, title, email, phone};
 		return row;
