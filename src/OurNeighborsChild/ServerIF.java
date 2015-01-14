@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.lang.reflect.Type;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
@@ -16,9 +17,10 @@ import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-
 import javax.swing.JOptionPane;
 import javax.swing.Timer;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 public class ServerIF
 {
@@ -33,7 +35,7 @@ public class ServerIF
 	private static final int NETWORK_TIME_LIMIT = 1000 * 10;	//Timeout delay if server doesn't respond, in milliseconds
 	private static final int SERVER_LOG_TIME_INTERVAL = 1000 * 60 * 5;	//time interval between writing server logs
 	private static final int NORMAL_POLLING_RATE = 1000 * 1;	//frequency of server polling, in milliseconds
-	private static final int ACTIVE_POLLING_RATE = 100;	//frequency of server polling, in milliseconds
+//	private static final int ACTIVE_POLLING_RATE = 100;	//frequency of server polling, in milliseconds
 	private static final int SERVER_LOG_LINE_LENGTH = 96;	//maximum number of characters in log line stored
 	private static final String LOG_FILE_A = "LogFile_A.txt";
 	private static final String LOG_FILE_B = "LogFile_B.txt";
@@ -278,7 +280,7 @@ public class ServerIF
     
     boolean isConnected() { return bConnected; }
     
-    void processChange(String change)
+    void processChanges(String qContentJson)
     {
     	String[] dbResponses = {"ADDED_USER", "GLOBAL_MESSAGE", "UPDATED_GLOBALS", "USER_ONLINE", "USER_OFFLINE",
     						  "ADDED_FAMILY", "UPDATED_FAMILY",
@@ -295,37 +297,45 @@ public class ServerIF
     	
     	String[] menuBarResponses = {"ADDED_NEW_YEAR"};
     	
-    	if(change.startsWith("CHAT_"))
-    	{
-    		//if a message is a CHAT message, we don't have to wait for the user to load a local data base
-    		//chats can occur prior to the local data base being loaded
-    		int index = 0;
-    		while(index < chatResponses.length && !change.startsWith(chatResponses[index]))
-    			index++;
+    	Gson gson = new Gson();
+    	Type listtype = new TypeToken<ArrayList<String>>(){}.getType();
+    	ArrayList<String> changeList = gson.fromJson(qContentJson, listtype);
     	
-    		if(index < chatResponses.length)
-    			fireDataChanged(chatResponses[index], change.substring(chatResponses[index].length()));
-    	}
-    	else if(change.contains("_NEW_YEAR"))
+    	//loop thru list of changes, processing each one
+    	for(String change: changeList)
     	{
-    		int index = 0;
-    		while(index < menuBarResponses.length && !change.startsWith(menuBarResponses[index]))
-    			index++;
+    		if(change.startsWith("CHAT_"))
+    		{
+    			//if a message is a CHAT message, we don't have to wait for the user to load a local data base
+    			//chats can occur prior to the local data base being loaded
+    			int index = 0;
+    			while(index < chatResponses.length && !change.startsWith(chatResponses[index]))
+    				index++;
     	
-    		if(index < menuBarResponses.length)
-    			fireDataChanged(menuBarResponses[index], change.substring(menuBarResponses[index].length()));
+    			if(index < chatResponses.length)
+    				fireDataChanged(chatResponses[index], change.substring(chatResponses[index].length()));
+    		}
+    		else if(change.contains("_NEW_YEAR"))
+    		{
+    			int index = 0;
+    			while(index < menuBarResponses.length && !change.startsWith(menuBarResponses[index]))
+    				index++;
+    	
+    			if(index < menuBarResponses.length)
+    				fireDataChanged(menuBarResponses[index], change.substring(menuBarResponses[index].length()));
     		
-    	}
-    	else if(bDatabaseLoaded)
-    	{
-    		//all other change processing requires local data bases to be loaded from the server first
-    		//otherwise we run the risk of updating data without a local copy present
-    		int index = 0;
-    		while(index < dbResponses.length && !change.startsWith(dbResponses[index]))
-    			index++;
+    		}
+    		else if(bDatabaseLoaded)
+    		{
+    			//all other change processing requires local data bases to be loaded from the server first
+    			//otherwise we run the risk of updating data without a local copy present
+    			int index = 0;
+    			while(index < dbResponses.length && !change.startsWith(dbResponses[index]))
+    				index++;
     	
-    		if(index < dbResponses.length)
-    			fireDataChanged(dbResponses[index], change.substring(dbResponses[index].length()));
+    			if(index < dbResponses.length)
+    				fireDataChanged(dbResponses[index], change.substring(dbResponses[index].length()));
+    		}
     	}
 /*   	
     	int index = 0;
@@ -398,12 +408,12 @@ public class ServerIF
 				}
 				else if(response.equals("NO_CHANGES"))
 				{
-					timer.setInitialDelay(NORMAL_POLLING_RATE);
+//					timer.setInitialDelay(NORMAL_POLLING_RATE);
 				}
 				else
 				{
-					processChange(response);
-					timer.setInitialDelay(ACTIVE_POLLING_RATE);
+					processChanges(response);
+//					timer.setInitialDelay(ACTIVE_POLLING_RATE);
 				}
         	
 				if(System.currentTimeMillis() > timeLastLogWritten + SERVER_LOG_TIME_INTERVAL)
