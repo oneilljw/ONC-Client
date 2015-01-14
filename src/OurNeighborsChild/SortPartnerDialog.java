@@ -989,13 +989,9 @@ public class SortPartnerDialog extends ONCSortTableDialog implements ActionListe
         	contact2phone = o.getPhone();	
         String contact2email = o.getContact2_email();
         
-        int orn_requested = o.getNumberOfOrnamentsRequested();
-        
-        String genGiftDrive ="No";
-        if(orn_requested == 0)
-        	genGiftDrive = "Yes";
-        else
-        	genGiftDrive = "No";
+        String giftCollectionType = o.getGiftCollectionType().toString();
+        int orn_requested = o.getPriorYearRequested();
+        int orn_receivedByDeadline = o.getPriorYearReceived();
         
 //        String notes = "None";
 //        if(o.getSpecialNotes().length() > 1)
@@ -1091,8 +1087,9 @@ public class SortPartnerDialog extends ONCSortTableDialog implements ActionListe
         //Create the bottom part of the text part of the email using html
         String msgbot = String.format(
         		"<font color=\"red\">" +
-        		"&emsp;Ornaments Requested:  %d<br>" +
-        		"&emsp;General Gift Drive: %s<br>" +
+        		"&emsp;Gift Collection Type: %s<br>" +
+        		"&emsp;Ornaments Requested in 2014:  %d<br>" +
+        		"&emsp;Gifts Received By Deadline in 2014:  %d<br>" +
         		"&emsp;Special Notes or Instructions:</font><br>" +
         		"<p><b>Please reply at your earliest convenience with any corrections, updates or " +
         		"questions.</b> Denise McInerney will be taking over for Chris Hobbs as your ONC contact this season.  " +
@@ -1113,7 +1110,7 @@ public class SortPartnerDialog extends ONCSortTableDialog implements ActionListe
         		"<a href=\"http://www.ourneighborschild.org\">www.ourneighborschild.org</a><br><br></div></p>"+
         		"<p><div><img src=\"cid:" + cid0 + "\" /></div></p>" +
         		"<p><div><img src=\"cid:" + cid1 + "\" /></div></p>" +
-        		"</body></html>", orn_requested, genGiftDrive);
+        		"</body></html>", giftCollectionType, orn_requested, orn_receivedByDeadline);
         
         return msgtop + msgmid + msgbot;
 	}
