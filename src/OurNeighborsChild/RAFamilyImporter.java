@@ -290,10 +290,11 @@ public class RAFamilyImporter extends ONCSortTableDialog
 	    			else
 	    				cGender = "Unknown";
 	    			
-	    			//create a new child object 
+	    			//create a new child object
 	    			ONCChild childReq = new ONCChild(-1, addedFam.getID(), cfn, cln, cGender,
 	    											  createChildDOB(inputRows.get(index)[5]),
-	    											  inputRows.get(index)[6]);
+	    											  inputRows.get(index)[6],
+	    											  GlobalVariables.getCurrentSeason());
 	    			
 	    			//add the child object to the local data base
 	    			childDB.add(this, childReq);	

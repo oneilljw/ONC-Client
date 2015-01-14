@@ -269,7 +269,7 @@ public class ChildDB extends ONCDatabase
 		
 		return response;
 	}
-	
+/*	
 	String importChildDB(JFrame pf, ImageIcon oncIcon, String path)	//Only used by superuser to import from .csv file
 	{
 		File pyfile;
@@ -326,7 +326,7 @@ public class ChildDB extends ONCDatabase
 	    
 	    return filename;    
 	}
-	
+*/	
 	String exportChildDBToCSV(JFrame pf, String filename)
     {
 		File oncwritefile = null;

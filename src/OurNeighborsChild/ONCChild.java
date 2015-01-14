@@ -35,7 +35,7 @@ public class ONCChild extends ONCObject implements Serializable
 	private int			pyChildID;
 		
 	//Constructor for a new child created by the user
-	ONCChild(int id, int famid, String fn, String ln, String gender, long dob, String school)
+	ONCChild(int id, int famid, String fn, String ln, String gender, long dob, String school, int currYear)
 	{
 		super(id);
 		this.famid = famid;
@@ -49,7 +49,7 @@ public class ONCChild extends ONCObject implements Serializable
 //	    childDOB.set(Calendar.MINUTE, 0);
 //	    childDOB.set(Calendar.SECOND, 0);
 //	    childDOB.set(Calendar.MILLISECOND, 0);
-		sChildAge = calculateAge();
+		sChildAge = calculateAge(currYear);
 		childLastName = ln;
 		childSchool = school;
     	
@@ -83,8 +83,8 @@ public class ONCChild extends ONCObject implements Serializable
 //    	sChildDOB = sdf.format(childDOB.getTime());
 	}
 	
-	//Constructor used when importing data base from CSV
-	public ONCChild(String [] nextLine)
+	//Constructor used when importing data base from CSV by the server
+	public ONCChild(int currYear, String [] nextLine)
 	{
 		super(Integer.parseInt(nextLine[0]));
 		this.famid = Integer.parseInt(nextLine[1]);
@@ -107,7 +107,7 @@ public class ONCChild extends ONCObject implements Serializable
 		else
 			childDOB = Long.parseLong(nextLine[6]);
 
-		sChildAge = calculateAge();
+		sChildAge = calculateAge(currYear);
 		childSchool = nextLine[7].isEmpty() ? "" : nextLine[7];
 		childWish1ID = Integer.parseInt(nextLine[8]);	//Set the wish id's to "no wish selected"
     	childWish2ID = Integer.parseInt(nextLine[9]);
@@ -120,7 +120,7 @@ public class ONCChild extends ONCObject implements Serializable
 	}
 	
 	//Constructor that uses ODB/WFCM child name string which has format First Name Last Name - Gender - DOB
-	ONCChild(int id, int famid, String c)
+	ONCChild(int id, int famid, String c, int currYear)
 	{
 		super(id);
 		this.famid = famid;
@@ -144,7 +144,7 @@ public class ONCChild extends ONCObject implements Serializable
     			childGender = "Unknown";
     	   		
 //    		sChildDOB = childdata[2].trim();
-       		sChildAge = calculateChildsAgeAndCalendarDOB(childdata[2].trim());
+       		sChildAge = calculateChildsAgeAndCalendarDOB(childdata[2].trim(), currYear);
     	}
     		
     	else
@@ -232,7 +232,7 @@ public class ONCChild extends ONCObject implements Serializable
 	
 	public void setPriorYearChildID(int pyid) { pyChildID = pyid; }
 	
-	void updateChildData(String first, String last, String school, String gender, long dob)
+	void updateChildData(String first, String last, String school, String gender, long dob, int currYear)
 	{
 		childFirstName = first;
 		childLastName = last;
@@ -241,7 +241,7 @@ public class ONCChild extends ONCObject implements Serializable
 		childDOB = dob;
 //		SimpleDateFormat oncdf = new SimpleDateFormat("M/d/yy");
 //		sChildDOB = oncdf.format(dob);
-		sChildAge = calculateAge();
+		sChildAge = calculateAge(currYear);
 	}
 
 	public void setChildNumber(int cn) {childNumber = cn+1;} //Range is 1 to x
@@ -249,7 +249,7 @@ public class ONCChild extends ONCObject implements Serializable
 	//This method takes the sChildDOB string, determines if its in legitimate date format, and if it is
 	//set the childDOB Calendar field and return a string of the childs age. It also sets a member 
 	//integer variable, nChildAge, to the actual age (0 and older) or leaves it -1 for invalid DOB's
-	String calculateChildsAgeAndCalendarDOB(String zDOB)
+	String calculateChildsAgeAndCalendarDOB(String zDOB, int currYear)
 	{	
 //		Locale locale = new Locale("en", "US");
 		TimeZone timezone = TimeZone.getTimeZone("GMT");
@@ -314,26 +314,35 @@ public class ONCChild extends ONCObject implements Serializable
 			return "";
 		}
 		
-		return calculateAge();
+		return calculateAge(currYear);
 	}
 	
-	String calculateAge()
+	/****************************************************************************************
+	 * Calculates the child's age as of 12/25 in the current season. If the child is at least
+	 * one year old on 12/25, their age is calculated in years. If the child is less then a 
+	 * year old the child's age is calculated in months. The age relative to 12/25 corrects
+	 * the issue of a child's birthday occurring between the time ornament labels are printed
+	 * for the child and the time the gift is received showing different ages (one year off).
+	 * @return A string of the child's age, in either years or months
+	 ***************************************************************************************/
+	String calculateAge(int currYear)
 	{
-		Calendar nowCal = Calendar.getInstance();
+		Calendar christmasDayCal = Calendar.getInstance();
+		christmasDayCal.set(currYear, Calendar.DECEMBER, 25, 0, 0, 0);
 		Calendar dobCal = Calendar.getInstance();
 		dobCal.setTimeInMillis(childDOB);
 		
-		if (dobCal.after(nowCal))
+		if (dobCal.after(christmasDayCal))
 		{
 		  return "Future DOB";
 		}
 		else
 		{		
-			int year1 = nowCal.get(Calendar.YEAR);
+			int year1 = christmasDayCal.get(Calendar.YEAR);
 			int year2 = dobCal.get(Calendar.YEAR);
 			nChildAge = year1 - year2;
 		
-			int month1 = nowCal.get(Calendar.MONTH);
+			int month1 = christmasDayCal.get(Calendar.MONTH);
 			int month2 = dobCal.get(Calendar.MONTH);
 			if (month2 > month1)
 			{
@@ -341,7 +350,7 @@ public class ONCChild extends ONCObject implements Serializable
 			} 
 			else if (month1 == month2)
 			{
-				int day1 = nowCal.get(Calendar.DAY_OF_MONTH);
+				int day1 = christmasDayCal.get(Calendar.DAY_OF_MONTH);
 				int day2 = dobCal.get(Calendar.DAY_OF_MONTH);
 				if (day2 > day1)
 				{

@@ -881,7 +881,7 @@ public class SortWishDialog extends ONCSortTableDialog implements ActionListener
 	void onExportRequested()
 	{
 		//Write the selected row data to a .csv file
-    	String[] header = {"ONC #", "Gender", "Age", "DoB", "Res", "Wish", "Detail", "Status", 
+    	String[] header = {"ONC #", "Gender", "Age on 12/25", "DoB", "Res", "Wish", "Detail", "Status", 
     						"Assignee", "Changed By", "Date Changed"};
     
     	ONCFileChooser oncfc = new ONCFileChooser(this);

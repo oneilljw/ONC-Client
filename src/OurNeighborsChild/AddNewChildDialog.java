@@ -74,7 +74,9 @@ public class AddNewChildDialog extends InfoDialog
 	void update()
 	{
 		newchild = new ONCChild(0, fam.getID(), tf[0].getText(), tf[1].getText(),
-				genderCB.getSelectedItem().toString(), convertCalendarDOBToGMT(dobDC.getCalendar()), tf[2].getText());
+				genderCB.getSelectedItem().toString(),
+				convertCalendarDOBToGMT(dobDC.getCalendar()), tf[2].getText(),
+				GlobalVariables.getCurrentSeason());
 		
 		result = true;
 		dispose();

@@ -160,18 +160,18 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 		dobDC.getDateEditor().addPropertyChangeListener(cuListener);
         
         ageTF = new JTextField();
-        ageTF.setPreferredSize(new Dimension(56, 28));
-        ageTF.setBorder(BorderFactory.createTitledBorder("Age"));
+        ageTF.setPreferredSize(new Dimension(72, 28));
+        ageTF.setBorder(BorderFactory.createTitledBorder("Age on 12/25"));
         ageNormalBackgroundColor = ageTF.getBackground();
         
         schoolTF = new JTextField();
-        schoolTF.setPreferredSize(new Dimension(120, 28));
+        schoolTF.setPreferredSize(new Dimension(112, 28));
         schoolTF.setBorder(BorderFactory.createTitledBorder("School"));
         schoolTF.setEditable(false);
         schoolTF.addActionListener(cuListener);
         
         genderTF = new JTextField();
-        genderTF.setPreferredSize(new Dimension(56, 28));
+        genderTF.setPreferredSize(new Dimension(48, 28));
         genderTF.setBorder(BorderFactory.createTitledBorder("Gender"));
         genderTF.setEditable(false);
         genderTF.addActionListener(cuListener);
@@ -483,7 +483,8 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 			ONCChild reqUpdateChild = new ONCChild(c);
 			reqUpdateChild.updateChildData(firstnameTF.getText(), lastnameTF.getText(),
 											schoolTF.getText(), genderTF.getText(),
-											 convertCalendarDOBToGMT(dobDC.getCalendar()));
+											 convertCalendarDOBToGMT(dobDC.getCalendar()),
+											 GlobalVariables.getCurrentSeason());
 			
 			String response = cDB.update(this, reqUpdateChild);	//notify child has changed
 			if(response.startsWith("UPDATED_CHILD"))

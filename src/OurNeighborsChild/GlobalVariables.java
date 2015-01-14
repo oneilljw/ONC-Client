@@ -33,7 +33,9 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 	
 	private static JFrame oncFrame;
 	private transient Calendar oncDateToday;
-	private Calendar oncDeliveryDate,  oncSeasonStartDate, oncGiftsReceivedDate;
+	private Calendar oncDeliveryDate;
+	private static Calendar oncSeasonStartDate;
+	private Calendar oncGiftsReceivedDate;
 	private String warehouseAddress;
 	private transient String[] fontSizes = {"8", "10", "12", "13", "14", "16", "18"};
 	private transient int user_permission;
@@ -134,7 +136,7 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 		return tomorrow.getTime();
 	}
 	
-	int getCurrentSeason() { return oncSeasonStartDate.get(Calendar.YEAR); }
+	static int getCurrentSeason() { return oncSeasonStartDate.get(Calendar.YEAR); }
 	int getCurrentYear() { return oncDateToday.get(Calendar.YEAR); }
 	public Date getDeliveryDate() { return oncDeliveryDate.getTime(); }
 	public Date getGiftsReceivedDate() { return oncGiftsReceivedDate.getTime(); }

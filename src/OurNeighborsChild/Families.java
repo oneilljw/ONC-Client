@@ -563,7 +563,8 @@ public class Families extends ONCSearchableDatabase
 			if(!members[i].contains("Adult") && !members[i].contains("adult"))
 			{
 				//crate the add child requst object
-				ONCChild reqAddChild = new ONCChild(-1, famid, members[i]);
+				ONCChild reqAddChild = new ONCChild(-1, famid, members[i],
+													GlobalVariables.getCurrentSeason());
 				
 				//interact with the server to add the child
 				childDB.add(this, reqAddChild);
