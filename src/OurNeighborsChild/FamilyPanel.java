@@ -1296,7 +1296,7 @@ public class FamilyPanel extends JPanel implements ActionListener, ListSelection
 			//Dates are set here after Global Variables have been initialized
 			sortWishesDlg.setSortStartDate(gvs.getSeasonStartDate());
 			sortWishesDlg.setSortEndDate(gvs.getTodaysDate());
-			sortWishesDlg.buildSortTableList();
+			sortWishesDlg.buildSortTableList(true);
 			
 			Point pt = parentFrame.getLocation();
 	        sortWishesDlg.setLocation(pt.x + 5, pt.y + 25);
@@ -1595,7 +1595,7 @@ public class FamilyPanel extends JPanel implements ActionListener, ListSelection
 			sortAgentDlg.buildFamilyTableListAndDisplay();
 		
 		if(sortWishesDlg.isVisible())	//Update the wish management dialog
-			sortWishesDlg.buildSortTableList();
+			sortWishesDlg.buildSortTableList(true);
 
 		if(assignDeliveryDlg.isVisible())
 			assignDeliveryDlg.buildSortTable();
