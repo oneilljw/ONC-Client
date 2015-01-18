@@ -294,73 +294,11 @@ public class SortWishDialog extends ONCSortTableDialog implements ActionListener
             @Override
             public void mouseClicked(MouseEvent e)
             {
-            	if(sortTableByColumn(sortTable.columnAtPoint(e.getPoint())))
+            	if(sortTableList(sortTable.columnAtPoint(e.getPoint())) > -1)
             	{
             		tableSortCol = sortTable.columnAtPoint(e.getPoint());
-            		archiveTableSelections();
-            		displaySortTable();
+            		displayTable();
             	}
-    /*        	
-            	if(sortTable.columnAtPoint(e.getPoint()) == 0)	//Sort on ONC Family Number
-            	{
-            		Collections.sort(stAL, new ONCSortItemFamNumComparator());
-            		tableSortCol = 0;
-            	}
-            	else if(sortTable.columnAtPoint(e.getPoint()) == 1)	// Sort on Child's Age
-            	{
-            		Collections.sort(stAL, new ONCSortItemAgeComparator());
-            		tableSortCol = 0;
-            	}
-            	else if (sortTable.columnAtPoint(e.getPoint()) == 2)	//Sort on Child's Gender
-            	{
-            		Collections.sort(stAL, new ONCSortItemGenderComparator());
-            		tableSortCol = 0;
-            	}
-            	else if (sortTable.columnAtPoint(e.getPoint()) == 3)	//Sort on Child's Wish #
-            	{
-            		Collections.sort(stAL, new ONCSortItemWishNumComparator());
-            		tableSortCol = 0;
-            	}
-            	else if (sortTable.columnAtPoint(e.getPoint()) == 4)	//Sort on Child's Base Wish
-            	{
-            		Collections.sort(stAL, new ONCSortItemWishBaseComparator());
-            		tableSortCol = 0;
-            	}
-            	else if (sortTable.columnAtPoint(e.getPoint()) == 5)	//Sort on Child's Wish Detail
-            	{
-            		Collections.sort(stAL, new ONCSortItemWishDetailComparator());
-            		tableSortCol = 0;
-            	}
-            	else if (sortTable.columnAtPoint(e.getPoint()) == 6)	//Sort on Child's Wish Indicator
-            	{
-            		Collections.sort(stAL, new ONCSortItemWishIndicatorComparator());
-            		tableSortCol = 0;
-            	}
-            	else if (sortTable.columnAtPoint(e.getPoint()) == 7)	//Sort on Child's Wish Status
-            	{
-            		Collections.sort(stAL, new ONCSortItemWishStatusComparator());
-            		tableSortCol = 0;
-            	}
-            	else if (sortTable.columnAtPoint(e.getPoint()) == 8)	//Sort on Child's Wish Assignee
-            	{
-            		Collections.sort(stAL, new ONCSortItemWishAssigneeComparator());
-            		tableSortCol = 0;
-            	}
-            	else if (sortTable.columnAtPoint(e.getPoint()) ==  9)	//Sort on Child's Wish Changed By
-            	{
-            		Collections.sort(stAL, new ONCSortItemWishChangedByComparator());
-            		tableSortCol = 0;
-            	}
-            	else if (sortTable.columnAtPoint(e.getPoint()) == 10)	//Sort on Child's Wish Date Changed
-            	{
-            		Collections.sort(stAL, new ONCSortItemWishDateChangedComparator());
-            		tableSortCol = 0;
-            	}
-            	else
-            		return;
-            	
-            	displaySortTable();
-*/            	
             }
         });
         
@@ -462,9 +400,10 @@ public class SortWishDialog extends ONCSortTableDialog implements ActionListener
 //        setLocation(pt.x + GlobalVariables.getFrame().getWidth() - tablewidth, pt.y + 20);
 	}
 	
-	boolean sortTableByColumn(int col)
-	{
-		boolean bTableSorted = true; //set to true assuming col will be found
+	int sortTableList(int col)
+	{	
+		archiveTableSelections();
+		
 		if(col == 0)	//Sort on ONC Family Number
     		Collections.sort(stAL, new ONCSortItemFamNumComparator());
     	else if(col == 1)	// Sort on Child's Age
@@ -488,12 +427,12 @@ public class SortWishDialog extends ONCSortTableDialog implements ActionListener
     	else if(col == 10)	//Sort on Child's Wish Date Changed
     		Collections.sort(stAL, new ONCSortItemWishDateChangedComparator());
     	else
-    		bTableSorted = false;
+    		col = -1;
     		
-    	return bTableSorted;
+    	return col;
 	}
 	
-	void displaySortTable()
+	void displayTable()
 	{
 		bChangingTable = true;	//don't process table messages while being changed
 		
@@ -508,7 +447,7 @@ public class SortWishDialog extends ONCSortTableDialog implements ActionListener
 		
 		//check to see if the sortTable needs to be sorted by column
 		if(tableSortCol > -1)
-			sortTableByColumn(tableSortCol);
+			sortTableList(tableSortCol);
 		
 		//check to see if rows need to be re-selected
 		for(Integer itemID:tableRowSelectedItemIDList)
@@ -528,7 +467,7 @@ public class SortWishDialog extends ONCSortTableDialog implements ActionListener
 		bChangingTable = false;	
 	}
 	
-	public void buildSortTableList(boolean bPreserveSortAndSelections)
+	public void buildTableList(boolean bPreserveSortAndSelections)
 	{
 		//archive the table rows selected prior to rebuild so the can be reselected if the
 		//build occurred due to an external modification of the table
@@ -577,7 +516,7 @@ public class SortWishDialog extends ONCSortTableDialog implements ActionListener
 		}
 		
 		lblWishes.setText(Integer.toString(stAL.size()));
-		displaySortTable();		//Display the table after table array list is built	
+		displayTable();		//Display the table after table array list is built	
 	}
 	
 	void archiveTableSelections()
@@ -586,14 +525,10 @@ public class SortWishDialog extends ONCSortTableDialog implements ActionListener
 		
 		int[] row_sel = sortTable.getSelectedRows();
 		for(int i=0; i<row_sel.length; i++)
-		{
-			System.out.println(String.format("SortWishDialog.archiveTableSelections: tablerowSel: %d, Added ID %d",
-					row_sel[i], stAL.get(row_sel[i]).getID()));
 			tableRowSelectedItemIDList.add(stAL.get(row_sel[i]).getID());
-		}
 	}
 	
-	void onApplyWishChanges()
+	void onApplyChanges()
 	{
 		bChangingTable = true;
 		boolean bRebuildTable = false; //set true if a wish is changed so table is only rebuilt once per applyWishChange
@@ -661,7 +596,7 @@ public class SortWishDialog extends ONCSortTableDialog implements ActionListener
 		{
 			
 //			tableRowSelectedItemIDList.clear();
-			buildSortTableList(false);
+			buildTableList(false);
 		}
 
 		//Reset the change combo boxes to "No Change"
@@ -818,13 +753,6 @@ public class SortWishDialog extends ONCSortTableDialog implements ActionListener
 		bIgnoreSortDialogEvents = false;
 	}
 	
-	void addUser(String user)
-	{
-		changedByCB.setEnabled(false);		
-		changedByCBM.addElement(user);
-		changedByCB.setEnabled(true);
-	}
-
 	void onPrintReceivingCheckSheets()
 	{
 		if(sortTable.getSelectedRowCount() > 0)	//Only print selected rows
@@ -1139,7 +1067,7 @@ public class SortWishDialog extends ONCSortTableDialog implements ActionListener
 		}
 		else if(e.getSource() == btnApplyChanges)
 		{
-			onApplyWishChanges();
+			onApplyChanges();
 		}
 		else if(!bIgnoreSortDialogEvents && (e.getSource() == changeResCB ||
 					e.getSource() == changeStatusCB || e.getSource() == changeAssigneeCB))
@@ -1150,7 +1078,7 @@ public class SortWishDialog extends ONCSortTableDialog implements ActionListener
 		//Only build one time if multiple changes occur, i.e. Reset Button event
 		if(bSortTableBuildRqrd && !bResetInProcess )
 		{
-			buildSortTableList(false);
+			buildTableList(false);
 			bSortTableBuildRqrd = false;
 		}
 	}
@@ -1195,7 +1123,7 @@ public class SortWishDialog extends ONCSortTableDialog implements ActionListener
 		{
 			sortStartCal.setTime(ds.getDate());
 			sortEndCal.setTime(de.getDate());
-			buildSortTableList(false);
+			buildTableList(false);
 		}
 		
 		checkApplyChangesEnabled();	//Check to see if user postured to change status or assignee.
@@ -1242,7 +1170,7 @@ public class SortWishDialog extends ONCSortTableDialog implements ActionListener
 //												dbe.getSource().toString(), 
 //												dbe.getType(), 
 //												dbe.getObject().toString()));
-			buildSortTableList(true);
+			buildTableList(true);
 		}
 		else if(dbe.getSource() != this && (dbe.getType().equals("ADDED_CONFIRMED_PARTNER") ||
 											dbe.getType().equals("DELETED_CONFIRMED_PARTNER")) ||
@@ -1253,7 +1181,7 @@ public class SortWishDialog extends ONCSortTableDialog implements ActionListener
 		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_CONFIRMED_PARTNER_NAME"))
 		{
 			updateWishAssigneeSelectionList();
-			buildSortTableList(true);
+			buildTableList(true);
 		}
 		else if(dbe.getSource() != this && dbe.getType().contains("_CATALOG_WISH"))
 		{			
@@ -1671,19 +1599,20 @@ public class SortWishDialog extends ONCSortTableDialog implements ActionListener
 		}
 
 		@Override
-		public void keyReleased(KeyEvent arg0) {
-			// TODO Auto-generated method stub
-				
+		public void keyReleased(KeyEvent arg0)
+		{
+			if(oncnumTF.getText().isEmpty())
+			{
+				System.out.println(String.format("SortWishDialog.KeyReleased: tf is empty", 0));
+				sortONCNum = "";
+				buildTableList(false);
+			}		
 		}
 
 		@Override
 		public void keyTyped(KeyEvent arg0)
 		{
-			if(oncnumTF.getText().isEmpty())
-			{
-				sortONCNum = "";
-				buildSortTableList(false);
-			}	
+			
 		}
 	 }
 }

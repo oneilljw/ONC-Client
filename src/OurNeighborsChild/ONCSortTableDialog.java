@@ -17,7 +17,6 @@ public abstract class ONCSortTableDialog extends JDialog
 	//List of registered listeners for table selection events
     private ArrayList<EntitySelectionListener> listeners;
     
-    
     public ONCSortTableDialog(JFrame parentFrame)
     {
     	super(parentFrame);

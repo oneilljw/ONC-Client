@@ -1296,7 +1296,7 @@ public class FamilyPanel extends JPanel implements ActionListener, ListSelection
 			//Dates are set here after Global Variables have been initialized
 			sortWishesDlg.setSortStartDate(gvs.getSeasonStartDate());
 			sortWishesDlg.setSortEndDate(gvs.getTodaysDate());
-			sortWishesDlg.buildSortTableList(true);
+			sortWishesDlg.buildTableList(true);
 			
 			Point pt = parentFrame.getLocation();
 	        sortWishesDlg.setLocation(pt.x + 5, pt.y + 25);
@@ -1585,6 +1585,7 @@ public class FamilyPanel extends JPanel implements ActionListener, ListSelection
 	 * This method is called to cause all gui's that display ONC numbers to rebuild after
 	 * ONC numbers have been reassigned. 
 	 **********************************************************************************************/
+/*
 	void notifyONCNumbersReassigned()
 	{
 		//Update the family sort table if the family dialog is visible
@@ -1600,6 +1601,7 @@ public class FamilyPanel extends JPanel implements ActionListener, ListSelection
 		if(assignDeliveryDlg.isVisible())
 			assignDeliveryDlg.buildSortTable();
 	}
+*/
 	
 	/**
 	 * This method gets a reference to the current child and commands the child panel
