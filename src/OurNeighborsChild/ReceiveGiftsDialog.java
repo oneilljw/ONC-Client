@@ -30,7 +30,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 
-public class ReceiveGiftsDialog extends ONCSortTableDialog implements ActionListener, ListSelectionListener,
+public class ReceiveGiftsDialog extends ONCTableDialog implements ActionListener, ListSelectionListener,
 															DatabaseListener
 {
 	/**

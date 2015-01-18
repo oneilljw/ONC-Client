@@ -42,7 +42,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 
-public class SortAgentDialog extends ONCSortTableDialog implements ActionListener, PropertyChangeListener,
+public class SortAgentDialog extends ONCTableDialog implements ActionListener, PropertyChangeListener,
 															DatabaseListener, ListSelectionListener
 {
 	private static final long serialVersionUID = 1L;

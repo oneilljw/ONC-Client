@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 
-public abstract class ONCSortTableDialog extends JDialog
+public abstract class ONCTableDialog extends JDialog
 {
 	/**
 	 * 
@@ -17,7 +17,7 @@ public abstract class ONCSortTableDialog extends JDialog
 	//List of registered listeners for table selection events
     private ArrayList<EntitySelectionListener> listeners;
     
-    public ONCSortTableDialog(JFrame parentFrame)
+    public ONCTableDialog(JFrame parentFrame)
     {
     	super(parentFrame);
     	this.parentFrame = parentFrame;

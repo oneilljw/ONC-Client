@@ -27,7 +27,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 
-public abstract class ONCFamilyTableDialog extends ONCSortTableDialog implements ActionListener, DatabaseListener,
+public abstract class ONCFamilyTableDialog extends ONCTableDialog implements ActionListener, DatabaseListener,
 																				ListSelectionListener
 {
 	/**

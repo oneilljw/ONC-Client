@@ -28,7 +28,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 
-public abstract class CheckDialog extends ONCSortTableDialog implements ActionListener, ListSelectionListener,
+public abstract class CheckDialog extends ONCTableDialog implements ActionListener, ListSelectionListener,
 																		DatabaseListener
 {
 	/**

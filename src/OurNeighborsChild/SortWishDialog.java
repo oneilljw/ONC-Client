@@ -57,7 +57,7 @@ import javax.swing.table.JTableHeader;
 import au.com.bytecode.opencsv.CSVWriter;
 import com.toedter.calendar.JDateChooser;
 
-public class SortWishDialog extends ONCSortTableDialog implements ActionListener, PropertyChangeListener, 
+public class SortWishDialog extends ONCTableDialog implements ActionListener, PropertyChangeListener, 
 													ListSelectionListener, DatabaseListener													
 {
 	/**

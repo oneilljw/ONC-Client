@@ -19,7 +19,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import au.com.bytecode.opencsv.CSVReader;
 
-public class RAFamilyImporter extends ONCSortTableDialog
+public class RAFamilyImporter extends ONCTableDialog
 {
 	/*************************************************************************************************
 	 * This class imports families from locally stored .csv files that contain ONC Family Referral 

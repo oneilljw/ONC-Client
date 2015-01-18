@@ -44,7 +44,7 @@ import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 import au.com.bytecode.opencsv.CSVWriter;
 
-public class SortPartnerDialog extends ONCSortTableDialog implements ActionListener, ListSelectionListener, 
+public class SortPartnerDialog extends ONCTableDialog implements ActionListener, ListSelectionListener, 
 															PropertyChangeListener, DatabaseListener															
 {
 	/**
