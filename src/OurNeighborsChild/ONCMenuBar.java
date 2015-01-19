@@ -8,12 +8,14 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 
-public class ONCMenuBar extends JMenuBar
+public class ONCMenuBar extends JMenuBar implements DatabaseListener
 {
 	/**
 	 * This class provides the blueprint for the menu bar in the ONC application
 	 */
 	private static final long serialVersionUID = 1L;
+	
+	public DBStatusDB oncDB;
 	public static JMenuItem newMI;
 	public static JMenuItem importODBMI, importWFCMMI, importRAFMI;
 	public static JMenuItem importONCMI, importPYMI, importPYORGMI,importWishCatMI, importCallResultMI;
@@ -32,6 +34,11 @@ public class ONCMenuBar extends JMenuBar
 	
 	public ONCMenuBar()
 	{
+		//get reference to onc data base
+		oncDB = DBStatusDB.getInstance();
+		if(oncDB != null)
+			oncDB.addDatabaseListener(this);
+		
 		JMenu menuFile, menuAgents, menuFamilies, menuWishes, menuGiftPartners, menuDelivery, menuSettings;	    
         
 	    //Build the Database menu.
@@ -45,7 +52,11 @@ public class ONCMenuBar extends JMenuBar
 	    
 	    newMI = new JMenuItem("Add Year");
 	    newMI.setEnabled(false);
-	    menuFile.add(newMI);	
+	    menuFile.add(newMI);
+	    
+	    dbStatusMI = new JMenuItem("Lock/Unlock Year");
+//	    dbStatusMI.setEnabled(false);
+	    menuFile.add(dbStatusMI);
 
 	    menuFile.addSeparator();
 	    
@@ -98,9 +109,6 @@ public class ONCMenuBar extends JMenuBar
 	    menuFile.add(submenuExport);
 	   
 	    menuFile.addSeparator();
-	    dbStatusMI = new JMenuItem("DB Status");
-//	    dbStatusMI.setEnabled(false);
-	    menuFile.add(dbStatusMI);
 	    
 	    clearMI = new JMenuItem("Clear");
 	    clearMI.setEnabled(false);
@@ -281,6 +289,7 @@ public class ONCMenuBar extends JMenuBar
 		
 		return mi;
 	}
+
 	
 	void clearDataBaseYears()
 	{ 
@@ -346,4 +355,23 @@ public class ONCMenuBar extends JMenuBar
 	void setEnabledImportMenuItems(boolean tf) { submenuImport.setEnabled(tf); }
 	static void setEnabledDeleteChildMenuItem(boolean tf) { delChildMI.setEnabled(tf); }
 	void setEnabledAgentMenuItem(boolean tf) { agentMI.setEnabled(tf); }
+
+	@Override
+	public void dataChanged(DatabaseEvent dbe)
+	{
+		if(dbe.getSource() != this && dbe.getType().equals("UPDATED_DBYEAR"))
+		{
+			//find the menu item associated with the year and update the lock status
+			DBYear updatedDBYear = (DBYear) dbe.getObject();
+			
+			int index=0;
+			while(index<dbYears.size() &&
+					!dbYears.get(index).getActionCommand().equals(updatedDBYear.toString()))
+				index++;
+			
+			if(index < dbYears.size())
+				dbYears.get(index).setIcon(updatedDBYear.isLocked() ? 
+						GlobalVariables.getLockedIcon() : GlobalVariables.getUnLockedIcon());
+		}
+	}
 }

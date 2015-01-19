@@ -42,7 +42,7 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 	private transient String[] sGrwth_pcts = {"5%", "10%", "15%", "20%", "25%"};
 	private transient int[] nGrwth_pcts = {5,10,15,20,25};
 	private transient int fontIndex, startONCNum, ytyGrwthIndex;
-	private transient ImageIcon imageIcons[];
+	private static ImageIcon imageIcons[];
 	private transient ONCUser user;
 	private transient String version;
 	
@@ -104,7 +104,7 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 		imageIcons[15] = createImageIcon("oncsplash.gif", "ONC Full Screen Logo");
 		imageIcons[16] = createImageIcon("undo.gif", "ONC Undo Icon");
 		imageIcons[17] = createImageIcon("lock_open.gif", "Open Lock");
-		imageIcons[18] = createImageIcon("lock_locked.gif", "Open Lock");
+		imageIcons[18] = createImageIcon("lock_locked.gif", "Closed Lock");
 		
 		imageIcons[19] = createImageIcon("address-icon-none.png", "No Alt Address Icon");
 		imageIcons[20] = createImageIcon("address-icon-one.png", "Alt Address Icon");
@@ -167,6 +167,9 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 	boolean isUserAdmin() {return user_permission > 0; }
 	boolean isUserSuperUser() {return user_permission > 1; }
 	public ImageIcon getImageIcon(int icon) {return imageIcons[icon]; }
+	public static ImageIcon getONCLogo() { return imageIcons[0]; }
+	public static ImageIcon getUnLockedIcon() { return imageIcons[17]; }
+	public static ImageIcon getLockedIcon() { return imageIcons[18]; }
 	ImageIcon[] getImageIcons() {return imageIcons; }
 	ImageIcon getONCFullScreenLogo() {return imageIcons[15]; }
 	Image getImage(int icon) { return imageIcons[icon].getImage(); }

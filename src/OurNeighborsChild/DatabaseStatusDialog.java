@@ -4,13 +4,16 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+
 import com.google.gson.Gson;
 
 public class DatabaseStatusDialog extends JDialog implements ActionListener, DatabaseListener
@@ -19,8 +22,6 @@ public class DatabaseStatusDialog extends JDialog implements ActionListener, Dat
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private static final int DB_UNLOCKED_IMAGE_INDEX = 17;
-	private static final int DB_LOCKED_IMAGE_INDEX = 18;
 	
 	private DBStatusDB statusDB;
 	private List<DBYearAndButton> dbYearButtonList;
@@ -46,43 +47,52 @@ public class DatabaseStatusDialog extends JDialog implements ActionListener, Dat
 		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
 		
 		//for each year in the list, create a panel and add it to the content pane
-		for(DBYear dbYear: dbYearList)
-		{
-			JPanel yearPanel = new JPanel();
-			JLabel lblYear = new JLabel(dbYear.toString());
-			DBYearAndButton dbYearButton = new DBYearAndButton(dbYear);
-			dbYearButtonList.add(dbYearButton);
-			dbYearButton.getrbLock().addActionListener(this);
+		//first, get online users from user data base which is used to enable or disable
+		//changing the lock. Cannot change a lock if the database is in use
+		List<ONCUser> onlineUserList = null;
+		UserDB oncUserDB = UserDB.getInstance();
+    	if(oncUserDB != null && (onlineUserList = oncUserDB.getOnlineUsers()) != null)
+    	{
+    		for(DBYear dbYear: dbYearList)
+    		{
+    			JPanel yearPanel = new JPanel();
+    			JLabel lblYear = new JLabel(dbYear.toString());
+    			DBYearAndButton dbYearButton = new DBYearAndButton(dbYear);
+    			dbYearButtonList.add(dbYearButton);
+    			dbYearButton.getrbLock().addActionListener(this);
 			
-			setEnabledYearLocks();
+    			setEnabledYearLocks(onlineUserList);
 			
-			yearPanel.add(lblYear);
-			yearPanel.add(dbYearButton.getrbLock());
+    			yearPanel.add(lblYear);
+    			yearPanel.add(dbYearButton.getrbLock());
 			
-			contentPane.add(yearPanel);
+    			contentPane.add(yearPanel);
+    		}
 		}
+    	else
+    	{
+    		//Couldn't get online users so can't modify database locks
+    		String errMsg = "Unable to dertermine database usage, please try again later";
+    		JOptionPane.showMessageDialog(this, errMsg, "Database Error", JOptionPane.ERROR_MESSAGE,
+    										GlobalVariables.getONCLogo());
+    		
+    		dispose();
+    	}
 		
 		pack();
 	}
 	
-	void setEnabledYearLocks()
+	void setEnabledYearLocks(List<ONCUser> onlineUserList)
 	{
-		List<ONCUser> onlineUserList = null;
-		
-    	//get online users from user data base
-		UserDB oncUserDB = UserDB.getInstance();
-    	if(oncUserDB != null && (onlineUserList = oncUserDB.getOnlineUsers()) != null)
+    	for(DBYearAndButton dbYearButton: dbYearButtonList)
     	{
-    		for(DBYearAndButton dbYearButton: dbYearButtonList)
-    		{
-    			int index = 0;
-    			while(index < onlineUserList.size() &&
-    				   onlineUserList.get(index).getClientYear() != dbYearButton.getYear())
-    				index++;
+    		int index = 0;
+    		while(index < onlineUserList.size() &&
+    			   onlineUserList.get(index).getClientYear() != dbYearButton.getYear())
+    			index++;
     			
-    			if(index < onlineUserList.size())
-    				dbYearButton.setRBLockEnabled(false);
-    		}
+    		if(index < onlineUserList.size())
+    			dbYearButton.setRBLockEnabled(false);
     	}
 	}
 	
@@ -103,8 +113,6 @@ public class DatabaseStatusDialog extends JDialog implements ActionListener, Dat
 			Gson gson = new Gson();
 			processUpdatedDBYear(gson.fromJson(response.substring(14), DBYear.class));
 		}
-		
-		System.out.println("DatabaseStatusDialog.updateLock: " + response);
 	}
 	
 	void processUpdatedDBYear(DBYear updatedDBYear)
@@ -118,11 +126,10 @@ public class DatabaseStatusDialog extends JDialog implements ActionListener, Dat
 		{
 			dbYearButtonList.get(index).setLock(updatedDBYear.isLocked());	//update the dbYear
 			
-			GlobalVariables gvs = GlobalVariables.getInstance();
 			if(updatedDBYear.isLocked())
-				dbYearButtonList.get(index).setRBLockIcon(gvs.getImageIcon(DB_LOCKED_IMAGE_INDEX));
+				dbYearButtonList.get(index).setRBLockIcon(GlobalVariables.getLockedIcon());
 			else
-				dbYearButtonList.get(index).setRBLockIcon(gvs.getImageIcon(DB_UNLOCKED_IMAGE_INDEX));
+				dbYearButtonList.get(index).setRBLockIcon(GlobalVariables.getUnLockedIcon());
 		}
 	}
 	
@@ -161,11 +168,10 @@ public class DatabaseStatusDialog extends JDialog implements ActionListener, Dat
 			rbLock = new JRadioButton();
 			rbLock.setActionCommand(dbYear.toString());
 			
-			GlobalVariables gvs = GlobalVariables.getInstance();
 			if(dbYear.isLocked())
-				rbLock.setIcon(gvs.getImageIcon(DB_LOCKED_IMAGE_INDEX));
+				rbLock.setIcon(GlobalVariables.getLockedIcon());
 			else
-				rbLock.setIcon(gvs.getImageIcon(DB_UNLOCKED_IMAGE_INDEX));
+				rbLock.setIcon(GlobalVariables.getUnLockedIcon());
 		}
 		
 		JRadioButton getrbLock() { return rbLock; }
