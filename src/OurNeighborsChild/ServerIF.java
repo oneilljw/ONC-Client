@@ -282,7 +282,7 @@ public class ServerIF
     
     void processChanges(String qContentJson)
     {
-    	String[] dbResponses = {"ADDED_USER", "GLOBAL_MESSAGE", "UPDATED_GLOBALS", "UPDATED_DBYEAR",
+    	String[] dbResponses = {"ADDED_USER", "GLOBAL_MESSAGE", "UPDATED_GLOBALS",
     						  "USER_ONLINE", "USER_OFFLINE",
     						  "ADDED_FAMILY", "UPDATED_FAMILY",
     						  "ADDED_AGENT","UPDATED_AGENT", "DELETED_AGENT",
@@ -296,7 +296,7 @@ public class ServerIF
     	
     	String[] chatResponses = {"CHAT_REQUESTED", "CHAT_ACCEPTED", "CHAT_MESSAGE", "CHAT_ENDED",  "ADDED_NEW_YEAR"};
     	
-    	String[] menuBarResponses = {"ADDED_NEW_YEAR"};
+    	String[] menuBarResponses = {"UPDATED_DBYEAR", "ADDED_DBYEAR"};
     	
     	Gson gson = new Gson();
     	Type listtype = new TypeToken<ArrayList<String>>(){}.getType();
@@ -316,7 +316,7 @@ public class ServerIF
     			if(index < chatResponses.length)
     				fireDataChanged(chatResponses[index], change.substring(chatResponses[index].length()));
     		}
-    		else if(change.contains("_NEW_YEAR"))
+    		else if(change.contains("DBYEAR"))
     		{
     			int index = 0;
     			while(index < menuBarResponses.length && !change.startsWith(menuBarResponses[index]))

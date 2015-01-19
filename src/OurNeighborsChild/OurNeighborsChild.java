@@ -917,15 +917,15 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
 				
 				//if the response indicates the server successfully add the year, it returns a list
 				//of new DBYear objects with the new year added to the end. Process the list
-				if(response != null && response.startsWith("ADDED_NEW_YEAR"))
+				if(response != null && response.startsWith("ADDED_DBYEAR"))
 				{
-					int newYear = processAddedONCSeason(response.substring(14));
+					int newYear = processAddedONCSeason(response.substring(12));
 					mssg = String.format("%d sucessfully added to ONC Server", newYear);
 					title = "Add Year Successful";
 					mssgType = JOptionPane.INFORMATION_MESSAGE;
 				}
-				else if(response != null && response.startsWith("ADD_NEW_YEAR_FAILED")) //alert the user the add failed
-					mssg = response.substring(19);					
+				else if(response != null && response.startsWith("ADD_DBYEAR_FAILED")) //alert the user the add failed
+					mssg = response.substring(17);					
 				else //general server error - didn't respond
 					mssg = "Error: ONC Server failed to respond";	
 			}
@@ -1566,7 +1566,7 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
 			popup.setLocation(loc.x+450, loc.y+70);
 			popup.show("Message from ONC Server", ue.getJson());
 		}
-		else if(ue.getType().equals("ADDED_NEW_YEAR"))
+		else if(ue.getType().equals("ADDED_DBYEAR"))
 		{
 			int addedYear = processAddedONCSeason(ue.getJson());
 			String mssg = String.format("%d database added, now available", addedYear);

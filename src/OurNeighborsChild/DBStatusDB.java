@@ -71,6 +71,7 @@ public class DBStatusDB extends ONCDatabase
 	{
 		if(ue.getType().equals("UPDATED_DBYEAR"))
 		{
+			System.out.println("DBStatusDB.dataChanged: UPDATED_DBYEAR Received");
 			Gson gson = new Gson();
 			fireDataChanged(this, "UPDATED_DBYEAR", gson.fromJson(ue.getJson(), DBYear.class));
 		}
