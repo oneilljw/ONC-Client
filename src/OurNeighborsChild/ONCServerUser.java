@@ -40,7 +40,7 @@ public class ONCServerUser extends ONCUser
 	public ONCUser getUserFromServerUser()
 	{
 		return new ONCUser(id, dateChanged.getTime(), changedBy, slPos, slMssg, slChangedBy, 
-				firstname, lastname, permission, clientID);	
+				firstname, lastname, permission, clientID, clientYear);	
 	}
 	
 	@Override

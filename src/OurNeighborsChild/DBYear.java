@@ -20,6 +20,7 @@ public class DBYear extends ONCObject
 	//getters
 	public int getYear() { return id; }
 	public boolean isLocked() { return bLocked; }
+	public DBYear getDBYear() { return this; }
 	
 	//setters
 	public void setLock(boolean tf) { bLocked = tf; }

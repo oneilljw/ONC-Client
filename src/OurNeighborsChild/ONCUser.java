@@ -13,6 +13,7 @@ public class ONCUser extends ONCEntity
 	protected String lastname;
 	protected int permission; 	//0 - general user, 1- admin user, 2- super user
 	protected long clientID; 	//holds the server id of the client when the user is logged in
+	protected int clientYear;
 	
 	public ONCUser(int id, Date today, String changedBy, int slpos, String slmssg, String slchgby, 
 			String fn, String ln, int perm)
@@ -23,11 +24,12 @@ public class ONCUser extends ONCEntity
 		lastname = ln;
 		permission = perm;
 		clientID = -1;
+		clientYear = -1;
 	}
 	
 	//overloaded to allow conversion from ONCServerUser to ONCUser by creating a copy
 	public ONCUser(int id, Date today, String changedBy, int slpos, String slmssg, String slchgby, 
-			String fn, String ln, int perm, long clientID)
+			String fn, String ln, int perm, long clientID, int clientYear)
 	{
 		super(id, today, changedBy, slpos, slmssg, slchgby);
 		
@@ -35,10 +37,13 @@ public class ONCUser extends ONCEntity
 		lastname = ln;
 		permission = perm;
 		this.clientID = clientID;
+		this.clientYear = clientYear;
 	}
 	
 	public long getClientID() { return clientID; }
 	public void setClientID(long clientID) { this.clientID = clientID; }
+	public int getClientYear() { return clientYear; }
+	public void setClientYear(int year) { clientYear = year; }
 	
 	public String getFirstname() {
 		return firstname;

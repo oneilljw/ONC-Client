@@ -1059,7 +1059,10 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
 			
 			for(ONCUser ou: onlineUserList)
 				if(ou != null)	//can be null if server log in failure -- known server issue Oct 16, 2014
-					sb.append(ou.getFirstname() + " " + ou.getLastname() + "<br>");
+				{
+					String year = ou.getClientYear() == -1 ? "None" : Integer.toString(ou.getClientYear());
+					sb.append(ou.getFirstname() + " " + ou.getLastname() + ": " + year + "<br>");
+				}
 			
 			sb.append("</html>");
 					
