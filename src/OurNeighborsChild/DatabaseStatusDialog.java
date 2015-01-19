@@ -1,5 +1,6 @@
 package OurNeighborsChild;
 
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -45,6 +46,21 @@ public class DatabaseStatusDialog extends JDialog implements ActionListener, Dat
 		//create a reference to the content pane
 		JPanel contentPane = (JPanel) this.getContentPane();
 		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
+//		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.X_AXIS));
+		
+		JPanel topPanel = new JPanel();
+		
+		JPanel bottomPanel = new JPanel(new GridLayout(0,3));
+//		bottomPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS));
+		
+		//add the logo icon to the left panel
+		JLabel lblONCIcon = new JLabel(GlobalVariables.getONCLogo(), JLabel.LEFT);
+		topPanel.add(lblONCIcon);
+		
+		String mssg ="<html><b><FONT COLOR=BLUE>To allow/prevent changes to a database,"
+				+ "<br>click the database year's lock below:</FONT></b></html>";		
+		JLabel lblMssg = new JLabel(mssg);
+		topPanel.add(lblMssg);
 		
 		//for each year in the list, create a panel and add it to the content pane
 		//first, get online users from user data base which is used to enable or disable
@@ -56,7 +72,7 @@ public class DatabaseStatusDialog extends JDialog implements ActionListener, Dat
     		for(DBYear dbYear: dbYearList)
     		{
     			JPanel yearPanel = new JPanel();
-    			JLabel lblYear = new JLabel(dbYear.toString());
+    			JLabel lblYear = new JLabel(dbYear.toString() + ":");
     			DBYearAndButton dbYearButton = new DBYearAndButton(dbYear);
     			dbYearButtonList.add(dbYearButton);
     			dbYearButton.getrbLock().addActionListener(this);
@@ -66,7 +82,7 @@ public class DatabaseStatusDialog extends JDialog implements ActionListener, Dat
     			yearPanel.add(lblYear);
     			yearPanel.add(dbYearButton.getrbLock());
 			
-    			contentPane.add(yearPanel);
+    			bottomPanel.add(yearPanel);
     		}
 		}
     	else
@@ -79,6 +95,8 @@ public class DatabaseStatusDialog extends JDialog implements ActionListener, Dat
     		dispose();
     	}
 		
+    	contentPane.add(topPanel);
+    	contentPane.add(bottomPanel);
 		pack();
 	}
 	

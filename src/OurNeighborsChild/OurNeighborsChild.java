@@ -54,7 +54,7 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
 	private static final int ONC_ADMIN = 1;
 	private static final int ONC_USER = 0;
 	private static final int ONC_SAVE_FILE = 1;	
-	private static final String ONC_VERSION = "2.32";
+	private static final String ONC_VERSION = "2.33";
 	private static final String ONC_COPYRIGHT = "\u00A92015 John W. O'Neill";	
 	private static final String APPNAME = "Our Neighbor's Child";
 	private static final int DB_UNLOCKED_IMAGE_INDEX = 17;
@@ -270,12 +270,14 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
         	oncGVs.setUserPermission(ONC_SUPERUSER);
         	prefsDlg.setEnabledDateToday(true);
         	prefsDlg.setEnabledRestrictedPrefrences(true);
+        	oncMenuBar.setVisibleAdminFunctions(true);
         	oncMenuBar.setVisibleSpecialImports(true);
         	oncFamilyPanel.setEnabledSuperuserPrivileges(true);
         }
         else if(user.getPermission() == ONC_ADMIN)
         {
         	oncGVs.setUserPermission(ONC_ADMIN);
+        	oncMenuBar.setVisibleAdminFunctions(true);
         	prefsDlg.setEnabledRestrictedPrefrences(true);
         }
         else

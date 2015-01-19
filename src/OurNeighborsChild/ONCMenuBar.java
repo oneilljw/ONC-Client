@@ -52,10 +52,11 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 	    
 	    newMI = new JMenuItem("Add Year");
 	    newMI.setEnabled(false);
+	    newMI.setVisible(false);
 	    menuFile.add(newMI);
 	    
 	    dbStatusMI = new JMenuItem("Lock/Unlock Year");
-//	    dbStatusMI.setEnabled(false);
+	    dbStatusMI.setVisible(false);
 	    menuFile.add(dbStatusMI);
 
 	    menuFile.addSeparator();
@@ -343,6 +344,12 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
     	
     	stopPollingMI.setVisible(true);
     }
+	
+	void setVisibleAdminFunctions(boolean tf)
+	{
+		newMI.setVisible(tf);
+		dbStatusMI.setVisible(tf);
+	}
 	
 	void setEnabledServerConnected(boolean tf)
 	{
