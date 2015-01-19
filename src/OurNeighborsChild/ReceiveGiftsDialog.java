@@ -10,8 +10,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import java.util.Calendar;
-
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -54,7 +52,6 @@ public class ReceiveGiftsDialog extends ONCTableDialog implements ActionListener
 	private Families fDB;
 	private ChildDB cDB;
 	private ChildWishDB cwDB;
-	private ONCOrgs orgDB;
 	private ONCWishCatalog cat;
 	private ArrayList<ONCRecGiftSortItem> stAL;
 	private LastWishReceived lastWishReceived;	//Holds the last wish received for undo function
@@ -65,8 +62,8 @@ public class ReceiveGiftsDialog extends ONCTableDialog implements ActionListener
 	private int sortStartAge = 0, sortGender = 0;
 	private String sortONCNum = "";
 	private static String[] genders = {"Any", "Boy", "Girl"};
-	private static String [] status = {"Any", "Empty", "Selected", "Assigned", "Received",
-										"Distributed", "Verified"};
+//	private static String [] status = {"Any", "Empty", "Selected", "Assigned", "Received",
+//										"Distributed", "Verified"};
 	String[] ages = {"Any", "<1", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10",
 			"11","12", "13", "14", "15", "16", "17", "18", "19", "20", "21"};
 	
@@ -76,7 +73,6 @@ public class ReceiveGiftsDialog extends ONCTableDialog implements ActionListener
 		fDB = Families.getInstance();
 		cDB = ChildDB.getInstance();
 		cwDB = ChildWishDB.getInstance();
-		orgDB = ONCOrgs.getInstance();
 		cat = ONCWishCatalog.getInstance();
 		sdGVs = GlobalVariables.getInstance();
 //		parentFrame = sdGVs.getFrame();

@@ -144,7 +144,9 @@ public class AngelAutoCallDialog extends JDialog implements ActionListener
 	    		else
 	    			JOptionPane.showMessageDialog(pFrame, 
 	    					angelFile.getName() + " is not in Angel Call Report format, cannot be imported", 
-	    					"Invalid Call Report Format", JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0)); 			    			
+	    					"Invalid Call Report Format", JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
+	    		
+	    		reader.close();
 	    	}	    		
 	    	
 	    	catch (IOException x)

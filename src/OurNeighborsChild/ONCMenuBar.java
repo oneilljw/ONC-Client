@@ -361,7 +361,7 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 	{
 		if(dbe.getSource() != this && dbe.getType().equals("UPDATED_DBYEAR"))
 		{
-			System.out.println("ONCMenuBar.dataChanged: UPDATED_DBYEAR Received");
+//			System.out.println("ONCMenuBar.dataChanged: UPDATED_DBYEAR Received");
 			//find the menu item associated with the year and update the lock status
 			DBYear updatedDBYear = (DBYear) dbe.getObject();
 			

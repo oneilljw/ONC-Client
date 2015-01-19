@@ -15,7 +15,7 @@ import au.com.bytecode.opencsv.CSVWriter;
 
 public class ChildWishDB extends ONCDatabase
 {
-	private static final int CHILD_WISH_DB_HEADER_LENGTH = 10;
+//	private static final int CHILD_WISH_DB_HEADER_LENGTH = 10;
 	private static final int CHILD_WISH_STATUS_EMPTY = 1;
 	private static final int CHILD_WISH_STATUS_SELECTED = 2;
 	private static final int CHILD_WISH_STATUS_ASSIGNED = 3;

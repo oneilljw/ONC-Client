@@ -300,9 +300,11 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
         oncContentPane.remove(oncSplashPanel);
         oncContentPane.revalidate();
         
-        //add listener for odb/wfcm family imports
+        //add listener for odb/wfcm family imports and new season adds
         if(oncFamDB != null)
         	oncFamDB.addDatabaseListener(this);
+        if(oncDB != null)
+        	oncDB.addDatabaseListener(this);
         
         if(DEBUG_MODE)
  		{
@@ -909,17 +911,24 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
 	    	String title = "Add Year Failed";
 	    	int mssgType = JOptionPane.ERROR_MESSAGE;
 	    	
-			//send add new year request to server and process response
+			//send add new year request to the ONC Server via the  DBStatus data base
+	    	//and process response
 			String response = "Error message missing";
-			if(serverIF != null && serverIF.isConnected())
+			if(oncDB != null)
 			{
-				response = serverIF.sendRequest("POST<add_newseason>");
+				response = oncDB.add(this);	//request add of new ONC season
 				
-				//if the response indicates the server successfully add the year, it returns a list
-				//of new DBYear objects with the new year added to the end. Process the list
+				//if the response indicates the server successfully add the year, it returns a 
+				//json of a list of new DBYear objects with the new year added to the end. 
+				//Process the list
 				if(response != null && response.startsWith("ADDED_DBYEAR"))
 				{
-					int newYear = processAddedONCSeason(response.substring(12));
+					Gson gson = new Gson();
+					Type listtype = new TypeToken<ArrayList<DBYear>>(){}.getType();
+					ArrayList<DBYear> dbYearList =  gson.fromJson(response.substring(12), listtype);
+					
+					int newYear = processAddedONCSeason(dbYearList);
+					
 					mssg = String.format("%d sucessfully added to ONC Server", newYear);
 					title = "Add Year Successful";
 					mssgType = JOptionPane.INFORMATION_MESSAGE;
@@ -936,17 +945,12 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
 		}
     }
     
-    int processAddedONCSeason(String dbYearListJson)
+    int processAddedONCSeason(ArrayList<DBYear> dbYearList)
     {
     	MenuItemDBYearsListener menuItemDBYearListener = new MenuItemDBYearsListener();
     	
     	//clear the current list
     	oncMenuBar.clearDataBaseYears();
-    	
-    	//create the dbYear list returned by the server
-    	Gson gson = new Gson();
-		Type listtype = new TypeToken<ArrayList<DBYear>>(){}.getType();
-		ArrayList<DBYear> dbYearList =  gson.fromJson(dbYearListJson, listtype);
 		
 		for(DBYear dbYear:dbYearList)
 			addDBYear(dbYear, menuItemDBYearListener);
@@ -1554,6 +1558,17 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
 		//if this is the first family loaded locally, show it on the display
 		if(dbe.getSource() != this && dbe.getType().equals("ADDED_FAMILY")  && oncFamDB.size() == 1)
 			checkFamilyDataLoaded();
+		else if(dbe.getSource() != this && dbe.getType().equals("ADDED_DBYEAR"))
+		{
+			ArrayList<DBYear> newDBYearList = (ArrayList<DBYear>) dbe.getObject();
+			int addedYear = processAddedONCSeason(newDBYearList);
+			
+			String mssg = String.format("%d database added, now available", addedYear);
+			ONCPopupMessage popup = new ONCPopupMessage( oncGVs.getImageIcon(0));
+			Point loc = oncFrame.getLocationOnScreen();
+			popup.setLocation(loc.x+450, loc.y+70);
+			popup.show("Message from ONC Server", mssg);	
+		}
 	}
 
 	@Override
@@ -1566,42 +1581,5 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
 			popup.setLocation(loc.x+450, loc.y+70);
 			popup.show("Message from ONC Server", ue.getJson());
 		}
-		else if(ue.getType().equals("ADDED_DBYEAR"))
-		{
-			int addedYear = processAddedONCSeason(ue.getJson());
-			String mssg = String.format("%d database added, now available", addedYear);
-			
-			ONCPopupMessage popup = new ONCPopupMessage( oncGVs.getImageIcon(0));
-			Point loc = oncFrame.getLocationOnScreen();
-			popup.setLocation(loc.x+450, loc.y+70);
-			popup.show("Message from ONC Server", mssg);
-		}
 	}
-/*
-	private class FamilyChildSelectionListener implements TableSelectionListener
-    {
-		@Override
-		public void tableRowSelected(TableSelectionEvent tse)
-		{
-			if(tse.getType().equals("FAMILY_SELECTED") || tse.getType().equals("WISH_SELECTED"))
-			{
-				ONCFamily fam = (ONCFamily) tse.getObject1();
-				ONCChild child = (ONCChild) tse.getObject2();
-			
-				int rtn;
-				if((rtn=oncFamDB.searchForFamilyIndexByID(fam.getID())) >= 0)
-				{
-					fn = rtn;
-					oncFamilyPanel.display(fam, child);
-				
-					if(oncGVs.isUserAdmin())
-						oncMenuBar.setEnabledDeleteChildMenuItem(oncChildDB.getNumberOfChildrenInFamily(fam.getID()) > 0);
-				
-					oncStatusPanel.setStoplightEntity(fam);
-				}
-			}
-		}
-    }
-*/    
-    
 }

@@ -12,7 +12,6 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
@@ -27,7 +26,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 	private static final long serialVersionUID = 1L;
 	private static final String ONC_NUMBER_START = "100";
 	private GlobalVariables pdGVs;
-	private JLabel lblMssg;
+//	private JLabel lblMssg;
 	private JDateChooser dc_today, dc_delivery, dc_seasonstart, dc_giftsreceived;
 	private JTextArea oncWarehouseAddressTA;
 	private JTextField startONCNumTF;
@@ -50,8 +49,8 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		p1.setLayout(new GridLayout(4,2));
 		JPanel cntlPanel = new JPanel();
 		
-		String mssg ="<html><b><FONT COLOR=BLUE>Set Preferences, then click OK</FONT></b></html>";		
-		lblMssg = new JLabel(mssg, JLabel.CENTER);
+//		String mssg ="<html><b><FONT COLOR=BLUE>Set Preferences, then click OK</FONT></b></html>";		
+//		lblMssg = new JLabel(mssg, JLabel.CENTER);
 //		p1.add(lblMssg);
 		
 		Dimension dateSize = new Dimension(144, 56);

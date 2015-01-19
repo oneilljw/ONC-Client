@@ -3,13 +3,11 @@ package OurNeighborsChild;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
-
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 public class DBStatusDB extends ONCDatabase
 {
-
 	private static DBStatusDB instance = null;
 	
 	private DBStatusDB()
@@ -43,10 +41,27 @@ public class DBStatusDB extends ONCDatabase
 			return null;
 	}
 	
-	String add(Object source, ONCObject oncObject)
+	String add(Object source)
 	{
-		return null;
+		String response = serverIF.sendRequest("POST<add_newseason>");
+		
+		if(response != null && response.startsWith("ADDED_DBYEAR"))
+			processAddedDBYear(response.substring(12));
+				
+		return response;
 	}
+	
+	void processAddedDBYear(String json)
+	{
+		//create the dbYear list object returned by the server
+    	Gson gson = new Gson();
+		Type listtype = new TypeToken<ArrayList<DBYear>>(){}.getType();
+		ArrayList<DBYear> dbYearList =  gson.fromJson(json, listtype);
+		
+		//notify listeners of the modified dbYear list
+		fireDataChanged(this, "ADDED_DBYEAR", dbYearList);
+	}
+	
 
 	@Override
 	String update(Object source, ONCObject oncObject)
@@ -71,9 +86,13 @@ public class DBStatusDB extends ONCDatabase
 	{
 		if(ue.getType().equals("UPDATED_DBYEAR"))
 		{
-			System.out.println("DBStatusDB.dataChanged: UPDATED_DBYEAR Received");
+	//		System.out.println("DBStatusDB.dataChanged: UPDATED_DBYEAR Received");
 			Gson gson = new Gson();
 			fireDataChanged(this, "UPDATED_DBYEAR", gson.fromJson(ue.getJson(), DBYear.class));
+		}
+		else if(ue.getType().equals("ADDED_DBYEAR"))
+		{
+			processAddedDBYear(ue.getJson());
 		}
 	}
 }

@@ -3,13 +3,11 @@ package OurNeighborsChild;
 import java.awt.FlowLayout;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
-
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -177,41 +175,6 @@ public class ONCNavPanel extends JPanel implements ActionListener
 		searchTF.setEnabled(tf);
 	}
 	
-//    /** Register a listener for navigation events */
-//    synchronized public void addNavigationListener(NavigationListener l)
-//    {
-//    	if (listeners == null)
-//    		listeners = new ArrayList<NavigationListener>();
-//    	listeners.add(l);
-//    }  
-//
-//    /** Remove a listener for navigation events */
-//    synchronized public void removeNavigationListener(NavigationListener l)
-//    {
-//    	if (listeners == null)
-//    		listeners = new ArrayList<NavigationListener>();
-//    	listeners.remove(l);
-//    }
-//    
-//    /** Fire a Navigation Event to all registered listeners */
-//    protected void fireNavChanged(Object source, String eventType, int navIndex)
-//    {
-//    	// if we have no listeners, do nothing...
-//    	if (listeners != null && !listeners.isEmpty())
-//    	{
-//    		// create the event object to send
-//    		NavigationEvent event = new NavigationEvent(source, eventType, navIndex);
-//    		
-//    		// make a copy of the listener list in case anyone adds/removes listeners
-//    		ArrayList<NavigationListener> targets;
-//    		synchronized (this) { targets = (ArrayList<NavigationListener>) listeners.clone(); }
-//
-//    		// walk through the cloned listener list and call the dataChanged method in each
-//    		for(NavigationListener l:targets)
-//    			l.indexChanged(event);
-//    	}
-//    }
-    
     /** Register a listener for Entity Selection events */
     synchronized public void addEntitySelectionListener(EntitySelectionListener l)
     {

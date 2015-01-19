@@ -1,7 +1,6 @@
 package OurNeighborsChild;
 
 import java.io.Serializable;
-import java.util.Calendar;
 
 public class ONCPriorYearChild extends ONCObject implements Serializable
 {	
