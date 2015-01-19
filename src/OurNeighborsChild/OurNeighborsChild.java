@@ -84,6 +84,7 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
 	private DriverDB oncDDB;						//Holds the ONC Driver Data Base
 	private DeliveryDB oncDelDB;					//Holds the ONC Delivery Data Base
 	private ONCRegions oncRegions;
+	private DBStatusDB oncDB;						//Holds the years loaded on the server
 	
 	//indexes that track families being displayed
 	private int fn;		 							//Indexes for the family and search lists
@@ -214,6 +215,7 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
         oncChildDB = ChildDB.getInstance();
         oncChildWishDB = ChildWishDB.getInstance();
         oncFamDB = Families.getInstance();
+        oncDB = DBStatusDB.getInstance();
         
         //Initialize the family data base indexes
         fn = 0;
@@ -286,18 +288,9 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
         if(serverIF != null)
         {
         	//get the list of data bases on the server
-        	String response = null;
-        	response = serverIF.sendRequest("GET<dbstatus>");
-        	
-        	if(response.startsWith("DB_STATUS"))
-        	{
-        		Type listOfDBs = new TypeToken<ArrayList<DBYear>>(){}.getType();
-        		
-        		Gson gson = new Gson();
-        		List<DBYear> dbYears = gson.fromJson(response.substring(9), listOfDBs);
-        		
+        	List<DBYear> dbYears = oncDB.getDBStatus();
+        	if(dbYears != null)
         		processDBYears(dbYears);	
-        	}
         	
         	//get user data base
         	oncUserDB.importUserDatabase();		//imported here to support chat prior to loading a year
@@ -545,7 +538,8 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
         ONCMenuBar.importODBMI.addActionListener(menuItemListener);
         ONCMenuBar.importWFCMMI.addActionListener(menuItemListener);
         ONCMenuBar.importCallResultMI.addActionListener(menuItemListener);
-        ONCMenuBar.exportMI.addActionListener(menuItemListener);        
+        ONCMenuBar.exportMI.addActionListener(menuItemListener);
+        ONCMenuBar.dbStatusMI.addActionListener(menuItemListener);
         ONCMenuBar.clearMI.addActionListener(menuItemListener);       
         ONCMenuBar.exitMI.addActionListener(menuItemListener);       
         ONCMenuBar.findDupFamsMI.addActionListener(menuItemListener);
@@ -1087,6 +1081,13 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
     	chatDlg.setVisible(true);
     }
     
+    void onDBStatusClicked()
+    {
+    	DatabaseStatusDialog statusDlg = new DatabaseStatusDialog(oncFrame);
+    	statusDlg.setLocationRelativeTo(oncFrame);
+    	statusDlg.setVisible(true);
+    }
+    
     void onChangePassword()
     {
     	String[] fieldNames = {"Current Password", "New Password", "Re-enter New Password"};
@@ -1335,6 +1336,7 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
     		}
 //    		else if(e.getSource() == ONCMenuBar.exportMI){ exportFamilyReportToCSV(); }
     		else if(e.getSource() == ONCMenuBar.exportMI){ exportObjectDBToCSV(); }
+    		else if(e.getSource() == ONCMenuBar.dbStatusMI) {onDBStatusClicked();}
     		else if(e.getSource() == ONCMenuBar.clearMI) {OnClearMenuItemClicked();} 			       	
     		else if(e.getSource() == ONCMenuBar.exitMI)	{OnExitMenuItemClicked();}
     		else if(e.getSource() == ONCMenuBar.findDupFamsMI) {oncFamilyPanel.onCheckForDuplicateFamilies();}

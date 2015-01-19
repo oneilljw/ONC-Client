@@ -1520,8 +1520,8 @@ public class FamilyPanel extends JPanel implements ActionListener, ListSelection
 		
 		if(serverIF != null && serverIF.isConnected())
 		{
-			String ly = Integer.toString(gvs.getCurrentSeason()-1);
-			String py = Integer.toString(gvs.getCurrentSeason()-2);
+			String ly = Integer.toString(GlobalVariables.getCurrentSeason()-1);
+			String py = Integer.toString(GlobalVariables.getCurrentSeason()-2);
 		
 			//Get prior year child from server
 			String zPYCID = Integer.toString(ctAL.get(cn).getPriorYearChildID());

@@ -311,7 +311,7 @@ public class DirectionsDialog extends JDialog implements ActionListener, Databas
 		SimpleDateFormat twodigitYear = new SimpleDateFormat("yy");
 		int idx = Integer.parseInt(twodigitYear.format(ddGVs.getSeasonStartDate())) % NUM_OF_XMAS_ICONS;
 		final Image img = ddGVs.getImageIcon(idx + XMAS_ICON_OFFSET).getImage();				
-		String oncSeason = "ONC " + Integer.toString(ddGVs.getCurrentSeason());
+		String oncSeason = "ONC " + Integer.toString(GlobalVariables.getCurrentSeason());
 			
 		DeliveryDirectionsPrinter ddp = new DeliveryDirectionsPrinter(ddpAL, img, oncSeason);
 			

@@ -583,7 +583,7 @@ public class SortFamilyDialog extends ONCFamilyTableDialog implements PropertyCh
 			SimpleDateFormat twodigitYear = new SimpleDateFormat("yy");
 			int idx = Integer.parseInt(twodigitYear.format(oncGVs.getSeasonStartDate())) % NUM_OF_XMAS_ICONS;
 			final Image img = oncGVs.getImageIcon(idx + XMAS_ICON_OFFSET).getImage();				
-			String oncSeason = "ONC " + Integer.toString(oncGVs.getCurrentSeason());			
+			String oncSeason = "ONC " + Integer.toString(GlobalVariables.getCurrentSeason());			
 			
 			
 			//Create the print job
@@ -693,7 +693,7 @@ public class SortFamilyDialog extends ONCFamilyTableDialog implements PropertyCh
 		SimpleDateFormat twodigitYear = new SimpleDateFormat("yy");
 		int idx = Integer.parseInt(twodigitYear.format(oncGVs.getSeasonStartDate())) % NUM_OF_XMAS_ICONS;
 		final Image img = oncGVs.getImageIcon(idx + XMAS_ICON_OFFSET).getImage();				
-		String oncSeason = "ONC " + Integer.toString(oncGVs.getCurrentSeason());
+		String oncSeason = "ONC " + Integer.toString(GlobalVariables.getCurrentSeason());
 			
 		DeliveryDirectionsPrinter ddp = new DeliveryDirectionsPrinter(ddpAL, img, oncSeason);
 			
@@ -1608,7 +1608,7 @@ public class SortFamilyDialog extends ONCFamilyTableDialog implements PropertyCh
 			int idx = Integer.parseInt(twodigitYear.format(oncGVs.getSeasonStartDate())) % NUM_OF_XMAS_ICONS;
 			final Image img = oncGVs.getImageIcon(idx + XMAS_ICON_OFFSET).getImage();
 			
-			String oncSeason = "ONC " + Integer.toString(oncGVs.getCurrentSeason());
+			String oncSeason = "ONC " + Integer.toString(GlobalVariables.getCurrentSeason());
 			
 			String carddata[];	//Holds all string data for a card
 		     

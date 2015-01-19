@@ -778,7 +778,7 @@ public class SortWishDialog extends ONCTableDialog implements ActionListener, Pr
 			SimpleDateFormat twodigitYear = new SimpleDateFormat("yy");
 			int idx = Integer.parseInt(twodigitYear.format(gvs.getSeasonStartDate())) % NUM_OF_XMAS_ICONS;
 			final Image img = gvs.getImageIcon(idx + XMAS_ICON_OFFSET).getImage();				
-			String oncSeason = "ONC " + Integer.toString(gvs.getCurrentSeason());			
+			String oncSeason = "ONC " + Integer.toString(GlobalVariables.getCurrentSeason());			
 			
 			//Create the print job
 			PrinterJob pj = PrinterJob.getPrinterJob();

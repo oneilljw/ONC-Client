@@ -282,7 +282,8 @@ public class ServerIF
     
     void processChanges(String qContentJson)
     {
-    	String[] dbResponses = {"ADDED_USER", "GLOBAL_MESSAGE", "UPDATED_GLOBALS", "USER_ONLINE", "USER_OFFLINE",
+    	String[] dbResponses = {"ADDED_USER", "GLOBAL_MESSAGE", "UPDATED_GLOBALS", "UPDATED_DBYEAR",
+    						  "USER_ONLINE", "USER_OFFLINE",
     						  "ADDED_FAMILY", "UPDATED_FAMILY",
     						  "ADDED_AGENT","UPDATED_AGENT", "DELETED_AGENT",
     						  "ADDED_CHILD","UPDATED_CHILD", "DELETED_CHILD",

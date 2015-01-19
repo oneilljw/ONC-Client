@@ -296,7 +296,7 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 	{
 		try
 		{
-			 MessageFormat headerFormat = new MessageFormat(Integer.toString(wcGVs.getCurrentSeason()) +
+			 MessageFormat headerFormat = new MessageFormat(Integer.toString(GlobalVariables.getCurrentSeason()) +
 					 											" ONC Wish Catalog");
              MessageFormat footerFormat = new MessageFormat("- {0} -");
              wcTable.print(JTable.PrintMode.FIT_WIDTH, headerFormat, footerFormat);           

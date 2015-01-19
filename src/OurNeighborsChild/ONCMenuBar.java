@@ -17,7 +17,7 @@ public class ONCMenuBar extends JMenuBar
 	public static JMenuItem newMI;
 	public static JMenuItem importODBMI, importWFCMMI, importRAFMI;
 	public static JMenuItem importONCMI, importPYMI, importPYORGMI,importWishCatMI, importCallResultMI;
-	public static JMenuItem exportMI, clearMI, exitMI;
+	public static JMenuItem exportMI, dbStatusMI, clearMI, exitMI;
 //	public static JMenuItem font8, font10, font12, font13, font14, font16, font18;
 //	public static JMenuItem compODBtoONCfamMI, compODBtoONCdataMI, compWFCMtoONCfamMI, compWFCMtoONCdataMI;
 	public static JMenuItem findDupFamsMI, findDupChldrnMI;
@@ -98,6 +98,9 @@ public class ONCMenuBar extends JMenuBar
 	    menuFile.add(submenuExport);
 	   
 	    menuFile.addSeparator();
+	    dbStatusMI = new JMenuItem("DB Status");
+//	    dbStatusMI.setEnabled(false);
+	    menuFile.add(dbStatusMI);
 	    
 	    clearMI = new JMenuItem("Clear");
 	    clearMI.setEnabled(false);

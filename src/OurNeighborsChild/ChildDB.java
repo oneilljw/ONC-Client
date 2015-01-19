@@ -1,29 +1,22 @@
 package OurNeighborsChild;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-
-import javax.swing.ImageIcon;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
-
+import au.com.bytecode.opencsv.CSVWriter;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-import au.com.bytecode.opencsv.CSVReader;
-import au.com.bytecode.opencsv.CSVWriter;
-
 public class ChildDB extends ONCDatabase
 {
-	private static final int CHILD_DB_HEADER_LENGTH = 12;
+//	private static final int CHILD_DB_HEADER_LENGTH = 12;
 	private static ChildDB instance = null;
 	private ArrayList<ONCChild> childAL;
 	
