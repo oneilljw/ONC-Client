@@ -28,7 +28,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 
-public class ReceiveGiftsDialog extends ONCTableDialog implements ActionListener, ListSelectionListener,
+public class GiftActionDialog extends ONCTableDialog implements ActionListener, ListSelectionListener,
 															DatabaseListener
 {
 	/**
@@ -36,6 +36,8 @@ public class ReceiveGiftsDialog extends ONCTableDialog implements ActionListener
 	 */
 	private static final long serialVersionUID = 1L;
 	private static final int CHILD_WISH_STATUS_RECEIVED = 4;
+	private static final int CHILD_WISH_STATUS_DISTRIBUTED = 4;
+	private static final int CHILD_WISH_STATUS_VERIFIED = 4;
 	private static final int FAMILY_STATUS_GIFTS_RECEIVED = 3;
 	private static final int CHILD_WISH_IND_NOT_ASSIGNED = 1;
 	private static final int NUM_ROWS_TO_DISPLAY = 15;
@@ -47,14 +49,16 @@ public class ReceiveGiftsDialog extends ONCTableDialog implements ActionListener
 	private JTextField oncnumTF;
 	private JComboBox startAgeCB, genderCB;
 	private JButton btnResetCriteria;
-	private JButton btnReceiveGift, btnUndo; 
+	private JButton btnGiftAction, btnUndo; 
 	
 	private Families fDB;
 	private ChildDB cDB;
 	private ChildWishDB cwDB;
 	private ONCWishCatalog cat;
-	private ArrayList<ONCRecGiftSortItem> stAL;
-	private LastWishReceived lastWishReceived;	//Holds the last wish received for undo function
+	
+	private WishStatus dialogType;
+	private ArrayList<GiftSortItem> stAL;
+	private LastWishChanged lastWishChanged;	//Holds the last wish received for undo function
 	private boolean bChangingTable = false;	//Semaphore used to indicate the sort table is being changed
 	private boolean bSortTableBuildRqrd = false;	//Used to determine a build to sort table is needed
 	private boolean bResetInProcess = false;	//Prevents recursive build of sort table by event handlers during reset event
@@ -67,9 +71,11 @@ public class ReceiveGiftsDialog extends ONCTableDialog implements ActionListener
 	String[] ages = {"Any", "<1", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10",
 			"11","12", "13", "14", "15", "16", "17", "18", "19", "20", "21"};
 	
-	ReceiveGiftsDialog(JFrame pf)
+	GiftActionDialog(JFrame pf, WishStatus dialogType)
 	{
 		super(pf);
+		this.dialogType = dialogType;
+		
 		fDB = Families.getInstance();
 		cDB = ChildDB.getInstance();
 		cwDB = ChildWishDB.getInstance();
@@ -81,9 +87,10 @@ public class ReceiveGiftsDialog extends ONCTableDialog implements ActionListener
 		cwDB.addDatabaseListener(this);	//Wish updates
 		
 		//Create the class variables
-		stAL = new ArrayList<ONCRecGiftSortItem>();
+		stAL = new ArrayList<GiftSortItem>();
 		
-		this.setTitle("Our Neighbor's Child - Receive Gifts");
+		//set the title in accordance with the purpose
+		this.setTitle(String.format("Our Neighbor's Child - %s Gifts", dialogType.presentTense()));
 		
 		//Set up the search criteria panel      
 		JPanel sortCriteriaPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));		
@@ -219,20 +226,20 @@ public class ReceiveGiftsDialog extends ONCTableDialog implements ActionListener
 		JPanel cntlPanel = new JPanel(new FlowLayout());
 		
 		btnUndo = new JButton(sdGVs.getImageIcon(16));
-        btnUndo.setToolTipText("Click to undo last gift received");
+        btnUndo.setToolTipText(String.format("Click to undo last gift %s", dialogType.toString()));
         btnUndo.setEnabled(false);
         btnUndo.addActionListener(this);
                     
         btnResetCriteria = new JButton("Reset Criteria");
         btnResetCriteria.addActionListener(this);        
         
-        btnReceiveGift = new JButton("Receive Gift");
-        btnReceiveGift.setEnabled(false);
-        btnReceiveGift.addActionListener(this);
+        btnGiftAction = new JButton(String.format("%s Gift", dialogType.presentTense()));
+        btnGiftAction.setEnabled(false);
+        btnGiftAction.addActionListener(this);
         
         cntlPanel.add(btnUndo);
         cntlPanel.add(btnResetCriteria);
-        cntlPanel.add(btnReceiveGift);
+        cntlPanel.add(btnGiftAction);
         cntlPanel.setMaximumSize(new Dimension(tablewidth, 32));
         
         sortCriteriaPanel.setMaximumSize(new Dimension(tablewidth, 44));
@@ -256,7 +263,7 @@ public class ReceiveGiftsDialog extends ONCTableDialog implements ActionListener
 		while (sortTableModel.getRowCount() > 0)	//Clear the current table
 			sortTableModel.removeRow(0);
 		
-		for(ONCRecGiftSortItem si:stAL)	//Build the new table
+		for(GiftSortItem si:stAL)	//Build the new table
 			sortTableModel.addRow(si.getSortTableRow());
 				
 		bChangingTable = false;	
@@ -280,12 +287,9 @@ public class ReceiveGiftsDialog extends ONCTableDialog implements ActionListener
 							ONCChildWish cw = cwDB.getWish(c.getChildWishID(i));
 							
 							//Status matches and wish was assigned (Wish indicator is not *)
-							if(cw != null && cw.getChildWishStatus() < CHILD_WISH_STATUS_RECEIVED && 
-								cw.getChildWishIndicator() != CHILD_WISH_IND_NOT_ASSIGNED)
+							if(cw != null && doesChildWishStatusMatch(cw))
 							{
-								stAL.add(new ONCRecGiftSortItem(f, f.getID(),f.getONCNum(), c.getChildAge(), i, 
-										c, c.getChildGender(), cat.getWishByID(cw.getWishID()).getName(),
-										cw.getChildWishDetail()));
+								stAL.add(new GiftSortItem(f, c, cw));
 							}
 						}
 					}
@@ -296,7 +300,7 @@ public class ReceiveGiftsDialog extends ONCTableDialog implements ActionListener
 		displaySortTable();		//Display the table after table array list is built	
 	}
 	
-	void onReceiveGift()
+	void onGiftAction()
 	{
 		bChangingTable = true;
 		
@@ -321,7 +325,7 @@ public class ReceiveGiftsDialog extends ONCTableDialog implements ActionListener
 			
 		//Process change to wish status. Store the new wish to be added in case of an undo operation 
 		//and add the new wish to the child wish history
-		lastWishReceived = new LastWishReceived(fam, c, cw);
+		lastWishChanged = new LastWishChanged(fam, c, cw);
 			
 		int wishid = cwDB.add(this, c.getID(), wishtypeid, cwd, wn, cwi, CHILD_WISH_STATUS_RECEIVED,
 								cwaID, sdGVs.getUserLNFI(), sdGVs.getTodaysDate());
@@ -333,22 +337,23 @@ public class ReceiveGiftsDialog extends ONCTableDialog implements ActionListener
 		
 		sortTable.clearSelection();
 		
-		btnReceiveGift.setEnabled(false);
+		btnGiftAction.setEnabled(false);
 		
 		btnUndo.setEnabled(true);
 		
 		bChangingTable = false;
 	}
 	
+	
 	void onUndoReceiveGift()
 	{
 		bChangingTable = true;
 		
 		//To undo the wish, add the old wish back with the previous status		
-		ONCChild lastChild = lastWishReceived.getLastChild();
-		ONCChildWish lastWish = lastWishReceived.getLastWishReceived();
+		ONCChild lastChild = lastWishChanged.getLastChild();
+		ONCChildWish lastWish = lastWishChanged.getLastWishReceived();
 		
-		int wishid = cwDB.add(this, lastWishReceived.getLastChild().getID(),
+		int wishid = cwDB.add(this, lastWishChanged.getLastChild().getID(),
 									lastWish.getWishID(),
 //									cat.getWishByID(lastWish.getWishID()).getName(),
 									lastWish.getChildWishDetail(),
@@ -368,12 +373,12 @@ public class ReceiveGiftsDialog extends ONCTableDialog implements ActionListener
 		//check to see if family status should change as well. If the family status had
 		//changed to gifts received with the receive that is being undone, the family 
 		//status must be reset to the prior status.
-		if(lastWishReceived.getLastFamily().getFamilyStatus() == FAMILY_STATUS_GIFTS_RECEIVED)
-			lastWishReceived.getLastFamily().setFamilyStatus(lastWishReceived.getLastFamilyStatus());
+		if(lastWishChanged.getLastFamily().getFamilyStatus() == FAMILY_STATUS_GIFTS_RECEIVED)
+			lastWishChanged.getLastFamily().setFamilyStatus(lastWishChanged.getLastFamilyStatus());
 		
 		sortTable.clearSelection();
 		
-		btnReceiveGift.setEnabled(false);
+		btnGiftAction.setEnabled(false);
 		
 		btnUndo.setEnabled(false);
 		
@@ -387,9 +392,9 @@ public class ReceiveGiftsDialog extends ONCTableDialog implements ActionListener
 //				changeStatusCB.getSelectedIndex(), changeAssigneeCB.getSelectedIndex()));
 		
 		if(sortTable.getSelectedRows().length > 0)	
-			btnReceiveGift.setEnabled(true);
+			btnGiftAction.setEnabled(true);
 		else
-			btnReceiveGift.setEnabled(false);
+			btnGiftAction.setEnabled(false);
 		
 	}
 	
@@ -410,6 +415,12 @@ public class ReceiveGiftsDialog extends ONCTableDialog implements ActionListener
 	private boolean doesGenderMatch(ONCChild c)
 	{
 		return sortGender == 0 || (c.getChildGender().equalsIgnoreCase(genders[sortGender]));		
+	}
+	
+	boolean doesChildWishStatusMatch(ONCChildWish cw)
+	{
+		return cw.getChildWishStatus() < CHILD_WISH_STATUS_RECEIVED && 
+				cw.getChildWishIndicator() != CHILD_WISH_IND_NOT_ASSIGNED;
 	}
 	
 	private boolean doesONCNumMatch(String s) { return sortONCNum.isEmpty() || sortONCNum.equals(s); }
@@ -449,11 +460,11 @@ public class ReceiveGiftsDialog extends ONCTableDialog implements ActionListener
 			bSortTableBuildRqrd = true;	//Force a table build to reset order change from header click
 			bResetInProcess = false;	//Restore sort table build by event handlers
 		}
-		else if(e.getSource() == btnReceiveGift)
+		else if(e.getSource() == btnGiftAction)
 		{
 			//Receive gifts dialog recGift button event handler is in this class for coordination
 			//with update of the child panel and family status
-			onReceiveGift();
+			onGiftAction();
 		}
 		else if(e.getSource() == btnUndo)
 		{
@@ -487,47 +498,49 @@ public class ReceiveGiftsDialog extends ONCTableDialog implements ActionListener
 		checkReceiveGiftEnabled();	//Check to see if user postured to change status or assignee.
 	}
 
-	private class ONCRecGiftSortItem
+	private class GiftSortItem
 	{
 		private ONCFamily	sortItemFamily;
-		private int			sortItemONCID;
-		private String 		sortItemoncFamNum;
+//		private int			sortItemONCID;
+//		private String 		sortItemoncFamNum;
 		private ONCChild	sortItemChild;
-		private int			sortItemchildWishNum;
-		private String 		sortItemchildAge;
+//		private int			sortItemchildWishNum;
+//		private String 		sortItemchildAge;
 //		private Calendar	sortItemchildDateOfBirth;
-		private String 		sortItemchildGender;
+//		private String 		sortItemchildGender;
 //		private String		sortItemchildWishInd;
-		private String		sortItemchildWishBase;
-		private String 		sortItemchildWishDetail;
+//		private String		sortItemchildWishBase;
+//		private String 		sortItemchildWishDetail;
 //		private String 		sortItemchildWishStatus;
 //		private String		sortItemchildWishAssignee;
+		private ONCChildWish sortItemChildWish;
 		
-		public ONCRecGiftSortItem(ONCFamily fam, int id, String fnum, String ca, int cwn, ONCChild c, String cg, 
-									String cwb, String cwd)
+		public GiftSortItem(ONCFamily fam, ONCChild c, ONCChildWish cw)
 		{
 			sortItemFamily = fam;
-			sortItemONCID = id;
-			sortItemoncFamNum = fnum;
+//			sortItemONCID = id;
+//			sortItemoncFamNum = fnum;
 			sortItemChild = c;
-			sortItemchildWishNum = cwn;
-			sortItemchildGender = cg;
-			sortItemchildAge = ca.trim();	
-			sortItemchildWishBase = cwb;
-			sortItemchildWishDetail = cwd.trim();
+//			sortItemchildWishNum = cwn;
+//			sortItemchildGender = cg;
+//			sortItemchildAge = ca.trim();	
+//			sortItemchildWishBase = cwb;
+//			sortItemchildWishDetail = cwd.trim();
+			sortItemChildWish = cw;
 		}
 		
 		//getters
 		ONCFamily getSortItemFamily() { return sortItemFamily; }
-		int getSortItemONCID() { return sortItemONCID; }
+		int getSortItemONCID() { return sortItemFamily.getID(); }
 		ONCChild getSortItemChild() { return sortItemChild; }
-		Integer	getSortItemChildWishNumber() { return sortItemchildWishNum; }
+		Integer	getSortItemChildWishNumber() { return sortItemChildWish.getWishNumber(); }
 		
 		public String[] getSortTableRow()
 		{
-			String[] sorttablerow = {sortItemoncFamNum, sortItemchildGender,
-										sortItemchildAge, sortItemchildWishBase,
-										sortItemchildWishDetail};
+			String[] sorttablerow = {sortItemFamily.getONCNum(), sortItemChild.getChildGender(),
+										sortItemChild.getChildAge(),
+										cat.getWishByID(sortItemChildWish.getWishID()).getName(),
+										sortItemChildWish.getChildWishDetail()};
 			return sorttablerow;
 		}
 	}
@@ -572,14 +585,14 @@ public class ReceiveGiftsDialog extends ONCTableDialog implements ActionListener
 	  * Gifts dialog user in support of the undo function.
 	  * @author John O'Neill
 	  ************************************************************************************/
-	 private class LastWishReceived
+	 private class LastWishChanged
 	 {
 		 private ONCFamily fam;
 		 private int lastFamilyStatus;
 		 private ONCChild child;
 		 private ONCChildWish lastWishReceived;
 		 
-		 LastWishReceived(ONCFamily f, ONCChild c, ONCChildWish lwr)
+		 LastWishChanged(ONCFamily f, ONCChild c, ONCChildWish lwr)
 		 {
 			 fam = f;
 			 lastFamilyStatus = f.getFamilyStatus();

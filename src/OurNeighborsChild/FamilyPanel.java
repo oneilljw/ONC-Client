@@ -110,7 +110,7 @@ public class FamilyPanel extends JPanel implements ActionListener, ListSelection
 	private DriverDialog driverDlg;
 	private WishCatalogDialog catDlg;
 	public SortWishDialog sortWishesDlg;
-	public ReceiveGiftsDialog recGiftsDlg;
+//	public GiftActionDialog recGiftsDlg;
 	public SortFamilyDialog sortFamiliesDlg;
 	public SortAgentDialog sortAgentDlg;
 	private AgentInfoDialog agentInfoDlg;
@@ -451,8 +451,8 @@ public class FamilyPanel extends JPanel implements ActionListener, ListSelection
         sortWishesDlg.addEntitySelectionListener(familyChildSelectionListener);
     	
     	//Set up the receive gifts dialog
-    	recGiftsDlg = new ReceiveGiftsDialog(parentFrame);
-    	recGiftsDlg.addEntitySelectionListener(familyChildSelectionListener);
+//    	recGiftsDlg = new GiftActionDialog(parentFrame, WishStatus.Received);
+ //   	recGiftsDlg.addEntitySelectionListener(familyChildSelectionListener);
 
     	//Set up the manage catalog dialog
     	catDlg = new WishCatalogDialog(parentFrame);
@@ -1306,6 +1306,9 @@ public class FamilyPanel extends JPanel implements ActionListener, ListSelection
 	
 	void showReceiveGiftsDialog(ArrayList<ONCFamily> fAL)
 	{
+		GiftActionDialog recGiftsDlg = new GiftActionDialog(parentFrame, WishStatus.Received);
+    	recGiftsDlg.addEntitySelectionListener(familyChildSelectionListener);
+    	
 		if(!recGiftsDlg.isVisible())
 		{
 			recGiftsDlg.buildSortTableArrayList();
