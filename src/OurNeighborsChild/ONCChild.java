@@ -334,25 +334,26 @@ public class ONCChild extends ONCObject implements Serializable
 		
 		if (dobCal.after(christmasDayCal))
 		{
-		  return "Future DOB";
+			nChildAge = 0;
+			return "Future DOB";
 		}
 		else
 		{		
-			int year1 = christmasDayCal.get(Calendar.YEAR);
-			int year2 = dobCal.get(Calendar.YEAR);
-			nChildAge = year1 - year2;
+			int sesaonYear = christmasDayCal.get(Calendar.YEAR);
+			int dobYear = dobCal.get(Calendar.YEAR);
+			nChildAge = sesaonYear - dobYear;
 		
-			int month1 = christmasDayCal.get(Calendar.MONTH);
-			int month2 = dobCal.get(Calendar.MONTH);
-			if (month2 > month1)
+			int december = christmasDayCal.get(Calendar.MONTH);
+			int dobMonth = dobCal.get(Calendar.MONTH);
+			if (dobMonth > december)	//can't really happen now that we calculate to 12/25
 			{
 				nChildAge--;
 			} 
-			else if (month1 == month2)
+			else if (december == dobMonth)
 			{
-				int day1 = christmasDayCal.get(Calendar.DAY_OF_MONTH);
-				int day2 = dobCal.get(Calendar.DAY_OF_MONTH);
-				if (day2 > day1)
+				int christmasDay = christmasDayCal.get(Calendar.DAY_OF_MONTH);
+				int dobDay = dobCal.get(Calendar.DAY_OF_MONTH);
+				if (dobDay > christmasDay)
 				{
 					nChildAge--;
 				}
@@ -360,12 +361,12 @@ public class ONCChild extends ONCObject implements Serializable
 		
 			if(nChildAge > 0)
 				return Integer.toString(nChildAge) + " yr. old";
-			else if(nChildAge == 0 && year2==year1 && month2 == month1)
+			else if(nChildAge == 0 && dobYear == sesaonYear && dobMonth == december)
 				return "Newborn";
-			else if(nChildAge == 0 && year2==year1)
-				return (Integer.toString(month1-month2) + " mos. old");
+			else if(nChildAge == 0 && dobYear == sesaonYear)
+				return (Integer.toString(december-dobMonth) + " mos. old");
 			else
-				return (Integer.toString(month1+12-month2) + " mos. old");
+				return (Integer.toString(december+12-dobMonth) + " mos. old");
 		}
 	}
 	
@@ -379,61 +380,7 @@ public class ONCChild extends ONCObject implements Serializable
 						
 		return row;
 	}
-/*	
-	boolean mergeWishes(ONCChild mc)
-	{
-		ArrayList<ChildWishHistory> mcwhAL = mc.getChildWishHistoryAL();
-		boolean bChildWishDataChangeDetected = false;
-		//Check that the number of wishes is equal. For ONC, this should be 3 per child currently
-		//If they are not, don't merge
-		if(mcwhAL.size() == childWishesAL.size())	 
-		{
-			for(int index=0; index< childWishesAL.size(); index++)
-			{
-				if(childWishesAL.get(index).mergeWishHistories(mcwhAL.get(index).getWishHistory()))
-					bChildWishDataChangeDetected = true;
-			}
-		}
-		
-		return bChildWishDataChangeDetected;
-	}
-*/	
-	/*******************************************************************************
-	 * After a merge, method is called to verify assignees are confirmed for each of
-	 * the child's current wishes. If the confirmed status isn't verified, a change 
-	 * was made to the organization's status after the fork and prior to the merge of
-	 * the selected merge file. In that case, reset the ID and Name of the assignee
-	 * to the initial condition as if no assignment had occurred.
-	 ******************************************************************************/
-/*	
-	void verifyCurrentWishAssignees(ONCOrgs orgs, String user, Date today)
-	{
-		for(int wn=0; wn<childWishesAL.size(); wn++)
-		{
-			//If the wish has been assigned an organization, check if status of the organization
-			//is confirmed. 0 = not confirmed or not found. If it is no longer confirmed, 
-			//reset the assigned organization to none and reset status to selected. 
-			//Add the revised wish to the wish history
-			if(getChildWishAssigneeID(wn) > 0 && 
-					orgs.getConfirmedOrganizationIndex(getChildWishAssigneeID(wn)) == 0)	
-			{	
-				AddWish(new ONCChildWish(getChildWishBase(wn), getChildWishDetail(wn), 
-											getChildWishIndicator(wn), WISHSTATUS_SELECTED,
-											ORGANIZATION_UNNASSIGNED, ORGANIZATION_UNNAMED, 
-											user, today), wn);
-			}
-		}			
-	}
-	
-	int compareCurrentWishAssignees(long orgID)
-	{
-		int assignee_count = 0;
-		for(int wn=0; wn<childWishesAL.size(); wn++)
-			if(getChildWishAssigneeID(wn) == orgID)
-				assignee_count++;
-		return assignee_count;
-	}
-*/	
+
 	class ChildWishHistory implements Serializable
 	{
 		/**

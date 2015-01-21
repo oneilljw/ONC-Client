@@ -1,17 +1,17 @@
 package OurNeighborsChild;
 
 import java.io.File;
-import java.io.FileReader;
+//import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+//import java.io.ObjectInputStream;
+//import java.io.ObjectOutputStream;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Comparator;
 
-import javax.swing.ImageIcon;
-import javax.swing.JFileChooser;
+//import javax.swing.ImageIcon;
+//import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -19,7 +19,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-import au.com.bytecode.opencsv.CSVReader;
+//import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
 
 public class ONCAgents extends ONCDatabase
@@ -32,21 +32,14 @@ public class ONCAgents extends ONCDatabase
 	 * Finally, the class provides support for merging two agent object data bases together
 	 * The ONC application maintains one Agent data base per instance of the application currently.
 	 **************************************************************************************/
-	private static final int AGENT_DB_HEADER_LENGTH = 6;
+//	private static final int AGENT_DB_HEADER_LENGTH = 6;
 	private static ONCAgents instance = null;
 	private ArrayList<Agent> agentsAL;	//The agent object array list data base
-	
-	private ONCAgentNameComparator oncAgentNameComparator;
-	private ONCAgentOrgComparator oncAgentOrgComparator;
-	private ONCAgentTitleComparator oncAgentTitleComparator;
 	
 	private ONCAgents()
 	{
 		super();
 		agentsAL = new ArrayList<Agent>();
-		oncAgentNameComparator = new ONCAgentNameComparator();
-		oncAgentOrgComparator = new ONCAgentOrgComparator();
-		oncAgentTitleComparator = new ONCAgentTitleComparator();
 	}
 	
 	public static ONCAgents getInstance()
@@ -78,7 +71,7 @@ public class ONCAgents extends ONCDatabase
 	}
 	
 	ArrayList<Agent> getAgentsAL() { return agentsAL; }
-	
+/*	
 	public void readAgentALObject(ObjectInputStream ois)
 	{
 		ArrayList<Agent> agentDB = new ArrayList<Agent>();
@@ -120,39 +113,10 @@ public class ONCAgents extends ONCDatabase
 	{
 		agentsAL.clear();
 	}
-	
-	/***********************************************************************************
-	 * This method takes an Agent data base and merges it with the current data base.
-	 * Each Agent object in the data base to be merged (merge data base) is compared to each
-	 * Agent object in the current data base. If an identical match is found, the merge object
-	 * is ignored. If the merge Agent name matches the current Agent object name the merge
-	 * Agent object data is ignored, as ODB Agent data always takes preference over ONC Agent 
-	 * data. 
-	 ***********************************************************************************/
-	void mergeAgentDataBase(ArrayList<Agent> mergeAgentAL)
-	{
-		for(Agent mergeAgent:mergeAgentAL)
-		{
-			//Search current Agent data base for Agent name match
-			int index = 0;
-			while(index < agentsAL.size() && !mergeAgent.getAgentName().equals(agentsAL.get(index).getAgentName()))
-			{
-				index++;
-			}
-			
-			if(index == agentsAL.size())	//Agent not found, add a new agent
-			{
-				agentsAL.add(new Agent(index, mergeAgent.getAgentName(), mergeAgent.getAgentOrg(),
-										mergeAgent.getAgentTitle(), mergeAgent.getAgentEmail(),
-										mergeAgent.getAgentPhone()));
-			}		
-		}
-	}
-	
-	ONCAgentNameComparator getAgentNameComparator() { return oncAgentNameComparator; }
-	ONCAgentOrgComparator getAgentOrgComparator() { return oncAgentOrgComparator; }
-	ONCAgentTitleComparator getAgentTitleComparator() { return oncAgentTitleComparator; }
-	
+*/	
+	ONCAgentNameComparator getAgentNameComparator() { return  new ONCAgentNameComparator(); }
+	ONCAgentOrgComparator getAgentOrgComparator() { return new ONCAgentOrgComparator(); }
+	ONCAgentTitleComparator getAgentTitleComparator() { return new ONCAgentTitleComparator(); }
 	
 	String importAgentDatabase()
 	{
@@ -173,7 +137,7 @@ public class ONCAgents extends ONCDatabase
 		
 		return response;
 	}
-	
+/*	
 	String importAgentDB(JFrame pf, ImageIcon oncIcon, String path)	//Only used by superuser to import from .csv file
 	{   		
 		File pyfile;
@@ -231,7 +195,7 @@ public class ONCAgents extends ONCDatabase
 	    
 	    return filename;    
 	}
-	
+*/	
 	String exportAgentDBToCSV(JFrame pf, String filename)
     {
 		File oncwritefile = null;
@@ -367,7 +331,6 @@ public class ONCAgents extends ONCDatabase
 	 * and the agent object is returned. If a name match isn't found, it creates a new Agent
 	 * object and adds the object to the array list and returns the new agent object 
 	 **********************************************************************************/
-//	Agent add(Object source, String name, String org, String title, String email, String phone)
 	ONCObject add(Object source, ONCObject reqAddAgt)
 	{
 		Gson gson = new Gson();

@@ -1306,16 +1306,13 @@ public class FamilyPanel extends JPanel implements ActionListener, ListSelection
 	
 	void showReceiveGiftsDialog(ArrayList<ONCFamily> fAL)
 	{
-		GiftActionDialog recGiftsDlg = new GiftActionDialog(parentFrame, WishStatus.Received);
+		ReceiveGiftsDialog recGiftsDlg = new ReceiveGiftsDialog(parentFrame, WishStatus.Received);
     	recGiftsDlg.addEntitySelectionListener(familyChildSelectionListener);
     	
-		if(!recGiftsDlg.isVisible())
-		{
-			recGiftsDlg.buildSortTableArrayList();
+		recGiftsDlg.buildSortTableList();
 			
-			recGiftsDlg.setLocationRelativeTo(GlobalVariables.getFrame());
-			recGiftsDlg.setVisible(true);
-		}
+		recGiftsDlg.setLocationRelativeTo(GlobalVariables.getFrame());
+		recGiftsDlg.setVisible(true);
 	}
 	
 	void showWishCatalogDialog()
