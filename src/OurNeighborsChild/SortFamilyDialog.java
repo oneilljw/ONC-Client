@@ -43,7 +43,7 @@ import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 */
 
-public class SortFamilyDialog extends ONCFamilyTableDialog implements PropertyChangeListener								
+public class SortFamilyDialog extends SortTableDialog implements PropertyChangeListener								
 {
 	private static final long serialVersionUID = 1L;
 	private static final String DEFAULT_NO_CHANGE_LIST_ITEM = "No Change";
@@ -335,7 +335,7 @@ public class SortFamilyDialog extends ONCFamilyTableDialog implements PropertyCh
 	 * are To build Based on sort criteria
 	 * selected by the 
 	 ************************************************************************************/
-	public void buildSortTable()
+	public void buildTableList()
 	{
 		stAL.clear();	//Clear the prior table data array list
 		
@@ -453,7 +453,7 @@ public class SortFamilyDialog extends ONCFamilyTableDialog implements PropertyCh
 		}
 		
 		if(bDataChanged);
-			buildSortTable();
+			buildTableList();
 			
 		//Reset the change combo boxes to DEFAULT_NO_CHANGE_LIST_ITEM
 		changeFStatusCB.setSelectedIndex(0);
@@ -1109,7 +1109,7 @@ public class SortFamilyDialog extends ONCFamilyTableDialog implements PropertyCh
 		sortStoplight = 0;
 		stoplightCB.setEnabled(true);
 		
-		buildSortTable();
+		buildTableList();
 	}
 	
 	void createAndSendFamilyEmail(int emailType)
@@ -1376,57 +1376,57 @@ public class SortFamilyDialog extends ONCFamilyTableDialog implements PropertyCh
 		if(e.getSource() == oncCB && !oncCB.getSelectedItem().toString().equals(sortONC))
 		{
 			sortONC = oncCB.getSelectedItem().toString();
-			buildSortTable();		
+			buildTableList();		
 		}				
 		else if(e.getSource() == batchCB && batchCB.getSelectedIndex() != sortBatchNum)
 		{
 			sortBatchNum = batchCB.getSelectedIndex();
-			buildSortTable();			
+			buildTableList();			
 		}		
 		else if(e.getSource() == dnsCB && !dnsCB.getSelectedItem().toString().equals(sortDNSCode))
 		{
 			sortDNSCode = dnsCB.getSelectedItem().toString();
-			buildSortTable();
+			buildTableList();
 		}
 		else if(e.getSource() == fstatusCB && fstatusCB.getSelectedIndex() != sortFStatus)
 		{						
 			sortFStatus = fstatusCB.getSelectedIndex();
-			buildSortTable();
+			buildTableList();
 		}
 		else if(e.getSource() == dstatusCB && dstatusCB.getSelectedIndex() != sortDStatus)
 		{						
 			sortDStatus = dstatusCB.getSelectedIndex();
-			buildSortTable();
+			buildTableList();
 		}
 		else if(e.getSource() == lastnameCB && !lastnameCB.getSelectedItem().toString().equals(sortLN))
 		{			
 			sortLN = lastnameCB.getSelectedItem().toString();
-			buildSortTable();
+			buildTableList();
 		}	
 		else if(e.getSource() == streetCB && !streetCB.getSelectedItem().toString().equals(sortStreet))
 		{			
 			sortStreet = streetCB.getSelectedItem().toString();
-			buildSortTable();
+			buildTableList();
 		}	
 		else if(e.getSource() == zipCB && zipCB.getSelectedIndex() != sortZip )
 		{						
 			sortZip = zipCB.getSelectedIndex();
-			buildSortTable();
+			buildTableList();
 		}
 		else if(e.getSource() == regionCB && regionCB.getSelectedIndex() != sortRegion)
 		{
 			sortRegion = regionCB.getSelectedIndex();
-			buildSortTable();
+			buildTableList();
 		}
 		else if(e.getSource() == changedByCB && changedByCB.getSelectedIndex() != sortChangedBy && !bIngoreCBEvents)
 		{
 			sortChangedBy = changedByCB.getSelectedIndex();
-			buildSortTable();
+			buildTableList();
 		}
 		else if(e.getSource() == stoplightCB && stoplightCB.getSelectedIndex() != sortStoplight)
 		{
 			sortStoplight = stoplightCB.getSelectedIndex();
-			buildSortTable();
+			buildTableList();
 		}
 		else if(e.getSource() == printCB)
 		{
@@ -1508,7 +1508,7 @@ public class SortFamilyDialog extends ONCFamilyTableDialog implements PropertyCh
 		if(dbe.getSource() != this && dbe.getType().equals("UPDATED_FAMILY") ||
 			dbe.getType().equals("ADDED_FAMILY") || dbe.getType().equals("ADDED_DELIVERY"))
 		{
-			buildSortTable();		
+			buildTableList();		
 		}
 		else if(dbe.getType().equals("UPDATED_REGION_LIST"))
 		{

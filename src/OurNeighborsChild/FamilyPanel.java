@@ -1156,13 +1156,13 @@ public class FamilyPanel extends JPanel implements ActionListener, ListSelection
 	{
 		//Update the family sort table if the family dialog is visible
 		if(sortFamiliesDlg.isVisible())
-			sortFamiliesDlg.buildSortTable();
+			sortFamiliesDlg.buildTableList();
 		
 		if(sortAgentDlg.isVisible())
 			sortAgentDlg.buildFamilyTableListAndDisplay();
 
 		if(assignDeliveryDlg.isVisible())
-			assignDeliveryDlg.buildSortTable();
+			assignDeliveryDlg.buildTableList();
 	}
 	
 	void addChildrentoTable(ArrayList<ONCChild> childAL, boolean bDispAll)
@@ -1335,7 +1335,7 @@ public class FamilyPanel extends JPanel implements ActionListener, ListSelection
 	{
 		if(!assignDeliveryDlg.isVisible())
 		{
-			assignDeliveryDlg.buildSortTable();
+			assignDeliveryDlg.buildTableList();
 			Point pt = parentFrame.getLocation();
 	        assignDeliveryDlg.setLocation(pt.x + 5, pt.y + 20);
 			assignDeliveryDlg.setVisible(true);
@@ -1358,7 +1358,7 @@ public class FamilyPanel extends JPanel implements ActionListener, ListSelection
 	{
 		if(!sortFamiliesDlg.isVisible())
 		{
-			sortFamiliesDlg.buildSortTable();
+			sortFamiliesDlg.buildTableList();
 			
 			Point pt = parentFrame.getLocation();
 	        sortFamiliesDlg.setLocation(pt.x + 5, pt.y + 20);

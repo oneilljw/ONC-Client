@@ -27,7 +27,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 
-public abstract class ONCFamilyTableDialog extends ONCTableDialog implements ActionListener, DatabaseListener,
+public abstract class SortTableDialog extends ONCTableDialog implements ActionListener, DatabaseListener,
 																				ListSelectionListener
 {
 	/**
@@ -74,7 +74,7 @@ public abstract class ONCFamilyTableDialog extends ONCTableDialog implements Act
 	protected static String[] delstatus = {"Any", "Empty", "Contacted", "Confirmed", "Assigned", "Attempted", "Returned", "Delivered", "Counselor Pick-Up"};
 	protected static String[] stoplt = {"Any", "Green", "Yellow", "Red", "Off"};
 	
-	public ONCFamilyTableDialog(JFrame pf, String[] colToolTips, String[] cols, int[] colWidths, int[] center_cols)
+	public SortTableDialog(JFrame pf, String[] colToolTips, String[] cols, int[] colWidths, int[] center_cols)
 	{
 		super(pf);
 		oncGVs = GlobalVariables.getInstance();
@@ -86,7 +86,7 @@ public abstract class ONCFamilyTableDialog extends ONCTableDialog implements Act
 		cDB = ChildDB.getInstance();
 		cwDB = ChildWishDB.getInstance();
 		columns = cols;
-		this.setTitle("Our Neighbor's Child - Delivery Assignment");
+//		this.setTitle("Our Neighbor's Child - Delivery Assignment");
 		
 		//Initialize the sort table array list
 		stAL = new ArrayList<ONCFamily>();
@@ -222,7 +222,7 @@ public abstract class ONCFamilyTableDialog extends ONCTableDialog implements Act
         setResizable(true);
 	}
 	
-	abstract public void buildSortTable();
+	abstract public void buildTableList();
 	
 	void displaySortTable()
 	{

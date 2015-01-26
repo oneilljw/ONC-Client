@@ -84,7 +84,7 @@ public class SortWishDialog extends ONCTableDialog implements ActionListener, Pr
 	private JTextField oncnumTF;
 	private JButton btnResetCriteria, btnExport;
 	private JButton btnApplyChanges;
-	private JLabel lblWishes;
+	private JLabel lblNumOfTableItems;
 	private JDateChooser ds, de;
 	private Calendar sortStartCal = null, sortEndCal = null;
 	private Families fDB;
@@ -112,13 +112,14 @@ public class SortWishDialog extends ONCTableDialog implements ActionListener, Pr
 	SortWishDialog(JFrame pf)
 	{
 		super(pf);
+		this.setTitle("Our Neighbor's Child - Wish Management");
+		
+		//set up the data base references
 		fDB = Families.getInstance();
 		cDB = ChildDB.getInstance();
 		cwDB = ChildWishDB.getInstance();
-		
 		orgs = ONCOrgs.getInstance();
 		cat = ONCWishCatalog.getInstance();
-		this.setTitle("Our Neighbor's Child - Wish Management");
 		
 		//set up data base listeners
 		UserDB userDB = UserDB.getInstance();
@@ -297,7 +298,7 @@ public class SortWishDialog extends ONCTableDialog implements ActionListener, Pr
             	if(sortTableList(sortTable.columnAtPoint(e.getPoint())) > -1)
             	{
             		tableSortCol = sortTable.columnAtPoint(e.getPoint());
-            		displayTable();
+            		displaySortTable();
             	}
             }
         });
@@ -324,14 +325,14 @@ public class SortWishDialog extends ONCTableDialog implements ActionListener, Pr
         JPanel thirdpanel = new JPanel();
         thirdpanel.setLayout(new BoxLayout(thirdpanel, BoxLayout.X_AXIS));
         
-        JPanel wishCountPanel = new JPanel();       
-        lblWishes = new JLabel("0");
-        wishCountPanel.setBorder(BorderFactory.createTitledBorder("Wishes Meeting Criteria"));
-        wishCountPanel.setPreferredSize(new Dimension(165, 90));
-        wishCountPanel.add(lblWishes);
+        JPanel itemCountPanel = new JPanel();       
+        lblNumOfTableItems = new JLabel("0");
+        itemCountPanel.setBorder(BorderFactory.createTitledBorder("Wishes Meeting Criteria"));
+        itemCountPanel.setPreferredSize(new Dimension(165, 90));
+        itemCountPanel.add(lblNumOfTableItems);
         
-        JPanel changeWishPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        changeWishPanel.setPreferredSize(new Dimension(tablewidth-165, 90));
+        JPanel changeDataPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        changeDataPanel.setPreferredSize(new Dimension(tablewidth-165, 90));
         
         changeResCB = new JComboBox(res);
         changeResCB.setPreferredSize(new Dimension(192, 56));
@@ -352,14 +353,14 @@ public class SortWishDialog extends ONCTableDialog implements ActionListener, Pr
 		changeAssigneeCB.setBorder(BorderFactory.createTitledBorder("Change Assignee To:"));
 		changeAssigneeCB.addActionListener(this);
 		
-		changeWishPanel.add(changeResCB);
-		changeWishPanel.add(changeStatusCB);
-		changeWishPanel.add(changeAssigneeCB);
+		changeDataPanel.add(changeResCB);
+		changeDataPanel.add(changeStatusCB);
+		changeDataPanel.add(changeAssigneeCB);
 		
-		changeWishPanel.setBorder(BorderFactory.createTitledBorder("Change Wish Restrictions/Status/Assignee"));
+		changeDataPanel.setBorder(BorderFactory.createTitledBorder("Change Wish Restrictions/Status/Assignee"));
          
-		thirdpanel.add(wishCountPanel);
-		thirdpanel.add(changeWishPanel);
+		thirdpanel.add(itemCountPanel);
+		thirdpanel.add(changeDataPanel);
 		
         //Set up the button control panel
 		JPanel cntlPanel = new JPanel();
@@ -432,7 +433,7 @@ public class SortWishDialog extends ONCTableDialog implements ActionListener, Pr
     	return col;
 	}
 	
-	void displayTable()
+	void displaySortTable()
 	{
 		bChangingTable = true;	//don't process table messages while being changed
 		
@@ -515,8 +516,8 @@ public class SortWishDialog extends ONCTableDialog implements ActionListener, Pr
 			}
 		}
 		
-		lblWishes.setText(Integer.toString(stAL.size()));
-		displayTable();		//Display the table after table array list is built	
+		lblNumOfTableItems.setText(Integer.toString(stAL.size()));
+		displaySortTable();		//Display the table after table array list is built	
 	}
 	
 	void archiveTableSelections()
@@ -713,17 +714,7 @@ public class SortWishDialog extends ONCTableDialog implements ActionListener, Pr
 		
 		bIgnoreSortDialogEvents = false;
 	}
-/*	
-	void updateUserList(ArrayList<ONCUser> uAL)
-	{
-		changedByCB.setEnabled(false);
-		
-		for(ONCUser user:uAL)
-			changedByCBM.addElement(user.getLNFI());
-		
-		changedByCB.setEnabled(true);
-	}
-*/	
+
 	void updateUserList()
 	{	
 		UserDB userDB = UserDB.getInstance();
@@ -801,13 +792,13 @@ public class SortWishDialog extends ONCTableDialog implements ActionListener, Pr
 		 printCB.setSelectedIndex(0);	//Reset the user print request
 	}
 	
-	void onPrintListing()
+	void onPrintListing(String tablename)
 	{
 		if(sortTable.getRowCount() > 0)
 		{
 			try
 			{
-				MessageFormat headerFormat = new MessageFormat("ONC Wishes");
+				MessageFormat headerFormat = new MessageFormat(tablename);
 				MessageFormat footerFormat = new MessageFormat("- {0} -");
 				sortTable.print(JTable.PrintMode.FIT_WIDTH, headerFormat, footerFormat);           
 			} 
@@ -1040,7 +1031,7 @@ public class SortWishDialog extends ONCTableDialog implements ActionListener, Pr
 		{
 			if(printCB.getSelectedIndex() == 1)	//Can always print listing
 			{
-				onPrintListing();
+				onPrintListing("ONC Wishes");
 			} 
 			else	//Can only print if table rows are selected
 			{
@@ -1224,24 +1215,13 @@ public class SortWishDialog extends ONCTableDialog implements ActionListener, Pr
 		 ********************************************************************************************/
 		void drawThickRect(Graphics2D g2d, int x, int y, int width, int height)
 		{
-			float thickness = new Float(1.5);
+//			float thickness = new Float(1.5);
 			Stroke oldStroke = g2d.getStroke();
-			g2d.setStroke(new BasicStroke(thickness));
+			g2d.setStroke(new BasicStroke(new Float(1.5)));
 			g2d.drawRect(x, y, width, height);
 			g2d.setStroke(oldStroke);
 		}
-/*		
-		void drawFilledThickRect(Graphics2D g2d, int x, int y, int width, int height, Color color)
-		{
-			float thickness = new Float(1.5);
-			Stroke oldStroke = g2d.getStroke();
-			g2d.setStroke(new BasicStroke(thickness));
-			g2d.setPaint(color);
-			g2d.fill(new Rectangle(x, y, width, height));
-			g2d.setPaint(Color.BLACK);
-			g2d.setStroke(oldStroke);
-		}
-*/		
+
 		void printReceivingSheetHeader(int x, int y, Image img, String season, String org, Font[] psFont, Graphics2D g2d)
 		{
 			 double scaleFactor = (72d / 300d) * 2;

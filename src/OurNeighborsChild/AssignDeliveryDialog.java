@@ -15,7 +15,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
 
-public class AssignDeliveryDialog extends ONCFamilyTableDialog 
+public class AssignDeliveryDialog extends SortTableDialog 
 {
 	/**
 	 * This class implements a dialog that allows the user to assign delivery drivers to families
@@ -125,7 +125,7 @@ public class AssignDeliveryDialog extends ONCFamilyTableDialog
 	 * Additional criteria include the ONC Number, the family region and delivery 
 	 * status, all selected from the sort criteria panel. 
 	 **********************************************************************************/
-	public void buildSortTable()
+	public void buildTableList()
 	{
 		stAL.clear();	//Clear the prior table information in the array list
 		
@@ -268,7 +268,7 @@ public class AssignDeliveryDialog extends ONCFamilyTableDialog
 		//If drivers were assigned, rebuild the sort table. This will cause the families who
 		//have just been assigned drivers to no longer be in the table. 
 		if(assignmentsMade > 0)
-			buildSortTable();
+			buildTableList();
 		
 		bChangingTable = false;
 		
@@ -317,7 +317,7 @@ public class AssignDeliveryDialog extends ONCFamilyTableDialog
 		sortDStatus = 0;
 		dstatusCB.setEnabled(true);
 		
-		buildSortTable();
+		buildTableList();
 	}
 	
 	@Override
@@ -326,22 +326,22 @@ public class AssignDeliveryDialog extends ONCFamilyTableDialog
 		if(e.getSource() == oncnumTF && !sortONCNum.equals(oncnumTF.getText()))
 		{
 			sortONCNum = oncnumTF.getText();
-			buildSortTable();
+			buildTableList();
 		}
 		else if(e.getSource() == sRegCB && sRegCB.getSelectedIndex() != sortstartRegion)
 		{
 			sortstartRegion = sRegCB.getSelectedIndex();
-			buildSortTable();		
+			buildTableList();		
 		}				
 		else if(e.getSource() == eRegCB && eRegCB.getSelectedIndex() != sortendRegion)
 		{
 			sortendRegion = eRegCB.getSelectedIndex();
-			buildSortTable();			
+			buildTableList();			
 		}		
 		else if(e.getSource() == dstatusCB && dstatusCB.getSelectedIndex() != sortDStatus)
 		{						
 			sortDStatus = dstatusCB.getSelectedIndex();
-			buildSortTable();
+			buildTableList();
 		}
 		else if(e.getSource() == btnPrintListing) { onPrintListing("ONC Deliverers"); }
 		else if(e.getSource() == btnApplyChanges)
@@ -359,7 +359,7 @@ public class AssignDeliveryDialog extends ONCFamilyTableDialog
 				dbe.getType().equals("ADDED_DRIVER") || dbe.getType().equals("ADDED_DELIVERY"))
 		{
 			if(this.isVisible())
-				buildSortTable();
+				buildTableList();
 		}
 		else if(dbe.getType().equals("UPDATED_REGION_LIST"))
 		{
@@ -418,7 +418,7 @@ public class AssignDeliveryDialog extends ONCFamilyTableDialog
 			if(oncnumTF.getText().isEmpty())
 			{
 				sortONCNum = "";
-				buildSortTable();
+				buildTableList();
 			}	
 		}
 	 }
