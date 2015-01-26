@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
@@ -119,6 +120,9 @@ public class SortFamilyDialog extends SortTableDialog implements PropertyChangeL
 		if(userDB != null)
 			userDB.addDatabaseListener(this);
 		
+		//Initialize the sort table array list
+		stAL = new ArrayList<ONCFamily>();
+
 		//set up search comparison variables
 		sortDNSCode = dnsCodes[0];
 		

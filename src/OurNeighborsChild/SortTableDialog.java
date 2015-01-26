@@ -88,9 +88,6 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 		columns = cols;
 //		this.setTitle("Our Neighbor's Child - Delivery Assignment");
 		
-		//Initialize the sort table array list
-		stAL = new ArrayList<ONCFamily>();
-
 		if(fDB != null)
 			fDB.addDatabaseListener(this);
 		
@@ -272,7 +269,7 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 		if (!e.getValueIsAdjusting() && e.getSource() == sortTable.getSelectionModel() &&
 				!bChangingTable)
 		{
-			ONCFamily fam = stAL.get(sortTable.getSelectedRow());
+			ONCFamily fam = (ONCFamily) stAL.get(sortTable.getSelectedRow());
 			
 			fireEntitySelected(this, "FAMILY_SELECTED", fam, null);
 			this.requestFocus();

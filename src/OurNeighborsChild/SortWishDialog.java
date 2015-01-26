@@ -90,7 +90,7 @@ public class SortWishDialog extends ONCTableDialog implements ActionListener, Pr
 	private Families fDB;
 	private ChildDB cDB;
 	private ChildWishDB cwDB;
-	private ArrayList<ONCWishDlgSortItem> stAL = new ArrayList<ONCWishDlgSortItem>();
+	private ArrayList<ONCSortObject> stAL = new ArrayList<ONCSortObject>();
 	private boolean bChangingTable = false;	//Semaphore used to indicate the sort table is being changed
 	private boolean bSortTableBuildRqrd = false;	//Used to determine a build to sort table is needed
 	private boolean bResetInProcess = false;	//Prevents recursive build of sort table by event handlers during reset event
@@ -443,7 +443,7 @@ public class SortWishDialog extends ONCTableDialog implements ActionListener, Pr
 		while (sortTableModel.getRowCount() > 0)	//Clear the current table
 			sortTableModel.removeRow(0);
 		
-		for(ONCWishDlgSortItem si:stAL)	//Build the new table
+		for(ONCSortObject si:stAL)	//Build the new table
 			sortTableModel.addRow(si.getSortTableRow());
 		
 		//check to see if the sortTable needs to be sorted by column
@@ -500,15 +500,17 @@ public class SortWishDialog extends ONCTableDialog implements ActionListener, Pr
 									doesWishBaseMatch(cw.getWishID()) &&
 									 doesWishNumMatch(i)) //Wish criteria pass
 							{
-								Organization org =  orgs.getOrganizationByID(cw.getChildWishAssigneeID());
+//								Organization org =  orgs.getOrganizationByID(cw.getChildWishAssigneeID());
+//								
+//								stAL.add(new ONCSortObject(itemID++, f, f.getID(),f.getONCNum(),
+//									c, i, c.getChildAge(), c.getChildDateOfBirth(), c.getChildGender(),
+//									cw.getChildWishIndicator(),
+//									cat.getWishByID(cw.getWishID()).getName(),
+//									cw.getChildWishDetail(), status[cw.getChildWishStatus()],
+//									org == null ? "None" : org.getName(),
+//									cw.getChildWishChangedBy(), cw.getChildWishDateChanged()));
 								
-								stAL.add(new ONCWishDlgSortItem(itemID++, f, f.getID(),f.getONCNum(),
-									c, i, c.getChildAge(), c.getChildDateOfBirth(), c.getChildGender(),
-									cw.getChildWishIndicator(),
-									cat.getWishByID(cw.getWishID()).getName(),
-									cw.getChildWishDetail(), status[cw.getChildWishStatus()],
-									org == null ? "None" : org.getName(),
-									cw.getChildWishChangedBy(), cw.getChildWishDateChanged()));
+								stAL.add(new ONCSortObject(itemID++, f, c, cw));
 							}
 						}
 					}
@@ -540,8 +542,8 @@ public class SortWishDialog extends ONCTableDialog implements ActionListener, Pr
 			boolean bNewWishRqrd = false; 	//Restriction, status or assignee change
 			
 			//Find child and wish number for selected
-			ONCChild c = stAL.get(row_sel[i]).getSortItemChild();
-			int wn = stAL.get(row_sel[i]).getSortItemChildWishNumber();
+			ONCChild c = stAL.get(row_sel[i]).getSortObjectChild();
+			int wn = stAL.get(row_sel[i]).getSortObjectChildWish().getWishNumber();
 			ONCChildWish cw = cwDB.getWish(c.getChildWishID(wn));
 
 			//Get current wish information
@@ -1126,13 +1128,13 @@ public class SortWishDialog extends ONCTableDialog implements ActionListener, Pr
 		if(!lse.getValueIsAdjusting() && lse.getSource() == sortTable.getSelectionModel() &&
 				!bChangingTable)
 		{
-			ONCFamily fam = stAL.get(sortTable.getSelectedRow()).getSortItemFamily();
-			ONCChild child = stAL.get(sortTable.getSelectedRow()).getSortItemChild();
+			ONCFamily fam = stAL.get(sortTable.getSelectedRow()).getSortObjectFamily();
+			ONCChild child = stAL.get(sortTable.getSelectedRow()).getSortObjectChild();
 			fireEntitySelected(this, "WISH_SELECTED", fam, child);
 			
 			//determine if a partner has been assigned for the selected wish
-			int wn = stAL.get(sortTable.getSelectedRow()).getSortItemChildWishNumber();
-			int childID = stAL.get(sortTable.getSelectedRow()).getSortItemChild().getID();
+			int wn = stAL.get(sortTable.getSelectedRow()).getSortObjectChildWish().getWishNumber();
+			int childID = stAL.get(sortTable.getSelectedRow()).getSortObjectChild().getID();
 			ONCChildWish cw = cwDB.getWish(childID, wn);
 			int childWishAssigneeID = cw.getChildWishAssigneeID();
 			if(childWishAssigneeID > -1)
@@ -1278,7 +1280,7 @@ public class SortWishDialog extends ONCTableDialog implements ActionListener, Pr
 			g2d.drawString(pageinfo, x+262, y+76);
 		}
 
-		void printReceivingSheetBody(int x, int y, ArrayList<ONCWishDlgSortItem> stAL, int index, int linesonpage,
+		void printReceivingSheetBody(int x, int y, ArrayList<ONCSortObject> stAL, int index, int linesonpage,
 										Font[] psFont, Graphics2D g2d)
 		{		
 			for(int line=0; line< linesonpage; line++)
@@ -1454,29 +1456,29 @@ public class SortWishDialog extends ONCTableDialog implements ActionListener, Pr
 	}
 
 	
-	private class ONCSortItemAgeComparator implements Comparator<ONCWishDlgSortItem>
+	private class ONCSortItemAgeComparator implements Comparator<ONCSortObject>
 	{
 		@Override
-		public int compare(ONCWishDlgSortItem o1, ONCWishDlgSortItem o2)
+		public int compare(ONCSortObject o1, ONCSortObject o2)
 		{
-			return o1.getSortItemChildDOB().compareTo(o2.getSortItemChildDOB());
+			return o1.getSortObjectChild().getChildDOB().compareTo(o2.getSortObjectChild().getChildDOB());
 		}
 	}
 	
-	private class ONCSortItemFamNumComparator implements Comparator<ONCWishDlgSortItem>
+	private class ONCSortItemFamNumComparator implements Comparator<ONCSortObject>
 	{
 		@Override
-		public int compare(ONCWishDlgSortItem o1, ONCWishDlgSortItem o2)
+		public int compare(ONCSortObject o1, ONCSortObject o2)
 		{
 			Integer onc1, onc2;
 			
-			if(!o1.getSortItemONCFamilyNum().isEmpty() && isNumeric(o1.getSortItemONCFamilyNum()))
-				onc1 = Integer.parseInt(o1.getSortItemONCFamilyNum());
+			if(!o1.getSortObjectFamily().getONCNum().isEmpty() && isNumeric(o1.getSortObjectFamily().getONCNum()))
+				onc1 = Integer.parseInt(o1.getSortObjectFamily().getONCNum());
 			else
 				onc1 = MAXIMUM_ON_NUMBER;
 							
-			if(!o2.getSortItemONCFamilyNum().isEmpty() && isNumeric(o2.getSortItemONCFamilyNum()))
-				onc2 = Integer.parseInt(o2.getSortItemONCFamilyNum());
+			if(!o2.getSortObjectFamily().getONCNum().isEmpty() && isNumeric(o2.getSortObjectFamily().getONCNum()))
+				onc2 = Integer.parseInt(o2.getSortObjectFamily().getONCNum());
 			else
 				onc2 = MAXIMUM_ON_NUMBER;
 			
@@ -1484,84 +1486,102 @@ public class SortWishDialog extends ONCTableDialog implements ActionListener, Pr
 		}
 	}
 	
-	private class ONCSortItemGenderComparator implements Comparator<ONCWishDlgSortItem>
+	private class ONCSortItemGenderComparator implements Comparator<ONCSortObject>
 	{
 		@Override
-		public int compare(ONCWishDlgSortItem o1, ONCWishDlgSortItem o2)
+		public int compare(ONCSortObject o1, ONCSortObject o2)
 		{
-			return o1.getSortItemChildGender().compareTo(o2.getSortItemChildGender());
+			return o1.getSortObjectChild().getChildGender().compareTo(o2.getSortObjectChild().getChildGender());
 		}
 	}
 	
-	private class ONCSortItemWishNumComparator implements Comparator<ONCWishDlgSortItem>
+	private class ONCSortItemWishNumComparator implements Comparator<ONCSortObject>
 	{
 		@Override
-		public int compare(ONCWishDlgSortItem o1, ONCWishDlgSortItem o2)
+		public int compare(ONCSortObject o1, ONCSortObject o2)
 		{
-			return o1.getSortItemChildWishNumber().compareTo (o2.getSortItemChildWishNumber());
+			Integer wishNum1 = o1.getSortObjectChildWish().getWishNumber();
+			Integer wishNum2 = o2.getSortObjectChildWish().getWishNumber();
+			return wishNum1.compareTo (wishNum2);
 		}
 	}
 	
-	private class ONCSortItemWishBaseComparator implements Comparator<ONCWishDlgSortItem>
+	private class ONCSortItemWishBaseComparator implements Comparator<ONCSortObject>
 	{
 		@Override
-		public int compare(ONCWishDlgSortItem o1, ONCWishDlgSortItem o2)
+		public int compare(ONCSortObject o1, ONCSortObject o2)
 		{
-			return o1.getSortItemChildWishBase().compareTo(o2.getSortItemChildWishBase());
+			ONCWishCatalog cat = ONCWishCatalog.getInstance();
+			String wishBase1 = cat.getWishByID(o1.getSortObjectChildWish().getWishID()).getName();
+			String wishBase2 = cat.getWishByID(o2.getSortObjectChildWish().getWishID()).getName();
+			return wishBase1.compareTo(wishBase2);
+//			return o1.getSortItemChildWishBase().compareTo(o2.getSortItemChildWishBase());
 		}
 	}
 	
-	private class ONCSortItemWishDetailComparator implements Comparator<ONCWishDlgSortItem>
+	private class ONCSortItemWishDetailComparator implements Comparator<ONCSortObject>
 	{
 		@Override
-		public int compare(ONCWishDlgSortItem o1, ONCWishDlgSortItem o2)
+		public int compare(ONCSortObject o1, ONCSortObject o2)
 		{
-			return o1.getSortItemChildWishDetail().compareTo(o2.getSortItemChildWishDetail());
+			return o1.getSortObjectChildWish().getChildWishDetail().compareTo(
+					o2.getSortObjectChildWish().getChildWishDetail());
 		}
 	}
 	
-	private class ONCSortItemWishIndicatorComparator implements Comparator<ONCWishDlgSortItem>
+	private class ONCSortItemWishIndicatorComparator implements Comparator<ONCSortObject>
 	{
 		@Override
-		public int compare(ONCWishDlgSortItem o1, ONCWishDlgSortItem o2)
+		public int compare(ONCSortObject o1, ONCSortObject o2)
 		{
-			return o1.getSortItemChildWishIndicator().compareTo(o2.getSortItemChildWishIndicator());
+			Integer wishInd1 = o1.getSortObjectChildWish().getChildWishIndicator();
+			Integer wishInd2 = o2.getSortObjectChildWish().getChildWishIndicator();
+			return wishInd1.compareTo(wishInd2);	
+//			return o1.getSortItemChildWishIndicator().compareTo(o2.getSortItemChildWishIndicator());
 		}
 	}
 	
-	private class ONCSortItemWishStatusComparator implements Comparator<ONCWishDlgSortItem>
+	private class ONCSortItemWishStatusComparator implements Comparator<ONCSortObject>
 	{
 		@Override
-		public int compare(ONCWishDlgSortItem o1, ONCWishDlgSortItem o2)
+		public int compare(ONCSortObject o1, ONCSortObject o2)
 		{
-			return o1.getSortItemChildWishStatus().compareTo(o2.getSortItemChildWishStatus());
+			Integer wishStatus1 = o1.getSortObjectChildWish().getChildWishStatus();
+			Integer wishStatus2 = o2.getSortObjectChildWish().getChildWishStatus();
+			return wishStatus1.compareTo(wishStatus2);	
+//			return o1.getSortItemChildWishStatus().compareTo(o2.getSortItemChildWishStatus());
 		}
 	}
 	
-	private class ONCSortItemWishAssigneeComparator implements Comparator<ONCWishDlgSortItem>
+	private class ONCSortItemWishAssigneeComparator implements Comparator<ONCSortObject>
 	{
 		@Override
-		public int compare(ONCWishDlgSortItem o1, ONCWishDlgSortItem o2)
+		public int compare(ONCSortObject o1, ONCSortObject o2)
 		{
-			return o1.getSortItemChildWishAssignee().compareTo(o2.getSortItemChildWishAssignee());
+			ONCOrgs partnerDB = ONCOrgs.getInstance();
+			String part1 = partnerDB.getOrganizationByID(o1.getSortObjectChildWish().getChildWishAssigneeID()).getName();
+			String part2 = partnerDB.getOrganizationByID(o2.getSortObjectChildWish().getChildWishAssigneeID()).getName();
+			return part1.compareTo(part2);
 		}
 	}
 	
-	private class ONCSortItemWishChangedByComparator implements Comparator<ONCWishDlgSortItem>
+	private class ONCSortItemWishChangedByComparator implements Comparator<ONCSortObject>
 	{
 		@Override
-		public int compare(ONCWishDlgSortItem o1, ONCWishDlgSortItem o2)
+		public int compare(ONCSortObject o1, ONCSortObject o2)
 		{
-			return o1.getSortItemChildWishChangedBy().compareTo(o2.getSortItemChildWishChangedBy());
+			return o1.getSortObjectChildWish().getChildWishChangedBy().compareTo(
+					o2.getSortObjectChildWish().getChildWishChangedBy());
 		}
 	}
 	
-	private class ONCSortItemWishDateChangedComparator implements Comparator<ONCWishDlgSortItem>
+	private class ONCSortItemWishDateChangedComparator implements Comparator<ONCSortObject>
 	{
 		@Override
-		public int compare(ONCWishDlgSortItem o1, ONCWishDlgSortItem o2)
+		public int compare(ONCSortObject o1, ONCSortObject o2)
 		{
-			return o1.getSortItemChildWishDateChanged().compareTo(o2.getSortItemChildWishDateChanged());
+			return o1.getSortObjectChildWish().getChildWishDateChanged().compareTo(
+					o2.getSortObjectChildWish().getChildWishDateChanged());
 		}
 	}
 	

@@ -4,6 +4,7 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.ArrayList;
 import java.util.Calendar;
 
 import javax.swing.BorderFactory;
@@ -63,6 +64,9 @@ public class AssignDeliveryDialog extends SortTableDialog
 		ONCRegions regions = ONCRegions.getInstance();
 		if(regions != null)
 			regions.addDatabaseListener(this);
+		
+		//Initialize the sort table array list
+		stAL = new ArrayList<ONCFamily>();
 				
 		//Set up unique sort criteria gui
     	oncnumTF = new JTextField();
