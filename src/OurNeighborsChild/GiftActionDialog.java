@@ -262,7 +262,7 @@ public abstract class GiftActionDialog extends ONCTableDialog implements ActionL
 	public void buildSortTableList()
 	{
 		stAL.clear();	//Clear the prior table information in the array list
-		
+		int index = 0;
 		for(ONCFamily f:fDB.getList())
 		{
 			//ONC number is valid and matches criteria
@@ -279,7 +279,7 @@ public abstract class GiftActionDialog extends ONCTableDialog implements ActionL
 							//Status matches and wish was assigned (Wish indicator is not *)
 							if(cw != null && doesChildWishStatusMatch(cw))
 							{
-								stAL.add(new GiftSortItem(f, c, cw));
+								stAL.add(new GiftSortItem(index++, f, c, cw));
 							}
 						}
 					}
@@ -297,12 +297,12 @@ public abstract class GiftActionDialog extends ONCTableDialog implements ActionL
 		int row_sel = sortTable.getSelectedRow();
 		
 		//Find child and wish number for selected
-		int oncID = stAL.get(row_sel).getSortItemONCID();
+		int oncID = stAL.get(row_sel).getSortObjectFamily().getID();
 		
 		ONCFamily fam = fDB.searchForFamilyByID(oncID);
 			
-		ONCChild c = stAL.get(row_sel).getSortItemChild();
-		int wn = stAL.get(row_sel).getSortItemChildWishNumber();
+		ONCChild c = stAL.get(row_sel).getSortObjectChild();
+		int wn = stAL.get(row_sel).getSortObjectChildWish().getWishNumber();
 		ONCChildWish cw = cwDB.getWish(c.getChildWishID(wn));
 
 		//Get current wish information
@@ -391,9 +391,9 @@ public abstract class GiftActionDialog extends ONCTableDialog implements ActionL
 	
 	ListSelectionModel getSortWishTableLSM() { return sortTable.getSelectionModel(); }
 	
-	int getSelectedSortItemONCID(){return stAL.get(sortTable.getSelectedRow()).getSortItemONCID();}
+	int getSelectedSortItemONCID(){return stAL.get(sortTable.getSelectedRow()).getSortObjectFamily().getID();}
 	
-	public ONCChild getSelectedSortItemONCChild()	{return stAL.get(sortTable.getSelectedRow()).getSortItemChild();}
+	public ONCChild getSelectedSortItemONCChild()	{return stAL.get(sortTable.getSelectedRow()).getSortObjectChild();}
 
 	
 	boolean isSortTableChanging() { return bChangingTable; }
@@ -479,8 +479,8 @@ public abstract class GiftActionDialog extends ONCTableDialog implements ActionL
 		if(!lse.getValueIsAdjusting() && lse.getSource() == sortTable.getSelectionModel() &&
 				!bChangingTable)
 		{
-			ONCFamily fam = stAL.get(sortTable.getSelectedRow()).getSortItemFamily();
-			ONCChild child = stAL.get(sortTable.getSelectedRow()).getSortItemChild();
+			ONCFamily fam = stAL.get(sortTable.getSelectedRow()).getSortObjectFamily();
+			ONCChild child = stAL.get(sortTable.getSelectedRow()).getSortObjectChild();
 			fireEntitySelected(this, "WISH_SELECTED", fam, child);
 			sortTable.requestFocus();
 		}
@@ -488,32 +488,38 @@ public abstract class GiftActionDialog extends ONCTableDialog implements ActionL
 		checkReceiveGiftEnabled();	//Check to see if user postured to change status or assignee.
 	}
 
-	private class GiftSortItem
+	private class GiftSortItem extends ONCObject
 	{
-		private ONCFamily	sortItemFamily;
-		private ONCChild	sortItemChild;
-		private ONCChildWish sortItemChildWish;
+		private ONCFamily	soFamily;
+		private ONCChild	soChild;
+		private ONCChildWish soChildWish;
 		
-		public GiftSortItem(ONCFamily fam, ONCChild c, ONCChildWish cw)
+		public GiftSortItem(int id, ONCFamily fam, ONCChild c, ONCChildWish cw)
 		{
-			sortItemFamily = fam;
-			sortItemChild = c;
-			sortItemChildWish = cw;
+			super(id);
+			soFamily = fam;
+			soChild = c;
+			soChildWish = cw;
 		}
 		
 		//getters
-		ONCFamily getSortItemFamily() { return sortItemFamily; }
-		int getSortItemONCID() { return sortItemFamily.getID(); }
-		ONCChild getSortItemChild() { return sortItemChild; }
-		Integer	getSortItemChildWishNumber() { return sortItemChildWish.getWishNumber(); }
+		ONCFamily getSortObjectFamily() { return soFamily; }
+		ONCChild getSortObjectChild() { return soChild; }
+		ONCChildWish getSortObjectChildWish() { return soChildWish; }
 		
 		public String[] getSortTableRow()
 		{
-			String[] sorttablerow = {sortItemFamily.getONCNum(), sortItemChild.getChildGender(),
-										sortItemChild.getChildAge(),
-										cat.getWishByID(sortItemChildWish.getWishID()).getName(),
-										sortItemChildWish.getChildWishDetail()};
+			String[] sorttablerow = {soFamily.getONCNum(), soChild.getChildGender(),
+										soChild.getChildAge(),
+										cat.getWishByID(soChildWish.getWishID()).getName(),
+										soChildWish.getChildWishDetail()};
 			return sorttablerow;
+		}
+
+		@Override
+		public String[] getExportRow() {
+			//Not used for Gift Actions
+			return null;
 		}
 	}
 	
