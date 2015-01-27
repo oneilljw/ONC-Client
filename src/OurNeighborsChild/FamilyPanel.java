@@ -13,6 +13,7 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
+
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -38,7 +39,9 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
+
 import org.json.JSONException;
+
 import com.google.gson.Gson;
 
 public class FamilyPanel extends JPanel implements ActionListener, ListSelectionListener,
@@ -447,7 +450,15 @@ public class FamilyPanel extends JPanel implements ActionListener, ListSelection
         cmDlg = new ClientMapDialog(parentFrame); 
         
         //Set up the sort wishes dialog
-        sortWishesDlg = new SortWishDialog(parentFrame);
+        String[] colToolTips = {"ONC Family Number", "Child's Age", 
+				"Child's Gender", "Wish Number - 1, 2 or 3", "Wish Assigned", "Wish Detail",
+				"# - Selected by ONC or * - Don't asssign", "Wish Status", "Who is fulfilling?",
+				"User who last changed wish", "Date & Time Wish Last Changed"};
+        String[] columns = {"ONC", "Age", "Gend", "Wish", "Wish Type", "Details", " Res ",
+				"Status", "Assignee", "Changed By", "Time Stamp"};
+        int[] colWidths = {40, 48, 36, 36, 76, 160, 32, 80, 132, 80, 96};
+        int[] center_cols = {3,6};
+        sortWishesDlg = new SortWishDialog(parentFrame, colToolTips, columns, colWidths, center_cols);
         sortWishesDlg.addEntitySelectionListener(familyChildSelectionListener);
     	
     	//Set up the receive gifts dialog
@@ -458,7 +469,16 @@ public class FamilyPanel extends JPanel implements ActionListener, ListSelection
     	catDlg = new WishCatalogDialog(parentFrame);
     	
     	 //Set up the sort family dialog
-        sortFamiliesDlg = new SortFamilyDialog(parentFrame);
+    	String[] fdColToolTips = {"ONC Family Number", "Batch Number", "Do Not Serve Code", 
+			  "Family Status", "Delivery Status", "Head of Household First Name", 
+			  "Head of Household Last Name", "House Number","Street",
+			  "Unit or Apartment Number", "Zip Code", "Region",
+			  "Changed By", "Stoplight Color"};
+    	String[] fdCols = {"ONC", "Batch #", "DNS", "Fam Status", "Del Status", "First", "Last",
+    						"House", "Street", "Unit", "Zip", "Reg", "Changed By", "SL"};
+    	int[] fdColWidths = {32, 48, 48, 72, 72, 72, 72, 48, 128, 72, 48, 32, 72, 24};
+    	int [] fdCenter_cols = {1, 11, 13};
+        sortFamiliesDlg = new SortFamilyDialog(parentFrame, fdColToolTips, fdCols, fdColWidths, fdCenter_cols);
         sortFamiliesDlg.addEntitySelectionListener(familyChildSelectionListener);
     	
     	//Set up the dialog to edit agent info
@@ -473,7 +493,16 @@ public class FamilyPanel extends JPanel implements ActionListener, ListSelection
     	sortAgentDlg = new SortAgentDialog(parentFrame);
     	sortAgentDlg.addEntitySelectionListener(familyChildSelectionListener);
     	
-    	assignDeliveryDlg = new AssignDeliveryDialog(parentFrame);
+    	String[] addToolTips = {"ONC Family Number", "Family Status", "Delivery Status",
+    								"# of bags packaged", "# of bikes assigned to family",
+    								"# of large items assigned to family",
+    								"House Number","Street", "Zip Code", "Region","Changed By",
+    								"Stoplight Color", "Driver"};
+    	String[] addCols = {"ONC", "Fam Status", "Del Status", "# Bags", "# Bikes", "# Lg It.", "House",
+    						"Street", "Zip", "Reg", "Changed By", "SL", "Deliverer"};
+    	int[] addColWidths = {32, 72, 72, 48, 48, 48, 48, 128, 48, 32, 72, 24, 120};
+    	int[] addCenter_cols = {3, 4, 5, 9};
+    	assignDeliveryDlg = new AssignDeliveryDialog(parentFrame, addToolTips, addCols, addColWidths, addCenter_cols);
     	assignDeliveryDlg.addEntitySelectionListener(familyChildSelectionListener);
     	
     	//Set up the edit driver (deliverer) dialog and register it to listen for Family 
@@ -1156,13 +1185,13 @@ public class FamilyPanel extends JPanel implements ActionListener, ListSelection
 	{
 		//Update the family sort table if the family dialog is visible
 		if(sortFamiliesDlg.isVisible())
-			sortFamiliesDlg.buildTableList();
+			sortFamiliesDlg.buildTableList(true);
 		
 		if(sortAgentDlg.isVisible())
 			sortAgentDlg.buildFamilyTableListAndDisplay();
 
 		if(assignDeliveryDlg.isVisible())
-			assignDeliveryDlg.buildTableList();
+			assignDeliveryDlg.buildTableList(true);
 	}
 	
 	void addChildrentoTable(ArrayList<ONCChild> childAL, boolean bDispAll)
@@ -1335,7 +1364,7 @@ public class FamilyPanel extends JPanel implements ActionListener, ListSelection
 	{
 		if(!assignDeliveryDlg.isVisible())
 		{
-			assignDeliveryDlg.buildTableList();
+			assignDeliveryDlg.buildTableList(true);
 			Point pt = parentFrame.getLocation();
 	        assignDeliveryDlg.setLocation(pt.x + 5, pt.y + 20);
 			assignDeliveryDlg.setVisible(true);
@@ -1358,7 +1387,7 @@ public class FamilyPanel extends JPanel implements ActionListener, ListSelection
 	{
 		if(!sortFamiliesDlg.isVisible())
 		{
-			sortFamiliesDlg.buildTableList();
+			sortFamiliesDlg.buildTableList(true);
 			
 			Point pt = parentFrame.getLocation();
 	        sortFamiliesDlg.setLocation(pt.x + 5, pt.y + 20);

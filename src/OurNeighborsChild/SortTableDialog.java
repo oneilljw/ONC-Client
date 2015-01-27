@@ -5,11 +5,14 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.print.PrinterException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -21,7 +24,6 @@ import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
-import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
@@ -50,25 +52,31 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 	protected Families fDB;
 	protected ChildDB cDB;
 	protected ChildWishDB cwDB;
-	protected ArrayList<ONCFamily> stAL; //Holds reference to ONCFamily objects shown in table
+//	protected ArrayList<ONCFamily> stAL; //Holds reference to ONCFamily objects shown in table
 	protected DriverDB driverDB;
 	protected DeliveryDB deliveryDB;
 	protected ONCRegions regions;
+	
+	//sort column and list of selected table rows
+	protected int tableSortCol;
+	protected ArrayList<Integer> tableRowSelectedItemIDList;
 	
 	//JPanels the inherited class may use to add GUI elements
 	protected JPanel sortCriteriaPanelTop, sortCriteriaPanelBottom;
 	protected JPanel itemCountPanel, changeDataPanel, cntlPanel;
 	
-	public ONCTable sortTable;
-	private DefaultTableModel sortTableModel;
+	protected ONCTable sortTable;
+	protected DefaultTableModel sortTableModel;
 	protected JButton btnApplyChanges;
-	private JButton btnResetCriteria;
+	protected JButton btnResetCriteria;
 	protected JLabel lblNumOfTableItems;
 	
-	protected boolean bChangingTable = false;	//Semaphore used to indicate the sort table is being changed
-	protected boolean bIngoreCBEvents = false;
+	protected String sortONCNum = "";
 	
-	private String[] columns;
+	protected boolean bChangingTable = false;	//Semaphore used to indicate the sort table is being changed
+	protected boolean bIgnoreCBEvents = false;
+	
+	protected String[] columns;
 	
 	protected String[] famstatus = {"Any", "Unverified", "Info Verified", "Gifts Selected", "Gifts Received", "Gifts Verified", "Packaged"};
 	protected static String[] delstatus = {"Any", "Empty", "Contacted", "Confirmed", "Assigned", "Attempted", "Returned", "Delivered", "Counselor Pick-Up"};
@@ -93,6 +101,11 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 		
 		if(deliveryDB != null)
 			deliveryDB.addDatabaseListener(this);
+		
+		//initialize member variables
+		sortONCNum = "";
+		tableSortCol = -1;
+		tableRowSelectedItemIDList = new ArrayList<Integer>();
 		
 		//Set up the search criteria panel      
 		JPanel sortCriteriaPanel = new JPanel();
@@ -146,9 +159,15 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 		//and column name
         anHeader.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseClicked(MouseEvent e) {
-            	if(fDB.sortDB(stAL, columns[sortTable.columnAtPoint(e.getPoint())]))
-    				displaySortTable();
+            public void mouseClicked(MouseEvent e)
+            {
+//            	if(fDB.sortDB(stAL, columns[sortTable.columnAtPoint(e.getPoint())]))
+//    				displaySortTable();
+            	int sortCol;
+            	if((sortCol = sortTableList(sortTable.columnAtPoint(e.getPoint()))) > -1)
+            	{
+            		tableSortCol = sortCol;
+            	}
             }
         });
 
@@ -219,26 +238,68 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
         setResizable(true);
 	}
 	
-	abstract public void buildTableList();
+	abstract void buildTableList(boolean bPreserveSelections);
 	
-	void displaySortTable()
+	abstract int sortTableList(int col);
+	
+	void archiveTableSelections(ArrayList<? extends ONCObject> stAL)
+	{
+		tableRowSelectedItemIDList.clear();
+		
+		int[] row_sel = sortTable.getSelectedRows();
+		for(int i=0; i<row_sel.length; i++)
+			tableRowSelectedItemIDList.add(stAL.get(row_sel[i]).getID());
+	}
+	
+	/*****************************************************************************************
+	 * Displays the contents of the sort table list in the ONC table. 
+	 * @param stAL	- List of table rows to be displayed
+	 * @param bSortReq - true: don't resort the table
+	 ****************************************************************************************/
+	void displaySortTable(ArrayList<? extends ONCObject> stAL, boolean bResort)
 	{
 		bChangingTable = true;	//don't process table messages while being changed
 		
-		while (sortTableModel.getRowCount() > 0)	//Clear the current table
+		//clear any selections the user made
+		ListSelectionModel lsModel = sortTable.getSelectionModel();
+		lsModel.clearSelection();	//clear any selected rows
+		
+		//clear the table
+		while (sortTableModel.getRowCount() > 0)
 			sortTableModel.removeRow(0);
 		
-		disableControls();
+		setEnabledControls(false);	//disable any controls that are reset
 		
-		for(ONCFamily si:stAL)	//Build the new table
-			sortTableModel.addRow(getTableRow(si));
+		//add rows to the table
+		for(int i=0; i < stAL.size(); i++)
+			sortTableModel.addRow(getTableRow(stAL.get(i)));
+		
+		//check to see if the table needs to be sorted by column
+		if(bResort && tableSortCol > -1)
+			sortTableList(tableSortCol);
+				
+		//check to see if table rows need to be re-selected
+		for(Integer itemID:tableRowSelectedItemIDList)
+		{
+			//find the id in the stAL, getting it's row, the reselect it
+			int index = 0;
+			while(index < stAL.size() && stAL.get(index).getID() != itemID)
+				index++;
+			
+			if(index < stAL.size())
+				lsModel.addSelectionInterval(index, index);	
+		}
+		
+		//re-enable any controls if rows are still selected
+		if(!tableRowSelectedItemIDList.isEmpty())
+			setEnabledControls(true);
 				
 		bChangingTable = false;	
 	}
 	
-	protected void disableControls() {};
+	abstract void setEnabledControls(boolean tf);
 	
-	abstract protected String[] getTableRow(ONCFamily f);
+	abstract String[] getTableRow(ONCObject o);
 	
 	void onPrintListing(String tablename)
 	{
@@ -261,20 +322,37 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 	
 	abstract void onResetCriteriaClicked();
 	
+	abstract boolean isONCNumContainerEmpty();
+	
 	boolean isNumeric(String s){ return s.matches("-?\\d+(\\.\\d+)?"); }
 	
-	@Override
-	public void valueChanged(ListSelectionEvent e) 
-	{
-		if (!e.getValueIsAdjusting() && e.getSource() == sortTable.getSelectionModel() &&
-				!bChangingTable)
-		{
-			ONCFamily fam = (ONCFamily) stAL.get(sortTable.getSelectedRow());
-			
-			fireEntitySelected(this, "FAMILY_SELECTED", fam, null);
-			this.requestFocus();
+	/***********************************************************************************
+	 * This class implements a key listener for the ReceiveGiftDialog class that
+	 * listens to the ONC Number text field to determine when it is empty. If it becomes empty,
+	 * the listener rebuilds the sort table array list
+	 ***********************************************************************************/
+	 protected class ONCNumberKeyListener implements KeyListener
+	 {
+		@Override
+		public void keyPressed(KeyEvent arg0) {
+			// TODO Auto-generated method stub
+				
 		}
-		
-		checkApplyChangesEnabled();	//Check to see if user postured to change family		
-	}
+
+		@Override
+		public void keyReleased(KeyEvent arg0)
+		{
+			if(isONCNumContainerEmpty())
+			{
+				sortONCNum = "";
+				buildTableList(false);
+			}		
+		}
+
+		@Override
+		public void keyTyped(KeyEvent arg0)
+		{
+			
+		}
+	 }
 }

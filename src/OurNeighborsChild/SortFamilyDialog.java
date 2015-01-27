@@ -28,6 +28,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 import javax.swing.SwingWorker;
+import javax.swing.event.ListSelectionEvent;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.json.JSONArray;
@@ -44,13 +45,13 @@ import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 */
 
-public class SortFamilyDialog extends SortTableDialog implements PropertyChangeListener								
+public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyChangeListener								
 {
 	private static final long serialVersionUID = 1L;
 	private static final String DEFAULT_NO_CHANGE_LIST_ITEM = "No Change";
 	private static final int CHANGE_DELIVERY_STATUS_ASSIGNED = 4;
 	private static final int ZIP_OUTOFAREA = 7;
-	private static final int FAMILY_STATUS_PACKAGED = 5;
+//	private static final int FAMILY_STATUS_PACKAGED = 5;
 	private static final int NUM_OF_XMAS_ICONS = 5;
 	private static final int XMAS_ICON_OFFSET = 9;	
 	private static final int YELLOW_CARDS_PER_PAGE = 2;	
@@ -69,13 +70,16 @@ public class SortFamilyDialog extends SortTableDialog implements PropertyChangeL
 	
 	public enum FamilyStatus {Empty, InfoVerified, GiftsSelected, GiftsReveived, GiftsVerified, Packaged}
 
+//	ArrayList<ONCFamily> stAL;
+	
 	//Unique gui elements for Sort Family Dialog
 	private JComboBox oncCB, batchCB, regionCB, dnsCB, zipCB, fstatusCB, streetCB, lastnameCB;
 	private JComboBox changedByCB, stoplightCB, dstatusCB;
 	private ComboItem[] changeDelItem, changeFamItem;
 	private JComboBox changeDNSCB;
 	private JComboBox changeFStatusCB, changeDStatusCB;
-	private DefaultComboBoxModel regionCBM, changedByCBM, changeDNSCBM;
+	private DefaultComboBoxModel regionCBM;
+	private DefaultComboBoxModel changedByCBM, changeDNSCBM;
 	private JComboBox printCB, emailCB, callCB;
 	
 	private JProgressBar progressBar;
@@ -85,7 +89,7 @@ public class SortFamilyDialog extends SortTableDialog implements PropertyChangeL
 	
 	private int sortBatchNum = 0, sortFStatus = 0, sortDStatus=0;
 	private int sortZip = 0, sortRegion = 0, sortChangedBy = 0, sortStoplight = 0;
-	private String sortONC = "Any", sortLN = "Any", sortStreet= "Any", sortDNSCode;
+	private String sortLN = "Any", sortStreet= "Any", sortDNSCode;
 
 	private static String[] dnsCodes = {"None", "Any", "DUP", "NC", "NISA", "OPT-OUT", "SA", "WA"};	
 	private static String[] batchNums = {"Any","B-01","B-02","B-03","B-04","B-05","B-06","B-07","B-08","B-09","B-10", "B-CR"};	
@@ -94,20 +98,7 @@ public class SortFamilyDialog extends SortTableDialog implements PropertyChangeL
 											"Print Gift Inventory Sheets", "Print Packaging Sheets",
 											"Print Delivery Cards", "Print Delivery Directions"};
 	
-	private static String[] columnToolTips = {"ONC Family Number", "Batch Number", "Do Not Serve Code", 
-											  "Family Status", "Delivery Status", "Head of Household First Name", 
-											  "Head of Household Last Name", "House Number","Street",
-											  "Unit or Apartment Number", "Zip Code", "Region",
-											  "Changed By", "Stoplight Color"};
-	
-	private static String[] columns = {"ONC", "Batch #", "DNS", "Fam Status", "Del Status", "First", "Last",
-										"House", "Street", "Unit", "Zip", "Reg", "Changed By", "SL"};
-	
-	private static int[] colWidths = {32, 48, 48, 72, 72, 72, 72, 48, 128, 72, 48, 32, 72, 24};
-	
-	private static int [] center_cols = {1, 11, 13};
-	
-	SortFamilyDialog(JFrame pf)
+	SortFamilyDialog(JFrame pf, String[] columnToolTips, String[] columns, int[] colWidths, int[] center_cols)
 	{
 		super(pf, columnToolTips, columns, colWidths, center_cols);
 		this.setTitle("Our Neighbor's Child - Family Management");
@@ -121,9 +112,10 @@ public class SortFamilyDialog extends SortTableDialog implements PropertyChangeL
 			userDB.addDatabaseListener(this);
 		
 		//Initialize the sort table array list
-		stAL = new ArrayList<ONCFamily>();
+//		stAL = new ArrayList<ONCFamily>();
 
 		//set up search comparison variables
+		sortONCNum = "Any";
 		sortDNSCode = dnsCodes[0];
 		
 		//Set up unique serach criteria gui
@@ -148,7 +140,7 @@ public class SortFamilyDialog extends SortTableDialog implements PropertyChangeL
 		
 //		String[] regs = new String[regions.getNumberOfRegions()+1];
 //		regs[0] = "Any";
-		regionCBM = new DefaultComboBoxModel();
+//		regionCBM = new DefaultComboBoxModel();
     	regionCBM.addElement("Any");
 //		for(int i=0; i< regions.getNumberOfRegions(); i++)
 //			regs[i+1] = regions.getRegionID(i);
@@ -297,19 +289,22 @@ public class SortFamilyDialog extends SortTableDialog implements PropertyChangeL
         pack();
 	}
 
-	protected void disableControls()
+	@Override
+	void setEnabledControls(boolean tf)
 	{
-		printCB.setEnabled(false);
-		emailCB.setEnabled(false);
-		callCB.setEnabled(false);
+		printCB.setEnabled(tf);
+		emailCB.setEnabled(tf);
+		callCB.setEnabled(tf);
 	}
 	
 	/**********************************************************************************
 	 * This method builds an array of strings for each row in the family table. It is
 	 * called by the super class display table method. 
 	 **********************************************************************************/
-	protected String[] getTableRow(ONCFamily f)
+	protected String[] getTableRow(ONCObject o)
 	{
+		ONCFamily f = (ONCFamily) o;
+		
 		String[] tablerow = {f.getONCNum(), 
 			f.getBatchNum(),
 			f.getDNSCode(),
@@ -339,8 +334,17 @@ public class SortFamilyDialog extends SortTableDialog implements PropertyChangeL
 	 * are To build Based on sort criteria
 	 * selected by the 
 	 ************************************************************************************/
-	public void buildTableList()
+	@Override
+	public void buildTableList(boolean bPreserveSelections)
 	{
+		//archive the table rows selected prior to rebuild so the can be reselected if the
+		//build occurred due to an external modification of the table
+		tableRowSelectedItemIDList.clear();
+		if(bPreserveSelections)
+			archiveTableSelections(stAL);
+		else
+			tableSortCol = -1;
+		
 		stAL.clear();	//Clear the prior table data array list
 		
 		for(ONCFamily f:fDB.getList())
@@ -364,7 +368,7 @@ public class SortFamilyDialog extends SortTableDialog implements PropertyChangeL
 		//update the family count. If the sort criteria is set such that only served
 		//family's are displayed, change the panel border to so indicate
 		lblNumOfTableItems.setText(Integer.toString(stAL.size()));
-		if(sortONC.equals("Any") && sortBatchNum == 0 && sortDNSCode.equals(dnsCodes[0])  &&
+		if(sortONCNum.equals("Any") && sortBatchNum == 0 && sortDNSCode.equals(dnsCodes[0])  &&
 			sortFStatus == 0 && sortDStatus == 0 && sortLN.equals("Any") && 
 			sortStreet.equals("Any") && sortZip == 0 && sortRegion == 0 && sortChangedBy == 0 &&
 			sortStoplight == 0)
@@ -374,9 +378,23 @@ public class SortFamilyDialog extends SortTableDialog implements PropertyChangeL
 		else
 			itemCountPanel.setBorder(BorderFactory.createTitledBorder("Families Meeting Criteria"));
 		
-		displaySortTable();		//Display the table after table array list is built					
+		displaySortTable(stAL, true);		//Display the table after table array list is built					
 	}
-	
+/*	
+	@Override
+	int sortTableList(int col)
+	{
+		archiveTableSelections(stAL);
+		
+		if(fDB.sortDB(stAL, columns[col]))
+		{
+			displaySortTable(stAL, false);
+			return col;
+		}
+		else
+			return -1;
+	}
+*/	
 	//Returns a boolean that a change to DNS, Family or Delivery Status occurred
 	boolean onApplyChanges()
 	{		
@@ -457,7 +475,7 @@ public class SortFamilyDialog extends SortTableDialog implements PropertyChangeL
 		}
 		
 		if(bDataChanged);
-			buildTableList();
+			buildTableList(false);
 			
 		//Reset the change combo boxes to DEFAULT_NO_CHANGE_LIST_ITEM
 		changeFStatusCB.setSelectedIndex(0);
@@ -476,8 +494,8 @@ public class SortFamilyDialog extends SortTableDialog implements PropertyChangeL
 	{	
 		UserDB userDB = UserDB.getInstance();
 		
-		bIngoreCBEvents = true;
-		changedByCB.setEnabled(false);
+		changedByCB.removeActionListener(this);
+		
 		String curr_sel = changedByCB.getSelectedItem().toString();
 		int selIndex = 0;
 		
@@ -497,13 +515,12 @@ public class SortFamilyDialog extends SortTableDialog implements PropertyChangeL
 		changedByCB.setSelectedIndex(selIndex); //Keep current selection in sort criteria
 		sortChangedBy = selIndex;
 		
-		changedByCB.setEnabled(true);
-		bIngoreCBEvents = false;
+		changedByCB.addActionListener(this);
 	}
 	
 	void updateRegionList(String[] regions)
 	{
-		regionCB.setEnabled(false);
+		regionCB.removeActionListener(this);
 		String currSel = regionCB.getSelectedItem().toString();
 		
 		regionCBM.removeAllElements();	//Clear the combo box selection list
@@ -515,14 +532,7 @@ public class SortFamilyDialog extends SortTableDialog implements PropertyChangeL
 		//Reselect the prior region, if it still exists
 		regionCB.setSelectedItem(currSel);
 		
-		regionCB.setEnabled(true);
-	}
-	
-	void addUser(String user)
-	{
-		changedByCB.setEnabled(false);		
-		changedByCBM.addElement(user);
-		changedByCB.setEnabled(true);
+		regionCB.addActionListener(this);
 	}
 	
 	void onPrintDeliveryCards()
@@ -1058,62 +1068,62 @@ public class SortFamilyDialog extends SortTableDialog implements PropertyChangeL
 	//to prevent multiple builds of the table.
 	void onResetCriteriaClicked()
 	{
-		oncCB.setEnabled(false);
+		oncCB.removeActionListener(this);
 		oncCB.setSelectedIndex(0);
-		sortONC = "Any";
-		oncCB.setEnabled(true);
+		sortONCNum = "Any";
+		oncCB.addActionListener(this);
 		
-		batchCB.setEnabled(false);
+		batchCB.removeActionListener(this);
 		batchCB.setSelectedIndex(0);
 		sortBatchNum = 0;
-		batchCB.setEnabled(true);
+		batchCB.addActionListener(this);
 		
-		dnsCB.setEnabled(false);
+		dnsCB.removeActionListener(this);
 		dnsCB.setSelectedIndex(0);
 		sortDNSCode = dnsCodes[0];
-		dnsCB.setEnabled(true);
+		dnsCB.addActionListener(this);
 		
-		fstatusCB.setEnabled(false);
+		fstatusCB.removeActionListener(this);
 		fstatusCB.setSelectedIndex(0);
 		sortFStatus = 0;
-		fstatusCB.setEnabled(true);
+		fstatusCB.addActionListener(this);
 		
-		dstatusCB.setEnabled(false);
+		dstatusCB.removeActionListener(this);
 		dstatusCB.setSelectedIndex(0);
 		sortDStatus = 0;
-		dstatusCB.setEnabled(true);
+		dstatusCB.addActionListener(this);
 		
-		lastnameCB.setEnabled(false);
+		lastnameCB.removeActionListener(this);
 		lastnameCB.setSelectedIndex(0);
 		sortLN = "Any";
-		lastnameCB.setEnabled(true);
+		lastnameCB.addActionListener(this);
 		
-		streetCB.setEnabled(false);
+		streetCB.removeActionListener(this);
 		streetCB.setSelectedIndex(0);
 		sortStreet = "Any";
-		streetCB.setEnabled(true);
+		streetCB.addActionListener(this);
 		
-		zipCB.setEnabled(false);
+		zipCB.removeActionListener(this);
 		zipCB.setSelectedIndex(0);
 		sortZip = 0;
-		zipCB.setEnabled(true);
+		zipCB.addActionListener(this);
 		
-		regionCB.setEnabled(false);
+		regionCB.removeActionListener(this);
 		regionCB.setSelectedIndex(0);
 		sortRegion = 0;
-		regionCB.setEnabled(true);
+		regionCB.addActionListener(this);
 		
-		changedByCB.setEnabled(false);
+		changedByCB.removeActionListener(this);
 		changedByCB.setSelectedIndex(0);
 		sortChangedBy = 0;
-		changedByCB.setEnabled(true);
+		changedByCB.addActionListener(this);
 		
-		stoplightCB.setEnabled(false);
+		stoplightCB.removeActionListener(this);
 		stoplightCB.setSelectedIndex(0);
 		sortStoplight = 0;
-		stoplightCB.setEnabled(true);
+		stoplightCB.addActionListener(this);
 		
-		buildTableList();
+		buildTableList(false);
 	}
 	
 	void createAndSendFamilyEmail(int emailType)
@@ -1331,7 +1341,7 @@ public class SortFamilyDialog extends SortTableDialog implements PropertyChangeL
 	}
 	
 	//set up the search criteria filters
-	boolean doesONCNumMatch(String oncn) {return sortONC.equals("Any") || oncn.equals(oncCB.getSelectedItem().toString());}
+	boolean doesONCNumMatch(String oncn) {return sortONCNum.equals("Any") || oncn.equals(oncCB.getSelectedItem().toString());}
 	
 	boolean doesBatchNumMatch(String bn) {return sortBatchNum == 0 ||  bn.equals(batchCB.getSelectedItem());}
 	
@@ -1374,63 +1384,69 @@ public class SortFamilyDialog extends SortTableDialog implements PropertyChangeL
 	
 	void setFamilyStatusComboItemEnabled(int index, boolean tf) {changeFamItem[index].setEnabled(tf); }
 
+	
+	//Not used in this dialog. The ONC number text field is replaced by a combo box, so
+	//no need to listen for it to be cleared
+	@Override
+	boolean isONCNumContainerEmpty() { return false; }
+	
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{
-		if(e.getSource() == oncCB && !oncCB.getSelectedItem().toString().equals(sortONC))
+		if(e.getSource() == oncCB && !oncCB.getSelectedItem().toString().equals(sortONCNum))
 		{
-			sortONC = oncCB.getSelectedItem().toString();
-			buildTableList();		
+			sortONCNum = oncCB.getSelectedItem().toString();
+			buildTableList(false);		
 		}				
 		else if(e.getSource() == batchCB && batchCB.getSelectedIndex() != sortBatchNum)
 		{
 			sortBatchNum = batchCB.getSelectedIndex();
-			buildTableList();			
+			buildTableList(false);			
 		}		
 		else if(e.getSource() == dnsCB && !dnsCB.getSelectedItem().toString().equals(sortDNSCode))
 		{
 			sortDNSCode = dnsCB.getSelectedItem().toString();
-			buildTableList();
+			buildTableList(false);
 		}
 		else if(e.getSource() == fstatusCB && fstatusCB.getSelectedIndex() != sortFStatus)
 		{						
 			sortFStatus = fstatusCB.getSelectedIndex();
-			buildTableList();
+			buildTableList(false);
 		}
 		else if(e.getSource() == dstatusCB && dstatusCB.getSelectedIndex() != sortDStatus)
 		{						
 			sortDStatus = dstatusCB.getSelectedIndex();
-			buildTableList();
+			buildTableList(false);
 		}
 		else if(e.getSource() == lastnameCB && !lastnameCB.getSelectedItem().toString().equals(sortLN))
 		{			
 			sortLN = lastnameCB.getSelectedItem().toString();
-			buildTableList();
+			buildTableList(false);
 		}	
 		else if(e.getSource() == streetCB && !streetCB.getSelectedItem().toString().equals(sortStreet))
 		{			
 			sortStreet = streetCB.getSelectedItem().toString();
-			buildTableList();
+			buildTableList(false);
 		}	
 		else if(e.getSource() == zipCB && zipCB.getSelectedIndex() != sortZip )
 		{						
 			sortZip = zipCB.getSelectedIndex();
-			buildTableList();
+			buildTableList(false);
 		}
 		else if(e.getSource() == regionCB && regionCB.getSelectedIndex() != sortRegion)
 		{
 			sortRegion = regionCB.getSelectedIndex();
-			buildTableList();
+			buildTableList(false);
 		}
-		else if(e.getSource() == changedByCB && changedByCB.getSelectedIndex() != sortChangedBy && !bIngoreCBEvents)
+		else if(e.getSource() == changedByCB && changedByCB.getSelectedIndex() != sortChangedBy && !bIgnoreCBEvents)
 		{
 			sortChangedBy = changedByCB.getSelectedIndex();
-			buildTableList();
+			buildTableList(false);
 		}
 		else if(e.getSource() == stoplightCB && stoplightCB.getSelectedIndex() != sortStoplight)
 		{
 			sortStoplight = stoplightCB.getSelectedIndex();
-			buildTableList();
+			buildTableList(false);
 		}
 		else if(e.getSource() == printCB)
 		{
@@ -1512,7 +1528,7 @@ public class SortFamilyDialog extends SortTableDialog implements PropertyChangeL
 		if(dbe.getSource() != this && dbe.getType().equals("UPDATED_FAMILY") ||
 			dbe.getType().equals("ADDED_FAMILY") || dbe.getType().equals("ADDED_DELIVERY"))
 		{
-			buildTableList();		
+			buildTableList(true);		
 		}
 		else if(dbe.getType().equals("UPDATED_REGION_LIST"))
 		{
@@ -1524,7 +1540,22 @@ public class SortFamilyDialog extends SortTableDialog implements PropertyChangeL
 			updateUserList();
 		}
 	}
-	
+/*	
+	@Override
+	public void valueChanged(ListSelectionEvent e) 
+	{
+		if (!e.getValueIsAdjusting() && e.getSource() == sortTable.getSelectionModel() &&
+				!bChangingTable)
+		{
+			ONCFamily fam = (ONCFamily) stAL.get(sortTable.getSelectedRow());
+			
+			fireEntitySelected(this, "FAMILY_SELECTED", fam, null);
+			this.requestFocus();
+		}
+		
+		checkApplyChangesEnabled();	//Check to see if user postured to change family		
+	}
+*/	
 	
 	/**********************************************************************************************
 	 * This class implements the Printable interface to print ONC Delivery Cards. The user selects

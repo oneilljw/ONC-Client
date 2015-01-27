@@ -15,8 +15,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
-
-public class AssignDeliveryDialog extends SortTableDialog 
+public class AssignDeliveryDialog extends SortFamilyTableDialog 
 {
 	/**
 	 * This class implements a dialog that allows the user to assign delivery drivers to families
@@ -28,31 +27,17 @@ public class AssignDeliveryDialog extends SortTableDialog
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	private static final int FAMILY_STATUS_PACKAGED = 5;
 	private static final int DELIVERY_STATUS_ASSIGNED = 3;
 
+//	ArrayList<ONCFamily> stAL = new ArrayList<ONCFamily>();
+	private int sortstartRegion, sortendRegion, sortDStatus;
+	
 	private JComboBox sRegCB, eRegCB, dstatusCB;
-	private DefaultComboBoxModel regionCBM;
+//	private DefaultComboBoxModel regionCBM;
 	private JTextField oncnumTF, assignDriverTF;
 	private JButton btnPrintListing;
 	
-	private int sortstartRegion = 0, sortendRegion = 0, sortDStatus=0;
-	private String sortONCNum = "";
-	
-	private static String[] columnToolTips = {"ONC Family Number", "Family Status", "Delivery Status",
-										"# of bags packaged", "# of bikes assigned to family",
-										"# of large items assigned to family",
-										"House Number","Street", "Zip Code", "Region","Changed By",
-										"Stoplight Color", "Driver"};
-	
-	private static String[] columns = {"ONC", "Fam Status", "Del Status", "# Bags", "# Bikes", "# Lg It.", "House",
-								"Street", "Zip", "Reg", "Changed By", "SL", "Deliverer"};
-	
-	private static int[] colWidths = {32, 72, 72, 48, 48, 48, 48, 128, 48, 32, 72, 24, 120};
-	
-	private static int [] center_cols = {3, 4, 5, 9};
-
-	public AssignDeliveryDialog(JFrame pf)
+	public AssignDeliveryDialog(JFrame pf, String[] columnToolTips, String[] columns, int[] colWidths, int[] center_cols)
 	{
 		super(pf, columnToolTips, columns, colWidths, center_cols);
 		this.setTitle("Our Neighbor's Child - Delivery Assignment");
@@ -66,7 +51,10 @@ public class AssignDeliveryDialog extends SortTableDialog
 			regions.addDatabaseListener(this);
 		
 		//Initialize the sort table array list
-		stAL = new ArrayList<ONCFamily>();
+//		stAL = new ArrayList<ONCFamily>();
+		sortstartRegion = 0;
+		sortendRegion = 0;
+		sortDStatus=0;
 				
 		//Set up unique sort criteria gui
     	oncnumTF = new JTextField();
@@ -77,7 +65,7 @@ public class AssignDeliveryDialog extends SortTableDialog
 		oncnumTF.addActionListener(this);
 		oncnumTF.addKeyListener(new ONCNumberKeyListener());
     	
-		regionCBM = new DefaultComboBoxModel();
+//		regionCBM = new DefaultComboBoxModel();
     	regionCBM.addElement("Any");
     	sRegCB = new JComboBox();
     	sRegCB.setModel(regionCBM);
@@ -129,8 +117,16 @@ public class AssignDeliveryDialog extends SortTableDialog
 	 * Additional criteria include the ONC Number, the family region and delivery 
 	 * status, all selected from the sort criteria panel. 
 	 **********************************************************************************/
-	public void buildTableList()
+	void buildTableList(boolean bPreserveSelections)
 	{
+		//archive the table rows selected prior to rebuild so the can be reselected if the
+		//build occurred due to an external modification of the table
+		tableRowSelectedItemIDList.clear();
+		if(bPreserveSelections)
+			archiveTableSelections(stAL);
+		else
+			tableSortCol = -1;
+				
 		stAL.clear();	//Clear the prior table information in the array list
 		
 		for(ONCFamily f:fDB.getList())
@@ -148,9 +144,26 @@ public class AssignDeliveryDialog extends SortTableDialog
 		}
 		
 		lblNumOfTableItems.setText(Integer.toString(stAL.size()));	//# items in table
-		displaySortTable();		//Display the table after table array list is built					
+		displaySortTable(stAL, true);		//Display the table after table array list is built					
 	}
 	
+	@Override
+	void setEnabledControls(boolean tf) {}
+/*	
+	@Override
+	int sortTableList(int col)
+	{
+		archiveTableSelections(stAL);
+		
+		if(fDB.sortDB(stAL, columns[col]))
+		{
+			displaySortTable(stAL);
+			return col;
+		}
+		else
+			return -1;
+	}
+*/	
 	void updateRegionList(String[] regions)
 	{
 		sRegCB.setEnabled(false);
@@ -177,8 +190,9 @@ public class AssignDeliveryDialog extends SortTableDialog
 	 * This method builds an array of strings for each row in the family table. It is
 	 * called by the super class display table method. 
 	 **********************************************************************************/
-	protected String[] getTableRow(ONCFamily si)
+	protected String[] getTableRow(ONCObject o)
 	{
+		ONCFamily si = (ONCFamily) o;
 		String[] deliverytablerow = {si.getONCNum(),
 				 famstatus[si.getFamilyStatus() + 1], 
 				 delstatus[si.getDeliveryStatus() + 1],
@@ -272,7 +286,7 @@ public class AssignDeliveryDialog extends SortTableDialog
 		//If drivers were assigned, rebuild the sort table. This will cause the families who
 		//have just been assigned drivers to no longer be in the table. 
 		if(assignmentsMade > 0)
-			buildTableList();
+			buildTableList(false);
 		
 		bChangingTable = false;
 		
@@ -301,28 +315,30 @@ public class AssignDeliveryDialog extends SortTableDialog
 	//to prevent multiple builds of the table.
 	void onResetCriteriaClicked()
 	{
-		oncnumTF.setEnabled(false);
 		oncnumTF.setText("");
 		sortONCNum = "";
-		oncnumTF.setEnabled(true);
 	
-		sRegCB.setEnabled(false);
+		sRegCB.removeActionListener(this);
 		sRegCB.setSelectedIndex(0);
 		sortstartRegion = 0;
-		sRegCB.setEnabled(true);
+		sRegCB.addActionListener(this);
 		
-		eRegCB.setEnabled(false);
+		eRegCB.removeActionListener(this);
 		eRegCB.setSelectedIndex(0);
 		sortendRegion = 0;
-		eRegCB.setEnabled(true);
+		eRegCB.addActionListener(this);
 		
-		dstatusCB.setEnabled(false);
+		
+		dstatusCB.removeActionListener(this);
 		dstatusCB.setSelectedIndex(0);
 		sortDStatus = 0;
-		dstatusCB.setEnabled(true);
+		dstatusCB.addActionListener(this);
 		
-		buildTableList();
+		buildTableList(false);
 	}
+	
+	@Override
+	boolean isONCNumContainerEmpty() { return oncnumTF.getText().isEmpty(); }
 	
 	@Override
 	public void actionPerformed(ActionEvent e)
@@ -330,22 +346,22 @@ public class AssignDeliveryDialog extends SortTableDialog
 		if(e.getSource() == oncnumTF && !sortONCNum.equals(oncnumTF.getText()))
 		{
 			sortONCNum = oncnumTF.getText();
-			buildTableList();
+			buildTableList(false);
 		}
 		else if(e.getSource() == sRegCB && sRegCB.getSelectedIndex() != sortstartRegion)
 		{
 			sortstartRegion = sRegCB.getSelectedIndex();
-			buildTableList();		
+			buildTableList(false);		
 		}				
 		else if(e.getSource() == eRegCB && eRegCB.getSelectedIndex() != sortendRegion)
 		{
 			sortendRegion = eRegCB.getSelectedIndex();
-			buildTableList();			
+			buildTableList(false);			
 		}		
 		else if(e.getSource() == dstatusCB && dstatusCB.getSelectedIndex() != sortDStatus)
 		{						
 			sortDStatus = dstatusCB.getSelectedIndex();
-			buildTableList();
+			buildTableList(false);
 		}
 		else if(e.getSource() == btnPrintListing) { onPrintListing("ONC Deliverers"); }
 		else if(e.getSource() == btnApplyChanges)
@@ -363,7 +379,7 @@ public class AssignDeliveryDialog extends SortTableDialog
 				dbe.getType().equals("ADDED_DRIVER") || dbe.getType().equals("ADDED_DELIVERY"))
 		{
 			if(this.isVisible())
-				buildTableList();
+				buildTableList(true);
 		}
 		else if(dbe.getType().equals("UPDATED_REGION_LIST"))
 		{
@@ -371,7 +387,7 @@ public class AssignDeliveryDialog extends SortTableDialog
 			updateRegionList(regList);
 		}
 	}
-	
+
 	/***********************************************************************************
 	 * This class implements a key listener for the AssignDriver text field that
 	 * listens to determine when it is empty. If it becomes empty, the listener rebuilds
@@ -395,35 +411,5 @@ public class AssignDeliveryDialog extends SortTableDialog
 		public void keyTyped(KeyEvent arg0){
 		}
 			
-	 }
-	
-	/***********************************************************************************
-	 * This class implements a key listener for the ONC Number test field that
-	 * listens to the ONC Number text field to determine when it is empty. If it becomes empty,
-	 * the listener rebuilds the sort table array list
-	 ***********************************************************************************/
-	 private class ONCNumberKeyListener implements KeyListener
-	 {
-		@Override
-		public void keyPressed(KeyEvent arg0) {
-			// TODO Auto-generated method stub
-				
-		}
-
-		@Override
-		public void keyReleased(KeyEvent arg0) {
-			// TODO Auto-generated method stub
-				
-		}
-
-		@Override
-		public void keyTyped(KeyEvent arg0)
-		{
-			if(oncnumTF.getText().isEmpty())
-			{
-				sortONCNum = "";
-				buildTableList();
-			}	
-		}
 	 }
 }

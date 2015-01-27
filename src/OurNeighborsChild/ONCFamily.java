@@ -758,6 +758,7 @@ public class ONCFamily extends ONCEntity
 	boolean doesHOHLastNameMatch(String hohln, boolean criteria) { return !criteria || (criteria && HOHLastName.equalsIgnoreCase(hohln)); }
 	boolean doesHOHLastNamePartiallyMatch(String hohln, boolean criteria) { return !criteria || (criteria && HOHLastName.trim().toLowerCase().contains(hohln.trim().toLowerCase())); }
 	
+	
 	@Override
 	public String[] getExportRow()
 	{

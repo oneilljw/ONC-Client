@@ -488,24 +488,12 @@ public abstract class GiftActionDialog extends ONCTableDialog implements ActionL
 		checkReceiveGiftEnabled();	//Check to see if user postured to change status or assignee.
 	}
 
-	private class GiftSortItem extends ONCObject
-	{
-		private ONCFamily	soFamily;
-		private ONCChild	soChild;
-		private ONCChildWish soChildWish;
-		
+	private class GiftSortItem extends ONCSortObject
+	{	
 		public GiftSortItem(int id, ONCFamily fam, ONCChild c, ONCChildWish cw)
 		{
-			super(id);
-			soFamily = fam;
-			soChild = c;
-			soChildWish = cw;
+			super(id, fam, c, cw);
 		}
-		
-		//getters
-		ONCFamily getSortObjectFamily() { return soFamily; }
-		ONCChild getSortObjectChild() { return soChild; }
-		ONCChildWish getSortObjectChildWish() { return soChildWish; }
 		
 		public String[] getSortTableRow()
 		{
@@ -514,12 +502,6 @@ public abstract class GiftActionDialog extends ONCTableDialog implements ActionL
 										cat.getWishByID(soChildWish.getWishID()).getName(),
 										soChildWish.getChildWishDetail()};
 			return sorttablerow;
-		}
-
-		@Override
-		public String[] getExportRow() {
-			//Not used for Gift Actions
-			return null;
 		}
 	}
 	
