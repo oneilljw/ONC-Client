@@ -78,7 +78,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	private ComboItem[] changeDelItem, changeFamItem;
 	private JComboBox changeDNSCB;
 	private JComboBox changeFStatusCB, changeDStatusCB;
-	private DefaultComboBoxModel regionCBM;
+//	private DefaultComboBoxModel regionCBM;
 	private DefaultComboBoxModel changedByCBM, changeDNSCBM;
 	private JComboBox printCB, emailCB, callCB;
 	
