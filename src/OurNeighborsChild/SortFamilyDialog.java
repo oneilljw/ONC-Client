@@ -28,7 +28,6 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 import javax.swing.SwingWorker;
-import javax.swing.event.ListSelectionEvent;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.json.JSONArray;
@@ -51,7 +50,6 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	private static final String DEFAULT_NO_CHANGE_LIST_ITEM = "No Change";
 	private static final int CHANGE_DELIVERY_STATUS_ASSIGNED = 4;
 	private static final int ZIP_OUTOFAREA = 7;
-//	private static final int FAMILY_STATUS_PACKAGED = 5;
 	private static final int NUM_OF_XMAS_ICONS = 5;
 	private static final int XMAS_ICON_OFFSET = 9;	
 	private static final int YELLOW_CARDS_PER_PAGE = 2;	
@@ -59,9 +57,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	private static final int PACKAGING_SHEET = 0;
 	private static final int PRE_PACKAGING_SHEET = 1;
 	private static final int RECEIVING_SHEET = 2;
-//	private static final int VERIFICATION_SHEET_MAX_CHILD_RECORDS_PER_PAGE = 5;
 	private static final int VERIFICATION_SHEET_CHILD_RECORD_LINE_HEIGHT = 24;
-//	private static final int VERIFICATION_SHEET_X_OFFSET = 16;	
 	private static final int MAX_DIRECTION_STEPS_ON_FIRST_PAGE = 16;
 	private static final int MAX_DIRECTION_STEPS_ON_NEXT_PAGES = 30;
 	private static final int MIN_EMAIL_ADDRESS_LENGTH = 2;
@@ -69,8 +65,6 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	private static final String FAMILY_EMAIL_SENDER_ADDRESS = "clientinformation@ourneighborschild.org";
 	
 	public enum FamilyStatus {Empty, InfoVerified, GiftsSelected, GiftsReveived, GiftsVerified, Packaged}
-
-//	ArrayList<ONCFamily> stAL;
 	
 	//Unique gui elements for Sort Family Dialog
 	private JComboBox oncCB, batchCB, regionCB, dnsCB, zipCB, fstatusCB, streetCB, lastnameCB;
@@ -78,15 +72,12 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	private ComboItem[] changeDelItem, changeFamItem;
 	private JComboBox changeDNSCB;
 	private JComboBox changeFStatusCB, changeDStatusCB;
-//	private DefaultComboBoxModel regionCBM;
 	private DefaultComboBoxModel changedByCBM, changeDNSCBM;
 	private JComboBox printCB, emailCB, callCB;
 	
 	private JProgressBar progressBar;
 	private ONCEmailer oncEmailer;
 
-//	private boolean bIgnoreSortDialogEvents = false;
-	
 	private int sortBatchNum = 0, sortFStatus = 0, sortDStatus=0;
 	private int sortZip = 0, sortRegion = 0, sortChangedBy = 0, sortStoplight = 0;
 	private String sortLN = "Any", sortStreet= "Any", sortDNSCode;
@@ -110,9 +101,6 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		UserDB userDB = UserDB.getInstance();
 		if(userDB != null)
 			userDB.addDatabaseListener(this);
-		
-		//Initialize the sort table array list
-//		stAL = new ArrayList<ONCFamily>();
 
 		//set up search comparison variables
 		sortONCNum = "Any";
@@ -138,12 +126,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		dstatusCB.setBorder(BorderFactory.createTitledBorder("Delivery Status"));
 		dstatusCB.addActionListener(this);
 		
-//		String[] regs = new String[regions.getNumberOfRegions()+1];
-//		regs[0] = "Any";
-//		regionCBM = new DefaultComboBoxModel();
     	regionCBM.addElement("Any");
-//		for(int i=0; i< regions.getNumberOfRegions(); i++)
-//			regs[i+1] = regions.getRegionID(i);
 		regionCB = new JComboBox();
 		regionCB.setModel(regionCBM);
 		regionCB.setBorder(BorderFactory.createTitledBorder("Region"));
@@ -253,7 +236,6 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		changeDataPanel.add(changeDNSCB);
 		changeDataPanel.add(changeFStatusCB);
 		changeDataPanel.add(changeDStatusCB);
-//		changeDataPanel.setPreferredSize(new Dimension(sortTable.getWidth()-300, 90));
 		changeDataPanel.setBorder(BorderFactory.createTitledBorder("Change Select Family Data"));
          
 		//set up the unique control gui for this dialog
@@ -380,21 +362,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		
 		displaySortTable(stAL, true);		//Display the table after table array list is built					
 	}
-/*	
-	@Override
-	int sortTableList(int col)
-	{
-		archiveTableSelections(stAL);
-		
-		if(fDB.sortDB(stAL, columns[col]))
-		{
-			displaySortTable(stAL, false);
-			return col;
-		}
-		else
-			return -1;
-	}
-*/	
+
 	//Returns a boolean that a change to DNS, Family or Delivery Status occurred
 	boolean onApplyChanges()
 	{		
@@ -1540,22 +1508,6 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			updateUserList();
 		}
 	}
-/*	
-	@Override
-	public void valueChanged(ListSelectionEvent e) 
-	{
-		if (!e.getValueIsAdjusting() && e.getSource() == sortTable.getSelectionModel() &&
-				!bChangingTable)
-		{
-			ONCFamily fam = (ONCFamily) stAL.get(sortTable.getSelectedRow());
-			
-			fireEntitySelected(this, "FAMILY_SELECTED", fam, null);
-			this.requestFocus();
-		}
-		
-		checkApplyChangesEnabled();	//Check to see if user postured to change family		
-	}
-*/	
 	
 	/**********************************************************************************************
 	 * This class implements the Printable interface to print ONC Delivery Cards. The user selects
@@ -2172,9 +2124,6 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 				emailCB.setSelectedIndex(0);
 				emailCB.setEnabled(true);
 			}
-		}		
-		
+		}			
 	}
-
-	
 }

@@ -1,12 +1,10 @@
 package OurNeighborsChild;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -16,7 +14,6 @@ import java.awt.event.MouseEvent;
 import java.awt.print.PrinterException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -42,11 +39,11 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 	 * the user may select row(s) from the table and change the data present. This base class implements
 	 * the dialog with five panels, three of which are exposed to an inheriting class for adding
 	 * custom GUI elements. The base class provides a search criteria panel with two sub-panels, a
-	 * table that displays information about the ONCEntity being managed, a count panel displaying 
-	 * the number of items in the table, a change data panel that allows the user to change select
-	 * ONCEntity data by selecting the ONCEntity(s) from the table and using the change data panel
-	 * GUI, a control panel that allows an inheriting class to add custom GUI controls and a bottom
-	 * panel that implements common reset criteria and apply changes buttons. 
+	 * table that displays information about ONCEntity's being managed, a count panel displaying 
+	 * the number of ONCEntities in the table, a change data panel that allows the user to change
+	 * select ONCEntity data by selecting the ONCEntity(s) from the table and using the change
+	 * data panel GUI, a control panel that allows an inheriting class to add custom GUI controls
+	 * and a bottom panel that implements common reset criteria and apply changes buttons. 
 	 */
 	private static final long serialVersionUID = 1L;
 	private static final int NUM_ROWS_TO_DISPLAY = 15;
@@ -56,7 +53,6 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 	protected Families fDB;
 	protected ChildDB cDB;
 	protected ChildWishDB cwDB;
-//	protected ArrayList<ONCFamily> stAL; //Holds reference to ONCFamily objects shown in table
 	protected DriverDB driverDB;
 	protected DeliveryDB deliveryDB;
 	protected ONCRegions regions;
@@ -179,55 +175,35 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 		JScrollPane sortScrollPane = new JScrollPane(sortTable, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
 											JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
-		sortScrollPane.setPreferredSize(new Dimension(tablewidth, sortTable.getRowHeight()*NUM_ROWS_TO_DISPLAY));      
+		sortScrollPane.setPreferredSize(new Dimension(tablewidth, sortTable.getRowHeight()*NUM_ROWS_TO_DISPLAY));
 		
-		//Now that we've created the sort table, set the preferred dimensions of the search panel
-//		sortCriteriaPanelTop.setPreferredSize(new Dimension(sortTable.getWidth(), 64));
-		
-        //Set up the third panel holding count panel and change panel
+        //Set up the third panel holding count panel and change panel using a GridBag layout
         JPanel thirdPanel = new JPanel();
-//        thirdPanel.setLayout(new BoxLayout(thirdPanel, BoxLayout.X_AXIS));
-//        thirdPanel.setLayout(new BorderLayout());
-        
         thirdPanel.setLayout( new GridBagLayout() ); 
         GridBagConstraints gbc = new GridBagConstraints();
         
         itemCountPanel = new JPanel();       
-        lblNumOfTableItems = new JLabel("000000000000000");
-//      itemCountPanel.setSize(new Dimension(180, 90));
+        lblNumOfTableItems = new JLabel();	//subclasses set text
         itemCountPanel.add(lblNumOfTableItems);
         itemCountPanel.setBorder(BorderFactory.createTitledBorder("Families Meeting Criteria"));
         
-        gbc.gridx = gbc.gridy = 0;
+        gbc.gridx = 0;
+        gbc.gridy = 0;
         gbc.gridwidth = 1;
         gbc.gridheight = 1;
-//        gbc.anchor = GridBagConstraints.LINE_START;
         gbc.fill = GridBagConstraints.BOTH;
         gbc.ipadx = 120;
         gbc.weightx = 0.1;
         thirdPanel.add(itemCountPanel, gbc);
         
         changeDataPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-//      changeDataPanel.setBorder( BorderFactory.createTitledBorder( eBorder, "" ) );
         gbc.gridx = 1;
         gbc.ipadx = 0;
-//      gbc.fill = GridBagConstraints.BOTH;
         gbc.weightx = 0.9;
-//      gbc.insets = new Insets( 2, 2, 2, 2 );
         thirdPanel.add(changeDataPanel, gbc);
-//      setSize( 500, 500 );
-        
-        
-        
-//        changeDataPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-//        changeDataPanel.setSize(new Dimension(sortTable.getWidth()-180, 90));
- 
-		//Add the components to the third panel	
-//		thirdPanel.add(itemCountPanel, gbc);
-//		thirdPanel.add(changeDataPanel);
-//		thirdPanel.setPreferredSize(new Dimension(sortTable.getWidth(), 90));
 				
-        //Set up the button control panel and bottom panel
+        //Set up the subclass defined button control panel and the common Reset Criteria and
+        //Apply Changes buttons as part of the bottom panel
 		JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		cntlPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
            
@@ -254,8 +230,7 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
         this.add(sortScrollPane);
         this.add(thirdPanel);
         this.add(bottomPanel);
-       
-//      pack();
+
         setResizable(true);
 	}
 	
@@ -359,7 +334,6 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 			// TODO Auto-generated method stub
 				
 		}
-
 		@Override
 		public void keyReleased(KeyEvent arg0)
 		{
@@ -369,7 +343,6 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 				buildTableList(false);
 			}		
 		}
-
 		@Override
 		public void keyTyped(KeyEvent arg0)
 		{

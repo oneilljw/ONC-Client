@@ -18,9 +18,11 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 {
 	/**
 	 * This class implements a dialog that allows the user to assign delivery drivers to families
-	 * that are packaged and ready for delivery. The class extends the ONCFamilyDialog which 
-	 * provides the common look and feel for all ONC application dialogs that manage ONCEntity
-	 * data. This class extends the common look and feel to add unique search criteria and the
+	 * that are packaged and ready for delivery. The class extends the SortFamilyDialog which in
+	 * turn extends SortTable dialog which provides the common look and feel for all ONC
+	 * application dialogs that manage ONCEntity data. The SortFamilyDialog provides specific 
+	 * features unique to dialogs that display only ONCFamily data in their table. This class
+	 * extends SortFamilyDialog to add unique search criteria and the
 	 * functionality that allows the user to assign a driver for delivery. It also adds a print
 	 * listing button to the control panel
 	 */
@@ -28,7 +30,6 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 	
 	private static final int DELIVERY_STATUS_ASSIGNED = 3;
 
-//	ArrayList<ONCFamily> stAL = new ArrayList<ONCFamily>();
 	private int sortstartRegion, sortendRegion, sortDStatus;
 	
 	private JComboBox sRegCB, eRegCB, dstatusCB;
@@ -49,8 +50,7 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 		if(regions != null)
 			regions.addDatabaseListener(this);
 		
-		//Initialize the sort table array list
-//		stAL = new ArrayList<ONCFamily>();
+		//Initialize the search member variables
 		sortstartRegion = 0;
 		sortendRegion = 0;
 		sortDStatus=0;
@@ -64,8 +64,7 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 		oncnumTF.addActionListener(this);
 		oncnumTF.addKeyListener(new ONCNumberKeyListener());
     	
-//		regionCBM = new DefaultComboBoxModel();
-    	regionCBM.addElement("Any");
+    	regionCBM.addElement("Any");	//superclass has regionCBM
     	sRegCB = new JComboBox();
     	sRegCB.setModel(regionCBM);
     	sRegCB.setPreferredSize(new Dimension(112,56));
@@ -99,7 +98,6 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 
 		//Add the change data gui components to the third panel	
 		changeDataPanel.add(assignDriverTF);
-//		changeDataPanel.setPreferredSize(new Dimension(sortTable.getWidth()-300, 90));
         changeDataPanel.setBorder(BorderFactory.createTitledBorder("Assign Delivery Driver"));
         
         //Change the text of the ApplyChanges button
@@ -152,21 +150,7 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 	
 	@Override
 	void setEnabledControls(boolean tf) {}
-/*	
-	@Override
-	int sortTableList(int col)
-	{
-		archiveTableSelections(stAL);
-		
-		if(fDB.sortDB(stAL, columns[col]))
-		{
-			displaySortTable(stAL);
-			return col;
-		}
-		else
-			return -1;
-	}
-*/	
+
 	void updateRegionList(String[] regions)
 	{
 		sRegCB.setEnabled(false);
@@ -257,11 +241,6 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 			{
 				//Add a new delivery to the delivery history with the assigned driver
 				//and the status set to assigned. Adding new delivery updates family changed by field
-//				f.addDelivery(new ONCDelivery(DELIVERY_STATUS_ASSIGNED,
-//												assignDriverTF.getText(), 
-//												"Delivery Driver Assigned", chngdBy,
-//												oncGVs.getTodaysDate()));
-				
 				ONCDelivery reqDelivery = new ONCDelivery(-1, f.getID(), DELIVERY_STATUS_ASSIGNED,
 															assignDriverTF.getText(),
 															"Delivery Driver Assigned",
@@ -420,7 +399,6 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 
 		@Override
 		public void keyTyped(KeyEvent arg0){
-		}
-			
+		}	
 	 }
 }
