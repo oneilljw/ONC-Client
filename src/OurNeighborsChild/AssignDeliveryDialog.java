@@ -4,7 +4,6 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.util.ArrayList;
 import java.util.Calendar;
 
 import javax.swing.BorderFactory;
@@ -33,7 +32,7 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 	private int sortstartRegion, sortendRegion, sortDStatus;
 	
 	private JComboBox sRegCB, eRegCB, dstatusCB;
-//	private DefaultComboBoxModel regionCBM;
+	private DefaultComboBoxModel eRegCBM;	//start region uses the inherited model
 	private JTextField oncnumTF, assignDriverTF;
 	private JButton btnPrintListing;
 	
@@ -73,8 +72,10 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 		sRegCB.setBorder(BorderFactory.createTitledBorder("Region Start"));
 		sRegCB.addActionListener(this);
 		
+		eRegCBM = new DefaultComboBoxModel();
+		eRegCBM.addElement("Any");
 		eRegCB = new JComboBox();
-		eRegCB.setModel(regionCBM);
+		eRegCB.setModel(eRegCBM);
     	eRegCB.setPreferredSize(new Dimension(112,56));
 		eRegCB.setBorder(BorderFactory.createTitledBorder("Region End"));
 		eRegCB.addActionListener(this);
@@ -98,7 +99,7 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 
 		//Add the change data gui components to the third panel	
 		changeDataPanel.add(assignDriverTF);
-		changeDataPanel.setPreferredSize(new Dimension(sortTable.getWidth()-300, 90));
+//		changeDataPanel.setPreferredSize(new Dimension(sortTable.getWidth()-300, 90));
         changeDataPanel.setBorder(BorderFactory.createTitledBorder("Assign Delivery Driver"));
         
         //Change the text of the ApplyChanges button
@@ -109,6 +110,8 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
         btnPrintListing.addActionListener(this);
         
         cntlPanel.add(btnPrintListing);
+        
+        pack();
 	}
 	
 	/**********************************************************************************
@@ -175,8 +178,14 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 		regionCBM.removeAllElements();	//Clear the combo box selection list
 		regionCBM.addElement("Any");
 		
+		eRegCBM.removeAllElements();	//Clear the combo box selection list
+		eRegCBM.addElement("Any");
+		
 		for(String s: regions)	//Add new list elements
-				regionCBM.addElement(s);
+		{
+			regionCBM.addElement(s);
+			eRegCBM.addElement(s);
+		}
 			
 		//Reselect the prior region, if it still exists
 		sRegCB.setSelectedItem(currSelStart);
@@ -328,7 +337,6 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 		sortendRegion = 0;
 		eRegCB.addActionListener(this);
 		
-		
 		dstatusCB.removeActionListener(this);
 		dstatusCB.setSelectedIndex(0);
 		sortDStatus = 0;
@@ -363,7 +371,10 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 			sortDStatus = dstatusCB.getSelectedIndex();
 			buildTableList(false);
 		}
-		else if(e.getSource() == btnPrintListing) { onPrintListing("ONC Deliverers"); }
+		else if(e.getSource() == btnPrintListing)
+		{
+			onPrintListing("ONC Deliverers");
+		}
 		else if(e.getSource() == btnApplyChanges)
 		{
 			onApplyChanges();

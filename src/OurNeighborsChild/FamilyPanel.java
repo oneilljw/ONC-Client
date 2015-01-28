@@ -456,7 +456,7 @@ public class FamilyPanel extends JPanel implements ActionListener, ListSelection
 				"User who last changed wish", "Date & Time Wish Last Changed"};
         String[] columns = {"ONC", "Age", "Gend", "Wish", "Wish Type", "Details", " Res ",
 				"Status", "Assignee", "Changed By", "Time Stamp"};
-        int[] colWidths = {40, 48, 36, 36, 76, 160, 32, 80, 132, 80, 96};
+        int[] colWidths = {40, 48, 36, 36, 84, 160, 32, 80, 136, 80, 92};
         int[] center_cols = {3,6};
         sortWishesDlg = new SortWishDialog(parentFrame, colToolTips, columns, colWidths, center_cols);
         sortWishesDlg.addEntitySelectionListener(familyChildSelectionListener);

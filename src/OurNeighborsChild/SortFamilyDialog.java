@@ -253,7 +253,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		changeDataPanel.add(changeDNSCB);
 		changeDataPanel.add(changeFStatusCB);
 		changeDataPanel.add(changeDStatusCB);
-		changeDataPanel.setPreferredSize(new Dimension(sortTable.getWidth()-300, 90));
+//		changeDataPanel.setPreferredSize(new Dimension(sortTable.getWidth()-300, 90));
 		changeDataPanel.setBorder(BorderFactory.createTitledBorder("Change Select Family Data"));
          
 		//set up the unique control gui for this dialog

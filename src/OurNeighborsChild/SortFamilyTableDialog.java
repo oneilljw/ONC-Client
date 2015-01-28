@@ -17,10 +17,13 @@ public abstract class SortFamilyTableDialog extends SortTableDialog
 	
 	protected ArrayList<ONCFamily> stAL = new ArrayList<ONCFamily>();
 	protected DefaultComboBoxModel regionCBM;
+	
+	protected String[] columns;
 
 	public SortFamilyTableDialog(JFrame pf, String[] colToolTips, String[] cols, int[] colWidths, int[] center_cols)
 	{
 		super(pf, colToolTips, cols, colWidths, center_cols);
+		columns = cols;
 		
 		stAL = new ArrayList<ONCFamily>();
 		regionCBM = new DefaultComboBoxModel();

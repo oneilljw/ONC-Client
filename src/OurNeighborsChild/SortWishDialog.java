@@ -319,8 +319,12 @@ public class SortWishDialog extends SortTableDialog implements PropertyChangeLis
         
         JPanel changeDataPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         changeDataPanel.setPreferredSize(new Dimension(tablewidth-165, 90));
-*/        
-        changeResCB = new JComboBox(res);
+*/
+		itemCountPanel.setBorder(BorderFactory.createTitledBorder("Wishes Meeting Criteria"));
+		
+		changeDataPanel.setBorder(BorderFactory.createTitledBorder("Change Wish Restrictions/Status/Assignee"));
+        
+		changeResCB = new JComboBox(res);
         changeResCB.setPreferredSize(new Dimension(192, 56));
 		changeResCB.setBorder(BorderFactory.createTitledBorder("Change Restrictions To:"));
 		changeResCB.addActionListener(this);
@@ -343,16 +347,14 @@ public class SortWishDialog extends SortTableDialog implements PropertyChangeLis
 		changeDataPanel.add(changeStatusCB);
 		changeDataPanel.add(changeAssigneeCB);
 		
-		changeDataPanel.setBorder(BorderFactory.createTitledBorder("Change Wish Restrictions/Status/Assignee"));
-         
 //		thirdpanel.add(itemCountPanel);
 //		thirdpanel.add(changeDataPanel);
 		
         //Set up the button control panel
 //		JPanel cntlPanel = new JPanel();
                     
-//        btnResetCriteria = new JButton("Reset Criteria");
-//        btnResetCriteria.addActionListener(this);        
+//      btnResetCriteria = new JButton("Reset Criteria");
+//      btnResetCriteria.addActionListener(this);        
     
         btnExport = new JButton("Export Data");
         btnExport.setEnabled(false);
@@ -380,7 +382,7 @@ public class SortWishDialog extends SortTableDialog implements PropertyChangeLis
 //        this.add(thirdpanel);
 //        this.add(cntlPanel);
        
-//        pack();
+        pack();
 //        setSize(tablewidth, 600);
 //        setResizable(true);
 //        Point pt = GlobalVariables.getFrame().getLocation();

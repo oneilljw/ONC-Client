@@ -1,8 +1,12 @@
 package OurNeighborsChild;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -76,13 +80,11 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 	protected boolean bChangingTable = false;	//Semaphore used to indicate the sort table is being changed
 	protected boolean bIgnoreCBEvents = false;
 	
-	protected String[] columns;
-	
 	protected String[] famstatus = {"Any", "Unverified", "Info Verified", "Gifts Selected", "Gifts Received", "Gifts Verified", "Packaged"};
 	protected static String[] delstatus = {"Any", "Empty", "Contacted", "Confirmed", "Assigned", "Attempted", "Returned", "Delivered", "Counselor Pick-Up"};
 	protected static String[] stoplt = {"Any", "Green", "Yellow", "Red", "Off"};
 	
-	public SortTableDialog(JFrame pf, String[] colToolTips, String[] cols, int[] colWidths, int[] center_cols)
+	public SortTableDialog(JFrame pf, String[] colToolTips, String[] columns, int[] colWidths, int[] center_cols)
 	{
 		super(pf);
 		oncGVs = GlobalVariables.getInstance();
@@ -93,8 +95,6 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 		fDB = Families.getInstance();
 		cDB = ChildDB.getInstance();
 		cwDB = ChildWishDB.getInstance();
-		columns = cols;
-//		this.setTitle("Our Neighbor's Child - Delivery Assignment");
 		
 		if(fDB != null)
 			fDB.addDatabaseListener(this);
@@ -128,7 +128,6 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 		//Set up the table model. Cells are not editable
 		sortTableModel = new DefaultTableModel(columns, 0) {
 			private static final long serialVersionUID = 1L;
-			
 			@Override
 			//All cells are locked from being changed by user
 			public boolean isCellEditable(int row, int column) {return false;}
@@ -161,13 +160,9 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
             @Override
             public void mouseClicked(MouseEvent e)
             {
-//            	if(fDB.sortDB(stAL, columns[sortTable.columnAtPoint(e.getPoint())]))
-//    				displaySortTable();
-            	int sortCol;
-            	if((sortCol = sortTableList(sortTable.columnAtPoint(e.getPoint()))) > -1)
-            	{
+            	int sortCol = sortTableList(sortTable.columnAtPoint(e.getPoint()));
+            	if(sortCol > -1)
             		tableSortCol = sortCol;
-            	}
             }
         });
 
@@ -187,24 +182,50 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 		sortScrollPane.setPreferredSize(new Dimension(tablewidth, sortTable.getRowHeight()*NUM_ROWS_TO_DISPLAY));      
 		
 		//Now that we've created the sort table, set the preferred dimensions of the search panel
-        sortCriteriaPanelTop.setPreferredSize(new Dimension(sortTable.getWidth(), 64));
+//		sortCriteriaPanelTop.setPreferredSize(new Dimension(sortTable.getWidth(), 64));
 		
         //Set up the third panel holding count panel and change panel
         JPanel thirdPanel = new JPanel();
-        thirdPanel.setLayout(new BoxLayout(thirdPanel, BoxLayout.X_AXIS));
+//        thirdPanel.setLayout(new BoxLayout(thirdPanel, BoxLayout.X_AXIS));
+//        thirdPanel.setLayout(new BorderLayout());
+        
+        thirdPanel.setLayout( new GridBagLayout() ); 
+        GridBagConstraints gbc = new GridBagConstraints();
         
         itemCountPanel = new JPanel();       
-        lblNumOfTableItems = new JLabel("0");
-        itemCountPanel.setBorder(BorderFactory.createTitledBorder("Families Meeting Criteria"));
-        itemCountPanel.setSize(new Dimension(300, 90));
+        lblNumOfTableItems = new JLabel("000000000000000");
+//      itemCountPanel.setSize(new Dimension(180, 90));
         itemCountPanel.add(lblNumOfTableItems);
+        itemCountPanel.setBorder(BorderFactory.createTitledBorder("Families Meeting Criteria"));
+        
+        gbc.gridx = gbc.gridy = 0;
+        gbc.gridwidth = 1;
+        gbc.gridheight = 1;
+//        gbc.anchor = GridBagConstraints.LINE_START;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.ipadx = 120;
+        gbc.weightx = 0.1;
+        thirdPanel.add(itemCountPanel, gbc);
         
         changeDataPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+//      changeDataPanel.setBorder( BorderFactory.createTitledBorder( eBorder, "" ) );
+        gbc.gridx = 1;
+        gbc.ipadx = 0;
+//      gbc.fill = GridBagConstraints.BOTH;
+        gbc.weightx = 0.9;
+//      gbc.insets = new Insets( 2, 2, 2, 2 );
+        thirdPanel.add(changeDataPanel, gbc);
+//      setSize( 500, 500 );
+        
+        
+        
+//        changeDataPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+//        changeDataPanel.setSize(new Dimension(sortTable.getWidth()-180, 90));
  
 		//Add the components to the third panel	
-		thirdPanel.add(itemCountPanel);
-		thirdPanel.add(changeDataPanel);
-		thirdPanel.setPreferredSize(new Dimension(sortTable.getWidth(), 90));
+//		thirdPanel.add(itemCountPanel, gbc);
+//		thirdPanel.add(changeDataPanel);
+//		thirdPanel.setPreferredSize(new Dimension(sortTable.getWidth(), 90));
 				
         //Set up the button control panel and bottom panel
 		JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -234,7 +255,7 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
         this.add(thirdPanel);
         this.add(bottomPanel);
        
-        pack();
+//      pack();
         setResizable(true);
 	}
 	
