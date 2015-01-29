@@ -51,11 +51,11 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 	protected JFrame parentFrame;
 	protected GlobalVariables oncGVs;
 	protected Families fDB;
-	protected ChildDB cDB;
-	protected ChildWishDB cwDB;
-	protected DriverDB driverDB;
-	protected DeliveryDB deliveryDB;
-	protected ONCRegions regions;
+//	protected ChildDB cDB;
+//	protected ChildWishDB cwDB;
+//	protected DriverDB driverDB;
+//	protected DeliveryDB deliveryDB;
+//	protected ONCRegions regions;
 	
 	//sort column and list of selected table rows
 	protected int tableSortCol;
@@ -85,18 +85,18 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 		super(pf);
 		oncGVs = GlobalVariables.getInstance();
 		
-		driverDB = DriverDB.getInstance();
-		deliveryDB = DeliveryDB.getInstance();
-		regions = ONCRegions.getInstance();
+//		driverDB = DriverDB.getInstance();
+//		deliveryDB = DeliveryDB.getInstance();
+//		regions = ONCRegions.getInstance();
 		fDB = Families.getInstance();
-		cDB = ChildDB.getInstance();
-		cwDB = ChildWishDB.getInstance();
+//		cDB = ChildDB.getInstance();
+//		cwDB = ChildWishDB.getInstance();
 		
 		if(fDB != null)
 			fDB.addDatabaseListener(this);
 		
-		if(deliveryDB != null)
-			deliveryDB.addDatabaseListener(this);
+//		if(deliveryDB != null)
+//			deliveryDB.addDatabaseListener(this);
 		
 		//initialize member variables
 		sortONCNum = "";

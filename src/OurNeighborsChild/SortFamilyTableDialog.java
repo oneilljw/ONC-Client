@@ -15,6 +15,10 @@ public abstract class SortFamilyTableDialog extends SortTableDialog
 	private static final long serialVersionUID = 1L;
 	protected static final int FAMILY_STATUS_PACKAGED = 5;
 	
+	protected ChildDB cDB;
+	protected DeliveryDB deliveryDB;
+	protected ONCRegions regions;
+	
 	protected ArrayList<ONCFamily> stAL = new ArrayList<ONCFamily>();
 	protected DefaultComboBoxModel regionCBM;
 	
@@ -24,6 +28,10 @@ public abstract class SortFamilyTableDialog extends SortTableDialog
 	{
 		super(pf, colToolTips, cols, colWidths, center_cols);
 		columns = cols;
+		
+		cDB = ChildDB.getInstance();
+		deliveryDB = DeliveryDB.getInstance();
+		regions = ONCRegions.getInstance();
 		
 		stAL = new ArrayList<ONCFamily>();
 		regionCBM = new DefaultComboBoxModel();

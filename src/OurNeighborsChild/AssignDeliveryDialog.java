@@ -185,7 +185,10 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 	 **********************************************************************************/
 	protected String[] getTableRow(ONCObject o)
 	{
+		DriverDB driverDB = DriverDB.getInstance();
+		
 		ONCFamily si = (ONCFamily) o;
+		
 		String[] deliverytablerow = {si.getONCNum(),
 				 famstatus[si.getFamilyStatus() + 1], 
 				 delstatus[si.getDeliveryStatus() + 1],

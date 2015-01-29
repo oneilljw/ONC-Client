@@ -571,11 +571,11 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			//Create the print job
 			PrinterJob pj = PrinterJob.getPrinterJob();
 			if(verification_sheet_type == PACKAGING_SHEET)
-				pj.setPrintable(new PackagingSheetPrinter(psAL, img, oncSeason, cwDB));
+				pj.setPrintable(new PackagingSheetPrinter(psAL, img, oncSeason));
 			else if(verification_sheet_type == PRE_PACKAGING_SHEET)
-				pj.setPrintable(new GiftInventorytSheetPrinter(psAL, img, oncSeason, cwDB));
+				pj.setPrintable(new GiftInventorytSheetPrinter(psAL, img, oncSeason));
 			else if(verification_sheet_type == RECEIVING_SHEET)
-				pj.setPrintable(new FamilyReceivingCheckSheetPrinter(psAL, img, oncSeason, cwDB));
+				pj.setPrintable(new FamilyReceivingCheckSheetPrinter(psAL, img, oncSeason));
 			else
 			{
 				printCB.setSelectedIndex(0);	//Invalid request
@@ -1645,7 +1645,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	 ***************************************************************************************/
 	private class PackagingSheetPrinter extends VerificationSheetPrinter
 	{	
-		PackagingSheetPrinter(ArrayList<ONCVerificationSheet> psal, Image img, String season, ChildWishDB cwdb)
+		PackagingSheetPrinter(ArrayList<ONCVerificationSheet> psal, Image img, String season)
 		{
 			super(psal);
 			this.img = img;
@@ -1771,7 +1771,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	 ***************************************************************************************/
 	private class GiftInventorytSheetPrinter extends VerificationSheetPrinter
 	{	
-		GiftInventorytSheetPrinter(ArrayList<ONCVerificationSheet> vsal, Image img, String season, ChildWishDB cwdb) 
+		GiftInventorytSheetPrinter(ArrayList<ONCVerificationSheet> vsal, Image img, String season) 
 		{
 			super(vsal);
 			this.img = img;
@@ -1882,7 +1882,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	
 	public class FamilyReceivingCheckSheetPrinter extends VerificationSheetPrinter
 	{	
-		FamilyReceivingCheckSheetPrinter(ArrayList<ONCVerificationSheet> vsal, Image img, String season, ChildWishDB cwdb) 
+		FamilyReceivingCheckSheetPrinter(ArrayList<ONCVerificationSheet> vsal, Image img, String season) 
 		{
 			super(vsal);
 			this.img = img;
