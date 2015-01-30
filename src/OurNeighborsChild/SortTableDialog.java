@@ -51,11 +51,6 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 	protected JFrame parentFrame;
 	protected GlobalVariables oncGVs;
 	protected Families fDB;
-//	protected ChildDB cDB;
-//	protected ChildWishDB cwDB;
-//	protected DriverDB driverDB;
-//	protected DeliveryDB deliveryDB;
-//	protected ONCRegions regions;
 	
 	//sort column and list of selected table rows
 	protected int tableSortCol;
@@ -63,7 +58,7 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 	
 	//JPanels the inherited class may use to add GUI elements
 	protected JPanel sortCriteriaPanelTop, sortCriteriaPanelBottom;
-	protected JPanel itemCountPanel, changeDataPanel, cntlPanel;
+	protected JPanel itemCountPanel, altCountPanel, changeDataPanel, cntlPanel;
 	
 	protected ONCTable sortTable;
 	protected DefaultTableModel sortTableModel;
@@ -196,10 +191,16 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
         gbc.weightx = 0.1;
         thirdPanel.add(itemCountPanel, gbc);
         
-        changeDataPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        altCountPanel = new JPanel();
         gbc.gridx = 1;
         gbc.ipadx = 0;
-        gbc.weightx = 0.9;
+        gbc.weightx = 0.0;
+        thirdPanel.add(altCountPanel, gbc);
+        
+        changeDataPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        gbc.gridx = 2;
+        gbc.ipadx = 0;
+        gbc.weightx = 1.0;
         thirdPanel.add(changeDataPanel, gbc);
 				
         //Set up the subclass defined button control panel and the common Reset Criteria and

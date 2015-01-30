@@ -70,17 +70,17 @@ public class SortPartnerDialog extends ONCTableDialog implements ActionListener,
 	private JComboBox changedByCB, stoplightCB;
 	private ComboItem[] changePartItem;
 	private JComboBox changePStatusCB, changeOrnReqCB;
-	private DefaultComboBoxModel regionCBM, changedByCBM;
+	private DefaultComboBoxModel regionCBM;
+	private DefaultComboBoxModel changedByCBM;
 	private JButton btnResetCriteria, btnExport;
 	private JComboBox printCB, emailCB;
 	private	JButton btnApplyChanges;
-	private JLabel lblNumOfPartners, lblOrnReq;
+	private JLabel lblNumOfTableItems;
+	private JLabel lblOrnReq;
 	private ArrayList<Organization> stAL;
 	
 	private boolean bChangingTable = false;	//Semaphore used to indicate the sort table is being changed
-	private boolean bIgnoreSortDialogEvents = false;
-	private boolean bSortTableBuildRqrd = false;	//Used to determine a build to sort table is needed
-	private boolean bResetInProcess = false;	//Prevents recursive build of sort table by event handlers during reset event
+	private boolean bIgnoreCBEvents = false;
 	
 	private int sortStatus = 0, sortType = 0, sortRegion = 0, sortChangedBy = 0, sortStoplight = 0;
 	
@@ -250,10 +250,10 @@ public class SortPartnerDialog extends ONCTableDialog implements ActionListener,
 		thirdpanel.setLayout(new BoxLayout(thirdpanel, BoxLayout.X_AXIS));
 		        
 		JPanel partnerCountPanel = new JPanel();       
-		lblNumOfPartners = new JLabel("0");
+		lblNumOfTableItems = new JLabel("0");
 		partnerCountPanel.setBorder(BorderFactory.createTitledBorder("Partners Meeting Criteria"));
 		partnerCountPanel.setPreferredSize(new Dimension(170, 70));
-		partnerCountPanel.add(lblNumOfPartners);
+		partnerCountPanel.add(lblNumOfTableItems);
 		
 		JPanel ornReqPanel = new JPanel();       
         lblOrnReq = new JLabel("0");
@@ -392,7 +392,7 @@ public class SortPartnerDialog extends ONCTableDialog implements ActionListener,
 		return sorttablerow;
 	}
 	
-	public void buildSortTable()
+	public void buildTableList()
 	{
 		stAL.clear();	//Clear the prior table data array list
 		int totalornreq = 0;	//total number of orn requested in table
@@ -410,9 +410,14 @@ public class SortPartnerDialog extends ONCTableDialog implements ActionListener,
 				}
 		}
 		
-		lblNumOfPartners.setText(Integer.toString(stAL.size()));
+		lblNumOfTableItems.setText(Integer.toString(stAL.size()));
 		lblOrnReq.setText(Integer.toString(totalornreq));
 		displaySortTable();		//Display the table after table array list is built					
+	}
+	
+	int sortTableList(int col)
+	{
+		return -1;
 	}
 	
 	//Returns a boolean that a change to organization data occurred
@@ -478,7 +483,7 @@ public class SortPartnerDialog extends ONCTableDialog implements ActionListener,
 		
 		sortTable.clearSelection();
 		if(bOrgDataChangeDetected)
-			buildSortTable();
+			buildTableList();
 		
 		//Reset the change combo boxes to DEFAULT_NO_CHANGE_LIST_ITEM
 		changePStatusCB.setSelectedIndex(0);
@@ -1119,7 +1124,7 @@ public class SortPartnerDialog extends ONCTableDialog implements ActionListener,
 	{
 		UserDB userDB = UserDB.getInstance();
 		
-		bIgnoreSortDialogEvents = true;
+		bIgnoreCBEvents = true;
 		changedByCB.setEnabled(false);
 		String curr_sel = changedByCB.getSelectedItem().toString();
 		int selIndex = 0;
@@ -1141,7 +1146,7 @@ public class SortPartnerDialog extends ONCTableDialog implements ActionListener,
 		sortChangedBy = selIndex;
 		
 		changedByCB.setEnabled(true);
-		bIgnoreSortDialogEvents = false;
+		bIgnoreCBEvents = false;
 	}
 	
 	void updateRegionList(String[] regions)
@@ -1159,13 +1164,6 @@ public class SortPartnerDialog extends ONCTableDialog implements ActionListener,
 		regionCB.setSelectedItem(currSel);
 		
 		regionCB.setEnabled(true);
-	}
-	
-	void addUser(String user)
-	{
-		changedByCB.setEnabled(false);
-		changedByCBM.addElement(user);
-		changedByCB.setEnabled(true);
 	}
 	
 	void checkPrintEnabled()
@@ -1305,40 +1303,31 @@ public class SortPartnerDialog extends ONCTableDialog implements ActionListener,
 		if(e.getSource() == statusCB && statusCB.getSelectedIndex() != sortStatus)
 		{						
 			sortStatus = statusCB.getSelectedIndex();
-			bSortTableBuildRqrd = true;
+			buildTableList();
 		}
 		else if(e.getSource() == typeCB && typeCB.getSelectedIndex() != sortType)
 		{
 			sortType = typeCB.getSelectedIndex();
-			bSortTableBuildRqrd = true;
+			buildTableList();
 		}
-		else if(e.getSource() == regionCB && regionCB.getSelectedIndex() != sortRegion && !bIgnoreSortDialogEvents)
+		else if(e.getSource() == regionCB && regionCB.getSelectedIndex() != sortRegion && !bIgnoreCBEvents)
 		{						
 			sortRegion = regionCB.getSelectedIndex();
-			bSortTableBuildRqrd = true;
+			buildTableList();
 		}
-		else if(e.getSource() == changedByCB && changedByCB.getSelectedIndex() != sortChangedBy  && !bIgnoreSortDialogEvents)
+		else if(e.getSource() == changedByCB && changedByCB.getSelectedIndex() != sortChangedBy  && !bIgnoreCBEvents)
 		{						
 			sortChangedBy = changedByCB.getSelectedIndex();
-			bSortTableBuildRqrd = true;
+			buildTableList();
 		}
-		else if(e.getSource() == stoplightCB && stoplightCB.getSelectedIndex() != sortStoplight  && !bIgnoreSortDialogEvents)
+		else if(e.getSource() == stoplightCB && stoplightCB.getSelectedIndex() != sortStoplight  && !bIgnoreCBEvents)
 		{						
 			sortStoplight = stoplightCB.getSelectedIndex();
-			bSortTableBuildRqrd = true;
+			buildTableList();
 		}
 		else if(e.getSource() == btnResetCriteria)
 		{
-			bResetInProcess = true;	//Prevent building of new sort table by event handlers
-			
-			statusCB.setSelectedIndex(0);
-			typeCB.setSelectedIndex(0);	
-			regionCB.setSelectedIndex(0);
-			changedByCB.setSelectedIndex(0);
-			stoplightCB.setSelectedIndex(0);
-			
-			bSortTableBuildRqrd = true;	//Force a table build to reset order change from header click
-			bResetInProcess = false;	//Restore sort table build by event handlers
+			onResetCriteriaClicked();
 		}
 		else if(e.getSource() == printCB)
 		{
@@ -1385,14 +1374,31 @@ public class SortPartnerDialog extends ONCTableDialog implements ActionListener,
 		{
 			onApplyChanges();
 		}
-		
-		//Only build one time if multiple changes occur, i.e. Reset Button event
-		if(bSortTableBuildRqrd && !bResetInProcess && !bIgnoreSortDialogEvents)
-		{
-			buildSortTable();
-			bSortTableBuildRqrd = false;
-		}		
 	}
+	
+	void onResetCriteriaClicked()
+	{
+		statusCB.removeActionListener(this);
+		statusCB.setSelectedIndex(0);
+		statusCB.addActionListener(this);
+		
+		typeCB.removeActionListener(this);
+		typeCB.setSelectedIndex(0);	
+		typeCB.addActionListener(this);
+		
+		regionCB.removeActionListener(this);
+		regionCB.setSelectedIndex(0);
+		regionCB.addActionListener(this);
+		
+		changedByCB.removeActionListener(this);
+		changedByCB.setSelectedIndex(0);
+		changedByCB.addActionListener(this);
+		
+		stoplightCB.removeActionListener(this);
+		stoplightCB.setSelectedIndex(0);
+		stoplightCB.addActionListener(this);
+	}
+	
 
 	@Override
 	public void valueChanged(ListSelectionEvent lse)
@@ -1439,7 +1445,7 @@ public class SortPartnerDialog extends ONCTableDialog implements ActionListener,
 			    dbe.getType().equals("DELETED_PARTNER") ||
 			     dbe.getType().equals("DELETED_CHILD")))
 		{
-			buildSortTable();		
+			buildTableList();		
 		}
 		else if(dbe.getType().equals("UPDATED_REGION_LIST"))
 		{

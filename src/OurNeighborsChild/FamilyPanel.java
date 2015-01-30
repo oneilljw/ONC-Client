@@ -1399,7 +1399,7 @@ public class FamilyPanel extends JPanel implements ActionListener, ListSelection
 	{
 		if(!sortOrgsDlg.isVisible())
 		{
-			sortOrgsDlg.buildSortTable();
+			sortOrgsDlg.buildTableList();
 			Point pt = GlobalVariables.getFrame().getLocation();
 	        sortOrgsDlg.setLocation(pt.x + 5, pt.y + 20);
 			sortOrgsDlg.setVisible(true);
