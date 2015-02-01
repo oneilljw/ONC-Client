@@ -5,7 +5,7 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JFrame;
 import javax.swing.event.ListSelectionEvent;
 
-public abstract class SortFamilyTableDialog extends SortTableDialog
+public abstract class SortFamilyTableDialog extends ChangeDialog
 {
 	/**
 	 * Extends the blueprint for dialogs that display ONCFamily objects in the table. Provides

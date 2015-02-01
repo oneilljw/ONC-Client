@@ -521,7 +521,16 @@ public class FamilyPanel extends JPanel implements ActionListener, ListSelection
         sortWishesDlg.addEntitySelectionListener(orgDlg);
         
         //Set up the sort gift partner dialog
-        sortOrgsDlg = new SortPartnerDialog(parentFrame);
+        String[] orgToolTips = {"ONC Partner", "Partner Status","Type of Organization",
+				"Number of Ornaments Requested","Number of Ornaments Assigned",
+				"Special Notes for Partner","Date Partner Info Last Changed", 
+				"ONC User that last changed partner info", "ONC Region that partner is located",
+				"Partner Stop Light Color"};
+        String[] orgCols = {"Partner","Status", "Type", "Req", "Assigned", "Special Notes",
+				"Date Changed","Changed By","Reg", "SL"};
+        int[] orgColWidths = {180, 96, 68, 48, 56, 180, 72, 80, 28, 24};
+        int[] orgCenter_cols = {8, 9};
+        sortOrgsDlg = new SortPartnerDialog(parentFrame, orgToolTips, orgCols, orgColWidths, orgCenter_cols);
         sortOrgsDlg.addEntitySelectionListener(orgDlg);
         
         //set up the data check dialog and table row selection listener
@@ -1399,7 +1408,7 @@ public class FamilyPanel extends JPanel implements ActionListener, ListSelection
 	{
 		if(!sortOrgsDlg.isVisible())
 		{
-			sortOrgsDlg.buildTableList();
+			sortOrgsDlg.buildTableList(true);
 			Point pt = GlobalVariables.getFrame().getLocation();
 	        sortOrgsDlg.setLocation(pt.x + 5, pt.y + 20);
 			sortOrgsDlg.setVisible(true);

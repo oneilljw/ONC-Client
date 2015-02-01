@@ -3,11 +3,8 @@ package OurNeighborsChild;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.print.PrinterException;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -17,9 +14,9 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+
 import javax.mail.internet.MimeBodyPart;
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -32,19 +29,18 @@ import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
-import javax.swing.SwingConstants;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
+
 import au.com.bytecode.opencsv.CSVWriter;
 
-public class SortPartnerDialog extends ONCTableDialog implements ActionListener, ListSelectionListener, 
+public class SortPartnerDialog extends ChangeDialog implements ActionListener, ListSelectionListener, 
 															PropertyChangeListener, DatabaseListener															
 {
 	/**
@@ -59,29 +55,21 @@ public class SortPartnerDialog extends ONCTableDialog implements ActionListener,
 	private static final String GIFT_PARTNER_EMAIL_SENDER_ADDRESS = "volunteer@ourneighborschild.org";
 	private static final String CLOTHING_PARTNER_EMAIL_SENDER_ADDRESS = "volunteer@ourneighborschild.org";
 	
-	private GlobalVariables spGVs;
 	private ONCRegions regions;
 	private ONCOrgs orgs;
 	private ChildDB childDB;
 	
-	private ONCTable sortTable;
-	private DefaultTableModel sortTableModel;
 	private JComboBox regionCB, statusCB, typeCB;
 	private JComboBox changedByCB, stoplightCB;
 	private ComboItem[] changePartItem;
 	private JComboBox changePStatusCB, changeOrnReqCB;
 	private DefaultComboBoxModel regionCBM;
 	private DefaultComboBoxModel changedByCBM;
-	private JButton btnResetCriteria, btnExport;
+	private JButton btnExport;
 	private JComboBox printCB, emailCB;
-	private	JButton btnApplyChanges;
-	private JLabel lblNumOfTableItems;
 	private JLabel lblOrnReq;
 	private ArrayList<Organization> stAL;
-	
-	private boolean bChangingTable = false;	//Semaphore used to indicate the sort table is being changed
-	private boolean bIgnoreCBEvents = false;
-	
+
 	private int sortStatus = 0, sortType = 0, sortRegion = 0, sortChangedBy = 0, sortStoplight = 0;
 	
 	private String[] status = {"Any","No Action Yet", "1st Email Sent", "Responded", "2nd Email Sent", "Called, Left Mssg",
@@ -91,16 +79,18 @@ public class SortPartnerDialog extends ONCTableDialog implements ActionListener,
 	
 	private static String[] stoplt = {"Any", "Green", "Yellow", "Red", "Off"};
 	
-	private String[] columns = {"Partner","Status", "Type", "Req", "Assigned", "Special Notes",
-								"Date Changed","Changed By","Reg", "SL"};
+	private String[] columns;
+//	private String[] columns = {"Partner","Status", "Type", "Req", "Assigned", "Special Notes",
+//								"Date Changed","Changed By","Reg", "SL"};
 	
 	private JProgressBar progressBar;
 	private ONCEmailer oncEmailer;
 	
-	SortPartnerDialog(JFrame parentFrame)
+	SortPartnerDialog(JFrame pf, String[] columnToolTips, String[] cols, int[] colWidths, int[] center_cols)
 	{
-		super(parentFrame);
-		spGVs = GlobalVariables.getInstance();
+		super(pf, columnToolTips, cols, colWidths, center_cols);
+		this.columns = cols;
+//		spGVs = GlobalVariables.getInstance();
 		regions = ONCRegions.getInstance();
 		this.setTitle("Our Neighbor's Child - Gift Partner Management");
 		
@@ -129,12 +119,6 @@ public class SortPartnerDialog extends ONCTableDialog implements ActionListener,
 			childwishDB.addDatabaseListener(this);	//listen for partner gift assignment changes
 		
 		//Set up the search criteria panel      
-		JPanel sortCriteriaPanel = new JPanel();
-		sortCriteriaPanel.setLayout(new BoxLayout(sortCriteriaPanel, BoxLayout.Y_AXIS));
-		JPanel sortCriteriaPanelTop = new JPanel(new FlowLayout(FlowLayout.LEFT));		
-				
-		JLabel lblONCicon = new JLabel(spGVs.getImageIcon(0));	
-				
 		statusCB = new JComboBox(status);
 		statusCB.setBorder(BorderFactory.createTitledBorder("Partner Status"));
 		statusCB.addActionListener(this);
@@ -164,106 +148,26 @@ public class SortPartnerDialog extends ONCTableDialog implements ActionListener,
 		stoplightCB.addActionListener(this);
 				
 		//Add all sort criteria components to dialog pane
-		sortCriteriaPanelTop.add(lblONCicon);
 		sortCriteriaPanelTop.add(statusCB);
 		sortCriteriaPanelTop.add(typeCB);
 		sortCriteriaPanelTop.add(changedByCB);
 		sortCriteriaPanelTop.add(regionCB);
 		sortCriteriaPanelTop.add(stoplightCB);
-				
-		sortCriteriaPanel.add(sortCriteriaPanelTop);
-		sortCriteriaPanel.setBorder(BorderFactory.createTitledBorder("Search Criteria"));
-				
-		//Set up the sort family table panel
-		String[] colTT =  {"ONC Partner", "Partner Status","Type of Organization",
-							"Number of Ornaments Requested","Number of Ornaments Assigned",
-							"Special Notes for Partner","Date Partner Info Last Changed", 
-							"ONC User that last changed partner info", "ONC Region that partner is located",
-							"Partner Stop Light Color"};
-		sortTable = new ONCTable(colTT, new Color(240,248,255));
+		        
+		//Set up the change panel holding count panel, orn assigned panel and change panel
+		itemCountPanel.setBorder(BorderFactory.createTitledBorder("Partners Meeting Criteria"));
 
-		sortTableModel = new DefaultTableModel(columns, 0)
-		{
-			private static final long serialVersionUID = 1L;
-		    @Override
-		    //All cells are locked from being changed by user
-		    public boolean isCellEditable(int row, int column) {return false;}
-		};
-		     
-		//add the model to the table, set selection model        
-		sortTable.setModel(sortTableModel);
-		sortTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);	        
-		sortTable.setAutoResizeMode( JTable.AUTO_RESIZE_OFF);
-		        
-		//Set table column widths
-		int tablewidth = 0;
-		int[] colWidths = {180, 96, 68, 48, 56, 180, 72, 80, 28, 24};
-		for(int i=0; i < colWidths.length; i++)
-		{
-			sortTable.getColumnModel().getColumn(i).setPreferredWidth(colWidths[i]);
-			tablewidth += colWidths[i];
-		}
-		tablewidth += 24; 	//Account for vertical scroll bar
-		       
-		//set up the table header        
-		JTableHeader anHeader = sortTable.getTableHeader();
-		anHeader.setForeground( Color.black);
-		anHeader.setBackground( new Color(161,202,241));
- 
-		//mouse listener for table header click causes table to be sorted based on column selected
-		//uses organization data base object sort method to sort. Method requires Organization
-		//array list to be sorted along with column name
-		anHeader.addMouseListener(new MouseAdapter() {
-			@Override
-		    public void mouseClicked(MouseEvent e) {
-				if(orgs.sortDB(stAL, columns[sortTable.columnAtPoint(e.getPoint())]))
-		    		displaySortTable();
-		        }
-		});
-		        
-		//Center cell entries for Batch # and Region
-		DefaultTableCellRenderer dtcr = new DefaultTableCellRenderer();    
-		dtcr.setHorizontalAlignment(SwingConstants.CENTER);
-		sortTable.getColumnModel().getColumn(8).setCellRenderer(dtcr);
-		sortTable.getColumnModel().getColumn(9).setCellRenderer(dtcr);
-		        
-		//Right justify cell entries
-		DefaultTableCellRenderer dtrj = new DefaultTableCellRenderer(); 
-		dtrj.setHorizontalAlignment(SwingConstants.RIGHT);
-		sortTable.getColumnModel().getColumn(3).setCellRenderer(dtrj);
-		sortTable.getColumnModel().getColumn(4).setCellRenderer(dtrj);
-		        
-		sortTable.setBorder(UIManager.getBorder("Table.scrollPaneBorder"));
-		sortTable.setFillsViewportHeight(true);
-		        
-		sortTable.getSelectionModel().addListSelectionListener(this);
-		        
-		//Create the scroll pane and add the table to it.
-		JScrollPane sortScrollPane = new JScrollPane(sortTable, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
-		        												JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		        
-		sortScrollPane.setPreferredSize(new Dimension(tablewidth, sortTable.getRowHeight()*NUM_ROWS_TO_DISPLAY));
-		       
-		        
-		//Set up the third panel holding count panel and change panel
-		JPanel thirdpanel = new JPanel();
-		thirdpanel.setLayout(new BoxLayout(thirdpanel, BoxLayout.X_AXIS));
-		        
-		JPanel partnerCountPanel = new JPanel();       
-		lblNumOfTableItems = new JLabel("0");
-		partnerCountPanel.setBorder(BorderFactory.createTitledBorder("Partners Meeting Criteria"));
-		partnerCountPanel.setPreferredSize(new Dimension(170, 70));
-		partnerCountPanel.add(lblNumOfTableItems);
-		
 		JPanel ornReqPanel = new JPanel();       
         lblOrnReq = new JLabel("0");
         ornReqPanel.setBorder(BorderFactory.createTitledBorder("# Orn Requested"));
         ornReqPanel.setPreferredSize(new Dimension(125, 80));
         ornReqPanel.add(lblOrnReq);
-		        
-		JPanel changeFamilyPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		changeFamilyPanel.setPreferredSize(new Dimension(tablewidth-305, 70));
-		        
+        
+        gbc.gridx = 1;
+        gbc.ipadx = 0;
+        gbc.weightx = 0.8;
+        changePanel.add(ornReqPanel, gbc);
+
 		changePartItem = new ComboItem[8];	//Delivery status combo box list objects can be enabled/disabled
 		changePartItem[0] = new ComboItem(DEFAULT_NO_CHANGE_LIST_ITEM);
 		changePartItem[1] = new ComboItem("No Action Yet");
@@ -288,20 +192,18 @@ public class SortPartnerDialog extends ONCTableDialog implements ActionListener,
 		changeOrnReqCB.setPreferredSize(new Dimension(192, 56));
 		changeOrnReqCB.setBorder(BorderFactory.createTitledBorder("Change # Ornaments Req"));
 		changeOrnReqCB.addActionListener(this);
-					
-		//Add the components to the third panel			
-		changeFamilyPanel.add(changePStatusCB);
-		changeFamilyPanel.add(changeOrnReqCB);
-		changeFamilyPanel.setBorder(BorderFactory.createTitledBorder("Change Select Partner Data"));
-		         
-		thirdpanel.add(partnerCountPanel);
-		thirdpanel.add(ornReqPanel);
-		thirdpanel.add(changeFamilyPanel);
-		thirdpanel.setPreferredSize(new Dimension(tablewidth, 90));
-						
-		//Set up the control panel
-		JPanel cntlPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+
+		//Add the components to the change data panel			
+		changeDataPanel.add(changePStatusCB);
+		changeDataPanel.add(changeOrnReqCB);
+		changeDataPanel.setBorder(BorderFactory.createTitledBorder("Change Select Partner Data"));
 		
+		gbc.gridx = 2;
+        gbc.ipadx = 0;
+        gbc.weightx = 1.0;
+        changePanel.add(changeDataPanel, gbc);
+        
+		//Set up the control panel
 		btnExport = new JButton("Export Data");
 	    btnExport.setEnabled(false);
 	    btnExport.addActionListener(this);
@@ -329,31 +231,18 @@ public class SortPartnerDialog extends ONCTableDialog implements ActionListener,
 		printCB.setPreferredSize(new Dimension(136, 28));
 		printCB.setEnabled(false);
 		printCB.addActionListener(this);
-				
-		btnResetCriteria = new JButton("Reset Criteria");
-		btnResetCriteria.addActionListener(this);
-		          
-		btnApplyChanges = new JButton("Apply Changes");
-		btnApplyChanges.addActionListener(this);
-		btnApplyChanges.setEnabled(false);
-		       
+  
 		//Add the components to the control panel
 		cntlPanel.add(btnExport);
 		cntlPanel.add(progressBar);
 		cntlPanel.add(emailCB);
 		cntlPanel.add(printCB);
-		cntlPanel.add(btnResetCriteria);
-		cntlPanel.add(btnApplyChanges);
-		        
-		//Add the four panels to the dialog pane
-		this.getContentPane().setLayout(new BoxLayout(this.getContentPane(), BoxLayout.Y_AXIS));        
-		this.add(sortCriteriaPanel);
-		this.add(sortScrollPane);
-		this.add(thirdpanel);
-		this.add(cntlPanel);
-		       
+
+		//Add the change and bottom panels to the dialog pane
+		 this.add(changePanel);
+	     this.add(bottomPanel);
+	        
 		pack();
-		setResizable(true);
 	}
 	
 	void displaySortTable()
@@ -378,8 +267,10 @@ public class SortPartnerDialog extends ONCTableDialog implements ActionListener,
 		bChangingTable = false;	
 	}
 	
-	public String[] getTableRow(Organization o)
+	@Override
+	public String[] getTableRow(ONCObject obj)
 	{
+		Organization o = (Organization) obj;
 		SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yy");
 		String[] sorttablerow = {o.getName(), status[o.getStatus()+1], types[o.getType()],
 								 Integer.toString(o.getNumberOfOrnamentsRequested()),
@@ -392,8 +283,14 @@ public class SortPartnerDialog extends ONCTableDialog implements ActionListener,
 		return sorttablerow;
 	}
 	
-	public void buildTableList()
+	public void buildTableList(boolean bPreserveSelections)
 	{
+		tableRowSelectedItemIDList.clear();
+		if(bPreserveSelections)
+			archiveTableSelections(stAL);
+		else
+			tableSortCol = -1;
+		
 		stAL.clear();	//Clear the prior table data array list
 		int totalornreq = 0;	//total number of orn requested in table
 		
@@ -415,9 +312,18 @@ public class SortPartnerDialog extends ONCTableDialog implements ActionListener,
 		displaySortTable();		//Display the table after table array list is built					
 	}
 	
+	@Override
 	int sortTableList(int col)
 	{
-		return -1;
+		archiveTableSelections(stAL);
+		
+		if(orgs.sortDB(stAL, columns[col]))
+		{
+			displaySortTable(stAL, false);
+			return col;
+		}
+		else
+			return -1;
 	}
 	
 	//Returns a boolean that a change to organization data occurred
@@ -462,8 +368,8 @@ public class SortPartnerDialog extends ONCTableDialog implements ActionListener,
 			//if status or # of ornaments requested changed, need to send an update request to the server
 			if(bOrgChanged)
 			{
-				updatedOrg.setDateChanged(spGVs.getTodaysDate());
-				updatedOrg.setStoplightChangedBy(spGVs.getUserLNFI());
+				updatedOrg.setDateChanged(oncGVs.getTodaysDate());
+				updatedOrg.setStoplightChangedBy(oncGVs.getUserLNFI());
 				
 				String response = orgs.update(this, updatedOrg);	//notify the database of the change
 				
@@ -474,7 +380,7 @@ public class SortPartnerDialog extends ONCTableDialog implements ActionListener,
 					//display an error message that update request failed
 					JOptionPane.showMessageDialog(this, "ONC Server denied Partner Update," +
 							"try again later","Partner Update Failed",  
-							JOptionPane.ERROR_MESSAGE, spGVs.getImageIcon(0));
+							JOptionPane.ERROR_MESSAGE, oncGVs.getImageIcon(0));
 				}
 				
 				bOrgChanged = false;
@@ -483,7 +389,7 @@ public class SortPartnerDialog extends ONCTableDialog implements ActionListener,
 		
 		sortTable.clearSelection();
 		if(bOrgDataChangeDetected)
-			buildTableList();
+			buildTableList(false);
 		
 		//Reset the change combo boxes to DEFAULT_NO_CHANGE_LIST_ITEM
 		changePStatusCB.setSelectedIndex(0);
@@ -493,11 +399,6 @@ public class SortPartnerDialog extends ONCTableDialog implements ActionListener,
 		btnApplyChanges.setEnabled(false);
 		
 		return bOrgDataChangeDetected;
-	}
-	
-	public static boolean isNumeric(String str)
-	{
-	  return str.matches("-?\\d+(\\.\\d+)?");  //match a number with optional '-' and decimal.
 	}
 	
 	void createAndSendPartnerEmail(int emailType)
@@ -1171,7 +1072,7 @@ public class SortPartnerDialog extends ONCTableDialog implements ActionListener,
 		if(sortTable.getSelectedRowCount() > 0)
 		{
 //			printCB.setEnabled(true);
-			if(spGVs.isUserAdmin())	//Only admins or higher can send email
+			if(oncGVs.isUserAdmin())	//Only admins or higher can send email
 				emailCB.setEnabled(true);
 			btnExport.setEnabled(true);
 		}
@@ -1243,13 +1144,13 @@ public class SortPartnerDialog extends ONCTableDialog implements ActionListener,
 	    	    
 	    	    JOptionPane.showMessageDialog(parentFrame, 
 						sortTable.getSelectedRowCount() + " partners sucessfully exported to " + oncwritefile.getName(), 
-						"Export Successful", JOptionPane.INFORMATION_MESSAGE, spGVs.getImageIcon(0));
+						"Export Successful", JOptionPane.INFORMATION_MESSAGE, oncGVs.getImageIcon(0));
 	    	} 
 	    	catch (IOException x)
 	    	{
 	    		JOptionPane.showMessageDialog(parentFrame, 
 						"Export Failed, I/O Error: "  + x.getMessage(),  
-						"Export Failed", JOptionPane.ERROR_MESSAGE, spGVs.getImageIcon(0));
+						"Export Failed", JOptionPane.ERROR_MESSAGE, oncGVs.getImageIcon(0));
 	    		System.err.format("IOException: %s%n", x);
 	    	}
 	    }
@@ -1303,27 +1204,27 @@ public class SortPartnerDialog extends ONCTableDialog implements ActionListener,
 		if(e.getSource() == statusCB && statusCB.getSelectedIndex() != sortStatus)
 		{						
 			sortStatus = statusCB.getSelectedIndex();
-			buildTableList();
+			buildTableList(false);
 		}
 		else if(e.getSource() == typeCB && typeCB.getSelectedIndex() != sortType)
 		{
 			sortType = typeCB.getSelectedIndex();
-			buildTableList();
+			buildTableList(false);
 		}
 		else if(e.getSource() == regionCB && regionCB.getSelectedIndex() != sortRegion && !bIgnoreCBEvents)
 		{						
 			sortRegion = regionCB.getSelectedIndex();
-			buildTableList();
+			buildTableList(false);
 		}
 		else if(e.getSource() == changedByCB && changedByCB.getSelectedIndex() != sortChangedBy  && !bIgnoreCBEvents)
 		{						
 			sortChangedBy = changedByCB.getSelectedIndex();
-			buildTableList();
+			buildTableList(false);
 		}
 		else if(e.getSource() == stoplightCB && stoplightCB.getSelectedIndex() != sortStoplight  && !bIgnoreCBEvents)
 		{						
 			sortStoplight = stoplightCB.getSelectedIndex();
-			buildTableList();
+			buildTableList(false);
 		}
 		else if(e.getSource() == btnResetCriteria)
 		{
@@ -1346,7 +1247,7 @@ public class SortPartnerDialog extends ONCTableDialog implements ActionListener,
 											
 			Object[] options= {"Cancel", "Send"};
 			JOptionPane confirmOP = new JOptionPane(confirmMssg, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION,
-								spGVs.getImageIcon(0), options, "Cancel");
+					oncGVs.getImageIcon(0), options, "Cancel");
 			JDialog confirmDlg = confirmOP.createDialog(this, "*** Confirm " + emailCB.getSelectedItem().toString() + " ***");
 			confirmDlg.setVisible(true);
 		
@@ -1380,23 +1281,30 @@ public class SortPartnerDialog extends ONCTableDialog implements ActionListener,
 	{
 		statusCB.removeActionListener(this);
 		statusCB.setSelectedIndex(0);
+		sortStatus = 0;
 		statusCB.addActionListener(this);
 		
 		typeCB.removeActionListener(this);
-		typeCB.setSelectedIndex(0);	
+		typeCB.setSelectedIndex(0);
+		sortType = 0; 
 		typeCB.addActionListener(this);
 		
 		regionCB.removeActionListener(this);
 		regionCB.setSelectedIndex(0);
+		sortRegion = 0; 
 		regionCB.addActionListener(this);
 		
 		changedByCB.removeActionListener(this);
 		changedByCB.setSelectedIndex(0);
+		sortChangedBy = 0;
 		changedByCB.addActionListener(this);
 		
 		stoplightCB.removeActionListener(this);
 		stoplightCB.setSelectedIndex(0);
+		sortStoplight = 0;
 		stoplightCB.addActionListener(this);
+		
+		buildTableList(false);
 	}
 	
 
@@ -1445,7 +1353,7 @@ public class SortPartnerDialog extends ONCTableDialog implements ActionListener,
 			    dbe.getType().equals("DELETED_PARTNER") ||
 			     dbe.getType().equals("DELETED_CHILD")))
 		{
-			buildTableList();		
+			buildTableList(true);		
 		}
 		else if(dbe.getType().equals("UPDATED_REGION_LIST"))
 		{
@@ -1550,5 +1458,16 @@ public class SortPartnerDialog extends ONCTableDialog implements ActionListener,
 				e.printStackTrace();
 			}
 		}
-	}	
+	}
+
+	@Override
+	void setEnabledControls(boolean tf)
+	{
+		printCB.setEnabled(tf);
+		emailCB.setEnabled(tf);
+		btnExport.setEnabled(tf);
+	}
+
+	@Override
+	boolean isONCNumContainerEmpty() { return false; }	
 }

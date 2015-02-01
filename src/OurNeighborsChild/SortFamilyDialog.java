@@ -237,7 +237,12 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		changeDataPanel.add(changeFStatusCB);
 		changeDataPanel.add(changeDStatusCB);
 		changeDataPanel.setBorder(BorderFactory.createTitledBorder("Change Select Family Data"));
-         
+        
+        gbc.gridx = 1;
+        gbc.ipadx = 0;
+        gbc.weightx = 1.0;
+        changePanel.add(changeDataPanel, gbc);
+        
 		//set up the unique control gui for this dialog
         printCB = new JComboBox(printChoices);
         printCB.setPreferredSize(new Dimension(136, 28));
@@ -267,6 +272,9 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
         cntlPanel.add(progressBar);
         cntlPanel.add(emailCB);
         cntlPanel.add(printCB);
+        
+        this.add(changePanel);
+        this.add(bottomPanel);
 
         pack();
 	}

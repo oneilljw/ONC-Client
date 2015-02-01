@@ -3,8 +3,6 @@ package OurNeighborsChild;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -58,13 +56,12 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 	
 	//JPanels the inherited class may use to add GUI elements
 	protected JPanel sortCriteriaPanelTop, sortCriteriaPanelBottom;
-	protected JPanel itemCountPanel, altCountPanel, changeDataPanel, cntlPanel;
+	protected JPanel cntlPanel, bottomPanel;
 	
 	protected ONCTable sortTable;
 	protected DefaultTableModel sortTableModel;
 	protected JButton btnApplyChanges;
 	protected JButton btnResetCriteria;
-	protected JLabel lblNumOfTableItems;
 	
 	protected String sortONCNum = "";
 	
@@ -172,40 +169,9 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 
 		sortScrollPane.setPreferredSize(new Dimension(tablewidth, sortTable.getRowHeight()*NUM_ROWS_TO_DISPLAY));
 		
-        //Set up the third panel holding count panel and change panel using a GridBag layout
-        JPanel thirdPanel = new JPanel();
-        thirdPanel.setLayout( new GridBagLayout() ); 
-        GridBagConstraints gbc = new GridBagConstraints();
-        
-        itemCountPanel = new JPanel();       
-        lblNumOfTableItems = new JLabel();	//subclasses set text
-        itemCountPanel.add(lblNumOfTableItems);
-        itemCountPanel.setBorder(BorderFactory.createTitledBorder("Families Meeting Criteria"));
-        
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.gridwidth = 1;
-        gbc.gridheight = 1;
-        gbc.fill = GridBagConstraints.BOTH;
-        gbc.ipadx = 120;
-        gbc.weightx = 0.1;
-        thirdPanel.add(itemCountPanel, gbc);
-        
-        altCountPanel = new JPanel();
-        gbc.gridx = 1;
-        gbc.ipadx = 0;
-        gbc.weightx = 0.0;
-        thirdPanel.add(altCountPanel, gbc);
-        
-        changeDataPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        gbc.gridx = 2;
-        gbc.ipadx = 0;
-        gbc.weightx = 1.0;
-        thirdPanel.add(changeDataPanel, gbc);
-				
         //Set up the subclass defined button control panel and the common Reset Criteria and
         //Apply Changes buttons as part of the bottom panel
-		JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		cntlPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
            
         btnResetCriteria = new JButton("Reset Criteria");
@@ -225,12 +191,11 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
         bottomPanel.add(btnResetCriteria);
         bottomPanel.add(btnApplyChanges);
                 
-        //Add the four components to the dialog pane
+        //Add the top two panels to the dialog pane, the other panels are added
+        //by the subclasses
         this.getContentPane().setLayout(new BoxLayout(this.getContentPane(), BoxLayout.Y_AXIS));        
         this.add(sortCriteriaPanel);
         this.add(sortScrollPane);
-        this.add(thirdPanel);
-        this.add(bottomPanel);
 
         setResizable(true);
 	}

@@ -5,7 +5,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.Calendar;
-
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -100,6 +99,11 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 		changeDataPanel.add(assignDriverTF);
         changeDataPanel.setBorder(BorderFactory.createTitledBorder("Assign Delivery Driver"));
         
+        gbc.gridx = 1;
+        gbc.ipadx = 0;
+        gbc.weightx = 1.0;
+        changePanel.add(changeDataPanel, gbc);
+        
         //Change the text of the ApplyChanges button
         btnApplyChanges.setText("Assign Delivery");
         
@@ -108,6 +112,9 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
         btnPrintListing.addActionListener(this);
         
         cntlPanel.add(btnPrintListing);
+        
+        this.add(changePanel);
+        this.add(bottomPanel);
         
         pack();
 	}

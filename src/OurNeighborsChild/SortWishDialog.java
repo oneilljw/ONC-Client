@@ -42,7 +42,7 @@ import au.com.bytecode.opencsv.CSVWriter;
 
 import com.toedter.calendar.JDateChooser;
 
-public class SortWishDialog extends SortTableDialog implements PropertyChangeListener 												
+public class SortWishDialog extends ChangeDialog implements PropertyChangeListener 												
 {
 	/**
 	 * 
@@ -55,39 +55,29 @@ public class SortWishDialog extends SortTableDialog implements PropertyChangeLis
 	private static final int WISH_CATALOG_SORT_LIST = 1;
 	private static final int CHILD_WISH_STATUS_ASSIGNED = 3;
 	private static final int RS_ITEMS_PER_PAGE = 20;
-//	private static final int NUM_ROWS_TO_DISPLAY = 15;
 	private static final Integer MAXIMUM_ON_NUMBER = 9999;
 	
+	private Families fDB;
+	private ChildDB cDB;
+	private ChildWishDB cwDB;
 	private ONCOrgs orgs;
 	private ONCWishCatalog cat;
-//	public ONCTable sortTable;
-//	private DefaultTableModel sortTableModel;
+
+	private ArrayList<SortWishObject> stAL;
+	
 	private JComboBox startAgeCB, endAgeCB, genderCB, wishnumCB, wishCB, resCB, assignCB, statusCB, changedByCB;
 	private JComboBox changeResCB, changeStatusCB, changeAssigneeCB, printCB;
 	private DefaultComboBoxModel wishCBM, assignCBM, changeAssigneeCBM, changedByCBM;
 	private JTextField oncnumTF;
-//	private JButton btnResetCriteria;
 	private JButton btnExport;
-//	private JButton btnApplyChanges;
-//	private JLabel lblNumOfTableItems;
 	private JDateChooser ds, de;
 	private Calendar sortStartCal = null, sortEndCal = null;
-	private Families fDB;
-	private ChildDB cDB;
-	private ChildWishDB cwDB;
-	private ArrayList<SortWishObject> stAL;
-//	private boolean bChangingTable = false;	//Semaphore used to indicate the sort table is being changed
-//	private boolean bSortTableBuildRqrd = false;	//Used to determine a build to sort table is needed
-//	private boolean bResetInProcess = false;	//Prevents recursive build of sort table by event handlers during reset event
-//	private boolean bChildDataChanged = false;
-//	private boolean bIgnoreCBEvents = false;
-//	private int tableSortCol = -1;
-//	private ArrayList<Integer> tableRowSelectedItemIDList;
+	
 	private int sortStartAge = 0, sortEndAge = ONC_AGE_LIMIT, sortGender = 0, sortChangedBy = 0;
 	private int sortWishNum = 0, sortRes = 0, sortStatus = 0, sortAssigneeID = 0;
-//	private String sortONCNum = "";
 	private int sortWishID = -2;
 	private int totalNumOfLabelsToPrint;	//Holds total number of labels requested in a print job
+	
 	private static String[] genders = {"Any", "Boy", "Girl"};
 	private static String[] res = {"Any", "Blank", "*", "#"};
 	private static String [] status = {"Any", "Empty", "Selected", "Assigned", "Received",
@@ -120,20 +110,9 @@ public class SortWishDialog extends SortTableDialog implements PropertyChangeLis
 		
 		//initialize member variables
 		stAL = new ArrayList<SortWishObject>();
-//		tableRowSelectedItemIDList = new ArrayList<Integer>();
-		        
+
 		//Set up the search criteria panel
-		String[] ages = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10",
-							"11","12", "13", "14", "15", "16", "17", "18", "19", "20", "21"};
-       
-//      JPanel sortCriteriaPanel = new JPanel();
-//      sortCriteriaPanel.setLayout(new BoxLayout(sortCriteriaPanel, BoxLayout.Y_AXIS));
-//		JPanel sortCriteriaPanelTop = new JPanel(new FlowLayout(FlowLayout.LEFT));
-//		JPanel sortCriteriaPanelBottom = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		
-//    	JLabel lblONCicon = new JLabel(gvs.getImageIcon(0));
-    	
-    	oncnumTF = new JTextField();
+		oncnumTF = new JTextField();
     	oncnumTF.setEditable(true);
     	oncnumTF.setPreferredSize(new Dimension(72,56));
 		oncnumTF.setBorder(BorderFactory.createTitledBorder("ONC #"));
@@ -141,6 +120,9 @@ public class SortWishDialog extends SortTableDialog implements PropertyChangeLis
 		oncnumTF.addActionListener(this);
 		oncnumTF.addKeyListener(new ONCNumberKeyListener());
     	
+		String[] ages = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10",
+				"11","12", "13", "14", "15", "16", "17", "18", "19", "20", "21"};
+
 		startAgeCB = new JComboBox(ages);
 		startAgeCB.setBorder(BorderFactory.createTitledBorder("Start Age"));
 		startAgeCB.setPreferredSize(new Dimension(80,56));
@@ -216,8 +198,7 @@ public class SortWishDialog extends SortTableDialog implements PropertyChangeLis
 		assignCB.setPreferredSize(new Dimension(192, 56));
 		assignCB.setBorder(BorderFactory.createTitledBorder("Assigned To"));
 		assignCB.addActionListener(this);
-		
-//		sortCriteriaPanelTop.add(lblONCicon);
+
 		sortCriteriaPanelTop.add(oncnumTF);
 		sortCriteriaPanelTop.add(startAgeCB);
 		sortCriteriaPanelTop.add(endAgeCB);
@@ -231,95 +212,8 @@ public class SortWishDialog extends SortTableDialog implements PropertyChangeLis
 		sortCriteriaPanelBottom.add(ds);
 		sortCriteriaPanelBottom.add(de);
 		
-//		sortCriteriaPanel.add(sortCriteriaPanelTop);
-//		sortCriteriaPanel.add(sortCriteriaPanelBottom);
-		
-//		sortCriteriaPanel.setBorder(BorderFactory.createTitledBorder("Search Criteria"));
-		
-		//Set up the sort wish table
-//		String[] colToolTips = {"ONC Family Number", "Child's Age", 
-//				"Child's Gender", "Wish Number - 1, 2 or 3", "Wish Assigned", "Wish Detail",
-//				"# - Selected by ONC or * - Don't asssign", "Wish Status", "Who is fulfilling?",
-//				"User who last changed wish", "Date & Time Wish Last Changed"};
-//		sortTable = new ONCTable(colToolTips, new Color(240,248,255));
-		
-		//set up the sort wish table model
-//		String[] columns = {"ONC", "Age", "Gend", "Wish", "Wish Type", "Details", " Res ",
-//							"Status", "Assignee", "Changed By", "Time Stamp"};
-/*		
-      	sortTableModel = new DefaultTableModel(cols, 0)
-      	{
-        	private static final long serialVersionUID = 1L;
-            @Override
-            //All cells are locked from being changed by user
-            public boolean isCellEditable(int row, int column) {return false;}
-        };
-     
-        //add the model to the table and set selection interval
-        sortTable.setModel(sortTableModel);
-        sortTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-//	    sortTable.setAutoResizeMode( JTable.AUTO_RESIZE_OFF);
-        
-        //Set table column widths
-	  	int tablewidth = 0;
-//	  	int[] colWidths = {40, 48, 36, 36, 76, 160, 32, 80, 132, 80, 96};
-	  	for(int i=0; i < colWidths.length; i++)
-	  	{
-	  		sortTable.getColumnModel().getColumn(i).setPreferredWidth(colWidths[i]);
-	  		tablewidth += colWidths[i];
-	  	}
-	  	tablewidth += 24; 	//Account for vertical scroll bar      
-        
-	  	//set the table header style
-        JTableHeader anHeader = sortTable.getTableHeader();
-        anHeader.setForeground( Color.black);
-        anHeader.setBackground( new Color(161,202,241));
-        
-        //mouse listener for header click to sort by column
-        anHeader.addMouseListener(new MouseAdapter()
-        {
-            @Override
-            public void mouseClicked(MouseEvent e)
-            {
-            	if(sortTableList(sortTable.columnAtPoint(e.getPoint())) > -1)
-            	{
-            		tableSortCol = sortTable.columnAtPoint(e.getPoint());
-            		displaySortTable();
-            	}
-            }
-        });
-        
-        //Center cell entries for Child and Wish Number, Wish Indicator
-        DefaultTableCellRenderer dtcr = new DefaultTableCellRenderer();    
-    	dtcr.setHorizontalAlignment(SwingConstants.CENTER);
-//      sortTable.getColumnModel().getColumn(1).setCellRenderer(dtcr);
-        sortTable.getColumnModel().getColumn(3).setCellRenderer(dtcr);
-        sortTable.getColumnModel().getColumn(6).setCellRenderer(dtcr);
-        
-        sortTable.setBorder(UIManager.getBorder("Table.scrollPaneBorder"));
-        sortTable.setFillsViewportHeight(true);     
-        sortTable.getSelectionModel().addListSelectionListener(this);
-        
-        //Create the scroll pane and add the table to it.
-        JScrollPane sortScrollPane = new JScrollPane(sortTable, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
-        												JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        
-        sortScrollPane.setPreferredSize(new Dimension(tablewidth, sortTable.getRowHeight()*NUM_ROWS_TO_DISPLAY));
-//      sortTablePanel.add(sortScrollPane);
-        
-        //Set up the third panel holding wish count panel and wish status and assignee change panel
-        JPanel thirdpanel = new JPanel();
-        thirdpanel.setLayout(new BoxLayout(thirdpanel, BoxLayout.X_AXIS));
-        
-        JPanel itemCountPanel = new JPanel();       
-        lblNumOfTableItems = new JLabel("0");
-        itemCountPanel.setBorder(BorderFactory.createTitledBorder("Wishes Meeting Criteria"));
-        itemCountPanel.setPreferredSize(new Dimension(165, 90));
-        itemCountPanel.add(lblNumOfTableItems);
-        
-        JPanel changeDataPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        changeDataPanel.setPreferredSize(new Dimension(tablewidth-165, 90));
-*/
+		//set up the change panel, which consists of the item count panel and the 
+		//change data panel
 		itemCountPanel.setBorder(BorderFactory.createTitledBorder("Wishes Meeting Criteria"));
 		
 		changeDataPanel.setBorder(BorderFactory.createTitledBorder("Change Wish Restrictions/Status/Assignee"));
@@ -347,15 +241,12 @@ public class SortWishDialog extends SortTableDialog implements PropertyChangeLis
 		changeDataPanel.add(changeStatusCB);
 		changeDataPanel.add(changeAssigneeCB);
 		
-//		thirdpanel.add(itemCountPanel);
-//		thirdpanel.add(changeDataPanel);
-		
-        //Set up the button control panel
-//		JPanel cntlPanel = new JPanel();
-                    
-//      btnResetCriteria = new JButton("Reset Criteria");
-//      btnResetCriteria.addActionListener(this);        
-    
+		gbc.gridx = 1;
+	    gbc.ipadx = 0;
+	    gbc.weightx = 1.0;
+	    changePanel.add(changeDataPanel, gbc);
+
+	    //set up the dialog defined control panel
         btnExport = new JButton("Export Data");
         btnExport.setEnabled(false);
         btnExport.addActionListener(this);
@@ -372,21 +263,11 @@ public class SortWishDialog extends SortTableDialog implements PropertyChangeLis
         
         cntlPanel.add(btnExport);
         cntlPanel.add(printCB);
-//      cntlPanel.add(btnResetCriteria);
-//      cntlPanel.add(btnApplyChanges);
-         
-        //Add the components to the frame pane
-//        this.getContentPane().setLayout(new BoxLayout(this.getContentPane(), BoxLayout.Y_AXIS));        
-//        this.add(sortCriteriaPanel);
-//        this.add(sortScrollPane);
-//        this.add(thirdpanel);
-//        this.add(cntlPanel);
-       
+ 
+        //add the bottom two panels to the dialog and pack
+        this.add(changePanel);
+        this.add(bottomPanel);
         pack();
-//        setSize(tablewidth, 600);
-//        setResizable(true);
-//        Point pt = GlobalVariables.getFrame().getLocation();
-//        setLocation(pt.x + GlobalVariables.getFrame().getWidth() - tablewidth, pt.y + 20);
 	}
 	
 	@Override
@@ -424,45 +305,7 @@ public class SortWishDialog extends SortTableDialog implements PropertyChangeLis
     		
     	return col;
 	}
-/*	
-	void displaySortTable()
-	{
-		bChangingTable = true;	//don't process table messages while being changed
-		
-		ListSelectionModel lsModel = sortTable.getSelectionModel();
-		lsModel.clearSelection();	//clear any selected rows
-		
-		while (sortTableModel.getRowCount() > 0)	//Clear the current table
-			sortTableModel.removeRow(0);
-		
-		setEnabledControls(false);
-		
-		for(ONCSortObject so:stAL)	//Build the new table
-			sortTableModel.addRow(getTableRow(so));
-		
-		//check to see if the sortTable needs to be sorted by column
-		if(tableSortCol > -1)
-			sortTableList(tableSortCol);
-		
-		//check to see if rows need to be re-selected
-		for(Integer itemID:tableRowSelectedItemIDList)
-		{
-			//find the id in the stAL, getting it's row, the reselect it
-			int index = 0;
-			while(index < stAL.size() && stAL.get(index).getID() != itemID)
-				index++;
-			
-			if(index < stAL.size())
-				lsModel.addSelectionInterval(index, index);	
-		}
-		
-		//set status of export capability
-		if(!tableRowSelectedItemIDList.isEmpty())
-			setEnabledControls(true);
-				
-		bChangingTable = false;	
-	}
-*/	
+
 	@Override
 	void setEnabledControls(boolean tf)
 	{
@@ -514,16 +357,7 @@ public class SortWishDialog extends SortTableDialog implements PropertyChangeLis
 		lblNumOfTableItems.setText(Integer.toString(stAL.size()));
 		displaySortTable(stAL, true);		//Display the table after table array list is built	
 	}
-/*	
-	void archiveTableSelections()
-	{
-		tableRowSelectedItemIDList.clear();
-		
-		int[] row_sel = sortTable.getSelectedRows();
-		for(int i=0; i<row_sel.length; i++)
-			tableRowSelectedItemIDList.add(stAL.get(row_sel[i]).getID());
-	}
-*/	
+
 	boolean onApplyChanges()
 	{
 		bChangingTable = true;
@@ -880,15 +714,7 @@ public class SortWishDialog extends SortTableDialog implements PropertyChangeLis
 	    	}
 	    }
 	}
-	
-//	ListSelectionModel getSortWishTableLSM() { return sortTable.getSelectionModel(); }
-	
-//	int getSelectedSortItemONCID(){return stAL.get(sortTable.getSelectedRow()).getSortItemONCID();}
-	
-//	public ONCChild getSelectedSortItemONCChild()	{return stAL.get(sortTable.getSelectedRow()).getSortItemChild();}
-	
-//	boolean isSortTableChanging() { return bChangingTable; }
-	
+
 	private boolean doesONCNumMatch(String s) { return sortONCNum.isEmpty() || sortONCNum.equals(s); }
 	
 	private boolean isAgeInRange(ONCChild c)
