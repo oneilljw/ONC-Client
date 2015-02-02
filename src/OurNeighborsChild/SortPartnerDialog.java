@@ -244,7 +244,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 	        
 		pack();
 	}
-	
+/*	
 	void displaySortTable()
 	{
 		bChangingTable = true;	//don't process table messages while being changed
@@ -266,7 +266,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 				
 		bChangingTable = false;	
 	}
-	
+*/	
 	@Override
 	public String[] getTableRow(ONCObject obj)
 	{
@@ -309,7 +309,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		
 		lblNumOfTableItems.setText(Integer.toString(stAL.size()));
 		lblOrnReq.setText(Integer.toString(totalornreq));
-		displaySortTable();		//Display the table after table array list is built					
+		displaySortTable(stAL, true);		//Display the table after table array list is built						
 	}
 	
 	@Override
@@ -324,6 +324,24 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		}
 		else
 			return -1;
+	}
+	
+	@Override
+	void setEnabledControls(boolean tf)
+	{
+		if(tf && sortTable.getSelectedRowCount() > 0)
+		{
+			printCB.setEnabled(true);
+			if(oncGVs.isUserAdmin())	//Only admins or higher can send email
+				emailCB.setEnabled(true);
+			btnExport.setEnabled(true);
+		}
+		else
+		{
+			printCB.setEnabled(false);
+			emailCB.setEnabled(false);
+			btnExport.setEnabled(false);
+		}
 	}
 	
 	//Returns a boolean that a change to organization data occurred
@@ -1066,18 +1084,18 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		
 		regionCB.setEnabled(true);
 	}
-	
+/*	
 	void checkPrintEnabled()
 	{
 		if(sortTable.getSelectedRowCount() > 0)
 		{
-//			printCB.setEnabled(true);
+			printCB.setEnabled(true);
 			if(oncGVs.isUserAdmin())	//Only admins or higher can send email
 				emailCB.setEnabled(true);
 			btnExport.setEnabled(true);
 		}
 	}
-	
+*/	
 	void checkApplyChangesEnabled()
 	{
 		if(sortTable.getSelectedRows().length > 0 && (changePStatusCB.getSelectedIndex() > 0 || 
@@ -1320,7 +1338,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 			fireEntitySelected(this, "PARTNER_SELECTED", stAL.get(sortTable.getSelectedRow()), null);
 		}
 		
-		checkPrintEnabled();
+		setEnabledControls(true);
 		checkApplyChangesEnabled();
 	}
 
@@ -1459,15 +1477,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 			}
 		}
 	}
-
-	@Override
-	void setEnabledControls(boolean tf)
-	{
-		printCB.setEnabled(tf);
-		emailCB.setEnabled(tf);
-		btnExport.setEnabled(tf);
-	}
-
+	
 	@Override
 	boolean isONCNumContainerEmpty() { return false; }	
 }

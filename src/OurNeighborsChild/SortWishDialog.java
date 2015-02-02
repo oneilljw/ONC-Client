@@ -369,8 +369,8 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 			boolean bNewWishRqrd = false; 	//Restriction, status or assignee change
 			
 			//Find child and wish number for selected
-			ONCChild c = stAL.get(row_sel[i]).getSortObjectChild();
-			int wn = stAL.get(row_sel[i]).getSortObjectChildWish().getWishNumber();
+			ONCChild c = stAL.get(row_sel[i]).getChild();
+			int wn = stAL.get(row_sel[i]).getChildWish().getWishNumber();
 			ONCChildWish cw = cwDB.getWish(c.getChildWishID(wn));
 
 			//Get current wish information
@@ -984,13 +984,13 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		if(!lse.getValueIsAdjusting() && lse.getSource() == sortTable.getSelectionModel() &&
 				!bChangingTable)
 		{
-			ONCFamily fam = stAL.get(sortTable.getSelectedRow()).getSortObjectFamily();
-			ONCChild child = stAL.get(sortTable.getSelectedRow()).getSortObjectChild();
+			ONCFamily fam = stAL.get(sortTable.getSelectedRow()).getFamily();
+			ONCChild child = stAL.get(sortTable.getSelectedRow()).getChild();
 			fireEntitySelected(this, "WISH_SELECTED", fam, child);
 			
 			//determine if a partner has been assigned for the selected wish
-			int wn = stAL.get(sortTable.getSelectedRow()).getSortObjectChildWish().getWishNumber();
-			int childID = stAL.get(sortTable.getSelectedRow()).getSortObjectChild().getID();
+			int wn = stAL.get(sortTable.getSelectedRow()).getChildWish().getWishNumber();
+			int childID = stAL.get(sortTable.getSelectedRow()).getChild().getID();
 			ONCChildWish cw = cwDB.getWish(childID, wn);
 			int childWishAssigneeID = cw.getChildWishAssigneeID();
 			if(childWishAssigneeID > -1)
@@ -1318,7 +1318,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		@Override
 		public int compare(ONCSortObject o1, ONCSortObject o2)
 		{
-			return o1.getSortObjectChild().getChildDOB().compareTo(o2.getSortObjectChild().getChildDOB());
+			return o1.getChild().getChildDOB().compareTo(o2.getChild().getChildDOB());
 		}
 	}
 	
@@ -1329,13 +1329,13 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		{
 			Integer onc1, onc2;
 			
-			if(!o1.getSortObjectFamily().getONCNum().isEmpty() && isNumeric(o1.getSortObjectFamily().getONCNum()))
-				onc1 = Integer.parseInt(o1.getSortObjectFamily().getONCNum());
+			if(!o1.getFamily().getONCNum().isEmpty() && isNumeric(o1.getFamily().getONCNum()))
+				onc1 = Integer.parseInt(o1.getFamily().getONCNum());
 			else
 				onc1 = MAXIMUM_ON_NUMBER;
 							
-			if(!o2.getSortObjectFamily().getONCNum().isEmpty() && isNumeric(o2.getSortObjectFamily().getONCNum()))
-				onc2 = Integer.parseInt(o2.getSortObjectFamily().getONCNum());
+			if(!o2.getFamily().getONCNum().isEmpty() && isNumeric(o2.getFamily().getONCNum()))
+				onc2 = Integer.parseInt(o2.getFamily().getONCNum());
 			else
 				onc2 = MAXIMUM_ON_NUMBER;
 			
@@ -1348,7 +1348,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		@Override
 		public int compare(ONCSortObject o1, ONCSortObject o2)
 		{
-			return o1.getSortObjectChild().getChildGender().compareTo(o2.getSortObjectChild().getChildGender());
+			return o1.getChild().getChildGender().compareTo(o2.getChild().getChildGender());
 		}
 	}
 	
@@ -1357,8 +1357,8 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		@Override
 		public int compare(ONCSortObject o1, ONCSortObject o2)
 		{
-			Integer wishNum1 = o1.getSortObjectChildWish().getWishNumber();
-			Integer wishNum2 = o2.getSortObjectChildWish().getWishNumber();
+			Integer wishNum1 = o1.getChildWish().getWishNumber();
+			Integer wishNum2 = o2.getChildWish().getWishNumber();
 			return wishNum1.compareTo (wishNum2);
 		}
 	}
@@ -1369,8 +1369,8 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		public int compare(ONCSortObject o1, ONCSortObject o2)
 		{
 			ONCWishCatalog cat = ONCWishCatalog.getInstance();
-			String wishBase1 = cat.getWishByID(o1.getSortObjectChildWish().getWishID()).getName();
-			String wishBase2 = cat.getWishByID(o2.getSortObjectChildWish().getWishID()).getName();
+			String wishBase1 = cat.getWishByID(o1.getChildWish().getWishID()).getName();
+			String wishBase2 = cat.getWishByID(o2.getChildWish().getWishID()).getName();
 			return wishBase1.compareTo(wishBase2);
 //			return o1.getSortItemChildWishBase().compareTo(o2.getSortItemChildWishBase());
 		}
@@ -1381,8 +1381,8 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		@Override
 		public int compare(ONCSortObject o1, ONCSortObject o2)
 		{
-			return o1.getSortObjectChildWish().getChildWishDetail().compareTo(
-					o2.getSortObjectChildWish().getChildWishDetail());
+			return o1.getChildWish().getChildWishDetail().compareTo(
+					o2.getChildWish().getChildWishDetail());
 		}
 	}
 	
@@ -1391,8 +1391,8 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		@Override
 		public int compare(ONCSortObject o1, ONCSortObject o2)
 		{
-			Integer wishInd1 = o1.getSortObjectChildWish().getChildWishIndicator();
-			Integer wishInd2 = o2.getSortObjectChildWish().getChildWishIndicator();
+			Integer wishInd1 = o1.getChildWish().getChildWishIndicator();
+			Integer wishInd2 = o2.getChildWish().getChildWishIndicator();
 			return wishInd1.compareTo(wishInd2);	
 //			return o1.getSortItemChildWishIndicator().compareTo(o2.getSortItemChildWishIndicator());
 		}
@@ -1403,8 +1403,8 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		@Override
 		public int compare(ONCSortObject o1, ONCSortObject o2)
 		{
-			Integer wishStatus1 = o1.getSortObjectChildWish().getChildWishStatus();
-			Integer wishStatus2 = o2.getSortObjectChildWish().getChildWishStatus();
+			Integer wishStatus1 = o1.getChildWish().getChildWishStatus();
+			Integer wishStatus2 = o2.getChildWish().getChildWishStatus();
 			return wishStatus1.compareTo(wishStatus2);	
 //			return o1.getSortItemChildWishStatus().compareTo(o2.getSortItemChildWishStatus());
 		}
@@ -1416,8 +1416,8 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		public int compare(ONCSortObject o1, ONCSortObject o2)
 		{
 			ONCOrgs partnerDB = ONCOrgs.getInstance();
-			String part1 = partnerDB.getOrganizationByID(o1.getSortObjectChildWish().getChildWishAssigneeID()).getName();
-			String part2 = partnerDB.getOrganizationByID(o2.getSortObjectChildWish().getChildWishAssigneeID()).getName();
+			String part1 = partnerDB.getOrganizationByID(o1.getChildWish().getChildWishAssigneeID()).getName();
+			String part2 = partnerDB.getOrganizationByID(o2.getChildWish().getChildWishAssigneeID()).getName();
 			return part1.compareTo(part2);
 		}
 	}
@@ -1427,8 +1427,8 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		@Override
 		public int compare(ONCSortObject o1, ONCSortObject o2)
 		{
-			return o1.getSortObjectChildWish().getChildWishChangedBy().compareTo(
-					o2.getSortObjectChildWish().getChildWishChangedBy());
+			return o1.getChildWish().getChildWishChangedBy().compareTo(
+					o2.getChildWish().getChildWishChangedBy());
 		}
 	}
 	
@@ -1437,8 +1437,8 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		@Override
 		public int compare(ONCSortObject o1, ONCSortObject o2)
 		{
-			return o1.getSortObjectChildWish().getChildWishDateChanged().compareTo(
-					o2.getSortObjectChildWish().getChildWishDateChanged());
+			return o1.getChildWish().getChildWishDateChanged().compareTo(
+					o2.getChildWish().getChildWishDateChanged());
 		}
 	}
 
@@ -1451,18 +1451,18 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		String [] status = {"Any", "Empty", "Selected", "Assigned", "Received",
 							"Distributed", "Verified"};
 		
-		String ds = new SimpleDateFormat("MM/dd H:mm").format(swo.getSortObjectChildWish().getChildWishDateChanged().getTime());
+		String ds = new SimpleDateFormat("MM/dd H:mm").format(swo.getChildWish().getChildWishDateChanged().getTime());
 		String[] tablerow = {
-							swo.getSortObjectFamily().getONCNum(),
-							swo.getSortObjectChild().getChildAge().split("old", 2)[0].trim(), //Take the word "old" out of string
-							swo.getSortObjectChild().getChildGender(),
-							Integer.toString(swo.getSortObjectChildWish().getWishNumber()+1),
-							cat.getWishByID(swo.getSortObjectChildWish().getWishID()).getName(),
-							swo.getSortObjectChildWish().getChildWishDetail(),
-							indicator[swo.getSortObjectChildWish().getChildWishIndicator()],
-							status[swo.getSortObjectChildWish().getChildWishStatus()], 
-							orgs.getOrganizationByID(swo.getSortObjectChildWish().getChildWishAssigneeID()).getName(), 
-							swo.getSortObjectChildWish().getChildWishChangedBy(), ds};
+							swo.getFamily().getONCNum(),
+							swo.getChild().getChildAge().split("old", 2)[0].trim(), //Take the word "old" out of string
+							swo.getChild().getChildGender(),
+							Integer.toString(swo.getChildWish().getWishNumber()+1),
+							cat.getWishByID(swo.getChildWish().getWishID()).getName(),
+							swo.getChildWish().getChildWishDetail(),
+							indicator[swo.getChildWish().getChildWishIndicator()],
+							status[swo.getChildWish().getChildWishStatus()], 
+							orgs.getOrganizationByID(swo.getChildWish().getChildWishAssigneeID()).getName(), 
+							swo.getChildWish().getChildWishChangedBy(), ds};
 		return tablerow;
 	}
 }

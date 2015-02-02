@@ -44,6 +44,7 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 	 * and a bottom panel that implements common reset criteria and apply changes buttons. 
 	 */
 	private static final long serialVersionUID = 1L;
+	private static final int SORT_TABLE_VERTICAL_SCROLL_WIDTH = 24;
 	private static final int NUM_ROWS_TO_DISPLAY = 15;
 
 	protected JFrame parentFrame;
@@ -134,7 +135,7 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 			sortTable.getColumnModel().getColumn(i).setPreferredWidth(colWidths[i]);
 			tablewidth += colWidths[i];
 		}
-		tablewidth += 24; 	//Account for vertical scroll bar
+		tablewidth += SORT_TABLE_VERTICAL_SCROLL_WIDTH; 	//Account for vertical scroll bar
 
 		//Set up the table header
 		JTableHeader anHeader = sortTable.getTableHeader();
@@ -154,11 +155,14 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
             }
         });
 
-		//Center cell entries for specified cells
-	    DefaultTableCellRenderer dtcr = new DefaultTableCellRenderer();    
-	    dtcr.setHorizontalAlignment(SwingConstants.CENTER);
-	    for(int i=0; i<center_cols.length; i++)
-	    	sortTable.getColumnModel().getColumn(center_cols[i]).setCellRenderer(dtcr);
+		//Center cell entries for specified cells. If parameter is null, no cells to cnter
+        if(center_cols != null)
+        {
+        	DefaultTableCellRenderer dtcr = new DefaultTableCellRenderer();    
+        	dtcr.setHorizontalAlignment(SwingConstants.CENTER);
+        	for(int i=0; i<center_cols.length; i++)
+        		sortTable.getColumnModel().getColumn(center_cols[i]).setCellRenderer(dtcr);
+        }
 
 		sortTable.setBorder(UIManager.getBorder("Table.scrollPaneBorder"));
 		sortTable.setFillsViewportHeight(true);

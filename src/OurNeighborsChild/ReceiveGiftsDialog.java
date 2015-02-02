@@ -13,9 +13,10 @@ public class ReceiveGiftsDialog extends GiftActionDialog
 	private static final int FAMILY_STATUS_GIFTS_RECEIVED = 3;
 	private static final int CHILD_WISH_STATUS_RECEIVED = 4;
 	
-	ReceiveGiftsDialog(JFrame pf, WishStatus dialogType) 
+	ReceiveGiftsDialog(JFrame pf, String[] columnToolTips, String[] columns, int[] colWidths,
+						int[] center_cols, WishStatus dialogType) 
 	{
-		super(pf, dialogType);
+		super(pf, columnToolTips, columns, colWidths, center_cols, dialogType);
 	}
 
 	@Override
@@ -33,6 +34,6 @@ public class ReceiveGiftsDialog extends GiftActionDialog
 	@Override
 	boolean changeFamilyStatus() 
 	{
-		return lastWishChanged.getLastFamily().getFamilyStatus() == FAMILY_STATUS_GIFTS_RECEIVED;
+		return lastWishChanged.getFamily().getFamilyStatus() == FAMILY_STATUS_GIFTS_RECEIVED;
 	}
 }

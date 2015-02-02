@@ -1,6 +1,6 @@
 package OurNeighborsChild;
 
-abstract public class ONCSortObject extends ONCObject
+public class ONCSortObject extends ONCObject
 {
 	protected ONCFamily	 soFamily;
 	protected ONCChild	 soChild;
@@ -15,9 +15,9 @@ abstract public class ONCSortObject extends ONCObject
 	}
 	
 	//getters
-	ONCFamily getSortObjectFamily() { return soFamily; }
-	ONCChild getSortObjectChild() { return soChild; }
-	ONCChildWish getSortObjectChildWish() { return soChildWish; }
+	ONCFamily getFamily() { return soFamily; }
+	ONCChild getChild() { return soChild; }
+	ONCChildWish getChildWish() { return soChildWish; }
 
 	@Override
 	public String[] getExportRow() {

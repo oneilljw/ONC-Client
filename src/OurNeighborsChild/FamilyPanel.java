@@ -1331,23 +1331,28 @@ public class FamilyPanel extends JPanel implements ActionListener, ListSelection
 	{
 		if(!sortWishesDlg.isVisible())
 		{
-			//Dates are set here after Global Variables have been initialized
+			//Dates are set here after Global Variables have been initialized from server
 			sortWishesDlg.setSortStartDate(gvs.getSeasonStartDate());
 			sortWishesDlg.setSortEndDate(gvs.getTodaysDate());
 			sortWishesDlg.buildTableList(true);
 			
-			Point pt = parentFrame.getLocation();
-	        sortWishesDlg.setLocation(pt.x + 5, pt.y + 25);
+			sortWishesDlg.setLocationRelativeTo(GlobalVariables.getFrame());
 			sortWishesDlg.setVisible(true);
 		}
 	}
 	
 	void showReceiveGiftsDialog(ArrayList<ONCFamily> fAL)
 	{
-		ReceiveGiftsDialog recGiftsDlg = new ReceiveGiftsDialog(parentFrame, WishStatus.Received);
+		String[] colTT = {"ONC Family Number", "Child Gender", "Child's Age",  
+				"Wish Selected for Child", "Wish Detail"};
+		String[] columns = {"ONC", "Gend", "Age", "Wish Type", "Details"};
+		int[] colWidths = {40, 48, 72, 120, 248};
+		
+		ReceiveGiftsDialog recGiftsDlg = new ReceiveGiftsDialog(parentFrame, colTT, columns, 
+									colWidths, null, WishStatus.Received);
     	recGiftsDlg.addEntitySelectionListener(familyChildSelectionListener);
     	
-		recGiftsDlg.buildSortTableList();
+		recGiftsDlg.buildTableList(false);
 			
 		recGiftsDlg.setLocationRelativeTo(GlobalVariables.getFrame());
 		recGiftsDlg.setVisible(true);
