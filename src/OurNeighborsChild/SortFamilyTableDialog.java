@@ -1,6 +1,7 @@
 package OurNeighborsChild;
 
 import java.util.ArrayList;
+
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JFrame;
 import javax.swing.event.ListSelectionEvent;
@@ -20,6 +21,7 @@ public abstract class SortFamilyTableDialog extends ChangeDialog
 	protected ONCRegions regions;
 	
 	protected ArrayList<ONCFamily> stAL = new ArrayList<ONCFamily>();
+	protected ArrayList<ONCFamily> tableRowSelectedObjectList;
 	protected DefaultComboBoxModel regionCBM;
 	
 	protected String[] columns;
@@ -34,6 +36,7 @@ public abstract class SortFamilyTableDialog extends ChangeDialog
 		regions = ONCRegions.getInstance();
 		
 		stAL = new ArrayList<ONCFamily>();
+		tableRowSelectedObjectList = new ArrayList<ONCFamily>();
 		regionCBM = new DefaultComboBoxModel();
 	}
 	
@@ -44,11 +47,23 @@ public abstract class SortFamilyTableDialog extends ChangeDialog
 		
 		if(fDB.sortDB(stAL, columns[col]))
 		{
-			displaySortTable(stAL, false);
+			displaySortTable(stAL, false, tableRowSelectedObjectList);
 			return col;
 		}
 		else
 			return -1;
+	}
+	
+	void archiveTableSelections(ArrayList<? extends ONCObject> stAL)
+	{
+		tableRowSelectedObjectList.clear();
+		
+		int[] row_sel = sortTable.getSelectedRows();
+		for(int i=0; i<row_sel.length; i++)
+		{
+			ONCFamily f = (ONCFamily) stAL.get(row_sel[i]);
+			tableRowSelectedObjectList.add(f);
+		}
 	}
 
 	@Override

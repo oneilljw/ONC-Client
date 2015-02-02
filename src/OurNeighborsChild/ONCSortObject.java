@@ -18,10 +18,23 @@ public class ONCSortObject extends ONCObject
 	ONCFamily getFamily() { return soFamily; }
 	ONCChild getChild() { return soChild; }
 	ONCChildWish getChildWish() { return soChildWish; }
+	
+	//determine if two ONCSortObjects match
+	public boolean matches(ONCSortObject otherSO)
+	{
+		if(otherSO != null)
+		{
+			return otherSO.soFamily != null && otherSO.soFamily.getID() == soFamily.getID() &&
+					otherSO.soChild != null && otherSO.soChild.getID() == soChild.getID() &&
+					 otherSO.soChildWish != null && otherSO.soChildWish.getID() == soChildWish.getID();			
+		}
+		else
+			return false;
+	}
 
 	@Override
 	public String[] getExportRow() {
 		//Not used for Gift Actions
 		return null;
-	}
+	}	
 }

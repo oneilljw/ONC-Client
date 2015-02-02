@@ -47,13 +47,10 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 	private static final int SORT_TABLE_VERTICAL_SCROLL_WIDTH = 24;
 	private static final int NUM_ROWS_TO_DISPLAY = 15;
 
-	protected JFrame parentFrame;
-	protected GlobalVariables oncGVs;
 	protected Families fDB;
 	
-	//sort column and list of selected table rows
+	//sort column
 	protected int tableSortCol;
-	protected ArrayList<Integer> tableRowSelectedItemIDList;
 	
 	//JPanels the inherited class may use to add GUI elements
 	protected JPanel sortCriteriaPanelTop, sortCriteriaPanelBottom;
@@ -76,25 +73,15 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 	public SortTableDialog(JFrame pf, String[] colToolTips, String[] columns, int[] colWidths, int[] center_cols)
 	{
 		super(pf);
-		oncGVs = GlobalVariables.getInstance();
 		
-//		driverDB = DriverDB.getInstance();
-//		deliveryDB = DeliveryDB.getInstance();
-//		regions = ONCRegions.getInstance();
 		fDB = Families.getInstance();
-//		cDB = ChildDB.getInstance();
-//		cwDB = ChildWishDB.getInstance();
 		
 		if(fDB != null)
 			fDB.addDatabaseListener(this);
-		
-//		if(deliveryDB != null)
-//			deliveryDB.addDatabaseListener(this);
-		
+
 		//initialize member variables
 		sortONCNum = "";
 		tableSortCol = -1;
-		tableRowSelectedItemIDList = new ArrayList<Integer>();
 		
 		//Set up the search criteria panel      
 		JPanel sortCriteriaPanel = new JPanel();
@@ -103,7 +90,7 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 		sortCriteriaPanelBottom = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		
 		//Create the ONC Icon label and add it to the search criteria panel
-    	JLabel lblONCicon = new JLabel(oncGVs.getImageIcon(0));
+    	JLabel lblONCicon = new JLabel(gvs.getImageIcon(0));
         sortCriteriaPanelTop.add(lblONCicon);
 		
 		sortCriteriaPanel.add(sortCriteriaPanelTop);
@@ -208,21 +195,15 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 	
 	abstract int sortTableList(int col);
 	
-	void archiveTableSelections(ArrayList<? extends ONCObject> stAL)
-	{
-		tableRowSelectedItemIDList.clear();
-		
-		int[] row_sel = sortTable.getSelectedRows();
-		for(int i=0; i<row_sel.length; i++)
-			tableRowSelectedItemIDList.add(stAL.get(row_sel[i]).getID());
-	}
+	abstract void archiveTableSelections(ArrayList<? extends ONCObject> stAL);
 	
 	/*****************************************************************************************
 	 * Displays the contents of the sort table list in the ONC table. 
 	 * @param stAL	- List of table rows to be displayed
 	 * @param bSortReq - true: don't resort the table
 	 ****************************************************************************************/
-	void displaySortTable(ArrayList<? extends ONCObject> stAL, boolean bResort)
+	void displaySortTable(ArrayList<? extends ONCObject> stAL, boolean bResort,
+							ArrayList<? extends ONCObject> tableRowSelectedObjectList)
 	{
 		bChangingTable = true;	//don't process table messages while being changed
 		
@@ -245,19 +226,23 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 			sortTableList(tableSortCol);
 				
 		//check to see if table rows need to be re-selected
-		for(Integer itemID:tableRowSelectedItemIDList)
+		if(!tableRowSelectedObjectList.isEmpty())
+//			System.out.println(String.format("SortTableDialog.displaySortTable: hashcode to be found = %d",
+//					tableRowSelectedObjectList.get(0)));
+		
+		for(int iIndex=0; iIndex < tableRowSelectedObjectList.size(); iIndex++)
 		{
 			//find the id in the stAL, getting it's row, the reselect it
-			int index = 0;
-			while(index < stAL.size() && stAL.get(index).getID() != itemID)
-				index++;
+			int jIndex = 0;
+			while(jIndex < stAL.size() && !stAL.get(jIndex).matches(tableRowSelectedObjectList.get(iIndex)))
+				jIndex++;
 			
-			if(index < stAL.size())
-				lsModel.addSelectionInterval(index, index);	
+			if(jIndex < stAL.size())
+				lsModel.addSelectionInterval(jIndex, jIndex);	
 		}
 		
 		//re-enable any controls if rows are still selected
-		if(!tableRowSelectedItemIDList.isEmpty())
+		if(!tableRowSelectedObjectList.isEmpty())
 			setEnabledControls(true);
 				
 		bChangingTable = false;	

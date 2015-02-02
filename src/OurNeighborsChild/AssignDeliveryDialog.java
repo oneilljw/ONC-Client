@@ -49,7 +49,7 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 		if(regions != null)
 			regions.addDatabaseListener(this);
 		
-		//Initialize the search member variables
+		//Initialize member variables
 		sortstartRegion = 0;
 		sortendRegion = 0;
 		sortDStatus=0;
@@ -129,7 +129,7 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 	{
 		//archive the table rows selected prior to rebuild so the can be reselected if the
 		//build occurred due to an external modification of the table
-		tableRowSelectedItemIDList.clear();
+		tableRowSelectedObjectList.clear();
 		if(bPreserveSelections)
 			archiveTableSelections(stAL);
 		else
@@ -152,7 +152,7 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 		}
 		
 		lblNumOfTableItems.setText(Integer.toString(stAL.size()));	//# items in table
-		displaySortTable(stAL, true);		//Display the table after table array list is built					
+		displaySortTable(stAL, true, tableRowSelectedObjectList);		//Display the table after table array list is built					
 	}
 	
 	@Override
@@ -254,7 +254,7 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 				ONCDelivery reqDelivery = new ONCDelivery(-1, f.getID(), DELIVERY_STATUS_ASSIGNED,
 															assignDriverTF.getText(),
 															"Delivery Driver Assigned",
-															oncGVs.getUserLNFI(),
+															gvs.getUserLNFI(),
 															Calendar.getInstance());
 				
 				String response = deliveryDB.add(this, reqDelivery);

@@ -329,7 +329,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	{
 		//archive the table rows selected prior to rebuild so the can be reselected if the
 		//build occurred due to an external modification of the table
-		tableRowSelectedItemIDList.clear();
+		tableRowSelectedObjectList.clear();
 		if(bPreserveSelections)
 			archiveTableSelections(stAL);
 		else
@@ -368,7 +368,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		else
 			itemCountPanel.setBorder(BorderFactory.createTitledBorder("Families Meeting Criteria"));
 		
-		displaySortTable(stAL, true);		//Display the table after table array list is built					
+		displaySortTable(stAL, true, tableRowSelectedObjectList);		//Display the table after table array list is built					
 	}
 
 	//Returns a boolean that a change to DNS, Family or Delivery Status occurred
@@ -388,7 +388,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 					!f.getDNSCode().equals(changeDNSCB.getSelectedItem()))
 			{
 				String newDNSCode = (String) changeDNSCB.getSelectedItem();
-				String chngdBy = oncGVs.getUserLNFI();
+				String chngdBy = gvs.getUserLNFI();
 				
 				f.setDNSCode(newDNSCode);
 				f.setChangedBy(chngdBy);	//Set the changed by field to current user
@@ -405,7 +405,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 					f.setNumOfBags(0);
 				
 				f.setFamilyStatus(changeFStatusCB.getSelectedIndex()-1);
-				f.setChangedBy(oncGVs.getUserLNFI());	//Set the changed by field to current user
+				f.setChangedBy(gvs.getUserLNFI());	//Set the changed by field to current user
 
 				bFamilyChangeDetected = true;
 			}
@@ -419,7 +419,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 						changeDStatusCB.getSelectedIndex()-1,
 						deliveryDB.getDeliveredBy(f.getDeliveryID()),
 						"Delivery Status Changed",
-						oncGVs.getUserLNFI(),
+						gvs.getUserLNFI(),
 						Calendar.getInstance());
 
 				String response = deliveryDB.add(this, reqDelivery);
@@ -535,7 +535,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		{
 			JOptionPane.showMessageDialog(parentFrame, 
 					"Please select family's to print delivery cards",  
-					"No Family's Selected", JOptionPane.ERROR_MESSAGE, oncGVs.getImageIcon(0));
+					"No Family's Selected", JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
 		}
 		
 		 printCB.setSelectedIndex(0);
@@ -571,8 +571,8 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			
 			//Create the info required for the print job
 			SimpleDateFormat twodigitYear = new SimpleDateFormat("yy");
-			int idx = Integer.parseInt(twodigitYear.format(oncGVs.getSeasonStartDate())) % NUM_OF_XMAS_ICONS;
-			final Image img = oncGVs.getImageIcon(idx + XMAS_ICON_OFFSET).getImage();				
+			int idx = Integer.parseInt(twodigitYear.format(gvs.getSeasonStartDate())) % NUM_OF_XMAS_ICONS;
+			final Image img = gvs.getImageIcon(idx + XMAS_ICON_OFFSET).getImage();				
 			String oncSeason = "ONC " + Integer.toString(GlobalVariables.getCurrentSeason());			
 			
 			
@@ -641,7 +641,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			String destAddress = f.getGoogleMapAddress();
 				
 			//Get direction JSON, then trip route and steps
-			JSONObject dirJSONObject = ddir.getGoogleDirections(oncGVs.getWarehouseAddress(), destAddress);
+			JSONObject dirJSONObject = ddir.getGoogleDirections(gvs.getWarehouseAddress(), destAddress);
 			JSONObject leg = ddir.getTripRoute(dirJSONObject);
 			JSONArray steps = ddir.getDrivingSteps(leg);
 				
@@ -681,8 +681,8 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		//Create the print job. First, create the ONC season image and string. Then instantiate
 		//a DeliveryDirectionsPrinter object. Then show the print dialog and execute printing
 		SimpleDateFormat twodigitYear = new SimpleDateFormat("yy");
-		int idx = Integer.parseInt(twodigitYear.format(oncGVs.getSeasonStartDate())) % NUM_OF_XMAS_ICONS;
-		final Image img = oncGVs.getImageIcon(idx + XMAS_ICON_OFFSET).getImage();				
+		int idx = Integer.parseInt(twodigitYear.format(gvs.getSeasonStartDate())) % NUM_OF_XMAS_ICONS;
+		final Image img = gvs.getImageIcon(idx + XMAS_ICON_OFFSET).getImage();				
 		String oncSeason = "ONC " + Integer.toString(GlobalVariables.getCurrentSeason());
 			
 		DeliveryDirectionsPrinter ddp = new DeliveryDirectionsPrinter(ddpAL, img, oncSeason);
@@ -801,7 +801,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		Object[] options= {"Cancel", "Home Phone", "Other Phone"};
 		JOptionPane confirmOP = new JOptionPane("Which family phone # would you like to call?",
 												JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION,
-												oncGVs.getImageIcon(0), options, "Cancel");
+												gvs.getImageIcon(0), options, "Cancel");
 		JDialog confirmDlg = confirmOP.createDialog(parentFrame, "Select Phone Number to Call");
 		confirmDlg.setLocationRelativeTo(this);
 		confirmDlg.setVisible(true);
@@ -915,13 +915,13 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	    	    
     				JOptionPane.showMessageDialog(parentFrame, 
 						sortTable.getSelectedRowCount() + " call items sucessfully exported to " + oncwritefile.getName(), 
-						"Export Successful", JOptionPane.INFORMATION_MESSAGE, oncGVs.getImageIcon(0));
+						"Export Successful", JOptionPane.INFORMATION_MESSAGE, gvs.getImageIcon(0));
     			} 
     			catch (IOException x)
     			{
     				JOptionPane.showMessageDialog(parentFrame, 
 						"Export Failed, I/O Error: "  + x.getMessage(),  
-						"Export Failed", JOptionPane.ERROR_MESSAGE, oncGVs.getImageIcon(0));
+						"Export Failed", JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
     				System.err.format("IOException: %s%n", x);
     			}
     		}
@@ -968,15 +968,15 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		
 		//create the parameters map
 		Map<java.lang.String, java.lang.Object> parameters = new HashMap<java.lang.String, java.lang.Object>();
-		parameters.put("oncseason", "ONC " + Integer.toString(oncGVs.getCurrentSeason()));
+		parameters.put("oncseason", "ONC " + Integer.toString(gvs.getCurrentSeason()));
 		
 		SimpleDateFormat sYear = new SimpleDateFormat("yy");
-		int idx = Integer.parseInt(sYear.format(oncGVs.getSeasonStartDate())) % NUM_OF_XMAS_ICONS;
+		int idx = Integer.parseInt(sYear.format(gvs.getSeasonStartDate())) % NUM_OF_XMAS_ICONS;
 		
 		BufferedImage bi = new BufferedImage(96, 96, BufferedImage.TYPE_INT_ARGB);
 		Graphics g = bi.createGraphics();
 		// paint the Icon to the BufferedImage.
-		oncGVs.getImageIcon(idx + XMAS_ICON_OFFSET).paintIcon(null, g, 0,0);
+		gvs.getImageIcon(idx + XMAS_ICON_OFFSET).paintIcon(null, g, 0,0);
 		g.dispose();
 		parameters.put("photo", bi);
 		
@@ -1031,7 +1031,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		{
 			printCB.setEnabled(true);
 			
-			if(oncGVs.isUserAdmin())
+			if(gvs.isUserAdmin())
 			{
 				emailCB.setEnabled(true);
 				callCB.setEnabled(true);
@@ -1477,7 +1477,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 											
 			Object[] options= {"Cancel", "Send"};
 			JOptionPane confirmOP = new JOptionPane(confirmMssg, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION,
-								oncGVs.getImageIcon(0), options, "Cancel");
+								gvs.getImageIcon(0), options, "Cancel");
 			JDialog confirmDlg = confirmOP.createDialog(parentFrame, "*** Confirm Send Family Email ***");
 			confirmDlg.setLocationRelativeTo(this);
 			confirmDlg.setVisible(true);
@@ -1600,8 +1600,8 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		    }
 			
 			SimpleDateFormat twodigitYear = new SimpleDateFormat("yy");
-			int idx = Integer.parseInt(twodigitYear.format(oncGVs.getSeasonStartDate())) % NUM_OF_XMAS_ICONS;
-			final Image img = oncGVs.getImageIcon(idx + XMAS_ICON_OFFSET).getImage();
+			int idx = Integer.parseInt(twodigitYear.format(gvs.getSeasonStartDate())) % NUM_OF_XMAS_ICONS;
+			final Image img = gvs.getImageIcon(idx + XMAS_ICON_OFFSET).getImage();
 			
 			String oncSeason = "ONC " + Integer.toString(GlobalVariables.getCurrentSeason());
 			
@@ -2056,8 +2056,8 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			SimpleDateFormat sYear = new SimpleDateFormat("yy");
 			SimpleDateFormat sSeason = new SimpleDateFormat("yyyy");
 			
-			int idx = Integer.parseInt(sYear.format(oncGVs.getSeasonStartDate())) % NUM_OF_XMAS_ICONS;
-			final Image img = oncGVs.getImageIcon(idx + XMAS_ICON_OFFSET).getImage();
+			int idx = Integer.parseInt(sYear.format(gvs.getSeasonStartDate())) % NUM_OF_XMAS_ICONS;
+			final Image img = gvs.getImageIcon(idx + XMAS_ICON_OFFSET).getImage();
 		     
 			Font[] lFont = new Font[4];
 		    lFont[0] = new Font("Calibri", Font.ITALIC, 16);
@@ -2105,7 +2105,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 				
 		    	printLabel(col * AVERY_LABEL_WIDTH + AVERY_SHEET_X_OFFSET,
 		    				row * AVERY_LABEL_HEIGHT + AVERY_SHEET_Y_OFFSET,
-		    				line, lFont, sSeason.format(oncGVs.getSeasonStartDate()), img, g2d);	
+		    				line, lFont, sSeason.format(gvs.getSeasonStartDate()), img, g2d);	
 		    	
 		    	if(++col == AVERY_COLUMNS_PER_PAGE) { row++; col = 0; }
 		    	

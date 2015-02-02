@@ -3,6 +3,7 @@ package OurNeighborsChild;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
+
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -27,6 +28,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 	private ONCWishCatalog cat;
 	
 	private ArrayList<ONCSortObject> stAL;
+	protected ArrayList<ONCSortObject> tableRowSelectedObjectList;
 	protected ONCSortObject lastWishChanged;	//Holds the last wish received for undo function
 	
 	private int sortStartAge, sortGender;
@@ -48,6 +50,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 		
 		//Create/initialize the class variables
 		stAL = new ArrayList<ONCSortObject>();
+		tableRowSelectedObjectList = new ArrayList<ONCSortObject>();
 		sortStartAge = 0;
 		sortGender = 0;
 		
@@ -86,7 +89,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 		sortTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
         //Set up the control panel, adding an undo button
-		btnUndo = new JButton(oncGVs.getImageIcon(16));
+		btnUndo = new JButton(gvs.getImageIcon(16));
         btnUndo.setToolTipText(String.format("Click to undo last gift %s", dialogType.toString()));
         btnUndo.setEnabled(false);
         btnUndo.addActionListener(this);
@@ -104,7 +107,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 	{
 		//archive the table rows selected prior to rebuild so the can be reselected if the
 		//build occurred due to an external modification of the table
-		tableRowSelectedItemIDList.clear();
+		tableRowSelectedObjectList.clear();
 		if(bPreserveSelections)
 			archiveTableSelections(stAL);
 		else
@@ -136,7 +139,19 @@ public abstract class GiftActionDialog extends SortTableDialog
 			}
 		}
 		
-		displaySortTable(stAL, true);		//Display the table after table array list is built	
+		displaySortTable(stAL, true, tableRowSelectedObjectList);		//Display the table after table array list is built	
+	}
+	
+	void archiveTableSelections(ArrayList<? extends ONCObject> stAL)
+	{
+		tableRowSelectedObjectList.clear();
+		
+		int[] row_sel = sortTable.getSelectedRows();
+		for(int i=0; i<row_sel.length; i++)
+		{
+			ONCSortObject so = (ONCSortObject) stAL.get(row_sel[i]);
+			tableRowSelectedObjectList.add(so);
+		}
 	}
 	
 	@Override
@@ -167,7 +182,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 		lastWishChanged = new ONCSortObject(-1, fam, c, cw);
 			
 		int wishid = cwDB.add(this, c.getID(), wishtypeid, cwd, wn, cwi, getGiftStatusAction(),
-								cwaID, oncGVs.getUserLNFI(), oncGVs.getTodaysDate());
+								cwaID, gvs.getUserLNFI(), gvs.getTodaysDate());
 			
 		c.setChildWishID(wishid, wn);				
 				
@@ -202,8 +217,8 @@ public abstract class GiftActionDialog extends SortTableDialog
 									lastWish.getChildWishIndicator(),
 									lastWish.getChildWishStatus(),
 									lastWish.getChildWishAssigneeID(),
-									oncGVs.getUserLNFI(),
-									oncGVs.getTodaysDate());
+									gvs.getUserLNFI(),
+									gvs.getTodaysDate());
 		
 		lastChild.setChildWishID(wishid, lastWish.getWishNumber());
 		

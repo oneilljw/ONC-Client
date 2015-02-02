@@ -64,6 +64,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 	private ONCWishCatalog cat;
 
 	private ArrayList<SortWishObject> stAL;
+	private ArrayList<SortWishObject> tableRowSelectedObjectList;
 	
 	private JComboBox startAgeCB, endAgeCB, genderCB, wishnumCB, wishCB, resCB, assignCB, statusCB, changedByCB;
 	private JComboBox changeResCB, changeStatusCB, changeAssigneeCB, printCB;
@@ -110,6 +111,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		
 		//initialize member variables
 		stAL = new ArrayList<SortWishObject>();
+		tableRowSelectedObjectList = new ArrayList<SortWishObject>();
 
 		//Set up the search criteria panel
 		oncnumTF = new JTextField();
@@ -301,7 +303,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
     		col = -1;
 		
 		if(col > -1)
-			displaySortTable(stAL, false);
+			displaySortTable(stAL, false, tableRowSelectedObjectList);
     		
     	return col;
 	}
@@ -316,7 +318,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 	{
 		//archive the table rows selected prior to rebuild so the can be reselected if the
 		//build occurred due to an external modification of the table
-		tableRowSelectedItemIDList.clear();
+		tableRowSelectedObjectList.clear();
 		if(bPreserveSelections)
 			archiveTableSelections(stAL);
 		else
@@ -355,7 +357,19 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		}
 		
 		lblNumOfTableItems.setText(Integer.toString(stAL.size()));
-		displaySortTable(stAL, true);		//Display the table after table array list is built	
+		displaySortTable(stAL, true, tableRowSelectedObjectList);		//Display the table after table array list is built	
+	}
+	
+	void archiveTableSelections(ArrayList<? extends ONCObject> stAL)
+	{
+		tableRowSelectedObjectList.clear();
+		
+		int[] row_sel = sortTable.getSelectedRows();
+		for(int i=0; i<row_sel.length; i++)
+		{
+			SortWishObject so = (SortWishObject) stAL.get(row_sel[i]);
+			tableRowSelectedObjectList.add(so);
+		}
 	}
 
 	boolean onApplyChanges()
@@ -415,7 +429,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 			{
 				//Add the new wish to the child wish history, returns -1 if no wish created
 				int wishid = cwDB.add(this, c.getID(), cwWishID, cwd, wn, cwi, cws, cwaID,
-										gvs.getUserLNFI(), gvs.getTodaysDate()); 
+						gvs.getUserLNFI(), gvs.getTodaysDate()); 
 				
 				if(wishid != -1)	//only proceed if wish was accepted by the data base
 					bRebuildTable = true;	//set flag to rebuild/display the table array/wish table

@@ -1208,7 +1208,7 @@ public class SortAgentDialog extends ONCTableDialog implements ActionListener, P
 											
 			Object[] options= {"Cancel", "Send"};
 			JOptionPane confirmOP = new JOptionPane(confirmMssg, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION,
-								gvs.getImageIcon(0), options, "Cancel");
+					gvs.getImageIcon(0), options, "Cancel");
 			JDialog confirmDlg = confirmOP.createDialog(this, "*** Confirm Send Partner Email ***");
 			confirmDlg.setLocationRelativeTo(this);
 			confirmDlg.setVisible(true);

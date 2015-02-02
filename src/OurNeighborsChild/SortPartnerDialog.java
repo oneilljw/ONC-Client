@@ -69,6 +69,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 	private JComboBox printCB, emailCB;
 	private JLabel lblOrnReq;
 	private ArrayList<Organization> stAL;
+	private ArrayList<Organization> tableRowSelectedObjectList;
 
 	private int sortStatus = 0, sortType = 0, sortRegion = 0, sortChangedBy = 0, sortStoplight = 0;
 	
@@ -99,6 +100,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		
 		//Set up the array lists
 		stAL = new ArrayList<Organization>();
+		tableRowSelectedObjectList = new ArrayList<Organization>();
 		
 		//Get reference for data base listeners
 		UserDB userDB = UserDB.getInstance();
@@ -285,7 +287,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 	
 	public void buildTableList(boolean bPreserveSelections)
 	{
-		tableRowSelectedItemIDList.clear();
+		tableRowSelectedObjectList.clear();
 		if(bPreserveSelections)
 			archiveTableSelections(stAL);
 		else
@@ -309,7 +311,19 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		
 		lblNumOfTableItems.setText(Integer.toString(stAL.size()));
 		lblOrnReq.setText(Integer.toString(totalornreq));
-		displaySortTable(stAL, true);		//Display the table after table array list is built						
+		displaySortTable(stAL, true, tableRowSelectedObjectList);		//Display the table after table array list is built						
+	}
+	
+	void archiveTableSelections(ArrayList<? extends ONCObject> stAL)
+	{
+		tableRowSelectedObjectList.clear();
+		
+		int[] row_sel = sortTable.getSelectedRows();
+		for(int i=0; i<row_sel.length; i++)
+		{
+			Organization o = (Organization) stAL.get(row_sel[i]);
+			tableRowSelectedObjectList.add(o);
+		}
 	}
 	
 	@Override
@@ -319,7 +333,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		
 		if(orgs.sortDB(stAL, columns[col]))
 		{
-			displaySortTable(stAL, false);
+			displaySortTable(stAL, false, tableRowSelectedObjectList);
 			return col;
 		}
 		else
@@ -332,7 +346,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		if(tf && sortTable.getSelectedRowCount() > 0)
 		{
 			printCB.setEnabled(true);
-			if(oncGVs.isUserAdmin())	//Only admins or higher can send email
+			if(gvs.isUserAdmin())	//Only admins or higher can send email
 				emailCB.setEnabled(true);
 			btnExport.setEnabled(true);
 		}
@@ -386,8 +400,8 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 			//if status or # of ornaments requested changed, need to send an update request to the server
 			if(bOrgChanged)
 			{
-				updatedOrg.setDateChanged(oncGVs.getTodaysDate());
-				updatedOrg.setStoplightChangedBy(oncGVs.getUserLNFI());
+				updatedOrg.setDateChanged(gvs.getTodaysDate());
+				updatedOrg.setStoplightChangedBy(gvs.getUserLNFI());
 				
 				String response = orgs.update(this, updatedOrg);	//notify the database of the change
 				
@@ -398,7 +412,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 					//display an error message that update request failed
 					JOptionPane.showMessageDialog(this, "ONC Server denied Partner Update," +
 							"try again later","Partner Update Failed",  
-							JOptionPane.ERROR_MESSAGE, oncGVs.getImageIcon(0));
+							JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
 				}
 				
 				bOrgChanged = false;
@@ -1090,7 +1104,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		if(sortTable.getSelectedRowCount() > 0)
 		{
 			printCB.setEnabled(true);
-			if(oncGVs.isUserAdmin())	//Only admins or higher can send email
+			if(gvs.isUserAdmin())	//Only admins or higher can send email
 				emailCB.setEnabled(true);
 			btnExport.setEnabled(true);
 		}
@@ -1162,13 +1176,13 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 	    	    
 	    	    JOptionPane.showMessageDialog(parentFrame, 
 						sortTable.getSelectedRowCount() + " partners sucessfully exported to " + oncwritefile.getName(), 
-						"Export Successful", JOptionPane.INFORMATION_MESSAGE, oncGVs.getImageIcon(0));
+						"Export Successful", JOptionPane.INFORMATION_MESSAGE, gvs.getImageIcon(0));
 	    	} 
 	    	catch (IOException x)
 	    	{
 	    		JOptionPane.showMessageDialog(parentFrame, 
 						"Export Failed, I/O Error: "  + x.getMessage(),  
-						"Export Failed", JOptionPane.ERROR_MESSAGE, oncGVs.getImageIcon(0));
+						"Export Failed", JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
 	    		System.err.format("IOException: %s%n", x);
 	    	}
 	    }
@@ -1265,7 +1279,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 											
 			Object[] options= {"Cancel", "Send"};
 			JOptionPane confirmOP = new JOptionPane(confirmMssg, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION,
-					oncGVs.getImageIcon(0), options, "Cancel");
+					gvs.getImageIcon(0), options, "Cancel");
 			JDialog confirmDlg = confirmOP.createDialog(this, "*** Confirm " + emailCB.getSelectedItem().toString() + " ***");
 			confirmDlg.setVisible(true);
 		
