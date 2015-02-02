@@ -666,16 +666,15 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		
 	void checkApplyChangesEnabled()
 	{
-//		System.out.println(String.format("Checking enabling of Apply Changes button: %d, %d, %d, %d", 
-//				sortTable.getSelectedRowCount(), changeResCB.getSelectedIndex(),
-//				changeStatusCB.getSelectedIndex(), changeAssigneeCB.getSelectedIndex()));
+		System.out.println(String.format("Checking enabling of Apply Changes button: %d, %d, %d, %d", 
+				sortTable.getSelectedRowCount(), changeResCB.getSelectedIndex(),
+				changeStatusCB.getSelectedIndex(), changeAssigneeCB.getSelectedIndex()));
 		
 		if(sortTable.getSelectedRows().length > 0 &&
 				(changeResCB.getSelectedIndex() > 0 || changeStatusCB.getSelectedIndex() > 0 ||changeAssigneeCB.getSelectedIndex() > 0))	
 			btnApplyChanges.setEnabled(true);
 		else
 			btnApplyChanges.setEnabled(false);
-		
 	}
 	
 	void checkExportEnabled()
