@@ -20,13 +20,19 @@ public class ONCSortObject extends ONCObject
 	ONCChildWish getChildWish() { return soChildWish; }
 	
 	//determine if two ONCSortObjects match
-	public boolean matches(ONCSortObject otherSO)
+	@Override
+	public boolean matches(ONCObject otherObj)
 	{
-		if(otherSO != null)
+		if(otherObj != null && otherObj.getClass() == ONCSortObject.class)
 		{
+			ONCSortObject otherSO = (ONCSortObject) otherObj;
+			
+//			System.out.println(String.format("ONCSortObject.matches: SO.cwID = %d, otherSO.cwID = %d",
+//					soChildWish.getID(), otherSO.soChildWish.getID()));
+			
 			return otherSO.soFamily != null && otherSO.soFamily.getID() == soFamily.getID() &&
 					otherSO.soChild != null && otherSO.soChild.getID() == soChild.getID() &&
-					 otherSO.soChildWish != null && otherSO.soChildWish.getID() == soChildWish.getID();			
+					otherSO.soChildWish != null && otherSO.soChildWish.getID() == soChildWish.getID();			
 		}
 		else
 			return false;

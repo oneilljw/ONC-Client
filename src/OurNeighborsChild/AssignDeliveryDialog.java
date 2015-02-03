@@ -364,10 +364,6 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 		{
 			onPrintListing("ONC Deliverers");
 		}
-		else if(e.getSource() == btnApplyChanges)
-		{
-			onApplyChanges();
-		}
 
 		checkApplyChangesEnabled();	//Check to see if user postured to change status or assignee. 
 	}

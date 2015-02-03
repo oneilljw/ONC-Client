@@ -81,9 +81,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 	private static String[] stoplt = {"Any", "Green", "Yellow", "Red", "Off"};
 	
 	private String[] columns;
-//	private String[] columns = {"Partner","Status", "Type", "Req", "Assigned", "Special Notes",
-//								"Date Changed","Changed By","Reg", "SL"};
-	
+
 	private JProgressBar progressBar;
 	private ONCEmailer oncEmailer;
 	
@@ -91,16 +89,11 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 	{
 		super(pf, columnToolTips, cols, colWidths, center_cols);
 		this.columns = cols;
-//		spGVs = GlobalVariables.getInstance();
-		regions = ONCRegions.getInstance();
 		this.setTitle("Our Neighbor's Child - Gift Partner Management");
 		
+		regions = ONCRegions.getInstance();
 		orgs = ONCOrgs.getInstance();
 		childDB = ChildDB.getInstance();
-		
-		//Set up the array lists
-		stAL = new ArrayList<Organization>();
-		tableRowSelectedObjectList = new ArrayList<Organization>();
 		
 		//Get reference for data base listeners
 		UserDB userDB = UserDB.getInstance();
@@ -120,6 +113,10 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		if(childwishDB != null)
 			childwishDB.addDatabaseListener(this);	//listen for partner gift assignment changes
 		
+		//Set up the array lists
+		stAL = new ArrayList<Organization>();
+		tableRowSelectedObjectList = new ArrayList<Organization>();
+				
 		//Set up the search criteria panel      
 		statusCB = new JComboBox(status);
 		statusCB.setBorder(BorderFactory.createTitledBorder("Partner Status"));
@@ -1258,10 +1255,6 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 			sortStoplight = stoplightCB.getSelectedIndex();
 			buildTableList(false);
 		}
-		else if(e.getSource() == btnResetCriteria)
-		{
-			onResetCriteriaClicked();
-		}
 		else if(e.getSource() == printCB)
 		{
 			if(printCB.getSelectedIndex() == 1) { 
@@ -1302,10 +1295,6 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		else if(e.getSource() == changeOrnReqCB)
 		{
 			checkApplyChangesEnabled();
-		}
-		else if(e.getSource() == btnApplyChanges)
-		{
-			onApplyChanges();
 		}
 	}
 	

@@ -113,4 +113,23 @@ public class SortWishObject extends ONCSortObject
 
 		return line;
 	}
+	
+	//determine if two SortWishObjects match
+	@Override
+	public boolean matches(ONCObject otherObj)
+	{
+		if(otherObj != null && otherObj.getClass() == SortWishObject.class)
+		{
+			SortWishObject otherSO = (SortWishObject) otherObj;
+			
+//			System.out.println(String.format("ONCSortObject.matches: SO.cwID = %d, otherSO.cwID = %d",
+//					soChildWish.getID(), otherSO.soChildWish.getID()));
+//				
+			return otherSO.soFamily != null && otherSO.soFamily.getID() == soFamily.getID() &&
+					otherSO.soChild != null && otherSO.soChild.getID() == soChild.getID() &&
+					otherSO.soChildWish != null && otherSO.soChildWish.getID() == soChildWish.getID();			
+		}
+		else
+			return false;
+		}
 }

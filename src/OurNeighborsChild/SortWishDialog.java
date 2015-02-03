@@ -259,9 +259,9 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
         printCB.setEnabled(true);
         printCB.addActionListener(this);
         
-        btnApplyChanges = new JButton("Apply Changes");
-        btnApplyChanges.setEnabled(false);
-        btnApplyChanges.addActionListener(this);
+//        btnApplyChanges = new JButton("Apply Changes");
+//        btnApplyChanges.setEnabled(false);
+//        btnApplyChanges.addActionListener(this);
         
         cntlPanel.add(btnExport);
         cntlPanel.add(printCB);
@@ -360,6 +360,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		displaySortTable(stAL, true, tableRowSelectedObjectList);		//Display the table after table array list is built	
 	}
 	
+	@Override
 	void archiveTableSelections(ArrayList<? extends ONCObject> stAL)
 	{
 		tableRowSelectedObjectList.clear();
@@ -369,6 +370,8 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		{
 			SortWishObject so = (SortWishObject) stAL.get(row_sel[i]);
 			tableRowSelectedObjectList.add(so);
+//			System.out.println(String.format("SortWishDlg.archiveTableSel : object at row %d added, childwishID: %d",
+//					row_sel[i], so.getChildWish().getID()));
 		}
 	}
 
@@ -666,9 +669,9 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		
 	void checkApplyChangesEnabled()
 	{
-		System.out.println(String.format("Checking enabling of Apply Changes button: %d, %d, %d, %d", 
-				sortTable.getSelectedRowCount(), changeResCB.getSelectedIndex(),
-				changeStatusCB.getSelectedIndex(), changeAssigneeCB.getSelectedIndex()));
+//		System.out.println(String.format("Checking enabling of Apply Changes button: %d, %d, %d, %d", 
+//				sortTable.getSelectedRowCount(), changeResCB.getSelectedIndex(),
+//				changeStatusCB.getSelectedIndex(), changeAssigneeCB.getSelectedIndex()));
 		
 		if(sortTable.getSelectedRows().length > 0 &&
 				(changeResCB.getSelectedIndex() > 0 || changeStatusCB.getSelectedIndex() > 0 ||changeAssigneeCB.getSelectedIndex() > 0))	
@@ -851,10 +854,6 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		else if(e.getSource() == btnExport)
 		{
 			onExportRequested();	
-		}
-		else if(e.getSource() == btnApplyChanges)
-		{
-			onApplyChanges();
 		}
 		else if(!bIgnoreCBEvents && (e.getSource() == changeResCB ||
 					e.getSource() == changeStatusCB || e.getSource() == changeAssigneeCB))
@@ -1476,6 +1475,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 							status[swo.getChildWish().getChildWishStatus()], 
 							orgs.getOrganizationByID(swo.getChildWish().getChildWishAssigneeID()).getName(), 
 							swo.getChildWish().getChildWishChangedBy(), ds};
+//							Integer.toString(swo.getChildWish().getID()), ds};
 		return tablerow;
 	}
 }

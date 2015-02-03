@@ -288,16 +288,6 @@ public abstract class GiftActionDialog extends SortTableDialog
 			sortONCNum = oncnumTF.getText();
 			buildTableList(false);
 		}
-		else if(e.getSource() == btnResetCriteria)
-		{
-			onResetCriteriaClicked();
-		}
-		else if(e.getSource() == btnApplyChanges)
-		{
-			//Receive gifts dialog recGift button event handler is in this class for coordination
-			//with update of the child panel and family status
-			onApplyChanges();
-		}
 		else if(e.getSource() == btnUndo)
 		{
 			//Receive gifts dialog recGift button event handler is in this class for coordination

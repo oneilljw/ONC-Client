@@ -1488,12 +1488,6 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			
 			emailCB.setSelectedIndex(0);	//Reset the combo box choice
 		}
-		else if(e.getSource() == btnApplyChanges)
-		{			
-			//Apply the changes. If changes occurred, update the current family display, 
-			//it may have been changed and update the assign driver dialog sort table as well
-			onApplyChanges();
-		}
 
 		checkApplyChangesEnabled();	//Check to see if user postured to change status or assignee. 
 	}
