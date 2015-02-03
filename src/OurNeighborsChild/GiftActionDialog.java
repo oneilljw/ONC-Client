@@ -1,6 +1,7 @@
 package OurNeighborsChild;
 
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 
@@ -8,6 +9,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
@@ -89,6 +91,8 @@ public abstract class GiftActionDialog extends SortTableDialog
 		sortTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
         //Set up the control panel, adding an undo button
+		cntlPanel.setLayout(new FlowLayout(FlowLayout.LEFT));	//Put undo button on far left
+		
 		btnUndo = new JButton(gvs.getImageIcon(16));
         btnUndo.setToolTipText(String.format("Click to undo last gift %s", dialogType.toString()));
         btnUndo.setEnabled(false);

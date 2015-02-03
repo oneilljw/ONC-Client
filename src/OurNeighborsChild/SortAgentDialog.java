@@ -194,7 +194,7 @@ public class SortAgentDialog extends ONCTableDialog implements ActionListener, P
             	else
             		return;
             	
-//            	displaySortAgentTable();
+            	displaySortAgentTable();
             }
         });
         
@@ -312,8 +312,8 @@ public class SortAgentDialog extends ONCTableDialog implements ActionListener, P
             {
         		if(fDB.sortDB(stAL, ftcolumns[dependentTable.columnAtPoint(e.getPoint())]))
         		{
-//        			clearFamilyTable();
-//        			displayFamilyTable();
+        			clearFamilyTable();
+        			displayFamilyTable();
         		}
             }
         });		
@@ -336,7 +336,7 @@ public class SortAgentDialog extends ONCTableDialog implements ActionListener, P
 				BorderFactory.createLoweredBevelBorder(), "Families Represented By Selected Agent(s)"));
 
 		//Set up the bottom panel
-		JPanel bottompanel = new JPanel(new BorderLayout());
+		JPanel lowercntlpanel = new JPanel(new BorderLayout());
 		
 		//Set up the family count panel
 		JPanel famcountPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));	
@@ -363,8 +363,8 @@ public class SortAgentDialog extends ONCTableDialog implements ActionListener, P
         cntlPanel.add(printCB);
         
         //Add family count and control panels to bottom panel
-        bottompanel.add(famcountPanel, BorderLayout.LINE_START);
-        bottompanel.add(cntlPanel, BorderLayout.LINE_END);
+        lowercntlpanel.add(famcountPanel, BorderLayout.LINE_START);
+        lowercntlpanel.add(cntlPanel, BorderLayout.LINE_END);
        
         
         //Add the four panels to the dialog pane
@@ -373,7 +373,7 @@ public class SortAgentDialog extends ONCTableDialog implements ActionListener, P
         this.add(sortAgentScrollPane);
         this.add(thirdpanel);
         this.add(familyTableScrollPane);
-        this.add(bottompanel);
+        this.add(lowercntlpanel);
        
         pack();
         setMinimumSize(new Dimension(familytablewidth+10, 516));

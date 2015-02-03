@@ -164,8 +164,9 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
         //Set up the subclass defined button control panel and the common Reset Criteria and
         //Apply Changes buttons as part of the bottom panel
 		bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		cntlPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-           
+//		cntlPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT)); 
+		cntlPanel = new JPanel();
+		
         btnResetCriteria = new JButton("Reset Criteria");
         btnResetCriteria.addActionListener(this);  
         btnResetCriteria.addActionListener(new ActionListener() {
