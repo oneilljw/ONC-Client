@@ -1336,7 +1336,8 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		//the selection occurred so the dialog can display that organization
 		ListSelectionModel stLSM = sortTable.getSelectionModel();
 		if(!lse.getValueIsAdjusting() && lse.getSource() == stLSM &&
-				!bChangingTable && sortTable.getSelectedRowCount() > 0)
+//				!bChangingTable && 
+				sortTable.getSelectedRowCount() > 0)
 		{
 			fireEntitySelected(this, "PARTNER_SELECTED", stAL.get(sortTable.getSelectedRow()), null);
 		}

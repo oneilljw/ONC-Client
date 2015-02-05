@@ -160,7 +160,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 	@Override
 	boolean onApplyChanges()
 	{
-		bChangingTable = true;
+//		bChangingTable = true;
 		
 		int row_sel = sortTable.getSelectedRow();
 		
@@ -198,7 +198,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 		
 		btnUndo.setEnabled(true);
 		
-		bChangingTable = false;
+//		bChangingTable = false;
 		
 		return true;
 	}
@@ -207,7 +207,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 	
 	void onUndoReceiveGift()
 	{
-		bChangingTable = true;
+//		bChangingTable = true;
 		
 		//To undo the wish, add the old wish back with the previous status		
 		ONCChild lastChild = lastWishChanged.getChild();
@@ -240,7 +240,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 		
 		btnUndo.setEnabled(false);
 		
-		bChangingTable = false;
+//		bChangingTable = false;
 	}
 	
 	abstract boolean changeFamilyStatus();
@@ -326,8 +326,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 	@Override
 	public void valueChanged(ListSelectionEvent lse)
 	{
-		if(!lse.getValueIsAdjusting() && lse.getSource() == sortTable.getSelectionModel() &&
-				!bChangingTable)
+		if(!lse.getValueIsAdjusting() && lse.getSource() == sortTable.getSelectionModel())
 		{
 			ONCFamily fam = stAL.get(sortTable.getSelectedRow()).getFamily();
 			ONCChild child = stAL.get(sortTable.getSelectedRow()).getChild();

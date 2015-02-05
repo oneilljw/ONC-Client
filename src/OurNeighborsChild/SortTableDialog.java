@@ -66,7 +66,7 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 	
 	protected String sortONCNum = "";
 	
-	protected boolean bChangingTable = false;	//Semaphore used to indicate the sort table is being changed
+//	protected boolean bChangingTable = false;	//Semaphore used to indicate the sort table is being changed
 	protected boolean bIgnoreCBEvents = false;
 	
 	protected String[] famstatus = {"Any", "Unverified", "Info Verified", "Gifts Selected", "Gifts Received", "Gifts Verified", "Packaged"};
@@ -224,10 +224,11 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 	void displaySortTable(ArrayList<? extends ONCObject> stAL, boolean bResort,
 							ArrayList<? extends ONCObject> tableRowSelectedObjectList)
 	{
-		bChangingTable = true;	//don't process table messages while being changed
+//		bChangingTable = true;	//don't process table messages while being changed
 		
 		//clear any selections the user made
 		ListSelectionModel lsModel = sortTable.getSelectionModel();
+		lsModel.setValueIsAdjusting(true);
 		lsModel.clearSelection();	//clear any selected rows
 		
 		//clear the table
@@ -239,6 +240,8 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 		//add rows to the table
 		for(int i=0; i < stAL.size(); i++)
 			sortTableModel.addRow(getTableRow(stAL.get(i)));
+		
+		lsModel.setValueIsAdjusting(false);
 		
 		//check to see if the table needs to be sorted by column
 		if(bResort && tableSortCol > -1)
@@ -304,7 +307,7 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 		if(!tableRowSelectedObjectList.isEmpty())
 			setEnabledControls(true);
 				
-		bChangingTable = false;	
+//		bChangingTable = false;	
 	}
 	
 	abstract void setEnabledControls(boolean tf);

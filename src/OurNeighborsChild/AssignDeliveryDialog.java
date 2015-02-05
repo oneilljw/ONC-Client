@@ -235,7 +235,7 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 	 *********************************************************************************************/
 	boolean onApplyChanges()
 	{
-		bChangingTable = true;
+//		bChangingTable = true;
 		
 		int assignmentsMade = 0;
 		int[] row_sel = sortTable.getSelectedRows();
@@ -286,7 +286,7 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 		if(assignmentsMade > 0)
 			buildTableList(false);
 		
-		bChangingTable = false;
+//		bChangingTable = false;
 		
 		return (assignmentsMade > 0 ? true:false);
 	}

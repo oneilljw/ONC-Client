@@ -375,7 +375,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	boolean onApplyChanges()
 	{		
 		int[] row_sel = sortTable.getSelectedRows();
-		bChangingTable = true;
+//		bChangingTable = true;
 		boolean bDataChanged = false;
 
 		for(int i=0; i<row_sel.length; i++)
@@ -461,7 +461,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		//Changes were applied, disable until user selects new table row(s) and values
 		btnApplyChanges.setEnabled(false);
 		
-		bChangingTable = false;
+//		bChangingTable = false;
 		
 		return bDataChanged;
 	}

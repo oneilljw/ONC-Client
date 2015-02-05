@@ -377,7 +377,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 */
 	boolean onApplyChanges()
 	{
-		bChangingTable = true;
+//		bChangingTable = true;
 		boolean bRebuildTable = false; //set true if a wish is changed so table is only rebuilt once per applyWishChange
 		
 		int[] row_sel = sortTable.getSelectedRows();
@@ -453,7 +453,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		
 		btnApplyChanges.setEnabled(false);
 		
-		bChangingTable = false;
+//		bChangingTable = false;
 		
 		return bRebuildTable;
 	}
@@ -993,8 +993,8 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 	@Override
 	public void valueChanged(ListSelectionEvent lse)
 	{
-		if(!lse.getValueIsAdjusting() && lse.getSource() == sortTable.getSelectionModel() &&
-				!bChangingTable)
+		if(!lse.getValueIsAdjusting() && lse.getSource() == sortTable.getSelectionModel())
+//				&& !bChangingTable)
 		{
 			ONCFamily fam = stAL.get(sortTable.getSelectedRow()).getFamily();
 			ONCChild child = stAL.get(sortTable.getSelectedRow()).getChild();

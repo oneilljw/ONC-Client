@@ -59,7 +59,7 @@ public class SortAgentDialog extends SortTableDialog implements PropertyChangeLi
 	private DefaultComboBoxModel orgCBM, titleCBM;
 //	private JButton btnResetCriteria;
 	private JButton btnEditAgentInfo;
-	private JComboBox agentPrintCB, printCB, emailCB;
+	private JComboBox printCB, famPrintCB, emailCB;
 	private JLabel lblNumOfAgents, lblNumOfFamilies;
 //	private Families fDB;
 	private ONCAgents agentDB;
@@ -237,10 +237,10 @@ public class SortAgentDialog extends SortTableDialog implements PropertyChangeLi
               
       	//Create a print button for agent information
       	String[] agentPrintChoices = {"Print", "Print Agent Listing"};
-        agentPrintCB = new JComboBox(agentPrintChoices);
-        agentPrintCB.setPreferredSize(new Dimension(136, 28));
-        agentPrintCB.setEnabled(false);
-        agentPrintCB.addActionListener(this);
+        printCB = new JComboBox(agentPrintChoices);
+        printCB.setPreferredSize(new Dimension(136, 28));
+        printCB.setEnabled(false);
+        printCB.addActionListener(this);
         
       	//Create the middle control panel buttons
       	btnEditAgentInfo = new JButton("Edit Agent Info");
@@ -253,7 +253,7 @@ public class SortAgentDialog extends SortTableDialog implements PropertyChangeLi
         //Add the components to the control panel
         middlecntlPanel.add(progressBar);
         middlecntlPanel.add(emailCB);
-        middlecntlPanel.add(agentPrintCB);
+        middlecntlPanel.add(printCB);
         middlecntlPanel.add(btnEditAgentInfo);
 //      middlecntlPanel.add(btnResetCriteria);
               
@@ -350,10 +350,10 @@ public class SortAgentDialog extends SortTableDialog implements PropertyChangeLi
 		JPanel famCntlPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         
         String[] printChoices = {"Print", "Print Family Table"};
-        printCB = new JComboBox(printChoices);
-        printCB.setPreferredSize(new Dimension(136, 28));
-        printCB.setEnabled(false);
-        printCB.addActionListener(this);
+        famPrintCB = new JComboBox(printChoices);
+        famPrintCB.setPreferredSize(new Dimension(136, 28));
+        famPrintCB.setEnabled(false);
+        famPrintCB.addActionListener(this);
         
         //set up the Agent Info Dialog
         String[] tfNames = {"Name", "Organization", "Title", "Email", "Phone"};
@@ -361,7 +361,7 @@ public class SortAgentDialog extends SortTableDialog implements PropertyChangeLi
     	this.addEntitySelectionListener(aiDlg);
         
         //Add the components to the control panel
-        famCntlPanel.add(printCB);
+        famCntlPanel.add(famPrintCB);
         
         //Add family count and control panels to bottom panel
         lowercntlpanel.add(famcountPanel, BorderLayout.LINE_START);
@@ -391,7 +391,7 @@ public class SortAgentDialog extends SortTableDialog implements PropertyChangeLi
 			familyTableModel.removeRow(0);
 		
 		//Family table empty, disable print
-		printCB.setEnabled(false);
+		famPrintCB.setEnabled(false);
 		
 		lblNumOfFamilies.setText(Integer.toString(stAL.size()));
 		
@@ -572,7 +572,7 @@ public class SortAgentDialog extends SortTableDialog implements PropertyChangeLi
 			 MessageFormat headerFormat = new MessageFormat("ONC Agents");
              MessageFormat footerFormat = new MessageFormat("- {0} -");
              sortTable.print(JTable.PrintMode.FIT_WIDTH, headerFormat, footerFormat);
-             agentPrintCB.setSelectedIndex(0);
+             printCB.setSelectedIndex(0);
 		} 
 		catch (PrinterException e) 
 		{
@@ -588,7 +588,7 @@ public class SortAgentDialog extends SortTableDialog implements PropertyChangeLi
 			 MessageFormat headerFormat = new MessageFormat("ONC Families for Agent");
              MessageFormat footerFormat = new MessageFormat("- {0} -");
              familyTable.print(JTable.PrintMode.FIT_WIDTH, headerFormat, footerFormat);
-             printCB.setSelectedIndex(0);
+             famPrintCB.setSelectedIndex(0);
 		} 
 		catch (PrinterException e) 
 		{
@@ -601,13 +601,13 @@ public class SortAgentDialog extends SortTableDialog implements PropertyChangeLi
 	{
 		if(familyTable.getSelectedRowCount() > 0)
 		{
-			printCB.setEnabled(true);
+			famPrintCB.setEnabled(true);
 		}
 		
 		if(sortTable.getSelectedRowCount() > 0)
-			agentPrintCB.setEnabled(true);
+			printCB.setEnabled(true);
 		else
-			agentPrintCB.setEnabled(false);
+			printCB.setEnabled(false);
 		
 		if(sortTable.getSelectedRowCount() > 0 && gvs.isUserAdmin())
 		{
@@ -1132,8 +1132,6 @@ public class SortAgentDialog extends SortTableDialog implements PropertyChangeLi
 		"</table>";
 	}
 	
-	boolean isSortAgentTableChanging() { return bChangingTable; }
-	boolean isFamilyTableChanging() { return bChangingFamilyTable; }
 	boolean doesOrgMatch(String agentorg) {return sortOrg.equals("Any") || sortOrg.equals(agentorg);}
 	boolean doesTitleMatch(String agenttitle) {return sortTitle.equals("Any") || sortTitle.equals(agenttitle); }
 	
@@ -1156,13 +1154,13 @@ public class SortAgentDialog extends SortTableDialog implements PropertyChangeLi
 			sortTitle = titleCB.getSelectedItem().toString();
 			buildTableList(false);			
 		}		
-		else if(e.getSource() == agentPrintCB)
-		{
-			if(agentPrintCB.getSelectedIndex() == 1) { onPrintAgentListing(); }
-		}
 		else if(e.getSource() == printCB)
 		{
-			if(printCB.getSelectedIndex() == 1) { onPrintFamilyListing(); }
+			if(printCB.getSelectedIndex() == 1) { onPrintAgentListing(); }
+		}
+		else if(e.getSource() == famPrintCB)
+		{
+			if(famPrintCB.getSelectedIndex() == 1) { onPrintFamilyListing(); }
 		}
 		else if(e.getSource() == emailCB && emailCB.getSelectedIndex() > 1 )
 		{
@@ -1368,19 +1366,19 @@ public class SortAgentDialog extends SortTableDialog implements PropertyChangeLi
 	@Override
 	public void valueChanged(ListSelectionEvent lse)
 	{
-//		System.out.println("SortAgtDlg.valueChanged: lse event occurred");
-		if(!lse.getValueIsAdjusting() &&lse.getSource() == sortTable.getSelectionModel() &&
-				!isSortAgentTableChanging())
+		System.out.println("SortAgtDlg.valueChanged: valueIsAdjusting: " + lse.getValueIsAdjusting());
+		if(!lse.getValueIsAdjusting() &&lse.getSource() == sortTable.getSelectionModel())
 		{
 			if(sortTable.getSelectedRowCount() == 0)	//No selection
 			{
+				System.out.println("SortAgtDlg.valueChanged: lse event occurred, agent row count = 0");
 				stAL.clear();
 				clearFamilyTable();
 				btnEditAgentInfo.setEnabled(false);
 			}
 			else	//Agent selected, build new family table associated with the agent
 			{
-//				System.out.println("SortAgtDlg.valueChanged: lse event occurred, agent selected");
+				System.out.println("SortAgtDlg.valueChanged: lse event occurred, agent selected");
 				buildFamilyTableListAndDisplay();
 				btnEditAgentInfo.setEnabled(true);
 			
