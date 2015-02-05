@@ -548,6 +548,7 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
         ONCMenuBar.exitMI.addActionListener(menuItemListener);       
         ONCMenuBar.findDupFamsMI.addActionListener(menuItemListener);
         ONCMenuBar.findDupChldrnMI.addActionListener(menuItemListener);
+        ONCMenuBar.editDelMI.addActionListener(menuItemListener);
         ONCMenuBar.manageDelMI.addActionListener(menuItemListener);
         ONCMenuBar.importDrvrMI.addActionListener(menuItemListener);
         ONCMenuBar.importRAFMI.addActionListener(menuItemListener);
@@ -1350,7 +1351,8 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
     		else if(e.getSource() == ONCMenuBar.findDupFamsMI) {oncFamilyPanel.onCheckForDuplicateFamilies();}
     		else if(e.getSource() == ONCMenuBar.findDupChldrnMI) {oncFamilyPanel.onCheckForDuplicateChildren();}
     		else if(e.getSource() == ONCMenuBar.assignDelMI) {oncFamilyPanel.showAssignDelivererDialog();}
-    		else if(e.getSource() == ONCMenuBar.manageDelMI) {oncFamilyPanel.showDriverDialog();}
+    		else if(e.getSource() == ONCMenuBar.editDelMI) {oncFamilyPanel.showDriverDialog();}
+    		else if(e.getSource() == ONCMenuBar.manageDelMI) {oncFamilyPanel.showSortDriverDialog();}
     		else if(e.getSource() == ONCMenuBar.importDrvrMI)
     		{
     			String mssg = oncDDB.importDrivers(oncFrame, oncGVs.getTodaysDate(),

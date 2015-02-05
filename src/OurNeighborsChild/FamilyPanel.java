@@ -119,6 +119,7 @@ public class FamilyPanel extends JPanel implements ActionListener, ListSelection
 	private AgentInfoDialog agentInfoDlg;
 	private ChangeONCNumberDialog changeONCNumberDlg;
 	public AssignDeliveryDialog assignDeliveryDlg;
+	public SortDriverDialog sortDriverDlg;
 	private ViewONCDatabaseDialog dbDlg;
 	private OrganizationDialog orgDlg;
 	private SortPartnerDialog sortOrgsDlg;
@@ -510,11 +511,23 @@ public class FamilyPanel extends JPanel implements ActionListener, ListSelection
     	assignDeliveryDlg = new AssignDeliveryDialog(parentFrame, addToolTips, addCols, addColWidths, addCenter_cols);
     	assignDeliveryDlg.addEntitySelectionListener(familyChildSelectionListener);
     	
+    	//set up the sort driver dialog
+    	String[] sdToolTips = {"Driver Number", "First Name", "Last Name",
+    								"Cell Phone #", "Home Phone #",
+    								"E-Mail address", "Changed By"};
+    	String[] sdCols = {"Drv #", "First Name", "Last Name", "Cell #", "Home #", "E-Mail Address",
+    						"Changed By"};
+    	int[] sdColWidths = {32, 80, 80, 96, 96, 160, 96};
+//    	int[] sdCenter_cols = {3, 4, 5, 9};
+    	sortDriverDlg = new SortDriverDialog(parentFrame, sdToolTips, sdCols, sdColWidths, null);
+    	sortDriverDlg.addEntitySelectionListener(familyChildSelectionListener);
+    	
     	//Set up the edit driver (deliverer) dialog and register it to listen for Family 
     	//Selection events from particular ui's that have driver's associated
         driverDlg = new DriverDialog(parentFrame);
         nav.addEntitySelectionListener(driverDlg);	//family panel/main screen nav
         assignDeliveryDlg.addEntitySelectionListener(driverDlg);
+        sortDriverDlg.addEntitySelectionListener(driverDlg);
         sortFamiliesDlg.addEntitySelectionListener(driverDlg);
         sortWishesDlg.addEntitySelectionListener(driverDlg);
         
@@ -1401,6 +1414,18 @@ public class FamilyPanel extends JPanel implements ActionListener, ListSelection
 		}
 	}
 	
+	void showSortDriverDialog()
+	{
+		if(!sortDriverDlg.isVisible())
+		{
+			sortDriverDlg.buildTableList(true);
+			
+			Point pt = parentFrame.getLocation();
+	        sortDriverDlg.setLocation(pt.x + 5, pt.y + 20);
+			sortDriverDlg.setVisible(true);
+		}
+	}
+	
 	
 	void showSortFamiliesDialog(ArrayList<ONCFamily> fAL)
 	{
@@ -1532,12 +1557,8 @@ public class FamilyPanel extends JPanel implements ActionListener, ListSelection
 		
 		sortAgentDlg.updateOrgCBList();
 		sortAgentDlg.updateTitleCBList();
-	}
-	
-	void updateWishAssignees()
-	{
-		oncChildPanel.updateWishAssigneeSelectionList();
-		sortWishesDlg.updateWishAssigneeSelectionList();
+		
+		sortDriverDlg.updateLNameCBList();
 	}
 	
 	void updateComboBoxBorders()

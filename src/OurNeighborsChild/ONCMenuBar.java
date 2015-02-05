@@ -23,7 +23,7 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 //	public static JMenuItem font8, font10, font12, font13, font14, font16, font18;
 //	public static JMenuItem compODBtoONCfamMI, compODBtoONCdataMI, compWFCMtoONCfamMI, compWFCMtoONCdataMI;
 	public static JMenuItem findDupFamsMI, findDupChldrnMI;
-	public static JMenuItem assignDelMI, manageDelMI, importDrvrMI, mapsMI, delstatusMI, distMI;
+	public static JMenuItem assignDelMI, editDelMI, manageDelMI, importDrvrMI, mapsMI, delstatusMI, distMI;
 	public static JMenuItem newFamMI, changeONCMI, delFamMI, newChildMI, delChildMI;
 	public static JMenu submenuImport, submenuFamilyDataChecks;
 	public static JMenu submenuExport, submenuCompareData, submenuDatabase;
@@ -225,8 +225,12 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 	    delstatusMI.setEnabled(false);
 	    menuDelivery.add(delstatusMI);
 	    
-	    //Manage Delivery Partners
-	    manageDelMI = new JMenuItem("Edit Delivery Partners");	
+	    //Edit Delivery Partners
+	    editDelMI = new JMenuItem("Edit Delivery Partners");	
+	    menuDelivery.add(editDelMI);
+	    
+	    //Edit Delivery Partners
+	    manageDelMI = new JMenuItem("Manage Delivery Partners");	
 	    menuDelivery.add(manageDelMI);
 	    
 	    //Assign Delivery Partners

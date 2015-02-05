@@ -1,19 +1,11 @@
 package OurNeighborsChild;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Graphics;
 import java.awt.event.ActionEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.print.PageFormat;
-import java.awt.print.Printable;
-import java.awt.print.PrinterException;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import javax.mail.internet.MimeBodyPart;
@@ -23,104 +15,62 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.ListSelectionModel;
-import javax.swing.SwingConstants;
 import javax.swing.SwingWorker;
 import javax.swing.event.ListSelectionEvent;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.JTableHeader;
 
-public class SortAgentDialog extends SortTableDialog implements PropertyChangeListener
+
+public class SortAgentDialog extends DependantTableDialog implements PropertyChangeListener
 															
 {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private static final int NUM_FAMILY_ROWS_TO_DISPLAY = 15;
 //	private static final String AGENT_EMAIL_SENDER_ADDRESS = "somerss@cox.net";
 	private static final String AGENT_EMAIL_SENDER_ADDRESS = "volunteer@ourneighborschild.org";
 //	private static final String AGENT_EMAIL_SENDER_ADDRESS = "johnwoneill1@gmail.com";
 	private static final int MIN_EMAIL_ADDRESS_LENGTH = 2;
 	private static final int MIN_EMAIL_NAME_LENGTH = 2;
-	private static final int ONC_GENERAL_USER = 0;
 	
-	private ONCRegions regions;
-	public ONCTable familyTable;
-	private DefaultTableModel familyTableModel;
 	private JComboBox orgCB, titleCB;
 	private DefaultComboBoxModel orgCBM, titleCBM;
-//	private JButton btnResetCriteria;
-	private JButton btnEditAgentInfo;
-	private JComboBox printCB, famPrintCB, emailCB;
-	private JLabel lblNumOfAgents, lblNumOfFamilies;
-//	private Families fDB;
-	private ONCAgents agentDB;
-	private String[] columns;
-	private ArrayList<Agent> atAL;	//Holds references to agent objects for agent table
-//	private ArrayList<ONCObject> tableRowSelectedObjectList;
-	private ArrayList<ONCFamily> stAL;	//Holds references to family objects for family table
-	
-//	private boolean bChangingTable = false;	//Semaphore used to indicate the sort table is being changed
-	private boolean bChangingFamilyTable = false;	//Semaphore used to indicate the sort table is being changed
-//	private boolean bSortTableBuildRqrd = false;	//Used to determine a build to sort table is needed
-//	private boolean bResetInProcess = false;	//Prevents recursive build of sort table by event handlers during reset event
-//	private boolean bIgnoreCBEvents = false;
-	
 	private String sortOrg, sortTitle;
+
+	private JButton btnEditAgentInfo;
+	private JComboBox printCB, emailCB;
 	
 	private JProgressBar progressBar;
 	private ONCEmailer oncEmailer;
+
+	private ONCAgents agentDB;
+	private ArrayList<Agent> atAL;	//Holds references to agent objects for agent table
 	
 	private AgentInfoDialog aiDlg;
 	
-	private static String[] famstatus = {"Any","Unverified", "Info Verified", "Gifts Selected", "Gifts Received", "Gifts Verified", "Packaged"};
-	private static String[] delstatus = {"Any", "Empty", "Contacted", "Confirmed", "Assigned", "Attempted", "Returned", "Delivered", "Counselor Pick-Up"};
-	private static String[] stoplt = {"Any", "Green", "Yellow", "Red", "Off"};
-	
+
 	SortAgentDialog(JFrame pf, String[] colToolTips, String[] cols, int[] colWidths, int[] center_cols)
 	{
 		super(pf, colToolTips, cols, colWidths, center_cols, 10);
-		columns = cols;
-		
-		regions = ONCRegions.getInstance();
-//		fDB = Families.getInstance();
-		agentDB = ONCAgents.getInstance();
 		this.setTitle("Our Neighbor's Child - Agent Management");
-		
-//		if(fDB != null)
-//			fDB.addDatabaseListener(this);
-		
+
+		agentDB = ONCAgents.getInstance();
 		if(agentDB != null)
 			agentDB.addDatabaseListener(this);
 		
-		//Set up the table content array lists
+		//Set up the agent table content array list
 		atAL = new ArrayList<Agent>();
-//		tableRowSelectedObjectList = new ArrayList<ONCObject>();
-		stAL = new ArrayList<ONCFamily>();
 		
 		//Initialize the sort criteria variables
 		sortOrg = "Any";
 		sortTitle = "Any";
 		
 		//Set up the search criteria panel      
-//		JPanel sortCriteriaPanel = new JPanel();
-//		sortCriteriaPanel.setLayout(new BoxLayout(sortCriteriaPanel, BoxLayout.Y_AXIS));
-//		JPanel sortCriteriaPanelTop = new JPanel(new FlowLayout(FlowLayout.LEFT));		
-
-//		JLabel lblONCicon = new JLabel(gvs.getImageIcon(0));
-    	 	
 		orgCB = new JComboBox();
 		orgCBM = new DefaultComboBoxModel();
 	    orgCBM.addElement("Any");
-//	    orgCBM.addElement("Deer Park ES");
 	    orgCB.setModel(orgCBM);
 		orgCB.setPreferredSize(new Dimension(144, 56));
 		orgCB.setBorder(BorderFactory.createTitledBorder("Organization"));
@@ -135,89 +85,12 @@ public class SortAgentDialog extends SortTableDialog implements PropertyChangeLi
 		titleCB.addActionListener(this);
 		
 		//Add all sort criteria components to dialog pane
-//        sortCriteriaPanelTop.add(lblONCicon);
         sortCriteriaPanelTop.add(orgCB);
 		sortCriteriaPanelTop.add(titleCB);				
 		
-//		sortCriteriaPanel.add(sortCriteriaPanelTop);
-//		sortCriteriaPanel.setBorder(BorderFactory.createTitledBorder("Search Criteria"));
-/*		
-		//Set up the sort table panel
-//		JPanel sortTablePanel = new JPanel();
-		
-		String[] colToolTips = {"Name", "Organization", "Title", "EMail Address", "Phone"};
-		sortTable = new ONCTable(colToolTips, new Color(240,248,255));
-
-		String[] columns = {"Name", "Org", "Title", "EMail", "Phone"};		
-        sortAgentTableModel = new DefaultTableModel(columns, 0)
-        {
-        	private static final long serialVersionUID = 1L;
-            @Override
-            //All cells are locked from being changed by user
-            public boolean isCellEditable(int row, int column) {return false;}
-        };
-     
-        sortTable.setModel(sortAgentTableModel);
-        sortTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);   
-//	    sortAgentTable.setAutoResizeMode( JTable.AUTO_RESIZE_OFF);
-        
-	  //Set table column widths
-	  		int tablewidth = 0;
-	  		int[] colWidths = {144, 160, 120, 168, 120};
-	  		for(int i=0; i < colWidths.length; i++)
-	  		{
-	  			sortTable.getColumnModel().getColumn(i).setPreferredWidth(colWidths[i]);
-	  			tablewidth += colWidths[i];
-	  		}
-	  		tablewidth += 24; 	//Account for vertical scroll bar
-       
-        
-        JTableHeader anHeader = sortTable.getTableHeader();
-        anHeader.setForeground( Color.black);
-        anHeader.setBackground( new Color(161,202,241));
-        
-        //mouse listener for header click
-        anHeader.addMouseListener(new MouseAdapter()
-        {
-            @Override
-            public void mouseClicked(MouseEvent e)
-            {
-            	if(sortTable.columnAtPoint(e.getPoint()) == 0)	//Sort on Agent Name
-            		Collections.sort(atAL, agentDB.getAgentNameComparator());
-            	else if(sortTable.columnAtPoint(e.getPoint()) == 1)	// Sort on Agent Organization
-            		Collections.sort(atAL, agentDB.getAgentOrgComparator());
-            	else if (sortTable.columnAtPoint(e.getPoint()) == 2)	//Sort on Agent Title
-            		Collections.sort(atAL, agentDB.getAgentTitleComparator());
-            	else
-            		return;
-            	
-            	displaySortAgentTable();
-            }
-        });
-        
-        sortTable.setFillsViewportHeight(true);
-        sortTable.getSelectionModel().addListSelectionListener(this);
-        
-        //Create the scroll pane and add the table to it.
-        JScrollPane sortAgentScrollPane = new JScrollPane(sortTable, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
-        												JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        
-        sortAgentScrollPane.setPreferredSize(new Dimension(tablewidth, sortTable.getRowHeight()*NUM_AGENT_ROWS_TO_DISPLAY));
-        sortAgentScrollPane.setBorder(BorderFactory.createTitledBorder("ONC Agents"));
-        sortAgentScrollPane.setBorder(BorderFactory.createTitledBorder(
-        								BorderFactory.createLoweredBevelBorder(), "Agents"));
-*/        
         //Set up the cntl panel
-        
-        //Set up the bottom panel
-//    	JPanel thirdpanel = new JPanel(new BorderLayout());
-      	
-      	//Set up the agent count panel
-      	JPanel agentcountPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-      	JLabel agentCountMssg = new JLabel("# of Agents:");
-        lblNumOfAgents = new JLabel();
-        agentcountPanel.add(agentCountMssg);
-        agentcountPanel.add(lblNumOfAgents);
+		//Set the text for the agent count label
+		lblObjectMssg.setText("# of Agents:"); 
       
         //Set up the middle control panel
     	JPanel middlecntlPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -246,206 +119,36 @@ public class SortAgentDialog extends SortTableDialog implements PropertyChangeLi
       	btnEditAgentInfo = new JButton("Edit Agent Info");
       	btnEditAgentInfo.setEnabled(false);
       	btnEditAgentInfo.addActionListener(this);
-      	
-//        btnResetCriteria = new JButton("Reset Criteria");
-//        btnResetCriteria.addActionListener(this);
                       
         //Add the components to the control panel
         middlecntlPanel.add(progressBar);
         middlecntlPanel.add(emailCB);
         middlecntlPanel.add(printCB);
         middlecntlPanel.add(btnEditAgentInfo);
-//      middlecntlPanel.add(btnResetCriteria);
+        
+        //set the border title for the family table 
+        familyTableScrollPane.setBorder(BorderFactory.createTitledBorder(
+				BorderFactory.createLoweredBevelBorder(), "Families Represented By Selected Agent(s)"));
               
         //Add family count and control panels to bottom panel
-//        thirdpanel.add(agentcountPanel, BorderLayout.LINE_START);
-//        thirdpanel.add(middlecntlPanel, BorderLayout.LINE_END);
-        cntlPanel.add(agentcountPanel, BorderLayout.WEST);
+        cntlPanel.add(objectCountPanel, BorderLayout.WEST);
         BorderLayout layoutMgr = (BorderLayout) cntlPanel.getLayout();
         layoutMgr.setHgap(154);
         cntlPanel.add(middlecntlPanel, BorderLayout.CENTER);
-           
-        //Set up the family table panel
-        String[] colTT = {"ONC Family Number", "Batch Number", "Do Not Serve Code", 
-					"Family Status", "Delivery Status", "Head of Household First Name", 
-					"Head of Household Last Name", "House Number","Street", "Unit",
-					"Zip Code", "Region","Changed By", "Stoplight Color"};
-        
-        familyTable = new ONCTable(colTT, new Color(240,248,255));
-
-      	final String[] ftcolumns = {"ONC", "Batch #", "DNS", "Fam Status", "Del Status", "First", "Last", "House",
-      							"Street", "Unit", "Zip", "Reg", "Changed By", "SL"};
-      	familyTableModel = new DefaultTableModel(ftcolumns, 0)
-        {
-      		private static final long serialVersionUID = 1L;
-            @Override
-            //All cells are locked from being changed by user
-            public boolean isCellEditable(int row, int column) {return false;}
-        };
-           
-              
-        familyTable.setModel(familyTableModel);
-        familyTable.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
-        familyTable.getSelectionModel().addListSelectionListener(this);
-              
-      	familyTable.setAutoResizeMode( JTable.AUTO_RESIZE_OFF);
-              
-      	//Set table column widths
-      	int familytablewidth = 0;
-      	int[] familycolWidths = {32, 48, 48, 72, 72, 72, 72, 48, 128, 56, 48, 24, 72, 24};
-      	for(int i=0; i < familycolWidths.length; i++)
-      	{
-      	  	familyTable.getColumnModel().getColumn(i).setPreferredWidth(familycolWidths[i]);
-      	  	familytablewidth += familycolWidths[i];
-      	}
-      	familytablewidth += 24; 	//Account for vertical scroll bar
-             
-              
-        JTableHeader ftHeader = familyTable.getTableHeader();
-        ftHeader.setForeground( Color.black);
-        ftHeader.setBackground( new Color(161,202,241));
-              
-        //mouse listener for header click
-        ftHeader.addMouseListener(new MouseAdapter()
-        {
-        	@Override
-            public void mouseClicked(MouseEvent e)
-            {
-        		if(fDB.sortDB(stAL, ftcolumns[familyTable.columnAtPoint(e.getPoint())]))
-        		{
-        			clearFamilyTable();
-        			displayFamilyTable();
-        		}
-            }
-        });		
-              
-        //Center cell entries for Batch # and Region
-        DefaultTableCellRenderer ftcr = new DefaultTableCellRenderer();    
-        ftcr.setHorizontalAlignment(SwingConstants.CENTER);
-        familyTable.getColumnModel().getColumn(1).setCellRenderer(ftcr);
-        familyTable.getColumnModel().getColumn(10).setCellRenderer(ftcr);
-        familyTable.getColumnModel().getColumn(12).setCellRenderer(ftcr);
-              
-        familyTable.setFillsViewportHeight(true);    
-              
-        //Create the scroll pane and add the table to it.
-        JScrollPane familyTableScrollPane = new JScrollPane(familyTable, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
-              											JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-              
-        familyTableScrollPane.setPreferredSize(new Dimension(familytablewidth, familyTable.getRowHeight()*NUM_FAMILY_ROWS_TO_DISPLAY));
-        familyTableScrollPane.setBorder(BorderFactory.createTitledBorder(
-				BorderFactory.createLoweredBevelBorder(), "Families Represented By Selected Agent(s)"));
-
-		//Set up the bottom panel
-		JPanel lowercntlpanel = new JPanel(new BorderLayout());
-		
-		//Set up the family count panel
-		JPanel famcountPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));	
-		JLabel lblFamCountMssg = new JLabel("# of Families:");
-		lblNumOfFamilies= new JLabel();
-		famcountPanel.add(lblFamCountMssg);
-		famcountPanel.add(lblNumOfFamilies);
-        
-        //Set up the control panel
-		JPanel famCntlPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        
-        String[] printChoices = {"Print", "Print Family Table"};
-        famPrintCB = new JComboBox(printChoices);
-        famPrintCB.setPreferredSize(new Dimension(136, 28));
-        famPrintCB.setEnabled(false);
-        famPrintCB.addActionListener(this);
         
         //set up the Agent Info Dialog
         String[] tfNames = {"Name", "Organization", "Title", "Email", "Phone"};
     	aiDlg = new AgentInfoDialog(GlobalVariables.getFrame(), tfNames);
     	this.addEntitySelectionListener(aiDlg);
         
-        //Add the components to the control panel
-        famCntlPanel.add(famPrintCB);
-        
-        //Add family count and control panels to bottom panel
-        lowercntlpanel.add(famcountPanel, BorderLayout.LINE_START);
-        lowercntlpanel.add(famCntlPanel, BorderLayout.LINE_END);
-        
-        //Add the four panels to the dialog pane
-//        this.getContentPane().setLayout(new BoxLayout(this.getContentPane(), BoxLayout.Y_AXIS));        
-//        this.add(sortCriteriaPanel);
-//        this.add(sortAgentScrollPane);
-        
-        btnApplyChanges.setVisible(false);	//not used in this subclass of SortTableDialog
-        
         this.add(bottomPanel);
         this.add(familyTableScrollPane);
         this.add(lowercntlpanel);
        
         pack();
-//        setMinimumSize(new Dimension(familytablewidth+10, 516));
-//        setResizable(true);
 	}
-	
-	void clearFamilyTable()
-	{
-		bChangingFamilyTable = true;	//don't process table messages while being changed
-		
-		while (familyTableModel.getRowCount() > 0)	//Clear the current table
-			familyTableModel.removeRow(0);
-		
-		//Family table empty, disable print
-		famPrintCB.setEnabled(false);
-		
-		lblNumOfFamilies.setText(Integer.toString(stAL.size()));
-		
-		bChangingFamilyTable = false;	
-	}
-	void displayFamilyTable()
-	{
-		bChangingFamilyTable = true;	//don't process table messages while being changed
-		
-		for(ONCFamily si:stAL)	//Build the new table
-			familyTableModel.addRow(getFamilyTableRow(si));
-				
-		bChangingFamilyTable = false;	
-	}
-	
-	String[] getFamilyTableRow(ONCFamily f)
-	{
-		GlobalVariables gvs = GlobalVariables.getInstance();
-		
-		String[] familytablerow = new String[14];
-		
-		familytablerow[0] = f.getONCNum(); 
-		familytablerow[1] = f.getBatchNum();
-		familytablerow[2] = f.getDNSCode();
-		familytablerow[3] = famstatus[f.getFamilyStatus()+1];
-		familytablerow[4] = delstatus[f.getDeliveryStatus()+1];
-		
-		if(gvs.getUser().getPermission() > ONC_GENERAL_USER)
-		{
-			familytablerow[5] = f.getHOHFirstName();
-			familytablerow[6] = f.getHOHLastName();
-			familytablerow[7] = f.getHouseNum();
-			familytablerow[8] = f.getStreet();
-			familytablerow[9] = f.getUnitNum();
-			familytablerow[10] = f.getZipCode();
-		}
-		else
-		{
-			familytablerow[5] = "";
-			familytablerow[6] = "";
-			familytablerow[7] = "";
-			familytablerow[8] = "";
-			familytablerow[9] = "";
-			familytablerow[10] = "";
-		}
-		
-		familytablerow[11] = regions.getRegionID(f.getRegion());
-		familytablerow[12] = f.getChangedBy();
-		familytablerow[13] = stoplt[f.getStoplightPos()+1].substring(0,1);
-			
-		return familytablerow;
-	}
-	
-	public void buildFamilyTableListAndDisplay()
+
+	void buildFamilyTableListAndDisplay()
 	{
 		int[] row_sel = sortTable.getSelectedRows();
 		
@@ -460,28 +163,7 @@ public class SortAgentDialog extends SortTableDialog implements PropertyChangeLi
 		lblNumOfFamilies.setText(Integer.toString(stAL.size()));
 		displayFamilyTable();		//Display the table after table array list is built					
 	}
-/*	
-	void displaySortAgentTable()
-	{
-		bChangingTable = true;	//don't process table messages while being changed
-		
-		while (sortTableModel.getRowCount() > 0)	//Clear the current table
-			sortTableModel.removeRow(0);
-		
-		//Sort table empty, disable print
-		btnEditAgentInfo.setEnabled(false);
-		agentPrintCB.setEnabled(false);
-		printCB.setEnabled(false);
-		emailCB.setEnabled(false);
-		
-		for(Agent si:atAL)	//Build the new table
-			sortTableModel.addRow(si.getAgentInfo());
-		
-		clearFamilyTable();	//This will clear any agent selection, so clear the family table
-				
-		bChangingTable = false;	
-	}
-*/	
+	
 	@Override
 	void buildTableList(boolean bPreserveSelections) 
 	{
@@ -503,10 +185,7 @@ public class SortAgentDialog extends SortTableDialog implements PropertyChangeLi
 			if(doesOrgMatch(a.getAgentOrg()) && doesTitleMatch(a.getAgentTitle()))
 				atAL.add(a);
 			
-//		lblNumOfAgents.setText(Integer.toString(atAL.size()));
-//		displaySortAgentTable();		//Display the table after table array list is built
-		
-		lblNumOfAgents.setText(Integer.toString(atAL.size()));
+		lblNumOfObjects.setText(Integer.toString(atAL.size()));
 		displaySortTable(atAL, true, tableRowSelectedObjectList);
 	}
 	
@@ -564,39 +243,7 @@ public class SortAgentDialog extends SortTableDialog implements PropertyChangeLi
 		
 		bIgnoreCBEvents = false;
 	}
-	
-	void onPrintAgentListing()
-	{
-		try
-		{
-			 MessageFormat headerFormat = new MessageFormat("ONC Agents");
-             MessageFormat footerFormat = new MessageFormat("- {0} -");
-             sortTable.print(JTable.PrintMode.FIT_WIDTH, headerFormat, footerFormat);
-             printCB.setSelectedIndex(0);
-		} 
-		catch (PrinterException e) 
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	void onPrintFamilyListing()
-	{
-		try
-		{
-			 MessageFormat headerFormat = new MessageFormat("ONC Families for Agent");
-             MessageFormat footerFormat = new MessageFormat("- {0} -");
-             familyTable.print(JTable.PrintMode.FIT_WIDTH, headerFormat, footerFormat);
-             famPrintCB.setSelectedIndex(0);
-		} 
-		catch (PrinterException e) 
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
+
 	void checkPrintandEmailEnabled()
 	{
 		if(familyTable.getSelectedRowCount() > 0)
@@ -1156,11 +803,18 @@ public class SortAgentDialog extends SortTableDialog implements PropertyChangeLi
 		}		
 		else if(e.getSource() == printCB)
 		{
-			if(printCB.getSelectedIndex() == 1) { onPrintAgentListing(); }
+			if(printCB.getSelectedIndex() == 1)
+				onPrintListing("ONC Agents");
+			
+			printCB.setSelectedIndex(0);
 		}
 		else if(e.getSource() == famPrintCB)
 		{
-			if(famPrintCB.getSelectedIndex() == 1) { onPrintFamilyListing(); }
+			if(famPrintCB.getSelectedIndex() == 1)
+			{ 
+				onPrintListing("ONC Families for Agent");
+				famPrintCB.setSelectedIndex(0);
+			}
 		}
 		else if(e.getSource() == emailCB && emailCB.getSelectedIndex() > 1 )
 		{
@@ -1227,158 +881,22 @@ public class SortAgentDialog extends SortTableDialog implements PropertyChangeLi
 		}
 	}
 
-	public class AcceptanceLetterPrinter implements Printable
-	{	
-		@Override
-		public int print(Graphics arg0, PageFormat arg1, int arg2)
-				throws PrinterException {
-			// TODO Auto-generated method stub
-			return 0;
-		}
-	}
-/*	
-	private class ONCFamilyONCNumComparator implements Comparator<ONCFamily>
-	{
-		@Override
-		public int compare(ONCFamily o1, ONCFamily o2)
-		{
-			Integer onc1, onc2;
-			
-			if(!o1.getONCNum().isEmpty() && isNumeric(o1.getONCNum()))
-				onc1 = Integer.parseInt(o1.getONCNum());
-			else
-				onc1 = MAXIMUM_ON_NUMBER;
-							
-			if(!o2.getONCNum().isEmpty() && isNumeric(o2.getONCNum()))
-				onc2 = Integer.parseInt(o2.getONCNum());
-			else
-				onc2 = MAXIMUM_ON_NUMBER;
-			
-			return onc1.compareTo(onc2);
-		}
-	}
-	
-	private class ONCFamilyDNSComparator implements Comparator<ONCFamily>
-	{
-		@Override
-		public int compare(ONCFamily o1, ONCFamily o2)
-		{			
-			return o1.getDNSCode().compareTo(o2.getDNSCode());
-		}
-	}
-	
-	private class ONCFamilyBatchNumComparator implements Comparator<ONCFamily>
-	{
-		public int compare(ONCFamily o1, ONCFamily o2)
-		{
-		
-			return o1.getBatchNum().compareTo(o2.getBatchNum());
-		}
-	}
-	private class ONCFamilyStatusComparator implements Comparator<ONCFamily>
-	{
-		@Override
-		public int compare(ONCFamily o1, ONCFamily o2)
-		{
-			Integer o1FS = (Integer) o1.getFamilyStatus();
-			Integer o2FS = (Integer) o2.getFamilyStatus();
-			return o1FS.compareTo(o2FS);
-		}
-	}
-	
-	private class ONCFamilyDelStatusComparator implements Comparator<ONCFamily>
-	{
-		@Override
-		public int compare(ONCFamily o1, ONCFamily o2)
-		{
-			Integer o1DS = (Integer) o1.getDeliveryStatus();
-			Integer o2DS = (Integer) o2.getDeliveryStatus();
-			return o1DS.compareTo(o2DS);
-		}
-	}
-	
-	private class ONCFamilyFNComparator implements Comparator<ONCFamily>
-	{
-		@Override
-		public int compare(ONCFamily o1, ONCFamily o2)
-		{
-			return o1.getHOHFirstName().compareTo(o2.getHOHFirstName());
-		}
-	}
-	
-	private class ONCFamilyLNComparator implements Comparator<ONCFamily>
-	{
-		@Override
-		public int compare(ONCFamily o1, ONCFamily o2)
-		{
-			return o1.getHOHLastName().compareTo(o2.getHOHLastName());
-		}
-	}
-	
-	private class ONCFamilyStreetComparator implements Comparator<ONCFamily>
-	{
-		@Override
-		public int compare(ONCFamily o1, ONCFamily o2)
-		{
-			return o1.getStreet().compareTo(o2.getStreet());
-		}
-	}
-	
-	private class ONCFamilyZipComparator implements Comparator<ONCFamily>
-	{
-		@Override
-		public int compare(ONCFamily o1, ONCFamily o2)
-		{
-			return o1.getZipCode().compareTo(o2.getZipCode());
-		}
-	}
-	
-	private class ONCFamilyRegionComparator implements Comparator<ONCFamily>
-	{
-		@Override
-		public int compare(ONCFamily o1, ONCFamily o2)
-		{
-			Integer o1Reg = (Integer) o1.getRegion();
-			Integer o2Reg = (Integer) o2.getRegion();
-			return o1Reg.compareTo(o2Reg);
-		}
-	}
-	
-	private class ONCFamilyCallerComparator implements Comparator<ONCFamily>
-	{
-		@Override
-		public int compare(ONCFamily o1, ONCFamily o2)
-		{
-			return o1.getChangedBy().compareTo(o2.getChangedBy());
-		}
-	}
-	private class ONCFamilyStoplightComparator implements Comparator<ONCFamily>
-	{
-		@Override
-		public int compare(ONCFamily o1, ONCFamily o2)
-		{
-			Integer o1SL = (Integer) o1.getStoplightPos();
-			Integer o2SL = (Integer) o2.getStoplightPos();
-			return o1SL.compareTo(o2SL);
-		}
-	}
-*/		
 	@Override
 	public void valueChanged(ListSelectionEvent lse)
 	{
-		System.out.println("SortAgtDlg.valueChanged: valueIsAdjusting: " + lse.getValueIsAdjusting());
+//		System.out.println("SortAgtDlg.valueChanged: valueIsAdjusting: " + lse.getValueIsAdjusting());
 		if(!lse.getValueIsAdjusting() &&lse.getSource() == sortTable.getSelectionModel())
 		{
 			if(sortTable.getSelectedRowCount() == 0)	//No selection
 			{
-				System.out.println("SortAgtDlg.valueChanged: lse event occurred, agent row count = 0");
+//				System.out.println("SortAgtDlg.valueChanged: lse event occurred, agent row count = 0");
 				stAL.clear();
 				clearFamilyTable();
 				btnEditAgentInfo.setEnabled(false);
 			}
 			else	//Agent selected, build new family table associated with the agent
 			{
-				System.out.println("SortAgtDlg.valueChanged: lse event occurred, agent selected");
+//				System.out.println("SortAgtDlg.valueChanged: lse event occurred, agent selected");
 				buildFamilyTableListAndDisplay();
 				btnEditAgentInfo.setEnabled(true);
 			
@@ -1396,8 +914,6 @@ public class SortAgentDialog extends SortTableDialog implements PropertyChangeLi
 		checkPrintandEmailEnabled();
 	}
 
-	
-
 	@Override
 	int sortTableList(int col) 
 	{
@@ -1411,22 +927,6 @@ public class SortAgentDialog extends SortTableDialog implements PropertyChangeLi
 		else
 			return -1;	
 	}
-/*
-	@Override
-	void archiveTableSelections(ArrayList<? extends ONCObject> stAL)
-	{
-		tableRowSelectedObjectList.clear();
-		
-		int[] row_sel = sortTable.getSelectedRows();
-		for(int i=0; i<row_sel.length; i++)
-		{
-//			Agent so = (Agent) stAL.get(row_sel[i]);
-			tableRowSelectedObjectList.add(stAL.get(row_sel[i]));
-//			System.out.println(String.format("SortAgentDlg.archiveTableSel : object at row %d added, agentName: %s",
-//					row_sel[i], so.getAgentName()));
-		}
-	}
-*/
 
 	@Override
 	void setEnabledControls(boolean tf) {
@@ -1442,20 +942,7 @@ public class SortAgentDialog extends SortTableDialog implements PropertyChangeLi
 						a.getAgentEmail(), a.getAgentPhone()};
 		return ai;
 	}
-
-	@Override
-	void checkApplyChangesEnabled()
-	{ 
-		//Not used in this subclass of SortTableDialog 
-	}
-		
-	@Override
-	boolean onApplyChanges()
-	{
-		//Not used in this subclass of SortTableDialog
-		return false;
-	}
-
+	
 	@Override
 	void onResetCriteriaClicked()
 	{
@@ -1475,11 +962,5 @@ public class SortAgentDialog extends SortTableDialog implements PropertyChangeLi
 		titleCB.addActionListener(this);
 		
 		buildTableList(false);
-	}
-
-	@Override
-	boolean isONCNumContainerEmpty() {
-		// TODO Auto-generated method stub
-		return false;
 	}
 }

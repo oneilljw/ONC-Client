@@ -8,6 +8,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -555,6 +557,61 @@ public class DriverDB extends ONCSearchableDatabase
 
 	@Override
 	int size() { return driverAL.size(); }
-
 	
+	boolean sortDB(ArrayList<ONCDriver> dAL, String dbField)
+	{
+		System.out.println(String.format("DriverDB.sortDB: dAL size: %d, dbField: %s ", dAL.size(), dbField));
+		boolean bSortOccurred = true;
+		
+		if(dbField.equals("Drv #"))	//Sort on Driver Number
+    		Collections.sort(dAL, new ONCDriverNumberComparator());
+		else if(dbField.equals("Last Name"))	//Sort on Driver Last Name
+    		Collections.sort(dAL, new ONCDriverLastNameComparator());
+		else if(dbField.equals("Changed By"))	//Sort on Driver Changed By
+    		Collections.sort(dAL, new ONCDriverChangedByComparator());
+		else if(dbField.equals("SL"))	//Sort on Driver Changed By
+    		Collections.sort(dAL, new ONCDriverStoplightComparator());
+		else
+			bSortOccurred = false;
+		
+		return bSortOccurred;	
+	}
+
+	private class ONCDriverNumberComparator implements Comparator<ONCDriver>
+	{
+		@Override
+		public int compare(ONCDriver o1, ONCDriver o2)
+		{
+			return o1.getDrvNum().compareTo(o2.getDrvNum());
+		}
+	}
+	
+	private class ONCDriverLastNameComparator implements Comparator<ONCDriver>
+	{
+		@Override
+		public int compare(ONCDriver o1, ONCDriver o2)
+		{
+			return o1.getlName().compareTo(o2.getlName());
+		}
+	}
+	
+	private class ONCDriverChangedByComparator implements Comparator<ONCDriver>
+	{
+		@Override
+		public int compare(ONCDriver o1, ONCDriver o2)
+		{
+			return o1.getChangedBy().compareTo(o2.getChangedBy());
+		}
+	}
+	
+	private class ONCDriverStoplightComparator implements Comparator<ONCDriver>
+	{
+		@Override
+		public int compare(ONCDriver o1, ONCDriver o2)
+		{
+			Integer o1SL = (Integer) o1.getStoplightPos();
+			Integer o2SL = (Integer) o2.getStoplightPos();
+			return o1SL.compareTo(o2SL);
+		}
+	}
 }
