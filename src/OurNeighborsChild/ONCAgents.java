@@ -8,7 +8,9 @@ import java.io.IOException;
 //import java.io.ObjectOutputStream;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
+
 
 //import javax.swing.ImageIcon;
 //import javax.swing.JFileChooser;
@@ -18,8 +20,6 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-
-//import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
 
 public class ONCAgents extends ONCDatabase
@@ -396,5 +396,21 @@ public class ONCAgents extends ONCDatabase
 		fireDataChanged(source, "DELETED_AGENT", deletedAgt);
 		
 		return deletedAgt;
+	}
+	
+	boolean sortDB(ArrayList<Agent> aAL, String dbField)
+	{
+		boolean bSortOccurred = true;
+		
+		if(dbField.equals("Name"))	//Sort on Agent Name
+    		Collections.sort(aAL, new ONCAgentNameComparator());
+    	else if(dbField.contains("Org"))	// Sort on Agent Organization
+    		Collections.sort(aAL, new ONCAgentOrgComparator());
+    	else if (dbField.equals("Title"))	//Sort on Agent Title
+    		Collections.sort(aAL, new ONCAgentTitleComparator());
+		else
+			bSortOccurred = false;
+		
+		return bSortOccurred;	
 	}
 }

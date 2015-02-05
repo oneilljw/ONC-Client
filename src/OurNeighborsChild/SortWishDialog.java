@@ -64,7 +64,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 	private ONCWishCatalog cat;
 
 	private ArrayList<SortWishObject> stAL;
-	private ArrayList<SortWishObject> tableRowSelectedObjectList;
+//	private ArrayList<SortWishObject> tableRowSelectedObjectList;
 	
 	private JComboBox startAgeCB, endAgeCB, genderCB, wishnumCB, wishCB, resCB, assignCB, statusCB, changedByCB;
 	private JComboBox changeResCB, changeStatusCB, changeAssigneeCB, printCB;
@@ -111,7 +111,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		
 		//initialize member variables
 		stAL = new ArrayList<SortWishObject>();
-		tableRowSelectedObjectList = new ArrayList<SortWishObject>();
+//		tableRowSelectedObjectList = new ArrayList<SortWishObject>();
 
 		//Set up the search criteria panel
 		oncnumTF = new JTextField();
@@ -359,7 +359,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		lblNumOfTableItems.setText(Integer.toString(stAL.size()));
 		displaySortTable(stAL, true, tableRowSelectedObjectList);		//Display the table after table array list is built	
 	}
-	
+/*	
 	@Override
 	void archiveTableSelections(ArrayList<? extends ONCObject> stAL)
 	{
@@ -374,7 +374,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 //					row_sel[i], so.getChildWish().getID()));
 		}
 	}
-
+*/
 	boolean onApplyChanges()
 	{
 		bChangingTable = true;

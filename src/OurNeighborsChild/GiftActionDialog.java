@@ -9,7 +9,6 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
@@ -30,7 +29,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 	private ONCWishCatalog cat;
 	
 	private ArrayList<ONCSortObject> stAL;
-	protected ArrayList<ONCSortObject> tableRowSelectedObjectList;
+//	protected ArrayList<ONCSortObject> tableRowSelectedObjectList;
 	protected ONCSortObject lastWishChanged;	//Holds the last wish received for undo function
 	
 	private int sortStartAge, sortGender;
@@ -39,7 +38,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 	
 	GiftActionDialog(JFrame pf, String[] columnToolTips, String[] columns, int[] colWidths, int[] center_cols, WishStatus dialogType)
 	{
-		super(pf, columnToolTips, columns, colWidths, center_cols);
+		super(pf, columnToolTips, columns, colWidths, center_cols, 15);
 		
 		cDB = ChildDB.getInstance();
 		cwDB = ChildWishDB.getInstance();
@@ -52,7 +51,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 		
 		//Create/initialize the class variables
 		stAL = new ArrayList<ONCSortObject>();
-		tableRowSelectedObjectList = new ArrayList<ONCSortObject>();
+//		tableRowSelectedObjectList = new ArrayList<ONCSortObject>();
 		sortStartAge = 0;
 		sortGender = 0;
 		
@@ -145,7 +144,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 		
 		displaySortTable(stAL, true, tableRowSelectedObjectList);		//Display the table after table array list is built	
 	}
-	
+/*	
 	void archiveTableSelections(ArrayList<? extends ONCObject> stAL)
 	{
 		tableRowSelectedObjectList.clear();
@@ -157,7 +156,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 			tableRowSelectedObjectList.add(so);
 		}
 	}
-	
+*/	
 	@Override
 	boolean onApplyChanges()
 	{

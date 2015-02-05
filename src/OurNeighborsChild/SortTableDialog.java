@@ -1,5 +1,6 @@
 package OurNeighborsChild;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -46,7 +47,6 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 	 */
 	private static final long serialVersionUID = 1L;
 	private static final int SORT_TABLE_VERTICAL_SCROLL_WIDTH = 24;
-	private static final int NUM_ROWS_TO_DISPLAY = 15;
 
 	protected Families fDB;
 	
@@ -56,6 +56,8 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 	//JPanels the inherited class may use to add GUI elements
 	protected JPanel sortCriteriaPanelTop, sortCriteriaPanelBottom;
 	protected JPanel cntlPanel, bottomPanel;
+	
+	protected ArrayList<ONCObject> tableRowSelectedObjectList;
 	
 	protected ONCTable sortTable;
 	protected DefaultTableModel sortTableModel;
@@ -71,7 +73,7 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 	protected static String[] delstatus = {"Any", "Empty", "Contacted", "Confirmed", "Assigned", "Attempted", "Returned", "Delivered", "Counselor Pick-Up"};
 	protected static String[] stoplt = {"Any", "Green", "Yellow", "Red", "Off"};
 	
-	public SortTableDialog(JFrame pf, String[] colToolTips, String[] columns, int[] colWidths, int[] center_cols)
+	public SortTableDialog(JFrame pf, String[] colToolTips, String[] columns, int[] colWidths, int[] center_cols, int nTableRows)
 	{
 		super(pf);
 		
@@ -83,6 +85,7 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 		//initialize member variables
 		sortONCNum = "";
 		tableSortCol = -1;
+		tableRowSelectedObjectList = new ArrayList<ONCObject>();
 		
 		//Set up the search criteria panel      
 		JPanel sortCriteriaPanel = new JPanel();
@@ -159,13 +162,13 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 		JScrollPane sortScrollPane = new JScrollPane(sortTable, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
 											JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
-		sortScrollPane.setPreferredSize(new Dimension(tablewidth, sortTable.getRowHeight()*NUM_ROWS_TO_DISPLAY));
+		sortScrollPane.setPreferredSize(new Dimension(tablewidth, sortTable.getRowHeight()*nTableRows));
 		
         //Set up the subclass defined button control panel and the common Reset Criteria and
         //Apply Changes buttons as part of the bottom panel
 		bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 //		cntlPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT)); 
-		cntlPanel = new JPanel();
+		cntlPanel = new JPanel(new BorderLayout());
 		
         btnResetCriteria = new JButton("Reset Criteria");
         btnResetCriteria.addActionListener(this);  
@@ -202,7 +205,16 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 	
 	abstract int sortTableList(int col);
 	
-	abstract void archiveTableSelections(ArrayList<? extends ONCObject> stAL);
+//	abstract void archiveTableSelections(ArrayList<? extends ONCObject> stAL);
+	
+	void archiveTableSelections(ArrayList<? extends ONCObject> stAL)
+	{
+		tableRowSelectedObjectList.clear();
+		
+		int[] row_sel = sortTable.getSelectedRows();
+		for(int i=0; i<row_sel.length; i++)
+			tableRowSelectedObjectList.add(stAL.get(row_sel[i]));
+	}
 	
 	/*****************************************************************************************
 	 * Displays the contents of the sort table list in the ONC table. 

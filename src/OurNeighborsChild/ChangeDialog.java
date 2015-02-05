@@ -23,7 +23,7 @@ public abstract class ChangeDialog extends SortTableDialog
 	public ChangeDialog(JFrame pf, String[] colToolTips, String[] columns,
 							int[] colWidths, int[] center_cols)
 	{
-		super(pf, colToolTips, columns, colWidths, center_cols);
+		super(pf, colToolTips, columns, colWidths, center_cols, 15);
 		 //Set up the third panel holding count panel and change panel using a GridBag layout
         changePanel = new JPanel();
         changePanel.setLayout( new GridBagLayout() );

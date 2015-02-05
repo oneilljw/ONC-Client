@@ -69,7 +69,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 	private JComboBox printCB, emailCB;
 	private JLabel lblOrnReq;
 	private ArrayList<Organization> stAL;
-	private ArrayList<Organization> tableRowSelectedObjectList;
+//	private ArrayList<Organization> tableRowSelectedObjectList;
 
 	private int sortStatus = 0, sortType = 0, sortRegion = 0, sortChangedBy = 0, sortStoplight = 0;
 	
@@ -115,7 +115,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		
 		//Set up the array lists
 		stAL = new ArrayList<Organization>();
-		tableRowSelectedObjectList = new ArrayList<Organization>();
+//		tableRowSelectedObjectList = new ArrayList<Organization>();
 				
 		//Set up the search criteria panel      
 		statusCB = new JComboBox(status);
@@ -310,7 +310,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		lblOrnReq.setText(Integer.toString(totalornreq));
 		displaySortTable(stAL, true, tableRowSelectedObjectList);		//Display the table after table array list is built						
 	}
-	
+/*	
 	void archiveTableSelections(ArrayList<? extends ONCObject> stAL)
 	{
 		tableRowSelectedObjectList.clear();
@@ -322,7 +322,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 			tableRowSelectedObjectList.add(o);
 		}
 	}
-	
+*/	
 	@Override
 	int sortTableList(int col)
 	{

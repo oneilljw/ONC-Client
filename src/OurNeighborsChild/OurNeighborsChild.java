@@ -1310,8 +1310,7 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
     		else if(e.getSource() == ONCMenuBar.importPYORGMI)
     		{
     			oncOrgDB.importOrgDB(oncFrame, oncGVs.getImageIcon(0), null);
-    			oncFamilyPanel.updateWishLists();
-    			oncFamilyPanel.updateWishAssignees();
+    			oncFamilyPanel.updateComboBoxModels();
     		}
     		else if(e.getSource() == ONCMenuBar.importODBMI) {OnImportMenuItemClicked("ODB");}
     		else if(e.getSource() == ONCMenuBar.importWFCMMI) {OnImportMenuItemClicked("WFCM");}
@@ -1524,9 +1523,8 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
     		oncMenuBar.setEnabledYear(false);
     		oncMenuBar.setEnabledNewMenuItem(false);
     	
-    		//Set wish and wish assignee combo box lists in child panel and wish sort dialog
-    		oncFamilyPanel.updateWishLists();
-    		oncFamilyPanel.updateWishAssignees();
+    		//Set combo box lists in child panel, wish sort dialog and agent sort dialog
+    		oncFamilyPanel.updateComboBoxModels();
     		
     		//set dates in partner dialog combo box borders
     		oncFamilyPanel.updateComboBoxBorders();

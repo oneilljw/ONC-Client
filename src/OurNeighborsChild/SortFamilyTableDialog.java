@@ -21,7 +21,7 @@ public abstract class SortFamilyTableDialog extends ChangeDialog
 	protected ONCRegions regions;
 	
 	protected ArrayList<ONCFamily> stAL = new ArrayList<ONCFamily>();
-	protected ArrayList<ONCFamily> tableRowSelectedObjectList;
+//	protected ArrayList<ONCFamily> tableRowSelectedObjectList;
 	protected DefaultComboBoxModel regionCBM;
 	
 	protected String[] columns;
@@ -36,7 +36,7 @@ public abstract class SortFamilyTableDialog extends ChangeDialog
 		regions = ONCRegions.getInstance();
 		
 		stAL = new ArrayList<ONCFamily>();
-		tableRowSelectedObjectList = new ArrayList<ONCFamily>();
+//		tableRowSelectedObjectList = new ArrayList<ONCFamily>();
 		regionCBM = new DefaultComboBoxModel();
 	}
 	
@@ -53,7 +53,7 @@ public abstract class SortFamilyTableDialog extends ChangeDialog
 		else
 			return -1;
 	}
-	
+/*	
 	void archiveTableSelections(ArrayList<? extends ONCObject> stAL)
 	{
 		tableRowSelectedObjectList.clear();
@@ -65,7 +65,7 @@ public abstract class SortFamilyTableDialog extends ChangeDialog
 			tableRowSelectedObjectList.add(f);
 		}
 	}
-
+*/
 	@Override
 	public void valueChanged(ListSelectionEvent e) 
 	{

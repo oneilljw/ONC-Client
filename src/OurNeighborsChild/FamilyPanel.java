@@ -463,7 +463,7 @@ public class FamilyPanel extends JPanel implements ActionListener, ListSelection
     	
     	//Set up the receive gifts dialog
 //    	recGiftsDlg = new GiftActionDialog(parentFrame, WishStatus.Received);
- //   	recGiftsDlg.addEntitySelectionListener(familyChildSelectionListener);
+//   	recGiftsDlg.addEntitySelectionListener(familyChildSelectionListener);
 
     	//Set up the manage catalog dialog
     	catDlg = new WishCatalogDialog(parentFrame);
@@ -490,9 +490,14 @@ public class FamilyPanel extends JPanel implements ActionListener, ListSelection
     	changeONCNumberDlg = new ChangeONCNumberDialog(parentFrame, oncNum);
 
     	//Set up the sort agent dialog
-    	sortAgentDlg = new SortAgentDialog(parentFrame);
+    	String[] agtColToolTips = {"Name", "Organization", "Title", "EMail Address", "Phone"};
+      	String[] agtCols = {"Name", "Org", "Title", "EMail", "Phone"};
+      	int[] agtColWidths = {144, 160, 120, 168, 120};
+  //  	int [] agtCenter_cols = {1, 11, 13};
+    	sortAgentDlg = new SortAgentDialog(parentFrame, agtColToolTips, agtCols, agtColWidths, null);
     	sortAgentDlg.addEntitySelectionListener(familyChildSelectionListener);
     	
+    	//set up the assign delivery dialog
     	String[] addToolTips = {"ONC Family Number", "Family Status", "Delivery Status",
     								"# of bags packaged", "# of bikes assigned to family",
     								"# of large items assigned to family",
@@ -1424,7 +1429,7 @@ public class FamilyPanel extends JPanel implements ActionListener, ListSelection
 	{
 		if(!sortAgentDlg.isVisible())
 		{
-			sortAgentDlg.buildAgentSortTable(agentsDB);
+			sortAgentDlg.buildTableList(true);
 			sortAgentDlg.setLocationRelativeTo(parentFrame);
 			sortAgentDlg.setVisible(true);
 		}
@@ -1517,10 +1522,16 @@ public class FamilyPanel extends JPanel implements ActionListener, ListSelection
 		sortFamiliesDlg.setFamilyStatusComboItemEnabled(FAMILY_STATUS_SELECTION_LIST_PACKAGED_INDEX, tf);
 	}
 	
-	void updateWishLists()
+	void updateComboBoxModels()
 	{
 		oncChildPanel.updateWishSelectionList();
 		sortWishesDlg.updateWishSelectionList();
+		
+		oncChildPanel.updateWishAssigneeSelectionList();
+		sortWishesDlg.updateWishAssigneeSelectionList();
+		
+		sortAgentDlg.updateOrgCBList();
+		sortAgentDlg.updateTitleCBList();
 	}
 	
 	void updateWishAssignees()
