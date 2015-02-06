@@ -37,7 +37,7 @@ public class DriverDialog extends EntityDialog
 	public DriverDialog(JFrame pf)
 	{
 		super(pf);
-		this.setTitle("Our Neighbor's Child - Driver Management");
+		this.setTitle("Our Neighbor's Child - Delivery Partner Management");
 		
 		//Initialize object variables
 		ddb = DriverDB.getInstance();	//Reference to the driver data base
@@ -45,15 +45,18 @@ public class DriverDialog extends EntityDialog
 			ddb.addDatabaseListener(this);
 		
 		deliveryDB = DeliveryDB.getInstance();
+		if(deliveryDB != null)
+			deliveryDB.addDatabaseListener(this);
+		
 		currDriver = null;
         
         //set up the navigation panel at the top of dialog
         nav = new ONCNavPanel(pf, ddb);
-        nav.setDefaultMssg("Our Neighbor's Child Drivers");
+        nav.setDefaultMssg("Our Neighbor's Child Delivery Partners");
         nav.setCount1("Attempted: " + Integer.toString(0));
         nav.setCount2("Delivered: " + Integer.toString(0));
-        nav.setNextButtonText("Next Driver");
-        nav.setPreviousButtonText("Previous Driver");
+        nav.setNextButtonText("Next Partner");
+        nav.setPreviousButtonText("Previous Partner");
 //      nav.addNavigationListener(this);
         nav.addEntitySelectionListener(this);
 
@@ -246,10 +249,9 @@ public class DriverDialog extends EntityDialog
 			cPhoneTF.setText(currDriver.getCellPhone());
 			cPhoneTF.setCaretPosition(0);
 				
-			int nDel = deliveryDB.getNumberOfDeliveries(currDriver.getDrvNum());
-			lblFamDel.setText(Integer.toString(nDel));
+			lblFamDel.setText(Integer.toString(currDriver.getDelAssigned()));
 			
-			if(nDel == 0)	//Can only delete if a delivery was assigned
+			if(currDriver.getDelAssigned() == 0)	//Can only delete if a delivery was assigned
 				btnDelete.setEnabled(true);
 			else
 				btnDelete.setEnabled(false);

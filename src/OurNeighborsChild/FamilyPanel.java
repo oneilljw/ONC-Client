@@ -512,14 +512,14 @@ public class FamilyPanel extends JPanel implements ActionListener, ListSelection
     	assignDeliveryDlg.addEntitySelectionListener(familyChildSelectionListener);
     	
     	//set up the sort driver dialog
-    	String[] sdToolTips = {"Driver Number", "First Name", "Last Name",
+    	String[] sdToolTips = {"Driver Number", "First Name", "Last Name", "# of Deliveries",
     								"Cell Phone #", "Home Phone #",
-    								"E-Mail address", "Changed By"};
-    	String[] sdCols = {"Drv #", "First Name", "Last Name", "Cell #", "Home #", "E-Mail Address",
-    						"Changed By"};
-    	int[] sdColWidths = {32, 80, 80, 96, 96, 160, 96};
-//    	int[] sdCenter_cols = {3, 4, 5, 9};
-    	sortDriverDlg = new SortDriverDialog(parentFrame, sdToolTips, sdCols, sdColWidths, null);
+    								"E-Mail address", "Changed By", "Stoplight Color"};
+    	String[] sdCols = {"Drv #", "First Name", "Last Name", "# Del", "Cell #", "Home #", "E-Mail Address",
+    						"Changed By", "SL"};
+    	int[] sdColWidths = {28, 80, 80, 28, 88, 88, 160, 88, 28};
+    	int[] sdCenter_cols = {3, 8};
+    	sortDriverDlg = new SortDriverDialog(parentFrame, sdToolTips, sdCols, sdColWidths, sdCenter_cols);
     	sortDriverDlg.addEntitySelectionListener(familyChildSelectionListener);
     	
     	//Set up the edit driver (deliverer) dialog and register it to listen for Family 

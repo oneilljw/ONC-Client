@@ -560,13 +560,14 @@ public class DriverDB extends ONCSearchableDatabase
 	
 	boolean sortDB(ArrayList<ONCDriver> dAL, String dbField)
 	{
-		System.out.println(String.format("DriverDB.sortDB: dAL size: %d, dbField: %s ", dAL.size(), dbField));
 		boolean bSortOccurred = true;
 		
 		if(dbField.equals("Drv #"))	//Sort on Driver Number
     		Collections.sort(dAL, new ONCDriverNumberComparator());
 		else if(dbField.equals("Last Name"))	//Sort on Driver Last Name
     		Collections.sort(dAL, new ONCDriverLastNameComparator());
+		else if(dbField.equals("# Del"))	//Sort on Driver Deliveries Assigned
+    		Collections.sort(dAL, new ONCDriverDeliveryComparator());
 		else if(dbField.equals("Changed By"))	//Sort on Driver Changed By
     		Collections.sort(dAL, new ONCDriverChangedByComparator());
 		else if(dbField.equals("SL"))	//Sort on Driver Changed By
@@ -592,6 +593,17 @@ public class DriverDB extends ONCSearchableDatabase
 		public int compare(ONCDriver o1, ONCDriver o2)
 		{
 			return o1.getlName().compareTo(o2.getlName());
+		}
+	}
+	
+	private class ONCDriverDeliveryComparator implements Comparator<ONCDriver>
+	{
+		@Override
+		public int compare(ONCDriver o1, ONCDriver o2)
+		{
+			Integer o1Del = (Integer) o1.getDelAssigned();
+			Integer o2Del = (Integer) o2.getDelAssigned();
+			return o1Del.compareTo(o2Del);
 		}
 	}
 	

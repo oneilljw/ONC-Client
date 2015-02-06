@@ -63,7 +63,7 @@ public class ONCDelivery extends ONCObject implements Serializable
 	//Getters
 	public int getFamID() { return famID; }
 	public int getdStatus() {return dStatus;}	
-	String getdDelBy() {return dDelBy;}
+	public String getdDelBy() {return dDelBy;}
 	String getdNotes() {return dNotes;}
 	String getdChangedBy() { return dChangedBy; }
 	String getdChanged() {return new SimpleDateFormat("MM/dd/yyyy H:mm").format(dDateChanged.getTime());}

@@ -24,7 +24,7 @@ public class SortDriverDialog extends DependantTableDialog
 	private JComboBox lNameCB, changedByCB, stoplightCB;
 	private DefaultComboBoxModel lNameCBM, changedByCBM;
 	private String sortLName;
-	private int sortChangedBy;
+	private int sortChangedBy, sortStoplight;
 	private JComboBox printCB;
 	
 	private DeliveryDB deliveryDB;
@@ -52,6 +52,7 @@ public class SortDriverDialog extends DependantTableDialog
 		//Initialize the sort criteria variables
 		sortLName = "Any";
 		sortChangedBy = 0;
+		sortStoplight = 0;
 		
 		//Set up the search criteria panel      
 		lNameCB = new JComboBox();
@@ -136,7 +137,7 @@ public class SortDriverDialog extends DependantTableDialog
 					//There is s driver assigned. Determine who it is from the driver number
 					//and check to see if it matches the selected driver(s) in the selection table
 					int index = driverDB.getDriverIndex(del.getdDelBy());
-					if(index > -1 && driverDB.getDriver(index).getID() == atAL.get(row_sel[i]).getID())
+					if(index > -1 && driverDB.getDriver(index).getDrvNum().equals(atAL.get(row_sel[i]).getDrvNum()))
 						stAL.add(f);
 				}	
 			}
@@ -163,7 +164,8 @@ public class SortDriverDialog extends DependantTableDialog
 		familyTable.clearSelection();
 		
 		for(ONCDriver d:driverDB.getDriverDB())
-			if(doesLNameMatch(d.getlName()) && doesChangedByMatch(d.getChangedBy()))
+			if(doesLNameMatch(d.getlName()) && doesChangedByMatch(d.getChangedBy()) &&
+					doesStoplightMatch(d.getStoplightPos()))
 				atAL.add(d);
 			
 		lblNumOfObjects.setText(Integer.toString(atAL.size()));
@@ -242,6 +244,7 @@ public class SortDriverDialog extends DependantTableDialog
 	
 	boolean doesLNameMatch(String drvLName) {return sortLName.equals("Any") || sortLName.equals(drvLName);}
 	boolean doesChangedByMatch(String cb) { return sortChangedBy == 0 || cb.equals(changedByCB.getSelectedItem()); }
+	boolean doesStoplightMatch(int sl) { return sortStoplight == 0 || sl == stoplightCB.getSelectedIndex()-1; }
 	
 	@Override
 	public void actionPerformed(ActionEvent e)
@@ -261,7 +264,12 @@ public class SortDriverDialog extends DependantTableDialog
 			
 			sortChangedBy = changedByCB.getSelectedIndex();
 			buildTableList(false);			
-		}				
+		}
+		else if(e.getSource() == stoplightCB && stoplightCB.getSelectedIndex() != sortStoplight)
+		{
+			sortStoplight = stoplightCB.getSelectedIndex();
+			buildTableList(false);
+		}
 		else if(e.getSource() == printCB)
 		{
 			if(printCB.getSelectedIndex() == 1)
@@ -288,7 +296,7 @@ public class SortDriverDialog extends DependantTableDialog
 //					dbe.getSource().toString(), dbe.getType(), dbe.getObject().toString()));
 			buildFamilyTableListAndDisplay();		
 		}
-		else if(dbe.getType().contains("_AGENT"))	//build on add, update or delete event
+		else if(dbe.getType().contains("_DRIVER"))	//build on add, update or delete event
 		{
 			//update the agent table and update the org and title combo box models
 			buildTableList(true);
@@ -355,8 +363,10 @@ public class SortDriverDialog extends DependantTableDialog
 	String[] getTableRow(ONCObject o) 
 	{
 		ONCDriver d = (ONCDriver) o;
-		String[] di = {d.getDrvNum(), d.getfName(), d.getlName(), d.getCellPhone(),
-						d.getHomePhone(), d.getEmail(), d.getChangedBy()};
+		String[] di = {d.getDrvNum(), d.getfName(), d.getlName(),
+						Integer.toString(d.getDelAssigned()),
+						d.getCellPhone(), d.getHomePhone(), d.getEmail(), d.getChangedBy(),
+						stoplt[d.getStoplightPos()+1].substring(0,1)};
 		return di;
 	}
 	
@@ -376,7 +386,12 @@ public class SortDriverDialog extends DependantTableDialog
 		changedByCB.removeActionListener(this);
 		changedByCB.setSelectedIndex(0);		//Will trigger the CB event handler which
 		sortChangedBy = 0;
-		changedByCB.addActionListener(this);;
+		changedByCB.addActionListener(this);
+		
+		stoplightCB.removeActionListener(this);
+		stoplightCB.setSelectedIndex(0);
+		sortStoplight = 0;
+		stoplightCB.addActionListener(this);
 		
 		buildTableList(false);
 	}

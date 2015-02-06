@@ -182,6 +182,8 @@ public class ONCDriver extends ONCEntity
 	public void setCar(String c) { this.car = c; }
 	public void setDelAssigned(int da) { delAssigned = da; }
 	
+	public void incrementDeliveryCount(int count) { delAssigned += count; }
+	
 	@Override
 	public String[] getExportRow()
 	{

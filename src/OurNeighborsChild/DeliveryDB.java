@@ -43,7 +43,7 @@ public class DeliveryDB extends ONCDatabase
 		
 		return instance;
 	}
-	
+/*	
 	int addDelivery(int famid, int dStat, String dBy, String notes, String cb, Calendar dateChanged)
 	{
 		int did = dID++;
@@ -52,7 +52,7 @@ public class DeliveryDB extends ONCDatabase
 		
 		return did;
 	}
-	
+*/	
 	String add(Object source, ONCObject entity)
 	{
 		Gson gson = new Gson();
