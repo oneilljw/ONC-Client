@@ -232,8 +232,8 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		printCB.addActionListener(this);
   
 		//Add the components to the control panel
-		cntlPanel.add(btnExport);
 		cntlPanel.add(progressBar);
+		cntlPanel.add(btnExport);
 		cntlPanel.add(emailCB);
 		cntlPanel.add(printCB);
 

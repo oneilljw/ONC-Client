@@ -517,7 +517,7 @@ public class FamilyPanel extends JPanel implements ActionListener, ListSelection
     								"E-Mail address", "Changed By", "Stoplight Color"};
     	String[] sdCols = {"Drv #", "First Name", "Last Name", "# Del", "Cell #", "Home #", "E-Mail Address",
     						"Changed By", "SL"};
-    	int[] sdColWidths = {28, 80, 80, 28, 88, 88, 160, 88, 28};
+    	int[] sdColWidths = {32, 80, 96, 28, 88, 88, 168, 88, 16};
     	int[] sdCenter_cols = {3, 8};
     	sortDriverDlg = new SortDriverDialog(parentFrame, sdToolTips, sdCols, sdColWidths, sdCenter_cols);
     	sortDriverDlg.addEntitySelectionListener(familyChildSelectionListener);

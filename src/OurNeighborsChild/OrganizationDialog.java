@@ -90,7 +90,7 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
         nav.addEntitySelectionListener(this);
 
         //set up the edit organization panel
-        entityPanel.setBorder(BorderFactory.createTitledBorder("Partner Information"));
+        entityPanel.setBorder(BorderFactory.createTitledBorder("Gift Partner Information"));
         JPanel op1 = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JPanel op2 = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JPanel op3 = new JPanel(new FlowLayout(FlowLayout.LEFT));

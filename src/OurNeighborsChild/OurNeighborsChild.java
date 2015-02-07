@@ -54,7 +54,7 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
 	private static final int ONC_ADMIN = 1;
 	private static final int ONC_USER = 0;
 	private static final int ONC_SAVE_FILE = 1;	
-	private static final String ONC_VERSION = "2.33";
+	private static final String ONC_VERSION = "2.34";
 	private static final String ONC_COPYRIGHT = "\u00A92015 John W. O'Neill";	
 	private static final String APPNAME = "Our Neighbor's Child";
 	private static final int DB_UNLOCKED_IMAGE_INDEX = 17;
@@ -996,7 +996,7 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
 			oncFamilyPanel.onFamilyDataLoaded();
 		
 			if(oncGVs.isUserAdmin())  			
-				oncMenuBar.SetEnabledRestrictedMenuItems(true);
+				oncMenuBar.setEnabledRestrictedMenuItems(true);
 		}
     }
     
@@ -1538,8 +1538,8 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
 			checkFamilyDataLoaded();
 		
 			//Families may not have been imported from ODB yet, however, agents exist from prior year
-			if(!oncAgentDB.getAgentsAL().isEmpty())	//Families may be empty
-				oncMenuBar.setEnabledAgentMenuItem(true);
+			//and users can import drivers or add them if they wish
+			oncMenuBar.setEnabledDataLoadedMenuItems(true);
     	}
 
     	//tell the server if to pass on server data base changes to local data bases

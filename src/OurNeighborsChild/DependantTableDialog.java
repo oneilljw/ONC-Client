@@ -9,7 +9,6 @@ import java.awt.event.MouseEvent;
 import java.awt.print.PrinterException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import javax.swing.BorderFactory;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -64,24 +63,21 @@ public abstract class DependantTableDialog extends SortTableDialog
 		
 		stAL = new ArrayList<ONCFamily>();
 		
-		//Set up the search criteria panel      
-
-      	
-      	//Set up the top table object count panel
-      	objectCountPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+      	//Set up the selection table object count panel
+     	objectCountPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
       	lblObjectMssg = new JLabel();
         lblNumOfObjects = new JLabel();
         objectCountPanel.add(lblObjectMssg);
         objectCountPanel.add(lblNumOfObjects);
       
         //Set up the middle control panel
-    	JPanel middlecntlPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+//    	middlecntlPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
        
         //Add object count and control panels to the middle control panel
-        cntlPanel.add(objectCountPanel, BorderLayout.WEST);
-        BorderLayout layoutMgr = (BorderLayout) cntlPanel.getLayout();
-        layoutMgr.setHgap(154);
-        cntlPanel.add(middlecntlPanel, BorderLayout.CENTER);
+//      cntlPanel.add(objectCountPanel);
+//      cntlPanel.add(middlecntlPanel);
+//      BorderLayout layoutMgr = (BorderLayout) cntlPanel.getLayout();
+//      layoutMgr.setHgap(154);
         
         //remove the Apply Changes button from SortTableDialog, it's not used here
         btnApplyChanges.setVisible(false);	//not used in this subclass of SortTableDialog

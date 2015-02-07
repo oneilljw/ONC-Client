@@ -1,17 +1,15 @@
 package OurNeighborsChild;
 
-import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Collections;
-
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 import javax.swing.event.ListSelectionEvent;
 
 public class SortDriverDialog extends DependantTableDialog
@@ -85,9 +83,6 @@ public class SortDriverDialog extends DependantTableDialog
 		//Set the text for the driver count label
 		lblObjectMssg.setText("# of Delivery Partners:"); 
       
-        //Set up the middle control panel
-    	JPanel middlecntlPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-              
       	//Create a print button for agent information
       	String[] agentPrintChoices = {"Print", "Print Driver Listing"};
         printCB = new JComboBox(agentPrintChoices);
@@ -96,22 +91,24 @@ public class SortDriverDialog extends DependantTableDialog
         printCB.addActionListener(this);
                       
         //Add the components to the control panel
-        middlecntlPanel.add(printCB);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.insets = new Insets(0,0,0,380);
+      	cntlPanel.add(objectCountPanel, gbc);
+      	
+      	gbc.gridx = 1;
+        gbc.insets = new Insets(0,0,0,0);
+        cntlPanel.add(printCB, gbc);
         
         //set the border title for the family table 
         familyTableScrollPane.setBorder(BorderFactory.createTitledBorder(
 				BorderFactory.createLoweredBevelBorder(), "Family Deliveries Made/Attempted By Selected Delivery Partner(s)"));
-              
-        //Add family count and control panels to bottom panel
-        cntlPanel.add(objectCountPanel, BorderLayout.WEST);
-        BorderLayout layoutMgr = (BorderLayout) cntlPanel.getLayout();
-        layoutMgr.setHgap(154);
-        cntlPanel.add(middlecntlPanel, BorderLayout.CENTER);
-        
+
         this.add(bottomPanel);
         this.add(familyTableScrollPane);
         this.add(lowercntlpanel);
-       
+        
         pack();
 	}
 
@@ -273,7 +270,7 @@ public class SortDriverDialog extends DependantTableDialog
 		else if(e.getSource() == printCB)
 		{
 			if(printCB.getSelectedIndex() == 1)
-				onPrintListing("ONC Agents");
+				onPrintListing("ONC Delivery Partners");
 			
 			printCB.setSelectedIndex(0);
 		}

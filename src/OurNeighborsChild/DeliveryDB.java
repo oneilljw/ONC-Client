@@ -8,8 +8,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Calendar;
-
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -27,13 +25,11 @@ public class DeliveryDB extends ONCDatabase
 	private static final int DELIVERYDB_CSV_HEADER_LENGTH = 7;
 	private static DeliveryDB instance = null;
 	private ArrayList<ONCDelivery> dAL;
-	private int dID;
 	
 	private DeliveryDB()
 	{
 		super();
 		dAL = new ArrayList<ONCDelivery>();
-		dID = 0;
 	}
 	
 	public static DeliveryDB getInstance()

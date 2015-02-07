@@ -1,9 +1,9 @@
 package OurNeighborsChild;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -13,7 +13,6 @@ import java.awt.event.MouseEvent;
 import java.awt.print.PrinterException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -168,7 +167,8 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
         //Apply Changes buttons as part of the bottom panel
 		bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 //		cntlPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT)); 
-		cntlPanel = new JPanel(new BorderLayout());
+//		cntlPanel = new JPanel(new BorderLayout());
+		cntlPanel = new JPanel(new GridBagLayout());
 		
         btnResetCriteria = new JButton("Reset Criteria");
         btnResetCriteria.addActionListener(this);  

@@ -230,7 +230,8 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 	    menuDelivery.add(editDelMI);
 	    
 	    //Edit Delivery Partners
-	    manageDelMI = new JMenuItem("Manage Delivery Partners");	
+	    manageDelMI = new JMenuItem("Manage Delivery Partners");
+	    manageDelMI.setEnabled(false);
 	    menuDelivery.add(manageDelMI);
 	    
 	    //Assign Delivery Partners
@@ -313,22 +314,18 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 		recGiftsMI.setEnabled(true);
 	}
 	
-	void SetEnabledRestrictedMenuItems(boolean tf)	//Only Admins can perform these functions
+	void setEnabledRestrictedMenuItems(boolean tf)	//Only Admins can perform these functions
 	{												//when at least one family is present in db
-//		submenuCompareRecords.setEnabled(tf);		//Disabled until capability reimplemented
-//		submenuCompareData.setEnabled(tf);			//Disabled until capability reimplemented
 		findDupFamsMI.setEnabled(tf);
 		findDupChldrnMI.setEnabled(tf);
 		viewDBMI.setEnabled(tf);
 		submenuExport.setEnabled(tf);
 		changeONCMI.setEnabled(tf);
 		sortFamiliesMI.setEnabled(tf);
-		agentMI.setEnabled(tf);
 		delChildMI.setEnabled(tf);
 		newChildMI.setEnabled(tf);
 		importCallResultMI.setEnabled(tf);
 		oncAddUserMI.setEnabled(tf);
-//		corrPhoneMI.setEnabled(tf);		Disabled after corrections made 11-26-14
 	}
 	
 	void setEnabledWishCatalogAndOrgMenuItems(boolean tf)
@@ -365,7 +362,11 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 	void setEnabledPriorYearSpecialImport(boolean tf) { importPYMI.setEnabled(tf); }
 	void setEnabledImportMenuItems(boolean tf) { submenuImport.setEnabled(tf); }
 	static void setEnabledDeleteChildMenuItem(boolean tf) { delChildMI.setEnabled(tf); }
-	void setEnabledAgentMenuItem(boolean tf) { agentMI.setEnabled(tf); }
+	void setEnabledDataLoadedMenuItems(boolean tf)
+	{ 
+		agentMI.setEnabled(tf);
+		manageDelMI.setEnabled(tf);
+	}
 
 	@Override
 	public void dataChanged(DatabaseEvent dbe)

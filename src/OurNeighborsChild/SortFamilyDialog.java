@@ -268,8 +268,8 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
         callCB.addActionListener(this);
 
         //Add the components to the control panel
-        cntlPanel.add(callCB);
         cntlPanel.add(progressBar);
+        cntlPanel.add(callCB);
         cntlPanel.add(emailCB);
         cntlPanel.add(printCB);
         

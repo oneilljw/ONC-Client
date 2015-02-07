@@ -1,13 +1,14 @@
 package OurNeighborsChild;
 
-import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collections;
+
 import javax.mail.internet.MimeBodyPart;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
@@ -16,7 +17,6 @@ import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.SwingWorker;
 import javax.swing.event.ListSelectionEvent;
@@ -92,9 +92,6 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		//Set the text for the agent count label
 		lblObjectMssg.setText("# of Agents:"); 
       
-        //Set up the middle control panel
-    	JPanel middlecntlPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-      
       	//Set up the email progress bar
       	progressBar = new JProgressBar(0, 100);
         progressBar.setValue(0);
@@ -121,21 +118,25 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
       	btnEditAgentInfo.addActionListener(this);
                       
         //Add the components to the control panel
-        middlecntlPanel.add(progressBar);
-        middlecntlPanel.add(emailCB);
-        middlecntlPanel.add(printCB);
-        middlecntlPanel.add(btnEditAgentInfo);
+      	GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.insets = new Insets(0,0,0,175);
+      	cntlPanel.add(objectCountPanel, gbc);
+      	gbc.gridx = 1;
+        gbc.insets = new Insets(0,0,0,0);
+        cntlPanel.add(progressBar, gbc);
+        gbc.gridx = 2;
+        cntlPanel.add(emailCB, gbc);
+        gbc.gridx = 3;
+        cntlPanel.add(printCB, gbc);
+        gbc.gridx = 4;
+        cntlPanel.add(btnEditAgentInfo, gbc);
         
         //set the border title for the family table 
         familyTableScrollPane.setBorder(BorderFactory.createTitledBorder(
 				BorderFactory.createLoweredBevelBorder(), "Families Represented By Selected Agent(s)"));
-              
-        //Add family count and control panels to bottom panel
-        cntlPanel.add(objectCountPanel, BorderLayout.WEST);
-        BorderLayout layoutMgr = (BorderLayout) cntlPanel.getLayout();
-        layoutMgr.setHgap(154);
-        cntlPanel.add(middlecntlPanel, BorderLayout.CENTER);
-        
+
         //set up the Agent Info Dialog
         String[] tfNames = {"Name", "Organization", "Title", "Email", "Phone"};
     	aiDlg = new AgentInfoDialog(GlobalVariables.getFrame(), tfNames);
@@ -144,9 +145,9 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
         this.add(bottomPanel);
         this.add(familyTableScrollPane);
         this.add(lowercntlpanel);
-       
+        
         pack();
-	}
+    }
 
 	void buildFamilyTableListAndDisplay()
 	{

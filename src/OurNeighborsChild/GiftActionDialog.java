@@ -1,10 +1,10 @@
 package OurNeighborsChild;
 
 import java.awt.Dimension;
-import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
-
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -89,14 +89,16 @@ public abstract class GiftActionDialog extends SortTableDialog
 		//change the default row selection setting to single row selection
 		sortTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-        //Set up the control panel, adding an undo button
-		cntlPanel.setLayout(new FlowLayout(FlowLayout.LEFT));	//Put undo button on far left
-		
+        //add an undo button to the control panel
 		btnUndo = new JButton(gvs.getImageIcon(16));
         btnUndo.setToolTipText(String.format("Click to undo last gift %s", dialogType.toString()));
         btnUndo.setEnabled(false);
         btnUndo.addActionListener(this);
-        cntlPanel.add(btnUndo);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx=0;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.insets = new Insets(0,0,0,250);
+        cntlPanel.add(btnUndo, gbc);
         
         //change the text of the super class apply changes button
         btnApplyChanges.setText(String.format("%s Gift", dialogType.presentTense()));
@@ -104,6 +106,7 @@ public abstract class GiftActionDialog extends SortTableDialog
         //Add the components to the frame pane and pack
         this.add(bottomPanel);       
         pack();
+        this.setResizable(false);
 	}
 
 	void buildTableList(boolean bPreserveSelections)
