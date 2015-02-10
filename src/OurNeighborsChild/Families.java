@@ -1059,12 +1059,12 @@ public class Families extends ONCSearchableDatabase
 		
 		return wishcountAL;
 	}
- 
+/* 
 	public static boolean isNumeric(String str)
     {
       return str.matches("-?\\d+(\\.\\d+)?");  //match a number with optional '-' and decimal.
     }
-	
+*/	
 	//Overloaded sortDB methods allow user to specify a data base to be sorted
 	//or use the current data base
 	boolean sortDB(ArrayList<ONCFamily> fal, String dbField) { return sortFamilyDataBase(fal, dbField); }
@@ -1239,6 +1239,7 @@ public class Families extends ONCSearchableDatabase
 */	 
 	 private class ONCFamilyONCNumComparator implements Comparator<ONCFamily>
 	{
+/*		 
 		@Override
 		public int compare(ONCFamily o1, ONCFamily o2)
 		{
@@ -1255,6 +1256,23 @@ public class Families extends ONCSearchableDatabase
 				onc2 = MAXIMUM_ONC_NUMBER;
 				
 			return onc1.compareTo(onc2);
+		}
+*/
+		@Override
+		public int compare(ONCFamily o1, ONCFamily o2)
+		{
+			if(isNumeric(o1.getONCNum()) && isNumeric(o2.getONCNum()))
+			{
+				Integer onc1 = Integer.parseInt(o1.getONCNum());
+				Integer onc2 = Integer.parseInt(o2.getONCNum());
+				return onc1.compareTo(onc2);
+			}
+			else if(isNumeric(o1.getONCNum()) && !isNumeric(o2.getONCNum()))
+				return -1;
+			else if(!isNumeric(o1.getONCNum()) && isNumeric(o2.getONCNum()))
+				return 1;
+			else
+				return o1.getONCNum().compareTo(o2.getONCNum());
 		}
 	}
 		

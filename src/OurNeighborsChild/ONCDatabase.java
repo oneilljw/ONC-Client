@@ -18,7 +18,10 @@ public abstract class ONCDatabase implements ServerListener
 	
 	protected static boolean isNumeric(String str)
 	{
-	  return str.matches("-?\\d+(\\.\\d+)?");  //match a number with optional '-' and decimal.
+		if(str == null || str.isEmpty())
+			return false;
+		else
+			return str.matches("-?\\d+(\\.\\d+)?");  //match a number with optional '-' and decimal.
 	}
 	
 	 //List of registered listeners for Sever data changed events

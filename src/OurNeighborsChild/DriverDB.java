@@ -583,7 +583,18 @@ public class DriverDB extends ONCSearchableDatabase
 		@Override
 		public int compare(ONCDriver o1, ONCDriver o2)
 		{
-			return o1.getDrvNum().compareTo(o2.getDrvNum());
+			if(isNumeric(o1.getDrvNum()) && isNumeric(o2.getDrvNum()))
+			{
+				Integer onc1 = Integer.parseInt(o1.getDrvNum());
+				Integer onc2 = Integer.parseInt(o2.getDrvNum());
+				return onc1.compareTo(onc2);
+			}
+			else if(isNumeric(o1.getDrvNum()) && !isNumeric(o2.getDrvNum()))
+				return -1;
+			else if(!isNumeric(o1.getDrvNum()) && isNumeric(o2.getDrvNum()))
+				return 1;
+			else
+				return o1.getDrvNum().compareTo(o2.getDrvNum());
 		}
 	}
 	
