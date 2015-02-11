@@ -6,6 +6,7 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Collections;
+
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
@@ -23,7 +24,7 @@ public class SortDriverDialog extends DependantTableDialog
 	private DefaultComboBoxModel lNameCBM, changedByCBM;
 	private String sortLName;
 	private int sortChangedBy, sortStoplight;
-	private JComboBox printCB;
+	private JComboBox drvCB, printCB;
 	
 	private DeliveryDB deliveryDB;
 	private DriverDB driverDB;
@@ -47,16 +48,26 @@ public class SortDriverDialog extends DependantTableDialog
 		//Set up the agent table content array list
 		atAL = new ArrayList<ONCDriver>();
 		
-		//Initialize the sort criteria variables
+		//Initialize the sort criteria variables. Reusing superclass sortONCNum for driver number
+		sortONCNum = "Any";
 		sortLName = "Any";
 		sortChangedBy = 0;
 		sortStoplight = 0;
 		
-		//Set up the search criteria panel      
+		//Set up the search criteria panel
+		//Set up unique serach criteria gui
+    	String[] oncStrings = {"Any", "N/A"};
+    	drvCB = new JComboBox(oncStrings);
+    	drvCB.setEditable(true);
+    	drvCB.setPreferredSize(new Dimension(88,56));
+		drvCB.setBorder(BorderFactory.createTitledBorder("Driver #"));
+		drvCB.addActionListener(this);
+		
 		lNameCB = new JComboBox();
 		lNameCBM = new DefaultComboBoxModel();
 	    lNameCBM.addElement("Any");
 	    lNameCB.setModel(lNameCBM);
+	    lNameCB.setEditable(true);
 		lNameCB.setPreferredSize(new Dimension(144, 56));
 		lNameCB.setBorder(BorderFactory.createTitledBorder("Last Name"));
 		lNameCB.addActionListener(this);
@@ -75,6 +86,7 @@ public class SortDriverDialog extends DependantTableDialog
 		stoplightCB.addActionListener(this);
 		
 		//Add all sort criteria components to dialog pane
+		sortCriteriaPanelTop.add(drvCB);
         sortCriteriaPanelTop.add(lNameCB);
         sortCriteriaPanelTop.add(changedByCB);
         sortCriteriaPanelTop.add(stoplightCB);
@@ -94,7 +106,7 @@ public class SortDriverDialog extends DependantTableDialog
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.fill = GridBagConstraints.BOTH;
-        gbc.insets = new Insets(0,0,0,380);
+        gbc.insets = new Insets(0,0,0,396);
       	cntlPanel.add(objectCountPanel, gbc);
       	
       	gbc.gridx = 1;
@@ -161,8 +173,8 @@ public class SortDriverDialog extends DependantTableDialog
 		familyTable.clearSelection();
 		
 		for(ONCDriver d:driverDB.getDriverDB())
-			if(doesLNameMatch(d.getlName()) && doesChangedByMatch(d.getChangedBy()) &&
-					doesStoplightMatch(d.getStoplightPos()))
+			if(doesDrvNumMatch(d.getDrvNum()) && doesLNameMatch(d.getlName()) && 
+				doesChangedByMatch(d.getChangedBy()) && doesStoplightMatch(d.getStoplightPos()))
 				atAL.add(d);
 			
 		lblNumOfObjects.setText(Integer.toString(atAL.size()));
@@ -238,7 +250,7 @@ public class SortDriverDialog extends DependantTableDialog
 	}
 	
 	
-	
+	boolean doesDrvNumMatch(String drvNum) { return sortONCNum.equals("Any") || sortONCNum.equals(drvNum); }
 	boolean doesLNameMatch(String drvLName) {return sortLName.equals("Any") || sortLName.equals(drvLName);}
 	boolean doesChangedByMatch(String cb) { return sortChangedBy == 0 || cb.equals(changedByCB.getSelectedItem()); }
 	boolean doesStoplightMatch(int sl) { return sortStoplight == 0 || sl == stoplightCB.getSelectedIndex()-1; }
@@ -246,7 +258,15 @@ public class SortDriverDialog extends DependantTableDialog
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{
-		if(e.getSource() == lNameCB && !bIgnoreCBEvents && !lNameCB.getSelectedItem().toString().equals(sortLName))
+		if(e.getSource() == drvCB && !bIgnoreCBEvents && !drvCB.getSelectedItem().toString().equals(sortONCNum))
+		{
+			sortTable.clearSelection();
+			familyTable.clearSelection();
+			
+			sortONCNum = drvCB.getSelectedItem().toString();
+			buildTableList(false);			
+		}
+		else if(e.getSource() == lNameCB && !bIgnoreCBEvents && !lNameCB.getSelectedItem().toString().equals(sortLName))
 		{
 			sortTable.clearSelection();
 			familyTable.clearSelection();
@@ -375,6 +395,11 @@ public class SortDriverDialog extends DependantTableDialog
 		sortTable.clearSelection();
 		familyTable.clearSelection();
 		
+		drvCB.removeActionListener(this);;
+		drvCB.setSelectedIndex(0);
+		sortONCNum = "Any";
+		drvCB.addActionListener(this);
+				
 		lNameCB.removeActionListener(this);
 		lNameCB.setSelectedIndex(0);		//Will trigger the CB event handler which
 		sortLName = "Any";

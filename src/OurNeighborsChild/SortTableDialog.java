@@ -99,7 +99,7 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 		sortCriteriaPanel.add(sortCriteriaPanelTop);
 		sortCriteriaPanel.add(sortCriteriaPanelBottom);
 		
-		sortCriteriaPanel.setBorder(BorderFactory.createTitledBorder("Search Criteria"));
+		sortCriteriaPanel.setBorder(BorderFactory.createTitledBorder("Search Filters"));
 	
 		//Set up the sort family table panel
 		sortTable = new ONCTable(colToolTips, new Color(240,248,255));
@@ -170,7 +170,7 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 //		cntlPanel = new JPanel(new BorderLayout());
 		cntlPanel = new JPanel(new GridBagLayout());
 		
-        btnResetCriteria = new JButton("Reset Criteria");
+        btnResetCriteria = new JButton("Reset Filters");
         btnResetCriteria.addActionListener(this);  
         btnResetCriteria.addActionListener(new ActionListener() {
         	@Override

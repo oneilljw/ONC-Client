@@ -109,7 +109,7 @@ public abstract class DependantTableDialog extends SortTableDialog
               
       	//Set table column widths
       	int familytablewidth = 0;
-      	int[] familycolWidths = {32, 48, 48, 72, 72, 72, 72, 48, 128, 56, 48, 24, 72, 24};
+      	int[] familycolWidths = {32, 48, 48, 72, 72, 72, 72, 48, 128, 56, 48, 28, 72, 24};
       	for(int i=0; i < familycolWidths.length; i++)
       	{
       	  	familyTable.getColumnModel().getColumn(i).setPreferredWidth(familycolWidths[i]);
@@ -140,8 +140,8 @@ public abstract class DependantTableDialog extends SortTableDialog
         DefaultTableCellRenderer ftcr = new DefaultTableCellRenderer();    
         ftcr.setHorizontalAlignment(SwingConstants.CENTER);
         familyTable.getColumnModel().getColumn(1).setCellRenderer(ftcr);
-        familyTable.getColumnModel().getColumn(10).setCellRenderer(ftcr);
-        familyTable.getColumnModel().getColumn(12).setCellRenderer(ftcr);
+        familyTable.getColumnModel().getColumn(11).setCellRenderer(ftcr);
+        familyTable.getColumnModel().getColumn(13).setCellRenderer(ftcr);
               
         familyTable.setFillsViewportHeight(true);    
               

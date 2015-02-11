@@ -121,7 +121,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
       	GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.fill = GridBagConstraints.BOTH;
-        gbc.insets = new Insets(0,0,0,175);
+        gbc.insets = new Insets(0,0,0,180);
       	cntlPanel.add(objectCountPanel, gbc);
       	gbc.gridx = 1;
         gbc.insets = new Insets(0,0,0,0);

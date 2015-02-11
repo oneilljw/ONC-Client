@@ -37,7 +37,7 @@ public class DriverDialog extends EntityDialog
 	public DriverDialog(JFrame pf)
 	{
 		super(pf);
-		this.setTitle("Our Neighbor's Child - Delivery Partner Management");
+		this.setTitle("Our Neighbor's Child - Delivery Partner Information");
 		
 		//Initialize object variables
 		ddb = DriverDB.getInstance();	//Reference to the driver data base
