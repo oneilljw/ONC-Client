@@ -43,9 +43,9 @@ public class SortWishObject extends ONCSortObject
 		rsr[0] = soFamily.getONCNum();
 		rsr[1] = soChild.getChildAge() + " " +  soChild.getChildGender();
 		if(soChildWish.getChildWishDetail().isEmpty())
-			rsr[2] = cat.getWishName(soChildWish.getWishID());
+			rsr[2] = cat.getWishByID(soChildWish.getWishID()).getName();
 		else
-			rsr[2] = cat.getWishName(soChildWish.getWishID()) + "- " + soChildWish.getChildWishDetail();
+			rsr[2] = cat.getWishByID(soChildWish.getWishID()).getName() + "- " + soChildWish.getChildWishDetail();
 		return rsr;
 	}
 	
@@ -63,7 +63,9 @@ public class SortWishObject extends ONCSortObject
 		//on the length of the combined string. If two lines are required, break the
 		//string on a word boundary. Limit the second string to a max number of
 		//characters based on MAX_LABEL_LINE_LENGTH
-		StringBuilder l1 = new StringBuilder(cat.getWishName(soChildWish.getWishID()));
+		System.out.println(String.format("SortWishObject.getWishLabel WishID: %d,  WishName: %s",
+				soChildWish.getWishID(), cat.getWishByID(soChildWish.getWishID()).getName()));
+		StringBuilder l1 = new StringBuilder(cat.getWishByID(soChildWish.getWishID()).getName());
 		
 		if(!soChildWish.getChildWishDetail().isEmpty())	//Wish detail may need two lines
 		{

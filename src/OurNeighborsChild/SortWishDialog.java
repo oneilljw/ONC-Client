@@ -9,6 +9,7 @@ import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.awt.event.ActionEvent;
+import java.awt.image.BufferedImage;
 import java.awt.print.PageFormat;
 import java.awt.print.Printable;
 import java.awt.print.PrinterException;
@@ -993,8 +994,8 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 	@Override
 	public void valueChanged(ListSelectionEvent lse)
 	{
-		if(!lse.getValueIsAdjusting() && lse.getSource() == sortTable.getSelectionModel())
-//				&& !bChangingTable)
+		if(!lse.getValueIsAdjusting() && lse.getSource() == sortTable.getSelectionModel() &&
+				sortTable.getSelectedRow() > -1)
 		{
 			ONCFamily fam = stAL.get(sortTable.getSelectedRow()).getFamily();
 			ONCChild child = stAL.get(sortTable.getSelectedRow()).getChild();
@@ -1240,8 +1241,9 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		private static final int AVERY_LABEL_WIDTH = 196;
 		
 		void printLabel(int x, int y, String[] line, Font[] lFont, Image img, Graphics2D g2d)
-		{			     
-		    double scaleFactor = (72d / 300d) * 2;
+		{
+			
+			double scaleFactor = (72d / 300d) * 2;
 		     	     
 		    // Now we perform our rendering 	       	    
 		    int destX1 = (int) (img.getWidth(null) * scaleFactor);
@@ -1250,11 +1252,11 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		    //Draw image scaled to fit image clip region on the label
 		    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		    g2d.drawImage(img, x, y, x+destX1, y+destY1, 0,0, img.getWidth(null),img.getHeight(null),null); 
-	         
-		    //Draw the label text, either 3 or 4 lines, depending on the wish base + detail length
+		    
+		  //Draw the label text, either 3 or 4 lines, depending on the wish base + detail length
 		    g2d.setFont(lFont[0]);
 		    drawCenteredString(line[0], 120, x+50, y+5, g2d);	//Draw line 1
-		     
+		    
 		    g2d.setFont(lFont[1]);
 		    drawCenteredString(line[1], 120, x+50, y+20, g2d);	//Draw line 2
 		    

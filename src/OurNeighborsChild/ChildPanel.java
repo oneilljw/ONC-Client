@@ -6,6 +6,8 @@ import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.lang.reflect.Type;
@@ -13,6 +15,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.TimeZone;
+
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
@@ -24,6 +27,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.toedter.calendar.JDateChooser;
@@ -67,7 +71,7 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 	private ChildWishDB cwDB;
 	
 	private ONCChild c = null;	//The panel needs to know which child is being displayed for listeners
-	private JFrame pFrame = null;
+//	private JFrame pFrame = null;
 	
 	//GUI elements
 	public JTextField firstnameTF;	//public so prior history dialog can access
@@ -79,6 +83,9 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 	private JTextField[] wishdetailTF;
 	private JRadioButton[] wishRB;
 	private Color ageNormalBackgroundColor;
+	
+	//label dialog
+	private WishLabelViewer labelViewer;
 	
 	//Semaphores
 //	private boolean bChildDataChanged = false; //flag indicates child data has been modified
@@ -114,8 +121,11 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 		wishCBM = new DefaultComboBoxModel[NUMBER_OF_WISHES_PER_CHILD];
 		assigneeCBM = new DefaultComboBoxModel[NUMBER_OF_WISHES_PER_CHILD];
 		
+		labelViewer = new WishLabelViewer(GlobalVariables.getFrame());
+		
 		//Create a listener for panel gui events
 		ChildUpdateListener cuListener = new ChildUpdateListener();
+		WishDetailFocusListener wdListener = new WishDetailFocusListener();
 		
 		//Setup sub panels that comprise the Child Panel
 		JPanel childinfopanel = new JPanel();
@@ -212,6 +222,7 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
             wishdetailTF[i].setToolTipText("Type wish details, then hit <Enter>");
             wishdetailTF[i].setEnabled(false);
             wishdetailTF[i].addActionListener(cuListener);
+            wishdetailTF[i].addFocusListener(wdListener);
             
         	wishstatusCB[i] = new JComboBox(status);
             wishstatusCB[i].setPreferredSize(dws);
@@ -262,7 +273,7 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
       
         //Add the child wish and child info panels to the child panel  
         this.add(childinfopanel);
-        this.add(childwishespanel);     
+        this.add(childwishespanel);
 	}
 	
 	void setEditableGUIFields(boolean tf)
@@ -677,7 +688,7 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 					//Construct and show the wish detail required dialog
 					String newWishName = wishCB[wn].getSelectedItem().toString();
 					DetailDialog dDlg = new DetailDialog(GlobalVariables.getFrame(), newWishName, drDlgData);
-					Point pt = pFrame.getLocation();	//Used to set dialog location
+					Point pt = GlobalVariables.getFrame().getLocation();	//Used to set dialog location
 					dDlg.setLocation(pt.x + (wn*200) + 20, pt.y + 400);
 					dDlg.setVisible(true);
 					
@@ -804,8 +815,8 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 		if(drDlgData != null)
 		{
 			//Construct and show the wish detail required dialog
-			DetailDialog dDlg = new DetailDialog(pFrame, newWishName, drDlgData);
-			Point pt = pFrame.getLocation();	//Used to set dialog location
+			DetailDialog dDlg = new DetailDialog(GlobalVariables.getFrame(), newWishName, drDlgData);
+			Point pt = GlobalVariables.getFrame().getLocation();	//Used to set dialog location
 			dDlg.setLocation(pt.x + (wn*200) + 20, pt.y + 400);
 			dDlg.setVisible(true);
 			
@@ -936,13 +947,13 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 				
 				wishHistoryTable.add(whTR);
 			}
-			WishHistoryDialog whDlg = new WishHistoryDialog(pFrame, wishHistoryTable, wn, firstnameTF.getText());
+			WishHistoryDialog whDlg = new WishHistoryDialog(GlobalVariables.getFrame(), wishHistoryTable, wn, firstnameTF.getText());
 			whDlg.setLocationRelativeTo(wishRB[wn]);
 			whDlg.setVisible(true);
 		}
 		else
 		{
-			JOptionPane.showMessageDialog(pFrame, 
+			JOptionPane.showMessageDialog(GlobalVariables.getFrame(), 
 					"Child Wish History Not Available", 
 					"ONC Server Failed to Respond", JOptionPane.ERROR_MESSAGE, cpGVs.getImageIcon(0));
 		}
@@ -1077,11 +1088,15 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 		String[] titles;	
 		JTextField detailTF;
 		JButton btnOK;
+		WishLabelViewer viewer;
 		
 		public DetailDialog(JFrame pf, String wishname, ArrayList<WishDetail> wdAL)
 		{
 			super(pf, true);
 			this.setTitle("Additional " + wishname + " Detail");
+			
+			//create the label viewer
+			viewer = new WishLabelViewer(pf);
 			
 			//Create the combo boxes
 			titles = new String[wdAL.size()];
@@ -1114,7 +1129,11 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 	        this.add(detailpanel);
 	        this.add(cntlpanel);
 	        
-	        pack();				
+	        viewer.setLocationRelativeTo(pf);
+	        viewer.setVisible(true);
+	        
+	        pack();
+	        
 		}
 		
 		String getDetail()
@@ -1154,5 +1173,36 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 			if(e.getSource() == btnOK) 
 				this.setVisible(false);
 		}
-	}	
+	}
+	
+	private class WishDetailFocusListener implements FocusListener
+	{
+
+		@Override
+		public void focusGained(FocusEvent fe)
+		{
+			int index = 0;
+			while(index < wishdetailTF.length && fe.getSource() != wishdetailTF[index])
+				index++;
+			
+			if(index < wishdetailTF.length)
+			{
+				labelViewer.displayLabel(c, index);
+			}
+		}
+
+		@Override
+		public void focusLost(FocusEvent fe)
+		{
+			int index = 0;
+			while(index < wishdetailTF.length && fe.getSource() != wishdetailTF[index])
+				index++;
+			
+			if(index < wishdetailTF.length)
+			{
+				System.out.println(String.format("WishDetail %d Foucs Lost", index+1));
+			}
+		}
+		
+	}
 }
