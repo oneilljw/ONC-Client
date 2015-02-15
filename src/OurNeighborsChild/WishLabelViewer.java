@@ -355,7 +355,7 @@ public class WishLabelViewer extends JDialog implements DatabaseListener, Entity
 	@Override
 	public void dataChanged(DatabaseEvent dbe)
 	{
-		if(dbe.getSource() != this && dbe.getType().equals("WISH_ADDED"))
+		if(dbe.getType().equals("WISH_ADDED"))
 		{
 //			System.out.println(String.format("Child Panel DB Event: Source %s, Type %s, Object %s",
 //					dbe.getSource().toString(), dbe.getType(), dbe.getObject().toString()));
@@ -369,6 +369,14 @@ public class WishLabelViewer extends JDialog implements DatabaseListener, Entity
 				displayLabel(addedWish);
 			
 		}
-		
+		else if(dbe.getType().equals("UPDATED_CHILD"))
+		{
+			ONCChild updatedChild = (ONCChild) dbe.getObject();
+			if(child.getID() == updatedChild.getID())
+			{
+				//the age or gender of the child may have changed, update the label
+				displayLabel(updatedChild, wn);
+			}
+		}
 	}
 }

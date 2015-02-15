@@ -1386,7 +1386,8 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			sortWishesDlg.setSortEndDate(gvs.getTodaysDate());
 			sortWishesDlg.buildTableList(true);
 			
-			sortWishesDlg.setLocationRelativeTo(GlobalVariables.getFrame());
+			Point pt = parentFrame.getLocation();
+	        sortWishesDlg.setLocation(pt.x + 5, pt.y + 20);
 			sortWishesDlg.setVisible(true);
 		}
 	}
@@ -1423,7 +1424,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		if(!wlViewerDlg.isVisible())
 		{
 			Point pt = parentFrame.getLocation();
-	        wlViewerDlg.setLocation(pt.x + 125, pt.y + 125);
+	        wlViewerDlg.setLocation(pt.x + 225, pt.y + 325);
 			wlViewerDlg.setVisible(true);
 		}
 	}

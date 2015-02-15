@@ -5,11 +5,12 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GridBagConstraints;
 import java.awt.Image;
+import java.awt.Insets;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.awt.event.ActionEvent;
-import java.awt.image.BufferedImage;
 import java.awt.print.PageFormat;
 import java.awt.print.Printable;
 import java.awt.print.PrinterException;
@@ -31,6 +32,7 @@ import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -57,6 +59,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 	private static final int CHILD_WISH_STATUS_ASSIGNED = 3;
 	private static final int RS_ITEMS_PER_PAGE = 20;
 	private static final Integer MAXIMUM_ON_NUMBER = 9999;
+	private static final int MAX_LABEL_LINE_LENGTH = 26;
 	
 	private Families fDB;
 	private ChildDB cDB;
@@ -74,10 +77,12 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 	private JButton btnExport;
 	private JDateChooser ds, de;
 	private Calendar sortStartCal = null, sortEndCal = null;
+	private JCheckBox labelFitCxBox;
 	
 	private int sortStartAge = 0, sortEndAge = ONC_AGE_LIMIT, sortGender = 0, sortChangedBy = 0;
 	private int sortWishNum = 0, sortRes = 0, sortStatus = 0, sortAssigneeID = 0;
 	private int sortWishID = -2;
+	private boolean bOversizeWishes = false;
 	private int totalNumOfLabelsToPrint;	//Holds total number of labels requested in a print job
 	
 	private static String[] genders = {"Any", "Boy", "Girl"};
@@ -250,6 +255,10 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 	    changePanel.add(changeDataPanel, gbc);
 
 	    //set up the dialog defined control panel
+	    labelFitCxBox = new JCheckBox("Over Length Wishes Only");
+	    labelFitCxBox.setSelected(bOversizeWishes);
+	    labelFitCxBox.addActionListener(this);
+	    
         btnExport = new JButton("Export Data");
         btnExport.setEnabled(false);
         btnExport.addActionListener(this);
@@ -264,8 +273,16 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 //        btnApplyChanges.setEnabled(false);
 //        btnApplyChanges.addActionListener(this);
         
-        cntlPanel.add(btnExport);
-        cntlPanel.add(printCB);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx=0;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.insets = new Insets(0,0,0,120);
+        cntlPanel.add(labelFitCxBox, gbc);
+        gbc.gridx=1;
+        gbc.insets = new Insets(0,0,0,0);
+        cntlPanel.add(btnExport, gbc);
+        gbc.gridx=2;
+        cntlPanel.add(printCB, gbc);
  
         //add the bottom two panels to the dialog and pack
         this.add(changePanel);
@@ -346,7 +363,8 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 								  isWishChangeDateBetween(cw.getChildWishDateChanged()) &&
 								   doesChangedByMatch(cw.getChildWishChangedBy()) &&
 									doesWishBaseMatch(cw.getWishID()) &&
-									 doesWishNumMatch(i)) //Wish criteria pass
+									 doesWishNumMatch(i)  &&
+									  isWishOversize(cw))//Wish criteria pass
 							{
 								
 								stAL.add(new SortWishObject(itemID++, f, c, cw));
@@ -768,6 +786,32 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 	
 	private boolean doesChangedByMatch(String s) { return sortChangedBy == 0 || changedByCB.getSelectedItem().toString().equals(s); }
 	
+	boolean isWishOversize(ONCChildWish cw)
+	{
+		if(bOversizeWishes)
+		{
+			ONCWishCatalog cat = ONCWishCatalog.getInstance();
+		
+			String wish = cat.getWishByID(cw.getWishID()).getName() + " - " + cw.getChildWishDetail();
+			//does it fit on one line?
+			if(wish.length() <= MAX_LABEL_LINE_LENGTH)
+				return false;
+			else	//split into two lines
+			{
+				int index = MAX_LABEL_LINE_LENGTH;
+				while(index > 0 && wish.charAt(index) != ' ')	//find the line break
+					index--;
+		
+				if(wish.substring(index).length() > MAX_LABEL_LINE_LENGTH)
+					return true;
+				else
+					return false;
+			}
+		}
+		else
+			return true;
+	}
+	
 	void setSortStartDate(Date sd) {sortStartCal.setTime(sd); ds.setDate(sortStartCal.getTime());}
 	
 	void setSortEndDate(Date ed) {sortEndCal.setTime(ed); sortEndCal.add(Calendar.DATE, 1); de.setDate(sortEndCal.getTime());}
@@ -819,6 +863,11 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		else if(e.getSource() == statusCB && statusCB.getSelectedIndex() != sortStatus )
 		{						
 			sortStatus = statusCB.getSelectedIndex();
+			buildTableList(false);
+		}
+		else if(e.getSource() == labelFitCxBox )
+		{
+			bOversizeWishes = labelFitCxBox.isSelected();
 			buildTableList(false);
 		}
 		else if(e.getSource() == assignCB && !bIgnoreCBEvents && 
@@ -925,6 +974,11 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		changeAssigneeCB.removeActionListener(this);
 		changeAssigneeCB.setSelectedIndex(0);
 		changeAssigneeCB.addActionListener(this);
+		
+		labelFitCxBox.removeActionListener(this);
+		labelFitCxBox.setSelected(false);
+		bOversizeWishes = false;
+		labelFitCxBox.addActionListener(this);
 		
 		//Check to see if date sort criteria has changed. Since the setDate() method
 		//will not trigger an event, must check for a sort criteria date change here
