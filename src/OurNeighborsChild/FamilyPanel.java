@@ -44,7 +44,7 @@ import org.json.JSONException;
 
 import com.google.gson.Gson;
 
-public class FamilyPanel extends JPanel implements ActionListener, ListSelectionListener,
+public class FamilyPanel extends ONCPanel implements ActionListener, ListSelectionListener,
 													DatabaseListener
 {
 	/**
@@ -59,17 +59,17 @@ public class FamilyPanel extends JPanel implements ActionListener, ListSelection
 	private static final int DELIVERY_STATUS_ASSIGNED = 3;
 	private static final String GIFT_CARD_ONLY_TEXT = "gift card only";
 	
-	private GlobalVariables gvs;
+//	private GlobalVariables gvs;
 	private DeliveryDB deliveryDB;
 	private ONCRegions regions;
-	private Families fDB;
-	private ChildDB cDB;
+//	private Families fDB;
+//	private ChildDB cDB;
 	private ONCAgents agentDB;
 	
 	private ONCFamily currFam;	//The panel needs to know which family is being displayed
 	private ONCChild currChild;	//The panel needs to know which child is being displayed
 	
-	private static JFrame parentFrame = null;
+//	private static JFrame parentFrame = null;
 	
 	private JPanel p1, p2, p3;
 	private Color pBkColor; //Used to restore background for panels 1-3, btnShowPriorHistory when changed
@@ -125,15 +125,17 @@ public class FamilyPanel extends JPanel implements ActionListener, ListSelection
 	private SortPartnerDialog sortOrgsDlg;
 	private ChildCheckDialog dcDlg;
 	private FamilyCheckDialog dfDlg;
+	private WishLabelViewer wlViewerDlg;
 	
 	FamilyChildSelectionListener familyChildSelectionListener;	//Listener for family/child selection events
 	
 	public FamilyPanel(JFrame pf)
 	{
-		parentFrame = pf;
-		gvs = GlobalVariables.getInstance();
-		fDB = Families.getInstance();
-		cDB = ChildDB.getInstance();
+		super(pf);
+//		parentFrame = pf;
+//		gvs = GlobalVariables.getInstance();
+//		fDB = Families.getInstance();
+//		cDB = ChildDB.getInstance();
 		agentDB = ONCAgents.getInstance();
 		deliveryDB = DeliveryDB.getInstance();
 		regions = ONCRegions.getInstance();
@@ -560,7 +562,26 @@ public class FamilyPanel extends JPanel implements ActionListener, ListSelection
         dfDlg.addEntitySelectionListener(familyChildSelectionListener);
         
         //Create the Child Panel
-        oncChildPanel = new ChildPanel();
+        oncChildPanel = new ChildPanel(pf);
+        nav.addEntitySelectionListener(oncChildPanel);
+        sortFamiliesDlg.addEntitySelectionListener(oncChildPanel);
+        sortWishesDlg.addEntitySelectionListener(oncChildPanel);
+        sortAgentDlg.addEntitySelectionListener(oncChildPanel);
+        sortDriverDlg.addEntitySelectionListener(oncChildPanel);
+        assignDeliveryDlg.addEntitySelectionListener(oncChildPanel);
+        sortDriverDlg.addEntitySelectionListener(oncChildPanel);
+        this.addEntitySelectionListener(oncChildPanel);
+        
+        //set up the label viewer dialog
+        wlViewerDlg= new WishLabelViewer(pf);
+        nav.addEntitySelectionListener(wlViewerDlg);
+        sortWishesDlg.addEntitySelectionListener(wlViewerDlg);
+        sortAgentDlg.addEntitySelectionListener(wlViewerDlg);
+        sortDriverDlg.addEntitySelectionListener(wlViewerDlg);
+        assignDeliveryDlg.addEntitySelectionListener(wlViewerDlg);
+        sortDriverDlg.addEntitySelectionListener(wlViewerDlg);
+        this.addEntitySelectionListener(wlViewerDlg);
+        oncChildPanel.addEntitySelectionListener(wlViewerDlg);
       
         //Add components to the panels
         p1.add(lblONCNum);
@@ -716,7 +737,7 @@ public class FamilyPanel extends JPanel implements ActionListener, ListSelection
 		else
 			return null;
 	}
-	
+/*	
 	void clear()
 	{
 		bFamilyDataChanging = true;
@@ -763,7 +784,7 @@ public class FamilyPanel extends JPanel implements ActionListener, ListSelection
 		setEnabledButtons(false);
 		setRestrictedEnabledButtons(false);
 	}
-
+*/
 	void display(ONCFamily fam, ONCChild child)
 	{
 		if(fam == null)
@@ -948,7 +969,7 @@ public class FamilyPanel extends JPanel implements ActionListener, ListSelection
 		if(ctAL.size() > 0)
 		{		
 			addChildrentoTable(ctAL, bDispAll);
-			displayChild((currChild = ctAL.get(cn)), cn);
+//			displayChild((currChild = ctAL.get(cn)), cn);
 			if(bDispAll)
 				ONCMenuBar.setEnabledDeleteChildMenuItem(true);	//Enable Delete Child Menu Bar item
 		}
@@ -1100,8 +1121,8 @@ public class FamilyPanel extends JPanel implements ActionListener, ListSelection
 	{		
 		checkAndUpdateFamilyData(currFam);
 		
-		if(cDB.getNumberOfChildrenInFamily(currFam.getID()) > 0)
-			updateChild();
+//		if(cDB.getNumberOfChildrenInFamily(currFam.getID()) > 0)
+//			updateChild();
 		
 		cn=0;	//Family updates occur when new family is selected. After updating child displayed, reset to first child
 	}
@@ -1113,6 +1134,9 @@ public class FamilyPanel extends JPanel implements ActionListener, ListSelection
 	****************************************************************************************************/
 	void checkAndUpdateFamilyData(ONCFamily family)
 	{
+		if(!gvs.isUserAdmin())	//must have administrative privilege to make changes to families
+			return;
+
 		//make a copy of the current family object to create the request
 		ONCFamily fam = new ONCFamily(family);
 		
@@ -1303,11 +1327,19 @@ public class FamilyPanel extends JPanel implements ActionListener, ListSelection
 		setEnabledButtons(true);
 		setEditableGUIFields(true);
 		updateDBStatus(fDB.getServedFamilyAndChildCount());
-		display(fDB.getObjectAtIndex(nav.getIndex()), null);
-		nav.setStoplightEntity(fDB.getObjectAtIndex(nav.getIndex()));
+		ONCFamily firstFam = fDB.getObjectAtIndex(nav.getIndex());
+		if(firstFam != null)
+		{
+			display(firstFam, null);
+			fireEntitySelected(this, "FAMILY_SELECTED", firstFam, null, null);
+//			if(ctAL.size() > 0 && cn < ctAL.size())
+//				oncChildPanel.displayChild(cDB.getChild(ctAL.get(cn).getID()), 0);
+//				fireEntitySelected(this, "CHILD_SELECTED", firstFam, cDB.getChild(ctAL.get(cn).getID()), 0);
+			nav.setStoplightEntity(fDB.getObjectAtIndex(nav.getIndex()));
 		
-		if(gvs.isUserAdmin())
-			setRestrictedEnabledButtons(true);
+			if(gvs.isUserAdmin())
+				setRestrictedEnabledButtons(true);
+		}
     }
 	
 	void showDeliveryStatus()
@@ -1383,6 +1415,16 @@ public class FamilyPanel extends JPanel implements ActionListener, ListSelection
 			Point pt = parentFrame.getLocation();
 	        catDlg.setLocation(pt.x + 125, pt.y + 125);
 			catDlg.setVisible(true);
+		}
+	}
+	
+	void showWishLabelViewerDialog()
+	{
+		if(!wlViewerDlg.isVisible())
+		{
+			Point pt = parentFrame.getLocation();
+	        wlViewerDlg.setLocation(pt.x + 125, pt.y + 125);
+			wlViewerDlg.setVisible(true);
 		}
 	}
 	
@@ -1682,6 +1724,7 @@ public class FamilyPanel extends JPanel implements ActionListener, ListSelection
 	 * This method gets a reference to the current child and commands the child panel
 	 * to update it. If the child can't be found, the child panel is cleared. 
 	 */
+/*	
 	void updateChild()
 	{	
 		ONCChild c = null;
@@ -1693,11 +1736,12 @@ public class FamilyPanel extends JPanel implements ActionListener, ListSelection
 		else
 			System.out.println("Family Panel updateChild() - Can't update, child object is null");
 	}
-	
+*/	
 	/**
 	 * This method gets a reference to the current child and commands the child panel
 	 * to display it.If the child can't be found, the child panel is cleared. 
 	 */
+/*	
 	void displayChild(ONCChild c, int cn)
 	{	
 		if(c != null)
@@ -1705,8 +1749,7 @@ public class FamilyPanel extends JPanel implements ActionListener, ListSelection
 		else
 			oncChildPanel.clearChildData();
 	}
-			
-	
+*/			
 	/*************************************************************************************************************
 	 * This method is called when the user requests to delete a child from the menu bar. The child to be deleted
 	 * is the child currently selected in child table in the family panel. The first step in deletion is to confirm
@@ -1903,17 +1946,19 @@ public class FamilyPanel extends JPanel implements ActionListener, ListSelection
 		{
 			//If user can change child data, save possible updated data prior to displaying newly selected child
 			//and update the Family Panel Child Table
-			if(bDispAll)
-			{
-				updateChild();
-			}
+//			if(bDispAll)
+//			{
+//				updateChild();
+//			}
 			
 			//Get new child selected by user and display their information
 			cn = childTable.getSelectedRow();
 			refreshODBWishListHighlights(currFam, ctAL.get(cn));
 			refreshPriorHistoryButton(currFam, ctAL.get(cn));
+			
+			fireEntitySelected(this, "CHILD_SELECTED", currFam, ctAL.get(cn), cn);
 
-			displayChild(ctAL.get(cn), cn);
+//			displayChild(ctAL.get(cn), cn);
 		}		
 	}
 

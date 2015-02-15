@@ -562,6 +562,7 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
         ONCMenuBar.catMI.addActionListener(menuItemListener);
         ONCMenuBar.sortWishesMI.addActionListener(menuItemListener);
         ONCMenuBar.recGiftsMI.addActionListener(menuItemListener);
+        ONCMenuBar.labelViewerMI.addActionListener(menuItemListener);
         ONCMenuBar.orgMI.addActionListener(menuItemListener);
         ONCMenuBar.sortOrgsMI.addActionListener(menuItemListener);
         ONCMenuBar.sortFamiliesMI.addActionListener(menuItemListener);
@@ -1371,6 +1372,7 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
     		else if(e.getSource() == ONCMenuBar.viewDBMI) {oncFamilyPanel.showEntireDatabase(oncFamDB);}
     		else if(e.getSource() == ONCMenuBar.sortWishesMI) {oncFamilyPanel.showSortWishesDialog(oncFamDB.getList());}
     		else if(e.getSource() == ONCMenuBar.recGiftsMI) {oncFamilyPanel.showReceiveGiftsDialog(oncFamDB.getList());}
+    		else if(e.getSource() == ONCMenuBar.labelViewerMI) {oncFamilyPanel.showWishLabelViewerDialog();}
     		else if(e.getSource() == ONCMenuBar.catMI) {oncFamilyPanel.showWishCatalogDialog(); }
     		else if(e.getSource() == ONCMenuBar.orgMI) {oncFamilyPanel.showOrgDialog();}
     		else if(e.getSource() == ONCMenuBar.sortOrgsMI) {oncFamilyPanel.showSortOrgsDialog();}

@@ -166,7 +166,7 @@ public class ONCChild extends ONCObject implements Serializable
 	
 	//Getters
 	public int			getFamID() { return famid; }
-	int		getChildNumber() { return childNumber; }
+//	int		getChildNumber() { return childNumber; }
 	public String		getChildFirstName() {return childFirstName;}
 	public String		getChildLastName() {return childLastName;}
 	String		getChildSchool() {return childSchool;}

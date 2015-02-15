@@ -32,7 +32,8 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.toedter.calendar.JDateChooser;
 
-public class ChildPanel extends JPanel implements ActionListener, DatabaseListener
+public class ChildPanel extends ONCPanel implements ActionListener, DatabaseListener,
+														EntitySelectionListener
 {
 	/**
 	 * This class extends JPanel to provide the UI for display and edit of a child and the child's
@@ -62,12 +63,13 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 	private static final int ONC_HELMET_WISHID = 17; //Used for sorting children into array lists
 	private static final String ONC_HELMET_NAME = "Helmet"; //Used for associated Helmet's with Bike's
 	private static final String ONC_BIKE_NAME = "Bike"; //Used for associated Helmet's with Bike's
+	private static final int MAX_LABEL_LINE_LENGTH = 26;
 	
 	//Singleton application objects
-	private GlobalVariables cpGVs;
+//	private GlobalVariables gvs;
 	private ONCOrgs orgs;
 	private ONCWishCatalog cat;
-	private ChildDB cDB;
+//	private ChildDB cDB;
 	private ChildWishDB cwDB;
 	
 	private ONCChild c = null;	//The panel needs to know which child is being displayed for listeners
@@ -84,29 +86,28 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 	private JRadioButton[] wishRB;
 	private Color ageNormalBackgroundColor;
 	
-	//label dialog
-	private WishLabelViewer labelViewer;
-	
 	//Semaphores
 //	private boolean bChildDataChanged = false; //flag indicates child data has been modified
 	private boolean bChildDataChanging = false; //flag indicates child data displayed is updating
 	
-	public ChildPanel()
-	{		
+	public ChildPanel(JFrame pf)
+	{	
+		super(pf);
+		
 		//Set layout and border for the Child Panel
 		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 		this.setToolTipText("Information for an ONC child");
 		this.setBorder(BorderFactory.createTitledBorder("Child Information"));
 		
 		//Set parent frame and share app data structures
-		cpGVs = GlobalVariables.getInstance();
-//		pFrame = cpGVs.getFrame();
+//		gvs = GlobalVariables.getInstance();
 		orgs = ONCOrgs.getInstance();
 		cat = ONCWishCatalog.getInstance();
 		cDB = ChildDB.getInstance();
 		cwDB = ChildWishDB.getInstance();
 		
 		//register database listeners for updates
+//		if(cDB != null) { cDB.addDatabaseListener(this); }
 		if(cwDB != null) { cwDB.addDatabaseListener(this); }
 		if(orgs != null) { orgs.addDatabaseListener(this); }
 		if(cat != null) { cat.addDatabaseListener(this); }
@@ -121,11 +122,9 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 		wishCBM = new DefaultComboBoxModel[NUMBER_OF_WISHES_PER_CHILD];
 		assigneeCBM = new DefaultComboBoxModel[NUMBER_OF_WISHES_PER_CHILD];
 		
-		labelViewer = new WishLabelViewer(GlobalVariables.getFrame());
-		
 		//Create a listener for panel gui events
 		ChildUpdateListener cuListener = new ChildUpdateListener();
-		WishDetailFocusListener wdListener = new WishDetailFocusListener();
+		WishDetailFocusListener wdFocusListener = new WishDetailFocusListener();
 		
 		//Setup sub panels that comprise the Child Panel
 		JPanel childinfopanel = new JPanel();
@@ -163,7 +162,7 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
         lastnameTF.setEditable(false);
         lastnameTF.addActionListener(cuListener);
         
-        dobDC = new JDateChooser(cpGVs.getTodaysDate());
+        dobDC = new JDateChooser(gvs.getTodaysDate());
 		dobDC.setMinimumSize(new Dimension(136, 48));
 		dobDC.setBorder(BorderFactory.createTitledBorder("Date of Birth"));
 		dobDC.setEnabled(false);
@@ -213,7 +212,7 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
             wishindCB[i].setEnabled(false);
             wishindCB[i].addActionListener(cuListener);
             
-            wishRB[i] = new JRadioButton(cpGVs.getImageIcon(ONC_GIFT_ICON));
+            wishRB[i] = new JRadioButton(gvs.getImageIcon(ONC_GIFT_ICON));
             wishRB[i].setToolTipText("Click to see wish history");
             wishRB[i].setEnabled(false);
             wishRB[i].addActionListener(this);
@@ -222,7 +221,7 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
             wishdetailTF[i].setToolTipText("Type wish details, then hit <Enter>");
             wishdetailTF[i].setEnabled(false);
             wishdetailTF[i].addActionListener(cuListener);
-            wishdetailTF[i].addFocusListener(wdListener);
+            wishdetailTF[i].addFocusListener(wdFocusListener);
             
         	wishstatusCB[i] = new JComboBox(status);
             wishstatusCB[i].setPreferredSize(dws);
@@ -278,7 +277,7 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 	
 	void setEditableGUIFields(boolean tf)
 	{
-		if(cpGVs.isUserAdmin())
+		if(gvs.isUserAdmin())
 		{
 			firstnameTF.setEditable(tf);
 			lastnameTF.setEditable(tf);
@@ -344,7 +343,7 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 		bChildDataChanging = true;
 		c=child;
 		
-		if(cpGVs.isUserAdmin())	//Only display child's actual name if user permission permits
+		if(gvs.isUserAdmin())	//Only display child's actual name if user permission permits
 		{
 			firstnameTF.setText(child.getChildFirstName());
 			lastnameTF.setText(child.getChildLastName());
@@ -352,6 +351,7 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 		else	//Else, display the restricted name for the child
 		{
 			firstnameTF.setText("Child " + Integer.toString(index+1));
+//			firstnameTF.setText("Child " + child.getChildNumber());
 			lastnameTF.setText("");
 		}
 		
@@ -429,8 +429,14 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 				wishCB[wn].setSelectedIndex(0);
 			
 			wishindCB[wn].setSelectedIndex(cw.getChildWishIndicator());
+			
 			wishdetailTF[wn].setText(cw.getChildWishDetail());
 			wishdetailTF[wn].setCaretPosition(0);
+			if(doesWishFitOnLabel(cw))
+				wishdetailTF[wn].setBackground(Color.WHITE);
+			else
+				wishdetailTF[wn].setBackground(Color.YELLOW);
+				
 			wishstatusCB[wn].setSelectedIndex(cw.getChildWishStatus());
 			
 			Organization org = orgs.getOrganizationByID(cw.getChildWishAssigneeID());
@@ -458,7 +464,7 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 		
 		firstnameTF.setText("");
 		lastnameTF.setText("");
-		dobDC.setDate(cpGVs.getTodaysDate());
+		dobDC.setDate(gvs.getTodaysDate());
 		ageTF.setText("");
 		schoolTF.setText("");
 		genderTF.setText("");
@@ -482,12 +488,12 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 	void updateChild(ONCChild c)
 	{
 		//field changed and user has permission to change
-		if(cpGVs.isUserAdmin() && 
-				(!firstnameTF.getText().equals(c.getChildFirstName())) ||
+		if(c != null && gvs.isUserAdmin() &&
+				(!firstnameTF.getText().equals(c.getChildFirstName()) ||
 				  !lastnameTF.getText().equals(c.getChildLastName()) ||
 				   !schoolTF.getText().equals(c.getChildSchool()) ||
 				    !genderTF.getText().equals(c.getChildGender()) ||
-				     hasDOBChanged(c))	
+				     hasDOBChanged(c)))
 		{
 			//child change detected, create change request object and send to the server
 			//the child prior wish history may have changed when the child data changed
@@ -502,18 +508,18 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 			{
 				ONCChild updatedChild = cDB.getChild(reqUpdateChild.getID());
 				displayChild(updatedChild);
-				
-				updateChildWishDetail(updatedChild);
 			}
 			else
 			{
 				//display an error message that update request failed
 				JOptionPane.showMessageDialog(GlobalVariables.getFrame(), "ONC Server denied Child Update," +
 						"try again later","Child Update Failed",  
-						JOptionPane.ERROR_MESSAGE, cpGVs.getImageIcon(0));
+						JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
 				displayChild(c);
 			}
 		}
+		
+		updateChildWishDetail(c);
 	}
 	
 	boolean hasDOBChanged(ONCChild c)
@@ -537,11 +543,14 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 	//wish detail changes, we do add a new wish to the data base. 
 	void updateChildWishDetail(ONCChild c)
 	{
-		for(int wn=0; wn < NUMBER_OF_WISHES_PER_CHILD; wn++)
+		if(c != null)
 		{
-			ONCChildWish cw = cwDB.getWish(c.getChildWishID(wn));
-			if(cw != null && !wishdetailTF[wn].getText().equals(cw.getChildWishDetail()))
-				updateWish(wn);
+			for(int wn=0; wn < NUMBER_OF_WISHES_PER_CHILD; wn++)
+			{
+				ONCChildWish cw = cwDB.getWish(c.getChildWishID(wn));
+				if(cw != null && !wishdetailTF[wn].getText().equals(cw.getChildWishDetail()))
+					updateWish(wn);
+			}
 		}
 	}
 
@@ -720,8 +729,8 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 			//Now that we have assessed/received base,  detail and assignee changes, create a new wish			
 			int wishID = cwDB.add(this, c.getID(), selectedCBWish.getID(),
 						wishdetailTF[wn].getText(), wn, wishindCB[wn].getSelectedIndex(),
-						wishstatusCB[wn].getSelectedIndex(), orgID, cpGVs.getUserLNFI(),
-						cpGVs.getTodaysDate());
+						wishstatusCB[wn].getSelectedIndex(), orgID, gvs.getUserLNFI(),
+						gvs.getTodaysDate());
 			
 			//if adding the wish was successful, we need to fetch and display the wish. The db may have changed
 			//the status of the wish.
@@ -774,7 +783,7 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 				
 				//set wish 1 to none	
 				wishID = cwDB.add(this, c.getID(), -1, "", 1, 0, CHILD_WISH_STATUS_EMPTY, 
-							0, cpGVs.getUserLNFI(), cpGVs.getTodaysDate());
+							0, gvs.getUserLNFI(), gvs.getTodaysDate());
 				
 				//if adding the wish was successful, we need to fetch and display the wish. The db may have changed
 				//the status of the wish.
@@ -836,7 +845,7 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 		int wishID = cwDB.add(this, c.getID(), selectedWish.getID(),
 							wishdetailTF[wn].getText(), wn, wishindCB[wn].getSelectedIndex(),
 							wishstatusCB[wn].getSelectedIndex(), selectedCBOrg.getID(),
-							cpGVs.getUserLNFI(), cpGVs.getTodaysDate());
+							gvs.getUserLNFI(), gvs.getTodaysDate());
 		
 		//if adding the wish was successful, we need to fetch and display the wish. The db may have changed
 		//the status of the wish.
@@ -867,6 +876,27 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 		
 	}
 	
+	boolean doesWishFitOnLabel(ONCChildWish cw)
+	{
+		ONCWishCatalog cat = ONCWishCatalog.getInstance();
+		
+		String wish = cat.getWishByID(cw.getWishID()).getName() + " - " + cw.getChildWishDetail();
+		//does it fit on one line?
+		if(wish.length() <= MAX_LABEL_LINE_LENGTH)
+			return true;
+		else	//split into two lines
+		{
+			int index = MAX_LABEL_LINE_LENGTH;
+			while(index > 0 && wish.charAt(index) != ' ')	//find the line break
+				index--;
+		
+			if(wish.substring(index).length() > MAX_LABEL_LINE_LENGTH)
+				return false;
+			else
+				return true;
+		}
+	}
+	
 	void autoAddHelmetAsWish1()
 	{
 		//set the combo boxes in the panel
@@ -881,7 +911,7 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 		//add the helmet as wish 1		
 		int wishtypeid = cat.getWishID(ONC_HELMET_NAME); 	//Not implemented yet
 		int wishID = cwDB.add(this, c.getID(), wishtypeid, "", 1, 0, CHILD_WISH_STATUS_SELECTED, 
-					0, cpGVs.getUserLNFI(), cpGVs.getTodaysDate());
+					0, gvs.getUserLNFI(), gvs.getTodaysDate());
 		
 		//if adding the wish was successful, we need to fetch and display the wish. The db may have changed
 		//the status of the wish.
@@ -955,7 +985,7 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 		{
 			JOptionPane.showMessageDialog(GlobalVariables.getFrame(), 
 					"Child Wish History Not Available", 
-					"ONC Server Failed to Respond", JOptionPane.ERROR_MESSAGE, cpGVs.getImageIcon(0));
+					"ONC Server Failed to Respond", JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
 		}
 	}
 
@@ -969,7 +999,7 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 	
 	@Override
 	public void dataChanged(DatabaseEvent dbe) 
-	{		
+	{
 		if(dbe.getSource() != this && dbe.getType().equals("WISH_ADDED"))
 		{
 //			System.out.println(String.format("Child Panel DB Event: Source %s, Type %s, Object %s",
@@ -996,6 +1026,37 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 			updateWishSelectionList();
 		}
 	}
+	@Override
+	public void entitySelected(EntitySelectionEvent tse)
+	{
+		if(tse.getType().equals("FAMILY_SELECTED"))
+		{
+			ONCFamily fam = (ONCFamily) tse.getObject1();
+			ArrayList<ONCChild> childList = cDB.getChildren(fam.getID());
+			if(childList != null && childList.size() > 0 && childList.get(0).getChildWishID(0) != -1)
+			{
+				updateChild(c);
+				displayChild(childList.get(0), 0);
+			}	
+		}
+		else if(tse.getType().equals("CHILD_SELECTED"))
+		{
+			ONCChild child = (ONCChild) tse.getObject2();
+			Integer childNum = (Integer) tse.getObject3();
+			
+			updateChild(c);
+			displayChild(child, childNum);
+		}
+		else if(tse.getType().equals("WISH_SELECTED"))
+		{
+			ONCChild child = (ONCChild) tse.getObject2();
+			ONCChildWish cw = (ONCChildWish) tse.getObject3();
+			
+			updateChild(c);
+			displayChild(child, cw.getWishNumber());
+		}
+		
+	}
 	
 	/***********************************************************************************************
 	 * This class implements the listeners for all events associated with the update of child 
@@ -1012,7 +1073,7 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
-			if(c != null && !bChildDataChanging && cpGVs.isUserAdmin() && 
+			if(c != null && !bChildDataChanging && gvs.isUserAdmin() && 
 													(e.getSource() == firstnameTF || 
 													 e.getSource() == lastnameTF ||
 													 e.getSource() == schoolTF ||
@@ -1060,7 +1121,7 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 		{
 			if(pce.getSource() == dobDC.getDateEditor() && 
 				"date".equals(pce.getPropertyName()) && 
-				 !bChildDataChanging && c != null && cpGVs.isUserAdmin())
+				 !bChildDataChanging && c != null && gvs.isUserAdmin())
 				  
 			{
 				
@@ -1071,6 +1132,32 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 				}
 			}		
 		}
+	}
+	
+	private class WishDetailFocusListener implements FocusListener
+	{
+		@Override
+		public void focusGained(FocusEvent fe)
+		{
+			int index = 0;
+			while(index < wishdetailTF.length && fe.getSource() != wishdetailTF[index])
+				index++;
+			
+			if(index < wishdetailTF.length)
+			{
+				//need to get family, child, and child wish objects
+				ONCFamily fam = fDB.getFamily(c.getFamID());
+				ONCChildWish cw = cwDB.getWish(c.getID(), index);
+				fireEntitySelected(this, "WISH_SELECTED", fam, c, cw);
+			}
+		}
+
+		@Override
+		public void focusLost(FocusEvent fe) {
+			// TODO Auto-generated method stub
+			
+		}
+		
 	}
 	
 	class DetailDialog extends JDialog implements ActionListener
@@ -1173,36 +1260,5 @@ public class ChildPanel extends JPanel implements ActionListener, DatabaseListen
 			if(e.getSource() == btnOK) 
 				this.setVisible(false);
 		}
-	}
-	
-	private class WishDetailFocusListener implements FocusListener
-	{
-
-		@Override
-		public void focusGained(FocusEvent fe)
-		{
-			int index = 0;
-			while(index < wishdetailTF.length && fe.getSource() != wishdetailTF[index])
-				index++;
-			
-			if(index < wishdetailTF.length)
-			{
-				labelViewer.displayLabel(c, index);
-			}
-		}
-
-		@Override
-		public void focusLost(FocusEvent fe)
-		{
-			int index = 0;
-			while(index < wishdetailTF.length && fe.getSource() != wishdetailTF[index])
-				index++;
-			
-			if(index < wishdetailTF.length)
-			{
-				System.out.println(String.format("WishDetail %d Foucs Lost", index+1));
-			}
-		}
-		
 	}
 }

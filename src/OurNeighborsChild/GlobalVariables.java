@@ -1,11 +1,13 @@
 package OurNeighborsChild;
 
 import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -28,6 +30,8 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 	private static final long serialVersionUID = -7710761545913066682L;
 	private static final int NUMBER_OF_WISHES_PER_CHILD = 3;
 	private static final int GV_CSV_HEADER_LENGTH = 3;
+	private static final int NUM_OF_XMAS_ICONS = 5;
+	private static final int XMAS_ICON_OFFSET = 9;
 	
 	private static GlobalVariables instance = null;
 	
@@ -175,6 +179,10 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 	Image getImage(int icon) { return imageIcons[icon].getImage(); }
 	int getNumberOfWishesPerChild() { return NUMBER_OF_WISHES_PER_CHILD; }
 	String getVersion() { return version; }
+	public static ImageIcon getSeasonIcon()
+	{
+		return imageIcons[oncSeasonStartDate.get(Calendar.YEAR) % NUM_OF_XMAS_ICONS + XMAS_ICON_OFFSET];
+	}
 	
 	//setters globally used - need to update at the server and broadcast
 	public void setDeliveryDate(Date dd) { oncDeliveryDate.setTime(dd); }

@@ -212,17 +212,6 @@ public class ChildDB extends ONCDatabase
 		return fChildrenAL;
 	}
 	
-	void assignChildNumbers(int famid)
-	{
-		ArrayList<ONCChild> fChildAL = getChildren(famid);
-		
-		Collections.sort(fChildAL, new ONCChildAgeComparator());
-		for(int cn=0; cn < fChildAL.size(); cn++)
-			fChildAL.get(cn).setChildNumber(cn);
-	}
-	
-	int getTotalNumberOfChildren() { return childAL.size(); }
-	
 	int getNumberOfChildrenInFamily(int famid)
 	{
 		int count = 0;

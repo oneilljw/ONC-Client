@@ -63,8 +63,7 @@ public class SortWishObject extends ONCSortObject
 		//on the length of the combined string. If two lines are required, break the
 		//string on a word boundary. Limit the second string to a max number of
 		//characters based on MAX_LABEL_LINE_LENGTH
-		System.out.println(String.format("SortWishObject.getWishLabel WishID: %d,  WishName: %s",
-				soChildWish.getWishID(), cat.getWishByID(soChildWish.getWishID()).getName()));
+/*		
 		StringBuilder l1 = new StringBuilder(cat.getWishByID(soChildWish.getWishID()).getName());
 		
 		if(!soChildWish.getChildWishDetail().isEmpty())	//Wish detail may need two lines
@@ -112,7 +111,55 @@ public class SortWishObject extends ONCSortObject
 					" |  Family # " + soFamily.getONCNum();
 			line[3] = null;
 		}
+*/		
+		if(soChildWish.getChildWishDetail().isEmpty())
+		{
+			line[1] = cat.getWishByID(soChildWish.getWishID()).getName() + " - ";
+			line[2] = "ONC " + sYear.format(gvs.getSeasonStartDate()) + 
+						" |  Family # " + soFamily.getONCNum();
+			line[3] = null;
+		}	
+		else
+		{
+			String wish = cat.getWishByID(soChildWish.getWishID()).getName() + " - " +
+					soChildWish.getChildWishDetail();
+	
+			//does it fit on one line?
+			if(wish.length() <= MAX_LABEL_LINE_LENGTH)
+			{
+				line[1] = wish.trim();
+			}
+			else	//split into two lines
+			{
+				int index = MAX_LABEL_LINE_LENGTH;
+				while(index > 0 && wish.charAt(index) != ' ')	//find the line break
+					index--;
+	
+				line[1] = wish.substring(0, index);
+				line[2] = wish.substring(index);
+				if(line[2].length() > MAX_LABEL_LINE_LENGTH)
+				{
+//					System.out.println(String.format("SortWishObject.getWishLabel: line[2].length = %d",
+//							line[2].length()));
+					line[2] = wish.substring(index, index + MAX_LABEL_LINE_LENGTH);
+				}
+			}
 
+			//If the wish required two lines make the ONC Year line 4
+			//else make the ONC Year line 3
+			if(line[2] != null)
+			{
+				line[3] = "ONC " + sYear.format(gvs.getSeasonStartDate()) + 
+							" |  Family # " + soFamily.getONCNum();
+			}
+			else
+			{			
+				line[2] = "ONC " + sYear.format(gvs.getSeasonStartDate()) + 
+							" |  Family # " + soFamily.getONCNum();
+				line[3] = null;
+			}
+		}
+		
 		return line;
 	}
 	
@@ -133,5 +180,5 @@ public class SortWishObject extends ONCSortObject
 		}
 		else
 			return false;
-		}
+	}
 }
