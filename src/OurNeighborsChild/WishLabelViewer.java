@@ -363,10 +363,10 @@ public class WishLabelViewer extends JDialog implements DatabaseListener, Entity
 			//Get the added wish to extract the child
 			ONCChildWish addedWish = (ONCChildWish) dbe.getObject();
 		
-			//If the current child wish label being displayed has been updated, update the 
-			//wish label. The wish number is contained in the updated wish object
-			if(addedWish.getChildID() == child.getID() && addedWish.getWishNumber() == wn)	
-				displayLabel(addedWish);
+			//If the current child is being displayed has a wish added update the 
+			//wish label to show the added wish
+			if(addedWish.getChildID() == child.getID())	
+				displayLabel(child, addedWish.getWishNumber());
 			
 		}
 		else if(dbe.getType().equals("UPDATED_CHILD"))
