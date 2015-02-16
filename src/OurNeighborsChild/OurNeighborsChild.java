@@ -87,7 +87,7 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
 	private DBStatusDB oncDB;						//Holds the years loaded on the server
 	
 	//indexes that track families being displayed
-	private int fn;		 							//Indexes for the family and search lists
+//	private int fn;		 							//Indexes for the family and search lists
 	
 	//Server Connection
 	private ServerIF serverIF;	
@@ -218,7 +218,7 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
         oncDB = DBStatusDB.getInstance();
         
         //Initialize the family data base indexes
-        fn = 0;
+//      fn = 0;
 //      rn = 0;
         
         //Initialize the chat manager
@@ -1335,11 +1335,7 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
     			if(selectedValue != null && selectedValue.toString().equals("Process Call Items"))
     			{
     				angDlg.writeAngelCallResults(oncFrame);
-    				if(angDlg.updateFamilyDeliveryStatus())
-    				{
-    					oncFamilyPanel.display(oncFamDB.getObjectAtIndex(fn), oncFamilyPanel.getDisplayedChild());	//Refresh Family Panel, keep cn same
-    					oncFamilyPanel.notifyFamilyUpdateOccurred();
-    				}
+    				angDlg.updateFamilyDeliveryStatus();
     			}
     			else
     				angDlg.clearCallItemData(); //User chose not to process call items

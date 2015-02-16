@@ -541,7 +541,10 @@ public class ONCOrgs extends ONCSearchableDatabase
 //			structureConfirmedOrgsList();	//Sort by org type and alphabetically
 			
 			if(!response.startsWith("NO_PARTNERS"))
-				response = "PARTNERS_LOADED";		
+			{
+				response = "PARTNERS_LOADED";
+				fireDataChanged(this, "LOADED_PARTNERS", null);
+			}
 		}
 		
 		return response;

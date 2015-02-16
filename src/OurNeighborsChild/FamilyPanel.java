@@ -688,7 +688,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		if(statusCB.getSelectedIndex() > FAMILY_STATUS_UNVERIFIED)
 			oncChildPanel.setEnabledWishPanels(tf);
 	}
-	
+/*	
 	void closeAllDialogs()
 	{
 		cmDlg.setVisible(false);
@@ -704,7 +704,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		agentInfoDlg.setVisible(false);
 		changeONCNumberDlg.setVisible(false);
 	}
-	
+*/	
 	void setTextPaneFontSize()
 	{
 		SimpleAttributeSet attribs = new SimpleAttributeSet();  
@@ -1036,7 +1036,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		}
 	}
 	
-	void displayNewONCnum(String oncNum) { lblONCNum.setText(oncNum); }	//Non-user change to ONC Number TF
+//	void displayNewONCnum(String oncNum) { lblONCNum.setText(oncNum); }	//Non-user change to ONC Number TF
 	
 	void refreshPriorHistoryButton(ONCFamily fam, ONCChild c)
 	{
@@ -1231,7 +1231,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			}
 		}
 	}
-	
+/*	
 	void notifyFamilyUpdateOccurred()
 	{
 		//Update the family sort table if the family dialog is visible
@@ -1244,7 +1244,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		if(assignDeliveryDlg.isVisible())
 			assignDeliveryDlg.buildTableList(true);
 	}
-	
+*/	
 	void addChildrentoTable(ArrayList<ONCChild> childAL, boolean bDispAll)
     {	
     	for(int index=0; index < ctAL.size(); index++)
@@ -1592,10 +1592,10 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	
 	void updateComboBoxModels()
 	{
-		oncChildPanel.updateWishSelectionList();
+//		oncChildPanel.updateWishSelectionList();
 		sortWishesDlg.updateWishSelectionList();
 		
-		oncChildPanel.updateWishAssigneeSelectionList();
+//		oncChildPanel.updateWishAssigneeSelectionList();
 		sortWishesDlg.updateWishAssigneeSelectionList();
 		
 		sortAgentDlg.updateOrgCBList();
@@ -2113,7 +2113,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			}
 		}
 		
-		else if(dbe.getType().equals("ADDED_CHILD")) 
+		else if(dbe.getType().equals("ADDED_CHILD") || dbe.getType().equals("DELETED_CHILD")) 
 		{
 			ONCChild addedChild = (ONCChild) dbe.getObject();
 				
@@ -2124,17 +2124,17 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 					display(fam, null);
 			}
 		}
-		else if(dbe.getType().equals("DELETED_CHILD")) 
-		{
-			ONCChild deletedChild = (ONCChild) dbe.getObject();
-			
-			if(currFam.getID() == deletedChild.getFamID())	//Child was deleted from the displayed family
-			{
-				ONCFamily fam = fDB.getFamily(deletedChild.getFamID());
-				if(fam != null)
-					display(fam, null);
-			}
-		}
+//		else if(dbe.getType().equals("DELETED_CHILD")) 
+//		{
+//			ONCChild deletedChild = (ONCChild) dbe.getObject();
+//			
+//			if(currFam.getID() == deletedChild.getFamID())	//Child was deleted from the displayed family
+//			{
+//				ONCFamily fam = fDB.getFamily(deletedChild.getFamID());
+//				if(fam != null)
+//					display(fam, null);
+//			}
+//		}
 		if(dbe.getSource() != this && dbe.getType().equals("ADDED_DELIVERY"))
 		{
 			ONCDelivery updatedDelivery = (ONCDelivery) dbe.getObject();

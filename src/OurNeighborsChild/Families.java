@@ -36,8 +36,6 @@ public class Families extends ONCSearchableDatabase
 	 */
 	private static final String DB_TYPE = "FAMILY";
 	private static final int ONC_OPEN_FILE = 0;
-	
-	private static final Integer MAXIMUM_ONC_NUMBER = 9999;
 	private static final int ONC_REBASELINE_REGION_MARGIN = 5;
 	private static final int NUMBER_OF_WISHES_PER_CHILD = 3;
 	private static final int CHILD_WISH_STATUS_EMPTY = 1;

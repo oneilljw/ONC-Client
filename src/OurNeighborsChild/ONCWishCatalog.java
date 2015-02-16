@@ -386,8 +386,11 @@ public class ONCWishCatalog extends ONCDatabase
 			response = serverIF.sendRequest("GET<catalog>");
 			wishCatalog = gson.fromJson(response, listtype);
 			
-			if(!response.startsWith("NO_CATALOG"))		
+			if(!response.startsWith("NO_CATALOG"))
+			{		
 				response =  "CATALOG_LOADED";
+				fireDataChanged(this, "LOADED_CATALOG", null);
+			}
 		}
 		
 		return response;

@@ -1017,11 +1017,12 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 		else if(dbe.getSource() != this && (dbe.getType().equals("ADDED_CONFIRMED_PARTNER") ||
 											dbe.getType().equals("DELETED_CONFIRMED_PARTNER")) ||
 											dbe.getType().equals("UPDATED_CONFIRMED_PARTNER") ||
-											dbe.getType().equals("UPDATED_CONFIRMED_PARTNER_NAME"))
+											dbe.getType().equals("UPDATED_CONFIRMED_PARTNER_NAME") ||
+											dbe.getType().equals("LOADED_PARTNERS"))
 		{
 			updateWishAssigneeSelectionList();
 		}
-		else if(dbe.getSource() != this && dbe.getType().contains("_CATALOG_WISH"))
+		else if(dbe.getSource() != this && dbe.getType().contains("_CATALOG"))
 		{
 			updateWishSelectionList();
 		}
