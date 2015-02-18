@@ -1,5 +1,6 @@
 package OurNeighborsChild;
 
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
@@ -17,8 +18,10 @@ import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+
 import javax.swing.JOptionPane;
 import javax.swing.Timer;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -282,7 +285,7 @@ public class ServerIF
     
     void processChanges(String qContentJson)
     {
-    	String[] dbResponses = {"ADDED_USER", "GLOBAL_MESSAGE", "UPDATED_GLOBALS",
+    	String[] dbResponses = {"ADDED_USER", "UPDATED_GLOBALS",
     						  "USER_ONLINE", "USER_OFFLINE",
     						  "ADDED_FAMILY", "UPDATED_FAMILY",
     						  "ADDED_AGENT","UPDATED_AGENT", "DELETED_AGENT",
@@ -305,7 +308,14 @@ public class ServerIF
     	//loop thru list of changes, processing each one
     	for(String change: changeList)
     	{
-    		if(change.startsWith("CHAT_"))
+    		if(change.startsWith("GLOBAL_MESSAGE"))
+    		{
+    			ONCPopupMessage popup = new ONCPopupMessage(GlobalVariables.getONCLogo());
+    			Point loc = GlobalVariables.getFrame().getLocationOnScreen();
+    			popup.setLocation(loc.x+450, loc.y+70);
+    			popup.show("Message from ONC Server", change.substring(14));
+    		}
+    		else if(change.startsWith("CHAT_"))
     		{
     			//if a message is a CHAT message, we don't have to wait for the user to load a local data base
     			//chats can occur prior to the local data base being loaded

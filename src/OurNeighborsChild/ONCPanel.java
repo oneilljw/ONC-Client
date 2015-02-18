@@ -7,6 +7,10 @@ import javax.swing.JPanel;
 
 public abstract class ONCPanel extends JPanel
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	//List of registered listeners for table selection events
     private ArrayList<EntitySelectionListener> listeners;
     protected JFrame parentFrame;
@@ -60,8 +64,7 @@ public abstract class ONCPanel extends JPanel
     	}
     }
     
-    protected void fireEntitySelected(Object source, String eventType, Object obj1,
-    									Object obj2, Object obj3)
+    protected void fireEntitySelected(Object source, String eventType, Object obj1, Object obj2, Object obj3)
     {
     	// if we have no listeners, do nothing...
     	if (listeners != null && !listeners.isEmpty())
@@ -78,4 +81,5 @@ public abstract class ONCPanel extends JPanel
     			l.entitySelected(event);
     	}
     }
+
 }

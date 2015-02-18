@@ -59,8 +59,7 @@ public abstract class ONCTableDialog extends JDialog
     	}
     }
     
-    protected void fireEntitySelected(Object source, String eventType, Object obj1,
-    									Object obj2, Object obj3)
+    protected void fireEntitySelected(Object source, String eventType, Object obj1, Object obj2, Object obj3)
     {
     	// if we have no listeners, do nothing...
     	if (listeners != null && !listeners.isEmpty())

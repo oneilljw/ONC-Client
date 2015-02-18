@@ -17,7 +17,8 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import com.google.gson.Gson;
 
-public class DeliveryStatusDialog extends JDialog implements TableModelListener, DatabaseListener
+public class DeliveryStatusDialog extends JDialog implements TableModelListener, DatabaseListener,
+																EntitySelectionListener
 {
 	/**
 	 * This class displays the history of delivery objects for a family.It allows the user to
@@ -203,6 +204,20 @@ public class DeliveryStatusDialog extends JDialog implements TableModelListener,
 			//driver may have been added to current family delivery history
 			if(currFam != null)
 				displayDeliveryInfo(currFam);
+		}
+	}
+
+	@Override
+	public void entitySelected(EntitySelectionEvent tse)
+	{
+		if(this.isVisible() && (tse.getType().equals("FAMILY_SELECTED") || 
+				tse.getType().equals("WISH_SELECTED")))
+		{
+			ONCFamily fam = (ONCFamily) tse.getObject1();
+			if(fam != null)
+			{
+				displayDeliveryInfo(fam);	
+			}	
 		}
 	}
 }

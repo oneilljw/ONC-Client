@@ -52,24 +52,17 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	 * GUI elements and a child sub panel
 	 */
 	private static final long serialVersionUID = 1L;
-	private static final int FAMILY_STATUS_UNVERIFIED = 0;
-	private static final int FAMILY_STATUS_INFO_VERIFIED = 1;
 	private static final int FAMILY_STATUS_PACKAGED = 5;
 	private static final int FAMILY_STATUS_SELECTION_LIST_PACKAGED_INDEX = 6;
 	private static final int DELIVERY_STATUS_ASSIGNED = 3;
 	private static final String GIFT_CARD_ONLY_TEXT = "gift card only";
 	
-//	private GlobalVariables gvs;
 	private DeliveryDB deliveryDB;
 	private ONCRegions regions;
-//	private Families fDB;
-//	private ChildDB cDB;
 	private ONCAgents agentDB;
 	
 	private ONCFamily currFam;	//The panel needs to know which family is being displayed
 	private ONCChild currChild;	//The panel needs to know which child is being displayed
-	
-//	private static JFrame parentFrame = null;
 	
 	private JPanel p1, p2, p3;
 	private Color pBkColor; //Used to restore background for panels 1-3, btnShowPriorHistory when changed
@@ -96,8 +89,6 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	
 	public boolean bFamilyDataChanging = false; //Flag indicating program is triggering gui events, not user
 	private boolean bChildTableDataChanging = true;	//Flag indicating that Child Table data is changing
-//	private boolean bUnsavedFamilyDataChanges = false;	//Flag indicating family data has changed and not yet saved
-//	private boolean bUnsavedCatalogChanges = false; //Flag indicating wish catalog has changed
 	private boolean bDispAll = false; //Flag indicating whether all personal family data is displayed or not
 	
 	//An instance of the private subclass of the default highlight painter
@@ -132,10 +123,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	public FamilyPanel(JFrame pf)
 	{
 		super(pf);
-//		parentFrame = pf;
-//		gvs = GlobalVariables.getInstance();
-//		fDB = Families.getInstance();
-//		cDB = ChildDB.getInstance();
+
 		agentDB = ONCAgents.getInstance();
 		deliveryDB = DeliveryDB.getInstance();
 		regions = ONCRegions.getInstance();
@@ -153,7 +141,6 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 
 		//Set layout and border for the Family Panel
 		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
-//		this.setBorder(BorderFactory.createTitledBorder("Family Information"));
 		
 		//Setup the nav panel
 		nav = new ONCNavPanel(pf, fDB);
@@ -180,8 +167,6 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         lblONCNum.setPreferredSize(new Dimension(56, 44));
         lblONCNum.setBorder(BorderFactory.createTitledBorder("ONC #"));
         lblONCNum.setHorizontalAlignment(JLabel.CENTER);
-//      oncnum.setEditable(false);
-//      oncnum.addActionListener(this);
         
         odbFamilyNum = new JLabel("No Fams");
         odbFamilyNum.setPreferredSize(new Dimension(72, 44));
@@ -442,12 +427,13 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         
         //Set up delivery info dialog box 
         dsDlg = new DeliveryStatusDialog(parentFrame);
-//      dsDlg.dsTableModel.addTableModelListener(this);
+        nav.addEntitySelectionListener(dsDlg);
        
         //Set up delivery directions dialog box 
         try { dirDlg = new DirectionsDialog(parentFrame); }
 		catch (JSONException e1) {// TODO Auto-generated catch block 
 			e1.printStackTrace();}
+        nav.addEntitySelectionListener(dirDlg);
         
         //Set up client map dialog
         cmDlg = new ClientMapDialog(parentFrame); 
@@ -463,6 +449,8 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         int[] center_cols = {3,6};
         sortWishesDlg = new SortWishDialog(parentFrame, colToolTips, columns, colWidths, center_cols);
         sortWishesDlg.addEntitySelectionListener(familyChildSelectionListener);
+        sortWishesDlg.addEntitySelectionListener(dsDlg);
+        sortWishesDlg.addEntitySelectionListener(dirDlg);
     	
     	//Set up the receive gifts dialog
 //    	recGiftsDlg = new GiftActionDialog(parentFrame, WishStatus.Received);
@@ -483,10 +471,15 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
     	int [] fdCenter_cols = {1, 11, 13};
         sortFamiliesDlg = new SortFamilyDialog(parentFrame, fdColToolTips, fdCols, fdColWidths, fdCenter_cols);
         sortFamiliesDlg.addEntitySelectionListener(familyChildSelectionListener);
+        sortFamiliesDlg.addEntitySelectionListener(dirDlg);
+        sortFamiliesDlg.addEntitySelectionListener(dsDlg);
     	
     	//Set up the dialog to edit agent info
     	String[] tfNames = {"Name", "Organization", "Title", "Email", "Phone"};
-    	agentInfoDlg = new AgentInfoDialog(parentFrame, tfNames);
+    	agentInfoDlg = new AgentInfoDialog(parentFrame, tfNames, false);
+    	nav.addEntitySelectionListener(agentInfoDlg);
+    	sortFamiliesDlg.addEntitySelectionListener(agentInfoDlg);
+    	sortWishesDlg.addEntitySelectionListener(agentInfoDlg);
     	
     	//Set up the dialog to change family ONC Number
     	String[] oncNum = {"Change ONC #"};
@@ -496,9 +489,11 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
     	String[] agtColToolTips = {"Name", "Organization", "Title", "EMail Address", "Phone"};
       	String[] agtCols = {"Name", "Org", "Title", "EMail", "Phone"};
       	int[] agtColWidths = {144, 160, 120, 168, 120};
-  //  	int [] agtCenter_cols = {1, 11, 13};
     	sortAgentDlg = new SortAgentDialog(parentFrame, agtColToolTips, agtCols, agtColWidths, null);
     	sortAgentDlg.addEntitySelectionListener(familyChildSelectionListener);
+    	sortAgentDlg.addEntitySelectionListener(agentInfoDlg);
+    	sortAgentDlg.addEntitySelectionListener(dirDlg);
+    	sortAgentDlg.addEntitySelectionListener(dsDlg);
     	
     	//set up the assign delivery dialog
     	String[] addToolTips = {"ONC Family Number", "Family Status", "Delivery Status",
@@ -512,6 +507,9 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
     	int[] addCenter_cols = {3, 4, 5, 9};
     	assignDeliveryDlg = new AssignDeliveryDialog(parentFrame, addToolTips, addCols, addColWidths, addCenter_cols);
     	assignDeliveryDlg.addEntitySelectionListener(familyChildSelectionListener);
+    	assignDeliveryDlg.addEntitySelectionListener(agentInfoDlg);
+    	assignDeliveryDlg.addEntitySelectionListener(dirDlg);
+    	assignDeliveryDlg.addEntitySelectionListener(dsDlg);
     	
     	//set up the sort driver dialog
     	String[] sdToolTips = {"Driver Number", "First Name", "Last Name", "# of Deliveries",
@@ -523,6 +521,9 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
     	int[] sdCenter_cols = {3, 8};
     	sortDriverDlg = new SortDriverDialog(parentFrame, sdToolTips, sdCols, sdColWidths, sdCenter_cols);
     	sortDriverDlg.addEntitySelectionListener(familyChildSelectionListener);
+    	sortDriverDlg.addEntitySelectionListener(agentInfoDlg);
+    	sortDriverDlg.addEntitySelectionListener(dirDlg);
+    	sortDriverDlg.addEntitySelectionListener(dsDlg);
     	
     	//Set up the edit driver (deliverer) dialog and register it to listen for Family 
     	//Selection events from particular ui's that have driver's associated
@@ -556,10 +557,16 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         //set up the data check dialog and table row selection listener
         dcDlg = new ChildCheckDialog(pf);
         dcDlg.addEntitySelectionListener(familyChildSelectionListener);
+        dcDlg.addEntitySelectionListener(agentInfoDlg);
+        dcDlg.addEntitySelectionListener(dirDlg);
+        dcDlg.addEntitySelectionListener(dsDlg);
         
         //set up the family check dialog and table row selection listener
         dfDlg = new FamilyCheckDialog(pf);
         dfDlg.addEntitySelectionListener(familyChildSelectionListener);
+        dfDlg.addEntitySelectionListener(agentInfoDlg);
+        dfDlg.addEntitySelectionListener(dirDlg);
+        dfDlg.addEntitySelectionListener(dsDlg);
         
         //Create the Child Panel
         oncChildPanel = new ChildPanel(pf);
@@ -683,10 +690,6 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			oncNotesPane.setEditable(tf);
 			oncDIPane.setEditable(tf);
 		}
-		
-		oncChildPanel.setEditableGUIFields(tf);
-		if(statusCB.getSelectedIndex() > FAMILY_STATUS_UNVERIFIED)
-			oncChildPanel.setEnabledWishPanels(tf);
 	}
 /*	
 	void closeAllDialogs()
@@ -721,7 +724,6 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	{	 
 		btnShowAllPhones.setEnabled(tf);
 		altAddressRB.setEnabled(tf);
-//		btnShowODBDetails.setEnabled(tf);
 	}
 	
 	void setEnabledButtons(boolean tf) 
@@ -807,14 +809,14 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			currFam = fam;
 			ctAL = cDB.getChildren(currFam.getID());
 			int index = 0;
-			while(index < ctAL.size() && ctAL.get(index) != child)
+			while(index < ctAL.size() && ctAL.get(index).getID() != child.getID())
 				index++;
 			
 			if(index < ctAL.size())
 				cn = index;
 			
 		}		
-//		System.out.println(String.format("FamilyPanel displayFamily - Family ID: %d, cn: %d", fam.getID(), cn));		
+		
 		p1.setBackground(pBkColor);
 		p2.setBackground(pBkColor);
 		p3.setBackground(pBkColor);
@@ -977,7 +979,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		{
 			//family has no children, clear the child panel
 			currChild = null;
-			oncChildPanel.clearChildData();
+//			oncChildPanel.clearChildData();
 			ONCMenuBar.setEnabledDeleteChildMenuItem(false);	//Disable Delete Child Menu Bar item
 			
 		}
@@ -985,39 +987,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		
 		nav.setStoplightEntity(currFam);
 		nav.btnNextSetEnabled(true);
-		nav.btnPreviousSetEnabled(true);
-			
-		if(currFam.getFamilyStatus() >= FAMILY_STATUS_INFO_VERIFIED)
-			oncChildPanel.setEnabledWishPanels(true);
-		else
-			oncChildPanel.setEnabledWishPanels(false);
-		
-		if(currFam.getNotes().toLowerCase().contains(GIFT_CARD_ONLY_TEXT))
-			oncChildPanel.setEnabledWishCBs(false);
-		
-		if(dsDlg.isShowing())
-			dsDlg.displayDeliveryInfo(currFam);
-		
-//		if(driverDlg.isShowing())	//If found, display the driver assigned for the family displayed
-//			driverDlg.searchForDriver(deliveryDB.getDeliveredBy(f.getDeliveryID()));
-		
-		if(dirDlg.isShowing())
-			updateDrivingDirections();
-		
-		if(changeONCNumberDlg.isShowing())
-		{
-			//Check to see if client user changed families. Then set the dialog to display
-			//the ONC Number for the new family being displayed						
-			changeONCNumberDlg.display(currFam);	
-		}															
-		
-		if(agentInfoDlg.isShowing())
-		{
-			//Check to see if client user changed Agent info. Then set the dialog to display
-			//the agent for the new family being displayed	
-			agentInfoDlg.update();					
-			agentInfoDlg.display(agentDB.getAgent(currFam.getAgentID()));	
-		}															
+		nav.btnPreviousSetEnabled(true);														
 	}
 	
 	void checkForDNSorGiftCardOnly()
@@ -1231,20 +1201,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			}
 		}
 	}
-/*	
-	void notifyFamilyUpdateOccurred()
-	{
-		//Update the family sort table if the family dialog is visible
-		if(sortFamiliesDlg.isVisible())
-			sortFamiliesDlg.buildTableList(true);
-		
-		if(sortAgentDlg.isVisible())
-			sortAgentDlg.buildFamilyTableListAndDisplay();
 
-		if(assignDeliveryDlg.isVisible())
-			assignDeliveryDlg.buildTableList(true);
-	}
-*/	
 	void addChildrentoTable(ArrayList<ONCChild> childAL, boolean bDispAll)
     {	
     	for(int index=0; index < ctAL.size(); index++)
@@ -1331,7 +1288,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		if(firstFam != null)
 		{
 			display(firstFam, null);
-			fireEntitySelected(this, "FAMILY_SELECTED", firstFam, null, null);
+			fireEntitySelected(this, "FAMILY_SELECTED", firstFam, null);
 //			if(ctAL.size() > 0 && cn < ctAL.size())
 //				oncChildPanel.displayChild(cDB.getChild(ctAL.get(cn).getID()), 0);
 //				fireEntitySelected(this, "CHILD_SELECTED", firstFam, cDB.getChild(ctAL.get(cn).getID()), 0);
@@ -1356,7 +1313,16 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	{
 		if(!dirDlg.isShowing())
 		{
-			updateDrivingDirections();
+			try {
+				dirDlg.displayDirections(currFam);
+				
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (JSONException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+				}
 			dirDlg.setVisible(true);
 		}
 	}
@@ -1468,7 +1434,6 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			sortDriverDlg.setVisible(true);
 		}
 	}
-	
 	
 	void showSortFamiliesDialog(ArrayList<ONCFamily> fAL)
 	{
@@ -1590,25 +1555,6 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		sortFamiliesDlg.setFamilyStatusComboItemEnabled(FAMILY_STATUS_SELECTION_LIST_PACKAGED_INDEX, tf);
 	}
 	
-	void updateComboBoxModels()
-	{
-//		oncChildPanel.updateWishSelectionList();
-		sortWishesDlg.updateWishSelectionList();
-		
-//		oncChildPanel.updateWishAssigneeSelectionList();
-		sortWishesDlg.updateWishAssigneeSelectionList();
-		
-		sortAgentDlg.updateOrgCBList();
-		sortAgentDlg.updateTitleCBList();
-		
-		sortDriverDlg.updateLNameCBList();
-	}
-	
-	void updateComboBoxBorders()
-	{
-		orgDlg.updateComboBoxBorders();
-	}
-	
 	void onAddNewChildClicked()
 	{
 		String[] fieldNames = {"First Name", "Last Name", "School", "Gender", "Date of Birth"};
@@ -1685,8 +1631,15 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 				else
 					wishes.append(py + " Wish 3: " + pyWishes[5]);			
 		
-				JOptionPane.showMessageDialog(parentFrame, wishes, oncChildPanel.firstnameTF.getText() +
-				"'s Gift History", JOptionPane.INFORMATION_MESSAGE, gvs.getImageIcon(0));
+				//determine child's first name, is it protected? Get it from table
+				String childFN;
+				if(bDispAll)
+					childFN = ctAL.get(cn).getChildFirstName();
+				else
+					childFN = "Child " + Integer.toString(childTable.getSelectedRow() + 1);
+				
+				JOptionPane.showMessageDialog(parentFrame, wishes, childFN + "'s Gift History",
+						JOptionPane.INFORMATION_MESSAGE, gvs.getImageIcon(0));
 			
 				return true;
 			}
@@ -1698,59 +1651,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	}
 	
 	void setEnabledAssignedDeliveryStatus(boolean tf) { delStatus[DELIVERY_STATUS_ASSIGNED].setEnabled(tf); }
-	
-	/**********************************************************************************************
-	 * This method is called to cause all gui's that display ONC numbers to rebuild after
-	 * ONC numbers have been reassigned. 
-	 **********************************************************************************************/
-/*
-	void notifyONCNumbersReassigned()
-	{
-		//Update the family sort table if the family dialog is visible
-		if(sortFamiliesDlg.isVisible())
-			sortFamiliesDlg.buildSortTable();
-				
-		if(sortAgentDlg.isVisible())
-			sortAgentDlg.buildFamilyTableListAndDisplay();
-		
-		if(sortWishesDlg.isVisible())	//Update the wish management dialog
-			sortWishesDlg.buildSortTableList(true);
 
-		if(assignDeliveryDlg.isVisible())
-			assignDeliveryDlg.buildSortTable();
-	}
-*/
-	
-	/**
-	 * This method gets a reference to the current child and commands the child panel
-	 * to update it. If the child can't be found, the child panel is cleared. 
-	 */
-/*	
-	void updateChild()
-	{	
-		ONCChild c = null;
-		if(ctAL.size() > 0 && cn < ctAL.size())
-			c = cDB.getChild(ctAL.get(cn).getID());
-		
-		if(c != null)
-			oncChildPanel.updateChild(c);
-		else
-			System.out.println("Family Panel updateChild() - Can't update, child object is null");
-	}
-*/	
-	/**
-	 * This method gets a reference to the current child and commands the child panel
-	 * to display it.If the child can't be found, the child panel is cleared. 
-	 */
-/*	
-	void displayChild(ONCChild c, int cn)
-	{	
-		if(c != null)
-			oncChildPanel.displayChild(c, cn);
-		else
-			oncChildPanel.clearChildData();
-	}
-*/			
 	/*************************************************************************************************************
 	 * This method is called when the user requests to delete a child from the menu bar. The child to be deleted
 	 * is the child currently selected in child table in the family panel. The first step in deletion is to confirm
@@ -1784,7 +1685,6 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		}
 	}
 	
-
     /******************************************************************************************
      * This method automatically assigns an ONC number to a family that doesn't have one.The 
      * server assigns all ONC #'s. The client simply asks the server to do. Using
@@ -1812,20 +1712,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 					JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
 		}
     }
-/*    
-	void registerForTableEvents(TableSelectionListener fcsl)
-	{
-		//Set up the listener for the family, wish , receive gift and assign 
-        //driver dialogs. When a table row selection event occurs in the tables in these dialogs,
-        //the family and child (if applicable) that is selected in the tables is displayed in
-        //the family panel
-        sortFamiliesDlg.addTableSelectionListener(fcsl);
-        assignDeliveryDlg.addTableSelectionListener(fcsl);
-        sortAgentDlg.addTableSelectionListener(fcsl);
-        sortWishesDlg.addTableSelectionListener(fcsl);
-        recGiftsDlg.addTableSelectionListener(fcsl);
-	}
-*/	
+
 	@Override
 	public void actionPerformed(ActionEvent e) 
 	{
@@ -1945,21 +1832,12 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		if(!e.getValueIsAdjusting() && e.getSource() == childTable.getSelectionModel() && !bChildTableDataChanging && 
 				cDB.getNumberOfChildrenInFamily(currFam.getID()) > 0)
 		{
-			//If user can change child data, save possible updated data prior to displaying newly selected child
-			//and update the Family Panel Child Table
-//			if(bDispAll)
-//			{
-//				updateChild();
-//			}
-			
 			//Get new child selected by user and display their information
 			cn = childTable.getSelectedRow();
 			refreshODBWishListHighlights(currFam, ctAL.get(cn));
 			refreshPriorHistoryButton(currFam, ctAL.get(cn));
 			
 			fireEntitySelected(this, "CHILD_SELECTED", currFam, ctAL.get(cn), cn);
-
-//			displayChild(ctAL.get(cn), cn);
 		}		
 	}
 
@@ -2069,7 +1947,6 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 //						dbe.getSource().toString(), dbe.getType(), dbe.getObject().toString()));
 			}
 		}
-		
 		else if(dbe.getType().equals("UPDATED_CHILD"))
 		{
 			ONCChild updatedChild = (ONCChild) dbe.getObject();
@@ -2107,7 +1984,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 					{
 						refreshODBWishListHighlights(currFam, updatedChild);
 						refreshPriorHistoryButton(currFam, updatedChild);
-						oncChildPanel.displayChild(updatedChild, row);
+//						oncChildPanel.displayChild(updatedChild, row);
 					}
 				}
 			}
@@ -2115,27 +1992,16 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		
 		else if(dbe.getType().equals("ADDED_CHILD") || dbe.getType().equals("DELETED_CHILD")) 
 		{
-			ONCChild addedChild = (ONCChild) dbe.getObject();
+			ONCChild changeChild = (ONCChild) dbe.getObject();
 				
-			if(currFam.getID() == addedChild.getFamID())	//Child was added to the displayed family
+			if(currFam.getID() == changeChild.getFamID())	//Child was added to the displayed family
 			{
-				ONCFamily fam = fDB.getFamily(addedChild.getFamID());
+				ONCFamily fam = fDB.getFamily(changeChild.getFamID());
 				if(fam != null)
 					display(fam, null);
 			}
 		}
-//		else if(dbe.getType().equals("DELETED_CHILD")) 
-//		{
-//			ONCChild deletedChild = (ONCChild) dbe.getObject();
-//			
-//			if(currFam.getID() == deletedChild.getFamID())	//Child was deleted from the displayed family
-//			{
-//				ONCFamily fam = fDB.getFamily(deletedChild.getFamID());
-//				if(fam != null)
-//					display(fam, null);
-//			}
-//		}
-		if(dbe.getSource() != this && dbe.getType().equals("ADDED_DELIVERY"))
+		else if(dbe.getSource() != this && dbe.getType().equals("ADDED_DELIVERY"))
 		{
 			ONCDelivery updatedDelivery = (ONCDelivery) dbe.getObject();
 				
@@ -2165,7 +2031,6 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		{
 			if(tse.getType().equals("FAMILY_SELECTED") || tse.getType().equals("WISH_SELECTED"))
 			{
-//				System.out.println(String.format("FamilyPanel.entitySelected: Type = %s", tse.getType()));
 				ONCFamily fam = (ONCFamily) tse.getObject1();
 				ONCChild child = (ONCChild) tse.getObject2();
 			

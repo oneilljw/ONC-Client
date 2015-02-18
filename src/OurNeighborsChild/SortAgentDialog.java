@@ -139,7 +139,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 
         //set up the Agent Info Dialog
         String[] tfNames = {"Name", "Organization", "Title", "Email", "Phone"};
-    	aiDlg = new AgentInfoDialog(GlobalVariables.getFrame(), tfNames);
+    	aiDlg = new AgentInfoDialog(GlobalVariables.getFrame(), tfNames, true);
     	this.addEntitySelectionListener(aiDlg);
         
         this.add(bottomPanel);

@@ -33,7 +33,7 @@ import com.google.gson.reflect.TypeToken;
 import com.toedter.calendar.JDateChooser;
 
 public class ChildPanel extends ONCPanel implements ActionListener, DatabaseListener,
-														EntitySelectionListener
+														EntitySelectionListener, FocusListener
 {
 	/**
 	 * This class extends JPanel to provide the UI for display and edit of a child and the child's
@@ -64,6 +64,8 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 	private static final String ONC_HELMET_NAME = "Helmet"; //Used for associated Helmet's with Bike's
 	private static final String ONC_BIKE_NAME = "Bike"; //Used for associated Helmet's with Bike's
 	private static final int MAX_LABEL_LINE_LENGTH = 26;
+	private static final int FAMILY_STATUS_UNVERIFIED = 0;
+	private static final String GIFT_CARD_ONLY_TEXT = "gift card only";
 	
 	//Singleton application objects
 //	private GlobalVariables gvs;
@@ -76,7 +78,7 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 //	private JFrame pFrame = null;
 	
 	//GUI elements
-	public JTextField firstnameTF;	//public so prior history dialog can access
+	private JTextField firstnameTF;
 	private JTextField lastnameTF, schoolTF, genderTF;
 	private JDateChooser dobDC;
 	private JTextField ageTF;
@@ -107,7 +109,8 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 		cwDB = ChildWishDB.getInstance();
 		
 		//register database listeners for updates
-//		if(cDB != null) { cDB.addDatabaseListener(this); }
+		if(fDB != null) { fDB.addDatabaseListener(this); }
+		if(cDB != null) { cDB.addDatabaseListener(this); }
 		if(cwDB != null) { cwDB.addDatabaseListener(this); }
 		if(orgs != null) { orgs.addDatabaseListener(this); }
 		if(cat != null) { cat.addDatabaseListener(this); }
@@ -124,7 +127,6 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 		
 		//Create a listener for panel gui events
 		ChildUpdateListener cuListener = new ChildUpdateListener();
-		WishDetailFocusListener wdFocusListener = new WishDetailFocusListener();
 		
 		//Setup sub panels that comprise the Child Panel
 		JPanel childinfopanel = new JPanel();
@@ -221,7 +223,7 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
             wishdetailTF[i].setToolTipText("Type wish details, then hit <Enter>");
             wishdetailTF[i].setEnabled(false);
             wishdetailTF[i].addActionListener(cuListener);
-            wishdetailTF[i].addFocusListener(wdFocusListener);
+            wishdetailTF[i].addFocusListener(this);
             
         	wishstatusCB[i] = new JComboBox(status);
             wishstatusCB[i].setPreferredSize(dws);
@@ -311,6 +313,7 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 	 * does not protect the privacy of the child
 	 * @param child
 	 ***********************************************************************************/
+/*	
 	void displayChild(ONCChild child)
 	{
 		bChildDataChanging = true;
@@ -337,8 +340,8 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 		
 		bChildDataChanging = false;
 	}
-	
-	void displayChild(ONCChild child, int index)
+*/	
+	void displayChild(ONCChild child)
 	{
 		bChildDataChanging = true;
 		c=child;
@@ -350,8 +353,7 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 		}
 		else	//Else, display the restricted name for the child
 		{
-			firstnameTF.setText("Child " + Integer.toString(index+1));
-//			firstnameTF.setText("Child " + child.getChildNumber());
+			firstnameTF.setText("Child " + cDB.getChildNumber(child));
 			lastnameTF.setText("");
 		}
 		
@@ -471,6 +473,8 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 		
 		for(int wishID=0; wishID<wishCB.length; wishID++)
 			clearChildWish(wishID);
+		
+		setEnabledWishPanels(false);
 		
 		bChildDataChanging = false;
 	}
@@ -628,7 +632,6 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 	void updateWishAssigneeSelectionList()
 	{
 		bChildDataChanging = true;
-		
 		
 		for(int i=0; i<assigneeCBM.length; i++)
 		{
@@ -1014,6 +1017,21 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 				displayWish(addedWish, addedWish.getWishNumber());
 			
 		}
+		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_CHILD"))
+		{
+			ONCChild updatedChild = (ONCChild) dbe.getObject();
+			if(updatedChild != null && updatedChild.getID() == c.getID())
+			{
+				displayChild(updatedChild);
+			}
+			
+		}
+		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_FAMILY"))
+		{
+			ONCFamily fam = (ONCFamily) dbe.getObject();
+			if(fam != null)
+				setEnabledChildWishes(fam);	
+		}
 		else if(dbe.getSource() != this && (dbe.getType().equals("ADDED_CONFIRMED_PARTNER") ||
 											dbe.getType().equals("DELETED_CONFIRMED_PARTNER")) ||
 											dbe.getType().equals("UPDATED_CONFIRMED_PARTNER") ||
@@ -1026,7 +1044,29 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 		{
 			updateWishSelectionList();
 		}
+		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_CHILDREN"))
+		{
+			setEditableGUIFields(true);
+		}
 	}
+	
+	void setEnabledChildWishes(ONCFamily fam)
+	{
+		//only enable wish panels if family has been verified
+		if(fam.getFamilyStatus() == FAMILY_STATUS_UNVERIFIED)	
+			setEnabledWishPanels(false);
+		else 
+		{
+			setEnabledWishPanels(true);
+			
+			//only enable wish selection if verified and not a GIFT_CARD_ONLY family
+			if(fam.getNotes().toLowerCase().contains(GIFT_CARD_ONLY_TEXT))
+				setEnabledWishCBs(false);
+			else
+				setEnabledWishCBs(true);
+		}
+	}
+	
 	@Override
 	public void entitySelected(EntitySelectionEvent tse)
 	{
@@ -1034,29 +1074,36 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 		{
 			ONCFamily fam = (ONCFamily) tse.getObject1();
 			ArrayList<ONCChild> childList = cDB.getChildren(fam.getID());
+			
+			if(c != null)
+				updateChild(c);
+			
 			if(childList != null && childList.size() > 0 && childList.get(0).getChildWishID(0) != -1)
 			{
-				updateChild(c);
-				displayChild(childList.get(0), 0);
-			}	
+				displayChild(childList.get(0));
+				setEnabledChildWishes(fam);
+			}
+			else
+			{
+				clearChildData();
+			}
 		}
 		else if(tse.getType().equals("CHILD_SELECTED"))
 		{
 			ONCChild child = (ONCChild) tse.getObject2();
-			Integer childNum = (Integer) tse.getObject3();
 			
-			updateChild(c);
-			displayChild(child, childNum);
+			if(c!= null)
+				updateChild(c);
+			displayChild(child);
 		}
 		else if(tse.getType().equals("WISH_SELECTED"))
 		{
 			ONCChild child = (ONCChild) tse.getObject2();
-			ONCChildWish cw = (ONCChildWish) tse.getObject3();
 			
-			updateChild(c);
-			displayChild(child, cw.getWishNumber());
+			if(c != null)
+				updateChild(c);
+			displayChild(child);
 		}
-		
 	}
 	
 	/***********************************************************************************************
@@ -1135,29 +1182,25 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 		}
 	}
 	
-	private class WishDetailFocusListener implements FocusListener
+	@Override
+	public void focusGained(FocusEvent fe)
 	{
-		@Override
-		public void focusGained(FocusEvent fe)
+		int index = 0;
+		while(index < wishdetailTF.length && fe.getSource() != wishdetailTF[index])
+			index++;
+		
+		if(index < wishdetailTF.length)
 		{
-			int index = 0;
-			while(index < wishdetailTF.length && fe.getSource() != wishdetailTF[index])
-				index++;
-			
-			if(index < wishdetailTF.length)
-			{
-				//need to get family, child, and child wish objects
-				ONCFamily fam = fDB.getFamily(c.getFamID());
-				ONCChildWish cw = cwDB.getWish(c.getID(), index);
-				fireEntitySelected(this, "WISH_SELECTED", fam, c, cw);
-			}
+			//need to get family, child, and child wish objects
+			ONCFamily fam = fDB.getFamily(c.getFamID());
+			ONCChildWish cw = cwDB.getWish(c.getID(), index);
+			fireEntitySelected(this, "WISH_SELECTED", fam, c, cw);
 		}
+	}
 
-		@Override
-		public void focusLost(FocusEvent fe) {
-			// TODO Auto-generated method stub
-			
-		}
+	@Override
+	public void focusLost(FocusEvent arg0) {
+		// TODO Auto-generated method stub
 		
 	}
 	

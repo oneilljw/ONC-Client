@@ -278,8 +278,11 @@ public class DriverDB extends ONCSearchableDatabase
 			response = serverIF.sendRequest("GET<drivers>");
 				driverAL = gson.fromJson(response, listtype);				
 
-			if(!response.startsWith("NO_DRIVERS"))		
+			if(!response.startsWith("NO_DRIVERS"))
+			{
 				response =  "DRIVERS_LOADED";
+				fireDataChanged(this, "LOADED_DRIVERS", null);
+			}
 		}
 		
 		return response;

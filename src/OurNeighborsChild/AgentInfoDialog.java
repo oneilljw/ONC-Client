@@ -15,10 +15,13 @@ public class AgentInfoDialog extends InfoDialog implements DatabaseListener, Ent
 	private static final long serialVersionUID = 1L;
 	private Agent a;
 	private Families familyDB;
+	ONCAgents agentDB;
+	boolean bAgentSelectedEnabled;
 	
-	AgentInfoDialog(JFrame owner, String[] tfNames)
+	AgentInfoDialog(JFrame owner, String[] tfNames, boolean bAgentSelectedEnabled)
 	{
 		super(owner, false, tfNames);
+		this.bAgentSelectedEnabled = bAgentSelectedEnabled;
 
 		//Set dialog title and add type label info
 		this.setTitle("Agent Information");
@@ -28,7 +31,7 @@ public class AgentInfoDialog extends InfoDialog implements DatabaseListener, Ent
 		this.setAlwaysOnTop(true);
 		
 		//connect to local Agent DB
-		ONCAgents agentDB = ONCAgents.getInstance();
+		agentDB = ONCAgents.getInstance();
 		if(agentDB != null)
 			agentDB.addDatabaseListener(this);
 		
@@ -177,12 +180,25 @@ public class AgentInfoDialog extends InfoDialog implements DatabaseListener, Ent
 	@Override
 	public void entitySelected(EntitySelectionEvent tse) 
 	{
-		if(tse.getType().equals("AGENT_SELECTED"))
+		if(tse.getType().equals("AGENT_SELECTED")  && bAgentSelectedEnabled)
 		{
 			if(this.isShowing())	//If Agent Info dialog visible, notify agent selection change
 			{
 				Agent selAgent = (Agent) tse.getObject1();
 				this.update();	//Save current info first, if changed
+				this.display(selAgent);	//Display newly selected agent
+			}
+
+		}
+		else if(tse.getType().equals("FAMILY_SELECTED"))
+		{
+			if(this.isShowing())	//If Agent Info dialog visible, notify agent selection change
+			{
+				ONCFamily selFamily = (ONCFamily) tse.getObject1();
+				Agent selAgent = agentDB.getAgent(selFamily.getAgentID());
+				
+				this.update();	//Save current info first, if changed
+				
 				this.display(selAgent);	//Display newly selected agent
 			}
 

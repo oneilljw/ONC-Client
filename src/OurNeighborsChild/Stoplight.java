@@ -106,7 +106,8 @@ public class Stoplight extends JPanel implements ActionListener, DatabaseListene
 	@Override
 	public void dataChanged(DatabaseEvent dbe)
 	{
-		if(dbe.getSource() != this && ONCEntity.class.isAssignableFrom(dbe.getObject().getClass()))
+		if(dbe.getSource() != this && dbe.getObject() != null && 
+				ONCEntity.class.isAssignableFrom(dbe.getObject().getClass()))
 		{
 			//didn't originate the change and is an ONCEntity subclass so it has a stop light
 			ONCEntity ue = (ONCEntity) dbe.getObject();

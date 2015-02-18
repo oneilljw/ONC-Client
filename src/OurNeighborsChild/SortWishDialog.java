@@ -1090,8 +1090,9 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 			buildTableList(true);
 		}
 		else if(dbe.getSource() != this && (dbe.getType().equals("ADDED_CONFIRMED_PARTNER") ||
-											dbe.getType().equals("DELETED_CONFIRMED_PARTNER")) ||
-											dbe.getType().equals("UPDATED_CONFIRMED_PARTNER"))
+											dbe.getType().equals("DELETED_CONFIRMED_PARTNER") ||
+											dbe.getType().equals("UPDATED_CONFIRMED_PARTNER") ||
+											dbe.getType().equals("LOADED_PARTNERS")))
 		{
 			updateWishAssigneeSelectionList();
 		}
@@ -1100,7 +1101,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 			updateWishAssigneeSelectionList();
 			buildTableList(true);
 		}
-		else if(dbe.getSource() != this && dbe.getType().contains("_CATALOG_WISH"))
+		else if(dbe.getSource() != this && dbe.getType().contains("_CATALOG"))
 		{			
 			updateWishSelectionList();
 		}

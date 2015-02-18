@@ -23,8 +23,7 @@ public class EntitySelectionEvent extends EventObject {
 		this.eventObject3 = null;
 	}
 	
-	public EntitySelectionEvent(Object source, String eventType, Object eventObj1,
-			Object eventObj2, Object eventObj3) 
+	public EntitySelectionEvent(Object source, String eventType, Object eventObj1, Object eventObj2, Object eventObj3) 
 	{
 		super(source);
 		this.eventType = eventType;
@@ -32,7 +31,7 @@ public class EntitySelectionEvent extends EventObject {
 		this.eventObject2 = eventObj2;
 		this.eventObject3 = eventObj3;
 	}
-		
+			
 	String getType() { return eventType; }
 	Object getObject1() { return eventObject1; }
 	Object getObject2() { return eventObject2; }

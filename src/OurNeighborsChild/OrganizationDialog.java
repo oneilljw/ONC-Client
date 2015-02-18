@@ -7,6 +7,7 @@ import java.awt.Point;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
@@ -804,6 +805,10 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
 					display(odOrgs.getObjectAtIndex(nav.getIndex()));
 				}
 			}
+		}
+		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_PARTNERS"))
+		{
+			updateComboBoxBorders();
 		}
 		else if(dbe.getSource() != this &&
 				(dbe.getType().equals("WISH_PARTNER_CHANGED") || dbe.getType().equals("WISH_RECEIVED")))

@@ -374,8 +374,11 @@ public class ChildWishDB extends ONCDatabase
 			response = serverIF.sendRequest("GET<childwishes>");
 			childwishAL = gson.fromJson(response, listtype);				
 
-			if(!response.startsWith("NO_WISHES"))		
+			if(!response.startsWith("NO_WISHES"))
+			{
 				response =  "WISHES_LOADED";
+				fireDataChanged(this, "LOADED_WISHES", null);
+			}
 		}
 		
 		return response;

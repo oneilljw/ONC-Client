@@ -212,6 +212,19 @@ public class ChildDB extends ONCDatabase
 		return fChildrenAL;
 	}
 	
+	int getChildNumber(ONCChild child)
+	{
+		ArrayList<ONCChild> childrenInFam = getChildren(child.getFamID());
+		int index = 0;
+		while(index < childrenInFam.size() && childrenInFam.get(index).getID() != child.getID())
+			index++;
+		
+		if(index < childrenInFam.size())
+			return index + 1;
+		else
+			return -1;
+	}
+	
 	int getNumberOfChildrenInFamily(int famid)
 	{
 		int count = 0;
@@ -245,8 +258,10 @@ public class ChildDB extends ONCDatabase
 			response = serverIF.sendRequest("GET<children>");
 			childAL = gson.fromJson(response, listtype);
 			
-			if(!response.startsWith("NO_CHILDREN"))		
+			if(!response.startsWith("NO_CHILDREN"))
+			{
 				response =  "CHILDREN_LOADED";
+			}	fireDataChanged(this, "LOADED_CHILDREN", null);
 		}
 		
 		return response;

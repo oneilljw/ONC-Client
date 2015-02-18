@@ -41,7 +41,7 @@ import com.google.gson.reflect.TypeToken;
 
 import au.com.bytecode.opencsv.CSVWriter;
 
-public class OurNeighborsChild implements DatabaseListener, ServerListener
+public class OurNeighborsChild implements DatabaseListener
 {
 	/**
 	 * Executable Main Class for ONC application
@@ -66,12 +66,9 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
 	private JPanel oncContentPane, oncSplashPanel;	
 	private GlobalVariables oncGVs;
 	private FamilyPanel oncFamilyPanel;
-//	private StatusPanel oncStatusPanel;
 	private ONCMenuBar oncMenuBar;
 	private PreferencesDialog prefsDlg;
-//	private ChildCheckDialog dcDlg;
-//	private FamilyCheckDialog dfDlg;
-		
+
 	//Local Data Base Structures
 	private UserDB oncUserDB;
 	private Families oncFamDB;						//Holds ONC Family Database
@@ -85,9 +82,6 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
 	private DeliveryDB oncDelDB;					//Holds the ONC Delivery Data Base
 	private ONCRegions oncRegions;
 	private DBStatusDB oncDB;						//Holds the years loaded on the server
-	
-	//indexes that track families being displayed
-//	private int fn;		 							//Indexes for the family and search lists
 	
 	//Server Connection
 	private ServerIF serverIF;	
@@ -217,15 +211,10 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
         oncFamDB = Families.getInstance();
         oncDB = DBStatusDB.getInstance();
         
-        //Initialize the family data base indexes
-//      fn = 0;
-//      rn = 0;
-        
         //Initialize the chat manager
         ChatManager.getInstance();
          
         //create mainframe window for the application
-//      FamilyChildSelectionListener fcsl = new FamilyChildSelectionListener();
         createandshowGUI();
         
         // set up the preferences dialog
@@ -239,15 +228,7 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
 				oncFamilyPanel.setTextPaneFontSize();				
 			}      	
         });
-        
-        //set up the data check dialog and table row selection listener
-//        dcDlg = new ChildCheckDialog(oncFrame);
-//        dcDlg.addTableSelectionListener(fcsl);
-        
-        //set up the family check dialog and table row selection listener
-//        dfDlg = new FamilyCheckDialog(oncFrame);
-//        dfDlg.addTableSelectionListener(fcsl);
-        
+
         //Get and authenticate user and privileges with Authentication dialog. Can't get past this
         //modal dialog unless a valid user id and password is authenticated by the server. 
         ONCAuthenticationDialog authDlg = null;
@@ -256,14 +237,15 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
 		
 		//if we get here, the server has authenticated this client's userID and password
 		ONCUser user = oncGVs.setUser(authDlg.getUser());
-		setLoginStatusMssg();
+		if(oncGVs.getUser().getFirstname().isEmpty())
+    		oncFamilyPanel.setMssg("Welcome to Our Neighbor's Child!", true);
+    	else
+    		oncFamilyPanel.setMssg(oncGVs.getUser().getFirstname() + ", welcome to " +
+    								"Our Neighbor's Child!", true);
 		
-		//Connected & logged in to server. Register for server event notifications
+		//Connected & logged in to server
 		if(serverIF != null && serverIF.isConnected())
-		{
-			serverIF.addServerListener(this);
 			oncMenuBar.setEnabledServerConnected(true);
-		}
 		
         if(user.getPermission() == ONC_SUPERUSER)	//Superuser privileges
         {
@@ -451,14 +433,6 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
 		}
     }
     
-    void setLoginStatusMssg()
-    {
-    	if(oncGVs.getUser().getFirstname().isEmpty())
-    		oncFamilyPanel.setMssg("Welcome to Our Neighbor's Child!", true);
-    	else
-    		oncFamilyPanel.setMssg(oncGVs.getUser().getFirstname() + ", welcome to Our Neighbor's Child!", true);
-    }
-    
     // General quit handler; fed to the OSXAdapter as the method to call when a system quit event occurs
     // A quit event is triggered by Cmd-Q, selecting Quit from the application or Dock menu, or logging out
     public boolean quit()
@@ -477,7 +451,8 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
     public void about()
     {
     	//User has chosen to view the About ONC dialog
-		String versionMsg = String.format("Our Neighbor's Child Client Version %s\n%s", ONC_VERSION, ONC_COPYRIGHT);
+		String versionMsg = String.format("Our Neighbor's Child Client Version %s\n%s", 
+											ONC_VERSION, ONC_COPYRIGHT);
 		JOptionPane.showMessageDialog(oncFrame, versionMsg, "About the ONC App", 
 										JOptionPane.INFORMATION_MESSAGE,oncGVs.getImageIcon(0));
     }
@@ -509,7 +484,6 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
           
         // set up a splash screen panel
       	oncSplashPanel = new JPanel();        
-//    	JLabel lblONCicon = new JLabel(oncGVs.getONCFullScreenLogo());
       	JLabel lblONCicon = new JLabel(createImageIcon("oncsplash.gif", "ONC Full Screen Logo"));
       	oncSplashPanel.add(lblONCicon);	 
         oncContentPane.add(oncSplashPanel);
@@ -579,33 +553,10 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
         ONCMenuBar.showServerLogMI.addActionListener(menuItemListener);
         ONCMenuBar.showServerClientIDMI.addActionListener(menuItemListener);
         ONCMenuBar.showCurrDirMI.addActionListener(menuItemListener);
-/*      
-        //Create the Status Panel and add Action Listener for Family Array List Navigation
-        oncStatusPanel = new StatusPanel(oncFrame, oncFamDB);       
-        oncStatusPanel.setBorder(new BevelBorder(BevelBorder.LOWERED));            
-        oncStatusPanel.btnNext.addActionListener(new NAVButtonListener());
-        oncStatusPanel.btnPrevious.addActionListener(new NAVButtonListener());
-        oncStatusPanel.searchTF.addActionListener(new NAVButtonListener());
-        oncStatusPanel.searchTF.addKeyListener(new SearchTFKeyListener());
-        oncStatusPanel.rbSrchNext.addActionListener(new NAVButtonListener());
-        oncStatusPanel.rbSrchPrev.addActionListener(new NAVButtonListener());
-        oncContentPane.add(oncStatusPanel); 
-*/      
+
         //Create the family panel
         oncFamilyPanel = new FamilyPanel(oncFrame);
-        oncContentPane.add(oncFamilyPanel);       
-        
-        //Set up the listener for the family, wish , receive gift and assign 
-        //driver dialogs. When a table row selection event occurs in the tables in these dialogs,
-        //the family and child (if applicable) that is selected in the tables is displayed in
-        //the family panel
-/*        
-        oncFamilyPanel.sortFamiliesDlg.addTableSelectionListener(fcsl);
-        oncFamilyPanel.assignDeliveryDlg.addTableSelectionListener(fcsl);
-        oncFamilyPanel.sortAgentDlg.addTableSelectionListener(fcsl);
-        oncFamilyPanel.sortWishesDlg.addTableSelectionListener(fcsl);
-        oncFamilyPanel.recGiftsDlg.addTableSelectionListener(fcsl);
-*/
+        oncContentPane.add(oncFamilyPanel);        
 	}
     
     String exportFamilyReportToCSV()
@@ -645,11 +596,6 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
 	    }
     	
 	    return filename;
-    }
-
-    public static boolean isNumeric(String str)
-    {
-      return str.matches("-?\\d+(\\.\\d+)?");  //match a number with optional '-' and decimal.
     }
 
     void OnImportMenuItemClicked(String source)
@@ -701,187 +647,12 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
     	if(serverIF != null && serverIF.isConnected())
     	{
 			serverIF.sendRequest("LOGOUT");
-			
     		serverIF.close();
     	}
     	
     	System.exit(0);
     }
-    
-    void OnExitMenuItemClicked()
-    {
-    	exit("LOGOUT");
-    }
-    
-    /*************************************************************************************************
-     * This method is called at the beginning of a ONC season to carry forward a prior years history.
-     * The history data of interest is prior year children, prior year partners (organizations), prior
-     * year referring agents and prior year wish catalog. The method opens a prior ONC objects data base
-     * that is selected by the user. It then builds an organization data base using the opened objects 
-     * organizational data base and setting each of the organizations status to "not contacted".
-     * Additionally, it takes the wish information for each child and populates the previous year
-     * child wish data. Previous year child are sorted by year of birth to optimize the search that 
-     * determines if a child is present in two different data bases (prior year and current year, typically) 
-     * If the child was already present in the previous year wish data base, it moves the
-     * existing prior year data to the 2nd prior year. Only two years of history are kept for a child.
-     * In addition, the method uses the prior year family regional distribution data to construct a 
-     * database of ranges to be used in the current year to automatically assign ONC numbers to families 
-     * imported from ODB or WFCM.
-     * @return -1 if unsuccessful, 0 if successful
-     *************************************************************************************************/
-/*
-    int importPriorYearObjectData() throws FileNotFoundException, IOException, ClassNotFoundException
-    {	
-//    	PriorYearChildDB dummyPYCDB = PriorYearChildDB.getInstance();
-    	ChildDB pyChildDB = ChildDB.getInstance();
-    	ChildWishDB pyChildWishDB = ChildWishDB.getInstance();
-    	ONCAgents pyAgentDB = ONCAgents.getInstance();
-    	DriverDB pyDriverDB = DriverDB.getInstance();
-    	DeliveryDB pyDeliveryDB = DeliveryDB.getInstance();
-    	Families pyFamilyDB = Families.getInstance();
-    	
-    	//Load prior year data base into app
-    	String path =  "/Users/johnwoneill/Documents/ONC/Export Objects/2013 Season DB/2013 Final DB/";
-    	oncFamDB.importFamilyDB(oncFrame, oncGVs.getImageIcon(0));
-    	String[] oncnumRanges = oncGVs.importGlobalVariables(oncFrame, oncGVs.getImageIcon(0), path);
-    	oncAgentDB.importAgentDB(oncFrame, oncGVs.getImageIcon(0), path);
-    	oncChildDB.importChildDB(oncFrame, oncGVs.getImageIcon(0), path);
-    	oncChildWishDB.importChildWishDB(oncFrame, oncGVs.getImageIcon(0), path);
-    	oncOrgDB.importOrgDB(oncFrame, oncGVs.getImageIcon(0), path);
-    //	oncPYCDB.importPriorYearChildDB(oncFrame, oncGVs.getImageIcon(0), path);
-    	oncDDB.importDriverDB(oncFrame, oncGVs.getImageIcon(0), path);
-    	oncDelDB.importDeliveryDB(oncFrame, oncGVs.getImageIcon(0), path);
-    	oncWishCat.importWishCatalog(oncFrame, oncGVs.getImageIcon(0), path);
-    	oncWishDetailDB.importWishDetailDB(oncFrame, oncGVs.getImageIcon(0), path);
-    
-	    //Reset the status of each organization.
-	    oncOrgDB.resetAllOrgsStatus();
-	    
-	    //Enable the family panel to use prior year data bases
-//	    if(!pycbyAgeAL.isEmpty()) { oncFamilyPanel.setPriorYearChildArrayList(pycbyAgeAL); }
-	    
-	    //Construct the array used to automatically assign ONC numbers based on last years
-	    //regional family distribution.
-	    oncFamDB.constructONCNumberRangesByRegion(pyFamilyDB.getFamilyDB());
-	    
-	    //Enable the user to manage the Wish Catalog
-	    oncMenuBar.setEnabledWishCatalogAndOrgMenuItems(true);
-	    	    
-	    //Set new status mssg indicating input succeeded
-	    oncStatusPanel.setStatusMssg("Prior year wishes and organizations sucessfully loaded");
-	    
-	    return 0;    
-    }
-*/   
-    /******************************************************************************************
-     * This method reassigns the ONC Numbers for the entire family data base. It is requested
-     * by the user if/ when regions become full and require enlargement for all families in 
-     * a region to have contiguous ONC numbers.
-     * 
-     * The method creates new ONC Number ranges for each region. It then goes thru the ONC
-     * Family data base and assigns a new ONC number to each family.
-     ***************************************************************************************/
-/*
-    void reassignONCNumbers()
-    {
-    	//Double check that the user really wants to reassign ONC numbers
-		String confirmMssg = "Are you sure you want to reassign ONC numbers?";
-	
-		Object[] options= {"Cancel", "Reassign #'s"};
-		JOptionPane confirmOP = new JOptionPane(confirmMssg, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION,
-							oncGVs.getImageIcon(0), options, "Cancel");
-		JDialog confirmDlg = confirmOP.createDialog(oncFrame, "*** Confirm Child Database Deletion ***");
-		confirmDlg.setVisible(true);
-	
-		Object selectedValue = confirmOP.getValue();
-		if(selectedValue != null && selectedValue.toString().equals("Reassign #'s"))
-		{
-			oncFamDB.resizeONCNumberRanges();
-			
-			//Now that the ONC number ranges are adequate, reassign an ONC Number to each in 8 steps
-			//Step 1 - save the current family displayed before performing the reassign
-			oncFamilyPanel.updateFamily();
-			
-			//Step 2 - get the ID of the currently displayed family We'll have to 
-			//redisplay once the ONCFamily array list is reordered. 
-			int famID = oncFamDB.getFamilyByIndex(fn).getID();
-		
-			//Step 3 - for valid ONC Numbers (all digits) or ONC Numbers that equal "OOR", clear
-			//them so a new number can be assigned. Leave all other ONC Numbers alone.
-			for(ONCFamily f: oncFamDB.getFamilyDB())
-				if(isNumeric(f.getONCNum()) || f.getONCNum().equals("OOR"))
-					f.setONCNum("");
-	    
-			//Step 4 - assign a new ONC number for each family with a cleared ONC number 
-			//from step 3
-			for(ONCFamily f: oncFamDB.getFamilyDB())
-				if(f.getONCNum().isEmpty())
-					f.setONCNum(oncFamDB.generateONCNumber(f.getRegion(), oncFrame));
-	    
-			//Step 5 - sort the family array list so next/previous is in numerical order
-			oncFamDB.sortDB("ONC");
-//			Collections.sort(oncFamDB.getFamilyDB(), new ONCNumComparator());
-	  
-			//Step 6 - now that the array has been restructured, find the currently displayed family
-			//and redisplay
-//			ONCDBSearch oncDBSrch = new ONCDBSearch();
-//			fn = oncDBSrch.searchForFamilyIndexByID(oncFamDB, famID);
-			fn = oncFamDB.searchForFamilyIndexByID(famID);
-			oncFamilyPanel.displayFamily(oncFamDB.getFamilyByIndex(fn), null); 	
-	
-			//Step 7 - mark that family data has changed and rebuild all gui's that are
-			//showing family data
-			oncFamilyPanel.notifyONCNumbersReassigned();
-			
-			//Step 8 - Confirm for the user that the reassign operation was sucessful
-			JOptionPane.showMessageDialog(oncFrame, 
-					"ONC Numbers sucessfully reassigned", 
-					"Reassign Successful", JOptionPane.INFORMATION_MESSAGE, oncGVs.getImageIcon(0));
-		}
-    }
-*/    
-    /******************************************************************************************
-     * This method automatically assigns an ONC number to a family that doesn't have one. Using
-     * the region (must not be ?) and the ranges of permissible ONC numbers by region, this
-     * method calls the generateONCNumber function, then sort the family array list, saves and
-     * displays the updated family
-     ******************************************************************************************/
-/*  void autoassignONCNum()
-    {
-    	//Save the family id to relocate the family in the array list after the sort
-    	int famID = oncFamDB.getFamilyByIndex(fn).getID(); 
-    	
-    	//Generate and save the new onc number. First update the family panel text field,
-    	//then call the method to compare displayed data to family data and update changes. After
-    	//these three steps, the new family onc number is displayed and stored
-    	String response = oncFamDB.update_AutoONCNum(this, oncFamDB.getFamilyByIndex(fn));
-    	
-    	if(response.startsWith("UPDATED_FAMILY"))
-    	{
-    		
-    	}
-    	
-//   	String newONCnum = oncFamDB.generateONCNumber(oncFamDB.getFamilyByIndex(fn).getRegion(), oncFrame);
-//   	oncFamilyPanel.displayNewONCnum(newONCnum); 	
-//		oncFamilyPanel.checkAndUpdateFamilyData(oncFamDB.getFamilyByIndex(fn));
-
-//    	//Sort the family array list so next/previous is in numerical order
-//    	oncFamDB.sortDB("ONC");
-    	
-//    	//Since the sort likely has changed where the family is in the array list, find the 
-//    	//family index again, save the new ONC number and display the update.
-//    	fn = oncFamDB.searchForFamilyIndexByID(famID);
-//		oncFamilyPanel.displayFamily(oncFamDB.getFamilyByIndex(fn), null);
-//		if(oncGVs.isUserAdmin())
-//			oncMenuBar.setEnabledDeleteChildMenuItem(oncChildDB.getNumberOfChildrenInFamily(oncFamDB.getFamilyByIndex(fn).getID()) > 0);
-		
-//		oncStatusPanel.setStoplightEntity(oncFamDB.getFamilyByIndex(fn));
-//		oncFamilyPanel.notifyFamilyUpdateOccurred();
-		
-		//Update the served family and child counts		
-//		oncStatusPanel.updateDBStatus(oncFamDB.getServedFamilyAndChildCount());
-    }
-*/    
+   
     /********************************************************************************************
      * This method is called to add a new ONC season to the server.The user is asked to confirm
      * they really want to add a new year. If confirmed, the request is sent to the server. If
@@ -1124,156 +895,7 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
         			 JOptionPane.ERROR_MESSAGE,oncGVs.getImageIcon(0));
 		}
     } 
-/*    
-    private class NAVButtonListener implements ActionListener
-    {
-    	public void actionPerformed(ActionEvent e)
-    	{
-    		if(e.getSource() == oncStatusPanel.btnNext || e.getSource() == oncStatusPanel.btnPrevious)
-    		{
-    			//Save changes, if any to both family and child info
-    			//Only admin user can make family changes
-    			if(oncGVs.isUserAdmin())	
-    			{
-    				oncFamilyPanel.update();
-//    				oncStatusPanel.updateDBStatus(oncFamDB.getServedFamilyAndChildCount());
-    			}
-			
-    			if(e.getSource() == oncStatusPanel.btnNext)
-    			{						
-    				if(++fn == oncFamDB.size())
-    					fn=0;
-    			}
-    			else if(e.getSource() == oncStatusPanel.btnPrevious)
-    			{
-    				if(--fn < 0)
-    					fn = oncFamDB.size()-1;
-    			}
-			
-    			//display new family info, including delivery status and directions if visible
-    			oncFamilyPanel.display(oncFamDB.getObjectAtIndex(fn), null);
-    			
-    			if(oncGVs.isUserAdmin())
-    				oncMenuBar.setEnabledDeleteChildMenuItem(oncChildDB.getNumberOfChildrenInFamily(oncFamDB.getObjectAtIndex(fn).getID()) > 0);
-    			
-    			oncStatusPanel.setStoplightEntity(oncFamDB.getObjectAtIndex(fn));
-				
-    		}   		
-    		else if(e.getSource() == oncStatusPanel.searchTF && !oncStatusPanel.searchTF.getText().isEmpty())
-    		{
-    			String s = oncStatusPanel.searchTF.getText();
-    			oncFamDB.searchDB(s, srchResAL);
-    			
-    			if(srchResAL.size() > 0)
-    			{
-    				//Save changes, if any to both family and child info
-        			if(oncGVs.isUserAdmin())	//Only admin user can make family changes
-        			{
-        				oncFamilyPanel.update();
- //       				oncStatusPanel.updateDBStatus(oncFamDB.getServedFamilyAndChildCount());
-        			}
-        			
-        			//Set the search result array index to zero and set the family
-        			//array index to the first ONCID in the search result array
-        			fn = oncFamDB.searchForFamilyIndexByID(srchResAL.get((rn=0)));
-        			
-        			if(srchResAL.size() > 1)
-        			{
-        				oncStatusPanel.rbSrchNext.setVisible(true);
-        				oncStatusPanel.rbSrchPrev.setVisible(true);
-        				oncStatusPanel.setStatusMssg(String.format("%d %s's found", srchResAL.size(), s));
-        			}
-        			else
-        			{
-        				oncStatusPanel.rbSrchNext.setVisible(false);
-        				oncStatusPanel.rbSrchPrev.setVisible(false);
-        				setGenericStatusMssg();
-        			}
-        			
-        			oncFamilyPanel.display(oncFamDB.getObjectAtIndex(fn), null);
-        			if(oncGVs.isUserAdmin())
-        				oncMenuBar.setEnabledDeleteChildMenuItem(oncChildDB.getNumberOfChildrenInFamily(oncFamDB.getObjectAtIndex(fn).getID()) > 0);
-        			
-        			oncStatusPanel.setStoplightEntity(oncFamDB.getObjectAtIndex(fn));
-    			}    			
-    			else
-    				oncStatusPanel.searchTF.setText( s + " not found");
-    		}
-    		else if(e.getSource() == oncStatusPanel.rbSrchNext)
-    		{	
-    			//Save changes, if any to both family and child info
-    			if(oncGVs.isUserAdmin())	//Only admin user can make family changes
-    			{
-    				oncFamilyPanel.update();
-//    				oncStatusPanel.updateDBStatus(oncFamDB.getServedFamilyAndChildCount());
-    			}
-    			
-    			//Calculate next value for result array index
-    			if(++rn == srchResAL.size())
-					rn=0;
-    			  			
-    			fn = oncFamDB.searchForFamilyIndexByID(srchResAL.get(rn));
-    			
-    			oncFamilyPanel.display(oncFamDB.getObjectAtIndex((fn)), null);
-    			if(oncGVs.isUserAdmin())
-    				oncMenuBar.setEnabledDeleteChildMenuItem(oncChildDB.getNumberOfChildrenInFamily(oncFamDB.getObjectAtIndex(fn).getID()) > 0);
-    			
-    			oncStatusPanel.setStoplightEntity(oncFamDB.getObjectAtIndex(fn));
-    		}
-    		else if(e.getSource() == oncStatusPanel.rbSrchPrev)
-    		{
-    			//Save changes, if any to both family and child info
-    			if(oncGVs.isUserAdmin())	//Only admin user can make family changes
-    			{
-    				oncFamilyPanel.update();
-//    				oncStatusPanel.updateDBStatus(oncFamDB.getServedFamilyAndChildCount());
-    			}
-    			
-    			//Calculate next value for result array index
-    			if(--rn < 0)
-					rn = srchResAL.size()-1;
-    			  			
-    	//		fn = srchEng.searchForFamilyIndexByID(oncFamDB, srchResAL.get(rn));
-    			fn = oncFamDB.searchForFamilyIndexByID(srchResAL.get(rn));
-    			
-    			oncFamilyPanel.display(oncFamDB.getObjectAtIndex((fn)), null);
-    			if(oncGVs.isUserAdmin())
-    				oncMenuBar.setEnabledDeleteChildMenuItem(oncChildDB.getNumberOfChildrenInFamily(oncFamDB.getObjectAtIndex(fn).getID()) > 0);
-    			
-    			oncStatusPanel.setStoplightEntity(oncFamDB.getObjectAtIndex(fn));
-    		}
-    	}   	
-    }
-    
-    private class SearchTFKeyListener implements KeyListener
-    {
 
-		@Override
-		public void keyPressed(KeyEvent arg0) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void keyReleased(KeyEvent arg0) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void keyTyped(KeyEvent arg0)
-		{
-			if(oncStatusPanel.searchTF.getText().isEmpty())
-			{
-				srchResAL.clear();
-				rn=0;
-				oncStatusPanel.rbSrchNext.setVisible(false);
-				oncStatusPanel.rbSrchPrev.setVisible(false);
-				setGenericStatusMssg();
-			}	
-		}
-    }
-*/
     private class MenuItemDBYearsListener implements ActionListener
     {
     	public void actionPerformed(ActionEvent e)
@@ -1312,7 +934,7 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
     		else if(e.getSource() == ONCMenuBar.importPYORGMI)
     		{
     			oncOrgDB.importOrgDB(oncFrame, oncGVs.getImageIcon(0), null);
-    			oncFamilyPanel.updateComboBoxModels();
+//    			oncFamilyPanel.updateComboBoxModels();
     		}
     		else if(e.getSource() == ONCMenuBar.importODBMI) {OnImportMenuItemClicked("ODB");}
     		else if(e.getSource() == ONCMenuBar.importWFCMMI) {OnImportMenuItemClicked("WFCM");}
@@ -1344,7 +966,7 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
     		else if(e.getSource() == ONCMenuBar.exportMI){ exportObjectDBToCSV(); }
     		else if(e.getSource() == ONCMenuBar.dbStatusMI) {onDBStatusClicked();}
     		else if(e.getSource() == ONCMenuBar.clearMI) {OnClearMenuItemClicked();} 			       	
-    		else if(e.getSource() == ONCMenuBar.exitMI)	{OnExitMenuItemClicked();}
+    		else if(e.getSource() == ONCMenuBar.exitMI)	{exit("LOGOUT");}
     		else if(e.getSource() == ONCMenuBar.findDupFamsMI) {oncFamilyPanel.onCheckForDuplicateFamilies();}
     		else if(e.getSource() == ONCMenuBar.findDupChldrnMI) {oncFamilyPanel.onCheckForDuplicateChildren();}
     		else if(e.getSource() == ONCMenuBar.assignDelMI) {oncFamilyPanel.showAssignDelivererDialog();}
@@ -1507,7 +1129,6 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
     	{
     		//Now that we have season data loaded
         	//let the user know that data has been loaded
-    		
     		oncFrame.setTitle(APPNAME + " - " + Integer.toString(year) + " Season Data");
 			if(oncGVs.isUserAdmin()) 
 				oncMenuBar.setEnabledImportMenuItems(true);
@@ -1517,40 +1138,26 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
 				mssg = Integer.toString(year) + " season data has been loaded";
 			else
 				mssg = oncGVs.getUser().getFirstname() + ", " + Integer.toString(year) + " season data has been loaded";
-//    		oncStatusPanel.setStatusMssg(mssg);
     		oncFamilyPanel.setMssg(mssg, true);
     		
     		oncMenuBar.setEnabledYear(false);
     		oncMenuBar.setEnabledNewMenuItem(false);
-    	
-    		//Set combo box lists in child panel, wish sort dialog and agent sort dialog
-    		oncFamilyPanel.updateComboBoxModels();
-    		
-    		//set dates in partner dialog combo box borders
-    		oncFamilyPanel.updateComboBoxBorders();
- 
     		oncMenuBar.setEnabledWishCatalogAndOrgMenuItems(true);
-    		oncFamilyPanel.initializeCatalogWishCounts();
-    	
+		
+			//Families may not have been imported from ODB yet, however, agents exist from prior
+			//year and users can import drivers or add them if they wish
+			oncMenuBar.setEnabledDataLoadedMenuItems(true);
+			
+			oncFamilyPanel.initializeCatalogWishCounts();
+	    	
 			//check to see if family data is present and enable controls
 			checkFamilyDataLoaded();
-		
-			//Families may not have been imported from ODB yet, however, agents exist from prior year
-			//and users can import drivers or add them if they wish
-			oncMenuBar.setEnabledDataLoadedMenuItems(true);
     	}
 
     	//tell the server if to pass on server data base changes to local data bases
     	if(serverIF != null)
     		serverIF.setDatabaseLoaded(true);	
     }
-    
-    public static void main(String args[]) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {new OurNeighborsChild();}
-        });
-    }
-    //End of Class
 
 	@Override
 	public void dataChanged(DatabaseEvent dbe) 
@@ -1570,16 +1177,11 @@ public class OurNeighborsChild implements DatabaseListener, ServerListener
 			popup.show("Message from ONC Server", mssg);	
 		}
 	}
-
-	@Override
-	public void dataChanged(ServerEvent ue)
-	{
-		if(ue.getType().equals("GLOBAL_MESSAGE"))
-		{
-			ONCPopupMessage popup = new ONCPopupMessage( oncGVs.getImageIcon(0));
-			Point loc = oncFrame.getLocationOnScreen();
-			popup.setLocation(loc.x+450, loc.y+70);
-			popup.show("Message from ONC Server", ue.getJson());
-		}
-	}
-}
+	
+	 public static void main(String args[])
+	 {
+		 SwingUtilities.invokeLater(new Runnable() {
+	            public void run() { new OurNeighborsChild(); }
+	     });
+	 }	    
+}//End of Class

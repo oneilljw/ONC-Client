@@ -131,8 +131,11 @@ public class ONCAgents extends ONCDatabase
 			response = serverIF.sendRequest("GET<agents>");
 			agentsAL = gson.fromJson(response, listtype);				
 
-			if(!response.startsWith("NO_AGENTS"))		
+			if(!response.startsWith("NO_AGENTS"))
+			{
 				response = "AGENTS_LOADED";
+				fireDataChanged(this, "LOADED_AGENTS", null);
+			}
 		}
 		
 		return response;

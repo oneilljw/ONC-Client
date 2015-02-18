@@ -34,7 +34,8 @@ import org.json.JSONException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public class DirectionsDialog extends JDialog implements ActionListener, DatabaseListener
+public class DirectionsDialog extends JDialog implements ActionListener, DatabaseListener,
+															EntitySelectionListener
 {
 	/**
 	 * 
@@ -442,8 +443,27 @@ public class DirectionsDialog extends JDialog implements ActionListener, Databas
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}	
-		}
-		
+		}	
+	}
+
+	@Override
+	public void entitySelected(EntitySelectionEvent tse)
+	{
+		if(this.isVisible() && (tse.getType().equals("FAMILY_SELECTED") || 
+									tse.getType().equals("WISH_SELECTED")))
+		{
+			ONCFamily fam = (ONCFamily) tse.getObject1();
+			if(fam != null)
+				try {
+					displayDirections(fam);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+		}	
 	}
 	
 }
