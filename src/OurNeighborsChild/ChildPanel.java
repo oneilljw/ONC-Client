@@ -65,6 +65,7 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 	private static final String ONC_BIKE_NAME = "Bike"; //Used for associated Helmet's with Bike's
 	private static final int MAX_LABEL_LINE_LENGTH = 26;
 	private static final int FAMILY_STATUS_UNVERIFIED = 0;
+	private static final int FAMILY_STATUS_PACKAGED = 0;
 	private static final String GIFT_CARD_ONLY_TEXT = "gift card only";
 	
 	//Singleton application objects
@@ -1053,7 +1054,8 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 	void setEnabledChildWishes(ONCFamily fam)
 	{
 		//only enable wish panels if family has been verified
-		if(fam.getFamilyStatus() == FAMILY_STATUS_UNVERIFIED)	
+		if(fam.getFamilyStatus() == FAMILY_STATUS_UNVERIFIED ||
+			fam.getFamilyStatus() >= FAMILY_STATUS_PACKAGED)	
 			setEnabledWishPanels(false);
 		else 
 		{
