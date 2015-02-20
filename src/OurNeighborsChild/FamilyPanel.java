@@ -85,7 +85,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	public  JTable childTable;
 	private DefaultTableModel childTableModel;
 	private ArrayList<ONCChild> ctAL; //List holds children object references being displayed in table
-	private int cn; //Child number being displayed
+//	private int cn; //Child number being displayed
 	
 	public boolean bFamilyDataChanging = false; //Flag indicating program is triggering gui events, not user
 	private boolean bChildTableDataChanging = true;	//Flag indicating that Child Table data is changing
@@ -129,7 +129,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		regions = ONCRegions.getInstance();
 		
 		currFam = null;
-		cn=0;	//Initialize the child index
+//		cn=0;	//Initialize the child index
 		
 		//register to listen for family, delivery and child data changed events
 		if(fDB != null)
@@ -731,7 +731,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		btnShowAgentInfo.setEnabled(tf);
 		delRB.setEnabled(tf); 
 	}
-	
+/*	
 	ONCChild getDisplayedChild()
 	{ 
 		if(ctAL != null && ctAL.size() > 0 && cn > 0 && cn < ctAL.size())
@@ -739,6 +739,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		else
 			return null;
 	}
+*/	
 /*	
 	void clear()
 	{
@@ -789,6 +790,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 */
 	void display(ONCFamily fam, ONCChild child)
 	{
+		int cn = 0; //allows child number in family to be passed with only one search
 		if(fam == null)
 		{
 			//error has occurred, display an error message that update request failed
@@ -802,6 +804,8 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		{
 			currFam = fam;
 			ctAL = cDB.getChildren(currFam.getID());
+			if(!ctAL.isEmpty())
+				currChild = ctAL.get(0);
 			cn = 0;
 		}
 		else
@@ -813,7 +817,10 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 				index++;
 			
 			if(index < ctAL.size())
+			{
 				cn = index;
+				currChild = ctAL.get(index);
+			}
 			
 		}		
 		
@@ -869,8 +876,10 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 //			odbWishListPane.setCaretPosition(0);
 			if(ctAL.size() > 0)	//Check to see if the family has children
 			{			
-				refreshODBWishListHighlights(currFam, ctAL.get(cn));
-				refreshPriorHistoryButton(currFam, ctAL.get(cn));
+//				refreshODBWishListHighlights(currFam, ctAL.get(cn));
+//				refreshPriorHistoryButton(currFam, ctAL.get(cn));
+				refreshODBWishListHighlights(currFam, currChild);
+				refreshPriorHistoryButton(currFam, currChild);
 				
 			}
 			else
@@ -950,8 +959,10 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 				
 			if(ctAL.size() > 0)	//Check to see if the family has children
 			{
-				refreshODBWishListHighlights(currFam, ctAL.get(cn));
-				refreshPriorHistoryButton(currFam, ctAL.get(cn));
+//				refreshODBWishListHighlights(currFam, ctAL.get(cn));
+//				refreshPriorHistoryButton(currFam, ctAL.get(cn));
+				refreshODBWishListHighlights(currFam, currChild);
+				refreshPriorHistoryButton(currFam, currChild);
 			}
 			else
 			{
@@ -970,8 +981,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		ClearChildTable();
 		if(ctAL.size() > 0)
 		{		
-			addChildrentoTable(ctAL, bDispAll);
-//			displayChild((currChild = ctAL.get(cn)), cn);
+			addChildrentoTable(ctAL, bDispAll, cn);
 			if(bDispAll)
 				ONCMenuBar.setEnabledDeleteChildMenuItem(true);	//Enable Delete Child Menu Bar item
 		}
@@ -979,9 +989,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		{
 			//family has no children, clear the child panel
 			currChild = null;
-//			oncChildPanel.clearChildData();
 			ONCMenuBar.setEnabledDeleteChildMenuItem(false);	//Disable Delete Child Menu Bar item
-			
 		}
 		bChildTableDataChanging = false;
 		
@@ -1050,7 +1058,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		}
 		else //Show restricted data
 		{
-			String childfn = "Child " + Integer.toString(cn+1);
+			String childfn = "Child " + Integer.toString(childTable.getSelectedRow() + 1);
 			
 			int startPos = odbWishList.indexOf(childfn);
 			if(startPos > -1)	//ensure the child full name is found
@@ -1090,11 +1098,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	void update()
 	{		
 		checkAndUpdateFamilyData(currFam);
-		
-//		if(cDB.getNumberOfChildrenInFamily(currFam.getID()) > 0)
-//			updateChild();
-		
-		cn=0;	//Family updates occur when new family is selected. After updating child displayed, reset to first child
+//		cn=0;	//Family updates occur when new family is selected. After updating child displayed, reset to first child
 	}
 	
 	/***************************************************************************************************
@@ -1124,11 +1128,6 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			//Save the new DNS text field and mark that a field has changed
 			fam.setDNSCode(oncDNScode.getText());
 			cf = 3;
-			
-			//Update the client map served region distribution
-//			int[] changes = {-1, -1};
-//			changes[(oncDNScode.getText().isEmpty()) ? 1 : 0] = fam.getRegion();						
-//			cmDlg.updateRegionCounts(changes);
 		}
 //		if(!clientFamily.getText().equals(fam.getClientFamily())) {fam.setClientFamily(clientFamily.getText()); cf = true;}
 		if(!HOHFirstName.getText().equals(fam.getHOHFirstName())) {fam.setHOHFirstName(HOHFirstName.getText()); cf = 4;}
@@ -1190,7 +1189,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 				//from the data base and display
 				ONCFamily updatedFamily = fDB.getFamily(fam.getID());
 //				System.out.println(String.format("Family Panel - DNS: %s", updatedFamily.getDNSCode()));
-				display(updatedFamily, getDisplayedChild());
+				display(updatedFamily, currChild);
 			}
 			else
 			{
@@ -1202,7 +1201,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		}
 	}
 
-	void addChildrentoTable(ArrayList<ONCChild> childAL, boolean bDispAll)
+	void addChildrentoTable(ArrayList<ONCChild> childAL, boolean bDispAll, int cn)
     {	
     	for(int index=0; index < ctAL.size(); index++)
     	{
@@ -1289,9 +1288,6 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		{
 			display(firstFam, null);
 			fireEntitySelected(this, "FAMILY_SELECTED", firstFam, null);
-//			if(ctAL.size() > 0 && cn < ctAL.size())
-//				oncChildPanel.displayChild(cDB.getChild(ctAL.get(cn).getID()), 0);
-//				fireEntitySelected(this, "CHILD_SELECTED", firstFam, cDB.getChild(ctAL.get(cn).getID()), 0);
 			nav.setStoplightEntity(fDB.getObjectAtIndex(nav.getIndex()));
 		
 			if(gvs.isUserAdmin())
@@ -1588,7 +1584,8 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			String py = Integer.toString(GlobalVariables.getCurrentSeason()-2);
 		
 			//Get prior year child from server
-			String zPYCID = Integer.toString(ctAL.get(cn).getPriorYearChildID());
+//			String zPYCID = Integer.toString(ctAL.get(cn).getPriorYearChildID());
+			String zPYCID = Integer.toString(currChild.getPriorYearChildID());
 			String response = null;
 			response = serverIF.sendRequest("GET<pychild>" + zPYCID);
 			
@@ -1634,7 +1631,8 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 				//determine child's first name, is it protected? Get it from table
 				String childFN;
 				if(bDispAll)
-					childFN = ctAL.get(cn).getChildFirstName();
+//					childFN = ctAL.get(cn).getChildFirstName();
+					childFN = currChild.getChildFirstName();
 				else
 					childFN = "Child " + Integer.toString(childTable.getSelectedRow() + 1);
 				
@@ -1665,7 +1663,8 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			//Save any changed family data prior to the deletion of the child
 			checkAndUpdateFamilyData(currFam);
 			
-			ONCChild delChild = ctAL.get(cn);
+//			ONCChild delChild = ctAL.get(cn);
+			ONCChild delChild = currChild;
 		
 			//Confirm with the user that the deletion is really intended
 			String confirmMssg =String.format("Are you sure you want to delete %s %s from the data base?", 
@@ -1702,7 +1701,8 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			//family id will not change from update request, get updated family
 			//from the data base and display
 			ONCFamily updatedFamily = fDB.getFamily(currFam.getID());
-			display(updatedFamily, getDisplayedChild());
+//			display(updatedFamily, getDisplayedChild());
+			display(updatedFamily, currChild);
 		}
 		else
 		{
@@ -1833,11 +1833,11 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 				cDB.getNumberOfChildrenInFamily(currFam.getID()) > 0)
 		{
 			//Get new child selected by user and display their information
-			cn = childTable.getSelectedRow();
-			refreshODBWishListHighlights(currFam, ctAL.get(cn));
-			refreshPriorHistoryButton(currFam, ctAL.get(cn));
+			currChild = ctAL.get(childTable.getSelectedRow());
+			refreshODBWishListHighlights(currFam, currChild);
+			refreshPriorHistoryButton(currFam, currChild);
 			
-			fireEntitySelected(this, "CHILD_SELECTED", currFam, ctAL.get(cn), cn);
+			fireEntitySelected(this, "CHILD_SELECTED", currFam, currChild);
 		}		
 	}
 
@@ -1930,7 +1930,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			
 			//If current family being displayed has changed, reshow it
 			if(currFam.getID() == updatedFam.getID())
-				display(updatedFam, this.getDisplayedChild()); //Don't change the displayed child
+				display(updatedFam, currChild); //Don't change the displayed child
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("ADDED_FAMILY"))
 		{
@@ -2031,28 +2031,41 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		{
 			if(tse.getType().equals("FAMILY_SELECTED") || tse.getType().equals("WISH_SELECTED"))
 			{
-				ONCFamily fam = (ONCFamily) tse.getObject1();
-				ONCChild child = (ONCChild) tse.getObject2();
+				ONCFamily selFam = (ONCFamily) tse.getObject1();
+				ONCChild selChild = (ONCChild) tse.getObject2();
 			
-				//if family and child selected not displayed, then update currFam and display.
-				if(fam.getID() != currFam.getID() && tse.getSource() != nav ||
-						fam.getID() == currFam.getID() && tse.getSource() !=nav &&
-						currChild !=null && child != null && child.getID() != currChild.getID())
+				//is from nav, update and display new family
+				if(tse.getSource() == nav && selFam.getID() != currFam.getID())
+				{
+					update();
+					display(selFam, selChild);
+				}
+				//not nav and isn't current family displayed
+				else if(tse.getSource() != nav && selFam.getID() != currFam.getID())
 				{
 					int rtn;
-					if((rtn=fDB.searchForFamilyIndexByID(fam.getID())) >= 0)
+					if((rtn=fDB.searchForFamilyIndexByID(selFam.getID())) >= 0)
 					{
 						update();
 						nav.setIndex(rtn);
-						display(fam, child);
+						display(selFam, selChild);
 						
-						nav.setStoplightEntity(fam);
+						nav.setStoplightEntity(selFam);
 					}
 				}
-				else if(fam.getID() != currFam.getID() && tse.getSource() == nav)
+				//not nav and is current family displayed, but not current child selected
+				else if(tse.getSource() != nav && selFam.getID() == currFam.getID() &&
+						currChild !=null && selChild != null && selChild.getID() != currChild.getID())
 				{
-					update();
-					display(fam, child);
+					int rtn;
+					if((rtn=fDB.searchForFamilyIndexByID(selFam.getID())) >= 0)
+					{
+						update();
+						nav.setIndex(rtn);
+						display(selFam, selChild);
+						
+						nav.setStoplightEntity(selFam);
+					}
 				}
 			}
 		}

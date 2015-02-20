@@ -6,8 +6,8 @@ import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.lang.reflect.Type;
@@ -33,7 +33,7 @@ import com.google.gson.reflect.TypeToken;
 import com.toedter.calendar.JDateChooser;
 
 public class ChildPanel extends ONCPanel implements ActionListener, DatabaseListener,
-														EntitySelectionListener, FocusListener
+														EntitySelectionListener
 {
 	/**
 	 * This class extends JPanel to provide the UI for display and edit of a child and the child's
@@ -49,8 +49,7 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 	 * and the wish catalog dialog. When a user changes a child wish from a wish sub-panel, the 
 	 * selected wish may require additional information. If so, a additional info dialog is created
 	 * and displayed, allowing the user to specify additional information. All base wish and 
-	 * additional detail requirement information is obtained from the Wish Catalog singleton object. 
-	 * In the ONC application, this class is created by the family panel. 
+	 * additional detail requirement information is obtained from the Wish Catalog singleton object.
 	 */
 	private static final long serialVersionUID = 1L;
 	private static final int ONC_GIFT_ICON = 4;
@@ -65,18 +64,14 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 	private static final String ONC_BIKE_NAME = "Bike"; //Used for associated Helmet's with Bike's
 	private static final int MAX_LABEL_LINE_LENGTH = 26;
 	private static final int FAMILY_STATUS_UNVERIFIED = 0;
-	private static final int FAMILY_STATUS_PACKAGED = 0;
 	private static final String GIFT_CARD_ONLY_TEXT = "gift card only";
 	
 	//Singleton application objects
-//	private GlobalVariables gvs;
 	private ONCOrgs orgs;
 	private ONCWishCatalog cat;
-//	private ChildDB cDB;
 	private ChildWishDB cwDB;
 	
 	private ONCChild c = null;	//The panel needs to know which child is being displayed for listeners
-//	private JFrame pFrame = null;
 	
 	//GUI elements
 	private JTextField firstnameTF;
@@ -90,7 +85,6 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 	private Color ageNormalBackgroundColor;
 	
 	//Semaphores
-//	private boolean bChildDataChanged = false; //flag indicates child data has been modified
 	private boolean bChildDataChanging = false; //flag indicates child data displayed is updating
 	
 	public ChildPanel(JFrame pf)
@@ -128,6 +122,7 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 		
 		//Create a listener for panel gui events
 		ChildUpdateListener cuListener = new ChildUpdateListener();
+		WishDetailMouseListener wdMouseListner = new WishDetailMouseListener();
 		
 		//Setup sub panels that comprise the Child Panel
 		JPanel childinfopanel = new JPanel();
@@ -224,7 +219,7 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
             wishdetailTF[i].setToolTipText("Type wish details, then hit <Enter>");
             wishdetailTF[i].setEnabled(false);
             wishdetailTF[i].addActionListener(cuListener);
-            wishdetailTF[i].addFocusListener(this);
+            wishdetailTF[i].addMouseListener(wdMouseListner);
             
         	wishstatusCB[i] = new JComboBox(status);
             wishstatusCB[i].setPreferredSize(dws);
@@ -309,39 +304,6 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 			wishCB[i].setEnabled(tf);
 	}
 	
-	/***********************************************************************************
-	 * Overloaded method - without index can only be called if user is admin or higher,
-	 * does not protect the privacy of the child
-	 * @param child
-	 ***********************************************************************************/
-/*	
-	void displayChild(ONCChild child)
-	{
-		bChildDataChanging = true;
-		c=child;
-		
-		firstnameTF.setText(child.getChildFirstName());
-		lastnameTF.setText(child.getChildLastName());
-
-//		dobDC.setCalendar(child.getChildDOB());
-		dobDC.setCalendar(convertDOBFromGMT(child.getChildDateOfBirth()));
-		
-		//If the child is older than the max, use RED to COLOR the background
-		if(c.getChildIntegerAge() > ONC_MAX_CHILD_AGE || c.getChildIntegerAge() < 0)
-			ageTF.setBackground(Color.RED);
-		else
-			ageTF.setBackground(ageNormalBackgroundColor);
-		ageTF.setText(child.getChildAge());
-		
-		schoolTF.setText(child.getChildSchool());
-		genderTF.setText(child.getChildGender());
-		
-		for(int wn=0; wn<wishCB.length; wn++)
-			displayWish(cwDB.getWish(child.getChildWishID(wn)), wn);	
-		
-		bChildDataChanging = false;
-	}
-*/	
 	void displayChild(ONCChild child)
 	{
 		bChildDataChanging = true;
@@ -358,9 +320,6 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 			lastnameTF.setText("");
 		}
 		
-//		System.out.println("ChildPanel.displayChild: CalendarDOB: " + c.getChildDOB());
-//		System.out.println(String.format("ChildPanel.displayChild: DOB in millis: %d", c.getChildDOB().getTimeInMillis()));
-			
 		dobDC.setCalendar(convertDOBFromGMT(child.getChildDateOfBirth()));
 		
 		//If the child is older than the max, use RED to COLOR the background
@@ -390,7 +349,6 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 		//gives you the current offset in ms from GMT at the current date
 		TimeZone tz = TimeZone.getDefault();	//Local time zone
 		int offsetFromUTC = tz.getOffset(gmtDOB);
-//		System.out.println(String.format("ChildPanel.convertDOB offset: %d", offsetFromUTC));
 
 		//create a new calendar in local time zone, set to gmtDOB and add the offset
 		Calendar localCal = Calendar.getInstance();
@@ -482,11 +440,15 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 	
 	void clearChildWish(int wishID)
 	{
+		bChildDataChanging = true;
+		
 		wishCB[wishID].setSelectedIndex(0);
 		wishdetailTF[wishID].setText("");
 		wishindCB[wishID].setSelectedIndex(0);
 		wishstatusCB[wishID].setSelectedIndex(0);
 		wishassigneeCB[wishID].setSelectedIndex(0);
+		
+		bChildDataChanging = false;
 	}
 	
 	//Store new data for the child if any text field changed and the user has permission to change the data
@@ -529,12 +491,6 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 	
 	boolean hasDOBChanged(ONCChild c)
 	{
-		//create a CAL for current DOB (GMT)
-//		Locale locale = new Locale("en", "US");
-//		TimeZone timezone = TimeZone.getTimeZone("GMT");
-//		Calendar gmtDOB = Calendar.getInstance(timezone, locale);
-//		gmtDOB.setTimeInMillis(c.getChildDateOfBirth());
-		
 		//get the CAL for the dateChooser date
 		long dcDOBGMT = convertCalendarDOBToGMT(dobDC.getCalendar());
 			
@@ -554,7 +510,9 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 			{
 				ONCChildWish cw = cwDB.getWish(c.getChildWishID(wn));
 				if(cw != null && !wishdetailTF[wn].getText().equals(cw.getChildWishDetail()))
+				{
 					updateWish(wn);
+				}	
 			}
 		}
 	}
@@ -575,17 +533,13 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 		for(int wn=0; wn < wishCBM.length; wn++)
 		{
 			wishCBM[wn].removeAllElements();	//Clear the combo box selection list
-		
-//			for(String s: cat.getWishList(wn, WISH_CATALOG_SELECTION_LISTTYPE))	//Add new list elements
-//				wishCBM[wn].addElement(s);
-			
+
 			for(ONCWish w: cat.getWishList(wn, WISH_CATALOG_SELECTION_LISTTYPE))	//Add new list elements
 				wishCBM[wn].addElement(w);
 			
 			//Reselect the proper wish for the currently displayed child
 			ONCChildWish cw;
 			if(c != null && (cw = cwDB.getWish(c.getChildWishID(wn))) != null) 
-//				wishCB[wn].setSelectedItem(cw.getChildWishBase());
 				wishCB[wn].setSelectedItem(cat.getWishByID(cw.getWishID()));
 			else
 				wishCB[wn].setSelectedIndex(0);
@@ -593,37 +547,7 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 		
 		bChildDataChanging = false;
 	}
-/*	
-	void updateWishAssigneeSelectionList()
-	{
-		bChildDataChanging = true;
-		
-		String[] currentAssignee = new String[assigneeCBM.length];
-		
-		for(int i=0; i<assigneeCBM.length; i++)
-		{
-			currentAssignee[i] = wishassigneeCB[i].getSelectedItem().toString();
-			assigneeCBM[i].removeAllElements();
-			assigneeCBM[i].addElement("None");
-		}
-		
-		for(String s:orgs.getConfirmedOrgs())
-			for(int i=0; i<assigneeCBM.length; i++)
-				assigneeCBM[i].addElement(s);
-		
-		//Restore selection to prior selection, if they are still confirmed
-		if(c != null)
-		{
-			for(int wn=0; wn<wishassigneeCB.length; wn++)
-			{
-				ONCChildWish cw = cwDB.getWish(c.getChildWishID(wn));
-				if(cw != null)
-					wishassigneeCB[wn].setSelectedIndex(orgs.getConfirmedOrganizationIndex(cw.getChildWishAssigneeID()));
-			}
-		}	
-		bChildDataChanging = false;
-	}
-*/	
+
 	/*****************************************************************************************************
 	 * The combo box model holds organization objects with CONFIRMED status. Each time a CONFIRMED_PARTNER
 	 * event occurs, the combo box is updated with a new set of organization objects. The first 
@@ -669,8 +593,7 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 	void updateWish(int wn)	//NEED TO HANDLE IF CURRET WISH IS NULL, ADDING THE FIRST WISH TO HISTORY
 	{
 		ONCChildWish cw = cwDB.getWish(c.getChildWishID(wn));
-//		String oldWishBase = cw.getChildWishBase();
-		int oldWishID = cw.getWishID();
+		int oldWishID = cw != null ? cw.getWishID() : -1;
 		
 		//Test to see that the wish has changed and not simply a combo box event without a change
 		//to the selected item.
@@ -681,10 +604,8 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 			wishindCB[wn].getSelectedIndex() != cw.getChildWishIndicator() ||
 			 wishstatusCB[wn].getSelectedIndex() != cw.getChildWishStatus() ||
 			  !wishdetailTF[wn].getText().equals(cw.getChildWishDetail()) ||
-//			   !wishassigneeCB[wn].getSelectedItem().toString().equals(cw.getChildWishAssigneeName()))
 			   selectedCBOrg.getID() != (cw.getChildWishAssigneeID()))
 		{
-			
 			//A change to the wish has occurred, test to see if it's a change to the base
 			//If it is a change to the base, additional detail may be required.
 			if(selectedCBWish.getID() != cw.getWishID()) 	
@@ -715,19 +636,14 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 			}
 			
 			int orgID;
-//			String orgName;
-			
-//			if(cw != null && !wishassigneeCB[wn].getSelectedItem().toString().equals(cw.getChildWishAssigneeName()))
 			if(cw != null && selectedCBOrg.getID() != cw.getChildWishAssigneeID())	
 			{		
 				//A change to the wish assignee has occurred, set the new child wish
 				orgID = selectedCBOrg.getID();
-//				orgName = selectedCBOrg.getName();
 			}
 			else	//use the existing assignee with the new wish
 			{
 				orgID = cw.getChildWishAssigneeID();
-//				orgName = cw.getChildWishAssigneeName();
 			}
 			
 			//Now that we have assessed/received base,  detail and assignee changes, create a new wish			
@@ -756,15 +672,7 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 			}
 			
 			//if child wish selected was a Bike as wish 1, make wish 2 a helmet. If child wish 1 was a bike and
-			//and has been changed, make wish 2 empty
-/*****	DIAGNOTICS ****************		
-			System.out.println("Wish #; " + wn);
-			System.out.println("Old Wish Base: " +oldWishBase);
-			System.out.println("Wish 0 CB: " + wishCB[0].getSelectedItem().toString());
-			System.out.println("Child Wish 1 Wish ID: " + c.getChildWishID(1));
-			if(c.getChildWishID(1) != -1)
-				System.out.println("Child Wish 1 Wish Base: " + cwDB.getWish(c.getChildWishID(1)).getChildWishBase());
-*********************************/			
+			//and has been changed, make wish 2 empty		
 			if(wn==0 && ((ONCWish)wishCB[0].getSelectedItem()).getID() == cat.getWishID(ONC_BIKE_NAME) &&
 					(c.getChildWishID(1) == -1 || (c.getChildWishID(1) != -1 &&
 						cwDB.getWish(c.getChildWishID(1)).getWishID() != cat.getWishID(ONC_HELMET_NAME))))
@@ -1054,8 +962,7 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 	void setEnabledChildWishes(ONCFamily fam)
 	{
 		//only enable wish panels if family has been verified
-		if(fam.getFamilyStatus() == FAMILY_STATUS_UNVERIFIED ||
-			fam.getFamilyStatus() >= FAMILY_STATUS_PACKAGED)	
+		if(fam.getFamilyStatus() == FAMILY_STATUS_UNVERIFIED)	
 			setEnabledWishPanels(false);
 		else 
 		{
@@ -1080,7 +987,7 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 			if(c != null)
 				updateChild(c);
 			
-			if(childList != null && childList.size() > 0 && childList.get(0).getChildWishID(0) != -1)
+			if(childList != null && !childList.isEmpty() && childList.get(0).getChildWishID(0) != -1)
 			{
 				displayChild(childList.get(0));
 				setEnabledChildWishes(fam);
@@ -1183,26 +1090,49 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 			}		
 		}
 	}
-	
-	@Override
-	public void focusGained(FocusEvent fe)
-	{
-		int index = 0;
-		while(index < wishdetailTF.length && fe.getSource() != wishdetailTF[index])
-			index++;
 		
-		if(index < wishdetailTF.length)
-		{
-			//need to get family, child, and child wish objects
-			ONCFamily fam = fDB.getFamily(c.getFamID());
-			ONCChildWish cw = cwDB.getWish(c.getID(), index);
-			fireEntitySelected(this, "WISH_SELECTED", fam, c, cw);
-		}
-	}
+	private class WishDetailMouseListener implements MouseListener
+	{
 
-	@Override
-	public void focusLost(FocusEvent arg0) {
-		// TODO Auto-generated method stub
+		@Override
+		public void mouseClicked(MouseEvent me)
+		{
+			int index = 0;
+			while(index < wishdetailTF.length && me.getSource() != wishdetailTF[index])
+				index++;
+			
+			if(index < wishdetailTF.length)
+			{
+				//need to get family, child, and child wish objects
+				ONCFamily fam = fDB.getFamily(c.getFamID());
+				ONCChildWish cw = cwDB.getWish(c.getID(), index);
+				fireEntitySelected(this, "WISH_SELECTED", fam, c, cw);
+			}
+		}
+
+		@Override
+		public void mouseEntered(MouseEvent arg0) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mouseExited(MouseEvent arg0) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mousePressed(MouseEvent arg0) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent arg0) {
+			// TODO Auto-generated method stub
+			
+		}
 		
 	}
 	
