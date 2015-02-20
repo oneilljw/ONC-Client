@@ -538,8 +538,10 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 				wishCBM[wn].addElement(w);
 			
 			//Reselect the proper wish for the currently displayed child
-			ONCChildWish cw;
-			if(c != null && (cw = cwDB.getWish(c.getChildWishID(wn))) != null) 
+			ONCChildWish cw = c == null ? null : cwDB.getWish(c.getChildWishID(wn));
+			ONCWish wish = cw == null ? null : cat.getWishByID(cw.getWishID());
+			
+			if(wish != null) 
 				wishCB[wn].setSelectedItem(cat.getWishByID(cw.getWishID()));
 			else
 				wishCB[wn].setSelectedIndex(0);
@@ -792,9 +794,12 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 	{
 		ONCWishCatalog cat = ONCWishCatalog.getInstance();
 		
-		String wish = cat.getWishByID(cw.getWishID()).getName() + " - " + cw.getChildWishDetail();
+		ONCWish catWish = cat.getWishByID(cw.getWishID());
+		String wishName = catWish == null ? "None" : catWish.getName();
+		
+		String wish = wishName + " - " + cw.getChildWishDetail();
 		//does it fit on one line?
-		if(wish.length() <= MAX_LABEL_LINE_LENGTH)
+		if(wish != null && wish.length() <= MAX_LABEL_LINE_LENGTH)
 			return true;
 		else	//split into two lines
 		{

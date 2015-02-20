@@ -52,7 +52,7 @@ public class ChildWishDB extends ONCDatabase
 		//Get the old wish being replaced. getWish method returns null if wish not found
 		ONCChildWish oldWish = getWish(childid, wn);
 		
-		//Determine if the status needs to change automatically
+		//Determine if the status needs to change automatically. Method handles null oldWish
 		int wishstatus = checkForStatusChange(oldWish, wishid, ws, waID);
 		
 		//create the new wish, with childwishID = -1, meaning no wish selected
@@ -292,8 +292,9 @@ public class ChildWishDB extends ONCDatabase
 		for(int wn=0; wn<NUMBER_OF_WISHES_PER_CHILD; wn++)
 		{
 			ONCChildWish cw = getWish(delChild.getChildWishID(wn));
+			ONCWish wish = cw == null ? null : cat.getWishByID(cw.getWishID());
 			if(cw != null && cw.getChildWishStatus() >= CHILD_WISH_STATUS_SELECTED)
-				wishbasechangelist.add(new WishBaseOrOrgChange(cat.getWishByID(cw.getWishID()), new ONCWish(-1, "None", 7), wn));	
+				wishbasechangelist.add(new WishBaseOrOrgChange(wish, new ONCWish(-1, "None", 7), wn));	
 		}
 		
 		//delete the wishes from local cache

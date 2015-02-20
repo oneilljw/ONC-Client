@@ -45,7 +45,7 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 	private transient int fontIndex, startONCNum, ytyGrwthIndex;
 	private static ImageIcon imageIcons[];
 	private transient ONCUser user;
-	private transient String version;
+	private static String version;
 	
 	public static GlobalVariables getInstance()
 	{
@@ -175,7 +175,7 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 	ImageIcon getONCFullScreenLogo() {return imageIcons[15]; }
 	Image getImage(int icon) { return imageIcons[icon].getImage(); }
 	int getNumberOfWishesPerChild() { return NUMBER_OF_WISHES_PER_CHILD; }
-	String getVersion() { return version; }
+	static String getVersion() { return version; }
 	public static ImageIcon getSeasonIcon()
 	{
 		return imageIcons[oncSeasonStartDate.get(Calendar.YEAR) % NUM_OF_XMAS_ICONS + XMAS_ICON_OFFSET];
@@ -196,7 +196,7 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 	void setUserPermission(int p) { user_permission = p; }
 	void setYTYGrowthIndex(int index) { ytyGrwthIndex = index; }
 	void setStartONCNum(int startoncnum) { startONCNum = startoncnum; }
-	void setVersion(String version) { this.version = version; }
+	void setVersion(String version) { GlobalVariables.version = version; }
 	
 	 /** Returns an ImageIcon, or null if the path was invalid. */
 	ImageIcon createImageIcon(String path, String description)

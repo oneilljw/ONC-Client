@@ -22,11 +22,14 @@ public class SortWishObject extends ONCSortObject
 		SimpleDateFormat dob = new SimpleDateFormat("MM-dd-yyyy");
 		String dateChanged = dob.format(soChildWish.getChildWishDateChanged().getTime());
 		
+		ONCWish wish = cat.getWishByID(soChildWish.getWishID());
+		String wishName = wish == null ? "None" : wish.getName();
+		
 		String[] exportRow = {soFamily.getONCNum(), soChild.getChildGender(),
 								soChild.getChildAge(),
 								soChild.getChildDOBString("MM-dd-yyyy"), 
 								indicator[soChildWish.getChildWishIndicator()],
-								cat.getWishByID(soChildWish.getWishID()).getName(),
+								wishName,
 								soChildWish.getChildWishDetail(),
 								status[soChildWish.getChildWishStatus()],
 								partnerDB.getOrganizationByID(soChildWish.getChildWishAssigneeID()).getName(),
@@ -39,13 +42,16 @@ public class SortWishObject extends ONCSortObject
 	{
 		ONCWishCatalog cat = ONCWishCatalog.getInstance();
 		
+		ONCWish wish = cat.getWishByID(soChildWish.getWishID());
+		String wishName = wish == null ? "None" : wish.getName();
+		
 		String[] rsr = new String[3];
 		rsr[0] = soFamily.getONCNum();
 		rsr[1] = soChild.getChildAge() + " " +  soChild.getChildGender();
 		if(soChildWish.getChildWishDetail().isEmpty())
-			rsr[2] = cat.getWishByID(soChildWish.getWishID()).getName();
+			rsr[2] = wishName;
 		else
-			rsr[2] = cat.getWishByID(soChildWish.getWishID()).getName() + "- " + soChildWish.getChildWishDetail();
+			rsr[2] = wishName + "- " + soChildWish.getChildWishDetail();
 		return rsr;
 	}
 	
@@ -114,15 +120,20 @@ public class SortWishObject extends ONCSortObject
 */		
 		if(soChildWish.getChildWishDetail().isEmpty())
 		{
-			line[1] = cat.getWishByID(soChildWish.getWishID()).getName() + " - ";
+			ONCWish wish = cat.getWishByID(soChildWish.getWishID());
+			String wishName = wish == null ? "None" : wish.getName();
+			
+			line[1] = wishName + " - ";
 			line[2] = "ONC " + sYear.format(gvs.getSeasonStartDate()) + 
 						" |  Family # " + soFamily.getONCNum();
 			line[3] = null;
 		}	
 		else
 		{
-			String wish = cat.getWishByID(soChildWish.getWishID()).getName() + " - " +
-					soChildWish.getChildWishDetail();
+			ONCWish catWish = cat.getWishByID(soChildWish.getWishID());
+			String wishName = catWish == null ? "None" : catWish.getName();
+			
+			String wish = wishName + " - " + soChildWish.getChildWishDetail();
 	
 			//does it fit on one line?
 			if(wish.length() <= MAX_LABEL_LINE_LENGTH)

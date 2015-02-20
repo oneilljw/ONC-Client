@@ -1364,6 +1364,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		ReceiveGiftsDialog recGiftsDlg = new ReceiveGiftsDialog(parentFrame, colTT, columns, 
 									colWidths, null, WishStatus.Received);
     	recGiftsDlg.addEntitySelectionListener(familyChildSelectionListener);
+    	recGiftsDlg.addEntitySelectionListener(oncChildPanel);
     	
 		recGiftsDlg.buildTableList(false);
 			

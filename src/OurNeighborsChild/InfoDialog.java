@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -45,6 +46,7 @@ public abstract class InfoDialog extends JDialog implements ActionListener
 		JPanel toppanel = new JPanel();
 		toppanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 		lblONCIcon = new JLabel(gvs.getImageIcon(0), JLabel.LEFT);
+		lblONCIcon.setToolTipText("ONC Client v" + GlobalVariables.getVersion());
 		toppanel.add(lblONCIcon);
 		
 		dcl = new DataChangeListener();

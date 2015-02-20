@@ -8,6 +8,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
+
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -71,7 +72,8 @@ public class ONCNavPanel extends JPanel implements ActionListener
 //	    JPanel tp4 = new JPanel();
 //	    tp4.setLayout(new BoxLayout(tp4, BoxLayout.Y_AXIS));
 	    	
-	    JLabel lblONCicon = new JLabel(gvs.getImageIcon(0));
+	    JLabel lblONCicon = new JLabel(GlobalVariables.getONCLogo());
+	    lblONCicon.setToolTipText("ONC Client v" + GlobalVariables.getVersion());
 	    tp1.add(lblONCicon);
 	    	   	
 	    lblCount1 = new JLabel();

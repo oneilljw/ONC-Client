@@ -94,7 +94,7 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 		
 		//Create the ONC Icon label and add it to the search criteria panel
     	JLabel lblONCicon = new JLabel(gvs.getImageIcon(0));
-    	lblONCicon.setToolTipText("This is the ONC Logo");
+    	lblONCicon.setToolTipText("ONC Client v" + GlobalVariables.getVersion());
         sortCriteriaPanelTop.add(lblONCicon);
 		
 		sortCriteriaPanel.add(sortCriteriaPanelTop);

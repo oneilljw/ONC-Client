@@ -159,7 +159,9 @@ public class WishLabelViewer extends JDialog implements DatabaseListener, Entity
 		//on the length of the combined string. If two lines are required, break the
 		//string on a word boundary. Limit the second string to a max number of
 		//characters based on MAX_LABEL_LINE_LENGTH
-		StringBuilder l1 = new StringBuilder(cat.getWishByID(cw.getWishID()).getName());
+		ONCWish catWish = cat.getWishByID(cw.getWishID());
+		String wishName = catWish == null ? "None" : catWish.getName();
+		StringBuilder l1 = new StringBuilder(wishName);
 		
 		if(!cw.getChildWishDetail().isEmpty())	//Wish detail may need two lines
 		{
@@ -271,7 +273,9 @@ public class WishLabelViewer extends JDialog implements DatabaseListener, Entity
 //				l2.append(wishDetail[index++] + " ");
 //			}
 //			
-			String wish = cat.getWishByID(cw.getWishID()).getName() + " - " + cw.getChildWishDetail();
+			ONCWish catWish = cat.getWishByID(cw.getWishID());
+			String wishName = catWish == null ? "None" : catWish.getName();
+			String wish = wishName + " - " + cw.getChildWishDetail();
 			//does it fit on one line?
 			if(wish.length() <= MAX_LABEL_LINE_LENGTH)
 			{

@@ -1520,6 +1520,8 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		String[] indicator = {"", "*", "#"};
 		String [] status = {"Any", "Empty", "Selected", "Assigned", "Received",
 							"Distributed", "Verified"};
+		ONCWish wish = cat.getWishByID(swo.getChildWish().getWishID());
+		String wishName = wish == null ? "None" : wish.getName();
 		
 		String ds = new SimpleDateFormat("MM/dd H:mm").format(swo.getChildWish().getChildWishDateChanged().getTime());
 		String[] tablerow = {
@@ -1527,7 +1529,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 							swo.getChild().getChildAge().split("old", 2)[0].trim(), //Take the word "old" out of string
 							swo.getChild().getChildGender(),
 							Integer.toString(swo.getChildWish().getWishNumber()+1),
-							cat.getWishByID(swo.getChildWish().getWishID()).getName(),
+							wishName,
 							swo.getChildWish().getChildWishDetail(),
 							indicator[swo.getChildWish().getChildWishIndicator()],
 							status[swo.getChildWish().getChildWishStatus()], 

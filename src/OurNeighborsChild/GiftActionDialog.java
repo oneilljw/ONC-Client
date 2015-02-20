@@ -190,7 +190,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 		int wishid = cwDB.add(this, c.getID(), wishtypeid, cwd, wn, cwi, getGiftStatusAction(),
 								cwaID, gvs.getUserLNFI(), gvs.getTodaysDate());
 			
-		c.setChildWishID(wishid, wn);				
+//		c.setChildWishID(wishid, wn);	//Unnecessary: ChildWishDB.processAddedChild takes care of this			
 				
 		//Update the sort table itself
 		buildTableList(false);
@@ -226,7 +226,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 									gvs.getUserLNFI(),
 									gvs.getTodaysDate());
 		
-		lastChild.setChildWishID(wishid, lastWish.getWishNumber());
+	//	lastChild.setChildWishID(wishid, lastWish.getWishNumber());	//Unnecessary: ChildWishDB.processAddedChild takes care of this	
 		
 		//Update the receive gifts sort table itself
 		buildTableList(false);
@@ -329,7 +329,8 @@ public abstract class GiftActionDialog extends SortTableDialog
 	@Override
 	public void valueChanged(ListSelectionEvent lse)
 	{
-		if(!lse.getValueIsAdjusting() && lse.getSource() == sortTable.getSelectionModel())
+		if(!lse.getValueIsAdjusting() && lse.getSource() == sortTable.getSelectionModel()  &&
+				sortTable.getSelectedRowCount() > 0)
 		{
 			ONCFamily fam = stAL.get(sortTable.getSelectedRow()).getFamily();
 			ONCChild child = stAL.get(sortTable.getSelectedRow()).getChild();
@@ -346,10 +347,11 @@ public abstract class GiftActionDialog extends SortTableDialog
 	String[] getTableRow(ONCObject obj)
 	{
 		ONCSortObject so = (ONCSortObject) obj;
+		ONCWish wish = cat.getWishByID(so.getChildWish().getWishID());
+		String wishName = wish == null ? "None" : wish.getName();
 		
 		String[] tableRow = {so.getFamily().getONCNum(), so.getChild().getChildGender(),
-				so.getChild().getChildAge(),
-				cat.getWishByID(so.getChildWish().getWishID()).getName(),
+				so.getChild().getChildAge(), wishName,
 				so.getChildWish().getChildWishDetail()};
 		
 		return tableRow;
