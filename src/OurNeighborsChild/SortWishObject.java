@@ -31,7 +31,7 @@ public class SortWishObject extends ONCSortObject
 								indicator[soChildWish.getChildWishIndicator()],
 								wishName,
 								soChildWish.getChildWishDetail(),
-								status[soChildWish.getChildWishStatus()],
+								soChildWish.getChildWishStatus().toString(),
 								partnerDB.getOrganizationByID(soChildWish.getChildWishAssigneeID()).getName(),
 								soChildWish.getChildWishChangedBy(),
 								dateChanged};

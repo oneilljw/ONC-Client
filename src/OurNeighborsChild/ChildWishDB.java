@@ -6,11 +6,14 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Date;
+
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+
 import au.com.bytecode.opencsv.CSVWriter;
 
 public class ChildWishDB extends ONCDatabase
@@ -20,6 +23,7 @@ public class ChildWishDB extends ONCDatabase
 	private static final int CHILD_WISH_STATUS_SELECTED = 2;
 	private static final int CHILD_WISH_STATUS_ASSIGNED = 3;
 	private static final int CHILD_WISH_STATUS_RECEIVED = 4;
+	private static final int ORG_TYPE_ONC_SHOPPER = 6;
 	
 	private static ChildWishDB instance = null;
 	private ONCWishCatalog cat;
@@ -47,19 +51,26 @@ public class ChildWishDB extends ONCDatabase
 	 * an automatic change needs to occur as well. The new wish, with correct status is 
 	 * then sent to the server. 
 	 */
-	int add(Object source, int childid, int wishid, String wd, int wn, int wi, int ws, int waID, String cb, Date dc)
+	int add(Object source, int childid, int wishid, String wd, int wn, int wi, WishStatus ws, Organization org, String cb, Date dc)
 	{		
 		//Get the old wish being replaced. getWish method returns null if wish not found
 		ONCChildWish oldWish = getWish(childid, wn);
 		
+		//Determine if we're changing the organization id. Org is null if it's staying the same
+		int orgID = -1;
+		if(org == null && oldWish != null)
+			orgID = oldWish.getChildWishAssigneeID(); 	//Staying the same
+		else if(org != null)
+			orgID = org.getID();
+		
 		//Determine if the status needs to change automatically. Method handles null oldWish
-		int wishstatus = checkForStatusChange(oldWish, wishid, ws, waID);
+		WishStatus wishstatus = checkForStatusChange(oldWish, wishid, ws, org);
 		
 		//create the new wish, with childwishID = -1, meaning no wish selected
 		//the server will add the childwishID and return it
 		int newWishID = -1;
 		ONCChildWish cw = new ONCChildWish(-1, childid, wishid, wd, wn, wi,
-											wishstatus, waID, cb, dc);		
+											wishstatus, orgID, cb, dc);		
 		Gson gson = new Gson();
 		String response = null;
 		
@@ -116,16 +127,16 @@ public class ChildWishDB extends ONCDatabase
 		//determine if gift has been received. If it has, notify the Organization DB
 		//to update partner gift received counts
 		DataChange  wgr = null;
-		if(replacedWish != null && replacedWish.getChildWishStatus() == CHILD_WISH_STATUS_ASSIGNED  && 
-				addedWish.getChildWishStatus() == CHILD_WISH_STATUS_RECEIVED &&
+		if(replacedWish != null && replacedWish.getChildWishStatus() == WishStatus.Assigned  && 
+				addedWish.getChildWishStatus() == WishStatus.Received &&
 				replacedWish.getChildWishAssigneeID() == addedWish.getChildWishAssigneeID())
 		{	
 			//gift was received from partner it was assigned to
 			wgr= new DataChange(-1, addedWish.getChildWishAssigneeID());	
 			orgDB.processGiftReceivedChange(wgr);
 		}
-		else if(replacedWish != null && replacedWish.getChildWishStatus() == CHILD_WISH_STATUS_RECEIVED  && 
-				 addedWish.getChildWishStatus() == CHILD_WISH_STATUS_ASSIGNED &&
+		else if(replacedWish != null && replacedWish.getChildWishStatus() == WishStatus.Received  && 
+				 addedWish.getChildWishStatus() == WishStatus.Assigned &&
 				 replacedWish.getChildWishAssigneeID() == addedWish.getChildWishAssigneeID())
 		{
 			//gift was un-received from partner it was assigned to. This occurs when an undo
@@ -133,8 +144,8 @@ public class ChildWishDB extends ONCDatabase
 			wgr= new DataChange(addedWish.getChildWishAssigneeID(), -1);
 			orgDB.processGiftReceivedChange(wgr);
 		}
-		else if(replacedWish != null && replacedWish.getChildWishStatus() == CHILD_WISH_STATUS_RECEIVED  && 
-				 addedWish.getChildWishStatus() == CHILD_WISH_STATUS_RECEIVED &&
+		else if(replacedWish != null && replacedWish.getChildWishStatus() == WishStatus.Received  && 
+				 addedWish.getChildWishStatus() == WishStatus.Assigned &&
 				 replacedWish.getChildWishAssigneeID() != addedWish.getChildWishAssigneeID())
 		{
 			//In theory, this should never occur. However, if a gift is received twice from two
@@ -156,14 +167,14 @@ public class ChildWishDB extends ONCDatabase
 			fireDataChanged(source, "WISH_BASE_CHANGED", wbc); //notify the UI's			
 		}
 		
-		if(replacedWish != null && replacedWish.getChildWishStatus() != addedWish.getChildWishStatus())
-		{
-			//status change - need to notify wish status changed
-			DataChange wsc= new DataChange(replacedWish.getChildWishStatus(), 
-											addedWish.getChildWishStatus());	
-				
-			fireDataChanged(source, "WISH_STATUS_CHANGED", wsc);
-		}
+//		if(replacedWish != null && replacedWish.getChildWishStatus() != addedWish.getChildWishStatus())
+//		{
+//			//status change - need to notify wish status changed
+//			DataChange wsc= new DataChange(replacedWish.getChildWishStatus(), 
+//											addedWish.getChildWishStatus());	
+//				
+//			fireDataChanged(source, "WISH_STATUS_CHANGED", wsc);
+//		}
 		
 		if(wac != null)
 			fireDataChanged(source, "WISH_PARTNER_CHANGED", wac);
@@ -184,6 +195,7 @@ public class ChildWishDB extends ONCDatabase
 	 * method will set the wish status to CHILD_WISH_SELECTED. Conversely, if a wish was selected from the catalog
 	 * and is reset to empty, the wish status is set to CHILD_WISH_EMPTY.
 	 ************************************************************************************************************/
+/*	
 	int checkForStatusChange(ONCChildWish oldWish, int wishBase, int wishStatus, int wishAssigneeID)
 	{
 		int currentwishstatus;
@@ -202,6 +214,97 @@ public class ChildWishDB extends ONCDatabase
 			return CHILD_WISH_STATUS_SELECTED;
 		else
 			return wishStatus;				
+	}
+*/	
+	/************************************************************************************************************
+	 * This method implements a rules engine governing the relationship between a wish type and wish status and
+	 * wish assignment and wish status. It is called when a child's wish  or assignee changes and implements an
+	 * automatic change of wish status.
+	 * 
+	 * For example, if a child's base wish is empty and it is changing to a wish selected from the catalog, this
+	 * method will set the wish status to CHILD_WISH_SELECTED. Conversely, if a wish was selected from the catalog
+	 * and is reset to empty, the wish status is set to CHILD_WISH_EMPTY.
+	 ************************************************************************************************************/
+	WishStatus checkForStatusChange(ONCChildWish oldWish, int wishBase, WishStatus reqStatus, Organization reqOrg)
+	{
+		WishStatus currStatus, newStatus;
+		
+		if(oldWish == null)	//Creating first wish
+			currStatus = WishStatus.Not_Selected;
+		else	
+			currStatus = oldWish.getChildWishStatus();
+//			currStatus = WishStatus.Not_Selected;
+		
+		switch(currStatus)
+		{
+			case Not_Selected:
+				if(wishBase > -1)
+					newStatus = WishStatus.Selected;
+				break;
+				
+			case Selected:
+				if(wishBase == -1)
+					newStatus = WishStatus.Not_Selected;
+				else if(reqOrg.getID() == -1)
+					newStatus = WishStatus.Assigned;
+				break;
+				
+			case Assigned:
+				if(wishBase == -1)
+					newStatus = WishStatus.Not_Selected;
+				else if(reqOrg == null || reqOrg != null && reqOrg.getID() == -1)
+					newStatus = WishStatus.Selected;
+				else if(reqStatus == WishStatus.Delivered)
+					newStatus = WishStatus.Delivered;
+				break;
+				
+			case Delivered:
+				if(reqStatus == WishStatus.Returned)
+					newStatus = WishStatus.Returned;
+				else if(reqStatus == WishStatus.Delivered && reqOrg != null && 
+							reqOrg.getID() > -1 && 
+						reqOrg.getType() == ORG_TYPE_ONC_SHOPPER)
+					newStatus = WishStatus.Shopping;
+				else if(reqStatus == WishStatus.Shopping)
+					newStatus = WishStatus.Shopping;
+				else if(reqStatus == WishStatus.Received)
+					newStatus = WishStatus.Received;
+				break;
+				
+			case Returned:
+				if(wishBase == -1)
+					newStatus = WishStatus.Not_Selected;
+				else if(reqOrg.getID() == -1)
+					newStatus = WishStatus.Selected;
+				else if(reqOrg.getType() != ORG_TYPE_ONC_SHOPPER)
+					newStatus = WishStatus.Assigned;
+				else if(reqOrg.getType() == ORG_TYPE_ONC_SHOPPER)
+					newStatus = WishStatus.Shopping;
+				break;
+				
+			case Shopping:
+				if(reqStatus == WishStatus.Returned)
+					newStatus = WishStatus.Returned;
+				else if(reqStatus == WishStatus.Received)
+					newStatus = WishStatus.Received;
+				break;
+				
+			case Received:
+				if(reqStatus == WishStatus.Distributed)
+					newStatus = WishStatus.Distributed;
+				break;
+				
+			case Distributed:
+				if(reqStatus == WishStatus.Verified)
+					newStatus = WishStatus.Verified;
+				break;
+		case Verified:
+				break;
+		default:
+				break;
+		}
+		
+		return currStatus;			
 	}
 		
 	/******************************************************************************************
@@ -293,7 +396,7 @@ public class ChildWishDB extends ONCDatabase
 		{
 			ONCChildWish cw = getWish(delChild.getChildWishID(wn));
 			ONCWish wish = cw == null ? null : cat.getWishByID(cw.getWishID());
-			if(cw != null && cw.getChildWishStatus() >= CHILD_WISH_STATUS_SELECTED)
+			if(cw != null && cw.getChildWishStatus().compareTo(WishStatus.Selected) >= 0)
 				wishbasechangelist.add(new WishBaseOrOrgChange(wish, new ONCWish(-1, "None", 7), wn));	
 		}
 		

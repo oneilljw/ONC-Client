@@ -188,7 +188,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 		lastWishChanged = new ONCSortObject(-1, fam, c, cw);
 			
 		int wishid = cwDB.add(this, c.getID(), wishtypeid, cwd, wn, cwi, getGiftStatusAction(),
-								cwaID, gvs.getUserLNFI(), gvs.getTodaysDate());
+								null, gvs.getUserLNFI(), gvs.getTodaysDate());
 			
 //		c.setChildWishID(wishid, wn);	//Unnecessary: ChildWishDB.processAddedChild takes care of this			
 				
@@ -206,7 +206,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 		return true;
 	}
 	
-	abstract int getGiftStatusAction();
+	abstract WishStatus getGiftStatusAction();
 	
 	void onUndoReceiveGift()
 	{
@@ -222,7 +222,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 									lastWish.getWishNumber(),
 									lastWish.getChildWishIndicator(),
 									lastWish.getChildWishStatus(),
-									lastWish.getChildWishAssigneeID(),
+									null,
 									gvs.getUserLNFI(),
 									gvs.getTodaysDate());
 		

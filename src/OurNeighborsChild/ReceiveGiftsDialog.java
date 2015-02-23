@@ -22,13 +22,13 @@ public class ReceiveGiftsDialog extends GiftActionDialog
 	@Override
 	boolean doesChildWishStatusMatch(ONCChildWish cw) 
 	{
-		return cw.getChildWishStatus() < CHILD_WISH_STATUS_RECEIVED;
+		return cw.getChildWishStatus().compareTo(WishStatus.Received) < 0;
 	}
 
 	@Override
-	int getGiftStatusAction() 
+	WishStatus getGiftStatusAction() 
 	{
-		return CHILD_WISH_STATUS_RECEIVED;
+		return WishStatus.Received;
 	}
 
 	@Override

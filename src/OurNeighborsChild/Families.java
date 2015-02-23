@@ -1037,7 +1037,7 @@ public class Families extends ONCSearchableDatabase
 						ONCChildWish cw = childwishDB.getWish(c.getChildWishID(wn));
 						
 						//cw is null if child doesn't have this wish yet
-						if(cw != null && cw.getChildWishStatus() > CHILD_WISH_STATUS_EMPTY)
+						if(cw != null && cw.getChildWishStatus().compareTo(WishStatus.Selected) >= 0)
 						{
 							//Find wish in array list and increment the count
 							int index = 0;

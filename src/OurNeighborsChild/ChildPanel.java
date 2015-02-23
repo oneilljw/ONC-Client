@@ -221,7 +221,7 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
             wishdetailTF[i].addActionListener(cuListener);
             wishdetailTF[i].addMouseListener(wdMouseListner);
             
-        	wishstatusCB[i] = new JComboBox(status);
+        	wishstatusCB[i] = new JComboBox(WishStatus.values());
             wishstatusCB[i].setPreferredSize(dws);
             wishstatusCB[i].setToolTipText("Change the status of the wish in its fulfillment lifecycle");
             wishstatusCB[i].setEnabled(false);
@@ -398,7 +398,7 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 			else
 				wishdetailTF[wn].setBackground(Color.YELLOW);
 				
-			wishstatusCB[wn].setSelectedIndex(cw.getChildWishStatus());
+			wishstatusCB[wn].setSelectedItem(cw.getChildWishStatus());
 			
 			Organization org = orgs.getOrganizationByID(cw.getChildWishAssigneeID());
 			if(org != null)
@@ -604,7 +604,7 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 		
 		if(selectedCBWish.getID() != cw.getWishID() ||
 			wishindCB[wn].getSelectedIndex() != cw.getChildWishIndicator() ||
-			 wishstatusCB[wn].getSelectedIndex() != cw.getChildWishStatus() ||
+			 wishstatusCB[wn].getSelectedItem() != cw.getChildWishStatus() ||
 			  !wishdetailTF[wn].getText().equals(cw.getChildWishDetail()) ||
 			   selectedCBOrg.getID() != (cw.getChildWishAssigneeID()))
 		{
@@ -651,8 +651,8 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 			//Now that we have assessed/received base,  detail and assignee changes, create a new wish			
 			int wishID = cwDB.add(this, c.getID(), selectedCBWish.getID(),
 						wishdetailTF[wn].getText(), wn, wishindCB[wn].getSelectedIndex(),
-						wishstatusCB[wn].getSelectedIndex(), orgID, gvs.getUserLNFI(),
-						gvs.getTodaysDate());
+						(WishStatus) wishstatusCB[wn].getSelectedItem(), selectedCBOrg,
+						gvs.getUserLNFI(), gvs.getTodaysDate());
 			
 			//if adding the wish was successful, we need to fetch and display the wish. The db may have changed
 			//the status of the wish.
@@ -696,8 +696,9 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 				wishassigneeCB[1].setSelectedIndex(0);
 				
 				//set wish 1 to none	
-				wishID = cwDB.add(this, c.getID(), -1, "", 1, 0, CHILD_WISH_STATUS_EMPTY, 
-							0, gvs.getUserLNFI(), gvs.getTodaysDate());
+				wishID = cwDB.add(this, c.getID(), -1, "", 1, 0, WishStatus.Not_Selected, 
+									new Organization(-1, "None", "None"), gvs.getUserLNFI(),
+									gvs.getTodaysDate());
 				
 				//if adding the wish was successful, we need to fetch and display the wish. The db may have changed
 				//the status of the wish.
@@ -758,7 +759,7 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 		//Now that we have assessed/received base,  detail and assignee changes, create a new wish			
 		int wishID = cwDB.add(this, c.getID(), selectedWish.getID(),
 							wishdetailTF[wn].getText(), wn, wishindCB[wn].getSelectedIndex(),
-							wishstatusCB[wn].getSelectedIndex(), selectedCBOrg.getID(),
+							(WishStatus) wishstatusCB[wn].getSelectedItem(), selectedCBOrg,
 							gvs.getUserLNFI(), gvs.getTodaysDate());
 		
 		//if adding the wish was successful, we need to fetch and display the wish. The db may have changed
@@ -827,8 +828,8 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 		
 		//add the helmet as wish 1		
 		int wishtypeid = cat.getWishID(ONC_HELMET_NAME); 	//Not implemented yet
-		int wishID = cwDB.add(this, c.getID(), wishtypeid, "", 1, 0, CHILD_WISH_STATUS_SELECTED, 
-					0, gvs.getUserLNFI(), gvs.getTodaysDate());
+		int wishID = cwDB.add(this, c.getID(), wishtypeid, "", 1, 0, WishStatus.Selected, 
+				new Organization(-1, "None", "None"), gvs.getUserLNFI(), gvs.getTodaysDate());
 		
 		//if adding the wish was successful, we need to fetch and display the wish. The db may have changed
 		//the status of the wish.
@@ -887,7 +888,7 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 				whTR[0] = wish == null ? "None" : wish.getName();
 				whTR[1] = cw.getChildWishDetail();
 				whTR[2] = indicators[cw.getChildWishIndicator()];
-				whTR[3] = status[cw.getChildWishStatus()];
+				whTR[3] = cw.getChildWishStatus().toString();
 				whTR[4] = assignee == null ? "None" : assignee.getName();
 				whTR[5] = cw.getChildWishChangedBy();
 				whTR[6] = new SimpleDateFormat("MM/dd H:mm:ss").format(cw.getChildWishDateChanged().getTime());
