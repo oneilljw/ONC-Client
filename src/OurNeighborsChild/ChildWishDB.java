@@ -233,7 +233,9 @@ public class ChildWishDB extends ONCDatabase
 			currStatus = WishStatus.Not_Selected;
 		else	
 			currStatus = oldWish.getChildWishStatus();
-//			currStatus = WishStatus.Not_Selected;
+		
+		//set new status = current status for default return
+		newStatus = currStatus;
 		
 		switch(currStatus)
 		{
@@ -299,12 +301,14 @@ public class ChildWishDB extends ONCDatabase
 					newStatus = WishStatus.Verified;
 				break;
 		case Verified:
+		
 				break;
 		default:
+			
 				break;
 		}
 		
-		return currStatus;			
+		return newStatus;			
 	}
 		
 	/******************************************************************************************

@@ -74,11 +74,12 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 	private ONCChild c = null;	//The panel needs to know which child is being displayed for listeners
 	
 	//GUI elements
+	private JPanel[] wp;
 	private JTextField firstnameTF;
 	private JTextField lastnameTF, schoolTF, genderTF;
 	private JDateChooser dobDC;
 	private JTextField ageTF;
-	private JComboBox[] wishCB, wishindCB, wishstatusCB, wishassigneeCB;
+	private JComboBox[] wishCB, wishindCB, wishassigneeCB;
 	private DefaultComboBoxModel[] wishCBM, assigneeCBM;
 	private JTextField[] wishdetailTF;
 	private JRadioButton[] wishRB;
@@ -115,7 +116,7 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 		wishindCB = new JComboBox[NUMBER_OF_WISHES_PER_CHILD];
 		wishdetailTF = new JTextField[NUMBER_OF_WISHES_PER_CHILD];
 		wishRB = new JRadioButton[NUMBER_OF_WISHES_PER_CHILD];
-		wishstatusCB = new JComboBox[NUMBER_OF_WISHES_PER_CHILD];
+//		wishstatusCB = new JComboBox[NUMBER_OF_WISHES_PER_CHILD];
 		wishassigneeCB = new JComboBox[NUMBER_OF_WISHES_PER_CHILD];
 		wishCBM = new DefaultComboBoxModel[NUMBER_OF_WISHES_PER_CHILD];
 		assigneeCBM = new DefaultComboBoxModel[NUMBER_OF_WISHES_PER_CHILD];
@@ -129,7 +130,7 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 		childinfopanel.setLayout(new BoxLayout(childinfopanel, BoxLayout.LINE_AXIS));
 		JPanel childwishespanel = new JPanel(new GridLayout(1,3));
 		
-		JPanel[] wp = new JPanel[NUMBER_OF_WISHES_PER_CHILD];
+		wp = new JPanel[NUMBER_OF_WISHES_PER_CHILD];
 		JPanel[] wsp1 = new JPanel[NUMBER_OF_WISHES_PER_CHILD];
 		JPanel[] wsp2 = new JPanel[NUMBER_OF_WISHES_PER_CHILD];
 		JPanel[] wsp3 = new JPanel[NUMBER_OF_WISHES_PER_CHILD];
@@ -185,8 +186,8 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
  
         //Set up the wish combo boxes and detail text fields for child wishes        
         String[] indications = {"", "*", "#"};        
-        String [] status = {"**Unused**", "Empty", "Selected", "Assigned", "Received",
-        					"Distributed", "Verified"};
+//        String [] status = {"**Unused**", "Empty", "Selected", "Assigned", "Received",
+//        					"Distributed", "Verified"};
         
         Dimension dwi = new Dimension(60, 24);
         Dimension dws = new Dimension(100, 24);       
@@ -221,11 +222,11 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
             wishdetailTF[i].addActionListener(cuListener);
             wishdetailTF[i].addMouseListener(wdMouseListner);
             
-        	wishstatusCB[i] = new JComboBox(WishStatus.values());
-            wishstatusCB[i].setPreferredSize(dws);
-            wishstatusCB[i].setToolTipText("Change the status of the wish in its fulfillment lifecycle");
-            wishstatusCB[i].setEnabled(false);
-            wishstatusCB[i].addActionListener(cuListener);
+//        	wishstatusCB[i] = new JComboBox(WishStatus.values());
+//            wishstatusCB[i].setPreferredSize(dws);
+//            wishstatusCB[i].setToolTipText("Change the status of the wish in its fulfillment lifecycle");
+//            wishstatusCB[i].setEnabled(false);
+//            wishstatusCB[i].addActionListener(cuListener);
             
         	assigneeCBM[i] = new DefaultComboBoxModel();
         	assigneeCBM[i].addElement(new Organization(-1, "None", "None"));
@@ -252,7 +253,7 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
         	wsp1[i].add(wishindCB[i]);
         	wsp1[i].add(wishRB[i]);
         	wsp2[i].add(wishdetailTF[i]);
-        	wsp3[i].add(wishstatusCB[i]);
+//        	wsp3[i].add(wishstatusCB[i]);
             wsp3[i].add(wishassigneeCB[i]);
         }
          
@@ -293,7 +294,7 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 			wishdetailTF[i].setEnabled(tf);
 			wishindCB[i].setEnabled(tf);
 			wishRB[i].setEnabled(tf);
-			wishstatusCB[i].setEnabled(tf);
+//			wishstatusCB[i].setEnabled(tf);
 			wishassigneeCB[i].setEnabled(tf);
 		}	
 	}
@@ -383,6 +384,8 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 		bChildDataChanging = true;
 		if(cw !=null)
 		{	
+			wp[wn].setBorder(BorderFactory.createTitledBorder("Wish " + Integer.toString(wn+1) +
+					": " + cw.getChildWishStatus().toString()));
 			ONCWish wish = cat.getWishByID(cw.getWishID());
 			if(wish != null)
 				wishCB[wn].setSelectedItem(wish);
@@ -398,7 +401,7 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 			else
 				wishdetailTF[wn].setBackground(Color.YELLOW);
 				
-			wishstatusCB[wn].setSelectedItem(cw.getChildWishStatus());
+//			wishstatusCB[wn].setSelectedItem(cw.getChildWishStatus());
 			
 			Organization org = orgs.getOrganizationByID(cw.getChildWishAssigneeID());
 			if(org != null)
@@ -412,7 +415,7 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 			wishindCB[wn].setSelectedIndex(0);
 			wishdetailTF[wn].setText("");
 			wishdetailTF[wn].setCaretPosition(0);
-			wishstatusCB[wn].setSelectedIndex(1);
+//			wishstatusCB[wn].setSelectedIndex(1);
 			wishassigneeCB[wn].setSelectedIndex(0);
 		}
 		
@@ -445,7 +448,7 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 		wishCB[wishID].setSelectedIndex(0);
 		wishdetailTF[wishID].setText("");
 		wishindCB[wishID].setSelectedIndex(0);
-		wishstatusCB[wishID].setSelectedIndex(0);
+//		wishstatusCB[wishID].setSelectedIndex(0);
 		wishassigneeCB[wishID].setSelectedIndex(0);
 		
 		bChildDataChanging = false;
@@ -576,10 +579,13 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 			for(int wn=0; wn<wishassigneeCB.length; wn++)
 			{
 				ONCChildWish cw = cwDB.getWish(c.getChildWishID(wn));
-				if(cw != null)
+				if(cw != null && cw.getChildWishAssigneeID() != -1)
 					wishassigneeCB[wn].setSelectedItem(orgs.getOrganizationByID(cw.getChildWishAssigneeID()));
+				else
+					wishassigneeCB[wn].setSelectedIndex(0);
 			}
-		}	
+		}
+		
 		bChildDataChanging = false;
 	}
 	
@@ -604,7 +610,7 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 		
 		if(selectedCBWish.getID() != cw.getWishID() ||
 			wishindCB[wn].getSelectedIndex() != cw.getChildWishIndicator() ||
-			 wishstatusCB[wn].getSelectedItem() != cw.getChildWishStatus() ||
+//			 wishstatusCB[wn].getSelectedItem() != cw.getChildWishStatus() ||
 			  !wishdetailTF[wn].getText().equals(cw.getChildWishDetail()) ||
 			   selectedCBOrg.getID() != (cw.getChildWishAssigneeID()))
 		{
@@ -651,7 +657,8 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 			//Now that we have assessed/received base,  detail and assignee changes, create a new wish			
 			int wishID = cwDB.add(this, c.getID(), selectedCBWish.getID(),
 						wishdetailTF[wn].getText(), wn, wishindCB[wn].getSelectedIndex(),
-						(WishStatus) wishstatusCB[wn].getSelectedItem(), selectedCBOrg,
+						cw.getChildWishStatus(),
+						selectedCBOrg,
 						gvs.getUserLNFI(), gvs.getTodaysDate());
 			
 			//if adding the wish was successful, we need to fetch and display the wish. The db may have changed
@@ -692,7 +699,7 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 				wishCB[1].setSelectedItem("None");
 				wishdetailTF[1].setText("");
 				wishindCB[1].setSelectedIndex(0);
-				wishstatusCB[1].setSelectedIndex(CHILD_WISH_STATUS_EMPTY);
+//				wishstatusCB[1].setSelectedIndex(CHILD_WISH_STATUS_EMPTY);
 				wishassigneeCB[1].setSelectedIndex(0);
 				
 				//set wish 1 to none	
@@ -759,7 +766,8 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 		//Now that we have assessed/received base,  detail and assignee changes, create a new wish			
 		int wishID = cwDB.add(this, c.getID(), selectedWish.getID(),
 							wishdetailTF[wn].getText(), wn, wishindCB[wn].getSelectedIndex(),
-							(WishStatus) wishstatusCB[wn].getSelectedItem(), selectedCBOrg,
+							WishStatus.Selected,
+							selectedCBOrg,
 							gvs.getUserLNFI(), gvs.getTodaysDate());
 		
 		//if adding the wish was successful, we need to fetch and display the wish. The db may have changed
@@ -823,7 +831,7 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 		wishCB[1].setSelectedItem(ONC_HELMET_NAME);
 		wishdetailTF[1].setText("");
 		wishindCB[1].setSelectedIndex(0);
-		wishstatusCB[1].setSelectedIndex(CHILD_WISH_STATUS_SELECTED);
+//		wishstatusCB[1].setSelectedIndex(CHILD_WISH_STATUS_SELECTED);
 		wishassigneeCB[1].setSelectedIndex(0);
 		
 		//add the helmet as wish 1		
@@ -993,10 +1001,12 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 			if(c != null)
 				updateChild(c);
 			
-			if(childList != null && !childList.isEmpty() && childList.get(0).getChildWishID(0) != -1)
+			if(childList != null && !childList.isEmpty())
 			{
 				displayChild(childList.get(0));
-				setEnabledChildWishes(fam);
+				
+				if(childList.get(0).getChildWishID(0) != -1)
+					setEnabledChildWishes(fam);
 			}
 			else
 			{
@@ -1047,7 +1057,7 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 			else if(!bChildDataChanging && (e.getSource() == wishCB[0] || 
 											 e.getSource() == wishindCB[0] ||
 											  e.getSource() == wishdetailTF[0] ||
-											   e.getSource() == wishstatusCB[0] ||
+//											   e.getSource() == wishstatusCB[0] ||
 											    e.getSource() == wishassigneeCB[0]))
 			{
 				if(c.getChildWishID(0) == NO_WISH)
@@ -1069,7 +1079,7 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 			else if(!bChildDataChanging && (e.getSource() == wishCB[2] || 
 					 						 e.getSource() == wishindCB[2] ||
 					 						  e.getSource() == wishdetailTF[2] ||
-					 						   e.getSource() == wishstatusCB[2] ||
+//					 						   e.getSource() == wishstatusCB[2] ||
 					 							e.getSource() == wishassigneeCB[2]))
 			{
 				if(c.getChildWishID(2) == NO_WISH)

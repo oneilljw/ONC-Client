@@ -352,7 +352,8 @@ public class WishLabelViewer extends JDialog implements DatabaseListener, Entity
 			ONCChild child = (ONCChild) tse.getObject2();
 			ONCChildWish cw = (ONCChildWish) tse.getObject3();
 			
-			displayLabel(child, cw.getWishNumber());
+			if(cw != null)
+				displayLabel(child, cw.getWishNumber());
 		}
 	}
 
@@ -369,14 +370,14 @@ public class WishLabelViewer extends JDialog implements DatabaseListener, Entity
 		
 			//If the current child is being displayed has a wish added update the 
 			//wish label to show the added wish
-			if(addedWish.getChildID() == child.getID())	
+			if(child != null && addedWish.getChildID() == child.getID())	
 				displayLabel(child, addedWish.getWishNumber());
 			
 		}
 		else if(dbe.getType().equals("UPDATED_CHILD"))
 		{
 			ONCChild updatedChild = (ONCChild) dbe.getObject();
-			if(child.getID() == updatedChild.getID())
+			if(child != null && child.getID() == updatedChild.getID())
 			{
 				//the age or gender of the child may have changed, update the label
 				displayLabel(updatedChild, wn);
