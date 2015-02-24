@@ -292,19 +292,32 @@ public class ChildWishDB extends ONCDatabase
 				break;
 				
 			case Received:
-				if(reqStatus == WishStatus.Distributed)
+				if(reqStatus == WishStatus.Missing)
+					newStatus = WishStatus.Missing;
+				else if(reqStatus == WishStatus.Distributed)
 					newStatus = WishStatus.Distributed;
 				break;
 				
 			case Distributed:
-				if(reqStatus == WishStatus.Verified)
+				if(reqStatus == WishStatus.Missing)
+					newStatus = WishStatus.Missing;
+				else if(reqStatus == WishStatus.Verified)
 					newStatus = WishStatus.Verified;
 				break;
-		case Verified:
-		
-				break;
-		default:
 			
+			case Missing:
+				if(reqStatus == WishStatus.Shopping)
+					newStatus = WishStatus.Shopping;
+				else if(reqStatus == WishStatus.Received)
+					newStatus = WishStatus.Received;
+				break;
+				
+			case Verified:
+				if(reqStatus == WishStatus.Missing)
+					newStatus = WishStatus.Missing;
+				break;
+				
+			default:
 				break;
 		}
 		

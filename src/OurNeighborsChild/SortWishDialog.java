@@ -80,7 +80,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 	
 	private int sortStartAge = 0, sortEndAge = ONC_AGE_LIMIT, sortGender = 0, sortChangedBy = 0;
 	private int sortWishNum = 0, sortRes = 0, sortAssigneeID = 0;
-	private WishStatus sortStatus = WishStatus.No_Change;
+	private WishStatus sortStatus = WishStatus.Any;
 	private int sortWishID = -2;
 	private boolean bOversizeWishes = false;
 	private int totalNumOfLabelsToPrint;	//Holds total number of labels requested in a print job
@@ -192,7 +192,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		resCB.addActionListener(this);
 		res[0] = "No Change";	//Change "Any" to none after sort criteria list created
 		
-		statusCB = new JComboBox(WishStatus.values());
+		statusCB = new JComboBox(WishStatus.getSearchFilterList());
 		statusCB.setPreferredSize(new Dimension(136, 56));
 		statusCB.setBorder(BorderFactory.createTitledBorder("Status"));
 		statusCB.addActionListener(this);
@@ -231,7 +231,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		changeResCB.setBorder(BorderFactory.createTitledBorder("Change Restrictions To:"));
 		changeResCB.addActionListener(this);
         
-        changeStatusCB = new JComboBox(WishStatus.values());
+        changeStatusCB = new JComboBox(WishStatus.getChangeList());
         changeStatusCB.setPreferredSize(new Dimension(192, 56));
 		changeStatusCB.setBorder(BorderFactory.createTitledBorder("Change Status To:"));
 		changeStatusCB.addActionListener(this);
@@ -407,7 +407,8 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 			//Find child and wish number for selected
 			ONCChild c = stAL.get(row_sel[i]).getChild();
 			int wn = stAL.get(row_sel[i]).getChildWish().getWishNumber();
-			ONCChildWish cw = cwDB.getWish(c.getChildWishID(wn));
+//			ONCChildWish cw = cwDB.getWish(c.getChildWishID(wn));
+			ONCChildWish cw = stAL.get(row_sel[i]).getChildWish();
 
 			//Get current wish information
 			int cwWishID = cw.getWishID();
@@ -426,13 +427,6 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 				bNewWishRqrd = true;
 			}
 			
-			//Determine if a change to wish status, if so, set new wish status in request
-			if(changeStatusCB.getSelectedIndex() > 0 && cws != changeStatusCB.getSelectedItem())
-			{
-				cws = (WishStatus) changeStatusCB.getSelectedItem();
-				bNewWishRqrd = true;
-			}
-			
 			//Determine if a change to wish assignee, if so, set new wish assignee in request
 //			if(changeAssigneeCB.getSelectedIndex() > 0 && cwaID != orgs.getConfirmedOrganizationID(changeAssigneeCB.getSelectedIndex()))
 			if(changeAssigneeCB.getSelectedIndex() > 0 && cwaID != ((Organization)changeAssigneeCB.getSelectedItem()).getID())
@@ -447,6 +441,16 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 					cws = WishStatus.Assigned;
 				
 				bNewWishRqrd = true;
+			}
+			
+			//Determine if a change to wish status, if so, set new wish status in request
+			if(changeStatusCB.getSelectedIndex() > 0 && cws != changeStatusCB.getSelectedItem())
+			{
+				cws = (WishStatus) changeStatusCB.getSelectedItem();
+				//A new wish is required if the status is changing
+				WishStatus newStatus = cwDB.checkForStatusChange(cw, cw.getWishID(), cws, org);
+				if(newStatus != cw.getChildWishStatus())
+					bNewWishRqrd = true;
 			}
 			
 			if(bNewWishRqrd)	//Restriction, Status or Assignee change detected
@@ -771,7 +775,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 	
 	private boolean doesResMatch(int res) { return sortRes == 0  || sortRes == res+1; }
 	
-	private boolean doesStatusMatch(WishStatus ws){return sortStatus == WishStatus.No_Change || sortStatus.compareTo(ws) == 0;}
+	private boolean doesStatusMatch(WishStatus ws){return sortStatus == WishStatus.Any || sortStatus.compareTo(ws) == 0;}
 	
 	private boolean doesAssigneeMatch(int assigneeID)
 	{	
@@ -957,7 +961,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		
 		statusCB.removeActionListener(this);
 		statusCB.setSelectedIndex(0);
-		sortStatus = WishStatus.No_Change;
+		sortStatus = WishStatus.Any;
 		statusCB.addActionListener(this);
 		
 		assignCB.removeActionListener(this);

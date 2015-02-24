@@ -21,7 +21,8 @@ public class ReceiveGiftsDialog extends GiftActionDialog
 	@Override
 	boolean doesChildWishStatusMatch(ONCChildWish cw) 
 	{
-		return cw.getChildWishStatus().compareTo(WishStatus.Received) < 0;
+		return cw.getChildWishStatus().compareTo(WishStatus.Received) < 0 || 
+				cw.getChildWishStatus() == WishStatus.Missing;
 	}
 
 	@Override

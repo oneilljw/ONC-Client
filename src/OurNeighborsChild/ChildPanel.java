@@ -57,8 +57,6 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 	private static final int NO_WISH = -1;
 	private static final int WISH_CATALOG_SELECTION_LISTTYPE = 0;
 	private static final int ONC_MAX_CHILD_AGE = 24; //Used for sorting children into array lists
-	private static final int CHILD_WISH_STATUS_EMPTY = 1;
-	private static final int CHILD_WISH_STATUS_SELECTED = 2;
 	private static final int ONC_HELMET_WISHID = 17; //Used for sorting children into array lists
 	private static final String ONC_HELMET_NAME = "Helmet"; //Used for associated Helmet's with Bike's
 	private static final String ONC_BIKE_NAME = "Bike"; //Used for associated Helmet's with Bike's
@@ -84,6 +82,7 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 	private JTextField[] wishdetailTF;
 	private JRadioButton[] wishRB;
 	private Color ageNormalBackgroundColor;
+	private WishPanelStatus wpStatus;
 	
 	//Semaphores
 	private boolean bChildDataChanging = false; //flag indicates child data displayed is updating
@@ -120,6 +119,7 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 		wishassigneeCB = new JComboBox[NUMBER_OF_WISHES_PER_CHILD];
 		wishCBM = new DefaultComboBoxModel[NUMBER_OF_WISHES_PER_CHILD];
 		assigneeCBM = new DefaultComboBoxModel[NUMBER_OF_WISHES_PER_CHILD];
+		wpStatus = WishPanelStatus.Disabled;
 		
 		//Create a listener for panel gui events
 		ChildUpdateListener cuListener = new ChildUpdateListener();
@@ -284,34 +284,7 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 			genderTF.setEditable(tf);
 		}		
 	}
-	
-	void setEnabledWishPanels(boolean tf)
-	{
-		for(int wn=0; wn<NUMBER_OF_WISHES_PER_CHILD; wn++ )
-		{
-			if(tf)
-				setEnabledWishPanelComponents(wn, WishStatus.Selected);
-			else
-				setEnabledWishPanelComponents(wn, WishStatus.Verified);
-//			wishCB[wn].setEnabled(tf);
-//			wishdetailTF[wn].setEnabled(tf);
-//			wishindCB[wn].setEnabled(tf);
-//			wishRB[wn].setEnabled(tf);
-//			wishstatusCB[i].setEnabled(tf);
-//			wishassigneeCB[wn].setEnabled(tf);
-		}	
-	}
-	
-	void setEnabledWishCBs(boolean tf)
-	{
-		for(int wn=0; wn<NUMBER_OF_WISHES_PER_CHILD; wn++ )
-			if(tf)
-				setEnabledWishPanelComponents(wn, WishStatus.Selected);
-			else
-				setEnabledWishPanelComponents(wn, WishStatus.Verified);
-//			wishCB[i].setEnabled(tf);
-	}
-	
+
 	void displayChild(ONCChild child)
 	{
 		bChildDataChanging = true;
@@ -442,7 +415,8 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 		for(int wishID=0; wishID<wishCB.length; wishID++)
 			clearChildWish(wishID);
 		
-		setEnabledWishPanels(false);
+//		setEnabledWishPanels(false);
+		wpStatus = WishPanelStatus.Disabled;
 		
 		bChildDataChanging = false;
 	}
@@ -979,22 +953,39 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 	
 	void setEnabledWishPanelComponents(int wn, WishStatus ws)
 	{
-		if(ws == WishStatus.Not_Selected)
+		if(wpStatus == WishPanelStatus.Enabled)
 		{
-			wishCB[wn].setEnabled(true);
-			wishindCB[wn].setEnabled(false);
-			wishdetailTF[wn].setEnabled(false);
-			wishassigneeCB[wn].setEnabled(false);
-		}
-		else if(ws == WishStatus.Selected || ws == WishStatus.Assigned ||
+			if(ws == WishStatus.Not_Selected)
+			{
+				wishCB[wn].setEnabled(true);
+				wishindCB[wn].setEnabled(false);
+				wishdetailTF[wn].setEnabled(false);
+				wishassigneeCB[wn].setEnabled(false);
+			}
+			else if(ws == WishStatus.Selected || ws == WishStatus.Assigned ||
 					ws == WishStatus.Returned)
-		{
-			wishCB[wn].setEnabled(true);
-			wishindCB[wn].setEnabled(true);
-			wishdetailTF[wn].setEnabled(true);
-			wishassigneeCB[wn].setEnabled(true);
+			{
+				wishCB[wn].setEnabled(true);
+				wishindCB[wn].setEnabled(true);
+				wishdetailTF[wn].setEnabled(true);
+				wishassigneeCB[wn].setEnabled(true);
+			}
+			else if(ws == WishStatus.Delivered)
+			{
+				wishCB[wn].setEnabled(false);
+				wishindCB[wn].setEnabled(false);
+				wishdetailTF[wn].setEnabled(false);
+				wishassigneeCB[wn].setEnabled(true);
+			}
+			else
+			{
+				wishCB[wn].setEnabled(false);
+				wishindCB[wn].setEnabled(false);
+				wishdetailTF[wn].setEnabled(false);
+				wishassigneeCB[wn].setEnabled(false);
+			}
 		}
-		else if(ws == WishStatus.Delivered)
+		else if(wpStatus == WishPanelStatus.Assignee_Only)
 		{
 			wishCB[wn].setEnabled(false);
 			wishindCB[wn].setEnabled(false);
@@ -1002,29 +993,27 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 			wishassigneeCB[wn].setEnabled(true);
 		}
 		else
-		{
+		{	
 			wishCB[wn].setEnabled(false);
 			wishindCB[wn].setEnabled(false);
 			wishdetailTF[wn].setEnabled(false);
 			wishassigneeCB[wn].setEnabled(false);
 		}
 		
+		wishRB[wn].setEnabled(true);
 	}
 	
 	void setEnabledChildWishes(ONCFamily fam)
 	{
 		//only enable wish panels if family has been verified
 		if(fam.getFamilyStatus() == FAMILY_STATUS_UNVERIFIED)	
-			setEnabledWishPanels(false);
+			wpStatus = WishPanelStatus.Disabled;
 		else 
 		{
-			setEnabledWishPanels(true);
-			
-			//only enable wish selection if verified and not a GIFT_CARD_ONLY family
 			if(fam.getNotes().toLowerCase().contains(GIFT_CARD_ONLY_TEXT))
-				setEnabledWishCBs(false);
+				wpStatus = WishPanelStatus.Assignee_Only;
 			else
-				setEnabledWishCBs(true);
+				wpStatus = WishPanelStatus.Enabled;
 		}
 	}
 	
@@ -1143,6 +1132,13 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 				}
 			}		
 		}
+	}
+	
+	private enum WishPanelStatus 
+	{
+		Enabled,
+		Disabled,
+		Assignee_Only;
 	}
 		
 	private class WishDetailMouseListener implements MouseListener
