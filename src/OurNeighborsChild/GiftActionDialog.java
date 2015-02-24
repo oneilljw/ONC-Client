@@ -180,11 +180,10 @@ public abstract class GiftActionDialog extends SortTableDialog
 		int wishtypeid = cw.getWishID();
 		String cwd = cw.getChildWishDetail();
 		int cwi = cw.getChildWishIndicator();
-		int cwaID = cw.getChildWishAssigneeID();
 			
 		//Process change to wish status. Store the new wish to be added in case of an undo operation 
 		//and add the new wish to the child wish history. We reuse an ONCSortObject to store the
-		//new wish
+		//new wish. Organization parameter is null, indicating we're not changing the gift partner
 		lastWishChanged = new ONCSortObject(-1, fam, c, cw);
 			
 		int wishid = cwDB.add(this, c.getID(), wishtypeid, cwd, wn, cwi, getGiftStatusAction(),
@@ -213,7 +212,6 @@ public abstract class GiftActionDialog extends SortTableDialog
 //		bChangingTable = true;
 		
 		//To undo the wish, add the old wish back with the previous status		
-		ONCChild lastChild = lastWishChanged.getChild();
 		ONCChildWish lastWish = lastWishChanged.getChildWish();
 		
 		int wishid = cwDB.add(this, lastWishChanged.getChild().getID(),
@@ -222,7 +220,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 									lastWish.getWishNumber(),
 									lastWish.getChildWishIndicator(),
 									lastWish.getChildWishStatus(),
-									null,
+									null,	//null to keep same partner
 									gvs.getUserLNFI(),
 									gvs.getTodaysDate());
 		

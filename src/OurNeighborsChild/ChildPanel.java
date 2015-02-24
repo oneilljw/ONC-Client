@@ -189,8 +189,7 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 //        String [] status = {"**Unused**", "Empty", "Selected", "Assigned", "Received",
 //        					"Distributed", "Verified"};
         
-        Dimension dwi = new Dimension(60, 24);
-        Dimension dws = new Dimension(100, 24);       
+        Dimension dwi = new Dimension(60, 24);     
         Dimension dwa = new Dimension(140, 24);
         
         for(int i=0; i<wishCB.length; i++)
@@ -288,21 +287,29 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 	
 	void setEnabledWishPanels(boolean tf)
 	{
-		for(int i=0; i<NUMBER_OF_WISHES_PER_CHILD; i++ )
+		for(int wn=0; wn<NUMBER_OF_WISHES_PER_CHILD; wn++ )
 		{
-			wishCB[i].setEnabled(tf);
-			wishdetailTF[i].setEnabled(tf);
-			wishindCB[i].setEnabled(tf);
-			wishRB[i].setEnabled(tf);
+			if(tf)
+				setEnabledWishPanelComponents(wn, WishStatus.Selected);
+			else
+				setEnabledWishPanelComponents(wn, WishStatus.Verified);
+//			wishCB[wn].setEnabled(tf);
+//			wishdetailTF[wn].setEnabled(tf);
+//			wishindCB[wn].setEnabled(tf);
+//			wishRB[wn].setEnabled(tf);
 //			wishstatusCB[i].setEnabled(tf);
-			wishassigneeCB[i].setEnabled(tf);
+//			wishassigneeCB[wn].setEnabled(tf);
 		}	
 	}
 	
 	void setEnabledWishCBs(boolean tf)
 	{
-		for(int i=0; i<NUMBER_OF_WISHES_PER_CHILD; i++ )
-			wishCB[i].setEnabled(tf);
+		for(int wn=0; wn<NUMBER_OF_WISHES_PER_CHILD; wn++ )
+			if(tf)
+				setEnabledWishPanelComponents(wn, WishStatus.Selected);
+			else
+				setEnabledWishPanelComponents(wn, WishStatus.Verified);
+//			wishCB[i].setEnabled(tf);
 	}
 	
 	void displayChild(ONCChild child)
@@ -400,14 +407,14 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 				wishdetailTF[wn].setBackground(Color.WHITE);
 			else
 				wishdetailTF[wn].setBackground(Color.YELLOW);
-				
-//			wishstatusCB[wn].setSelectedItem(cw.getChildWishStatus());
-			
+
 			Organization org = orgs.getOrganizationByID(cw.getChildWishAssigneeID());
 			if(org != null)
 				wishassigneeCB[wn].setSelectedItem(org);
 			else
 				wishassigneeCB[wn].setSelectedIndex(0);
+			
+			setEnabledWishPanelComponents(wn, cw.getChildWishStatus());
 		}
 		else	//child wish doesn't exist yet
 		{
@@ -415,7 +422,6 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 			wishindCB[wn].setSelectedIndex(0);
 			wishdetailTF[wn].setText("");
 			wishdetailTF[wn].setCaretPosition(0);
-//			wishstatusCB[wn].setSelectedIndex(1);
 			wishassigneeCB[wn].setSelectedIndex(0);
 		}
 		
@@ -883,8 +889,6 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 			cwh = gson.fromJson(response, listtype);
 			
 			//need to add the assignee name based on the assignee ID for the table
-			String [] status = {"", "Empty", "Selected", "Assigned", "Received", 
-					"Distributed", "Verified"};
 			String[] indicators = {"", "*", "#"};
 			ArrayList<String[]> wishHistoryTable = new ArrayList<String[]>();
 			for(ONCChildWish cw:cwh)
@@ -971,6 +975,40 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 		{
 			setEditableGUIFields(true);
 		}
+	}
+	
+	void setEnabledWishPanelComponents(int wn, WishStatus ws)
+	{
+		if(ws == WishStatus.Not_Selected)
+		{
+			wishCB[wn].setEnabled(true);
+			wishindCB[wn].setEnabled(false);
+			wishdetailTF[wn].setEnabled(false);
+			wishassigneeCB[wn].setEnabled(false);
+		}
+		else if(ws == WishStatus.Selected || ws == WishStatus.Assigned ||
+					ws == WishStatus.Returned)
+		{
+			wishCB[wn].setEnabled(true);
+			wishindCB[wn].setEnabled(true);
+			wishdetailTF[wn].setEnabled(true);
+			wishassigneeCB[wn].setEnabled(true);
+		}
+		else if(ws == WishStatus.Delivered)
+		{
+			wishCB[wn].setEnabled(false);
+			wishindCB[wn].setEnabled(false);
+			wishdetailTF[wn].setEnabled(false);
+			wishassigneeCB[wn].setEnabled(true);
+		}
+		else
+		{
+			wishCB[wn].setEnabled(false);
+			wishindCB[wn].setEnabled(false);
+			wishdetailTF[wn].setEnabled(false);
+			wishassigneeCB[wn].setEnabled(false);
+		}
+		
 	}
 	
 	void setEnabledChildWishes(ONCFamily fam)
@@ -1109,7 +1147,6 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 		
 	private class WishDetailMouseListener implements MouseListener
 	{
-
 		@Override
 		public void mouseClicked(MouseEvent me)
 		{
@@ -1127,9 +1164,9 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 		}
 
 		@Override
-		public void mouseEntered(MouseEvent arg0) {
+		public void mouseEntered(MouseEvent arg0)
+		{
 			// TODO Auto-generated method stub
-			
 		}
 
 		@Override
@@ -1147,9 +1184,7 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 		@Override
 		public void mouseReleased(MouseEvent arg0) {
 			// TODO Auto-generated method stub
-			
 		}
-		
 	}
 	
 	class DetailDialog extends JDialog implements ActionListener
@@ -1167,15 +1202,11 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 		String[] titles;	
 		JTextField detailTF;
 		JButton btnOK;
-		WishLabelViewer viewer;
 		
 		public DetailDialog(JFrame pf, String wishname, ArrayList<WishDetail> wdAL)
 		{
 			super(pf, true);
 			this.setTitle("Additional " + wishname + " Detail");
-			
-			//create the label viewer
-			viewer = new WishLabelViewer(pf);
 			
 			//Create the combo boxes
 			titles = new String[wdAL.size()];
@@ -1208,11 +1239,7 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 	        this.add(detailpanel);
 	        this.add(cntlpanel);
 	        
-	        viewer.setLocationRelativeTo(pf);
-	        viewer.setVisible(true);
-	        
-	        pack();
-	        
+	        pack();  
 		}
 		
 		String getDetail()

@@ -56,7 +56,6 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 	private static final int XMAS_ICON_OFFSET = 9;
 	private static final int WISH_CATALOG_LIST_ALL = 7;
 	private static final int WISH_CATALOG_SORT_LIST = 1;
-	private static final int CHILD_WISH_STATUS_ASSIGNED = 3;
 	private static final int RS_ITEMS_PER_PAGE = 20;
 	private static final Integer MAXIMUM_ON_NUMBER = 9999;
 	private static final int MAX_LABEL_LINE_LENGTH = 26;

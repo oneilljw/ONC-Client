@@ -17,8 +17,6 @@ public class SortWishObject extends ONCSortObject
 		ONCOrgs partnerDB = ONCOrgs.getInstance();
 		ONCWishCatalog cat = ONCWishCatalog.getInstance();
 		String[] indicator = {"", "*", "#"};
-		String [] status = {"Any", "Empty", "Selected", "Assigned", "Received",
-							"Distributed", "Verified"};
 		SimpleDateFormat dob = new SimpleDateFormat("MM-dd-yyyy");
 		String dateChanged = dob.format(soChildWish.getChildWishDateChanged().getTime());
 		

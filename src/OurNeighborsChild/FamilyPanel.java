@@ -1388,6 +1388,9 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		{
 			Point pt = parentFrame.getLocation();
 	        wlViewerDlg.setLocation(pt.x + 225, pt.y + 325);
+	        
+	        if(currFam != null && currChild != null)
+	        	wlViewerDlg.displayLabel(currChild, 0);
 			wlViewerDlg.setVisible(true);
 		}
 	}

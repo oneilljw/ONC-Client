@@ -16,9 +16,8 @@ public class ONCChildWish extends ONCObject implements Serializable
 	 ************************************************************************************************************/
 	private static final long serialVersionUID = -2478929652422873065L;
 	
-	private int childID;	//Id of the child the wish belongs to
-	private int wishID;	//Id of the wish from the catalog
-//	private String childWishBase = "None";
+	private int childID;	//id of the child the wish belongs to
+	private int wishID;		//id of the wish from the catalog
 	private String childWishDetail = "";
 	private int wishnumber;
 	private int childWishIndicator = 0;	//0 - Blank, 1-*, 2-#
@@ -26,7 +25,6 @@ public class ONCChildWish extends ONCObject implements Serializable
 	private String changedBy = "";	
 	private Calendar dateChanged = Calendar.getInstance();
 	private int childWishAssigneeID = 0;
-//	private String childWishAssigneeName = "None";
 
 	//Constructor for wish created or changed internally		
 	public ONCChildWish(int id, int childid, int wishid, String wd, int wishnum, int wi, WishStatus ws, int waID, String cb, Date dc)
@@ -49,18 +47,13 @@ public class ONCChildWish extends ONCObject implements Serializable
 		super(Integer.parseInt(nextLine[0]));
 		childID = Integer.parseInt(nextLine[1]);
 		wishID = Integer.parseInt(nextLine[2]);
-		childWishDetail = getDBString(nextLine[3]);
+		childWishDetail = nextLine[3].isEmpty() ? "" : nextLine[3];
 		wishnumber = Integer.parseInt(nextLine[4]);
 		childWishIndicator = Integer.parseInt(nextLine[5]);
 		childWishStatus = WishStatus.valueOf(nextLine[6]);
-		changedBy = getDBString(nextLine[7]);
+		changedBy = nextLine[7].isEmpty() ? "" : nextLine[7];
 		dateChanged.setTimeInMillis(Long.parseLong(nextLine[8]));
 		childWishAssigneeID = Integer.parseInt(nextLine[9]);
-	}
-	
-	String getDBString(String s)
-	{
-		return s.isEmpty() ? "" : s;
 	}
 	
 	public int getChildID() { return childID; }
@@ -78,7 +71,6 @@ public class ONCChildWish extends ONCObject implements Serializable
 	void setChildWishIndicator(int cwi) { childWishIndicator = cwi; }
 	void setChildWishStatus(WishStatus cws) { childWishStatus = cws;}
 	void setChildWishAssigneeID(int id) {childWishAssigneeID = id;}
-//	void setChildWishAssigneeName(String n) {childWishAssigneeName = n; }
 	void setChildWishChangedBy(String name) {changedBy = name;}
 	void setChildWishDateChanged(Calendar dc) {dateChanged = dc;}
 	
