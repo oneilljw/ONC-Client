@@ -1058,7 +1058,7 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 			else if(!bChildDataChanging && (e.getSource() == wishCB[1] || 
 											 e.getSource() == wishindCB[1] ||
 											  e.getSource() == wishdetailTF[1] ||
-											   e.getSource() == wishstatusCB[1] ||
+//											   e.getSource() == wishstatusCB[1] ||
 											    e.getSource() == wishassigneeCB[1]))
 			{
 				if(c.getChildWishID(1) == NO_WISH)
