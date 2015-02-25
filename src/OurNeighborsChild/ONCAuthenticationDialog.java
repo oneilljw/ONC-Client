@@ -107,8 +107,7 @@ public class ONCAuthenticationDialog extends ONCConnectDialog
 	void onServerAttempt()
 	{
 		String response = "";	
-		GlobalVariables gvs = GlobalVariables.getInstance();
-		Login loginReq = new Login(tf1.getText(), new String(passwdPF.getPassword()), gvs.getVersion());
+		Login loginReq = new Login(tf1.getText(), new String(passwdPF.getPassword()), GlobalVariables.getVersion());
 		
 		if(serverIF != null && serverIF.isConnected())
 		{
