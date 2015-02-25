@@ -407,53 +407,55 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 			//Find child and wish number for selected
 			ONCChild c = stAL.get(row_sel[i]).getChild();
 			int wn = stAL.get(row_sel[i]).getChildWish().getWishNumber();
-//			ONCChildWish cw = cwDB.getWish(c.getChildWishID(wn));
 			ONCChildWish cw = stAL.get(row_sel[i]).getChildWish();
 
 			//Get current wish information
 			int cwWishID = cw.getWishID();
-//			String cwb = cat.getWishByID(cw.getWishID()).getName();
 			String cwd = cw.getChildWishDetail();
 			int cwi = cw.getChildWishIndicator();
 			WishStatus cws = cw.getChildWishStatus();
-			int cwaID = cw.getChildWishAssigneeID();
 			Organization org = null;
-//			String cwaName = cw.getChildWishAssigneeName();
+			if(cw.getChildWishAssigneeID() > -1)
+				org = orgs.getOrganizationByID(cw.getChildWishAssigneeID());
 			
 			//Determine if a change to wish restrictions, if so set new wish restriction for request
 			if(changeResCB.getSelectedIndex() > 0 && cwi != changeResCB.getSelectedIndex()-1)
 			{
-				cwi = changeResCB.getSelectedIndex()-1;	//Restrictions start at 0
-				bNewWishRqrd = true;
+				//a change to the indicator is requested. Can only change wish restrictions
+				//in certain WishState's
+				if(cws == WishStatus.Selected || cws == WishStatus.Assigned
+						||cws == WishStatus.Returned)
+				{
+					cwi = changeResCB.getSelectedIndex()-1;	//Restrictions start at 0
+					bNewWishRqrd = true;
+				}
 			}
 			
 			//Determine if a change to wish assignee, if so, set new wish assignee in request
-//			if(changeAssigneeCB.getSelectedIndex() > 0 && cwaID != orgs.getConfirmedOrganizationID(changeAssigneeCB.getSelectedIndex()))
-			if(changeAssigneeCB.getSelectedIndex() > 0 && cwaID != ((Organization)changeAssigneeCB.getSelectedItem()).getID())
+			if(changeAssigneeCB.getSelectedIndex() > 0 &&
+					cw.getChildWishAssigneeID() != ((Organization)changeAssigneeCB.getSelectedItem()).getID())
 			{
-				//Set the new org data
-				org = ((Organization)changeAssigneeCB.getSelectedItem());
-				
-				//If assignee is changing, then status may be changing as well
-//				if(cws.compareTo(WishStatus.Assigned) < 0)
-//					cws = WishStatus.Assigned;
-//				else if(cws == WishStatus.Missing)
-//					cws = WishStatus.Shopping;
-				
-				//can only change wish assignees in certain WishState
+				//can only change wish assignees in certain WishState's
 				if(cws == WishStatus.Selected || cws == WishStatus.Assigned ||
 					cws == WishStatus.Delivered || cws == WishStatus.Missing)
+				{
+					org = ((Organization)changeAssigneeCB.getSelectedItem());
 					bNewWishRqrd = true;
+				}
 			}
 			
 			//Determine if a change to wish status, if so, set new wish status in request
 			if(changeStatusCB.getSelectedIndex() > 0 && cws != changeStatusCB.getSelectedItem())
 			{
-				cws = (WishStatus) changeStatusCB.getSelectedItem();
-				//A new wish is required if the status is changing
-				WishStatus newStatus = cwDB.checkForStatusChange(cw, cw.getWishID(), cws, org);
+				//user has requested to change the wish status
+				WishStatus reqStatus = (WishStatus) changeStatusCB.getSelectedItem();
+				WishStatus newStatus = cwDB.checkForStatusChange(cw, cw.getWishID(), reqStatus, org);
+				
 				if(newStatus != cw.getChildWishStatus())
+				{
+					cws = reqStatus;
 					bNewWishRqrd = true;
+				}
 			}
 			
 			if(bNewWishRqrd)	//Restriction, Status or Assignee change detected
@@ -468,12 +470,8 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		}
 		
 		if(bRebuildTable)
-		{
-			
-//			tableRowSelectedItemIDList.clear();
 			buildTableList(false);
-		}
-
+		
 		//Reset the change combo boxes to "No Change"
 		changeResCB.setSelectedIndex(0);
 		changeStatusCB.setSelectedIndex(0);

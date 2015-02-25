@@ -953,6 +953,8 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 	
 	void setEnabledWishPanelComponents(int wn, WishStatus ws)
 	{
+//		System.out.println(String.format("ChildPanel.setEnabledWishPanelComponenst  wn = %d, ws = %s",
+//											wn, ws));
 		if(wpStatus == WishPanelStatus.Enabled)
 		{
 			if(ws == WishStatus.Not_Selected)
@@ -970,8 +972,9 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 				wishdetailTF[wn].setEnabled(true);
 				wishassigneeCB[wn].setEnabled(true);
 			}
-			else if(ws == WishStatus.Delivered)
+			else if(ws == WishStatus.Delivered || ws == WishStatus.Missing)
 			{
+				
 				wishCB[wn].setEnabled(false);
 				wishindCB[wn].setEnabled(false);
 				wishdetailTF[wn].setEnabled(false);
@@ -1005,6 +1008,7 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 	
 	void setEnabledChildWishes(ONCFamily fam)
 	{
+//		System.out.println(String.format("ChildPanel.setEnabledChildWishes ONC# %s", fam.getONCNum()));
 		//only enable wish panels if family has been verified
 		if(fam.getFamilyStatus() == FAMILY_STATUS_UNVERIFIED)	
 			wpStatus = WishPanelStatus.Disabled;
@@ -1028,12 +1032,18 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 			if(c != null)
 				updateChild(c);
 			
+			//check to see if there are children in the family, is so, display first child
 			if(childList != null && !childList.isEmpty())
 			{
-				displayChild(childList.get(0));
-				
-				if(childList.get(0).getChildWishID(0) != -1)
+				//check to see if any of the wishes exist yet, if they do enable wish panels
+				if(childList.get(0).getChildWishID(0) != -1 ||
+					childList.get(0).getChildWishID(1) != -1 ||
+					 childList.get(0).getChildWishID(2) != -1)
+				{
 					setEnabledChildWishes(fam);
+				}
+				
+				displayChild(childList.get(0));
 			}
 			else
 			{
