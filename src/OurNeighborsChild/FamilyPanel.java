@@ -821,7 +821,6 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 				cn = index;
 				currChild = ctAL.get(index);
 			}
-			
 		}		
 		
 		p1.setBackground(pBkColor);
