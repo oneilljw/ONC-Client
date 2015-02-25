@@ -250,10 +250,10 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
         {
         	wsp1[i].add(wishCB[i]);
         	wsp1[i].add(wishindCB[i]);
-        	wsp1[i].add(wishRB[i]);
         	wsp2[i].add(wishdetailTF[i]);
 //        	wsp3[i].add(wishstatusCB[i]);
             wsp3[i].add(wishassigneeCB[i]);
+            wsp3[i].add(wishRB[i]);
         }
          
         //Add the wish sub panels to each wish panel

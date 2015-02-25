@@ -19,10 +19,6 @@ import au.com.bytecode.opencsv.CSVWriter;
 public class ChildWishDB extends ONCDatabase
 {
 //	private static final int CHILD_WISH_DB_HEADER_LENGTH = 10;
-	private static final int CHILD_WISH_STATUS_EMPTY = 1;
-	private static final int CHILD_WISH_STATUS_SELECTED = 2;
-	private static final int CHILD_WISH_STATUS_ASSIGNED = 3;
-	private static final int CHILD_WISH_STATUS_RECEIVED = 4;
 	private static final int ORG_TYPE_ONC_SHOPPER = 6;
 	
 	private static ChildWishDB instance = null;
@@ -247,7 +243,7 @@ public class ChildWishDB extends ONCDatabase
 			case Selected:
 				if(wishBase == -1)
 					newStatus = WishStatus.Not_Selected;
-				else if(reqOrg.getID() == -1)
+				else if(reqOrg.getID() != -1)
 					newStatus = WishStatus.Assigned;
 				break;
 				
@@ -306,10 +302,11 @@ public class ChildWishDB extends ONCDatabase
 				break;
 			
 			case Missing:
-				if(reqStatus == WishStatus.Shopping)
-					newStatus = WishStatus.Shopping;
-				else if(reqStatus == WishStatus.Received)
+				if(reqStatus == WishStatus.Received)
 					newStatus = WishStatus.Received;
+				else if(reqOrg.getType() == ORG_TYPE_ONC_SHOPPER)
+					newStatus = WishStatus.Shopping;
+				
 				break;
 				
 			case Verified:

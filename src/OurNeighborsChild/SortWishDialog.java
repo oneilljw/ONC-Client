@@ -433,14 +433,17 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 			{
 				//Set the new org data
 				org = ((Organization)changeAssigneeCB.getSelectedItem());
-//				cwaName = ((Organization)changeAssigneeCB.getSelectedItem()).getName();
 				
 				//If assignee is changing, then status may be changing as well
-//				if(cws < CHILD_WISH_STATUS_ASSIGNED)
-				if(cws.compareTo(WishStatus.Assigned) < 0)
-					cws = WishStatus.Assigned;
+//				if(cws.compareTo(WishStatus.Assigned) < 0)
+//					cws = WishStatus.Assigned;
+//				else if(cws == WishStatus.Missing)
+//					cws = WishStatus.Shopping;
 				
-				bNewWishRqrd = true;
+				//can only change wish assignees in certain WishState
+				if(cws == WishStatus.Selected || cws == WishStatus.Assigned ||
+					cws == WishStatus.Delivered || cws == WishStatus.Missing)
+					bNewWishRqrd = true;
 			}
 			
 			//Determine if a change to wish status, if so, set new wish status in request
