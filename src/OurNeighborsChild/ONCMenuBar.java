@@ -282,7 +282,7 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 	    stopPollingMI.setVisible(false);
 	    menuSettings.add(stopPollingMI);
 	    
-	    showServerLogMI = new JMenuItem("Server Log");
+	    showServerLogMI = new JMenuItem("Message Log");
 	    menuSettings.add(showServerLogMI);
 	    
 	    showServerClientIDMI = new JMenuItem("Server Client ID");

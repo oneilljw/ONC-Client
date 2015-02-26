@@ -119,7 +119,7 @@ public class ServerIF
         }
         
         serverLog = new ArrayList<String>();
-        
+      
         instance = this;
     }
     
@@ -247,6 +247,7 @@ public class ServerIF
     	Calendar timestamp = Calendar.getInstance();
 		String line = new SimpleDateFormat("H:mm:ss.SSS").format(timestamp.getTime());
 		serverLog.add(line + " " + item);
+//		LogDialog.add(item, "ServerLog");
     }
     
     void writeServerLogFile()
@@ -345,7 +346,12 @@ public class ServerIF
     				index++;
     	
     			if(index < dbResponses.length)
+    			{
+    				String logEntry = String.format("Server IF.processChanges Event: %s, Message: %s",
+    						dbResponses[index], change.substring(dbResponses[index].length()).substring(0, 40));
+    				LogDialog.add(logEntry, "S");
     				fireDataChanged(dbResponses[index], change.substring(dbResponses[index].length()));
+    			}
     		}
     	}
 /*   	

@@ -290,6 +290,10 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 		bChildDataChanging = true;
 		c=child;
 		
+		String logEntry = String.format("ChildPanel.displayChild:  Child: %s",
+											child.getChildFirstName());
+		LogDialog.add(logEntry, "M");
+		
 		if(gvs.isUserAdmin())	//Only display child's actual name if user permission permits
 		{
 			firstnameTF.setText(child.getChildFirstName());
@@ -364,6 +368,8 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 		bChildDataChanging = true;
 		if(cw !=null)
 		{	
+			
+			
 			wp[wn].setBorder(BorderFactory.createTitledBorder("Wish " + Integer.toString(wn+1) +
 					": " + cw.getChildWishStatus().toString()));
 			ONCWish wish = cat.getWishByID(cw.getWishID());
@@ -371,6 +377,10 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 				wishCB[wn].setSelectedItem(wish);
 			else
 				wishCB[wn].setSelectedIndex(0);
+			
+			String logEntry = String.format("ChildPanel.displayWish: Wish# %d: %s, Status: %s",
+					wn, wishCB[wn].getSelectedItem().toString(), cw.getChildWishStatus().toString());
+			LogDialog.add(logEntry, "M");
 			
 			wishindCB[wn].setSelectedIndex(cw.getChildWishIndicator());
 			
@@ -914,8 +924,13 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 		
 			//If the current child being displayed wishes has been updated, update the 
 			//wish display. The wish number is contained in the updated wish object
-			if(addedWish.getChildID() == c.getID())	
+			if(addedWish.getChildID() == c.getID())
+			{
+				String logEntry = String.format("ChildPanel Event: %s, Child: %s, wish %d",
+						dbe.getType(), c.getChildFirstName(), addedWish.getWishNumber());
+				LogDialog.add(logEntry, "M");
 				displayWish(addedWish, addedWish.getWishNumber());
+			}
 			
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_CHILD"))
@@ -923,6 +938,9 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 			ONCChild updatedChild = (ONCChild) dbe.getObject();
 			if(updatedChild != null && updatedChild.getID() == c.getID())
 			{
+				String logEntry = String.format("ChildPanel Event: %s, Child: %s",
+													dbe.getType(), c.getChildFirstName());
+				LogDialog.add(logEntry, "M");
 				displayChild(updatedChild);
 			}
 			
@@ -931,7 +949,12 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 		{
 			ONCFamily fam = (ONCFamily) dbe.getObject();
 			if(fam != null)
-				setEnabledChildWishes(fam);	
+			{
+				String logEntry = String.format("ChildPanel Event: %s, ONC# %s",
+						dbe.getType(), fam.getONCNum());
+				LogDialog.add(logEntry, "M");
+				setEnabledChildWishes(fam);
+			}
 		}
 		else if(dbe.getSource() != this && (dbe.getType().equals("ADDED_CONFIRMED_PARTNER") ||
 											dbe.getType().equals("DELETED_CONFIRMED_PARTNER")) ||
@@ -939,14 +962,20 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 											dbe.getType().equals("UPDATED_CONFIRMED_PARTNER_NAME") ||
 											dbe.getType().equals("LOADED_PARTNERS"))
 		{
+			String logEntry = String.format("ChildPanel Event: %s", dbe.getType());
+			LogDialog.add(logEntry, "M");
 			updateWishAssigneeSelectionList();
 		}
 		else if(dbe.getSource() != this && dbe.getType().contains("_CATALOG"))
 		{
+			String logEntry = String.format("ChildPanel Event: %s", dbe.getType());
+			LogDialog.add(logEntry, "M");
 			updateWishSelectionList();
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_CHILDREN"))
 		{
+			String logEntry = String.format("ChildPanel Event: %s", dbe.getType());
+			LogDialog.add(logEntry, "M");
 			setEditableGUIFields(true);
 		}
 	}
@@ -1043,10 +1072,17 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 					setEnabledChildWishes(fam);
 				}
 				
+				String logEntry = String.format("ChildPanel Event: %s, ONC# %s with %d children",
+												tse.getType(), fam.getONCNum(), childList.size());
+				LogDialog.add(logEntry, "M");
+				
 				displayChild(childList.get(0));
 			}
 			else
 			{
+				String logEntry = String.format("ChildPanel Event: %s, ONC#  with %d children",
+						tse.getType(), fam.getONCNum(), childList.size());
+				LogDialog.add(logEntry, "M");
 				clearChildData();
 			}
 		}
@@ -1056,6 +1092,10 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 			
 			if(c!= null)
 				updateChild(c);
+			
+			String logEntry = String.format("ChildPanel Event: %s, Child Selected: %s",
+					tse.getType(), child.getChildFirstName());
+			LogDialog.add(logEntry, "M");
 			displayChild(child);
 		}
 		else if(tse.getType().equals("WISH_SELECTED"))
@@ -1064,6 +1104,9 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 			
 			if(c != null)
 				updateChild(c);
+			String logEntry = String.format("ChildPanel Event: %s, Child Selected: %s",
+					tse.getType(), child.getChildFirstName());
+			LogDialog.add(logEntry, "M");
 			displayChild(child);
 		}
 	}

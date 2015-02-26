@@ -118,6 +118,8 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private FamilyCheckDialog dfDlg;
 	private WishLabelViewer wlViewerDlg;
 	
+	private LogDialog logDlg;
+	
 	FamilyChildSelectionListener familyChildSelectionListener;	//Listener for family/child selection events
 	
 	public FamilyPanel(JFrame pf)
@@ -807,6 +809,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			if(!ctAL.isEmpty())
 				currChild = ctAL.get(0);
 			cn = 0;
+			LogDialog.add("FamilyPanel.display ONC# " + currFam.getONCNum() + ", 1st Child: " + currChild.getChildFirstName(), "M");
 		}
 		else
 		{
@@ -820,6 +823,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			{
 				cn = index;
 				currChild = ctAL.get(index);
+				LogDialog.add("FamilyPanel.display ONC# " + currFam.getONCNum() + ", Requested Child: " + currChild.getChildFirstName(), "M");
 			}
 		}		
 		
@@ -1933,7 +1937,10 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			
 			//If current family being displayed has changed, reshow it
 			if(currFam.getID() == updatedFam.getID())
-				display(updatedFam, currChild); //Don't change the displayed child
+			{
+				LogDialog.add("FamilyPanel: UPDATED_FAMILY ONC# " + updatedFam.getONCNum(), "M");
+				display(updatedFam, currChild); //Don't change the displayed child		
+			}
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("ADDED_FAMILY"))
 		{
@@ -1945,6 +1952,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			//If no current family being displayed (null) display the added family
 			if(currFam == null)
 			{
+				LogDialog.add("FamilyPanel: ADDED_FAMILY ONC# " + updatedFam.getONCNum(), "M");
 				display(updatedFam, null); //No child to display, probably
 //				System.out.println(String.format("FamilyPanel DB Event -- displayed family: Source: %s, Type: %s, Object: %s",
 //						dbe.getSource().toString(), dbe.getType(), dbe.getObject().toString()));
@@ -1957,6 +1965,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			//If current family being displayed contains child, refresh the table
 			if(updatedChild.getFamID() == currFam.getID())	
 			{
+				LogDialog.add("FamilyPanel: UPDATED_CHILD ONC# " + currFam.getONCNum() + ", Child: " + updatedChild.getChildFirstName(), "M");
 				//Find the child row and update it
 				int row = 0;
 				while(row < ctAL.size() && ctAL.get(row).getID() != updatedChild.getID())
@@ -1999,9 +2008,11 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 				
 			if(currFam.getID() == changeChild.getFamID())	//Child was added to the displayed family
 			{
-				ONCFamily fam = fDB.getFamily(changeChild.getFamID());
-				if(fam != null)
-					display(fam, null);
+				if(currFam != null)
+				{
+					LogDialog.add("FamilyPanel: ADDED_CHILD or DELETED_CHILD ONC# " + currFam.getONCNum() + ", Child: " + changeChild.getChildFirstName(), "M");
+					display(currFam, null);	
+				}
 			}
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("ADDED_DELIVERY"))
@@ -2011,9 +2022,11 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			//If updated delivery belongs to family being displayed, re-display it
 			if(currFam.getID() == updatedDelivery.getFamID())
 			{
-				ONCFamily fam = fDB.getFamily(updatedDelivery.getFamID());
-				if(fam != null)
-					display(fam, null);
+				if(currFam != null)
+				{
+					LogDialog.add("FamilyPanel: ADDED_DELIVERY ONC# " + currFam.getONCNum() + ", Delivery Note: " + updatedDelivery.getdNotes(), "M");
+					display(currFam, null);
+				}
 			}
 		}
 		else if(dbe.getType().equals("UPDATED_SERVED_COUNTS"))
@@ -2021,6 +2034,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 //			System.out.println(String.format("StatusPanel DB Event: Source: %s, Type: %s, Object: %s",
 //					dbe.getSource().toString(), dbe.getType(), dbe.getObject().toString()));
 			
+			LogDialog.add("FamilyPanel: UPDATED_SERVED_COUNTS", "M");
 			DataChange servedCountsChange = (DataChange) dbe.getObject();
 			int[] changes = {servedCountsChange.getOldData(), servedCountsChange.getNewData()};
 			updateDBStatus(changes);
@@ -2040,8 +2054,9 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 				//is from nav, update and display new family
 				if(tse.getSource() == nav && selFam.getID() != currFam.getID())
 				{
+					LogDialog.add("FamilyPanel: " + tse.getType() + " from Nav ONC# " + selFam.getONCNum(), "M");
 					update();
-					display(selFam, selChild);
+					display(selFam, selChild);	
 				}
 				//not nav and isn't current family displayed
 				else if(tse.getSource() != nav && selFam.getID() != currFam.getID())
@@ -2049,6 +2064,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 					int rtn;
 					if((rtn=fDB.searchForFamilyIndexByID(selFam.getID())) >= 0)
 					{
+						LogDialog.add("FamilyPanel: " + tse.getType() + " ONC# " + selFam.getONCNum(), "M");
 						update();
 						nav.setIndex(rtn);
 						display(selFam, selChild);
@@ -2063,6 +2079,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 					int rtn;
 					if((rtn=fDB.searchForFamilyIndexByID(selFam.getID())) >= 0)
 					{
+						LogDialog.add("FamilyPanel: " + tse.getType() + " ONC# " + selFam.getONCNum(), "M");
 						update();
 						nav.setIndex(rtn);
 						display(selFam, selChild);
