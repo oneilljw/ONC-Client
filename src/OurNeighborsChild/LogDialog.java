@@ -28,6 +28,7 @@ public class LogDialog extends JDialog implements ActionListener
 	private static StyledDocument serverLogDoc;
 	private static StyledDocument messageLogDoc;
 	private static SimpleAttributeSet logAttribs;
+	private static JTabbedPane tabbedPane;
 	private JButton btnClear, btnRefresh;
 	
 	LogDialog()
@@ -39,7 +40,7 @@ public class LogDialog extends JDialog implements ActionListener
 		JPanel contentPane = (JPanel) this.getContentPane();
 		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
 		
-		JTabbedPane tabbedPane = new JTabbedPane();
+		tabbedPane = new JTabbedPane();
 		tabbedPane.setTabPlacement(JTabbedPane.BOTTOM);
 		
 		//create the text panes that displays text
@@ -129,9 +130,16 @@ public class LogDialog extends JDialog implements ActionListener
 	{
 		if(e.getSource() == btnClear)
 		{
-			//clear the text pane and reset
+			//get the selected tab
+			int tab = tabbedPane.getSelectedIndex();
+			
 			try {
-				messageLogDoc.remove(0, messageLogDoc.getLength());
+				
+				if(tab == 0)	//only two panes
+					messageLogDoc.remove(0, messageLogDoc.getLength());
+				else
+					serverLogDoc.remove(0, messageLogDoc.getLength());
+		
 			} catch (BadLocationException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();

@@ -54,7 +54,7 @@ public class OurNeighborsChild implements DatabaseListener
 	private static final int ONC_ADMIN = 1;
 	private static final int ONC_USER = 0;
 	private static final int ONC_SAVE_FILE = 1;	
-	private static final String ONC_VERSION = "2.37";
+	private static final String ONC_VERSION = "2.38";
 	private static final String ONC_COPYRIGHT = "\u00A92015 John W. O'Neill";	
 	private static final String APPNAME = "Our Neighbor's Child";
 	private static final int DB_UNLOCKED_IMAGE_INDEX = 17;
@@ -68,6 +68,7 @@ public class OurNeighborsChild implements DatabaseListener
 	private FamilyPanel oncFamilyPanel;
 	private ONCMenuBar oncMenuBar;
 	private PreferencesDialog prefsDlg;
+	private LogDialog logDlg;
 
 	//Local Data Base Structures
 	private UserDB oncUserDB;
@@ -135,7 +136,7 @@ public class OurNeighborsChild implements DatabaseListener
        
         //Create and show mainframe with splash panel
         createMainFrame();
-        new LogDialog();	//create the static log dialog
+        logDlg = new LogDialog();	//create the static log dialog
         
         //Setup networking with the ONC Server
         serverIF = null;
@@ -1029,9 +1030,9 @@ public class OurNeighborsChild implements DatabaseListener
     		else if(e.getSource() == ONCMenuBar.stopPollingMI && serverIF != null) { serverIF.setEnabledServerPolling(false); }
     		else if(e.getSource() == ONCMenuBar.showServerLogMI && serverIF != null)
     		{
-    			LogDialog sld = new LogDialog();
-    			sld.setLocationRelativeTo(oncFrame);
-    			sld.setVisible(true);
+    			
+    			logDlg.setLocationRelativeTo(oncFrame);
+    			logDlg.setVisible(true);
     		}
     		else if(e.getSource() == ONCMenuBar.showServerClientIDMI)
     		{
