@@ -18,6 +18,7 @@ public class ONCPopupMessage extends ONCPopup
 		this.add(lblMssg, constraints);
 	}
 	
+	@Override
 	void show(String header, String message)
 	{
 		lblHeader.setText(header);

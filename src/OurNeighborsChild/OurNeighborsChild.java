@@ -1060,13 +1060,13 @@ public class OurNeighborsChild implements DatabaseListener
     public class ONCServerDBImporter extends SwingWorker<Void, Void>
     {
     	private static final int NUM_OF_DBs = 11;
-    	int year;
+    	String year;
     	ONCProgressBar pb;
     	boolean bServerDataLoaded;
     	
     	ONCServerDBImporter(int year, ONCProgressBar pb)
     	{
-    		this.year = year;
+    		this.year = Integer.toString(year);;
     		this.pb = pb;
     		bServerDataLoaded = false;
     	}
@@ -1080,29 +1080,39 @@ public class OurNeighborsChild implements DatabaseListener
 	    	
 	    	//Set the year this client will be working with
 //	    	ServerIF serverIF = ServerIF.getInstance();
-	    	serverIF.sendRequest("POST<setyear>" + Integer.toString(year));
+	    	serverIF.sendRequest("POST<setyear>" + year);
 			
 			//import from ONC Server
+	    	pb.updateHeaderText("<html>Loading Regions</html>");
 			oncRegions.getRegionsFromServer();
 			this.setProgress(progress += increment);
+			pb.updateHeaderText("Loading Season Data");
 			oncGVs.importGlobalVariableDatabase();
 			this.setProgress(progress += increment);
 //			oncUserDB.importUserDatabase();
 //			this.setProgress(progress += increment);
+			pb.updateHeaderText("Loading Families");
 			oncFamDB.importDB();
 			this.setProgress(progress += increment);
+			pb.updateHeaderText("Loading Children");
 			oncChildDB.importChildDatabase();
 			this.setProgress(progress += increment);
+			pb.updateHeaderText("Loading Wishes");
 			oncChildWishDB.importChildWishDatabase();
 			this.setProgress(progress += increment);
+			pb.updateHeaderText("Loading Agents");
 			oncAgentDB.importAgentDatabase();
 			this.setProgress(progress += increment);
+			pb.updateHeaderText("Loading Partners");
 			oncOrgDB.importDB();
 			this.setProgress(progress += increment);
+			pb.updateHeaderText("Loading Drivers");
 			oncDDB.importDriverDatabase();
 			this.setProgress(progress += increment);
+			pb.updateHeaderText("Loading Deliveries");
 			oncDelDB.importDeliveryDatabase();
 			this.setProgress(progress += increment);
+			pb.updateHeaderText("Loading Wish Catalog");
 			oncWishCat.importWishCatalogFromServer();
 			this.setProgress(progress += increment);
 			oncWishDetailDB.importWishDetailDatabase();
@@ -1125,21 +1135,21 @@ public class OurNeighborsChild implements DatabaseListener
 	    }
     }
     
-    void serverDataLoadComplete(boolean bServerDataLoaded, int year)
+    void serverDataLoadComplete(boolean bServerDataLoaded, String year)
     {
     	if(bServerDataLoaded)
     	{
     		//Now that we have season data loaded
         	//let the user know that data has been loaded
-    		oncFrame.setTitle(APPNAME + " - " + Integer.toString(year) + " Season Data");
+    		oncFrame.setTitle(APPNAME + " - " + year + " Season Data");
 			if(oncGVs.isUserAdmin()) 
 				oncMenuBar.setEnabledImportMenuItems(true);
 			
 			String mssg;
 			if(oncGVs.getUser().getFirstname().equals(""))
-				mssg = Integer.toString(year) + " season data has been loaded";
+				mssg = year + " season data has been loaded";
 			else
-				mssg = oncGVs.getUser().getFirstname() + ", " + Integer.toString(year) + " season data has been loaded";
+				mssg = oncGVs.getUser().getFirstname() + ", " + year + " season data has been loaded";
     		oncFamilyPanel.setMssg(mssg, true);
     		
     		oncMenuBar.setEnabledYear(false);

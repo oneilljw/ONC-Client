@@ -19,7 +19,9 @@ public class ONCProgressBar extends ONCPopup implements PropertyChangeListener
 		super(headingIcon, delay);	//Show the pop-up for 100 seconds
 		
 		progressBar = new JProgressBar(0, 100);
-		this.add(progressBar, constraints);		
+		this.add(progressBar, constraints);
+		
+		pack();
 	}
 
 	@Override
@@ -29,6 +31,10 @@ public class ONCProgressBar extends ONCPopup implements PropertyChangeListener
 		progressBar.setValue(0);
 		progressBar.setStringPainted(true);
 		this.makeVisible();	
+	}
+	void updateHeaderText(String header)
+	{
+		lblHeader.setText(header);
 	}
 	
 	@Override
