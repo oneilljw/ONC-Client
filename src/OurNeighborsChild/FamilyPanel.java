@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -56,6 +57,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private static final int FAMILY_STATUS_SELECTION_LIST_PACKAGED_INDEX = 6;
 	private static final int DELIVERY_STATUS_ASSIGNED = 3;
 	private static final String GIFT_CARD_ONLY_TEXT = "gift card only";
+	private static final int NUMBER_OF_WISHES_PER_CHILD = 3;
 	
 	private DeliveryDB deliveryDB;
 	private ONCRegions regions;
@@ -96,6 +98,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	        new DefaultHighlighter.DefaultHighlightPainter(Color.YELLOW);
 	
 	private ChildPanel oncChildPanel;
+	private WishPanel[] wishPanelList;
 	
 	//Dialogs that are children of the family panel
 	private static ClientMapDialog cmDlg;
@@ -581,6 +584,26 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         sortDriverDlg.addEntitySelectionListener(oncChildPanel);
         this.addEntitySelectionListener(oncChildPanel);
         
+        //create the wish panel
+        JPanel childwishespanel = new JPanel(new GridLayout(1,3));
+        wishPanelList = new WishPanel[NUMBER_OF_WISHES_PER_CHILD];
+        for(int wp=0; wp < wishPanelList.length; wp++)
+        {
+        	wishPanelList[wp] = new WishPanel(pf, wp);
+        	childwishespanel.add(wishPanelList[wp]);
+        	
+        	//add the entity selection listeners
+        	nav.addEntitySelectionListener(wishPanelList[wp]);
+            sortFamiliesDlg.addEntitySelectionListener(wishPanelList[wp]);
+            sortWishesDlg.addEntitySelectionListener(wishPanelList[wp]);
+            sortAgentDlg.addEntitySelectionListener(wishPanelList[wp]);
+            sortDriverDlg.addEntitySelectionListener(wishPanelList[wp]);
+            assignDeliveryDlg.addEntitySelectionListener(wishPanelList[wp]);
+            sortDriverDlg.addEntitySelectionListener(wishPanelList[wp]);
+            this.addEntitySelectionListener(wishPanelList[wp]);
+        }
+			
+        
         //set up the label viewer dialog
         wlViewerDlg= new WishLabelViewer(pf);
         nav.addEntitySelectionListener(wlViewerDlg);
@@ -665,7 +688,8 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         this.add(p3);
         this.add(p4);
         this.add(p5);
-        this.add(oncChildPanel);        
+        this.add(oncChildPanel);
+        this.add(childwishespanel);
 	}
 
 	void setEditableGUIFields(boolean tf)
@@ -1368,6 +1392,8 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 									colWidths, null, WishStatus.Received);
     	recGiftsDlg.addEntitySelectionListener(familyChildSelectionListener);
     	recGiftsDlg.addEntitySelectionListener(oncChildPanel);
+    	for(int wp=0; wp< wishPanelList.length; wp++)
+    		recGiftsDlg.addEntitySelectionListener(wishPanelList[wp]);
     	
 		recGiftsDlg.buildTableList(false);
 			

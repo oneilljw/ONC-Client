@@ -461,9 +461,9 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 			if(bNewWishRqrd)	//Restriction, Status or Assignee change detected
 			{
 				//Add the new wish to the child wish history, returns -1 if no wish created
-				int wishid = cwDB.add(this, c.getID(), cwWishID, cwd, wn, cwi, cws, org);
+				ONCChildWish addedWish = cwDB.add(this, c.getID(), cwWishID, cwd, wn, cwi, cws, org);
 				
-				if(wishid != -1)	//only proceed if wish was accepted by the data base
+				if(addedWish != null)	//only proceed if wish was accepted by the data base
 					bRebuildTable = true;	//set flag to rebuild/display the table array/wish table
 			}
 		}
