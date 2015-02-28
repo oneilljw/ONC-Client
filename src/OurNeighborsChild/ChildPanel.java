@@ -647,9 +647,8 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 			//Now that we have assessed/received base,  detail and assignee changes, create a new wish			
 			int wishID = cwDB.add(this, c.getID(), selectedCBWish.getID(),
 						wishdetailTF[wn].getText(), wn, wishindCB[wn].getSelectedIndex(),
-						cw.getChildWishStatus(),
-						selectedCBOrg,
-						gvs.getUserLNFI(), gvs.getTodaysDate());
+						cw.getChildWishStatus(), selectedCBOrg);
+			
 			
 			//if adding the wish was successful, we need to fetch and display the wish. The db may have changed
 			//the status of the wish.
@@ -694,8 +693,7 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 				
 				//set wish 1 to none	
 				wishID = cwDB.add(this, c.getID(), -1, "", 1, 0, WishStatus.Not_Selected, 
-									new Organization(-1, "None", "None"), gvs.getUserLNFI(),
-									gvs.getTodaysDate());
+									new Organization(-1, "None", "None"));
 				
 				//if adding the wish was successful, we need to fetch and display the wish. The db may have changed
 				//the status of the wish.
@@ -757,8 +755,7 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 		int wishID = cwDB.add(this, c.getID(), selectedWish.getID(),
 							wishdetailTF[wn].getText(), wn, wishindCB[wn].getSelectedIndex(),
 							WishStatus.Selected,
-							selectedCBOrg,
-							gvs.getUserLNFI(), gvs.getTodaysDate());
+							selectedCBOrg);
 		
 		//if adding the wish was successful, we need to fetch and display the wish. The db may have changed
 		//the status of the wish.
@@ -827,7 +824,7 @@ public class ChildPanel extends ONCPanel implements ActionListener, DatabaseList
 		//add the helmet as wish 1		
 		int wishtypeid = cat.getWishID(ONC_HELMET_NAME); 	//Not implemented yet
 		int wishID = cwDB.add(this, c.getID(), wishtypeid, "", 1, 0, WishStatus.Selected, 
-				new Organization(-1, "None", "None"), gvs.getUserLNFI(), gvs.getTodaysDate());
+								new Organization(-1, "None", "None"));
 		
 		//if adding the wish was successful, we need to fetch and display the wish. The db may have changed
 		//the status of the wish.

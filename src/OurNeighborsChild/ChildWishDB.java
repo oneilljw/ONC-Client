@@ -47,8 +47,12 @@ public class ChildWishDB extends ONCDatabase
 	 * an automatic change needs to occur as well. The new wish, with correct status is 
 	 * then sent to the server. 
 	 */
-	int add(Object source, int childid, int wishid, String wd, int wn, int wi, WishStatus ws, Organization org, String cb, Date dc)
-	{		
+	int add(Object source, int childid, int wishid, String wd, int wn, int wi, WishStatus ws, Organization org)
+	{	
+		GlobalVariables gvs = GlobalVariables.getInstance();
+		String cb = gvs.getUserLNFI();
+		Date dc = gvs.getTodaysDate();
+		
 		//Get the old wish being replaced. getWish method returns null if wish not found
 		ONCChildWish oldWish = getWish(childid, wn);
 		

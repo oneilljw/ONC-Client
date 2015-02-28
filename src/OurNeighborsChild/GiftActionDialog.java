@@ -187,7 +187,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 		lastWishChanged = new ONCSortObject(-1, fam, c, cw);
 			
 		int wishid = cwDB.add(this, c.getID(), wishtypeid, cwd, wn, cwi, getGiftStatusAction(),
-								null, gvs.getUserLNFI(), gvs.getTodaysDate());
+								null);
 			
 //		c.setChildWishID(wishid, wn);	//Unnecessary: ChildWishDB.processAddedChild takes care of this			
 				
@@ -220,9 +220,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 									lastWish.getWishNumber(),
 									lastWish.getChildWishIndicator(),
 									lastWish.getChildWishStatus(),
-									null,	//null to keep same partner
-									gvs.getUserLNFI(),
-									gvs.getTodaysDate());
+									null);	//null to keep same partner
 		
 	//	lastChild.setChildWishID(wishid, lastWish.getWishNumber());	//Unnecessary: ChildWishDB.processAddedChild takes care of this	
 		

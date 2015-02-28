@@ -7,16 +7,24 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.lang.reflect.Type;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 public class WishPanel extends ONCPanel implements ActionListener, EntitySelectionListener
 {
@@ -31,10 +39,13 @@ public class WishPanel extends ONCPanel implements ActionListener, EntitySelecti
 	//database references
 	ONCWishCatalog cat;
 	
-	private ONCChildWish cw; 			//wish being displayed on panel
+	private ONCChild child;		//child being displayed on panel
+	private ONCChildWish cw; 	//wish being displayed on panel
 	private int wishNumber; 	//wish# being displayed on panel
 	
-	private boolean bWishDataChanging; 		//Semaphore indicating changing ComboBoxes
+	private ChildWishDB cwDB;
+	
+	private boolean bWishChanging; 		//Semaphore indicating changing ComboBoxes
 	private JComboBox wishCB, wishindCB, wishassigneeCB;
 	private DefaultComboBoxModel wishCBM, assigneeCBM;
 	private JTextField wishdetailTF;
@@ -45,6 +56,7 @@ public class WishPanel extends ONCPanel implements ActionListener, EntitySelecti
 	{
 		super(parentFrame);
 		
+		cwDB = ChildWishDB.getInstance();
 		cat = ONCWishCatalog.getInstance();
 		
 		this.setLayout(new GridLayout(3,1));
@@ -114,7 +126,7 @@ public class WishPanel extends ONCPanel implements ActionListener, EntitySelecti
 	
 	void updateWishSelectionList()
 	{
-		bWishDataChanging = true;
+		bWishChanging = true;
 		
 		wishCBM.removeAllElements();	//Clear the combo box selection list
 
@@ -129,7 +141,7 @@ public class WishPanel extends ONCPanel implements ActionListener, EntitySelecti
 		else
 			wishCB.setSelectedIndex(0);
 	
-		bWishDataChanging = false;
+		bWishChanging = false;
 	}
 
 	/*****************************************************************************************************
@@ -141,7 +153,7 @@ public class WishPanel extends ONCPanel implements ActionListener, EntitySelecti
 	void updateWishAssigneeSelectionList()
 	{
 		ONCOrgs orgDB = ONCOrgs.getInstance();
-		bWishDataChanging = true;
+		bWishChanging = true;
 		
 		assigneeCBM.removeAllElements();
 		assigneeCBM.addElement(new Organization(-1, "None", "None"));
@@ -155,17 +167,13 @@ public class WishPanel extends ONCPanel implements ActionListener, EntitySelecti
 		else
 			wishassigneeCB.setSelectedIndex(0);
 		
-		bWishDataChanging = false;
+		bWishChanging = false;
 	}
 	
 	/********************************************************************************************
-	 * This method is called to check to see if a child's wish has changed. A change did occur if
-	 * the wish as represented on the child panel is different from the wish stored for the child.
+	 * This method is called to check to see if a child's wish detail has changed.
 	 * If a change is detected, a new wish is created and added to the child wish database thru
 	 * a call to the addWish method in the child data base. 
-	 * When the new base wish may require a detailed dialog box that prompts the
-	 * user for more detail about the wish selected.  
-	 * @param wn - which of the child's wishes is to be checked
 	 *******************************************************************************************/
 /*
 	void updateWish(int wn)	//NEED TO HANDLE IF CURRET WISH IS NULL, ADDING THE FIRST WISH TO HISTORY
@@ -381,11 +389,133 @@ public class WishPanel extends ONCPanel implements ActionListener, EntitySelecti
 				return true;
 		}
 	}
+	
+	void showWishHistoryDlg()
+	{
+		ServerIF serverIF = ServerIF.getInstance();
+		Gson gson = new Gson();
+		String response = null;
+		
+		if(serverIF != null && serverIF.isConnected())
+		{
+			HistoryRequest req = new HistoryRequest(child.getID(), wishNumber);
+			
+			response = serverIF.sendRequest("GET<wishhistory>"+ 
+													gson.toJson(req, HistoryRequest.class));
+		}
+		
+		if(response != null)
+		{
+			ArrayList<ONCChildWish> cwh = new ArrayList<ONCChildWish>();
+			Type listtype = new TypeToken<ArrayList<ONCChildWish>>(){}.getType();
+			
+			cwh = gson.fromJson(response, listtype);
+			
+			//need to add the assignee name based on the assignee ID for the table
+			String[] indicators = {"", "*", "#"};
+			ONCOrgs orgDB = ONCOrgs.getInstance();
+			
+			ArrayList<String[]> wishHistoryTable = new ArrayList<String[]>();
+			for(ONCChildWish cw:cwh)
+			{
+				ONCWish wish = cat.getWishByID(cw.getWishID());
+				Organization assignee = orgDB.getOrganizationByID(cw.getChildWishAssigneeID());
+				
+				String[] whTR = new String[7];
+				whTR[0] = wish == null ? "None" : wish.getName();
+				whTR[1] = cw.getChildWishDetail();
+				whTR[2] = indicators[cw.getChildWishIndicator()];
+				whTR[3] = cw.getChildWishStatus().toString();
+				whTR[4] = assignee == null ? "None" : assignee.getName();
+				whTR[5] = cw.getChildWishChangedBy();
+				whTR[6] = new SimpleDateFormat("MM/dd H:mm:ss").format(cw.getChildWishDateChanged().getTime());
+				
+				wishHistoryTable.add(whTR);
+			}
+			//need to determine what name to use for child due to user privileges
+			String firstname;
+			if(gvs.isUserAdmin())
+				firstname = child.getChildFirstName();
+			else
+				firstname = "Child x";
+			WishHistoryDialog whDlg = new WishHistoryDialog(GlobalVariables.getFrame(), wishHistoryTable,
+											wishNumber, firstname);
+			whDlg.setLocationRelativeTo(wishRB);
+			whDlg.setVisible(true);
+		}
+		else
+		{
+			JOptionPane.showMessageDialog(GlobalVariables.getFrame(), 
+					"Child Wish History Not Available", 
+					"ONC Server Failed to Respond", JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
+		}
+	}
 
 
 	@Override
-	public void actionPerformed(ActionEvent arg0) {
-		// TODO Auto-generated method stub
+	public void actionPerformed(ActionEvent e) 
+	{
+		if(!bWishChanging && e.getSource() == wishCB && 
+			((ONCWish)wishCB.getSelectedItem()).getID() != cw.getWishID())
+		{
+			//user selected a new wish. Check to see if we need to show wish detail dialog
+			//Check if a detail dialog is required. It is required if the wish name is found
+			//in the catalog (return != null) and the ONC Wish object detail required array list
+			//contains data. If required, construct and show the modal dialog. If not required, clear
+			//the wish detail text field so the user can create new detail. This prevents inadvertent
+			//legacy wish detail from being carried forward with a wish change
+			int selectedCBWishID = ((ONCWish) wishCB.getSelectedItem()).getID();
+			ArrayList<WishDetail> drDlgData = cat.getWishDetail(selectedCBWishID);
+			if(drDlgData != null)
+			{
+				//Construct and show the wish detail required dialog
+				String newWishName = wishCB.getSelectedItem().toString();
+				DetailDialog dDlg = new DetailDialog(GlobalVariables.getFrame(), newWishName, drDlgData);
+				Point pt = GlobalVariables.getFrame().getLocation();	//Used to set dialog location
+				dDlg.setLocation(pt.x + (wishNumber*200) + 20, pt.y + 400);
+				dDlg.setVisible(true);
+				
+				//Retrieve the data and update the wish
+				wishdetailTF.setText(dDlg.getDetail());
+			}
+			else
+			{
+				wishdetailTF.setText("");	//Clear the text field if base wish changed so user can complete
+			}
+		
+
+		cwDB.add(this, child.getID(), selectedCBWishID, wishdetailTF.getText(), wishNumber, 
+					cw.getChildWishIndicator(), cw.getChildWishStatus(),
+					(Organization) wishassigneeCB.getSelectedItem());
+		}
+		else if(!bWishChanging && e.getSource() == wishindCB && cw.getChildWishIndicator() != 
+				wishindCB.getSelectedIndex())
+		{
+			//Add a new wish with the new indicator
+			cwDB.add(this, child.getID(), cw.getWishID(), wishdetailTF.getText(), wishNumber, 
+						wishindCB.getSelectedIndex(), cw.getChildWishStatus(),
+						(Organization) wishassigneeCB.getSelectedItem());
+		}
+		else if(!bWishChanging && e.getSource() == wishdetailTF &&
+				!cw.getChildWishDetail().equals(wishdetailTF.getText())) 
+		{
+			//Add a new wish with the new wish detail
+			cwDB.add(this, child.getID(), cw.getWishID(), wishdetailTF.getText(), wishNumber, 
+						wishindCB.getSelectedIndex(), cw.getChildWishStatus(),
+						(Organization) wishassigneeCB.getSelectedItem());
+		}
+		else if(!bWishChanging && e.getSource() == wishdetailTF &&
+				cw.getChildWishAssigneeID() != ((Organization) wishassigneeCB.getSelectedItem()).getID()) 
+		{
+			//Add a new wish with the new organization
+			cwDB.add(this, child.getID(), cw.getWishID(), wishdetailTF.getText(), wishNumber, 
+						wishindCB.getSelectedIndex(), cw.getChildWishStatus(),
+						(Organization) wishassigneeCB.getSelectedItem());
+		}
+		else if(e.getSource() == wishRB)
+		{ 
+			showWishHistoryDlg(); 
+		}
 		
 	}
 	
@@ -490,6 +620,100 @@ public class WishPanel extends ONCPanel implements ActionListener, EntitySelecti
 		@Override
 		public void mouseReleased(MouseEvent arg0) {
 			// TODO Auto-generated method stub
+		}
+	}
+	
+	class DetailDialog extends JDialog implements ActionListener
+	{
+		/*****************************************************************************************
+		 * This class implements a dialog used to get additional detail from the 
+		 * user regarding gift selection details. It provides customizable 
+		 * combo boxes and a detail text field. 
+		 * @params - JFrame pf - reference to the parent frame of this dialog
+		 * @params - String wishname - name of the wish for which additional detail is obtained
+		 * @params - ArrayList<WishDetail> wdAL - Array list containing additional detail objects
+		 ******************************************************************************************/
+		private static final long serialVersionUID = 1L;
+		JComboBox[] cbox;
+		String[] titles;	
+		JTextField detailTF;
+		JButton btnOK;
+		
+		public DetailDialog(JFrame pf, String wishname, ArrayList<WishDetail> wdAL)
+		{
+			super(pf, true);
+			this.setTitle("Additional " + wishname + " Detail");
+			
+			//Create the combo boxes
+			titles = new String[wdAL.size()];
+			cbox = new JComboBox[wdAL.size()];
+			
+			JPanel infopanel = new JPanel();			
+			
+			for(int i=0; i<cbox.length; i++)
+			{
+				titles[i] = wdAL.get(i).getWishDetailName();
+				cbox[i] = new JComboBox(wdAL.get(i).getWishDetailChoices());
+				cbox[i].setBorder(BorderFactory.createTitledBorder(titles[i]));
+				infopanel.add(cbox[i]);
+			}
+			
+			JPanel detailpanel = new JPanel();
+			detailTF = new JTextField();
+			detailTF.setPreferredSize(new Dimension (320, 50));
+			detailTF.setBorder(BorderFactory.createTitledBorder("Additional Details"));
+			detailpanel.add(detailTF);
+			
+			JPanel cntlpanel = new JPanel();
+			btnOK = new JButton("Ok");
+			btnOK.addActionListener(this);
+			cntlpanel.add(btnOK);
+			
+			 //Add the components to the frame pane
+	        this.getContentPane().setLayout(new BoxLayout(this.getContentPane(), BoxLayout.Y_AXIS));        
+	        this.add(infopanel);
+	        this.add(detailpanel);
+	        this.add(cntlpanel);
+	        
+	        pack();  
+		}
+		
+		String getDetail()
+		{
+			StringBuffer detail = new StringBuffer(cbox[0].getSelectedItem().toString());
+			for(int i=1; i<titles.length; i++)
+			{
+				if(titles[i].toLowerCase().contains("size"))
+					detail.append(", " + "Sz: " + cbox[i].getSelectedItem().toString());
+				else if(titles[i].toLowerCase().contains("color"))
+				{
+					if(!cbox[i].getSelectedItem().toString().equals("Any") &&
+						!cbox[i].getSelectedItem().toString().equals("?"))
+							detail.append(", " + cbox[i].getSelectedItem().toString());
+				}
+				else
+					detail.append(", " + titles[i] + ": "+ cbox[i].getSelectedItem().toString());
+			}
+					
+			if(detailTF.getText().isEmpty())
+				return detail.toString();
+			else
+				return detail.toString() + ", " + detailTF.getText();
+		}
+		
+		void clearDetail()
+		{
+			for(int i = 0; i<cbox.length; i++)	//Clear combo boxes
+				cbox[i].setSelectedIndex(0);
+			
+			detailTF.setText("");			
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			if(e.getSource() == btnOK) 
+				this.setVisible(false);
 		}
 	}
 }
