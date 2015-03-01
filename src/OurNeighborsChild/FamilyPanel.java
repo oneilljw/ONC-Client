@@ -169,7 +169,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		//Set up the text fields for each of the characteristics displayed
 		DataChangeListener fdcListener = new DataChangeListener();
         lblONCNum = new JLabel("");
-        lblONCNum.setPreferredSize(new Dimension(56, 44));
+        lblONCNum.setPreferredSize(new Dimension(60, 44));
         lblONCNum.setBorder(BorderFactory.createTitledBorder("ONC #"));
         lblONCNum.setHorizontalAlignment(JLabel.CENTER);
         

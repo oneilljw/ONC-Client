@@ -65,18 +65,12 @@ public class ChildWishDB extends ONCDatabase
 		else if(org != null)
 			orgID = org.getID();
 		
-		//Determine if the status needs to change automatically. Method handles null oldWish
-		WishStatus wishstatus;
-		if(replWish != null)
-			wishstatus = checkForStatusChange(replWish, wishid, ws, org);
-		else
-			wishstatus = WishStatus.Not_Selected;
-		
 		//create the new wish, with childwishID = -1, meaning no wish selected
 		//the server will add the childwishID and return it
 		ONCChildWish retCW = null;
 		ONCChildWish reqCW = new ONCChildWish(-1, childid, wishid, wd, wn, wi,
-											wishstatus, orgID, cb, dc);		
+											   checkForStatusChange(replWish, wishid, ws, org), 
+											   orgID, cb, dc);		
 		Gson gson = new Gson();
 		String response = null, helmetResponse = null;
 		
@@ -102,11 +96,11 @@ public class ChildWishDB extends ONCDatabase
 				 retCW.getWishID() == bikeID)		
 			{
 				//add Helmet as wish 1
-				ONCChildWish helmetCW = new ONCChildWish(-1, childid, helmetID, "", 1, 2,
+				ONCChildWish helmetCW = new ONCChildWish(-1, childid, helmetID, "", 1, 1,
 						WishStatus.Selected, -1, cb, dc);
 				helmetResponse = serverIF.sendRequest("POST<childwish>" + gson.toJson(helmetCW, ONCChildWish.class));
 				if(helmetResponse != null && helmetResponse.startsWith("WISH_ADDED"))
-					processAddedWish(source, response.substring(10));
+					processAddedWish(this, helmetResponse.substring(10));
 			}
 			//if replaced wish was a bike and now isn't and wish 1 was a helmet, make
 			//wish one empty
@@ -118,7 +112,7 @@ public class ChildWishDB extends ONCDatabase
 						WishStatus.Not_Selected, -1, cb, dc);
 				helmetResponse = serverIF.sendRequest("POST<childwish>" + gson.toJson(helmetCW, ONCChildWish.class));
 				if(helmetResponse != null && helmetResponse.startsWith("WISH_ADDED"))
-					processAddedWish(source, response.substring(10));
+					processAddedWish(this, helmetResponse.substring(10));
 			}
 		}
 		

@@ -39,8 +39,7 @@ public enum WishStatus
 	
 	static WishStatus[] getChangeList()
 	{
-		WishStatus[] wsChange = {WishStatus.No_Change, WishStatus.Not_Selected,
-								WishStatus.Delivered, WishStatus.Returned,
+		WishStatus[] wsChange = {WishStatus.No_Change, WishStatus.Delivered, WishStatus.Returned,
 								WishStatus.Shopping, WishStatus.Received, WishStatus.Distributed,
 								WishStatus.Missing, WishStatus.Verified};
 		
