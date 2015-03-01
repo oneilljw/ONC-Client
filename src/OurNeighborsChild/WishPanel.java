@@ -59,6 +59,9 @@ public class WishPanel extends ONCPanel implements ActionListener, DatabaseListe
 		super(parentFrame);
 		this.wishNumber = wishNumber;
 		
+		if(fDB != null)
+			fDB.addDatabaseListener(this);
+		
 		cwDB = ChildWishDB.getInstance();
 		if(cwDB != null)
 			cwDB.addDatabaseListener(this);
@@ -80,29 +83,26 @@ public class WishPanel extends ONCPanel implements ActionListener, DatabaseListe
 		JPanel wsp3 = new JPanel();
 		wsp3.setLayout(new BoxLayout(wsp3, BoxLayout.LINE_AXIS));
 		
-		
 		 //Set up the wish combo boxes and detail text fields for child wishes        
         String[] indications = {"", "*", "#"};        
-//        String [] status = {"**Unused**", "Empty", "Selected", "Assigned", "Received",
-//        					"Distributed", "Verified"};
-        
+
         this.setBorder(BorderFactory.createTitledBorder("Wish " + Integer.toString(wishNumber+1)));
         
-        Dimension dwi = new Dimension(60, 24);     
         Dimension dwa = new Dimension(140, 24);
-        
+//        Dimension dwi = new Dimension(44, 24);     
+          
         //Get a catalog for type=selection
         wishCBM = new DefaultComboBoxModel();
         wishCBM.addElement(new ONCWish(-1, "None", 7));
         wishCB = new JComboBox();
         wishCB.setModel(wishCBM);
-        wishCB.setPreferredSize(new Dimension(144, 24));
+//        wishCB.setPreferredSize(new Dimension(144, 24));
         wishCB.setToolTipText("Select wish from ONC gift catalog");
         wishCB.setEnabled(false);
         wishCB.addActionListener(this);
             
         wishindCB = new JComboBox(indications);
-        wishindCB.setPreferredSize(dwi);           
+//        wishindCB.setPreferredSize(dwi);           
         wishindCB.setToolTipText("Set Wish Restrictions: #- Not from ODB Wish List, *- Don't assign for fulfillment");
         wishindCB.setEnabled(false);
         wishindCB.addActionListener(this);
@@ -151,61 +151,51 @@ public class WishPanel extends ONCPanel implements ActionListener, DatabaseListe
 	void displayWish(ONCChildWish cw)
 	{
 		bWishChanging = true;
+		
+		child = cDB.getChild(cw.getChildID());
 		childWish = cw;
-		if(cw !=null)
-		{	
-			child = cDB.getChild(cw.getChildID());
-			
-			this.setBorder(BorderFactory.createTitledBorder("Wish " + Integer.toString(wishNumber+1) +
+		
+		this.setBorder(BorderFactory.createTitledBorder("Wish " + Integer.toString(wishNumber+1) +
 					": " + cw.getChildWishStatus().toString()));
 			
-			ONCWish wish = cat.getWishByID(cw.getWishID());
-			if(wish != null)
-				wishCB.setSelectedItem(wish);
-			else
-				wishCB.setSelectedIndex(0);
-			
-			String logEntry = String.format("Wish Panel.displayWish: Wish# %d: %s, Status: %s",
-					wishNumber, wishCB.getSelectedItem().toString(), cw.getChildWishStatus().toString());
-			LogDialog.add(logEntry, "M");
-			
-			wishindCB.setSelectedIndex(cw.getChildWishIndicator());
-			
-			wishdetailTF.setText(cw.getChildWishDetail());
-			wishdetailTF.setCaretPosition(0);
-			if(doesWishFitOnLabel(cw))
-				wishdetailTF.setBackground(Color.WHITE);
-			else
-				wishdetailTF.setBackground(Color.YELLOW);
-
-			Organization org = orgDB.getOrganizationByID(cw.getChildWishAssigneeID());
-			if(org != null)
-				wishassigneeCB.setSelectedItem(org);
-			else
-				wishassigneeCB.setSelectedIndex(0);
-			
-			setEnabledWishPanelComponents(cw.getChildWishStatus());
-		}
-		else	//child wish doesn't exist yet
-		{
-			child = null;
+		ONCWish wish = cat.getWishByID(cw.getWishID());
+		if(wish != null)
+			wishCB.setSelectedItem(wish);
+		else
 			wishCB.setSelectedIndex(0);
-			wishindCB.setSelectedIndex(0);
-			wishdetailTF.setText("");
-			wishdetailTF.setCaretPosition(0);
+			
+		String logEntry = String.format("Wish Panel.displayWish: Wish# %d: %s, Status: %s",
+					wishNumber, wishCB.getSelectedItem().toString(), cw.getChildWishStatus().toString());
+		LogDialog.add(logEntry, "M");
+			
+		wishindCB.setSelectedIndex(cw.getChildWishIndicator());
+			
+		wishdetailTF.setText(cw.getChildWishDetail());
+		wishdetailTF.setCaretPosition(0);
+		if(doesWishFitOnLabel(cw))
+			wishdetailTF.setBackground(Color.WHITE);
+		else
+			wishdetailTF.setBackground(Color.YELLOW);
+
+		Organization org = orgDB.getOrganizationByID(cw.getChildWishAssigneeID());
+		if(org != null)
+			wishassigneeCB.setSelectedItem(org);
+		else
 			wishassigneeCB.setSelectedIndex(0);
-		}
-		
+			
+		setEnabledWishPanelComponents(cw.getChildWishStatus());
+
 		bWishChanging = false;
 	}
 	
-	void clearWishData()
+	void clearWish()
 	{
 		bWishChanging = true;
 		
 		childWish = null;
 		child = null;
 		
+		this.setBorder(BorderFactory.createTitledBorder("Wish " + Integer.toString(wishNumber+1)));
 		wishCB.setSelectedIndex(0);
 		wishdetailTF.setText("");
 		wishindCB.setSelectedIndex(0);
@@ -258,21 +248,7 @@ public class WishPanel extends ONCPanel implements ActionListener, DatabaseListe
 		
 		bWishChanging = false;
 	}	
-/*
-	void updateWish(int wn)	//NEED TO HANDLE IF CURRET WISH IS NULL, ADDING THE FIRST WISH TO HISTORY
-	{
-		
-			
-			//Now that we have assessed/received base,  detail and assignee changes, create a new wish			
-			int wishID = cwDB.add(this, c.getID(), selectedCBWish.getID(),
-						wishdetailTF[wn].getText(), wn, wishindCB[wn].getSelectedIndex(),
-						cw.getChildWishStatus(),
-						selectedCBOrg,
-						gvs.getUserLNFI(), gvs.getTodaysDate());
-			
-	}
-*/
-	
+
 	void setEnabledWish(ONCFamily fam)
 	{
 //		System.out.println(String.format("ChildPanel.setEnabledChildWishes ONC# %s", fam.getONCNum()));
@@ -375,7 +351,7 @@ public class WishPanel extends ONCPanel implements ActionListener, DatabaseListe
 		
 		if(serverIF != null && serverIF.isConnected())
 		{
-			HistoryRequest req = new HistoryRequest(child.getID(), wishNumber);
+			HistoryRequest req = new HistoryRequest(childWish.getChildID(), wishNumber);
 			
 			response = serverIF.sendRequest("GET<wishhistory>"+ 
 													gson.toJson(req, HistoryRequest.class));
@@ -414,7 +390,7 @@ public class WishPanel extends ONCPanel implements ActionListener, DatabaseListe
 			if(gvs.isUserAdmin())
 				firstname = child.getChildFirstName();
 			else
-				firstname = "Child x";
+				firstname = "Child " + cDB.getChildNumber(child);
 			WishHistoryDialog whDlg = new WishHistoryDialog(GlobalVariables.getFrame(), wishHistoryTable,
 											wishNumber, firstname);
 			whDlg.setLocationRelativeTo(wishRB);
@@ -461,39 +437,44 @@ public class WishPanel extends ONCPanel implements ActionListener, DatabaseListe
 			}
 		
 
-		cwDB.add(this, child.getID(), selectedCBWishID, wishdetailTF.getText(), wishNumber, 
-					childWish.getChildWishIndicator(), childWish.getChildWishStatus(),
-					(Organization) wishassigneeCB.getSelectedItem());
+			addWish();
 		}
 		else if(!bWishChanging && e.getSource() == wishindCB && childWish.getChildWishIndicator() != 
 				wishindCB.getSelectedIndex())
 		{
 			//Add a new wish with the new indicator
-			cwDB.add(this, child.getID(), childWish.getWishID(), wishdetailTF.getText(), wishNumber, 
-						wishindCB.getSelectedIndex(), childWish.getChildWishStatus(),
-						(Organization) wishassigneeCB.getSelectedItem());
+			addWish();
 		}
 		else if(!bWishChanging && e.getSource() == wishdetailTF &&
 				!childWish.getChildWishDetail().equals(wishdetailTF.getText())) 
 		{
 			//Add a new wish with the new wish detail
-			cwDB.add(this, child.getID(), childWish.getWishID(), wishdetailTF.getText(), wishNumber, 
-						wishindCB.getSelectedIndex(), childWish.getChildWishStatus(),
-						(Organization) wishassigneeCB.getSelectedItem());
+			addWish();
 		}
-		else if(!bWishChanging && e.getSource() == wishdetailTF &&
+		else if(!bWishChanging && e.getSource() == wishassigneeCB &&
 				childWish.getChildWishAssigneeID() != ((Organization) wishassigneeCB.getSelectedItem()).getID()) 
 		{
 			//Add a new wish with the new organization
-			cwDB.add(this, child.getID(), childWish.getWishID(), wishdetailTF.getText(), wishNumber, 
-						wishindCB.getSelectedIndex(), childWish.getChildWishStatus(),
-						(Organization) wishassigneeCB.getSelectedItem());
+			addWish();
 		}
 		else if(e.getSource() == wishRB)
 		{ 
 			showWishHistoryDlg(); 
-		}
+		}	
+	}
+	
+	void addWish()
+	{
+		ONCChildWish addedWish =  cwDB.add(this, child.getID(),
+									((ONCWish) wishCB.getSelectedItem()).getID(),
+									wishdetailTF.getText(), wishNumber, wishindCB.getSelectedIndex(),
+									childWish.getChildWishStatus(),
+									(Organization) wishassigneeCB.getSelectedItem());
 		
+		if(addedWish != null)
+			displayWish(addedWish);
+		else
+			displayWish(childWish);
 	}
 	
 	@Override
@@ -509,13 +490,23 @@ public class WishPanel extends ONCPanel implements ActionListener, DatabaseListe
 		
 			//If the current wish is being displayed update the display with the added wish
 			//wish display. The wish number is contained in the updated wish object
-			if(addedWish.getChildID() == child.getID() && addedWish.getWishNumber() == wishNumber)
+			if(addedWish.getChildID() == childWish.getChildID() &&
+					addedWish.getWishNumber() == wishNumber)
 			{
 				String logEntry = String.format("WishPanel Event: %s, Child: %s, wish %d",
 						dbe.getType(), child.getChildFirstName(), addedWish.getWishNumber());
 				LogDialog.add(logEntry, "M");
 				
 				displayWish(addedWish);
+			}
+		}
+		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_FAMILY"))
+		{
+			ONCFamily updatedFam = (ONCFamily) dbe.getObject();
+			if(child != null && updatedFam.getID() == child.getFamID())
+			{
+				//current child displayed is in family, check for wish panel status change
+				setEnabledWish(updatedFam);
 			}
 		}
 		else if(dbe.getSource() != this && (dbe.getType().equals("ADDED_CONFIRMED_PARTNER") ||
@@ -551,23 +542,28 @@ public class WishPanel extends ONCPanel implements ActionListener, DatabaseListe
 				//check to see if any of the wishes exist yet, if they do enable wish panels
 				setEnabledWish(fam);
 				
-				String logEntry = String.format("ChildPanel Event: %s, ONC# %s with %d children",
+				String logEntry = String.format("WishPanel Event: %s, ONC# %s with %d children",
 												tse.getType(), fam.getONCNum(), childList.size());
 				LogDialog.add(logEntry, "M");
 				
 				ONCChildWish cw = cwDB.getWish(childList.get(0).getID(), wishNumber);
-				displayWish(cw);
+				
+				if(cw != null)
+					displayWish(cw);
+				else
+					clearWish();
+				
 			}
 			else
 			{
-				String logEntry = String.format("ChildPanel Event: %s, ONC# %s with %d children",
+				String logEntry = String.format("WishPanel Event: %s, ONC# %s with %d children",
 						tse.getType(), fam.getONCNum(), childList.size());
 				LogDialog.add(logEntry, "M");
 				
-				clearWishData();
+				clearWish();
 			}
 		}
-		else if(tse.getType().equals("CHILD_SELECTED"))
+		else if(tse.getType().equals("CHILD_SELECTED") || tse.getType().equals("WISH_SELECTED")  )
 		{
 			ONCChild child = (ONCChild) tse.getObject2();
 			
@@ -576,22 +572,10 @@ public class WishPanel extends ONCPanel implements ActionListener, DatabaseListe
 			LogDialog.add(logEntry, "M");
 			
 			if(child.getChildWishID(wishNumber) > -1)
-				displayWish(cwDB.getWish(child.getChildWishID(wishNumber)));	
-		}
-		else if(tse.getType().equals("WISH_SELECTED"))
-		{
-			ONCChild child = (ONCChild) tse.getObject2();
-			if(this.child.getID() != child.getID() && child.getChildWishID(wishNumber) > -1)
-			{	
-				String logEntry = String.format("WishPanel Event: %s, Wish Selected: %s",
-						tse.getType(), child.getChildFirstName());
-				LogDialog.add(logEntry, "M");
-				
-				displayWish(cwDB.getWish(child.getID(), wishNumber));
-			}
+				displayWish(cwDB.getWish(child.getChildWishID(wishNumber)));
 			else
-				clearWishData();
-		}	
+				clearWish();
+		}
 	}
 	
 	private enum WishPanelStatus 
@@ -606,7 +590,7 @@ public class WishPanel extends ONCPanel implements ActionListener, DatabaseListe
 		@Override
 		public void mouseClicked(MouseEvent me)
 		{
-			if(me.getSource() != wishdetailTF)
+			if(me.getSource() == wishdetailTF)
 			{
 				//need to get family, child, and child wish objects
 				ONCFamily fam = fDB.getFamily(child.getFamID());

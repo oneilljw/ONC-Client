@@ -64,9 +64,9 @@ public class ChildPanel extends ONCPanel implements DatabaseListener, EntitySele
 	private static final String GIFT_CARD_ONLY_TEXT = "gift card only";
 	
 	//Singleton application objects
-	private ONCOrgs orgs;
-	private ONCWishCatalog cat;
-	private ChildWishDB cwDB;
+//	private ONCOrgs orgs;
+//	private ONCWishCatalog cat;
+//	private ChildWishDB cwDB;
 	
 	private ONCChild c = null;	//The panel needs to know which child is being displayed for listeners
 	
@@ -97,10 +97,10 @@ public class ChildPanel extends ONCPanel implements DatabaseListener, EntitySele
 		
 		//Set parent frame and share app data structures
 //		gvs = GlobalVariables.getInstance();
-		orgs = ONCOrgs.getInstance();
-		cat = ONCWishCatalog.getInstance();
-		cDB = ChildDB.getInstance();
-		cwDB = ChildWishDB.getInstance();
+//		orgs = ONCOrgs.getInstance();
+//		cat = ONCWishCatalog.getInstance();
+//		cDB = ChildDB.getInstance();
+//		cwDB = ChildWishDB.getInstance();
 		
 		//register database listeners for updates
 		if(fDB != null) { fDB.addDatabaseListener(this); }
@@ -184,12 +184,12 @@ public class ChildPanel extends ONCPanel implements DatabaseListener, EntitySele
         genderTF.addActionListener(cuListener);
  
         //Set up the wish combo boxes and detail text fields for child wishes        
-        String[] indications = {"", "*", "#"};        
+//        String[] indications = {"", "*", "#"};        
 //        String [] status = {"**Unused**", "Empty", "Selected", "Assigned", "Received",
 //        					"Distributed", "Verified"};
         
-        Dimension dwi = new Dimension(60, 24);     
-        Dimension dwa = new Dimension(140, 24);
+//        Dimension dwi = new Dimension(60, 24);     
+//        Dimension dwa = new Dimension(140, 24);
  /*       
         for(int i=0; i<wp.length; i++)
         {
@@ -511,7 +511,7 @@ public class ChildPanel extends ONCPanel implements DatabaseListener, EntitySele
 			}
 		}
 	}
-*/
+
 	String[] getChildTableData()
 	{
 		SimpleDateFormat oncdf = new SimpleDateFormat("M/d/yy");
@@ -1075,7 +1075,7 @@ public class ChildPanel extends ONCPanel implements DatabaseListener, EntitySele
 			}
 			else
 			{
-				String logEntry = String.format("ChildPanel Event: %s, ONC#  with %d children",
+				String logEntry = String.format("ChildPanel Event: %s, ONC# %s with %d children",
 						tse.getType(), fam.getONCNum(), childList.size());
 				LogDialog.add(logEntry, "M");
 				clearChildData();

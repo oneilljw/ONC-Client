@@ -614,6 +614,8 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         sortDriverDlg.addEntitySelectionListener(wlViewerDlg);
         this.addEntitySelectionListener(wlViewerDlg);
         oncChildPanel.addEntitySelectionListener(wlViewerDlg);
+        for(int wp=0; wp < wishPanelList.length; wp++)
+        	wishPanelList[wp].addEntitySelectionListener(wlViewerDlg);
       
         //Add components to the panels
         p1.add(lblONCNum);
@@ -831,9 +833,14 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			currFam = fam;
 			ctAL = cDB.getChildren(currFam.getID());
 			if(!ctAL.isEmpty())
+			{
 				currChild = ctAL.get(0);
+				LogDialog.add("FamilyPanel.display ONC# " + currFam.getONCNum() + ", 1st Child: " + currChild.getChildFirstName(), "M");
+			}
+			else
+				LogDialog.add("FamilyPanel.display ONC# " + currFam.getONCNum() + ", No Children in Family", "M");
+			
 			cn = 0;
-			LogDialog.add("FamilyPanel.display ONC# " + currFam.getONCNum() + ", 1st Child: " + currChild.getChildFirstName(), "M");
 		}
 		else
 		{
