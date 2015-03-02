@@ -108,7 +108,7 @@ public class ChildDB extends ONCDatabase
 		//remove child from local partner and wish databases
 		//and remove the child from this data base
 		partnerDB.deleteChildWishAssignments(deletedChild);
-		ArrayList<WishBaseOrOrgChange> wishbasechanges = cwDB.deleteChildWishes(deletedChild);
+		ArrayList<WishBaseChange> wishbasechanges = cwDB.deleteChildWishes(deletedChild);
 		int index = 0;
 		while(index < childAL.size() && childAL.get(index).getID() != deletedChild.getID())
 			index++;
@@ -116,7 +116,7 @@ public class ChildDB extends ONCDatabase
 		if(index < childAL.size())
 		{
 			childAL.remove(index);
-			for(WishBaseOrOrgChange change: wishbasechanges)
+			for(WishBaseChange change: wishbasechanges)
 				//deleted wish - need to tell wish catalog dialog to adjust wish counts
 				fireDataChanged(source, "WISH_BASE_CHANGED", change);
 			

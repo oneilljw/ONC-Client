@@ -186,31 +186,22 @@ public class ChildWishDB extends ONCDatabase
 		//data bases have been updated, notify ui's of changes
 		fireDataChanged(source, "WISH_ADDED", addedWish);
 		
-		if(replacedWish != null && replacedWish.getWishID() != addedWish.getWishID())
+		if(replacedWish != null && replacedWish.getWishID() != addedWish.getWishID() ||
+				replacedWish == null && addedWish.getChildWishStatus() == WishStatus.Selected)
 		{
 			//base change - need to tell wish catalog dialog to adjust wish counts
-			WishBaseOrOrgChange wbc= new WishBaseOrOrgChange(replacedWish, addedWish, addedWish.getWishNumber());
+			WishBaseChange wbc= new WishBaseChange(replacedWish, addedWish);
 			
 			cat.changeWishCounts(wbc);	//notify the catalog to update counts
 			
 			fireDataChanged(source, "WISH_BASE_CHANGED", wbc); //notify the UI's			
 		}
-		
-//		if(replacedWish != null && replacedWish.getChildWishStatus() != addedWish.getChildWishStatus())
-//		{
-//			//status change - need to notify wish status changed
-//			DataChange wsc= new DataChange(replacedWish.getChildWishStatus(), 
-//											addedWish.getChildWishStatus());	
-//				
-//			fireDataChanged(source, "WISH_STATUS_CHANGED", wsc);
-//		}
-		
+
 		if(wac != null)
 			fireDataChanged(source, "WISH_PARTNER_CHANGED", wac);
 		
 		if(wgr != null)
 			fireDataChanged(source, "WISH_RECEIVED", wgr);
-		
 		
 		return addedWish;
 	}
@@ -353,107 +344,21 @@ public class ChildWishDB extends ONCDatabase
 		
 		return newStatus;			
 	}
-	
-	/******************************************************************************************
-	 * This method checks an added wish to see if the base has changed to or from a Bike. 
-	 * If it has,  created to notify the ui's of the change. In addition, if
-	 * it's a status change, the FamilyDB (Families) is notified to check for a family
-	 * status change. 
-	 * @param oldWish
-	 * @param addedWish
-	 **********************************************************************************/
-		
-	/******************************************************************************************
-	 * This method checks an added wish to see if the base, status or assignee has changed. 
-	 * If they have, messages are created to notify the ui's of the change. In addition, if
-	 * it's a status change, the FamilyDB (Families) is notified to check for a family
-	 * status change. 
-	 * @param oldWish
-	 * @param addedWish
-	 **********************************************************************************/
-/*
-	void processWishAdded(ONCChildWish oldWish, ONCChildWish addedWish)
-	{
-		//test to see if base, status or assignee are changing, if the old wish exists
-		if(oldWish != null)
-		{	
-			if(oldWish.getWishID() != addedWish.getWishID())
-			{
-				//base change - need to tell wish catalog dialog to adjust wish counts
-				WishBaseOrOrgChange wbc= new WishBaseOrOrgChange(oldWish.getChildWishBase(),
-																  addedWish.getChildWishBase(),
-																   addedWish.getWishNumber());
-				
-				cat.changeWishCounts(wbc);
-				
-				fireDataChanged(this, "WISH_BASE_CHANGED", wbc);			
-			}
-					
-			if(oldWish.getChildWishStatus() != addedWish.getChildWishStatus())
-			{
-				//status change - need to notify familyDB of status change
-				DataChange wsc= new DataChange(oldWish.getChildWishStatus(), 
-												addedWish.getChildWishStatus());	
-					
-				fireDataChanged(this, "WISH_STATUS_CHANGED", wsc);
-			}
 
-			if(oldWish.getChildWishAssigneeID() != addedWish.getChildWishAssigneeID())
-			{				
-				//assignee change -- need to notify to adjust partner gift assignment counts
-				DataChange wac= new DataChange(oldWish.getChildWishAssigneeID(),
-												addedWish.getChildWishAssigneeID());
-				
-				fireDataChanged(this, "WISH_PARTNER_CHANGED", wac);
-			}
-		}
-	}
-	
-	void processWishDeleted(ONCChildWish oldWish)
-	{
-		//test to see if base, status or assignee are changing, if the old wish exists
-		if(oldWish != null)
-		{
-			if(!oldWish.getChildWishBase().equals("None"))
-			{
-				//deleted wish - need to tell wish catalog dialog to adjust wish counts
-				WishBaseOrOrgChange wbc= new WishBaseOrOrgChange(oldWish.getChildWishBase(),
-																  "None",
-																   oldWish.getWishNumber());	
-				fireDataChanged(this, "WISH_BASE_CHANGED", wbc);
-			}
-					
-			if(oldWish.getChildWishStatus() > 1)
-			{
-				//status change - need to notify familyDB of status change
-				WishChange wsc= new WishChange(oldWish.getChildWishStatus(), 0);		
-				fireDataChanged(this, "WISH_STATUS_CHANGED", wsc);
-			}
-			
-			if(oldWish.getChildWishAssigneeID() > 0)
-			{				
-				//assignee change -- need to notify to adjust partner gift assignment counts
-				WishChange wac= new WishChange(oldWish.getChildWishAssigneeID(), 0);
-				fireDataChanged(this, "WISH_PARTNER_CHANGED", wac);
-			}
-		}
-	}
-*/	
 	/**
 	 * This method removes a child's wishes from the child wish database. It is called
 	 * when a child is deleted.
 	 * @param childid
 	 */
-	ArrayList<WishBaseOrOrgChange> deleteChildWishes(ONCChild delChild)
+	ArrayList<WishBaseChange> deleteChildWishes(ONCChild delChild)
 	{
 		//Create the list of wish base changes for wishes selected or higher status
-		ArrayList<WishBaseOrOrgChange> wishbasechangelist = new ArrayList<WishBaseOrOrgChange>();
+		ArrayList<WishBaseChange> wishbasechangelist = new ArrayList<WishBaseChange>();
 		for(int wn=0; wn<NUMBER_OF_WISHES_PER_CHILD; wn++)
 		{
 			ONCChildWish cw = getWish(delChild.getChildWishID(wn));
-			ONCWish wish = cw == null ? null : cat.getWishByID(cw.getWishID());
 			if(cw != null && cw.getChildWishStatus().compareTo(WishStatus.Selected) >= 0)
-				wishbasechangelist.add(new WishBaseOrOrgChange(wish, new ONCWish(-1, "None", 7), wn));	
+				wishbasechangelist.add(new WishBaseChange(cw, null));	
 		}
 		
 		//delete the wishes from local cache
@@ -474,18 +379,7 @@ public class ChildWishDB extends ONCDatabase
 		//preserved for a season. 
 		return null;
 	}
-/*	
-	ArrayList<ONCChildWish> getChildWishHistory(int childid, int wn)
-	{	
-		ArrayList<ONCChildWish> cwh = new ArrayList<ONCChildWish>();
-		
-		for(ONCChildWish cw: childwishAL)
-			if(cw.getChildID() == childid && cw.getWishNumber() == wn)
-				cwh.add(cw);
-		
-		return cwh;		
-	}
-*/	
+
 	ONCChildWish getWish(int wishid)
 	{
 		int index = childwishAL.size() -1;
@@ -514,8 +408,6 @@ public class ChildWishDB extends ONCDatabase
 		else
 			return childwishAL.get(index);
 	}
-	
-//	long getTotalNumberOfChildWishes() { return childwishAL.size(); }
 	
 	int getNumberOfWishesPerChild() { return NUMBER_OF_WISHES_PER_CHILD; }
 	

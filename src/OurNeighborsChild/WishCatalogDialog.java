@@ -41,11 +41,9 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 	private static final int WISH_COUNT_COLUMN = 2;
 	
 	private JTable wcTable;
-	private AbstractTableModel wcTableModel;	//public due to parent listener
+	private AbstractTableModel wcTableModel;
 	private JButton btnAddWish, btnEditWish, btnDeleteWish, btnPrintCat;
 	private ONCWishCatalog cat;
-	private GlobalVariables wcGVs;
-//	private WishDetailDialog wdDlg;
 		
 	public WishCatalogDialog(JFrame pf)
 	{
@@ -56,14 +54,19 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 		//top level object and passed to all objects that require the wish catalog, including
 		//this dialog
 		cat = ONCWishCatalog.getInstance();
-		wcGVs = GlobalVariables.getInstance();
+		if(cat != null)
+			cat.addDatabaseListener(this);
+		
 		ChildWishDB cwDB = ChildWishDB.getInstance();
-		cwDB.addDatabaseListener(this);	//Listen for child wish base changes
+		if(cwDB != null)
+			cwDB.addDatabaseListener(this);	//Listen for child wish base changes
+		
 		ChildDB childDB = ChildDB.getInstance();
-		childDB.addDatabaseListener(this);
+		if(childDB != null)
+			childDB.addDatabaseListener(this);
 		
 		//add a listener for wish catalog changes
-		cat.addDatabaseListener(this);
+		
 		
 		//Create the table model
 		wcTableModel = new WishCatalogTableModel();
@@ -142,7 +145,7 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
         dsScrollPane.setBorder(UIManager.getBorder("Table.scrollPaneBorder"));
         
         JPanel cntlPanel = new JPanel();
-        cntlPanel.setPreferredSize(new Dimension(536, 50));
+//      cntlPanel.setPreferredSize(new Dimension(536, 50));
         
         btnPrintCat = new JButton("Print Catalog");
         btnPrintCat.setToolTipText("Print the wish catalog");
@@ -205,7 +208,8 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 				{
 					String err_mssg = "ONC Server denied add catalog wish request, try again later";
 					JOptionPane.showMessageDialog(this, err_mssg, "Add Catalog Wish Request Failure",
-												JOptionPane.ERROR_MESSAGE, wcGVs.getImageIcon(0));
+												JOptionPane.ERROR_MESSAGE,
+												GlobalVariables.getONCLogo());
 				}
 			}
 			
@@ -245,7 +249,7 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 			{
 				String err_mssg = "ONC Server denied add catalog wish request, try again later";
 				JOptionPane.showMessageDialog(this, err_mssg, "Add Catalog Wish Request Failure",
-											JOptionPane.ERROR_MESSAGE, wcGVs.getImageIcon(0));
+											JOptionPane.ERROR_MESSAGE, GlobalVariables.getONCLogo());
 			}
 		}
 	}
@@ -286,7 +290,7 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 				{
 					String err_mssg = "ONC Server denied delete catalog wish request, try again later";
 					JOptionPane.showMessageDialog(this, err_mssg, "Delete Catalog Wish Request Failure",
-											JOptionPane.ERROR_MESSAGE, wcGVs.getImageIcon(0));
+											JOptionPane.ERROR_MESSAGE, GlobalVariables.getONCLogo());
 				}
 			}
 		}
@@ -438,16 +442,23 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 		if(dbe.getSource() != this && dbe.getType().equals("WISH_BASE_CHANGED"))
 		{
 			//User changed a wish base, must update wish counts
-			WishBaseOrOrgChange wbc = (WishBaseOrOrgChange) dbe.getObject();
+			WishBaseChange wbc = (WishBaseChange) dbe.getObject();
+			ONCChildWish replWish = (ONCChildWish) wbc.getReplacedWish();
+			ONCChildWish addedWish = (ONCChildWish) wbc.getAddedWish();
 			
-			//get row deleted from catalog and update
-			int row = cat.findWishRow(wbc.getOldObject().getID());
-			if(row > -1)
+			String logEntry = String.format("WishCatalog Event: %s, -- Wish ID: %d, ++ Wish ID: %d",
+					dbe.getType(), replWish.getWishID(), addedWish.getWishID());
+			LogDialog.add(logEntry, "M");
+			
+			//get row of decremented wish from catalog and update table
+			int row;
+			if(replWish != null &&  replWish.getWishID() > -1 &&
+				(row = cat.findWishRow(replWish.getWishID())) > -1)
 				wcTableModel.fireTableCellUpdated(row, WISH_COUNT_COLUMN);
 			
-			//get row incremented from catalog and update
-			row = cat.findWishRow(wbc.getNewObject().getID());
-			if(row > -1)
+			//get row  of incremented wish from catalog and update
+			if(addedWish != null && addedWish.getWishID() > -1  &&
+				(row = cat.findWishRow(addedWish.getWishID())) > -1)
 				wcTableModel.fireTableCellUpdated(row, WISH_COUNT_COLUMN);
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("ADDED_CATALOG_WISH"))

@@ -1008,12 +1008,12 @@ public class Families extends ONCSearchableDatabase
 		return nBikes;
 	}
 	
-	ArrayList<int[]> getWishBaseSelectedCounts(ArrayList<Integer> wishIDs)
+	ArrayList<int[]> getWishBaseSelectedCounts(ArrayList<ONCWish> wishList)
 	{
 		ArrayList<int[]> wishcountAL = new ArrayList<int[]>();
 	
 		//Initialize the array list
-		for(int i=0; i<wishIDs.size(); i++)
+		for(int i=0; i<wishList.size(); i++)
 		{
 			int[] counts = new int[NUMBER_OF_WISHES_PER_CHILD];
 			counts[0] = 0;
@@ -1027,11 +1027,11 @@ public class Families extends ONCSearchableDatabase
 		//wish number
 		for(ONCFamily f:oncFamAL)
 		{
-			if(isNumeric(f.getONCNum()))	//Must be a valid family
+			if(isNumeric(f.getONCNum()))	//Must be a served family
 			{
 				for(ONCChild c: childDB.getChildren(f.getID()))
 				{
-					for(int wn=0; wn < NUMBER_OF_WISHES_PER_CHILD; wn++)	//get each of thier wishes
+					for(int wn=0; wn < NUMBER_OF_WISHES_PER_CHILD; wn++)	//get each of their wishes
 					{
 						ONCChildWish cw = childwishDB.getWish(c.getChildWishID(wn));
 						
@@ -1040,7 +1040,7 @@ public class Families extends ONCSearchableDatabase
 						{
 							//Find wish in array list and increment the count
 							int index = 0;
-							while(index < wishcountAL.size() && cw.getWishID() != wishIDs.get(index))
+							while(index < wishcountAL.size() && cw.getWishID() != wishList.get(index).getID())
 								index++;
 						
 							if(index == wishcountAL.size())

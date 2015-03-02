@@ -29,10 +29,11 @@ public class ONCWishCatalog extends ONCDatabase
 	private static final int WISH_CATALOG_SORT_LIST = 1;
 	private static final int WISH_CATALOG_LIST_ALL = 7;
 //	private static final int WISH_CATALOG_COMPARE_LIST = 2;
+	private static final int NUMBER_OF_WISHES_PER_CHILD = 3;
 	
 	private static ONCWishCatalog instance = null;
-	private ArrayList<ONCWish> wishCatalog;
-	private ArrayList<int[]> wishCountsAL;
+	private ArrayList<WishCatalogItem> wishCatalog;
+//	private ArrayList<int[]> wishCountsAL;
 	private WishDetailDB  wdDB;
 	
 	private ONCWishCatalog()
@@ -40,8 +41,8 @@ public class ONCWishCatalog extends ONCDatabase
 		super();
 		wdDB = WishDetailDB.getInstance();
 		
-		wishCatalog = new ArrayList<ONCWish>();
-		wishCountsAL = new ArrayList<int[]>();
+		wishCatalog = new ArrayList<WishCatalogItem>();
+//		wishCountsAL = new ArrayList<int[]>();
 	}
 	
 	public static ONCWishCatalog getInstance()
@@ -53,17 +54,24 @@ public class ONCWishCatalog extends ONCDatabase
 	}
 	
 	//getters from wish catalog
-	ArrayList<ONCWish> getWishCatalog() { return wishCatalog; }
-	ONCWish getWish(int index) { return wishCatalog.get(index); }
+	ONCWish getWish(int index) { return wishCatalog.get(index).getWish(); }
+	ArrayList<ONCWish> getCatalogWishList()
+	{
+		ArrayList<ONCWish> wishList = new ArrayList<ONCWish>();
+		for(WishCatalogItem wci: wishCatalog)
+			wishList.add(wci.getWish());
+		
+		return wishList;
+	}
 	
 	public ONCWish getWishByID(int wishID)
 	{
 		int index = 0;
-		while(index < wishCatalog.size() && wishCatalog.get(index).getID() != wishID)
+		while(index < wishCatalog.size() && wishCatalog.get(index).getWish().getID() != wishID)
 			index++;
 		
 		if(index < wishCatalog.size())
-			return wishCatalog.get(index);
+			return wishCatalog.get(index).getWish();
 		else
 			return null;
 	}
@@ -71,7 +79,7 @@ public class ONCWishCatalog extends ONCDatabase
 	int findWishRow(int wishID)
 	{
 		int index = 0;
-		while(index < wishCatalog.size() && wishCatalog.get(index).getID() != wishID)
+		while(index < wishCatalog.size() && wishCatalog.get(index).getWish().getID() != wishID)
 			index++;
 		
 		if(index < wishCatalog.size())
@@ -80,12 +88,12 @@ public class ONCWishCatalog extends ONCDatabase
 			return -1;
 	}
 	int getNumberOfItems() { return wishCatalog.size(); }
-	int getWishID(int index) { return wishCatalog.get(index).getID(); }
-	String getWishName(int index) { return wishCatalog.get(index).getName(); }
+	int getWishID(int index) { return wishCatalog.get(index).getWish().getID(); }
+	String getWishName(int index) { return wishCatalog.get(index).getWish().getName(); }
 	ArrayList<Integer> getWishIDs()
 	{
 		ArrayList<Integer> wishIDs = new ArrayList<Integer>();
-		for(ONCWish w:wishCatalog)
+		for(ONCWish w:getCatalogWishList())
 			wishIDs.add(w.getID());
 		
 		return wishIDs;
@@ -96,18 +104,20 @@ public class ONCWishCatalog extends ONCDatabase
 	{
 		int mask = 1;
 		mask = mask << wish;
-		return (wishCatalog.get(index).getListindex() & mask) > 0;
+		return (wishCatalog.get(index).getWish().getListindex() & mask) > 0;
 	}
-	boolean isDetailRqrd(int index) { return wishCatalog.get(index).isDetailRqrd(); }
+	
+	boolean isDetailRqrd(int index) { return wishCatalog.get(index).getWish().isDetailRqrd(); }
 	
 	int getWishID(String wishname)
 	{
 		int index=0;
-		while(index < wishCatalog.size() && !wishCatalog.get(index).getName().equals(wishname))
+		while(index < wishCatalog.size() &&
+			   !wishCatalog.get(index).getWish().getName().equals(wishname))
 			index++;
 		
 		if(index < wishCatalog.size())
-			return wishCatalog.get(index).getID();
+			return wishCatalog.get(index).getWish().getID();
 		else
 			return -1;
 	}
@@ -117,15 +127,15 @@ public class ONCWishCatalog extends ONCDatabase
 	ArrayList<WishDetail> getWishDetail(int wishID)	
 	{
 		int index = 0;
-		while(index < wishCatalog.size() && wishID != wishCatalog.get(index).getID())
+		while(index < wishCatalog.size() && wishID != wishCatalog.get(index).getWish().getID())
 			index++;
 		
-		if(index < wishCatalog.size() && wishCatalog.get(index).getNumberOfDetails() > 0)
+		if(index < wishCatalog.size() && wishCatalog.get(index).getWish().getNumberOfDetails() > 0)
 		{
 			ArrayList<WishDetail> wdAL = new ArrayList<WishDetail>();
 			for(int i=0; i < 4; i++)
-				if(wishCatalog.get(index).getWishDetailID(i) > -1)
-					wdAL.add(wdDB.getWishDetail(wishCatalog.get(index).getWishDetailID(i)));
+				if(wishCatalog.get(index).getWish().getWishDetailID(i) > -1)
+					wdAL.add(wdDB.getWishDetail(wishCatalog.get(index).getWish().getWishDetailID(i)));
 			
 			return wdAL;
 		}
@@ -158,12 +168,13 @@ public class ONCWishCatalog extends ONCDatabase
 		
 		//find the updated wish in the data base and replace
 		int index=0;
-		while(index < wishCatalog.size() && wishCatalog.get(index).getID() != updatedWish.getID())
+		while(index < wishCatalog.size() &&
+			   wishCatalog.get(index).getWish().getID() != updatedWish.getID())
 			index++;
 		
 		if(index < wishCatalog.size())
 		{
-			wishCatalog.set(index, updatedWish);
+			wishCatalog.get(index).setWish(updatedWish);
 			//Notify local user IFs that an organization/partner was added
 			fireDataChanged(source, "UPDATED_CATALOG_WISH", updatedWish);
 		}
@@ -188,11 +199,11 @@ public class ONCWishCatalog extends ONCDatabase
 		//Store added catalog wish in local wish catalog
 		Gson gson = new Gson();
 		ONCWish addedWish = gson.fromJson(json, ONCWish.class);
-		wishCatalog.add(addedWish);
+		wishCatalog.add(new WishCatalogItem(addedWish));
 		
-		//Wish has been added, add new row to wish counts
-		int[] newWishCounts = {0,0,0};
-		wishCountsAL.add(newWishCounts);
+//		//Wish has been added, add new row to wish counts
+//		int[] newWishCounts = {0,0,0};
+//		wishCountsAL.add(newWishCounts);
 		
 		//Notify local user IFs that an organization/partner was added
 		fireDataChanged(source, "ADDED_CATALOG_WISH", addedWish);
@@ -208,7 +219,10 @@ public class ONCWishCatalog extends ONCDatabase
 	}
 */	
 	//setters to wish catalog
-	void setWishName(int index, String name) { wishCatalog.get(index).setName(name); }
+	void setWishName(int index, String name)
+	{ 
+		wishCatalog.get(index).getWish().setName(name); 
+	}
 	
 	/*********************************************************************************
 	 * This method is called when the user changes which wish list a wish appears in.
@@ -218,12 +232,11 @@ public class ONCWishCatalog extends ONCDatabase
 	 */
 	void toggleWishListIndex(int index, int wishnum )
 	{
-		ONCWish reqUpdateWish = new ONCWish(wishCatalog.get(index));	//copy current wish
+		ONCWish reqUpdateWish = new ONCWish(wishCatalog.get(index).getWish());	//copy current wish
 		int li = reqUpdateWish.getListindex(); //Get current list index	
 		int bitmask = 1 << wishnum;	//which wish is being toggled
 		
-		reqUpdateWish.setListindex(li ^ bitmask); //Set updated list index
-		
+		reqUpdateWish.setListindex(li ^ bitmask); //Set updated list index	
 	}
 	
 	
@@ -250,13 +263,14 @@ public class ONCWishCatalog extends ONCDatabase
 		ONCWish deletedWish = gson.fromJson(json, ONCWish.class);
 		
 		int index = 0;
-		while(index < wishCatalog.size() && wishCatalog.get(index).getID() != deletedWish.getID())
+		while(index < wishCatalog.size() &&
+				wishCatalog.get(index).getWish().getID() != deletedWish.getID())
 			index++;
 		
 		if(index < wishCatalog.size())
 		{
 			wishCatalog.remove(index);
-			wishCountsAL.remove(index);
+//			wishCountsAL.remove(index);
 		}
 
 		//Notify local user IFs that an organization/partner was added
@@ -286,7 +300,7 @@ public class ONCWishCatalog extends ONCDatabase
 		if(listtype < WISH_CATALOG_LIST_ALL)
 			bitmask = 1 << listtype; 	//raise 2 to the listtype power
 		
-		for(ONCWish w:wishCatalog)
+		for(ONCWish w:getCatalogWishList())
 		{
 			if((w.getListindex() & bitmask) > 0)
 //				wishlist.add(w.getName());
@@ -332,49 +346,57 @@ public class ONCWishCatalog extends ONCDatabase
 */	
 	void initializeWishCounts(Families fDB)
 	{		
-		wishCountsAL = fDB.getWishBaseSelectedCounts(getWishIDs());
+		ArrayList<int[]> wishCounts = fDB.getWishBaseSelectedCounts(getCatalogWishList());
+		for(int index=0; index < wishCounts.size(); index++)
+			wishCatalog.get(index).setWishCounts(wishCounts.get(index));		
 	}
 	
 	/***************************************************************************************************
-	 * This method takes two wish names and locates them in the wish catalog if the wish name isn't
-	 * "None". If the first wish is found, the table wish count for that wish is decremented. If the
-	 * second wish is found, the table is incremented. 
-	 * @param wishFrom, wishTo strings of wish names to be located in the wish catalog
+	 * This method takes two ONCChildWish objects, determines the associated ONC Wish and locates
+	 * the wish in the wish catalog The first wish is the count for that wish is decremented. If the
+	 * second wish is found, the count is incremented. 
+	 * @param WishBaseChange contains the replaced and added ONCChildWish objects
 	 **************************************************************************************************/
-	void changeWishCounts(WishBaseOrOrgChange wbc)
+	void changeWishCounts(WishBaseChange wbc)
 	{
-		if(wbc.getOldObject().getID() != -1)	//Search for from wish if it's not "None"
+		ONCChildWish replWish = wbc.getReplacedWish();
+		if(replWish != null && replWish.getWishID() > -1)	//Search for from wish if it's not "None"
 		{
 			//Decrement the count of the first wish and update the table
-			int row = findWishRow(wbc.getOldObject().getID());
+			int row = findWishRow(replWish.getWishID());
 			if(row > -1)
-				wishCountsAL.get(row)[wbc.getValue()]--;
+				wishCatalog.get(row).incrementWishCount(replWish.getWishNumber(), -1);
+//				wishCountsAL.get(row)[replWish.getWishNumber()]--;
 		}
 		
-		if(wbc.getNewObject().getID() != -1)	//Search for second wish if it's not "None"
+		ONCChildWish addedWish = wbc.getAddedWish();
+		if(addedWish != null && addedWish.getWishID() > -1)	//Search for second wish if it's not "None"
 		{
 			//Increment the count of the second wish and update the table
-			int row = findWishRow(wbc.getNewObject().getID());
+			int row = findWishRow(addedWish.getWishID());
 			if(row > -1)
-				wishCountsAL.get(row)[wbc.getValue()]++;
+				wishCatalog.get(row).incrementWishCount(replWish.getWishNumber(), 1);
+//				wishCountsAL.get(row)[addedWish.getWishNumber()]++;
 		}		
 	}
 	
 	int getTotalWishCount(int row)
 	{
-		return wishCountsAL.get(row)[0] + wishCountsAL.get(row)[1]  + wishCountsAL.get(row)[2];
+		return wishCatalog.get(row).getTotalWishCount();
+//		return wishCountsAL.get(row)[0] + wishCountsAL.get(row)[1]  + wishCountsAL.get(row)[2];
 	}
 	
 	int getWishCount(int row, int wishnum)
 	{
-		if(wishCountsAL.size() > 0 && wishnum >=0 && wishnum < 3)
-			return wishCountsAL.get(row)[wishnum];
+		if(!wishCatalog.isEmpty() && wishnum >=0 && wishnum < wishCatalog.size())
+			return wishCatalog.get(row).getWishCountForWishNumber(wishnum);
 		else
 			return -1;
 	}
 	
 	String importWishCatalogFromServer()
 	{
+		ArrayList<ONCWish> wishList = new ArrayList<ONCWish>();
 		ServerIF serverIF = ServerIF.getInstance();
 		String response = "NO_CATALOG";
 		
@@ -384,10 +406,14 @@ public class ONCWishCatalog extends ONCDatabase
 			Type listtype = new TypeToken<ArrayList<ONCWish>>(){}.getType();
 			
 			response = serverIF.sendRequest("GET<catalog>");
-			wishCatalog = gson.fromJson(response, listtype);
+			wishList = gson.fromJson(response, listtype);
+			Collections.sort(wishList, new WishListComparator());
 			
 			if(!response.startsWith("NO_CATALOG"))
 			{		
+				for(ONCWish wish: wishList)
+					wishCatalog.add(new WishCatalogItem(wish));
+				
 				response =  "CATALOG_LOADED";
 				fireDataChanged(this, "LOADED_CATALOG", null);
 			}
@@ -432,7 +458,7 @@ public class ONCWishCatalog extends ONCDatabase
 	    			{
 	    				wishCatalog.clear();
 	    				while ((nextLine = reader.readNext()) != null)	// nextLine[] is an array of values from the line
-	    					wishCatalog.add(new ONCWish(nextLine));
+	    					wishCatalog.add(new WishCatalogItem(new ONCWish(nextLine)));
 	    			}
 	    			else
 	    			{
@@ -483,8 +509,8 @@ public class ONCWishCatalog extends ONCDatabase
 	    		CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
 	    	    writer.writeNext(header);
 	    	    
-	    	    for(ONCWish w:wishCatalog)
-	    	    	writer.writeNext(w.getExportRow());	//Get family data
+	    	    for(WishCatalogItem wci:wishCatalog)
+	    	    	writer.writeNext(wci.getWish().getExportRow());	//Get family data
 	    	 
 	    	    writer.close();
 	    	    filename = oncwritefile.getName();
@@ -563,19 +589,13 @@ public class ONCWishCatalog extends ONCDatabase
 //	private class WishListComparator implements Comparator<String>
 	private class WishListComparator implements Comparator<ONCWish>
 	{
-//		@Override
-//		public int compare(String s1, String s2)
-//		{
-//			return s1.compareTo(s2);
-//		}
-		
 		@Override
 		public int compare(ONCWish w1, ONCWish w2)
 		{
 			return w1.getName().compareTo(w2.getName());
 		}
 	}
-
+	
 	@Override
 	public void dataChanged(ServerEvent ue)
 	{
@@ -591,6 +611,57 @@ public class ONCWishCatalog extends ONCDatabase
 		else if(ue.getType().equals("DELETED_CATALOG_WISH"))
 		{
 			processDeletedWish(this, ue.getJson());
+		}
+	}
+	
+	private class WishCatalogItem
+	{
+		private ONCWish wish;
+		private int[] wishCount;
+		
+		WishCatalogItem(ONCWish wish)
+		{
+			this.wish = wish;
+			wishCount = new int[NUMBER_OF_WISHES_PER_CHILD];
+			for(int i=0; i<wishCount.length; i++)
+				wishCount[i] = 0;
+		}
+		
+		//getters
+		ONCWish getWish() { return wish; }
+		int getWishCountForWishNumber(int wishNumber) 
+		{
+			if(wishNumber >= 0 && wishNumber < wishCount.length)
+				return wishCount[wishNumber];
+			else
+				return -1;
+		}
+		
+		int getTotalWishCount()
+		{
+			int count = 0;
+			for(int wn=0; wn< wishCount.length; wn++)
+				count += wishCount[wn];
+			
+			return count;
+		}
+		
+		//setters
+		void setWish(ONCWish newWish) { wish = newWish; }
+		
+		int incrementWishCount(int wishNumber, int increment)
+		{
+			if(wishNumber >= 0 && wishNumber < wishCount.length)
+				return wishCount[wishNumber] += increment;
+			
+			return wishCount[wishNumber];
+		}
+		
+		void setWishCounts(int[] wishCounts)
+		{
+			if(wishCounts.length == wishCount.length)
+				for(int wn=0; wn < wishCount.length; wn++)
+					wishCount[wn] = wishCounts[wn];
 		}
 	}
 }

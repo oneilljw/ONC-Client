@@ -512,12 +512,12 @@ public class WishPanel extends ONCPanel implements ActionListener, DatabaseListe
 		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_FAMILY"))
 		{
 			ONCFamily updatedFam = (ONCFamily) dbe.getObject();
-			System.out.println(String.format("WishPanel Event: %s, ONC# %s, status= %d",
-					dbe.getType(), updatedFam.getONCNum(), updatedFam.getFamilyStatus()));
+//			System.out.println(String.format("WishPanel Event: %s, ONC# %s, status= %d",
+//					dbe.getType(), updatedFam.getONCNum(), updatedFam.getFamilyStatus()));
 			
 			if(child != null)
-				System.out.println(String.format("WishPanel Event: %s, childFamily ID:= %d, updatedFamilyID= %d",
-						dbe.getType(), child.getFamID(), updatedFam.getID()));
+//				System.out.println(String.format("WishPanel Event: %s, childFamily ID:= %d, updatedFamilyID= %d",
+//						dbe.getType(), child.getFamID(), updatedFam.getID()));
 			
 			if(child != null && updatedFam.getID() == child.getFamID())
 			{
