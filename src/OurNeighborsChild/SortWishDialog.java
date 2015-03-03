@@ -55,7 +55,6 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 	private static final int NUM_OF_XMAS_ICONS = 5;
 	private static final int XMAS_ICON_OFFSET = 9;
 	private static final int WISH_CATALOG_LIST_ALL = 7;
-	private static final int WISH_CATALOG_SORT_LIST = 1;
 	private static final int RS_ITEMS_PER_PAGE = 20;
 	private static final Integer MAXIMUM_ON_NUMBER = 9999;
 	private static final int MAX_LABEL_LINE_LENGTH = 26;
@@ -499,7 +498,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		//Clear the combo box of current elements
 		wishCBM.removeAllElements();	
 	
-		List<ONCWish> wishList = cat.getWishList(WISH_CATALOG_LIST_ALL, WISH_CATALOG_SORT_LIST);
+		List<ONCWish> wishList = cat.getWishList(WishListPurpose.Filtering);
 		for(ONCWish w: wishList )	//Add new list elements
 			wishCBM.addElement(w);
 		

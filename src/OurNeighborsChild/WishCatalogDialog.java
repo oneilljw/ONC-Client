@@ -38,9 +38,15 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 	 * assigned to children in a particular year. 
 	 */
 	private static final long serialVersionUID = 1L;
-	private static final int WISH_COUNT_COLUMN = 2;
+	private static final int WISH_NAME_COL= 0;
+	private static final int WISH_COUNT_COL = 1;
+	private static final int WISH_1_COL = 2;
+	private static final int WISH_2_COL = 3;
+	private static final int WISH_3_COL = 4;
+	private static final int WISH_ADD_DET_COL = 5;
+	private static final int TABLE_VERTICAL_SCROLL_WIDTH = 24;
 	
-	private JTable wcTable;
+	private ONCTable wcTable;
 	private AbstractTableModel wcTableModel;
 	private JButton btnAddWish, btnEditWish, btnDeleteWish, btnPrintCat;
 	private ONCWishCatalog cat;
@@ -71,59 +77,35 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 		//Create the table model
 		wcTableModel = new WishCatalogTableModel();
 		
-		wcTable = new JTable(wcTableModel)
-		{
-			private static final long serialVersionUID = 1L;
-
-			//Implement table header tool tips.
-			protected String[] columnToolTips = {"Wish Name", "ID",
-												"Total number of times this wish has been selected",
-												"Check to include in Wish 1 List",
-												"Check to include in Wish 2 List",
-												"Check to include in Wish 3 List",
-												"Is additional detail associated with this wish?"}; 
-			
-		    protected JTableHeader createDefaultTableHeader()
-		    {
-		        return new JTableHeader(columnModel)
-		        {
-					private static final long serialVersionUID = 1L;
-
-					public String getToolTipText(MouseEvent e)
-		            {
-		                java.awt.Point p = e.getPoint();
-		                int index = columnModel.getColumnIndexAtX(p.x);
-		                int realIndex = columnModel.getColumn(index).getModelIndex();
-		                return columnToolTips[realIndex];
-		            }
-		        };
-		    }
-		    
-			public Component prepareRenderer(TableCellRenderer renderer,int Index_row, int Index_col)
-			{
-			  Component comp = super.prepareRenderer(renderer, Index_row, Index_col);
-			  		 
-			  if(isRowSelected(Index_row))
-				  comp.setBackground(comp.getBackground());
-			  else if (Index_row % 2 == 1)			  
-				  comp.setBackground(new Color(240,248,255));
-			  else
-				  comp.setBackground(Color.white);
-			  
-			  return comp;
-			}
-		};
+		String[] colToolTips = {"Wish Name",
+				"Total number of times this wish has been selected",
+				"Check to include in Wish 1 List",
+				"Check to include in Wish 2 List",
+				"Check to include in Wish 3 List",
+				"Is additional detail associated with this wish?"};
 		
+		wcTable = new ONCTable(wcTableModel, colToolTips, new Color(240,248,255));
+
 		wcTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		wcTable.getSelectionModel().addListSelectionListener(this);
+		
+		int[] colWidths = {152,56,48,48,48, 88};
+		//Set table column widths
+		int tablewidth = 0;
+		for(int i=0; i < colWidths.length; i++)
+		{
+			wcTable.getColumnModel().getColumn(i).setPreferredWidth(colWidths[i]);
+			tablewidth += colWidths[i];
+		}
+		tablewidth += TABLE_VERTICAL_SCROLL_WIDTH; 	//Account for vertical scroll bar
         
-        wcTable.getColumnModel().getColumn(0).setPreferredWidth(152);
-        wcTable.getColumnModel().getColumn(1).setPreferredWidth(40);
-        wcTable.getColumnModel().getColumn(2).setPreferredWidth(64);
-        wcTable.getColumnModel().getColumn(3).setPreferredWidth(64);
-        wcTable.getColumnModel().getColumn(4).setPreferredWidth(64);
-        wcTable.getColumnModel().getColumn(5).setPreferredWidth(64);
-        wcTable.getColumnModel().getColumn(6).setPreferredWidth(112);
+//        wcTable.getColumnModel().getColumn(WISH_NAME_COL).setPreferredWidth(152);
+//      wcTable.getColumnModel().getColumn(1).setPreferredWidth(40);
+//        wcTable.getColumnModel().getColumn(WISH_COUNT_COL).setPreferredWidth(56);
+//        wcTable.getColumnModel().getColumn(WISH_1_COL).setPreferredWidth(48);
+//        wcTable.getColumnModel().getColumn(WISH_2_COL).setPreferredWidth(48);
+//        wcTable.getColumnModel().getColumn(WISH_3_COL).setPreferredWidth(48);
+//        wcTable.getColumnModel().getColumn(WISH_ADD_DET_COL).setPreferredWidth(112);
         
         wcTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         
@@ -132,9 +114,13 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
         anHeader.setBackground( new Color(161,202,241));
         
         //Center cell entries in columns 5 - Additional Detail 
-        DefaultTableCellRenderer dtcr = new DefaultTableCellRenderer();    
-    	dtcr.setHorizontalAlignment(SwingConstants.CENTER);
-        wcTable.getColumnModel().getColumn(6).setCellRenderer(dtcr);
+        DefaultTableCellRenderer dtcr = new DefaultTableCellRenderer();
+        dtcr.setHorizontalAlignment(SwingConstants.LEFT);
+        wcTable.getColumnModel().getColumn(WISH_COUNT_COL).setCellRenderer(dtcr);
+        
+//        dtcr = new DefaultTableCellRenderer();
+//    	dtcr.setHorizontalAlignment(SwingConstants.CENTER);
+//        wcTable.getColumnModel().getColumn(WISH_ADD_DET_COL).setCellRenderer(dtcr);
         
         //Set table size to 12 rows     
 //        wcTable.setSize(wcTable.getRowHeight() * 12, wcTable.getWidth());
@@ -175,7 +161,7 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
         getContentPane().add(cntlPanel);
         
         pack();
-//      setSize(544, 290);
+//      setSize(tablewidth, 290);
 //      Point pt = pf.getLocation();
 //      setLocation(pt.x + 120, pt.y + 120);
 	}
@@ -235,19 +221,19 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 		
 		if(wdDlg.showDialog())	//returns true if wish detail changed
 		{
-			//send add wish request object to server
-			String response = cat.add(this, reqAddWish);
-		
-			if(response != null && response.startsWith("ADDED_CATALOG_WISH"))
+			//send add wish request object to the database. It responds with the table row
+			//where the added wish was insertred. If the requested wish wasn't added, a 
+			//value of -1 is returned.
+			int tableRow = cat.add(this, reqAddWish);
+			if(tableRow > -1)
 			{
-				//add new wish to wish table
-				wcTableModel.fireTableRowsInserted(cat.getNumberOfItems()-1, cat.getNumberOfItems()-1);
-				wcTable.scrollRectToVisible(wcTable.getCellRect(wcTable.getRowCount()-1, 0, true));
-				wcTable.setRowSelectionInterval(cat.getNumberOfItems()-1, cat.getNumberOfItems()-1);
+				wcTableModel.fireTableRowsInserted(tableRow, tableRow);
+				wcTable.scrollRectToVisible(wcTable.getCellRect(tableRow, 0, true));
+				wcTable.setRowSelectionInterval(tableRow, tableRow);
 			}
 			else
 			{
-				String err_mssg = "ONC Server denied add catalog wish request, try again later";
+				String err_mssg = "Add catalog wish request failed, try again later";
 				JOptionPane.showMessageDialog(this, err_mssg, "Add Catalog Wish Request Failure",
 											JOptionPane.ERROR_MESSAGE, GlobalVariables.getONCLogo());
 			}
@@ -284,7 +270,7 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 				{
 					//Wish has been updated, update to wish table with the name change
 					wcTableModel.fireTableRowsDeleted(row, row);
-					wcTable.clearSelection();
+//					wcTable.clearSelection();
 				}
 				else
 				{
@@ -354,87 +340,6 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 		}
 	}
 	
-	class WishCatalogTableModel extends AbstractTableModel
-	{
-        /**
-		 * Implements the table model for the Wish Catalog Dialog
-		 */
-		private static final long serialVersionUID = 1L;
-		private String[] columnNames = {"Wish Name", "ID", "Count", "Wish 1", "Wish 2",
-                                        "Wish 3", "Additional Detail"};
- 
-        public int getColumnCount() { return columnNames.length; }
- 
-        public int getRowCount() { return cat.getNumberOfItems(); }
- 
-        public String getColumnName(int col) { return columnNames[col]; }
- 
-        public Object getValueAt(int row, int col)
-        {
-        	if(col == 0)  
-        		return cat.getWishName(row);
-        	else if(col == 1)
-        		return cat.getWishID(row);
-        	else if(col == 2)
-        		return cat.getTotalWishCount(row);
-        	else if(col == 6)
-        		return cat.isDetailRqrd(row) ? "Yes" : "No";
-        	else
-        		return cat.isInWishList(row, col-3);      			
-        }
-        
-        //JTable uses this method to determine the default renderer/editor for each cell.
-        @Override
-        public Class<?> getColumnClass(int c)
-        {
-        	if(c == 0)
-                return String.class;
-        	if(c == 1 || c == 2)
-        		return Integer.class;
-        	else if(c == 6)
-        		return String.class;
-        	else
-        		return Boolean.class;
-        }
- 
-        public boolean isCellEditable(int row, int col)
-        {
-            //Only the check boxes can be edited and then only if there is not
-        	//a wish already selected from the list associated with that column
-            if(col==3 && cat.getWishCount(row, 0) == 0)
-            	return true;
-            else if(col==4 && cat.getWishCount(row, 1) == 0)
-            	return true;
-            else if(col==5 && cat.getWishCount(row, 2) == 0)
-            	return true;
-            else 
-                return false;
-        }
- 
-        //Don't need to implement this method unless your table's data can change. 
-        public void setValueAt(Object value, int row, int col)
-        { 	
-        	if(col >= 3 && col <= 5)	//Wish list columns
-        	{
-        		ONCWish reqUpdateWish = new ONCWish(cat.getWish(row));	//copy current wish
-        		int li = reqUpdateWish.getListindex(); //Get current list index	
-        		int bitmask = 1 << col-3;	//which wish is being toggled
-        		
-        		reqUpdateWish.setListindex(li ^ bitmask); //Set updated list index
-        		
-        		String response = cat.update(this, reqUpdateWish);
-        		
-        		if(response == null || (response !=null && !response.startsWith("UPDATED_CATALOG_WISH")))
-        		{
-        			//request failed
-        			GlobalVariables gvs = GlobalVariables.getInstance();
-					String err_mssg = "ONC Server denied update catalog wish  request, try again later";
-					JOptionPane.showMessageDialog(GlobalVariables.getFrame(), err_mssg, "Update Catalog Request Failure",
-													JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
-        		}
-        	}                      
-        }  
-    }
 
 	@Override
 	public void dataChanged(DatabaseEvent dbe) 
@@ -454,19 +359,24 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 			int row;
 			if(replWish != null &&  replWish.getWishID() > -1 &&
 				(row = cat.findWishRow(replWish.getWishID())) > -1)
-				wcTableModel.fireTableCellUpdated(row, WISH_COUNT_COLUMN);
+				wcTableModel.fireTableCellUpdated(row, WISH_COUNT_COL);
 			
 			//get row  of incremented wish from catalog and update
 			if(addedWish != null && addedWish.getWishID() > -1  &&
 				(row = cat.findWishRow(addedWish.getWishID())) > -1)
-				wcTableModel.fireTableCellUpdated(row, WISH_COUNT_COLUMN);
+				wcTableModel.fireTableCellUpdated(row, WISH_COUNT_COL);
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("ADDED_CATALOG_WISH"))
 		{
-			//add new wish to wish table
-			wcTableModel.fireTableRowsInserted(cat.getNumberOfItems()-1, cat.getNumberOfItems()-1);
-			wcTable.scrollRectToVisible(wcTable.getCellRect(wcTable.getRowCount()-1, 0, true));
-			wcTable.setRowSelectionInterval(cat.getNumberOfItems()-1, cat.getNumberOfItems()-1);
+			ONCWish addedWish = (ONCWish) dbe.getObject();
+			int tablerow = cat.findWishRow(addedWish.getID());
+			if(tablerow > -1)
+			{
+				//add new wish to wish table
+				wcTableModel.fireTableRowsInserted(tablerow, tablerow);
+				wcTable.scrollRectToVisible(wcTable.getCellRect(tablerow, 0, true));
+//				wcTable.setRowSelectionInterval(tablerow, tablerow);
+			}
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_CATALOG_WISH"))
 		{
@@ -492,4 +402,87 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 //			wcTable.clearSelection();
 		}	
 	}
+	
+	class WishCatalogTableModel extends AbstractTableModel
+	{
+        /**
+		 * Implements the table model for the Wish Catalog Dialog
+		 */
+		private static final long serialVersionUID = 1L;
+		private String[] columnNames = {"Wish Name", "Count", "Wish 1", "Wish 2",
+                                        "Wish 3", "Addl. Detail?"};
+ 
+        public int getColumnCount() { return columnNames.length; }
+ 
+        public int getRowCount() { return cat.getNumberOfItems(); }
+ 
+        public String getColumnName(int col) { return columnNames[col]; }
+ 
+        public Object getValueAt(int row, int col)
+        {
+        	if(col == WISH_NAME_COL)  
+        		return cat.getWishName(row);
+//        	else if(col == 1)
+//        		return cat.getWishID(row);
+        	else if(col == WISH_COUNT_COL)
+        		return cat.getTotalWishCount(row);
+        	else if(col == WISH_ADD_DET_COL)
+//        		return cat.isDetailRqrd(row) ? "Yes" : "No";
+        		return cat.isDetailRqrd(row);
+        	else
+        		return cat.isInWishList(row, col- WISH_1_COL);      			
+        }
+        
+        //JTable uses this method to determine the default renderer/editor for each cell.
+        @Override
+        public Class<?> getColumnClass(int column)
+        {
+        	if(column == WISH_NAME_COL)
+                return String.class;
+        	if(column == WISH_COUNT_COL)
+        		return Integer.class;
+        	else if(column == WISH_ADD_DET_COL)
+        		return Boolean.class;
+        	else
+        		return Boolean.class;
+        }
+ 
+        public boolean isCellEditable(int row, int col)
+        {
+            //Only the check boxes can be edited and then only if there is not
+        	//a wish already selected from the list associated with that column
+            if(col == WISH_1_COL && cat.getWishCount(row, 0) == 0)
+            	return true;
+            else if(col == WISH_2_COL && cat.getWishCount(row, 1) == 0)
+            	return true;
+            else if(col == WISH_3_COL && cat.getWishCount(row, 2) == 0)
+            	return true;
+            else 
+                return false;
+        }
+ 
+        //Don't need to implement this method unless your table's data can change. 
+        public void setValueAt(Object value, int row, int col)
+        { 	
+        	if(col >= WISH_1_COL && col <= WISH_3_COL)	//Wish list columns
+        	{
+        		ONCWish reqUpdateWish = new ONCWish(cat.getWish(row));	//copy current wish
+        		int li = reqUpdateWish.getListindex(); //Get current list index	
+        		int bitmask = 1 << col-WISH_1_COL;	//which wish is being toggled
+        		
+        		reqUpdateWish.setListindex(li ^ bitmask); //Set updated list index
+        		
+        		String response = cat.update(this, reqUpdateWish);
+        		
+        		if(response == null || (response !=null && !response.startsWith("UPDATED_CATALOG_WISH")))
+        		{
+        			//request failed
+        			GlobalVariables gvs = GlobalVariables.getInstance();
+					String err_mssg = "ONC Server denied update catalog wish  request, try again later";
+					JOptionPane.showMessageDialog(GlobalVariables.getFrame(), err_mssg, "Update Catalog Request Failure",
+													JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
+        		}
+        	}                      
+        }  
+    }
 }

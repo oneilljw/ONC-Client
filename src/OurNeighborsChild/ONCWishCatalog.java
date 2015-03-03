@@ -24,16 +24,34 @@ import au.com.bytecode.opencsv.CSVWriter;
 
 public class ONCWishCatalog extends ONCDatabase
 {
+	/********
+	 * This class implements a singleton data base for ONC Wishes, known as the wish catalog.
+	 * The catalog is a list of gifts that users can choose from to fulfill the wish requests
+	 * of served children. In addition, the catalog maintains a count of the number of
+	 * times a gift has been assigned to fulfill a wish. The count is broken into component
+	 * counts - a separate count for each individual child wish. Each ONC child has more than 
+	 * one wish, the variable NUMBER_OF_WISHES_PER_CHILD holds the number of wishes per child.
+	 * 
+	 * The catalog consists of a list of WishCatalogItems. Each WishCatalogItem contains an 
+	 * ONCWish and the wish count for that wish, including component counts. Wish counts are
+	 * not persistent in the ONCClient application, they are initialized once the catalog and
+	 * family, child and child wish data is loaded from the server and maintained for the life
+	 * of the client.
+	 * 
+	 * The catalog list is maintained in ONCWish name alphabetical order in order to support
+	 * display using an AbstractTabelModel
+	 * 
+	 * The catalog provides a method that returns a list of ONCWishes that can be 
+	 * used for sorting or selecting a wish. 
+	 */
 	private static final int ONC_WISH_CATALOG_HEADER_LENGTH = 7;
 	private static final int WISH_CATALOG_SELECTION_LIST = 0;
 	private static final int WISH_CATALOG_SORT_LIST = 1;
 	private static final int WISH_CATALOG_LIST_ALL = 7;
-//	private static final int WISH_CATALOG_COMPARE_LIST = 2;
 	private static final int NUMBER_OF_WISHES_PER_CHILD = 3;
 	
 	private static ONCWishCatalog instance = null;
 	private ArrayList<WishCatalogItem> wishCatalog;
-//	private ArrayList<int[]> wishCountsAL;
 	private WishDetailDB  wdDB;
 	
 	private ONCWishCatalog()
@@ -42,7 +60,6 @@ public class ONCWishCatalog extends ONCDatabase
 		wdDB = WishDetailDB.getInstance();
 		
 		wishCatalog = new ArrayList<WishCatalogItem>();
-//		wishCountsAL = new ArrayList<int[]>();
 	}
 	
 	public static ONCWishCatalog getInstance()
@@ -87,9 +104,11 @@ public class ONCWishCatalog extends ONCDatabase
 		else
 			return -1;
 	}
+	
 	int getNumberOfItems() { return wishCatalog.size(); }
 	int getWishID(int index) { return wishCatalog.get(index).getWish().getID(); }
 	String getWishName(int index) { return wishCatalog.get(index).getWish().getName(); }
+	
 	ArrayList<Integer> getWishIDs()
 	{
 		ArrayList<Integer> wishIDs = new ArrayList<Integer>();
@@ -98,8 +117,7 @@ public class ONCWishCatalog extends ONCDatabase
 		
 		return wishIDs;
 	}
-//	int getListWishCount(int index, int listindex) { return wishCatalog.get(index).getWishCount(listindex); }
-//	int getTotalWishCount(int index) { return wishCatalog.get(index).getTotalWishCount(); }
+
 	boolean isInWishList(int index, int wish)
 	{
 		int mask = 1;
@@ -180,44 +198,43 @@ public class ONCWishCatalog extends ONCDatabase
 		}
 	}
 	
-	String add(Object source, ONCObject entity)
+	int add(Object source, ONCObject entity)
 	{
 		Gson gson = new Gson();
-		String response = "";
+		String response;
 		
 		response = serverIF.sendRequest("POST<add_catwish>" + 
 											gson.toJson(entity, ONCWish.class));
 		
-		if(response.startsWith("ADDED_CATALOG_WISH"))
-			processAddedWish(source, response.substring(18));
-		
-		return response;	
+		if(response != null && response.startsWith("ADDED_CATALOG_WISH"))
+			return processAddedWish(source, response.substring(18));
+		else
+			return -1;	
 	}
 	
-	void processAddedWish(Object source, String json)
+	int processAddedWish(Object source, String json)
 	{
 		//Store added catalog wish in local wish catalog
 		Gson gson = new Gson();
 		ONCWish addedWish = gson.fromJson(json, ONCWish.class);
-		wishCatalog.add(new WishCatalogItem(addedWish));
 		
-//		//Wish has been added, add new row to wish counts
-//		int[] newWishCounts = {0,0,0};
-//		wishCountsAL.add(newWishCounts);
+		//add the wish in the proper spot alphabetically
+		int index = 0;
+		while(index < wishCatalog.size() &&
+				(wishCatalog.get(index).getWish().getName().compareTo(addedWish.getName())) < 0)
+			index++;
+		
+		if(index < wishCatalog.size())
+			wishCatalog.add(index, new WishCatalogItem(addedWish));
+		else
+			wishCatalog.add(new WishCatalogItem(addedWish));
 		
 		//Notify local user IFs that an organization/partner was added
 		fireDataChanged(source, "ADDED_CATALOG_WISH", addedWish);
+		
+		return index;
 	}
-/*
-	int addWish(String name, int li)
-	{ 
-		int wID = nextID++;
-		wishCatalog.add(new ONCWish(wID, name, li));
-		System.out.println(String.format("Wish Catalog: addWish - newID: %d, name: %s, li: %d",
-				wID, name, li));
-		return wID;
-	}
-*/	
+
 	//setters to wish catalog
 	void setWishName(int index, String name)
 	{ 
@@ -230,14 +247,14 @@ public class ONCWishCatalog extends ONCDatabase
 	 * @param index
 	 * @param wishnum
 	 */
-	void toggleWishListIndex(int index, int wishnum )
-	{
-		ONCWish reqUpdateWish = new ONCWish(wishCatalog.get(index).getWish());	//copy current wish
-		int li = reqUpdateWish.getListindex(); //Get current list index	
-		int bitmask = 1 << wishnum;	//which wish is being toggled
-		
-		reqUpdateWish.setListindex(li ^ bitmask); //Set updated list index	
-	}
+//	void toggleWishListIndex(int index, int wishnum )
+//	{
+//		ONCWish reqUpdateWish = new ONCWish(wishCatalog.get(index).getWish());	//copy current wish
+//		int li = reqUpdateWish.getListindex(); //Get current list index	
+//		int bitmask = 1 << wishnum;	//which wish is being toggled
+//		
+//		reqUpdateWish.setListindex(li ^ bitmask); //Set updated list index	
+//	}
 	
 	
 	//Delete a wish from catalog. Overloaded. Can delete by index or by wish
@@ -268,82 +285,64 @@ public class ONCWishCatalog extends ONCDatabase
 			index++;
 		
 		if(index < wishCatalog.size())
-		{
 			wishCatalog.remove(index);
-//			wishCountsAL.remove(index);
-		}
-
+		
 		//Notify local user IFs that an organization/partner was added
 		fireDataChanged(source, "DELETED_CATALOG_WISH", deletedWish);
 	}
 	
 	
-	/******************************************************************************************************
-	 * This method returns a subset of the names of wishes in the wish catalog based on the requested
-	 * type and purpose of the list. Three purposes are supported: SORT lists put "Any" in element 0 and 
-	 * SELECTION lists put "None" in element 0 of the list. COMPARE returns the names of wishes in the 
-	 * catalog without modification. 3 types of lists are supported and use the
-	 * binary representation of the wish list index to determine inclusion in a list. All wishes that
-	 * have odd list indexes are included in type 0 lists for example. All wishes with list indexes
-	 * greater than 4 are included in type 2 list requests and all wishes with list indexes of 2, 3, 6,
-	 * or 7 are included in type 1 wish list requests. 
-	 * @param list - Valid lists are 0 - 2.  @return an array of strings of wish names
+	/***************************************************************************************
+	 * This method returns a subset of the names of wishes in the wish catalog based on the
+	 * requested type and purpose of the list. Two purposes are supported: SORT lists puts
+	 * an ONCWish "Any" in element 0 and ONCWish "None" in the returned list alphabetically.  
+	 * SELECTION lists put an ONCWish "None" in element 0 of the list.
+	 * 
+	 * The binary representation of the ONCWish list index
+	 * member variable to determines inclusion in a list. All wishes that have odd list indexes 
+	 * are included in wishNumber 0 lists for example. All wishes with list indexes greater than 4
+	 * are included in wishNubmer 2 list requests and all wishes with list indexes of 2, 3, 6,
+	 * or 7 are included in wishNubmer 1 wish list requests.
+	 * 
+	 * An overloaded method that only takes a WishListType will return a list for that
+	 * purpose that contains all ONCWish objects
+	 * 
+	 * @param listtype - Valid lists are 0 - 2.
+	 * @param listpurpose Valid purposes are WishListType.Sort and WishListType.Select
+	 * @return list of ONCWish objects in accordance with requested list type and purpose
 	 ******************************************************************************************************/
-	List<ONCWish> getWishList(int listtype, int listpurpose)
-//	String[] getWishList(int listtype, int listpurpose)
+	List<ONCWish> getWishList(WishListPurpose listPurpose)  { return getWishList(WISH_CATALOG_LIST_ALL, listPurpose); }
+	List<ONCWish> getWishList(int wishNumber, WishListPurpose listPurpose)
 	{
-//		ArrayList<String> wishlist = new ArrayList<String>();
 		List<ONCWish> wishlist = new ArrayList<ONCWish>();
 	
 		//Add catalog items to the list based on type of list requested
 		int bitmask = WISH_CATALOG_LIST_ALL;	//include wish in all lists
-		if(listtype < WISH_CATALOG_LIST_ALL)
-			bitmask = 1 << listtype; 	//raise 2 to the listtype power
+		if(wishNumber < WISH_CATALOG_LIST_ALL)
+			bitmask = 1 << wishNumber; 	//raise 2 to the listtype power
 		
 		for(ONCWish w:getCatalogWishList())
-		{
 			if((w.getListindex() & bitmask) > 0)
-//				wishlist.add(w.getName());
 				wishlist.add(w);
-		}
 		
 		//Add appropriate elements based on purpose. For selection lists, "None" must be at the
 		//top of the list. For sort lists, "None" must be alphabetized in the list and "Any" 
 		//must be at the top of the list
-		if(listpurpose == WISH_CATALOG_SELECTION_LIST)
+		if(listPurpose == WishListPurpose.Selection)
 		{
 			Collections.sort(wishlist, new WishListComparator());	//Alphabetize the list
-//			wishlist.add(0,"None");
 			wishlist.add(0, new ONCWish(-1, "None", 7));
 		}
-		else if(listpurpose == WISH_CATALOG_SORT_LIST)
+		else if(listPurpose == WishListPurpose.Filtering)
 		{	
-//			wishlist.add("None");	//Add "None" to the list
 			wishlist.add(new ONCWish(-1, "None", 7));	//Add "None" to the list
 			Collections.sort(wishlist, new WishListComparator());	//Alphabetize the list
-//			wishlist.add(0,"Any");	//Add "Any" to list in position 0
 			wishlist.add(0, new ONCWish(-2, "Any", 7));
-			
 		}
-		
-//		return  wishlist.toArray(new String[wishlist.size()]);
+
 		return  wishlist;
 	}
-/*	
-	ONCWish findWish(String wishname)
-	{
-		int index=0;
-		while(index < wishCatalog.size() && !wishCatalog.get(index).getName().equals(wishname))
-		{
-			index++;
-		}
-		
-		if(index == wishCatalog.size())
-			return null;
-		else
-			return wishCatalog.get(index);
-	}
-*/	
+
 	void initializeWishCounts(Families fDB)
 	{		
 		ArrayList<int[]> wishCounts = fDB.getWishBaseSelectedCounts(getCatalogWishList());
@@ -352,9 +351,16 @@ public class ONCWishCatalog extends ONCDatabase
 	}
 	
 	/***************************************************************************************************
-	 * This method takes two ONCChildWish objects, determines the associated ONC Wish and locates
-	 * the wish in the wish catalog The first wish is the count for that wish is decremented. If the
-	 * second wish is found, the count is incremented. 
+	 * This method takes changes the wish counts associated with an ONCWish held in catalog
+	 * A WishBaseChange object is passed containing ONCChildWish objects. The first object is 
+	 * the ONCChildWish that has been replaced, the second object is the ONCChildWIsh that is
+	 * it's replacement. 
+	 * 
+	 * The method locates the associated ONCWish in the catalog, decrementing the count for 
+	 * the replaced ONCWish and incrementing the count for the add ONCWish. Wish counts have 
+	 * component counts, one for each possible wish afforded an ONCCHild.
+	 * 
+	 * If either ONCChildWish object is null, the decrement  or increment count is not performed.
 	 * @param WishBaseChange contains the replaced and added ONCChildWish objects
 	 **************************************************************************************************/
 	void changeWishCounts(WishBaseChange wbc)
@@ -366,7 +372,6 @@ public class ONCWishCatalog extends ONCDatabase
 			int row = findWishRow(replWish.getWishID());
 			if(row > -1)
 				wishCatalog.get(row).incrementWishCount(replWish.getWishNumber(), -1);
-//				wishCountsAL.get(row)[replWish.getWishNumber()]--;
 		}
 		
 		ONCChildWish addedWish = wbc.getAddedWish();
@@ -376,15 +381,10 @@ public class ONCWishCatalog extends ONCDatabase
 			int row = findWishRow(addedWish.getWishID());
 			if(row > -1)
 				wishCatalog.get(row).incrementWishCount(replWish.getWishNumber(), 1);
-//				wishCountsAL.get(row)[addedWish.getWishNumber()]++;
 		}		
 	}
 	
-	int getTotalWishCount(int row)
-	{
-		return wishCatalog.get(row).getTotalWishCount();
-//		return wishCountsAL.get(row)[0] + wishCountsAL.get(row)[1]  + wishCountsAL.get(row)[2];
-	}
+	int getTotalWishCount(int row) { return wishCatalog.get(row).getTotalWishCount(); }
 	
 	int getWishCount(int row, int wishnum)
 	{
@@ -579,23 +579,8 @@ public class ONCWishCatalog extends ONCDatabase
 		}
 	}
 */	
-	void clearCatalogData()
-	{
-		wishCatalog.clear();	
-	}
+	void clearCatalogData() { wishCatalog.clear(); }
 
-	
-	
-//	private class WishListComparator implements Comparator<String>
-	private class WishListComparator implements Comparator<ONCWish>
-	{
-		@Override
-		public int compare(ONCWish w1, ONCWish w2)
-		{
-			return w1.getName().compareTo(w2.getName());
-		}
-	}
-	
 	@Override
 	public void dataChanged(ServerEvent ue)
 	{
@@ -614,6 +599,20 @@ public class ONCWishCatalog extends ONCDatabase
 		}
 	}
 	
+	private class WishListComparator implements Comparator<ONCWish>
+	{
+		@Override
+		public int compare(ONCWish w1, ONCWish w2)
+		{
+			return w1.getName().compareTo(w2.getName());
+		}
+	}
+	
+	/*********
+	 * This class holds each item in the Wish Catalog. A catalog item consists of an ONCWish
+	 * and a wish count. Each wish count has NUMBER_OF_WISHES_PER_CHILD component counts, 
+	 * one count for each of the wishes for an ONCChild
+	 */
 	private class WishCatalogItem
 	{
 		private ONCWish wish;
@@ -629,6 +628,7 @@ public class ONCWishCatalog extends ONCDatabase
 		
 		//getters
 		ONCWish getWish() { return wish; }
+		
 		int getWishCountForWishNumber(int wishNumber) 
 		{
 			if(wishNumber >= 0 && wishNumber < wishCount.length)
@@ -649,6 +649,8 @@ public class ONCWishCatalog extends ONCDatabase
 		//setters
 		void setWish(ONCWish newWish) { wish = newWish; }
 		
+		
+		//helper method to increment/decrement component wish counts
 		int incrementWishCount(int wishNumber, int increment)
 		{
 			if(wishNumber >= 0 && wishNumber < wishCount.length)
@@ -657,6 +659,7 @@ public class ONCWishCatalog extends ONCDatabase
 			return wishCount[wishNumber];
 		}
 		
+		//helper method used at client start up to initialize counts
 		void setWishCounts(int[] wishCounts)
 		{
 			if(wishCounts.length == wishCount.length)

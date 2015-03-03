@@ -209,7 +209,7 @@ public class WishPanel extends ONCPanel implements ActionListener, DatabaseListe
 		
 		wishCBM.removeAllElements();	//Clear the combo box selection list
 
-		for(ONCWish w: cat.getWishList(wishNumber, WISH_CATALOG_SELECTION_LISTTYPE))	//Add new list elements
+		for(ONCWish w: cat.getWishList(wishNumber, WishListPurpose.Selection))	//Add new list elements
 			wishCBM.addElement(w);
 			
 		//Reselect the proper wish for the currently displayed child
