@@ -1,15 +1,12 @@
 package OurNeighborsChild;
 
 import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
 import java.awt.print.PrinterException;
 import java.text.MessageFormat;
-
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -25,7 +22,6 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
-import javax.swing.table.TableCellRenderer;
 
 public class WishCatalogDialog extends JDialog implements ActionListener, ListSelectionListener,
 															DatabaseListener
@@ -44,7 +40,7 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 	private static final int WISH_2_COL = 3;
 	private static final int WISH_3_COL = 4;
 	private static final int WISH_ADD_DET_COL = 5;
-	private static final int TABLE_VERTICAL_SCROLL_WIDTH = 24;
+//	private static final int TABLE_VERTICAL_SCROLL_WIDTH = 24;
 	
 	private ONCTable wcTable;
 	private AbstractTableModel wcTableModel;
@@ -71,12 +67,11 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 		if(childDB != null)
 			childDB.addDatabaseListener(this);
 		
-		//add a listener for wish catalog changes
-		
-		
-		//Create the table model
+		//Create the catalog table model
 		wcTableModel = new WishCatalogTableModel();
 		
+		
+		//create the catalog table
 		String[] colToolTips = {"Wish Name",
 				"Total number of times this wish has been selected",
 				"Check to include in Wish 1 List",
@@ -89,23 +84,15 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 		wcTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		wcTable.getSelectionModel().addListSelectionListener(this);
 		
-		int[] colWidths = {152,56,48,48,48, 88};
 		//Set table column widths
-		int tablewidth = 0;
+		int[] colWidths = {152,56,48,48,48,80};
+//		int tablewidth = 0;
 		for(int i=0; i < colWidths.length; i++)
 		{
 			wcTable.getColumnModel().getColumn(i).setPreferredWidth(colWidths[i]);
-			tablewidth += colWidths[i];
+//			tablewidth += colWidths[i];
 		}
-		tablewidth += TABLE_VERTICAL_SCROLL_WIDTH; 	//Account for vertical scroll bar
-        
-//        wcTable.getColumnModel().getColumn(WISH_NAME_COL).setPreferredWidth(152);
-//      wcTable.getColumnModel().getColumn(1).setPreferredWidth(40);
-//        wcTable.getColumnModel().getColumn(WISH_COUNT_COL).setPreferredWidth(56);
-//        wcTable.getColumnModel().getColumn(WISH_1_COL).setPreferredWidth(48);
-//        wcTable.getColumnModel().getColumn(WISH_2_COL).setPreferredWidth(48);
-//        wcTable.getColumnModel().getColumn(WISH_3_COL).setPreferredWidth(48);
-//        wcTable.getColumnModel().getColumn(WISH_ADD_DET_COL).setPreferredWidth(112);
+//		tablewidth += TABLE_VERTICAL_SCROLL_WIDTH; 	//Account for vertical scroll bar
         
         wcTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         
@@ -113,25 +100,20 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
         anHeader.setForeground( Color.black);
         anHeader.setBackground( new Color(161,202,241));
         
-        //Center cell entries in columns 5 - Additional Detail 
+        //left justify wish count column
         DefaultTableCellRenderer dtcr = new DefaultTableCellRenderer();
         dtcr.setHorizontalAlignment(SwingConstants.LEFT);
         wcTable.getColumnModel().getColumn(WISH_COUNT_COL).setCellRenderer(dtcr);
         
-//        dtcr = new DefaultTableCellRenderer();
-//    	dtcr.setHorizontalAlignment(SwingConstants.CENTER);
-//        wcTable.getColumnModel().getColumn(WISH_ADD_DET_COL).setCellRenderer(dtcr);
-        
         //Set table size to 12 rows     
-//        wcTable.setSize(wcTable.getRowHeight() * 12, wcTable.getWidth());
-//        wcTable.setFillsViewportHeight(true);
+//      wcTable.setSize(wcTable.getRowHeight() * 12, wcTable.getWidth());
+//      wcTable.setFillsViewportHeight(true);
         
         //Create the scroll pane and add the table to it.
         JScrollPane dsScrollPane = new JScrollPane(wcTable);
         dsScrollPane.setBorder(UIManager.getBorder("Table.scrollPaneBorder"));
         
         JPanel cntlPanel = new JPanel();
-//      cntlPanel.setPreferredSize(new Dimension(536, 50));
         
         btnPrintCat = new JButton("Print Catalog");
         btnPrintCat.setToolTipText("Print the wish catalog");
@@ -161,9 +143,6 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
         getContentPane().add(cntlPanel);
         
         pack();
-//      setSize(tablewidth, 290);
-//      Point pt = pf.getLocation();
-//      setLocation(pt.x + 120, pt.y + 120);
 	}
 	
 	void editWish()
@@ -198,10 +177,6 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 												GlobalVariables.getONCLogo());
 				}
 			}
-			
-//			wdDlg.setVisible(true);							
-//			if(wdDlg.hasWishDetailChanged())
-//				wcTableModel.fireTableRowsUpdated(row, row);//Update the table row	
 		}
 	}
 	
@@ -215,7 +190,6 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 		
 		WishDetailDialog wdDlg =  new WishDetailDialog(this, "Add New Catalog Wish");
 				
-//		wdDlg.setTitle("Add New Catalog Wish");
 		wdDlg.displayWishDetail(reqAddWish, 0);
 		wdDlg.setLocationRelativeTo(btnDeleteWish);
 		
@@ -270,7 +244,6 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 				{
 					//Wish has been updated, update to wish table with the name change
 					wcTableModel.fireTableRowsDeleted(row, row);
-//					wcTable.clearSelection();
 				}
 				else
 				{
@@ -375,7 +348,6 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 				//add new wish to wish table
 				wcTableModel.fireTableRowsInserted(tablerow, tablerow);
 				wcTable.scrollRectToVisible(wcTable.getCellRect(tablerow, 0, true));
-//				wcTable.setRowSelectionInterval(tablerow, tablerow);
 			}
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_CATALOG_WISH"))
@@ -388,18 +360,7 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("DELETED_CATALOG_WISH"))
 		{
-//			System.out.println(String.format("WishCatDlg - dataChanged: Source: %s, Type %s, Object: %s",
-//					dbe.getSource().toString(), dbe.getType(), dbe.getObject().toString()));
-			//determine which row the updated wish is in
-//			ONCWish deletedWish = (ONCWish) dbe.getObject();
-//			System.out.println(String.format("WishCatDlg - dataChanged: Wish ID: %d, Name: %s",
-//					deletedWish.getID(), deletedWish.getName()));
-//			int tablerow = cat.findWishRow(deletedWish.getID());
-//			System.out.println(String.format("WishCatDlg - dataChanged: tablerow: %d", tablerow));
-			
-//			wcTableModel.fireTableRowsDeleted(tablerow, tablerow);
 			wcTableModel.fireTableDataChanged();
-//			wcTable.clearSelection();
 		}	
 	}
 	
@@ -409,6 +370,7 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 		 * Implements the table model for the Wish Catalog Dialog
 		 */
 		private static final long serialVersionUID = 1L;
+		private GlobalVariables gvs = GlobalVariables.getInstance();
 		private String[] columnNames = {"Wish Name", "Count", "Wish 1", "Wish 2",
                                         "Wish 3", "Addl. Detail?"};
  
@@ -422,13 +384,10 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
         {
         	if(col == WISH_NAME_COL)  
         		return cat.getWishName(row);
-//        	else if(col == 1)
-//        		return cat.getWishID(row);
         	else if(col == WISH_COUNT_COL)
         		return cat.getTotalWishCount(row);
         	else if(col == WISH_ADD_DET_COL)
-//        		return cat.isDetailRqrd(row) ? "Yes" : "No";
-        		return cat.isDetailRqrd(row);
+        		return cat.isDetailRqrd(row) ? gvs.getImageIcon(21) : gvs.getImageIcon(22);
         	else
         		return cat.isInWishList(row, col- WISH_1_COL);      			
         }
@@ -442,7 +401,7 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
         	if(column == WISH_COUNT_COL)
         		return Integer.class;
         	else if(column == WISH_ADD_DET_COL)
-        		return Boolean.class;
+        		return ImageIcon.class;
         	else
         		return Boolean.class;
         }
