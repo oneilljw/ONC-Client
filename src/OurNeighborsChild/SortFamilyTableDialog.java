@@ -70,7 +70,7 @@ public abstract class SortFamilyTableDialog extends ChangeDialog
 	public void valueChanged(ListSelectionEvent e) 
 	{
 		if (!e.getValueIsAdjusting() && e.getSource() == sortTable.getSelectionModel() &&
-				sortTable.getSelectedRow() > -1)
+				sortTable.getSelectedRow() > -1 && !bChangingTable)
 		{
 			ONCFamily fam = (ONCFamily) stAL.get(sortTable.getSelectedRow());
 			

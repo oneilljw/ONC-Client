@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -377,7 +378,50 @@ public class ChildWishDB extends ONCDatabase
 		//A wish is not updated in the current design. A new wish is always created 
 		//and added to the data base. This allows a child's wish history to be 
 		//preserved for a season. 
-		return null;
+		Gson gson = new Gson();
+		String response = "";
+		
+		response = serverIF.sendRequest("POST<update_child_wish>" + 
+											gson.toJson(oncchildwish, ONCChildWish.class));
+		
+		if(response.startsWith("UPDATED_CHILD_WISH"))
+		{
+			processUpdatedObject(source, response.substring(18), childwishAL);
+		}
+		
+		return response;
+	}
+	
+	void processUpdatedObject(Object source, String json, List<? extends ONCObject> objList)
+	{
+		Gson gson = new Gson();
+		ONCChildWish updatedObj = gson.fromJson(json, ONCChildWish.class);
+		
+		//store updated object in local data base
+		int index = 0;
+		while(index < objList.size() && objList.get(index).getID() != updatedObj.getID())
+			index++;
+		
+		if(index < objList.size())
+		{
+			replaceObject(index, updatedObj);
+			
+			//Notify local user IFs that a change occurred
+			fireDataChanged(source, "UPDATED_CHILD_WISH", updatedObj);
+		}
+	}
+	
+	/*****************************************************************************
+	 * This method handles the object specific replace processing for replacing
+	 * an ONCDriver in the local data base. It is called by the super class 
+	 * processUpdatedObject method that is inherited by all data base object classes
+	 * @param updatedObj
+	 * @param index
+	 *************************************************************************/
+	void replaceObject(int index, ONCObject updatedObj)
+	{
+		ONCChildWish updatedWish = (ONCChildWish) updatedObj;
+		childwishAL.set(index,  updatedWish);
 	}
 
 	ONCChildWish getWish(int wishid)
@@ -547,9 +591,13 @@ public class ChildWishDB extends ONCDatabase
 		{
 //			System.out.println(String.format("ChildWishDB Server Event, Source: %s, Type: %s, Json: %s",
 //					ue.getSource().toString(), ue.getType(), ue.getJson()));
-			//Create a child wish object for the added child wish and add it to
-			//the local child wish cache
 			processAddedWish(this, ue.getJson());
+		}
+		else if(ue.getType().equals("UPDATED_CHILD_WISH"))
+		{
+//			System.out.println(String.format("ChildWishDB Server Event, Source: %s, Type: %s, Json: %s",
+//					ue.getSource().toString(), ue.getType(), ue.getJson()));
+			processUpdatedObject(this, ue.getJson(), childwishAL);
 		}		
 	}
 }

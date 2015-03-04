@@ -327,7 +327,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 	public void valueChanged(ListSelectionEvent lse)
 	{
 		if(!lse.getValueIsAdjusting() && lse.getSource() == sortTable.getSelectionModel()  &&
-				sortTable.getSelectedRowCount() > 0)
+				sortTable.getSelectedRowCount() > 0 && !bChangingTable)
 		{
 			ONCFamily fam = stAL.get(sortTable.getSelectedRow()).getFamily();
 			ONCChild child = stAL.get(sortTable.getSelectedRow()).getChild();
@@ -404,7 +404,8 @@ public abstract class GiftActionDialog extends SortTableDialog
 	{
 		if(dbe.getSource() != this && (dbe.getType().equals("UPDATED_CHILD") || 
 										dbe.getType().equals("DELETED_CHILD") ||
-										 dbe.getType().equals("WISH_ADDED")))
+										 dbe.getType().equals("WISH_ADDED") ||
+										  dbe.getType().equals("UPDATED_CHILD_WISH")))
 		{
 			buildTableList(true);
 		}		

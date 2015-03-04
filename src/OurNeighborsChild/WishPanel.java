@@ -11,6 +11,8 @@ import java.awt.event.MouseListener;
 import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
@@ -22,8 +24,10 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.sun.mail.iap.Response;
 
 public class WishPanel extends ONCPanel implements ActionListener, DatabaseListener, EntitySelectionListener
 {
@@ -140,12 +144,14 @@ public class WishPanel extends ONCPanel implements ActionListener, DatabaseListe
 	
 	/********************************************************************************************
 	 * This method is called to check to see if a child's wish detail has changed.
-	 * If a change is detected, a new wish is created and added to the child wish database thru
-	 * a call to the addWish method in the child data base. 
+	 * If a change is detected, call updateWish to update the current wish in the data base
+	 * This method is called when the current wish is changing so the user does not lose
+	 * changes to the detail they have made prior to the new wish being displayed
 	 *******************************************************************************************/
-	void update()
+	void checkForUpdateToWishDetail()
 	{
-		
+		if(childWish != null && !childWish.getChildWishDetail().equals(wishdetailTF.getText()))
+			updateWish();
 	}
 	
 	void displayWish(ONCChildWish cw, ONCChild c)
@@ -331,7 +337,11 @@ public class WishPanel extends ONCPanel implements ActionListener, DatabaseListe
 		ONCWish catWish = cat.getWishByID(cw.getWishID());
 		String wishName = catWish == null ? "None" : catWish.getName();
 		
-		String wish = wishName + " - " + cw.getChildWishDetail();
+		String[] indicator = {"", "*", "#"};
+		
+		String wish = indicator[cw.getChildWishIndicator()] +
+				wishName + " - " + cw.getChildWishDetail();
+		
 		//does it fit on one line?
 		if(wish != null && wish.length() <= MAX_LABEL_LINE_LENGTH)
 			return true;
@@ -445,20 +455,19 @@ public class WishPanel extends ONCPanel implements ActionListener, DatabaseListe
 				wishdetailTF.setText("");	//Clear the text field if base wish changed so user can complete
 			}
 		
-
 			addWish();
 		}
 		else if(!bWishChanging && e.getSource() == wishindCB && childWish.getChildWishIndicator() != 
 				wishindCB.getSelectedIndex())
 		{
-			//Add a new wish with the new indicator
-			addWish();
+			//update the wish with the new indicator
+			updateWish();
 		}
 		else if(!bWishChanging && e.getSource() == wishdetailTF &&
 				!childWish.getChildWishDetail().equals(wishdetailTF.getText())) 
 		{
-			//Add a new wish with the new wish detail
-			addWish();
+			//Add wish with new wish detail
+			updateWish();
 		}
 		else if(!bWishChanging && e.getSource() == wishassigneeCB &&
 				childWish.getChildWishAssigneeID() != ((Organization) wishassigneeCB.getSelectedItem()).getID()) 
@@ -486,6 +495,24 @@ public class WishPanel extends ONCPanel implements ActionListener, DatabaseListe
 			displayWish(childWish, child);
 	}
 	
+	void updateWish()
+	{	
+		//a wish must exist for it to be updated
+		ONCChildWish reqUpdateWish = new ONCChildWish(childWish.getID(), child.getID(),
+								childWish.getWishID(), wishdetailTF.getText(), wishNumber,
+								wishindCB.getSelectedIndex(), childWish.getChildWishStatus(),
+								childWish.getChildWishAssigneeID(),
+								childWish.getChildWishChangedBy(),
+								childWish.getChildWishDateChanged().getTime());
+		
+		String response = cwDB.update(this, reqUpdateWish);
+
+		if(response != null && response.startsWith("UPDATED_CHILD_WISH"))
+			displayWish(reqUpdateWish, child);
+		else
+			displayWish(childWish, child);
+	}
+	
 	@Override
 	public void dataChanged(DatabaseEvent dbe)
 	{
@@ -507,6 +534,21 @@ public class WishPanel extends ONCPanel implements ActionListener, DatabaseListe
 				LogDialog.add(logEntry, "M");
 				
 				displayWish(addedWish, child);
+			}
+		}
+		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_CHILD_WISH"))
+		{
+			//Get the updated wish to extract the ONCChildWish. For updates, the ONCChildWish
+			//id will remain the same
+			ONCChildWish updatedWish = (ONCChildWish) dbe.getObject();
+			
+			if(updatedWish.getWishNumber() == wishNumber && updatedWish.getID() == childWish.getID())
+			{
+				String logEntry = String.format("WishPanel Event: %s, Child: %s, wish %d",
+						dbe.getType(), child.getChildFirstName(), updatedWish.getWishNumber());
+				LogDialog.add(logEntry, "M");
+				
+				displayWish(updatedWish, child);
 			}
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_FAMILY"))
@@ -553,6 +595,8 @@ public class WishPanel extends ONCPanel implements ActionListener, DatabaseListe
 		{
 			ONCFamily fam = (ONCFamily) tse.getObject1();
 			ArrayList<ONCChild> childList = cDB.getChildren(fam.getID());
+			
+			checkForUpdateToWishDetail();
 		
 			setEnabledWish(fam);
 			
@@ -587,6 +631,8 @@ public class WishPanel extends ONCPanel implements ActionListener, DatabaseListe
 		else if(tse.getType().equals("CHILD_SELECTED") || tse.getType().equals("WISH_SELECTED")  )
 		{
 			ONCChild selChild = (ONCChild) tse.getObject2();
+			
+			checkForUpdateToWishDetail();
 			
 			String logEntry = String.format("WishPanel Event: %s, Child Selected: %s",
 					tse.getType(), selChild.getChildFirstName());

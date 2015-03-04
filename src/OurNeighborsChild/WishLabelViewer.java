@@ -27,7 +27,7 @@ public class WishLabelViewer extends JDialog implements DatabaseListener, Entity
 	private ChildDB childDB;
 	private ChildWishDB childWishDB;
 	
-	private ONCChild child;		//current child being displayed
+	private ONCChild child;	//current child being displayed
 	private int wn;			//current wish number being displayed
 	
 	WishLabelViewer(JFrame pf)
@@ -70,7 +70,7 @@ public class WishLabelViewer extends JDialog implements DatabaseListener, Entity
 	    g2d.dispose();
 		wishLabel.setIcon(new ImageIcon(bi));
 	}
-	
+/*	
 	void displayLabel(SortWishObject swo)
 	{
 		this.setTitle(String.format("Wish %d Ornament Label", swo.getChildWish().getWishNumber()+1));
@@ -89,7 +89,7 @@ public class WishLabelViewer extends JDialog implements DatabaseListener, Entity
 		
 		wishLabel.setText(labelText);
 	}
-	
+*/	
 	void displayLabel(ONCChild c, int wn)
 	{
 		this.setTitle(String.format("Wish %d Ornament Label", wn+1));
@@ -101,25 +101,6 @@ public class WishLabelViewer extends JDialog implements DatabaseListener, Entity
 			setLabelIcon(GlobalVariables.getSeasonIcon());
 		
 		String[] line = getWishLabel(c, wn);
-		String labelText;
-		if(line[3] == null)
-			labelText = String.format("<html><center><i>%s</i><br><b>%s</b><br>%s</center></html>",
-				line[0], line[1], line[2]);
-		else
-			labelText = String.format("<html><center><i>%s</i><br><b>%s<br>%s<br></b>%s</center></html>",
-					line[0], line[1], line[2], line[3]);
-		
-		wishLabel.setText(labelText);
-	}
-	
-	void displayLabel(ONCChildWish cw)
-	{
-		this.setTitle(String.format("Wish %d Ornament Label", wn+1));
-		
-		if(wishLabel.getIcon() == null)
-			setLabelIcon(GlobalVariables.getSeasonIcon());
-		
-		String[] line = getWishLabel(child, cw);
 		String labelText;
 		if(line[3] == null)
 			labelText = String.format("<html><center><i>%s</i><br><b>%s</b><br>%s</center></html>",
@@ -152,6 +133,8 @@ public class WishLabelViewer extends JDialog implements DatabaseListener, Entity
 		
 		String[] line = new String[4];
 		SimpleDateFormat sYear = new SimpleDateFormat("yyyy");
+		
+		String[] indicator = {"", "*", "#"};
 		
 		line[0] = c.getChildAge() + " " + c.getChildGender();
 		
@@ -186,7 +169,8 @@ public class WishLabelViewer extends JDialog implements DatabaseListener, Entity
 //				l2.append(wishDetail[index++] + " ");
 //			}
 //			
-			String wish = cat.getWishByID(cw.getWishID()).getName() + " - " + cw.getChildWishDetail();
+			String wish = indicator[cw.getChildWishIndicator()] +
+					cat.getWishByID(cw.getWishID()).getName() + " - " + cw.getChildWishDetail();
 			//does it fit on one line?
 			if(wish.length() <= MAX_LABEL_LINE_LENGTH)
 			{
@@ -233,7 +217,7 @@ public class WishLabelViewer extends JDialog implements DatabaseListener, Entity
 
 		return line;
 	}
-	
+/*	
 	String[] getWishLabel(ONCChild c, ONCChildWish cw)
 	{	
 		GlobalVariables gvs = GlobalVariables.getInstance();
@@ -322,7 +306,7 @@ public class WishLabelViewer extends JDialog implements DatabaseListener, Entity
 
 		return line;
 	}
-	
+*/	
 
 	@Override
 	public void entitySelected(EntitySelectionEvent tse)
@@ -373,6 +357,17 @@ public class WishLabelViewer extends JDialog implements DatabaseListener, Entity
 			if(child != null && addedWish.getChildID() == child.getID())	
 				displayLabel(child, addedWish.getWishNumber());
 			
+		}
+		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_CHILD_WISH"))
+		{
+			//Get the updated wish to extract the ONCChildWish. For updates, the ONCChildWish
+			//id will remain the same
+			ONCChildWish updatedWish = (ONCChildWish) dbe.getObject();
+			
+			//If the current child is being displayed has a wish added update the 
+			//wish label to show the added wish
+			if(child != null && updatedWish.getChildID() == child.getID())	
+				displayLabel(child, updatedWish.getWishNumber());
 		}
 		else if(dbe.getType().equals("UPDATED_CHILD"))
 		{

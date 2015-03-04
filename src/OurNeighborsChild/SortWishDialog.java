@@ -1054,7 +1054,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 	public void valueChanged(ListSelectionEvent lse)
 	{
 		if(!lse.getValueIsAdjusting() && lse.getSource() == sortTable.getSelectionModel() &&
-				sortTable.getSelectedRow() > -1)
+				sortTable.getSelectedRow() > -1 && !bChangingTable)
 		{
 			ONCFamily fam = stAL.get(sortTable.getSelectedRow()).getFamily();
 			ONCChild child = stAL.get(sortTable.getSelectedRow()).getChild();
@@ -1084,8 +1084,9 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 	public void dataChanged(DatabaseEvent dbe) 
 	{
 		if(dbe.getSource() != this && (dbe.getType().equals("WISH_ADDED") ||
-										dbe.getType().equals("UPDATED_CHILD") || 
-										 dbe.getType().equals("DELETED_CHILD")))
+										dbe.getType().equals("UPDATED_CHILD_WISH") ||
+										 dbe.getType().equals("UPDATED_CHILD") || 
+										  dbe.getType().equals("DELETED_CHILD")))
 			
 		{
 //			System.out.println(String.format("Sort Wish Dialog DB event, Source: %s, Type %s, Object: %s",

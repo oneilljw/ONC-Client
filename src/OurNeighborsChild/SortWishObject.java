@@ -61,6 +61,8 @@ public class SortWishObject extends ONCSortObject
 		String[] line = new String[4];
 		SimpleDateFormat sYear = new SimpleDateFormat("yyyy");
 		
+		String[] indicator = {"", "*", "#"};
+		
 		line[0] = soChild.getChildAge() + " " + soChild.getChildGender();
 		
 		//Combine the wish base and wish detail and return one or two lines depending
@@ -121,7 +123,7 @@ public class SortWishObject extends ONCSortObject
 			ONCWish wish = cat.getWishByID(soChildWish.getWishID());
 			String wishName = wish == null ? "None" : wish.getName();
 			
-			line[1] = wishName + " - ";
+			line[1] = indicator[soChildWish.getChildWishIndicator()] + wishName + " - ";
 			line[2] = "ONC " + sYear.format(gvs.getSeasonStartDate()) + 
 						" |  Family # " + soFamily.getONCNum();
 			line[3] = null;
@@ -131,7 +133,8 @@ public class SortWishObject extends ONCSortObject
 			ONCWish catWish = cat.getWishByID(soChildWish.getWishID());
 			String wishName = catWish == null ? "None" : catWish.getName();
 			
-			String wish = wishName + " - " + soChildWish.getChildWishDetail();
+			String wish = indicator[soChildWish.getChildWishIndicator()] + wishName +
+					" - " + soChildWish.getChildWishDetail();
 	
 			//does it fit on one line?
 			if(wish.length() <= MAX_LABEL_LINE_LENGTH)

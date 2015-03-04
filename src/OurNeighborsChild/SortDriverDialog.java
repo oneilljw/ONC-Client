@@ -329,7 +329,8 @@ public class SortDriverDialog extends DependantTableDialog
 	public void valueChanged(ListSelectionEvent lse)
 	{
 //		System.out.println("SortAgtDlg.valueChanged: valueIsAdjusting: " + lse.getValueIsAdjusting());
-		if(!lse.getValueIsAdjusting() &&lse.getSource() == sortTable.getSelectionModel())
+		if(!lse.getValueIsAdjusting() &&lse.getSource() == sortTable.getSelectionModel() 
+				&& !bChangingTable)
 		{
 			if(sortTable.getSelectedRowCount() == 0)	//No selection
 			{
