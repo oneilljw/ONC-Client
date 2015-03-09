@@ -89,4 +89,17 @@ public class ONCUser extends ONCEntity
 	{
 		return firstname + " " + lastname;	
 	}
+
+	@Override
+	Object getTableCell(int col)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Class<?> getColumnClass(int col)
+	{
+		return String.class;
+	}
 }

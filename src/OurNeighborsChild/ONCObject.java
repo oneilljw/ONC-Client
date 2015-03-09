@@ -12,7 +12,7 @@ public abstract class ONCObject
 	public int getID() { return id; }
 	public void setID(int id) { this.id = id; }
 	
-	public boolean matches(ONCObject other) { return other != null && other.id == id; } 
+	public abstract String[] getExportRow();
 	
-	abstract public String[] getExportRow();
+	public boolean matches(ONCObject other) { return other != null && other.id == id; } 
 }

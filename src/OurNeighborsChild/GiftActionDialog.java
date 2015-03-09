@@ -28,9 +28,9 @@ public abstract class GiftActionDialog extends SortTableDialog
 	private ChildWishDB cwDB;
 	private ONCWishCatalog cat;
 	
-	private ArrayList<ONCSortObject> stAL;
+	private ArrayList<SortWishObject> stAL;
 //	protected ArrayList<ONCSortObject> tableRowSelectedObjectList;
-	protected ONCSortObject lastWishChanged;	//Holds the last wish received for undo function
+	protected SortWishObject lastWishChanged;	//Holds the last wish received for undo function
 	
 	private int sortStartAge, sortGender;
 	
@@ -50,7 +50,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 			cwDB.addDatabaseListener(this);	//Wish updates
 		
 		//Create/initialize the class variables
-		stAL = new ArrayList<ONCSortObject>();
+		stAL = new ArrayList<SortWishObject>();
 //		tableRowSelectedObjectList = new ArrayList<ONCSortObject>();
 		sortStartAge = 0;
 		sortGender = 0;
@@ -137,7 +137,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 							//Status matches and wish was assigned (Wish indicator is not *)
 							if(cw != null && doesChildWishStatusMatch(cw))
 							{
-								stAL.add(new ONCSortObject(index++, f, c, cw));
+								stAL.add(new SortWishObject(index++, f, c, cw));
 							}
 						}
 					}
@@ -184,7 +184,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 		//Process change to wish status. Store the new wish to be added in case of an undo operation 
 		//and add the new wish to the child wish history. We reuse an ONCSortObject to store the
 		//new wish. Organization parameter is null, indicating we're not changing the gift partner
-		lastWishChanged = new ONCSortObject(-1, fam, c, cw);
+		lastWishChanged = new SortWishObject(-1, fam, c, cw);
 			
 		ONCChildWish addedWish = cwDB.add(this, c.getID(), wishtypeid, cwd, wn, cwi,
 											getGiftStatusAction(), null);
@@ -343,7 +343,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 	@Override
 	String[] getTableRow(ONCObject obj)
 	{
-		ONCSortObject so = (ONCSortObject) obj;
+		SortWishObject so = (SortWishObject) obj;
 		ONCWish wish = cat.getWishByID(so.getChildWish().getWishID());
 		String wishName = wish == null ? "None" : wish.getName();
 		

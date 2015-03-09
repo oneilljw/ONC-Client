@@ -5,18 +5,34 @@ import java.text.SimpleDateFormat;
 public class SortWishObject extends ONCSortObject
 {
 	private static final int MAX_LABEL_LINE_LENGTH = 26;
+	private ONCFamily	 soFamily;
+	private ONCChild	 soChild;
+	private ONCChildWish soChildWish;
+	
+	ONCOrgs partnerDB;
+	ONCWishCatalog cat;
+	
+	String[] indicator = {"", "*", "#"};
 	
 	public SortWishObject(int itemID, ONCFamily fam, ONCChild c, ONCChildWish cw) 
 	{
-		super(itemID, fam, c, cw);
+		super(itemID);
+		soFamily = fam;
+		soChild = c;
+		soChildWish = cw;
+		
+		partnerDB = ONCOrgs.getInstance();
+		cat = ONCWishCatalog.getInstance();
 	}
 	
-	@Override
+	//getters
+	ONCFamily getFamily() { return soFamily; }
+	ONCChild getChild() { return soChild; }
+	ONCChildWish getChildWish() { return soChildWish; }
+	
 	public String[] getExportRow()
 	{
-		ONCOrgs partnerDB = ONCOrgs.getInstance();
-		ONCWishCatalog cat = ONCWishCatalog.getInstance();
-		String[] indicator = {"", "*", "#"};
+		
 		SimpleDateFormat dob = new SimpleDateFormat("MM-dd-yyyy");
 		String dateChanged = dob.format(soChildWish.getChildWishDateChanged().getTime());
 		
@@ -192,5 +208,46 @@ public class SortWishObject extends ONCSortObject
 		}
 		else
 			return false;
+	}
+
+	@Override
+	Object getTableCell(int col)
+	{
+		if(col == 0 )
+			return soFamily.getONCNum();
+		else if(col == 1)
+			return soChild.getChildGender();
+		else if (col == 2)
+			return soChild.getChildAge();
+		else if(col == 3)
+			return soChild.getChildDOBString("MM-dd-yyyy");
+		else if(col == 4)
+			return indicator[soChildWish.getChildWishIndicator()];
+		else if(col == 5)
+		{
+			ONCWish wish = cat.getWishByID(soChildWish.getWishID());
+			return wish == null ? "None" : wish.getName();
+		}
+		else if (col == 6)
+			return soChildWish.getChildWishDetail();
+		else if(col == 7)
+			return soChildWish.getChildWishStatus().toString();
+		else if(col == 8)
+			return partnerDB.getOrganizationByID(soChildWish.getChildWishAssigneeID()).getName();
+		else if(col == 7)
+			return soChildWish.getChildWishChangedBy();
+		else if(col == 8)
+		{
+			SimpleDateFormat dob = new SimpleDateFormat("MM-dd-yyyy");
+			return dob.format(soChildWish.getChildWishDateChanged().getTime());
+		}
+		else
+			return "Error";
+	}
+
+	@Override
+	public Class<?> getColumnClass(int col)
+	{
+		return String.class;
 	}
 }

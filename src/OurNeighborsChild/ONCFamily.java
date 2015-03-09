@@ -806,5 +806,16 @@ public class ONCFamily extends ONCEntity
 
 		return row;		
 	}
+	@Override
+	Object getTableCell(int col)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public Class<?> getColumnClass(int col)
+	{
+		return String.class;
+	}
 }
 

@@ -23,7 +23,9 @@ public class ONCDriver extends ONCEntity
 	private String cellPhone;
 	private String drLicense;
 	private String car;
-	private int delAssigned; 
+	private int delAssigned;
+	
+	String[] stoplt = {"G", "Y", "R", "O"};
 	
 	public ONCDriver(int driverid, String drvNum, String fName, String lName, String email, String hNum, 
 						String street, String unit, String city, String zipcode, 
@@ -193,5 +195,36 @@ public class ONCDriver extends ONCEntity
 						slMssg, slChangedBy};
 		
 		return row;
+	}
+
+	@Override
+	Object getTableCell(int col)
+	{
+		if(col == 0)
+			return drvNum;
+		else if(col == 1)
+			return fName;
+		else if(col == 2)
+			return lName;
+		else if(col == 3)
+			return Integer.toString(delAssigned);
+		else if(col == 4)
+			return cellPhone;
+		else if(col == 5)
+			return homePhone;
+		else if(col == 6)
+			return email;
+		else if(col == 7)
+			return changedBy;
+		else if(col == 8)
+			return  stoplt[slPos];
+		else
+			return "Error";
+	}
+
+	@Override
+	public Class<?> getColumnClass(int col)
+	{
+		return String.class;
 	}
 }

@@ -325,4 +325,17 @@ public class Organization extends ONCEntity
 	 {
 	     return name;
 	 }
+
+	@Override
+	Object getTableCell(int col)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Class<?> getColumnClass(int col)
+	{
+		return String.class;
+	}
 }

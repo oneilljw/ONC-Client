@@ -1389,19 +1389,19 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 	}
 
 	
-	private class ONCSortItemAgeComparator implements Comparator<ONCSortObject>
+	private class ONCSortItemAgeComparator implements Comparator<SortWishObject>
 	{
 		@Override
-		public int compare(ONCSortObject o1, ONCSortObject o2)
+		public int compare(SortWishObject o1, SortWishObject o2)
 		{
 			return o1.getChild().getChildDOB().compareTo(o2.getChild().getChildDOB());
 		}
 	}
 	
-	private class ONCSortItemFamNumComparator implements Comparator<ONCSortObject>
+	private class ONCSortItemFamNumComparator implements Comparator<SortWishObject>
 	{
 		@Override
-		public int compare(ONCSortObject o1, ONCSortObject o2)
+		public int compare(SortWishObject o1, SortWishObject o2)
 		{
 			Integer onc1, onc2;
 			
@@ -1419,19 +1419,19 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		}
 	}
 	
-	private class ONCSortItemGenderComparator implements Comparator<ONCSortObject>
+	private class ONCSortItemGenderComparator implements Comparator<SortWishObject>
 	{
 		@Override
-		public int compare(ONCSortObject o1, ONCSortObject o2)
+		public int compare(SortWishObject o1, SortWishObject o2)
 		{
 			return o1.getChild().getChildGender().compareTo(o2.getChild().getChildGender());
 		}
 	}
 	
-	private class ONCSortItemWishNumComparator implements Comparator<ONCSortObject>
+	private class ONCSortItemWishNumComparator implements Comparator<SortWishObject>
 	{
 		@Override
-		public int compare(ONCSortObject o1, ONCSortObject o2)
+		public int compare(SortWishObject o1, SortWishObject o2)
 		{
 			Integer wishNum1 = o1.getChildWish().getWishNumber();
 			Integer wishNum2 = o2.getChildWish().getWishNumber();
@@ -1439,10 +1439,10 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		}
 	}
 	
-	private class ONCSortItemWishBaseComparator implements Comparator<ONCSortObject>
+	private class ONCSortItemWishBaseComparator implements Comparator<SortWishObject>
 	{
 		@Override
-		public int compare(ONCSortObject o1, ONCSortObject o2)
+		public int compare(SortWishObject o1, SortWishObject o2)
 		{
 			ONCWishCatalog cat = ONCWishCatalog.getInstance();
 			String wishBase1 = cat.getWishByID(o1.getChildWish().getWishID()).getName();
@@ -1452,20 +1452,20 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		}
 	}
 	
-	private class ONCSortItemWishDetailComparator implements Comparator<ONCSortObject>
+	private class ONCSortItemWishDetailComparator implements Comparator<SortWishObject>
 	{
 		@Override
-		public int compare(ONCSortObject o1, ONCSortObject o2)
+		public int compare(SortWishObject o1, SortWishObject o2)
 		{
 			return o1.getChildWish().getChildWishDetail().compareTo(
 					o2.getChildWish().getChildWishDetail());
 		}
 	}
 	
-	private class ONCSortItemWishIndicatorComparator implements Comparator<ONCSortObject>
+	private class ONCSortItemWishIndicatorComparator implements Comparator<SortWishObject>
 	{
 		@Override
-		public int compare(ONCSortObject o1, ONCSortObject o2)
+		public int compare(SortWishObject o1, SortWishObject o2)
 		{
 			Integer wishInd1 = o1.getChildWish().getChildWishIndicator();
 			Integer wishInd2 = o2.getChildWish().getChildWishIndicator();
@@ -1474,10 +1474,10 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		}
 	}
 	
-	private class ONCSortItemWishStatusComparator implements Comparator<ONCSortObject>
+	private class ONCSortItemWishStatusComparator implements Comparator<SortWishObject>
 	{
 		@Override
-		public int compare(ONCSortObject o1, ONCSortObject o2)
+		public int compare(SortWishObject o1, SortWishObject o2)
 		{
 //			Integer wishStatus1 = o1.getChildWish().getChildWishStatus();
 //			Integer wishStatus2 = o2.getChildWish().getChildWishStatus();
@@ -1486,10 +1486,10 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		}
 	}
 	
-	private class ONCSortItemWishAssigneeComparator implements Comparator<ONCSortObject>
+	private class ONCSortItemWishAssigneeComparator implements Comparator<SortWishObject>
 	{
 		@Override
-		public int compare(ONCSortObject o1, ONCSortObject o2)
+		public int compare(SortWishObject o1, SortWishObject o2)
 		{
 			ONCOrgs partnerDB = ONCOrgs.getInstance();
 			String part1 = partnerDB.getOrganizationByID(o1.getChildWish().getChildWishAssigneeID()).getName();
@@ -1498,20 +1498,20 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		}
 	}
 	
-	private class ONCSortItemWishChangedByComparator implements Comparator<ONCSortObject>
+	private class ONCSortItemWishChangedByComparator implements Comparator<SortWishObject>
 	{
 		@Override
-		public int compare(ONCSortObject o1, ONCSortObject o2)
+		public int compare(SortWishObject o1, SortWishObject o2)
 		{
 			return o1.getChildWish().getChildWishChangedBy().compareTo(
 					o2.getChildWish().getChildWishChangedBy());
 		}
 	}
 	
-	private class ONCSortItemWishDateChangedComparator implements Comparator<ONCSortObject>
+	private class ONCSortItemWishDateChangedComparator implements Comparator<SortWishObject>
 	{
 		@Override
-		public int compare(ONCSortObject o1, ONCSortObject o2)
+		public int compare(SortWishObject o1, SortWishObject o2)
 		{
 			return o1.getChildWish().getChildWishDateChanged().compareTo(
 					o2.getChildWish().getChildWishDateChanged());

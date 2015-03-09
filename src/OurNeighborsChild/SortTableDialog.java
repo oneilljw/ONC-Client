@@ -63,7 +63,8 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 	protected ArrayList<ONCObject> tableRowSelectedObjectList;
 	
 	protected ONCTable sortTable;
-	protected DefaultTableModel sortTableModel;
+	protected DefaultTableModel sortDefaultTableModel;
+	protected SortTableModel sortTableModel;
 	protected JButton btnApplyChanges;
 	protected JButton btnResetCriteria;
 	
@@ -110,7 +111,7 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 		sortTable = new ONCTable(colToolTips, new Color(240,248,255));
 
 		//Set up the table model. Cells are not editable
-		sortTableModel = new DefaultTableModel(columns, 0) {
+		sortDefaultTableModel = new DefaultTableModel(columns, 0) {
 			private static final long serialVersionUID = 1L;
 			@Override
 			//All cells are locked from being changed by user
@@ -119,7 +120,7 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 
 		//Set the table model, select ability to select multiple rows and add a listener to 
 		//check if the user has selected a row. 
-		sortTable.setModel(sortTableModel);
+		sortTable.setModel(sortDefaultTableModel);
 		sortTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		sortTable.getSelectionModel().addListSelectionListener(this);
 
@@ -237,14 +238,14 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 		lsModel.clearSelection();	//clear any selected rows
 		
 		//clear the table
-		while (sortTableModel.getRowCount() > 0)
-			sortTableModel.removeRow(0);
+		while (sortDefaultTableModel.getRowCount() > 0)
+			sortDefaultTableModel.removeRow(0);
 		
 		setEnabledControls(false);	//disable any controls that are reset
 		
 		//add rows to the table
 		for(int i=0; i < stAL.size(); i++)
-			sortTableModel.addRow(getTableRow(stAL.get(i)));
+			sortDefaultTableModel.addRow(getTableRow(stAL.get(i)));
 		
 		lsModel.setValueIsAdjusting(false);
 		
@@ -370,5 +371,5 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 		{
 			
 		}
-	 }                                        
+	 }
 }

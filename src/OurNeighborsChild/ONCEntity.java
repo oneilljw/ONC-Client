@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
 
-public abstract class ONCEntity extends ONCObject implements Serializable
+public abstract class ONCEntity extends ONCSortObject implements Serializable
 {
 	/**
 	 * This pojo class subclasses ONCObjects, adding stop light data as well as data change tracking
