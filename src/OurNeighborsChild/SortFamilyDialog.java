@@ -368,7 +368,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		else
 			itemCountPanel.setBorder(BorderFactory.createTitledBorder("Families Meeting Criteria"));
 		
-		displaySortTable(stAL, true, tableRowSelectedObjectList);		//Display the table after table array list is built					
+//		displaySortTable(stAL, true, tableRowSelectedObjectList);		//Display the table after table array list is built					
 	}
 
 	//Returns a boolean that a change to DNS, Family or Delivery Status occurred

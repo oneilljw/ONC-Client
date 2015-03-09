@@ -3,8 +3,11 @@ package OurNeighborsChild;
 import java.util.ArrayList;
 
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.event.ListSelectionEvent;
+import javax.swing.table.AbstractTableModel;
 
 public abstract class SortFamilyTableDialog extends ChangeDialog
 {
@@ -38,6 +41,8 @@ public abstract class SortFamilyTableDialog extends ChangeDialog
 		stAL = new ArrayList<ONCFamily>();
 //		tableRowSelectedObjectList = new ArrayList<ONCFamily>();
 		regionCBM = new DefaultComboBoxModel();
+		
+		sortTable.setModel(new FamilyTableModel());
 	}
 	
 	@Override
@@ -79,5 +84,73 @@ public abstract class SortFamilyTableDialog extends ChangeDialog
 		}
 		
 		checkApplyChangesEnabled();	//Check to see if user postured to change family		
+	}
+	
+	class FamilyTableModel extends AbstractTableModel
+	{
+		/**
+		* Implements the table model for the Wish Catalog Dialog
+		*/
+		private static final long serialVersionUID = 1L;
+		
+		String[] ftCols = {"ONC", "Batch #", "DNS", "Fam Status", "Del Status", "First", "Last",
+					"House", "Street", "Unit", "Zip", "Reg", "Changed By", "SL"};
+	 
+	    public int getColumnCount() { return ftCols.length; }
+	 
+	    public int getRowCount() { return stAL.size(); }
+	 
+	    public String getColumnName(int col) { return ftCols[col]; }
+	 
+	    public Object getValueAt(int row, int col)
+	    {
+	    	if(col == 0)  
+	        	return stAL.get(row).getONCNum();
+	        else if(col == 1)
+	        	return stAL.get(row).getBatchNum();
+	        else if(col == 2)
+	        	return stAL.get(row).getDNSCode();
+	        else if(col == 3)
+	        	return famstatus[stAL.get(row).getFamilyStatus()+1];
+	        else if(col == 4)
+	        	return delstatus[stAL.get(row).getDeliveryStatus()+1];
+	        else if(col == 5)
+	        	return stAL.get(row).getHOHFirstName();
+	        else if(col == 6)
+	        	return stAL.get(row).getHOHLastName();
+	        else if(col == 7)
+	        	return stAL.get(row).getHouseNum();
+	        else if(col == 8)
+	        	return stAL.get(row).getStreet();
+	        else if(col == 9)
+	        	return stAL.get(row).getUnitNum();
+	        else if(col == 10)
+	        	return stAL.get(row).getZipCode();
+	        else if(col == 11)
+	        	return stAL.get(row).getRegion();
+	        else if(col == 12)
+	        	return stAL.get(row).getChangedBy();
+	        else if(col == 13)
+	        	return stAL.get(row).getStoplightPos(); 
+	        else
+	        	return "Error";
+	    }
+	        
+	    //JTable uses this method to determine the default renderer/editor for each cell.
+	    @Override
+	    public Class<?> getColumnClass(int col)
+	    {
+	        if(col == 3 || col == 4 || col == 11 || col == 13)
+	        	return Integer.class;
+	        else
+	        	return String.class;
+	    }
+	 
+	    public boolean isCellEditable(int row, int col)
+	    {
+	        //Only the check boxes can be edited and then only if there is not
+	    	//a wish already selected from the list associated with that column
+	        return false;
+	    }
 	}
 }
