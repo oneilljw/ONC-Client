@@ -10,10 +10,10 @@ public class SortTableModel extends AbstractTableModel
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private List<ONCSortObject> stAL;
+	private List<? extends ONCSortObject> stAL;
 	private String[] columns;
 	
-	SortTableModel(List<ONCSortObject> stAL, String[] columns)
+	SortTableModel(List<? extends ONCSortObject> stAL, String[] columns)
 	{
 		this.stAL = stAL;
 		this.columns = columns;

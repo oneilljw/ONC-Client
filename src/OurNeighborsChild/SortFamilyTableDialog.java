@@ -28,6 +28,8 @@ public abstract class SortFamilyTableDialog extends ChangeDialog
 	protected ArrayList<ONCFamily> tableRowSelectedObjectList;
 	protected DefaultComboBoxModel regionCBM;
 	
+	protected SortTableModel fdTableModel;
+	
 	protected String[] columns;
 
 	public SortFamilyTableDialog(JFrame pf, String[] colToolTips, String[] cols, int[] colWidths, int[] center_cols)
@@ -43,7 +45,8 @@ public abstract class SortFamilyTableDialog extends ChangeDialog
 		tableRowSelectedObjectList = new ArrayList<ONCFamily>();
 		regionCBM = new DefaultComboBoxModel();
 		
-//		sortTable.setModel(new FamilyTableModel());
+		fdTableModel = new SortTableModel(stAL, cols);
+		sortTable.setModel(fdTableModel);
 	}
 	
 	@Override
@@ -53,7 +56,7 @@ public abstract class SortFamilyTableDialog extends ChangeDialog
 		
 		if(fDB.sortDB(stAL, columns[col]))
 		{
-			displaySortTable(stAL, false, tableRowSelectedObjectList);
+//			displaySortTable(stAL, false, tableRowSelectedObjectList);
 			return col;
 		}
 		else

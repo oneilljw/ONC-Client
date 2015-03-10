@@ -368,7 +368,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		else
 			itemCountPanel.setBorder(BorderFactory.createTitledBorder("Families Meeting Criteria"));
 		
-		displaySortTable(stAL, true, tableRowSelectedObjectList);		//Display the table after table array list is built					
+//		displaySortTable(stAL, true, tableRowSelectedObjectList);		//Display the table after table array list is built					
 	}
 
 	//Returns a boolean that a change to DNS, Family or Delivery Status occurred
@@ -1366,6 +1366,18 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	@Override
 	boolean isONCNumContainerEmpty() { return false; }
 	
+	int findTableRow(int famID)
+	{
+		int index = 0;
+		while(index < stAL.size() && stAL.get(index).getID() != famID)
+			index++;
+		
+		if(index < stAL.size())
+			return index;
+		else
+			return -1;
+	}
+	
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{
@@ -1495,10 +1507,21 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	@Override
 	public void dataChanged(DatabaseEvent dbe)
 	{
-		if(dbe.getSource() != this && dbe.getType().equals("UPDATED_FAMILY") ||
-			dbe.getType().equals("ADDED_FAMILY") || dbe.getType().equals("ADDED_DELIVERY"))
+		if(dbe.getSource() != this && dbe.getType().equals("ADDED_FAMILY"))
 		{
 			buildTableList(true);		
+		}
+		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_FAMILY"))
+		{
+			ONCFamily updatedFamily = (ONCFamily) dbe.getObject();
+			int tablerow = findTableRow(updatedFamily.getID());
+			if(tablerow > -1)
+			{
+				System.out.println(String.format("SortFamilyDlg.dataChanged: updated row %d", tablerow));
+				//add new wish to wish table
+				stAL.set(tablerow, updatedFamily);
+				fdTableModel.fireTableRowsUpdated(tablerow, tablerow);
+			}
 		}
 		else if(dbe.getType().equals("UPDATED_REGION_LIST"))
 		{
