@@ -473,7 +473,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
     	String[] fdCols = {"ONC", "Batch #", "DNS", "Fam Status", "Del Status", "First", "Last",
     						"House", "Street", "Unit", "Zip", "Reg", "Changed By", "SL"};
     	int[] fdColWidths = {32, 48, 48, 72, 72, 72, 72, 48, 128, 72, 48, 32, 72, 24};
-    	int [] fdCenter_cols = {1, 11, 13};
+    	int [] fdCenter_cols = {1, 11};
         sortFamiliesDlg = new SortFamilyDialog(parentFrame, fdColToolTips, fdCols, fdColWidths, fdCenter_cols);
         sortFamiliesDlg.addEntitySelectionListener(familyChildSelectionListener);
         sortFamiliesDlg.addEntitySelectionListener(dirDlg);

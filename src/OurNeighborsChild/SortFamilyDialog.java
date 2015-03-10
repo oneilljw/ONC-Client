@@ -22,6 +22,7 @@ import java.util.Calendar;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -291,11 +292,11 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	 * This method builds an array of strings for each row in the family table. It is
 	 * called by the super class display table method. 
 	 **********************************************************************************/
-	protected String[] getTableRow(ONCObject o)
+	protected Object[] getTableRow(ONCObject o)
 	{
 		ONCFamily f = (ONCFamily) o;
 		
-		String[] tablerow = {f.getONCNum(), 
+		Object[] tablerow = {f.getONCNum(), 
 			f.getBatchNum(),
 			f.getDNSCode(),
 			famstatus[f.getFamilyStatus()+1],
@@ -308,7 +309,8 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			f.getZipCode(),
 			regions.getRegionID(f.getRegion()),
 			f.getChangedBy(),
-			stoplt[f.getStoplightPos()+1].substring(0,1)};
+//			stoplt[f.getStoplightPos()+1].substring(0,1)};
+			gvs.getImageIcon(22)};
 		
 		return tablerow;
 	}
@@ -368,7 +370,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		else
 			itemCountPanel.setBorder(BorderFactory.createTitledBorder("Families Meeting Criteria"));
 		
-//		displaySortTable(stAL, true, tableRowSelectedObjectList);		//Display the table after table array list is built					
+		displaySortTable(stAL, true, tableRowSelectedObjectList);		//Display the table after table array list is built					
 	}
 
 	//Returns a boolean that a change to DNS, Family or Delivery Status occurred
@@ -1507,10 +1509,11 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	@Override
 	public void dataChanged(DatabaseEvent dbe)
 	{
-		if(dbe.getSource() != this && dbe.getType().equals("ADDED_FAMILY"))
+		if(dbe.getSource() != this && (dbe.getType().equals("ADDED_FAMILY") || dbe.getType().equals("UPDATED_FAMILY")))
 		{
 			buildTableList(true);		
 		}
+/*		
 		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_FAMILY"))
 		{
 			ONCFamily updatedFamily = (ONCFamily) dbe.getObject();
@@ -1523,6 +1526,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 				fdTableModel.fireTableRowsUpdated(tablerow, tablerow);
 			}
 		}
+*/		
 		else if(dbe.getType().equals("UPDATED_REGION_LIST"))
 		{
 			String[] regList = (String[]) dbe.getObject();

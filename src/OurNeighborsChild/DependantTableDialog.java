@@ -56,7 +56,7 @@ public abstract class DependantTableDialog extends SortTableDialog
 	public DependantTableDialog(JFrame pf, String[] colToolTips,
 			String[] cols, int[] colWidths, int[] center_cols, int nTableRows)
 	{
-		super(pf, colToolTips, cols, colWidths, center_cols, 10);
+		super(pf, colToolTips, cols, colWidths, center_cols, 10, -1);
 		columns = cols;
 		
 		regions = ONCRegions.getInstance();
@@ -88,7 +88,7 @@ public abstract class DependantTableDialog extends SortTableDialog
 					"Head of Household Last Name", "House Number","Street", "Unit",
 					"Zip Code", "Region","Changed By", "Stoplight Color"};
         
-        familyTable = new ONCTable(colTT, new Color(240,248,255));
+        familyTable = new ONCTable(colTT, new Color(240,248,255), 13);
 
       	final String[] ftcolumns = {"ONC", "Batch #", "DNS", "Fam Status", "Del Status", "First", "Last", "House",
       							"Street", "Unit", "Zip", "Reg", "Changed By", "SL"};

@@ -21,9 +21,9 @@ public abstract class ChangeDialog extends SortTableDialog
 	protected  GridBagConstraints gbc;
 	
 	public ChangeDialog(JFrame pf, String[] colToolTips, String[] columns,
-							int[] colWidths, int[] center_cols)
+							int[] colWidths, int[] center_cols, int stoplightCol)
 	{
-		super(pf, colToolTips, columns, colWidths, center_cols, 15);
+		super(pf, colToolTips, columns, colWidths, center_cols, 15, stoplightCol);
 		 //Set up the third panel holding count panel and change panel using a GridBag layout
         changePanel = new JPanel();
         changePanel.setLayout( new GridBagLayout() );

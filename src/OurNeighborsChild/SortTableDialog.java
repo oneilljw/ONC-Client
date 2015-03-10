@@ -77,7 +77,7 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 	protected static String[] delstatus = {"Any", "Empty", "Contacted", "Confirmed", "Assigned", "Attempted", "Returned", "Delivered", "Counselor Pick-Up"};
 	protected static String[] stoplt = {"Any", "Green", "Yellow", "Red", "Off"};
 	
-	public SortTableDialog(JFrame pf, String[] colToolTips, String[] columns, int[] colWidths, int[] center_cols, int nTableRows)
+	public SortTableDialog(JFrame pf, String[] colToolTips, String[] columns, int[] colWidths, int[] center_cols, int nTableRows, int stoplightCol)
 	{
 		super(pf);
 		
@@ -108,7 +108,7 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 		sortCriteriaPanel.setBorder(BorderFactory.createTitledBorder("Search Filters"));
 	
 		//Set up the sort family table panel
-		sortTable = new ONCTable(colToolTips, new Color(240,248,255));
+		sortTable = new ONCTable(colToolTips, new Color(240,248,255), stoplightCol);
 
 		//Set up the table model. Cells are not editable
 		sortDefaultTableModel = new DefaultTableModel(columns, 0) {
@@ -318,7 +318,7 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 	
 	abstract void setEnabledControls(boolean tf);
 	
-	abstract String[] getTableRow(ONCObject o);
+	abstract Object[] getTableRow(ONCObject o);
 	
 	void onPrintListing(String tablename)
 	{

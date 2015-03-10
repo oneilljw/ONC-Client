@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.MouseEvent;
 
+import javax.swing.ImageIcon;
 import javax.swing.JTable;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
@@ -15,12 +16,14 @@ public class ONCTable extends JTable
 	private static final long serialVersionUID = 1L;
 	private String[] colToolTips;
 	private Color rowColor;
+	private int stoplightCol;
 
-	public ONCTable(String[] colTT, Color rc)
+	public ONCTable(String[] colTT, Color rc, int stoplightCol)
 	{
 		super();
 		colToolTips = colTT;
 		rowColor = rc;
+		this.stoplightCol = stoplightCol;
 	}
 	
 	public ONCTable(TableModel tm, String[] colTT, Color rc)
@@ -28,6 +31,7 @@ public class ONCTable extends JTable
 		super(tm);
 		colToolTips = colTT;
 		rowColor = rc;
+		stoplightCol = -1;
 	}
 		
 	public boolean getScrollableTracksViewportWidth() {
@@ -62,4 +66,16 @@ public class ONCTable extends JTable
 			  
 		return comp;
 	}
+	
+	@Override
+	public Class getColumnClass(int column)
+    {
+		System.out.println(String.format("ONC Table.getColumnClass: column = %d, stoplightCol = %d", column, stoplightCol));
+//		if(column != stoplightCol)
+//			return String.class;
+//		else
+//			return ImageIcon.class;
+		System.out.println("ONC Table.getColumnClass: " + getValueAt(0, column).getClass());
+		 return getValueAt(0, column).getClass();
+    }
 }
