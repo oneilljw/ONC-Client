@@ -10,8 +10,9 @@ import java.util.List;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-public class UserDB extends ONCDatabase
+public class UserDB extends ONCSearchableDatabase
 {
+	private static final String DB_TYPE = "USER";
 	private static UserDB instance = null;
 	private List<ONCUser> uAL;
 	
@@ -192,4 +193,38 @@ public class UserDB extends ONCDatabase
 			return o1.getLNFI().compareTo(o2.getLNFI());
 		}
 	}
+
+	@Override
+	String searchForListItem(ArrayList<Integer> searchAL, String data)
+	{
+		searchAL.clear();
+		String searchType = "";
+
+    	if(!data.isEmpty())
+    	{
+    		searchType = "User Name";
+			for(ONCUser u:uAL)
+			{
+				if(u.getFirstname().toLowerCase().contains(data.toLowerCase()) ||
+					u.getLastname().toLowerCase().contains(data.toLowerCase()))
+				{
+					searchAL.add(u.getID());
+				}
+			}
+    	}
+    	
+		return searchType;
+	}
+
+	@Override
+	int size() { return uAL.size(); }
+
+	@Override
+	List<? extends ONCEntity> getList() { return uAL; }
+
+	@Override
+	ONCEntity getObjectAtIndex(int index) {  return uAL.get(index); }
+
+	@Override
+	String getDBType() { return DB_TYPE; }
 }
