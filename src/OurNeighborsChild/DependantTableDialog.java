@@ -141,7 +141,7 @@ public abstract class DependantTableDialog extends SortTableDialog
         ftcr.setHorizontalAlignment(SwingConstants.CENTER);
         familyTable.getColumnModel().getColumn(1).setCellRenderer(ftcr);
         familyTable.getColumnModel().getColumn(11).setCellRenderer(ftcr);
-        familyTable.getColumnModel().getColumn(13).setCellRenderer(ftcr);
+//      familyTable.getColumnModel().getColumn(13).setCellRenderer(ftcr);
               
         familyTable.setFillsViewportHeight(true);    
               
@@ -206,11 +206,11 @@ public abstract class DependantTableDialog extends SortTableDialog
 		bChangingFamilyTable = false;	
 	}
 	
-	String[] getFamilyTableRow(ONCFamily f)
+	Object[] getFamilyTableRow(ONCFamily f)
 	{
-		GlobalVariables gvs = GlobalVariables.getInstance();
+//		GlobalVariables gvs = GlobalVariables.getInstance();
 		
-		String[] familytablerow = new String[14];
+		Object[] familytablerow = new Object[14];
 		
 		familytablerow[0] = f.getONCNum(); 
 		familytablerow[1] = f.getBatchNum();
@@ -239,7 +239,8 @@ public abstract class DependantTableDialog extends SortTableDialog
 		
 		familytablerow[11] = regions.getRegionID(f.getRegion());
 		familytablerow[12] = f.getChangedBy();
-		familytablerow[13] = stoplt[f.getStoplightPos()+1].substring(0,1);
+//		familytablerow[13] = stoplt[f.getStoplightPos()+1].substring(0,1);
+		familytablerow[13] = gvs.getImageIcon(23 + f.getStoplightPos());
 			
 		return familytablerow;
 	}
@@ -269,13 +270,13 @@ public abstract class DependantTableDialog extends SortTableDialog
 	}
 
 	@Override
-	String[] getTableRow(ONCObject o) 
-	{
-		Agent a = (Agent) o;
-		String[] ai = {a.getAgentName(), a.getAgentOrg(), a.getAgentTitle(), 
-						a.getAgentEmail(), a.getAgentPhone()};
-		return ai;
-	}
+	abstract Object[] getTableRow(ONCObject o); 
+//	{
+//		Agent a = (Agent) o;
+//		Object[] ai = {a.getAgentName(), a.getAgentOrg(), a.getAgentTitle(), 
+//						a.getAgentEmail(), a.getAgentPhone()};
+//		return ai;
+//	}
 
 	@Override
 	void checkApplyChangesEnabled()

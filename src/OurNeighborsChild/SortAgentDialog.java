@@ -937,10 +937,10 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 	}
 
 	@Override
-	String[] getTableRow(ONCObject o) 
+	Object[] getTableRow(ONCObject o) 
 	{
 		Agent a = (Agent) o;
-		String[] ai = {a.getAgentName(), a.getAgentOrg(), a.getAgentTitle(), 
+		Object[] ai = {a.getAgentName(), a.getAgentOrg(), a.getAgentTitle(), 
 						a.getAgentEmail(), a.getAgentPhone()};
 		return ai;
 	}

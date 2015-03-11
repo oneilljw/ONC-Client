@@ -141,8 +141,9 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		changedByCB.setBorder(BorderFactory.createTitledBorder("Changed By"));
 		changedByCB.addActionListener(this);
 				
-		stoplightCB = new JComboBox(stoplt);
-		stoplightCB.setPreferredSize(new Dimension(104, 56));
+//		stoplightCB = new JComboBox(stoplt);
+		stoplightCB = new JComboBox(GlobalVariables.getLights());
+		stoplightCB.setPreferredSize(new Dimension(80, 56));
 		stoplightCB.setBorder(BorderFactory.createTitledBorder("Stoplight"));
 		stoplightCB.addActionListener(this);
 				
@@ -267,18 +268,19 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 	}
 */	
 	@Override
-	public String[] getTableRow(ONCObject obj)
+	public Object[] getTableRow(ONCObject obj)
 	{
 		Organization o = (Organization) obj;
 		SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yy");
-		String[] sorttablerow = {o.getName(), status[o.getStatus()+1], types[o.getType()],
+		Object[] sorttablerow = {o.getName(), status[o.getStatus()+1], types[o.getType()],
 								 Integer.toString(o.getNumberOfOrnamentsRequested()),
 								 Integer.toString(o.getNumberOfOrnamentsAssigned()),
 								 o.getSpecialNotes(),
 								 sdf.format(o.getDateChanged().getTime()),
 								 o.getStoplightChangedBy(),
 								 regions.getRegionID(o.getRegion()),
-								 stoplt[o.getStoplightPos()+1].substring(0,1)};
+//								 stoplt[o.getStoplightPos()+1].substring(0,1)};
+		 						 gvs.getImageIcon(23 + o.getStoplightPos())};
 		return sorttablerow;
 	}
 	

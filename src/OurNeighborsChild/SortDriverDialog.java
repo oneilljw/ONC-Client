@@ -80,8 +80,9 @@ public class SortDriverDialog extends DependantTableDialog
 		changedByCB.setBorder(BorderFactory.createTitledBorder("Changed By"));
 		changedByCB.addActionListener(this);
 		
-		stoplightCB = new JComboBox(stoplt);
-		stoplightCB.setPreferredSize(new Dimension(104, 56));
+//		stoplightCB = new JComboBox(stoplt);
+		stoplightCB = new JComboBox(GlobalVariables.getLights());
+		stoplightCB.setPreferredSize(new Dimension(80, 56));
 		stoplightCB.setBorder(BorderFactory.createTitledBorder("Stoplight"));
 		stoplightCB.addActionListener(this);
 		
@@ -378,13 +379,14 @@ public class SortDriverDialog extends DependantTableDialog
 	}
 
 	@Override
-	String[] getTableRow(ONCObject o) 
+	Object[] getTableRow(ONCObject o) 
 	{
 		ONCDriver d = (ONCDriver) o;
-		String[] di = {d.getDrvNum(), d.getfName(), d.getlName(),
+		Object[] di = {d.getDrvNum(), d.getfName(), d.getlName(),
 						Integer.toString(d.getDelAssigned()),
 						d.getCellPhone(), d.getHomePhone(), d.getEmail(), d.getChangedBy(),
-						stoplt[d.getStoplightPos()+1].substring(0,1)};
+//						stoplt[d.getStoplightPos()+1].substring(0,1)};
+						gvs.getImageIcon(23 + d.getStoplightPos())};
 		return di;
 	}
 	

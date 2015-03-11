@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
+
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -81,7 +82,7 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 	    oncSeasonStartDate.set(Calendar.SECOND, 0);
 	    oncSeasonStartDate.set(Calendar.MILLISECOND, 0);
 	   
-	    imageIcons = new ImageIcon[27];
+	    imageIcons = new ImageIcon[28];
 		imageIcons[0] = createImageIcon("onclogosmall.gif", "ONC Logo");
 		imageIcons[1] = createImageIcon("InfoIcon.gif", "Info Icon");
 		imageIcons[2] = createImageIcon("Button-Next-icon.gif", "Next Icon");
@@ -117,6 +118,7 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 		imageIcons[24] = createImageIcon("Button-Blank-Yellow-icon.png", "Yellow Light");
 		imageIcons[25] = createImageIcon("Button-Blank-Red-icon.png", "Red Light");
 		imageIcons[26] = createImageIcon("Button-Blank-Gray-icon.png", "Gray Light");
+		imageIcons[27] = createImageIcon("Button-Blank-Any-icon.png", "Any Light");
 	
 		warehouseAddress = "6476+Trillium+House+Lane+Centreville,VA";
 		fontIndex = 3;
@@ -179,6 +181,13 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 	public static ImageIcon getONCLogo() { return imageIcons[0]; }
 	public static ImageIcon getUnLockedIcon() { return imageIcons[17]; }
 	public static ImageIcon getLockedIcon() { return imageIcons[18]; }
+	public static ImageIcon[] getLights()
+	{
+		ImageIcon[] lights = {imageIcons[27], imageIcons[23], imageIcons[24],
+				imageIcons[25], imageIcons[26]};
+		
+		return lights;
+	}
 	ImageIcon[] getImageIcons() {return imageIcons; }
 	ImageIcon getONCFullScreenLogo() {return imageIcons[15]; }
 	Image getImage(int icon) { return imageIcons[icon].getImage(); }

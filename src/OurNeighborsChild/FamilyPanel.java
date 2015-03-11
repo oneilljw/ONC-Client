@@ -523,7 +523,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
     	String[] sdCols = {"Drv #", "First Name", "Last Name", "# Del", "Cell #", "Home #", "E-Mail Address",
     						"Changed By", "SL"};
     	int[] sdColWidths = {32, 80, 96, 28, 88, 88, 168, 88, 16};
-    	int[] sdCenter_cols = {3, 8};
+    	int[] sdCenter_cols = {3};
     	sortDriverDlg = new SortDriverDialog(parentFrame, sdToolTips, sdCols, sdColWidths, sdCenter_cols);
     	sortDriverDlg.addEntitySelectionListener(familyChildSelectionListener);
     	sortDriverDlg.addEntitySelectionListener(agentInfoDlg);
@@ -555,7 +555,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         String[] orgCols = {"Partner","Status", "Type", "Req", "Assigned", "Special Notes",
 				"Date Changed","Changed By","Reg", "SL"};
         int[] orgColWidths = {180, 96, 68, 48, 56, 180, 72, 80, 28, 24};
-        int[] orgCenter_cols = {8, 9};
+        int[] orgCenter_cols = {8};
         sortOrgsDlg = new SortPartnerDialog(parentFrame, orgToolTips, orgCols, orgColWidths, orgCenter_cols);
         sortOrgsDlg.addEntitySelectionListener(orgDlg);
         

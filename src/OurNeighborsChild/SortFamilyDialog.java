@@ -165,8 +165,9 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		changedByCB.setBorder(BorderFactory.createTitledBorder("Changed By"));
 		changedByCB.addActionListener(this);
 		
-		stoplightCB = new JComboBox(stoplt);
-		stoplightCB.setPreferredSize(new Dimension(104, 56));
+//		stoplightCB = new JComboBox(stoplt);
+		stoplightCB = new JComboBox(GlobalVariables.getLights());
+		stoplightCB.setPreferredSize(new Dimension(80, 56));
 		stoplightCB.setBorder(BorderFactory.createTitledBorder("Stoplight"));
 		stoplightCB.addActionListener(this);
 		
