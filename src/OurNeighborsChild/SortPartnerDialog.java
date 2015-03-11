@@ -87,7 +87,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 	
 	SortPartnerDialog(JFrame pf, String[] columnToolTips, String[] cols, int[] colWidths, int[] center_cols)
 	{
-		super(pf, columnToolTips, cols, colWidths, center_cols, -1);
+		super(pf, columnToolTips, cols, colWidths, center_cols);
 		this.columns = cols;
 		this.setTitle("Our Neighbor's Child - Gift Partner Management");
 		

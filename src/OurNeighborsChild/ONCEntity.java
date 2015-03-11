@@ -67,6 +67,4 @@ public abstract class ONCEntity extends ONCSortObject implements Serializable
 	public void setStoplightPos(int slp) { slPos = slp; }
 	public void setStoplightMssg(String s) { slMssg = s; }
 	public void setStoplightChangedBy(String s) { slChangedBy = s; }
-	
-	abstract public String[] getExportRow();
 }

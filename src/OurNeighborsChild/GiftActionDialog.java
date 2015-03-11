@@ -38,7 +38,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 	
 	GiftActionDialog(JFrame pf, String[] columnToolTips, String[] columns, int[] colWidths, int[] center_cols, WishStatus dialogType)
 	{
-		super(pf, columnToolTips, columns, colWidths, center_cols, 15, -1);
+		super(pf, columnToolTips, columns, colWidths, center_cols, 15);
 		
 		cDB = ChildDB.getInstance();
 		cwDB = ChildWishDB.getInstance();

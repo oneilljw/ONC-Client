@@ -310,7 +310,8 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			regions.getRegionID(f.getRegion()),
 			f.getChangedBy(),
 //			stoplt[f.getStoplightPos()+1].substring(0,1)};
-			gvs.getImageIcon(22)};
+//			gvs.getImageIcon(24)};
+			gvs.getImageIcon(23 + f.getStoplightPos())};
 		
 		return tablerow;
 	}
@@ -1368,18 +1369,6 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	@Override
 	boolean isONCNumContainerEmpty() { return false; }
 	
-	int findTableRow(int famID)
-	{
-		int index = 0;
-		while(index < stAL.size() && stAL.get(index).getID() != famID)
-			index++;
-		
-		if(index < stAL.size())
-			return index;
-		else
-			return -1;
-	}
-	
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{
@@ -1509,24 +1498,11 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	@Override
 	public void dataChanged(DatabaseEvent dbe)
 	{
-		if(dbe.getSource() != this && (dbe.getType().equals("ADDED_FAMILY") || dbe.getType().equals("UPDATED_FAMILY")))
+		if(dbe.getSource() != this && (dbe.getType().equals("ADDED_FAMILY") ||
+				dbe.getType().equals("UPDATED_FAMILY")))
 		{
 			buildTableList(true);		
 		}
-/*		
-		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_FAMILY"))
-		{
-			ONCFamily updatedFamily = (ONCFamily) dbe.getObject();
-			int tablerow = findTableRow(updatedFamily.getID());
-			if(tablerow > -1)
-			{
-				System.out.println(String.format("SortFamilyDlg.dataChanged: updated row %d", tablerow));
-				//add new wish to wish table
-				stAL.set(tablerow, updatedFamily);
-				fdTableModel.fireTableRowsUpdated(tablerow, tablerow);
-			}
-		}
-*/		
 		else if(dbe.getType().equals("UPDATED_REGION_LIST"))
 		{
 			String[] regList = (String[]) dbe.getObject();

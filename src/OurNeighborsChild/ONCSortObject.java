@@ -7,9 +7,5 @@ public abstract class ONCSortObject extends ONCObject
 		super(itemID);
 	}
 	
-	abstract Object getTableCell(int col);
-	
-	abstract public Class<?> getColumnClass(int col);
-	
 	abstract public String[] getExportRow();
 }

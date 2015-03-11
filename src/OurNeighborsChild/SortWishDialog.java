@@ -91,7 +91,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 	
 	SortWishDialog(JFrame pf, String[] colToolTips, String[] cols, int[] colWidths, int[] center_cols)
 	{
-		super(pf, colToolTips, cols, colWidths, center_cols, -1);
+		super(pf, colToolTips, cols, colWidths, center_cols);
 		this.setTitle("Our Neighbor's Child - Wish Management");
 		
 		//set up the data base references

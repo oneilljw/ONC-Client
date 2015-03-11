@@ -806,50 +806,5 @@ public class ONCFamily extends ONCEntity
 
 		return row;		
 	}
-	@Override
-	Object getTableCell(int col)
-	{
-		String[] famstatus = {"Any", "Unverified", "Info Verified", "Gifts Selected", "Gifts Received", "Gifts Verified", "Packaged"};
-		String[] delstatus = {"Any", "Empty", "Contacted", "Confirmed", "Assigned", "Attempted", "Returned", "Delivered", "Counselor Pick-Up"};
-		String[] stoplt = {"G", "Y", "R", "O"};
-		ONCRegions regions = ONCRegions.getInstance();
-		
-		if(col == 0)
-			return oncNum;
-		else if (col == 1)
-			return BatchNum;
-		else if(col == 2)
-			return DNSCode;
-		else if (col == 3)
-			return famstatus[fstatus];
-		else if (col == 4)
-			return delstatus[dstatus];
-		else if(col == 5)
-			return HOHFirstName;
-		else if(col == 6)
-			return HOHLastName;
-		else if(col == 7)
-			return HouseNum;
-		else if(col == 8)
-			return Street;
-		else if(col == 9)
-			return UnitNum;
-		else if(col == 10)
-			return ZipCode;
-		else if (col == 11)
-			return regions.getRegionID(region);
-		else if(col == 12)
-			return changedBy;
-		else if (col == 13)
-			return stoplt[slPos];
-		else
-			return "Error";
-	}
-	
-	@Override
-	public Class<?> getColumnClass(int col)
-	{
-		return String.class;
-	}
 }
 

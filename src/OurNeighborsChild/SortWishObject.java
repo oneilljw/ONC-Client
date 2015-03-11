@@ -209,45 +209,4 @@ public class SortWishObject extends ONCSortObject
 		else
 			return false;
 	}
-
-	@Override
-	Object getTableCell(int col)
-	{
-		if(col == 0 )
-			return soFamily.getONCNum();
-		else if(col == 1)
-			return soChild.getChildGender();
-		else if (col == 2)
-			return soChild.getChildAge();
-		else if(col == 3)
-			return soChild.getChildDOBString("MM-dd-yyyy");
-		else if(col == 4)
-			return indicator[soChildWish.getChildWishIndicator()];
-		else if(col == 5)
-		{
-			ONCWish wish = cat.getWishByID(soChildWish.getWishID());
-			return wish == null ? "None" : wish.getName();
-		}
-		else if (col == 6)
-			return soChildWish.getChildWishDetail();
-		else if(col == 7)
-			return soChildWish.getChildWishStatus().toString();
-		else if(col == 8)
-			return partnerDB.getOrganizationByID(soChildWish.getChildWishAssigneeID()).getName();
-		else if(col == 7)
-			return soChildWish.getChildWishChangedBy();
-		else if(col == 8)
-		{
-			SimpleDateFormat dob = new SimpleDateFormat("MM-dd-yyyy");
-			return dob.format(soChildWish.getChildWishDateChanged().getTime());
-		}
-		else
-			return "Error";
-	}
-
-	@Override
-	public Class<?> getColumnClass(int col)
-	{
-		return String.class;
-	}
 }

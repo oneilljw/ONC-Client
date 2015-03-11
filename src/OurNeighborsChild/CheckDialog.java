@@ -86,7 +86,7 @@ public abstract class CheckDialog extends ONCTableDialog implements ActionListen
 		//add sort criteria to dialog. Criteria built by subclass
 		topPanel.add(checkCriteriaPanel);
 
-		dupTable = new ONCTable(columnToolTips, new Color(240,248,255), -1);
+		dupTable = new ONCTable(columnToolTips, new Color(240,248,255));
 
         dupTableModel = new DefaultTableModel(columns, 0)
         {

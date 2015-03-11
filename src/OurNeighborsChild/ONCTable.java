@@ -16,14 +16,12 @@ public class ONCTable extends JTable
 	private static final long serialVersionUID = 1L;
 	private String[] colToolTips;
 	private Color rowColor;
-	private int stoplightCol;
 
-	public ONCTable(String[] colTT, Color rc, int stoplightCol)
+	public ONCTable(String[] colTT, Color rc)
 	{
 		super();
 		colToolTips = colTT;
 		rowColor = rc;
-		this.stoplightCol = stoplightCol;
 	}
 	
 	public ONCTable(TableModel tm, String[] colTT, Color rc)
@@ -31,7 +29,6 @@ public class ONCTable extends JTable
 		super(tm);
 		colToolTips = colTT;
 		rowColor = rc;
-		stoplightCol = -1;
 	}
 		
 	public boolean getScrollableTracksViewportWidth() {
@@ -70,12 +67,9 @@ public class ONCTable extends JTable
 	@Override
 	public Class getColumnClass(int column)
     {
-		System.out.println(String.format("ONC Table.getColumnClass: column = %d, stoplightCol = %d", column, stoplightCol));
-//		if(column != stoplightCol)
-//			return String.class;
-//		else
-//			return ImageIcon.class;
-		System.out.println("ONC Table.getColumnClass: " + getValueAt(0, column).getClass());
-		 return getValueAt(0, column).getClass();
+		if(getRowCount() > 0)
+			return getValueAt(0, column).getClass();
+		else
+			return Object.class;
     }
 }

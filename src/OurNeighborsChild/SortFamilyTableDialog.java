@@ -34,7 +34,7 @@ public abstract class SortFamilyTableDialog extends ChangeDialog
 
 	public SortFamilyTableDialog(JFrame pf, String[] colToolTips, String[] cols, int[] colWidths, int[] center_cols)
 	{
-		super(pf, colToolTips, cols, colWidths, center_cols, 13);
+		super(pf, colToolTips, cols, colWidths, center_cols);
 		columns = cols;
 		
 		cDB = ChildDB.getInstance();
