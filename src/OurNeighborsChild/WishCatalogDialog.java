@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.print.PrinterException;
 import java.text.MessageFormat;
+
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -95,6 +96,7 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 //		tablewidth += TABLE_VERTICAL_SCROLL_WIDTH; 	//Account for vertical scroll bar
         
         wcTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        wcTable.setAutoCreateRowSorter(true);
         
         JTableHeader anHeader = wcTable.getTableHeader();
         anHeader.setForeground( Color.black);
@@ -295,7 +297,14 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 	@Override
 	public void valueChanged(ListSelectionEvent lse)
 	{
+		
 		int row = wcTable.getSelectedRow();
+		
+		if(row > -1)
+			System.out.println(String.format("WishCatalogDlg.valueChanged: view row: %d, model row: %d",
+				row, wcTable.convertRowIndexToModel(row)));
+		else
+			System.out.println("WishCatalogDlg.valueChanged: Selection no longer in visible table");
 		
 		if(row > -1)
 		{
@@ -330,6 +339,7 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 			
 			//get row of decremented wish from catalog and update table
 			int row;
+			
 			if(replWish != null &&  replWish.getWishID() > -1 &&
 				(row = cat.findWishRow(replWish.getWishID())) > -1)
 				wcTableModel.fireTableCellUpdated(row, WISH_COUNT_COL);
