@@ -353,6 +353,9 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 		{
 			ONCWish addedWish = (ONCWish) dbe.getObject();
 			int tablerow = cat.findWishRow(addedWish.getID());
+			System.out.println(String.format("WishCatDlg.dataChanged: tablerow: %d", tablerow));
+			tablerow = wcTable.convertRowIndexToView(cat.findWishRow(addedWish.getID()));
+			System.out.println(String.format("WishCatDlg.dataChanged: tablerow: %d", tablerow));
 			if(tablerow > -1)
 			{
 				//add new wish to wish table
