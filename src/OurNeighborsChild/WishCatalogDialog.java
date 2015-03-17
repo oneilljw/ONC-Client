@@ -96,7 +96,7 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 //		tablewidth += TABLE_VERTICAL_SCROLL_WIDTH; 	//Account for vertical scroll bar
         
         wcTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-        wcTable.setAutoCreateRowSorter(true);
+//      wcTable.setAutoCreateRowSorter(true);
         
         JTableHeader anHeader = wcTable.getTableHeader();
         anHeader.setForeground( Color.black);
@@ -198,12 +198,13 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 		if(wdDlg.showDialog())	//returns true if wish detail changed
 		{
 			//send add wish request object to the database. It responds with the table row
-			//where the added wish was insertred. If the requested wish wasn't added, a 
+			//where the added wish was inserted. If the requested wish wasn't added, a 
 			//value of -1 is returned.
 			int tableRow = cat.add(this, reqAddWish);
 			if(tableRow > -1)
 			{
 				wcTableModel.fireTableRowsInserted(tableRow, tableRow);
+//				wcTableModel.fireTableDataChanged();
 				wcTable.scrollRectToVisible(wcTable.getCellRect(tableRow, 0, true));
 				wcTable.setRowSelectionInterval(tableRow, tableRow);
 			}
@@ -244,8 +245,9 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 		
 				if(response != null && response.startsWith("DELETED_CATALOG_WISH"))
 				{
-					//Wish has been updated, update to wish table with the name change
+					//Wish has been deleted
 					wcTableModel.fireTableRowsDeleted(row, row);
+//					wcTableModel.fireTableDataChanged();
 				}
 				else
 				{
@@ -353,13 +355,14 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 		{
 			ONCWish addedWish = (ONCWish) dbe.getObject();
 			int tablerow = cat.findWishRow(addedWish.getID());
-			System.out.println(String.format("WishCatDlg.dataChanged: tablerow: %d", tablerow));
-			tablerow = wcTable.convertRowIndexToView(cat.findWishRow(addedWish.getID()));
-			System.out.println(String.format("WishCatDlg.dataChanged: tablerow: %d", tablerow));
+//			System.out.println(String.format("WishCatDlg.dataChanged: tablerow: %d", tablerow));
+//			tablerow = wcTable.convertRowIndexToView(cat.findWishRow(addedWish.getID()));
+//			System.out.println(String.format("WishCatDlg.dataChanged: tablerow: %d", tablerow));
 			if(tablerow > -1)
 			{
 				//add new wish to wish table
 				wcTableModel.fireTableRowsInserted(tablerow, tablerow);
+//				wcTableModel.fireTableDataChanged();
 				wcTable.scrollRectToVisible(wcTable.getCellRect(tablerow, 0, true));
 			}
 		}
