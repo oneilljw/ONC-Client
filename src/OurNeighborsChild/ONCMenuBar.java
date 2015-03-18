@@ -29,7 +29,7 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 	public static JMenu submenuExport, submenuCompareData, submenuDatabase;
 	public static JMenuItem viewDBMI, sortWishesMI, sortFamiliesMI, sortOrgsMI, recGiftsMI;
 	public static JMenuItem labelViewerMI, agentMI, orgMI, catMI;
-	public static JMenuItem aboutONCMI, oncPrefrencesMI, oncAddUserMI, onlineMI, chatMI, changePWMI, stopPollingMI;
+	public static JMenuItem aboutONCMI, oncPrefrencesMI, userMI, onlineMI, chatMI, changePWMI, stopPollingMI;
 	public static JMenuItem showServerLogMI, showServerClientIDMI, showCurrDirMI;
 	public List<JMenuItem> dbYears;
 	
@@ -265,9 +265,9 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 	    oncPrefrencesMI = new JMenuItem("Preferences");
 	    menuSettings.add(oncPrefrencesMI);
 	    
-	    oncAddUserMI = new JMenuItem("Add User");
-	    oncAddUserMI.setEnabled(false);
-	    menuSettings.add(oncAddUserMI);
+	    userMI = new JMenuItem("Manage Users");
+	    userMI.setEnabled(false);
+	    menuSettings.add(userMI);
 	    
 	    onlineMI = new JMenuItem("Who's Online?");
 	    menuSettings.add(onlineMI);
@@ -333,7 +333,7 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 		delChildMI.setEnabled(tf);
 		newChildMI.setEnabled(tf);
 		importCallResultMI.setEnabled(tf);
-		oncAddUserMI.setEnabled(tf);
+		userMI.setEnabled(tf);
 	}
 	
 	void setEnabledWishCatalogAndOrgMenuItems(boolean tf)

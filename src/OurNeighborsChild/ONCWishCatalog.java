@@ -45,8 +45,6 @@ public class ONCWishCatalog extends ONCDatabase
 	 * used for sorting or selecting a wish. 
 	 */
 	private static final int ONC_WISH_CATALOG_HEADER_LENGTH = 7;
-	private static final int WISH_CATALOG_SELECTION_LIST = 0;
-	private static final int WISH_CATALOG_SORT_LIST = 1;
 	private static final int WISH_CATALOG_LIST_ALL = 7;
 	private static final int NUMBER_OF_WISHES_PER_CHILD = 3;
 	
@@ -93,7 +91,7 @@ public class ONCWishCatalog extends ONCDatabase
 			return null;
 	}
 	
-	int findWishRow(int wishID)
+	int findModelIndexFromID(int wishID)
 	{
 		int index = 0;
 		while(index < wishCatalog.size() && wishCatalog.get(index).getWish().getID() != wishID)
@@ -105,7 +103,7 @@ public class ONCWishCatalog extends ONCDatabase
 			return -1;
 	}
 	
-	int getNumberOfItems() { return wishCatalog.size(); }
+	int size() { return wishCatalog.size(); }
 	int getWishID(int index) { return wishCatalog.get(index).getWish().getID(); }
 	String getWishName(int index) { return wishCatalog.get(index).getWish().getName(); }
 	
@@ -369,7 +367,7 @@ public class ONCWishCatalog extends ONCDatabase
 		if(replWish != null && replWish.getWishID() > -1)	//Search for from wish if it's not "None"
 		{
 			//Decrement the count of the first wish and update the table
-			int row = findWishRow(replWish.getWishID());
+			int row = findModelIndexFromID(replWish.getWishID());
 			if(row > -1)
 				wishCatalog.get(row).incrementWishCount(replWish.getWishNumber(), -1);
 		}
@@ -378,7 +376,7 @@ public class ONCWishCatalog extends ONCDatabase
 		if(addedWish != null && addedWish.getWishID() > -1)	//Search for second wish if it's not "None"
 		{
 			//Increment the count of the second wish and update the table
-			int row = findWishRow(addedWish.getWishID());
+			int row = findModelIndexFromID(addedWish.getWishID());
 			if(row > -1)
 				wishCatalog.get(row).incrementWishCount(replWish.getWishNumber(), 1);
 		}		

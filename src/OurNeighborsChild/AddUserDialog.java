@@ -18,7 +18,7 @@ public class AddUserDialog extends InfoDialog
 	AddUserDialog(JFrame pf, String[] tfNames)
 	{
 		super(pf, true, tfNames);
-		this.setTitle("Add New ONC Application User");
+		this.setTitle("Add New ONC App User");
 
 		lblONCIcon.setText("<html><font color=blue>Enter New User's<br>Information Below</font></html>");
 

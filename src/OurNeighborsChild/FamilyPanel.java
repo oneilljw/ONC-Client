@@ -106,6 +106,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private DirectionsDialog dirDlg;
 	private DriverDialog driverDlg;
 	private WishCatalogDialog catDlg;
+	private ONCUserDialog userDlg;
 	public SortWishDialog sortWishesDlg;
 //	public GiftActionDialog recGiftsDlg;
 	public SortFamilyDialog sortFamiliesDlg;
@@ -463,6 +464,9 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 
     	//Set up the manage catalog dialog
     	catDlg = new WishCatalogDialog(parentFrame);
+    	
+    	//Set up the manage catalog dialog
+    	userDlg = new ONCUserDialog(parentFrame);
     	
     	 //Set up the sort family dialog
     	String[] fdColToolTips = {"ONC Family Number", "Batch Number", "Do Not Serve Code", 
@@ -1415,6 +1419,16 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			Point pt = parentFrame.getLocation();
 	        catDlg.setLocation(pt.x + 125, pt.y + 125);
 			catDlg.setVisible(true);
+		}
+	}
+	
+	void showUserDialog()
+	{
+		if(!userDlg.isVisible())
+		{
+			Point pt = parentFrame.getLocation();
+	        userDlg.setLocation(pt.x + 125, pt.y + 125);
+			userDlg.setVisible(true);
 		}
 	}
 	

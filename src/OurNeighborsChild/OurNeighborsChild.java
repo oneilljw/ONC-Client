@@ -545,7 +545,7 @@ public class OurNeighborsChild implements DatabaseListener
         ONCMenuBar.agentMI.addActionListener(menuItemListener);
         ONCMenuBar.aboutONCMI.addActionListener(menuItemListener);
         ONCMenuBar.oncPrefrencesMI.addActionListener(menuItemListener);
-        ONCMenuBar.oncAddUserMI.addActionListener(menuItemListener);
+        ONCMenuBar.userMI.addActionListener(menuItemListener);
         ONCMenuBar.newChildMI.addActionListener(menuItemListener);
         ONCMenuBar.delChildMI.addActionListener(menuItemListener);
         ONCMenuBar.onlineMI.addActionListener(menuItemListener);
@@ -790,7 +790,7 @@ public class OurNeighborsChild implements DatabaseListener
     	oncWishCat.exportWishCatalogToCSV(oncFrame, path + "/WishCatalog.csv");
     	oncWishDetailDB.exportWishDetailDBToCSV(oncFrame, path + "/WishDetailDB.csv");
     }
-    
+/*    
     void onAddNewAppUser() throws IOException
     {
     	if(serverIF != null && serverIF.isConnected())
@@ -815,7 +815,7 @@ public class OurNeighborsChild implements DatabaseListener
 			JOptionPane.showMessageDialog(oncFrame, "Error: Can't add user if not connected to ONC Server", 
 						"Can't add user", JOptionPane.ERROR_MESSAGE);
     }
-    
+*/    
     void onWhoIsOnline()
     {
     	List<ONCUser> onlineUserList = null;
@@ -1013,15 +1013,15 @@ public class OurNeighborsChild implements DatabaseListener
     	    	prefsDlg.display();
     	        prefsDlg.setVisible(true); 
     		}
-    		else if(e.getSource() == ONCMenuBar.oncAddUserMI)
-    		{
-    			try {
-					onAddNewAppUser();
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}   			
-    		}
+    		else if(e.getSource() == ONCMenuBar.userMI){ oncFamilyPanel.showUserDialog(); }
+//    		{
+//    			try {
+//					onAddNewAppUser();
+//				} catch (IOException e1) {
+//					// TODO Auto-generated catch block
+//					e1.printStackTrace();
+//				}   			
+//    		}
     		else if(e.getSource() == ONCMenuBar.delChildMI) { oncFamilyPanel.deleteChild(); }
     		else if(e.getSource() == ONCMenuBar.newChildMI) { oncFamilyPanel.onAddNewChildClicked(); }
     		else if(e.getSource() == ONCMenuBar.onlineMI) { onWhoIsOnline(); }

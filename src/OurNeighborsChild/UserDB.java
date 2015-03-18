@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -42,7 +41,27 @@ public class UserDB extends ONCSearchableDatabase
 			return null;
 	}
 	
-	String add(Object source, ONCObject entity)
+	ONCUser getUserFromIndex(int index)
+	{
+		if(index < uAL.size())
+			return uAL.get(index);
+		else
+			return null;
+	}
+	
+	int findModelIndexFromID(int userID)
+	{
+		int index = 0;
+		while(index < uAL.size() && uAL.get(index).getID() != userID)
+			index++;
+		
+		if(index < uAL.size())
+			return index;
+		else
+			return -1;
+	}
+	
+	int add(Object source, ONCObject entity)
 	{
 		Gson gson = new Gson();
 		String response = "";
@@ -50,12 +69,14 @@ public class UserDB extends ONCSearchableDatabase
 		response = serverIF.sendRequest("POST<add_user>" + 
 											gson.toJson(entity, ONCServerUser.class));
 		
-		if(response.startsWith("ADDED_USER"))
-			processAddedObject(source, response.substring(10));
+		if(response != null && response.startsWith("ADDED_USER"))
+			return processAddedObject(source, response.substring(10));
+		else
+			return -1;
 		
-		return response;	
 	}
-	
+
+	/*
 	void processAddedObject(Object source, String json)
 	{
 		//Store added ONCUser object in local data base
@@ -69,6 +90,30 @@ public class UserDB extends ONCSearchableDatabase
 		//Notify local user IFs that a user was added. This will
 		//be all UI's that sort on user information
 		fireDataChanged(source, "ADDED_USER", addedObject);
+	}
+*/	
+	int processAddedObject(Object source, String json)
+	{
+		//Store added catalog wish in local wish catalog
+		Gson gson = new Gson();
+		ONCUser addedUser = gson.fromJson(json, ONCUser.class);
+		
+		//add the wish in the proper spot alphabetically
+		int index = 0;
+		while(index < uAL.size() &&
+				(uAL.get(index).getLastname().compareTo(addedUser.getFirstname())) < 0)
+			index++;
+		
+		if(index < uAL.size())
+			uAL.add(index, addedUser);
+		else
+			uAL.add(addedUser);
+		
+		//Notify local user IFs that a user was added. This will
+		//be all UI's that sort on user information
+		fireDataChanged(source, "ADDED_USER", addedUser);
+		
+		return index;
 	}
 	
 	String importUserDatabase()

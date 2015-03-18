@@ -27,7 +27,6 @@ import javax.swing.JTextField;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.sun.mail.iap.Response;
 
 public class WishPanel extends ONCPanel implements ActionListener, DatabaseListener, EntitySelectionListener
 {
@@ -36,7 +35,6 @@ public class WishPanel extends ONCPanel implements ActionListener, DatabaseListe
 	 */
 	private static final long serialVersionUID = 1L;
 	private static final int ONC_GIFT_ICON = 4;
-	private static final int WISH_CATALOG_SELECTION_LISTTYPE = 0;
 	private static final int MAX_LABEL_LINE_LENGTH = 26;
 	private static final int FAMILY_STATUS_UNVERIFIED = 0;
 	private static final String GIFT_CARD_ONLY_TEXT = "gift card only";

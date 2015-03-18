@@ -41,13 +41,11 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 	private static final int WISH_2_COL = 3;
 	private static final int WISH_3_COL = 4;
 	private static final int WISH_ADD_DET_COL = 5;
-//	private static final int TABLE_VERTICAL_SCROLL_WIDTH = 24;
 	
-	private ONCTable wcTable;
+	private ONCTable dlgTable;
 	private AbstractTableModel wcTableModel;
-	private JButton btnAddWish, btnEditWish, btnDeleteWish, btnPrintCat;
+	private JButton btnAdd, btnEdit, btnDelete, btnPrint;
 	private ONCWishCatalog cat;
-	private boolean bTableChanging;
 		
 	public WishCatalogDialog(JFrame pf)
 	{
@@ -72,8 +70,6 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 		//Create the catalog table model
 		wcTableModel = new WishCatalogTableModel();
 		
-		bTableChanging = false;
-		
 		//create the catalog table
 		String[] colToolTips = {"Wish Name",
 				"Total number of times this wish has been selected",
@@ -82,65 +78,55 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 				"Check to include in Wish 3 List",
 				"Is additional detail associated with this wish?"};
 		
-		wcTable = new ONCTable(wcTableModel, colToolTips, new Color(240,248,255));
+		dlgTable = new ONCTable(wcTableModel, colToolTips, new Color(240,248,255));
 
-		wcTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		wcTable.getSelectionModel().addListSelectionListener(this);
+		dlgTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		dlgTable.getSelectionModel().addListSelectionListener(this);
 		
 		//Set table column widths
 		int[] colWidths = {152,56,48,48,48,80};
-//		int tablewidth = 0;
 		for(int i=0; i < colWidths.length; i++)
-		{
-			wcTable.getColumnModel().getColumn(i).setPreferredWidth(colWidths[i]);
-//			tablewidth += colWidths[i];
-		}
-//		tablewidth += TABLE_VERTICAL_SCROLL_WIDTH; 	//Account for vertical scroll bar
+			dlgTable.getColumnModel().getColumn(i).setPreferredWidth(colWidths[i]);
+		
+        dlgTable.setAutoCreateRowSorter(true);	//add a sorter
         
-        wcTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-        wcTable.setAutoCreateRowSorter(true);
-        
-        JTableHeader anHeader = wcTable.getTableHeader();
+        JTableHeader anHeader = dlgTable.getTableHeader();
         anHeader.setForeground( Color.black);
         anHeader.setBackground( new Color(161,202,241));
         
         //left justify wish count column
         DefaultTableCellRenderer dtcr = new DefaultTableCellRenderer();
         dtcr.setHorizontalAlignment(SwingConstants.LEFT);
-        wcTable.getColumnModel().getColumn(WISH_COUNT_COL).setCellRenderer(dtcr);
-        
-        //Set table size to 12 rows     
-//      wcTable.setSize(wcTable.getRowHeight() * 12, wcTable.getWidth());
-//      wcTable.setFillsViewportHeight(true);
+        dlgTable.getColumnModel().getColumn(WISH_COUNT_COL).setCellRenderer(dtcr);
         
         //Create the scroll pane and add the table to it.
-        JScrollPane dsScrollPane = new JScrollPane(wcTable);
+        JScrollPane dsScrollPane = new JScrollPane(dlgTable);
         dsScrollPane.setBorder(UIManager.getBorder("Table.scrollPaneBorder"));
         
         JPanel cntlPanel = new JPanel();
         
-        btnPrintCat = new JButton("Print Catalog");
-        btnPrintCat.setToolTipText("Print the wish catalog");
-        btnPrintCat.addActionListener(this);
+        btnPrint = new JButton("Print Catalog");
+        btnPrint.setToolTipText("Print the wish catalog");
+        btnPrint.addActionListener(this);
         
-        btnAddWish = new JButton("Add Wish");
-        btnAddWish.setToolTipText("Add a new wish to the catalog");
-        btnAddWish.addActionListener(this);
+        btnAdd = new JButton("Add Wish");
+        btnAdd.setToolTipText("Add a new wish to the catalog");
+        btnAdd.addActionListener(this);
         
-        btnEditWish = new JButton("Edit Wish");
-        btnEditWish.setToolTipText("Edit the selected wish");
-        btnEditWish.setEnabled(false);
-        btnEditWish.addActionListener(this);
+        btnEdit = new JButton("Edit Wish");
+        btnEdit.setToolTipText("Edit the selected wish");
+        btnEdit.setEnabled(false);
+        btnEdit.addActionListener(this);
         
-        btnDeleteWish = new JButton("Delete Wish");
-        btnDeleteWish.setToolTipText("Delete the selected wish");
-        btnDeleteWish.setEnabled(false);
-        btnDeleteWish.addActionListener(this);
+        btnDelete = new JButton("Delete Wish");
+        btnDelete.setToolTipText("Delete the selected wish");
+        btnDelete.setEnabled(false);
+        btnDelete.addActionListener(this);
           
-        cntlPanel.add(btnAddWish);
-        cntlPanel.add(btnEditWish);
-        cntlPanel.add(btnDeleteWish);
-        cntlPanel.add(btnPrintCat);
+        cntlPanel.add(btnAdd);
+        cntlPanel.add(btnEdit);
+        cntlPanel.add(btnDelete);
+        cntlPanel.add(btnPrint);
         
         getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
         getContentPane().add(dsScrollPane);
@@ -149,10 +135,11 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
         pack();
 	}
 	
-	void editWish()
+	void edit()
 	{
-		int viewRow = wcTable.getSelectedRow();
-		int modelRow = wcTable.convertRowIndexToModel(viewRow);
+		int modelRow = dlgTable.getSelectedRow() == -1 ? -1 : 
+			dlgTable.convertRowIndexToModel(dlgTable.getSelectedRow());
+		
 		if(modelRow > -1)
 		{
 			ONCWish wishsel = cat.getWish(modelRow);
@@ -160,7 +147,7 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 			WishDetailDialog wdDlg =  new WishDetailDialog(this, "Edit Catalog Wish");
 			wdDlg.displayWishDetail(wishsel, cat.getTotalWishCount(modelRow));
 			
-			wdDlg.setLocationRelativeTo(btnDeleteWish);
+			wdDlg.setLocationRelativeTo(btnDelete);
 			
 			//a wish detail change could include the wish name changing or adding or removal
 			//of a wish detail as well as the editing of a detail field. 
@@ -172,9 +159,8 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 				if(response != null && response.startsWith("UPDATED_CATALOG_WISH"))
 				{
 					//Wish has been updated, update to wish table with the name change
-					bTableChanging = true;
 					wcTableModel.fireTableRowsUpdated(modelRow, modelRow);
-					bTableChanging = false;
+					
 				}
 				else
 				{
@@ -187,18 +173,16 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 		}
 	}
 	
-	void addWish()
+	void add()
 	{
 		//create new wish request
 		ONCWish reqAddWish = new ONCWish(-1, "New Wish", 0);
 		
 		//use wish detail dialog to get input from user on the new wish request
-		wcTable.clearSelection();
-		
 		WishDetailDialog wdDlg =  new WishDetailDialog(this, "Add New Catalog Wish");
 				
 		wdDlg.displayWishDetail(reqAddWish, 0);
-		wdDlg.setLocationRelativeTo(btnDeleteWish);
+		wdDlg.setLocationRelativeTo(btnDelete);
 		
 		if(wdDlg.showDialog())	//returns true if wish detail changed
 		{
@@ -208,14 +192,10 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 			int tableRow = cat.add(this, reqAddWish);
 			if(tableRow > -1)
 			{
-				System.out.println(String.format("WishCatDialog.addWish: TableRowAdded: %d, table size %d",
-						tableRow, cat.getNumberOfItems()));
-//				wcTableModel.fireTableRowsInserted(tableRow, tableRow);
-				bTableChanging = true;
+				dlgTable.clearSelection();
 				wcTableModel.fireTableDataChanged();
-				wcTable.scrollRectToVisible(wcTable.getCellRect(tableRow, 0, true));
-				wcTable.setRowSelectionInterval(tableRow, tableRow);
-				bTableChanging = false;
+				dlgTable.scrollRectToVisible(dlgTable.getCellRect(tableRow, 0, true));
+				dlgTable.setRowSelectionInterval(tableRow, tableRow);
 			}
 			else
 			{
@@ -226,10 +206,11 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 		}
 	}
 	
-	void deleteWish()
+	void delete()
 	{
-		int viewRow = wcTable.getSelectedRow();
-		int modelRow = wcTable.convertRowIndexToModel(viewRow);
+		int modelRow = dlgTable.getSelectedRow() == -1 ? -1 : 
+			dlgTable.convertRowIndexToModel(dlgTable.getSelectedRow());
+		
 		if(modelRow > -1 && cat.getTotalWishCount(modelRow) == 0)
 		{
 			GlobalVariables gvs = GlobalVariables.getInstance();
@@ -256,10 +237,7 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 				if(response != null && response.startsWith("DELETED_CATALOG_WISH"))
 				{
 					//Wish has been deleted
-					bTableChanging = true;
-					wcTableModel.fireTableRowsDeleted(modelRow, modelRow);
-					bTableChanging = false;
-//					wcTableModel.fireTableDataChanged();
+					wcTableModel.fireTableRowsDeleted(modelRow, modelRow);	
 				}
 				else
 				{
@@ -271,72 +249,66 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 		}
 	}
 	
-	void onPrintCatalog()
+	void print(String name)
 	{
 		try
 		{
-			 MessageFormat headerFormat = new MessageFormat(Integer.toString(GlobalVariables.getCurrentSeason()) +
-					 											" ONC Wish Catalog");
+			 MessageFormat headerFormat = new MessageFormat(name);
              MessageFormat footerFormat = new MessageFormat("- {0} -");
-             wcTable.print(JTable.PrintMode.FIT_WIDTH, headerFormat, footerFormat);           
+             dlgTable.print(JTable.PrintMode.FIT_WIDTH, headerFormat, footerFormat);           
 		} 
 		catch (PrinterException e) 
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			String err_mssg = "Unable to print wish catalog: " + e.getMessage();
+			JOptionPane.showMessageDialog(this, err_mssg, "Print Wish Catalog Error",
+										JOptionPane.ERROR_MESSAGE, GlobalVariables.getONCLogo());
 		}
 	}
 	
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{
-		if(e.getSource() == btnAddWish)
+		if(e.getSource() == btnAdd)
 		{
-			addWish();
+			add();
 		}
-		else if(e.getSource() == btnEditWish)
+		else if(e.getSource() == btnEdit)
 		{
-			editWish();
+			edit();
 		}
-		else if(e.getSource() == btnDeleteWish)
+		else if(e.getSource() == btnDelete)
 		{
-			deleteWish();
+			delete();
 		}
-		else if(e.getSource() == btnPrintCat)
+		else if(e.getSource() == btnPrint)
 		{
-			onPrintCatalog();
+			print(Integer.toString(GlobalVariables.getCurrentSeason()) +
+						" ONC Wish Catalog");
 		}		
 	}
 	
 	@Override
 	public void valueChanged(ListSelectionEvent lse)
 	{
-		int viewRow = wcTable.getSelectedRow();
-		int modelRow = viewRow == -1 ? -1 : wcTable.convertRowIndexToModel(viewRow);
-		
-		if(modelRow > -1)
-			System.out.println(String.format("WishCatalogDlg.valueChanged: view row: %d, model row: %d",
-				viewRow, modelRow));
-		else
-			System.out.println("WishCatalogDlg.valueChanged: Selection no longer in visible table");
+		int modelRow = dlgTable.getSelectedRow() == -1 ? -1 : 
+						dlgTable.convertRowIndexToModel(dlgTable.getSelectedRow());
 		
 		if(modelRow > -1)
 		{
-			btnEditWish.setEnabled(true);
+			btnEdit.setEnabled(true);
 			
 			if(cat.getTotalWishCount(modelRow) == 0)
-				btnDeleteWish.setEnabled(true);
+				btnDelete.setEnabled(true);
 			else
-				btnDeleteWish.setEnabled(false);
+				btnDelete.setEnabled(false);
 		}
 		else
 		{
-			btnEditWish.setEnabled(false);
-			btnDeleteWish.setEnabled(false);
+			btnEdit.setEnabled(false);
+			btnDelete.setEnabled(false);
 		}
 	}
 	
-
 	@Override
 	public void dataChanged(DatabaseEvent dbe) 
 	{
@@ -353,50 +325,36 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 			
 			//get row of decremented wish from catalog and update table
 			int row;
-			
-			bTableChanging = true;
 			if(replWish != null &&  replWish.getWishID() > -1 &&
-				(row = cat.findWishRow(replWish.getWishID())) > -1)
+				(row = cat.findModelIndexFromID(replWish.getWishID())) > -1)
 				wcTableModel.fireTableCellUpdated(row, WISH_COUNT_COL);
 			
 			//get row  of incremented wish from catalog and update
 			if(addedWish != null && addedWish.getWishID() > -1  &&
-				(row = cat.findWishRow(addedWish.getWishID())) > -1)
+				(row = cat.findModelIndexFromID(addedWish.getWishID())) > -1)
 				wcTableModel.fireTableCellUpdated(row, WISH_COUNT_COL);
-			bTableChanging = false;
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("ADDED_CATALOG_WISH"))
 		{
 			ONCWish addedWish = (ONCWish) dbe.getObject();
-			int tablerow = cat.findWishRow(addedWish.getID());
-//			System.out.println(String.format("WishCatDlg.dataChanged: tablerow: %d", tablerow));
-//			tablerow = wcTable.convertRowIndexToView(cat.findWishRow(addedWish.getID()));
-//			System.out.println(String.format("WishCatDlg.dataChanged: tablerow: %d", tablerow));
+			int tablerow = cat.findModelIndexFromID(addedWish.getID());
+			
 			if(tablerow > -1)
 			{
 				//add new wish to wish table
-//				wcTableModel.fireTableRowsInserted(tablerow, tablerow);
-				bTableChanging = true;
 				wcTableModel.fireTableDataChanged();
-				bTableChanging = false;
-//				wcTable.scrollRectToVisible(wcTable.getCellRect(tablerow, 0, true));
 			}
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_CATALOG_WISH"))
 		{
 			//determine which row the updated wish is in
 			ONCWish updatedWish = (ONCWish) dbe.getObject();
-			int tablerow = cat.findWishRow(updatedWish.getID());
-			
-			bTableChanging = true;
+			int tablerow = cat.findModelIndexFromID(updatedWish.getID());
 			wcTableModel.fireTableRowsUpdated(tablerow, tablerow);
-			bTableChanging = false;
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("DELETED_CATALOG_WISH"))
 		{
-			bTableChanging = true;
 			wcTableModel.fireTableDataChanged();
-			bTableChanging = false;
 		}	
 	}
 	
@@ -412,12 +370,7 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
  
         public int getColumnCount() { return columnNames.length; }
  
-        public int getRowCount()
-        { 
-//        	System.out.println(String.format("WishCatDlg.getRowCount: #rows: %d",
-//        			cat.getNumberOfItems()));
-        	return cat.getNumberOfItems();
-        }
+        public int getRowCount() { return cat.size(); }
  
         public String getColumnName(int col) { return columnNames[col]; }
  
