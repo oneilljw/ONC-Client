@@ -47,6 +47,7 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 	private AbstractTableModel wcTableModel;
 	private JButton btnAddWish, btnEditWish, btnDeleteWish, btnPrintCat;
 	private ONCWishCatalog cat;
+	private boolean bTableChanging;
 		
 	public WishCatalogDialog(JFrame pf)
 	{
@@ -71,6 +72,7 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 		//Create the catalog table model
 		wcTableModel = new WishCatalogTableModel();
 		
+		bTableChanging = false;
 		
 		//create the catalog table
 		String[] colToolTips = {"Wish Name",
@@ -96,7 +98,7 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 //		tablewidth += TABLE_VERTICAL_SCROLL_WIDTH; 	//Account for vertical scroll bar
         
         wcTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-//      wcTable.setAutoCreateRowSorter(true);
+        wcTable.setAutoCreateRowSorter(true);
         
         JTableHeader anHeader = wcTable.getTableHeader();
         anHeader.setForeground( Color.black);
@@ -149,13 +151,14 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 	
 	void editWish()
 	{
-		int row = wcTable.getSelectedRow();
-		if(row > -1)
+		int viewRow = wcTable.getSelectedRow();
+		int modelRow = wcTable.convertRowIndexToModel(viewRow);
+		if(modelRow > -1)
 		{
-			ONCWish wishsel = cat.getWish(row);
+			ONCWish wishsel = cat.getWish(modelRow);
 			
 			WishDetailDialog wdDlg =  new WishDetailDialog(this, "Edit Catalog Wish");
-			wdDlg.displayWishDetail(wishsel, cat.getTotalWishCount(row));
+			wdDlg.displayWishDetail(wishsel, cat.getTotalWishCount(modelRow));
 			
 			wdDlg.setLocationRelativeTo(btnDeleteWish);
 			
@@ -169,7 +172,9 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 				if(response != null && response.startsWith("UPDATED_CATALOG_WISH"))
 				{
 					//Wish has been updated, update to wish table with the name change
-					wcTableModel.fireTableRowsUpdated(row, row);
+					bTableChanging = true;
+					wcTableModel.fireTableRowsUpdated(modelRow, modelRow);
+					bTableChanging = false;
 				}
 				else
 				{
@@ -203,10 +208,14 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 			int tableRow = cat.add(this, reqAddWish);
 			if(tableRow > -1)
 			{
-				wcTableModel.fireTableRowsInserted(tableRow, tableRow);
-//				wcTableModel.fireTableDataChanged();
+				System.out.println(String.format("WishCatDialog.addWish: TableRowAdded: %d, table size %d",
+						tableRow, cat.getNumberOfItems()));
+//				wcTableModel.fireTableRowsInserted(tableRow, tableRow);
+				bTableChanging = true;
+				wcTableModel.fireTableDataChanged();
 				wcTable.scrollRectToVisible(wcTable.getCellRect(tableRow, 0, true));
 				wcTable.setRowSelectionInterval(tableRow, tableRow);
+				bTableChanging = false;
 			}
 			else
 			{
@@ -219,13 +228,14 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 	
 	void deleteWish()
 	{
-		int row = wcTable.getSelectedRow();
-		if(row > -1 && cat.getTotalWishCount(row) == 0)
+		int viewRow = wcTable.getSelectedRow();
+		int modelRow = wcTable.convertRowIndexToModel(viewRow);
+		if(modelRow > -1 && cat.getTotalWishCount(modelRow) == 0)
 		{
 			GlobalVariables gvs = GlobalVariables.getInstance();
 			
 			//create the delete wish request object
-			ONCWish delreqWish = cat.getWish(row);
+			ONCWish delreqWish = cat.getWish(modelRow);
 			
 			//Confirm with the user that the deletion is really intended
 			String confirmMssg =String.format("Are you sure you want to delete %s from the catalog?", 
@@ -246,7 +256,9 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 				if(response != null && response.startsWith("DELETED_CATALOG_WISH"))
 				{
 					//Wish has been deleted
-					wcTableModel.fireTableRowsDeleted(row, row);
+					bTableChanging = true;
+					wcTableModel.fireTableRowsDeleted(modelRow, modelRow);
+					bTableChanging = false;
 //					wcTableModel.fireTableDataChanged();
 				}
 				else
@@ -299,20 +311,20 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 	@Override
 	public void valueChanged(ListSelectionEvent lse)
 	{
+		int viewRow = wcTable.getSelectedRow();
+		int modelRow = viewRow == -1 ? -1 : wcTable.convertRowIndexToModel(viewRow);
 		
-		int row = wcTable.getSelectedRow();
-		
-		if(row > -1)
+		if(modelRow > -1)
 			System.out.println(String.format("WishCatalogDlg.valueChanged: view row: %d, model row: %d",
-				row, wcTable.convertRowIndexToModel(row)));
+				viewRow, modelRow));
 		else
 			System.out.println("WishCatalogDlg.valueChanged: Selection no longer in visible table");
 		
-		if(row > -1)
+		if(modelRow > -1)
 		{
 			btnEditWish.setEnabled(true);
 			
-			if(cat.getTotalWishCount(row) == 0)
+			if(cat.getTotalWishCount(modelRow) == 0)
 				btnDeleteWish.setEnabled(true);
 			else
 				btnDeleteWish.setEnabled(false);
@@ -342,6 +354,7 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 			//get row of decremented wish from catalog and update table
 			int row;
 			
+			bTableChanging = true;
 			if(replWish != null &&  replWish.getWishID() > -1 &&
 				(row = cat.findWishRow(replWish.getWishID())) > -1)
 				wcTableModel.fireTableCellUpdated(row, WISH_COUNT_COL);
@@ -350,6 +363,7 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 			if(addedWish != null && addedWish.getWishID() > -1  &&
 				(row = cat.findWishRow(addedWish.getWishID())) > -1)
 				wcTableModel.fireTableCellUpdated(row, WISH_COUNT_COL);
+			bTableChanging = false;
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("ADDED_CATALOG_WISH"))
 		{
@@ -361,9 +375,11 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 			if(tablerow > -1)
 			{
 				//add new wish to wish table
-				wcTableModel.fireTableRowsInserted(tablerow, tablerow);
-//				wcTableModel.fireTableDataChanged();
-				wcTable.scrollRectToVisible(wcTable.getCellRect(tablerow, 0, true));
+//				wcTableModel.fireTableRowsInserted(tablerow, tablerow);
+				bTableChanging = true;
+				wcTableModel.fireTableDataChanged();
+				bTableChanging = false;
+//				wcTable.scrollRectToVisible(wcTable.getCellRect(tablerow, 0, true));
 			}
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_CATALOG_WISH"))
@@ -372,11 +388,15 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 			ONCWish updatedWish = (ONCWish) dbe.getObject();
 			int tablerow = cat.findWishRow(updatedWish.getID());
 			
+			bTableChanging = true;
 			wcTableModel.fireTableRowsUpdated(tablerow, tablerow);
+			bTableChanging = false;
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("DELETED_CATALOG_WISH"))
 		{
+			bTableChanging = true;
 			wcTableModel.fireTableDataChanged();
+			bTableChanging = false;
 		}	
 	}
 	
@@ -392,7 +412,12 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
  
         public int getColumnCount() { return columnNames.length; }
  
-        public int getRowCount() { return cat.getNumberOfItems(); }
+        public int getRowCount()
+        { 
+//        	System.out.println(String.format("WishCatDlg.getRowCount: #rows: %d",
+//        			cat.getNumberOfItems()));
+        	return cat.getNumberOfItems();
+        }
  
         public String getColumnName(int col) { return columnNames[col]; }
  
