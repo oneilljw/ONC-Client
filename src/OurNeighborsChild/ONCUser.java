@@ -84,6 +84,7 @@ public class ONCUser extends ONCEntity
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
 	@Override
 	public String toString()
 	{
