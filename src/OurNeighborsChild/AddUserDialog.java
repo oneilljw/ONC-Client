@@ -31,8 +31,8 @@ public class AddUserDialog extends InfoDialog
 		}
 		
 		//set up the permission panel
-		String[] permissions = {"General", "Admin", "Super"};
-		permissionCB = new JComboBox(permissions);
+//		String[] permissions = {"General", "Admin", "Super"};
+		permissionCB = new JComboBox(UserPermission.values());
 		permissionCB.setPreferredSize(new Dimension(158,36));
 		infopanel[4].add(permissionCB);
 		
@@ -47,9 +47,10 @@ public class AddUserDialog extends InfoDialog
 	@Override
 	void update()
 	{
-		reqAddUser = new ONCServerUser(0, new Date(), gvs.getUserLNFI(), 3, "New user added",
+		Date today = new Date();
+		reqAddUser = new ONCServerUser(0, today, gvs.getUserLNFI(), 3, "New user added",
 				gvs.getUserLNFI(), tf[0].getText(), tf[1].getText(),
-				permissionCB.getSelectedIndex(), tf[2].getText(),tf[3].getText());
+				(UserPermission) permissionCB.getSelectedItem(), tf[2].getText(),tf[3].getText(), 0, today);
 		
 		result = true;
 		dispose();

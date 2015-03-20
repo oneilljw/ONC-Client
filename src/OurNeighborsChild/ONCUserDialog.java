@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 import java.awt.print.PrinterException;
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -38,6 +39,8 @@ public class ONCUserDialog extends JDialog implements ActionListener, ListSelect
 	private static final int LAST_NAME_COL= 0;
 	private static final int FIRST_NAME_COL = 1;
 	private static final int PERMISSION_COL = 2;
+	private static final int LOGINS_COL = 3;
+	private static final int LAST_LOGIN_COL = 4;
 	
 	private ONCTable dlgTable;
 	private AbstractTableModel dlgTableModel;
@@ -185,8 +188,18 @@ public class ONCUserDialog extends JDialog implements ActionListener, ListSelect
 	@Override
 	public void dataChanged(DatabaseEvent dbe)
 	{
-		// TODO Auto-generated method stub
-		
+		if(dbe.getSource() != this && (dbe.getType().equals("ADDED_USER") ||
+				dbe.getType().equals("UPDATED_USER")))
+		{
+			ONCUser addedUser = (ONCUser) dbe.getObject();
+			int tablerow = userDB.findModelIndexFromID(addedUser.getID());
+			
+			if(tablerow > -1)
+			{
+				//update the user table
+				dlgTableModel.fireTableDataChanged();
+			}
+		}
 	}
 
 	@Override
@@ -223,7 +236,8 @@ public class ONCUserDialog extends JDialog implements ActionListener, ListSelect
 		 */
 		private static final long serialVersionUID = 1L;
 		
-		private String[] columnNames = {"Last Name", "First Name", "Permission"};
+		private String[] columnNames = {"Last Name", "First Name", "Permission",
+				"#", "Last Login"};
  
         public int getColumnCount() { return columnNames.length; }
  
@@ -240,6 +254,13 @@ public class ONCUserDialog extends JDialog implements ActionListener, ListSelect
         		return user.getLastname();
         	else if (col == PERMISSION_COL)
         		return user.getPermission();
+        	else if (col == LOGINS_COL)
+        		return user.getNSessions();
+        	else if (col == LAST_LOGIN_COL)
+        	{
+        		SimpleDateFormat sdf = new SimpleDateFormat("M/dd/yy H:mm:ss");
+        		return sdf.format(user.getLastLogin());
+        	}
         	else
         		return "Error";
         }
@@ -250,6 +271,8 @@ public class ONCUserDialog extends JDialog implements ActionListener, ListSelect
         {
         	if(column == PERMISSION_COL)
         		return Integer.class;
+        	else if(column == LOGINS_COL)
+        		return Long.class;
         	else
         		return String.class;
         }

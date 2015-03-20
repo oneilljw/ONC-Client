@@ -50,11 +50,8 @@ public class OurNeighborsChild implements DatabaseListener
 	private static final boolean DEBUG_MODE = false;
 	private static final int SERVER_CONNECT_RETRY_LIMIT = 3;
 	private static final int ONC_IMAGE_ICON_INDEX = 0;
-	private static final int ONC_SUPERUSER = 2;
-	private static final int ONC_ADMIN = 1;
-	private static final int ONC_USER = 0;
 	private static final int ONC_SAVE_FILE = 1;	
-	private static final String ONC_VERSION = "2.39";
+	private static final String ONC_VERSION = "2.40";
 	private static final String ONC_COPYRIGHT = "\u00A92015 John W. O'Neill";	
 	private static final String APPNAME = "Our Neighbor's Child";
 	private static final int DB_UNLOCKED_IMAGE_INDEX = 17;
@@ -249,23 +246,24 @@ public class OurNeighborsChild implements DatabaseListener
 		if(serverIF != null && serverIF.isConnected())
 			oncMenuBar.setEnabledServerConnected(true);
 		
-        if(user.getPermission() == ONC_SUPERUSER)	//Superuser privileges
+        if(user.getPermission() == UserPermission.SYS_ADMIN)	//Superuser privileges
         {
-        	oncGVs.setUserPermission(ONC_SUPERUSER);
+        	oncGVs.setUserPermission(UserPermission.SYS_ADMIN);
         	prefsDlg.setEnabledDateToday(true);
         	prefsDlg.setEnabledRestrictedPrefrences(true);
         	oncMenuBar.setVisibleAdminFunctions(true);
         	oncMenuBar.setVisibleSpecialImports(true);
         	oncFamilyPanel.setEnabledSuperuserPrivileges(true);
         }
-        else if(user.getPermission() == ONC_ADMIN)
+        else if(user.getPermission() == UserPermission.ADMIN)
         {
-        	oncGVs.setUserPermission(ONC_ADMIN);
+        	oncGVs.setUserPermission(UserPermission.ADMIN);
         	oncMenuBar.setVisibleAdminFunctions(true);
         	prefsDlg.setEnabledRestrictedPrefrences(true);
         }
         else
-        	oncGVs.setUserPermission(ONC_USER);
+        	oncGVs.setUserPermission(UserPermission.GENERAL);
+     
                      	
         oncFamilyPanel.setFamilyPanelDisplayPermission(oncGVs.isUserAdmin());	//Restrict personal data for general user
         

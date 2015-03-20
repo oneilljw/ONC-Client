@@ -40,7 +40,7 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 	private Calendar oncGiftsReceivedDate;
 	private String warehouseAddress;
 	private transient String[] fontSizes = {"8", "10", "12", "13", "14", "16", "18"};
-	private transient int user_permission;
+	private transient UserPermission user_permission;
 	private transient String[] sGrwth_pcts = {"5%", "10%", "15%", "20%", "25%"};
 	private transient int[] nGrwth_pcts = {5,10,15,20,25};
 	private transient int fontIndex, startONCNum, ytyGrwthIndex;
@@ -124,7 +124,7 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 		fontIndex = 3;
 		startONCNum = 100;
 		ytyGrwthIndex = 2;
-		user_permission = 0;
+		user_permission = UserPermission.GENERAL;
 		version = "N/A";
 	}
 	
@@ -136,7 +136,7 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 	{
 		Calendar tomorrow = Calendar.getInstance();
 		
-		if(user_permission > 1) 	//If superuser, return today set in preference dialog		
+		if(user_permission.compareTo(UserPermission.ADMIN) > 0) 	//If superuser, return today set in preference dialog		
 			tomorrow = oncDateToday;
 		
 		tomorrow.add(Calendar.DATE, 1);
@@ -175,8 +175,8 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 		else
 			return user.getFirstname() + " " + user.getLastname().charAt(0);
 	}
-	boolean isUserAdmin() {return user_permission > 0; }
-	boolean isUserSuperUser() {return user_permission > 1; }
+	boolean isUserAdmin() {return user_permission.compareTo(UserPermission.ADMIN) >= 0; }
+	boolean isUserSuperUser() {return user_permission == UserPermission.SYS_ADMIN; }
 	public ImageIcon getImageIcon(int icon) {return imageIcons[icon]; }
 	public static ImageIcon getONCLogo() { return imageIcons[0]; }
 	public static ImageIcon getUnLockedIcon() { return imageIcons[17]; }
@@ -210,7 +210,7 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 	public void setFontIndex(int fs) { fontIndex = fs; }
 	void setImageIcons(ImageIcon[] ii) {imageIcons = ii; }
 	ONCUser setUser(ONCUser u) { user = u; return user; }
-	void setUserPermission(int p) { user_permission = p; }
+	void setUserPermission(UserPermission p) { user_permission = p; }
 	void setYTYGrowthIndex(int index) { ytyGrwthIndex = index; }
 	void setStartONCNum(int startoncnum) { startONCNum = startoncnum; }
 	void setVersion(String version) { GlobalVariables.version = version; }

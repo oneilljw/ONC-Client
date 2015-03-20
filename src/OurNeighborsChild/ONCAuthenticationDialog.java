@@ -90,11 +90,11 @@ public class ONCAuthenticationDialog extends ONCConnectDialog
 	{
 		usersAL = new ArrayList<String[]>();	
   	  
-    	String[][] users = {{"john", "erin1992", "2", "John","O'Neill"},
-  				   		  {"KMLavin", "Redskins5", "1", "Kelly", "Lavin"},
-  				   		  {"nicole", "chester", "1", "Nicole", "Rogers"},
-  				   		  {"ONC Guest", "oncguest", "0", "", "ONC Guest"},
-  				   		  {"ONC Admin", "oncadmin", "1", "", "ONC Admin"}};
+    	String[][] users = {{"john", "erin1992", "SYS_ADMIN", "John","O'Neill"},
+  				   		  {"KMLavin", "Redskins5", "SYS_ADMIN", "Kelly", "Lavin"},
+  				   		  {"nicole", "chester", "ADMIN", "Nicole", "Rogers"},
+  				   		  {"ONC Guest", "oncguest", "GENERAL", "", "ONC Guest"},
+  				   		  {"ONC Admin", "oncadmin", "ADMIN", "", "ONC Admin"}};
   			 
   		for(int i =0; i<users.length; i++)	//build array list from users[][]
   			usersAL.add(users[i]);
@@ -128,6 +128,8 @@ public class ONCAuthenticationDialog extends ONCConnectDialog
 					
 					if(reason.startsWith("Downlevel"))
 						lblMssg2.setText("<html><font color=red><b>" + reason + "</b></font></html>");
+					else if(reason.startsWith("Inactive"))
+						lblMssg2.setText("<html><font color=red><b>" + reason + ", please contact Exec Dir</b></font></html>");
 					else
 						lblMssg2.setText("<html><font color=red><b>" + reason + ", please try agian</b></font></html>");
 					
@@ -179,7 +181,8 @@ public class ONCAuthenticationDialog extends ONCConnectDialog
 		{
 			userObj = new ONCUser(index, new Date(), "", 3, "", "", usersAL.get(index)[USER_FIRST_NAME_FIELD],
 										usersAL.get(index)[USER_LAST_NAME_FIELD],
-											Integer.parseInt(usersAL.get(index)[USER_PERMISSION_FIELD]));
+										UserPermission.valueOf(usersAL.get(index)[USER_PERMISSION_FIELD]),
+										0, new Date());
 										
 			this.dispose();
 		}

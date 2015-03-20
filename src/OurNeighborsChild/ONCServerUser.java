@@ -11,18 +11,20 @@ public class ONCServerUser extends ONCUser
 	private String userid;
 	private String password;
 	
-	public ONCServerUser(int id, Date today, String chgby, int slpos, String slmssg, String slchgby,
-					String fn, String ln, int perm, String uid, String pw)
+	public ONCServerUser(int id, Date today, String chgby, int slpos, String slmssg,
+							String slchgby, String fn, String ln, UserPermission perm,
+							String uid, String pw, long nSessions, Date last_login)
 	{
-		super(id, today, chgby, slpos, slmssg, slchgby, fn, ln, perm);
+		super(id, today, chgby, slpos, slmssg, slchgby, fn, ln, perm, nSessions, last_login);
 		userid = uid;
 		password = pw;
 	}
 	
-	public ONCServerUser(String[] nextLine, Date date_changed)
+	public ONCServerUser(String[] nextLine, Date date_changed, Date last_login)
 	{
 		super(Integer.parseInt(nextLine[0]), date_changed, nextLine[7], Integer.parseInt(nextLine[8]),
-				nextLine[9], nextLine[10], nextLine[4], nextLine[5], Integer.parseInt(nextLine[3]));
+				nextLine[9], nextLine[10], nextLine[4], nextLine[5], UserPermission.valueOf(nextLine[3]),
+				Long.parseLong(nextLine[11]), last_login);
 				
 		userid = nextLine[1];
 		password = nextLine[2];
@@ -40,15 +42,15 @@ public class ONCServerUser extends ONCUser
 	public ONCUser getUserFromServerUser()
 	{
 		return new ONCUser(id, dateChanged.getTime(), changedBy, slPos, slMssg, slChangedBy, 
-				firstname, lastname, permission, clientID, clientYear);	
+				firstname, lastname, permission, clientID, clientYear, nSessions, lastLogin);	
 	}
 	
 	@Override
 	public String[] getExportRow()
 	{
-		String[] row = {Integer.toString(id), userid, password, Integer.toString(permission), firstname, lastname,
+		String[] row = {Integer.toString(id), userid, password, permission.toString(), firstname, lastname,
 						Long.toString(dateChanged.getTimeInMillis()), changedBy, Integer.toString(slPos), slMssg,
-						slChangedBy};
+						slChangedBy, Long.toString(nSessions), Long.toString(lastLogin.getTimeInMillis())};
 		return row;
 	}	
 }

@@ -1,5 +1,6 @@
 package OurNeighborsChild;
 
+import java.util.Calendar;
 import java.util.Date;
 
 public class ONCUser extends ONCEntity
@@ -11,12 +12,14 @@ public class ONCUser extends ONCEntity
 	private static final long serialVersionUID = 1L;
 	protected String firstname;
 	protected String lastname;
-	protected int permission; 	//0 - general user, 1- admin user, 2- super user
+	protected UserPermission permission; 	
 	protected long clientID; 	//holds the server id of the client when the user is logged in
 	protected int clientYear;
+	protected long nSessions;
+	protected Calendar lastLogin;
 	
 	public ONCUser(int id, Date today, String changedBy, int slpos, String slmssg, String slchgby, 
-			String fn, String ln, int perm)
+			String fn, String ln, UserPermission perm, long nSessions, Date last)
 	{
 		super(id, today, changedBy, slpos, slmssg, slchgby);
 		
@@ -25,11 +28,15 @@ public class ONCUser extends ONCEntity
 		permission = perm;
 		clientID = -1;
 		clientYear = -1;
+		this.nSessions = nSessions;
+		lastLogin = Calendar.getInstance();
+		lastLogin.setTime(last);
 	}
 	
 	//overloaded to allow conversion from ONCServerUser to ONCUser by creating a copy
 	public ONCUser(int id, Date today, String changedBy, int slpos, String slmssg, String slchgby, 
-			String fn, String ln, int perm, long clientID, int clientYear)
+			String fn, String ln, UserPermission perm, long clientID, int clientYear,
+			long nSessions, Calendar lastLogin)
 	{
 		super(id, today, changedBy, slpos, slmssg, slchgby);
 		
@@ -38,12 +45,18 @@ public class ONCUser extends ONCEntity
 		permission = perm;
 		this.clientID = clientID;
 		this.clientYear = clientYear;
+		this.nSessions = nSessions;
+		this.lastLogin = lastLogin;
 	}
 	
 	public long getClientID() { return clientID; }
 	public void setClientID(long clientID) { this.clientID = clientID; }
 	public int getClientYear() { return clientYear; }
 	public void setClientYear(int year) { clientYear = year; }
+	public long getNSessions() { return nSessions; }
+	public Date getLastLogin() { return lastLogin.getTime(); }
+	public void setLastLogin(Date last_login) { lastLogin.setTime(last_login); }
+	public long incrementSessions() { return ++nSessions; }
 	
 	public String getFirstname() {
 		return firstname;
@@ -61,11 +74,11 @@ public class ONCUser extends ONCEntity
 		this.lastname = lastname;
 	}
 
-	public int getPermission() {
+	public UserPermission getPermission() {
 		return permission;
 	}
 
-	public void setPermission(int permission) {
+	public void setPermission(UserPermission permission) {
 		this.permission = permission;
 	}
 

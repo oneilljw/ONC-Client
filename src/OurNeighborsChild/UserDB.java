@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -116,6 +117,40 @@ public class UserDB extends ONCSearchableDatabase
 		return index;
 	}
 	
+	ONCUser processUpdatedObject(Object source, String json)
+	{
+		//Store added catalog wish in local wish catalog
+		Gson gson = new Gson();
+		ONCUser updatedUser = gson.fromJson(json, ONCUser.class);
+		
+		//find the user
+		int index = 0;
+		while(index < uAL.size() && uAL.get(index).getID() != updatedUser.getID())
+			index++;
+		
+		if(index < uAL.size())
+		{
+			//if found, replace the list entity and notify ui clients
+			ONCUser oldUser = uAL.get(index);
+			if(oldUser.getNSessions() != updatedUser.getNSessions())
+			{
+				//we have a user who logged in, notify this user
+				ONCPopupMessage popup = new ONCPopupMessage(GlobalVariables.getONCLogo());
+    			Point loc = GlobalVariables.getFrame().getLocationOnScreen();
+    			popup.setLocation(loc.x+450, loc.y+70);
+    			String mssg = String.format("%s %s is now online", updatedUser.getFirstname(),
+    											updatedUser.getLastname());
+    			popup.show("Message from ONC Server", mssg);
+			}
+		
+			uAL.set(index, updatedUser);
+			fireDataChanged(source, "UPDATED_USER", updatedUser);
+			return updatedUser;
+		}
+		else
+			return null;
+	}
+	
 	String importUserDatabase()
 	{
 		String response = "NO_USERS";
@@ -222,6 +257,10 @@ public class UserDB extends ONCSearchableDatabase
 		if(ue.getType().equals("ADDED_USER"))
 		{
 			processAddedObject(this, ue.getJson());
+		}
+		else if(ue.getType().equals("UPDATED_USER"))
+		{
+			processUpdatedObject(this, ue.getJson());
 		}
 	}
 
