@@ -117,6 +117,21 @@ public class UserDB extends ONCSearchableDatabase
 		return index;
 	}
 	
+	String update(Object source, ONCObject entity)
+	{
+		Gson gson = new Gson();
+		String response = "";
+		
+		response = serverIF.sendRequest("POST<update_user>" + 
+											gson.toJson(entity, ONCUser.class));
+		
+		if(response != null && response.startsWith("UPDATED_USER") && 
+				(processUpdatedObject(source, response.substring(12)) != null))
+			return "UPDATED_USER";
+		else
+			return "UPDATE_FAILED";
+	}
+	
 	ONCUser processUpdatedObject(Object source, String json)
 	{
 		//Store added catalog wish in local wish catalog
@@ -264,12 +279,6 @@ public class UserDB extends ONCSearchableDatabase
 		}
 	}
 
-	@Override
-	String update(Object source, ONCObject entity) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
 	private class UserLNFIComparator implements Comparator<ONCUser>
 	{
 		@Override

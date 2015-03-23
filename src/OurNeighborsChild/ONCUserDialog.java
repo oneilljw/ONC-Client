@@ -1,6 +1,7 @@
 package OurNeighborsChild;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.print.PrinterException;
@@ -9,7 +10,9 @@ import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 
 import javax.swing.BoxLayout;
+import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -24,6 +27,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
+import javax.swing.table.TableColumn;
 
 public class ONCUserDialog extends JDialog implements ActionListener, ListSelectionListener,
 														DatabaseListener
@@ -50,7 +54,7 @@ public class ONCUserDialog extends JDialog implements ActionListener, ListSelect
 	public ONCUserDialog(JFrame pf)
 	{
 		super(pf);
-		this.setTitle("ONC Users");
+		this.setTitle("ONC Application Elves");
 		
 		//Save the reference to the one wish catalog object in the app. It is created in the 
 		//top level object and passed to all objects that require the wish catalog, including
@@ -73,10 +77,19 @@ public class ONCUserDialog extends JDialog implements ActionListener, ListSelect
 		dlgTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		dlgTable.getSelectionModel().addListSelectionListener(this);
 		
+		TableColumn permColumn = dlgTable.getColumnModel().getColumn(PERMISSION_COL);
+		JComboBox comboBox = new JComboBox(UserPermission.values());
+		permColumn.setCellEditor(new DefaultCellEditor(comboBox));
+		
 		//Set table column widths
-		int[] colWidths = {104, 104, 104};
-		for(int i=0; i < colWidths.length; i++)
-			dlgTable.getColumnModel().getColumn(i).setPreferredWidth(colWidths[i]);
+		int tablewidth = 0;
+		int[] colWidths = {128, 96, 96, 40, 144};
+		for(int col=0; col < colWidths.length; col++)
+		{
+			dlgTable.getColumnModel().getColumn(col).setPreferredWidth(colWidths[col]);
+			tablewidth += colWidths[col];
+		}
+		tablewidth += 24; 	//count for vertical scroll bar
 		
         dlgTable.setAutoCreateRowSorter(true);	//add a sorter
         
@@ -85,9 +98,9 @@ public class ONCUserDialog extends JDialog implements ActionListener, ListSelect
         anHeader.setBackground( new Color(161,202,241));
         
         //left justify wish count column
-//      DefaultTableCellRenderer dtcr = new DefaultTableCellRenderer();
-//      dtcr.setHorizontalAlignment(SwingConstants.LEFT);
-//      dlgTable.getColumnModel().getColumn(WISH_COUNT_COL).setCellRenderer(dtcr);
+        DefaultTableCellRenderer dtcr = new DefaultTableCellRenderer();
+        dtcr.setHorizontalAlignment(SwingConstants.LEFT);
+        dlgTable.getColumnModel().getColumn(LOGINS_COL).setCellRenderer(dtcr);
         
         //Create the scroll pane and add the table to it.
         JScrollPane dsScrollPane = new JScrollPane(dlgTable);
@@ -100,16 +113,16 @@ public class ONCUserDialog extends JDialog implements ActionListener, ListSelect
         btnPrint.addActionListener(this);
         
         btnAdd = new JButton("Add User");
-        btnAdd.setToolTipText("Add a new wish to the catalog");
+        btnAdd.setToolTipText("Add a new user");
         btnAdd.addActionListener(this);
         
-        btnEdit = new JButton("Edit User");
-        btnEdit.setToolTipText("Edit the selected wish");
+        btnEdit = new JButton("Reset Password");
+        btnEdit.setToolTipText("Reset selected users password");
         btnEdit.setEnabled(false);
         btnEdit.addActionListener(this);
         
         btnDelete = new JButton("Delete User");
-        btnDelete.setToolTipText("Delete the selected wish");
+        btnDelete.setToolTipText("Delete the selected user");
         btnDelete.setEnabled(false);
         btnDelete.addActionListener(this);
           
@@ -123,6 +136,7 @@ public class ONCUserDialog extends JDialog implements ActionListener, ListSelect
         getContentPane().add(cntlPanel);
         
         pack();
+        this.setMinimumSize(new Dimension(tablewidth, 240));
 	}
 	
 	void add()
@@ -270,7 +284,7 @@ public class ONCUserDialog extends JDialog implements ActionListener, ListSelect
         public Class<?> getColumnClass(int column)
         {
         	if(column == PERMISSION_COL)
-        		return Integer.class;
+        		return UserPermission.class;
         	else if(column == LOGINS_COL)
         		return Long.class;
         	else
@@ -281,24 +295,27 @@ public class ONCUserDialog extends JDialog implements ActionListener, ListSelect
         {
             //Only the check boxes can be edited and then only if there is not
         	//a wish already selected from the list associated with that column
-            return false;
+        	if(col == PERMISSION_COL)
+        		return true;
+        	else
+        		return false;
         }
 
-        /*
+        
         //Don't need to implement this method unless your table's data can change. 
         public void setValueAt(Object value, int row, int col)
         { 	
-        	if(col >= WISH_1_COL && col <= WISH_3_COL)	//Wish list columns
+        	if(col == PERMISSION_COL)	//Wish list columns
         	{
-        		ONCWish reqUpdateWish = new ONCWish(cat.getWish(row));	//copy current wish
-        		int li = reqUpdateWish.getListindex(); //Get current list index	
-        		int bitmask = 1 << col-WISH_1_COL;	//which wish is being toggled
+        		ONCUser reqUpdateUser = new ONCUser(userDB.getUserFromIndex(row));	//make a copy
+        		UserPermission updatedPerm = (UserPermission) value;
+        		reqUpdateUser.setPermission(updatedPerm);
         		
-        		reqUpdateWish.setListindex(li ^ bitmask); //Set updated list index
+//        		System.out.println(String.format("ONCUserDlg.setValueAt: User %s Permission Changed to %s",
+//        				reqUpdateUser.getLastname(), reqUpdateUser.getPermission().toString()));
         		
-        		String response = cat.update(this, reqUpdateWish);
-        		
-        		if(response == null || (response !=null && !response.startsWith("UPDATED_CATALOG_WISH")))
+        		String response = userDB.update(this, reqUpdateUser);        		
+        		if(response == null || (response !=null && !response.startsWith("UPDATED_USER")))
         		{
         			//request failed
         			GlobalVariables gvs = GlobalVariables.getInstance();
@@ -307,7 +324,6 @@ public class ONCUserDialog extends JDialog implements ActionListener, ListSelect
 													JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
         		}
         	}                      
-        }
-        */  
+        }  
     }
 }

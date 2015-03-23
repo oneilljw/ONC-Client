@@ -49,6 +49,19 @@ public class ONCUser extends ONCEntity
 		this.lastLogin = lastLogin;
 	}
 	
+	public ONCUser(ONCUser u)
+	{
+		super(u.id, u.dateChanged.getTime(), u.changedBy, u.slPos, u.slMssg, u.slChangedBy);
+		
+		firstname = u.firstname;
+		lastname = u.lastname;
+		permission = u.permission;
+		this.clientID = u.clientID;
+		this.clientYear = u.clientYear;
+		this.nSessions = u.nSessions;
+		this.lastLogin = u.lastLogin;
+	}
+	
 	public long getClientID() { return clientID; }
 	public void setClientID(long clientID) { this.clientID = clientID; }
 	public int getClientYear() { return clientYear; }
