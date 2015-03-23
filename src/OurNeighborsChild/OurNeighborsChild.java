@@ -235,7 +235,13 @@ public class OurNeighborsChild implements DatabaseListener
 		authDlg.setVisible(true);
 		
 		//if we get here, the server has authenticated this client's userID and password
+		//must check to see if the password needs to be changed, if so, force the change
 		ONCUser user = oncGVs.setUser(authDlg.getUser());
+		if(user.changePasswordRqrd())
+		{
+			onChangePassword();
+		}
+		
 		if(oncGVs.getUser().getFirstname().isEmpty())
     		oncFamilyPanel.setMssg("Welcome to Our Neighbor's Child!", true);
     	else

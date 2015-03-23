@@ -182,7 +182,7 @@ public class ONCAuthenticationDialog extends ONCConnectDialog
 			userObj = new ONCUser(index, new Date(), "", 3, "", "", usersAL.get(index)[USER_FIRST_NAME_FIELD],
 										usersAL.get(index)[USER_LAST_NAME_FIELD],
 										UserPermission.valueOf(usersAL.get(index)[USER_PERMISSION_FIELD]),
-										0, new Date());
+										0, new Date(), false);
 										
 			this.dispose();
 		}

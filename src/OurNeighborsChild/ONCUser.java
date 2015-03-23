@@ -17,9 +17,10 @@ public class ONCUser extends ONCEntity
 	protected int clientYear;
 	protected long nSessions;
 	protected Calendar lastLogin;
+	protected boolean bResetPassword;
 	
 	public ONCUser(int id, Date today, String changedBy, int slpos, String slmssg, String slchgby, 
-			String fn, String ln, UserPermission perm, long nSessions, Date last)
+			String fn, String ln, UserPermission perm, long nSessions, Date last, boolean bRP)
 	{
 		super(id, today, changedBy, slpos, slmssg, slchgby);
 		
@@ -31,12 +32,13 @@ public class ONCUser extends ONCEntity
 		this.nSessions = nSessions;
 		lastLogin = Calendar.getInstance();
 		lastLogin.setTime(last);
+		bResetPassword = bRP;
 	}
 	
 	//overloaded to allow conversion from ONCServerUser to ONCUser by creating a copy
 	public ONCUser(int id, Date today, String changedBy, int slpos, String slmssg, String slchgby, 
 			String fn, String ln, UserPermission perm, long clientID, int clientYear,
-			long nSessions, Calendar lastLogin)
+			long nSessions, Calendar lastLogin, boolean bRP)
 	{
 		super(id, today, changedBy, slpos, slmssg, slchgby);
 		
@@ -47,6 +49,7 @@ public class ONCUser extends ONCEntity
 		this.clientYear = clientYear;
 		this.nSessions = nSessions;
 		this.lastLogin = lastLogin;
+		this.bResetPassword = bRP;
 	}
 	
 	public ONCUser(ONCUser u)
@@ -60,6 +63,7 @@ public class ONCUser extends ONCEntity
 		this.clientYear = u.clientYear;
 		this.nSessions = u.nSessions;
 		this.lastLogin = u.lastLogin;
+		this.bResetPassword = u.bResetPassword;
 	}
 	
 	public long getClientID() { return clientID; }
@@ -70,6 +74,7 @@ public class ONCUser extends ONCEntity
 	public Date getLastLogin() { return lastLogin.getTime(); }
 	public void setLastLogin(Date last_login) { lastLogin.setTime(last_login); }
 	public long incrementSessions() { return ++nSessions; }
+	public boolean changePasswordRqrd() { return bResetPassword; }
 	
 	public String getFirstname() {
 		return firstname;

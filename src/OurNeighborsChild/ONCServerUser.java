@@ -13,18 +13,19 @@ public class ONCServerUser extends ONCUser
 	
 	public ONCServerUser(int id, Date today, String chgby, int slpos, String slmssg,
 							String slchgby, String fn, String ln, UserPermission perm,
-							String uid, String pw, long nSessions, Date last_login)
+							String uid, String pw, long nSessions, Date last_login,
+							boolean bResetPassword)
 	{
-		super(id, today, chgby, slpos, slmssg, slchgby, fn, ln, perm, nSessions, last_login);
+		super(id, today, chgby, slpos, slmssg, slchgby, fn, ln, perm, nSessions, last_login, bResetPassword);
 		userid = uid;
 		password = pw;
 	}
 	
-	public ONCServerUser(String[] nextLine, Date date_changed, Date last_login)
+	public ONCServerUser(String[] nextLine, Date date_changed, Date last_login, boolean bRP)
 	{
 		super(Integer.parseInt(nextLine[0]), date_changed, nextLine[7], Integer.parseInt(nextLine[8]),
 				nextLine[9], nextLine[10], nextLine[4], nextLine[5], UserPermission.valueOf(nextLine[3]),
-				Long.parseLong(nextLine[11]), last_login);
+				Long.parseLong(nextLine[11]), last_login, bRP);
 				
 		userid = nextLine[1];
 		password = nextLine[2];
@@ -42,7 +43,8 @@ public class ONCServerUser extends ONCUser
 	public ONCUser getUserFromServerUser()
 	{
 		return new ONCUser(id, dateChanged.getTime(), changedBy, slPos, slMssg, slChangedBy, 
-				firstname, lastname, permission, clientID, clientYear, nSessions, lastLogin);	
+				firstname, lastname, permission, clientID, clientYear, nSessions, lastLogin,
+				bResetPassword);	
 	}
 	
 	@Override
@@ -50,7 +52,8 @@ public class ONCServerUser extends ONCUser
 	{
 		String[] row = {Integer.toString(id), userid, password, permission.toString(), firstname, lastname,
 						Long.toString(dateChanged.getTimeInMillis()), changedBy, Integer.toString(slPos), slMssg,
-						slChangedBy, Long.toString(nSessions), Long.toString(lastLogin.getTimeInMillis())};
+						slChangedBy, Long.toString(nSessions), Long.toString(lastLogin.getTimeInMillis()),
+						bResetPassword == true ? "T" : "F"};
 		return row;
 	}	
 }

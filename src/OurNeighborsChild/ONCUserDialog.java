@@ -11,6 +11,7 @@ import java.text.SimpleDateFormat;
 
 import javax.swing.BoxLayout;
 import javax.swing.DefaultCellEditor;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
@@ -45,6 +46,7 @@ public class ONCUserDialog extends JDialog implements ActionListener, ListSelect
 	private static final int PERMISSION_COL = 2;
 	private static final int LOGINS_COL = 3;
 	private static final int LAST_LOGIN_COL = 4;
+	private static final int RESET_PW_COL = 5;
 	
 	private ONCTable dlgTable;
 	private AbstractTableModel dlgTableModel;
@@ -83,7 +85,7 @@ public class ONCUserDialog extends JDialog implements ActionListener, ListSelect
 		
 		//Set table column widths
 		int tablewidth = 0;
-		int[] colWidths = {128, 96, 96, 40, 144};
+		int[] colWidths = {128, 96, 96, 40, 144, 24};
 		for(int col=0; col < colWidths.length; col++)
 		{
 			dlgTable.getColumnModel().getColumn(col).setPreferredWidth(colWidths[col]);
@@ -116,13 +118,13 @@ public class ONCUserDialog extends JDialog implements ActionListener, ListSelect
         btnAdd.setToolTipText("Add a new user");
         btnAdd.addActionListener(this);
         
-        btnEdit = new JButton("Reset Password");
-        btnEdit.setToolTipText("Reset selected users password");
+        btnEdit = new JButton("Edit Addl Info");
+        btnEdit.setToolTipText("Edit users contact info");
         btnEdit.setEnabled(false);
         btnEdit.addActionListener(this);
         
-        btnDelete = new JButton("Delete User");
-        btnDelete.setToolTipText("Delete the selected user");
+        btnDelete = new JButton("Reset Password");
+        btnDelete.setToolTipText("Reset the selected user's password");
         btnDelete.setEnabled(false);
         btnDelete.addActionListener(this);
           
@@ -154,9 +156,27 @@ public class ONCUserDialog extends JDialog implements ActionListener, ListSelect
 		
 	}
 
-	void delete()
+	void delete()	//is really reset password 
 	{
+		int viewrow = dlgTable.getSelectedRow();
+		int modelrow = dlgTable.convertRowIndexToModel(viewrow);
 		
+		if(modelrow > -1)
+		{
+			ONCUser reqUpdateUser = new ONCUser(userDB.getUserFromIndex(modelrow));
+			reqUpdateUser.bResetPassword = true;
+			
+			//notify the server of the update. When the server sees the reset password
+			//flag set, it will reset the password to a pre-selected password
+			String response = userDB.update(this, reqUpdateUser);        		
+    		if(response == null || (response !=null && !response.startsWith("UPDATED_USER")))
+    		{
+    			//request failed
+    			String err_mssg = "ONC Server denied reset password request, try again later";
+    			JOptionPane.showMessageDialog(GlobalVariables.getFrame(), err_mssg, "Reset Password Request Failure",
+												JOptionPane.ERROR_MESSAGE, GlobalVariables.getONCLogo());
+    		}
+		}
 	}
 	
 	void print(String name)
@@ -177,7 +197,7 @@ public class ONCUserDialog extends JDialog implements ActionListener, ListSelect
 	
 	void onAddNewAppUser() throws IOException
     {
-    	String[] fieldNames = {"First Name", "Last Name", "User ID", "Password", "Permission"};
+    	String[] fieldNames = {"First Name", "Last Name", "User ID", "Permission"};
     	AddUserDialog auDlg = new AddUserDialog(GlobalVariables.getFrame(), fieldNames);
     	auDlg.setLocationRelativeTo(this);
     	if(userDB != null && auDlg.showDialog())
@@ -251,7 +271,7 @@ public class ONCUserDialog extends JDialog implements ActionListener, ListSelect
 		private static final long serialVersionUID = 1L;
 		
 		private String[] columnNames = {"Last Name", "First Name", "Permission",
-				"#", "Last Login"};
+				"#", "Last Login", "PW?"};
  
         public int getColumnCount() { return columnNames.length; }
  
@@ -275,6 +295,11 @@ public class ONCUserDialog extends JDialog implements ActionListener, ListSelect
         		SimpleDateFormat sdf = new SimpleDateFormat("M/dd/yy H:mm:ss");
         		return sdf.format(user.getLastLogin());
         	}
+        	else if (col == RESET_PW_COL)
+        	{
+        		GlobalVariables gvs = GlobalVariables.getInstance();
+        		return user.changePasswordRqrd() ? gvs.getImageIcon(22) : gvs.getImageIcon(21);
+        	}
         	else
         		return "Error";
         }
@@ -287,6 +312,8 @@ public class ONCUserDialog extends JDialog implements ActionListener, ListSelect
         		return UserPermission.class;
         	else if(column == LOGINS_COL)
         		return Long.class;
+        	else if(column == RESET_PW_COL)
+        		return ImageIcon.class;
         	else
         		return String.class;
         }
@@ -295,35 +322,47 @@ public class ONCUserDialog extends JDialog implements ActionListener, ListSelect
         {
             //Only the check boxes can be edited and then only if there is not
         	//a wish already selected from the list associated with that column
-        	if(col == PERMISSION_COL)
+        	if(col == LAST_NAME_COL || col == FIRST_NAME_COL || col == PERMISSION_COL)
         		return true;
         	else
         		return false;
         }
 
-        
-        //Don't need to implement this method unless your table's data can change. 
         public void setValueAt(Object value, int row, int col)
-        { 	
-        	if(col == PERMISSION_COL)	//Wish list columns
+        { 
+        	ONCUser currUser = userDB.getUserFromIndex(row);
+        	ONCUser reqUpdateUser = null;
+        	
+        	//determine if the user made a change to a user object
+        	if(col == LAST_NAME_COL && !currUser.getLastname().equals((String)value))
         	{
-        		ONCUser reqUpdateUser = new ONCUser(userDB.getUserFromIndex(row));	//make a copy
-        		UserPermission updatedPerm = (UserPermission) value;
-        		reqUpdateUser.setPermission(updatedPerm);
-        		
-//        		System.out.println(String.format("ONCUserDlg.setValueAt: User %s Permission Changed to %s",
-//        				reqUpdateUser.getLastname(), reqUpdateUser.getPermission().toString()));
-        		
+        		reqUpdateUser = new ONCUser(currUser);	//make a copy
+        		reqUpdateUser.setLastname((String) value);
+        	}
+        	else if(col == FIRST_NAME_COL && !currUser.getFirstname().equals((String) value))
+        	{
+        		reqUpdateUser = new ONCUser(currUser);	//make a copy
+        		reqUpdateUser.setFirstname((String) value);
+        	}
+        	else if(col == PERMISSION_COL && currUser.getPermission() != (UserPermission) value)
+        	{
+        		reqUpdateUser = new ONCUser(currUser);	//make a copy
+        		reqUpdateUser.setPermission((UserPermission) getValueAt(row, PERMISSION_COL));
+        	}
+        	
+        	//if the user made a change in the table, attempt to update the user object in
+        	//the local user data base
+        	if(reqUpdateUser != null)
+        	{
         		String response = userDB.update(this, reqUpdateUser);        		
         		if(response == null || (response !=null && !response.startsWith("UPDATED_USER")))
         		{
         			//request failed
-        			GlobalVariables gvs = GlobalVariables.getInstance();
-					String err_mssg = "ONC Server denied update catalog wish  request, try again later";
-					JOptionPane.showMessageDialog(GlobalVariables.getFrame(), err_mssg, "Update Catalog Request Failure",
-													JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
+        			String err_mssg = "ONC Server denied update user request, try again later";
+        			JOptionPane.showMessageDialog(GlobalVariables.getFrame(), err_mssg, "Update User Request Failure",
+													JOptionPane.ERROR_MESSAGE, GlobalVariables.getONCLogo());
         		}
-        	}                      
+        	}
         }  
     }
 }

@@ -320,7 +320,7 @@ public class SortDriverDialog extends DependantTableDialog
 			buildTableList(true);
 			updateLNameCBList();
 		}
-		else if(dbe.getType().equals("LOADED_USERS") || dbe.getType().equals("ADDED_USER"))
+		else if(dbe.getType().contains("_USER"))
 		{
 			updateUserList();
 		}

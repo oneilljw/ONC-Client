@@ -1509,7 +1509,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			String[] regList = (String[]) dbe.getObject();
 			updateRegionList(regList);
 		}
-		else if(dbe.getType().equals("LOADED_USERS") || dbe.getType().equals("ADDED_USER"))
+		else if(dbe.getType().contains("_USER"))
 		{
 			updateUserList();
 		}

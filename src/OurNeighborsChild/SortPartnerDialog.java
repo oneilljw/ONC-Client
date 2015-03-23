@@ -1383,7 +1383,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 			String[] regList = (String[]) dbe.getObject();
 			updateRegionList(regList);
 		}
-		else if(dbe.getType().equals("LOADED_USERS") || dbe.getType().equals("ADDED_USER"))
+		else if(dbe.getType().contains("_USER"))
 		{
 			updateUserList();
 		}

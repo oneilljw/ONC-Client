@@ -1089,10 +1089,6 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 										  dbe.getType().equals("DELETED_CHILD")))
 			
 		{
-//			System.out.println(String.format("Sort Wish Dialog DB event, Source: %s, Type %s, Object: %s",
-//												dbe.getSource().toString(), 
-//												dbe.getType(), 
-//												dbe.getObject().toString()));
 			buildTableList(true);
 		}
 		else if(dbe.getSource() != this && (dbe.getType().equals("ADDED_CONFIRMED_PARTNER") ||
@@ -1111,16 +1107,11 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		{			
 			updateWishSelectionList();
 		}
-		else if(dbe.getType().equals("LOADED_USERS") || dbe.getType().equals("ADDED_USER"))
+		else if(dbe.getType().contains("_USER"))
 		{
 			updateUserList();
 		}
 	}
-	
-//	public static boolean isNumeric(String str)
-//    {
-//     return str.matches("-?\\d+(\\.\\d+)?");  //match a number with optional '-' and decimal.
-//    }
 	
 	/**************************************************************************************
 	 * This class prints check sheets for verifying receipt of gifts from ONC partners. 
