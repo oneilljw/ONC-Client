@@ -143,12 +143,26 @@ public class ONCUserDialog extends JDialog implements ActionListener, ListSelect
 	
 	void add()
 	{
-		try {
-			onAddNewAppUser();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}   			
+		String[] fieldNames = {"First Name", "Last Name", "User ID", "Permission"};
+    	AddUserDialog auDlg = new AddUserDialog(GlobalVariables.getFrame(), fieldNames);
+    	auDlg.setLocationRelativeTo(this);
+    	if(userDB != null && auDlg.showDialog())
+    	{
+    		int tableRow = userDB.add(this, auDlg.getAddUserReq());
+			if(tableRow > -1)
+			{
+				dlgTable.clearSelection();
+				dlgTableModel.fireTableDataChanged();
+				dlgTable.scrollRectToVisible(dlgTable.getCellRect(tableRow, 0, true));
+				dlgTable.setRowSelectionInterval(tableRow, tableRow);
+			}
+			else
+			{
+				String err_mssg = "Add user request failed, try again later";
+				JOptionPane.showMessageDialog(this, err_mssg, "Add User Request Failure",
+											JOptionPane.ERROR_MESSAGE, GlobalVariables.getONCLogo());
+			}
+    	}		
 	}
 	
 	void edit()
@@ -168,13 +182,20 @@ public class ONCUserDialog extends JDialog implements ActionListener, ListSelect
 			
 			//notify the server of the update. When the server sees the reset password
 			//flag set, it will reset the password to a pre-selected password
-			String response = userDB.update(this, reqUpdateUser);        		
-    		if(response == null || (response !=null && !response.startsWith("UPDATED_USER")))
+			String response = userDB.update(this, reqUpdateUser);
+			if(response != null && response.startsWith("UPDATED_USER"))
+			{
+				String mssg = String.format("Password reset for %s %s",
+						reqUpdateUser.getFirstname(), reqUpdateUser.getLastname()); 
+    			JOptionPane.showMessageDialog(GlobalVariables.getFrame(), mssg, "Paswword Reset",
+								JOptionPane.INFORMATION_MESSAGE, GlobalVariables.getONCLogo());
+			}
+			else
     		{
     			//request failed
     			String err_mssg = "ONC Server denied reset password request, try again later";
     			JOptionPane.showMessageDialog(GlobalVariables.getFrame(), err_mssg, "Reset Password Request Failure",
-												JOptionPane.ERROR_MESSAGE, GlobalVariables.getONCLogo());
+								JOptionPane.ERROR_MESSAGE, GlobalVariables.getONCLogo());
     		}
 		}
 	}
@@ -194,30 +215,7 @@ public class ONCUserDialog extends JDialog implements ActionListener, ListSelect
 										JOptionPane.ERROR_MESSAGE, GlobalVariables.getONCLogo());
 		}
 	}
-	
-	void onAddNewAppUser() throws IOException
-    {
-    	String[] fieldNames = {"First Name", "Last Name", "User ID", "Permission"};
-    	AddUserDialog auDlg = new AddUserDialog(GlobalVariables.getFrame(), fieldNames);
-    	auDlg.setLocationRelativeTo(this);
-    	if(userDB != null && auDlg.showDialog())
-    	{
-    		int tableRow = userDB.add(this, auDlg.getAddUserReq());
-			if(tableRow > -1)
-			{
-				dlgTable.clearSelection();
-				dlgTableModel.fireTableDataChanged();
-				dlgTable.scrollRectToVisible(dlgTable.getCellRect(tableRow, 0, true));
-				dlgTable.setRowSelectionInterval(tableRow, tableRow);
-			}
-			else
-			{
-				String err_mssg = "Add user request failed, try again later";
-				JOptionPane.showMessageDialog(this, err_mssg, "Add User Request Failure",
-											JOptionPane.ERROR_MESSAGE, GlobalVariables.getONCLogo());
-			}
-    	}
-    }
+
 	
 	@Override
 	public void dataChanged(DatabaseEvent dbe)

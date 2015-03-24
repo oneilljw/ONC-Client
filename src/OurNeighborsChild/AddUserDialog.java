@@ -5,7 +5,6 @@ import java.util.Date;
 
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JTextField;
 
 public class AddUserDialog extends InfoDialog

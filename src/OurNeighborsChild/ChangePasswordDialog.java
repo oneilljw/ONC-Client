@@ -16,13 +16,13 @@ public class ChangePasswordDialog extends InfoDialog
 	ChangePasswordDialog(JFrame owner, String[] tfNames) 
 	{
 		super(owner, true, tfNames);
-		this.setTitle("Change Your Password");
+		this.setTitle("Please Change Your Password");
 		
 		//initialize data structures
 		pf = new JPasswordField[tfNames.length];
 		pw = new String[tfNames.length];
 
-		lblONCIcon.setText("<html><font color=blue>Enter Password<br>Information Below</font></html>");
+		lblONCIcon.setText("<html><font color=blue>Please Enter Password<br>Information Below</font></html>");
 		for(int pn=0; pn< tfNames.length; pn++)
 		{
 			pw[pn] = "";

@@ -247,6 +247,9 @@ public class UserDB extends ONCSearchableDatabase
 			response = serverIF.sendRequest("POST<change_password>" + 
 												gson.toJson(cpwReq, ChangePasswordRequest.class));
 			
+			//need to determine if password change was required. If so, need to notify
+			//listeners that the user object was updated
+			
 			if(response != null && response.startsWith("PASSWORD_CHANGED"))
 				return response.substring(16);
 			else

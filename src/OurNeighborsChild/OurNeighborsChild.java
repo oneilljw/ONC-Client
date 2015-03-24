@@ -237,9 +237,9 @@ public class OurNeighborsChild implements DatabaseListener
 		//if we get here, the server has authenticated this client's userID and password
 		//must check to see if the password needs to be changed, if so, force the change
 		ONCUser user = oncGVs.setUser(authDlg.getUser());
-		if(user.changePasswordRqrd())
+		if(user.changePasswordRqrd() && !changePassword())
 		{
-			onChangePassword();
+			System.exit(0);
 		}
 		
 		if(oncGVs.getUser().getFirstname().isEmpty())
@@ -876,12 +876,13 @@ public class OurNeighborsChild implements DatabaseListener
     	statusDlg.setVisible(true);
     }
     
-    void onChangePassword()
+    boolean changePassword()
     {
     	String[] fieldNames = {"Current Password", "New Password", "Re-enter New Password"};
 		ChangePasswordDialog cpDlg = new ChangePasswordDialog(oncFrame, fieldNames);
-		cpDlg.setLocationRelativeTo(oncFamilyPanel);
+		cpDlg.setLocationRelativeTo(oncFrame);
 		String result = "<html>New and re-entered passwords didn't match.<br>Please try again.</html>";
+		boolean bPasswordChanged = false;
 		
 		if(cpDlg.showDialog())
 		{
@@ -895,11 +896,15 @@ public class OurNeighborsChild implements DatabaseListener
 						pwInfo[0], pwInfo[1]);
 				
 				result = oncUserDB.changePassword(this, cpwReq);
+				if(result.contains("changed"))
+						bPasswordChanged = true;
 			}
 			
 			JOptionPane.showMessageDialog(oncFrame, result,"Change Password Result",
         			 JOptionPane.ERROR_MESSAGE,oncGVs.getImageIcon(0));
 		}
+		
+		return bPasswordChanged;
     } 
 
     private class MenuItemDBYearsListener implements ActionListener
@@ -1030,7 +1035,7 @@ public class OurNeighborsChild implements DatabaseListener
     		else if(e.getSource() == ONCMenuBar.newChildMI) { oncFamilyPanel.onAddNewChildClicked(); }
     		else if(e.getSource() == ONCMenuBar.onlineMI) { onWhoIsOnline(); }
     		else if(e.getSource() == ONCMenuBar.chatMI) { onChat(); }
-    		else if(e.getSource() == ONCMenuBar.changePWMI) { onChangePassword(); }
+    		else if(e.getSource() == ONCMenuBar.changePWMI) { changePassword(); }
     		else if(e.getSource() == ONCMenuBar.stopPollingMI && serverIF != null) { serverIF.setEnabledServerPolling(false); }
     		else if(e.getSource() == ONCMenuBar.showServerLogMI && serverIF != null)
     		{

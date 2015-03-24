@@ -75,6 +75,7 @@ public class ONCUser extends ONCEntity
 	public void setLastLogin(Date last_login) { lastLogin.setTime(last_login); }
 	public long incrementSessions() { return ++nSessions; }
 	public boolean changePasswordRqrd() { return bResetPassword; }
+	public void setPasswordChangeRqrd(boolean tf) { bResetPassword = tf; }
 	
 	public String getFirstname() {
 		return firstname;
