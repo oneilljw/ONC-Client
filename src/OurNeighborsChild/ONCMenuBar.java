@@ -266,7 +266,7 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 	    menuSettings.add(oncPrefrencesMI);
 	    
 	    userMI = new JMenuItem("Manage Users");
-	    userMI.setEnabled(false);
+	    userMI.setVisible(false);
 	    menuSettings.add(userMI);
 	    
 	    onlineMI = new JMenuItem("Who's Online?");
@@ -333,7 +333,6 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 		delChildMI.setEnabled(tf);
 		newChildMI.setEnabled(tf);
 		importCallResultMI.setEnabled(tf);
-		userMI.setEnabled(tf);
 	}
 	
 	void setEnabledWishCatalogAndOrgMenuItems(boolean tf)
@@ -358,6 +357,7 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 	{
 		newMI.setVisible(tf);
 		dbStatusMI.setVisible(tf);
+		userMI.setVisible(tf);
 	}
 	
 	void setEnabledServerConnected(boolean tf)

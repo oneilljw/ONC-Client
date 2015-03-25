@@ -5,7 +5,6 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.print.PrinterException;
-import java.io.IOException;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 
@@ -50,7 +49,7 @@ public class ONCUserDialog extends JDialog implements ActionListener, ListSelect
 	
 	private ONCTable dlgTable;
 	private AbstractTableModel dlgTableModel;
-	private JButton btnAdd, btnEdit, btnDelete, btnPrint;
+	private JButton btnAdd, btnEdit, btnResetPW, btnPrint;
 	private UserDB userDB;
 		
 	public ONCUserDialog(JFrame pf)
@@ -123,14 +122,14 @@ public class ONCUserDialog extends JDialog implements ActionListener, ListSelect
         btnEdit.setEnabled(false);
         btnEdit.addActionListener(this);
         
-        btnDelete = new JButton("Reset Password");
-        btnDelete.setToolTipText("Reset the selected user's password");
-        btnDelete.setEnabled(false);
-        btnDelete.addActionListener(this);
+        btnResetPW = new JButton("Reset Password");
+        btnResetPW.setToolTipText("Reset the selected user's password");
+        btnResetPW.setEnabled(false);
+        btnResetPW.addActionListener(this);
           
         cntlPanel.add(btnAdd);
         cntlPanel.add(btnEdit);
-        cntlPanel.add(btnDelete);
+        cntlPanel.add(btnResetPW);
         cntlPanel.add(btnPrint);
         
         getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
@@ -235,9 +234,21 @@ public class ONCUserDialog extends JDialog implements ActionListener, ListSelect
 	}
 
 	@Override
-	public void valueChanged(ListSelectionEvent arg0) {
-		// TODO Auto-generated method stub
+	public void valueChanged(ListSelectionEvent lse)
+	{
+		int modelRow = dlgTable.getSelectedRow() == -1 ? -1 : 
+						dlgTable.convertRowIndexToModel(dlgTable.getSelectedRow());
 		
+		if(modelRow > -1)
+		{
+			btnEdit.setEnabled(true);
+			btnResetPW.setEnabled(true);
+		}
+		else
+		{
+			btnEdit.setEnabled(false);
+			btnResetPW.setEnabled(false);
+		}
 	}
 
 	@Override
@@ -251,7 +262,7 @@ public class ONCUserDialog extends JDialog implements ActionListener, ListSelect
 		{
 			edit();
 		}
-		else if(e.getSource() == btnDelete)
+		else if(e.getSource() == btnResetPW)
 		{
 			delete();
 		}
@@ -269,7 +280,7 @@ public class ONCUserDialog extends JDialog implements ActionListener, ListSelect
 		private static final long serialVersionUID = 1L;
 		
 		private String[] columnNames = {"Last Name", "First Name", "Permission",
-				"#", "Last Login", "PW?"};
+				"Logins", "Last Login", "PW?"};
  
         public int getColumnCount() { return columnNames.length; }
  

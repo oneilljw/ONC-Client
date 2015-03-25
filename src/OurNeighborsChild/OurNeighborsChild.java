@@ -895,9 +895,8 @@ public class OurNeighborsChild implements DatabaseListener
 						currUser.getFirstname(), currUser.getLastname(),
 						pwInfo[0], pwInfo[1]);
 				
-				result = oncUserDB.changePassword(this, cpwReq);
-				if(result.contains("changed"))
-						bPasswordChanged = true;
+				if((result = oncUserDB.changePassword(this, cpwReq)).contains("changed"))
+					bPasswordChanged = true;
 			}
 			
 			JOptionPane.showMessageDialog(oncFrame, result,"Change Password Result",

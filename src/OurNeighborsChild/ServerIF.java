@@ -286,7 +286,7 @@ public class ServerIF
     
     void processChanges(String qContentJson)
     {
-    	String[] dbResponses = {"ADDED_USER", "UPDATED_USER", "UPDATED_GLOBALS",
+    	String[] restrictedResponses = {"UPDATED_GLOBALS",
     						  "USER_ONLINE", "USER_OFFLINE",
     						  "ADDED_FAMILY", "UPDATED_FAMILY",
     						  "ADDED_AGENT","UPDATED_AGENT", "DELETED_AGENT",
@@ -300,7 +300,7 @@ public class ServerIF
     	
     	String[] chatResponses = {"CHAT_REQUESTED", "CHAT_ACCEPTED", "CHAT_MESSAGE", "CHAT_ENDED",  "ADDED_NEW_YEAR"};
     	
-    	String[] menuBarResponses = {"UPDATED_DBYEAR", "ADDED_DBYEAR"};
+    	String[] unrestrictedResponses = {"UPDATED_DBYEAR", "ADDED_DBYEAR", "ADDED_USER", "UPDATED_USER",};
     	
     	Gson gson = new Gson();
     	Type listtype = new TypeToken<ArrayList<String>>(){}.getType();
@@ -327,14 +327,14 @@ public class ServerIF
     			if(index < chatResponses.length)
     				fireDataChanged(chatResponses[index], change.substring(chatResponses[index].length()));
     		}
-    		else if(change.contains("DBYEAR"))
+    		else if(change.contains("_DBYEAR") || change.contains("_USER"))
     		{
     			int index = 0;
-    			while(index < menuBarResponses.length && !change.startsWith(menuBarResponses[index]))
+    			while(index < unrestrictedResponses.length && !change.startsWith(unrestrictedResponses[index]))
     				index++;
     	
-    			if(index < menuBarResponses.length)
-    				fireDataChanged(menuBarResponses[index], change.substring(menuBarResponses[index].length()));
+    			if(index < unrestrictedResponses.length)
+    				fireDataChanged(unrestrictedResponses[index], change.substring(unrestrictedResponses[index].length()));
     		
     		}
     		else if(bDatabaseLoaded)
@@ -342,15 +342,15 @@ public class ServerIF
     			//all other change processing requires local data bases to be loaded from the server first
     			//otherwise we run the risk of updating data without a local copy present
     			int index = 0;
-    			while(index < dbResponses.length && !change.startsWith(dbResponses[index]))
+    			while(index < restrictedResponses.length && !change.startsWith(restrictedResponses[index]))
     				index++;
     	
-    			if(index < dbResponses.length)
+    			if(index < restrictedResponses.length)
     			{
     				String logEntry = String.format("Server IF.processChanges Event: %s, Message: %s",
-    						dbResponses[index], change.substring(dbResponses[index].length()).substring(0, 40));
+    						restrictedResponses[index], change.substring(restrictedResponses[index].length()).substring(0, 40));
     				LogDialog.add(logEntry, "S");
-    				fireDataChanged(dbResponses[index], change.substring(dbResponses[index].length()));
+    				fireDataChanged(restrictedResponses[index], change.substring(restrictedResponses[index].length()));
     			}
     		}
     	}
