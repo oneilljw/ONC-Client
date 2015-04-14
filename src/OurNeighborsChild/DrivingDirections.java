@@ -23,10 +23,11 @@ public class DrivingDirections
 		//Make request to Google Maps API to get Driving Directions, returns JSON
 	    StringBuffer response = new StringBuffer(4096);
 	    
-	    //Set the driving direction JSON request into a string
+	    //Set the driving direction JSON request into a string - April 2015 - Google Maps
+	    //API no loner requires the sensor parameter
 	    String stringUrl = "http://maps.googleapis.com/maps/api/directions/json?origin=" +
-	    		startAddress + "&destination=" + destAddress + "&sensor=false";
-	    
+    		startAddress + "&destination=" + destAddress; // + "&sensor=false";
+	 
 	    //Turn the string into a valid URL
 	    URL dirurl= null;
 		try {dirurl = new URL(stringUrl);} 
@@ -46,6 +47,8 @@ public class DrivingDirections
 	    			while ((strLine = input.readLine()) != null)
 					    response.append(strLine);					
 	    			input.close();
+	    			
+//	    			System.out.println(response.toString());
 				}
 	    	}
 		catch (IOException e1)
