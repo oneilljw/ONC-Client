@@ -241,7 +241,7 @@ public class ONCUserDialog extends JDialog implements ActionListener, ListSelect
 		
 		if(modelRow > -1)
 		{
-			btnEdit.setEnabled(true);
+//			btnEdit.setEnabled(true);	//not implemented yet
 			btnResetPW.setEnabled(true);
 		}
 		else
@@ -356,7 +356,7 @@ public class ONCUserDialog extends JDialog implements ActionListener, ListSelect
         	else if(col == PERMISSION_COL && currUser.getPermission() != (UserPermission) value)
         	{
         		reqUpdateUser = new ONCUser(currUser);	//make a copy
-        		reqUpdateUser.setPermission((UserPermission) getValueAt(row, PERMISSION_COL));
+        		reqUpdateUser.setPermission((UserPermission) value);
         	}
         	
         	//if the user made a change in the table, attempt to update the user object in
