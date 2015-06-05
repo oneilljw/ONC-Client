@@ -893,7 +893,7 @@ public class OurNeighborsChild implements DatabaseListener
 				
 				ChangePasswordRequest cpwReq = new ChangePasswordRequest(currUser.getID(),
 						currUser.getFirstname(), currUser.getLastname(),
-						pwInfo[0], pwInfo[1]);
+						ONCEncryptor.encrypt(pwInfo[0]), ONCEncryptor.encrypt(pwInfo[1]));
 				
 				if((result = oncUserDB.changePassword(this, cpwReq)).contains("changed"))
 					bPasswordChanged = true;
