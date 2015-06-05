@@ -51,7 +51,7 @@ public class OurNeighborsChild implements DatabaseListener
 	private static final int SERVER_CONNECT_RETRY_LIMIT = 3;
 	private static final int ONC_IMAGE_ICON_INDEX = 0;
 	private static final int ONC_SAVE_FILE = 1;	
-	private static final String ONC_VERSION = "2.40";
+	private static final String ONC_VERSION = "2.41";
 	private static final String ONC_COPYRIGHT = "\u00A92015 John W. O'Neill";	
 	private static final String APPNAME = "Our Neighbor's Child";
 	private static final int DB_UNLOCKED_IMAGE_INDEX = 17;
@@ -893,8 +893,8 @@ public class OurNeighborsChild implements DatabaseListener
 				
 				ChangePasswordRequest cpwReq = new ChangePasswordRequest(currUser.getID(),
 						currUser.getFirstname(), currUser.getLastname(),
-//						ONCEncryptor.encrypt(pwInfo[0]), ONCEncryptor.encrypt(pwInfo[1]));
-						pwInfo[0], pwInfo[1]);
+						ONCEncryptor.encrypt(pwInfo[0]), ONCEncryptor.encrypt(pwInfo[1]));
+//						pwInfo[0], pwInfo[1]);
 				
 				if((result = oncUserDB.changePassword(this, cpwReq)).contains("changed"))
 					bPasswordChanged = true;

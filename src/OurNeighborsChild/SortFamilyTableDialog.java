@@ -56,7 +56,7 @@ public abstract class SortFamilyTableDialog extends ChangeDialog
 		
 		if(fDB.sortDB(stAL, columns[col]))
 		{
-//			displaySortTable(stAL, false, tableRowSelectedObjectList);
+			displaySortTable(stAL, false, tableRowSelectedObjectList);
 			return col;
 		}
 		else
