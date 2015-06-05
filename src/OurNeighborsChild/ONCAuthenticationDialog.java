@@ -111,9 +111,14 @@ public class ONCAuthenticationDialog extends ONCConnectDialog
 //		ONCEncryptor.encrypt(tf1.getText());
 //		ONCEncryptor.encrypt(new String(passwdPF.getPassword()));
 		
-		Login loginReq = new Login(ONCEncryptor.encrypt(tf1.getText()),
-						  ONCEncryptor.encrypt(new String(passwdPF.getPassword())),
-						   GlobalVariables.getVersion());
+		//Encrypted
+//		Login loginReq = new Login(ONCEncryptor.encrypt(tf1.getText()),
+//						  ONCEncryptor.encrypt(new String(passwdPF.getPassword())),
+//						   GlobalVariables.getVersion());
+		//clear
+		Login loginReq = new Login(tf1.getText(),
+				  		  new String(passwdPF.getPassword()),
+				  		   GlobalVariables.getVersion());
 		
 //		Login loginReq = new Login(tf1.getText(), new String(passwdPF.getPassword()), GlobalVariables.getVersion());
 		
