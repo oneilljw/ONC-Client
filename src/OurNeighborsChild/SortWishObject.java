@@ -2,7 +2,7 @@ package OurNeighborsChild;
 
 import java.text.SimpleDateFormat;
 
-public class SortWishObject extends ONCSortObject
+public class SortWishObject extends ONCObject
 {
 	private static final int MAX_LABEL_LINE_LENGTH = 26;
 	private ONCFamily	 soFamily;
