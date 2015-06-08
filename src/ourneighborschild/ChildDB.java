@@ -186,16 +186,6 @@ public class ChildDB extends ONCDatabase
 		else
 			return childAL.get(index);
 	}
-		
-	public Integer findHighestID(ArrayList<ONCChild> list)
-	{
-		Integer hID = 0;
-		for(int i=0; i< list.size(); i++)
-			if(list.get(i).getID() > hID)
-				hID = list.get(i).getID();
-		
-		return hID;
-	}
 	
 	ArrayList<ONCChild> getChildren(int famid)
 	{

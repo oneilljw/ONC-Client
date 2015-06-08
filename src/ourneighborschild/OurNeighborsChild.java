@@ -69,17 +69,18 @@ public class OurNeighborsChild implements DatabaseListener
 
 	//Local Data Base Structures
 	private UserDB oncUserDB;
-	private Families oncFamDB;						//Holds ONC Family Database
-	private ChildDB oncChildDB;						//Holds ONC Child database
-	private ChildWishDB oncChildWishDB; 			//Holds ONC Child Wish database
-	private ONCAgents oncAgentDB;					//Holds ONC Agents
-	private ONCOrgs oncOrgDB;						//Holds ONC Partner Organizations
-	private ONCWishCatalog oncWishCat;				//Holds ONC Wish Catalog
-	private WishDetailDB oncWishDetailDB;			//Holds ONC Wish Detail Data Base
-	private DriverDB oncDDB;						//Holds the ONC Driver Data Base
-	private DeliveryDB oncDelDB;					//Holds the ONC Delivery Data Base
+	private Families oncFamDB;				//Holds ONC Family Database
+	private ChildDB oncChildDB;				//Holds ONC Child database
+	private ChildWishDB oncChildWishDB; 	//Holds ONC Child Wish database
+	private ONCAgents oncAgentDB;			//Holds ONC Agents
+	private ONCOrgs oncOrgDB;				//Holds ONC Partner Organizations
+	private ONCWishCatalog oncWishCat;		//Holds ONC Wish Catalog
+	private WishDetailDB oncWishDetailDB;	//Holds ONC Wish Detail Data Base
+	private DriverDB oncDDB;				//Holds the ONC Driver Data Base
+	private DeliveryDB oncDelDB;			//Holds the ONC Delivery Data Base
 	private ONCRegions oncRegions;
-	private DBStatusDB oncDB;						//Holds the years loaded on the server
+	private DBStatusDB oncDB;				//Holds the years loaded on the server
+	private MealDB oncMealDB;				//Holds ONC Meal database
 	
 	//Server Connection
 	private ServerIF serverIF;	
@@ -207,6 +208,7 @@ public class OurNeighborsChild implements DatabaseListener
         oncDelDB = DeliveryDB.getInstance();
         oncChildDB = ChildDB.getInstance();
         oncChildWishDB = ChildWishDB.getInstance();
+        oncMealDB = MealDB.getInstance();
         oncFamDB = Families.getInstance();
         oncDB = DBStatusDB.getInstance();
         
@@ -1102,6 +1104,8 @@ public class OurNeighborsChild implements DatabaseListener
 //			this.setProgress(progress += increment);
 			pb.updateHeaderText("Loading Families");
 			oncFamDB.importDB();
+			pb.updateHeaderText("Loading Meals");
+			oncMealDB.importDB();
 			this.setProgress(progress += increment);
 			pb.updateHeaderText("Loading Children");
 			oncChildDB.importChildDatabase();
@@ -1121,7 +1125,7 @@ public class OurNeighborsChild implements DatabaseListener
 			pb.updateHeaderText("Loading Deliveries");
 			oncDelDB.importDeliveryDatabase();
 			this.setProgress(progress += increment);
-			pb.updateHeaderText("Loading Wish Catalog");
+			pb.updateHeaderText("Loading Catalog");
 			oncWishCat.importWishCatalogFromServer();
 			this.setProgress(progress += increment);
 			oncWishDetailDB.importWishDetailDatabase();
