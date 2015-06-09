@@ -44,6 +44,7 @@ public class ONCFamily extends ONCEntity
 	private String		AdoptedFor;
 	private int			agentID;
 	private int			deliveryID;
+	private int 		mealID;
 	
 	
 	//constructor used to make a copy for server update requests
@@ -83,6 +84,7 @@ public class ONCFamily extends ONCEntity
 		AdoptedFor = f.AdoptedFor;
 		agentID = f.agentID;
 		deliveryID = f.deliveryID;
+		mealID = f.mealID;
 	}
 	//Overloaded Constructor - 30 column input from ODB file
 		ONCFamily(String RAName, String RAOrg, String RATitle, String ClientFam, String HOH, String FamMembers,
@@ -121,6 +123,7 @@ public class ONCFamily extends ONCEntity
 			AdoptedFor = AdoptFor;
 			agentID = agentid;
 			deliveryID = -1;
+			mealID = -1;
 
 			newGetHOHName(HOH);					//Populate the HOH info
 			parsePhoneData(ClientFamPhone);		//Populate Home and Other phone fields
@@ -165,6 +168,7 @@ public class ONCFamily extends ONCEntity
 		AdoptedFor = AdoptFor;
 		agentID = agentid;
 		deliveryID = -1;
+		mealID = -1;
 		
 		newGetHOHName(HOH);
 //		getPhones(ClientFamPhone);
@@ -208,6 +212,7 @@ public class ONCFamily extends ONCEntity
 		ODBWishList = Wishlist;
 		agentID = agentid;
 		deliveryID = -1;
+		mealID = -1;
 
 		newGetHOHName(HOH);
 		parsePhoneData(ClientFamPhone);
@@ -251,6 +256,7 @@ public class ONCFamily extends ONCEntity
 			AdoptedFor = AdoptFor;
 			agentID = agentid;
 			deliveryID = -1;
+			mealID = -1;
 
 			parseHOH(HOH);
 			parsePhoneData(ClientFamPhone);
@@ -294,8 +300,9 @@ public class ONCFamily extends ONCEntity
 		AdoptedFor = getDBString(nextLine[30]);
 		agentID = Integer.parseInt(nextLine[31]);
 		deliveryID = Integer.parseInt(nextLine[32]);
-		nBags = Integer.parseInt(nextLine[33]);
-		nLargeItems = Integer.parseInt(nextLine[34]);
+		mealID = Integer.parseInt(nextLine[33]);
+		nBags = Integer.parseInt(nextLine[34]);
+		nLargeItems = Integer.parseInt(nextLine[35]);
 //		slPos = Integer.parseInt(nextLine[35]);
 //		slMssg = getDBString(nextLine[36]);
 //		slChangedBy = getDBString(nextLine[37]);
@@ -341,6 +348,7 @@ public class ONCFamily extends ONCEntity
 		this.AdoptedFor = "";
 		this.agentID = agentID;
 		this.deliveryID = -1;
+		this.mealID = -1;
 	}
 	
 	String getDBString(String s)
@@ -681,6 +689,7 @@ public class ONCFamily extends ONCEntity
 	public String	getAdoptedFor() {return AdoptedFor;}	
 	public int		getAgentID() { return agentID; }
 	public int		getDeliveryID() { return deliveryID; }
+	public int		getMealID() { return mealID; }
 
 	//Setters
 	public void setONCNum(String s) { oncNum = s;}
@@ -715,6 +724,7 @@ public class ONCFamily extends ONCEntity
 	public void setAdoptedFor(String s) { AdoptedFor = s;}
 	public void setAgentID(int  aid) { agentID = aid; }
 	public void setDeliveryID(int did) { deliveryID = did; }
+	public void setMealID(int id) { mealID = id; }
 	
 	public String getGoogleMapAddress()
 	{
@@ -798,6 +808,7 @@ public class ONCFamily extends ONCEntity
 		row[index++] = 	getAdoptedFor();
 		row[index++] = 	Integer.toString(getAgentID());
 		row[index++] = 	Integer.toString(getDeliveryID());
+		row[index++] =  Integer.toString(getMealID());
 		row[index++] = 	Integer.toString(getNumOfBags());
 		row[index++] = 	Integer.toString(getNumOfLargeItems());
 		row[index++] = 	Integer.toString(getStoplightPos());

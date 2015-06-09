@@ -33,6 +33,8 @@ import javax.swing.ListSelectionModel;
 import javax.swing.UIManager;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.plaf.ButtonUI;
+import javax.swing.plaf.basic.BasicButtonUI;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
@@ -62,6 +64,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private DeliveryDB deliveryDB;
 	private ONCRegions regions;
 	private ONCAgents agentDB;
+	private MealDB mealDB;
 	
 	private ONCFamily currFam;	//The panel needs to know which family is being displayed
 	private ONCChild currChild;	//The panel needs to know which child is being displayed
@@ -75,7 +78,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private JTextPane HomePhone, OtherPhone;
 	public  JButton btnAssignONCNum;
 	private JButton btnShowPriorHistory, btnShowAllPhones, btnShowODBDetails; 
-	private JButton btnShowAgentInfo, btnShowDeliveryStatus;
+	private JButton btnShowAgentInfo, btnMeals;
 	private JTextField oncDNScode;
 	private JTextField HOHFirstName, HOHLastName, EMail;
 	private JTextField housenumTF, Street, Unit, City, ZipCode;
@@ -133,6 +136,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		agentDB = ONCAgents.getInstance();
 		deliveryDB = DeliveryDB.getInstance();
 		regions = ONCRegions.getInstance();
+		mealDB = MealDB.getInstance();
 		
 		currFam = null;
 //		cn=0;	//Initialize the child index
@@ -336,10 +340,12 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         btnShowODBDetails.setEnabled(false);
         btnShowODBDetails.addActionListener(this);
         
-        btnShowDeliveryStatus = new JButton("Delivery Status");
-        btnShowDeliveryStatus.setToolTipText("Click to see status of ONC's delivery to this family");
-        btnShowDeliveryStatus.setEnabled(false);
-        btnShowDeliveryStatus.addActionListener(this);
+        btnMeals = new JButton("Meal Assist");
+        btnMeals.setToolTipText("Click for family food assistnace status");
+//        btnMeals.setUI((ButtonUI) BasicButtonUI.createUI(btnMeals));
+//        btnMeals.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        btnMeals.setEnabled(false);
+        btnMeals.addActionListener(this);
         
         //Set up the Child Table
         childTable = new JTable()
@@ -686,7 +692,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         p5.add(btnShowAllPhones);
         p5.add(btnShowODBDetails);
         p5.add(btnShowAgentInfo);
-//      p5.add(btnShowDeliveryStatus);
+        p5.add(btnMeals);
         
         this.add(nav);
         this.add(p1);
@@ -943,6 +949,31 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 				btnShowODBDetails.setEnabled(false);
 			else
 				btnShowODBDetails.setEnabled(true);
+			
+			if(currFam.getMealID() > -1)
+			{
+				ONCMeal famMeal = mealDB.getMeal(currFam.getMealID());
+				btnMeals.setEnabled(true);
+				if(famMeal.getStatus() == 0)	//meal not referrred yet
+				{
+					btnMeals.setBackground(Color.YELLOW);
+//					btnMeals.setBorderPainted(false);
+					btnMeals.setOpaque(true);
+				}
+				else
+				{
+					btnMeals.setBackground(pBkColor);
+//					btnMeals.setBorderPainted(true);
+					btnMeals.setOpaque(false);
+				}
+			}
+			else
+			{
+				btnMeals.setEnabled(false);
+				btnMeals.setBackground(pBkColor);
+//				btnMeals.setBorderPainted(true);
+				btnMeals.setOpaque(false);
+			}
 		}
 		else	//restricted viewing user
 		{

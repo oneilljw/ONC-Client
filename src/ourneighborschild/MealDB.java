@@ -26,10 +26,10 @@ public class MealDB extends ONCDatabase
 		return instance;
 	}
 	
-	ONCMeal getMeal(int famID)
+	ONCMeal getMeal(int id)
 	{
 		int index = 0;
-		while(index < mealList.size() && mealList.get(index).getFamilyID() != famID)
+		while(index < mealList.size() && mealList.get(index).getID() != id)
 			index++;
 		
 		if(index == mealList.size())
