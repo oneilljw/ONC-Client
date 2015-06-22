@@ -80,6 +80,7 @@ public class OurNeighborsChild implements DatabaseListener
 	private DeliveryDB oncDelDB;			//Holds the ONC Delivery Data Base
 	private ONCRegions oncRegions;
 	private DBStatusDB oncDB;				//Holds the years loaded on the server
+	private AdultDB oncAdultDB;				//Holds ONC Adult database
 	private MealDB oncMealDB;				//Holds ONC Meal database
 	
 	//Server Connection
@@ -208,6 +209,7 @@ public class OurNeighborsChild implements DatabaseListener
         oncDelDB = DeliveryDB.getInstance();
         oncChildDB = ChildDB.getInstance();
         oncChildWishDB = ChildWishDB.getInstance();
+        oncAdultDB = AdultDB.getInstance();
         oncMealDB = MealDB.getInstance();
         oncFamDB = Families.getInstance();
         oncDB = DBStatusDB.getInstance();
@@ -1070,7 +1072,7 @@ public class OurNeighborsChild implements DatabaseListener
      **************************************************************************************************/
     public class ONCServerDBImporter extends SwingWorker<Void, Void>
     {
-    	private static final int NUM_OF_DBs = 11;
+    	private static final int NUM_OF_DBs = 13;
     	String year;
     	ONCProgressBar pb;
     	boolean bServerDataLoaded;
@@ -1104,6 +1106,8 @@ public class OurNeighborsChild implements DatabaseListener
 //			this.setProgress(progress += increment);
 			pb.updateHeaderText("Loading Families");
 			oncFamDB.importDB();
+			pb.updateHeaderText("Loading Adults");
+			oncAdultDB.importDB();
 			pb.updateHeaderText("Loading Meals");
 			oncMealDB.importDB();
 			this.setProgress(progress += increment);

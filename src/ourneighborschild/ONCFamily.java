@@ -268,7 +268,7 @@ public class ONCFamily extends ONCEntity
 	public ONCFamily(String[] nextLine)
 	{
 		super(Integer.parseInt(nextLine[0]), new Date(), nextLine[10], 
-				Integer.parseInt(nextLine[35]), nextLine[36], nextLine[37]);
+				Integer.parseInt(nextLine[36]), nextLine[37], nextLine[38]);
 		oncNum = getDBString(nextLine[1]);
 		region = Integer.parseInt(nextLine[2]);
 		ODBFamilyNum = getDBString(nextLine[3]);
@@ -303,9 +303,9 @@ public class ONCFamily extends ONCEntity
 		mealID = Integer.parseInt(nextLine[33]);
 		nBags = Integer.parseInt(nextLine[34]);
 		nLargeItems = Integer.parseInt(nextLine[35]);
-//		slPos = Integer.parseInt(nextLine[35]);
-//		slMssg = getDBString(nextLine[36]);
-//		slChangedBy = getDBString(nextLine[37]);
+//		slPos = Integer.parseInt(nextLine[36]);
+//		slMssg = getDBString(nextLine[37]);
+//		slChangedBy = getDBString(nextLine[38]);
 	}
 	
 	//Overloaded Constructor - Direct Intake Processing

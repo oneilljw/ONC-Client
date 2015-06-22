@@ -53,6 +53,7 @@ public class Stoplight extends JPanel implements ActionListener, DatabaseListene
 	
 	void set(int pos, String mssg)
 	{
+//		System.out.println(String.format("Stoplight.set: pos= %d, mssg= %s", pos, mssg));
 		if(pos >= 0 && pos < 4)
 			rb.setIcon(gvs.getImageIcon(pos+5));
 		else

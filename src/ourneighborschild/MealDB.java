@@ -125,7 +125,7 @@ public class MealDB extends ONCDatabase
 	 * This method is called when the user requests to delete a meal. The first step in deletion
 	 * is to confirm with the user that they intended to delete the meal. 
 	 **********************************************************************************************************/
-	void delete(Object source, ONCChild reqDelMeal)
+	void delete(Object source, ONCMeal reqDelMeal)
 	{
 		String response = "";
 		if(serverIF != null && serverIF.isConnected())

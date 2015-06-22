@@ -15,28 +15,31 @@ public class ONCMeal extends ONCEntity
 	protected MealType type;
 	protected String dietaryRestrictions;
 	protected int status;
+	protected int partnerID;
 	
 	public ONCMeal(int id, int famID, int status, MealType type, String restrictions, 
-			String changedBy, Date today, int slpos, String slmssg, String slchgby)
+			int partnerID, String changedBy, Date today, int slpos, String slmssg, String slchgby)
 	{
 		super(id, today, changedBy, slpos, slmssg, slchgby);
 		this.famID = famID;
 		this.status = status;
 		this.type = type;
 		this.dietaryRestrictions = restrictions;
+		this.partnerID = partnerID;
 	}
 	
 	//Constructor for wish created or changed internally		
 	public ONCMeal(String[] nextLine)
 	{
-		super(Integer.parseInt(nextLine[0]), Long.parseLong(nextLine[6]),
-				nextLine[5].isEmpty() ? "" : nextLine[7], Integer.parseInt(nextLine[7]),
-				nextLine[8].isEmpty() ? "" : nextLine[8], nextLine[9].isEmpty() ? "" : nextLine[9]);
+		super(Integer.parseInt(nextLine[0]), Long.parseLong(nextLine[7]),
+				nextLine[6].isEmpty() ? "" : nextLine[6], Integer.parseInt(nextLine[8]),
+				nextLine[9].isEmpty() ? "" : nextLine[9], nextLine[10].isEmpty() ? "" : nextLine[10]);
 		
 		famID = Integer.parseInt(nextLine[1]);
 		type = MealType.valueOf(nextLine[2]);
 		status = Integer.parseInt(nextLine[3]);
-		dietaryRestrictions = nextLine[4].isEmpty() ? "" : nextLine[4];
+		partnerID = Integer.parseInt(nextLine[4]);
+		dietaryRestrictions = nextLine[5].isEmpty() ? "" : nextLine[4];
 	}
 	
 	//getters
