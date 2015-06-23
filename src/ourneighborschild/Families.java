@@ -38,11 +38,13 @@ public class Families extends ONCSearchableDatabase
 	private static final int ONC_OPEN_FILE = 0;
 	private static final int ONC_REBASELINE_REGION_MARGIN = 5;
 	private static final int NUMBER_OF_WISHES_PER_CHILD = 3;
+	private static final String ODB_FAMILY_MEMBER_COLUMN_SEPARATOR = " - ";
 	
 	private static Families instance = null;
 	private ArrayList<ONCFamily> oncFamAL;	//The list of families
 	private int[] oncnumRegionRanges;		//Holds starting ONC number for each region
 	private ChildDB childDB;
+	private AdultDB adultDB;
 	private ChildWishDB childwishDB;
 	private ONCAgents oncAgentDB;
 	private DriverDB driverDB;
@@ -54,6 +56,7 @@ public class Families extends ONCSearchableDatabase
 		//Instantiate the organization and confirmed organization lists
 		super();
 		childDB = ChildDB.getInstance();
+		adultDB = AdultDB.getInstance();
 		childwishDB = ChildWishDB.getInstance();
 		driverDB = DriverDB.getInstance();
 		deliveryDB = DeliveryDB.getInstance();
@@ -389,7 +392,7 @@ public class Families extends ONCSearchableDatabase
 	    					
 	    					//if family add was successful, add children to child data base
 	    					if(addedFam != null)
-	    						addFamiliesChildren(addedFam.getID(), nextLine[6]);	
+	    						addFamiliesChildrenAndAdults(addedFam.getID(), nextLine[6]);	
 
 	    				}
 	    				
@@ -549,23 +552,39 @@ public class Families extends ONCSearchableDatabase
 	}
 */	
 	/***
-	 * This method forms an add child request and send it to the server via
-	 * the local child data base.
+	 * Adults associated with a family are stored in the Adult data base. Children associated
+	 * with a family are stored in the Child database. This method forms add adult and add 
+	 * child requests and send them to the server via the local adult or child data base.
+	 * Adults and children are located by family ID.
 	 */
-	void addFamiliesChildren(int famid, String fm)
+	void addFamiliesChildrenAndAdults(int famid, String fm)
 	{
 		String[] members = fm.split("\n");
 		
 		for(int i=0; i<members.length; i++)
-			if(!members[i].contains("Adult") && !members[i].contains("adult"))
+		{
+			if(members[i].toLowerCase().contains("adult"))
 			{
-				//crate the add child requst object
+				//crate the add adult request object
+				String[] adult = members[i].split(ODB_FAMILY_MEMBER_COLUMN_SEPARATOR, 3);
+				if(adult.length == 3)
+				{
+					ONCAdult reqAddAdult = new ONCAdult(-1, famid, adult[0], adult[1]);
+				
+					//interact with the server to add the adult
+					adultDB.add(this, reqAddAdult);
+				}
+			}
+			else
+			{
+				//crate the add child request object
 				ONCChild reqAddChild = new ONCChild(-1, famid, members[i],
 													GlobalVariables.getCurrentSeason());
 				
 				//interact with the server to add the child
 				childDB.add(this, reqAddChild);
 			}
+		}
 		
 //		//Sort the families children by age and set the child number for each child in the family
 //		childDB.assignChildNumbers(famid);	

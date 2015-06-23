@@ -84,13 +84,13 @@ public abstract class DependantTableDialog extends SortTableDialog
            
         //Set up the family table panel
         String[] colTT = {"ONC Family Number", "Batch Number", "Do Not Serve Code", 
-					"Family Status", "Delivery Status", "Head of Household First Name", 
+					"Family Status", "Delivery Status", "Meal Status", "Head of Household First Name", 
 					"Head of Household Last Name", "House Number","Street", "Unit",
 					"Zip Code", "Region","Changed By", "Stoplight Color"};
         
         familyTable = new ONCTable(colTT, new Color(240,248,255));
 
-      	final String[] ftcolumns = {"ONC", "Batch #", "DNS", "Fam Status", "Del Status", "First", "Last", "House",
+      	final String[] ftcolumns = {"ONC", "Batch #", "DNS", "Fam Status", "Del Status", "Meal Status", "First", "Last", "House",
       							"Street", "Unit", "Zip", "Reg", "Changed By", "SL"};
       	familyTableModel = new DefaultTableModel(ftcolumns, 0)
         {
@@ -109,7 +109,7 @@ public abstract class DependantTableDialog extends SortTableDialog
               
       	//Set table column widths
       	int familytablewidth = 0;
-      	int[] familycolWidths = {32, 48, 48, 72, 72, 72, 72, 48, 128, 56, 48, 28, 72, 24};
+      	int[] familycolWidths = {32, 48, 48, 72, 72, 72, 72, 72, 48, 128, 56, 48, 28, 72, 24};
       	for(int i=0; i < familycolWidths.length; i++)
       	{
       	  	familyTable.getColumnModel().getColumn(i).setPreferredWidth(familycolWidths[i]);
@@ -210,37 +210,38 @@ public abstract class DependantTableDialog extends SortTableDialog
 	{
 //		GlobalVariables gvs = GlobalVariables.getInstance();
 		
-		Object[] familytablerow = new Object[14];
+		Object[] familytablerow = new Object[15];
 		
 		familytablerow[0] = f.getONCNum(); 
 		familytablerow[1] = f.getBatchNum();
 		familytablerow[2] = f.getDNSCode();
 		familytablerow[3] = famstatus[f.getFamilyStatus()+1];
 		familytablerow[4] = delstatus[f.getDeliveryStatus()+1];
+		familytablerow[5] = f.getMealStatus().toString();
 		
 		if(gvs.getUser().getPermission().compareTo(UserPermission.GENERAL) > 0)
 		{
-			familytablerow[5] = f.getHOHFirstName();
-			familytablerow[6] = f.getHOHLastName();
-			familytablerow[7] = f.getHouseNum();
-			familytablerow[8] = f.getStreet();
-			familytablerow[9] = f.getUnitNum();
-			familytablerow[10] = f.getZipCode();
+			familytablerow[6] = f.getHOHFirstName();
+			familytablerow[7] = f.getHOHLastName();
+			familytablerow[8] = f.getHouseNum();
+			familytablerow[9] = f.getStreet();
+			familytablerow[10] = f.getUnitNum();
+			familytablerow[11] = f.getZipCode();
 		}
 		else
 		{
-			familytablerow[5] = "";
 			familytablerow[6] = "";
 			familytablerow[7] = "";
 			familytablerow[8] = "";
 			familytablerow[9] = "";
 			familytablerow[10] = "";
+			familytablerow[11] = "";
 		}
 		
-		familytablerow[11] = regions.getRegionID(f.getRegion());
-		familytablerow[12] = f.getChangedBy();
+		familytablerow[12] = regions.getRegionID(f.getRegion());
+		familytablerow[13] = f.getChangedBy();
 //		familytablerow[13] = stoplt[f.getStoplightPos()+1].substring(0,1);
-		familytablerow[13] = gvs.getImageIcon(23 + f.getStoplightPos());
+		familytablerow[14] = gvs.getImageIcon(23 + f.getStoplightPos());
 			
 		return familytablerow;
 	}

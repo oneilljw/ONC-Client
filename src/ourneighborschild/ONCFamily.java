@@ -45,6 +45,7 @@ public class ONCFamily extends ONCEntity
 	private int			agentID;
 	private int			deliveryID;
 	private int 		mealID;
+	private MealStatus  mealStatus;
 	
 	
 	//constructor used to make a copy for server update requests
@@ -85,6 +86,7 @@ public class ONCFamily extends ONCEntity
 		agentID = f.agentID;
 		deliveryID = f.deliveryID;
 		mealID = f.mealID;
+		mealStatus = f.mealStatus;
 	}
 	//Overloaded Constructor - 30 column input from ODB file
 		ONCFamily(String RAName, String RAOrg, String RATitle, String ClientFam, String HOH, String FamMembers,
@@ -124,6 +126,7 @@ public class ONCFamily extends ONCEntity
 			agentID = agentid;
 			deliveryID = -1;
 			mealID = -1;
+			mealStatus = MealStatus.None;
 
 			newGetHOHName(HOH);					//Populate the HOH info
 			parsePhoneData(ClientFamPhone);		//Populate Home and Other phone fields
@@ -169,6 +172,7 @@ public class ONCFamily extends ONCEntity
 		agentID = agentid;
 		deliveryID = -1;
 		mealID = -1;
+		mealStatus = MealStatus.None;
 		
 		newGetHOHName(HOH);
 //		getPhones(ClientFamPhone);
@@ -213,6 +217,7 @@ public class ONCFamily extends ONCEntity
 		agentID = agentid;
 		deliveryID = -1;
 		mealID = -1;
+		mealStatus = MealStatus.None;
 
 		newGetHOHName(HOH);
 		parsePhoneData(ClientFamPhone);
@@ -257,6 +262,7 @@ public class ONCFamily extends ONCEntity
 			agentID = agentid;
 			deliveryID = -1;
 			mealID = -1;
+			mealStatus = MealStatus.None;
 
 			parseHOH(HOH);
 			parsePhoneData(ClientFamPhone);
@@ -268,7 +274,7 @@ public class ONCFamily extends ONCEntity
 	public ONCFamily(String[] nextLine)
 	{
 		super(Integer.parseInt(nextLine[0]), new Date(), nextLine[10], 
-				Integer.parseInt(nextLine[36]), nextLine[37], nextLine[38]);
+				Integer.parseInt(nextLine[37]), nextLine[38], nextLine[39]);
 		oncNum = getDBString(nextLine[1]);
 		region = Integer.parseInt(nextLine[2]);
 		ODBFamilyNum = getDBString(nextLine[3]);
@@ -301,11 +307,12 @@ public class ONCFamily extends ONCEntity
 		agentID = Integer.parseInt(nextLine[31]);
 		deliveryID = Integer.parseInt(nextLine[32]);
 		mealID = Integer.parseInt(nextLine[33]);
-		nBags = Integer.parseInt(nextLine[34]);
-		nLargeItems = Integer.parseInt(nextLine[35]);
-//		slPos = Integer.parseInt(nextLine[36]);
-//		slMssg = getDBString(nextLine[37]);
-//		slChangedBy = getDBString(nextLine[38]);
+		mealStatus = MealStatus.valueOf(nextLine[34]);
+		nBags = Integer.parseInt(nextLine[35]);
+		nLargeItems = Integer.parseInt(nextLine[36]);
+//		slPos = Integer.parseInt(nextLine[37]);
+//		slMssg = getDBString(nextLine[38]);
+//		slChangedBy = getDBString(nextLine[39]);
 	}
 	
 	//Overloaded Constructor - Direct Intake Processing
@@ -349,6 +356,7 @@ public class ONCFamily extends ONCEntity
 		this.agentID = agentID;
 		this.deliveryID = -1;
 		this.mealID = -1;
+		mealStatus = MealStatus.None;
 	}
 	
 	String getDBString(String s)
@@ -690,6 +698,7 @@ public class ONCFamily extends ONCEntity
 	public int		getAgentID() { return agentID; }
 	public int		getDeliveryID() { return deliveryID; }
 	public int		getMealID() { return mealID; }
+	public MealStatus getMealStatus() { return mealStatus; }
 
 	//Setters
 	public void setONCNum(String s) { oncNum = s;}
@@ -725,6 +734,7 @@ public class ONCFamily extends ONCEntity
 	public void setAgentID(int  aid) { agentID = aid; }
 	public void setDeliveryID(int did) { deliveryID = did; }
 	public void setMealID(int id) { mealID = id; }
+	public void setMealStatus(MealStatus ms) { mealStatus = ms; }
 	
 	public String getGoogleMapAddress()
 	{
@@ -772,7 +782,7 @@ public class ONCFamily extends ONCEntity
 	@Override
 	public String[] getExportRow()
 	{
-		String[] row = new String[38];
+		String[] row = new String[40];
 		int index = 0;
 		
 		row[index++] = 	Integer.toString(getID());
@@ -809,6 +819,7 @@ public class ONCFamily extends ONCEntity
 		row[index++] = 	Integer.toString(getAgentID());
 		row[index++] = 	Integer.toString(getDeliveryID());
 		row[index++] =  Integer.toString(getMealID());
+		row[index++] =  getMealStatus().toString();
 		row[index++] = 	Integer.toString(getNumOfBags());
 		row[index++] = 	Integer.toString(getNumOfLargeItems());
 		row[index++] = 	Integer.toString(getStoplightPos());

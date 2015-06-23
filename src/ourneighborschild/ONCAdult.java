@@ -15,7 +15,7 @@ public class ONCAdult extends ONCObject
 	}
 	
 	//Constructor used when importing data base from CSV by the server
-	public ONCAdult(String [] nextLine)
+	public ONCAdult(String[] nextLine)
 	{
 		super(Integer.parseInt(nextLine[0]));
 		this.famid = Integer.parseInt(nextLine[1]);

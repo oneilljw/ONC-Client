@@ -11,7 +11,6 @@ import java.awt.event.MouseListener;
 import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -63,6 +62,9 @@ public class WishPanel extends ONCPanel implements ActionListener, DatabaseListe
 		
 		if(fDB != null)
 			fDB.addDatabaseListener(this);
+		
+		if(cDB != null)
+			cDB.addDatabaseListener(this);
 		
 		cwDB = ChildWishDB.getInstance();
 		if(cwDB != null)
@@ -566,6 +568,20 @@ public class WishPanel extends ONCPanel implements ActionListener, DatabaseListe
 						dbe.getType(), updatedFam.getONCNum(), updatedFam.getFamilyStatus());
 				LogDialog.add(logEntry, "M");
 				setEnabledWish(updatedFam);
+			}
+		}
+		else if(dbe.getSource() != this && dbe.getType().equals("DELETED_CHILD"))
+		{
+			ONCChild delChild = (ONCChild) dbe.getObject();
+			
+			if(delChild != null && delChild.getID()  == child.getID())
+			{
+				//current childwish displayed belongs to deleted child, clear the panel
+				String logEntry = String.format("WishPanel Event: %s, Child: %s %s",
+						dbe.getType(), delChild.getChildFirstName(), delChild.getChildLastName());
+				LogDialog.add(logEntry, "M");
+				clearWish();
+				wpStatus = WishPanelStatus.Disabled;
 			}
 		}
 		else if(dbe.getSource() != this && (dbe.getType().equals("ADDED_CONFIRMED_PARTNER") ||

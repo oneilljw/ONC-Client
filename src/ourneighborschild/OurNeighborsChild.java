@@ -555,6 +555,7 @@ public class OurNeighborsChild implements DatabaseListener
         ONCMenuBar.oncPrefrencesMI.addActionListener(menuItemListener);
         ONCMenuBar.userMI.addActionListener(menuItemListener);
         ONCMenuBar.newChildMI.addActionListener(menuItemListener);
+        ONCMenuBar.markAdultMI.addActionListener(menuItemListener);
         ONCMenuBar.delChildMI.addActionListener(menuItemListener);
         ONCMenuBar.onlineMI.addActionListener(menuItemListener);
         ONCMenuBar.chatMI.addActionListener(menuItemListener);
@@ -1037,6 +1038,7 @@ public class OurNeighborsChild implements DatabaseListener
 //    		}
     		else if(e.getSource() == ONCMenuBar.delChildMI) { oncFamilyPanel.deleteChild(); }
     		else if(e.getSource() == ONCMenuBar.newChildMI) { oncFamilyPanel.onAddNewChildClicked(); }
+    		else if(e.getSource() == ONCMenuBar.markAdultMI) { oncFamilyPanel.markChildAsAdult(); }
     		else if(e.getSource() == ONCMenuBar.onlineMI) { onWhoIsOnline(); }
     		else if(e.getSource() == ONCMenuBar.chatMI) { onChat(); }
     		else if(e.getSource() == ONCMenuBar.changePWMI) { changePassword(); }

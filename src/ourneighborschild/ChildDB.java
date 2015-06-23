@@ -82,9 +82,9 @@ public class ChildDB extends ONCDatabase
 	 * family objects child array list, the method checks for wish assignees and, if any, removes the child's
 	 * assigned ornament count prior to removal from the child array list. 
 	 **********************************************************************************************************/
-	void delete(Object source, ONCChild reqDelChild)
+	String delete(Object source, ONCChild reqDelChild)
 	{
-		String response = "";
+		String response = null;
 		if(serverIF != null && serverIF.isConnected())
 		{
 			Gson gson = new Gson();
@@ -92,9 +92,11 @@ public class ChildDB extends ONCDatabase
 			response = serverIF.sendRequest("POST<delete_child>" + gson.toJson(reqDelChild, ONCChild.class));		
 			
 			//if the server added the child,  add the new child to the data base and notify ui's
-			if(response.startsWith("DELETED_CHILD"))		
+			if(response.startsWith("DELETED_CHILD"))
 				processDeletedChild(source, response.substring(13));
 		}
+		
+		return response;
 	}
 	
 	void processDeletedChild(Object source, String json)

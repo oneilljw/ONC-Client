@@ -319,20 +319,17 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 			ONCChildWish replWish = (ONCChildWish) wbc.getReplacedWish();
 			ONCChildWish addedWish = (ONCChildWish) wbc.getAddedWish();
 			
-			String logEntry = String.format("WishCatalog Event: %s, -- Wish ID: %d, ++ Wish ID: %d",
-					dbe.getType(), replWish.getWishID(), addedWish.getWishID());
-			LogDialog.add(logEntry, "M");
+			if(replWish != null && addedWish != null)
+			{
+				String logEntry = String.format("WishCatalog Event: %s, -- Wish ID: %d, ++ Wish ID: %d",
+						dbe.getType(), replWish.getWishID(), addedWish.getWishID());
+				LogDialog.add(logEntry, "M");
+			}
 			
-			//get row of decremented wish from catalog and update table
-			int row;
-			if(replWish != null &&  replWish.getWishID() > -1 &&
-				(row = cat.findModelIndexFromID(replWish.getWishID())) > -1)
-				wcTableModel.fireTableCellUpdated(row, WISH_COUNT_COL);
-			
-			//get row  of incremented wish from catalog and update
-			if(addedWish != null && addedWish.getWishID() > -1  &&
-				(row = cat.findModelIndexFromID(addedWish.getWishID())) > -1)
-				wcTableModel.fireTableCellUpdated(row, WISH_COUNT_COL);
+			//update table
+			if(replWish != null &&  replWish.getWishID() > -1 || 
+					addedWish != null && addedWish.getWishID() > -1)
+					wcTableModel.fireTableDataChanged();
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("ADDED_CATALOG_WISH"))
 		{

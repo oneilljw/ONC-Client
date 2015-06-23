@@ -1,14 +1,10 @@
 package ourneighborschild;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.ImageIcon;
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import javax.swing.event.ListSelectionEvent;
-import javax.swing.table.AbstractTableModel;
 
 public abstract class SortFamilyTableDialog extends ChangeDialog
 {

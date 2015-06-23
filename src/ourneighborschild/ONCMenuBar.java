@@ -24,7 +24,7 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 //	public static JMenuItem compODBtoONCfamMI, compODBtoONCdataMI, compWFCMtoONCfamMI, compWFCMtoONCdataMI;
 	public static JMenuItem findDupFamsMI, findDupChldrnMI;
 	public static JMenuItem assignDelMI, editDelMI, manageDelMI, importDrvrMI, mapsMI, delstatusMI, distMI;
-	public static JMenuItem newFamMI, changeONCMI, delFamMI, newChildMI, delChildMI;
+	public static JMenuItem newFamMI, changeONCMI, delFamMI, newChildMI, delChildMI, markAdultMI;
 	public static JMenu submenuImport, submenuFamilyDataChecks;
 	public static JMenu submenuExport, submenuCompareData, submenuDatabase;
 	public static JMenuItem viewDBMI, sortWishesMI, sortFamiliesMI, sortOrgsMI, recGiftsMI;
@@ -157,6 +157,10 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 	    newChildMI = new JMenuItem("Add New Child");
 	    newChildMI.setEnabled(false);
 	    menuFamilies.add(newChildMI);
+	    
+	    markAdultMI = new JMenuItem("Mark Child as Adult");
+	    markAdultMI.setEnabled(false);
+	    menuFamilies.add(markAdultMI);
 	    
 	    delChildMI = new JMenuItem("Delete Child");
 	    delChildMI.setEnabled(false);
@@ -330,6 +334,7 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 		submenuExport.setEnabled(tf);
 		changeONCMI.setEnabled(tf);
 		sortFamiliesMI.setEnabled(tf);
+		markAdultMI.setEnabled(tf);
 		delChildMI.setEnabled(tf);
 		newChildMI.setEnabled(tf);
 		importCallResultMI.setEnabled(tf);
@@ -369,7 +374,11 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 	void setEnabledNewMenuItem(boolean tf) { newMI.setEnabled(tf); }
 	void setEnabledPriorYearSpecialImport(boolean tf) { importPYMI.setEnabled(tf); }
 	void setEnabledImportMenuItems(boolean tf) { submenuImport.setEnabled(tf); }
-	static void setEnabledDeleteChildMenuItem(boolean tf) { delChildMI.setEnabled(tf); }
+	static void setEnabledMarkorDeleteChildMenuItem(boolean tf)
+	{ 
+		delChildMI.setEnabled(tf);
+		markAdultMI.setEnabled(tf);
+	}
 	void setEnabledDataLoadedMenuItems(boolean tf)
 	{ 
 		agentMI.setEnabled(tf);

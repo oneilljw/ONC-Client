@@ -61,6 +61,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private static final String GIFT_CARD_ONLY_TEXT = "gift card only";
 	private static final int NUMBER_OF_WISHES_PER_CHILD = 3;
 	
+	private AdultDB adultDB;
 	private DeliveryDB deliveryDB;
 	private ONCRegions regions;
 	private ONCAgents agentDB;
@@ -133,6 +134,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	{
 		super(pf);
 
+		adultDB = AdultDB.getInstance();
 		agentDB = ONCAgents.getInstance();
 		deliveryDB = DeliveryDB.getInstance();
 		regions = ONCRegions.getInstance();
@@ -180,7 +182,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         
         odbFamilyNum = new JLabel("No Fams");
         odbFamilyNum.setPreferredSize(new Dimension(72, 44));
-        odbFamilyNum.setBorder(BorderFactory.createTitledBorder("ODB #"));
+        odbFamilyNum.setBorder(BorderFactory.createTitledBorder("Ref #"));
         lblONCNum.setHorizontalAlignment(JLabel.CENTER);
         
         String[] batchNums = {"","B-01","B-02","B-03","B-04","B-05","B-06","B-07","B-08","B-09","B-10", "B-CR"};
@@ -335,12 +337,12 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         btnShowAgentInfo.setEnabled(false);
         btnShowAgentInfo.addActionListener(this);
         
-        btnShowODBDetails = new JButton("ODB Details");
+        btnShowODBDetails = new JButton("Family Details");
         btnShowODBDetails.setToolTipText("Click to see ODB details for this family");
         btnShowODBDetails.setEnabled(false);
         btnShowODBDetails.addActionListener(this);
         
-        btnMeals = new JButton("Meal Assist");
+        btnMeals = new JButton("Meal Assistance");
         btnMeals.setToolTipText("Click for family food assistnace status");
 //        btnMeals.setUI((ButtonUI) BasicButtonUI.createUI(btnMeals));
 //        btnMeals.setBorder(BorderFactory.createLineBorder(Color.BLACK));
@@ -409,7 +411,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
   	   	
 	    //Create the ODB Wish List scroll pane and add the Wish List text pane to it.
         odbWishscrollPane = new JScrollPane(odbWishListPane);
-        odbWishscrollPane.setBorder(BorderFactory.createTitledBorder("ODB Wish List"));
+        odbWishscrollPane.setBorder(BorderFactory.createTitledBorder("Child Wish List"));
         
         //Set up the ONC Notes Pane
         oncNotesPane = new JTextPane();
@@ -476,13 +478,13 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
     	
     	 //Set up the sort family dialog
     	String[] fdColToolTips = {"ONC Family Number", "Batch Number", "Do Not Serve Code", 
-			  "Family Status", "Delivery Status", "Head of Household First Name", 
+			  "Family Status", "Delivery Status", "Meal Status", "Head of Household First Name", 
 			  "Head of Household Last Name", "House Number","Street",
 			  "Unit or Apartment Number", "Zip Code", "Region",
 			  "Changed By", "Stoplight Color"};
-    	String[] fdCols = {"ONC", "Batch #", "DNS", "Fam Status", "Del Status", "First", "Last",
-    						"House", "Street", "Unit", "Zip", "Reg", "Changed By", "SL"};
-    	int[] fdColWidths = {32, 48, 48, 72, 72, 72, 72, 48, 128, 72, 48, 32, 72, 24};
+    	String[] fdCols = {"ONC", "Batch #", "DNS", "Fam Status", "Del Status", "Meal Status",
+    						"First", "Last", "House", "Street", "Unit", "Zip", "Reg", "Changed By", "SL"};
+    	int[] fdColWidths = {32, 48, 48, 72, 72, 72, 72, 72, 48, 128, 72, 48, 32, 72, 24};
     	int [] fdCenter_cols = {1, 11};
         sortFamiliesDlg = new SortFamilyDialog(parentFrame, fdColToolTips, fdCols, fdColWidths, fdCenter_cols);
         sortFamiliesDlg.addEntitySelectionListener(familyChildSelectionListener);
@@ -952,9 +954,8 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			
 			if(currFam.getMealID() > -1)
 			{
-				ONCMeal famMeal = mealDB.getMeal(currFam.getMealID());
 				btnMeals.setEnabled(true);
-				if(famMeal.getStatus() == 0)	//meal not referrred yet
+				if(currFam.getMealStatus() == MealStatus.Requested)	//meal not referrred yet
 				{
 					btnMeals.setBackground(Color.YELLOW);
 //					btnMeals.setBorderPainted(false);
@@ -1052,13 +1053,13 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		{		
 			addChildrentoTable(ctAL, bDispAll, cn);
 			if(bDispAll)
-				ONCMenuBar.setEnabledDeleteChildMenuItem(true);	//Enable Delete Child Menu Bar item
+				ONCMenuBar.setEnabledMarkorDeleteChildMenuItem(true);	//Enable Delete Child Menu Bar item
 		}
 		else
 		{
 			//family has no children, clear the child panel
 			currChild = null;
-			ONCMenuBar.setEnabledDeleteChildMenuItem(false);	//Disable Delete Child Menu Bar item
+			ONCMenuBar.setEnabledMarkorDeleteChildMenuItem(false);	//Disable Delete Child Menu Bar item
 		}
 		bChildTableDataChanging = false;
 		
@@ -1734,6 +1735,54 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	}
 	
 	void setEnabledAssignedDeliveryStatus(boolean tf) { delStatus[DELIVERY_STATUS_ASSIGNED].setEnabled(tf); }
+	
+	/*************************************************************************************************************
+	 * This method is called when the user requests to mark a child as an adult from the menu bar. 
+	 * The child object is added to the adult db and deleted from the child db.The child to be
+	 * marked as an adult is the child currently selected in child table in the family panel.
+	 * The first step in mark is to confirm with the user that they intended to mark as an adult. 
+	 **********************************************************************************************************/
+	void markChildAsAdult()
+	{
+		//Obtain the child to be marked as an Adult
+		if(currFam != null)
+		{
+			//Save any changed family data prior to moving the child to adult
+			checkAndUpdateFamilyData(currFam);
+			
+			ONCChild delChild = currChild;
+		
+			//Confirm with the user that the mark is really intended
+			String confirmMssg =String.format("Are you sure you want to change %s %s to an adult?", 
+											delChild.getChildFirstName(), delChild.getChildLastName());
+		
+			Object[] options= {"Cancel", "Make Adult"};
+			JOptionPane confirmOP = new JOptionPane(confirmMssg, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION,
+								gvs.getImageIcon(0), options, "Cancel");
+			JDialog confirmDlg = confirmOP.createDialog(parentFrame, "*** Confirm Child to Adult Change ***");
+			confirmDlg.setVisible(true);
+		
+			Object selectedValue = confirmOP.getValue();
+			if(selectedValue != null && selectedValue.toString().equals("Make Adult"))
+			{
+				//create a new adult object and add it to the adult database
+				String name = delChild.getChildFirstName() + " " + delChild.getChildLastName();
+				String gender;
+				if(delChild.getChildGender().toLowerCase().equals("girl"))
+					gender = "Female";
+				else if(delChild.getChildGender().toLowerCase().equals("boy"))
+					gender = "Male";
+				else
+					gender = delChild.getChildGender();
+				
+				//add to the adult database
+				adultDB.add(this, new ONCAdult(-1, delChild.getFamID(), name, gender));
+				
+				//delete from the child data base
+				cDB.delete(this, delChild);
+			}
+		}
+	}
 
 	/*************************************************************************************************************
 	 * This method is called when the user requests to delete a child from the menu bar. The child to be deleted
@@ -1763,9 +1812,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		
 			Object selectedValue = confirmOP.getValue();
 			if(selectedValue != null && selectedValue.toString().equals("Delete"))
-			{
 				cDB.delete(this, delChild);
-			}
 		}
 	}
 	
@@ -2080,7 +2127,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			}
 		}
 		
-		else if(dbe.getType().equals("ADDED_CHILD") || dbe.getType().equals("DELETED_CHILD")) 
+		else if(dbe.getType().equals("ADDED_CHILD")) 
 		{
 			ONCChild changeChild = (ONCChild) dbe.getObject();
 				
@@ -2088,8 +2135,25 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			{
 				if(currFam != null)
 				{
-					LogDialog.add("FamilyPanel: ADDED_CHILD or DELETED_CHILD ONC# " + currFam.getONCNum() + ", Child: " + changeChild.getChildFirstName(), "M");
+					LogDialog.add("FamilyPanel: ADDED_CHILD ONC# " + currFam.getONCNum() + ", Child: " + changeChild.getChildFirstName(), "M");
 					display(currFam, null);	
+				}
+			}
+		}
+		else if(dbe.getType().equals("DELETED_CHILD")) 
+		{
+			ONCChild changeChild = (ONCChild) dbe.getObject();
+				
+			if(currFam.getID() == changeChild.getFamID())	//Child was added to the displayed family
+			{
+				if(currFam != null)
+				{
+					LogDialog.add("FamilyPanel: DELETED_CHILD ONC# " + currFam.getONCNum() + ", Child: " + changeChild.getChildFirstName(), "M");
+					display(currFam, null);
+					
+					//need to tell other gui's that if new child is selected (e.g. Child Panel)
+					if(currChild != null)
+						fireEntitySelected(this, "CHILD_SELECTED", currFam, currChild);
 				}
 			}
 		}

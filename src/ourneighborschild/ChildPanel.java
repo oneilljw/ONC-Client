@@ -26,7 +26,7 @@ public class ChildPanel extends ONCPanel implements DatabaseListener, EntitySele
 	private static final long serialVersionUID = 1L;
 	private static final int ONC_MAX_CHILD_AGE = 24; //Used for sorting children into array lists
 	
-	private ONCChild c = null;	//The panel needs to know which child is being displayed for listeners
+	private ONCChild dispChild = null;	//The panel needs to know which child is being displayed for listeners
 	
 	//GUI elements
 	private JTextField firstnameTF;
@@ -118,7 +118,7 @@ public class ChildPanel extends ONCPanel implements DatabaseListener, EntitySele
 	void displayChild(ONCChild child)
 	{
 		bChildDataChanging = true;
-		c=child;
+		dispChild=child;
 		
 		String logEntry = String.format("ChildPanel.displayChild:  Child: %s",
 											child.getChildFirstName());
@@ -138,7 +138,7 @@ public class ChildPanel extends ONCPanel implements DatabaseListener, EntitySele
 		dobDC.setCalendar(convertDOBFromGMT(child.getChildDateOfBirth()));
 		
 		//If the child is older than the max, use RED to COLOR the background
-		if(c.getChildIntegerAge() > ONC_MAX_CHILD_AGE || c.getChildIntegerAge() < 0)
+		if(dispChild.getChildIntegerAge() > ONC_MAX_CHILD_AGE || dispChild.getChildIntegerAge() < 0)
 			ageTF.setBackground(Color.RED);
 		else
 			ageTF.setBackground(ageNormalBackgroundColor);
@@ -195,6 +195,8 @@ public class ChildPanel extends ONCPanel implements DatabaseListener, EntitySele
 
 	void clearChildData()
 	{
+		dispChild = null;
+		
 		bChildDataChanging = true;
 		
 		firstnameTF.setText("");
@@ -235,9 +237,11 @@ public class ChildPanel extends ONCPanel implements DatabaseListener, EntitySele
 			else
 			{
 				//display an error message that update request failed
+				Thread.currentThread().getStackTrace();
 				JOptionPane.showMessageDialog(GlobalVariables.getFrame(), "ONC Server denied Child Update," +
 						"try again later","Child Update Failed",  
 						JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
+				
 				displayChild(c);
 			}
 		}
@@ -260,12 +264,23 @@ public class ChildPanel extends ONCPanel implements DatabaseListener, EntitySele
 		if(dbe.getSource() != this && dbe.getType().equals("UPDATED_CHILD"))
 		{
 			ONCChild updatedChild = (ONCChild) dbe.getObject();
-			if(updatedChild != null && updatedChild.getID() == c.getID())
+			if(updatedChild != null && updatedChild.getID() == dispChild.getID())
 			{
 				String logEntry = String.format("ChildPanel Event: %s, Child: %s",
-													dbe.getType(), c.getChildFirstName());
+													dbe.getType(), dispChild.getChildFirstName());
 				LogDialog.add(logEntry, "M");
 				displayChild(updatedChild);
+			}
+		}
+		else if(dbe.getSource() != this && dbe.getType().equals("DELETED_CHILD"))
+		{
+			ONCChild deletedChild = (ONCChild) dbe.getObject();
+			if(deletedChild != null && deletedChild.getID() == dispChild.getID())
+			{
+				String logEntry = String.format("ChildPanel Event: %s, Child: %s",
+													dbe.getType(), dispChild.getChildFirstName());
+				LogDialog.add(logEntry, "M");
+				clearChildData();
 			}
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_CHILDREN"))
@@ -284,8 +299,12 @@ public class ChildPanel extends ONCPanel implements DatabaseListener, EntitySele
 			ONCFamily fam = (ONCFamily) tse.getObject1();
 			ArrayList<ONCChild> childList = cDB.getChildren(fam.getID());
 			
-			if(c != null)
-				updateChild(c);
+			if(dispChild != null)
+			{
+//				System.out.println(String.format("ChildPanel.entitySelected: dispChild= %s",
+//									dispChild.getChildFirstName()));
+				updateChild(dispChild);
+			}
 			
 			//check to see if there are children in the family, is so, display first child
 			if(childList != null && !childList.isEmpty())
@@ -308,8 +327,8 @@ public class ChildPanel extends ONCPanel implements DatabaseListener, EntitySele
 		{
 			ONCChild child = (ONCChild) tse.getObject2();
 			
-			if(c!= null)
-				updateChild(c);
+			if(dispChild != null)
+				updateChild(dispChild);
 			
 			String logEntry = String.format("ChildPanel Event: %s, Child Selected: %s",
 					tse.getType(), child.getChildFirstName());
@@ -320,8 +339,9 @@ public class ChildPanel extends ONCPanel implements DatabaseListener, EntitySele
 		{
 			ONCChild child = (ONCChild) tse.getObject2();
 			
-			if(c != null)
-				updateChild(c);
+			if(dispChild != null)
+				updateChild(dispChild);
+			
 			String logEntry = String.format("ChildPanel Event: %s, Child Selected: %s",
 					tse.getType(), child.getChildFirstName());
 			LogDialog.add(logEntry, "M");
@@ -344,13 +364,13 @@ public class ChildPanel extends ONCPanel implements DatabaseListener, EntitySele
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
-			if(c != null && !bChildDataChanging && gvs.isUserAdmin() && 
+			if(dispChild != null && !bChildDataChanging && gvs.isUserAdmin() && 
 													(e.getSource() == firstnameTF || 
 													 e.getSource() == lastnameTF ||
 													 e.getSource() == schoolTF ||
 													 e.getSource() == genderTF))
 			{
-				updateChild(c);	
+				updateChild(dispChild);	
 			}
 		}
 
@@ -359,14 +379,14 @@ public class ChildPanel extends ONCPanel implements DatabaseListener, EntitySele
 		{
 			if(pce.getSource() == dobDC.getDateEditor() && 
 				"date".equals(pce.getPropertyName()) && 
-				 !bChildDataChanging && c != null && gvs.isUserAdmin())
+				 !bChildDataChanging && dispChild != null && gvs.isUserAdmin())
 				  
 			{
 				
-				if(c.getChildDateOfBirth() != convertCalendarDOBToGMT(dobDC.getCalendar()))
+				if(dispChild.getChildDateOfBirth() != convertCalendarDOBToGMT(dobDC.getCalendar()))
 				{
-					updateChild(c);
-			        displayChild(c);
+					updateChild(dispChild);
+			        displayChild(dispChild);
 				}
 			}		
 		}

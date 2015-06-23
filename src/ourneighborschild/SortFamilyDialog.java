@@ -302,6 +302,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			f.getDNSCode(),
 			famstatus[f.getFamilyStatus()+1],
 			delstatus[f.getDeliveryStatus()+1],
+			f.getMealStatus().toString(),
 			f.getHOHFirstName(),
 			f.getHOHLastName(),
 			f.getHouseNum(),
