@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.MouseEvent;
 
-import javax.swing.ImageIcon;
 import javax.swing.JTable;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;

@@ -554,6 +554,7 @@ public class OurNeighborsChild implements DatabaseListener
         ONCMenuBar.aboutONCMI.addActionListener(menuItemListener);
         ONCMenuBar.oncPrefrencesMI.addActionListener(menuItemListener);
         ONCMenuBar.userMI.addActionListener(menuItemListener);
+        ONCMenuBar.newFamMI.addActionListener(menuItemListener);
         ONCMenuBar.newChildMI.addActionListener(menuItemListener);
         ONCMenuBar.markAdultMI.addActionListener(menuItemListener);
         ONCMenuBar.delChildMI.addActionListener(menuItemListener);
@@ -1036,6 +1037,11 @@ public class OurNeighborsChild implements DatabaseListener
 //					e1.printStackTrace();
 //				}   			
 //    		}
+    		else if(e.getSource() == ONCMenuBar.newFamMI)
+    		{
+    			AddFamilyDialog afDlg = new AddFamilyDialog(oncFrame);
+    			afDlg.setVisible(true);
+    		}
     		else if(e.getSource() == ONCMenuBar.delChildMI) { oncFamilyPanel.deleteChild(); }
     		else if(e.getSource() == ONCMenuBar.newChildMI) { oncFamilyPanel.onAddNewChildClicked(); }
     		else if(e.getSource() == ONCMenuBar.markAdultMI) { oncFamilyPanel.markChildAsAdult(); }

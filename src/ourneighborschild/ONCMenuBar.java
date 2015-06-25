@@ -145,7 +145,7 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 	    menuFamilies.addSeparator();
 	    
 	    newFamMI = new JMenuItem("New Family");
-	    newFamMI.setEnabled(false);
+//	    newFamMI.setEnabled(false);
 	    menuFamilies.add(newFamMI);
 	    
 	    delFamMI = new JMenuItem("Delete Family");
