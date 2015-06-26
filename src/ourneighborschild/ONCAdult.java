@@ -22,7 +22,15 @@ public class ONCAdult extends ONCObject
 		this.name = nextLine[2].isEmpty() ? "" : nextLine[2];
 		this.gender = nextLine[3].isEmpty() ? "" : nextLine[3];
 	}
-
+	
+	//getters
+	String getName() { return name; }
+	String getGender() { return gender; }
+	
+	//setters
+	void setName(String name) { this.name = name; }
+	void setGender(String gender) {this.gender = gender; }
+	
 	@Override
 	public String[] getExportRow() 
 	{
