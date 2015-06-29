@@ -6,6 +6,15 @@ public class ONCAdult extends ONCObject
 	private String name;
 	private String gender;
 	
+	
+	public ONCAdult() 
+	{
+		super(-1);
+		this.famid = -1;
+		this.name = "new adult";
+		this.gender = "";
+	}
+	
 	public ONCAdult(int id, int famid, String name, String gender) 
 	{
 		super(id);

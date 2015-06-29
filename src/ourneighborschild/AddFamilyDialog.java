@@ -1,49 +1,45 @@
 package ourneighborschild;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.DefaultCellEditor;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
-import javax.swing.table.TableCellRenderer;
-import javax.swing.text.DefaultHighlighter;
-import javax.swing.text.SimpleAttributeSet;
-import javax.swing.text.StyleConstants;
+import javax.swing.table.TableColumn;
 
-public class AddFamilyDialog extends JDialog implements ActionListener, DatabaseListener
+
+public class AddFamilyDialog extends JDialog implements ActionListener, DatabaseListener, ListSelectionListener
 {
+	private static final Color OLD_LACE = new Color(253, 245, 230);
 	private GlobalVariables gvs;
 	
 	private Families fDB;
@@ -61,33 +57,28 @@ public class AddFamilyDialog extends JDialog implements ActionListener, Database
 	
 	private Color pBkColor; //Used to restore background for panels 1-3, btnShowPriorHistory when changed
 	
-	private JTextPane detailsPane, oncDIPane, odbWishListPane;
-	private JScrollPane odbWishscrollPane;
+	private JTextPane dietPane;
 	private JTextPane HomePhone, OtherPhone;
-	private JButton btnAddChild, btnDelChild, btnAddAdult, btnDelAdult, btnSubmit;
-	private JTextField hohFN, hohLN, email;
-	private JTextField housenumTF, street, unit, city, zipCode;
+	private JButton btnSubmit;
+	private JTextField hohFN, hohLN, email, housenumTF, street, unit, city, zipCode;
 	private JTextField altHousenumTF, altStreet, altUnit, altCity, altZipCode;
-	private JRadioButton delRB, altAddressRB;
+	private JRadioButton btnAddChild, btnDelChild, btnAddAdult, btnDelAdult;
+	JCheckBox sameAddressCkBox, foodAssistanceCkBox;
 	
-	private JComboBox oncBatchNum, Language, statusCB, delstatCB;
-	private  ONCTable childTable, adultTable;
+	private JComboBox languageCB, mealsCB;
+	private ONCTable childTable, childWishTable, adultTable;
 	private ChildTableModel childTableModel;
 	private AdultTableModel adultTableModel;
-	private ArrayList<ONCChild> ctAL; //List holds children object references being displayed in table
+	private ChildWishTableModel childWishTableModel;
 	
 	public boolean bFamilyDataChanging = false; //Flag indicating program is triggering gui events, not user
 	private boolean bChildTableDataChanging = true;	//Flag indicating that Child Table data is changing
 	private boolean bDispAll = false; //Flag indicating whether all personal family data is displayed or not
 	
-	//An instance of the private subclass of the default highlight painter
-	private static DefaultHighlighter.DefaultHighlightPainter highlightPainter = 
-	        new DefaultHighlighter.DefaultHighlightPainter(Color.YELLOW);
-	
 	public AddFamilyDialog(JFrame parentFrame)
 	{
 		super(parentFrame, true);
-		this.setTitle("Add Family Dialog");
+		this.setTitle("Request Family Assistance");
 		
 		gvs = GlobalVariables.getInstance();
 		fDB = Families.getInstance();
@@ -119,20 +110,11 @@ public class AddFamilyDialog extends JDialog implements ActionListener, Database
 		//Setup panels that comprise the Add Family Dialog
 		JPanel hohPanel = new JPanel();
 		hohPanel.setLayout(new BoxLayout(hohPanel, BoxLayout.Y_AXIS));
-		hohPanel.setBorder(BorderFactory.createTitledBorder("Head of Household Information"));
+		hohPanel.setBorder(BorderFactory.createTitledBorder("Head of Household (HOH) Information:"));
 		JPanel p1 = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		JPanel p2 = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		
-		JPanel delAddressPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		delAddressPanel.setBorder(BorderFactory.createTitledBorder("Delivery Address"));
-		
-		JPanel p4 = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		pBkColor = p1.getBackground();
-		
-		JPanel familyMemberPanel = new JPanel(new GridBagLayout());
-		GridBagConstraints c = new GridBagConstraints();
-		familyMemberPanel.setBorder(BorderFactory.createTitledBorder("Family Members"));
-		JPanel cntlPanel = new JPanel();
+//		pBkColor = p1.getBackground();
 
 		//Set up the text fields for each of the characteristics displayed
         hohFN = new JTextField(9);
@@ -144,18 +126,18 @@ public class AddFamilyDialog extends JDialog implements ActionListener, Database
         HomePhone = new JTextPane();
         JScrollPane homePhoneScrollPane = new JScrollPane(HomePhone);
         homePhoneScrollPane.setPreferredSize(new Dimension(128, 44));
-        homePhoneScrollPane.setBorder(BorderFactory.createTitledBorder("Home Phone"));
+        homePhoneScrollPane.setBorder(BorderFactory.createTitledBorder("Primary Phone"));
         
         OtherPhone = new JTextPane();
         JScrollPane otherPhoneScrollPane = new JScrollPane(OtherPhone);
         otherPhoneScrollPane.setPreferredSize(new Dimension(128, 44));
-        otherPhoneScrollPane.setBorder(BorderFactory.createTitledBorder("Other Phone"));
+        otherPhoneScrollPane.setBorder(BorderFactory.createTitledBorder("Alternate Phone"));
       
         String[] languages = {"?", "English", "Spanish", "Arabic", "Korean", "Vietnamese", "Other"};
-        Language = new JComboBox(languages);
-        Language.setToolTipText("Select the primary language spoken by the family");
-        Language.setPreferredSize(new Dimension(140, 48));
-        Language.setBorder(BorderFactory.createTitledBorder("Language"));
+        languageCB = new JComboBox(languages);
+        languageCB.setToolTipText("Select the primary language spoken by the family");
+        languageCB.setPreferredSize(new Dimension(140, 48));
+        languageCB.setBorder(BorderFactory.createTitledBorder("Language"));
         
         housenumTF = new JTextField();
         housenumTF.setPreferredSize(new Dimension(72, 44));
@@ -180,37 +162,65 @@ public class AddFamilyDialog extends JDialog implements ActionListener, Database
         email = new JTextField(18);
         email.setBorder(BorderFactory.createTitledBorder("Email Address"));
         
+        //Add components to the panels
+        p1.add(hohFN);
+        p1.add(hohLN);
+        p1.add(homePhoneScrollPane);
+        p1.add(otherPhoneScrollPane);
+		p1.add(languageCB);
+		
+        p2.add(housenumTF);
+        p2.add(street);
+        p2.add(unit);
+        p2.add(city);
+        p2.add(zipCode);
+        p2.add(email);
+        
+        hohPanel.add(p1);
+        hohPanel.add(p2);
+        
+        //set up the delivery address panel
+        JPanel delAddressPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		delAddressPanel.setBorder(BorderFactory.createTitledBorder("Delivery Address: ONC will deliver gifts to this address"));
+		delAddressPanel.setBackground(OLD_LACE);
+		
+        sameAddressCkBox = new JCheckBox("Check if same as HOH address");
+        sameAddressCkBox.addActionListener(this);
+        delAddressPanel.add(sameAddressCkBox);
+        
         altHousenumTF = new JTextField();
         altHousenumTF.setPreferredSize(new Dimension(72, 44));
         altHousenumTF.setBorder(BorderFactory.createTitledBorder("House #"));
+        delAddressPanel.add(altHousenumTF);
         
         altStreet = new JTextField();
         altStreet.setPreferredSize(new Dimension(192, 44));
         altStreet.setBorder(BorderFactory.createTitledBorder("Street"));
+        delAddressPanel.add(altStreet);
         
         altUnit = new JTextField();
         altUnit.setPreferredSize(new Dimension(80, 44));
         altUnit.setBorder(BorderFactory.createTitledBorder("Unit"));
+        delAddressPanel.add(altUnit);
         
         altCity = new JTextField();
         altCity.setPreferredSize(new Dimension(128, 44));
         altCity.setBorder(BorderFactory.createTitledBorder("City"));
+        delAddressPanel.add(altCity);
        
         altZipCode = new JTextField();
         altZipCode.setPreferredSize(new Dimension(88, 44));
         altZipCode.setBorder(BorderFactory.createTitledBorder("Zip Code"));
-        
-        JCheckBox sameAddressCkBox = new JCheckBox("Check if same as HOH Address");
-        sameAddressCkBox.addActionListener(this);
-       
-        btnSubmit = new JButton("Submit");
-        btnSubmit.setToolTipText("Click to submit family to Our Neighbors Child");
-        btnSubmit.setEnabled(false);
-        btnSubmit.addActionListener(this);
-        
-        //set up the adult table panel
+        delAddressPanel.add(altZipCode);
+      
+        //set up the family members panel
+        JPanel familyMemberPanel = new JPanel(new GridBagLayout());
+		GridBagConstraints c1 = new GridBagConstraints();
+		familyMemberPanel.setBorder(BorderFactory.createTitledBorder("Family Members"));
+		
+        //set up the adult table panel as part of the family members panel
         JPanel adultPanel = new JPanel();
-        adultPanel.setBorder(BorderFactory.createTitledBorder("Other Adults in Family"));
+        adultPanel.setBorder(BorderFactory.createTitledBorder("Other Adults: add adults in addition to HOH"));
         
         String[] atToolTips = {"Adult Number", "First & Last Name", "Gender"};
       	adultTable = new ONCTable(atToolTips, new Color(240,248,255));
@@ -218,9 +228,17 @@ public class AddFamilyDialog extends JDialog implements ActionListener, Database
       	//Set up the table model. Cells are not editable
       	adultTableModel = new AdultTableModel(); 
         adultTable.setModel(adultTableModel);
+        
+        adultTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        adultTable.getSelectionModel().addListSelectionListener(this);
+        
+        TableColumn adultGenderColumn = adultTable.getColumnModel().getColumn(2);
+		String[] adultGenders = {"Female", "Male", "Unknown"};
+		JComboBox adultGenderCB = new JComboBox(adultGenders);
+		adultGenderColumn.setCellEditor(new DefaultCellEditor(adultGenderCB));
 
       	//Set table column widths
-        int[] atWidths = {16,160,48};
+        int[] atWidths = {16, 168, 56};
       	int tablewidth = 0;
       	for(int i=0; i < atWidths.length; i++)
       	{
@@ -233,6 +251,11 @@ public class AddFamilyDialog extends JDialog implements ActionListener, Database
       	JTableHeader anHeader = adultTable.getTableHeader();
       	anHeader.setForeground( Color.black);
       	anHeader.setBackground( new Color(161,202,241));
+      	
+      	 //left justify wish count column
+        DefaultTableCellRenderer dtcr = new DefaultTableCellRenderer();
+        dtcr.setHorizontalAlignment(SwingConstants.LEFT);
+        adultTable.getColumnModel().getColumn(0).setCellRenderer(dtcr);
 
       	adultTable.setBorder(UIManager.getBorder("Table.scrollPaneBorder"));
       	adultTable.setFillsViewportHeight(true);
@@ -243,34 +266,46 @@ public class AddFamilyDialog extends JDialog implements ActionListener, Database
 
       	adultScrollPane.setPreferredSize(new Dimension(tablewidth, adultTable.getRowHeight()*6));
       	
+      	//set up the button controls for the adult panel
       	JPanel adultCntlPanel = new JPanel();
       	adultCntlPanel.setLayout(new BoxLayout(adultCntlPanel, BoxLayout.Y_AXIS));
-      	btnAddAdult = new JButton("Add");
+      	btnAddAdult = new JRadioButton(gvs.getImageIcon(28));
       	btnAddAdult.setToolTipText("Click to add new adult to family");
       	btnAddAdult.addActionListener(this);;
       	adultCntlPanel.add(btnAddAdult);
       	
-      	btnDelAdult = new JButton("Delete");
+      	btnDelAdult = new JRadioButton(gvs.getImageIcon(29));
       	btnDelAdult.setToolTipText("Click to remove adult from family");
-      	btnDelAdult.addActionListener(this);;
+      	btnDelAdult.setEnabled(false);
+      	btnDelAdult.addActionListener(this);
       	adultCntlPanel.add(btnDelAdult);
       	
       	adultPanel.add(adultScrollPane);
       	adultPanel.add(adultCntlPanel);
       	
-        //set up the child table
+        //set up the child table as part of the family members panel
         JPanel childPanel = new JPanel();
-        childPanel.setBorder(BorderFactory.createTitledBorder("Children in Family"));
-        String[] ctToolTips = {"Child Number", "First Name", "Last Name", "Date of Birth", "Gender",
-        							"School Attended"};
+        childPanel.setBorder(BorderFactory.createTitledBorder("Children: add children under 18, or 18 and still enrolled in HS:"));
+        String[] ctToolTips = {"Child #", "First Name", "Last Name", "Date of Birth in mm/dd/yyyy format", "Select gender from list",
+        							"School Attended - leave blank if not attending school"};
       	childTable = new ONCTable(ctToolTips, new Color(240,248,255));
 
-      	//Set up the table model. Cells are not editable
+      	//Set up the table model
       	childTableModel = new ChildTableModel(); 
         childTable.setModel(childTableModel);
+        
+//      childTable.setCellSelectionEnabled(true);
+        childTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        childTable.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
+        childTable.getSelectionModel().addListSelectionListener(this);
+		
+		TableColumn childGenderColumn = childTable.getColumnModel().getColumn(4);
+		String[] childGenders = {"Boy", "Girl", "Unknown"};
+		JComboBox childGenderCB = new JComboBox(childGenders);
+		childGenderColumn.setCellEditor(new DefaultCellEditor(childGenderCB));
 
       	//Set table column widths
-        int[] ctWidths = {16,72,80,80,48,72};
+        int[] ctWidths = {16,80,88,88,56,96};
       	tablewidth = 0;
       	for(int i=0; i < ctWidths.length; i++)
       	{
@@ -283,6 +318,8 @@ public class AddFamilyDialog extends JDialog implements ActionListener, Database
       	anHeader = childTable.getTableHeader();
       	anHeader.setForeground( Color.black);
       	anHeader.setBackground( new Color(161,202,241));
+      	
+      	childTable.getColumnModel().getColumn(0).setCellRenderer(dtcr);
 
       	childTable.setBorder(UIManager.getBorder("Table.scrollPaneBorder"));
       	childTable.setFillsViewportHeight(true);
@@ -297,128 +334,154 @@ public class AddFamilyDialog extends JDialog implements ActionListener, Database
       	JPanel childCntlPanel = new JPanel();
       	childCntlPanel.setLayout(new BoxLayout(childCntlPanel, BoxLayout.Y_AXIS));
       	
-      	btnAddChild = new JButton("Add");
+      	btnAddChild = new JRadioButton(gvs.getImageIcon(28));
       	btnAddChild.setToolTipText("Click to add new child to family");
       	btnAddChild.addActionListener(this);;
       	childCntlPanel.add(btnAddChild);
       	
-      	btnDelChild = new JButton("Delete");
+      	btnDelChild = new JRadioButton(gvs.getImageIcon(29));
       	btnDelChild.setToolTipText("Click to remove child from family");
-      	btnDelChild.addActionListener(this);;
+      	btnDelChild.addActionListener(this);
+      	btnDelChild.setEnabled(false);
       	childCntlPanel.add(btnDelChild);
       	
       	childPanel.add(childScrollPane);
       	childPanel.add(childCntlPanel);
       	
-      	//set up the family details pane
-      	JPanel mealdetailsPanel = new JPanel();
-      	mealdetailsPanel.setBorder(BorderFactory.createTitledBorder("Food Assistance & Other Family Details"));
+      	c1.gridx=0;
+        c1.gridy=0;
+        c1.gridwidth=2;
+        c1.gridheight = 2;
+        c1.fill = GridBagConstraints.BOTH;
+//        c1.weightx=1.0;
+//        c1.weighty=1.0;
+        familyMemberPanel.add(childPanel, c1);
+        c1.gridx=2;
+        c1.gridy=0;
+        c1.gridwidth=2;
+        c1.gridheight = 2;
+        c1.fill = GridBagConstraints.BOTH;
+//        c1.weightx=1.0;
+//        c1.weighty=1.0;
+        familyMemberPanel.add(adultPanel, c1);
       	
-      	JPanel detailsPanel = new JPanel();
-      	detailsPanel.setBorder(BorderFactory.createTitledBorder("Family Details you want ONC to know"));
-      	JTextPane detailsPane = new JTextPane();
-        JScrollPane detailsScrollPane = new JScrollPane(detailsPane);
-        detailsScrollPane.setPreferredSize(new Dimension(128, 44));
-        detailsPanel.add(detailsScrollPane);
+      	//set up the food assistance and details panel
+        JPanel mealsPanel =new JPanel(new GridBagLayout());
+        GridBagConstraints c2 = new GridBagConstraints();
+        mealsPanel.setBorder(BorderFactory.createTitledBorder("Food Assitance: ONC will refer family to WFCM"));
+        mealsPanel.setBackground(OLD_LACE);
         
-        JPanel mealsPanel = new JPanel();
-        mealsPanel.setLayout(new BoxLayout(mealsPanel, BoxLayout.Y_AXIS));
-        mealsPanel.setBorder(BorderFactory.createTitledBorder("Food Assitance"));
+        foodAssistanceCkBox = new JCheckBox("Check if food assistance requested");
+        foodAssistanceCkBox.addActionListener(this);
+        delAddressPanel.add(foodAssistanceCkBox);
+        c2.gridx=0;
+      	c2.gridy=0;
+      	c2.gridwidth=1;
+      	c2.gridheight = 1;
+      	c2.fill = GridBagConstraints.BOTH;
+      	c2.weightx=0.5;
+      	c2.weighty=0.5;
+        mealsPanel.add(foodAssistanceCkBox, c2);
         
-        JComboBox mealsCB = new JComboBox(MealType.values());
-        mealsCB.setPreferredSize(new Dimension(128, 44));
-        mealsCB.setBorder(BorderFactory.createTitledBorder("Assitance Req. For"));
-        mealsPanel.add(mealsCB);
-        
-        JTextPane dietPane = new JTextPane();
+        mealsCB = new JComboBox(MealType.values());
+//      mealsCB.setPreferredSize(new Dimension(200, 44));
+        mealsCB.setBorder(BorderFactory.createTitledBorder("Requested For:"));
+        mealsCB.setEnabled(false);
+        c2.gridx=1;
+      	c2.gridy=0;
+      	c2.gridwidth=1;
+      	c2.gridheight = 1;
+      	c2.fill = GridBagConstraints.BOTH;
+      	c2.weightx=0.5;
+      	c2.weighty=0.5;
+        mealsPanel.add(mealsCB, c2);
+      
+        dietPane = new JTextPane();
+        dietPane.setEnabled(false);
         JScrollPane dietScrollPane = new JScrollPane(dietPane);
-        dietScrollPane.setPreferredSize(new Dimension(128, 44));
-        dietScrollPane.setBorder(BorderFactory.createTitledBorder("Assitance Req. For"));
-        mealsPanel.add(detailsScrollPane);
+        dietScrollPane.setBorder(BorderFactory.createTitledBorder("Dietary restrictions (if any) for family:"));
+        dietScrollPane.setPreferredSize(new Dimension(350, 52));
+        c2.gridx=2;
+      	c2.gridy=0;
+      	c2.gridwidth=2;
+      	c2.gridheight = 1;
+      	c2.fill = GridBagConstraints.BOTH;
+      	c2.ipadx = 40;
+      	c2.weightx=0.5;
+      	c2.weighty=0.5;
+        mealsPanel.add(dietScrollPane, c2);
         
-        mealdetailsPanel.add(mealsPanel);
-        mealdetailsPanel.add(detailsPanel);
-        
+        //set up the child wish table
+        JPanel childWishPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints c3 = new GridBagConstraints();
+        childWishPanel.setBorder(BorderFactory.createTitledBorder("Gift Assistance: complete for each child in the family"));
+        String[] cwToolTips = {"Child Number", "First Name", "Last Name", "Wish List"};
+      	childWishTable = new ONCTable(cwToolTips, new Color(240,248,255));
+
+      	//Set up the table model.
+      	childWishTableModel = new ChildWishTableModel(); 
+        childWishTable.setModel(childWishTableModel);
+
+      	//Set table column widths
+        int[] cwWidths = {16,72,80,640};
+      	tablewidth = 0;
+      	for(int i=0; i < cwWidths.length; i++)
+      	{
+      		childWishTable.getColumnModel().getColumn(i).setPreferredWidth(cwWidths[i]);
+      		tablewidth += ctWidths[i];
+      	}
+      	tablewidth += 24; 	//Account for vertical scroll bar
+
+      	//Set up the table header
+      	anHeader = childWishTable.getTableHeader();
+      	anHeader.setForeground( Color.black);
+      	anHeader.setBackground( new Color(161,202,241));
       	
-        //Set up the Wish List Pane
-        odbWishListPane = new JTextPane();
-        odbWishListPane.setToolTipText("Wish suggestions by child from ODB or WFCM");
-         
-//        StyleConstants.setAlignment(attribs , StyleConstants.ALIGN_LEFT);
-//        StyleConstants.setFontSize(attribs, gvs.getFontSize());
-//        StyleConstants.setSpaceBelow(attribs, 3);
-//        odbWishListPane.setParagraphAttributes(attribs, true);
-  	   	odbWishListPane.setEditable(false);
-  	   	
-	    //Create the ODB Wish List scroll pane and add the Wish List text pane to it.
-        odbWishscrollPane = new JScrollPane(odbWishListPane);
-        odbWishscrollPane.setBorder(BorderFactory.createTitledBorder("Child Wish List"));
-                    
-        //Add components to the panels
-        p1.add(hohFN);
-        p1.add(hohLN);
-        p1.add(homePhoneScrollPane);
-        p1.add(otherPhoneScrollPane);
-		p1.add(Language);
-		
-        p2.add(housenumTF);
-        p2.add(street);
-        p2.add(unit);
-        p2.add(city);
-        p2.add(zipCode);
-        p2.add(email);
-        
-        hohPanel.add(p1);
-        hohPanel.add(p2);
-        
-        delAddressPanel.add(altHousenumTF);
-        delAddressPanel.add(altStreet);
-        delAddressPanel.add(altUnit);
-        delAddressPanel.add(altCity);
-        delAddressPanel.add(altZipCode);
-        delAddressPanel.add(sameAddressCkBox);
-        
-        c.gridx=0;
-        c.gridy=0;
-        c.gridwidth=2;
-        c.gridheight = 2;
-        c.fill = GridBagConstraints.BOTH;
-        c.weightx=1.0;
-        c.weighty=1.0;
-        familyMemberPanel.add(adultPanel, c);
-        c.gridx=2;
-        c.gridy=0;
-        c.gridwidth=2;
-        c.gridheight = 2;
-        c.fill = GridBagConstraints.BOTH;
-        c.weightx=1.0;
-        c.weighty=1.0;
-        familyMemberPanel.add(childPanel, c);
-//        c.gridx=4;
-//        c.gridy=0;
-//        c.gridwidth=1;
-//        c.gridheight = 1;
-//        c.fill = GridBagConstraints.BOTH;
-//        c.weightx=0.5;
-//        c.weighty=0.5;
-//        p4.add(oncNotesscrollPane, c);
-//        c.gridx=4;
-//        c.gridy=1;
-//        c.gridwidth=1;
-//        c.gridheight = 1;
-//        c.fill = GridBagConstraints.BOTH;
-//        c.weightx=0.5;
-//        c.weighty=0.5;
-//        p4.add(oncDIscrollPane, c);
-        
-        
+      	childWishTable.getColumnModel().getColumn(0).setCellRenderer(dtcr);
+
+      	childTable.setBorder(UIManager.getBorder("Table.scrollPaneBorder"));
+      	childTable.setFillsViewportHeight(true);
+
+      	//Create the scroll pane and add the table to it.
+      	JScrollPane childWishScrollPane = new JScrollPane(childWishTable, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
+      										JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+
+      	childWishScrollPane.setPreferredSize(new Dimension(tablewidth, childWishTable.getRowHeight()*6));
+      	
+      	c3.gridx=0;
+      	c3.gridy=0;
+      	c3.gridwidth=1;
+      	c3.gridheight = 1;
+      	c3.fill = GridBagConstraints.BOTH;
+      	c3.weightx=0.5;
+      	c3.weighty=0.5;
+      	childWishPanel.add(childWishScrollPane, c3);
+      	
+      	//set up family details panel
+      	JPanel detailsPanel = new JPanel();
+      	detailsPanel.setBorder(BorderFactory.createTitledBorder("Family Details"));
+      	detailsPanel.setBackground(OLD_LACE);
+      	JTextPane detailsPane = new JTextPane();
+      	detailsPane.setPreferredSize(new Dimension(800, 52));
+      	detailsPane.setBorder(BorderFactory.createTitledBorder("Details about family ONC should know:"));
+        JScrollPane detailsScrollPane = new JScrollPane(detailsPane);
+        detailsPanel.add(detailsScrollPane);
+      	
+      	
+        //set up the control panel
+        JPanel cntlPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        btnSubmit = new JButton("Submit to ONC");
+        btnSubmit.setToolTipText("Click to submit family to Our Neighbors Child");
+        btnSubmit.setEnabled(false);
+        btnSubmit.addActionListener(this);
         cntlPanel.add(btnSubmit);
-        
+
         contentPane.add(hohPanel);
         contentPane.add(delAddressPanel);
         contentPane.add(familyMemberPanel);
-        contentPane.add(mealdetailsPanel);
-//        contentPane.add(p4);
+        contentPane.add(mealsPanel);
+        contentPane.add(childWishPanel);
+        contentPane.add(detailsPanel);
         contentPane.add(cntlPanel);
         
         pack();
@@ -428,11 +491,75 @@ public class AddFamilyDialog extends JDialog implements ActionListener, Database
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{
-		if(e.getSource() == btnAddChild)
+		if(e.getSource() == sameAddressCkBox)
+		{
+			if(sameAddressCkBox.isSelected())
+			{
+				altHousenumTF.setText(housenumTF.getText());
+				altStreet.setText(street.getText());
+				altUnit.setText(unit.getText());
+				altCity.setText(city.getText());
+				altZipCode.setText(zipCode.getText());
+			}
+			else
+			{
+				altHousenumTF.setText("");
+				altStreet.setText("");
+				altUnit.setText("");
+				altCity.setText("");
+				altZipCode.setText("");
+			}
+		}
+		if(e.getSource() == foodAssistanceCkBox)
+		{
+			if(foodAssistanceCkBox.isSelected())
+			{
+				mealsCB.setEnabled(true);
+				dietPane.setEnabled(true);
+			}
+			else
+			{
+				mealsCB.setEnabled(false);
+				dietPane.setEnabled(false);
+				dietPane.setText("");
+			}
+		}
+		else if(e.getSource() == btnAddChild)
 		{
 			childList.add(new AddChild());
 			childTableModel.fireTableDataChanged();
+			childWishTableModel.fireTableDataChanged();
+			btnSubmit.setEnabled(true);
 		}
+		
+		else if(e.getSource() == btnDelChild)
+		{
+			int row = childTable.getSelectedRow();
+			if(row > -1 && row < childList.size())
+			{
+				childList.remove(row);
+				childTableModel.fireTableDataChanged();
+				childWishTableModel.fireTableDataChanged();
+				btnSubmit.setEnabled(!childList.isEmpty());
+			}
+		}
+		else if(e.getSource() == btnAddAdult)
+		{
+			
+			adultList.add(new ONCAdult());
+			adultTableModel.fireTableDataChanged();
+		}
+		
+		if(e.getSource() == btnDelAdult)
+		{
+			int row = adultTable.getSelectedRow();
+			if(row > -1 && row < adultList.size())
+			{
+				adultList.remove(row);
+				adultTableModel.fireTableDataChanged();
+			}
+		}
+		
 	}
 
 	@Override
@@ -495,14 +622,20 @@ public class AddFamilyDialog extends JDialog implements ActionListener, Database
  
         //Don't need to implement this method unless your table's data can change. 
         public void setValueAt(Object value, int row, int col)
-        { 	
-//        	System.out.println(String.format("row = %d, col = %d", row, col));
+        { 
+//        	System.out.println(String.format("Setting value:row = %d, col = %d", row, col));
         	
         	AddChild child = childList.get(row);
-            if(col == FIRST_NAME_COL)  
+            if(col == FIRST_NAME_COL) 
+            {
             	 child.setFirstName((String) value);
+            	 childWishTableModel.fireTableCellUpdated(row, col);
+            }
             else if(col == LAST_NAME_COL)
+            {
             	child.setLastName((String) value);
+            	childWishTableModel.fireTableCellUpdated(row, col);
+            }
             else if(col == DOB_COL)
             	child.setDob((String) value);
             else if(col == GENDER_COL)
@@ -524,7 +657,7 @@ public class AddFamilyDialog extends JDialog implements ActionListener, Database
 		private static final int WISHLIST_COL = 3;
 		
 		private String[] columnNames = {"#", "First Name", "Last Name", 
-                                        "Wish List (ideally, 3 wishes in priority order, incl. size & color if rqrd.)"};
+                                        "Wish List (ideally, 3 wishes in order of importance; if clothing, include size & color preference)"};
  
         public int getColumnCount() { return columnNames.length; }
  
@@ -534,15 +667,22 @@ public class AddFamilyDialog extends JDialog implements ActionListener, Database
  
         public Object getValueAt(int row, int col)
         {
-        	AddChild child = childList.get(row);
-        	if(col == NUM_COL)
-        		return row+1;
-        	if(col == FIRST_NAME_COL)  
-        		return child.getFirstName();
-        	else if(col == LAST_NAME_COL)
-        		return child.getLastName();
+        	if(childList.isEmpty())
+        	{
+        		return "";
+        	}
         	else
-        		return child.getWishList();     			
+        	{
+        		AddChild child = childList.get(row);
+        		if(col == NUM_COL)
+        			return row+1;
+        		if(col == FIRST_NAME_COL)  
+        			return child.getFirstName();
+        		else if(col == LAST_NAME_COL)
+        			return child.getLastName();
+        		else
+        			return child.getWishList();
+        	}
         }
         
         //JTable uses this method to determine the default renderer/editor for each cell.
@@ -619,19 +759,26 @@ public class AddFamilyDialog extends JDialog implements ActionListener, Database
  
         public int getColumnCount() { return columnNames.length; }
  
-        public int getRowCount() { return childList.size(); }
+        public int getRowCount() { return adultList.size(); }
  
         public String getColumnName(int col) { return columnNames[col]; }
  
         public Object getValueAt(int row, int col)
         {
-        	ONCAdult adult = adultList.get(row);
-        	if(col == NUM_COL)
-        		return row+1;
-        	if(col == NAME_COL)  
-        		return adult.getName();
+        	if(adultList.isEmpty())
+        	{
+        		return "";
+        	}
         	else
-        		return adult.getGender();   			
+        	{
+        		ONCAdult adult = adultList.get(row);
+        		if(col == NUM_COL)
+        			return row+1;
+        		if(col == NAME_COL)  
+        			return adult.getName();
+        		else
+        			return adult.getGender(); 
+        	}
         }
         
         //JTable uses this method to determine the default renderer/editor for each cell.
@@ -661,4 +808,13 @@ public class AddFamilyDialog extends JDialog implements ActionListener, Database
             	adult.setGender((String) value);  
         }  
     }
+
+	@Override
+	public void valueChanged(ListSelectionEvent lse)
+	{
+		if(lse.getSource() == childTable.getSelectionModel())
+			btnDelChild.setEnabled(childTable.getSelectedRowCount() > 0);
+		else if(lse.getSource() == adultTable.getSelectionModel())
+			btnDelAdult.setEnabled(adultTable.getSelectedRowCount() > 0);
+	}
 }
