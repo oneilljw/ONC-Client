@@ -98,15 +98,15 @@ public class ServerIF
         
         	try 
         	{
+        		//should encrypt the login message
         		in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        		loginMssg = in.readLine();
+        		loginMssg = ONCEncryptor.decrypt(in.readLine());
         		
 //        		long timeElapsed = System.currentTimeMillis() - timeCommandSent;
 //        		System.out.println(String.format("ServerIF: Took %d milliseconds to connect to Server", timeElapsed));
 			
         		if (loginMssg.startsWith("LOGIN"))
         			bConnected = true;
-			
         	} 
         	catch (IOException e1) 
         	{
