@@ -285,7 +285,7 @@ public class AddFamilyDialog extends JDialog implements ActionListener, Database
       	
         //set up the child table as part of the family members panel
         JPanel childPanel = new JPanel();
-        childPanel.setBorder(BorderFactory.createTitledBorder("Children: add children under 18, or 18 and still enrolled in HS:"));
+        childPanel.setBorder(BorderFactory.createTitledBorder("Children: add children under 18, or 18+ and still enrolled in FCPS:"));
         String[] ctToolTips = {"Child #", "First Name", "Last Name", "Date of Birth in mm/dd/yyyy format", "Select gender from list",
         							"School Attended - leave blank if not attending school"};
       	childTable = new ONCTable(ctToolTips, new Color(240,248,255));
@@ -368,10 +368,10 @@ public class AddFamilyDialog extends JDialog implements ActionListener, Database
       	//set up the food assistance and details panel
         JPanel mealsPanel =new JPanel(new GridBagLayout());
         GridBagConstraints c2 = new GridBagConstraints();
-        mealsPanel.setBorder(BorderFactory.createTitledBorder("Food Assitance: ONC will refer family to WFCM"));
+        mealsPanel.setBorder(BorderFactory.createTitledBorder("Meal Assistance: ONC will refer family to WFCM or equivalent"));
         mealsPanel.setBackground(OLD_LACE);
         
-        foodAssistanceCkBox = new JCheckBox("Check if food assistance requested");
+        foodAssistanceCkBox = new JCheckBox("Check if meal assistance requested");
         foodAssistanceCkBox.addActionListener(this);
         delAddressPanel.add(foodAssistanceCkBox);
         c2.gridx=0;
