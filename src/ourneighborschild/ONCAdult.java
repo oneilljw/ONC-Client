@@ -33,8 +33,9 @@ public class ONCAdult extends ONCObject
 	}
 	
 	//getters
-	String getName() { return name; }
-	String getGender() { return gender; }
+	public int getFamID() { return famid; }
+	public String getName() { return name; }
+	public String getGender() { return gender; }
 	
 	//setters
 	void setName(String name) { this.name = name; }
