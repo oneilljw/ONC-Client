@@ -258,7 +258,8 @@ public class RAFamilyImporter extends ONCTableDialog
 				speakEnglish, language, inputRows.get(7)[2], inputRows.get(7)[3], houseNum,
 				street, "", inputRows.get(7)[8], inputRows.get(7)[10],
 				processPhoneNumber(inputRows.get(7)[5]), processPhoneNumber(inputRows.get(7)[6]),
-				inputRows.get(7)[4], inputRows.get(13)[4].trim(), odbWishList.toString(), agentID);
+				inputRows.get(7)[4], inputRows.get(13)[4].trim(), odbWishList.toString(), agentID,
+				-1, MealStatus.None);
 		
 		ONCFamily addedFam = (ONCFamily) famDB.add(this, reqAddFam);
 		

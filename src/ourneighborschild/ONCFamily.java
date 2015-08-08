@@ -316,10 +316,10 @@ public class ONCFamily extends ONCEntity
 	}
 	
 	//Overloaded Constructor - Direct Intake Processing
-	ONCFamily(int id, String cb, String oncNum, String odbFamilyNum, String batchNum, String speakEnglish, String language,
+	public ONCFamily(int id, String cb, String oncNum, String odbFamilyNum, String batchNum, String speakEnglish, String language,
 				String hohFirstName, String hohLastName, String houseNum, String street, String unitNum,
 				String city, String zipCode, String homePhone, String otherPhone, String familyEmail,
-				String odbDetails, String odbWishList, int agentID)
+				String odbDetails, String odbWishList, int agentID, int mealID, MealStatus mStatus)
 	{
 		super(id, new Date(), cb, STOPLIGHT_OFF, "Family created", cb);
 		this.oncNum = oncNum;
@@ -355,8 +355,8 @@ public class ONCFamily extends ONCEntity
 		this.AdoptedFor = "";
 		this.agentID = agentID;
 		this.deliveryID = -1;
-		this.mealID = -1;
-		mealStatus = MealStatus.None;
+		this.mealID = mealID;
+		mealStatus = mStatus;
 	}
 	
 	String getDBString(String s)
