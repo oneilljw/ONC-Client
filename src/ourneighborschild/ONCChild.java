@@ -35,7 +35,7 @@ public class ONCChild extends ONCObject implements Serializable
 	private int			pyChildID;
 		
 	//Constructor for a new child created by the user
-	ONCChild(int id, int famid, String fn, String ln, String gender, long dob, String school, int currYear)
+	public ONCChild(int id, int famid, String fn, String ln, String gender, long dob, String school, int currYear)
 	{
 		super(id);
 		this.famid = famid;
@@ -43,19 +43,9 @@ public class ONCChild extends ONCObject implements Serializable
 		childFirstName = fn;
 		childGender = gender;
 		childDOB = dob;
-//		childDOB = Calendar.getInstance();
-//		childDOB.setTime(dob);
-//		childDOB.set(Calendar.HOUR_OF_DAY, 0);
-//	    childDOB.set(Calendar.MINUTE, 0);
-//	    childDOB.set(Calendar.SECOND, 0);
-//	    childDOB.set(Calendar.MILLISECOND, 0);
 		sChildAge = calculateAge(currYear);
 		childLastName = ln;
 		childSchool = school;
-    	
-//    	SimpleDateFormat sdf = new SimpleDateFormat("M/dd/yy");
-//    	sChildDOB = sdf.format(childDOB.getTime());
-    	
     	childWish1ID = -1;	//Set the wish id's to "no wish selected"
     	childWish2ID = -1;
     	childWish3ID = -1;
