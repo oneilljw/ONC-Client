@@ -183,7 +183,8 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         odbFamilyNum.setBorder(BorderFactory.createTitledBorder("Ref #"));
         lblONCNum.setHorizontalAlignment(JLabel.CENTER);
         
-        String[] batchNums = {"","B-01","B-02","B-03","B-04","B-05","B-06","B-07","B-08","B-09","B-10", "B-CR"};
+        String[] batchNums = {"","B-01","B-02","B-03","B-04","B-05","B-06","B-07","B-08",
+        					  "B-09","B-10", "B-CR", "B-DI"};
         oncBatchNum = new JComboBox(batchNums);
         oncBatchNum.setPreferredSize(new Dimension (96, 48));
         oncBatchNum.setToolTipText("Which ODB input batch contained this family");
@@ -594,7 +595,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         sortDriverDlg.addEntitySelectionListener(oncChildPanel);
         this.addEntitySelectionListener(oncChildPanel);
         
-        //create the wish panel
+        //create the wish panels
         JPanel childwishespanel = new JPanel(new GridLayout(1,3));
         wishPanelList = new WishPanel[NUMBER_OF_WISHES_PER_CHILD];
         for(int wp=0; wp < wishPanelList.length; wp++)
@@ -1352,6 +1353,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		setEditableGUIFields(true);
 		updateDBStatus(fDB.getServedFamilyAndChildCount());
 		ONCFamily firstFam = fDB.getObjectAtIndex(nav.getIndex());
+		
 		if(firstFam != null)
 		{
 			display(firstFam, null);
@@ -2129,7 +2131,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		{
 			ONCChild changeChild = (ONCChild) dbe.getObject();
 				
-			if(currFam.getID() == changeChild.getFamID())	//Child was added to the displayed family
+			if(currFam != null && currFam.getID() == changeChild.getFamID())	//Child was added to the displayed family
 			{
 				if(currFam != null)
 				{

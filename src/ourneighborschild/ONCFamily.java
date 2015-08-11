@@ -97,7 +97,7 @@ public class ONCFamily extends ONCEntity
 				String nAdults, String nChldren, String Wishlist, String SpeakEng, String Lang, String bn, Date today,
 				int region, String sONC, int id, String cb, int agentid)
 		{
-			super(id, new Date(), cb, STOPLIGHT_OFF, "Family created", cb);
+			super(id, new Date(), cb, STOPLIGHT_OFF, "Family imported", cb);
 			oncNum=sONC;
 			this.region=region;
 			fstatus = 0;
@@ -143,7 +143,7 @@ public class ONCFamily extends ONCEntity
 				String Zip, String State, String AdoptFor, String nAdults, String nChldren, String Wishlist,
 				String SpeakEng, String Lang, String bn, Date today, int region, String sONC, int id, String cb, int agentid)
 	{
-		super(id, new Date(), cb, STOPLIGHT_OFF, "Family created", cb);
+		super(id, new Date(), cb, STOPLIGHT_OFF, "Family imported", cb);
 		oncNum=sONC;
 		this.region=region;
 		fstatus = 0;
@@ -189,7 +189,7 @@ public class ONCFamily extends ONCEntity
 			String State,String AdoptFor, String nAdults, String nChldren, String Wishlist, String SpeakEng, String Lang,
 			String bn, Date today, int region, String sONC, int id, String cb, int agentid)
 	{
-		super(id, new Date(), cb, STOPLIGHT_OFF, "Family created", cb);
+		super(id, new Date(), cb, STOPLIGHT_OFF, "Family imported", cb);
 		oncNum = sONC;
 		this.region = region;
 		fstatus = 0;
@@ -233,7 +233,7 @@ public class ONCFamily extends ONCEntity
 				String State,String AdoptFor, String nAdults, String nChldren, String Wishlist, String SpeakEng,
 				String Lang, String bn, Date today, int region, String sONC, int id, String cb, int agentid)
 		{
-			super(id, new Date(), cb, STOPLIGHT_OFF, "Family created", cb);
+			super(id, new Date(), cb, STOPLIGHT_OFF, "Family imported", cb);
 			oncNum = sONC;
 			this.region = region;
 			fstatus = 0;
@@ -322,7 +322,7 @@ public class ONCFamily extends ONCEntity
 				String altCity, String altZipCode, String homePhone, String otherPhone, String familyEmail,
 				String odbDetails, String odbWishList, int agentID, int mealID, MealStatus mStatus)
 	{
-		super(id, new Date(), cb, STOPLIGHT_OFF, "Family created", cb);
+		super(id, new Date(), cb, STOPLIGHT_OFF, "Family referred", cb);
 		this.oncNum = oncNum;
 		this.region = -1;
 		this.fstatus = 0;
