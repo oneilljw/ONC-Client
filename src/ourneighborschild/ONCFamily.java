@@ -344,7 +344,12 @@ public class ONCFamily extends ONCEntity
 		this.UnitNum = unitNum;
 		this.City = city;
 		this.ZipCode = zipCode;
-		this.substituteDeliveryAddress = altHouseNum + "_" + altStreet +"_" + 
+		if((altHouseNum.equals(houseNum) && altStreet.equals(street) && altUnitNum.equals(unitNum) &&
+				altCity.equals(city) && altZipCode.equals(zipCode)) || altHouseNum.isEmpty() ||
+				altStreet.isEmpty() || altCity.isEmpty())
+			this.substituteDeliveryAddress = "";
+		else
+			this.substituteDeliveryAddress = altHouseNum + "_" + altStreet +"_" + 
 										 altUnitNum +"_" + altCity + "_" + altZipCode ;
 		this.AllPhoneNumbers = homePhone + "\n" + otherPhone;			
 		this.HomePhone = homePhone;
