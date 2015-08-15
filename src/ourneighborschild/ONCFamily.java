@@ -319,7 +319,7 @@ public class ONCFamily extends ONCEntity
 	public ONCFamily(int id, String cb, String oncNum, String odbFamilyNum, String batchNum, String speakEnglish, String language,
 				String hohFirstName, String hohLastName, String houseNum, String street, String unitNum,
 				String city, String zipCode, String altHouseNum, String altStreet, String altUnitNum,
-				String altCity, String altZipCode, String homePhone, String otherPhone, String familyEmail,
+				String altCity, String altZipCode, String homePhone, String otherPhone, String altPhone, String familyEmail,
 				String odbDetails, String odbWishList, int agentID, int mealID, MealStatus mStatus)
 	{
 		super(id, new Date(), cb, STOPLIGHT_OFF, "Family referred", cb);
@@ -351,7 +351,11 @@ public class ONCFamily extends ONCEntity
 		else
 			this.substituteDeliveryAddress = altHouseNum + "_" + altStreet +"_" + 
 										 altUnitNum +"_" + altCity + "_" + altZipCode ;
-		this.AllPhoneNumbers = homePhone + "\n" + otherPhone;			
+		
+		this.AllPhoneNumbers = "Home Phone: " + homePhone + "\n" +
+								"Other phone: " + otherPhone + "\n" + 
+								"Other phone: " + altPhone;
+		
 		this.HomePhone = homePhone;
 		this.OtherPhone = otherPhone;
 		this.FamilyEmail = familyEmail;
