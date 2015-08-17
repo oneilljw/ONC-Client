@@ -4,7 +4,7 @@ public class ONCWebsiteFamily
 {
 	private int		id;
 	private String	oncNum;
-	private String 	idNum;
+	private String 	targetID;
 	private String	fstatus;
 	private String	dstatus;	
 	private String 	DNSCode;
@@ -19,7 +19,7 @@ public class ONCWebsiteFamily
 		String[] delstatus = {"Empty", "Contacted", "Confirmed", "Assigned", "Attempted", "Returned", "Delivered", "Counselor Pick-Up"};
 		this.id = f.id;
 		this.oncNum = f.getONCNum();
-		this.idNum = f.getODBFamilyNum();
+		this.targetID = f.getODBFamilyNum();
 		this.fstatus = famstatus[f.getFamilyStatus()];
 		this.dstatus = delstatus[f.getDeliveryStatus()];
 		this.DNSCode = f.getDNSCode();
@@ -32,7 +32,7 @@ public class ONCWebsiteFamily
 	
 	int getId() { return id; }
 	String getOncNum() { return oncNum; }
-	String getIDNum() { return idNum; }
+	String getTargetID() { return targetID; }
 	String getFstatus() { return fstatus; }
 	String getDstatus() { return dstatus; }
 	String getDNSCode() { return DNSCode; }
@@ -43,7 +43,7 @@ public class ONCWebsiteFamily
 
 	void setId(int id) { this.id = id; }
 	void setOncNum(String oncNum) { this.oncNum = oncNum; }
-	void setIDNum(String idNum) { this.idNum = idNum; }
+	void setTargetID(String targetID) { this.targetID = targetID; }
 	void setFstatus(String fstatus) { this.fstatus = fstatus; }
 	void setDstatus(String dstatus) { this.dstatus = dstatus; }
 	void setDNSCode(String dNSCode) { this.DNSCode = dNSCode; }
