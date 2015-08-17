@@ -186,9 +186,9 @@ public class RAFamilyImporter extends ONCTableDialog
 		Agent responseAgt = (Agent) agentDB.add(this, reqAgent);
 		int agentID = (responseAgt == null) ? -1 : responseAgt.getID();
 		
-		//create family constructor inputs
-		//staring with generation of the ODB #
-		String oncODBNum = famDB.generateIntakeODBNumber();
+		//create family constructor inputs starting with generation of the ODB #
+		//the server generates target id numbers, so here we just send NNA = No number assigned
+		String oncODBNum = "NNA";
 		
 		//then split the address into house number and street
 		String houseNum ="", street = "";
