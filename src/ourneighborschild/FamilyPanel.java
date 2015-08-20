@@ -946,7 +946,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			oncDIPane.setText(currFam.getDeliveryInstructions());
 			oncDIPane.setCaretPosition(0);
 			
-			if(currFam.getODBDetails().trim().isEmpty())	//Typically, an empty field from ODB contains 1 blank space
+			if(currFam.getDetails().trim().isEmpty())	//Typically, an empty field from ODB contains 1 blank space
 				btnShowODBDetails.setEnabled(false);
 			else
 				btnShowODBDetails.setEnabled(true);
@@ -1866,7 +1866,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		else if(e.getSource() == btnShowODBDetails)
 		{
 			//Wrap the ODB Details string on 50 character length boundary's
-			String[] input = currFam.getODBDetails().split(" ");
+			String[] input = currFam.getDetails().split(" ");
 			StringBuffer output = new StringBuffer("");
 			int linelength = 0;
 			

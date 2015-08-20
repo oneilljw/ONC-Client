@@ -99,7 +99,7 @@ public class ONCFamilyReportRowBuilder
 		row[index++] = 	f.getHomePhone();
 		row[index++] = 	f.getOtherPhon();
 		row[index++] = 	f.getFamilyEmail();
-		row[index++] = 	f.getODBDetails();
+		row[index++] = 	f.getDetails();
 		row[index++] = 	f.getNamesOfChildren();
 		row[index++] = 	f.getSchools();
 		row[index] = 	f.getODBWishList();

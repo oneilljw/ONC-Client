@@ -37,7 +37,7 @@ public class ONCFamily extends ONCEntity
 	private String		HomePhone;
 	private String		OtherPhone;
 	private String		FamilyEmail;
-	private String		ODBDetails;
+	private String		details;
 	private String		ChildrenNames;	//Only used for .csv file export
 	private String		Schools;
 	private String		ODBWishList;	
@@ -78,7 +78,7 @@ public class ONCFamily extends ONCEntity
 		HomePhone = f.HomePhone;
 		OtherPhone = f.OtherPhone;
 		FamilyEmail = f.FamilyEmail;
-		ODBDetails = f.ODBDetails;
+		details = f.details;
 		ChildrenNames = f.ChildrenNames;
 		Schools = f.Schools;
 		ODBWishList = f.ODBWishList;						
@@ -118,7 +118,7 @@ public class ONCFamily extends ONCEntity
 			substituteDeliveryAddress = "";
 			AllPhoneNumbers = ClientFamPhone;			
 			FamilyEmail = ClientFamEmail;
-			ODBDetails = Details;
+			details = Details;
 			ChildrenNames = "";
 			Schools = schools;
 			ODBWishList = Wishlist;						
@@ -164,7 +164,7 @@ public class ONCFamily extends ONCEntity
 		substituteDeliveryAddress = "";
 		AllPhoneNumbers = ClientFamPhone;			
 		FamilyEmail = ClientFamEmail;
-		ODBDetails = Details;
+		details = Details;
 		ChildrenNames = "";
 		this.Schools = "";
 		ODBWishList = Wishlist;
@@ -210,7 +210,7 @@ public class ONCFamily extends ONCEntity
 		substituteDeliveryAddress = "";
 		AllPhoneNumbers = ClientFamPhone;			
 		FamilyEmail = ClientFamEmail;
-		ODBDetails = Details;
+		details = Details;
 		this.Schools = Schools;
 		ChildrenNames = "";
 		ODBWishList = Wishlist;
@@ -254,7 +254,7 @@ public class ONCFamily extends ONCEntity
 			substituteDeliveryAddress = "";
 			AllPhoneNumbers = ClientFamPhone;			
 			FamilyEmail = ClientFamEmail;
-			ODBDetails = Details;
+			details = Details;
 			this.Schools = Schools;
 			ChildrenNames = "";
 			ODBWishList = Wishlist;
@@ -299,7 +299,7 @@ public class ONCFamily extends ONCEntity
 		HomePhone = getDBString(nextLine[23]);
 		OtherPhone = getDBString(nextLine[24]);
 		FamilyEmail = getDBString(nextLine[25]);
-		ODBDetails = getDBString(nextLine[26]);
+		details = getDBString(nextLine[26]);
 		ChildrenNames = getDBString(nextLine[27]);
 		Schools = getDBString(nextLine[28]);
 		ODBWishList = getDBString(nextLine[29]);
@@ -359,7 +359,7 @@ public class ONCFamily extends ONCEntity
 		this.HomePhone = homePhone;
 		this.OtherPhone = otherPhone;
 		this.FamilyEmail = familyEmail;
-		this.ODBDetails = odbDetails;
+		this.details = odbDetails;
 		this.ChildrenNames = "";	//Only used for .csv file export
 		this.Schools = "";
 		this.ODBWishList = odbWishList;	
@@ -702,7 +702,7 @@ public class ONCFamily extends ONCEntity
 	public String	getOtherPhon() {return OtherPhone;}
 	public String	getFamilyEmail() {return FamilyEmail;}
 	public String	getNamesOfChildren() { return ChildrenNames; }
-	public String	getODBDetails() {return ODBDetails;}
+	public String	getDetails() {return details;}
 	public String	getSchools() {return Schools;}
 	public String	getODBWishList() {return ODBWishList;}
 	public String	getAdoptedFor() {return AdoptedFor;}	
@@ -738,7 +738,7 @@ public class ONCFamily extends ONCEntity
 	public void setHomePhone(String s) { HomePhone = s;}
 	public void setOtherPhon(String s) { OtherPhone = s;}
 	public void setFamilyEmail(String s) { FamilyEmail = s;}
-	public void setODBDetails(String s) { ODBDetails = s;}
+	public void setDetails(String s) { details = s;}
 	public void setSchools(String s) { Schools = s;}
 	public void setODBWishList(String s) { ODBWishList = s;}
 	public void setAdoptedFor(String s) { AdoptedFor = s;}
@@ -822,7 +822,7 @@ public class ONCFamily extends ONCEntity
 		row[index++] = 	getHomePhone();
 		row[index++] = 	getOtherPhon();
 		row[index++] = 	getFamilyEmail();
-		row[index++] = 	getODBDetails();
+		row[index++] = 	getDetails();
 		row[index++] = 	getNamesOfChildren();
 		row[index++] = 	getSchools();
 		row[index++] = 	getODBWishList();

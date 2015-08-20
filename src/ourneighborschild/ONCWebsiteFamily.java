@@ -12,6 +12,7 @@ public class ONCWebsiteFamily
 	private String	HOHLastName;	
 	private String	mealStatus;
 	private int		agentID;
+	private String	details;
 	
 	public ONCWebsiteFamily(ONCFamily f)
 	{
@@ -27,6 +28,7 @@ public class ONCWebsiteFamily
 		this.HOHLastName = f.getHOHLastName();
 		this.mealStatus = f.getMealStatus().toString();
 		this.agentID = f.getAgentID();
+		this.details = f.getDetails();
 	}
 
 	
@@ -40,6 +42,7 @@ public class ONCWebsiteFamily
 	String getHOHLastName() { return HOHLastName; }
 	String getMealStatus() { return mealStatus; }
 	int getAgentID() { return agentID; }
+	String getDetails() { return details; }
 
 	void setId(int id) { this.id = id; }
 	void setOncNum(String oncNum) { this.oncNum = oncNum; }
@@ -51,4 +54,5 @@ public class ONCWebsiteFamily
 	void setHOHLastName(String hOHLastName) { this.HOHLastName = hOHLastName; }	
 	void setMealStatus(String mealStatus) {this.mealStatus = mealStatus; }
 	void setAgentID(int agtID) {this.agentID = agtID; }
+	void setDetails(String details) {this.details = details; }
 }
