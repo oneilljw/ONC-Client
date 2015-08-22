@@ -1,4 +1,4 @@
 package ourneighborschild;
 
-public enum GiftCollection {Unknown,General, Ornament}
+public enum GiftCollection {Unknown,General, Ornament, Meals}
 
