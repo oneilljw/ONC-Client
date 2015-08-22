@@ -36,7 +36,7 @@ public class ONCWebsiteFamily
 	String getDstatus() { return dstatus; }
 	String getDNSCode() { return DNSCode; }
 	String getHOHFirstName() {return HOHFirstName;}
-	String getHOHLastName() { return HOHLastName; }
+	public String getHOHLastName() { return HOHLastName; }
 	String getMealStatus() { return mealStatus; }
 	int getAgentID() { return agentID; }
 
