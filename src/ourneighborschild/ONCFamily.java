@@ -357,7 +357,10 @@ public class ONCFamily extends ONCEntity
 								"Other phone: " + altPhone;
 		
 		this.HomePhone = homePhone;
-		this.OtherPhone = otherPhone;
+		if(altPhone.equals(""))
+			this.OtherPhone = otherPhone;
+		else
+			this.OtherPhone = otherPhone + "\n" + altPhone;
 		this.FamilyEmail = familyEmail;
 		this.details = odbDetails;
 		this.ChildrenNames = "";	//Only used for .csv file export
