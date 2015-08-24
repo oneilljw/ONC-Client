@@ -255,7 +255,7 @@ public class ONCOrgs extends ONCSearchableDatabase
 	 * The top half of the list are confirmed businesses, churches and schools, sorted alphabetically.
 	 * The bottom half of the list are all other confirmed organizations sorted alphabetically
 	 *****************************************************************************************/
-	List<Organization> getConfirmedOrgList()
+	List<Organization> getConfirmedOrgList(GiftCollection collectionType)
 	{
 		//Create two lists, the list to be returned and a temporary list
 		ArrayList<Organization> confOrgList = new ArrayList<Organization>();
@@ -265,10 +265,10 @@ public class ONCOrgs extends ONCSearchableDatabase
 		//confirmed organizations to the temporary list
 		for(Organization o: orgsAL)
 		{
-			if(o.getStatus() == STATUS_CONFIRMED && o.getGiftCollectionType() == GiftCollection.Ornament && 
+			if(o.getStatus() == STATUS_CONFIRMED && o.getGiftCollectionType() == collectionType && 
 				o.getType() < ORG_TYPE_CLOTHING)
 				confOrgList.add(o);
-			else if(o.getStatus() == STATUS_CONFIRMED && o.getGiftCollectionType() == GiftCollection.Ornament)
+			else if(o.getStatus() == STATUS_CONFIRMED && o.getGiftCollectionType() == collectionType)
 				confOrgOtherList.add(o);		
 		}
 		

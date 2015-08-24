@@ -13,6 +13,7 @@ public class ONCMeal extends ONCEntity
 	
 	protected int famID;
 	protected MealType type;
+	protected MealStatus status;
 	protected String dietaryRestrictions;
 	protected int partnerID;
 	
@@ -43,12 +44,14 @@ public class ONCMeal extends ONCEntity
 	public int getFamilyID() { return famID; }
 	public MealType getType() { return type;}
 	public String getRestricitons() { return dietaryRestrictions; }
+	public int getPartnerID() { return partnerID; }
 	
 	//setters
 	public void setFamilyID(int famID) { this.famID = famID; }
 	public void setType(MealType type) { this.type = type; }
 	public void setRestrictions(String restrictions) { this.dietaryRestrictions = restrictions; }
-
+	public void setPartnerID(int id) { partnerID = id; }
+	
 	@Override
 	public String[] getExportRow()
 	{

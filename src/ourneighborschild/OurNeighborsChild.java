@@ -546,6 +546,7 @@ public class OurNeighborsChild implements DatabaseListener
         ONCMenuBar.catMI.addActionListener(menuItemListener);
         ONCMenuBar.sortWishesMI.addActionListener(menuItemListener);
         ONCMenuBar.recGiftsMI.addActionListener(menuItemListener);
+        ONCMenuBar.sortMealsMI.addActionListener(menuItemListener);
         ONCMenuBar.labelViewerMI.addActionListener(menuItemListener);
         ONCMenuBar.orgMI.addActionListener(menuItemListener);
         ONCMenuBar.sortOrgsMI.addActionListener(menuItemListener);
@@ -1006,6 +1007,7 @@ public class OurNeighborsChild implements DatabaseListener
     		else if(e.getSource() == ONCMenuBar.delstatusMI) {oncFamilyPanel.showDeliveryStatus();}
     		else if(e.getSource() == ONCMenuBar.viewDBMI) {oncFamilyPanel.showEntireDatabase(oncFamDB);}
     		else if(e.getSource() == ONCMenuBar.sortWishesMI) {oncFamilyPanel.showSortWishesDialog(oncFamDB.getList());}
+    		else if(e.getSource() == ONCMenuBar.sortMealsMI) {oncFamilyPanel.showSortMealsDialog();}
     		else if(e.getSource() == ONCMenuBar.recGiftsMI) {oncFamilyPanel.showReceiveGiftsDialog(oncFamDB.getList());}
     		else if(e.getSource() == ONCMenuBar.labelViewerMI) {oncFamilyPanel.showWishLabelViewerDialog();}
     		else if(e.getSource() == ONCMenuBar.catMI) {oncFamilyPanel.showWishCatalogDialog(); }

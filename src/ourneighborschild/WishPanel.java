@@ -242,7 +242,7 @@ public class WishPanel extends ONCPanel implements ActionListener, DatabaseListe
 		assigneeCBM.removeAllElements();
 		assigneeCBM.addElement(new Organization(-1, "None", "None"));
 		
-		for(Organization confOrg: orgDB.getConfirmedOrgList())
+		for(Organization confOrg: orgDB.getConfirmedOrgList(GiftCollection.Ornament))
 			assigneeCBM.addElement(confOrg);
 		
 		//Restore selection to prior selection, if they are still confirmed

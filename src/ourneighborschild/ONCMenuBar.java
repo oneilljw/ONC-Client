@@ -27,7 +27,7 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 	public static JMenuItem newFamMI, changeONCMI, delFamMI, newChildMI, delChildMI, markAdultMI;
 	public static JMenu submenuImport, submenuFamilyDataChecks;
 	public static JMenu submenuExport, submenuCompareData, submenuDatabase;
-	public static JMenuItem viewDBMI, sortWishesMI, sortFamiliesMI, sortOrgsMI, recGiftsMI;
+	public static JMenuItem viewDBMI, sortWishesMI, sortFamiliesMI, sortOrgsMI, recGiftsMI, sortMealsMI;
 	public static JMenuItem labelViewerMI, agentMI, orgMI, catMI;
 	public static JMenuItem aboutONCMI, oncPrefrencesMI, userMI, onlineMI, chatMI, changePWMI, stopPollingMI;
 	public static JMenuItem showServerLogMI, showServerClientIDMI, showCurrDirMI;
@@ -40,7 +40,7 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 		if(oncDB != null)
 			oncDB.addDatabaseListener(this);
 		
-		JMenu menuFile, menuAgents, menuFamilies, menuWishes, menuGiftPartners, menuDelivery, menuSettings;	    
+		JMenu menuFile, menuAgents, menuFamilies, menuWishes, menuMeals, menuPartners, menuDelivery, menuSettings;	    
         
 	    //Build the Database menu.
 	    menuFile = new JMenu("Database");
@@ -213,18 +213,26 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 	    labelViewerMI.setEnabled(false);
 	    menuWishes.add(labelViewerMI);
 	    
-	    //Build Gift Partners Menu
-	    menuGiftPartners = new JMenu("Gift Partners");
+	    //Build Meals Menu Structure
+	    menuMeals = new JMenu("Meals");
+	    this.add(menuMeals);
 	    
-	    orgMI = new JMenuItem("Edit Gift Partners");
+	    sortMealsMI = new JMenuItem("Manage Meals");
+	    sortMealsMI.setEnabled(false);
+	    menuMeals.add(sortMealsMI);
+	    
+	    //Build Partners Menu
+	    menuPartners = new JMenu("Partners");
+	    
+	    orgMI = new JMenuItem("Edit Partners");
 	    orgMI.setEnabled(false);
-	    menuGiftPartners.add(orgMI);
+	    menuPartners.add(orgMI);
 	    
-	    sortOrgsMI = new JMenuItem("Manage Gift Partners");
+	    sortOrgsMI = new JMenuItem("Manage Partners");
 	    sortOrgsMI.setEnabled(false);
-	    menuGiftPartners.add(sortOrgsMI);
+	    menuPartners.add(sortOrgsMI);
 	    
-	    this.add(menuGiftPartners);
+	    this.add(menuPartners);
 	    
 	    //Build Delivery Menu
 	    menuDelivery = new JMenu("Deliveries");
@@ -334,6 +342,7 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 		submenuExport.setEnabled(tf);
 		changeONCMI.setEnabled(tf);
 		sortFamiliesMI.setEnabled(tf);
+		sortMealsMI.setEnabled(tf);
 		markAdultMI.setEnabled(tf);
 		delChildMI.setEnabled(tf);
 		newChildMI.setEnabled(tf);

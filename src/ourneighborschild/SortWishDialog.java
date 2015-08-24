@@ -551,7 +551,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		changeAssigneeCBM.addElement(new Organization(-1, "No Change", "No Change"));
 		changeAssigneeCBM.addElement(new Organization(-1, "None", "None"));
 		
-		for(Organization confOrg :orgs.getConfirmedOrgList())
+		for(Organization confOrg :orgs.getConfirmedOrgList(GiftCollection.Ornament))
 		{
 			assignCBM.addElement(confOrg);
 			changeAssigneeCBM.addElement(confOrg);

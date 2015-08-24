@@ -109,7 +109,8 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private DriverDialog driverDlg;
 	private WishCatalogDialog catDlg;
 	private ONCUserDialog userDlg;
-	public SortWishDialog sortWishesDlg;
+	public  SortWishDialog sortWishesDlg;
+	private SortMealsDialog sortMealsDlg;
 //	public GiftActionDialog recGiftsDlg;
 	public SortFamilyDialog sortFamiliesDlg;
 	public SortAgentDialog sortAgentDlg;
@@ -489,6 +490,21 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         sortFamiliesDlg.addEntitySelectionListener(familyChildSelectionListener);
         sortFamiliesDlg.addEntitySelectionListener(dirDlg);
         sortFamiliesDlg.addEntitySelectionListener(dsDlg);
+        
+      //Set up the sort meals dialog
+        String[] mealToolTips = {"ONC Family Number", "HoH Last Name", "Region", "Which holiday is meal for?",
+        						"What is the status of the request?",
+								"Who is providing the meal to the family?", 
+								"User who last changed meal request", 
+								"Date & Time Meal Last Changed"};
+        String[] mealColumns = {"ONC", "Last Name", "Reg", "Holiday", "Status", "Assignee", 
+        						"Changed By", "Time Stamp"};
+        int[] mealColWidths = {40, 80, 24, 80, 80, 144, 80, 92};
+        int[] mealCenter_cols = {2};
+        sortMealsDlg = new SortMealsDialog(parentFrame, mealToolTips, mealColumns, mealColWidths, mealCenter_cols);
+        sortMealsDlg.addEntitySelectionListener(familyChildSelectionListener);
+        sortMealsDlg.addEntitySelectionListener(dsDlg);
+        sortMealsDlg.addEntitySelectionListener(dirDlg);
     	
     	//Set up the dialog to edit agent info
     	String[] tfNames = {"Name", "Organization", "Title", "Email", "Phone"};
@@ -1421,6 +1437,21 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			Point pt = parentFrame.getLocation();
 	        sortWishesDlg.setLocation(pt.x + 5, pt.y + 20);
 			sortWishesDlg.setVisible(true);
+		}
+	}
+	
+	void showSortMealsDialog()
+	{
+		if(!sortMealsDlg.isVisible())
+		{
+			//Dates are set here after Global Variables have been initialized from server
+			sortMealsDlg.setSortStartDate(gvs.getSeasonStartDate());
+			sortMealsDlg.setSortEndDate(gvs.getTodaysDate());
+			sortMealsDlg.buildTableList(true);
+			
+			Point pt = parentFrame.getLocation();
+	        sortMealsDlg.setLocation(pt.x + 5, pt.y + 20);
+			sortMealsDlg.setVisible(true);
 		}
 	}
 	
