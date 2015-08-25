@@ -572,6 +572,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         //Set up the edit gift partner dialog
         orgDlg = new OrganizationDialog(parentFrame);
         sortWishesDlg.addEntitySelectionListener(orgDlg);
+        sortMealsDlg.addEntitySelectionListener(orgDlg);
         
         //Set up the sort gift partner dialog
         String[] orgToolTips = {"ONC Partner", "Partner Status","Type of Organization",

@@ -4,13 +4,20 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
+import java.awt.print.PrinterException;
 import java.beans.PropertyChangeEvent;
+import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
@@ -19,10 +26,13 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.event.ListSelectionEvent;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import ourneighborschild.SortTableDialog.ONCNumberKeyListener;
+import au.com.bytecode.opencsv.CSVWriter;
 
 import com.toedter.calendar.JDateChooser;
 
@@ -33,6 +43,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	private static final Integer MAXIMUM_ON_NUMBER = 9999;
 
 	private Families fDB;
 	private MealDB mDB;
@@ -377,81 +388,154 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 	
 	void setSortEndDate(Date ed) {sortEndCal.setTime(ed); sortEndCal.add(Calendar.DATE, 1); de.setDate(sortEndCal.getTime());}
 	
-		@Override
+	void onPrintListing(String tablename)
+	{
+		if(sortTable.getRowCount() > 0)
+		{
+			try
+			{
+				MessageFormat headerFormat = new MessageFormat(tablename);
+				MessageFormat footerFormat = new MessageFormat("- {0} -");
+				sortTable.print(JTable.PrintMode.FIT_WIDTH, headerFormat, footerFormat);           
+			} 
+			catch (PrinterException e) 
+			{
+				JOptionPane.showMessageDialog(this, 
+						"Print Error: " + e.getMessage(), 
+						"Print Failed", JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
+				e.printStackTrace();
+			}
+		}
+		else	//Warn user that the table is empty
+			JOptionPane.showMessageDialog(this, 
+					"No meals in table to print, table must contain meals in order to" + 
+					"print listing", 
+					"No Meals To Print", JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
+			
+		 printCB.setSelectedIndex(0);	//Reset the user print request
+	}
+	void onExportRequested()
+	{
+		//Write the selected row data to a .csv file
+    	String[] header = {"ONC #", "HoH Last Name", "Holiday", "Status", "Region", "Assignee",
+    						"Changed By", "Date Changed"};
+    
+    	ONCFileChooser oncfc = new ONCFileChooser(this);
+       	File oncwritefile = oncfc.getFile("Select file for export of selected meals" ,
+       										new FileNameExtensionFilter("CSV Files", "csv"), 1);
+       	if(oncwritefile!= null)
+       	{
+       		//If user types a new filename without extension.csv, add it
+	    	String filePath = oncwritefile.getPath();
+	    	if(!filePath.toLowerCase().endsWith(".csv")) 
+	    		oncwritefile = new File(filePath + ".csv");
+	    	
+	    	try 
+	    	{
+	    		CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
+	    	    writer.writeNext(header);
+	    	    
+	    	    int[] row_sel = sortTable.getSelectedRows();
+	    	    for(int i=0; i<sortTable.getSelectedRowCount(); i++)
+	    	    {
+	    	    	int index = row_sel[i];
+	    	    	writer.writeNext(stAL.get(index).getExportRow());
+	    	    }
+	    	   
+	    	    writer.close();
+	    	    
+	    	    JOptionPane.showMessageDialog(this, 
+						sortTable.getSelectedRowCount() + " meals sucessfully exported to " + oncwritefile.getName(), 
+						"Export Successful", JOptionPane.INFORMATION_MESSAGE, gvs.getImageIcon(0));
+	    	} 
+	    	catch (IOException x)
+	    	{
+	    		JOptionPane.showMessageDialog(this, "Export Failed, I/O Error: "  + x.getMessage(),  
+						"Export Failed", JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
+	    		System.err.format("IOException: %s%n", x);
+	    	}
+	    }
+	}
+	
+	@Override
 	public void actionPerformed(ActionEvent e) 
 	{
-			if(e.getSource() == oncnumTF && !sortONCNum.equals(oncnumTF.getText()))
-			{
-				sortONCNum = oncnumTF.getText();
-				buildTableList(false);
-			}
-			else if(e.getSource() == typeCB && typeCB.getSelectedItem() != sortType)
-			{						
-				sortType = (MealType) typeCB.getSelectedItem();
-				buildTableList(false);
-			}
-			else if(e.getSource() == statusCB && statusCB.getSelectedItem() != sortStatus )
-			{						
-				sortStatus = (MealStatus) statusCB.getSelectedItem();
-				buildTableList(false);
-			}
-			else if(e.getSource() == regionCB && regionCB.getSelectedIndex() != sortRegion)
-			{
-				sortRegion = regionCB.getSelectedIndex();
-				buildTableList(false);
-			}
+		if(e.getSource() == oncnumTF && !sortONCNum.equals(oncnumTF.getText()))
+		{
+			sortONCNum = oncnumTF.getText();
+			buildTableList(false);
+		}
+		else if(e.getSource() == typeCB && typeCB.getSelectedItem() != sortType)
+		{						
+			sortType = (MealType) typeCB.getSelectedItem();
+			buildTableList(false);
+		}
+		else if(e.getSource() == statusCB && statusCB.getSelectedItem() != sortStatus )
+		{						
+			sortStatus = (MealStatus) statusCB.getSelectedItem();
+			buildTableList(false);
+		}
+		else if(e.getSource() == regionCB && regionCB.getSelectedIndex() != sortRegion)
+		{
+			sortRegion = regionCB.getSelectedIndex();
+			buildTableList(false);
+		}
 			else if(e.getSource() == assignCB && !bIgnoreCBEvents && 
 					((Organization)assignCB.getSelectedItem()).getID() != sortAssigneeID )
-			{						
-				sortAssigneeID = ((Organization)assignCB.getSelectedItem()).getID();
+		{						
+			sortAssigneeID = ((Organization)assignCB.getSelectedItem()).getID();
 				buildTableList(false);
-			}
-			else if(e.getSource() == changedByCB && !bIgnoreCBEvents &&
-					changedByCB.getSelectedIndex() != sortChangedBy && !bIgnoreCBEvents)
-			{						
-				sortChangedBy = changedByCB.getSelectedIndex();
-				buildTableList(false);
-			}
-			else if(e.getSource() == printCB)
+		}
+		else if(e.getSource() == changedByCB && !bIgnoreCBEvents &&
+				changedByCB.getSelectedIndex() != sortChangedBy && !bIgnoreCBEvents)
+		{						
+			sortChangedBy = changedByCB.getSelectedIndex();
+			buildTableList(false);
+		}
+		else if(e.getSource() == printCB)
+		{
+			if(printCB.getSelectedIndex() == 1)	//Can always print listing
 			{
+				onPrintListing("ONC Meals");
+			} 
 /*				
-				if(printCB.getSelectedIndex() == 1)	//Can always print listing
-				{
-					onPrintListing("ONC Wishes");
-				} 
-				else	//Can only print if table rows are selected
-				{
-					if(sortTable.getSelectedRowCount() > 0)
-					{
-						if(printCB.getSelectedIndex() == 2)
-							onPrintLabels();
-						else if(printCB.getSelectedIndex() == 3)
-							onPrintReceivingCheckSheets();
-					}
-					else	//Warn user
-					{
-						JOptionPane.showMessageDialog(this, 
-	    					"No wishes selected, please selected wishes in order to" + 
-	    					printCB.getSelectedItem().toString(), 
-	    					"No Wishes Selected", JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
-						printCB.setSelectedIndex(0);
-					}
-				}
-*/				
-			}
-			else if(e.getSource() == btnExport)
+			else	//Can only print if table rows are selected
 			{
-//				onExportRequested();	
+				if(sortTable.getSelectedRowCount() > 0)
+				{
+					if(printCB.getSelectedIndex() == 2)
+						onPrintLabels();
+					else if(printCB.getSelectedIndex() == 3)
+						onPrintReceivingCheckSheets();
+				}
+				else	//Warn user
+				{
+					JOptionPane.showMessageDialog(this, 
+	    				"No wishes selected, please selected wishes in order to" + 
+	    				printCB.getSelectedItem().toString(), 
+	    				"No Wishes Selected", JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
+					printCB.setSelectedIndex(0);
+				}
 			}
+*/				
+		}
+		else if(e.getSource() == btnExport)
+		{
+			onExportRequested();	
+		}
+		else if(!bIgnoreCBEvents && (e.getSource() == changeAssigneeCB))
+		{
+			checkApplyChangesEnabled();
+		}
 	}
 
 	@Override
 	public void dataChanged(DatabaseEvent dbe) 
 	{
-		System.out.println(String.format("SortMealsDlg.dataChanged: type: %s", dbe.getType()));
-		if(dbe.getSource() != this && ( dbe.getType().equals("ADDED_MEAL") ||
-			dbe.getType().equals("UPDATED_MEAL") || dbe.getType().equals("DELETED_MEAL")))
-
+//		System.out.println(String.format("SortMealsDlg.dataChanged: dbe type = %s", dbe.getType()));
+		if(dbe.getSource() != this && (dbe.getType().equals("ADDED_MEAL") ||
+										dbe.getType().equals("UPDATED_MEAL") ||
+										dbe.getType().equals("DELETED_MEAL")))
 		{
 			buildTableList(true);
 		}
@@ -497,23 +581,73 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 	}
 
 	@Override
-	public void valueChanged(ListSelectionEvent arg0) 
+	public void valueChanged(ListSelectionEvent lse) 
 	{
-		// TODO Auto-generated method stub
-
+		if(!lse.getValueIsAdjusting() && lse.getSource() == sortTable.getSelectionModel() &&
+				sortTable.getSelectedRow() > -1 && !bChangingTable)
+		{
+			ONCFamily fam = stAL.get(sortTable.getSelectedRow()).getFamily();
+			fireEntitySelected(this, "FAMILY_SELECTED", fam, null);
+			
+			ONCMeal meal = stAL.get(sortTable.getSelectedRow()).getMeal();
+			//determine if a partner has been assigned for the selected meal
+			int partnerID = meal.getPartnerID();
+			if(partnerID > -1)
+			{
+				Organization org = orgs.getOrganizationByID(partnerID);
+				fireEntitySelected(this, "PARTNER_SELECTED", org, null);
+				
+			}
+			
+			sortTable.requestFocus();
+		}
+		
+		checkApplyChangesEnabled();	//Check to see if user postured to change status or assignee.
+		checkExportEnabled();
 	}
 
 	@Override
 	int sortTableList(int col) 
 	{
-		// TODO Auto-generated method stub
-		return 0;
+		archiveTableSelections(stAL);
+		
+		if(col == 0)
+    		Collections.sort(stAL, new SortItemFamNumComparator());
+    	else if(col == 1)	// Sort on Child's Age
+    		Collections.sort(stAL, new SortItemFamilyLNComparator());
+    	else if(col == 2)
+    		Collections.sort(stAL, new SortItemMealTypeComparator());
+    	else if(col == 3)
+    		Collections.sort(stAL, new SortItemMealStatusComparator());
+    	else if(col == 4)
+    		Collections.sort(stAL, new SortItemRegionComparator());
+    	else if(col == 5)
+    		Collections.sort(stAL, new SortItemMealAssigneeComparator());
+    	else if(col == 6)
+    		Collections.sort(stAL, new SortItemMealChangedByComparator());
+    	else if(col == 7)	
+    		Collections.sort(stAL, new SortItemMealDateChangedComparator());
+    	else
+    		col = -1;
+		
+		if(col > -1)
+			displaySortTable(stAL, false, tableRowSelectedObjectList);
+    		
+    	return col;
 	}
 
 	@Override
 	void setEnabledControls(boolean tf) 
 	{
 		btnExport.setEnabled(tf);
+	}
+	
+	void checkExportEnabled()
+	{
+		if(sortTable.getSelectedRowCount() > 0)
+			btnExport.setEnabled(true);
+		else
+			btnExport.setEnabled(false);
 	}
 
 	@Override
@@ -534,10 +668,12 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 	}
 
 	@Override
-	void checkApplyChangesEnabled() 
+	void checkApplyChangesEnabled()
 	{
-		// TODO Auto-generated method stub
-
+		if(sortTable.getSelectedRows().length > 0 &&changeAssigneeCB.getSelectedIndex() > 0)	
+			btnApplyChanges.setEnabled(true);
+		else
+			btnApplyChanges.setEnabled(false);
 	}
 
 	@Override
@@ -602,11 +738,8 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 	}
 
 	@Override
-	boolean isONCNumContainerEmpty() 
-	{
-		// TODO Auto-generated method stub
-		return false;
-	}
+	boolean isONCNumContainerEmpty() { return oncnumTF.getText().isEmpty(); }
+	
 	
 	private class SortMealObject extends ONCObject
 	{
@@ -614,6 +747,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		private ONCMeal	 	soMeal;
 		
 		ONCOrgs partnerDB;
+		ONCRegions regionDB;
 		
 		public SortMealObject(int itemID, ONCFamily fam, ONCMeal meal) 
 		{
@@ -622,6 +756,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 			soMeal = meal;
 			
 			partnerDB = ONCOrgs.getInstance();
+			regionDB = ONCRegions.getInstance();
 		}
 		
 		//getters
@@ -630,25 +765,108 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		
 		public String[] getExportRow()
 		{
-/* ONCE WE"VE AGREED ON EXPORT FORMAT WITH WFCM, CODE TO PRODUCE A ROW OF THE EXPORT GOES HERE			
+			// ONCE WE"VE AGREED ON EXPORT FORMAT WITH WFCM, CODE TO PRODUCE A ROW OF THE EXPORT GOES HERE			
 			SimpleDateFormat dob = new SimpleDateFormat("MM-dd-yyyy");
-			String dateChanged = dob.format(soChildWish.getChildWishDateChanged().getTime());
+			String dateChanged = dob.format(soMeal.getDateChanged().getTime());
 			
-			String wishName = wish == null ? "None" : wish.getName();
-			
-			String[] exportRow = {soFamily.getONCNum(), soChild.getChildGender(),
-									soChild.getChildAge(),
-									soChild.getChildDOBString("MM-dd-yyyy"), 
-									indicator[soChildWish.getChildWishIndicator()],
-									wishName,
-									soChildWish.getChildWishDetail(),
-									soChildWish.getChildWishStatus().toString(),
-									partnerDB.getOrganizationByID(soChildWish.getChildWishAssigneeID()).getName(),
-									soChildWish.getChildWishChangedBy(),
+			String[] exportRow = {soFamily.getONCNum(),
+									soFamily.getHOHLastName(),
+									soMeal.getType().toString(),
+									soFamily.getMealStatus().toString(), 
+									regionDB.getRegionID(soFamily.getRegion()),
+									partnerDB.getOrganizationByID(soMeal.getPartnerID()).getName(),
+									soMeal.getChangedBy(),
 									dateChanged};
 			return exportRow;
-*/
-			return null;
+		}
+	}
+	
+	private class SortItemFamNumComparator implements Comparator<SortMealObject>
+	{
+		@Override
+		public int compare(SortMealObject o1, SortMealObject o2)
+		{
+			Integer onc1, onc2;
+			
+			if(!o1.getFamily().getONCNum().isEmpty() && isNumeric(o1.getFamily().getONCNum()))
+				onc1 = Integer.parseInt(o1.getFamily().getONCNum());
+			else
+				onc1 = MAXIMUM_ON_NUMBER;
+							
+			if(!o2.getFamily().getONCNum().isEmpty() && isNumeric(o2.getFamily().getONCNum()))
+				onc2 = Integer.parseInt(o2.getFamily().getONCNum());
+			else
+				onc2 = MAXIMUM_ON_NUMBER;
+			
+			return onc1.compareTo(onc2);
+		}
+	}
+	
+	private class SortItemFamilyLNComparator implements Comparator<SortMealObject>
+	{
+		@Override
+		public int compare(SortMealObject o1, SortMealObject o2)
+		{
+			return o1.getFamily().getHOHLastName().compareTo(o2.getFamily().getHOHLastName());
+		}
+	}
+	
+	private class SortItemMealTypeComparator implements Comparator<SortMealObject>
+	{
+		@Override
+		public int compare(SortMealObject o1, SortMealObject o2)
+		{
+			return o1.getMeal().getType().compareTo(o2.getMeal().getType());
+		}
+	}
+	
+	private class SortItemMealStatusComparator implements Comparator<SortMealObject>
+	{
+		@Override
+		public int compare(SortMealObject o1, SortMealObject o2)
+		{
+			return o1.getFamily().getMealStatus().compareTo(o2.getFamily().getMealStatus());
+		}
+	}
+	
+	private class SortItemRegionComparator implements Comparator<SortMealObject>
+	{
+		@Override
+		public int compare(SortMealObject o1, SortMealObject o2)
+		{
+			Integer o1Reg = (Integer) o1.getFamily().getRegion();
+			Integer o2Reg = (Integer) o2.getFamily().getRegion();
+			return o1Reg.compareTo(o2Reg);
+		}
+	}
+	
+	private class SortItemMealAssigneeComparator implements Comparator<SortMealObject>
+	{
+		@Override
+		public int compare(SortMealObject o1, SortMealObject o2)
+		{
+			ONCOrgs partnerDB = ONCOrgs.getInstance();
+			String part1 = partnerDB.getOrganizationByID(o1.getMeal().getPartnerID()).getName();
+			String part2 = partnerDB.getOrganizationByID(o2.getMeal().getPartnerID()).getName();
+			return part1.compareTo(part2);
+		}
+	}
+	
+	private class SortItemMealChangedByComparator implements Comparator<SortMealObject>
+	{
+		@Override
+		public int compare(SortMealObject o1, SortMealObject o2)
+		{
+			return o1.getMeal().getChangedBy().compareTo(o2.getMeal().getChangedBy());
+		}
+	}
+	
+	private class SortItemMealDateChangedComparator implements Comparator<SortMealObject>
+	{
+		@Override
+		public int compare(SortMealObject o1, SortMealObject o2)
+		{
+			return o1.getMeal().getDateChanged().compareTo(o2.getMeal().getDateChanged());
 		}
 	}
 }
