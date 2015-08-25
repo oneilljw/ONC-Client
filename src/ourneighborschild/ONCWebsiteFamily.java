@@ -9,7 +9,7 @@ public class ONCWebsiteFamily
 	private String	dstatus;	
 	private String 	DNSCode;
 	private String	HOHFirstName;
-	private String	HOHLastName;	
+	private String	HOHLastName;
 	private String	mealStatus;
 	private int		agentID;
 	
