@@ -40,9 +40,9 @@ public class MealDB extends ONCDatabase
 
 	
 	//Used to create a meal internal to the application via the ONC Server
-	ONCObject add(Object source, ONCObject entity)
+	ONCMeal add(Object source, ONCObject entity)
 	{	
-		ONCObject addedMeal = null;
+		ONCMeal addedMeal = null;
 			
 		//send add meal request to server
 		String response = "";
@@ -60,7 +60,7 @@ public class MealDB extends ONCDatabase
 		return addedMeal;
 	}
 		
-	ONCObject processAddedMeal(Object source, String json)
+	ONCMeal processAddedMeal(Object source, String json)
 	{
 		ONCMeal addedMeal = null;
 		Gson gson = new Gson();

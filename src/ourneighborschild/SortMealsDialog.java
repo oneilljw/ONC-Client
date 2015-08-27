@@ -46,7 +46,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 	private static final Integer MAXIMUM_ON_NUMBER = 9999;
 
 	private Families fDB;
-	private MealDB mDB;
+	private MealDB mealDB;
 	private ONCOrgs orgs;
 	protected ONCRegions regions;
 
@@ -75,7 +75,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		
 		//set up the data base references
 		fDB = Families.getInstance();
-		mDB = MealDB.getInstance();
+		mealDB = MealDB.getInstance();
 		orgs = ONCOrgs.getInstance();
 		regions = ONCRegions.getInstance();
 		
@@ -83,8 +83,8 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		UserDB userDB = UserDB.getInstance();
 		if(userDB != null)
 			userDB.addDatabaseListener(this);
-		if(mDB != null)
-			mDB.addDatabaseListener(this);
+		if(mealDB != null)
+			mealDB.addDatabaseListener(this);
 		if(orgs != null)
 			orgs.addDatabaseListener(this);
 		if(regions != null)
@@ -235,7 +235,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		{
 			if(isNumeric(f.getONCNum()) && f.getMealID() > -1 && doesONCNumMatch(f.getONCNum()))	//Must be a valid family	
 			{
-				ONCMeal m = mDB.getMeal(f.getMealID());
+				ONCMeal m = mealDB.getMeal(f.getMealID());
 				if(m != null && doesTypeMatch(m.getType()) &&
 								 doesStatusMatch(f.getMealStatus()) &&
 								  doesRegionMatch(f.getRegion()) &&
@@ -679,8 +679,42 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 	@Override
 	boolean onApplyChanges() 
 	{
-		// TODO Auto-generated method stub
-		return false;
+		/**
+		 * Can assign meals, change assignee or remove assignees here. If an assignee change causes
+		 * a change in status that is handled at the server and returned when the meal update occurs.
+		 * So, all that's done here is to update the meal status.
+		 */
+			
+		boolean bChangesMade = false;
+		int[] row_sel = sortTable.getSelectedRows();
+			
+		for(int i=0; i<row_sel.length; i++)	
+		{
+			//Find meal for selected and set the assignee
+			ONCMeal mealReq = stAL.get(row_sel[i]).getMeal();
+			Organization cbPartner = (Organization) changeAssigneeCB.getSelectedItem();
+				
+			//is it a change? If so, send add the add request to the server. Meals are
+			//not updated, a new meal replaces the old so the history is retained.
+			if(mealReq.getPartnerID() != cbPartner.getID())
+			{
+				mealReq.setPartnerID(cbPartner.getID());
+				ONCMeal addedMeal = mealDB.add(this, mealReq);
+				
+				if(addedMeal != null)
+				{
+					buildTableList(false);
+					bChangesMade = true;
+				}
+			}
+		}
+		
+		//Reset the change combo boxes to "No Change"
+		changeAssigneeCB.setSelectedIndex(0);
+		
+		btnApplyChanges.setEnabled(false);
+
+		return bChangesMade;
 	}
 
 	@Override
