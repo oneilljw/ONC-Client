@@ -45,7 +45,6 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 	private static final long serialVersionUID = 1L;
 	private static final Integer MAXIMUM_ON_NUMBER = 9999;
 
-	private Families fDB;
 	private MealDB mealDB;
 	private ONCOrgs orgs;
 	protected ONCRegions regions;
@@ -73,8 +72,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		super(pf, colToolTips, cols, colWidths, center_cols);
 		this.setTitle("Our Neighbor's Child - Meal Management");
 		
-		//set up the data base references
-		fDB = Families.getInstance();
+		//set up the data base references. Family data base reference is inherited.
 		mealDB = MealDB.getInstance();
 		orgs = ONCOrgs.getInstance();
 		regions = ONCRegions.getInstance();
@@ -532,10 +530,13 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 	@Override
 	public void dataChanged(DatabaseEvent dbe) 
 	{
-//		System.out.println(String.format("SortMealsDlg.dataChanged: dbe type = %s", dbe.getType()));
+		System.out.println(String.format("SortMealsDlg.dataChanged: dbe type = %s", dbe.getType()));
 		if(dbe.getSource() != this && (dbe.getType().equals("ADDED_MEAL") ||
 										dbe.getType().equals("UPDATED_MEAL") ||
-										dbe.getType().equals("DELETED_MEAL")))
+										dbe.getType().equals("DELETED_MEAL") ||
+										dbe.getType().equals("ADDED_FAMILY") ||
+										dbe.getType().equals("UPDATED_FAMILY") ||
+										dbe.getType().equals("DELETED_FAMILY")))
 		{
 			buildTableList(true);
 		}
