@@ -415,8 +415,11 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 	void onExportRequested()
 	{
 		//Write the selected row data to a .csv file
-    	String[] header = {"ONC #", "HoH Last Name", "Holiday", "Status", "Region", "Assignee",
-    						"Changed By", "Date Changed"};
+    	String[] header = {"ONC #", "Client #", "HoH Name", "Email", "Home Phone", "Other Phone", "Holiday",
+    						"Dietary Restrictions", "Schools Attended", "Referring Agent", "Referring Agent Phone",
+    						"Delivery Address", "Unit/Apt", "City", "# Adults", "# Children",
+    						"Speaks English?", "Language", "Transportation?", "Remarks", "Last Changed"};
+
     
     	ONCFileChooser oncfc = new ONCFileChooser(this);
        	File oncwritefile = oncfc.getFile("Select file for export of selected meals" ,
@@ -530,7 +533,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 	@Override
 	public void dataChanged(DatabaseEvent dbe) 
 	{
-		System.out.println(String.format("SortMealsDlg.dataChanged: dbe type = %s", dbe.getType()));
+//		System.out.println(String.format("SortMealsDlg.dataChanged: dbe type = %s", dbe.getType()));
 		if(dbe.getSource() != this && (dbe.getType().equals("ADDED_MEAL") ||
 										dbe.getType().equals("UPDATED_MEAL") ||
 										dbe.getType().equals("DELETED_MEAL") ||
@@ -572,7 +575,6 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		if("date".equals(pce.getPropertyName()) &&
 				(!sortStartCal.getTime().equals(ds.getDate()) || !sortEndCal.getTime().equals(de.getDate())))
 		{
-			System.out.println("SortMealsDlg.PropertyChangedEvent Detected");
 			sortStartCal.setTime(ds.getDate());
 			sortEndCal.setTime(de.getDate());
 			buildTableList(false);
@@ -800,17 +802,50 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		
 		public String[] getExportRow()
 		{
-			// ONCE WE"VE AGREED ON EXPORT FORMAT WITH WFCM, CODE TO PRODUCE A ROW OF THE EXPORT GOES HERE			
-			SimpleDateFormat dob = new SimpleDateFormat("MM-dd-yyyy");
+			ONCAgents agentDB = ONCAgents.getInstance();
+			Agent agent = agentDB.getAgent(soFamily.getAgentID());
+			
+			String delAddress, unit, city;
+			if(soFamily.getSubstituteDeliveryAddress().isEmpty())
+			{
+				delAddress = soFamily.getHouseNum() + " " + soFamily.getStreet();
+				unit = soFamily.getUnitNum();
+				city = soFamily.getCity();
+			}
+			else
+			{
+				String[] parts = soFamily.getSubstituteDeliveryAddress().split("_");
+				delAddress = parts[0] + " " + parts[1];
+				unit = parts[2].equals("None")  ? "" : parts[2];
+				city = parts[3];
+			}
+			
+			AdultDB adultDB = AdultDB.getInstance();
+			ChildDB childDB = ChildDB.getInstance();
+			
+			SimpleDateFormat dob = new SimpleDateFormat("MMM-dd-yyyy HH:mm");
 			String dateChanged = dob.format(soMeal.getDateChanged().getTime());
 			
 			String[] exportRow = {soFamily.getONCNum(),
-									soFamily.getHOHLastName(),
+									soFamily.getODBFamilyNum(),
+									soFamily.getHOHFirstName() + " " + soFamily.getHOHLastName(),
+									soFamily.getFamilyEmail(),
+									soFamily.getHomePhone(),
+									soFamily.getOtherPhon(),
 									soMeal.getType().toString(),
-									soFamily.getMealStatus().toString(), 
-									regionDB.getRegionID(soFamily.getRegion()),
-									partnerDB.getOrganizationByID(soMeal.getPartnerID()).getName(),
-									soMeal.getChangedBy(),
+									soMeal.getRestricitons(),
+									soFamily.getSchools(),
+									agent.getAgentName(),
+									agent.getAgentPhone(),
+									delAddress,
+									unit,
+									city,
+									Integer.toString(adultDB.getNumberOfAdultsInFamily(soFamily.getID())),
+									Integer.toString(childDB.getNumberOfChildrenInFamily(soFamily.getID())),
+									soFamily.getSpeakEnglish(),
+									soFamily.getLanguage(),
+									soFamily.getTransportation().toString(),
+									soFamily.getDetails(),
 									dateChanged};
 			return exportRow;
 		}

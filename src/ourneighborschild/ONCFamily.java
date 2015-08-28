@@ -2,6 +2,7 @@ package ourneighborschild;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class ONCFamily extends ONCEntity
 {
@@ -46,6 +47,7 @@ public class ONCFamily extends ONCEntity
 	private int			deliveryID;
 	private int 		mealID;
 	private MealStatus  mealStatus;
+	private Transportation transportation;
 	
 	
 	//constructor used to make a copy for server update requests
@@ -87,6 +89,7 @@ public class ONCFamily extends ONCEntity
 		deliveryID = f.deliveryID;
 		mealID = f.mealID;
 		mealStatus = f.mealStatus;
+		transportation = f.transportation;
 	}
 	//Overloaded Constructor - 30 column input from ODB file
 		ONCFamily(String RAName, String RAOrg, String RATitle, String ClientFam, String HOH, String FamMembers,
@@ -127,6 +130,7 @@ public class ONCFamily extends ONCEntity
 			deliveryID = -1;
 			mealID = -1;
 			mealStatus = MealStatus.None;
+			transportation = Transportation.TBD;
 
 			newGetHOHName(HOH);					//Populate the HOH info
 			parsePhoneData(ClientFamPhone);		//Populate Home and Other phone fields
@@ -173,6 +177,7 @@ public class ONCFamily extends ONCEntity
 		deliveryID = -1;
 		mealID = -1;
 		mealStatus = MealStatus.None;
+		transportation = Transportation.TBD;
 		
 		newGetHOHName(HOH);
 //		getPhones(ClientFamPhone);
@@ -218,6 +223,7 @@ public class ONCFamily extends ONCEntity
 		deliveryID = -1;
 		mealID = -1;
 		mealStatus = MealStatus.None;
+		transportation = Transportation.TBD;
 
 		newGetHOHName(HOH);
 		parsePhoneData(ClientFamPhone);
@@ -263,6 +269,7 @@ public class ONCFamily extends ONCEntity
 			deliveryID = -1;
 			mealID = -1;
 			mealStatus = MealStatus.None;
+			transportation = Transportation.TBD;
 
 			parseHOH(HOH);
 			parsePhoneData(ClientFamPhone);
@@ -313,6 +320,7 @@ public class ONCFamily extends ONCEntity
 //		slPos = Integer.parseInt(nextLine[37]);
 //		slMssg = getDBString(nextLine[38]);
 //		slChangedBy = getDBString(nextLine[39]);
+		transportation = Transportation.valueOf(nextLine[40]);
 	}
 	
 	//Overloaded Constructor - Direct Intake Processing
@@ -320,7 +328,7 @@ public class ONCFamily extends ONCEntity
 				String hohFirstName, String hohLastName, String houseNum, String street, String unitNum,
 				String city, String zipCode, String altHouseNum, String altStreet, String altUnitNum,
 				String altCity, String altZipCode, String homePhone, String otherPhone, String altPhone, String familyEmail,
-				String odbDetails, String odbWishList, int agentID, int mealID, MealStatus mStatus)
+				String odbDetails, String odbWishList, int agentID, int mealID, MealStatus mStatus, Transportation transportation)
 	{
 		super(id, new Date(), cb, STOPLIGHT_OFF, "Family referred", cb);
 		this.oncNum = oncNum;
@@ -371,6 +379,7 @@ public class ONCFamily extends ONCEntity
 		this.deliveryID = -1;
 		this.mealID = mealID;
 		mealStatus = mStatus;
+		this.transportation = transportation;
 	}
 	
 	String getDBString(String s)
@@ -713,6 +722,7 @@ public class ONCFamily extends ONCEntity
 	public int		getDeliveryID() { return deliveryID; }
 	public int		getMealID() { return mealID; }
 	public MealStatus getMealStatus() { return mealStatus; }
+	public Transportation getTransportation() { return transportation; }
 
 	//Setters
 	public void setONCNum(String s) { oncNum = s;}
@@ -749,6 +759,7 @@ public class ONCFamily extends ONCEntity
 	public void setDeliveryID(int did) { deliveryID = did; }
 	public void setMealID(int id) { mealID = id; }
 	public void setMealStatus(MealStatus ms) { mealStatus = ms; }
+	public void setTransportation(Transportation t) { transportation = t; }
 	
 	public String getGoogleMapAddress()
 	{
@@ -796,7 +807,8 @@ public class ONCFamily extends ONCEntity
 	@Override
 	public String[] getExportRow()
 	{
-		String[] row = new String[40];
+/*		
+		String[] row = new String[41];
 		int index = 0;
 		
 		row[index++] = 	Integer.toString(getID());
@@ -838,9 +850,56 @@ public class ONCFamily extends ONCEntity
 		row[index++] = 	Integer.toString(getNumOfLargeItems());
 		row[index++] = 	Integer.toString(getStoplightPos());
 		row[index++] = 	getStoplightMssg();
-		row[index] = 	getStoplightChangedBy();
+		row[index++] = 	getStoplightChangedBy();
+		row[index] 	 =  getTransportation().toString();
 
-		return row;		
+//		return row;
+*/		
+		List<String> rowList = new ArrayList<String>();
+		rowList.add(Integer.toString(getID()));
+		rowList.add(getONCNum());		
+		rowList.add(Integer.toString(getRegion()));
+		rowList.add(getODBFamilyNum());
+		rowList.add(getBatchNum());	
+		rowList.add(getDNSCode());
+		rowList.add(Integer.toString(getFamilyStatus()));
+		rowList.add(Integer.toString(getDeliveryStatus()));
+		rowList.add(getSpeakEnglish());
+		rowList.add(getLanguage());			
+		rowList.add(getChangedBy());
+		rowList.add(getNotes());
+		rowList.add(getDeliveryInstructions());
+		rowList.add(getClientFamily());
+		rowList.add(getHOHFirstName());
+		rowList.add(getHOHLastName());
+		rowList.add(getHouseNum());
+		rowList.add(getStreet());
+		rowList.add(getUnitNum());
+		rowList.add(getCity());
+		rowList.add(getZipCode());
+		rowList.add(getSubstituteDeliveryAddress());
+		rowList.add(getAllPhoneNumbers());			
+		rowList.add(getHomePhone());
+		rowList.add(getOtherPhon());
+		rowList.add(getFamilyEmail());
+		rowList.add(getDetails());
+		rowList.add(getNamesOfChildren());
+		rowList.add(getSchools());
+		rowList.add(getODBWishList());
+		rowList.add(getAdoptedFor());
+		rowList.add(Integer.toString(getAgentID()));
+		rowList.add(Integer.toString(getDeliveryID()));
+		rowList.add(Integer.toString(getMealID()));
+		rowList.add(getMealStatus().toString());
+		rowList.add(Integer.toString(getNumOfBags()));
+		rowList.add(Integer.toString(getNumOfLargeItems()));
+		rowList.add(Integer.toString(getStoplightPos()));
+		rowList.add(getStoplightMssg());
+		rowList.add(getStoplightChangedBy());
+		rowList.add(getTransportation().toString());
+		
+//		String[] rowArray = rowList.toArray(new String[rowList.size()]);
+		return rowList.toArray(new String[rowList.size()]);
 	}
 }
 
