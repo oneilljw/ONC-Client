@@ -823,6 +823,15 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 			AdultDB adultDB = AdultDB.getInstance();
 			ChildDB childDB = ChildDB.getInstance();
 			
+			String schools;
+			if(soFamily.getSchools().contains("\n"))
+			{
+				schools = soFamily.getSchools();
+				System.out.println(String.format("SortMealsDlg.getExportRow: schools= %s", schools));
+			}
+			else
+				schools = soFamily.getSchools();
+			
 			SimpleDateFormat dob = new SimpleDateFormat("MMM-dd-yyyy HH:mm");
 			String dateChanged = dob.format(soMeal.getDateChanged().getTime());
 			
@@ -834,13 +843,13 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 									soFamily.getOtherPhon(),
 									soMeal.getType().toString(),
 									soMeal.getRestricitons(),
-									soFamily.getSchools(),
+									schools,
 									agent.getAgentName(),
 									agent.getAgentPhone(),
 									delAddress,
 									unit,
 									city,
-									Integer.toString(adultDB.getNumberOfAdultsInFamily(soFamily.getID())),
+									Integer.toString(adultDB.getNumberOfOtherAdultsInFamily(soFamily.getID())+1),
 									Integer.toString(childDB.getNumberOfChildrenInFamily(soFamily.getID())),
 									soFamily.getSpeakEnglish(),
 									soFamily.getLanguage(),

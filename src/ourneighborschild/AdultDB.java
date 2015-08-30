@@ -156,7 +156,7 @@ public class AdultDB extends ONCDatabase
 			System.out.println("Adult DB: Adult deletion failed, adult ID not found");
 	}
 	
-	int getNumberOfAdultsInFamily(int familyID)
+	int getNumberOfOtherAdultsInFamily(int familyID)
 	{
 		int count = 0;
 		for(ONCAdult adult : adultList)

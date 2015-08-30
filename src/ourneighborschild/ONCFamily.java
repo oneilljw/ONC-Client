@@ -328,7 +328,7 @@ public class ONCFamily extends ONCEntity
 				String hohFirstName, String hohLastName, String houseNum, String street, String unitNum,
 				String city, String zipCode, String altHouseNum, String altStreet, String altUnitNum,
 				String altCity, String altZipCode, String homePhone, String otherPhone, String altPhone, String familyEmail,
-				String odbDetails, String odbWishList, int agentID, int mealID, MealStatus mStatus, Transportation transportation)
+				String odbDetails, String schools, String odbWishList, int agentID, int mealID, MealStatus mStatus, Transportation transportation)
 	{
 		super(id, new Date(), cb, STOPLIGHT_OFF, "Family referred", cb);
 		this.oncNum = oncNum;
@@ -372,7 +372,7 @@ public class ONCFamily extends ONCEntity
 		this.FamilyEmail = familyEmail;
 		this.details = odbDetails;
 		this.ChildrenNames = "";	//Only used for .csv file export
-		this.Schools = "";
+		this.Schools = schools;
 		this.ODBWishList = odbWishList;	
 		this.AdoptedFor = "";
 		this.agentID = agentID;
