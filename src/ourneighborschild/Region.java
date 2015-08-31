@@ -16,7 +16,7 @@ public class Region implements Serializable
 	private int addressNumLow;
 	private int addressNumHi;
 //	private String odd_even;
-//	private String zipCode;
+	private String zipCode;
 //	private String precinct;
 //	private String townPrecinct;
 //	private String congDistrict;
@@ -33,7 +33,7 @@ public class Region implements Serializable
 		addressNumLow = Integer.parseInt(file_line[5]);
 		addressNumHi = Integer.parseInt(file_line[6]);
 //		odd_even = file_line[7];
-//		zipCode = file_line[8];
+		zipCode = file_line[8];
 //		precinct = file_line[9];
 //		townPrecinct = file_line[10];
 //		congDistrict = file_line[11];
@@ -54,7 +54,8 @@ public class Region implements Serializable
 			int stnum = Integer.parseInt(address[0]);
 			return address[2].toLowerCase().equals(streetName.toLowerCase()) &&
 					stnum >= addressNumLow && stnum <= addressNumHi &&
-					 address[1].equals(streetDir);
+					 address[1].equals(streetDir) &&
+					  address[4].equals(zipCode);
 		}
 		else
 			return false;
