@@ -254,7 +254,7 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 				ONCDelivery reqDelivery = new ONCDelivery(-1, f.getID(), DELIVERY_STATUS_ASSIGNED,
 															assignDriverTF.getText(),
 															"Delivery Driver Assigned",
-															gvs.getUserLNFI(),
+															GlobalVariables.getUserLNFI(),
 															Calendar.getInstance());
 				
 				String response = deliveryDB.add(this, reqDelivery);

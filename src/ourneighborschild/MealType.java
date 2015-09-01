@@ -11,4 +11,11 @@ public enum MealType
 		
 		return mtSearch;
 	}
+	
+	static MealType[] getSelectionList()
+	{
+		MealType[] mtSearch = {MealType.Thanksgiving, MealType.December, MealType.Both};
+		
+		return mtSearch;
+	}
 }

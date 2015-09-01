@@ -275,7 +275,7 @@ public class OurNeighborsChild implements DatabaseListener
         	oncGVs.setUserPermission(UserPermission.GENERAL);
      
                      	
-        oncFamilyPanel.setFamilyPanelDisplayPermission(oncGVs.isUserAdmin());	//Restrict personal data for general user
+        oncFamilyPanel.setFamilyPanelDisplayPermission(GlobalVariables.isUserAdmin());	//Restrict personal data for general user
         
         //get database years from server to set the data menu item for user to select and get user db so 
         //a chat can start
@@ -329,7 +329,7 @@ public class OurNeighborsChild implements DatabaseListener
 		today.setTime(oncGVs.getTodaysDate());
 		int currYear = today.get(Calendar.YEAR);
 		
-		if(currYear != dbYears.get(dbYears.size()-1).getYear() && oncGVs.isUserAdmin())
+		if(currYear != dbYears.get(dbYears.size()-1).getYear() && GlobalVariables.isUserAdmin())
 			oncMenuBar.setEnabledNewMenuItem(true);	
     }
     
@@ -780,7 +780,7 @@ public class OurNeighborsChild implements DatabaseListener
 			oncMenuBar.SetEnabledMenuItems(true);
 			oncFamilyPanel.onFamilyDataLoaded();
 		
-			if(oncGVs.isUserAdmin())  			
+			if(GlobalVariables.isUserAdmin())  			
 				oncMenuBar.setEnabledRestrictedMenuItems(true);
 		}
     }
@@ -993,7 +993,7 @@ public class OurNeighborsChild implements DatabaseListener
     		else if(e.getSource() == ONCMenuBar.importDrvrMI)
     		{
     			String mssg = oncDDB.importDrivers(oncFrame, oncGVs.getTodaysDate(),
-    									oncGVs.getUserLNFI(), oncGVs.getImageIcon(ONC_IMAGE_ICON_INDEX));
+    									GlobalVariables.getUserLNFI(), oncGVs.getImageIcon(ONC_IMAGE_ICON_INDEX));
     			
 //    			oncFamilyPanel.refreshDriverDisplays();	//Update dialog based on imported info
     			
@@ -1169,7 +1169,7 @@ public class OurNeighborsChild implements DatabaseListener
     		//Now that we have season data loaded
         	//let the user know that data has been loaded
     		oncFrame.setTitle(APPNAME + " - " + year + " Season Data");
-			if(oncGVs.isUserAdmin()) 
+			if(GlobalVariables.isUserAdmin()) 
 				oncMenuBar.setEnabledImportMenuItems(true);
 			
 			String mssg;

@@ -394,7 +394,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 					!f.getDNSCode().equals(changeDNSCB.getSelectedItem()))
 			{
 				String newDNSCode = (String) changeDNSCB.getSelectedItem();
-				String chngdBy = gvs.getUserLNFI();
+				String chngdBy = GlobalVariables.getUserLNFI();
 				
 				f.setDNSCode(newDNSCode);
 				f.setChangedBy(chngdBy);	//Set the changed by field to current user
@@ -411,7 +411,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 					f.setNumOfBags(0);
 				
 				f.setFamilyStatus(changeFStatusCB.getSelectedIndex()-1);
-				f.setChangedBy(gvs.getUserLNFI());	//Set the changed by field to current user
+				f.setChangedBy(GlobalVariables.getUserLNFI());	//Set the changed by field to current user
 
 				bFamilyChangeDetected = true;
 			}
@@ -425,7 +425,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 						changeDStatusCB.getSelectedIndex()-1,
 						deliveryDB.getDeliveredBy(f.getDeliveryID()),
 						"Delivery Status Changed",
-						gvs.getUserLNFI(),
+						GlobalVariables.getUserLNFI(),
 						Calendar.getInstance());
 
 				String response = deliveryDB.add(this, reqDelivery);
@@ -1037,7 +1037,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		{
 			printCB.setEnabled(true);
 			
-			if(gvs.isUserAdmin())
+			if(GlobalVariables.isUserAdmin())
 			{
 				emailCB.setEnabled(true);
 				callCB.setEnabled(true);

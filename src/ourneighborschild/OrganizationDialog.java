@@ -602,7 +602,7 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
 		if(bCD)	//If an update to organization data (not stop light data) was detected
 		{
 			reqOrg.setDateChanged(gvs.getTodaysDate());
-			reqOrg.setChangedBy(gvs.getUserLNFI());
+			reqOrg.setChangedBy(GlobalVariables.getUserLNFI());
 //			reqOrg.setStoplightChangedBy(gvs.getUserLNFI());
 			
 			String response = odOrgs.update(this, reqOrg);	//notify the database of the change
@@ -720,7 +720,8 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
 	void onSaveNew()
 	{
 		//construct a new organization from user input	
-		Organization newOrg = new Organization(-1, new Date(), gvs.getUserLNFI(), 3, "Partner Created", gvs.getUserLNFI(),
+		Organization newOrg = new Organization(-1, new Date(), GlobalVariables.getUserLNFI(),
+				3, "Partner Created", GlobalVariables.getUserLNFI(),
 				statusCB.getSelectedIndex(), typeCB.getSelectedIndex(),
 				(GiftCollection) collTypeCB.getSelectedItem(), nameTF.getText(), "", 
 				streetnumTF.getText().isEmpty() ? 0 : Integer.parseInt(streetnumTF.getText()),

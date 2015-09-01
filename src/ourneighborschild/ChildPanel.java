@@ -105,7 +105,7 @@ public class ChildPanel extends ONCPanel implements DatabaseListener, EntitySele
 	
 	void setEditableGUIFields(boolean tf)
 	{
-		if(gvs.isUserAdmin())
+		if(GlobalVariables.isUserAdmin())
 		{
 			firstnameTF.setEditable(tf);
 			lastnameTF.setEditable(tf);
@@ -124,7 +124,7 @@ public class ChildPanel extends ONCPanel implements DatabaseListener, EntitySele
 											child.getChildFirstName());
 		LogDialog.add(logEntry, "M");
 		
-		if(gvs.isUserAdmin())	//Only display child's actual name if user permission permits
+		if(GlobalVariables.isUserAdmin())	//Only display child's actual name if user permission permits
 		{
 			firstnameTF.setText(child.getChildFirstName());
 			lastnameTF.setText(child.getChildLastName());
@@ -213,7 +213,7 @@ public class ChildPanel extends ONCPanel implements DatabaseListener, EntitySele
 	void updateChild(ONCChild c)
 	{
 		//field changed and user has permission to change
-		if(c != null && gvs.isUserAdmin() &&
+		if(c != null && GlobalVariables.isUserAdmin() &&
 				(!firstnameTF.getText().equals(c.getChildFirstName()) ||
 				  !lastnameTF.getText().equals(c.getChildLastName()) ||
 				   !schoolTF.getText().equals(c.getChildSchool()) ||
@@ -364,7 +364,7 @@ public class ChildPanel extends ONCPanel implements DatabaseListener, EntitySele
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
-			if(dispChild != null && !bChildDataChanging && gvs.isUserAdmin() && 
+			if(dispChild != null && !bChildDataChanging && GlobalVariables.isUserAdmin() && 
 													(e.getSource() == firstnameTF || 
 													 e.getSource() == lastnameTF ||
 													 e.getSource() == schoolTF ||
@@ -379,7 +379,7 @@ public class ChildPanel extends ONCPanel implements DatabaseListener, EntitySele
 		{
 			if(pce.getSource() == dobDC.getDateEditor() && 
 				"date".equals(pce.getPropertyName()) && 
-				 !bChildDataChanging && dispChild != null && gvs.isUserAdmin())
+				 !bChildDataChanging && dispChild != null && GlobalVariables.isUserAdmin())
 				  
 			{
 				

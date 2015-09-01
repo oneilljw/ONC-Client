@@ -385,7 +385,7 @@ public class Families extends ONCSearchableDatabase
 //	    							generateONCNumber(regions.getRegionMatch(nextLine[14], nextLine[16]), null),
 //	    							oncID,
 	    							-1,
-	    							fGVs.getUserLNFI(), 
+	    							GlobalVariables.getUserLNFI(), 
 	    							agentID);
 	    					
 	    					ONCFamily addedFam = (ONCFamily) add(this, reqAddFam);

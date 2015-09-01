@@ -257,7 +257,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		else
 			printCB.setEnabled(false);
 		
-		if(sortTable.getSelectedRowCount() > 0 && gvs.isUserAdmin())
+		if(sortTable.getSelectedRowCount() > 0 && GlobalVariables.isUserAdmin())
 		{
 			emailCB.setEnabled(true);
 		}

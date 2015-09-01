@@ -281,7 +281,7 @@ public class AngelAutoCallDialog extends JDialog implements ActionListener
 					 ONCDelivery reqDelivery = new ONCDelivery(-1, f.getID(), DELIVERY_STATUS_CONFIRMED,
 							 					deliveryDB.getDeliveredBy(f.getDeliveryID()),
 							 					"Angel Call Result: Confirmed",
-							 					gvs.getUserLNFI(),
+							 					GlobalVariables.getUserLNFI(),
 							 					Calendar.getInstance());
 					 
 					 String response = deliveryDB.add(this, reqDelivery);

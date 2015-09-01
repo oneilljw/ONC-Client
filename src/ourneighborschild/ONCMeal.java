@@ -13,7 +13,6 @@ public class ONCMeal extends ONCEntity
 	
 	protected int famID;
 	protected MealType type;
-	protected MealStatus status;
 	protected String dietaryRestrictions;
 	protected int partnerID;
 	
@@ -71,5 +70,11 @@ public class ONCMeal extends ONCEntity
 		String[] rowArr = new String[row.size()];
 		rowArr = row.toArray(rowArr);
 		return rowArr;		
+	}
+	
+	public String getPrintRow()
+	{
+		return String.format("mealID=%d, famID=%d, type=%s, res=%s, partnerID=%d, cb=%s",
+				id, famID, type.toString(), dietaryRestrictions, partnerID, changedBy); 
 	}
 }

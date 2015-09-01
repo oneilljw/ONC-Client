@@ -38,7 +38,16 @@ public class MealDB extends ONCDatabase
 			return mealList.get(index);
 	}
 
+	List<ONCMeal> getFamilyMealHistory(int famID)
+	{
+		List<ONCMeal> mealHistoryList = new ArrayList<ONCMeal>();
+		
+		for(ONCMeal meal:mealList)
+			if(meal.getFamilyID() == famID)
+				mealHistoryList.add(meal);
 	
+		return mealHistoryList;
+	}
 	//Used to create a meal internal to the application via the ONC Server
 	ONCMeal add(Object source, ONCObject entity)
 	{	

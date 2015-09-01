@@ -53,7 +53,7 @@ public class ChildWishDB extends ONCDatabase
 	ONCChildWish add(Object source, int childid, int wishid, String wd, int wn, int wi, WishStatus ws, Organization org)
 	{	
 		GlobalVariables gvs = GlobalVariables.getInstance();
-		String cb = gvs.getUserLNFI();
+		String cb = GlobalVariables.getUserLNFI();
 		Date dc = gvs.getTodaysDate();
 		
 		//Get the old wish being replaced. getWish method returns null if wish not found

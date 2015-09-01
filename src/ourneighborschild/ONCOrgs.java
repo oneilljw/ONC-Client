@@ -119,7 +119,7 @@ public class ONCOrgs extends ONCSearchableDatabase
 			//A change from a previous status to confirmed has occurred, add to the confirmed array
 			o.setStatus(STATUS_CONFIRMED);
 			o.setDateChanged(orgGVs.getTodaysDate());
-			o.setStoplightChangedBy(orgGVs.getUserLNFI());
+			o.setStoplightChangedBy(GlobalVariables.getUserLNFI());
 //			addConfirmedOrganization(o.getName());
 		}
 		else if(o.getStatus() == STATUS_CONFIRMED && newstatus != STATUS_CONFIRMED)

@@ -693,16 +693,20 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 			
 		for(int i=0; i<row_sel.length; i++)	
 		{
-			//Find meal for selected and set the assignee
-			ONCMeal mealReq = stAL.get(row_sel[i]).getMeal();
 			Organization cbPartner = (Organization) changeAssigneeCB.getSelectedItem();
 				
-			//is it a change? If so, send add the add request to the server. Meals are
-			//not updated, a new meal replaces the old so the history is retained.
-			if(mealReq.getPartnerID() != cbPartner.getID())
+			//is it a change? If so, create an add meal request and send to the
+			//server. Meals are not updated, so meal history is retained.
+			if(stAL.get(row_sel[i]).getMeal().getPartnerID() != cbPartner.getID())
 			{
-				mealReq.setPartnerID(cbPartner.getID());
-				ONCMeal addedMeal = mealDB.add(this, mealReq);
+				ONCMeal addMealReq = new ONCMeal(-1, stAL.get(row_sel[i]).getMeal().getFamilyID(),
+										stAL.get(row_sel[i]).getMeal().getType(),
+										stAL.get(row_sel[i]).getMeal().getRestricitons(), 
+										cbPartner.getID(), GlobalVariables.getUserLNFI(),
+										new Date(), stAL.get(row_sel[i]).getMeal().getStoplightPos(),
+										"Changed Meal Partner", GlobalVariables.getUserLNFI());
+				
+				ONCMeal addedMeal = mealDB.add(this, addMealReq);
 				
 				if(addedMeal != null)
 				{

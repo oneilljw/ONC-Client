@@ -345,7 +345,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		if(tf && sortTable.getSelectedRowCount() > 0)
 		{
 			printCB.setEnabled(true);
-			if(gvs.isUserAdmin())	//Only admins or higher can send email
+			if(GlobalVariables.isUserAdmin())	//Only admins or higher can send email
 				emailCB.setEnabled(true);
 			btnExport.setEnabled(true);
 		}
@@ -400,7 +400,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 			if(bOrgChanged)
 			{
 				updatedOrg.setDateChanged(gvs.getTodaysDate());
-				updatedOrg.setStoplightChangedBy(gvs.getUserLNFI());
+				updatedOrg.setStoplightChangedBy(GlobalVariables.getUserLNFI());
 				
 				String response = orgs.update(this, updatedOrg);	//notify the database of the change
 				

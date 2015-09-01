@@ -338,7 +338,8 @@ public class DriverDialog extends EntityDialog
 		ONCDriver newDriver = new ONCDriver(-1, "N/A", firstnameTF.getText(), lastnameTF.getText(),
 					emailTF.getText(), streetnumTF.getText(), streetnameTF.getText(), 
 					unitTF.getText(), cityTF.getText(), zipTF.getText(), 
-					hPhoneTF.getText(), cPhoneTF.getText(), "", "", new Date(), gvs.getUserLNFI());
+					hPhoneTF.getText(), cPhoneTF.getText(), "", "", new Date(),
+					GlobalVariables.getUserLNFI());
 						
 		//send add request to the local data base
 		String response = ddb.add(this, newDriver);

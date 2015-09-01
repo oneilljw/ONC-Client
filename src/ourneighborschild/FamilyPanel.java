@@ -105,6 +105,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	//Dialogs that are children of the family panel
 	private static ClientMapDialog cmDlg;
 	private DeliveryStatusDialog dsDlg;
+	private MealDialog mealDlg;
 	private DirectionsDialog dirDlg;
 	private DriverDialog driverDlg;
 	private WishCatalogDialog catDlg;
@@ -439,9 +440,13 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         JScrollPane oncDIscrollPane = new JScrollPane(oncDIPane);
         oncDIscrollPane.setBorder(BorderFactory.createTitledBorder("Delivery Instructions"));
         
-        //Set up delivery info dialog box 
+        //Set up delivery history dialog box 
         dsDlg = new DeliveryStatusDialog(parentFrame);
         nav.addEntitySelectionListener(dsDlg);
+        
+        //Set up meal history dialog box 
+        mealDlg = new MealDialog(parentFrame);
+        nav.addEntitySelectionListener(mealDlg);
        
         //Set up delivery directions dialog box 
         try { dirDlg = new DirectionsDialog(parentFrame); }
@@ -464,6 +469,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         sortWishesDlg = new SortWishDialog(parentFrame, colToolTips, columns, colWidths, center_cols);
         sortWishesDlg.addEntitySelectionListener(familyChildSelectionListener);
         sortWishesDlg.addEntitySelectionListener(dsDlg);
+        sortWishesDlg.addEntitySelectionListener(mealDlg);
         sortWishesDlg.addEntitySelectionListener(dirDlg);
     	
     	//Set up the receive gifts dialog
@@ -490,6 +496,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         sortFamiliesDlg.addEntitySelectionListener(familyChildSelectionListener);
         sortFamiliesDlg.addEntitySelectionListener(dirDlg);
         sortFamiliesDlg.addEntitySelectionListener(dsDlg);
+        sortFamiliesDlg.addEntitySelectionListener(mealDlg);
         
       //Set up the sort meals dialog
         String[] mealToolTips = {"ONC Family Number", "HoH Last Name", "Region", "Which holiday is meal for?",
@@ -504,6 +511,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         sortMealsDlg = new SortMealsDialog(parentFrame, mealToolTips, mealColumns, mealColWidths, mealCenter_cols);
         sortMealsDlg.addEntitySelectionListener(familyChildSelectionListener);
         sortMealsDlg.addEntitySelectionListener(dsDlg);
+        sortMealsDlg.addEntitySelectionListener(mealDlg);
         sortMealsDlg.addEntitySelectionListener(dirDlg);
     	
     	//Set up the dialog to edit agent info
@@ -526,6 +534,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
     	sortAgentDlg.addEntitySelectionListener(agentInfoDlg);
     	sortAgentDlg.addEntitySelectionListener(dirDlg);
     	sortAgentDlg.addEntitySelectionListener(dsDlg);
+    	sortAgentDlg.addEntitySelectionListener(mealDlg);
     	
     	//set up the assign delivery dialog
     	String[] addToolTips = {"ONC Family Number", "Family Status", "Delivery Status",
@@ -542,6 +551,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
     	assignDeliveryDlg.addEntitySelectionListener(agentInfoDlg);
     	assignDeliveryDlg.addEntitySelectionListener(dirDlg);
     	assignDeliveryDlg.addEntitySelectionListener(dsDlg);
+    	assignDeliveryDlg.addEntitySelectionListener(mealDlg);
     	
     	//set up the sort driver dialog
     	String[] sdToolTips = {"Driver Number", "First Name", "Last Name", "# of Deliveries",
@@ -556,6 +566,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
     	sortDriverDlg.addEntitySelectionListener(agentInfoDlg);
     	sortDriverDlg.addEntitySelectionListener(dirDlg);
     	sortDriverDlg.addEntitySelectionListener(dsDlg);
+    	sortDriverDlg.addEntitySelectionListener(mealDlg);
     	
     	//Set up the edit driver (deliverer) dialog and register it to listen for Family 
     	//Selection events from particular ui's that have driver's associated
@@ -593,6 +604,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         dcDlg.addEntitySelectionListener(agentInfoDlg);
         dcDlg.addEntitySelectionListener(dirDlg);
         dcDlg.addEntitySelectionListener(dsDlg);
+        dcDlg.addEntitySelectionListener(mealDlg);
         
         //set up the family check dialog and table row selection listener
         dfDlg = new FamilyCheckDialog(pf);
@@ -600,6 +612,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         dfDlg.addEntitySelectionListener(agentInfoDlg);
         dfDlg.addEntitySelectionListener(dirDlg);
         dfDlg.addEntitySelectionListener(dsDlg);
+        dfDlg.addEntitySelectionListener(mealDlg);
         
         //Create the Child Panel
         oncChildPanel = new ChildPanel(pf);
@@ -724,7 +737,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 
 	void setEditableGUIFields(boolean tf)
 	{
-		if(gvs.isUserAdmin())
+		if(GlobalVariables.isUserAdmin())
 		{
 			oncDNScode.setEditable(tf);
 			oncBatchNum.setEnabled(tf);
@@ -1194,7 +1207,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	****************************************************************************************************/
 	void checkAndUpdateFamilyData(ONCFamily family)
 	{
-		if(!gvs.isUserAdmin())	//must have administrative privilege to make changes to families
+		if(!GlobalVariables.isUserAdmin())	//must have administrative privilege to make changes to families
 			return;
 
 		//make a copy of the current family object to create the request
@@ -1235,7 +1248,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			ONCDelivery reqDelivery = new ONCDelivery(-1, fam.getID(), delstatCB.getSelectedIndex(),
 					deliveryDB.getDeliveredBy(fam.getDeliveryID()),
 					"Delivery Status Updated",
-					gvs.getUserLNFI(),
+					GlobalVariables.getUserLNFI(),
 					Calendar.getInstance());
 
 			String response = deliveryDB.add(this, reqDelivery);
@@ -1263,7 +1276,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		{
 //			System.out.println(String.format("Family Panel - Family Change Detected, Field: %d", cf));
 			
-			fam.setChangedBy(gvs.getUserLNFI());
+			fam.setChangedBy(GlobalVariables.getUserLNFI());
 			lblChangedBy.setText(fam.getChangedBy());	//Set the changed by field to current user
 //			notifyFamilyUpdateOccurred();	//Wont need this in future
 			
@@ -1377,7 +1390,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			fireEntitySelected(this, "FAMILY_SELECTED", firstFam, null);
 			nav.setStoplightEntity(fDB.getObjectAtIndex(nav.getIndex()));
 		
-			if(gvs.isUserAdmin())
+			if(GlobalVariables.isUserAdmin())
 				setRestrictedEnabledButtons(true);
 		}
     }
@@ -1389,6 +1402,16 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			dsDlg.setLocationRelativeTo(City);
 			dsDlg.displayDeliveryInfo(currFam);
 			dsDlg.setVisible(true);
+		}
+	}
+	
+	void showMealStatus()
+	{
+		if(!mealDlg.isShowing())
+		{
+			mealDlg.setLocationRelativeTo(btnMeals);
+			mealDlg.setFamilyToDisplay(currFam);
+			mealDlg.setVisible(true);
 		}
 	}
 	
@@ -1924,29 +1947,33 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		{
 			showDeliveryStatus();
 		}
+		else if(e.getSource() == btnMeals)
+		{
+			showMealStatus();
+		}
 		else if(e.getSource() == altAddressRB)			 
 		{	
 			editAltAddress();
 		}
 		else if(e.getSource() == housenumTF && !bFamilyDataChanging && 
-				!housenumTF.getText().equals(currFam.getHouseNum()) && gvs.isUserAdmin()) 
+				!housenumTF.getText().equals(currFam.getHouseNum()) && GlobalVariables.isUserAdmin()) 
 		{
 			checkAndUpdateFamilyData(currFam);
 			
 		}
 		else if(e.getSource() == Street && !bFamilyDataChanging && 
-								!Street.getText().equals(currFam.getStreet()) && gvs.isUserAdmin()) 
+								!Street.getText().equals(currFam.getStreet()) && GlobalVariables.isUserAdmin()) 
 		{
 			checkAndUpdateFamilyData(currFam);	
 		}
 		else if(e.getSource() == City && !bFamilyDataChanging &&
-								!City.getText().equals(currFam.getCity()) && gvs.isUserAdmin()) 
+								!City.getText().equals(currFam.getCity()) && GlobalVariables.isUserAdmin()) 
 		{
 			checkAndUpdateFamilyData(currFam);
 			
 		}
 		else if(e.getSource() == ZipCode && !bFamilyDataChanging &&
-				!ZipCode.getText().equals(currFam.getZipCode()) && gvs.isUserAdmin()) 
+				!ZipCode.getText().equals(currFam.getZipCode()) && GlobalVariables.isUserAdmin()) 
 		{
 			checkAndUpdateFamilyData(currFam);
 		}
@@ -2136,7 +2163,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 					//update the table row
 					bChildTableDataChanging = true;
 				
-					if(gvs.isUserAdmin())
+					if(GlobalVariables.isUserAdmin())
 					{
 						childTableModel.setValueAt(updatedChild.getChildFirstName(), row, 0);
 						childTableModel.setValueAt(updatedChild.getChildLastName(), row, 1);

@@ -40,12 +40,12 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 	private Calendar oncGiftsReceivedDate;
 	private String warehouseAddress;
 	private transient String[] fontSizes = {"8", "10", "12", "13", "14", "16", "18"};
-	private transient UserPermission user_permission;
+	private transient static UserPermission user_permission;
 	private transient String[] sGrwth_pcts = {"5%", "10%", "15%", "20%", "25%"};
 	private transient int[] nGrwth_pcts = {5,10,15,20,25};
 	private transient int fontIndex, startONCNum, ytyGrwthIndex;
 	private static ImageIcon imageIcons[];
-	private transient ONCUser user;
+	private transient static ONCUser user;
 	private static String version;
 	
 	public static GlobalVariables getInstance()
@@ -164,7 +164,7 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 	String[] getFontSizes() { return fontSizes; }
 	String[] getGrwthPcts() { return sGrwth_pcts; }
 	ONCUser getUser() {return user; }
-	String getUserLNFI()
+	static String getUserLNFI()
 	{
 		if(user.getFirstname().isEmpty())
 			return user.getLastname();
@@ -178,7 +178,7 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 		else
 			return user.getFirstname() + " " + user.getLastname().charAt(0);
 	}
-	boolean isUserAdmin() {return user_permission.compareTo(UserPermission.ADMIN) >= 0; }
+	static boolean isUserAdmin() {return user_permission.compareTo(UserPermission.ADMIN) >= 0; }
 	boolean isUserSuperUser() {return user_permission == UserPermission.SYS_ADMIN; }
 	public ImageIcon getImageIcon(int icon) {return imageIcons[icon]; }
 	public static ImageIcon getONCLogo() { return imageIcons[0]; }

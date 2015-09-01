@@ -406,7 +406,7 @@ public class WishPanel extends ONCPanel implements ActionListener, DatabaseListe
 			}
 			//need to determine what name to use for child due to user privileges
 			String firstname;
-			if(gvs.isUserAdmin())
+			if(GlobalVariables.isUserAdmin())
 				firstname = child.getChildFirstName();
 			else
 				firstname = "Child " + cDB.getChildNumber(child);

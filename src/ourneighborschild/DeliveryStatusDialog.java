@@ -148,7 +148,7 @@ public class DeliveryStatusDialog extends JDialog implements TableModelListener,
 			
 			//Update the notes and changed by fields in the request
 			updateDelReq.setdNotes(dsTableModel.getValueAt(row, 2).toString());
-			updateDelReq.setdChangedBy(GlobalVariables.getInstance().getUserLNFI());
+			updateDelReq.setdChangedBy(GlobalVariables.getUserLNFI());
 			
 			//send the request to the local data base
 			String response = deliveryDB.update(this, updateDelReq);	
