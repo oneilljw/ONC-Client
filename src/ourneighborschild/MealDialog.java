@@ -190,7 +190,7 @@ public class MealDialog extends JDialog implements ActionListener, DatabaseListe
 		{
 			//update the meal table if added meal was for this family
 			ONCMeal addedMeal = (ONCMeal) dbe.getObject();
-			if(addedMeal.getFamilyID() == currFam.getID())
+			if(currFam != null && addedMeal.getFamilyID() == currFam.getID())
 			{
 				mealList = getSortedMealList();
 				dlgTableModel.fireTableDataChanged();
