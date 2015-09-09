@@ -63,7 +63,6 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private DeliveryDB deliveryDB;
 	private ONCRegions regions;
 	private ONCAgents agentDB;
-	private MealDB mealDB;
 	
 	private ONCFamily currFam;	//The panel needs to know which family is being displayed
 	private ONCChild currChild;	//The panel needs to know which child is being displayed
@@ -138,7 +137,6 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		agentDB = ONCAgents.getInstance();
 		deliveryDB = DeliveryDB.getInstance();
 		regions = ONCRegions.getInstance();
-		mealDB = MealDB.getInstance();
 		
 		currFam = null;
 //		cn=0;	//Initialize the child index
@@ -176,19 +174,20 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		//Set up the text fields for each of the characteristics displayed
 		DataChangeListener fdcListener = new DataChangeListener();
         lblONCNum = new JLabel("");
-        lblONCNum.setPreferredSize(new Dimension(60, 44));
+        lblONCNum.setPreferredSize(new Dimension(60, 52));
         lblONCNum.setBorder(BorderFactory.createTitledBorder("ONC #"));
         lblONCNum.setHorizontalAlignment(JLabel.CENTER);
         
         odbFamilyNum = new JLabel("No Fams");
-        odbFamilyNum.setPreferredSize(new Dimension(72, 44));
+        odbFamilyNum.setPreferredSize(new Dimension(72, 52));
         odbFamilyNum.setBorder(BorderFactory.createTitledBorder("Ref #"));
         lblONCNum.setHorizontalAlignment(JLabel.CENTER);
         
         String[] batchNums = {"","B-01","B-02","B-03","B-04","B-05","B-06","B-07","B-08",
         					  "B-09","B-10", "B-CR", "B-DI"};
         oncBatchNum = new JComboBox(batchNums);
-        oncBatchNum.setPreferredSize(new Dimension (96, 48));
+//      oncBatchNum.setEditable(true);
+        oncBatchNum.setPreferredSize(new Dimension (96, 52));
         oncBatchNum.setToolTipText("Which ODB input batch contained this family");
         oncBatchNum.setBorder(BorderFactory.createTitledBorder("Batch #"));
         oncBatchNum.setEnabled(false);
@@ -218,7 +217,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         statusCB.addActionListener(this);
         
         lblNumBags = new JLabel("0", JLabel.RIGHT);
-        lblNumBags.setPreferredSize(new Dimension(48, 44));
+        lblNumBags.setPreferredSize(new Dimension(48, 52));
         lblNumBags.setBorder(BorderFactory.createTitledBorder("Bags"));
              
         HomePhone = new JTextPane();

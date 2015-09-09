@@ -32,9 +32,9 @@ public class BatchNumDialog extends JDialog implements ActionListener
 		JLabel lblMssg = new JLabel("Select or enter a batch number for this import:");
 									
 		String[] batchnums = {"B-01","B-02","B-03","B-04","B-05","B-06","B-07","B-08","B-09","B-10",
-								"B-11","B-12","B-13","B-14","B-15","B-16","B-17","B-18","B-19","B-20"};
+								"B-CR"};
 		batchCB = new JComboBox(batchnums);
-		batchCB.setEditable(true);
+//		batchCB.setEditable(true);
 		batchCB.setMaximumSize(new Dimension(96, 56));
 		batchCB.setSelectedItem(recBN);
 		

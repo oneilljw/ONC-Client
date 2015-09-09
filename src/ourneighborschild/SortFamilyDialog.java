@@ -84,8 +84,6 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	private String sortLN = "Any", sortStreet= "Any", sortDNSCode;
 
 	private static String[] dnsCodes = {"None", "Any", "DUP", "NC", "NISA", "OPT-OUT", "SA", "WA"};	
-	private static String[] batchNums = {"Any","B-01","B-02","B-03","B-04","B-05","B-06","B-07","B-08",
-											"B-09","B-10", "B-CR", "B-DI"};	
 	private static String[] printChoices = {"Print", "Print Listing", "Print Book Labels", 
 											"Print Family Receiving Sheets",
 											"Print Gift Inventory Sheets", "Print Packaging Sheets",
@@ -116,6 +114,8 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		oncCB.setBorder(BorderFactory.createTitledBorder("ONC #"));
 		oncCB.addActionListener(this);
     	
+		String[] batchNums = {"Any","B-01","B-02","B-03","B-04","B-05","B-06","B-07","B-08",
+								"B-09","B-10", "B-CR", "B-DI"};
 		batchCB = new JComboBox(batchNums);
 		batchCB.setBorder(BorderFactory.createTitledBorder("Batch #"));
 		batchCB.addActionListener(this);
