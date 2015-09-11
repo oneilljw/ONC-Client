@@ -452,7 +452,6 @@ public class WishPanel extends ONCPanel implements ActionListener, DatabaseListe
 			}
 			else
 			{
-				System.out.println(wishdetailTF.getText() + " will be cleared");
 				wishdetailTF.setText("");	//Clear the text field if base wish changed so user can complete
 			}
 		
@@ -468,7 +467,6 @@ public class WishPanel extends ONCPanel implements ActionListener, DatabaseListe
 				!childWish.getChildWishDetail().equals(wishdetailTF.getText())) 
 		{
 			//Add a new wish with new wish detail
-			System.out.println(wishdetailTF.getText());
 			addWish();
 		}
 		else if(!bWishChanging && e.getSource() == wishassigneeCB &&
