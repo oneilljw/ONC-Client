@@ -378,7 +378,13 @@ public class ONCWishCatalog extends ONCDatabase
 			//Increment the count of the second wish and update the table
 			int row = findModelIndexFromID(addedWish.getWishID());
 			if(row > -1)
-				wishCatalog.get(row).incrementWishCount(replWish.getWishNumber(), 1);
+			{
+//				System.out.println(String.format("ONCWishCatalog.changeWishCounts: wishCatSize= %d", wishCatalog.size()));
+//				WishCatalogItem wishItem = wishCatalog.get(row);
+//				int wishNum = replWish.getWishNumber();
+//				wishItem.incrementWishCount(wishNum, 1);
+				wishCatalog.get(row).incrementWishCount(addedWish.getWishNumber(), 1);
+			}
 		}		
 	}
 	

@@ -199,7 +199,7 @@ public class MealDialog extends JDialog implements ActionListener, DatabaseListe
 		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_FAMILY"))
 		{
 			ONCFamily updatedFamily = (ONCFamily) dbe.getObject();
-			if(currFam.getID() == updatedFamily.getID())
+			if(currFam != null && currFam.getID() == updatedFamily.getID())
 			{
 				currFam = updatedFamily;
 				setDialogTitle();

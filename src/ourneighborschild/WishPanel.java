@@ -151,7 +151,7 @@ public class WishPanel extends ONCPanel implements ActionListener, DatabaseListe
 	void checkForUpdateToWishDetail()
 	{
 		if(childWish != null && !childWish.getChildWishDetail().equals(wishdetailTF.getText()))
-			updateWish();
+			addWish();
 	}
 	
 	void displayWish(ONCChildWish cw, ONCChild c)
@@ -452,6 +452,7 @@ public class WishPanel extends ONCPanel implements ActionListener, DatabaseListe
 			}
 			else
 			{
+				System.out.println(wishdetailTF.getText() + " will be cleared");
 				wishdetailTF.setText("");	//Clear the text field if base wish changed so user can complete
 			}
 		
@@ -460,14 +461,15 @@ public class WishPanel extends ONCPanel implements ActionListener, DatabaseListe
 		else if(!bWishChanging && e.getSource() == wishindCB && childWish.getChildWishIndicator() != 
 				wishindCB.getSelectedIndex())
 		{
-			//update the wish with the new indicator
-			updateWish();
+			//add a new wish with the new indicator
+			addWish();
 		}
 		else if(!bWishChanging && e.getSource() == wishdetailTF &&
 				!childWish.getChildWishDetail().equals(wishdetailTF.getText())) 
 		{
-			//Add wish with new wish detail
-			updateWish();
+			//Add a new wish with new wish detail
+			System.out.println(wishdetailTF.getText());
+			addWish();
 		}
 		else if(!bWishChanging && e.getSource() == wishassigneeCB &&
 				childWish.getChildWishAssigneeID() != ((Organization) wishassigneeCB.getSelectedItem()).getID()) 
@@ -491,24 +493,6 @@ public class WishPanel extends ONCPanel implements ActionListener, DatabaseListe
 		
 		if(addedWish != null)
 			displayWish(addedWish, child);
-		else
-			displayWish(childWish, child);
-	}
-	
-	void updateWish()
-	{	
-		//a wish must exist for it to be updated
-		ONCChildWish reqUpdateWish = new ONCChildWish(childWish.getID(), child.getID(),
-								childWish.getWishID(), wishdetailTF.getText(), wishNumber,
-								wishindCB.getSelectedIndex(), childWish.getChildWishStatus(),
-								childWish.getChildWishAssigneeID(),
-								childWish.getChildWishChangedBy(),
-								childWish.getChildWishDateChanged().getTime());
-		
-		String response = cwDB.update(this, reqUpdateWish);
-
-		if(response != null && response.startsWith("UPDATED_CHILD_WISH"))
-			displayWish(reqUpdateWish, child);
 		else
 			displayWish(childWish, child);
 	}
