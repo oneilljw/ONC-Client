@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Point;
 import java.util.Date;
+
 import javax.swing.BorderFactory;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -12,6 +13,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+
 import com.google.gson.Gson;
 
 public class DriverDialog extends EntityDialog
@@ -452,6 +454,10 @@ public class DriverDialog extends EntityDialog
 			if(tse.getType().equals("FAMILY_SELECTED") || tse.getType().equals("WISH_SELECTED"))
 			{
 				ONCFamily fam = (ONCFamily) tse.getObject1();
+				
+				String logEntry = String.format("Driver Dialog Event: %s, ONC# %s selected",
+						tse.getType(), fam.getONCNum());
+				LogDialog.add(logEntry, "M");
 				
 				ONCDelivery del = deliveryDB.getDelivery(fam.getDeliveryID());
 //				System.out.println(String.format("DriverDialog.entitySelected - Event Type: %s, Family ID: %d, Delivery ID: %d", 

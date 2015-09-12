@@ -600,10 +600,6 @@ public class WishPanel extends ONCPanel implements ActionListener, DatabaseListe
 			if(childList != null && !childList.isEmpty() &&
 					childList.get(0).getChildWishID(wishNumber) > -1)
 			{
-				String logEntry = String.format("WishPanel Event: %s, ONC# %s with %d children",
-												tse.getType(), fam.getONCNum(), childList.size());
-				LogDialog.add(logEntry, "M");
-				
 				ONCChildWish cw = cwDB.getWish(childList.get(0).getID(), wishNumber);
 				if(cw != null)
 					displayWish(cw, childList.get(0));
@@ -612,10 +608,6 @@ public class WishPanel extends ONCPanel implements ActionListener, DatabaseListe
 			}
 			else
 			{
-				String logEntry = String.format("WishPanel Event: %s, ONC# %s with %d children",
-						tse.getType(), fam.getONCNum(), childList.size());
-				LogDialog.add(logEntry, "M");
-				
 				if(childList != null && !childList.isEmpty())
 					child = childList.get(0);
 				else
@@ -629,10 +621,6 @@ public class WishPanel extends ONCPanel implements ActionListener, DatabaseListe
 			ONCChild selChild = (ONCChild) tse.getObject2();
 			
 			checkForUpdateToWishDetail();
-			
-			String logEntry = String.format("WishPanel Event: %s, Child Selected: %s",
-					tse.getType(), selChild.getChildFirstName());
-			LogDialog.add(logEntry, "M");
 			
 			if(selChild.getChildWishID(wishNumber) > -1)
 				displayWish(cwDB.getWish(selChild.getChildWishID(wishNumber)), selChild);

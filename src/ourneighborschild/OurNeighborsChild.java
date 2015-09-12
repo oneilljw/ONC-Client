@@ -780,7 +780,7 @@ public class OurNeighborsChild implements DatabaseListener
 			oncMenuBar.SetEnabledMenuItems(true);
 			oncFamilyPanel.onFamilyDataLoaded();
 		
-			if(GlobalVariables.isUserAdmin())  			
+			if(GlobalVariables.isUserAdmin()) 
 				oncMenuBar.setEnabledRestrictedMenuItems(true);
 		}
     }
@@ -1109,39 +1109,56 @@ public class OurNeighborsChild implements DatabaseListener
 	    	pb.updateHeaderText("<html>Loading Regions</html>");
 			oncRegions.getRegionsFromServer();
 			this.setProgress(progress += increment);
+			
 			pb.updateHeaderText("Loading Season Data");
 			oncGVs.importGlobalVariableDatabase();
 			this.setProgress(progress += increment);
+			
+//			pb.updateHeaderText("Loading Users");
 //			oncUserDB.importUserDatabase();
 //			this.setProgress(progress += increment);
+			
 			pb.updateHeaderText("Loading Families");
 			oncFamDB.importDB();
+			this.setProgress(progress += increment);
+			
 			pb.updateHeaderText("Loading Adults");
 			oncAdultDB.importDB();
+			this.setProgress(progress += increment);
+			
 			pb.updateHeaderText("Loading Meals");
 			oncMealDB.importDB();
 			this.setProgress(progress += increment);
+			
 			pb.updateHeaderText("Loading Children");
 			oncChildDB.importChildDatabase();
 			this.setProgress(progress += increment);
+			
 			pb.updateHeaderText("Loading Wishes");
 			oncChildWishDB.importChildWishDatabase();
 			this.setProgress(progress += increment);
+			
 			pb.updateHeaderText("Loading Agents");
 			oncAgentDB.importAgentDatabase();
 			this.setProgress(progress += increment);
+			
 			pb.updateHeaderText("Loading Partners");
 			oncOrgDB.importDB();
 			this.setProgress(progress += increment);
+			
 			pb.updateHeaderText("Loading Drivers");
 			oncDDB.importDriverDatabase();
 			this.setProgress(progress += increment);
+			
 			pb.updateHeaderText("Loading Deliveries");
 			oncDelDB.importDeliveryDatabase();
 			this.setProgress(progress += increment);
+			
 			pb.updateHeaderText("Loading Catalog");
 			oncWishCat.importWishCatalogFromServer();
 			this.setProgress(progress += increment);
+			
+			pb.updateHeaderText("Loading Detail");
 			oncWishDetailDB.importWishDetailDatabase();
 			this.setProgress(progress += increment);
 			

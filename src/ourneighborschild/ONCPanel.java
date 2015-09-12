@@ -34,6 +34,7 @@ public abstract class ONCPanel extends JPanel
     {
     	if (listeners == null)
     		listeners = new ArrayList<EntitySelectionListener>();
+    	
     	listeners.add(l);
     }  
 
@@ -60,7 +61,7 @@ public abstract class ONCPanel extends JPanel
 
     		// walk through the cloned listener list and call the dataChanged method in each
     		for(EntitySelectionListener l:targets)
-    			l.entitySelected(event);
+    			l.entitySelected(event); 
     	}
     }
     

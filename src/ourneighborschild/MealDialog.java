@@ -227,6 +227,10 @@ public class MealDialog extends JDialog implements ActionListener, DatabaseListe
 			currFam = (ONCFamily) tse.getObject1();
 			if(currFam != null)
 			{
+				String logEntry = String.format("MealDialog Event: %s, ONC# %s selected",
+						tse.getType(), currFam.getONCNum());
+				LogDialog.add(logEntry, "M");
+				
 				setDialogTitle();
 				mealList = getSortedMealList();
 				//update the table for new family selection

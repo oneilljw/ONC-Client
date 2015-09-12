@@ -23,9 +23,15 @@ public class WishLabelViewer extends JDialog implements DatabaseListener, Entity
 	private static final long serialVersionUID = 1L;
 	private static final int MAX_LABEL_LINE_LENGTH = 26;
 	
-	private JLabel wishLabel;
+	//database references
+	private GlobalVariables gvs;
+	private ONCWishCatalog cat;
+	private Families familyDB;
 	private ChildDB childDB;
 	private ChildWishDB childWishDB;
+	
+	private JLabel wishLabel;
+	
 	
 	private ONCChild child;	//current child being displayed
 	private int wn;			//current wish number being displayed
@@ -33,6 +39,10 @@ public class WishLabelViewer extends JDialog implements DatabaseListener, Entity
 	WishLabelViewer(JFrame pf)
 	{
 		super(pf);
+		
+		gvs = GlobalVariables.getInstance();
+		cat = ONCWishCatalog.getInstance();
+		familyDB = Families.getInstance();
 		
 		childDB = ChildDB.getInstance();
 		if(childDB != null)
@@ -50,6 +60,7 @@ public class WishLabelViewer extends JDialog implements DatabaseListener, Entity
 		
 		wishLabel = new JLabel();
 		wishLabel.setHorizontalAlignment(JLabel.LEFT);
+		wishLabel.setIcon(GlobalVariables.getSeasonIcon());
 		
 		//Create a content panel for the frame and add components to it.
 		this.getContentPane().setLayout(new BorderLayout(20, 0));
@@ -70,26 +81,7 @@ public class WishLabelViewer extends JDialog implements DatabaseListener, Entity
 	    g2d.dispose();
 		wishLabel.setIcon(new ImageIcon(bi));
 	}
-/*	
-	void displayLabel(SortWishObject swo)
-	{
-		this.setTitle(String.format("Wish %d Ornament Label", swo.getChildWish().getWishNumber()+1));
-		
-		if(wishLabel.getIcon() == null)
-			setLabelIcon(GlobalVariables.getSeasonIcon());
-			
-		String[] line = swo.getWishLabel();
-		String labelText;
-		if(line[3] == null)
-			labelText = String.format("<html><center><i>%s</i><br><b>%s</b><br>%s</center></html>",
-				line[0], line[1], line[2]);
-		else
-			labelText = String.format("<html><center><i>%s</i><br><b>%s<br>%s<br></b>%s</center></html>",
-					line[0], line[1], line[2], line[3]);
-		
-		wishLabel.setText(labelText);
-	}
-*/	
+
 	void displayLabel(ONCChild c, int wn)
 	{
 		this.setTitle(String.format("Wish %d Ornament Label", wn+1));
@@ -97,10 +89,8 @@ public class WishLabelViewer extends JDialog implements DatabaseListener, Entity
 		child = c;
 		this.wn = wn;
 		
-		if(wishLabel.getIcon() == null)
-			setLabelIcon(GlobalVariables.getSeasonIcon());
-		
 		String[] line = getWishLabel(c, wn);
+		
 		String labelText;
 		if(line[3] == null)
 			labelText = String.format("<html><center><i>%s</i><br><b>%s</b><br>%s</center></html>",
@@ -124,12 +114,11 @@ public class WishLabelViewer extends JDialog implements DatabaseListener, Entity
 	
 	String[] getWishLabel(ONCChild c, int wn)
 	{	
-		GlobalVariables gvs = GlobalVariables.getInstance();
-		ONCWishCatalog cat = ONCWishCatalog.getInstance();
-		Families familyDB = Families.getInstance();
-		ChildWishDB cwDB = ChildWishDB.getInstance();
+		String logEntry = String.format("WishLabelViewer.getWishLabel: Got DB references");
+		LogDialog.add(logEntry, "M");
+		
 		ONCFamily fam = familyDB.getFamily(c.getFamID());
-		ONCChildWish cw = cwDB.getWish(c.getID(), wn);
+		ONCChildWish cw = childWishDB.getWish(c.getID(), wn);
 		
 		String[] line = new String[4];
 		SimpleDateFormat sYear = new SimpleDateFormat("yyyy");
@@ -148,27 +137,7 @@ public class WishLabelViewer extends JDialog implements DatabaseListener, Entity
 		
 		if(!cw.getChildWishDetail().isEmpty())	//Wish detail may need two lines
 		{
-//			l1.append(" - ");
-//		
-//			String[] wishDetail = cw.getChildWishDetail().split(" ");
-//			int index = 0;
-//		
-//			//Build 2nd line. Limit it to MAX_LABEL_LINE_LENGTH on a word boundary
-//			while(index < wishDetail.length &&
-//					l1.length() + wishDetail[index].length() + 1 < MAX_LABEL_LINE_LENGTH)
-//			{
-//				l1.append(wishDetail[index++] + " ");
-//			}
-//			line[1] = l1.toString();
-//		
-//			//If wish is too long to fit on one line, break it into a 2nd line
-//			StringBuilder l2 = new StringBuilder("");
-//			while(index < wishDetail.length &&
-//				l2.length() + wishDetail[index].length() + 1 < MAX_LABEL_LINE_LENGTH)
-//			{
-//				l2.append(wishDetail[index++] + " ");
-//			}
-//			
+
 			String wish = indicator[cw.getChildWishIndicator()] +
 					cat.getWishByID(cw.getWishID()).getName() + " - " + cw.getChildWishDetail();
 			//does it fit on one line?
@@ -185,11 +154,7 @@ public class WishLabelViewer extends JDialog implements DatabaseListener, Entity
 				line[1] = wish.substring(0, index);
 				line[2] = wish.substring(index);
 				if(line[2].length() > MAX_LABEL_LINE_LENGTH)
-				{
-//					System.out.println(String.format("WishLabelViewer.getWishLabel: index= %d, line[2].length = %d, END_INDEX = %d",
-//							index, line[2].length(), index + MAX_LABEL_LINE_LENGTH));
-					line[2] = wish.substring(index, index + MAX_LABEL_LINE_LENGTH);
-				}	
+					line[2] = wish.substring(index, index + MAX_LABEL_LINE_LENGTH);		
 			}
 		
 			//If the wish required two lines make the ONC Year line 4
@@ -217,96 +182,6 @@ public class WishLabelViewer extends JDialog implements DatabaseListener, Entity
 
 		return line;
 	}
-/*	
-	String[] getWishLabel(ONCChild c, ONCChildWish cw)
-	{	
-		GlobalVariables gvs = GlobalVariables.getInstance();
-		ONCWishCatalog cat = ONCWishCatalog.getInstance();
-		Families familyDB = Families.getInstance();
-		ONCFamily fam = familyDB.getFamily(c.getFamID());
-		
-		String[] line = new String[4];
-		SimpleDateFormat sYear = new SimpleDateFormat("yyyy");
-		
-		line[0] = c.getChildAge() + " " + c.getChildGender();
-		
-		//Combine the wish base and wish detail and return one or two lines depending
-		//on the length of the combined string. If two lines are required, break the
-		//string on a word boundary. Limit the second string to a max number of
-		//characters based on MAX_LABEL_LINE_LENGTH
-		if(!cw.getChildWishDetail().isEmpty())	//Wish detail may need two lines
-		{
-//			l1.append(" - ");
-//		
-//			String[] wishDetail = cw.getChildWishDetail().split(" ");
-//			int index = 0;
-//		
-//			//Build 2nd line. Limit it to MAX_LABEL_LINE_LENGTH on a word boundary
-//			while(index < wishDetail.length &&
-//					l1.length() + wishDetail[index].length() + 1 < MAX_LABEL_LINE_LENGTH)
-//			{
-//				l1.append(wishDetail[index++] + " ");
-//			}
-//			line[1] = l1.toString();
-//		
-//			//If wish is too long to fit on one line, break it into a 2nd line
-//			StringBuilder l2 = new StringBuilder("");
-//			while(index < wishDetail.length &&
-//				l2.length() + wishDetail[index].length() + 1 < MAX_LABEL_LINE_LENGTH)
-//			{
-//				l2.append(wishDetail[index++] + " ");
-//			}
-//			
-			ONCWish catWish = cat.getWishByID(cw.getWishID());
-			String wishName = catWish == null ? "None" : catWish.getName();
-			String wish = wishName + " - " + cw.getChildWishDetail();
-			//does it fit on one line?
-			if(wish.length() <= MAX_LABEL_LINE_LENGTH)
-			{
-				line[1] = wish.trim();
-			}
-			else	//split into two lines
-			{
-				int index = MAX_LABEL_LINE_LENGTH;
-				while(index > 0 && wish.charAt(index) != ' ')	//find the line break
-					index--;
-			
-				line[1] = wish.substring(0, index);
-				line[2] = wish.substring(index);
-				if(line[2].length() > MAX_LABEL_LINE_LENGTH)
-				{
-//					System.out.println(String.format("WishLabelViewer.getWishLabel: index= %d, line[2].length = %d, END_INDEX = %d",
-//							index, line[2].length(), index + MAX_LABEL_LINE_LENGTH));
-					line[2] = wish.substring(index, index + MAX_LABEL_LINE_LENGTH);
-				}	
-			}
-		
-			//If the wish required two lines make the ONC Year line 4
-			//else make the ONC Year line 3
-			if(line[2] != null)
-			{
-//				line[2] = l2.toString();
-				line[3] = "ONC " + sYear.format(gvs.getSeasonStartDate()) + 
-						" |  Family # " + fam.getONCNum();
-			}
-			else
-			{			
-				line[2] = "ONC " + sYear.format(gvs.getSeasonStartDate()) + 
-					" |  Family # " + fam.getONCNum();
-				line[3] = null;
-			}
-		}
-		else	//No wish detail
-		{
-			line[1] = cat.getWishByID(cw.getWishID()).getName();
-			line[2] = "ONC " + sYear.format(gvs.getSeasonStartDate()) + 
-					" |  Family # " + fam.getONCNum();
-			line[3] = null;
-		}
-
-		return line;
-	}
-*/	
 
 	@Override
 	public void entitySelected(EntitySelectionEvent tse)

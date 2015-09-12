@@ -643,7 +643,6 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
             this.addEntitySelectionListener(wishPanelList[wp]);
         }
 			
-        
         //set up the label viewer dialog
         wlViewerDlg= new WishLabelViewer(pf);
         nav.addEntitySelectionListener(wlViewerDlg);
@@ -1376,8 +1375,11 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
      *********************************************************************************************/
     void onFamilyDataLoaded()
     {
+    	
+    	JFrame frame = GlobalVariables.getFrame();
+    	
     	nav.navSetEnabled(true);
-		
+    	
 		setEnabledButtons(true);
 		setEditableGUIFields(true);
 		updateDBStatus(fDB.getServedFamilyAndChildCount());
@@ -1388,7 +1390,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			display(firstFam, null);
 			fireEntitySelected(this, "FAMILY_SELECTED", firstFam, null);
 			nav.setStoplightEntity(fDB.getObjectAtIndex(nav.getIndex()));
-		
+			
 			if(GlobalVariables.isUserAdmin())
 				setRestrictedEnabledButtons(true);
 		}
