@@ -619,11 +619,11 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
     	else if(col == 1)	// Sort on Child's Age
     		Collections.sort(stAL, new SortItemFamilyLNComparator());
     	else if(col == 2)
-    		Collections.sort(stAL, new SortItemMealTypeComparator());
-    	else if(col == 3)
-    		Collections.sort(stAL, new SortItemMealStatusComparator());
-    	else if(col == 4)
     		Collections.sort(stAL, new SortItemRegionComparator());
+    	else if(col == 3)
+    		Collections.sort(stAL, new SortItemMealTypeComparator());
+    	else if(col == 4)
+    		Collections.sort(stAL, new SortItemMealStatusComparator());
     	else if(col == 5)
     		Collections.sort(stAL, new SortItemMealAssigneeComparator());
     	else if(col == 6)

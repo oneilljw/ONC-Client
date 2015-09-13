@@ -957,6 +957,8 @@ public class Families extends ONCSearchableDatabase
 			Collections.sort(fal, new ONCFamilyStatusComparator()); }
 		else if(dbField.equals("Del Status")) {
 			Collections.sort(fal, new ONCFamilyDelStatusComparator()); }
+		else if(dbField.equals("Meal Status")) {
+			Collections.sort(fal, new ONCFamilyMealStatusComparator()); }
 		else if(dbField.equals("First")) {
 			Collections.sort(fal, new ONCFamilyFNComparator()); }
 		else if(dbField.equals("Last")) {
@@ -1186,6 +1188,16 @@ public class Families extends ONCSearchableDatabase
 			Integer o1DS = (Integer) o1.getDeliveryStatus();
 			Integer o2DS = (Integer) o2.getDeliveryStatus();
 			return o1DS.compareTo(o2DS);
+		}
+	}
+	
+	private class ONCFamilyMealStatusComparator implements Comparator<ONCFamily>
+	{
+		@Override
+		public int compare(ONCFamily o1, ONCFamily o2)
+		{
+			
+			return o1.getMealStatus().compareTo(o2.getMealStatus());
 		}
 	}
 		
