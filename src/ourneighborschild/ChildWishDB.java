@@ -237,14 +237,15 @@ public class ChildWishDB extends ONCDatabase
 			return wishStatus;				
 	}
 */	
-	/************************************************************************************************************
-	 * This method implements a rules engine governing the relationship between a wish type and wish status and
-	 * wish assignment and wish status. It is called when a child's wish  or assignee changes and implements an
-	 * automatic change of wish status.
+	/*******************************************************************************************
+	 * This method implements a rules engine governing the relationship between a wish type and
+	 * wish status and wish assignment and wish status. It is called when a child's wish or
+	 * assignee changes and implements an automatic change of wish status.
 	 * 
-	 * For example, if a child's base wish is empty and it is changing to a wish selected from the catalog, this
-	 * method will set the wish status to CHILD_WISH_SELECTED. Conversely, if a wish was selected from the catalog
-	 * and is reset to empty, the wish status is set to CHILD_WISH_EMPTY.
+	 * For example, if a child's base wish is empty and it is changing to a wish selected from
+	 * the catalog, this method will set the wish status to CHILD_WISH_SELECTED. Conversely, if
+	 * a wish was selected from the catalog and is reset to empty, the wish status is set to
+	 * CHILD_WISH_EMPTY.
 	 ************************************************************************************************************/
 	WishStatus checkForStatusChange(ONCChildWish oldWish, int wishBase, WishStatus reqStatus, Organization reqOrg)
 	{

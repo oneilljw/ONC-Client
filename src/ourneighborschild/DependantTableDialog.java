@@ -9,6 +9,8 @@ import java.awt.event.MouseEvent;
 import java.awt.print.PrinterException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -36,10 +38,11 @@ public abstract class DependantTableDialog extends SortTableDialog
 	private static final int ONC_GENERAL_USER = 0;
 	private static final int NUM_FAMILY_ROWS_TO_DISPLAY = 15;
 	
-	private ONCRegions regions;
+	protected ONCRegions regions;
 	protected ONCTable familyTable;
 	private DefaultTableModel familyTableModel;
 	protected JComboBox famPrintCB;
+	protected JButton btnDependantTableExport;
 	protected JLabel lblNumOfObjects, lblObjectMssg, lblNumOfFamilies;
 	protected JPanel objectCountPanel, lowercntlpanel;
 	protected JScrollPane familyTableScrollPane;
@@ -163,6 +166,11 @@ public abstract class DependantTableDialog extends SortTableDialog
         
         //Set up the family control panel
 		JPanel famCntlPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		
+		//Set up the control panel
+		btnDependantTableExport = new JButton("Export Data");
+		btnDependantTableExport.setEnabled(false);
+		btnDependantTableExport.addActionListener(this);
         
         String[] printChoices = {"Print", "Print Family Table"};
         famPrintCB = new JComboBox(printChoices);
@@ -171,6 +179,7 @@ public abstract class DependantTableDialog extends SortTableDialog
         famPrintCB.addActionListener(this);
         
         //Add the components to the control panel
+        famCntlPanel.add(btnDependantTableExport);
         famCntlPanel.add(famPrintCB);
         
         //Add family count and control panels to bottom panel

@@ -6,6 +6,10 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -20,6 +24,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 import javax.swing.SwingWorker;
 import javax.swing.event.ListSelectionEvent;
+import javax.swing.filechooser.FileNameExtensionFilter;
+
+import au.com.bytecode.opencsv.CSVWriter;
 
 
 public class SortAgentDialog extends DependantTableDialog implements PropertyChangeListener
@@ -244,12 +251,85 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		
 		bIgnoreCBEvents = false;
 	}
+	
+	void onExportDependantTableRequested()
+	{
+		//Write the selected row data to a .csv file
+    	String[] header = {"Agent Name", "ONC #", "Batch #", "DNS", "Family Status", "Delivery Status",
+    						"Meal Status", "First Name", "Last Name", "House #", "Street",
+    						"Unit", "Zip", "Region", "Changed By"};
+    	
+    	ONCFileChooser oncfc = new ONCFileChooser(parentFrame);
+       	File oncwritefile = oncfc.getFile("Select file for export of selected rows" ,
+       										new FileNameExtensionFilter("CSV Files", "csv"), 1);
+       	if(oncwritefile!= null)
+       	{
+       		//If user types a new filename without extension.csv, add it
+	    	String filePath = oncwritefile.getPath();
+	    	if(!filePath.toLowerCase().endsWith(".csv")) 
+	    		oncwritefile = new File(filePath + ".csv");
+	    	
+	    	try 
+	    	{
+	    		CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
+	    	    writer.writeNext(header);
+	    	    
+	    	    int[] row_sel = familyTable.getSelectedRows();
+	    	    for(int i=0; i<familyTable.getSelectedRowCount(); i++)
+	    	    	writer.writeNext(getDependantTableExportRow(row_sel[i]));
+	    	    	   
+	    	    writer.close();
+	    	    
+	    	    JOptionPane.showMessageDialog(parentFrame, 
+						sortTable.getSelectedRowCount() + " partners sucessfully exported to " + oncwritefile.getName(), 
+						"Export Successful", JOptionPane.INFORMATION_MESSAGE, gvs.getImageIcon(0));
+	    	} 
+	    	catch (IOException x)
+	    	{
+	    		JOptionPane.showMessageDialog(parentFrame, 
+						"Export Failed, I/O Error: "  + x.getMessage(),  
+						"Export Failed", JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
+	    		System.err.format("IOException: %s%n", x);
+	    	}
+	    }
+	}
+	
+	String[] getDependantTableExportRow(int index)
+	{
+		ONCFamily f = stAL.get(index);
+		Agent a = agentDB.getAgent(f.getAgentID());
+		
+		String[] row = {
+						a.getAgentName(),
+						f.getONCNum(),
+						f.getBatchNum(),
+						f.getDNSCode(),
+						famstatus[f.getFamilyStatus()+1],
+						delstatus[f.getDeliveryStatus()+1],
+						f.getMealStatus().toString(),
+						f.getHOHFirstName(),
+						f.getHOHLastName(),
+						f.getHouseNum(),
+						f.getStreet(),
+						f.getUnitNum(),
+						f.getZipCode(),
+						regions.getRegionID(f.getRegion()),
+						f.getChangedBy()
+						};
+		return row;
+	}
 
 	void checkPrintandEmailEnabled()
 	{
 		if(familyTable.getSelectedRowCount() > 0)
 		{
+			btnDependantTableExport.setEnabled(true);
 			famPrintCB.setEnabled(true);
+		}
+		else
+		{
+			btnDependantTableExport.setEnabled(false);
+			famPrintCB.setEnabled(false);
 		}
 		
 		if(sortTable.getSelectedRowCount() > 0)
@@ -813,9 +893,13 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		{
 			if(famPrintCB.getSelectedIndex() == 1)
 			{ 
-				onPrintListing("ONC Families for Agent");
+				onPrintFamilyListing();
 				famPrintCB.setSelectedIndex(0);
 			}
+		}
+		else if(e.getSource() == btnDependantTableExport)
+		{
+			onExportDependantTableRequested();	
 		}
 		else if(e.getSource() == emailCB && emailCB.getSelectedIndex() > 1 )
 		{
