@@ -16,4 +16,16 @@ public enum MealStatus
 
 		return msSearch;
 	}
+	
+	static MealStatus[] getChangeList()
+	{
+		MealStatus[] msSearch = {MealStatus.None, 
+									MealStatus.Requested,
+									MealStatus.Referred,
+									MealStatus.Thanksgiving_Confirmed,
+									MealStatus.December_Confirmed,
+									MealStatus.Both_Confirmed};
+
+		return msSearch;
+	}
 }

@@ -52,7 +52,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 	private ArrayList<SortMealObject> stAL;
 
 	
-	private JComboBox typeCB, assignCB, statusCB, changedByCB, regionCB;
+	private JComboBox typeCB, assignCB, statusCB, changedByCB, regionCB, changeStatusCB;
 	private JComboBox changeAssigneeCB, printCB;
 	private DefaultComboBoxModel assignCBM, changeAssigneeCBM, changedByCBM, regionCBM;
 	private JTextField oncnumTF;
@@ -106,7 +106,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		typeCB.addActionListener(this);
 		
 		statusCB = new JComboBox(MealStatus.getSearchFilterList());
-		statusCB.setPreferredSize(new Dimension(136, 56));
+		statusCB.setPreferredSize(new Dimension(220, 56));
 		statusCB.setBorder(BorderFactory.createTitledBorder("Meal Status"));
 		statusCB.addActionListener(this);
 		
@@ -166,6 +166,11 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		
 		changeDataPanel.setBorder(BorderFactory.createTitledBorder("Assign Meals to Partner"));
         
+		changeStatusCB = new JComboBox(MealStatus.getChangeList());
+        changeStatusCB.setPreferredSize(new Dimension(192, 56));
+		changeStatusCB.setBorder(BorderFactory.createTitledBorder("Change Status To:"));
+		changeStatusCB.addActionListener(this);
+		
         changeAssigneeCB = new JComboBox();
         changeAssigneeCBM = new DefaultComboBoxModel();
 	    changeAssigneeCBM.addElement(new Organization(0, "No Change", "No Change"));
@@ -175,7 +180,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		changeAssigneeCB.setBorder(BorderFactory.createTitledBorder("Change Assignee To:"));
 		changeAssigneeCB.addActionListener(this);
 		
-	
+		changeDataPanel.add(changeStatusCB);
 		changeDataPanel.add(changeAssigneeCB);
 		
 		gbc.gridx = 1;
@@ -695,16 +700,26 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		{
 			Organization cbPartner = (Organization) changeAssigneeCB.getSelectedItem();
 				
-			//is it a change? If so, create an add meal request and send to the
-			//server. Meals are not updated, so meal history is retained.
-			if(stAL.get(row_sel[i]).getMeal().getPartnerID() != cbPartner.getID())
+			//is it a change? If so, create to either status or assignee or both? If yes, add a
+			//meal request and send to the server. Meals are not updated, meal history is retained.
+			if(stAL.get(row_sel[i]).getMeal().getPartnerID() != cbPartner.getID() ||
+					stAL.get(row_sel[i]).getFamily().getMealStatus() != changeStatusCB.getSelectedItem())
 			{
+				String changeReason;
+				if(stAL.get(row_sel[i]).getMeal().getPartnerID() != cbPartner.getID() &&
+						stAL.get(row_sel[i]).getFamily().getMealStatus() != changeStatusCB.getSelectedItem())
+					changeReason = "Changed Partner & Status";
+				else if(stAL.get(row_sel[i]).getMeal().getPartnerID() != cbPartner.getID())
+					changeReason = "Changed Partner";
+				else
+					changeReason = "Changed Status";
+				
 				ONCMeal addMealReq = new ONCMeal(-1, stAL.get(row_sel[i]).getMeal().getFamilyID(),
 										stAL.get(row_sel[i]).getMeal().getType(),
 										stAL.get(row_sel[i]).getMeal().getRestricitons(), 
 										cbPartner.getID(), GlobalVariables.getUserLNFI(),
 										new Date(), stAL.get(row_sel[i]).getMeal().getStoplightPos(),
-										"Changed Meal Partner", GlobalVariables.getUserLNFI());
+										changeReason, GlobalVariables.getUserLNFI());
 				
 				ONCMeal addedMeal = mealDB.add(this, addMealReq);
 				
