@@ -45,7 +45,7 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 	private transient int[] nGrwth_pcts = {5,10,15,20,25};
 	private transient int fontIndex, startONCNum, ytyGrwthIndex;
 	private static ImageIcon imageIcons[];
-	private transient static ONCUser user;
+	private static ONCUser user;
 	private static String version;
 	
 	public static GlobalVariables getInstance()
@@ -96,7 +96,8 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 		imageIcons[8] = createImageIcon("traffic-lights-off-icon.gif", "Off Light Icon");
 		
 		//Icons used on a 5-year cycle to visually indicate which year
-		imageIcons[9] = createImageIcon("Christmas-tree-icon.gif", "Christmas Tree Icon");
+		imageIcons[9] = createImageIcon("Xmas-Tree-icon.png", "Christmas Tree Icon");
+//		imageIcons[9] = createImageIcon("Gift-icon.png", "Gift Icon");
 		imageIcons[10] = createImageIcon("Christmas-Mistletoe-icon.gif", "Mistletoe Icon");
 		imageIcons[11] = createImageIcon("ONCLabelIcon2012.gif", "Snowman Icon");
 		imageIcons[12] = createImageIcon("Santa-icon.gif", "Santa Icon");
@@ -180,7 +181,7 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 	}
 	static boolean isUserAdmin() {return user_permission.compareTo(UserPermission.ADMIN) >= 0; }
 	boolean isUserSuperUser() {return user_permission == UserPermission.SYS_ADMIN; }
-	public ImageIcon getImageIcon(int icon) {return imageIcons[icon]; }
+	public ImageIcon getImageIcon(int icon){ return imageIcons[icon]; }
 	public static ImageIcon getONCLogo() { return imageIcons[0]; }
 	public static ImageIcon getUnLockedIcon() { return imageIcons[17]; }
 	public static ImageIcon getLockedIcon() { return imageIcons[18]; }

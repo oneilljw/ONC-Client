@@ -51,7 +51,7 @@ public class OurNeighborsChild implements DatabaseListener
 	private static final int SERVER_CONNECT_RETRY_LIMIT = 3;
 	private static final int ONC_IMAGE_ICON_INDEX = 0;
 	private static final int ONC_SAVE_FILE = 1;	
-	private static final String ONC_VERSION = "2.52";
+	private static final String ONC_VERSION = "2.53";
 	private static final String ONC_COPYRIGHT = "\u00A92015 John W. O'Neill";	
 	private static final String APPNAME = "Our Neighbor's Child";
 	private static final int DB_UNLOCKED_IMAGE_INDEX = 17;
@@ -135,7 +135,6 @@ public class OurNeighborsChild implements DatabaseListener
        
         //Create and show mainframe with splash panel
         createMainFrame();
-        logDlg = new LogDialog();	//create the static log dialog
         
         //Setup networking with the ONC Server
         serverIF = null;
@@ -192,6 +191,9 @@ public class OurNeighborsChild implements DatabaseListener
         	//write the server address successfully used
         	writeServerIPAddressToFile(serverIPAddress);
         }
+        
+        //create the log dialog
+        logDlg = new LogDialog();	//create the static log dialog
         
         //Create global variables, set the main frame and the version number
         oncGVs = GlobalVariables.getInstance();

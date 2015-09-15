@@ -31,6 +31,7 @@ import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -1008,7 +1009,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		if(sortTable.getSelectedRowCount() > 0)	 //Print selected rows. If no rows selected, do nothing
 		{
 			totalNumOfLabelsToPrint = sortTable.getSelectedRowCount();
-		
+			
 			PrinterJob pj = PrinterJob.getPrinterJob();
 
 			pj.setPrintable(new AveryWishLabelPrinter());
@@ -1306,7 +1307,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		    g2d.drawImage(img, x, y, x+destX1, y+destY1, 0,0, img.getWidth(null),img.getHeight(null),null); 
 		    
-		  //Draw the label text, either 3 or 4 lines, depending on the wish base + detail length
+		    //Draw the label text, either 3 or 4 lines, depending on the wish base + detail length
 		    g2d.setFont(lFont[0]);
 		    drawCenteredString(line[0], 120, x+50, y+5, g2d);	//Draw line 1
 		    
@@ -1336,16 +1337,22 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		@Override
 		public int print(Graphics g, PageFormat pf, int page) throws PrinterException
 		{
+			String logEntry;
 			
 			if (page > (totalNumOfLabelsToPrint+1)/AVERY_LABELS_PER_PAGE)		//'page' is zero-based 
 			{ 
 				return NO_SUCH_PAGE;
 		    }
 			
+			if(gvs == null)
+			{
+				logEntry = String.format("SortWishDialog.print: gvs reference is null");
+				LogDialog.add(logEntry, "M");
+			}
+			
 			SimpleDateFormat sYear = new SimpleDateFormat("yy");
-			int idx = Integer.parseInt(sYear.format(gvs.getSeasonStartDate())) % NUM_OF_XMAS_ICONS;
-			final Image img = gvs.getImageIcon(idx + XMAS_ICON_OFFSET).getImage();
-		     
+			final Image img = GlobalVariables.getSeasonIcon().getImage();
+
 			Font[] lFont = new Font[3];
 		    lFont[0] = new Font("Calibri", Font.ITALIC, 11);
 		    lFont[1] = new Font("Calibri", Font.BOLD, 12);
@@ -1371,7 +1378,11 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		    {
 		    	line = stAL.get(row_sel[index++]).getWishLabel();
 		    	printLabel(col * AVERY_LABEL_WIDTH, row * AVERY_LABEL_HEIGHT, line, lFont, img, g2d);	
-		    	if(++col == AVERY_COLUMNS_PER_PAGE) { row++; col = 0; } 	
+		    	if(++col == AVERY_COLUMNS_PER_PAGE)
+		    	{ 
+		    		row++; 
+		    		col = 0;
+		    	} 	
 		    }
 		    	    
 		     /* tell the caller that this page is part of the printed document */
@@ -1379,7 +1390,6 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		}
 	}
 
-	
 	private class ONCSortItemAgeComparator implements Comparator<SortWishObject>
 	{
 		@Override
