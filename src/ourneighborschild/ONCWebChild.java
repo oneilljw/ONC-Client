@@ -1,5 +1,7 @@
 package ourneighborschild;
 
+import java.util.Calendar;
+
 
 public class ONCWebChild
 {
@@ -9,7 +11,7 @@ public class ONCWebChild
 	private String	school;
 	private String	gender;
 	private String	sDOB;
-	private String	age;
+//	private String	age;
 	
 	public ONCWebChild(ONCChild c)
 	{
@@ -19,7 +21,7 @@ public class ONCWebChild
 		this.school = c.getChildSchool();
 		this.gender = c.getChildGender();
 		this.sDOB = c.getChildDOBString("M/dd/yyyy");
-		this.age = c.getChildAge();
+//		this.age = c.getChildAge();
 	}
 	
 	//getters
@@ -29,5 +31,5 @@ public class ONCWebChild
 	String getSchool() { return school; }
 	String getGender() { return gender; }
 	String getDOB() { return sDOB; }
-	String getAge() { return age; }
+//	String getAge() { return age; }
 }
