@@ -80,7 +80,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private JTextField oncDNScode;
 	private JTextField HOHFirstName, HOHLastName, EMail;
 	private JTextField housenumTF, Street, Unit, City, ZipCode;
-	private JLabel lblONCNum, odbFamilyNum, lblRegion, lblNumBags, lblChangedBy;
+	private JLabel lblONCNum, lblODBNum, lblRegion, lblNumBags, lblChangedBy;
 	private JRadioButton delRB, altAddressRB;
 	
 	private JComboBox oncBatchNum, Language, statusCB, delstatCB;
@@ -116,6 +116,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	public SortAgentDialog sortAgentDlg;
 	private AgentInfoDialog agentInfoDlg;
 	private ChangeONCNumberDialog changeONCNumberDlg;
+	private ChangeODBNumberDialog changeODBNumberDlg;
 	public AssignDeliveryDialog assignDeliveryDlg;
 	public SortDriverDialog sortDriverDlg;
 	private ViewONCDatabaseDialog dbDlg;
@@ -178,9 +179,9 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         lblONCNum.setBorder(BorderFactory.createTitledBorder("ONC #"));
         lblONCNum.setHorizontalAlignment(JLabel.CENTER);
         
-        odbFamilyNum = new JLabel("No Fams");
-        odbFamilyNum.setPreferredSize(new Dimension(72, 52));
-        odbFamilyNum.setBorder(BorderFactory.createTitledBorder("Ref #"));
+        lblODBNum = new JLabel("No Fams");
+        lblODBNum.setPreferredSize(new Dimension(72, 52));
+        lblODBNum.setBorder(BorderFactory.createTitledBorder("Ref #"));
         lblONCNum.setHorizontalAlignment(JLabel.CENTER);
         
         String[] batchNums = {"","B-01","B-02","B-03","B-04","B-05","B-06","B-07","B-08",
@@ -523,6 +524,10 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
     	//Set up the dialog to change family ONC Number
     	String[] oncNum = {"Change ONC #"};
     	changeONCNumberDlg = new ChangeONCNumberDialog(parentFrame, oncNum);
+    	
+    	//Set up the dialog to change family ODB Number
+    	String[] odbNum = {"Change ODB #"};
+    	changeODBNumberDlg = new ChangeODBNumberDialog(parentFrame, odbNum);
 
     	//Set up the sort agent dialog
     	String[] agtColToolTips = {"Name", "Organization", "Title", "EMail Address", "Phone"};
@@ -658,7 +663,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
       
         //Add components to the panels
         p1.add(lblONCNum);
-        p1.add(odbFamilyNum);
+        p1.add(lblODBNum);
         p1.add(oncBatchNum);
         p1.add(oncDNScode);
 //      p1.add(clientFamily);
@@ -904,7 +909,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		if(bDispAll)
 		{
 			lblONCNum.setText(currFam.getONCNum());
-			odbFamilyNum.setText(currFam.getODBFamilyNum());
+			lblODBNum.setText(currFam.getODBFamilyNum());
 			oncBatchNum.setSelectedItem((String)currFam.getBatchNum());
 			oncDNScode.setText(currFam.getDNSCode());
 			oncDNScode.setCaretPosition(0);
@@ -1006,7 +1011,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		else	//restricted viewing user
 		{
 			lblONCNum.setText(currFam.getONCNum());
-			odbFamilyNum.setText(currFam.getODBFamilyNum());
+			lblODBNum.setText(currFam.getODBFamilyNum());
 			oncBatchNum.setSelectedItem((String)currFam.getBatchNum());
 			oncDNScode.setText(currFam.getDNSCode());
 			oncDNScode.setCaretPosition(0);
@@ -1627,6 +1632,20 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
     		changeONCNumberDlg.display(currFam);
     		changeONCNumberDlg.setLocationRelativeTo(lblONCNum);
     		changeONCNumberDlg.showDialog();
+		}
+    }
+    
+    /****************************************************************************************
+     * Shows a dialog box to change the ODB Number for the family displayed. If no family is 
+     * displayed the method displays a warning message
+     */
+    void showChangeODBNumberDialog()
+    {
+    	if(!changeODBNumberDlg.isVisible())
+		{
+    		changeODBNumberDlg.display(currFam);
+    		changeODBNumberDlg.setLocationRelativeTo(lblODBNum);
+    		changeODBNumberDlg.showDialog();
 		}
     }
 	

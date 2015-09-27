@@ -24,7 +24,7 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 //	public static JMenuItem compODBtoONCfamMI, compODBtoONCdataMI, compWFCMtoONCfamMI, compWFCMtoONCdataMI;
 	public static JMenuItem findDupFamsMI, findDupChldrnMI;
 	public static JMenuItem assignDelMI, editDelMI, manageDelMI, importDrvrMI, mapsMI, delstatusMI, distMI;
-	public static JMenuItem newFamMI, changeONCMI, delFamMI, newChildMI, delChildMI, markAdultMI;
+	public static JMenuItem newFamMI, changeONCMI, changeODBMI, delFamMI, newChildMI, delChildMI, markAdultMI;
 	public static JMenu submenuImport, submenuFamilyDataChecks;
 	public static JMenu submenuExport, submenuCompareData, submenuDatabase;
 	public static JMenuItem viewDBMI, sortWishesMI, sortFamiliesMI, sortOrgsMI, recGiftsMI, sortMealsMI;
@@ -141,6 +141,10 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 	    changeONCMI = new JMenuItem("Change ONC #");
 	    changeONCMI.setEnabled(false);
 	    menuFamilies.add(changeONCMI);
+	    
+	    changeODBMI = new JMenuItem("Change ODB #");
+	    changeODBMI.setEnabled(false);
+	    menuFamilies.add(changeODBMI);
 	    
 	    menuFamilies.addSeparator();
 	    
@@ -341,6 +345,7 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 		viewDBMI.setEnabled(tf);
 		submenuExport.setEnabled(tf);
 		changeONCMI.setEnabled(tf);
+		changeODBMI.setEnabled(tf);
 		sortFamiliesMI.setEnabled(tf);
 		sortMealsMI.setEnabled(tf);
 		markAdultMI.setEnabled(tf);

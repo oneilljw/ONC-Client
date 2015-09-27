@@ -51,7 +51,7 @@ public class OurNeighborsChild implements DatabaseListener
 	private static final int SERVER_CONNECT_RETRY_LIMIT = 3;
 	private static final int ONC_IMAGE_ICON_INDEX = 0;
 	private static final int ONC_SAVE_FILE = 1;	
-	private static final String ONC_VERSION = "3.00";
+	private static final String ONC_VERSION = "3.01";
 	private static final String ONC_COPYRIGHT = "\u00A92015 John W. O'Neill";	
 	private static final String APPNAME = "Our Neighbor's Child";
 	private static final int DB_UNLOCKED_IMAGE_INDEX = 17;
@@ -542,6 +542,7 @@ public class OurNeighborsChild implements DatabaseListener
         ONCMenuBar.mapsMI.addActionListener(menuItemListener);
         ONCMenuBar.distMI.addActionListener(menuItemListener);
         ONCMenuBar.changeONCMI.addActionListener(menuItemListener);
+        ONCMenuBar.changeODBMI.addActionListener(menuItemListener);
 //      ONCMenuBar.sortByONCMI.addActionListener(menuItemListener);
         ONCMenuBar.delstatusMI.addActionListener(menuItemListener);             
         ONCMenuBar.viewDBMI.addActionListener(menuItemListener);
@@ -1006,6 +1007,7 @@ public class OurNeighborsChild implements DatabaseListener
     		else if(e.getSource() == ONCMenuBar.mapsMI) {oncFamilyPanel.showDrivingDirections();}
     		else if(e.getSource() == ONCMenuBar.distMI) {oncFamilyPanel.showClientMap(oncFamDB.getList());}
     		else if(e.getSource() == ONCMenuBar.changeONCMI) { oncFamilyPanel.showChangeONCNumberDialog(); }
+    		else if(e.getSource() == ONCMenuBar.changeODBMI) { oncFamilyPanel.showChangeODBNumberDialog(); }
     		else if(e.getSource() == ONCMenuBar.delstatusMI) {oncFamilyPanel.showDeliveryStatus();}
     		else if(e.getSource() == ONCMenuBar.viewDBMI) {oncFamilyPanel.showEntireDatabase(oncFamDB);}
     		else if(e.getSource() == ONCMenuBar.sortWishesMI) {oncFamilyPanel.showSortWishesDialog(oncFamDB.getList());}

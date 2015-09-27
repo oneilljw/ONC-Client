@@ -220,6 +220,20 @@ public class ChildPanel extends ONCPanel implements DatabaseListener, EntitySele
 				    !genderTF.getText().equals(c.getChildGender()) ||
 				     hasDOBChanged(c)))
 		{
+/*			
+			if(!firstnameTF.getText().equals(c.getChildFirstName()))
+					System.out.println(firstnameTF.getText() + " || " + c.getChildFirstName());
+			if( !lastnameTF.getText().equals(c.getChildLastName()))
+				System.out.println(lastnameTF.getText() + " || " + c.getChildLastName());
+			if(!schoolTF.getText().equals(c.getChildSchool()))
+				System.out.println(schoolTF.getText() + " || " + c.getChildSchool());
+			if(!firstnameTF.getText().equals(c.getChildFirstName()))
+				System.out.println(firstnameTF.getText() + " || " + c.getChildFirstName());
+			if(!genderTF.getText().equals(c.getChildGender()))
+				System.out.println(genderTF.getText() + " || " + c.getChildGender());
+			if(hasDOBChanged(c))
+				System.out.println(convertCalendarDOBToGMT(dobDC.getCalendar()) + " || "+ c.getChildDateOfBirth());
+*/			
 			//child change detected, create change request object and send to the server
 			//the child prior wish history may have changed when the child data changed
 			ONCChild reqUpdateChild = new ONCChild(c);
