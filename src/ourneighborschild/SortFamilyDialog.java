@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
@@ -74,7 +75,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	private JComboBox changeDNSCB;
 	private JComboBox changeFStatusCB, changeDStatusCB;
 	private DefaultComboBoxModel changedByCBM, changeDNSCBM;
-	private JComboBox printCB, emailCB, callCB;
+	private JComboBox exportCB, printCB, emailCB, callCB;
 	
 	private JProgressBar progressBar;
 	private ONCEmailer oncEmailer;
@@ -83,7 +84,8 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	private int sortZip = 0, sortRegion = 0, sortChangedBy = 0, sortStoplight = 0;
 	private String sortLN = "Any", sortStreet= "Any", sortDNSCode;
 
-	private static String[] dnsCodes = {"None", "Any", "DUP", "NC", "NISA", "OPT-OUT", "SA", "WA"};	
+	private static String[] dnsCodes = {"None", "Any", "DUP", "NC", "NISA", "OPT-OUT", "SA", "WA"};
+	private static String[] exportChoices = {"Export", "OBD Crosscheck"};
 	private static String[] printChoices = {"Print", "Print Listing", "Print Book Labels", 
 											"Print Family Receiving Sheets",
 											"Print Gift Inventory Sheets", "Print Packaging Sheets",
@@ -247,6 +249,11 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
         changePanel.add(changeDataPanel, gbc);
         
 		//set up the unique control gui for this dialog
+        exportCB = new JComboBox(exportChoices);
+        exportCB.setPreferredSize(new Dimension(136, 28));
+        exportCB.setEnabled(false);
+        exportCB.addActionListener(this);
+        
         printCB = new JComboBox(printChoices);
         printCB.setPreferredSize(new Dimension(136, 28));
         printCB.setEnabled(false);
@@ -272,6 +279,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 
         //Add the components to the control panel
         cntlPanel.add(progressBar);
+        cntlPanel.add(exportCB);
         cntlPanel.add(callCB);
         cntlPanel.add(emailCB);
         cntlPanel.add(printCB);
@@ -1039,10 +1047,19 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			
 			if(GlobalVariables.isUserAdmin())
 			{
+				exportCB.setEnabled(true);
 				emailCB.setEnabled(true);
 				callCB.setEnabled(true);
 			}
 		}
+		else
+		{
+			printCB.setEnabled(false);
+			exportCB.setEnabled(false);
+			emailCB.setEnabled(false);
+			callCB.setEnabled(false);
+		}
+			
 	}
 	
 	//Resets each search criteria gui and its corresponding member variable to the initial
@@ -1366,6 +1383,124 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	
 	void setFamilyStatusComboItemEnabled(int index, boolean tf) {changeFamItem[index].setEnabled(tf); }
 
+	void onExportODBCrosscheck()
+	{
+    	String[] header = {"Name of CBO", "First Name of Head of Household", "Last Name of Head of Household",
+    						"Phone Number", "Delivery Street Address", "Delivery Address Line 2",
+    						"Delivery City", "Delivery Zip Code", "Delivery State", 
+    						"Head of Household Email", "Adopted for Thanksgiving?", 
+    						"Adopted for Dec. Food?", "Adopted for Dec. Gifts?", 
+    						"Number of Adults in Household", "Number of Children in Household",
+    						"Total Number of people in the Household",
+    						"Does the family speak English?",	"If No. Language spoken",
+    						"Remarks"};
+    
+    	ONCFileChooser oncfc = new ONCFileChooser(this);
+       	File oncwritefile = oncfc.getFile("Select file for export of ODB Crosscheck" ,
+       										new FileNameExtensionFilter("CSV Files", "csv"), 1);
+       	if(oncwritefile!= null)
+       	{
+       		//If user types a new filename without extension.csv, add it
+	    	String filePath = oncwritefile.getPath();
+	    	if(!filePath.toLowerCase().endsWith(".csv")) 
+	    		oncwritefile = new File(filePath + ".csv");
+	    	
+	    	try 
+	    	{
+	    		CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
+	    	    writer.writeNext(header);
+	    	    
+	    	    int[] row_sel = sortTable.getSelectedRows();
+	    	    for(int i=0; i<sortTable.getSelectedRowCount(); i++)
+	    	    {
+	    	    	int index = row_sel[i];
+	    	    	writer.writeNext(getExportODBCrosscheckRow(stAL.get(index)));
+	    	    }
+	    	   
+	    	    writer.close();
+	    	    
+	    	    JOptionPane.showMessageDialog(this, 
+						sortTable.getSelectedRowCount() + " families sucessfully exported to " + oncwritefile.getName(), 
+						"Export Successful", JOptionPane.INFORMATION_MESSAGE, gvs.getImageIcon(0));
+	    	} 
+	    	catch (IOException x)
+	    	{
+	    		JOptionPane.showMessageDialog(this, "Export Failed, I/O Error: "  + x.getMessage(),  
+						"Export Failed", JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
+	    		System.err.format("IOException: %s%n", x);
+	    	}
+	    }
+	}
+	
+	public String[] getExportODBCrosscheckRow(ONCFamily f)
+	{
+		String delAddress, unit, city, zip;
+		if(f.getSubstituteDeliveryAddress().isEmpty())
+		{
+			delAddress = f.getHouseNum() + " " + f.getStreet();
+			unit = f.getUnitNum();
+			city = f.getCity();
+			zip = f.getZipCode();
+		}
+		else
+		{
+			String[] parts = f.getSubstituteDeliveryAddress().split("_");
+			delAddress = parts[0] + " " + parts[1];
+			unit = parts[2].equals("None")  ? "" : parts[2];
+			city = parts[3];
+			zip = parts[4];
+		}
+		
+		AdultDB adultDB = AdultDB.getInstance();
+		ChildDB childDB = ChildDB.getInstance();
+		
+		int numAdults = adultDB.getNumberOfOtherAdultsInFamily(f.getID()) + 1;
+		int numChildren = childDB.getNumberOfChildrenInFamily(f.getID());
+		
+		String zThanksgivingMeal = "N", zDecemberMeal = "N";
+		if(f.getMealID() > -1)
+		{
+			MealDB mealDB = MealDB.getInstance();
+			ONCMeal famMeal = mealDB.getMeal(f.getMealID());
+			if(famMeal.getType() == MealType.Thanksgiving || famMeal.getType() == MealType.Both)
+				zThanksgivingMeal = "Y";
+			if(famMeal.getType() == MealType.December || famMeal.getType() == MealType.Both)
+				zDecemberMeal = "Y";	
+		}
+		
+		String[] exportRow = { "Our Neighbor's Child", f.getHOHFirstName(), f.getHOHLastName(),
+								formatPhoneNumber(f.getHomePhone().trim()),
+								delAddress, unit, city, zip, "VA",
+								f.getFamilyEmail(), zThanksgivingMeal, zDecemberMeal, "Y", 
+								Integer.toString(numAdults), Integer.toString(numChildren),
+								Integer.toString(numAdults + numChildren),
+								f.getLanguage().equalsIgnoreCase("english") ? "Y" : "N",
+								f.getLanguage().equalsIgnoreCase("english") ? "" : f.getLanguage(),
+								f.getDetails()};
+
+		return exportRow;
+	}
+	
+	String formatPhoneNumber(String phoneNumber)
+	{
+		if(phoneNumber.length() == 10)
+		{
+			char[] formattedNumber = new char[12];
+			
+			int phoneIndex = 0, formattedIndex = 0;
+			while(phoneIndex < phoneNumber.length())
+			{
+				if(formattedIndex == 3 || formattedIndex == 7)
+					formattedNumber[formattedIndex++] = '-';
+				else
+					formattedNumber[formattedIndex++] = phoneNumber.charAt(phoneIndex++);
+			}
+			
+			return new String(formattedNumber);
+		}
+		else
+			return phoneNumber;
+	}
 	
 	//Not used in this dialog. The ONC number text field is replaced by a combo box, so
 	//no need to listen for it to be cleared
@@ -1429,6 +1564,14 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		{
 			sortStoplight = stoplightCB.getSelectedIndex();
 			buildTableList(false);
+		}
+		else if(e.getSource() == exportCB)
+		{
+			if(exportCB.getSelectedItem().toString().equals(exportChoices[1]))
+			{ 
+				onExportODBCrosscheck();
+				exportCB.setSelectedIndex(0);
+			}
 		}
 		else if(e.getSource() == printCB)
 		{

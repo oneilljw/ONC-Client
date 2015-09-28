@@ -597,12 +597,12 @@ public class ONCFamily extends ONCEntity
 		}
 		
 		if(homeph.length() > 0)
-			HomePhone = homeph.toString().trim();
+			HomePhone = formatPhoneNumber(homeph.toString().trim());
 		else
 			HomePhone = "None Found";
 		
 		if(otherph.length() > 0)
-			OtherPhone = otherph.toString().trim();
+			OtherPhone = formatPhoneNumber(otherph.toString().trim());
 		else
 			OtherPhone = "None Found";	
 	}
@@ -686,6 +686,27 @@ public class ONCFamily extends ONCEntity
 			SpeakEnglish = "No";
 			Language = lang;
 		}	
+	}
+	
+	String formatPhoneNumber(String phoneNumber)
+	{
+		if(phoneNumber.length() == 10)
+		{
+			char[] formattedNumber = new char[12];
+			
+			int phoneIndex = 0, formattedIndex = 0;
+			while(phoneIndex < phoneNumber.length())
+			{
+				if(formattedIndex == 3 || formattedIndex == 7)
+					formattedNumber[formattedIndex++] = '-';
+				else
+					formattedNumber[formattedIndex++] = phoneNumber.charAt(phoneIndex++);
+			}
+			
+			return new String(formattedNumber);
+		}
+		else
+			return phoneNumber;
 	}
 
 	//Getters
@@ -809,54 +830,6 @@ public class ONCFamily extends ONCEntity
 	@Override
 	public String[] getExportRow()
 	{
-/*		
-		String[] row = new String[41];
-		int index = 0;
-		
-		row[index++] = 	Integer.toString(getID());
-		row[index++] =	getONCNum();		
-		row[index++] = 	Integer.toString(getRegion());
-		row[index++] = 	getODBFamilyNum();
-		row[index++] = 	getBatchNum();	
-		row[index++] =  getDNSCode();
-		row[index++] = 	Integer.toString(getFamilyStatus());
-		row[index++] = 	Integer.toString(getDeliveryStatus());
-		row[index++] = 	getSpeakEnglish();
-		row[index++] = 	getLanguage();			
-		row[index++] = 	getChangedBy();
-		row[index++] = 	getNotes();
-		row[index++] = 	getDeliveryInstructions();
-		row[index++] =  getClientFamily();
-		row[index++] = 	getHOHFirstName();
-		row[index++] = 	getHOHLastName();
-		row[index++] = 	getHouseNum();
-		row[index++] = 	getStreet();
-		row[index++] = 	getUnitNum();
-		row[index++] = 	getCity();
-		row[index++] = 	getZipCode();
-		row[index++] = 	getSubstituteDeliveryAddress();
-		row[index++] = 	getAllPhoneNumbers();			
-		row[index++] = 	getHomePhone();
-		row[index++] = 	getOtherPhon();
-		row[index++] = 	getFamilyEmail();
-		row[index++] = 	getDetails();
-		row[index++] = 	getNamesOfChildren();
-		row[index++] = 	getSchools();
-		row[index++] = 	getODBWishList();
-		row[index++] = 	getAdoptedFor();
-		row[index++] = 	Integer.toString(getAgentID());
-		row[index++] = 	Integer.toString(getDeliveryID());
-		row[index++] =  Integer.toString(getMealID());
-		row[index++] =  getMealStatus().toString();
-		row[index++] = 	Integer.toString(getNumOfBags());
-		row[index++] = 	Integer.toString(getNumOfLargeItems());
-		row[index++] = 	Integer.toString(getStoplightPos());
-		row[index++] = 	getStoplightMssg();
-		row[index++] = 	getStoplightChangedBy();
-		row[index] 	 =  getTransportation().toString();
-
-//		return row;
-*/		
 		List<String> rowList = new ArrayList<String>();
 		rowList.add(Integer.toString(getID()));
 		rowList.add(getONCNum());		

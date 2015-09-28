@@ -897,29 +897,6 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 									soFamily.getLanguage().equalsIgnoreCase("english") ? "" : soFamily.getLanguage(),
 									soFamily.getTransportation().toString()};
 
-/*
-									soFamily.getONCNum(),
-									soFamily.getODBFamilyNum(),
-									soFamily.getHOHFirstName() + " " + soFamily.getHOHLastName(),
-									soFamily.getFamilyEmail(),
-									soFamily.getHomePhone(),
-									soFamily.getOtherPhon(),
-									soMeal.getType().toString(),
-									soMeal.getRestricitons(),
-									schools,
-									agent.getAgentName(),
-									agent.getAgentPhone(),
-									delAddress,
-									unit,
-									city,
-									Integer.toString(adultDB.getNumberOfOtherAdultsInFamily(soFamily.getID())+1),
-									Integer.toString(childDB.getNumberOfChildrenInFamily(soFamily.getID())),
-									soFamily.getSpeakEnglish(),
-									soFamily.getLanguage(),
-									soFamily.getTransportation().toString(),
-									soFamily.getDetails(),
-									dateChanged};
-*/	
 			return exportRow;
 		}
 		
