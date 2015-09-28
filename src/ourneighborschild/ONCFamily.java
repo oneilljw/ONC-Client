@@ -360,9 +360,11 @@ public class ONCFamily extends ONCEntity
 			this.substituteDeliveryAddress = altHouseNum + "_" + altStreet +"_" + 
 										 altUnitNum +"_" + altCity + "_" + altZipCode ;
 		
-		this.AllPhoneNumbers = "Home Phone: " + homePhone + "\n" +
-								"Other phone: " + otherPhone + "\n" + 
-								"Other phone: " + altPhone;
+		this.AllPhoneNumbers = "Home Phone: " + homePhone; 
+		if(!otherPhone.isEmpty())
+			this.AllPhoneNumbers.concat("\n" + "Other phone: " + otherPhone);
+		if(!altPhone.isEmpty())
+			this.AllPhoneNumbers.concat("\n" + "Other phone: " + altPhone);
 		
 		this.HomePhone = homePhone;
 		if(altPhone.equals(""))

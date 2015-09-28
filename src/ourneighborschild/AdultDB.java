@@ -166,6 +166,17 @@ public class AdultDB extends ONCDatabase
 		return count;
 	}
 	
+	List<ONCAdult> getAdultsInFamily(int famID)
+	{
+		List<ONCAdult> famAdultList = new ArrayList<ONCAdult>();
+		
+		for(ONCAdult adult:adultList)
+			if(adult.getFamID() == famID)
+				famAdultList.add(adult);
+		
+		return famAdultList;
+	}
+	
 	String importDB()
 	{
 		String response = "NO_ADULTS";

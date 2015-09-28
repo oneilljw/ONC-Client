@@ -13,6 +13,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -420,11 +421,21 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 	void onExportRequested()
 	{
 		//Write the selected row data to a .csv file
-    	String[] header = {"ONC #", "Client #", "HoH Name", "Email", "Home Phone", "Other Phone", "Holiday",
-    						"Dietary Restrictions", "Schools Attended", "Referring Agent", "Referring Agent Phone",
-    						"Delivery Address", "Unit/Apt", "City", "# Adults", "# Children",
-    						"Speaks English?", "Language", "Transportation?", "Remarks", "Last Changed"};
+//    	String[] header = {"ONC #", "Client #", "HoH Name", "Email", "Home Phone", "Other Phone", "Holiday",
+//    						"Dietary Restrictions", "Schools Attended", "Referring Agent", "Referring Agent Phone",
+//    						"Delivery Address", "Unit/Apt", "City", "# Adults", "# Children",
+//    						"Speaks English?", "Language", "Transportation?", "Remarks", "Last Changed"};
 
+    	String[] header = {"Referring Agent Name", "Referring Organization", "Referring Agent Title",
+    						"Sponsor Contact Name", "Client Family", "Head of Household", "Family Members",
+    						"Referring Agent Email", "Client Family Email",	"Client Family Phone",
+    						"Referring Agent Phone", "Dietary Restrictions", "School(s) Attended",
+    						"Details", "Target Contact ID", "Delivery Street Address",
+    						"Delivery Address Line 2",	"Delivery Address Line 3", "Delivery City",
+    						"Delivery Zip Code", "Delivery State/Province", "Donor Type", "Adopted for:",
+    						"Number of Adults in Household", "Number of Children in Household",
+    						"Wishlist",	"Does the family speak English?",	"If No. Language spoken",
+    						"Client has transportation to pick up holiday assistance if necessary"};
     
     	ONCFileChooser oncfc = new ONCFileChooser(this);
        	File oncwritefile = oncfc.getFile("Select file for export of selected meals" ,
@@ -802,8 +813,8 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		private ONCFamily	soFamily;
 		private ONCMeal	 	soMeal;
 		
+		ONCAgents agentDB;
 		ONCOrgs partnerDB;
-		ONCRegions regionDB;
 		
 		public SortMealObject(int itemID, ONCFamily fam, ONCMeal meal) 
 		{
@@ -811,8 +822,8 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 			soFamily = fam;
 			soMeal = meal;
 			
+			agentDB = ONCAgents.getInstance();
 			partnerDB = ONCOrgs.getInstance();
-			regionDB = ONCRegions.getInstance();
 		}
 		
 		//getters
@@ -821,15 +832,16 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		
 		public String[] getExportRow()
 		{
-			ONCAgents agentDB = ONCAgents.getInstance();
 			Agent agent = agentDB.getAgent(soFamily.getAgentID());
+			Organization partner = partnerDB.getOrganizationByID(soMeal.getPartnerID());
 			
-			String delAddress, unit, city;
+			String delAddress, unit, city, zip;
 			if(soFamily.getSubstituteDeliveryAddress().isEmpty())
 			{
 				delAddress = soFamily.getHouseNum() + " " + soFamily.getStreet();
 				unit = soFamily.getUnitNum();
 				city = soFamily.getCity();
+				zip = soFamily.getZipCode();
 			}
 			else
 			{
@@ -837,24 +849,56 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 				delAddress = parts[0] + " " + parts[1];
 				unit = parts[2].equals("None")  ? "" : parts[2];
 				city = parts[3];
+				zip = parts[4];
 			}
 			
 			AdultDB adultDB = AdultDB.getInstance();
 			ChildDB childDB = ChildDB.getInstance();
 			
-			String schools;
-			if(soFamily.getSchools().contains("\n"))
+			String famMembers = "";
+			List<ONCChild> famChildren = childDB.getChildren(soFamily.getID());
+			List<ONCAdult> famAdults = adultDB.getAdultsInFamily(soFamily.getID());
+			
+			if(!famChildren.isEmpty())
 			{
-				schools = soFamily.getSchools();
-				System.out.println(String.format("SortMealsDlg.getExportRow: schools= %s", schools));
+				StringBuilder members = new StringBuilder(buildChildString(famChildren.get(0)));
+				for(int cn=1; cn<famChildren.size(); cn++)
+					members.append("\r" + buildChildString(famChildren.get(cn)));
+				
+				for(int an=0; an<famAdults.size(); an++)
+					members.append("\r" + buildAdultString(famAdults.get(an)));
+				
+				famMembers = members.toString();
 			}
-			else
-				schools = soFamily.getSchools();
+			else if(!famAdults.isEmpty())
+			{
+				StringBuilder members = new StringBuilder(buildAdultString(famAdults.get(0)));
+				for(int an=0; an<famAdults.size(); an++)
+					members.append("\r" + buildAdultString(famAdults.get(an)));
+				
+				famMembers = members.toString();
+			}
 			
-			SimpleDateFormat dob = new SimpleDateFormat("MMM-dd-yyyy HH:mm");
-			String dateChanged = dob.format(soMeal.getDateChanged().getTime());
-			
-			String[] exportRow = {soFamily.getONCNum(),
+			String[] exportRow = { agent.getAgentName(), agent.getAgentOrg(), agent.getAgentTitle(),
+									partner != null ? partner.getName() : "WFCM",
+									soFamily.getHOHLastName() + " Household",
+									soFamily.getHOHFirstName() + " " + soFamily.getHOHLastName(),
+									famMembers,
+									agent.getAgentEmail(), soFamily.getFamilyEmail(),
+									soFamily.getAllPhoneNumbers().replaceAll("\n","\r"),
+									agent.getAgentPhone(), soMeal.getRestricitons(), soFamily.getSchools(),
+									soFamily.getDetails(), soFamily.getODBFamilyNum(),
+									delAddress, unit, "", city, zip, "Virginia", "CBO",
+									soMeal.getType().toString(),
+									Integer.toString(adultDB.getNumberOfOtherAdultsInFamily(soFamily.getID())+1),
+									Integer.toString(childDB.getNumberOfChildrenInFamily(soFamily.getID())),
+									soFamily.getODBWishList(),
+									soFamily.getLanguage().equalsIgnoreCase("english") ? "Y" : "N",
+									soFamily.getLanguage().equalsIgnoreCase("english") ? "" : soFamily.getLanguage(),
+									soFamily.getTransportation().toString()};
+
+/*
+									soFamily.getONCNum(),
 									soFamily.getODBFamilyNum(),
 									soFamily.getHOHFirstName() + " " + soFamily.getHOHLastName(),
 									soFamily.getFamilyEmail(),
@@ -875,7 +919,19 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 									soFamily.getTransportation().toString(),
 									soFamily.getDetails(),
 									dateChanged};
+*/	
 			return exportRow;
+		}
+		
+		String buildChildString(ONCChild c)
+		{
+			return c.getChildFirstName() + " " + c.getChildLastName() + " - " +
+							c.getChildGender() + " - " + c.getChildDOBString("yyyy-MM-dd");
+		}
+		
+		String buildAdultString(ONCAdult a)
+		{
+			return a.getName() + " - " + a.getGender() + " - Adult";			
 		}
 	}
 	
