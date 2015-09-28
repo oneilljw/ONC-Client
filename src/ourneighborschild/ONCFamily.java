@@ -360,17 +360,18 @@ public class ONCFamily extends ONCEntity
 			this.substituteDeliveryAddress = altHouseNum + "_" + altStreet +"_" + 
 										 altUnitNum +"_" + altCity + "_" + altZipCode ;
 		
-		this.AllPhoneNumbers = "Home Phone: " + homePhone; 
-		if(!otherPhone.isEmpty())
-			this.AllPhoneNumbers.concat("\n" + "Other phone: " + otherPhone);
-		if(!altPhone.isEmpty())
-			this.AllPhoneNumbers.concat("\n" + "Other phone: " + altPhone);
-		
-		this.HomePhone = homePhone;
+		this.HomePhone = formatPhoneNumber(homePhone);
 		if(altPhone.equals(""))
-			this.OtherPhone = otherPhone;
+			this.OtherPhone = formatPhoneNumber(otherPhone);
 		else
-			this.OtherPhone = otherPhone + "\n" + altPhone;
+			this.OtherPhone = formatPhoneNumber(otherPhone) + "\n" + formatPhoneNumber(altPhone);
+		
+		this.AllPhoneNumbers = "Home Phone: " + HomePhone; 
+		if(!otherPhone.isEmpty())
+			this.AllPhoneNumbers.concat("\n" + "Other phone: " + formatPhoneNumber(otherPhone));
+		if(!altPhone.isEmpty())
+			this.AllPhoneNumbers.concat("\n" + "Other phone: " + formatPhoneNumber(altPhone));
+		
 		this.FamilyEmail = familyEmail;
 		this.details = odbDetails;
 		this.ChildrenNames = "";	//Only used for .csv file export

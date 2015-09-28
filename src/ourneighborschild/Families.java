@@ -260,6 +260,16 @@ public class Families extends ONCSearchableDatabase
 				sortDB("ONC");
 			
 			fireDataChanged(source, "ADDED_FAMILY", addedFamily);
+			
+			if(isNumeric(addedFamily.getONCNum()) && addedFamily.getDNSCode().isEmpty())
+			{
+				DataChange regionChange = new DataChange(-1, addedFamily.getRegion());
+				fireDataChanged(this, "UPDATED_REGIONS", regionChange);
+				
+				int[] countsChange = getServedFamilyAndChildCount();
+				DataChange servedCountsChange = new DataChange(countsChange[0], countsChange[1]);
+				fireDataChanged(this, "UPDATED_SERVED_COUNTS", servedCountsChange);
+			}
 		}
 		
 		return addedFamily;
