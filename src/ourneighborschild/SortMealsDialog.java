@@ -54,10 +54,9 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 
 	
 	private JComboBox typeCB, assignCB, statusCB, changedByCB, regionCB, changeStatusCB;
-	private JComboBox changeAssigneeCB, printCB;
+	private JComboBox changeAssigneeCB, printCB, exportCB;
 	private DefaultComboBoxModel assignCBM, changeAssigneeCBM, changedByCBM, regionCBM;
 	private JTextField oncnumTF;
-	private JButton btnExport;
 	private JDateChooser ds, de;
 	private Calendar sortStartCal = null, sortEndCal = null;
 	
@@ -65,6 +64,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 	private MealStatus sortStatus = MealStatus.Any;
 	private MealType sortType = MealType.Any;
 
+	private String[] exportChoices = {"Export Data", "Export: WFCM"};
 //	private int totalNumOfLabelsToPrint;	//Holds total number of labels requested in a print job
 	
 	
@@ -190,9 +190,9 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 	    changePanel.add(changeDataPanel, gbc);
 
 	    //set up the dialog defined control panel
-        btnExport = new JButton("Export Data");
-        btnExport.setEnabled(false);
-        btnExport.addActionListener(this);
+        exportCB = new JComboBox(exportChoices);
+        exportCB.setEnabled(false);
+        exportCB.addActionListener(this);
         
         String[] printChoices = {"Print", "Print Listing"};
         printCB = new JComboBox(printChoices);
@@ -211,7 +211,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 //        cntlPanel.add(labelFitCxBox, gbc);
         gbc.gridx=1;
         gbc.insets = new Insets(0,0,0,0);
-        cntlPanel.add(btnExport, gbc);
+        cntlPanel.add(exportCB, gbc);
         gbc.gridx=2;
         cntlPanel.add(printCB, gbc);
  
@@ -421,11 +421,6 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 	void onExportRequested()
 	{
 		//Write the selected row data to a .csv file
-//    	String[] header = {"ONC #", "Client #", "HoH Name", "Email", "Home Phone", "Other Phone", "Holiday",
-//    						"Dietary Restrictions", "Schools Attended", "Referring Agent", "Referring Agent Phone",
-//    						"Delivery Address", "Unit/Apt", "City", "# Adults", "# Children",
-//    						"Speaks English?", "Language", "Transportation?", "Remarks", "Last Changed"};
-
     	String[] header = {"Referring Agent Name", "Referring Organization", "Referring Agent Title",
     						"Sponsor Contact Name", "Client Family", "Head of Household", "Family Members",
     						"Referring Agent Email", "Client Family Email",	"Client Family Phone",
@@ -434,7 +429,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
     						"Delivery Address Line 2",	"Delivery Address Line 3", "Delivery City",
     						"Delivery Zip Code", "Delivery State/Province", "Donor Type", "Adopted for:",
     						"Number of Adults in Household", "Number of Children in Household",
-    						"Wishlist",	"Does the family speak English?",	"If No. Language spoken",
+    						"Does the family speak English?",	"If No. Language spoken",
     						"Client has transportation to pick up holiday assistance if necessary"};
     
     	ONCFileChooser oncfc = new ONCFileChooser(this);
@@ -472,6 +467,8 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 	    		System.err.format("IOException: %s%n", x);
 	    	}
 	    }
+       	
+       	exportCB.setSelectedIndex(0);
 	}
 	
 	@Override
@@ -515,30 +512,13 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 			{
 				onPrintListing("ONC Meals");
 			} 
-/*				
-			else	//Can only print if table rows are selected
-			{
-				if(sortTable.getSelectedRowCount() > 0)
-				{
-					if(printCB.getSelectedIndex() == 2)
-						onPrintLabels();
-					else if(printCB.getSelectedIndex() == 3)
-						onPrintReceivingCheckSheets();
-				}
-				else	//Warn user
-				{
-					JOptionPane.showMessageDialog(this, 
-	    				"No wishes selected, please selected wishes in order to" + 
-	    				printCB.getSelectedItem().toString(), 
-	    				"No Wishes Selected", JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
-					printCB.setSelectedIndex(0);
-				}
-			}
-*/				
 		}
-		else if(e.getSource() == btnExport)
+		else if(e.getSource() == exportCB)
 		{
-			onExportRequested();	
+			if(exportCB.getSelectedItem().toString().equals(exportChoices[1]))
+			{
+				onExportRequested();
+			}
 		}
 		else if(!bIgnoreCBEvents && (e.getSource() == changeAssigneeCB))
 		{
@@ -622,7 +602,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		}
 		
 		checkApplyChangesEnabled();	//Check to see if user postured to change status or assignee.
-		checkExportEnabled();
+		setEnabledControls(true);	//Check to see if user postured to export data
 	}
 
 	@Override
@@ -658,15 +638,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 	@Override
 	void setEnabledControls(boolean tf) 
 	{
-		btnExport.setEnabled(tf);
-	}
-	
-	void checkExportEnabled()
-	{
-		if(sortTable.getSelectedRowCount() > 0)
-			btnExport.setEnabled(true);
-		else
-			btnExport.setEnabled(false);
+		exportCB.setEnabled(tf == true && sortTable.getSelectedRowCount() > 0);
 	}
 
 	@Override
@@ -801,7 +773,6 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		}
 			
 		buildTableList(false);
-
 	}
 
 	@Override
@@ -892,7 +863,6 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 									soMeal.getType().toString(),
 									Integer.toString(adultDB.getNumberOfOtherAdultsInFamily(soFamily.getID())+1),
 									Integer.toString(childDB.getNumberOfChildrenInFamily(soFamily.getID())),
-									soFamily.getODBWishList(),
 									soFamily.getLanguage().equalsIgnoreCase("english") ? "Y" : "N",
 									soFamily.getLanguage().equalsIgnoreCase("english") ? "" : soFamily.getLanguage(),
 									soFamily.getTransportation().toString()};

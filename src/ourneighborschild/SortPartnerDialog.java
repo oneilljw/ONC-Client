@@ -1343,9 +1343,9 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 				sortTable.getSelectedRow() > -1 && !bChangingTable)
 		{
 			fireEntitySelected(this, "PARTNER_SELECTED", stAL.get(sortTable.getSelectedRow()), null);
+			setEnabledControls(true);
 		}
 		
-		setEnabledControls(true);
 		checkApplyChangesEnabled();
 	}
 
