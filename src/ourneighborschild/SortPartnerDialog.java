@@ -446,7 +446,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 			subject = "Greetings From Our Neighbor's Child";
 			cid0 = ContentIDGenerator.getContentId();
 			cid1 = ContentIDGenerator.getContentId();
-			attachmentAL.add(new ONCEmailAttachment("DSC_0704.JPG", cid0 , MimeBodyPart.INLINE));
+			attachmentAL.add(new ONCEmailAttachment("DSC_0704.JPG", cid0, MimeBodyPart.INLINE));
 			attachmentAL.add(new ONCEmailAttachment("DSC_0764.JPG", cid1, MimeBodyPart.INLINE));
 		}
 		else if(emailType == 2)
@@ -540,17 +540,17 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 	        //then only the first email address will be used. If the first email address isn't valid, 
 	        //the message will not be sent.
 	        ArrayList<EmailAddress> toAddressList = new ArrayList<EmailAddress>();
-       
+/*       
 	        //*********** THIS BLOCK OF CODE IS FOR REAL EMAILS *************************	         
 	        if(o != null && o.getContact_email()!= null && o.getContact_email().length() > MIN_EMAIL_ADDRESS_LENGTH)
 	        	toAddressList.add(new EmailAddress(o.getContact_email(), o.getContact()));
 	        
 	        if(o != null && o.getContact2_email()!= null && o.getContact2_email().length() > MIN_EMAIL_ADDRESS_LENGTH)
 	        	toAddressList.add(new EmailAddress(o.getContact2_email(), o.getContact2()));	  	        	
-	        
+*/	        
 			//*********** THIS BLOCK OF CODE IS FOR TEST EMAILS *************************
 			//Create test email addresses
-//	        EmailAddress toAddressTestJO = new EmailAddress("joneill@idtus.com", "John O'Neill");
+	        EmailAddress toAddressTestJWO = new EmailAddress("johnwoneill1@gmail.com", "John O'Neill");
 //	        EmailAddress toAddressTestJWO = new EmailAddress("johnwoneill@cox.net", "John O'Neill");
 //	        EmailAddress toAddressTestCH = new EmailAddress("hobbsfamily@cox.net", "Chris Hobbs");
 //	        EmailAddress toAddressTestKL = new EmailAddress("volunteer@ourneighborschild.org", "ONC Volunteer");
@@ -559,7 +559,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 	        	        
 	        //Add test email addresses
 //	        toAddressList.add(toAddressTestKL);
-//	        toAddressList.add(toAddressTestJWO);
+	        toAddressList.add(toAddressTestJWO);
 //	        toAddressList.add(toAddressTestKLAOL);
 //	        toAddressList.add(toAddressTestKL);
 //	        toAddressList.add(toAddressTestCH);
@@ -576,18 +576,20 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 			fromAddress = new EmailAddress(GIFT_PARTNER_EMAIL_SENDER_ADDRESS, "Our Neighbor's Child");
 		
 		//Create the blind carbon copy list of EmailAddress objects
-		ArrayList<EmailAddress> bccList = new ArrayList<EmailAddress>();	
+		ArrayList<EmailAddress> bccList = new ArrayList<EmailAddress>();
+/*		
 		if(emailType == 4 || emailType == 5 || emailType == 7 || emailType == 9)
 		{
-//			bccList.add(new EmailAddress(CLOTHING_PARTNER_EMAIL_SENDER_ADDRESS, "Stephanie Somers"));
+			bccList.add(new EmailAddress(CLOTHING_PARTNER_EMAIL_SENDER_ADDRESS, "Stephanie Somers"));
 			bccList.add(new EmailAddress("volunteer@ourneighborschild.org", "ONC Volunteer"));
 		}
 		else
 			bccList.add(new EmailAddress("volunteer@ourneighborschild.org", "ONC Volunteer"));
+*/
 		
 //		bccList.add(new EmailAddress("kellylavin1@gmail.com", "Kelly Lavin"));
 //		bccList.add(new EmailAddress("jwoneill1@aol.com", "John O'Neill"));
-//		bccList.add(new EmailAddress("johnwoneill@cox.net", "John O'Neill"));
+		bccList.add(new EmailAddress("johnwoneill@cox.net", "John O'Neill"));
 		
 		//Create mail server credentials, then the mailer background task and execute it 
 //		ServerCredentials creds = new ServerCredentials("smtpout.secureserver.net", "director@act4others.org", "crazyelf1");

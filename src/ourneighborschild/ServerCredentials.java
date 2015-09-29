@@ -10,9 +10,7 @@ public class ServerCredentials
 	{
 		this.serverName = serverName;
 		this.userID = userID;
-		this.password = password;
-		
-		
+		this.password = password;	
 	}
 
 	String getServerName() {
