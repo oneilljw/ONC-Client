@@ -7,10 +7,14 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
+
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
+
 import au.com.bytecode.opencsv.CSVWriter;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -235,6 +239,27 @@ public class ChildDB extends ONCDatabase
 		if(c != null)
 			c.setChildWishID(newWishID, wishnumber);	
 	}
+	
+	void searchForLastName(String s, List<Integer> rAL)
+    {	
+		int lastFamIDAdded = -1;	//prevent searching for same family id twice in a row
+    	for(ONCChild c: childAL)
+    		if(c.getFamID() != lastFamIDAdded && 
+    			c.getChildLastName().toLowerCase().contains(s.toLowerCase()))
+    		{
+    			//check to see that the family hasn't already been found
+    			//if it hasn't, add it
+    			int index=0;
+    			while(index < rAL.size() && rAL.get(index) != c.getFamID())
+    				index++;
+    			
+    			if(index == rAL.size())
+    			{
+    				rAL.add(c.getFamID()); 
+    				lastFamIDAdded = c.getFamID();
+    			}
+    		}	
+    }
 	
 	ArrayList<ONCChild> getChildDB() { return childAL; }
 	

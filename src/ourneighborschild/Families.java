@@ -688,11 +688,20 @@ public class Families extends ONCSearchableDatabase
     	return index==oncFamAL.size() ? -1 : index;   		
     }
 	
+	/***
+	 * Search for families that contain string and also children that contain the string.
+	 * @param s
+	 * @param rAL
+	 */
 	private void searchForLastName(String s, List<Integer> rAL)
     {	
+		//search the family db
     	for(ONCFamily f: oncFamAL)
     		if(f.getClientFamily().toLowerCase().contains(s.toLowerCase()))
-    			rAL.add(f.getID());    	
+    			rAL.add(f.getID());
+    	
+    	//search the child db
+    	childDB.searchForLastName(s, rAL);
     }
 	
 	private void searchForPhoneNumber(String s, List<Integer> rAL)
