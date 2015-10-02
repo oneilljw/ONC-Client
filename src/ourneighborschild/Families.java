@@ -1319,8 +1319,21 @@ public class Families extends ONCSearchableDatabase
 			searchForONCNumber(data, searchAL);
 			searchtype = "ONC Number";
 		}
-		else if((data.startsWith("ONC") || data.matches("-?\\d+(\\.\\d+)?")) && data.length() < 7)
+		else if(data.matches("-?\\d+(\\.\\d+)?") && data.length() < 7)
 		{
+			//ODB Format
+			searchForODBNumber(data, searchAL);
+			searchtype = "ODB Number";
+		}
+		else if((data.startsWith("C") && data.substring(1).matches("-?\\d+(\\.\\d+)?")) && data.length() < 7)
+		{
+			//ONCFormat
+			searchForODBNumber(data, searchAL);
+			searchtype = "ODB Number";
+		}
+		else if((data.startsWith("W") && data.substring(1).matches("-?\\d+(\\.\\d+)?")) && data.length() < 6)
+		{
+			//WFCM Format
 			searchForODBNumber(data, searchAL);
 			searchtype = "ODB Number";
 		}
