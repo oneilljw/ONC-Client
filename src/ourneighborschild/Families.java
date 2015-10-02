@@ -371,7 +371,7 @@ public class Families extends ONCSearchableDatabase
 	    			//For 2014 ODB .csv format, take 29 field per record input and use 25 field ONCFamily constructor
 	    			//For 2013 ODB .csv format, take 28 field per record input and use 25 field ONCFamily constructor
 	    			//The Sponsor Contact Name, Delivery Address Line 3 and Donor Type fields are ignored after being read
-	    			if(header.length == 28 || header.length == 29)
+	    			if(header.length == 29)
 	    			{
 	    				while ((nextLine = reader.readNext()) != null)	// nextLine[] is an array of values from the line
 	    				{
@@ -389,13 +389,7 @@ public class Families extends ONCSearchableDatabase
 	    							nextLine[10], nextLine[11], nextLine[12], nextLine[13], nextLine[14], nextLine[15],
 	    							nextLine[16], nextLine[18], nextLine[19], nextLine[20],
 	    							nextLine[22], nextLine[23], nextLine[24], nextLine[25], nextLine[26], nextLine[27],
-	    							batchNum, fGVs.getTodaysDate(),
-	    							-1,
-	    							"NNA",
-//	    							generateONCNumber(regions.getRegionMatch(nextLine[14], nextLine[16]), null),
-//	    							oncID,
-	    							-1,
-	    							GlobalVariables.getUserLNFI(), 
+	    							nextLine[28], batchNum, fGVs.getTodaysDate(), -1, "NNA",-1, GlobalVariables.getUserLNFI(), 
 	    							agentID);
 	    					
 	    					ONCFamily addedFam = (ONCFamily) add(this, reqAddFam);

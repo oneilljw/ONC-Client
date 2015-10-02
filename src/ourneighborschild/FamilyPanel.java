@@ -75,13 +75,15 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private JScrollPane odbWishscrollPane;
 	private JTextPane HomePhone, OtherPhone;
 	public  JButton btnAssignONCNum;
-	private JButton btnShowPriorHistory, btnShowAllPhones, btnShowODBDetails; 
-	private JButton btnShowAgentInfo, btnMeals;
+//	private JButton btnShowPriorHistory, btnShowAllPhones, btnShowODBDetails; 
+//	private JButton btnShowAllPhones, btnShowODBDetails;
+//	private JButton btnShowAgentInfo;
 	private JTextField oncDNScode;
 	private JTextField HOHFirstName, HOHLastName, EMail;
 	private JTextField housenumTF, Street, Unit, City, ZipCode;
 	private JLabel lblONCNum, lblODBNum, lblRegion, lblNumBags, lblChangedBy;
-	private JRadioButton delRB, altAddressRB;
+	private JRadioButton delRB, altAddressRB, btnMeals, btnShowPriorHistory, btnShowAgentInfo;
+	private JRadioButton btnShowAllPhones, btnShowODBDetails;
 	
 	private JComboBox oncBatchNum, Language, statusCB, delstatCB;
 	private ComboItem[] delStatus;
@@ -323,27 +325,32 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         btnAssignONCNum.setVisible(false);	//Invisible until ONC Number invalid and region valid
         btnAssignONCNum.addActionListener(this);
         
-        btnShowPriorHistory = new JButton("Prior History");
+//      btnShowPriorHistory = new JButton("Prior History");
+        btnShowPriorHistory = new JRadioButton(gvs.getImageIcon(32));
         btnShowPriorHistory.setToolTipText("Click to see prior ONC wish history for highlighted child");
         btnShowPriorHistory.setEnabled(false);
         btnShowPriorHistory.addActionListener(this);
         
-        btnShowAllPhones = new JButton("All Phone #'s");
+//      btnShowAllPhones = new JButton("All Phone #'s");
+        btnShowAllPhones = new JRadioButton(gvs.getImageIcon(35));
         btnShowAllPhones.setToolTipText("Click to see all phone numbers for family");
         btnShowAllPhones.setEnabled(false);
         btnShowAllPhones.addActionListener(this);
         
-        btnShowAgentInfo = new JButton("Agent Info");
+//      btnShowAgentInfo = new JButton("Agent Info");
+        btnShowAgentInfo = new JRadioButton(gvs.getImageIcon(33));
         btnShowAgentInfo.setToolTipText("Click to see info on agent who input family to ODB or WFCM");
         btnShowAgentInfo.setEnabled(false);
         btnShowAgentInfo.addActionListener(this);
         
-        btnShowODBDetails = new JButton("Family Details");
+//        btnShowODBDetails = new JButton("Family Details");
+        btnShowODBDetails = new JRadioButton(gvs.getImageIcon(34));
         btnShowODBDetails.setToolTipText("Click to see ODB details for this family");
         btnShowODBDetails.setEnabled(false);
         btnShowODBDetails.addActionListener(this);
         
-        btnMeals = new JButton("Meal Assistance");
+//      btnMeals = new JButton("Meal Assistance");
+        btnMeals = new JRadioButton(gvs.getImageIcon(30));
         btnMeals.setToolTipText("Click for family food assistnace status");
 //        btnMeals.setUI((ButtonUI) BasicButtonUI.createUI(btnMeals));
 //        btnMeals.setBorder(BorderFactory.createLineBorder(Color.BLACK));

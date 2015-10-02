@@ -92,6 +92,7 @@ public class ONCFamily extends ONCEntity
 		transportation = f.transportation;
 	}
 	//Overloaded Constructor - 30 column input from ODB file
+/*	
 		ONCFamily(String RAName, String RAOrg, String RATitle, String ClientFam, String HOH, String FamMembers,
 				String RAEmail, String ClientFamEmail, String ClientFamPhone, String RAPhone,
 				String DeitaryRestrictions, String schools, String Details, String ID,
@@ -231,13 +232,13 @@ public class ONCFamily extends ONCEntity
 		parseAddress(StreetNum, StreetName);
 		determineLanguage(SpeakEng, Lang);
 	}
-	
-	//Overloaded Constructor - 25 column input from ODB file
+*/	
+	//Overloaded Constructor - 29 column (A to AC) input from ODB .csv file - 2014, 2015
 		ONCFamily(String RAName, String RAOrg, String RATitle, String ClientFam, String HOH, String FamMembers, String RAEmail,
 				String ClientFamEmail, String ClientFamPhone, String RAPhone, String DeitaryRestrictions, String Schools,
 				String Details, String ID, String StreetAdd, String AddL2,  String Cty, String Zip,
 				String State,String AdoptFor, String nAdults, String nChldren, String Wishlist, String SpeakEng,
-				String Lang, String bn, Date today, int region, String sONC, int id, String cb, int agentid)
+				String Lang, String transportation, String bn, Date today, int region, String sONC, int id, String cb, int agentid)
 		{
 			super(id, new Date(), cb, STOPLIGHT_OFF, "Family imported", cb);
 			oncNum = sONC;
@@ -269,7 +270,10 @@ public class ONCFamily extends ONCEntity
 			deliveryID = -1;
 			mealID = -1;
 			mealStatus = MealStatus.None;
-			transportation = Transportation.TBD;
+			if(transportation.equals("Yes") || transportation.equals("No"))
+				this.transportation = Transportation.valueOf(transportation);
+			else
+				this.transportation = Transportation.TBD;
 
 			parseHOH(HOH);
 			parsePhoneData(ClientFamPhone);

@@ -487,7 +487,7 @@ public class OurNeighborsChild implements DatabaseListener
 				exit("QUIT");			  
 			 }});
         oncFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);	//On close, user is prompted to confirm
-        oncFrame.setMinimumSize(new Dimension(832, 660));
+        oncFrame.setMinimumSize(new Dimension(832, 680));
         oncFrame.setLocationByPlatform(true);
         
         //Create a content panel for the frame and add components to it.
