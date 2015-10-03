@@ -81,9 +81,9 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private JTextField oncDNScode;
 	private JTextField HOHFirstName, HOHLastName, EMail;
 	private JTextField housenumTF, Street, Unit, City, ZipCode;
-	private JLabel lblONCNum, lblODBNum, lblRegion, lblNumBags, lblChangedBy;
+	private JLabel lblONCNum, lblRefNum, lblRegion, lblNumBags, lblChangedBy;
 	private JRadioButton delRB, altAddressRB, btnMeals, btnShowPriorHistory, btnShowAgentInfo;
-	private JRadioButton btnShowAllPhones, btnShowODBDetails;
+	private JRadioButton btnShowAllPhones, btnShowODBDetails, btnTransportation, btnDirections;
 	
 	private JComboBox oncBatchNum, Language, statusCB, delstatCB;
 	private ComboItem[] delStatus;
@@ -107,6 +107,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private static ClientMapDialog cmDlg;
 	private DeliveryStatusDialog dsDlg;
 	private MealDialog mealDlg;
+	private TransportationDialog transportationDlg;
 	private DirectionsDialog dirDlg;
 	private DriverDialog driverDlg;
 	private WishCatalogDialog catDlg;
@@ -178,12 +179,14 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		DataChangeListener fdcListener = new DataChangeListener();
         lblONCNum = new JLabel("");
         lblONCNum.setPreferredSize(new Dimension(60, 52));
+        lblONCNum.setToolTipText("Seasonal Family Reference # - new each year");
         lblONCNum.setBorder(BorderFactory.createTitledBorder("ONC #"));
         lblONCNum.setHorizontalAlignment(JLabel.CENTER);
         
-        lblODBNum = new JLabel("No Fams");
-        lblODBNum.setPreferredSize(new Dimension(72, 52));
-        lblODBNum.setBorder(BorderFactory.createTitledBorder("Ref #"));
+        lblRefNum = new JLabel("No Fams");
+        lblRefNum.setPreferredSize(new Dimension(72, 52));
+        lblRefNum.setToolTipText("Family Reference # - Consistent across years");
+        lblRefNum.setBorder(BorderFactory.createTitledBorder("Ref #"));
         lblONCNum.setHorizontalAlignment(JLabel.CENTER);
         
         String[] batchNums = {"","B-01","B-02","B-03","B-04","B-05","B-06","B-07","B-08",
@@ -191,7 +194,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         oncBatchNum = new JComboBox(batchNums);
 //      oncBatchNum.setEditable(true);
         oncBatchNum.setPreferredSize(new Dimension (96, 52));
-        oncBatchNum.setToolTipText("Which ODB input batch contained this family");
+        oncBatchNum.setToolTipText("Which input batch contained this family");
         oncBatchNum.setBorder(BorderFactory.createTitledBorder("Batch #"));
         oncBatchNum.setEnabled(false);
         oncBatchNum.addActionListener(this);
@@ -327,35 +330,45 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         
 //      btnShowPriorHistory = new JButton("Prior History");
         btnShowPriorHistory = new JRadioButton(gvs.getImageIcon(32));
-        btnShowPriorHistory.setToolTipText("Click to see prior ONC wish history for highlighted child");
+        btnShowPriorHistory.setToolTipText("Click for prior ONC gift history for highlighted child");
         btnShowPriorHistory.setEnabled(false);
         btnShowPriorHistory.addActionListener(this);
         
 //      btnShowAllPhones = new JButton("All Phone #'s");
         btnShowAllPhones = new JRadioButton(gvs.getImageIcon(35));
-        btnShowAllPhones.setToolTipText("Click to see all phone numbers for family");
+        btnShowAllPhones.setToolTipText("Click for all phone numbers for family");
         btnShowAllPhones.setEnabled(false);
         btnShowAllPhones.addActionListener(this);
         
 //      btnShowAgentInfo = new JButton("Agent Info");
         btnShowAgentInfo = new JRadioButton(gvs.getImageIcon(33));
-        btnShowAgentInfo.setToolTipText("Click to see info on agent who input family to ODB or WFCM");
+        btnShowAgentInfo.setToolTipText("Click for info on agent who referred family");
         btnShowAgentInfo.setEnabled(false);
         btnShowAgentInfo.addActionListener(this);
         
 //        btnShowODBDetails = new JButton("Family Details");
         btnShowODBDetails = new JRadioButton(gvs.getImageIcon(34));
-        btnShowODBDetails.setToolTipText("Click to see ODB details for this family");
+        btnShowODBDetails.setToolTipText("Click for additional details for this family");
         btnShowODBDetails.setEnabled(false);
         btnShowODBDetails.addActionListener(this);
         
 //      btnMeals = new JButton("Meal Assistance");
         btnMeals = new JRadioButton(gvs.getImageIcon(30));
         btnMeals.setToolTipText("Click for family food assistnace status");
-//        btnMeals.setUI((ButtonUI) BasicButtonUI.createUI(btnMeals));
-//        btnMeals.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         btnMeals.setEnabled(false);
+        btnMeals.setActionCommand("None");
         btnMeals.addActionListener(this);
+        
+//      btnTransportation = new JButton("Transportation");
+        btnTransportation = new JRadioButton(gvs.getImageIcon(31));
+        btnTransportation.setToolTipText("Click for family transportation status");
+        btnTransportation.setEnabled(false);
+        btnTransportation.addActionListener(this);
+        
+        btnDirections = new JRadioButton(gvs.getImageIcon(39));
+        btnDirections.setToolTipText("Click for directions to family address");
+        btnDirections.setEnabled(false);
+        btnDirections.addActionListener(this);
         
         //Set up the Child Table
         childTable = new JTable()
@@ -409,7 +422,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         
         //Set up the ODB Wish List Pane
         odbWishListPane = new JTextPane();
-        odbWishListPane.setToolTipText("Wish suggestions by child from ODB or WFCM");
+        odbWishListPane.setToolTipText("Wish suggestions for child from referral");
         SimpleAttributeSet attribs = new SimpleAttributeSet();  
         StyleConstants.setAlignment(attribs , StyleConstants.ALIGN_LEFT);
         StyleConstants.setFontSize(attribs, gvs.getFontSize());
@@ -423,7 +436,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         
         //Set up the ONC Notes Pane
         oncNotesPane = new JTextPane();
-        oncNotesPane.setToolTipText("Family specific notes entered by ONC user");
+        oncNotesPane.setToolTipText("Family specific notes entered by ONC elf");
         StyleConstants.setAlignment(attribs , StyleConstants.ALIGN_LEFT);
         StyleConstants.setFontSize(attribs, gvs.getFontSize());
         StyleConstants.setSpaceBelow(attribs, 3);
@@ -436,7 +449,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	   	
 	    //Set up the ONC Delivery Instructions Pane
         oncDIPane = new JTextPane();
-        oncDIPane.setToolTipText("Family specific delivery instructions entered by ONC user");
+        oncDIPane.setToolTipText("Family specific delivery instructions entered by ONC elf");
         StyleConstants.setAlignment(attribs , StyleConstants.ALIGN_LEFT);
         StyleConstants.setFontSize(attribs, gvs.getFontSize());
         StyleConstants.setSpaceBelow(attribs, 3);
@@ -527,6 +540,13 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
     	nav.addEntitySelectionListener(agentInfoDlg);
     	sortFamiliesDlg.addEntitySelectionListener(agentInfoDlg);
     	sortWishesDlg.addEntitySelectionListener(agentInfoDlg);
+    	
+    	//Set up the dialog to edit family transporation info
+    	String[] transNames = {"ONC #", "Last Name", "Transportation?"};
+    	transportationDlg = new TransportationDialog(parentFrame, false, transNames);
+    	nav.addEntitySelectionListener(transportationDlg);
+    	sortFamiliesDlg.addEntitySelectionListener(transportationDlg);
+    	sortWishesDlg.addEntitySelectionListener(transportationDlg);
     	
     	//Set up the dialog to change family ONC Number
     	String[] oncNum = {"Change ONC #"};
@@ -670,7 +690,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
       
         //Add components to the panels
         p1.add(lblONCNum);
-        p1.add(lblODBNum);
+        p1.add(lblRefNum);
         p1.add(oncBatchNum);
         p1.add(oncDNScode);
 //      p1.add(clientFamily);
@@ -684,7 +704,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         p2.add(EMail);
 		p2.add(Language);
 		p2.add(delstatCB);
-		p2.add(delRB);
+//		p2.add(delRB);
 		
         p3.add(housenumTF);
         p3.add(Street);
@@ -692,7 +712,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         p3.add(City);
         p3.add(ZipCode);
         p3.add(lblRegion);
-        p3.add(altAddressRB);
+//      p3.add(altAddressRB);
         p3.add(lblChangedBy);
         
         c.gridx=0;
@@ -731,10 +751,14 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         p5.add(btnAssignONCNum);
         p5.add(btnShowPriorHistory);
         p5.add(btnShowAllPhones);
+        p5.add(altAddressRB);
         p5.add(btnShowODBDetails);
         p5.add(btnShowAgentInfo);
         p5.add(btnMeals);
-        
+        p5.add(btnTransportation);
+        p5.add(btnDirections);
+        p5.add(delRB);
+              
         this.add(nav);
         this.add(p1);
         this.add(p2);
@@ -913,10 +937,14 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		p2.setBackground(pBkColor);
 		p3.setBackground(pBkColor);
 		
+		btnMeals.setEnabled(true);
+		btnTransportation.setEnabled(true);
+		btnDirections.setEnabled(true);
+		
 		if(bDispAll)
 		{
 			lblONCNum.setText(currFam.getONCNum());
-			lblODBNum.setText(currFam.getODBFamilyNum());
+			lblRefNum.setText(currFam.getODBFamilyNum());
 			oncBatchNum.setSelectedItem((String)currFam.getBatchNum());
 			oncDNScode.setText(currFam.getDNSCode());
 			oncDNScode.setCaretPosition(0);
@@ -991,34 +1019,34 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			else
 				btnShowODBDetails.setEnabled(true);
 			
-			if(currFam.getMealID() > -1)
+			//set meal button icon
+			if(currFam.getMealID()  == -1)
 			{
-				btnMeals.setEnabled(true);
-				if(currFam.getMealStatus() == MealStatus.Requested)	//meal not referrred yet
-				{
-					btnMeals.setBackground(Color.YELLOW);
-//					btnMeals.setBorderPainted(false);
-					btnMeals.setOpaque(true);
-				}
-				else
-				{
-					btnMeals.setBackground(pBkColor);
-//					btnMeals.setBorderPainted(true);
-					btnMeals.setOpaque(false);
-				}
+				btnMeals.setIcon(gvs.getImageIcon(38));
+				btnMeals.setActionCommand("None");
+			}
+			else if(currFam.getMealStatus() == MealStatus.Requested)	//meal not referrred yet
+			{
+				btnMeals.setIcon(gvs.getImageIcon(30));
+				btnMeals.setActionCommand("Requested");
 			}
 			else
 			{
-				btnMeals.setEnabled(false);
-				btnMeals.setBackground(pBkColor);
-//				btnMeals.setBorderPainted(true);
-				btnMeals.setOpaque(false);
+				btnMeals.setIcon(gvs.getImageIcon(37));
+				btnMeals.setActionCommand("Referred");
 			}
+			
+			//set transportation button icon
+			if(currFam.getTransportation() == Transportation.Yes)
+				btnTransportation.setIcon(gvs.getImageIcon(31));
+			else
+				btnTransportation.setIcon(gvs.getImageIcon(36));
+			
 		}
 		else	//restricted viewing user
 		{
 			lblONCNum.setText(currFam.getONCNum());
-			lblODBNum.setText(currFam.getODBFamilyNum());
+			lblRefNum.setText(currFam.getODBFamilyNum());
 			oncBatchNum.setSelectedItem((String)currFam.getBatchNum());
 			oncDNScode.setText(currFam.getDNSCode());
 			oncDNScode.setCaretPosition(0);
@@ -1083,6 +1111,30 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			oncDIPane.setText(currFam.getDeliveryInstructions());
 			oncDIPane.setCaretPosition(0);
 			btnShowODBDetails.setEnabled(false);
+			
+			//set meal button icon
+			if(currFam.getMealID()  == -1)
+			{
+				btnMeals.setIcon(gvs.getImageIcon(38));
+				btnMeals.setActionCommand("None");
+			}
+			else if(currFam.getMealStatus() == MealStatus.Requested)	//meal not referrred yet
+			{
+				btnMeals.setIcon(gvs.getImageIcon(30));
+				btnMeals.setActionCommand("Requested");
+			}
+			else
+			{
+				btnMeals.setIcon(gvs.getImageIcon(37));
+				btnMeals.setActionCommand("Referred");
+			}
+			
+			//set transportation button icon
+			if(currFam.getTransportation() == Transportation.Yes)
+				btnTransportation.setIcon(gvs.getImageIcon(31));
+			else
+				btnTransportation.setIcon(gvs.getImageIcon(36));
+
 		}
 		
 		//Disable table list from updating when there's not child data
@@ -1628,6 +1680,16 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		}
 	}
 	
+	void showTransportationDialog()
+	{
+		if(!transportationDlg.isVisible())
+		{
+			transportationDlg.display(currFam);
+			transportationDlg.setLocationRelativeTo(btnShowAgentInfo);
+			transportationDlg.showDialog();
+		}
+	}
+	
 	/****************************************************************************************
      * Shows a dialog box to change the ONC Number for the family displayed. If no family is 
      * displayed the method displays a warning message
@@ -1651,7 +1713,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
     	if(!changeODBNumberDlg.isVisible())
 		{
     		changeODBNumberDlg.display(currFam);
-    		changeODBNumberDlg.setLocationRelativeTo(lblODBNum);
+    		changeODBNumberDlg.setLocationRelativeTo(lblRefNum);
     		changeODBNumberDlg.showDialog();
 		}
     }
@@ -2041,6 +2103,14 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 				delstatCB.getSelectedIndex() != currFam.getDeliveryStatus())
 		{
 			checkAndUpdateFamilyData(currFam);
+		}
+		else if(e.getSource() == btnTransportation)
+		{
+			showTransportationDialog();
+		}
+		else if(e.getSource() == btnDirections)
+		{
+			showDrivingDirections();
 		}
 	}
 

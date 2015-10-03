@@ -21,7 +21,7 @@ public class AddUserDialog extends InfoDialog
 		super(pf, true, tfNames);
 		this.setTitle("Add New ONC App User");
 
-		lblONCIcon.setText("<html><font color=blue>Enter New User's<br>Information Below</font></html>");
+		lblONCIcon.setText("<html><font color=blue>Add New User<br>Information Below</font></html>");
 
 		//Set up the main panel, loop to set up components associated with names
 		for(int pn=0; pn < tfNames.length; pn++)
@@ -31,7 +31,8 @@ public class AddUserDialog extends InfoDialog
 			infopanel[pn].add(tf[pn]);
 		}
 		
-		//set up the permission panel
+		
+		//set up the transformation panel
 		permissionCB = new JComboBox(UserPermission.values());
 		permissionCB.setPreferredSize(new Dimension(158,36));
 		infopanel[3].remove(tf[3]);

@@ -487,7 +487,7 @@ public class OurNeighborsChild implements DatabaseListener
 				exit("QUIT");			  
 			 }});
         oncFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);	//On close, user is prompted to confirm
-        oncFrame.setMinimumSize(new Dimension(832, 680));
+        oncFrame.setMinimumSize(new Dimension(832, 668));
         oncFrame.setLocationByPlatform(true);
         
         //Create a content panel for the frame and add components to it.
@@ -542,7 +542,7 @@ public class OurNeighborsChild implements DatabaseListener
         ONCMenuBar.mapsMI.addActionListener(menuItemListener);
         ONCMenuBar.distMI.addActionListener(menuItemListener);
         ONCMenuBar.changeONCMI.addActionListener(menuItemListener);
-        ONCMenuBar.changeODBMI.addActionListener(menuItemListener);
+        ONCMenuBar.changeRefMI.addActionListener(menuItemListener);
 //      ONCMenuBar.sortByONCMI.addActionListener(menuItemListener);
         ONCMenuBar.delstatusMI.addActionListener(menuItemListener);             
         ONCMenuBar.viewDBMI.addActionListener(menuItemListener);
@@ -1007,7 +1007,7 @@ public class OurNeighborsChild implements DatabaseListener
     		else if(e.getSource() == ONCMenuBar.mapsMI) {oncFamilyPanel.showDrivingDirections();}
     		else if(e.getSource() == ONCMenuBar.distMI) {oncFamilyPanel.showClientMap(oncFamDB.getList());}
     		else if(e.getSource() == ONCMenuBar.changeONCMI) { oncFamilyPanel.showChangeONCNumberDialog(); }
-    		else if(e.getSource() == ONCMenuBar.changeODBMI) { oncFamilyPanel.showChangeODBNumberDialog(); }
+    		else if(e.getSource() == ONCMenuBar.changeRefMI) { oncFamilyPanel.showChangeODBNumberDialog(); }
     		else if(e.getSource() == ONCMenuBar.delstatusMI) {oncFamilyPanel.showDeliveryStatus();}
     		else if(e.getSource() == ONCMenuBar.viewDBMI) {oncFamilyPanel.showEntireDatabase(oncFamDB);}
     		else if(e.getSource() == ONCMenuBar.sortWishesMI) {oncFamilyPanel.showSortWishesDialog(oncFamDB.getList());}

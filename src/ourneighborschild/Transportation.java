@@ -10,4 +10,10 @@ public enum Transportation
 									 Transportation.No, Transportation.TBD};
 		return msSearch;
 	}
+	
+	static Transportation[] getEditChoicesList()
+	{
+		Transportation[] edit = {Transportation.Yes, Transportation.No, Transportation.TBD};
+		return edit;
+	}
 }
