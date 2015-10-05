@@ -174,7 +174,7 @@ public class ChildPanel extends ONCPanel implements DatabaseListener, EntitySele
 	}
 	
 	/****************************************************************************************
-	 * Takes a local time zone Calendar date of birth and returns teh date of birth 
+	 * Takes a local time zone Calendar date of birth and returns the date of birth 
 	 * in milliseconds (GMT)
 	 * Calendar object of the date of birth
 	 * @param gmtDOB
@@ -220,7 +220,7 @@ public class ChildPanel extends ONCPanel implements DatabaseListener, EntitySele
 				    !genderTF.getText().equals(c.getChildGender()) ||
 				     hasDOBChanged(c)))
 		{
-/*			
+			
 			if(!firstnameTF.getText().equals(c.getChildFirstName()))
 					System.out.println(firstnameTF.getText() + " || " + c.getChildFirstName());
 			if( !lastnameTF.getText().equals(c.getChildLastName()))
@@ -233,7 +233,7 @@ public class ChildPanel extends ONCPanel implements DatabaseListener, EntitySele
 				System.out.println(genderTF.getText() + " || " + c.getChildGender());
 			if(hasDOBChanged(c))
 				System.out.println(convertCalendarDOBToGMT(dobDC.getCalendar()) + " || "+ c.getChildDateOfBirth());
-*/			
+			
 			//child change detected, create change request object and send to the server
 			//the child prior wish history may have changed when the child data changed
 			ONCChild reqUpdateChild = new ONCChild(c);

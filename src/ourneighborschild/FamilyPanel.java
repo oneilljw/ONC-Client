@@ -949,6 +949,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		if(bDispAll)
 		{
 			lblONCNum.setText(currFam.getONCNum());
+			lblONCNum.setToolTipText("Family Database ID= " + Integer.toString(currFam.getID()));
 			lblRefNum.setText(currFam.getODBFamilyNum());
 			oncBatchNum.setSelectedItem((String)currFam.getBatchNum());
 			oncDNScode.setText(currFam.getDNSCode());
@@ -2284,7 +2285,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 						childTableModel.setValueAt(updatedChild.getChildLastName(), row, 1);
 					}
 				
-					childTableModel.setValueAt(updatedChild.getChildDOBString("M/d/yy"), row, 2);
+					childTableModel.setValueAt(updatedChild.getChildDOBString("MM/dd/yy"), row, 2);
 					childTableModel.setValueAt(updatedChild.getChildGender(), row, 3);
 				
 					bChildTableDataChanging = false;
