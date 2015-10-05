@@ -108,6 +108,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private DeliveryStatusDialog dsDlg;
 	private MealDialog mealDlg;
 	private TransportationDialog transportationDlg;
+	private AddMealDialog addMealDlg;
 	private DirectionsDialog dirDlg;
 	private DriverDialog driverDlg;
 	private WishCatalogDialog catDlg;
@@ -354,7 +355,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         
 //      btnMeals = new JButton("Meal Assistance");
         btnMeals = new JRadioButton(gvs.getImageIcon(30));
-        btnMeals.setToolTipText("Click for family food assistnace status");
+        btnMeals.setToolTipText("Click for family food assistance status");
         btnMeals.setEnabled(false);
         btnMeals.setActionCommand("None");
         btnMeals.addActionListener(this);
@@ -547,6 +548,10 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
     	nav.addEntitySelectionListener(transportationDlg);
     	sortFamiliesDlg.addEntitySelectionListener(transportationDlg);
     	sortWishesDlg.addEntitySelectionListener(transportationDlg);
+    	
+    	//Set up the dialog to add a meal to family
+    	String[] mealNames = {"ONC #", "Last Name", "Meal Type", "Restrictions"};
+    	addMealDlg = new AddMealDialog(parentFrame, true, mealNames);
     	
     	//Set up the dialog to change family ONC Number
     	String[] oncNum = {"Change ONC #"};
@@ -1475,7 +1480,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		if(!mealDlg.isShowing())
 		{
 			mealDlg.setLocationRelativeTo(btnMeals);
-			mealDlg.setFamilyToDisplay(currFam);
+			mealDlg.display(currFam);
 			mealDlg.setVisible(true);
 		}
 	}
@@ -1685,8 +1690,18 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		if(!transportationDlg.isVisible())
 		{
 			transportationDlg.display(currFam);
-			transportationDlg.setLocationRelativeTo(btnShowAgentInfo);
+			transportationDlg.setLocationRelativeTo(btnTransportation);
 			transportationDlg.showDialog();
+		}
+	}
+	
+	void showAddMealDialog()
+	{
+		if(!addMealDlg.isVisible())
+		{
+			addMealDlg.display(currFam);
+			addMealDlg.setLocationRelativeTo(btnMeals);
+			addMealDlg.showDialog();
 		}
 	}
 	
@@ -2038,7 +2053,10 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		}
 		else if(e.getSource() == btnMeals)
 		{
-			showMealStatus();
+			if(btnMeals.getActionCommand().equals("None"))
+				showAddMealDialog();
+			else
+				showMealStatus();
 		}
 		else if(e.getSource() == altAddressRB)			 
 		{	

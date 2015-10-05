@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.print.PrinterException;
+import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,8 +19,10 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
@@ -47,6 +51,7 @@ public class MealDialog extends JDialog implements ActionListener, DatabaseListe
 	private AbstractTableModel dlgTableModel;
 	private JButton btnDelete, btnPrint;
 	
+	private Families familyDB;
 	private MealDB mealDB;
 	private ONCOrgs partnerDB;
 	
@@ -60,7 +65,7 @@ public class MealDialog extends JDialog implements ActionListener, DatabaseListe
 		this.setTitle("Family Meal History");
 		
 		//Save the reference to the family and meal databases.
-		Families familyDB = Families.getInstance();
+		familyDB = Families.getInstance();
 		if(familyDB != null)
 			familyDB.addDatabaseListener(this);
 		
@@ -121,7 +126,6 @@ public class MealDialog extends JDialog implements ActionListener, DatabaseListe
         JPanel cntlPanel = new JPanel();
         btnPrint = new JButton("Print Meal History");
         btnPrint.setToolTipText("Print the meal history");
-        btnPrint.setEnabled(false);
         btnPrint.addActionListener(this);
         
         btnDelete = new JButton("Delete Family Meal");
@@ -140,12 +144,14 @@ public class MealDialog extends JDialog implements ActionListener, DatabaseListe
   //    this.setMinimumSize(new Dimension(tablewidth, 240));
 	}
 	
-	void setFamilyToDisplay(ONCFamily family)
+	void display(ONCFamily family)
 	{
 		this.currFam = family;
 		setDialogTitle();
 		mealList = getSortedMealList();
 		dlgTableModel.fireTableDataChanged();
+		btnDelete.setEnabled(!mealList.isEmpty() && mealList.get(0).getPartnerID() == -1);
+		
 	}
 	
 	List<ONCMeal> getSortedMealList()
@@ -179,6 +185,62 @@ public class MealDialog extends JDialog implements ActionListener, DatabaseListe
 		{
 			mealList = getSortedMealList();
 			dlgTableModel.fireTableDataChanged();
+			btnDelete.setEnabled(!mealList.isEmpty() && mealList.get(0).getPartnerID() == -1);
+		}
+	}
+	
+	void deleteMeal()
+	{
+		//Confirm with the user that the deletion is really intended
+		String confirmMssg = String.format("<html>Are you sure you want to delete<br>the meal for family #%s </html>",
+											currFam.getONCNum()); 
+									
+		Object[] options= {"Cancel", "Delete Meal"};
+		JOptionPane confirmOP = new JOptionPane(confirmMssg, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION,
+													GlobalVariables.getInstance().getImageIcon(0),
+													options, "Cancel");
+		JDialog confirmDlg = confirmOP.createDialog(this, "*** Confirm Delete Meal ***");
+		confirmDlg.setLocationRelativeTo(this);
+		this.setAlwaysOnTop(false);
+		confirmDlg.setVisible(true);
+
+		Object selectedValue = confirmOP.getValue();
+	
+		//if the client user confirmed, change the ODB Number
+		Families familyDB = Families.getInstance();
+		if(selectedValue != null && selectedValue.toString().equals(options[1]))
+		{
+			ONCFamily delFamMealReq = new ONCFamily(currFam);
+			delFamMealReq.setMealID(-1);
+			delFamMealReq.setMealStatus(MealStatus.None);
+		
+			String response = familyDB.update(this,  delFamMealReq);
+		
+			if(!response.startsWith("UPDATED_FAMILY"))
+			{
+				//display an error message that update request failed
+				JOptionPane.showMessageDialog(GlobalVariables.getFrame(), 
+					"ONC Server denied add meal request, try again later","Add Meal Failed",  
+					JOptionPane.ERROR_MESSAGE, GlobalVariables.getInstance().getImageIcon(0));
+			}
+			else
+				this.dispose();
+		}
+	}
+	
+	void onPrintListing(String tablename)
+	{
+		try
+		{
+			MessageFormat headerFormat = new MessageFormat(tablename);
+			MessageFormat footerFormat = new MessageFormat("- {0} -");
+			dlgTable.print(JTable.PrintMode.FIT_WIDTH, headerFormat, footerFormat);           
+		} 
+		catch (PrinterException e) 
+		{
+			JOptionPane.showMessageDialog(this, "Print Error: " + e.getMessage(), "Print Failed",
+					JOptionPane.ERROR_MESSAGE, GlobalVariables.getInstance().getImageIcon(0));
+				e.printStackTrace();
 		}
 	}
 
@@ -194,6 +256,7 @@ public class MealDialog extends JDialog implements ActionListener, DatabaseListe
 			{
 				mealList = getSortedMealList();
 				dlgTableModel.fireTableDataChanged();
+				btnDelete.setEnabled(!mealList.isEmpty() && mealList.get(0).getPartnerID() == -1);
 			}
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_FAMILY"))
@@ -202,7 +265,9 @@ public class MealDialog extends JDialog implements ActionListener, DatabaseListe
 			if(currFam != null && currFam.getID() == updatedFamily.getID())
 			{
 				currFam = updatedFamily;
-				setDialogTitle();
+				
+				if(currFam.getMealID() == -1)
+					this.dispose();
 			}
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_CONFIRMED_PARTNER_NAME"))
@@ -214,9 +279,12 @@ public class MealDialog extends JDialog implements ActionListener, DatabaseListe
 	}
 
 	@Override
-	public void actionPerformed(ActionEvent arg0) {
-		// TODO Auto-generated method stub
-		
+	public void actionPerformed(ActionEvent e) 
+	{
+		if(e.getSource() == btnPrint)
+			onPrintListing(String.format("Meal History for ONC Family #%s", currFam.getONCNum()));
+		else if(e.getSource() == btnDelete)
+			deleteMeal();
 	}
 	
 	@Override
@@ -224,18 +292,7 @@ public class MealDialog extends JDialog implements ActionListener, DatabaseListe
 	{
 		if(tse.getType().equals("FAMILY_SELECTED"))
 		{
-			currFam = (ONCFamily) tse.getObject1();
-			if(currFam != null)
-			{
-				String logEntry = String.format("MealDialog Event: %s, ONC# %s selected",
-						tse.getType(), currFam.getONCNum());
-				LogDialog.add(logEntry, "M");
-				
-				setDialogTitle();
-				mealList = getSortedMealList();
-				//update the table for new family selection
-				dlgTableModel.fireTableDataChanged();	
-			}	
+			display((ONCFamily) tse.getObject1());
 		}
 	}
 	
