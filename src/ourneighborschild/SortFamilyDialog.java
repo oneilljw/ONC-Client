@@ -308,6 +308,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		
 		Object[] tablerow = {f.getONCNum(), 
 			f.getBatchNum(),
+			f.getODBFamilyNum(),
 			f.getDNSCode(),
 			famstatus[f.getFamilyStatus()+1],
 			delstatus[f.getDeliveryStatus()+1],

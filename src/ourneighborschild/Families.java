@@ -964,6 +964,8 @@ public class Families extends ONCSearchableDatabase
 			Collections.sort(fal, new ONCFamilyONCNumComparator()); }
 		else if(dbField.equals("Batch #")) {
 			Collections.sort(fal, new ONCFamilyBatchNumComparator()); }
+		else if(dbField.equals("Ref #")) {
+			Collections.sort(fal, new ONCFamilyReferenceNumComparator()); }
 		else if(dbField.equals("DNS")) {
 			Collections.sort(fal, new ONCFamilyDNSComparator()); }
 		else if(dbField.equals("Fam Status")) {
@@ -1179,6 +1181,15 @@ public class Families extends ONCSearchableDatabase
 		{
 		
 			return o1.getBatchNum().compareTo(o2.getBatchNum());
+		}
+	}
+	
+	private class ONCFamilyReferenceNumComparator implements Comparator<ONCFamily>
+	{
+		public int compare(ONCFamily o1, ONCFamily o2)
+		{
+		
+			return o1.getODBFamilyNum().compareTo(o2.getODBFamilyNum());
 		}
 	}
 	

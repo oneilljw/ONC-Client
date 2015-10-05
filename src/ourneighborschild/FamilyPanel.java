@@ -504,15 +504,15 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
     	userDlg = new ONCUserDialog(parentFrame);
     	
     	 //Set up the sort family dialog
-    	String[] fdColToolTips = {"ONC Family Number", "Batch Number", "Do Not Serve Code", 
+    	String[] fdColToolTips = {"ONC Family Number", "Batch Number", "Reference #", "Do Not Serve Code", 
 			  "Family Status", "Delivery Status", "Meal Status", "Head of Household First Name", 
 			  "Head of Household Last Name", "House Number","Street",
 			  "Unit or Apartment Number", "Zip Code", "Region",
 			  "Changed By", "Stoplight Color"};
-    	String[] fdCols = {"ONC", "Batch #", "DNS", "Fam Status", "Del Status", "Meal Status",
+    	String[] fdCols = {"ONC", "Batch #", "Ref #", "DNS", "Fam Status", "Del Status", "Meal Status",
     						"First", "Last", "House", "Street", "Unit", "Zip", "Reg", "Changed By", "SL"};
-    	int[] fdColWidths = {32, 48, 48, 72, 72, 72, 72, 72, 48, 128, 72, 48, 32, 72, 24};
-    	int [] fdCenter_cols = {1, 11};
+    	int[] fdColWidths = {32, 48, 56, 48, 72, 72, 72, 72, 72, 48, 128, 72, 48, 32, 72, 24};
+    	int [] fdCenter_cols = {1, 13};
         sortFamiliesDlg = new SortFamilyDialog(parentFrame, fdColToolTips, fdCols, fdColWidths, fdCenter_cols);
         sortFamiliesDlg.addEntitySelectionListener(familyChildSelectionListener);
         sortFamiliesDlg.addEntitySelectionListener(dirDlg);
