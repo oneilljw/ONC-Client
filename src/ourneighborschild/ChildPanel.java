@@ -267,7 +267,11 @@ public class ChildPanel extends ONCPanel implements DatabaseListener, EntitySele
 		long dcDOBGMT = convertCalendarDOBToGMT(dobDC.getCalendar());
 			
 		if(dcDOBGMT != c.getChildDateOfBirth())
+		{
+			System.out.println(String.format("ChildPanel.hasDOBChanged: dc: %d, childDOB: %d",
+					dcDOBGMT, c.getChildDateOfBirth()));
 			return true;
+		}
 		else
 			return false;
 	}
