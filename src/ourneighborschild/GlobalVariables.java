@@ -133,7 +133,7 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 		imageIcons[36] = createImageIcon("NoCar-icon.png", "No car");
 		imageIcons[37] = createImageIcon("ReferredMeal-icon.png", "Referred Meal");
 		imageIcons[38] = createImageIcon("NoMeal.jpg", "No car");
-		imageIcons[39] = createImageIcon("XtpTM.png", "Google Maps");
+		imageIcons[39] = createImageIcon("GoogleMaps-icon.png", "Google Maps");
 		
 		warehouseAddress = "6476+Trillium+House+Lane+Centreville,VA";
 		fontIndex = 3;
