@@ -396,8 +396,20 @@ public class Families extends ONCSearchableDatabase
 	    					
 	    					//if family add was successful, add children to child data base
 	    					if(addedFam != null)
-	    						addFamiliesChildrenAndAdults(addedFam.getID(), nextLine[6]);	
-
+	    						addFamiliesChildrenAndAdults(addedFam.getID(), nextLine[6]);
+/*	    					
+	    					//need to tell the server here to check if family is a duplicate once
+	    					//adults and children are added
+	    					Gson gson = new Gson();
+	    					String response = null;
+	    					response = serverIF.sendRequest("POST<check_duplicatefamily>" + gson.toJson(addedFam, ONCFamily.class));
+	    					
+	    					//response will determine if agent already existed or a new agent was added
+	    					if(response == null || response.startsWith("DUPLICATE_FAMILY") || response.startsWith("UNIQUE_FAMILY"))
+	    					{
+	    						
+	    					}
+*/	    					
 	    				}
 	    				
 	    				Collections.sort(oncFamAL, new ONCFamilyONCNumComparator());
