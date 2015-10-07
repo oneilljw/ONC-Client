@@ -37,7 +37,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 	 */
 	private static final long serialVersionUID = 1L;
 //	private static final String AGENT_EMAIL_SENDER_ADDRESS = "somerss@cox.net";
-	private static final String AGENT_EMAIL_SENDER_ADDRESS = "volunteer@ourneighborschild.org";
+	private static final String AGENT_EMAIL_SENDER_ADDRESS = "schoolcontact@ourneighborschild.org";
 //	private static final String AGENT_EMAIL_SENDER_ADDRESS = "johnwoneill1@gmail.com";
 	private static final int MIN_EMAIL_ADDRESS_LENGTH = 2;
 	private static final int MIN_EMAIL_NAME_LENGTH = 2;
@@ -105,8 +105,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
         progressBar.setStringPainted(true);
         progressBar.setVisible(false);
         
-        String[] emailChoices = {"Email", "2014 Season Agent Email", "2014 Season Reminder Email",
-        							"2014 Intake Reminder Email", "2014 December Gift Confirmation Email"};
+        String[] emailChoices = {"Email", "2015 Season Agent Email"};
         emailCB = new JComboBox(emailChoices);
         emailCB.setPreferredSize(new Dimension(136, 28));
         emailCB.setEnabled(false);
@@ -356,7 +355,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		//Create the subject and attachment array list
 		if(emailType == 1)
 		{
-			subject = "2014 Holiday Information From Our Neighbor's Child";
+			subject = "2015 Holiday Information From Our Neighbor's Child";
 //			cid0 = ContentIDGenerator.getContentId();
 //			cid1 = ContentIDGenerator.getContentId();
 //			attachmentAL.add(new ONCEmailAttachment("DSC_0154.jpeg", cid0 , MimeBodyPart.INLINE));
@@ -411,16 +410,16 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		
 		//Create the blind carbon copy list 
 		ArrayList<EmailAddress> bccList = new ArrayList<EmailAddress>();
-		bccList.add(new EmailAddress(AGENT_EMAIL_SENDER_ADDRESS, "Our Neighbor's Child"));
-		bccList.add(new EmailAddress("kellylavin1@gmail.com", "Kelly Lavin"));
+		bccList.add(new EmailAddress(AGENT_EMAIL_SENDER_ADDRESS, "School Contact"));
+//		bccList.add(new EmailAddress("kellylavin1@gmail.com", "Kelly Lavin"));
 //		bccList.add(new EmailAddress("mnrogers123@msn.com", "Nicole Rogers"));
-//		bccList.add(new EmailAddress("johnwoneill@cox.net", "John O'Neill"));
+		bccList.add(new EmailAddress("johnwoneill1@gmail.com", "John O'Neill"));
 		
 		//Create mail server accreditation, then the mailer background task and execute it
 		//Go Daddy Mail
 //		ServerCredentials creds = new ServerCredentials("smtpout.secureserver.net", "director@act4others.org", "crazyelf1");
 		//Google Mail
-		ServerCredentials creds = new ServerCredentials("smtp.gmail.com", AGENT_EMAIL_SENDER_ADDRESS, "ONC vols");
+		ServerCredentials creds = new ServerCredentials("smtp.gmail.com", AGENT_EMAIL_SENDER_ADDRESS, "crazyelf");
 //		ServerCredentials creds = new ServerCredentials("smtp.gmail.com", AGENT_EMAIL_SENDER_ADDRESS, "erin1992");
 		
 	    oncEmailer = new ONCEmailer(this, progressBar, fromAddress, bccList, emailAL, attachmentAL, creds);
@@ -441,13 +440,13 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		if(agent != null && agent.getAgentFirstName() != null && agent.getAgentFirstName().length() > MIN_EMAIL_NAME_LENGTH)
 //			emailBody = createAgentEmailText(agent, cid0, cid1); 	//2013 Email Body
 			if(emailType == 1)
-				emailBody = create2014AgentEmailText(agent.getAgentFirstName());	//2014 email body
-			else if(emailType == 2)
-				emailBody = create2014AgentReminderEmail(agent.getAgentFirstName());
-			else if(emailType == 3)
-				emailBody = create2014AgentIntakeEmail(agent.getAgentFirstName(), cid0);
-			else if(emailType == 4)
-				emailBody = create2014AgentDecemberGiftConfirmationEmail(agent);
+				emailBody = create2015AgentEmailText(agent.getAgentFirstName());	//2015 email body
+//			else if(emailType == 2)
+//				emailBody = create2014AgentReminderEmail(agent.getAgentFirstName());
+//			else if(emailType == 3)
+//				emailBody = create2014AgentIntakeEmail(agent.getAgentFirstName(), cid0);
+//			else if(emailType == 4)
+//				emailBody = create2014AgentDecemberGiftConfirmationEmail(agent);
 		return emailBody;
 	}
 	
@@ -465,10 +464,12 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		if(agent != null && agent.getAgentEmail() != null && agent.getAgentEmail().length() > MIN_EMAIL_ADDRESS_LENGTH &&
 				agent.getAgentName() != null && agent.getAgentName().length() > MIN_EMAIL_NAME_LENGTH)
         {
+			//LIVE EMAIL ADDRESS
 			EmailAddress toAddress = new EmailAddress(agent.getAgentEmail(), agent.getAgentName());	//live
 			recipientAddressList.add(toAddress);
 
-//			EmailAddress toAddress1 = new EmailAddress("johnwoneill@cox.net", "John O'Neill");	//test
+			//TEST EMAIL ADDRESS
+//			EmailAddress toAddress1 = new EmailAddress("johnwoneill1@gmail.com", "John O'Neill");	//test
 //        	recipientAddressList.add(toAddress1);      	
         }
 		
@@ -568,79 +569,71 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
         return msg;
 	}
 	
-	String create2014AgentEmailText(String agentFirstName)
+	String create2015AgentEmailText(String agentFirstName)
 	{
         //Create the text part of the email using html
         String msg = String.format(
         	"<html><body><div>" +
      //   	"<p><b>Hello FCPS Counselors, Social Workers and other Holiday Assistance Referring Agents!!</p></b>"+
         	"<p>Hello %s,</p>"+
-        	"<p>It's that time of year again!  <b>Our Neighbors Child (ONC)</b>,  the local, community-based " +
-        	"organization that provides Holiday Gifts in December for Centreville, Chantilly and western " +
-        	"Fairfax (22020, 22021, 22033, 22051, 22050, 22039 and 20124), is gearing up for our 23rd year!!!  " +
-        	"We wanted to make sure you've received the <b>2014 Holiday Program Instructions and Guidelines</b> " +
-        	"distributed by Our Daily Bread (ODB).</p>" +
-        	"<p>For clarification:</p>" +
-        	"<p><b>Our Daily Bread (ODB)</b> is the organization contracted to serve as the County's " +
-        	"\"central clearinghouse\" for Holiday Assistance Referrals. Once received, the referrals are " +
-        	"redirected to local Community Based Organization (as available) who will provide the holiday " +
-        	"food and/or gifts for your families. The deadline to register as a Referring Agent with ODB is " +
-        	"October 20, 2014.</p>" +
-        	"<p><b>Our Neighbor's Child (ONC)</b> is the local, community-based organization that provides " +
-        	"<b>Holiday gifts</b>.  Holiday food will come from another local organization.</p>" +
-        	"<p><b>Please remind your families that they can sign up with only one organization</b>. " +
-        	"The Salvation Army now has a Fairfax location and accepts in-person sign-ups for children up " +
-        	"to age 12. These lists are shared to avoid duplication of services.  A family who signs up at the " +
-        	"Salvation Army will be removed from the Our Neighbor's Child list. (Note: ONC serves children " +
-        	"through their senior year in high school).</p><br>" +
-        	"<p><font color=\"red\"><b>Reminder: Holiday Gift referrals must be received by ODB's deadline of " +
-        	"November 14th.</b></font></p>" + 
-        	"<p>***Please note: This year, ODB is limiting the number of families that can be registered.  " +
-        	"Once this limit has been reached, you will no longer be able to submit your families for holiday " +
-        	"assistance through ODB.  We want to make sure you know this and would ask that you " +
-        	"PLEASE REGISTER AS EARLY AS YOU CAN!!! IF YOU ARE REFERRING FAMILIES FOR THANKSGIVING ASSISTANCE " +
-        	"(WHICH HAS A 10/24/2014 DEADLINE), IT WOULD BE GREAT IF YOU COULD GO AHEAD AND REGISTER YOUR " +
-        	"FAMILIES FOR HOLIDAY GIFTS AT THE SAME TIME.***</p><br>" +
-        	"<p><font color=\"red\"><b>Each year, we strive to make it the BEST HOLIDAY EVER for our families " +
-        	"and YOU are one of the most important parts!!</b></font></p>" +
-        	"<p>We know how much you care about the children you refer.  Please help us in our efforts by " +
-        	"remembering that:</p>" +
-        	"<p><b>Accuracy is key</b>. ONC (and volunteers throughout our community) will be serving more than " +
-        	"750 local families again this year. We're only able to do this through partnership with local " +
-        	"schools, churches, businesses and individuals who generously donate the gifts. Our ability to " +
-        	"deliver the correct gifts to the child at their correct address is only possible with your " +
-        	"careful efforts.</p>" +
-        	"<p><b>Give DETAILS!!! The more, the better!!!</b> The wonderful folks " +
-        	"who \"adopt\" these families really do appreciate all the specifics and guidance only you can provide " +
-        	"when it comes to picking out the perfect gifts!  The best way to ensure that the child you refer will " +
-        	"receive the gift they'd most enjoy is to list their wishes (up to three) in the order of importance. " +
-        	"If it's a clothing wish, please include information on size and color (if there's a preference). " +
-        	"If it's a coat, let us know if they want a hoodie, a rain coat, a warm winter coat, etc.  " +
-        	"If a parent is uncertain about what their child would like, list \"age appropriate\" or \"educational toy\". " +
-        	"If you know specific information about the child that may help in selecting a suitable gift, " +
-        	"please add that information in the \"comments\". Information such as \"likes arts and crafts\" or " +
-        	"\"loves horses\" can be particularly helpful.  If a child's wish is a bike, please include the child's " +
-        	"height and a color preference (if any). When we are able to provide bikes, we always include a helmet.</p>" +
-        	"<p><b>Sunday, December 14th, between 1:00 and 4:00 PM</b> is the date our ONC families will receive home " +
-        	"delivery of their holiday gifts.</p>" +
-        	"<p><b>ONC introduced a new automated calling system in 2012 in an effort to provide more timely " +
-        	" with each family</b>. This interactive system (generously donated by Angel/Genesys) allows families to " +
-        	"choose their message in <b>English</b> or <b>Spanish</b>. Please tell the families you refer that calls " +
-        	"are scheduled to begin the week after Thanksgiving.</p><br>" +
-        	"<p>We know you're all very busy and we appreciate everything you do each and every day.  Thank you " +
-        	"for helping us make sure that EVERY child receives the thoughtful selection of gifts that will help make their holidays bright!</p>" +
-        	"<p>I'm so excited for this season!  Should you have any questions, please don't hesitate to shoot" +
-        	" me an e-mail.  Also, if you have referring agents that are new this year, PLEASE let me know so that " +
-        	"I can add their names and contact information to our data base!  And feel free to forward them this " +
-        	"email so that they have my contact information as well.</p>" +
-        	"<p>All the best,</p>" +
-        	"<p>Stephanie Somers<br>" +
-        	"ONC Referring Agent Liaison<br>" +
-        	"Our Neighbor's Child<br>" +
-        	"P.O. Box 276<br>" +
-        	"Centreville, VA 20120<br>" +
-        	"<a href=\"http://www.ourneighborschild.org\">www.ourneighborshild.org</a></p>" +
-        	"</div></body></html>", agentFirstName);
+        	"<p>With all this warm (and wet) weather, it's hard to believe the holidays are just "
+        	+ "around the corner!</p>"
+        	+ "<p>We hope it's a comfort to know that our all-volunteer team at Our Neighbor's Child (ONC) "
+        	+ "has committed to a 24th year of coordinating gift giving efforts for children from "
+        	+ "low-income families from your shcool.</p>"
+        	+ "<p>ONC is the local, community-based organization that provides Holiday Gifts in "
+        	+ "December for children living in Centreville, Chantilly and western " +
+        	" Fairfax (20120, 20121, 20124, 20150, 20151, 22033 and 22039).</p>"
+        	+ "<p>By now you have received instructions from Our Daily Bread (ODB) on how you can "
+        	+ "submit referrals. They are the organization contracted to collect all the "
+        	+ "information countywide and they re-direct the requests to organizations "
+        	+ "(like ONC) who serve that area.</p>"
+        	+ "<p><b>Please remind your families that they can sign up with only one organization</b>. "
+        	+ "Families who elect to sign up with the Salvation Army or other groups will be "
+        	+ "removed from the ONC list. (It is important to note that the Salvation Army only "
+        	+ "serves children up to age 12.  ONC will serve children through age 17 or high school "
+        	+ "graduation).</p>"
+        	+ "<p><b>Thanksgiving Referrals are due by October 30th.</b></p>"
+        	+ "<p><b>December Referrals are due by November 20th.</b></p>"
+        	+ "<p><font color=\"red\"><b>Important: ODB will stop taking referrals once they reach 3,000. Last "
+        	+ "year this occurred in <b><i>October</i></b>, several days before the Thanksgiving deadline, so be "
+        	+ "sure to send your referrals as early as possible!</b></font></p>"
+        	+ "<p>We know how much you care about the children you refer. Please help us in our efforts "
+        	+ "by remembering that:</p>"
+        	+ "<p><b>Accuracy is key</b>. ONC (and volunteers throughout our community) will be serving more than "
+        	+ "750 local families again this year. We're only able to do this through partnership with local "
+        	+ "schools, churches, businesses and individuals who generously donate the gifts. Our ability to "
+        	+ "deliver the correct gifts to the child at their correct address is only possible with your "
+        	+ "careful efforts.</p>"
+        	+ "<p><b>Give DETAILS!!! The more, the better!!!</b> When it comes to shopping for the "
+        	+ "perfect gift, the wonderful folks "
+        	+ "who \"adopt\" these families really do appreciate all the specifics and guidance only "
+        	+ "you can provide! The best way to ensure that the child you refer will "
+        	+ "receive the gift they'd most enjoy is to list their wishes in the order of importance. "
+        	+ "If it's a coat, let us know if they want a hoodie, a rain coat, a warm winter coat, etc.  "
+        	+ "If a parent is uncertain about what their child would like, list \"age appropriate\" or \"educational toy\". "
+        	+ "If you know specific information about the child that may help in selecting a suitable gift, "
+        	+ "please add that information in the \"comments\". Information such as \"likes arts and crafts\" or "
+        	+ "\"loves horses\" can be particularly helpful.  If a child's wish is a bike, please include the child's "
+        	+ "height and a color preference (if any). When we are able to provide bikes, we always include a helmet.</p>"
+        	+ "<p>An ONC volunteer will deliver gifts to each child's home on<b> Sunday, December 13th, between 1:00pm and 4:00pm.</b></p>"
+        	+ "<p><b>Families will be notified by ONC's automated calling system</b> the week after Thanksgiving. This interactive "
+        	+ "system allows families to choose their message in <b>English</b> or <b>Spanish</b> and there is an opportunity to submit changes "
+        	+ "to phone number or address information.</p>"
+        	+"<p>We know you're all very busy and we appreciate everything you do each and every day.  Thank you "
+        	+ "for helping us make sure that EVERY child receives the thoughtful selection of gifts that will help make their holidays bright!</p>"
+        	+ "<p>I'm so excited for this, our 24th season!  Should you have any questions, please don't hesitate to shoot"
+        	+ " me an e-mail.  Also, if you have referring agents who are new this year, PLEASE let me know so that "
+        	+ "I can add their names and contact information to our database!  And feel free to forward them this "
+        	+ "email so that they have my contact information as well.</p>"
+        	+ "<p>All the best,</p>"
+        	+"<p>Stephanie Somers<br>"
+        	+"ONC Referring Agent Liaison<br>"
+        	+"Our Neighbor's Child<br>"
+        	+"P.O. Box 276<br>"
+        	+"Centreville, VA 20120<br>"
+        	+"<a href=\"http://www.ourneighborschild.org\">www.ourneighborshild.org</a></p>" 
+        	+"</div></body></html>", agentFirstName);
         return msg;
 	}
 	
@@ -901,7 +894,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		{
 			onExportDependantTableRequested();	
 		}
-		else if(e.getSource() == emailCB && emailCB.getSelectedIndex() > 1 )
+		else if(e.getSource() == emailCB && emailCB.getSelectedIndex() > 0 )
 		{
 			//Confirm with the user that the deletion is really intended
 			String confirmMssg = "Are you sure you want to send referring agent email?"; 
