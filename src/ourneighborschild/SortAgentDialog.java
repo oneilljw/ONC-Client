@@ -38,7 +38,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 	private static final long serialVersionUID = 1L;
 	private static final String AGENT_EMAIL_SENDER_ADDRESS = "schoolcontact@ourneighborschild.org";
 	private static final int MIN_EMAIL_ADDRESS_LENGTH = 2;
-	private static final int MIN_EMAIL_NAME_LENGTH = 2;
+	private static final int MIN_EMAIL_NAME_LENGTH = 1;
 	
 	private JComboBox orgCB, titleCB;
 	private DefaultComboBoxModel orgCBM, titleCBM;
@@ -460,7 +460,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		
 		//verify the agent has a valid email address and name. If not, return an empty list
 		if(agent != null && agent.getAgentEmail() != null && agent.getAgentEmail().length() > MIN_EMAIL_ADDRESS_LENGTH &&
-				agent.getAgentName() != null && agent.getAgentName().length() > MIN_EMAIL_NAME_LENGTH)
+				agent.getAgentName() != null && agent.getAgentName().trim().length() > MIN_EMAIL_NAME_LENGTH)
         {
 			//LIVE EMAIL ADDRESS
 			EmailAddress toAddress = new EmailAddress(agent.getAgentEmail(), agent.getAgentName());	//live
