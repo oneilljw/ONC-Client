@@ -36,9 +36,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-//	private static final String AGENT_EMAIL_SENDER_ADDRESS = "somerss@cox.net";
 	private static final String AGENT_EMAIL_SENDER_ADDRESS = "schoolcontact@ourneighborschild.org";
-//	private static final String AGENT_EMAIL_SENDER_ADDRESS = "johnwoneill1@gmail.com";
 	private static final int MIN_EMAIL_ADDRESS_LENGTH = 2;
 	private static final int MIN_EMAIL_NAME_LENGTH = 2;
 	
@@ -413,7 +411,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		bccList.add(new EmailAddress(AGENT_EMAIL_SENDER_ADDRESS, "School Contact"));
 //		bccList.add(new EmailAddress("kellylavin1@gmail.com", "Kelly Lavin"));
 //		bccList.add(new EmailAddress("mnrogers123@msn.com", "Nicole Rogers"));
-		bccList.add(new EmailAddress("johnwoneill1@gmail.com", "John O'Neill"));
+//		bccList.add(new EmailAddress("johnwoneill1@gmail.com", "John O'Neill"));
 		
 		//Create mail server accreditation, then the mailer background task and execute it
 		//Go Daddy Mail

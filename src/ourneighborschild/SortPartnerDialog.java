@@ -543,14 +543,14 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 	        //then only the first email address will be used. If the first email address isn't valid, 
 	        //the message will not be sent.
 	        ArrayList<EmailAddress> toAddressList = new ArrayList<EmailAddress>();
-/*       
+      
 	        //*********** THIS BLOCK OF CODE IS FOR REAL EMAILS *************************	         
 	        if(o != null && o.getContact_email()!= null && o.getContact_email().length() > MIN_EMAIL_ADDRESS_LENGTH)
 	        	toAddressList.add(new EmailAddress(o.getContact_email(), o.getContact()));
 	        
 	        if(o != null && o.getContact2_email()!= null && o.getContact2_email().length() > MIN_EMAIL_ADDRESS_LENGTH)
 	        	toAddressList.add(new EmailAddress(o.getContact2_email(), o.getContact2()));	  	        	
-*/	        
+/*	        
 			//*********** THIS BLOCK OF CODE IS FOR TEST EMAILS *************************
 			//Create test email addresses
 //	        EmailAddress toAddressTestJWO = new EmailAddress("johnwoneill1@gmail.com", "John O'Neill");
@@ -567,7 +567,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 	        toAddressList.add(toAddressTestKL);
 //	        toAddressList.add(toAddressTestCH);
 //	        toAddressList.add(toAddressTestSS);
-	        
+*/	        
 	        emailAL.add(new ONCEmail(subject, emailBody, toAddressList));     
 		}
 		
@@ -940,13 +940,13 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 //        	notes = o.getSpecialNotes();
         
         String msgtop = String.format("<html><body><div>"
-        		+ "<p>The weather may be warm (and wet!), but planning is well underway to serve "
+        		+ "<p>The weather may be warm (and wet!) but planning is well underway to serve "
         		+ "our area's less fortunate children this holiday season.</p>"
         		+ "<p>With your continued and valued support, the <b>all-volunteer</b> team at "
         		+ "<b>Our Neighbor's Child</b> is gearing up to coordinate "
         		+ "our 24th year of community service. This effort is only possible when our community "
         		+ "comes together, including the consistent and generous support of ONC partners like %s.</p>"
-        		+" <p>We hope you're able to join us again this year.  The need continues to be great with hundreds "
+        		+" <p>We hope you're able to join us again this year.  The need continues to be great, with hundreds "
         		+ "of families in our area still struggling to meet their families' most basic needs.  " 
         		+ "When we provide children's gifts at the holidays, it allows many of these families "
         		+ "to direct their limited financial resources toward essential housing, utilities and especially food.</p>"
