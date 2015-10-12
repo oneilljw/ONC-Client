@@ -99,7 +99,7 @@ public class MealDialog extends JDialog implements ActionListener, DatabaseListe
 		
 		//Set table column widths
 		int tablewidth = 0;
-		int[] colWidths = {80, 160, 72, 160, 96, 104};
+		int[] colWidths = {80, 160, 160, 160, 96, 104};
 		for(int col=0; col < colWidths.length; col++)
 		{
 			dlgTable.getColumnModel().getColumn(col).setPreferredWidth(colWidths[col]);
@@ -264,10 +264,10 @@ public class MealDialog extends JDialog implements ActionListener, DatabaseListe
 			ONCFamily updatedFamily = (ONCFamily) dbe.getObject();
 			if(currFam != null && currFam.getID() == updatedFamily.getID())
 			{
-				currFam = updatedFamily;
-				
-				if(currFam.getMealID() == -1)
+				if(updatedFamily.getMealID() == -1)
 					this.dispose();
+				else
+					display(updatedFamily);
 			}
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_CONFIRMED_PARTNER_NAME"))
@@ -325,7 +325,7 @@ public class MealDialog extends JDialog implements ActionListener, DatabaseListe
         	else if (col == STATUS_COL)
         	{
         		if(meal.getPartnerID() > -1)
-        			value = MealStatus.Referred.toString();
+        			value = currFam.getMealStatus().toString();
         		else if(meal.getPartnerID() == -1 && currFam.getMealID() > -1)
         			value = MealStatus.Requested.toString();
         		else

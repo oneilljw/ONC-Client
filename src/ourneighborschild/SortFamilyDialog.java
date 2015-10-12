@@ -259,7 +259,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
         printCB.setEnabled(false);
         printCB.addActionListener(this);
         
-        String[] emailChoices = {"Email", "2014 Familiy Confirmation Email"};
+        String[] emailChoices = {"Email", "2015 Familiy Confirmation Email"};
         emailCB = new JComboBox(emailChoices);
         emailCB.setPreferredSize(new Dimension(136, 28));
         emailCB.setEnabled(false);
@@ -1196,13 +1196,13 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		//verify the family has a valid name. If not, return a null body
 		if(fam != null && fam.getHOHFirstName() != null && fam.getHOHFirstName().length() > MIN_EMAIL_NAME_LENGTH) 
 		{
-			emailBody = create2014FamilyEmailText(fam);
+			emailBody = create2015FamilyEmailText(fam);
 		}
         	
 		return emailBody;
 	}
 	
-	String create2014FamilyEmailText(ONCFamily fam)
+	String create2015FamilyEmailText(ONCFamily fam)
 	{
 		//Create the variables for the body of the email 
 		String hohFirstName = fam.getHOHFirstName();
@@ -1247,7 +1247,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
     		"&emsp;<b>Alternate Delivery Address:</b>  %s<br>" +
     		"&emsp;<b>Alternate Delivery Address:</b>  %s<br>" + 
         	"<p>An Our Neighbor's Child volunteer will deliver your children's gifts to the address listed above " +
-        	"on <b>Sunday, December 14th between 1 and 4PM.</b>  You will receive an automated phone call reminder and " +
+        	"on <b>Sunday, December 13th between 1 and 4PM.</b>  You will receive an automated phone call reminder and " +
         	"an adult must be home to receive the gifts.</p>" +
         	"<p><b>Important:  Families may only be served by one organization.</b> If your child/children's name " +
         	"appear on any other list (i.e. The Salvation Army), ONC will remove them from this list and will be " +
@@ -1278,7 +1278,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
     		"&emsp;<b>Direcci&#243;n alternativo:</b>  %s<br>" +
     		"&emsp;<b>Direcci&#243;n alternativo:</b>  %s<br>" +
         	"<p>Un voluntario de Our Neighbor's Child entregar&#225; los regalos para su hijo/hijos a la direcci&#243;n de " +
-        	"arriba el domingo, 14 de diciembre entre la 1 y la 4 de la tarde. Recibir&#225; una llamada de tel&#233;fono " +
+        	"arriba el domingo, 13 de diciembre entre la 1 y la 4 de la tarde. Recibir&#225; una llamada de tel&#233;fono " +
         	"automatizada como un recordatorio y un adulto debe estar en casa para recibir los regalos</p>" +
         	"<p><b>Importante: Sol&#243; una organizaci&#243;n puede servir cada familia</b>. Si su nombre o el nombre de " +
         	"su hijo aparezca en cualquier otra lista (como The Salvation Army), Our Neighbor's Child le quitar&#225; " +

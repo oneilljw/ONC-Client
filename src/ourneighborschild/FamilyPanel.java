@@ -527,7 +527,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 								"Date & Time Meal Last Changed"};
         String[] mealColumns = {"ONC", "Last Name", "Reg", "Holiday", "Status", "Assignee", 
         						"Changed By", "Time Stamp"};
-        int[] mealColWidths = {40, 80, 24, 80, 80, 144, 80, 92};
+        int[] mealColWidths = {40, 80, 24, 80, 160, 144, 80, 92};
         int[] mealCenter_cols = {2};
         sortMealsDlg = new SortMealsDialog(parentFrame, mealToolTips, mealColumns, mealColWidths, mealCenter_cols);
         sortMealsDlg.addEntitySelectionListener(familyChildSelectionListener);

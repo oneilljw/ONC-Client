@@ -165,10 +165,10 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		//change data panel
 		itemCountPanel.setBorder(BorderFactory.createTitledBorder("Meals Meeting Criteria"));
 		
-		changeDataPanel.setBorder(BorderFactory.createTitledBorder("Assign Meals to Partner"));
+		changeDataPanel.setBorder(BorderFactory.createTitledBorder("Change Meal Assignee or Change Meal Status"));
         
 		changeStatusCB = new JComboBox(MealStatus.getChangeList());
-        changeStatusCB.setPreferredSize(new Dimension(192, 56));
+        changeStatusCB.setPreferredSize(new Dimension(224, 56));
 		changeStatusCB.setBorder(BorderFactory.createTitledBorder("Change Status To:"));
 		changeStatusCB.addActionListener(this);
 		
@@ -303,7 +303,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		
 		assignCBM.addElement(new Organization(0, "Any", "Any"));
 		assignCBM.addElement(new Organization(-1, "None", "None"));
-		changeAssigneeCBM.addElement(new Organization(-1, "No Change", "No Change"));
+		changeAssigneeCBM.addElement(new Organization(-1, "No_Change", "No_Change"));
 		changeAssigneeCBM.addElement(new Organization(-1, "None", "None"));
 		
 		for(Organization confOrg :orgs.getConfirmedOrgList(GiftCollection.Meals))
@@ -524,6 +524,10 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		{
 			checkApplyChangesEnabled();
 		}
+		else if(!bIgnoreCBEvents && (e.getSource() == changeStatusCB))
+		{
+			checkApplyChangesEnabled();
+		}
 	}
 
 	@Override
@@ -661,63 +665,91 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 	@Override
 	void checkApplyChangesEnabled()
 	{
-		if(sortTable.getSelectedRows().length > 0 &&changeAssigneeCB.getSelectedIndex() > 0)	
+		//first, enforce mutual exclusivity between status and assignee change. Can't
+		//change status if you are changing partner. Partner changes will automatically
+		//change status. 
+		if(changeAssigneeCB.getSelectedIndex() > 0)
+		{
+			changeStatusCB.setSelectedIndex(0);
+			changeStatusCB.setEnabled(false);
+		}
+		else if(changeAssigneeCB.getSelectedIndex() == 0)
+			changeStatusCB.setEnabled(true);
+		
+		//check if should enable ApplyChanges button. Enable if one or more rows are selected
+		//and either the change status or change assignee selection indexes are not 0 (No Change)
+		if(sortTable.getSelectedRows().length > 0 && 
+		   (changeAssigneeCB.getSelectedIndex() > 0 || changeStatusCB.getSelectedIndex() > 0))
 			btnApplyChanges.setEnabled(true);
 		else
 			btnApplyChanges.setEnabled(false);
 	}
 
+	/**
+	 * Can assign meals, change assignee or remove assignees here. If an assignee change causes
+	 * a change in status that is handled at the server and returned when the meal update occurs.
+	 * So, all that's done here is to update the meal status. Can also change status here, but only
+	 * if a meal is already assigned and has attained MealStatus = Referred. Then, can change 
+	 * status to Thanksgiving_Confirmed, December_Confirmed or Both_Confirmed based on feedback
+	 * from partner providers.
+	 */	
 	@Override
 	boolean onApplyChanges() 
 	{
-		/**
-		 * Can assign meals, change assignee or remove assignees here. If an assignee change causes
-		 * a change in status that is handled at the server and returned when the meal update occurs.
-		 * So, all that's done here is to update the meal status.
-		 */
-			
 		boolean bChangesMade = false;
 		int[] row_sel = sortTable.getSelectedRows();
+		Families familyDB = Families.getInstance();
 			
-		for(int i=0; i<row_sel.length; i++)	
+		for(int i=0; i < row_sel.length; i++)	
 		{
 			Organization cbPartner = (Organization) changeAssigneeCB.getSelectedItem();
 				
-			//is it a change? If so, create to either status or assignee or both? If yes, add a
-			//meal request and send to the server. Meals are not updated, meal history is retained.
-			if(stAL.get(row_sel[i]).getMeal().getPartnerID() != cbPartner.getID() ||
-					stAL.get(row_sel[i]).getFamily().getMealStatus() != changeStatusCB.getSelectedItem())
+			//is it a change to either meal status or meal partner?  Can only be a change to one or the
+			//other, can't be both, that's not allowed and is prevented in checkApplyChangesEnabled(). 
+			//If it is a change to meal parter, create and send an add meal request to the server. 
+			//Meals are not updated, meal history is retained. If the partner change causes a status
+			//change, the server will handle it. 
+			//If it is a change to meal status, create and send an update family request. Meal Status
+			//is an ONCFamily field, not an ONCMeal field.
+			if(changeAssigneeCB.getSelectedIndex() > 0 && 
+				stAL.get(row_sel[i]).getMeal().getPartnerID() != cbPartner.getID())		
 			{
-				String changeReason;
-				if(stAL.get(row_sel[i]).getMeal().getPartnerID() != cbPartner.getID() &&
-						stAL.get(row_sel[i]).getFamily().getMealStatus() != changeStatusCB.getSelectedItem())
-					changeReason = "Changed Partner & Status";
-				else if(stAL.get(row_sel[i]).getMeal().getPartnerID() != cbPartner.getID())
-					changeReason = "Changed Partner";
-				else
-					changeReason = "Changed Status";
-				
 				ONCMeal addMealReq = new ONCMeal(-1, stAL.get(row_sel[i]).getMeal().getFamilyID(),
 										stAL.get(row_sel[i]).getMeal().getType(),
 										stAL.get(row_sel[i]).getMeal().getRestricitons(), 
 										cbPartner.getID(), GlobalVariables.getUserLNFI(),
 										new Date(), stAL.get(row_sel[i]).getMeal().getStoplightPos(),
-										changeReason, GlobalVariables.getUserLNFI());
+										"Changed Partner", GlobalVariables.getUserLNFI());
 				
 				ONCMeal addedMeal = mealDB.add(this, addMealReq);
 				
 				if(addedMeal != null)
-				{
-					buildTableList(false);
 					bChangesMade = true;
-				}
+			}
+			//check if a change to meal status. Can only change meal status if current meal status has
+			//attained at least referral status and it's an actual change to the family's meal status
+			else if(changeStatusCB.getSelectedIndex() > 0 && 
+					 stAL.get(row_sel[i]).getFamily().getMealStatus().compareTo(MealStatus.Referred) >= 0 &&
+					  stAL.get(row_sel[i]).getFamily().getMealStatus() != changeStatusCB.getSelectedItem())
+			{
+				ONCFamily updateFamilyReq = new ONCFamily(stAL.get(row_sel[i]).getFamily());
+				updateFamilyReq.setMealStatus((MealStatus) changeStatusCB.getSelectedItem());
+				
+				String response = familyDB.update(this, updateFamilyReq);
+				
+				if(response != null && response.startsWith("UPDATED_FAMILY"))
+					bChangesMade = true;
 			}
 		}
 		
-		//Reset the change combo boxes to "No Change"
+		//Reset the change combo boxes to "No Change and disable the ApplyChanges buttton
 		changeAssigneeCB.setSelectedIndex(0);
-		
+		changeStatusCB.setSelectedIndex(0);
 		btnApplyChanges.setEnabled(false);
+		
+		//If at least one change was made, update the table
+		if(bChangesMade)
+			buildTableList(false);
 
 		return bChangesMade;
 	}
@@ -756,6 +788,11 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		changeAssigneeCB.removeActionListener(this);
 		changeAssigneeCB.setSelectedIndex(0);
 		changeAssigneeCB.addActionListener(this);
+		
+		changeStatusCB.removeActionListener(this);
+		changeStatusCB.setSelectedIndex(0);
+		changeStatusCB.setEnabled(true);
+		changeStatusCB.addActionListener(this);
 		
 		//Check to see if date sort criteria has changed. Since the setDate() method
 		//will not trigger an event, must check for a sort criteria date change here
@@ -851,7 +888,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 			}
 			
 			String[] exportRow = { agent.getAgentName(), agent.getAgentOrg(), agent.getAgentTitle(),
-									partner != null ? partner.getName() : "WFCM",
+									partner != null ? partner.getName() : "",
 									soFamily.getHOHLastName() + " Household",
 									soFamily.getHOHFirstName() + " " + soFamily.getHOHLastName(),
 									famMembers,
