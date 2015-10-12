@@ -78,8 +78,6 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 	
 	private String[] types = {"Any","Business","Church","School", "Clothing", "Coat", "ONC Shopper"};
 	
-	private static String[] stoplt = {"Any", "Green", "Yellow", "Red", "Off"};
-	
 	private String[] columns;
 
 	private JProgressBar progressBar;

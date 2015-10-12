@@ -105,7 +105,9 @@ public class CompareFamilyData
 	    				JOptionPane.showMessageDialog(parentFrame, 
 	    						odbfile.getName() + " is not in correct format, cannot be imported", 
 	    						"Invalid ODB/WFCM Format", JOptionPane.ERROR_MESSAGE, cfdGVs.getImageIcon(0)); 			    			
-	    		}	    		
+	    		}
+	    		
+	    		reader.close();
 	    	} 
 	    	catch (IOException x)
 	    	{

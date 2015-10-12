@@ -31,7 +31,6 @@ import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -55,7 +54,6 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 	private static final int ONC_AGE_LIMIT = 21;
 	private static final int NUM_OF_XMAS_ICONS = 5;
 	private static final int XMAS_ICON_OFFSET = 9;
-	private static final int WISH_CATALOG_LIST_ALL = 7;
 	private static final int RS_ITEMS_PER_PAGE = 20;
 	private static final Integer MAXIMUM_ON_NUMBER = 9999;
 	private static final int MAX_LABEL_LINE_LENGTH = 26;
@@ -1350,7 +1348,6 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 				LogDialog.add(logEntry, "M");
 			}
 			
-			SimpleDateFormat sYear = new SimpleDateFormat("yy");
 			final Image img = GlobalVariables.getSeasonIcon().getImage();
 
 			Font[] lFont = new Font[3];

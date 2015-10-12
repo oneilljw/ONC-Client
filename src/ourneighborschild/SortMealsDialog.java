@@ -14,7 +14,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileWriter;
@@ -22,8 +21,6 @@ import java.io.IOException;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -32,7 +29,6 @@ import javax.swing.JTextField;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import ourneighborschild.SortTableDialog.ONCNumberKeyListener;
 import au.com.bytecode.opencsv.CSVWriter;
 
 import com.toedter.calendar.JDateChooser;

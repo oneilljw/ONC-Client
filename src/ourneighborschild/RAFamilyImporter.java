@@ -152,6 +152,9 @@ public class RAFamilyImporter extends ONCTableDialog
 						result = "Couldn't read header in RA Family .csv file: " + filename;
 						mssgType = JOptionPane.ERROR_MESSAGE;
 					}
+					
+					reader.close();
+					
 				} 
 				catch (IOException x)	//unable to open the file using a FileReader or CSVReader
 				{

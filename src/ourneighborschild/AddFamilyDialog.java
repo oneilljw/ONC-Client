@@ -6,7 +6,6 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -15,7 +14,6 @@ import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultCellEditor;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -39,6 +37,10 @@ import javax.swing.table.TableColumn;
 
 public class AddFamilyDialog extends JDialog implements ActionListener, DatabaseListener, ListSelectionListener
 {
+	/**
+	 * Dialog allows user to add a family to the database
+	 */
+	private static final long serialVersionUID = 1L;
 	private static final Color OLD_LACE = new Color(253, 245, 230);
 	private GlobalVariables gvs;
 	
@@ -63,7 +65,7 @@ public class AddFamilyDialog extends JDialog implements ActionListener, Database
 	private JTextField hohFN, hohLN, email, housenumTF, street, unit, city, zipCode;
 	private JTextField altHousenumTF, altStreet, altUnit, altCity, altZipCode;
 	private JRadioButton btnAddChild, btnDelChild, btnAddAdult, btnDelAdult;
-	JCheckBox sameAddressCkBox, foodAssistanceCkBox;
+	private JCheckBox sameAddressCkBox, foodAssistanceCkBox;
 	
 	private JComboBox languageCB, mealsCB;
 	private ONCTable childTable, childWishTable, adultTable;

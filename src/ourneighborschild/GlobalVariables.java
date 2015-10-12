@@ -193,6 +193,17 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 	static boolean isUserAdmin() {return user_permission.compareTo(UserPermission.ADMIN) >= 0; }
 	boolean isUserSuperUser() {return user_permission == UserPermission.SYS_ADMIN; }
 	public ImageIcon getImageIcon(int icon){ return imageIcons[icon]; }
+	public ImageIcon getImageIcon(String description)
+	{
+		int index=0;
+		while(index < imageIcons.length && !imageIcons[index].getDescription().equals(description))
+			index++;
+		
+		if(index < imageIcons.length)
+			return imageIcons[index];
+		else
+			return null;		
+	}
 	public static ImageIcon getONCLogo() { return imageIcons[0]; }
 	public static ImageIcon getUnLockedIcon() { return imageIcons[17]; }
 	public static ImageIcon getLockedIcon() { return imageIcons[18]; }
@@ -326,7 +337,10 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 	    		}
 	    		else
 	    			JOptionPane.showMessageDialog(pf, "Couldn't read header in Global Variable file: " + filename, 
-						"Invalid Global Variable File", JOptionPane.ERROR_MESSAGE, oncIcon); 
+						"Invalid Global Variable File", JOptionPane.ERROR_MESSAGE, oncIcon);
+	    		
+	    		reader.close();
+	    		
 	    	} 
 	    	catch (IOException x)
 	    	{

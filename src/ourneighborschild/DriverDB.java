@@ -334,6 +334,9 @@ public class DriverDB extends ONCSearchableDatabase
 	    		else
 	    			JOptionPane.showMessageDialog(pf, "Couldn't read header in driver database file: " + filename, 
 						"Invalid Driver Database File", JOptionPane.ERROR_MESSAGE, oncIcon); 
+	    		
+	    		reader.close();
+	    		
 	    	} 
 	    	catch (IOException x)
 	    	{

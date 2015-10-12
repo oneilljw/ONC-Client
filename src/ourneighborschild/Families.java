@@ -497,7 +497,10 @@ public class Families extends ONCSearchableDatabase
 	    				JOptionPane.showMessageDialog(parentFrame, 
 	    						odbfile.getName() + " is not in ODB format, cannot be imported", 
 	    						"Invalid ODB Format", JOptionPane.ERROR_MESSAGE, fGVs.getImageIcon(0)); 			    			
-	    		}	    		
+	    		}
+	    		
+	    		reader.close();
+	    		
 	    	} 
 	    	catch (IOException x)
 	    	{
@@ -1068,7 +1071,10 @@ public class Families extends ONCSearchableDatabase
 	    		}
 	    		else
 	    			JOptionPane.showMessageDialog(pf, "Couldn't read header in Family DB file: " + filename, 
-	    					"Invalid Family DB File", JOptionPane.ERROR_MESSAGE, oncIcon); 
+	    					"Invalid Family DB File", JOptionPane.ERROR_MESSAGE, oncIcon);
+	    		
+	    		reader.close();
+	    		
 	    	} 
 	    	catch (IOException x)
 	    	{

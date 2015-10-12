@@ -473,7 +473,10 @@ public class ONCWishCatalog extends ONCDatabase
 	    		}
 	    		else
 	    			JOptionPane.showMessageDialog(pf, "Couldn't read header in wish catalog file: " + filename, 
-						"Invalid Wish Catalog File", JOptionPane.ERROR_MESSAGE, oncIcon); 
+						"Invalid Wish Catalog File", JOptionPane.ERROR_MESSAGE, oncIcon);
+	    		
+	    		reader.close();
+	    		
 	    	} 
 	    	catch (IOException x)
 	    	{

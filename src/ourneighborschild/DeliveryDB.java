@@ -225,6 +225,9 @@ public class DeliveryDB extends ONCDatabase
 	    		else
 	    			JOptionPane.showMessageDialog(pf, "Couldn't read header in Delivery DB file: " + filename, 
 						"Invalid Delivery DB File", JOptionPane.ERROR_MESSAGE, oncIcon); 
+	    	
+	    		reader.close();
+	    	
 	    	} 
 	    	catch (IOException x)
 	    	{

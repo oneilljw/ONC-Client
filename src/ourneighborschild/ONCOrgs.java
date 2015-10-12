@@ -131,7 +131,7 @@ public class ONCOrgs extends ONCSearchableDatabase
 			{
 				o.setStatus(newstatus);
 				o.setDateChanged(orgGVs.getTodaysDate());
-				o.setStoplightChangedBy(orgGVs.getUserLNFI());
+				o.setStoplightChangedBy(GlobalVariables.getUserLNFI());
 //				deleteConfirmedOrganization(o.getName());
 			}		
 		}
@@ -139,7 +139,7 @@ public class ONCOrgs extends ONCSearchableDatabase
 		{
 			o.setStatus(newstatus);
 			o.setDateChanged(orgGVs.getTodaysDate());
-			o.setStoplightChangedBy(orgGVs.getUserLNFI());
+			o.setStoplightChangedBy(GlobalVariables.getUserLNFI());
 		}
 			
 		return o.getStatus();
@@ -602,7 +602,10 @@ public class ONCOrgs extends ONCSearchableDatabase
 	    		}
 	    		else
 	    			JOptionPane.showMessageDialog(pf, "Couldn't read header in Organization DB file: " + filename, 
-	    					"Invalid Organization DB File", JOptionPane.ERROR_MESSAGE, oncIcon); 
+	    					"Invalid Organization DB File", JOptionPane.ERROR_MESSAGE, oncIcon);
+	    		
+	    		reader.close();
+	    		
 	    	} 
 	    	catch (IOException x)
 	    	{

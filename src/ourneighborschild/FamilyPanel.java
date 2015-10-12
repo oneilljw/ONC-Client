@@ -59,6 +59,18 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private static final String GIFT_CARD_ONLY_TEXT = "gift card only";
 	private static final int NUMBER_OF_WISHES_PER_CHILD = 3;
 	
+	//Icon references for the icon bar
+	private static final int REQUESTED_MEAL_ICON_INDEX = 30;
+	private static final int TRANSPORTATION_ICON_INDEX = 31;
+	private static final int HISTORY_ICON_INDEX = 32;
+	private static final int AGENT_INFO_ICON_INDEX = 33;
+	private static final int FAMILY_DETAILS_ICON_INDEX = 34;
+	private static final int PHONE_ICON_INDEX = 35;
+	private static final int NO_TRANSPORTATION_ICON_INDEX = 36;
+	private static final int REFERRED_MEAL_ICON_INDEX = 37;
+	private static final int NO_MEAL_ICON_INDEX = 38;
+	private static final int GOOGLE_MAP_ICON_INDEX = 39;
+	
 	private AdultDB adultDB;
 	private DeliveryDB deliveryDB;
 	private ONCRegions regions;
@@ -74,7 +86,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private JTextPane oncNotesPane, oncDIPane, odbWishListPane;
 	private JScrollPane odbWishscrollPane;
 	private JTextPane HomePhone, OtherPhone;
-	public  JButton btnAssignONCNum;
+	private  JButton btnAssignONCNum;
 //	private JButton btnShowPriorHistory, btnShowAllPhones, btnShowODBDetails; 
 //	private JButton btnShowAllPhones, btnShowODBDetails;
 //	private JButton btnShowAgentInfo;
@@ -130,7 +142,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private FamilyCheckDialog dfDlg;
 	private WishLabelViewer wlViewerDlg;
 	
-	private LogDialog logDlg;
+//	private LogDialog logDlg;
 	
 	FamilyChildSelectionListener familyChildSelectionListener;	//Listener for family/child selection events
 	
@@ -330,43 +342,43 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         btnAssignONCNum.addActionListener(this);
         
 //      btnShowPriorHistory = new JButton("Prior History");
-        btnShowPriorHistory = new JRadioButton(gvs.getImageIcon(32));
+        btnShowPriorHistory = new JRadioButton(gvs.getImageIcon(HISTORY_ICON_INDEX));
         btnShowPriorHistory.setToolTipText("Click for prior ONC gift history for highlighted child");
         btnShowPriorHistory.setEnabled(false);
         btnShowPriorHistory.addActionListener(this);
         
 //      btnShowAllPhones = new JButton("All Phone #'s");
-        btnShowAllPhones = new JRadioButton(gvs.getImageIcon(35));
+        btnShowAllPhones = new JRadioButton(gvs.getImageIcon(PHONE_ICON_INDEX));
         btnShowAllPhones.setToolTipText("Click for all phone numbers for family");
         btnShowAllPhones.setEnabled(false);
         btnShowAllPhones.addActionListener(this);
         
 //      btnShowAgentInfo = new JButton("Agent Info");
-        btnShowAgentInfo = new JRadioButton(gvs.getImageIcon(33));
+        btnShowAgentInfo = new JRadioButton(gvs.getImageIcon(AGENT_INFO_ICON_INDEX));
         btnShowAgentInfo.setToolTipText("Click for info on agent who referred family");
         btnShowAgentInfo.setEnabled(false);
         btnShowAgentInfo.addActionListener(this);
         
 //        btnShowODBDetails = new JButton("Family Details");
-        btnShowODBDetails = new JRadioButton(gvs.getImageIcon(34));
+        btnShowODBDetails = new JRadioButton(gvs.getImageIcon(FAMILY_DETAILS_ICON_INDEX));
         btnShowODBDetails.setToolTipText("Click for additional details for this family");
         btnShowODBDetails.setEnabled(false);
         btnShowODBDetails.addActionListener(this);
         
 //      btnMeals = new JButton("Meal Assistance");
-        btnMeals = new JRadioButton(gvs.getImageIcon(30));
+        btnMeals = new JRadioButton(gvs.getImageIcon(REQUESTED_MEAL_ICON_INDEX));
         btnMeals.setToolTipText("Click for family food assistance status");
         btnMeals.setEnabled(false);
         btnMeals.setActionCommand("None");
         btnMeals.addActionListener(this);
         
 //      btnTransportation = new JButton("Transportation");
-        btnTransportation = new JRadioButton(gvs.getImageIcon(31));
+        btnTransportation = new JRadioButton(gvs.getImageIcon(TRANSPORTATION_ICON_INDEX));
         btnTransportation.setToolTipText("Click for family transportation status");
         btnTransportation.setEnabled(false);
         btnTransportation.addActionListener(this);
         
-        btnDirections = new JRadioButton(gvs.getImageIcon(39));
+        btnDirections = new JRadioButton(gvs.getImageIcon( GOOGLE_MAP_ICON_INDEX));
         btnDirections.setToolTipText("Click for directions to family address");
         btnDirections.setEnabled(false);
         btnDirections.addActionListener(this);
@@ -1028,25 +1040,25 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			//set meal button icon
 			if(currFam.getMealID()  == -1)
 			{
-				btnMeals.setIcon(gvs.getImageIcon(38));
+				btnMeals.setIcon(gvs.getImageIcon( NO_MEAL_ICON_INDEX));
 				btnMeals.setActionCommand("None");
 			}
 			else if(currFam.getMealStatus() == MealStatus.Requested)	//meal not referrred yet
 			{
-				btnMeals.setIcon(gvs.getImageIcon(30));
+				btnMeals.setIcon(gvs.getImageIcon(REQUESTED_MEAL_ICON_INDEX));
 				btnMeals.setActionCommand("Requested");
 			}
 			else
 			{
-				btnMeals.setIcon(gvs.getImageIcon(37));
+				btnMeals.setIcon(gvs.getImageIcon( REFERRED_MEAL_ICON_INDEX));
 				btnMeals.setActionCommand("Referred");
 			}
 			
 			//set transportation button icon
 			if(currFam.getTransportation() == Transportation.Yes)
-				btnTransportation.setIcon(gvs.getImageIcon(31));
+				btnTransportation.setIcon(gvs.getImageIcon(TRANSPORTATION_ICON_INDEX));
 			else
-				btnTransportation.setIcon(gvs.getImageIcon(36));
+				btnTransportation.setIcon(gvs.getImageIcon(NO_TRANSPORTATION_ICON_INDEX));
 			
 		}
 		else	//restricted viewing user
@@ -1121,25 +1133,25 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			//set meal button icon
 			if(currFam.getMealID()  == -1)
 			{
-				btnMeals.setIcon(gvs.getImageIcon(38));
+				btnMeals.setIcon(gvs.getImageIcon( NO_MEAL_ICON_INDEX));
 				btnMeals.setActionCommand("None");
 			}
 			else if(currFam.getMealStatus() == MealStatus.Requested)	//meal not referrred yet
 			{
-				btnMeals.setIcon(gvs.getImageIcon(30));
+				btnMeals.setIcon(gvs.getImageIcon(REQUESTED_MEAL_ICON_INDEX));
 				btnMeals.setActionCommand("Requested");
 			}
 			else
 			{
-				btnMeals.setIcon(gvs.getImageIcon(37));
+				btnMeals.setIcon(gvs.getImageIcon( REFERRED_MEAL_ICON_INDEX));
 				btnMeals.setActionCommand("Referred");
 			}
 			
 			//set transportation button icon
 			if(currFam.getTransportation() == Transportation.Yes)
-				btnTransportation.setIcon(gvs.getImageIcon(31));
+				btnTransportation.setIcon(gvs.getImageIcon(TRANSPORTATION_ICON_INDEX));
 			else
-				btnTransportation.setIcon(gvs.getImageIcon(36));
+				btnTransportation.setIcon(gvs.getImageIcon(NO_TRANSPORTATION_ICON_INDEX));
 
 		}
 		
@@ -1445,9 +1457,6 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
      *********************************************************************************************/
     void onFamilyDataLoaded()
     {
-    	
-    	JFrame frame = GlobalVariables.getFrame();
-    	
     	nav.navSetEnabled(true);
     	
 		setEnabledButtons(true);
