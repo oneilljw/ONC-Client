@@ -239,7 +239,7 @@ public class DeliveryDB extends ONCDatabase
 	    return filename;    
 	}
 	
-	String exportDeliveryDBToCSV(JFrame pf, String filename)
+	String exportDBToCSV(JFrame pf, String filename)
     {
 		File oncwritefile = null;
 		

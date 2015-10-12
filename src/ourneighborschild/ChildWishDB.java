@@ -538,7 +538,7 @@ public class ChildWishDB extends ONCDatabase
 	    return filename;    
 	}
 */	
-	String exportChildWishDBToCSV(JFrame pf, String filename)
+	String exportDBToCSV(JFrame pf, String filename)
     {
 		File oncwritefile = null;
 		

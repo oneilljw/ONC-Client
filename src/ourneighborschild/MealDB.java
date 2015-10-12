@@ -1,8 +1,17 @@
 package ourneighborschild;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileNameExtensionFilter;
+
+import au.com.bytecode.opencsv.CSVWriter;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -188,6 +197,52 @@ public class MealDB extends ONCDatabase
 		
 		return response;
 	}
+	
+	String exportDBToCSV(JFrame pf, String filename)
+    {
+		File oncwritefile = null;
+		
+    	if(filename == null)
+    	{
+    		ONCFileChooser fc = new ONCFileChooser(pf);
+    		oncwritefile= fc.getFile("Select .csv file to save Meal DB to",
+										new FileNameExtensionFilter("CSV Files", "csv"), 1);
+    	}
+    	else
+    		oncwritefile = new File(filename);
+    	
+    	if(oncwritefile!= null)
+    	{
+    		//If user types a new filename and doesn't include the .csv, add it
+	    	String filePath = oncwritefile.getPath();		
+	    	if(!filePath.toLowerCase().endsWith(".csv")) 
+	    		oncwritefile = new File(filePath + ".csv");
+	    	
+	    	try 
+	    	{
+	    		 String[] header = {"Meal ID", "Family ID", "Partner ID", "Restrictions", 
+	    				 			"Changed By", "Time Stamp", "SL Pos", "SL Mssg", "SL Changed By"};
+	    		
+	    		CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
+	    	    writer.writeNext(header);
+	    	    
+	    	    for(ONCMeal m : mealList)
+	    	    	writer.writeNext(m.getExportRow());	//Get family data
+	    	 
+	    	    writer.close();
+	    	    filename = oncwritefile.getName();
+	    	       	    
+	    	} 
+	    	catch (IOException x)
+	    	{
+	    		System.err.format("IO Exception: %s%n", x);
+	    		JOptionPane.showMessageDialog(pf, oncwritefile.getName() + " could not be saved", 
+						"ONC File Save Error", JOptionPane.ERROR_MESSAGE);
+	    	}
+	    }
+    	
+	    return filename;
+    }
 
 	@Override
 	public void dataChanged(ServerEvent ue)

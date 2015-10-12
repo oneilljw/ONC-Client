@@ -790,46 +790,39 @@ public class OurNeighborsChild implements DatabaseListener
     
     void exportObjectDBToCSV()
     {
-    	String path = oncFamDB.exportDBToCSV(oncFrame);
-
-    	oncGVs.exportGlobalVariablesToCSV(oncFrame, path + "GlobalVariables.csv", 
-    										oncFamDB.getExportONCNumberRegionRangesRow());
-    	oncAgentDB.exportAgentDBToCSV(oncFrame, path + "/AgentDB.csv");
-    	oncChildDB.exportChildDBToCSV(oncFrame, path + "/ChildDB.csv");
-    	oncChildWishDB.exportChildWishDBToCSV(oncFrame, path + "/ChildWishDB.csv");
-    	oncOrgDB.exportDBToCSV(path + "/OrgDB.csv");
-    //	oncPYCDB.exportPriorYearChildDBToCSV(oncFrame, path + "/PriorYearChildDB.csv");
-    	oncDDB.exportDriverDBToCSV(oncFrame, path + "/DriverDB.csv");
-    	oncDelDB.exportDeliveryDBToCSV(oncFrame, path + "/DeliveryDB.csv");
-    	oncWishCat.exportWishCatalogToCSV(oncFrame, path + "/WishCatalog.csv");
-    	oncWishDetailDB.exportWishDetailDBToCSV(oncFrame, path + "/WishDetailDB.csv");
-    }
-/*    
-    void onAddNewAppUser() throws IOException
-    {
-    	if(serverIF != null && serverIF.isConnected())
-    	{
-    		String[] fieldNames = {"First Name", "Last Name", "User ID", "Password", "Permission"};
-    		AddUserDialog auDlg = new AddUserDialog(oncFrame, fieldNames);
-    		auDlg.setLocationRelativeTo(oncFamilyPanel);
-    		if(auDlg.showDialog())
-    		{
-    			String response = oncUserDB.add(this, auDlg.getAddUserReq());
-			
-    			//Changes added locally are not echo'd from server, they must be processed locally
-    			//Saves network bandwidth
-    			if(!response.startsWith("ADDED_USER"))
-    			{
-    				JOptionPane.showMessageDialog(oncFrame, "Error: ONC Server denied add user request", 
-						"Can't add user", JOptionPane.ERROR_MESSAGE);
-    			}
-    		}
+    	ONCFileChooser fc = new ONCFileChooser(oncFrame);
+    	File folder = fc.getDirectory("Select folder to save DB to");
+    	
+    	String mssg = "Database failed to save";
+    	
+    	if(folder != null && folder.exists())
+    	{	
+    		String path = folder.toString();
+    	
+    		oncAdultDB.exportDBToCSV(oncFrame, path + "/AdultDB.csv");
+    		oncAgentDB.exportDBToCSV(oncFrame, path + "/AgentDB.csv");
+    		oncChildDB.exportDBToCSV(oncFrame, path + "/ChildDB.csv");
+    		oncChildWishDB.exportDBToCSV(oncFrame, path + "/ChildWishDB.csv");
+    		oncDelDB.exportDBToCSV(oncFrame, path + "/DeliveryDB.csv");
+    		oncDDB.exportDBToCSV(oncFrame, path + "/DriverDB.csv");
+    		oncFamDB.exportDBToCSV(oncFrame, path + "/FamilyDB.csv");
+    		oncGVs.exportDBToCSV(oncFrame, path + "/GlobalVariables.csv");
+    		oncMealDB.exportDBToCSV(oncFrame, path + "/MealDB.csv");
+    		oncOrgDB.exportDBToCSV(path + "/OrgDB.csv");
+    		oncWishCat.exportToCSV(oncFrame, path + "/WishCatalog.csv");
+    		oncWishDetailDB.exportDBToCSV(oncFrame, path + "/WishDetailDB.csv");
+    		
+    		mssg = String.format("Database sucessfully saved to:<br>%s", path); 		
+    		
     	}
     	else
-			JOptionPane.showMessageDialog(oncFrame, "Error: Can't add user if not connected to ONC Server", 
-						"Can't add user", JOptionPane.ERROR_MESSAGE);
+    		mssg = String.format("Database  save failed:<br>%s", folder.toString());
+    	
+    	ONCPopupMessage savedbPU = new ONCPopupMessage(oncGVs.getImageIcon(0));
+		savedbPU.setLocationRelativeTo(oncFrame);
+		savedbPU.show("Database Export", mssg);
     }
-*/    
+
     void onWhoIsOnline()
     {
     	List<ONCUser> onlineUserList = null;
@@ -1034,15 +1027,6 @@ public class OurNeighborsChild implements DatabaseListener
     	    	prefsDlg.display();
     	        prefsDlg.setVisible(true); 
     		}
-    		else if(e.getSource() == ONCMenuBar.userMI){ oncFamilyPanel.showUserDialog(); }
-//    		{
-//    			try {
-//					onAddNewAppUser();
-//				} catch (IOException e1) {
-//					// TODO Auto-generated catch block
-//					e1.printStackTrace();
-//				}   			
-//    		}
     		else if(e.getSource() == ONCMenuBar.newFamMI)
     		{
     			AddFamilyDialog afDlg = new AddFamilyDialog(oncFrame);
@@ -1106,7 +1090,6 @@ public class OurNeighborsChild implements DatabaseListener
 			this.setProgress(progress);
 	    	
 	    	//Set the year this client will be working with
-//	    	ServerIF serverIF = ServerIF.getInstance();
 	    	serverIF.sendRequest("POST<setyear>" + year);
 			
 			//import from ONC Server
@@ -1117,11 +1100,7 @@ public class OurNeighborsChild implements DatabaseListener
 			pb.updateHeaderText("Loading Season Data");
 			oncGVs.importGlobalVariableDatabase();
 			this.setProgress(progress += increment);
-			
-//			pb.updateHeaderText("Loading Users");
-//			oncUserDB.importUserDatabase();
-//			this.setProgress(progress += increment);
-			
+
 			pb.updateHeaderText("Loading Families");
 			oncFamDB.importDB();
 			this.setProgress(progress += increment);

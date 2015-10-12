@@ -258,7 +258,7 @@ public class WishDetailDB extends ONCDatabase
 	    return filename;    
 	}
 	
-	String exportWishDetailDBToCSV(JFrame pf, String filename)
+	String exportDBToCSV(JFrame pf, String filename)
     {
 		File oncwritefile = null;
 		

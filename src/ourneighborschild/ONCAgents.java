@@ -199,7 +199,7 @@ public class ONCAgents extends ONCDatabase
 	    return filename;    
 	}
 */	
-	String exportAgentDBToCSV(JFrame pf, String filename)
+	String exportDBToCSV(JFrame pf, String filename)
     {
 		File oncwritefile = null;
 		

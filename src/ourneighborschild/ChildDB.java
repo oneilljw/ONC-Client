@@ -341,7 +341,7 @@ public class ChildDB extends ONCDatabase
 	    return filename;    
 	}
 */	
-	String exportChildDBToCSV(JFrame pf, String filename)
+	String exportDBToCSV(JFrame pf, String filename)
     {
 		File oncwritefile = null;
 		

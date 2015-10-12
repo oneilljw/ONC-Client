@@ -35,11 +35,25 @@ public class ONCFileChooser
     	else
     		returnVal = chooser.showSaveDialog(parentWindow);
 	    
-	    if(returnVal == JFileChooser.APPROVE_OPTION)
-	    {
-	    	return chooser.getSelectedFile();
-	    }
-	    else
-	    	return null;
+    	return returnVal == JFileChooser.APPROVE_OPTION ? chooser.getSelectedFile() : null;
+    }
+	
+	public File getDirectory(String title)
+    {
+    	//Create the chooser
+    	JFileChooser chooser = new JFileChooser();
+    	
+    	//Set the dialog title
+    	chooser.setDialogTitle(title);
+    	
+    	//set to dialog only and disable the all files option
+    	chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        chooser.setAcceptAllFileFilterUsed(false);
+    	
+	    //Show dialog and return File object if user approves selection, else return a
+    	//null File object if user cancels or an error occurs
+    	int returnVal = chooser.showSaveDialog(parentWindow);
+	    
+    	return returnVal == JFileChooser.APPROVE_OPTION ? chooser.getSelectedFile() : null;	    
     }
 }

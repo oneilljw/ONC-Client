@@ -352,7 +352,7 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 	    return nextLine;    
 	}
 	
-	String exportGlobalVariablesToCSV(JFrame pf, String filename, String[] oncnumRanges)
+	String exportDBToCSV(JFrame pf, String filename)
     {
 		File oncwritefile = null;
 		
@@ -386,7 +386,6 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 	    	    				Long.toString(oncGiftsReceivedDate.getTimeInMillis())};
 	    	    
 	    	    writer.writeNext(row);	//Write gv row
-	    	    writer.writeNext(oncnumRanges);	//Write the ONC Number region range array
 	    	 
 	    	    writer.close();
 	    	    filename = oncwritefile.getName();

@@ -1086,13 +1086,22 @@ public class Families extends ONCSearchableDatabase
 	    return pyfile.getParent();    
 	}
 	
-	String exportDBToCSV(JFrame pf)
+	String exportDBToCSV(JFrame pf, String filename)
     {
-		ONCFamilyReportRowBuilder rb = new ONCFamilyReportRowBuilder();
-    	
-    	ONCFileChooser fc = new ONCFileChooser(pf);
-    	File oncwritefile= fc.getFile("Select .csv file to save Family DB to",
+//    	ONCFileChooser fc = new ONCFileChooser(pf);
+//    	File oncwritefile= fc.getFile("Select .csv file to save Family DB to",
+//										new FileNameExtensionFilter("CSV Files", "csv"), 1);
+		File oncwritefile = null;
+		
+    	if(filename == null)
+    	{
+    		ONCFileChooser fc = new ONCFileChooser(pf);
+    		oncwritefile= fc.getFile("Select .csv file to save Family DB to",
 										new FileNameExtensionFilter("CSV Files", "csv"), 1);
+    	}
+    	else
+    		oncwritefile = new File(filename);
+    	
     	if(oncwritefile!= null)
     	{
     		//If user types a new filename and doesn't include the .csv, add it
@@ -1103,6 +1112,7 @@ public class Families extends ONCSearchableDatabase
 	    	try 
 	    	{
 	    		CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
+	    		ONCFamilyReportRowBuilder rb = new ONCFamilyReportRowBuilder();
 	    	    writer.writeNext(rb.getFamilyObjectExportHeader());
 	    	    
 	    	    for(ONCFamily f:oncFamAL)
@@ -1119,7 +1129,7 @@ public class Families extends ONCSearchableDatabase
 	    	}
 	    }
     	
-	    return oncwritefile.getParent();
+	    return oncwritefile != null ? oncwritefile.getParent() : null;
     }
 	
 	@Override

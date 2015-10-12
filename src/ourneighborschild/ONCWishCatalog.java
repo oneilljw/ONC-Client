@@ -488,7 +488,7 @@ public class ONCWishCatalog extends ONCDatabase
 	    return filename;    
 	}
 	
-	String exportWishCatalogToCSV(JFrame pf, String filename)
+	String exportToCSV(JFrame pf, String filename)
     {
 		File oncwritefile = null;
 		

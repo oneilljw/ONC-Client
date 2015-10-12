@@ -347,7 +347,7 @@ public class DriverDB extends ONCSearchableDatabase
 	    
 	    return filename;    
 	}
-	String exportDriverDBToCSV(JFrame pf, String filename)
+	String exportDBToCSV(JFrame pf, String filename)
     {
 		File oncwritefile = null;
 		

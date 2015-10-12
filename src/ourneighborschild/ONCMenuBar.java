@@ -105,7 +105,7 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 	    submenuExport = new JMenu("Export");
 	    submenuExport.setEnabled(false);
 	    	    
-	    exportMI = new JMenuItem("Export...");
+	    exportMI = new JMenuItem("Database to .csv files");
 	    submenuExport.add(exportMI);
 	    
 	    menuFile.add(submenuExport);
