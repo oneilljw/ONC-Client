@@ -54,6 +54,6 @@ public class ONCFileChooser
     	//null File object if user cancels or an error occurs
     	int returnVal = chooser.showSaveDialog(parentWindow);
 	    
-    	return returnVal == JFileChooser.APPROVE_OPTION ? chooser.getSelectedFile() : null;	    
+    	return returnVal == JFileChooser.APPROVE_OPTION ? chooser.getCurrentDirectory() : null;	    
     }
 }

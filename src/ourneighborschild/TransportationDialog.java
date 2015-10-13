@@ -39,11 +39,12 @@ public class TransportationDialog extends InfoDialog implements DatabaseListener
 			tf[pn].setEnabled(false);
 			infopanel[pn].add(tf[pn]);
 		}
-		
+
 		//set up the transformation panel
 		transportationCB = new JComboBox(Transportation.getEditChoicesList());
-		transportationCB.setPreferredSize(new Dimension(158,36));
+		transportationCB.setPreferredSize(new Dimension(96,36));
 		transportationCB.addActionListener(new TransportationListener());
+		
 		infopanel[2].remove(tf[2]);
 		infopanel[2].add(transportationCB);
 		
@@ -58,11 +59,10 @@ public class TransportationDialog extends InfoDialog implements DatabaseListener
 		f = (ONCFamily) obj;
 		
 		tf[0].setText(f.getONCNum());
-		tf[1].setText(f.getHOHLastName());
+		tf[1].setText(GlobalVariables.isUserAdmin() ? f.getHOHLastName() : "");
 		transportationCB.setSelectedItem(f.getTransportation());
 		
-		btnAction.setEnabled(false);
-		
+		btnAction.setEnabled(false);		
 	}
 
 	@Override
@@ -76,6 +76,10 @@ public class TransportationDialog extends InfoDialog implements DatabaseListener
 		
 		if(!response.startsWith("UPDATED_FAMILY"))
 			transportationCB.setSelectedItem(f.getTransportation());
+		else
+			f = updateFamReq;
+			
+		btnAction.setEnabled(false);
 	}
 
 	@Override

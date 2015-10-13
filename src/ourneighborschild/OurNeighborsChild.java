@@ -302,6 +302,9 @@ public class OurNeighborsChild implements DatabaseListener
         if(oncDB != null)
         	oncDB.addDatabaseListener(this);
         
+        //initialize web site status
+        oncGVs.initializeWebsiteStatusFromServer();
+        
         if(DEBUG_MODE)
  		{
         	//Debug - get year 2013 automatically
@@ -569,6 +572,7 @@ public class OurNeighborsChild implements DatabaseListener
         ONCMenuBar.showServerLogMI.addActionListener(menuItemListener);
         ONCMenuBar.showServerClientIDMI.addActionListener(menuItemListener);
         ONCMenuBar.showCurrDirMI.addActionListener(menuItemListener);
+        ONCMenuBar.showWebsiteStatusMI.addActionListener(menuItemListener);
 
         //Create the family panel
         oncFamilyPanel = new FamilyPanel(oncFrame);
@@ -791,11 +795,14 @@ public class OurNeighborsChild implements DatabaseListener
     void exportObjectDBToCSV()
     {
     	ONCFileChooser fc = new ONCFileChooser(oncFrame);
-    	File folder = fc.getDirectory("Select folder to save DB to");
+    	File folder = fc.getDirectory("Select folder to save DB .csv files to");
     	
-    	String mssg = "Database failed to save";
-    	
-    	if(folder != null && folder.exists())
+    	String mssg;
+    	if(folder == null) 
+    		mssg = "Database save failed, no folder selected";	
+    	else if(!folder.exists())
+    		mssg = String.format("Database save failed:<br>%s", folder.toString());	
+    	else
     	{	
     		String path = folder.toString();
     	
@@ -812,15 +819,12 @@ public class OurNeighborsChild implements DatabaseListener
     		oncWishCat.exportToCSV(oncFrame, path + "/WishCatalog.csv");
     		oncWishDetailDB.exportDBToCSV(oncFrame, path + "/WishDetailDB.csv");
     		
-    		mssg = String.format("Database sucessfully saved to:<br>%s", path); 		
-    		
+    		mssg = String.format("Database sucessfully saved to:<br>%s", path); 			
     	}
-    	else
-    		mssg = String.format("Database  save failed:<br>%s", folder.toString());
     	
     	ONCPopupMessage savedbPU = new ONCPopupMessage(oncGVs.getImageIcon(0));
 		savedbPU.setLocationRelativeTo(oncFrame);
-		savedbPU.show("Database Export", mssg);
+		savedbPU.show("Database Export Result", mssg);		
     }
 
     void onWhoIsOnline()
@@ -870,6 +874,15 @@ public class OurNeighborsChild implements DatabaseListener
     	ChatDialog chatDlg = new ChatDialog(oncFrame, true, -1);	//true=user initiated chat, -1=no target yet
     	chatDlg.setLocationRelativeTo(oncFrame);
     	chatDlg.setVisible(true);
+    }
+    
+    void onWebsiteStatus()
+    { 
+    	String[] wsdNames = {"Time Back Online", "Website Status"};
+    	WebsiteStatusDialog wsDlg = new WebsiteStatusDialog(oncFrame, false, wsdNames);
+    	wsDlg.setLocationRelativeTo(oncFrame);
+    	wsDlg.display(oncGVs.getWebsiteStatus());
+    	wsDlg.setVisible(true);
     }
     
     void onDBStatusClicked()
@@ -1059,6 +1072,7 @@ public class OurNeighborsChild implements DatabaseListener
     			String mssg = String.format("Current folder is: %s", System.getProperty("user.dir"));
     			clientIDPU.show("ONC Client Current Folder", mssg);
     		}
+    		else if(e.getSource() == ONCMenuBar.showWebsiteStatusMI) { onWebsiteStatus(); }
     	}   	
     }
     

@@ -47,6 +47,7 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 	private static ImageIcon imageIcons[];
 	private static ONCUser user;
 	private static String version;
+	private static WebsiteStatus websiteStatus;
 	
 	public static GlobalVariables getInstance()
 	{
@@ -223,6 +224,7 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 	{
 		return imageIcons[oncSeasonStartDate.get(Calendar.YEAR) % NUM_OF_XMAS_ICONS + XMAS_ICON_OFFSET];
 	}
+	WebsiteStatus getWebsiteStatus() {return websiteStatus; }
 	
 	//setters globally used - need to update at the server and broadcast
 	public void setDeliveryDate(Date dd) { oncDeliveryDate.setTime(dd); }
@@ -274,6 +276,24 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 		}
 		
 		return response;
+	}
+	
+	String initializeWebsiteStatusFromServer()
+	{
+		ServerIF serverIF = ServerIF.getInstance();
+		
+		if(serverIF != null && serverIF.isConnected())
+		{
+			Gson gson = new Gson();
+			String response = serverIF.sendRequest("GET<website_status>");
+			if(response.startsWith("WEBSITE_STATUS"))
+			{
+				GlobalVariables.websiteStatus = gson.fromJson(response.substring(14), WebsiteStatus.class);
+				return "WEBSITE_STATUS_RECEIVED";
+			}
+		}
+		
+		return "WEBISTE_STATUS_FAILED";
 	}
 	
 	String[] importGlobalVariables(JFrame pf, ImageIcon oncIcon, String path)	//Only used by superuser to import from .csv file
@@ -409,6 +429,10 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 		{
 			processUpdatedObject(this, ue.getJson());
 		}
+		else if(ue.getType().equals("UPDATED_WEBSITE_STATUS"))
+		{
+			processUpdatedWebsiteStatus(this, ue.getJson());
+		}
 	}
 
 	@Override
@@ -441,4 +465,32 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 		//Notify local user IFs that a change occurred
 		fireDataChanged(source, "UPDATED_GLOBALS", updatedObj);
 	}
+	
+	String updateWebsiteStatus(Object source, WebsiteStatus updateWSReq)
+	{
+		Gson gson = new Gson();
+		String response = "";
+		
+		response = serverIF.sendRequest("POST<update_website_status>" + 
+											gson.toJson(updateWSReq, WebsiteStatus.class));
+		if(response.startsWith("UPDATED_WEBSITE_STATUS"))
+		{
+			processUpdatedWebsiteStatus(source, response.substring(21));
+		}
+		
+		return response;
+	}
+	
+	void processUpdatedWebsiteStatus(Object source, String websiteStatusJson)
+	{
+		Gson gson = new Gson();
+		WebsiteStatus updatedWebsiteStatus = gson.fromJson(websiteStatusJson, WebsiteStatus.class);
+		
+		//store updated websiteStatus in local data base
+		websiteStatus = updatedWebsiteStatus;
+		
+		//Notify local user IFs that a change occurred
+		fireDataChanged(source, "UPDATED_WEBSITE_STATUS", updatedWebsiteStatus);
+	}
+	
 }

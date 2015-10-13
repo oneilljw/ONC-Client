@@ -30,7 +30,7 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 	public static JMenuItem viewDBMI, sortWishesMI, sortFamiliesMI, sortOrgsMI, recGiftsMI, sortMealsMI;
 	public static JMenuItem labelViewerMI, agentMI, orgMI, catMI;
 	public static JMenuItem aboutONCMI, oncPrefrencesMI, userMI, onlineMI, chatMI, changePWMI, stopPollingMI;
-	public static JMenuItem showServerLogMI, showServerClientIDMI, showCurrDirMI;
+	public static JMenuItem showServerLogMI, showServerClientIDMI, showCurrDirMI, showWebsiteStatusMI;
 	public List<JMenuItem> dbYears;
 	
 	public ONCMenuBar()
@@ -306,6 +306,10 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 	    
 	    showCurrDirMI = new JMenuItem("Current Directory");
 	    menuSettings.add(showCurrDirMI);
+	    
+	    showWebsiteStatusMI = new JMenuItem("Website Status");
+	    showWebsiteStatusMI.setVisible(false);
+	    menuSettings.add(showWebsiteStatusMI);
 	}
 	
 	JMenuItem addDBYear(String year, ImageIcon lockIcon)
@@ -363,12 +367,13 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 	
 	void setVisibleSpecialImports(boolean tf)	//Only Superuser can perform these functions
     {
-    	importONCMI.setVisible(tf);	//Only with no data loaded
-    	importWishCatMI.setVisible(tf);
-    	importPYMI.setVisible(tf);	//Only with no prior year data loaded
-    	importPYORGMI.setVisible(tf);
+//    	importONCMI.setVisible(tf);	//Only with no data loaded
+//    	importWishCatMI.setVisible(tf);
+//    	importPYMI.setVisible(tf);	//Only with no prior year data loaded
+//    	importPYORGMI.setVisible(tf);
     	submenuImport.setEnabled(true);
     	
+    	showWebsiteStatusMI.setVisible(true);
     	stopPollingMI.setVisible(true);
     }
 	
