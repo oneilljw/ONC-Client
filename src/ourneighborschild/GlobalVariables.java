@@ -475,7 +475,7 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 											gson.toJson(updateWSReq, WebsiteStatus.class));
 		if(response.startsWith("UPDATED_WEBSITE_STATUS"))
 		{
-			processUpdatedWebsiteStatus(source, response.substring(21));
+			processUpdatedWebsiteStatus(source, response.substring(22));
 		}
 		
 		return response;

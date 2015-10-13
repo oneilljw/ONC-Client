@@ -17,7 +17,6 @@ public class WebsiteStatusDialog extends InfoDialog implements DatabaseListener
 	private static final long serialVersionUID = 1L;
 	
 	private WebsiteStatus websiteStatus;
-	private GlobalVariables gvs;
 	private ButtonGroup onlineBG;
 	private JRadioButton rbOnline, rbOffline;
 
@@ -27,7 +26,6 @@ public class WebsiteStatusDialog extends InfoDialog implements DatabaseListener
 		
 		lblONCIcon.setText("<html><font color=blue>Review/Change ONC Referrral<br>Website Status Below</font></html>");
 		
-		gvs = GlobalVariables.getInstance();
 		if(gvs != null)
 		{
 			gvs.addDatabaseListener(this);
@@ -70,7 +68,10 @@ public class WebsiteStatusDialog extends InfoDialog implements DatabaseListener
 		websiteStatus = ws;
 		
 		tf[0].setText(ws.getTimeBackUp());
-		rbOnline.setSelected(ws.getWebsiteStatus());
+		if(ws.getWebsiteStatus())
+			rbOnline.setSelected(true);
+		else
+			rbOffline.setSelected(true);
 		
 		btnAction.setEnabled(false);		
 	}
@@ -78,6 +79,8 @@ public class WebsiteStatusDialog extends InfoDialog implements DatabaseListener
 	@Override
 	void update() 
 	{
+		System.out.println("executing update in WSStatusDlg");
+		
 		WebsiteStatus updateWSReq = new WebsiteStatus(rbOnline.isSelected(), tf[0].getText());
 		
 		String response = gvs.updateWebsiteStatus(this, updateWSReq);
