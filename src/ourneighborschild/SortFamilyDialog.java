@@ -1467,7 +1467,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 				zDecemberMeal = "Y";	
 		}
 		
-		String[] exportRow = { "Our Neighbor's Child", f.getHOHFirstName(), f.getHOHLastName(),
+		String[] exportRow = { "ONC", f.getHOHFirstName(), f.getHOHLastName(),
 								formatPhoneNumber(f.getHomePhone().trim()),
 								delAddress, unit, city, zip, "VA",
 								f.getFamilyEmail(), zThanksgivingMeal, zDecemberMeal, "Y", 
