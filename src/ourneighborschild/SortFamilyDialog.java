@@ -1437,7 +1437,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		if(f.getSubstituteDeliveryAddress().isEmpty())
 		{
 			delAddress = f.getHouseNum() + " " + f.getStreet();
-			unit = f.getUnitNum();
+			unit = isNumeric(f.getUnitNum()) ? "#" + f.getUnitNum() : f.getUnitNum();
 			city = f.getCity();
 			zip = f.getZipCode();
 		}
@@ -1445,7 +1445,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		{
 			String[] parts = f.getSubstituteDeliveryAddress().split("_");
 			delAddress = parts[0] + " " + parts[1];
-			unit = parts[2].equals("None")  ? "" : parts[2];
+			unit = parts[2].equals("None")  ? "" : isNumeric(parts[2]) ? "#" + parts[2] : parts[2];
 			city = parts[3];
 			zip = parts[4];
 		}
