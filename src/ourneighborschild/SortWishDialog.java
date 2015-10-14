@@ -65,7 +65,6 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 	private ONCWishCatalog cat;
 
 	private ArrayList<SortWishObject> stAL;
-//	private ArrayList<SortWishObject> tableRowSelectedObjectList;
 	
 	private JComboBox startAgeCB, endAgeCB, genderCB, wishnumCB, wishCB, resCB, assignCB, statusCB, changedByCB;
 	private JComboBox changeResCB, changeStatusCB, changeAssigneeCB, printCB;
@@ -115,7 +114,6 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		
 		//initialize member variables
 		stAL = new ArrayList<SortWishObject>();
-//		tableRowSelectedObjectList = new ArrayList<SortWishObject>();
 
 		//Set up the search criteria panel
 		oncnumTF = new JTextField();
@@ -266,11 +264,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
         printCB.setPreferredSize(new Dimension(136, 28));
         printCB.setEnabled(true);
         printCB.addActionListener(this);
-        
-//        btnApplyChanges = new JButton("Apply Changes");
-//        btnApplyChanges.setEnabled(false);
-//        btnApplyChanges.addActionListener(this);
-        
+   
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx=0;
         gbc.fill = GridBagConstraints.BOTH;
@@ -362,7 +356,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 								   doesChangedByMatch(cw.getChildWishChangedBy()) &&
 									doesWishBaseMatch(cw.getWishID()) &&
 									 doesWishNumMatch(i)  &&
-									  isWishOversize(cw))//Wish criteria pass
+									  !(bOversizeWishes && !isWishOversize(cw)))//Wish criteria pass
 							{
 								
 								stAL.add(new SortWishObject(itemID++, f, c, cw));
@@ -376,22 +370,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		lblNumOfTableItems.setText(Integer.toString(stAL.size()));
 		displaySortTable(stAL, true, tableRowSelectedObjectList);		//Display the table after table array list is built	
 	}
-/*	
-	@Override
-	void archiveTableSelections(ArrayList<? extends ONCObject> stAL)
-	{
-		tableRowSelectedObjectList.clear();
-		
-		int[] row_sel = sortTable.getSelectedRows();
-		for(int i=0; i<row_sel.length; i++)
-		{
-			SortWishObject so = (SortWishObject) stAL.get(row_sel[i]);
-			tableRowSelectedObjectList.add(so);
-//			System.out.println(String.format("SortWishDlg.archiveTableSel : object at row %d added, childwishID: %d",
-//					row_sel[i], so.getChildWish().getID()));
-		}
-	}
-*/
+
 	boolean onApplyChanges()
 	{
 //		bChangingTable = true;
@@ -692,10 +671,6 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		
 	void checkApplyChangesEnabled()
 	{
-//		System.out.println(String.format("Checking enabling of Apply Changes button: %d, %d, %d, %d", 
-//				sortTable.getSelectedRowCount(), changeResCB.getSelectedIndex(),
-//				changeStatusCB.getSelectedIndex(), changeAssigneeCB.getSelectedIndex()));
-		
 		if(sortTable.getSelectedRows().length > 0 &&
 				(changeResCB.getSelectedIndex() > 0 || changeStatusCB.getSelectedIndex() > 0 ||changeAssigneeCB.getSelectedIndex() > 0))	
 			btnApplyChanges.setEnabled(true);
@@ -784,36 +759,43 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 	{
 		return !wcd.getTime().after(sortEndCal.getTime()) && !wcd.getTime().before(sortStartCal.getTime());
 	}
-		
-//	private boolean doesWishBaseMatch(String wb)	{return sortWish.equals("Any") ||  sortWish.equals(wb);}	
+			
 	private boolean doesWishBaseMatch(int wishID)	{return sortWishID == -2 ||  sortWishID == wishID; }
 	
 	private boolean doesChangedByMatch(String s) { return sortChangedBy == 0 || changedByCB.getSelectedItem().toString().equals(s); }
 	
+	/*************
+	 * Method checks to see if a wish will fit on a label. A label has two lines to describe
+	 * the wish. If the wish name and detail fit on one line, it's ok. If it requires two
+	 * lines, need to check the 2nd line to see if it fits. If the second line is too long
+	 * the method returns true. Otherwise it returns false.
+	 * @param cw - ONCChildWish to check if it fits on a label
+	 * @return - true if wish is too big for label, false it it fits on label
+	 ******************/
 	boolean isWishOversize(ONCChildWish cw)
 	{
-		if(bOversizeWishes)
+		ONCWish oncwish;
+		boolean bOversizeWish = false;	//only get to true if 2nd line doesn't fit
+		
+		if(cw != null && bOversizeWishes && (oncwish=cat.getWishByID(cw.getWishID())) != null)
 		{
-			ONCWishCatalog cat = ONCWishCatalog.getInstance();
-		
-			String wish = cat.getWishByID(cw.getWishID()).getName() + " - " + cw.getChildWishDetail();
-			//does it fit on one line?
-			if(wish.length() <= MAX_LABEL_LINE_LENGTH)
-				return false;
-			else	//split into two lines
+			//construct how wish will appear on label
+			String wishOnLabel = oncwish.getName() + " - " + cw.getChildWishDetail();
+			
+			//test the length to see if it needs two lines, if only one line, labels OK
+			if(wishOnLabel.length() > MAX_LABEL_LINE_LENGTH)
 			{
+				//else, split into two lines and check 2nd line
 				int index = MAX_LABEL_LINE_LENGTH;
-				while(index > 0 && wish.charAt(index) != ' ')	//find the line break
+				while(index > 0 && wishOnLabel.charAt(index) != ' ')	//find the line break
 					index--;
-		
-				if(wish.substring(index).length() > MAX_LABEL_LINE_LENGTH)
-					return true;
-				else
-					return false;
+				
+				//does 2nd line fit on label?
+				bOversizeWish = wishOnLabel.substring(index).length() > MAX_LABEL_LINE_LENGTH;
 			}
 		}
-		else
-			return true;
+		
+		return bOversizeWish;
 	}
 	
 	void setSortStartDate(Date sd) {sortStartCal.setTime(sd); ds.setDate(sortStartCal.getTime());}
@@ -1061,9 +1043,6 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 			fireEntitySelected(this, "WISH_SELECTED", fam, child, cw);
 			
 			//determine if a partner has been assigned for the selected wish
-//			int wn = stAL.get(sortTable.getSelectedRow()).getChildWish().getWishNumber();
-//			int childID = stAL.get(sortTable.getSelectedRow()).getChild().getID();
-//			ONCChildWish cw = cwDB.getWish(childID, wn);
 			int childWishAssigneeID = cw.getChildWishAssigneeID();
 			if(childWishAssigneeID > -1)
 			{

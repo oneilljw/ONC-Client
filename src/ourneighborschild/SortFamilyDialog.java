@@ -257,7 +257,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
         printCB.setEnabled(false);
         printCB.addActionListener(this);
         
-        String[] emailChoices = {"Email", "2015 Familiy Confirmation Email"};
+        String[] emailChoices = {"Email", "2015 Family Confirmation Email"};
         emailCB = new JComboBox(emailChoices);
         emailCB.setPreferredSize(new Dimension(136, 28));
         emailCB.setEnabled(false);

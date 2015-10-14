@@ -512,7 +512,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
     	//Set up the manage catalog dialog
     	catDlg = new WishCatalogDialog(parentFrame);
     	
-    	//Set up the manage catalog dialog
+    	//Set up the manage user dialog
     	userDlg = new ONCUserDialog(parentFrame);
     	
     	 //Set up the sort family dialog

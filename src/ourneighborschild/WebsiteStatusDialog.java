@@ -4,13 +4,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.ButtonGroup;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 
 public class WebsiteStatusDialog extends InfoDialog implements DatabaseListener
 {
-
 	/**
 	 * 
 	 */
@@ -78,9 +79,33 @@ public class WebsiteStatusDialog extends InfoDialog implements DatabaseListener
 
 	@Override
 	void update() 
-	{
-		System.out.println("executing update in WSStatusDlg");
+	{	
+		if(rbOffline.isSelected())
+		{
+			//Confirm with the user that they really want to take the web-site off-line
+			String confirmMssg = "<html>Are you sure you want to take the<br>"
+								+ "ONC Family Referral website offline?</html>"; 
+									
+			Object[] options= {"Cancel", "Take Offline"};
+			JOptionPane confirmOP = new JOptionPane(confirmMssg, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION,
+													gvs.getImageIcon(0), options, "Cancel");
+			JDialog confirmDlg = confirmOP.createDialog(this, "*** Confirm Take Website Offline ***");
+			confirmDlg.setLocationRelativeTo(this);
+			this.setAlwaysOnTop(false);
+			confirmDlg.setVisible(true);
+
+			Object selectedValue = confirmOP.getValue();
+	
+			//if the client user confirmed, take the website offline
+			if(selectedValue != null && selectedValue.toString().equals(options[1]))
+				changeWebsiteOnlineStatus();
+		}
+		else	//taking it online doesn't require a verification
+			changeWebsiteOnlineStatus();
+	}
 		
+	void changeWebsiteOnlineStatus()
+	{
 		WebsiteStatus updateWSReq = new WebsiteStatus(rbOnline.isSelected(), tf[0].getText());
 		
 		String response = gvs.updateWebsiteStatus(this, updateWSReq);
@@ -89,7 +114,7 @@ public class WebsiteStatusDialog extends InfoDialog implements DatabaseListener
 			rbOnline.setSelected(websiteStatus.getWebsiteStatus());
 		else
 			websiteStatus = updateWSReq;
-			
+		
 		btnAction.setEnabled(false);
 	}
 

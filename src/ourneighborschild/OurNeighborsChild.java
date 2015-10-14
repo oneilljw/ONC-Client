@@ -51,7 +51,7 @@ public class OurNeighborsChild implements DatabaseListener
 	private static final int SERVER_CONNECT_RETRY_LIMIT = 3;
 	private static final int ONC_IMAGE_ICON_INDEX = 0;
 	private static final int ONC_SAVE_FILE = 1;	
-	private static final String ONC_VERSION = "3.05";
+	private static final String ONC_VERSION = "3.06";
 	private static final String ONC_COPYRIGHT = "\u00A92015 John W. O'Neill";	
 	private static final String APPNAME = "Our Neighbor's Child";
 	private static final int DB_UNLOCKED_IMAGE_INDEX = 17;
@@ -1048,13 +1048,13 @@ public class OurNeighborsChild implements DatabaseListener
     		else if(e.getSource() == ONCMenuBar.delChildMI) { oncFamilyPanel.deleteChild(); }
     		else if(e.getSource() == ONCMenuBar.newChildMI) { oncFamilyPanel.onAddNewChildClicked(); }
     		else if(e.getSource() == ONCMenuBar.markAdultMI) { oncFamilyPanel.markChildAsAdult(); }
+    		else if(e.getSource() == ONCMenuBar.userMI) { oncFamilyPanel.showUserDialog(); }
     		else if(e.getSource() == ONCMenuBar.onlineMI) { onWhoIsOnline(); }
     		else if(e.getSource() == ONCMenuBar.chatMI) { onChat(); }
     		else if(e.getSource() == ONCMenuBar.changePWMI) { changePassword(); }
     		else if(e.getSource() == ONCMenuBar.stopPollingMI && serverIF != null) { serverIF.setEnabledServerPolling(false); }
     		else if(e.getSource() == ONCMenuBar.showServerLogMI && serverIF != null)
     		{
-    			
     			logDlg.setLocationRelativeTo(oncFrame);
     			logDlg.setVisible(true);
     		}
