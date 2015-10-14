@@ -838,13 +838,22 @@ public class Families extends ONCSearchableDatabase
 				f.getSubstituteDeliveryAddress().split("_").length == 5)
 		{
 			String[] addPart = f.getSubstituteDeliveryAddress().split("_");
-			String unit = addPart[2].equals("None") ? "" : addPart[2];
+//			String unit = addPart[2].equals("None") ? "" : addPart[2];
+			String unit = "";
+			if(!addPart[2].equals("None"))
+			{
+				if(isNumeric(addPart[2]))
+					unit = "#" + addPart[2];
+				else
+					unit = addPart[2];
+			}
 			ycData[2] = addPart[0] + " " + addPart[1] + " " + unit;
 			ycData[3] = addPart[3] + ", VA " + addPart[4];
 		}
 		else	//no alternate delivery address
 		{
-			ycData[2] =	f.getHouseNum() + " " + f.getStreet() + " " + f.getUnitNum() ;
+			String unit = isNumeric(f.getUnitNum()) ? "#" + f.getUnitNum() : f.getUnitNum();
+			ycData[2] =	f.getHouseNum() + " " + f.getStreet() + " " + unit ;
 			ycData[3] = f.getCity() + ", VA " + f.getZipCode();
 		}
 		
@@ -878,19 +887,25 @@ public class Families extends ONCSearchableDatabase
 	 */
 	String[] formatPhoneNumbers(String phonestring)
 	{	
-		String[] output = {"None Provided",""};
+		String[] output = {"Not Provided",""};
 		
 		String[] phnums = phonestring.split("\n");
 		int count = (phnums.length > 2) ? 2 : phnums.length;
 		for(int i=0; i< count; i++)
 			if(!phnums[i].contains("None Found"))
 			{
-				StringBuffer phNum = new StringBuffer("");
-				phnums[i] = phnums[i].trim();
-				phNum.append("(" + phnums[i].substring(0,3) + ") ");
-				phNum.append(phnums[i].substring(3,6) +"-");
-				phNum.append(phnums[i].substring(6,10));
-				output[i] = phNum.toString().trim();
+				if(phnums[i].length() == 12)
+					output[i] = phnums[i];
+				else if(isNumeric(phnums[i]) && phnums[i].length() == 10)
+				{
+					StringBuffer phNum = new StringBuffer("");
+					phNum.append(phnums[i].substring(0,3) + "-");
+					phNum.append(phnums[i].substring(3,6) +"-");
+					phNum.append(phnums[i].substring(6,10));
+					output[i] = phNum.toString();
+				}
+				else
+					output[i] = "";
 			}
 		
 		return output;

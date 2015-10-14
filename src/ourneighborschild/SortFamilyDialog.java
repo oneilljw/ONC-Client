@@ -1688,7 +1688,8 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	         
 		    //Draw the yellow card fixed text, all bold text
 		    g2d.setFont(ycFont[0]);
-		    g2d.drawString("Driver:________________", x+224, y+27);
+		    g2d.drawString("Driver #: _____", x+182, y+27);
+		    g2d.drawString("Name: ________________", x+324, y+27);
 		    
 		    g2d.setFont(ycFont[1]);
 		    g2d.drawString(season, x+430, y+106);
@@ -1872,7 +1873,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 
 			//Draw Battery Info		
 			drawThickRect(g2d, x+276, y+VERIFICATION_SHEET_CHILD_RECORD_LINE_HEIGHT*4-0, 12, 12, false);
-			g2d.drawString("BATTERIES- TYPE_______ QUANTITY_______", x+296, y+VERIFICATION_SHEET_CHILD_RECORD_LINE_HEIGHT*4+12);		
+			g2d.drawString("BATTERIES: TYPE_______ QUANTITY_______", x+296, y+VERIFICATION_SHEET_CHILD_RECORD_LINE_HEIGHT*4+12);		
 }
 			
 		void printVerificationSheetFooter(int x, int y, int pgNum, int pgTotal, String zBikes, Font[] psFont, Graphics2D g2d)
@@ -2005,7 +2006,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			drawThickRect(g2d, x, y+VERIFICATION_SHEET_CHILD_RECORD_LINE_HEIGHT*4, 12, 12, false);
 			g2d.drawString("Duplicate Items?", x+24, y+VERIFICATION_SHEET_CHILD_RECORD_LINE_HEIGHT*4+12);
 			drawThickRect(g2d, x+276, y+VERIFICATION_SHEET_CHILD_RECORD_LINE_HEIGHT*4-0, 12, 12, false);
-			g2d.drawString("BATTERIES- TYPE_______ QUANTITY_______", x+296, y+VERIFICATION_SHEET_CHILD_RECORD_LINE_HEIGHT*4+12);		
+			g2d.drawString("BATTERIES: TYPE_______ QUANTITY_______", x+296, y+VERIFICATION_SHEET_CHILD_RECORD_LINE_HEIGHT*4+12);		
 
 		}
 			
@@ -2112,7 +2113,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			drawThickRect(g2d, x, y+VERIFICATION_SHEET_CHILD_RECORD_LINE_HEIGHT*4, 12, 12, false);
 			g2d.drawString("Duplicate Items?", x+24, y+VERIFICATION_SHEET_CHILD_RECORD_LINE_HEIGHT*4+12);
 			drawThickRect(g2d, x+276, y+VERIFICATION_SHEET_CHILD_RECORD_LINE_HEIGHT*4-0, 12, 12, false);
-			g2d.drawString("BATTERIES- TYPE_______ QUANTITY_______", x+296, y+VERIFICATION_SHEET_CHILD_RECORD_LINE_HEIGHT*4+12);		
+			g2d.drawString("BATTERIES: TYPE_______ QUANTITY_______", x+296, y+VERIFICATION_SHEET_CHILD_RECORD_LINE_HEIGHT*4+12);		
 */
 		}
 			
