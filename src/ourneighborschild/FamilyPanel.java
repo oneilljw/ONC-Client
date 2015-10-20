@@ -1206,15 +1206,15 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	void refreshODBWishListHighlights(ONCFamily fam, ONCChild c)
 	{		
 		odbWishListPane.getHighlighter().removeAllHighlights();		
-		String odbWishList = odbWishListPane.getText();
+		String odbWishList = odbWishListPane.getText().toLowerCase();
 		
 		if(c == null)	
 			return;	//No children to highlight
 		
 		else if(bDispAll)	//Show all data
 		{	
-			String childfn = c.getChildFirstName();
-			String childln = c.getChildLastName();
+			String childfn = c.getChildFirstName().toLowerCase();
+			String childln = c.getChildLastName().toLowerCase();
 			String childname = childfn + " " + childln;
 			
 			int startPos;
@@ -1226,11 +1226,15 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 				
 			if(startPos > -1)	//Found 1st instance of child name
 			{
-				int endPos = odbWishList.indexOf(childln, startPos);
+				int endPos = odbWishList.indexOf(':', startPos);
 				if(endPos != -1)
-					endPos += childln.length();
-				else
-					endPos = startPos + childfn.length();
+				{	
+					endPos = odbWishList.indexOf(childln, startPos);
+					if(endPos != -1)
+						endPos += childln.length();
+					else
+						endPos = startPos + childfn.length();
+				}
 				
 				highlightAndCenterODBWish(startPos, endPos);
 			}
