@@ -132,7 +132,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	public SortAgentDialog sortAgentDlg;
 	private AgentInfoDialog agentInfoDlg;
 	private ChangeONCNumberDialog changeONCNumberDlg;
-	private ChangeODBNumberDialog changeODBNumberDlg;
+	private ChangeReferenceNumberDialog changeODBNumberDlg;
 	public AssignDeliveryDialog assignDeliveryDlg;
 	public SortDriverDialog sortDriverDlg;
 	private ViewONCDatabaseDialog dbDlg;
@@ -571,7 +571,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
     	
     	//Set up the dialog to change family ODB Number
     	String[] odbNum = {"Change ODB #"};
-    	changeODBNumberDlg = new ChangeODBNumberDialog(parentFrame, odbNum);
+    	changeODBNumberDlg = new ChangeReferenceNumberDialog(parentFrame, odbNum);
 
     	//Set up the sort agent dialog
     	String[] agtColToolTips = {"Name", "Organization", "Title", "EMail Address", "Phone"};

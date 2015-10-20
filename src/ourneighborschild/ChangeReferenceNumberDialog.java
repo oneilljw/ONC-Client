@@ -5,7 +5,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
-public class ChangeODBNumberDialog extends InfoDialog implements DatabaseListener, EntitySelectionListener 
+public class ChangeReferenceNumberDialog extends InfoDialog implements DatabaseListener, EntitySelectionListener 
 {
 	/**
 	 * This dialog allows the user to change a family's ODB Number.
@@ -13,7 +13,7 @@ public class ChangeODBNumberDialog extends InfoDialog implements DatabaseListene
 	private static final long serialVersionUID = 1L;
 	private ONCFamily f;
 
-	ChangeODBNumberDialog(JFrame owner, String[] tfNames)
+	ChangeReferenceNumberDialog(JFrame owner, String[] tfNames)
 	{
 		super(owner, false, tfNames);
 
@@ -77,13 +77,13 @@ public class ChangeODBNumberDialog extends InfoDialog implements DatabaseListene
 			GlobalVariables gvs = GlobalVariables.getInstance();
 		
 			//Confirm with the user that the deletion is really intended
-			String confirmMssg = String.format("<html>Are you sure you want to change<br> the ODB # from %s to %s?</html>",
+			String confirmMssg = String.format("<html>Are you sure you want to change<br> the Ref # from %s to %s?</html>",
 												f.getODBFamilyNum(), tf[0].getText()); 
 										
-			Object[] options= {"Cancel", "Change ODB #"};
+			Object[] options= {"Cancel", "Change Ref #"};
 			JOptionPane confirmOP = new JOptionPane(confirmMssg, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION,
 														gvs.getImageIcon(0), options, "Cancel");
-			JDialog confirmDlg = confirmOP.createDialog(this, "*** Confirm ODB Number Change ***");
+			JDialog confirmDlg = confirmOP.createDialog(this, "*** Confirm Reference # Change ***");
 			confirmDlg.setLocationRelativeTo(this);
 			this.setAlwaysOnTop(false);
 			confirmDlg.setVisible(true);
@@ -104,8 +104,8 @@ public class ChangeODBNumberDialog extends InfoDialog implements DatabaseListene
 					if(!response.startsWith("UPDATED_FAMILY"))
 					{
 						//display an error message that update request failed
-						JOptionPane.showMessageDialog(this, "ONC Server denied ODB Number change," +
-														"try again later","ODB Number Change Failed",  
+						JOptionPane.showMessageDialog(this, "ONC Server denied Reference # change," +
+														"try again later","Reference # Change Failed",  
 														JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
 					}
 				}
