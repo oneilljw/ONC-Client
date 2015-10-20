@@ -86,18 +86,19 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private JTextPane oncNotesPane, oncDIPane, odbWishListPane;
 	private JScrollPane odbWishscrollPane;
 	private JTextPane HomePhone, OtherPhone;
-	private  JButton btnAssignONCNum;
+	private JButton btnAssignONCNum;
 //	private JButton btnShowPriorHistory, btnShowAllPhones, btnShowODBDetails; 
 //	private JButton btnShowAllPhones, btnShowODBDetails;
 //	private JButton btnShowAgentInfo;
 	private JTextField oncDNScode;
 	private JTextField HOHFirstName, HOHLastName, EMail;
 	private JTextField housenumTF, Street, Unit, City, ZipCode;
-	private JLabel lblONCNum, lblRefNum, lblRegion, lblNumBags, lblChangedBy;
+	private JLabel lblONCNum, lblRefNum, lblBatchNum, lblRegion, lblNumBags, lblChangedBy;
 	private JRadioButton delRB, altAddressRB, btnMeals, btnShowPriorHistory, btnShowAgentInfo;
 	private JRadioButton btnShowAllPhones, btnShowODBDetails, btnTransportation, btnDirections;
 	
-	private JComboBox oncBatchNum, Language, statusCB, delstatCB;
+//	private JComboBox oncBatchNum, Language, statusCB, delstatCB;
+	private JComboBox Language, statusCB, delstatCB;
 	private ComboItem[] delStatus;
 	public  JTable childTable;
 	private DefaultTableModel childTableModel;
@@ -132,7 +133,8 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	public SortAgentDialog sortAgentDlg;
 	private AgentInfoDialog agentInfoDlg;
 	private ChangeONCNumberDialog changeONCNumberDlg;
-	private ChangeReferenceNumberDialog changeODBNumberDlg;
+	private ChangeReferenceNumberDialog changeReferenceNumberDlg;
+	private ChangeBatchNumberDialog changeBatchNumberDlg;
 	public AssignDeliveryDialog assignDeliveryDlg;
 	public SortDriverDialog sortDriverDlg;
 	private ViewONCDatabaseDialog dbDlg;
@@ -201,7 +203,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         lblRefNum.setToolTipText("Family Reference # - Consistent across years");
         lblRefNum.setBorder(BorderFactory.createTitledBorder("Ref #"));
         lblONCNum.setHorizontalAlignment(JLabel.CENTER);
-        
+/*        
         String[] batchNums = {"","B-01","B-02","B-03","B-04","B-05","B-06","B-07","B-08",
         					  "B-09","B-10", "B-CR", "B-DI"};
         oncBatchNum = new JComboBox(batchNums);
@@ -211,6 +213,12 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         oncBatchNum.setBorder(BorderFactory.createTitledBorder("Batch #"));
         oncBatchNum.setEnabled(false);
         oncBatchNum.addActionListener(this);
+*/        
+        lblBatchNum = new JLabel();
+        lblBatchNum.setPreferredSize(new Dimension(64, 52));
+        lblBatchNum.setToolTipText("Indicates family intake grouping");
+        lblBatchNum.setBorder(BorderFactory.createTitledBorder("Batch #"));
+        lblBatchNum.setHorizontalAlignment(JLabel.CENTER);
         
         oncDNScode = new JTextField(6);
         oncDNScode.setToolTipText("Do not serve family code: e.g, SA- Salvation Army");
@@ -571,7 +579,11 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
     	
     	//Set up the dialog to change family ODB Number
     	String[] odbNum = {"Change ODB #"};
-    	changeODBNumberDlg = new ChangeReferenceNumberDialog(parentFrame, odbNum);
+    	changeReferenceNumberDlg = new ChangeReferenceNumberDialog(parentFrame, odbNum);
+    	
+    	//Set up the dialog to change family ODB Number
+    	String[] batchNum = {"Change Batch #"};
+    	changeBatchNumberDlg = new ChangeBatchNumberDialog(parentFrame, batchNum);
 
     	//Set up the sort agent dialog
     	String[] agtColToolTips = {"Name", "Organization", "Title", "EMail Address", "Phone"};
@@ -708,7 +720,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         //Add components to the panels
         p1.add(lblONCNum);
         p1.add(lblRefNum);
-        p1.add(oncBatchNum);
+        p1.add(lblBatchNum);
         p1.add(oncDNScode);
 //      p1.add(clientFamily);
         p1.add(HOHFirstName);
@@ -791,7 +803,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		if(GlobalVariables.isUserAdmin())
 		{
 			oncDNScode.setEditable(tf);
-			oncBatchNum.setEnabled(tf);
+//			oncBatchNum.setEnabled(tf);
 			HOHFirstName.setEditable(tf);
 			HOHLastName.setEditable(tf);;
 			statusCB.setEnabled(tf);
@@ -963,7 +975,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			lblONCNum.setText(currFam.getONCNum());
 			lblONCNum.setToolTipText("Family Database ID= " + Integer.toString(currFam.getID()));
 			lblRefNum.setText(currFam.getODBFamilyNum());
-			oncBatchNum.setSelectedItem((String)currFam.getBatchNum());
+			lblBatchNum.setText(currFam.getBatchNum());
 			oncDNScode.setText(currFam.getDNSCode());
 			oncDNScode.setCaretPosition(0);
 			
@@ -1065,7 +1077,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		{
 			lblONCNum.setText(currFam.getONCNum());
 			lblRefNum.setText(currFam.getODBFamilyNum());
-			oncBatchNum.setSelectedItem((String)currFam.getBatchNum());
+			lblBatchNum.setText(currFam.getBatchNum());
 			oncDNScode.setText(currFam.getDNSCode());
 			oncDNScode.setCaretPosition(0);
 			
@@ -1301,11 +1313,11 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		
 		//If data has been changed store updated family info and return true to indicate a change
 //		if(!oncnum.getText().equals(fam.getONCNum())) { fam.setONCNum(oncnum.getText()); cf = 1; }
-		if(!oncBatchNum.getSelectedItem().equals(fam.getBatchNum()))
-		{
-			fam.setBatchNum((String) oncBatchNum.getSelectedItem());
-			cf = 2;	
-		}
+//		if(!oncBatchNum.getSelectedItem().equals(fam.getBatchNum()))
+//		{
+//			fam.setBatchNum((String) oncBatchNum.getSelectedItem());
+//			cf = 2;	
+//		}
 		if(!oncDNScode.getText().equals(fam.getDNSCode())) //DNS code changed
 		{
 			//Save the new DNS text field and mark that a field has changed
@@ -1739,11 +1751,25 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
      */
     void showChangeODBNumberDialog()
     {
-    	if(!changeODBNumberDlg.isVisible())
+    	if(!changeReferenceNumberDlg.isVisible())
 		{
-    		changeODBNumberDlg.display(currFam);
-    		changeODBNumberDlg.setLocationRelativeTo(lblRefNum);
-    		changeODBNumberDlg.showDialog();
+    		changeReferenceNumberDlg.display(currFam);
+    		changeReferenceNumberDlg.setLocationRelativeTo(lblRefNum);
+    		changeReferenceNumberDlg.showDialog();
+		}
+    }
+    
+    /****************************************************************************************
+     * Shows a dialog box to change the Batch Number for the family displayed. If no family is 
+     * displayed the method displays a warning message
+     */
+    void showChangeBatchNumberDialog()
+    {
+    	if(!changeBatchNumberDlg.isVisible())
+		{
+    		changeBatchNumberDlg.display(currFam);
+    		changeBatchNumberDlg.setLocationRelativeTo(lblRefNum);
+    		changeBatchNumberDlg.showDialog();
 		}
     }
 	
@@ -2098,11 +2124,11 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		{
 			checkAndUpdateFamilyData(currFam);
 		}
-		else if(e.getSource() == oncBatchNum && !bFamilyDataChanging &&
-									!oncBatchNum.getSelectedItem().equals(currFam.getBatchNum()))
-		{
-			checkAndUpdateFamilyData(currFam);
-		}
+//		else if(e.getSource() == oncBatchNum && !bFamilyDataChanging &&
+//									!oncBatchNum.getSelectedItem().equals(currFam.getBatchNum()))
+//		{
+//			checkAndUpdateFamilyData(currFam);
+//		}
 		else if(e.getSource() == oncDNScode && !bFamilyDataChanging &&
 									!oncDNScode.getText().equals(currFam.getDNSCode()))
 		{	

@@ -546,6 +546,7 @@ public class OurNeighborsChild implements DatabaseListener
         ONCMenuBar.distMI.addActionListener(menuItemListener);
         ONCMenuBar.changeONCMI.addActionListener(menuItemListener);
         ONCMenuBar.changeRefMI.addActionListener(menuItemListener);
+        ONCMenuBar.changeBatchMI.addActionListener(menuItemListener);
 //      ONCMenuBar.sortByONCMI.addActionListener(menuItemListener);
         ONCMenuBar.delstatusMI.addActionListener(menuItemListener);             
         ONCMenuBar.viewDBMI.addActionListener(menuItemListener);
@@ -1014,6 +1015,7 @@ public class OurNeighborsChild implements DatabaseListener
     		else if(e.getSource() == ONCMenuBar.distMI) {oncFamilyPanel.showClientMap(oncFamDB.getList());}
     		else if(e.getSource() == ONCMenuBar.changeONCMI) { oncFamilyPanel.showChangeONCNumberDialog(); }
     		else if(e.getSource() == ONCMenuBar.changeRefMI) { oncFamilyPanel.showChangeODBNumberDialog(); }
+    		else if(e.getSource() == ONCMenuBar.changeBatchMI) { oncFamilyPanel.showChangeBatchNumberDialog(); }
     		else if(e.getSource() == ONCMenuBar.delstatusMI) {oncFamilyPanel.showDeliveryStatus();}
     		else if(e.getSource() == ONCMenuBar.viewDBMI) {oncFamilyPanel.showEntireDatabase(oncFamDB);}
     		else if(e.getSource() == ONCMenuBar.sortWishesMI) {oncFamilyPanel.showSortWishesDialog(oncFamDB.getList());}

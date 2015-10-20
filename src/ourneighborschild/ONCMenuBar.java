@@ -24,9 +24,9 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 //	public static JMenuItem compODBtoONCfamMI, compODBtoONCdataMI, compWFCMtoONCfamMI, compWFCMtoONCdataMI;
 	public static JMenuItem findDupFamsMI, findDupChldrnMI;
 	public static JMenuItem assignDelMI, editDelMI, manageDelMI, importDrvrMI, mapsMI, delstatusMI, distMI;
-	public static JMenuItem newFamMI, changeONCMI, changeRefMI, delFamMI, newChildMI, delChildMI, markAdultMI;
+	public static JMenuItem newFamMI, changeONCMI, changeRefMI, changeBatchMI, delFamMI, newChildMI, delChildMI, markAdultMI;
 	public static JMenu submenuImport, submenuFamilyDataChecks;
-	public static JMenu submenuExport, submenuCompareData, submenuDatabase;
+	public static JMenu submenuExport, submenuChangeFamilyNumbers, submenuCompareData, submenuDatabase;
 	public static JMenuItem viewDBMI, sortWishesMI, sortFamiliesMI, sortOrgsMI, recGiftsMI, sortMealsMI;
 	public static JMenuItem labelViewerMI, agentMI, orgMI, catMI;
 	public static JMenuItem aboutONCMI, oncPrefrencesMI, userMI, onlineMI, chatMI, changePWMI, stopPollingMI;
@@ -137,14 +137,19 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 	    menuFamilies.add(sortFamiliesMI);
 	    
 	    menuFamilies.addSeparator();
-	    	    
+	    
+	    submenuChangeFamilyNumbers = new JMenu("Change Numbers");
+	    submenuChangeFamilyNumbers.setEnabled(false);   
+	    menuFamilies.add(submenuChangeFamilyNumbers);
+	       
 	    changeONCMI = new JMenuItem("Change ONC #");
-	    changeONCMI.setEnabled(false);
-	    menuFamilies.add(changeONCMI);
+	    submenuChangeFamilyNumbers.add(changeONCMI);
 	    
 	    changeRefMI = new JMenuItem("Change Ref #");
-	    changeRefMI.setEnabled(false);
-	    menuFamilies.add(changeRefMI);
+	    submenuChangeFamilyNumbers.add(changeRefMI);
+	    
+	    changeBatchMI = new JMenuItem("Change Batch #");
+	    submenuChangeFamilyNumbers.add(changeBatchMI);
 	    
 	    menuFamilies.addSeparator();
 	    
@@ -348,8 +353,9 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 		findDupChldrnMI.setEnabled(tf);
 		viewDBMI.setEnabled(tf);
 		submenuExport.setEnabled(tf);
-		changeONCMI.setEnabled(tf);
-		changeRefMI.setEnabled(tf);
+		submenuChangeFamilyNumbers.setEnabled(tf);
+//		changeONCMI.setEnabled(tf);
+//		changeRefMI.setEnabled(tf);
 		sortFamiliesMI.setEnabled(tf);
 		sortMealsMI.setEnabled(tf);
 		markAdultMI.setEnabled(tf);
