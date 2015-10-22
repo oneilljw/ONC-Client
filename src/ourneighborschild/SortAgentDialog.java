@@ -16,6 +16,7 @@ import javax.mail.internet.MimeBodyPart;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -42,6 +43,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 	private JComboBox orgCB, titleCB;
 	private DefaultComboBoxModel orgCBM, titleCBM;
 	private String sortOrg, sortTitle;
+	private JCheckBox allAgentsCxBox;
 
 	private JButton btnEditAgentInfo;
 	private JComboBox printCB, emailCB;
@@ -94,7 +96,11 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		
         //Set up the cntl panel
 		//Set the text for the agent count label
-		lblObjectMssg.setText("# of Agents:"); 
+		lblObjectMssg.setText("# of Agents:");
+		
+		allAgentsCxBox = new JCheckBox("Show All Agents:");
+		allAgentsCxBox.setSelected(false);
+		allAgentsCxBox.addActionListener(this);
       
       	//Set up the email progress bar
       	progressBar = new JProgressBar(0, 100);
@@ -120,20 +126,24 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
       	btnEditAgentInfo.setEnabled(false);
       	btnEditAgentInfo.addActionListener(this);
                       
-        //Add the components to the control panel
+        //Add the components to the control panel. Control panel used GridBag
       	GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.fill = GridBagConstraints.BOTH;
-        gbc.insets = new Insets(0,0,0,180);
-      	cntlPanel.add(objectCountPanel, gbc);
+        gbc.insets = new Insets(0,0,0,0);
+        cntlPanel.add(allAgentsCxBox, gbc);
       	gbc.gridx = 1;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.insets = new Insets(0,0,0,52);
+        cntlPanel.add(objectCountPanel, gbc);
+      	gbc.gridx = 2;
         gbc.insets = new Insets(0,0,0,0);
         cntlPanel.add(progressBar, gbc);
-        gbc.gridx = 2;
-        cntlPanel.add(emailCB, gbc);
         gbc.gridx = 3;
-        cntlPanel.add(printCB, gbc);
+        cntlPanel.add(emailCB, gbc);
         gbc.gridx = 4;
+        cntlPanel.add(printCB, gbc);
+        gbc.gridx = 5;
         cntlPanel.add(btnEditAgentInfo, gbc);
         
         //set the border title for the family table 
@@ -186,9 +196,16 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		familyTable.clearSelection();
 		
 		for(Agent a:agentDB.getAgentsAL())
-			if(doesOrgMatch(a.getAgentOrg()) && doesTitleMatch(a.getAgentTitle()))
+			if(doesOrgMatch(a.getAgentOrg()) &&
+				doesTitleMatch(a.getAgentTitle())
+				 && didAgentRefer(a))
 				atAL.add(a);
-			
+		
+		if(allAgentsCxBox.isSelected())
+			lblObjectMssg.setText("Referring Agents in DB:");
+		else
+			lblObjectMssg.setText(String.format("%d Referring Agents: ", GlobalVariables.getCurrentSeason()));
+		
 		lblNumOfObjects.setText(Integer.toString(atAL.size()));
 		displaySortTable(atAL, true, tableRowSelectedObjectList);
 	}
@@ -852,8 +869,9 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 	
 	boolean doesOrgMatch(String agentorg) {return sortOrg.equals("Any") || sortOrg.equals(agentorg);}
 	boolean doesTitleMatch(String agenttitle) {return sortTitle.equals("Any") || sortTitle.equals(agenttitle); }
+	boolean didAgentRefer(Agent agt){ return  allAgentsCxBox.isSelected() || fDB.didAgentRefer(agt.getID()); }
 	
-	@Override
+	@Override 
 	public void actionPerformed(ActionEvent e)
 	{
 		if(e.getSource() == orgCB && !bIgnoreCBEvents && !orgCB.getSelectedItem().toString().equals(sortOrg))
@@ -871,7 +889,12 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 			
 			sortTitle = titleCB.getSelectedItem().toString();
 			buildTableList(false);			
-		}		
+		}
+		else if(e.getSource() == allAgentsCxBox )
+		{
+			buildTableList(true);
+			buildFamilyTableListAndDisplay();
+		}
 		else if(e.getSource() == printCB)
 		{
 			if(printCB.getSelectedIndex() == 1)
@@ -1036,6 +1059,10 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		titleCB.setSelectedIndex(0);	//Will trigger the CB event handler which
 		sortTitle = "Any";
 		titleCB.addActionListener(this);
+		
+		allAgentsCxBox.removeActionListener(this);
+		allAgentsCxBox.setSelected(false);
+		allAgentsCxBox.addActionListener(this);
 		
 		buildTableList(false);
 	}

@@ -763,6 +763,18 @@ public class Families extends ONCSearchableDatabase
     	return agentCount;
     }
     
+    /*******************************************************************************************************
+     * This method determines if a particular agent has referred a family
+     **************************************************************************************************/
+    boolean didAgentRefer(int agentID)
+    {
+    	int index = 0;
+    	while(index < oncFamAL.size() && oncFamAL.get(index).getAgentID() != agentID)
+    		index++;
+    	
+    	return index < oncFamAL.size();
+    }
+    
     /******************************************************************************************************
      * This method recommends a batch number prior to import of external data
      ******************************************************************************************************/
