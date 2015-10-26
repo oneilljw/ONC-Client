@@ -68,7 +68,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	
 	//Unique gui elements for Sort Family Dialog
 	private JComboBox oncCB, batchCB, regionCB, dnsCB, zipCB, fstatusCB, streetCB, lastnameCB;
-	private JComboBox changedByCB, stoplightCB, dstatusCB;
+	private JComboBox changedByCB, stoplightCB, dstatusCB, mealstatusCB;
 	private ComboItem[] changeDelItem, changeFamItem;
 	private JComboBox changeDNSCB;
 	private JComboBox changeFStatusCB, changeDStatusCB;
@@ -81,6 +81,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	private int sortBatchNum = 0, sortFStatus = 0, sortDStatus=0;
 	private int sortZip = 0, sortRegion = 0, sortChangedBy = 0, sortStoplight = 0;
 	private String sortLN = "Any", sortStreet= "Any", sortDNSCode;
+	private MealStatus sortMealStatus;
 
 	private static String[] dnsCodes = {"None", "Any", "DUP", "NC", "NISA", "OPT-OUT", "SA", "WA"};
 	private static String[] exportChoices = {"Export", "ODB Crosscheck"};
@@ -125,8 +126,14 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		fstatusCB.addActionListener(this);
 		
 		dstatusCB = new JComboBox(delstatus);
+		dstatusCB.setPreferredSize(new Dimension(160, 56));
 		dstatusCB.setBorder(BorderFactory.createTitledBorder("Delivery Status"));
 		dstatusCB.addActionListener(this);
+		
+		mealstatusCB = new JComboBox(MealStatus.values());
+		sortMealStatus = MealStatus.Any;
+		mealstatusCB.setBorder(BorderFactory.createTitledBorder("Meal Status"));
+		mealstatusCB.addActionListener(this);
 		
     	regionCBM.addElement("Any");
 		regionCB = new JComboBox();
@@ -136,7 +143,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		
 		dnsCB = new JComboBox(dnsCodes);
 		dnsCB.setEditable(true);
-		dnsCB.setPreferredSize(new Dimension(160, 56));
+		dnsCB.setPreferredSize(new Dimension(120, 56));
 		dnsCB.setBorder(BorderFactory.createTitledBorder("DNS Code"));
 		dnsCB.addActionListener(this);
 		
@@ -178,6 +185,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		sortCriteriaPanelTop.add(dnsCB);
 		sortCriteriaPanelTop.add(fstatusCB);
 		sortCriteriaPanelTop.add(dstatusCB);
+		sortCriteriaPanelTop.add(mealstatusCB);
 		sortCriteriaPanelBottom.add(lastnameCB);
 		sortCriteriaPanelBottom.add(streetCB);
 		sortCriteriaPanelBottom.add(zipCB);
@@ -357,6 +365,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 				 doesDNSCodeMatch(f.getDNSCode()) &&
 				  doesFStatusMatch(f.getFamilyStatus()) &&
 				   doesDStatusMatch(f.getDeliveryStatus()) &&
+				   doesMealStatusMatch(f.getMealStatus()) && 
 				    doesLastNameMatch(f.getHOHLastName()) &&
 				     doesStreetMatch(f.getStreet()) &&
 				      doesZipMatch(f.getZipCode()) &&
@@ -1091,6 +1100,11 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		sortDStatus = 0;
 		dstatusCB.addActionListener(this);
 		
+		mealstatusCB.removeActionListener(this);
+		mealstatusCB.setSelectedIndex(0);
+		sortMealStatus = MealStatus.Any;
+		mealstatusCB.addActionListener(this);
+		
 		lastnameCB.removeActionListener(this);
 		lastnameCB.setSelectedIndex(0);
 		sortLN = "Any";
@@ -1357,6 +1371,8 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	
 	boolean doesFStatusMatch(int fstat) {return sortFStatus == 0  || fstat == fstatusCB.getSelectedIndex()-1;}
 	
+	boolean doesMealStatusMatch(MealStatus mstat) {return sortMealStatus == MealStatus.Any  || mstat == (MealStatus) mealstatusCB.getSelectedItem();}
+	
 	boolean doesDStatusMatch(int dstat) {return sortDStatus == 0  || dstat == dstatusCB.getSelectedIndex()-1;}
 	
 	boolean doesLastNameMatch(String ln) {return sortLN.equals("Any") || ln.toLowerCase().contains(lastnameCB.getSelectedItem().toString().toLowerCase());}
@@ -1532,6 +1548,11 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		else if(e.getSource() == dstatusCB && dstatusCB.getSelectedIndex() != sortDStatus)
 		{						
 			sortDStatus = dstatusCB.getSelectedIndex();
+			buildTableList(false);
+		}
+		else if(e.getSource() == mealstatusCB && mealstatusCB.getSelectedItem() != sortMealStatus)
+		{						
+			sortMealStatus = (MealStatus) mealstatusCB.getSelectedItem();
 			buildTableList(false);
 		}
 		else if(e.getSource() == lastnameCB && !lastnameCB.getSelectedItem().toString().equals(sortLN))
