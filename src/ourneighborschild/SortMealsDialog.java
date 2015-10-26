@@ -49,14 +49,14 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 	private ArrayList<SortMealObject> stAL;
 
 	
-	private JComboBox typeCB, assignCB, statusCB, changedByCB, regionCB, changeStatusCB;
+	private JComboBox typeCB, assignCB, batchCB, statusCB, changedByCB, regionCB, changeStatusCB;
 	private JComboBox changeAssigneeCB, printCB, exportCB;
 	private DefaultComboBoxModel assignCBM, changeAssigneeCBM, changedByCBM, regionCBM;
 	private JTextField oncnumTF;
 	private JDateChooser ds, de;
 	private Calendar sortStartCal = null, sortEndCal = null;
 	
-	private int sortChangedBy = 0, sortAssigneeID = 0, sortRegion = 0;
+	private int sortBatchNum = 0, sortChangedBy = 0, sortAssigneeID = 0, sortRegion = 0;
 	private MealStatus sortStatus = MealStatus.Any;
 	private MealType sortType = MealType.Any;
 
@@ -96,6 +96,12 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		oncnumTF.setToolTipText("Type ONC Family # and press <enter>");
 		oncnumTF.addActionListener(this);
 		oncnumTF.addKeyListener(new ONCNumberKeyListener());
+		
+		String[] batchNums = {"Any","B-01","B-02","B-03","B-04","B-05","B-06","B-07","B-08",
+				"B-09","B-10", "B-CR", "B-DI"};
+		batchCB = new JComboBox(batchNums);
+		batchCB.setBorder(BorderFactory.createTitledBorder("Batch #"));
+		batchCB.addActionListener(this);
 		
 		typeCB = new JComboBox(MealType.getSearchFilterList());
 		typeCB.setPreferredSize(new Dimension(156, 56));
@@ -149,6 +155,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		de.getDateEditor().addPropertyChangeListener(this);
 
 		sortCriteriaPanelTop.add(oncnumTF);
+		sortCriteriaPanelTop.add(batchCB);
 		sortCriteriaPanelTop.add(typeCB);
 		sortCriteriaPanelTop.add(statusCB);
 		sortCriteriaPanelTop.add(regionCB);
@@ -161,7 +168,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		//change data panel
 		itemCountPanel.setBorder(BorderFactory.createTitledBorder("Meals Meeting Criteria"));
 		
-		changeDataPanel.setBorder(BorderFactory.createTitledBorder("Change Meal Assignee or Change Meal Status"));
+		changeDataPanel.setBorder(BorderFactory.createTitledBorder("Change Meal Status or Meal Assignee"));
         
 		changeStatusCB = new JComboBox(MealStatus.getChangeList());
         changeStatusCB.setPreferredSize(new Dimension(224, 56));
@@ -236,12 +243,13 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 			if(isNumeric(f.getONCNum()) && f.getMealID() > -1 && doesONCNumMatch(f.getONCNum()))	//Must be a valid family	
 			{
 				ONCMeal m = mealDB.getMeal(f.getMealID());
-				if(m != null && doesTypeMatch(m.getType()) &&
-								 doesStatusMatch(f.getMealStatus()) &&
-								  doesRegionMatch(f.getRegion()) &&
-								   doesAssigneeMatch(m.getPartnerID()) &&
-								    isMealChangeDateBetween(m.getDateChanged()) &&
-								     doesChangedByMatch(m.getChangedBy())) //meal criteria pass
+				if(m != null && doesBatchNumMatch(f.getBatchNum()) && 
+								 doesTypeMatch(m.getType()) &&
+								  doesStatusMatch(f.getMealStatus()) &&
+								   doesRegionMatch(f.getRegion()) &&
+								    doesAssigneeMatch(m.getPartnerID()) &&
+								     isMealChangeDateBetween(m.getDateChanged()) &&
+								      doesChangedByMatch(m.getChangedBy())) //meal criteria pass
 				{			
 					stAL.add(new SortMealObject(itemID++, f, m));
 				}
@@ -253,6 +261,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 	}
 
 	private boolean doesONCNumMatch(String s) { return sortONCNum.isEmpty() || sortONCNum.equals(s); }
+	private boolean doesBatchNumMatch(String bn) {return sortBatchNum == 0 ||  bn.equals((String)batchCB.getSelectedItem());}
 	private boolean doesTypeMatch(MealType mt){return sortType == MealType.Any || sortType.compareTo(mt) == 0;}
 	private boolean doesStatusMatch(MealStatus ms){return sortStatus == MealStatus.Any || sortStatus.compareTo(ms) == 0;}
 	boolean doesRegionMatch(int fr) { return sortRegion == 0 || fr == regionCB.getSelectedIndex()-1; }
@@ -475,6 +484,11 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 			sortONCNum = oncnumTF.getText();
 			buildTableList(false);
 		}
+		else if(e.getSource() == batchCB && batchCB.getSelectedIndex() != sortBatchNum)
+		{
+			sortBatchNum = batchCB.getSelectedIndex();
+			buildTableList(false);			
+		}		
 		else if(e.getSource() == typeCB && typeCB.getSelectedItem() != sortType)
 		{						
 			sortType = (MealType) typeCB.getSelectedItem();
@@ -518,10 +532,31 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		}
 		else if(!bIgnoreCBEvents && (e.getSource() == changeAssigneeCB))
 		{
+			//first, enforce mutual exclusivity between status and assignee change. Can't
+			//change status if you are changing partner.
+			if(changeAssigneeCB.getSelectedIndex() == 0)
+				changeStatusCB.setEnabled(true);
+			else
+			{
+				changeStatusCB.setSelectedIndex(0);
+				changeStatusCB.setEnabled(false);
+			}
+			
 			checkApplyChangesEnabled();
 		}
 		else if(!bIgnoreCBEvents && (e.getSource() == changeStatusCB))
 		{
+			//first, enforce mutual exclusivity between status and assignee change. Can't
+			//change status if you are changing partner. 
+			
+			if(changeStatusCB.getSelectedIndex() == 0)
+				changeAssigneeCB.setEnabled(true);
+			else
+			{
+				changeAssigneeCB.setSelectedIndex(0);
+				changeAssigneeCB.setEnabled(false);
+			}
+			
 			checkApplyChangesEnabled();
 		}
 	}
@@ -612,19 +647,21 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		
 		if(col == 0)
     		Collections.sort(stAL, new SortItemFamNumComparator());
-    	else if(col == 1)	// Sort on Child's Age
+		else if(col == 1)	// Sort on Child's Age
+    		Collections.sort(stAL, new SortItemBatchNumComparator());
+    	else if(col == 2)	// Sort on Child's Age
     		Collections.sort(stAL, new SortItemFamilyLNComparator());
-    	else if(col == 2)
-    		Collections.sort(stAL, new SortItemRegionComparator());
     	else if(col == 3)
-    		Collections.sort(stAL, new SortItemMealTypeComparator());
+    		Collections.sort(stAL, new SortItemRegionComparator());
     	else if(col == 4)
-    		Collections.sort(stAL, new SortItemMealStatusComparator());
+    		Collections.sort(stAL, new SortItemMealTypeComparator());
     	else if(col == 5)
-    		Collections.sort(stAL, new SortItemMealAssigneeComparator());
+    		Collections.sort(stAL, new SortItemMealStatusComparator());
     	else if(col == 6)
+    		Collections.sort(stAL, new SortItemMealAssigneeComparator());
+    	else if(col == 7)
     		Collections.sort(stAL, new SortItemMealChangedByComparator());
-    	else if(col == 7)	
+    	else if(col == 8)	
     		Collections.sort(stAL, new SortItemMealDateChangedComparator());
     	else
     		col = -1;
@@ -650,6 +687,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		String partnerName = partner != null ? partner.getName() : "None";
 		String ds = new SimpleDateFormat("MM/dd H:mm").format(smo.getMeal().getDateChanged().getTime());
 		String[] tablerow = {smo.getFamily().getONCNum(),
+							smo.getFamily().getBatchNum(),
 							smo.getFamily().getHOHLastName(),
 							regions.getRegionID(smo.getFamily().getRegion()),
 							smo.getMeal().getType().toString(),
@@ -661,17 +699,6 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 	@Override
 	void checkApplyChangesEnabled()
 	{
-		//first, enforce mutual exclusivity between status and assignee change. Can't
-		//change status if you are changing partner. Partner changes will automatically
-		//change status. 
-		if(changeAssigneeCB.getSelectedIndex() > 0)
-		{
-			changeStatusCB.setSelectedIndex(0);
-			changeStatusCB.setEnabled(false);
-		}
-		else if(changeAssigneeCB.getSelectedIndex() == 0)
-			changeStatusCB.setEnabled(true);
-		
 		//check if should enable ApplyChanges button. Enable if one or more rows are selected
 		//and either the change status or change assignee selection indexes are not 0 (No Change)
 		if(sortTable.getSelectedRows().length > 0 && 
@@ -723,9 +750,9 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 					bChangesMade = true;
 			}
 			//check if a change to meal status. Can only change meal status if current meal status has
-			//attained at least referral status and it's an actual change to the family's meal status
+			//attained at least 'Assigned' status and it's an actual change to the family's meal status
 			else if(changeStatusCB.getSelectedIndex() > 0 && 
-					 stAL.get(row_sel[i]).getFamily().getMealStatus().compareTo(MealStatus.Referred) >= 0 &&
+					 stAL.get(row_sel[i]).getFamily().getMealStatus().compareTo(MealStatus.Assigned) >= 0 &&
 					  stAL.get(row_sel[i]).getFamily().getMealStatus() != changeStatusCB.getSelectedItem())
 			{
 				ONCFamily updateFamilyReq = new ONCFamily(stAL.get(row_sel[i]).getFamily());
@@ -756,6 +783,11 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		oncnumTF.setText("");	//its a text field, not a cb, so need to clear sortONCNum also
 		sortONCNum = "";
 		
+		batchCB.removeActionListener(this);
+		batchCB.setSelectedIndex(0);
+		sortBatchNum = 0;
+		batchCB.addActionListener(this);
+		
 		typeCB.removeActionListener(this);
 		typeCB.setSelectedIndex(0);	//no need to test for a change here.
 		sortType = MealType.Any;
@@ -783,6 +815,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		
 		changeAssigneeCB.removeActionListener(this);
 		changeAssigneeCB.setSelectedIndex(0);
+		changeAssigneeCB.setEnabled(true);
 		changeAssigneeCB.addActionListener(this);
 		
 		changeStatusCB.removeActionListener(this);
@@ -936,6 +969,15 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		}
 	}
 	
+	private class SortItemBatchNumComparator implements Comparator<SortMealObject>
+	{
+		@Override
+		public int compare(SortMealObject o1, SortMealObject o2)
+		{
+			return o1.getFamily().getBatchNum().compareTo(o2.getFamily().getBatchNum());
+		}
+	}
+	
 	private class SortItemFamilyLNComparator implements Comparator<SortMealObject>
 	{
 		@Override
@@ -980,8 +1022,18 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		public int compare(SortMealObject o1, SortMealObject o2)
 		{
 			ONCOrgs partnerDB = ONCOrgs.getInstance();
-			String part1 = partnerDB.getOrganizationByID(o1.getMeal().getPartnerID()).getName();
-			String part2 = partnerDB.getOrganizationByID(o2.getMeal().getPartnerID()).getName();
+			String part1, part2;
+			 
+			if(o1.getMeal().getPartnerID() > -1 )
+				part1 = partnerDB.getOrganizationByID(o1.getMeal().getPartnerID()).getName();
+			else
+				part1 = "";
+			
+			if(o2.getMeal().getPartnerID() > -1)
+				part2 = partnerDB.getOrganizationByID(o2.getMeal().getPartnerID()).getName();
+			else
+				part2 = "";
+			
 			return part1.compareTo(part2);
 		}
 	}

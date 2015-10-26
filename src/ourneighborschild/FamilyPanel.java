@@ -540,15 +540,15 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         sortFamiliesDlg.addEntitySelectionListener(mealDlg);
         
       //Set up the sort meals dialog
-        String[] mealToolTips = {"ONC Family Number", "HoH Last Name", "Region", "Which holiday is meal for?",
+        String[] mealToolTips = {"ONC Family Number", "Batch Number", "HoH Last Name", "Region", "Which holiday is meal for?",
         						"What is the status of the request?",
 								"Who is providing the meal to the family?", 
 								"User who last changed meal request", 
 								"Date & Time Meal Last Changed"};
-        String[] mealColumns = {"ONC", "Last Name", "Reg", "Holiday", "Status", "Assignee", 
+        String[] mealColumns = {"ONC", "Batch", "Last Name", "Reg", "Holiday", "Status", "Assignee", 
         						"Changed By", "Time Stamp"};
-        int[] mealColWidths = {40, 80, 24, 80, 160, 144, 80, 92};
-        int[] mealCenter_cols = {2};
+        int[] mealColWidths = {40, 40, 80, 28, 80, 160, 144, 80, 92};
+        int[] mealCenter_cols = {3};
         sortMealsDlg = new SortMealsDialog(parentFrame, mealToolTips, mealColumns, mealColWidths, mealCenter_cols);
         sortMealsDlg.addEntitySelectionListener(familyChildSelectionListener);
         sortMealsDlg.addEntitySelectionListener(dsDlg);
@@ -561,6 +561,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
     	nav.addEntitySelectionListener(agentInfoDlg);
     	sortFamiliesDlg.addEntitySelectionListener(agentInfoDlg);
     	sortWishesDlg.addEntitySelectionListener(agentInfoDlg);
+    	sortMealsDlg.addEntitySelectionListener(agentInfoDlg);
     	
     	//Set up the dialog to edit family transporation info
     	String[] transNames = {"ONC #", "Last Name", "Has Transportation?"};
