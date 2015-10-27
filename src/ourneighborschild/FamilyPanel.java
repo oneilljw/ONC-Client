@@ -1056,7 +1056,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 				btnMeals.setIcon(gvs.getImageIcon( NO_MEAL_ICON_INDEX));
 				btnMeals.setActionCommand("None");
 			}
-			else if(currFam.getMealStatus() == MealStatus.Requested)	//meal not referrred yet
+			else if(currFam.getMealStatus().compareTo(MealStatus.Referred) < 0)	//meal not referrred yet
 			{
 				btnMeals.setIcon(gvs.getImageIcon(REQUESTED_MEAL_ICON_INDEX));
 				btnMeals.setActionCommand("Requested");
