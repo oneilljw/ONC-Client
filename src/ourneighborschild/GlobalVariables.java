@@ -272,6 +272,9 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 				warehouseAddress = gvs.getWarehouseAddress();
 				
 				response = "GLOBALS_LOADED";
+				
+				//Notify local user IFs that a change occurred
+				fireDataChanged(this, "UPDATED_GLOBALS", gvs);
 			}
 		}
 		

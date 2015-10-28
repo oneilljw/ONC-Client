@@ -261,7 +261,7 @@ public class OurNeighborsChild implements DatabaseListener
         if(user.getPermission() == UserPermission.SYS_ADMIN)	//Superuser privileges
         {
         	oncGVs.setUserPermission(UserPermission.SYS_ADMIN);
-        	prefsDlg.setEnabledDateToday(true);
+//        	prefsDlg.setEnabledDateToday(true);
         	prefsDlg.setEnabledRestrictedPrefrences(true);
         	oncMenuBar.setVisibleAdminFunctions(true);
         	oncMenuBar.setVisibleSpecialImports(true);
