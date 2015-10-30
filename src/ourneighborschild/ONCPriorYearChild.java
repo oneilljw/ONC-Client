@@ -52,6 +52,22 @@ public class ONCPriorYearChild extends ONCObject implements Serializable
 		pychildWish3 = "";
 	}
 	
+	//constructor used to search for a prior year child
+	public ONCPriorYearChild(int id, ONCChild c)
+	{
+		super(id);
+//		childFirstName = c.getChildFirstName();
+		childLastName = c.getChildLastName();
+		childGender = c.getChildGender();
+		childDOB = c.getChildDateOfBirth();
+		lychildWish1 = "";
+		lychildWish2 = "";
+		lychildWish3 = "";
+		pychildWish1 = "";
+		pychildWish2 = "";
+		pychildWish3 = "";
+	}
+	
 	//Constructor used when retaining a prior year child for a new year
 	public ONCPriorYearChild(int id, ONCPriorYearChild pyc)
 	{

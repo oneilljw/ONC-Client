@@ -24,7 +24,7 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 //	public static JMenuItem compODBtoONCfamMI, compODBtoONCdataMI, compWFCMtoONCfamMI, compWFCMtoONCdataMI;
 	public static JMenuItem findDupFamsMI, findDupChldrnMI;
 	public static JMenuItem assignDelMI, editDelMI, manageDelMI, importDrvrMI, mapsMI, delstatusMI, distMI;
-	public static JMenuItem newFamMI, changeONCMI, changeRefMI, changeBatchMI, delFamMI, newChildMI, delChildMI, markAdultMI;
+	public static JMenuItem newFamMI, changeONCMI, changeRefMI, changeBatchMI, delFamMI, newChildMI, delChildMI, markAdultMI, connectChildMI;
 	public static JMenu submenuImport, submenuFamilyDataChecks;
 	public static JMenu submenuExport, submenuChangeFamilyNumbers, submenuCompareData, submenuDatabase;
 	public static JMenuItem viewDBMI, sortWishesMI, sortFamiliesMI, sortOrgsMI, recGiftsMI, sortMealsMI;
@@ -174,6 +174,10 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 	    delChildMI = new JMenuItem("Delete Child");
 	    delChildMI.setEnabled(false);
 	    menuFamilies.add(delChildMI);
+	    
+	    connectChildMI = new JMenuItem("Connect PY Child");
+	    connectChildMI.setEnabled(false);
+	    menuFamilies.add(connectChildMI);
 	    
 	    menuFamilies.addSeparator();
 	    
@@ -361,6 +365,7 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 		markAdultMI.setEnabled(tf);
 		delChildMI.setEnabled(tf);
 		newChildMI.setEnabled(tf);
+		connectChildMI.setEnabled(tf);
 		importCallResultMI.setEnabled(tf);
 	}
 	

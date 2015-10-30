@@ -143,6 +143,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private ChildCheckDialog dcDlg;
 	private FamilyCheckDialog dfDlg;
 	private WishLabelViewer wlViewerDlg;
+	private PYChildConnectionDialog pyConnectionDlg;
 	
 //	private LogDialog logDlg;
 	
@@ -582,7 +583,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
     	String[] odbNum = {"Change ODB #"};
     	changeReferenceNumberDlg = new ChangeReferenceNumberDialog(parentFrame, odbNum);
     	
-    	//Set up the dialog to change family ODB Number
+    	//Set up the dialog to change family batch number
     	String[] batchNum = {"Change Batch #"};
     	changeBatchNumberDlg = new ChangeBatchNumberDialog(parentFrame, batchNum);
 
@@ -685,6 +686,17 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         assignDeliveryDlg.addEntitySelectionListener(oncChildPanel);
         sortDriverDlg.addEntitySelectionListener(oncChildPanel);
         this.addEntitySelectionListener(oncChildPanel);
+        
+        //set up a dialog to connect prior year children
+    	pyConnectionDlg = new PYChildConnectionDialog(parentFrame);
+    	nav.addEntitySelectionListener(pyConnectionDlg);
+        sortFamiliesDlg.addEntitySelectionListener(pyConnectionDlg);
+        sortWishesDlg.addEntitySelectionListener(pyConnectionDlg);
+        sortAgentDlg.addEntitySelectionListener(pyConnectionDlg);
+        sortDriverDlg.addEntitySelectionListener(pyConnectionDlg);
+        assignDeliveryDlg.addEntitySelectionListener(pyConnectionDlg);
+        sortDriverDlg.addEntitySelectionListener(pyConnectionDlg);
+        this.addEntitySelectionListener(pyConnectionDlg);
         
         //create the wish panels
         JPanel childwishespanel = new JPanel(new GridLayout(1,3));
@@ -1771,6 +1783,19 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
     		changeBatchNumberDlg.display(currFam);
     		changeBatchNumberDlg.setLocationRelativeTo(lblRefNum);
     		changeBatchNumberDlg.showDialog();
+		}
+    }
+    
+    /****************************************************************************************
+     * Shows a dialog to connect prior year child for the family displayed. 
+     */
+    void showConnectPYChildDialog()
+    {
+    	if(!pyConnectionDlg.isVisible())
+		{
+    		pyConnectionDlg.display(currChild);
+    		pyConnectionDlg.setLocationRelativeTo(lblRefNum);
+    		pyConnectionDlg.setVisible(true);
 		}
     }
 	

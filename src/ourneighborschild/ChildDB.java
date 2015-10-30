@@ -181,6 +181,39 @@ public class ChildDB extends ONCDatabase
 					updatedChild.getID()));
 	}
 	
+	ONCPriorYearChild getPriorYearChild(int childID)
+	{
+		String zPYCID = Integer.toString(childID);
+		String response = null;
+		ONCPriorYearChild pyc = null;
+		
+		response = serverIF.sendRequest("GET<pychild>" + zPYCID);
+		
+		if(response != null && response.startsWith("PYC"))
+		{		
+			Gson gson = new Gson();
+			pyc = gson.fromJson(response.substring(3), ONCPriorYearChild.class);
+		}
+		
+		return pyc;
+	}
+	
+	ONCPriorYearChild searchForPriorYearChild(ONCPriorYearChild pyChildReq)
+	{
+		String response = null;
+		ONCPriorYearChild pyc = null;
+		
+		Gson gson = new Gson();
+		response = serverIF.sendRequest("GET<_search_pychild>" + gson.toJson(pyChildReq, ONCPriorYearChild.class));
+		
+		if(response != null && response.startsWith("PYC"))
+		{		
+			pyc = gson.fromJson(response.substring(3), ONCPriorYearChild.class);
+		}
+		
+		return pyc;
+	}
+	
 	ONCChild getChild(int childid)
 	{
 		int index = 0;
