@@ -63,6 +63,7 @@ public class ONCChild extends ONCObject implements Serializable
 		childGender = c.childGender;
 		childDOB = c.childDOB;
 		sChildAge = c.sChildAge;
+		nChildAge = c.nChildAge;
 		childSchool = c.childSchool;
 		childWish1ID = c.childWish1ID;	//Set the wish id's to "no wish selected"
     	childWish2ID = c.childWish2ID;

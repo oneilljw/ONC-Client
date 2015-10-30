@@ -14,6 +14,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
@@ -35,6 +36,8 @@ public class PYChildConnectionDialog extends JDialog implements ActionListener,
 	private static final long serialVersionUID = 1L;
 
 	private static final int SORT_TABLE_VERTICAL_SCROLL_WIDTH = 24;
+	private static final int NUMBER_OF_WISHES_PER_CHILD = 3;
+	private static final int NUMBER_OF_PRIOR_YEARS = 2;
 	
 	private JTextField firstnameTF, lastnameTF, dobTF, genderTF, searchLastnameTF;
 	private JComboBox searchGenderCB;
@@ -45,6 +48,7 @@ public class PYChildConnectionDialog extends JDialog implements ActionListener,
 	
 	ONCFamily currFamily;
 	ONCChild currChild;
+	ONCPriorYearChild pyChild;
 	ChildDB childDB;
 	
 	PYChildConnectionDialog(JFrame parentFrame)
@@ -99,16 +103,16 @@ public class PYChildConnectionDialog extends JDialog implements ActionListener,
         
         searchLastnameTF = new JTextField();
         searchLastnameTF.setPreferredSize(new Dimension(120, 48));
-        searchLastnameTF.setBorder(BorderFactory.createTitledBorder("Last Name"));
+        searchLastnameTF.setBorder(BorderFactory.createTitledBorder("PY Last Name"));
         
         searchDobDC = new JDateChooser();
         searchDobDC.setMinimumSize(new Dimension(160, 48));
-        searchDobDC.setBorder(BorderFactory.createTitledBorder("Date of Birth"));
+        searchDobDC.setBorder(BorderFactory.createTitledBorder("PY Date of Birth"));
         
         String[] genders = {"Boy", "Girl"};
         searchGenderCB = new JComboBox(genders);
         searchGenderCB.setPreferredSize(new Dimension(96, 48));
-        searchGenderCB.setBorder(BorderFactory.createTitledBorder("Gender"));
+        searchGenderCB.setBorder(BorderFactory.createTitledBorder("PY Gender"));
    
         btnSearch = new JButton("Search");
         btnSearch.addActionListener(this);
@@ -166,13 +170,15 @@ public class PYChildConnectionDialog extends JDialog implements ActionListener,
 		JScrollPane resultScrollPane = new JScrollPane(resultTable, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
 											JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
-		resultScrollPane.setPreferredSize(new Dimension(tablewidth, resultTable.getRowHeight()*6));
+		resultScrollPane.setPreferredSize(new Dimension(tablewidth, 
+				resultTable.getRowHeight()*((NUMBER_OF_WISHES_PER_CHILD * NUMBER_OF_PRIOR_YEARS)+2)));
         
 		
         //set up the control panel
         JPanel cntlPanel = new JPanel();
         
         btnConnect = new JButton("Connect Children");
+        btnConnect.setEnabled(false);
         btnConnect.addActionListener(this);
         
         cntlPanel.add(btnConnect);
@@ -187,10 +193,11 @@ public class PYChildConnectionDialog extends JDialog implements ActionListener,
         this.setMinimumSize(new Dimension(500, 200));
 	}
 	
-	void display(ONCChild c)
+	void display(ONCFamily f, ONCChild c)
 	{
-		if(c != null)
+		if(f != null && c != null)
 		{
+			currFamily = f;
 			currChild = c;
 			
 			firstnameTF.setText(c.getChildFirstName());
@@ -200,9 +207,9 @@ public class PYChildConnectionDialog extends JDialog implements ActionListener,
 		}
 	}
 	
-	void searchAndDisplayResultTable(ONCPriorYearChild pyChild)
+	void displayResultTable(ONCPriorYearChild pyc)
 	{
-		//clear current table
+		pyChild = pyc;
 		//clear the table
 		while (resultDefaultTableModel.getRowCount() > 0)
 			resultDefaultTableModel.removeRow(0);
@@ -215,43 +222,45 @@ public class PYChildConnectionDialog extends JDialog implements ActionListener,
 			int wishnum = 0;
 			
 			int index = 0;
-			while(index < 6)	//6 rows in table = # of prior year wishes
+			while(index < NUMBER_OF_WISHES_PER_CHILD * NUMBER_OF_PRIOR_YEARS) //# of rows in table
 			{
-				String[] row = {Integer.toString(year), Integer.toString(wishnum+1), pyWishes[wishnum]};
+				String[] row = {Integer.toString(year), Integer.toString(wishnum+1), pyWishes[index++]};
 				resultDefaultTableModel.addRow(row);
-				index++;
+				wishnum++;
 				
-				if(index == 3)
+				if(index == NUMBER_OF_WISHES_PER_CHILD)
 				{
 					year--;
 					wishnum = 0;
 				}
 			}
+			
+			btnConnect.setEnabled(true);
 		}
 		else
 		{
 			//build search failed message and display
 			String[] row = {"", "", "Prior Year Child Not Found"};
 			resultDefaultTableModel.addRow(row);
+			btnConnect.setEnabled(false);
 		}
 	}
 	
 	void onSearchForPYChild()
 	{
-		//create the request
-		long pyChildDOB = convertCalendarDOBToGMT(searchDobDC.getCalendar());
-		ONCChild pyChild = new ONCChild(-1, currFamily.getID(), "", searchLastnameTF.getText().trim(),
-				(String)searchGenderCB.getSelectedItem(),  pyChildDOB, "", GlobalVariables.getCurrentSeason());
-		ONCPriorYearChild pyChildReq = new ONCPriorYearChild(-1, pyChild);
-		
-		ONCPriorYearChild searchPYChild = null;
-		searchPYChild = childDB.searchForPriorYearChild(pyChildReq);
-		
-		if(searchPYChild != null)
+		//create the request. All fields must be complete,
+		if(!searchLastnameTF.getText().isEmpty())
 		{
-			
-		}
+			long pyChildDOB = convertCalendarDOBToGMT(searchDobDC.getCalendar());
+			ONCChild searchPYChild = new ONCChild(-1, currFamily.getID(), "", searchLastnameTF.getText().trim(),
+				(String)searchGenderCB.getSelectedItem(),  pyChildDOB, "", GlobalVariables.getCurrentSeason());
+			ONCPriorYearChild pyChildReq = new ONCPriorYearChild(-1, searchPYChild);
 		
+			ONCPriorYearChild resultPYChild = null;
+			resultPYChild = childDB.searchForPriorYearChild(pyChildReq);
+		
+			displayResultTable(resultPYChild);
+		}
 	}
 	
 	/****************************************************************************************
@@ -284,15 +293,44 @@ public class PYChildConnectionDialog extends JDialog implements ActionListener,
 		genderTF.setText("");
 	}
 	
-	void onConnectChild()
+	void onConnectChildren()
 	{
+		//create a updateChild request object and set the prior year id
+		ONCChild updateChildReq = new ONCChild(currChild);
+		updateChildReq.setPriorYearChildID(pyChild.getID());
 		
+		//send the request
+		String response = childDB.update(this, updateChildReq);
+		
+		
+		if(response.startsWith("UPDATED_CHILD"))
+		{
+			//display a success message and disable the connect button
+			String mssg = String.format("%s %s and prior year %s connected",
+					currChild.getChildFirstName(), currChild.getChildLastName(), pyChild.getLastName());
+			
+			JOptionPane.showMessageDialog(this, mssg, 
+					"Children Connected", JOptionPane.INFORMATION_MESSAGE,
+					GlobalVariables.getInstance().getImageIcon(0));
+		}
+		else
+		{
+			//display an error message that update request failed
+			JOptionPane.showMessageDialog(this, "ONC Server denied connection," +
+						"try again later","Child Connection Failed", JOptionPane.ERROR_MESSAGE,
+						GlobalVariables.getInstance().getImageIcon(0));
+		}
+		
+		btnConnect.setEnabled(false);
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) 
 	{
-		// TODO Auto-generated method stub
+		if(e.getSource() == btnSearch)
+			onSearchForPYChild();
+		else if(e.getSource() == btnConnect)
+			onConnectChildren();
 		
 	}
 
@@ -306,19 +344,21 @@ public class PYChildConnectionDialog extends JDialog implements ActionListener,
 			
 			//check to see if there are children in the family, is so, display first child
 			if(childList != null && !childList.isEmpty())
-				display(childList.get(0));
+				display(fam, childList.get(0));
 			else
 				clearChildData();
 		}
 		else if(tse.getType().equals("CHILD_SELECTED"))
 		{
+			ONCFamily fam = (ONCFamily) tse.getObject1();
 			ONCChild child = (ONCChild) tse.getObject2();
-			display(child);
+			display(fam, child);
 		}
 		else if(tse.getType().equals("WISH_SELECTED"))
 		{
+			ONCFamily fam = (ONCFamily) tse.getObject1();
 			ONCChild child = (ONCChild) tse.getObject2();
-			display(child);
+			display(fam, child);
 		}
 	}
 
@@ -329,7 +369,7 @@ public class PYChildConnectionDialog extends JDialog implements ActionListener,
 		{
 			ONCChild updatedChild = (ONCChild) dbe.getObject();
 			if(updatedChild != null && updatedChild.getID() == currChild.getID())
-				display(updatedChild);
+				display(currFamily, updatedChild);
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("DELETED_CHILD"))
 		{

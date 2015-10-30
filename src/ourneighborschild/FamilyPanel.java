@@ -1793,8 +1793,8 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
     {
     	if(!pyConnectionDlg.isVisible())
 		{
-    		pyConnectionDlg.display(currChild);
-    		pyConnectionDlg.setLocationRelativeTo(lblRefNum);
+    		pyConnectionDlg.display(currFam, currChild);
+    		pyConnectionDlg.setLocationRelativeTo(delstatCB);
     		pyConnectionDlg.setVisible(true);
 		}
     }
@@ -1887,76 +1887,62 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	 **************/
 	boolean onShowPriorHistory()
 	{
-		ServerIF serverIF = ServerIF.getInstance();
+		String ly = Integer.toString(GlobalVariables.getCurrentSeason()-1);
+		String py = Integer.toString(GlobalVariables.getCurrentSeason()-2);
 		
-		if(serverIF != null && serverIF.isConnected())
-		{
-			String ly = Integer.toString(GlobalVariables.getCurrentSeason()-1);
-			String py = Integer.toString(GlobalVariables.getCurrentSeason()-2);
-		
-			//Get prior year child from server
-//			String zPYCID = Integer.toString(ctAL.get(cn).getPriorYearChildID());
-			String zPYCID = Integer.toString(currChild.getPriorYearChildID());
-			String response = null;
-			response = serverIF.sendRequest("GET<pychild>" + zPYCID);
+		//Get prior year child
+		ONCPriorYearChild pyc = cDB.getPriorYearChild(currChild.getPriorYearChildID());
 			
-			if(response != null && response.startsWith("PYC"))
-			{		
-				Gson gson = new Gson();
-				ONCPriorYearChild pyc = gson.fromJson(response.substring(3), ONCPriorYearChild.class);
+		if(pyc != null)
+		{		
+			String[] pyWishes = pyc.getPriorYearWishes();
 		
-				String[] pyWishes = pyc.getPriorYearWishes();
+			StringBuffer wishes = new StringBuffer("");			
 		
-				StringBuffer wishes = new StringBuffer("");			
+			if(pyWishes[0].equals(""))
+					wishes.append(ly + " Wish 1: Family Not Served\n");
+			else
+			wishes.append(ly + " Wish 1: " + pyWishes[0] + "\n");
 		
-				if(pyWishes[0].equals(""))
-					wishes.append(ly + " Wish 1: Empty\n");
-				else
-				wishes.append(ly + " Wish 1: " + pyWishes[0] + "\n");
+			if(pyWishes[1].equals(""))
+				wishes.append(ly + " Wish 2: Family Not Served\n");
+			else
+				wishes.append(ly + " Wish 2: " + pyWishes[1] + "\n");
 		
-				if(pyWishes[1].equals(""))
-				wishes.append(ly + " Wish 2: Empty\n");
-				else
-					wishes.append(ly + " Wish 2: " + pyWishes[1] + "\n");
+			if(pyWishes[2].equals(""))
+				wishes.append(ly + " Wish 3: Family Not Served\n\n");
+			else
+				wishes.append(ly + " Wish 3: " + pyWishes[2] + "\n\n");
 		
-				if(pyWishes[2].equals(""))
-					wishes.append(ly + " Wish 3: Empty\n\n");
-				else
-					wishes.append(ly + " Wish 3: " + pyWishes[2] + "\n\n");
+			if(pyWishes[3].equals(""))
+				wishes.append(py + " Wish 1: Family Not Served\n");
+			else
+				wishes.append(py + " Wish 1: " + pyWishes[3] + "\n");
 		
-				if(pyWishes[3].equals(""))
-					wishes.append(py + " Wish 1: Empty\n");
-				else
-					wishes.append(py + " Wish 1: " + pyWishes[3] + "\n");
+			if(pyWishes[4].equals(""))
+				wishes.append(py + " Wish 2: Family Not Served\n");
+			else
+				wishes.append(py + " Wish 2: " + pyWishes[4] + "\n");
 		
-				if(pyWishes[4].equals(""))
-					wishes.append(py + " Wish 2: Empty\n");
-				else
-					wishes.append(py + " Wish 2: " + pyWishes[4] + "\n");
+			if(pyWishes[5].equals(""))
+				wishes.append(py + " Wish 3: Family Not Served");
+			else
+				wishes.append(py + " Wish 3: " + pyWishes[5]);			
 		
-				if(pyWishes[5].equals(""))
-					wishes.append(py + " Wish 3: Empty");
-				else
-					wishes.append(py + " Wish 3: " + pyWishes[5]);			
-		
-				//determine child's first name, is it protected? Get it from table
-				String childFN;
-				if(bDispAll)
-//					childFN = ctAL.get(cn).getChildFirstName();
-					childFN = currChild.getChildFirstName();
-				else
-					childFN = "Child " + Integer.toString(childTable.getSelectedRow() + 1);
+			//determine child's first name, is it protected? Get it from table
+			String childFN;
+			if(bDispAll)
+				childFN = currChild.getChildFirstName();
+			else
+				childFN = "Child " + Integer.toString(childTable.getSelectedRow() + 1);
 				
-				JOptionPane.showMessageDialog(parentFrame, wishes, childFN + "'s Gift History",
+			JOptionPane.showMessageDialog(parentFrame, wishes, childFN + "'s Gift History",
 						JOptionPane.INFORMATION_MESSAGE, gvs.getImageIcon(0));
 			
-				return true;
-			}
-			else
-				return false;
+			return true;
 		}
-		else 
-			return false;			
+		else
+			return false;
 	}
 	
 	void setEnabledAssignedDeliveryStatus(boolean tf) { delStatus[DELIVERY_STATUS_ASSIGNED].setEnabled(tf); }
@@ -2359,6 +2345,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 					//prior year history button and refresh the child panel
 					if(childTable.getSelectedRow() == row)
 					{
+						currChild = updatedChild;
 						refreshODBWishListHighlights(currFam, updatedChild);
 						refreshPriorHistoryButton(currFam, updatedChild);
 //						oncChildPanel.displayChild(updatedChild, row);

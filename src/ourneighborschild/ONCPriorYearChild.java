@@ -85,7 +85,7 @@ public class ONCPriorYearChild extends ONCObject implements Serializable
 	}
 	
 	public String getLastName() { return childLastName; }
-	public String getGetnder() { return childGender; }
+	public String getGender() { return childGender; }
 	public long getDOB() { return childDOB; }
 
 	public void setDOB(long dob) { childDOB = dob; }

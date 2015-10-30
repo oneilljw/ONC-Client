@@ -204,9 +204,9 @@ public class ChildDB extends ONCDatabase
 		ONCPriorYearChild pyc = null;
 		
 		Gson gson = new Gson();
-		response = serverIF.sendRequest("GET<_search_pychild>" + gson.toJson(pyChildReq, ONCPriorYearChild.class));
+		response = serverIF.sendRequest("GET<search_pychild>" + gson.toJson(pyChildReq, ONCPriorYearChild.class));
 		
-		if(response != null && response.startsWith("PYC"))
+		if(response != null && !response.equals("PYC_NOT_FOUND"))
 		{		
 			pyc = gson.fromJson(response.substring(3), ONCPriorYearChild.class);
 		}
