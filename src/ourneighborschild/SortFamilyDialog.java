@@ -84,7 +84,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	private MealStatus sortMealStatus;
 
 	private static String[] dnsCodes = {"None", "Any", "DUP", "NC", "NISA", "OPT-OUT", "SA", "SBO", "WA"};
-	private static String[] exportChoices = {"Export", "ODB Crosscheck"};
+	private static String[] exportChoices = {"Export", "ODB Crosscheck", "Delivery Instructions"};
 	private static String[] printChoices = {"Print", "Print Listing", "Print Book Labels", 
 											"Print Family Receiving Sheets",
 											"Print Gift Inventory Sheets", "Print Packaging Sheets",
@@ -1496,6 +1496,74 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		return exportRow;
 	}
 	
+	void onExportDeliveryNotes()
+	{
+    	String[] header = {"ONC #", "HoH FN", "HOH LN", "Street Address", "Unit",
+    						"City", " Zip Code", "ONC Deleivery Notes"};
+    						
+    
+    	ONCFileChooser oncfc = new ONCFileChooser(this);
+       	File oncwritefile = oncfc.getFile("Select file for export of ONC Delivery Instructions" ,
+       										new FileNameExtensionFilter("CSV Files", "csv"), 1);
+       	if(oncwritefile!= null)
+       	{
+       		//If user types a new filename without extension.csv, add it
+	    	String filePath = oncwritefile.getPath();
+	    	if(!filePath.toLowerCase().endsWith(".csv")) 
+	    		oncwritefile = new File(filePath + ".csv");
+	    	
+	    	try 
+	    	{
+	    		CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
+	    	    writer.writeNext(header);
+	    	    
+	    	    int[] row_sel = sortTable.getSelectedRows();
+	    	    for(int i=0; i<sortTable.getSelectedRowCount(); i++)
+	    	    {
+	    	    	int index = row_sel[i];
+	    	    	writer.writeNext(getExportONCDeliveryNotesRow(stAL.get(index)));
+	    	    }
+	    	   
+	    	    writer.close();
+	    	    
+	    	    JOptionPane.showMessageDialog(this, 
+						sortTable.getSelectedRowCount() + " families sucessfully exported to " + oncwritefile.getName(), 
+						"Export Successful", JOptionPane.INFORMATION_MESSAGE, gvs.getImageIcon(0));
+	    	} 
+	    	catch (IOException x)
+	    	{
+	    		JOptionPane.showMessageDialog(this, "Export Failed, I/O Error: "  + x.getMessage(),  
+						"Export Failed", JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
+	    		System.err.format("IOException: %s%n", x);
+	    	}
+	    }
+	}
+	
+	public String[] getExportONCDeliveryNotesRow(ONCFamily f)
+	{
+		String delAddress, unit, city, zip;
+		if(f.getSubstituteDeliveryAddress().isEmpty())
+		{
+			delAddress = f.getHouseNum() + " " + f.getStreet();
+			unit = isNumeric(f.getUnitNum()) ? "#" + f.getUnitNum() : f.getUnitNum();
+			city = f.getCity();
+			zip = f.getZipCode();
+		}
+		else
+		{
+			String[] parts = f.getSubstituteDeliveryAddress().split("_");
+			delAddress = parts[0] + " " + parts[1];
+			unit = parts[2].equals("None")  ? "" : isNumeric(parts[2]) ? "#" + parts[2] : parts[2];
+			city = parts[3];
+			zip = parts[4];
+		}
+		
+		String[] exportRow = {f.getONCNum(), f.getHOHFirstName(), f.getHOHLastName(),
+								delAddress, unit, city, zip, f.getDeliveryInstructions()};
+
+		return exportRow;
+	}
+	
 	String formatPhoneNumber(String phoneNumber)
 	{
 		if(phoneNumber.length() == 10)
@@ -1590,6 +1658,11 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			if(exportCB.getSelectedItem().toString().equals(exportChoices[1]))
 			{ 
 				onExportODBCrosscheck();
+				exportCB.setSelectedIndex(0);
+			}
+			else if(exportCB.getSelectedItem().toString().equals(exportChoices[2]))
+			{ 
+				onExportDeliveryNotes();
 				exportCB.setSelectedIndex(0);
 			}
 		}

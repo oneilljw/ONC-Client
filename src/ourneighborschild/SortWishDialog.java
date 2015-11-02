@@ -1422,8 +1422,20 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		public int compare(SortWishObject o1, SortWishObject o2)
 		{
 			ONCWishCatalog cat = ONCWishCatalog.getInstance();
-			String wishBase1 = cat.getWishByID(o1.getChildWish().getWishID()).getName();
-			String wishBase2 = cat.getWishByID(o2.getChildWish().getWishID()).getName();
+
+			String wishBase1, wishBase2;
+			if(o1.getChildWish().getWishID() == -1)
+				wishBase1 = "None";
+			else
+				wishBase1 = cat.getWishByID(o1.getChildWish().getWishID()).getName();
+			
+			if(o2.getChildWish().getWishID() == -1)
+				wishBase2 = "None";
+			else
+				wishBase2 = cat.getWishByID(o2.getChildWish().getWishID()).getName();
+			
+//			String wishBase1 = cat.getWishByID(o1.getChildWish().getWishID()).getName();
+//			String wishBase2 = cat.getWishByID(o2.getChildWish().getWishID()).getName();
 			return wishBase1.compareTo(wishBase2);
 //			return o1.getSortItemChildWishBase().compareTo(o2.getSortItemChildWishBase());
 		}

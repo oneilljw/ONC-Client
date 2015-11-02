@@ -1020,6 +1020,8 @@ public class Families extends ONCSearchableDatabase
 			Collections.sort(fal, new ONCFamilyFNComparator()); }
 		else if(dbField.equals("Last")) {
 			Collections.sort(fal, new ONCFamilyLNComparator()); }
+		else if(dbField.equals("House")) {
+			Collections.sort(fal, new ONCFamilyHouseNumComparator()); }
 		else if(dbField.equals("Street")) {
 			Collections.sort(fal, new ONCFamilyStreetComparator()); }
 		else if(dbField.equals("Zip")) {
@@ -1294,6 +1296,15 @@ public class Families extends ONCSearchableDatabase
 		@Override
 		public int compare(ONCFamily o1, ONCFamily o2)			{
 			return o1.getHOHLastName().compareTo(o2.getHOHLastName());
+		}
+	}
+	
+	private class ONCFamilyHouseNumComparator implements Comparator<ONCFamily>
+	{
+		@Override
+		public int compare(ONCFamily o1, ONCFamily o2)
+		{
+			return o1.getHouseNum().compareTo(o2.getHouseNum());
 		}
 	}
 		
