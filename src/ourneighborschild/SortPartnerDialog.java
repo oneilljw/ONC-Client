@@ -277,7 +277,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 								 Integer.toString(o.getNumberOfOrnamentsAssigned()),
 								 o.getSpecialNotes(),
 								 sdf.format(o.getDateChanged().getTime()),
-								 o.getStoplightChangedBy(),
+								 o.getChangedBy(),
 								 regions.getRegionID(o.getRegion()),
 //								 stoplt[o.getStoplightPos()+1].substring(0,1)};
 		 						 gvs.getImageIcon(23 + o.getStoplightPos())};

@@ -1870,7 +1870,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 				ONCFamily f = stAL.get(row_sel[cardnum * midpoint + page]);	
 				
 		    	carddata = fDB.getYellowCardData(f);
-		    	carddata[4] = regions.getRegionID(f.getRegion());
+//		    	carddata[4] = regions.getRegionID(f.getRegion());
 		    	
 		    	printDeliveryCard(0, cardnum * 396, carddata, cFonts, oncSeason, img, g2d);
 		    	cardnum++;

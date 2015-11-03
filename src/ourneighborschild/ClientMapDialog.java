@@ -191,9 +191,13 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 	
 	void buildRegionCounts(ArrayList<ONCFamily> fAL)
 	{
-		for(RegionCountLabel rcl: regionCountLabelList)	//Clear current counts
+		//Clear current counts
+		for(RegionCountLabel rcl: regionCountLabelList)
 			rcl.setCount(0);
+		totalServed = 0;
 		
+		//Separate families by region, only count served families. Served families
+		//have numeric ONC#'s and don't have a Do Not Serve code (empty)
 		for(ONCFamily f:fAL)
 		{
 			//only count served families

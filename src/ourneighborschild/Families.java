@@ -861,15 +861,18 @@ public class Families extends ONCSearchableDatabase
 			}
 			ycData[2] = addPart[0] + " " + addPart[1] + " " + unit;
 			ycData[3] = addPart[3] + ", VA " + addPart[4];
+			ycData[4] = "No Region - Alternate Address Family";
 		}
 		else	//no alternate delivery address
 		{
 			String unit = isNumeric(f.getUnitNum()) ? "#" + f.getUnitNum() : f.getUnitNum();
 			ycData[2] =	f.getHouseNum() + " " + f.getStreet() + " " + unit ;
 			ycData[3] = f.getCity() + ", VA " + f.getZipCode();
+			ycData[4] = ONCRegions.getInstance().getRegionID(f.getRegion());
 		}
 		
-		ycData[4] = "?";
+//		ycData[4] = "?";
+//		ycData[4] = ONCRegions.getInstance().getRegionID(f.getRegion());
 			
 		//Format the first two phone numbers in Home and Other phone strings
 		String[] fmtPh = formatPhoneNumbers(f.getHomePhone());
@@ -1304,7 +1307,24 @@ public class Families extends ONCSearchableDatabase
 		@Override
 		public int compare(ONCFamily o1, ONCFamily o2)
 		{
-			return o1.getHouseNum().compareTo(o2.getHouseNum());
+			//four cases. Both numeric, one numeric, one not, both non-mumeric
+			if(isNumeric(o1.getHouseNum()) && isNumeric(o2.getHouseNum()))
+			{
+				Integer hn1 = Integer.parseInt(o1.getHouseNum());
+				Integer hn2 = Integer.parseInt(o2.getHouseNum());
+				
+				return hn1.compareTo(hn2);
+			}
+			else if(isNumeric(o1.getHouseNum()))
+			{
+				return o1.getHouseNum().compareTo(o2.getHouseNum());
+			}
+			else if(isNumeric(o1.getHouseNum()))
+			{
+				return o1.getHouseNum().compareTo(o2.getHouseNum());
+			}
+			else
+				return o1.getHouseNum().compareTo(o2.getHouseNum());
 		}
 	}
 		
