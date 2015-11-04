@@ -1307,24 +1307,25 @@ public class Families extends ONCSearchableDatabase
 		@Override
 		public int compare(ONCFamily o1, ONCFamily o2)
 		{
-			//four cases. Both numeric, one numeric, one not, both non-mumeric
-			if(isNumeric(o1.getHouseNum()) && isNumeric(o2.getHouseNum()))
+			String zHN1 = o1.getHouseNum().trim();
+			String zHN2 = o2.getHouseNum().trim();
+			
+			//four cases. Both numeric, one numeric, one not, both non-numeric
+			//house numbers that are numeric are always ordered before house numbers
+			//than contain other non-numeric characters
+			if(isNumeric(zHN1) && isNumeric(zHN2))
 			{
-				Integer hn1 = Integer.parseInt(o1.getHouseNum());
-				Integer hn2 = Integer.parseInt(o2.getHouseNum());
+				Integer hn1 = Integer.parseInt(zHN1);
+				Integer hn2 = Integer.parseInt(zHN2);
 				
 				return hn1.compareTo(hn2);
 			}
-			else if(isNumeric(o1.getHouseNum()))
-			{
-				return o1.getHouseNum().compareTo(o2.getHouseNum());
-			}
-			else if(isNumeric(o1.getHouseNum()))
-			{
-				return o1.getHouseNum().compareTo(o2.getHouseNum());
-			}
+			else if(isNumeric(zHN1))
+				return -1;	
+			else if(isNumeric(zHN2))
+				return 1;
 			else
-				return o1.getHouseNum().compareTo(o2.getHouseNum());
+				return zHN1.compareTo(zHN2);
 		}
 	}
 		
