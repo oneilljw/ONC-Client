@@ -393,7 +393,7 @@ public class ONCFamily extends ONCEntity
 	{
 		return s.isEmpty() ? "" : s;
 	}
-
+/*
 	void getHOHName(String c)
 	{
 		int ch = 0, startch = 0, nNamesFound = 0;
@@ -480,7 +480,7 @@ public class ONCFamily extends ONCEntity
 			HOHLastName = HOHName.get(HOHName.size()-1);
 		}
 	}
-	
+*/	
 	/****************************************************************************************
 	 * This method takes an ODB head of household field and parses it into the first and last
 	 * name of the first head of household. The input format is name - gender - DOB. If there is
@@ -498,19 +498,13 @@ public class ONCFamily extends ONCEntity
 		
 		String lcFirstHOH = hoh.split("\n")[0].toLowerCase();
 		if(lcFirstHOH.contains("female"))
-		{
 			index = lcFirstHOH.indexOf("female");
-		}
-		else if(lcFirstHOH.contains("adult"))
-		{
-			index = lcFirstHOH.indexOf("adult");
-		}
 		else if(lcFirstHOH.contains("unknown"))
-		{
 			index = lcFirstHOH.indexOf("unknown");
-		}
-		else
+		else if(lcFirstHOH.contains("male"))
 			index = lcFirstHOH.indexOf("male");
+		else
+			index = lcFirstHOH.indexOf("adult");
 		
 		index -= 2;
 		String nameString ="";
