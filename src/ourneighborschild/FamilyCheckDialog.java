@@ -4,6 +4,7 @@ import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.util.Collections;
 import java.util.Comparator;
+
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 
@@ -116,7 +117,25 @@ public class FamilyCheckDialog extends CheckDialog
 		@Override
 		public int compare(DupItem d1, DupItem d2)
 		{
-			return d1.getFamily1().getHouseNum().compareTo(d2.getFamily1().getHouseNum());
+			String zHN1 = d1.getFamily1().getHouseNum().trim();
+			String zHN2 = d2.getFamily1().getHouseNum().trim();
+			
+			//four cases. Both numeric, one numeric, one not, both non-numeric
+			//house numbers that are numeric are always ordered before house numbers
+			//than contain other non-numeric characters
+			if(isNumeric(zHN1) && isNumeric(zHN2))
+			{
+				Integer hn1 = Integer.parseInt(zHN1);
+				Integer hn2 = Integer.parseInt(zHN2);
+				
+				return hn1.compareTo(hn2);
+			}
+			else if(isNumeric(zHN1))
+				return -1;	
+			else if(isNumeric(zHN2))
+				return 1;
+			else
+				return zHN1.compareTo(zHN2);
 		}
 	}
 	private class DupItemFamily1StreetComparator implements Comparator<DupItem>
