@@ -18,7 +18,6 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 import com.toedter.calendar.JDateChooser;
@@ -45,7 +44,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		pdGVs = GlobalVariables.getInstance();
 		if(pdGVs != null)
 			pdGVs.addDatabaseListener(this);
-		this.setTitle("Our Neighbor's Child Preferences");
+		this.setTitle("Our Neighbor's Child Season Settings");
 		
 		bIgnoreDialogEvents = false;
 		
@@ -106,7 +105,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		datePanel.add(dc_InfoEditCutoff);
 		
 		JPanel addressPanel = new JPanel();
-		addressPanel.setBorder(BorderFactory.createTitledBorder("ONC Warehouse Address:"));
+		addressPanel.setBorder(BorderFactory.createTitledBorder("Warehouse Address:"));
 		
 		//create a address key listener
 		AddressKeyListener akl = new AddressKeyListener();
@@ -168,6 +167,8 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		dc_delivery.setDate(pdGVs.getDeliveryDate());
 		dc_seasonstart.setDate(pdGVs.getSeasonStartDate());
 		dc_giftsreceived.setDate(pdGVs.getGiftsReceivedDate());
+		dc_intakeCutoff.setDate(pdGVs.getFamilyIntakeDeadline());
+		dc_InfoEditCutoff.setDate(pdGVs.getFamilyEditDeadline());
 		oncFontSizeCB.setSelectedIndex(pdGVs.getFontIndex());
 		displayWarehouseAddress();
 		
@@ -229,13 +230,17 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		if(!pdGVs.getDeliveryDate().equals(dc_delivery.getDate())) { cf |= 2; }
 		if(!pdGVs.getWarehouseAddress().equals(getWarehouseAddressInGoogleMapsFormat())) {cf |= 4;}
 		if(!pdGVs.getGiftsReceivedDate().equals(dc_giftsreceived.getDate())) {cf |= 8;}
+		if(!pdGVs.getFamilyIntakeDeadline().equals(dc_intakeCutoff.getDate())) {cf |= 16;}
+		if(!pdGVs.getFamilyEditDeadline().equals(dc_InfoEditCutoff.getDate())) {cf |= 32;}
 		
 		if(cf > 0)
 		{
 			ServerGVs updateGVreq = new ServerGVs(dc_delivery.getDate(), 
 													dc_seasonstart.getDate(), 
 													 getWarehouseAddressInGoogleMapsFormat(),
-													  dc_giftsreceived.getDate());
+													  dc_giftsreceived.getDate(),
+													   dc_intakeCutoff.getDate(),
+													    dc_InfoEditCutoff.getDate());
 			
 			String response = pdGVs.update(this, updateGVreq);
 			if(!response.startsWith("UPDATED_GLOBALS"))
@@ -258,6 +263,8 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		dc_delivery.setEnabled(tf);
 		dc_giftsreceived.setEnabled(tf);
 		dc_seasonstart.setEnabled(tf);
+		dc_intakeCutoff.setEnabled(tf);
+		dc_InfoEditCutoff.setEnabled(tf);
 		whStreetNumTF.setEnabled(tf);
 		whStreetTF.setEnabled(tf);
 		whCityTF.setEnabled(tf);
@@ -269,6 +276,8 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		if(!pdGVs.getSeasonStartDate().equals(dc_seasonstart.getDate()) || 
 			!pdGVs.getDeliveryDate().equals(dc_delivery.getDate()) ||
 			!pdGVs.getGiftsReceivedDate().equals(dc_giftsreceived.getDate()) ||
+			!pdGVs.getFamilyIntakeDeadline().equals(dc_intakeCutoff.getDate()) ||
+			!pdGVs.getFamilyEditDeadline().equals(dc_InfoEditCutoff.getDate()) ||
 			!whStreetNum.equals(whStreetNumTF.getText()) ||
 			!whStreet.equals(whStreetTF.getText()) ||
 			!whCity.equals(whCityTF.getText()) ||
