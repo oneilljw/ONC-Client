@@ -38,7 +38,7 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 	private Calendar oncDeliveryDate;
 	private static Calendar oncSeasonStartDate;
 	private Calendar oncGiftsReceivedDate;
-	private Calendar familyIntakeDeadline;
+	private Calendar thanksgivingDeadline, decemberDeadline;
 	private Calendar familyEditDeadline;
 	private String warehouseAddress;
 	private transient String[] fontSizes = {"8", "10", "12", "13", "14", "16", "18"};
@@ -79,11 +79,17 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 	    oncGiftsReceivedDate.set(Calendar.SECOND, 0);
 	    oncGiftsReceivedDate.set(Calendar.MILLISECOND, 0);
 	    
-	    familyIntakeDeadline = Calendar.getInstance();
-	    familyIntakeDeadline.set(Calendar.HOUR_OF_DAY, 0);
-	    familyIntakeDeadline.set(Calendar.MINUTE, 0);
-	    familyIntakeDeadline.set(Calendar.SECOND, 0);
-	    familyIntakeDeadline.set(Calendar.MILLISECOND, 0);
+	    thanksgivingDeadline = Calendar.getInstance();
+	    thanksgivingDeadline.set(Calendar.HOUR_OF_DAY, 0);
+	    thanksgivingDeadline.set(Calendar.MINUTE, 0);
+	    thanksgivingDeadline.set(Calendar.SECOND, 0);
+	    thanksgivingDeadline.set(Calendar.MILLISECOND, 0);
+	    
+	    decemberDeadline = Calendar.getInstance();
+	    decemberDeadline.set(Calendar.HOUR_OF_DAY, 0);
+	    decemberDeadline.set(Calendar.MINUTE, 0);
+	    decemberDeadline.set(Calendar.SECOND, 0);
+	    decemberDeadline.set(Calendar.MILLISECOND, 0);
 	    
 	    familyEditDeadline = Calendar.getInstance();
 	    familyEditDeadline.set(Calendar.HOUR_OF_DAY, 0);
@@ -181,7 +187,8 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 	int getCurrentYear() { return oncDateToday.get(Calendar.YEAR); }
 	public Date getDeliveryDate() { return oncDeliveryDate.getTime(); }
 	public Date getGiftsReceivedDate() { return oncGiftsReceivedDate.getTime(); }
-	public Date getFamilyIntakeDeadline() { return familyIntakeDeadline.getTime(); }
+	public Date getThanksgivingDeadline() { return thanksgivingDeadline.getTime(); }
+	public Date getDecemberDeadline() { return decemberDeadline.getTime(); }
 	public Date getFamilyEditDeadline() { return familyEditDeadline.getTime(); }
 	public Date getSeasonStartDate() { return oncSeasonStartDate.getTime(); }
 	public String getWarehouseAddress() { return warehouseAddress; }
@@ -245,8 +252,9 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 	//setters globally used - need to update at the server and broadcast
 	public void setDeliveryDate(Date dd) { oncDeliveryDate.setTime(dd); }
 	public void setGiftsReceivedDate(Date grd) { oncGiftsReceivedDate.setTime(grd); }
-	public void setFamilyIntakeDeadline(Date fid) { familyIntakeDeadline.setTime(fid); }
-	public void setFamilyEditDeadline(Date fid) { familyEditDeadline.setTime(fid); }
+	public void setThanksgivingDeadline(Date td) { decemberDeadline.setTime(td); }
+	public void setDecemberDeadline(Date dd) { decemberDeadline.setTime(dd); }
+	public void setFamilyEditDeadline(Date fed) { familyEditDeadline.setTime(fed); }
 	public void setSeasonStartDate(Date ssd) { oncSeasonStartDate.setTime(ssd); }
 	public void setWarehouseAddress(String address) {warehouseAddress = address; }
 	
@@ -284,9 +292,11 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 
 			if(gvs != null && !response.startsWith("NO_GLOBALS"))
 			{
+				System.out.println(gvs.getThanksgivingDeadline());
 				oncDeliveryDate.setTime(gvs.getDeliveryDate());
 				oncGiftsReceivedDate.setTime(gvs.getGiftsReceivedDate());
-				familyIntakeDeadline.setTime(gvs.getFamilyIntakeDeadline());
+				thanksgivingDeadline.setTime(gvs.getThanksgivingDeadline());
+				decemberDeadline.setTime(gvs.getDecemberDeadline());
 				familyEditDeadline.setTime(gvs.getFamilyEditDeadline());
 				oncSeasonStartDate.setTime(gvs.getSeasonStartDate());
 				warehouseAddress = gvs.getWarehouseAddress();
@@ -361,8 +371,9 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 	    					oncSeasonStartDate.setTimeInMillis(Long.parseLong(nextLine[1]));
 	    					warehouseAddress = nextLine[2].isEmpty() ? "6476+Trillium+House+Lane+Centreville,VA" : nextLine[2];
 	    					oncGiftsReceivedDate.setTimeInMillis(Long.parseLong(nextLine[3]));
-	    					familyIntakeDeadline.setTimeInMillis(Long.parseLong(nextLine[4]));
-	    					familyEditDeadline.setTimeInMillis(Long.parseLong(nextLine[5]));
+	    					thanksgivingDeadline.setTimeInMillis(Long.parseLong(nextLine[4]));
+	    					decemberDeadline.setTimeInMillis(Long.parseLong(nextLine[5]));
+	    					familyEditDeadline.setTimeInMillis(Long.parseLong(nextLine[6]));
 	    					
 	    					//Read the second line, it's the oncnumRegionRanges
 	    					nextLine = reader.readNext();	
@@ -420,7 +431,7 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 	    	try 
 	    	{
 	    		 String[] header = {"Delivery Date", "Season Start Date", "Warehouse Address",
-	    				 "Gifts Received Deadline", "Intake Deadline", "Edit Deadline"};
+	    				 "Gifts Received Deadline", "Thanksgiving Deadline", "December Deadline", "Edit Deadline"};
 	    		
 	    		CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
 	    	    writer.writeNext(header);
@@ -430,7 +441,8 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 	    	    				Long.toString(oncSeasonStartDate.getTimeInMillis()),
 	    	    				warehouseAddress,
 	    	    				Long.toString(oncGiftsReceivedDate.getTimeInMillis()),
-	    	    				Long.toString(familyIntakeDeadline.getTimeInMillis()),
+	    	    				Long.toString(thanksgivingDeadline.getTimeInMillis()),
+	    	    				Long.toString(decemberDeadline.getTimeInMillis()),
 	    	    				Long.toString(familyEditDeadline.getTimeInMillis())};
 	    	    
 	    	    writer.writeNext(row);	//Write gv row
@@ -489,7 +501,8 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 		oncSeasonStartDate.setTime(updatedObj.getSeasonStartDate());
 		warehouseAddress = updatedObj.getWarehouseAddress();
 		oncGiftsReceivedDate.setTime(updatedObj.getGiftsReceivedDate());
-		familyIntakeDeadline.setTime(updatedObj.getFamilyIntakeDeadline());
+		thanksgivingDeadline.setTime(updatedObj.getThanksgivingDeadline());
+		decemberDeadline.setTime(updatedObj.getDecemberDeadline());
 		familyEditDeadline.setTime(updatedObj.getFamilyEditDeadline());
 		
 		//Notify local user IFs that a change occurred

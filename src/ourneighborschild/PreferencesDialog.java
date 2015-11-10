@@ -31,7 +31,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 	private GlobalVariables pdGVs;
 //	private JLabel lblMssg;
 	private JDateChooser dc_today, dc_delivery, dc_seasonstart, dc_giftsreceived;
-	private JDateChooser dc_intakeCutoff, dc_InfoEditCutoff;
+	private JDateChooser dc_DecemberCutoff, dc_InfoEditCutoff, dc_ThanksgivingCutoff;
 	private JTextField whStreetNumTF, whStreetTF, whCityTF, whStateTF;
 	private String whStreetNum, whStreet,whCity, whState;
 	public JComboBox oncFontSizeCB;
@@ -50,7 +50,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		
 		JPanel datePanel = new JPanel();
 //		p1.setLayout(new BoxLayout(p1, BoxLayout.PAGE_AXIS));
-		datePanel.setLayout(new GridLayout(2,3));
+		datePanel.setLayout(new GridLayout(3,3));
 		datePanel.setBorder(BorderFactory.createTitledBorder("ONC Season Dates:"));
 		
 //		String mssg ="<html><b><FONT COLOR=BLUE>Set Preferences, then click OK</FONT></b></html>";		
@@ -82,20 +82,19 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		dc_delivery.getDateEditor().addPropertyChangeListener(dcl);
 		datePanel.add(dc_delivery);
 		
-		dc_giftsreceived = new JDateChooser(pdGVs.getGiftsReceivedDate());
-		dc_giftsreceived.setPreferredSize(dateSize);
-		dc_giftsreceived.setToolTipText("<html>All gifts must be received from partners <b><i>BEFORE</i></b> this date</html>");
-		dc_giftsreceived.setBorder(BorderFactory.createTitledBorder("Gift's Received Deadline"));
-		dc_giftsreceived.setEnabled(false);
-		dc_giftsreceived.getDateEditor().addPropertyChangeListener(dcl);		
-		datePanel.add(dc_giftsreceived);
+		dc_ThanksgivingCutoff = new JDateChooser();
+		dc_ThanksgivingCutoff.setPreferredSize(dateSize);
+		dc_ThanksgivingCutoff.setBorder(BorderFactory.createTitledBorder("Thanksgiving Deadline"));
+		dc_ThanksgivingCutoff.setEnabled(false);
+		dc_ThanksgivingCutoff.getDateEditor().addPropertyChangeListener(dcl);		
+		datePanel.add(dc_ThanksgivingCutoff);
 		
-		dc_intakeCutoff = new JDateChooser();
-		dc_intakeCutoff.setPreferredSize(dateSize);
-		dc_intakeCutoff.setBorder(BorderFactory.createTitledBorder("Family Intake Deadline"));
-		dc_intakeCutoff.setEnabled(false);
-		dc_intakeCutoff.getDateEditor().addPropertyChangeListener(dcl);
-		datePanel.add(dc_intakeCutoff);
+		dc_DecemberCutoff = new JDateChooser();
+		dc_DecemberCutoff.setPreferredSize(dateSize);
+		dc_DecemberCutoff.setBorder(BorderFactory.createTitledBorder("December Deadline"));
+		dc_DecemberCutoff.setEnabled(false);
+		dc_DecemberCutoff.getDateEditor().addPropertyChangeListener(dcl);
+		datePanel.add(dc_DecemberCutoff);
 		
 		dc_InfoEditCutoff = new JDateChooser();
 		dc_InfoEditCutoff.setPreferredSize(dateSize);
@@ -103,6 +102,14 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		dc_InfoEditCutoff.setEnabled(false);
 		dc_InfoEditCutoff.getDateEditor().addPropertyChangeListener(dcl);		
 		datePanel.add(dc_InfoEditCutoff);
+		
+		dc_giftsreceived = new JDateChooser(pdGVs.getGiftsReceivedDate());
+		dc_giftsreceived.setPreferredSize(dateSize);
+		dc_giftsreceived.setToolTipText("<html>All gifts must be received from partners <b><i>BEFORE</i></b> this date</html>");
+		dc_giftsreceived.setBorder(BorderFactory.createTitledBorder("Gifts Received Deadline"));
+		dc_giftsreceived.setEnabled(false);
+		dc_giftsreceived.getDateEditor().addPropertyChangeListener(dcl);		
+		datePanel.add(dc_giftsreceived);
 		
 		JPanel addressPanel = new JPanel();
 		addressPanel.setBorder(BorderFactory.createTitledBorder("Warehouse Address:"));
@@ -167,7 +174,8 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		dc_delivery.setDate(pdGVs.getDeliveryDate());
 		dc_seasonstart.setDate(pdGVs.getSeasonStartDate());
 		dc_giftsreceived.setDate(pdGVs.getGiftsReceivedDate());
-		dc_intakeCutoff.setDate(pdGVs.getFamilyIntakeDeadline());
+		dc_ThanksgivingCutoff.setDate(pdGVs.getThanksgivingDeadline());
+		dc_DecemberCutoff.setDate(pdGVs.getDecemberDeadline());
 		dc_InfoEditCutoff.setDate(pdGVs.getFamilyEditDeadline());
 		oncFontSizeCB.setSelectedIndex(pdGVs.getFontIndex());
 		displayWarehouseAddress();
@@ -230,8 +238,9 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		if(!pdGVs.getDeliveryDate().equals(dc_delivery.getDate())) { cf |= 2; }
 		if(!pdGVs.getWarehouseAddress().equals(getWarehouseAddressInGoogleMapsFormat())) {cf |= 4;}
 		if(!pdGVs.getGiftsReceivedDate().equals(dc_giftsreceived.getDate())) {cf |= 8;}
-		if(!pdGVs.getFamilyIntakeDeadline().equals(dc_intakeCutoff.getDate())) {cf |= 16;}
-		if(!pdGVs.getFamilyEditDeadline().equals(dc_InfoEditCutoff.getDate())) {cf |= 32;}
+		if(!pdGVs.getThanksgivingDeadline().equals(dc_ThanksgivingCutoff.getDate())) {cf |= 16;}
+		if(!pdGVs.getDecemberDeadline().equals(dc_DecemberCutoff.getDate())) {cf |= 32;}
+		if(!pdGVs.getFamilyEditDeadline().equals(dc_InfoEditCutoff.getDate())) {cf |= 64;}
 		
 		if(cf > 0)
 		{
@@ -239,8 +248,9 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 													dc_seasonstart.getDate(), 
 													 getWarehouseAddressInGoogleMapsFormat(),
 													  dc_giftsreceived.getDate(),
-													   dc_intakeCutoff.getDate(),
-													    dc_InfoEditCutoff.getDate());
+													   dc_ThanksgivingCutoff.getDate(),
+													    dc_DecemberCutoff.getDate(),
+													     dc_InfoEditCutoff.getDate());
 			
 			String response = pdGVs.update(this, updateGVreq);
 			if(!response.startsWith("UPDATED_GLOBALS"))
@@ -263,7 +273,8 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		dc_delivery.setEnabled(tf);
 		dc_giftsreceived.setEnabled(tf);
 		dc_seasonstart.setEnabled(tf);
-		dc_intakeCutoff.setEnabled(tf);
+		dc_ThanksgivingCutoff.setEnabled(tf);
+		dc_DecemberCutoff.setEnabled(tf);
 		dc_InfoEditCutoff.setEnabled(tf);
 		whStreetNumTF.setEnabled(tf);
 		whStreetTF.setEnabled(tf);
@@ -276,7 +287,8 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		if(!pdGVs.getSeasonStartDate().equals(dc_seasonstart.getDate()) || 
 			!pdGVs.getDeliveryDate().equals(dc_delivery.getDate()) ||
 			!pdGVs.getGiftsReceivedDate().equals(dc_giftsreceived.getDate()) ||
-			!pdGVs.getFamilyIntakeDeadline().equals(dc_intakeCutoff.getDate()) ||
+			!pdGVs.getThanksgivingDeadline().equals(dc_ThanksgivingCutoff.getDate()) ||
+			!pdGVs.getDecemberDeadline().equals(dc_DecemberCutoff.getDate()) ||
 			!pdGVs.getFamilyEditDeadline().equals(dc_InfoEditCutoff.getDate()) ||
 			!whStreetNum.equals(whStreetNumTF.getText()) ||
 			!whStreet.equals(whStreetTF.getText()) ||
