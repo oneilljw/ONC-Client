@@ -53,7 +53,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 	private static final int MIN_NAME_LENGTH = 2;
 	private static final int MIN_EMAIL_ADDRESS_LENGTH = 2;
 	private static final String GIFT_PARTNER_EMAIL_SENDER_ADDRESS = "partnercontact@ourneighborschild.org";
-	private static final String CLOTHING_PARTNER_EMAIL_SENDER_ADDRESS = "volunteer@ourneighborschild.org";
+	private static final String CLOTHING_PARTNER_EMAIL_SENDER_ADDRESS = "Clothing@ourneighborschild.org";
 	
 	private ONCRegions regions;
 	private ONCOrgs orgs;
@@ -212,9 +212,9 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
         progressBar.setStringPainted(true);
         progressBar.setVisible(false);
 				
-		String[] emailChoices = {"Email", "New 2015 Season Email",
+		String[] emailChoices = {"Email", "New 2015 Season Email", "2015 Clothing Donor Email",
 //								 "2014 Gift Drop-Off Reminder",
-//								 "Ornament Drop-Off Email","2014 Clothing Donor Email",
+//								 "Ornament Drop-Off Email",
 //								 "2014 Clothing Donor Reminder Email",
 //								 "2014 Giving Tree Warehouse Email",
 //								 "Clothing Donor Not Too Late Email",
@@ -449,19 +449,19 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 			attachmentAL.add(new ONCEmailAttachment("DSC_0704.JPG", cid0, MimeBodyPart.INLINE));
 			attachmentAL.add(new ONCEmailAttachment("DSC_0764.JPG", cid1, MimeBodyPart.INLINE));
 		}
-		else if(emailType == 2)
-		{
-			subject = "ONC Gift Drop Off Reminder";
+//		else if(emailType == 2)
+//		{
+//			subject = "ONC Gift Drop Off Reminder";
 //			cid0 = ContentIDGenerator.getContentId();
 //			attachmentAL.add(new ONCEmailAttachment("onclogosmall.jpg", cid0, MimeBodyPart.INLINE));
-		}
-		else if(emailType == 3)
-		{
-			subject = "ONC Ornament Drop Off Date: 11/20";
-			cid0 = ContentIDGenerator.getContentId();
-			attachmentAL.add(new ONCEmailAttachment("onclogosmall.jpg", cid0, MimeBodyPart.INLINE));
-		}
-		else if(emailType == 4)	//2014 Clothing Donor Email
+//		}
+//		else if(emailType == 3)
+//		{
+//			subject = "ONC Ornament Drop Off Date: 11/20";
+//			cid0 = ContentIDGenerator.getContentId();
+//			attachmentAL.add(new ONCEmailAttachment("onclogosmall.jpg", cid0, MimeBodyPart.INLINE));
+//		}
+		else if(emailType == 2)	//2015 Clothing Donor Email
 		{
 			cid0 = ContentIDGenerator.getContentId();
 			attachmentAL.add(new ONCEmailAttachment("onclogosmall.jpg", cid0, MimeBodyPart.INLINE));
@@ -508,13 +508,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 			//Create the email body and potentially subject
 	        if(emailType == 1)
 	        	emailBody = create2015SeasonOrganizationEmailBody(o, cid0, cid1);
-	        
-/*	        else if(emailType == 2)
-	        	emailBody = create2014DonorReminderEmailBody();
-//	        	emailBody = createDropOffOrganizationEmailBody(cid0);
-	        else if(emailType == 3)
-	        	emailBody = createOrnamentDropOffEmailBody(cid0);
-	        else if(emailType == 4)
+	        else if(emailType == 2)
 	        {	
 	        	//get the clothing donor's first name
 	        	String[] names = o.getName().split(",");
@@ -523,8 +517,13 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 	        	else
 	        		subject = "Hi from Our Neighbor's Child";
 	        	
-	        	emailBody = create2014ClothingDonorEmailBody(cid0);
-	        }
+	        	emailBody = create2015ClothingDonorEmailBody(cid0);
+	        }        
+/*	        else if(emailType == 2)
+	        	emailBody = create2014DonorReminderEmailBody();
+//	        	emailBody = createDropOffOrganizationEmailBody(cid0);
+	        else if(emailType == 3)
+	        	emailBody = createOrnamentDropOffEmailBody(cid0);	       
 	        else if(emailType == 5)
 	        	emailBody = create2014ClothingDonorReminderEmailBody(cid0);
 	        else if(emailType == 6)
@@ -571,7 +570,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		
 		//Create the from address string array
 		EmailAddress fromAddress;
-		if(emailType == 4 || emailType == 5 || emailType == 7 || emailType == 9)
+		if(emailType == 2 || emailType == 4 || emailType == 5 || emailType == 7 || emailType == 9)
 			fromAddress = new EmailAddress(CLOTHING_PARTNER_EMAIL_SENDER_ADDRESS, "Our Neighbor's Child - Stephanie Somers");
 		else
 			fromAddress = new EmailAddress(GIFT_PARTNER_EMAIL_SENDER_ADDRESS, "Our Neighbor's Child");
@@ -579,23 +578,24 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		//Create the blind carbon copy list of EmailAddress objects
 		ArrayList<EmailAddress> bccList = new ArrayList<EmailAddress>();
 		
-		if(emailType == 4 || emailType == 5 || emailType == 7 || emailType == 9)
+		if(emailType == 2 || emailType == 4 || emailType == 5 || emailType == 7 || emailType == 9)
 		{
-			bccList.add(new EmailAddress(CLOTHING_PARTNER_EMAIL_SENDER_ADDRESS, "Stephanie Somers"));
-			bccList.add(new EmailAddress("volunteer@ourneighborschild.org", "ONC Volunteer"));
+			bccList.add(new EmailAddress(CLOTHING_PARTNER_EMAIL_SENDER_ADDRESS, "Our Neighbor's Child - Stephanie Somers"));
 		}
 		else
+		{
 			bccList.add(new EmailAddress(GIFT_PARTNER_EMAIL_SENDER_ADDRESS, "Partner Contact"));
-
+//			bccList.add(new EmailAddress("kellylavin1@gmail.com", "Kelly Lavin"));
+//			bccList.add(new EmailAddress("jwoneill1@aol.com", "John O'Neill"));
+//			bccList.add(new EmailAddress("johnwoneill@cox.net", "John O'Neill"));
+		}
 		
-//		bccList.add(new EmailAddress("kellylavin1@gmail.com", "Kelly Lavin"));
-//		bccList.add(new EmailAddress("jwoneill1@aol.com", "John O'Neill"));
-//		bccList.add(new EmailAddress("johnwoneill@cox.net", "John O'Neill"));
-		
-		//Create mail server credentials, then the mailer background task and execute it 
-//		ServerCredentials creds = new ServerCredentials("smtpout.secureserver.net", "director@act4others.org", "crazyelf1");
-//		ServerCredentials creds = new ServerCredentials("smtp.gmail.com", "SchoolContact@ourneighborschild.org", "crazyelf");
-		ServerCredentials creds = new ServerCredentials("smtp.gmail.com", "partnercontact@ourneighborschild.org", "crazyelf");
+		//Create mail server credentials, then the mailer background task and execute it
+		ServerCredentials creds;
+		if(emailType == 2 || emailType == 4 || emailType == 5 || emailType == 7 || emailType == 9)
+			creds = new ServerCredentials("smtp.gmail.com", "clothing@ourneighborschild.org", "crazyelf");
+		else
+			creds = new ServerCredentials("smtp.gmail.com", "partnercontact@ourneighborschild.org", "crazyelf");
 		
 	    oncEmailer = new ONCEmailer(this, progressBar, fromAddress, bccList, emailAL, attachmentAL, creds);
 	    oncEmailer.addPropertyChangeListener(this);
@@ -603,32 +603,32 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 	    emailCB.setEnabled(false);		
 	}
 	
-	String create2014ClothingDonorEmailBody(String cid0)
+	String create2015ClothingDonorEmailBody(String cid0)
 	{	
 		String msg = String.format("<html><body>" +
-				"<div><p>Ho! Ho! Ho!  It's that time of year again, and all of us at Our Neighbor's Child are " +
-				"gearing up for another wonderful holiday season!</p>" +
-				"<p>This is our 23rd year of assisting our area's needy children, and I'm contacting you because " +
-				"you have generously helped us in the past.  I'm really hoping you can do it again this year!  ONC is " +
-				"so thankful for any help you can give us, whether it's donating a coat for one child or \"adopting\" the " +
+				"<div><p>Deck the Halls and Ho! Ho! Ho!  It's that time of year again! Our Neighbor's Child is " +
+				"gearing up for our 24th wonderful holiday season!</p>" +
+				"<p>I'm reaching out to you because you have generously helped us in the past and "
+				+ "we are really hoping you can do it again this year!  ONC is " +
+				"so thankful for any help you can provide, whether it's donating a coat for one child or \"adopting\" the " +
 				"clothing needs of an entire family. We expect to have all of our \"wish lists\" from the families we " +
 				"serve by " +
-				"<font color=\"red\">Wednesday, November 19th</font> " +
+				"<font color=\"red\">Wednesday, November 18th</font> " +
 				"(in time for Black Friday shopping!!)</p>" +
-				"<p>If you would like to help again this year, please contact me at " +
-				"<a href=\"mailto:somerss@cox.net\">Somerss@cox.net</a> "+
-				"- or just reply to this e-mail - and let me know how many children you " +
+				"<p>If you would like to help again this year, just reply to this e-mail and let me know how "
+				+ "many children you " +
 				"would like to provide clothing for and if you have a preference for a certain age or " +
 				"gender.  I will do my best to match you up with your request and will get back to you " +
-				"as soon as the \"wish list\" is available.  " +
-				"<b>AND!!</b> If you have friends or family, or bunko groups, bible study groups, boy scouts, girl scouts, " +
+				"as soon as the \"wish list\" is available.</p> " +
+				"<p><b>OH WAIT!!</b> If you have friends or family, or bunko groups, bible study groups, boy scouts, girl scouts, " +
 				"sports teams, etc. who you think would also be interested in participating, please forward " +
 				"this e-mail!!!  I've heard back from a number of different clubs that really enjoy going out " +
 				"shopping together and/or pooling their time and money into providing for lots of families!! " +
-				"We'd love your help in getting the word out about Our Neighbor's Child!! For more information " +
+				"We'd love your help in getting the word out about Our Neighbor's Child!!</p>"
+				+ "<p>For more information " +
 				"about ONC and other volunteer opportunities, please visit our website: " +
-				"<a href=\"http://www.ourneighborschild.org\">www.ourneighborschild.org</a></p>" +
-				"<p>We can't thank you enough for all you do!</p>" +
+				"<a href=\"http://www.ourneighborschild.org\">www.ourneighborschild.org</a> " +
+				"We can't thank you enough for all you do!</p>" +
 				"<p>Warmest Regards,</p>" +
 				"<p>Stephanie Somers<br>Clothing Coordinator<br>" +
 				"<a href=\"http://www.ourneighborschild.org\">Our Neighbor's Child</a></p></div>" +
