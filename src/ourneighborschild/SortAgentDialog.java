@@ -294,7 +294,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 	    	    writer.close();
 	    	    
 	    	    JOptionPane.showMessageDialog(parentFrame, 
-						sortTable.getSelectedRowCount() + " partners sucessfully exported to " + oncwritefile.getName(), 
+						sortTable.getSelectedRowCount() + " families sucessfully exported to " + oncwritefile.getName(), 
 						"Export Successful", JOptionPane.INFORMATION_MESSAGE, gvs.getImageIcon(0));
 	    	} 
 	    	catch (IOException x)
