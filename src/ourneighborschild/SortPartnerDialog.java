@@ -212,11 +212,11 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
         progressBar.setStringPainted(true);
         progressBar.setVisible(false);
 				
-		String[] emailChoices = {"Email", "New 2015 Season Email", "2015 Clothing Donor Email",
+		String[] emailChoices = {"Email", "New 2015 Season Email", "2015 Giving Tree Email", 
+								"2015 Clothing Donor Email",
 //								 "2014 Gift Drop-Off Reminder",
 //								 "Ornament Drop-Off Email",
 //								 "2014 Clothing Donor Reminder Email",
-//								 "2014 Giving Tree Warehouse Email",
 //								 "Clothing Donor Not Too Late Email",
 //								 "GIft Drop Off Reminder Email",
 //								 "Clothing Donor Drop Off Reminder Email"
@@ -449,6 +449,17 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 			attachmentAL.add(new ONCEmailAttachment("DSC_0704.JPG", cid0, MimeBodyPart.INLINE));
 			attachmentAL.add(new ONCEmailAttachment("DSC_0764.JPG", cid1, MimeBodyPart.INLINE));
 		}
+		else if(emailType == 2)	//Giving Tree Warehouse Email
+		{
+			subject = "Our Neighbors Child Ornaments and Gift Drop-Off Information";
+//			cid0 = ContentIDGenerator.getContentId();
+//			attachmentAL.add(new ONCEmailAttachment("onclogosmall.jpg", cid0, MimeBodyPart.INLINE));
+		}
+		else if(emailType == 3)	//2015 Clothing Donor Email
+		{
+			cid0 = ContentIDGenerator.getContentId();
+			attachmentAL.add(new ONCEmailAttachment("onclogosmall.jpg", cid0, MimeBodyPart.INLINE));
+		}
 //		else if(emailType == 2)
 //		{
 //			subject = "ONC Gift Drop Off Reminder";
@@ -460,42 +471,32 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 //			subject = "ONC Ornament Drop Off Date: 11/20";
 //			cid0 = ContentIDGenerator.getContentId();
 //			attachmentAL.add(new ONCEmailAttachment("onclogosmall.jpg", cid0, MimeBodyPart.INLINE));
-//		}
-		else if(emailType == 2)	//2015 Clothing Donor Email
-		{
-			cid0 = ContentIDGenerator.getContentId();
-			attachmentAL.add(new ONCEmailAttachment("onclogosmall.jpg", cid0, MimeBodyPart.INLINE));
-		}
-		else if(emailType == 5)	//Clothing Donor Reminder Email
-		{
-			subject = "A Friendly ONC Reminder!";
-			cid0 = ContentIDGenerator.getContentId();
-			attachmentAL.add(new ONCEmailAttachment("onclogosmall.jpg", cid0, MimeBodyPart.INLINE));
-		}
-		else if(emailType == 6)	//Giving Tree Warehouse Email
-		{
-			subject = "Ornament Delivery & Gift Drop-Off Dates/Location";
+//		}	
+//		else if(emailType == 5)	//Clothing Donor Reminder Email
+//		{
+//			subject = "A Friendly ONC Reminder!";
 //			cid0 = ContentIDGenerator.getContentId();
 //			attachmentAL.add(new ONCEmailAttachment("onclogosmall.jpg", cid0, MimeBodyPart.INLINE));
-		}
-		else if(emailType == 7)	//Clothing Donor Not Too Late Email
-		{
-			subject = "ONC - children's wishes still available!";
-			cid0 = ContentIDGenerator.getContentId();
-			attachmentAL.add(new ONCEmailAttachment("onclogosmall.jpg", cid0, MimeBodyPart.INLINE));
-		}
-		else if(emailType == 8)	//Drop Off Reminder Email
-		{
-			subject = "ONC Gift Drop-Off Dates and Warehouse Directions";
-			cid0 = ContentIDGenerator.getContentId();
-			attachmentAL.add(new ONCEmailAttachment("onclogosmall.jpg", cid0, MimeBodyPart.INLINE));
-		}
-		else if(emailType == 9)	//Clothing Drop Off Reminder Email
-		{
-			subject = "Final Reminder: Our Neighbor's Child Clothing 2013";
-			cid0 = ContentIDGenerator.getContentId();
-			attachmentAL.add(new ONCEmailAttachment("onclogosmall.jpg", cid0, MimeBodyPart.INLINE));
-		}
+//		}
+//		
+//		else if(emailType == 7)	//Clothing Donor Not Too Late Email
+//		{
+//			subject = "ONC - children's wishes still available!";
+//			cid0 = ContentIDGenerator.getContentId();
+//			attachmentAL.add(new ONCEmailAttachment("onclogosmall.jpg", cid0, MimeBodyPart.INLINE));
+//		}
+//		else if(emailType == 8)	//Drop Off Reminder Email
+//		{
+//			subject = "ONC Gift Drop-Off Dates and Warehouse Directions";
+//			cid0 = ContentIDGenerator.getContentId();
+//			attachmentAL.add(new ONCEmailAttachment("onclogosmall.jpg", cid0, MimeBodyPart.INLINE));
+//		}
+//		else if(emailType == 9)	//Clothing Drop Off Reminder Email
+//		{
+//			subject = "Final Reminder: Our Neighbor's Child Clothing 2013";
+//			cid0 = ContentIDGenerator.getContentId();
+//			attachmentAL.add(new ONCEmailAttachment("onclogosmall.jpg", cid0, MimeBodyPart.INLINE));
+//		}
 		
 		//For each organization selected, create the email body and recipient information in an
 		//ONCEMail object and add it to the emailAL
@@ -509,6 +510,8 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 	        if(emailType == 1)
 	        	emailBody = create2015SeasonOrganizationEmailBody(o, cid0, cid1);
 	        else if(emailType == 2)
+	        	emailBody = create2015GivingTreeEmailBody();
+	        else if(emailType == 3)
 	        {	
 	        	//get the clothing donor's first name
 	        	String[] names = o.getName().split(",");
@@ -570,7 +573,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		
 		//Create the from address string array
 		EmailAddress fromAddress;
-		if(emailType == 2 || emailType == 4 || emailType == 5 || emailType == 7 || emailType == 9)
+		if(emailType == 3 || emailType == 4 || emailType == 5 || emailType == 7 || emailType == 9)
 			fromAddress = new EmailAddress(CLOTHING_PARTNER_EMAIL_SENDER_ADDRESS, "Our Neighbor's Child - Stephanie Somers");
 		else
 			fromAddress = new EmailAddress(GIFT_PARTNER_EMAIL_SENDER_ADDRESS, "Our Neighbor's Child");
@@ -578,7 +581,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		//Create the blind carbon copy list of EmailAddress objects
 		ArrayList<EmailAddress> bccList = new ArrayList<EmailAddress>();
 		
-		if(emailType == 2 || emailType == 4 || emailType == 5 || emailType == 7 || emailType == 9)
+		if(emailType == 3 || emailType == 4 || emailType == 5 || emailType == 7 || emailType == 9)
 		{
 			bccList.add(new EmailAddress(CLOTHING_PARTNER_EMAIL_SENDER_ADDRESS, "Our Neighbor's Child - Stephanie Somers"));
 		}
@@ -592,11 +595,11 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		
 		//Create mail server credentials, then the mailer background task and execute it
 		ServerCredentials creds;
-		if(emailType == 2 || emailType == 4 || emailType == 5 || emailType == 7 || emailType == 9)
+		if(emailType == 3 || emailType == 4 || emailType == 5 || emailType == 7 || emailType == 9)
 			creds = new ServerCredentials("smtp.gmail.com", "clothing@ourneighborschild.org", "crazyelf");
 		else
 			creds = new ServerCredentials("smtp.gmail.com", "partnercontact@ourneighborschild.org", "crazyelf");
-		
+	
 	    oncEmailer = new ONCEmailer(this, progressBar, fromAddress, bccList, emailAL, attachmentAL, creds);
 	    oncEmailer.addPropertyChangeListener(this);
 	    oncEmailer.execute();
@@ -813,24 +816,24 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		return msg;
 	}
 	
-	String create2014GivingTreeEmailBody()
+	String create2015GivingTreeEmailBody()
 	{
 		String msg = String.format("<html><body>" +
-				"<div><p>Good evening!</p>" +
+				"<div><p>Good afternoon!</p>" +
 				"<p>We're happy to report that our ONC volunteers will have all " +
-				"ornaments delivered to our Giving Tree locations by <b>this Wednesday, November 19th.</b></p>" +
+				"ornaments delivered to our Giving Tree locations by <b>this Wednesday, November 18th.</b></p>" +
 				"<p>If your organization hosts a generic Gift Collection, there will be no ornaments, " +
 				"but the information below is for you as well:</p>" +
 				"<p>As in year's past we are fortunate to have a new donated warehouse space. The <b>NEW LOCATION is: " +
-				"<a href=\"https://goo.gl/maps/PiRro\">3863 Centerview Drive in Chantilly</a></b>.</p>" +
-				"</p>It's just off Route 50, across the highway from Sullyfield Circle near Bob Evans.</p>" +
+				"<a href=\"https://goo.gl/maps/KR64TFEqJGw\">4315 Walney Road in Chantilly</a></b>.</p>" +
+				"</p>It's between Route 28 and Route 50, just south of Willard Rd, near Century 21.</p>" +
 				"<p>As a reminder, these are are the dates for this season's Gift Drop-Off:</p>" + 
-				"<p><b>Sunday, November 30th: 12PM - 2PM</b><br>" + 
+				"<p><b>Sunday, November 29th: 12PM - 2PM</b><br>" + 
 				"(This is an \"undecorated\" drop-off, primarily for churches with " +
 				"limited space to store gifts).</p>" +
-				"<p><b>Sunday, December 7th: 12PM - 2PM</b></p>" +
-				"<p><b>Monday, December 8th: 3PM - 6PM</b></p>" +
-				"<p><b>Tuesday, December 9th: 3PM - 6PM</b></p>" + 
+				"<p><b>Sunday, December 6th: 12PM - 2PM</b></p>" +
+				"<p><b>Monday, December 7th: 3PM - 6PM</b></p>" +
+				"<p><b>Tuesday, December 8th: 3PM - 6PM</b></p>" + 
 				"<p>Please provide the name of your organization at the Gift Drop Off desk and " +
 				"student volunteers will assist in unloading the gifts from your vehicle. " +
 				"It is critically important for us to receive all gifts by Tuesday evening. " +
