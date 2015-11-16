@@ -819,21 +819,18 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 	String create2015GivingTreeEmailBody()
 	{
 		String msg = String.format("<html><body>" +
-				"<div><p>Good afternoon!</p>" +
+				"<div><p>Good evening!</p>" +
 				"<p>We're happy to report that our ONC volunteers will have all " +
 				"ornaments delivered to our Giving Tree locations by <b>this Wednesday, November 18th.</b></p>" +
 				"<p>If your organization hosts a generic Gift Collection, there will be no ornaments, " +
 				"but the information below is for you as well:</p>" +
 				"<p>As in year's past we are fortunate to have a new donated warehouse space. The <b>NEW LOCATION is: " +
 				"<a href=\"https://goo.gl/maps/KR64TFEqJGw\">4315 Walney Road in Chantilly</a></b>.</p>" +
-				"</p>It's between Route 28 and Route 50, just south of Willard Rd, near Century 21.</p>" +
+				"</p>It's between Route 28 and Route 50, just south of Willard Rd. Look for our ONC directional signs!</p>" +
 				"<p>As a reminder, these are are the dates for this season's Gift Drop-Off:</p>" + 
-				"<p><b>Sunday, November 29th: 12PM - 2PM</b><br>" + 
-				"(This is an \"undecorated\" drop-off, primarily for churches with " +
-				"limited space to store gifts).</p>" +
 				"<p><b>Sunday, December 6th: 12PM - 2PM</b></p>" +
-				"<p><b>Monday, December 7th: 3PM - 6PM</b></p>" +
-				"<p><b>Tuesday, December 8th: 3PM - 6PM</b></p>" + 
+				"<p><b>Monday, December 7th: 3:30PM - 6:30PM</b></p>" +
+				"<p><b>Tuesday, December 8th: 3:30PM - 6:30PM</b></p>" + 
 				"<p>Please provide the name of your organization at the Gift Drop Off desk and " +
 				"student volunteers will assist in unloading the gifts from your vehicle. " +
 				"It is critically important for us to receive all gifts by Tuesday evening. " +
