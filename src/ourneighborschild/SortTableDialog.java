@@ -90,7 +90,10 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 		//Set up the search criteria panel      
 		JPanel sortCriteriaPanel = new JPanel();
 		sortCriteriaPanel.setLayout(new BoxLayout(sortCriteriaPanel, BoxLayout.Y_AXIS));
-		sortCriteriaPanelTop = new JPanel(new FlowLayout(FlowLayout.LEFT));
+
+		sortCriteriaPanelTop = new JPanel();
+//		sortCriteriaPanelTop.setLayout(new FlowLayout(FlowLayout.LEFT));
+		sortCriteriaPanelTop.setLayout(new BoxLayout(sortCriteriaPanelTop, BoxLayout.LINE_AXIS));
 		sortCriteriaPanelBottom = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		
 		//Create the ONC Icon label and add it to the search criteria panel

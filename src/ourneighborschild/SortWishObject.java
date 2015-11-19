@@ -39,6 +39,9 @@ public class SortWishObject extends ONCObject
 		ONCWish wish = cat.getWishByID(soChildWish.getWishID());
 		String wishName = wish == null ? "None" : wish.getName();
 		
+		Organization partner = partnerDB.getOrganizationByID(soChildWish.getChildWishAssigneeID());
+		String partnerName = partner == null ? "" : partner.getName();
+		
 		String[] exportRow = {soFamily.getONCNum(), soChild.getChildGender(),
 								soChild.getChildAge(),
 								soChild.getChildDOBString("MM-dd-yyyy"), 
@@ -46,7 +49,7 @@ public class SortWishObject extends ONCObject
 								wishName,
 								soChildWish.getChildWishDetail(),
 								soChildWish.getChildWishStatus().toString(),
-								partnerDB.getOrganizationByID(soChildWish.getChildWishAssigneeID()).getName(),
+								partnerName,
 								soChildWish.getChildWishChangedBy(),
 								dateChanged};
 		return exportRow;

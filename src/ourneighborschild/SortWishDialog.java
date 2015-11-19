@@ -76,7 +76,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 	private JCheckBox labelFitCxBox;
 	
 	private int sortStartAge = 0, sortEndAge = ONC_AGE_LIMIT, sortGender = 0, sortChangedBy = 0;
-	private int sortWishNum = 0, sortRes = 0, sortAssigneeID = 0;
+	private int sortWishNum = 0, sortRes = 0, sortAssigneeID;
 	private WishStatus sortStatus = WishStatus.Any;
 	private int sortWishID = -2;
 	private boolean bOversizeWishes = false;
@@ -118,7 +118,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		//Set up the search criteria panel
 		oncnumTF = new JTextField();
     	oncnumTF.setEditable(true);
-    	oncnumTF.setPreferredSize(new Dimension(72,56));
+//    	oncnumTF.setMaximumSize(new Dimension(64,56));
 		oncnumTF.setBorder(BorderFactory.createTitledBorder("ONC #"));
 		oncnumTF.setToolTipText("Type ONC Family # and press <enter>");
 		oncnumTF.addActionListener(this);
@@ -129,12 +129,12 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 
 		startAgeCB = new JComboBox(ages);
 		startAgeCB.setBorder(BorderFactory.createTitledBorder("Start Age"));
-		startAgeCB.setPreferredSize(new Dimension(80,56));
+		startAgeCB.setPreferredSize(new Dimension(64,56));
 		startAgeCB.addActionListener(this);
 		
 		endAgeCB = new JComboBox(ages);
 		endAgeCB.setBorder(BorderFactory.createTitledBorder("End Age"));
-		endAgeCB.setPreferredSize(new Dimension(80,56));
+		endAgeCB.setPreferredSize(new Dimension(64,56));
 		endAgeCB.setSelectedIndex(ages.length-1);
 		endAgeCB.addActionListener(this);
 		
@@ -196,11 +196,15 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		
 		assignCB = new JComboBox();
 		assignCBM = new DefaultComboBoxModel();
+		
+		//take advantage of the fact that partner id's are 7 digits and start with the calendar year
 	    assignCBM.addElement(new Organization(0, "Any", "Any"));
-	    assignCBM.addElement(new Organization(-1, "None", "None"));
+	    assignCBM.addElement(new Organization(-1, "Unassigned", "Unassigned"));
 	    assignCB.setModel(assignCBM);
 		assignCB.setPreferredSize(new Dimension(192, 56));
 		assignCB.setBorder(BorderFactory.createTitledBorder("Assigned To"));
+		assignCB.setSelectedIndex(1);	//set to No one
+		sortAssigneeID = -1;
 		assignCB.addActionListener(this);
 
 		sortCriteriaPanelTop.add(oncnumTF);
@@ -524,8 +528,9 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		assignCBM.removeAllElements();
 		changeAssigneeCBM.removeAllElements();
 		
+		//take advantage of the fact that partner id's are 7 digits and start with the calendar year
 		assignCBM.addElement(new Organization(0, "Any", "Any"));
-		assignCBM.addElement(new Organization(-1, "None", "None"));
+		assignCBM.addElement(new Organization(-1, "Unassigned", "Unassigned"));
 		changeAssigneeCBM.addElement(new Organization(-1, "No Change", "No Change"));
 		changeAssigneeCBM.addElement(new Organization(-1, "None", "None"));
 		
@@ -538,7 +543,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		//Attempt to reselect the previous selected organization, if one was selected. 
 		//If the previous selection is no longer in the drop down, the top of the list is 
 		//already selected 
-		if(currentAssigneeIndex == 1)	//Organization == "None", ID = -1
+		if(currentAssigneeIndex == 1)	//Organization == "No one", ID = -1
 		{
 			assignCB.setSelectedIndex(1);
 			sortAssigneeID = -1;
@@ -751,7 +756,9 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 	private boolean doesStatusMatch(WishStatus ws){return sortStatus == WishStatus.Any || sortStatus.compareTo(ws) == 0;}
 	
 	private boolean doesAssigneeMatch(int assigneeID)
-	{	
+	{
+		//sortAssigneeID's 0 and -1 are reserved for special filters. 0 shows all wishes regardless off assignee,
+		//-1 displays wishes that are not assigned
 		return sortAssigneeID == 0 || sortAssigneeID == assigneeID;
 	}
 	
@@ -945,8 +952,8 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		statusCB.addActionListener(this);
 		
 		assignCB.removeActionListener(this);
-		assignCB.setSelectedIndex(0);
-		sortAssigneeID = 0;
+		assignCB.setSelectedIndex(1);
+		sortAssigneeID = -1;
 		assignCB.addActionListener(this);
 		
 		changeResCB.removeActionListener(this);
