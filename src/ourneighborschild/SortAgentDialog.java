@@ -759,6 +759,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		familyTableHTML.append("<th align=\"left\">E-Mail Address</th>");
 		familyTableHTML.append("<th align=\"left\">Street Address</th>");
 		familyTableHTML.append("<th align=\"left\">City</th>");
+		familyTableHTML.append("<th align=\"left\">Code</th>");
 		
 		for(ONCFamily f:fDB.getList())
 			if(f.getDNSCode().isEmpty() && f.getAgentID() == a.getID())	//family is represented by agent and is being served
@@ -768,6 +769,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 				familyTableHTML.append("<td>" + f.getFamilyEmail() + "</td>");
 				familyTableHTML.append("<td>" + f.getHouseNum() + " " + f.getStreet() + " " + f.getUnitNum() + "</td>");
 				familyTableHTML.append("<td>" + f.getCity() + "</td></tr>");
+				familyTableHTML.append("<td>" + f.getDNSCode() + "</td></tr>");
 			}
 			
 		familyTableHTML.append("</table>");

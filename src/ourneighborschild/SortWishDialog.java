@@ -116,9 +116,9 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		stAL = new ArrayList<SortWishObject>();
 
 		//Set up the search criteria panel
-		oncnumTF = new JTextField();
+		oncnumTF = new JTextField(4);
     	oncnumTF.setEditable(true);
-//    	oncnumTF.setMaximumSize(new Dimension(64,56));
+    	oncnumTF.setMaximumSize(new Dimension(64,56));
 		oncnumTF.setBorder(BorderFactory.createTitledBorder("ONC #"));
 		oncnumTF.setToolTipText("Type ONC Family # and press <enter>");
 		oncnumTF.addActionListener(this);
@@ -283,7 +283,13 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
         //add the bottom two panels to the dialog and pack
         this.add(changePanel);
         this.add(bottomPanel);
-        pack();
+        
+        //calculate width
+        int dlgWidth = 24; //account for vertical scroll bar
+        for(int i=0; i< colWidths.length; i++)
+        	dlgWidth += colWidths[i];
+        this.setMinimumSize(new Dimension(dlgWidth, 560));
+//      pack();
 	}
 	
 	@Override
