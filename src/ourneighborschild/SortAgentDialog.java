@@ -36,7 +36,8 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private static final String AGENT_EMAIL_SENDER_ADDRESS = "schoolcontact@ourneighborschild.org";
+//	private static final String AGENT_EMAIL_SENDER_ADDRESS = "schoolcontact@ourneighborschild.org";
+	private static final String TEST_AGENT_EMAIL_SENDER_ADDRESS = "johnwoneill1@gmail.com";
 	private static final int MIN_EMAIL_ADDRESS_LENGTH = 2;
 	private static final int MIN_EMAIL_NAME_LENGTH = 1;
 	
@@ -108,7 +109,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
         progressBar.setStringPainted(true);
         progressBar.setVisible(false);
         
-        String[] emailChoices = {"Email", "2015 Season Agent Email"};
+        String[] emailChoices = {"Email", "2015 Season Agent Email", "2015 Season Gift Confirmation Email"};
         emailCB = new JComboBox(emailChoices);
         emailCB.setPreferredSize(new Dimension(136, 28));
         emailCB.setEnabled(false);
@@ -375,23 +376,23 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 //			attachmentAL.add(new ONCEmailAttachment("DSC_0154.jpeg", cid0 , MimeBodyPart.INLINE));
 //			attachmentAL.add(new ONCEmailAttachment("Warehouse 3.jpeg", cid1, MimeBodyPart.INLINE));
 		}
-		else if(emailType == 2)//Reminder email
-		{
-			subject = "Important Reminder from Our Neighbor's Child";
+//		else if(emailType == 2)//Reminder email
+//		{
+//			subject = "Important Reminder from Our Neighbor's Child";
 //			cid0 = ContentIDGenerator.getContentId();
 //			cid1 = ContentIDGenerator.getContentId();
 //			attachmentAL.add(new ONCEmailAttachment("DSC_0154.jpeg", cid0 , MimeBodyPart.ATTACHMENT));
 //			attachmentAL.add(new ONCEmailAttachment("Warehouse 3.jpeg", cid1, MimeBodyPart.INLINE));
-		}
-		else if(emailType == 3) //In-take work sheet e-mail
-		{
-			subject = "Holiday Assitance Update from Our Neighbor's Child";
-			cid0 = ContentIDGenerator.getContentId();
+//		}
+//		else if(emailType == 3) //In-take work sheet e-mail
+//		{
+//			subject = "Holiday Assitance Update from Our Neighbor's Child";
+//			cid0 = ContentIDGenerator.getContentId();
 //			cid1 = ContentIDGenerator.getContentId();
-			attachmentAL.add(new ONCEmailAttachment("ONC Family Referral Worksheet.xlsx", cid0 , MimeBodyPart.ATTACHMENT));
+//			attachmentAL.add(new ONCEmailAttachment("ONC Family Referral Worksheet.xlsx", cid0 , MimeBodyPart.ATTACHMENT));
 //			attachmentAL.add(new ONCEmailAttachment("Warehouse 3.jpeg", cid1, MimeBodyPart.INLINE));
-		}
-		else if(emailType == 4) //December Gift Confirmation Email
+//		}
+		else if(emailType == 2) //December Gift Confirmation Email
 		{
 			subject = "December Gift Confirmations";
 //			cid0 = ContentIDGenerator.getContentId();
@@ -420,21 +421,22 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		}
 		
 		//Create the from address string array
-		EmailAddress fromAddress = new EmailAddress(AGENT_EMAIL_SENDER_ADDRESS, "Our Neighbor's Child");
+//		EmailAddress fromAddress = new EmailAddress(AGENT_EMAIL_SENDER_ADDRESS, "Our Neighbor's Child");
+		EmailAddress fromAddress = new EmailAddress(TEST_AGENT_EMAIL_SENDER_ADDRESS, "Our Neighbor's Child");
 		
 		//Create the blind carbon copy list 
 		ArrayList<EmailAddress> bccList = new ArrayList<EmailAddress>();
-		bccList.add(new EmailAddress(AGENT_EMAIL_SENDER_ADDRESS, "School Contact"));
+//		bccList.add(new EmailAddress(AGENT_EMAIL_SENDER_ADDRESS, "School Contact"));
 //		bccList.add(new EmailAddress("kellylavin1@gmail.com", "Kelly Lavin"));
 //		bccList.add(new EmailAddress("mnrogers123@msn.com", "Nicole Rogers"));
-//		bccList.add(new EmailAddress("johnwoneill1@gmail.com", "John O'Neill"));
+		bccList.add(new EmailAddress("johnwoneill@cox.net", "John O'Neill"));
 		
 		//Create mail server accreditation, then the mailer background task and execute it
 		//Go Daddy Mail
 //		ServerCredentials creds = new ServerCredentials("smtpout.secureserver.net", "director@act4others.org", "crazyelf1");
 		//Google Mail
-		ServerCredentials creds = new ServerCredentials("smtp.gmail.com", AGENT_EMAIL_SENDER_ADDRESS, "crazyelf");
-//		ServerCredentials creds = new ServerCredentials("smtp.gmail.com", AGENT_EMAIL_SENDER_ADDRESS, "erin1992");
+//		ServerCredentials creds = new ServerCredentials("smtp.gmail.com", AGENT_EMAIL_SENDER_ADDRESS, "crazyelf");
+		ServerCredentials creds = new ServerCredentials("smtp.gmail.com", TEST_AGENT_EMAIL_SENDER_ADDRESS, "erin1992");
 		
 	    oncEmailer = new ONCEmailer(this, progressBar, fromAddress, bccList, emailAL, attachmentAL, creds);
 	    oncEmailer.addPropertyChangeListener(this);
@@ -459,8 +461,8 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 //				emailBody = create2014AgentReminderEmail(agent.getAgentFirstName());
 //			else if(emailType == 3)
 //				emailBody = create2014AgentIntakeEmail(agent.getAgentFirstName(), cid0);
-//			else if(emailType == 4)
-//				emailBody = create2014AgentDecemberGiftConfirmationEmail(agent);
+			else if(emailType == 2)
+				emailBody = create2015AgentDecemberGiftConfirmationEmail(agent);
 		return emailBody;
 	}
 	
@@ -707,47 +709,44 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
         return msg;
 	}
 	
-	String create2014AgentDecemberGiftConfirmationEmail(Agent agt)
+	String create2015AgentDecemberGiftConfirmationEmail(Agent agt)
 	{
         //Create the text part of the email using html
 		String msg = "<html><body><div>" +
-			"<p>Dear " + agt.getAgentFirstName() + ",</p>" +
-        	"<p>We realize you and the families you've referred are anxious to receive confirmation about " +
-        	"December gift assistance from Our Neighbor's Child.</p>" +
-        	"<p>If you included an e-mail address for any family you referred, the family will " +
-        	"receive an e-mail at that address today.</p>" +
-        	"<p>Below you will find a table of families you referred that will be served by ONC. " +
-        	"<b>If no valid e-mail address has been provided, the family will not receive an e-mail confirmation</b>. " +
-        	"For these families, you may choose to send a note home in their backpack, or simply use the list " +
-        	"provided as a reference should the family contact you to check on their status.</p>" +
-        	"<p>If a family you referred does not appear on the ONC list below, it is possible that they signed up " +
-        	"with the Salvation Army.  For your convenience, we have also included a table of families in " +
-        	"our area on the Salvation Army's list.  They have been removed from the ONC list and should expect to " +
-        	"pick up their gifts with the Salvation Army as they have arranged.</p>" +
-        	"<p>This is the first season we have had the ability to provide this \"early acknowledgement\".  " +
-        	"We hope it helps.</p>" +
-        	"<p>We will still use our automated calling system (after Thanksgiving) to notify <b>ALL</b> families of our " +
-        	"Delivery Day (December 14th).</p>" +
-        	"<p>Our all-volunteer team at Our Neighbor's Child is actively working to organize all the community " +
-        	"volunteers who help make this day possible.</p>" +
-        	"<p>As always, thanks so much for your support!</p>" +
-        	"<p>Kelly</p>" +
-        	"<p>Kelly Murray Lavin<br>" +
-        	"Executive Director/Volunteer<br>" +
-        	"Our Neighbor's Child<br>" +
-        	"P.O. Box 276<br>" +
-        	"Centreville, VA 20120<br>" +
-        	"<a href=\"http://www.ourneighborschild.org\">www.ourneighborschild.org</a></p></div>" +
-        	"<p><b>" + agt.getAgentName() + " referrals scheduled for ONC gift delivery:</b></p>" +
-        	createServedFamiliesRepresentedTableHTML(agt) +
-        	"<p>Listed below are the 84 families in our zip code areas who will be served by the Salvation Army. " +
-        	"28 of those families had also been referred to ONC and have been removed from our serving list. " +
-        	"644 families remain on our list and will be served by Our Neighbor's Child.  This information is " +
-        	"confidential and is provided to Referring Agents only for the express purpose of ensuring holiday " +
-        	"assistance is provided to all families in need.</p>" +
-        	"<p><b>Local families being served by SALVATION ARMY:</b></p>" +
-        	create2014SalvationArmyTableHTML() +	
-        	"</body></html>";
+				"<p>Dear " + agt.getAgentFirstName() + ",</p>"
+				+"<p>We realize you and the families you've referred are anxious to receive confirmation about " 
+				+"December gift assistance from Our Neighbor's Child.</p>"
+				+"<p>If you included an e-mail address for any family you referred, the family will "
+				+"receive an e-mail at that address in the next couple of days. It's written in both English and Spanish. "
+				+ "For your reference we've included an English version sample at the bottom of this email.</p>"
+				+"<p>We have also included a table of families you referred. "
+				+"<b>If a valid e-mail address wasn't provided with the referral, the family will not receive an e-mail confirmation</b>. "
+				+"For these families, you may choose to send a note home in their backpack, or simply use the list "
+				+"provided as a reference should the family contact you to check on their status.</p>"
+				+"<p>If a family you referred has SA, SBO, or DUP in the Code column next to their street address, "
+				+"it is because they were "
+				+"a duplicate of an earlier referral or they signed up with the Salvation Army or "
+				+"other agency as well as ONC. The legend for the Code column is: " 
+				+"SA = Served by The Salvation Army, SBO = Served by Other, DUP = Duplicate Family Referral. "
+				+"In that event, the family has been removed from the ONC gift list and should expect to "
+				+"pick up their gifts with the Salvation Army or follow the instructions provided by their serving agency.</p>"
+				+"<p>We will still use our automated calling system (after Thanksgiving) to notify <b>ALL</b> families of our "
+				+"Delivery Day, Sunday, December 13th from 1 to 4PM.</p>"
+				+"<p>Our all-volunteer team at Our Neighbor's Child is actively working to collect their gifts and organize all the community "
+				+"volunteers who help make this day possible.</p>"
+		        +"<p>As always, thanks so much for your support!</p>"
+		        +"<p>Kelly</p>"
+		        +"<p>Kelly Murray Lavin<br>"
+		        +"Executive Director/Volunteer<br>"
+		        +"Our Neighbor's Child<br>"
+		        +"P.O. Box 276<br>"
+		        +"Centreville, VA 20120<br>"
+		        +"<a href=\"http://www.ourneighborschild.org\">www.ourneighborschild.org</a></p></div>"
+		        +"<p><b>" + agt.getAgentName() + " referrals scheduled for ONC gift delivery:</b></p>"
+		        +createServedFamiliesRepresentedTableHTML(agt)
+		        +"<p><b>Sample family confirmation email (English):</b></p>"
+		        +createSampleFamilyConfirmationEmail()
+		        +"</body></html>";
         return msg;
 	}
 	
@@ -758,23 +757,61 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		familyTableHTML.append("<th align=\"left\">First Name</th>");
 		familyTableHTML.append("<th align=\"left\">E-Mail Address</th>");
 		familyTableHTML.append("<th align=\"left\">Street Address</th>");
-		familyTableHTML.append("<th align=\"left\">City</th>");
+//		familyTableHTML.append("<th align=\"left\">City</th>");
 		familyTableHTML.append("<th align=\"left\">Code</th>");
 		
 		for(ONCFamily f:fDB.getList())
-			if(f.getDNSCode().isEmpty() && f.getAgentID() == a.getID())	//family is represented by agent and is being served
+			if(a != null && f.getAgentID() == a.getID())	//family is represented by agent and is being served
 			{
 				familyTableHTML.append("<tr><td>" + f.getHOHLastName() + "</td>");
 				familyTableHTML.append("<td>" + f.getHOHFirstName() + "</td>");
 				familyTableHTML.append("<td>" + f.getFamilyEmail() + "</td>");
 				familyTableHTML.append("<td>" + f.getHouseNum() + " " + f.getStreet() + " " + f.getUnitNum() + "</td>");
-				familyTableHTML.append("<td>" + f.getCity() + "</td></tr>");
+//				familyTableHTML.append("<td>" + f.getCity() + "</td></tr>");
 				familyTableHTML.append("<td>" + f.getDNSCode() + "</td></tr>");
 			}
 			
 		familyTableHTML.append("</table>");
 				
 		return familyTableHTML.toString();
+	}
+	
+	String createSampleFamilyConfirmationEmail()
+	{
+		 //Create the text part of the email using html
+        String msg =
+        	"<html><body><div>" +
+        	"<p>Dear [Client Family First Name],</p>"+
+        	"<p>Your request for Holiday Assistance has been received by Our Neighbor's Child, the local, " +
+        	"community-based volunteer organization that provides holiday gifts to children in your area.</p>" +
+        	"<p>This e-mail is being sent to you (if you included an e-mail address) and/or your referring agent " +
+        	"(if no e-mail address was provided).</p>" +
+        	"<p>This e-mail only pertains to <b>HOLIDAY GIFTS</b> for your child/children.  Holiday food assistance is " +
+        	"handled by other organizations and notification is separate.</p>" +
+        	"<p><b>Here is the information that was provided by your School Counselor or other referring agent:</b></p>" +
+    		"&emsp;<b>Family Name:</b>  <br>" +
+    		"&emsp;<b>Address:</b>  <br>" +
+    		"&emsp;<b>Address:</b>  <br>" +
+    		"&emsp;<b>Home Phone #:</b>  <br>" +
+    		"&emsp;<b>Other Phone #:</b>  <br>" +
+    		"&emsp;<b>Email Address:</b>  <br>" + 
+    		"&emsp;<b>Alternate Delivery Address:</b>  <br>" +
+    		"&emsp;<b>Alternate Delivery Address:</b>  <br>" + 
+        	"<p>An Our Neighbor's Child volunteer will deliver your children's gifts to the address listed above " +
+        	"on <b>Sunday, December 13th between 1 and 4PM.</b>  You will receive an automated phone call reminder and " +
+        	"an adult must be home to receive the gifts.</p>" +
+        	"<p><b>Important:  Families may only be served by one organization.</b> If your child/children's name " +
+        	"appear on any other list (i.e. The Salvation Army), ONC will remove them from this list and will be " +
+        	"unable to deliver gifts to your home.</p>" +
+        	"<p>If your address or telephone number should change, PLEASE REPLY to this e-mail.  We are unable to " +
+        	"accept any gift requests or changes to gift requests.</p>" +
+        	"<p>If an emergency arises and you are unable to have an adult home on Sunday, December 14th between 1 " +
+        	"and 4PM - PLEASE REPLY to this e-mail with an alternate local address (Centreville, Chantilly, Clifton or Fairfax) where " +
+        	"someone will be home to receive the gifts on that day between 1 and 4PM.</p>"+
+        	"<p>Thank you for your assistance and Happy Holidays!</p>" +
+        	"<p><b>Our Neighbor's Child</b></p>";
+        
+        return msg;
 	}
 	
 	String create2014SalvationArmyTableHTML()
@@ -919,12 +956,12 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		else if(e.getSource() == emailCB && emailCB.getSelectedIndex() > 0 )
 		{
 			//Confirm with the user that the deletion is really intended
-			String confirmMssg = "Are you sure you want to send referring agent email?"; 
+			String confirmMssg = "Are you sure you want to send " + emailCB.getSelectedItem() + "?"; 
 											
 			Object[] options= {"Cancel", "Send"};
 			JOptionPane confirmOP = new JOptionPane(confirmMssg, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION,
 					gvs.getImageIcon(0), options, "Cancel");
-			JDialog confirmDlg = confirmOP.createDialog(this, "*** Confirm Send Partner Email ***");
+			JDialog confirmDlg = confirmOP.createDialog(this, "*** Confirm Send Agent Email ***");
 			confirmDlg.setLocationRelativeTo(this);
 			confirmDlg.setVisible(true);
 		

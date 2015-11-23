@@ -1165,15 +1165,20 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			//Get selected family object
 			ONCFamily fam = stAL.get(row_sel[row]);
 			
-			//Create the email body, method call generates a new email body string
-			String emailBody = createEmailBody(fam, cid0, cid1);
+			//only families with valid email addresses will get an email. This allows selection of all families in the table
+			//and automatically filters out those without valid email addresses
+			if(fam.getFamilyEmail().length() > 4 && fam.getFamilyEmail().contains("@") && fam.getFamilyEmail().contains("."))
+			{
+				//Create the email body, method call generates a new email body string
+				String emailBody = createEmailBody(fam, cid0, cid1);
 			
-	        //Create recipient list for email. Method call creates a new List of EmailAddresses
-	        ArrayList<EmailAddress> recipientAdressList = createRecipientList(fam);
+				//Create recipient list for email. Method call creates a new List of EmailAddresses
+				ArrayList<EmailAddress> recipientAdressList = createRecipientList(fam);
 	       
-	        //If the email isn't valid, the message will not be sent.
-	        if(emailBody != null && !recipientAdressList.isEmpty())
-	        	emailAL.add(new ONCEmail(subject, emailBody, recipientAdressList));     	
+				//If the email isn't valid, the message will not be sent.
+				if(emailBody != null && !recipientAdressList.isEmpty())
+					emailAL.add(new ONCEmail(subject, emailBody, recipientAdressList));
+			}
 		}
 		
 		//Create the from address string array

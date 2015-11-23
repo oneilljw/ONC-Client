@@ -292,7 +292,6 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 
 			if(gvs != null && !response.startsWith("NO_GLOBALS"))
 			{
-				System.out.println(gvs.getThanksgivingDeadline());
 				oncDeliveryDate.setTime(gvs.getDeliveryDate());
 				oncGiftsReceivedDate.setTime(gvs.getGiftsReceivedDate());
 				thanksgivingDeadline.setTime(gvs.getThanksgivingDeadline());
