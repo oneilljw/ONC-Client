@@ -63,6 +63,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	private static final int MIN_EMAIL_ADDRESS_LENGTH = 2;
 	private static final int MIN_EMAIL_NAME_LENGTH = 2;
 	private static final String FAMILY_EMAIL_SENDER_ADDRESS = "clientinformation@ourneighborschild.org";
+//	private static final String TEST_FAMILY_EMAIL_SENDER_ADDRESS = "johnwoneill1@gmail.com";
 	
 	public enum FamilyStatus {Empty, InfoVerified, GiftsSelected, GiftsReveived, GiftsVerified, Packaged}
 	
@@ -1150,7 +1151,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		if(emailType == 1)
 		{	
 			//Create the email subject
-			subject = "Holiday Gift Confirmation from Our Neighbor's Child (Desplacese hacia abajo para espanol)";  			
+			subject = "Holiday Gift Confirmation from Our Neighbor's Child (Desplaza hacia abajo para espanol)";
 //			cid0 = ContentIDGenerator.getContentId();
 //			cid1 = ContentIDGenerator.getContentId();
 //			attachmentAL.add(new ONCEmailAttachment("DSC_0154.jpeg", cid0 , MimeBodyPart.INLINE));
@@ -1183,6 +1184,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		
 		//Create the from address string array
 		EmailAddress fromAddress = new EmailAddress(FAMILY_EMAIL_SENDER_ADDRESS, "Our Neighbor's Child");
+//		EmailAddress fromAddress = new EmailAddress(TEST_FAMILY_EMAIL_SENDER_ADDRESS, "Our Neighbor's Child");
 		
 		//Create the blind carbon copy list 
 		ArrayList<EmailAddress> bccList = new ArrayList<EmailAddress>();
@@ -1193,8 +1195,9 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		//Create mail server accreditation, then the mailer background task and execute it
 		//Go Daddy Mail
 //		ServerCredentials creds = new ServerCredentials("smtpout.secureserver.net", "director@act4others.org", "crazyelf1");
-		//Google Mail
+		//Google Mail - ONC
 		ServerCredentials creds = new ServerCredentials("smtp.gmail.com", "clientinformation@ourneighborschild.org", "crazyelf");
+//		ServerCredentials creds = new ServerCredentials("smtp.gmail.com", "johnwoneill1@gmail.com", "erin1992");
 		
 	    oncEmailer = new ONCEmailer(this, progressBar, fromAddress, bccList, emailAL, attachmentAL, creds);
 	    oncEmailer.addPropertyChangeListener(this);
@@ -1211,7 +1214,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		String emailBody = null;
 		
 		//verify the family has a valid name. If not, return a null body
-		if(fam != null && fam.getHOHFirstName() != null && fam.getHOHFirstName().length() > MIN_EMAIL_NAME_LENGTH) 
+		if(fam != null && fam.getHOHFirstName() != null && fam.getHOHFirstName().length() >= MIN_EMAIL_NAME_LENGTH) 
 		{
 			emailBody = create2015FamilyEmailText(fam);
 		}
@@ -1264,26 +1267,27 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
     		"&emsp;<b>Alternate Delivery Address:</b>  %s<br>" +
     		"&emsp;<b>Alternate Delivery Address:</b>  %s<br>" + 
         	"<p>An Our Neighbor's Child volunteer will deliver your children's gifts to the address listed above " +
-        	"on <b>Sunday, December 13th between 1 and 4PM.</b>  You will receive an automated phone call reminder and " +
-        	"an adult must be home to receive the gifts.</p>" +
-        	"<p><b>Important:  Families may only be served by one organization.</b> If your child/children's name " +
+        	"on Sunday, December 13th between 1 and 4PM. <b>Please reply to this email (in English or Spanish) to "
+        	+ "confirm that an adult will be home that day to receive your children's gifts.</b> We may also attempt to "
+        	+ "contact you with an automated phone call.</p>" +
+        	"<p><b>Important:  Families will only be served by one organization.</b> If your child/children's name " +
         	"appear on any other list (i.e. The Salvation Army), ONC will remove them from this list and will be " +
         	"unable to deliver gifts to your home.</p>" +
-        	"<p>If your address or telephone number should change, PLEASE REPLY to this e-mail.  We are unable to " +
-        	"accept any gift requests or changes to gift requests.</p>" +
+        	"<p>If your address or telephone number should change, <b>Please include those changes in your reply</b> to this e-mail. "
+        	+ "We are unable to accept any gift requests or changes to gift requests.</p>" +
         	"<p>If an emergency arises and you are unable to have an adult home on Sunday, December 14th between 1 " +
-        	"and 4PM - PLEASE REPLY to this e-mail with an alternate local address (Centreville, Chantilly, Clifton or Fairfax) where " +
+        	"and 4PM - <b>Please reply to this e-mail with an alternate local address</b> (Centreville, Chantilly, Clifton or Fairfax) where " +
         	"someone will be home to receive the gifts on that day between 1 and 4PM.</p>"+
         	"<p>Thank you for your assistance and Happy Holidays!</p>" +
         	"<p><b>Our Neighbor's Child</b></p>" +
         	"<br>------------------------------<br>" +
         	"<p>Querido %s,</p>"+
-        	"<p>Su solicitud para Asistencia de Navidad ha sido recibida por Our Neighbor's Child, la organizaci&#243;n " +
-        	"local de voluntarios que proporciona regalos de Navidad a los ni&#241;os en su comunidad.</p>" +
+        	"<p>Su solicitud de Asistencia de Navidad fue recibido por Our Neighbor's Child, la organizaci&#243;n " +
+        	"local de voluntarios que proporciona regalos de Navidad a los ni&#241;os en la comunidad.</p>" +
         	"<p>Se recibe este mensaje (si se incluyo una direcci&#243;n de correo electr&#243;nico) y/o el agente que lo " +
         	"refiri&#243; (si no se proporcion&#243; una direcci&#243;n de correo electr&#243;nico).</p>" +
         	"<p>Este mensaje electr&#243;nico sol&#243; pertenece a LOS REGALOS DE NAVIDAD para su hijo/hijos. La asistencia " +
-        	"de comida de Navidad se hace por otras organizaciones y la notificaci&#243;n es separada.</p>" +
+        	"de comida de Navidad viene de otras organizaciones y la notificaci&#243;n es separada.</p>" +
         	"<p><b>Aqu&#237; est&#225; la informaci&#243;n que fue proporcionado por su consejero de la escuela o el otro agente " +
         	"que lo refiri&#243;:</b></p>" +
     		"&emsp;<b>Apellido:</b>  %s<br>" +
@@ -1295,18 +1299,20 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
     		"&emsp;<b>Direcci&#243;n alternativo:</b>  %s<br>" +
     		"&emsp;<b>Direcci&#243;n alternativo:</b>  %s<br>" +
         	"<p>Un voluntario de Our Neighbor's Child entregar&#225; los regalos para su hijo/hijos a la direcci&#243;n de " +
-        	"arriba el domingo, 13 de diciembre entre la 1 y la 4 de la tarde. Recibir&#225; una llamada de tel&#233;fono " +
-        	"automatizada como un recordatorio y un adulto debe estar en casa para recibir los regalos</p>" +
-        	"<p><b>Importante: Sol&#243; una organizaci&#243;n puede servir cada familia</b>. Si su nombre o el nombre de " +
+        	"arriba el domingo, 13 de diciembre entre la 1 y la 4 de la tarde. "
+        	+ "<b>Por favor, responda a este correo electrónico (en Inglés o Español) para confirmar que un adulto estará "
+        	+ "en casa ese día para recibir regalos de sus hijos</b>. También vamos a contactar a usted con una "
+        	+ "llamada telefónica automatizada."
+        	+ "<p><b>Importante: Sol&#243; una organizaci&#243;n puede servir cada familia</b>. Si su nombre o el nombre de " +
         	"su hijo aparezca en cualquier otra lista (como The Salvation Army), Our Neighbor's Child le quitar&#225; " +
-        	"de nuestro lista y no podr&#225; entregar los regalos a su hogar</p>" +
-        	"<p>Si su direcci&#243;n o numero de tel&#233;fono cambia, <b>POR FAVOR RESPONDA</b> a este mensaje. Sin embargo, no " +
-        	"podemos aceptar peticiones de regalos o cambios de peticiones.</p>" +
-        	"<p>Si hay una emergencia y un adulto no puede estar en su casa el domingo, 14 de diciembre, entre " +
-        	"la 1 y las 4 de la tarde <b>POR FAVOR RESPONDA</b> a este mensaje con una direcci&#243;n local alternativa " +
-        	"(en Centreville, Clifton, o Fairfax) donde un adulto estar&#225; durante el d&#237;a de entrega entre la 1 y " +
+        	"de nuestra lista y no podr&#225; entregar los regalos a su hogar</p>"
+        	+"<p>Si su direcci&#243;n o numero de tel&#233;fono cambia, <b>Por favor, incluya los cambios en la respuesta a este "
+        	+ "correo electrónico.</b> Sin embargo, no podemos aceptar peticiones de regalos o cambios de peticiones.</p>" +
+        	"<p>Si hay una emergencia y un adulto no puede estar en su casa el domingo, 13 de diciembre, entre " +
+        	"la 1 y las 4 de la tarde <b>Por favor, responda a este mensaje con una direcci&#243;n local alternativa </b>" +
+        	"(en Centreville, Clifton, o Fairfax) en que un adulto estar&#225; durante el d&#237;a de entrega entre la 1 y " +
         	"las 4.</p>"+
-        	"<p>Gracias para su asistencia y Feliz Navidad!</p>" +
+        	"<p>Gracias por al asistencia y &#161;Feliz Navidad!</p>" +
         	"<p><b>Our Neighbor's Child</b></p>" +
         	"</div></body></html>", hohFirstName, familyname, streetaddress, citystatezip, homephones, otherphones, 
         	emailaddress, altstreetaddress, altcitystatezip, hohFirstName, familyname, streetaddress, citystatezip, 

@@ -36,8 +36,8 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-//	private static final String AGENT_EMAIL_SENDER_ADDRESS = "schoolcontact@ourneighborschild.org";
-	private static final String TEST_AGENT_EMAIL_SENDER_ADDRESS = "johnwoneill1@gmail.com";
+	private static final String AGENT_EMAIL_SENDER_ADDRESS = "schoolcontact@ourneighborschild.org";
+//	private static final String TEST_AGENT_EMAIL_SENDER_ADDRESS = "johnwoneill1@gmail.com";
 	private static final int MIN_EMAIL_ADDRESS_LENGTH = 2;
 	private static final int MIN_EMAIL_NAME_LENGTH = 1;
 	
@@ -421,22 +421,22 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		}
 		
 		//Create the from address string array
-//		EmailAddress fromAddress = new EmailAddress(AGENT_EMAIL_SENDER_ADDRESS, "Our Neighbor's Child");
-		EmailAddress fromAddress = new EmailAddress(TEST_AGENT_EMAIL_SENDER_ADDRESS, "Our Neighbor's Child");
+		EmailAddress fromAddress = new EmailAddress(AGENT_EMAIL_SENDER_ADDRESS, "Our Neighbor's Child");
+//		EmailAddress fromAddress = new EmailAddress(TEST_AGENT_EMAIL_SENDER_ADDRESS, "Our Neighbor's Child");
 		
 		//Create the blind carbon copy list 
 		ArrayList<EmailAddress> bccList = new ArrayList<EmailAddress>();
-//		bccList.add(new EmailAddress(AGENT_EMAIL_SENDER_ADDRESS, "School Contact"));
+		bccList.add(new EmailAddress(AGENT_EMAIL_SENDER_ADDRESS, "School Contact"));
 //		bccList.add(new EmailAddress("kellylavin1@gmail.com", "Kelly Lavin"));
 //		bccList.add(new EmailAddress("mnrogers123@msn.com", "Nicole Rogers"));
-		bccList.add(new EmailAddress("johnwoneill@cox.net", "John O'Neill"));
+//		bccList.add(new EmailAddress("johnwoneill@cox.net", "John O'Neill"));
 		
 		//Create mail server accreditation, then the mailer background task and execute it
 		//Go Daddy Mail
 //		ServerCredentials creds = new ServerCredentials("smtpout.secureserver.net", "director@act4others.org", "crazyelf1");
 		//Google Mail
-//		ServerCredentials creds = new ServerCredentials("smtp.gmail.com", AGENT_EMAIL_SENDER_ADDRESS, "crazyelf");
-		ServerCredentials creds = new ServerCredentials("smtp.gmail.com", TEST_AGENT_EMAIL_SENDER_ADDRESS, "erin1992");
+		ServerCredentials creds = new ServerCredentials("smtp.gmail.com", AGENT_EMAIL_SENDER_ADDRESS, "crazyelf");
+//		ServerCredentials creds = new ServerCredentials("smtp.gmail.com", TEST_AGENT_EMAIL_SENDER_ADDRESS, "erin1992");
 		
 	    oncEmailer = new ONCEmailer(this, progressBar, fromAddress, bccList, emailAL, attachmentAL, creds);
 	    oncEmailer.addPropertyChangeListener(this);
@@ -717,10 +717,10 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 				+"<p>We realize you and the families you've referred are anxious to receive confirmation about " 
 				+"December gift assistance from Our Neighbor's Child.</p>"
 				+"<p>If you included an e-mail address for any family you referred, the family will "
-				+"receive an e-mail at that address in the next couple of days. It's written in both English and Spanish. "
+				+"receive an e-mail at that address in the next few days. It's written in both English and Spanish. "
 				+ "For your reference we've included an English version sample at the bottom of this email.</p>"
 				+"<p>We have also included a table of families you referred. "
-				+"<b>If a valid e-mail address wasn't provided with the referral, the family will not receive an e-mail confirmation</b>. "
+				+"<b>If a valid e-mail address was not provided with the referral, the family will not receive an e-mail confirmation</b>. "
 				+"For these families, you may choose to send a note home in their backpack, or simply use the list "
 				+"provided as a reference should the family contact you to check on their status.</p>"
 				+"<p>If a family you referred has SA, SBO, or DUP in the Code column next to their street address, "
@@ -730,8 +730,9 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 				+"SA = Served by The Salvation Army, SBO = Served by Other, DUP = Duplicate Family Referral. "
 				+"In that event, the family has been removed from the ONC gift list and should expect to "
 				+"pick up their gifts with the Salvation Army or follow the instructions provided by their serving agency.</p>"
-				+"<p>We will still use our automated calling system (after Thanksgiving) to notify <b>ALL</b> families of our "
-				+"Delivery Day, Sunday, December 13th from 1 to 4PM.</p>"
+				+"<p>We will still use our automated calling system (after Thanksgiving) to notify all families who have not "
+				+"acknowlegded our email nor confirmed that they will be home on "
+				+"Sunday, December 13th from 1 to 4PM to receive their children's gifts.</p>"
 				+"<p>Our all-volunteer team at Our Neighbor's Child is actively working to collect their gifts and organize all the community "
 				+"volunteers who help make this day possible.</p>"
 		        +"<p>As always, thanks so much for your support!</p>"
@@ -798,13 +799,14 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
     		"&emsp;<b>Alternate Delivery Address:</b>  <br>" +
     		"&emsp;<b>Alternate Delivery Address:</b>  <br>" + 
         	"<p>An Our Neighbor's Child volunteer will deliver your children's gifts to the address listed above " +
-        	"on <b>Sunday, December 13th between 1 and 4PM.</b>  You will receive an automated phone call reminder and " +
-        	"an adult must be home to receive the gifts.</p>" +
-        	"<p><b>Important:  Families may only be served by one organization.</b> If your child/children's name " +
-        	"appear on any other list (i.e. The Salvation Army), ONC will remove them from this list and will be " +
+        	"on <b>Sunday, December 13th between 1 and 4PM.</b>  "
+        	+"Please reply to this email (in English or Spanish) to confirm that an adult will be home that "
+        	+"day to receive your children's gifts. We may also attempt to contact you with an automated phone call.</p>" +
+        	"<p><b>Important:  Families will only be served by one organization.</b> If your child/children's name " +
+        	"appear on any other list (i.e. The Salvation Army), ONC will remove them from our list and will be " +
         	"unable to deliver gifts to your home.</p>" +
-        	"<p>If your address or telephone number should change, PLEASE REPLY to this e-mail.  We are unable to " +
-        	"accept any gift requests or changes to gift requests.</p>" +
+        	"<p>If your address or telephone number should change, PLEASE include those changes in your REPLY to this e-mail. "
+        	+ "We are unable to accept any gift requests or changes to gift requests.</p>" +
         	"<p>If an emergency arises and you are unable to have an adult home on Sunday, December 14th between 1 " +
         	"and 4PM - PLEASE REPLY to this e-mail with an alternate local address (Centreville, Chantilly, Clifton or Fairfax) where " +
         	"someone will be home to receive the gifts on that day between 1 and 4PM.</p>"+
@@ -812,98 +814,6 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
         	"<p><b>Our Neighbor's Child</b></p>";
         
         return msg;
-	}
-	
-	String create2014SalvationArmyTableHTML()
-	{
-		return
-		"<table style=\"width:90%\">" +
-		"<th align=\"left\">Last Name</th>" +
-		"<th align=\"left\">First Name</th>" +
-		"<th align=\"left\">Street Address</th>" +
-		"<th align=\"left\">City</th>" +
-		"<tr><td>Abdalaal Mohammad</td><td>Shema Yahya</td><td>11465 Cypress Point Ct.</td><td>Centreville</td></tr>" + 
-		"<tr><td>Abdel Shayed</td><td>Adel</td><td>6167 Gothwaite Dr</td><td>Centreville</td></tr>" + 
-		"<tr><td>Abida</td><td>Naoual</td><td>3924 PenderviewDr. Apt. 208</td><td>Fairfax</td></tr>" + 
-		"<tr><td>Acevedo</td><td>Ruth</td><td>6015 Raina Dr</td><td>Centreville</td></tr>" + 
-		"<tr><td>Aleman</td><td>Sandra Janneth</td><td>14517 Black Horse Ct</td><td>Centreville</td></tr>" + 
-		"<tr><td>Alvarez Martinez</td><td>Steven Alexander</td><td>13507 Prairie Mallow Lane</td><td>Centreville</td></tr>" + 
-		"<tr><td>Aziz</td><td>Dalia J</td><td>4002 Royal Lytham Drive</td><td>Fairfax</td></tr>" + 
-		"<tr><td>Baires</td><td>Reyna</td><td>14863 Lambert Square</td><td>Centreville</td></tr>" + 
-		"<tr><td>Bazurto Pinargote</td><td>Angela Guadalupe</td><td>6218 William Mosby Drive</td><td>Centreville</td></tr>" + 
-		"<tr><td>Berasko</td><td>Maryana</td><td>14748 Basingstoke Loop</td><td>Centreville</td></tr>" + 
-		"<tr><td>Bonilla</td><td>Sulma</td><td>14800 Lynhodge Ct</td><td>Centreville</td></tr>" + 
-		"<tr><td>Bonilla Canales</td><td>Ana Maritza</td><td>14521 Lanica Circle</td><td>Chantilly</td></tr>" + 
-		"<tr><td>Breskone</td><td>Salah</td><td>14936 Lady Madonna Court</td><td>Centreville</td></tr>" + 
-		"<tr><td>Brooks</td><td>Jaqueline Martha</td><td>14350 Jacob Lane</td><td>Centreville</td></tr>" + 
-		"<tr><td>Brown</td><td>Angel Nicole</td><td>5616 Oakham PL</td><td>Centreville</td></tr>" + 
-		"<tr><td>Castillo</td><td>Idalma Marisol</td><td>5701 Cedar Walk Way #301</td><td>Centreville</td></tr>" + 
-		"<tr><td>Chang</td><td>NamGug</td><td>13701 Winding Oak Cir #305</td><td>Centreville</td></tr>" + 
-		"<tr><td>Delcid</td><td>Delia</td><td>6107C Hoskins Hollow Circle</td><td>Centreville</td></tr>" + 
-		"<tr><td>Dunham</td><td>Desoraie</td><td>4128 Chantilly Lace Court</td><td>Chantilly</td></tr>" + 
-		"<tr><td>Dykes</td><td>Tinneil Marsha</td><td>6107C Hoskins Hollow Circle</td><td>Centreville</td></tr>" + 
-		"<tr><td>Galouaa</td><td>Carol</td><td>6100 Havener House Way Apt 6</td><td>Centreville</td></tr>" + 
-		"<tr><td>Gebrael</td><td>Ayman Samir Nazim</td><td>6028 Chestnut Hollow Court</td><td>Centreville</td></tr>" + 
-		"<tr><td>GeGril</td><td>Silvana</td><td>6102 Havener House Way</td><td>Centreville</td></tr>" + 
-		"<tr><td>Georgy</td><td>Sameh Moawad</td><td>13615 Bent Tree Circle, Apt. 201</td><td>Centreville</td></tr>" + 
-		"<tr><td>Gonzales Terceros</td><td>Carmen Janeth</td><td>14364 Avocado Ct</td><td>Centreville</td></tr>" + 
-		"<tr><td>Haji-badri</td><td>Jane Ismael</td><td>4513 Lees Corner Road</td><td>Chantilly</td></tr>" + 
-		"<tr><td>Han</td><td>Soon</td><td>13855 BRADDOCK ROAD SPRINGS RD</td><td>Centreville</td></tr>" + 
-		"<tr><td>Haritos</td><td>Myriam</td><td>12228 Apple Orchard Court</td><td>Fairfax</td></tr>" + 
-		"<tr><td>Henderson</td><td>Ramonica</td><td>14222 Glade Spring Dr</td><td>Centreville</td></tr>" + 
-		"<tr><td>Henriquez</td><td>Evelyn</td><td>14919 Rydell Rd. Apt. 103</td><td>Centreville</td></tr>" + 
-		"<tr><td>heo</td><td>juyeon</td><td>7732 miller rd</td><td>Centreville</td></tr>" + 
-		"<tr><td>Hernandez - Negron</td><td>Rebeca</td><td>13442 Fiery Dawn Dr</td><td>Centreville</td></tr>" + 
-		"<tr><td>Huarcaya Saire</td><td>Maria</td><td>14516 United Dr</td><td>Chantilly</td></tr>" + 
-		"<tr><td>Ibrahim</td><td>Janet Mouris</td><td>6112 Havener House Way #4</td><td>Centreville</td></tr>" + 
-		"<tr><td>Ibrahim</td><td>Jacqueline, Nassif Bakhoum</td><td>6407 Paddington Ct. Apt. 101</td><td>Centreville</td></tr>" + 
-		"<tr><td>Jackson</td><td>Shaunte Lywann</td><td>4127 Chantilly Lace Court</td><td>Chantilly</td></tr>" + 
-		"<tr><td>Joya</td><td>Jacqueline, Marisol</td><td>665 Dulles Park Ct. Apt. 207</td><td>Centreville</td></tr>" + 
-		"<tr><td>Kaldas</td><td>Hawaida Kaldas Matta</td><td>13930 Antonia Ford Ct</td><td>Centreville</td></tr>" + 
-		"<tr><td>Kerlous</td><td>Botros</td><td>14190 Asher View</td><td>Centreville</td></tr>" + 
-		"<tr><td>kwon</td><td>chang</td><td>13971 tanners houseway</td><td>Centreville</td></tr>" + 
-		"<tr><td>Kyebi</td><td>Abena</td><td>12113 Ragan Oaks Ct, #203</td><td>Fairfax</td></tr>" + 
-		"<tr><td>LEE</td><td>EUNJOO</td><td>13329 CONNOR DR #1</td><td>Centreville</td></tr>" + 
-		"<tr><td>lee</td><td>hyang won</td><td>8199 tiswell</td><td>Fairfax Statio</td></tr>" + 
-		"<tr><td>Lee</td><td>Sangmi</td><td>12110 GREEN LEDGE CT #101</td><td>Fairfax</td></tr>" + 
-		"<tr><td>Lizarazu Velasquez</td><td>Erlinda</td><td>13305 Jasper Rd</td><td>Fairfax</td></tr>" + 
-		"<tr><td>Lopez</td><td>Yoryina</td><td>4017 Majestic Ln, Apt D</td><td>Fairfax</td></tr>" + 
-		"<tr><td>Lopez Vasquez</td><td>Roselia Marcelina</td><td>4045 Majestic Ln, Apt A</td><td>Fairfax</td></tr>" + 
-		"<tr><td>Luna</td><td>Maria</td><td>3920 Kernstown Ct.</td><td>Fairfax</td></tr>" + 
-		"<tr><td>Maawad</td><td>Abaer Isak Amin</td><td>13648 Bent Tree Cr #202</td><td>Centreville</td></tr>" + 
-		"<tr><td>Mansoor</td><td>Thamer</td><td>12901 Fair Briar Lane</td><td>Fairfax</td></tr>" + 
-		"<tr><td>Martinez</td><td>Sandra, Patricia</td><td>13223 Poplar Tree Road</td><td>Fairfax</td></tr>" + 
-		"<tr><td>Massoud</td><td>Mounira Kassab Mourcos</td><td>3858 Billberry Drive</td><td>Fairfax</td></tr>" + 
-		"<tr><td>Matta</td><td>Manal</td><td>14503 Northeast Place</td><td>Chantilly</td></tr>" + 
-		"<tr><td>Mawed</td><td>Mariam</td><td>13694 Bent Tree Circle, Apt 302</td><td>Centreville</td></tr>" + 
-		"<tr><td>Metias</td><td>Hanan S</td><td>14711 Bonnet Terrace</td><td>Centreville</td></tr>" + 
-		"<tr><td>Moanes</td><td>Rania M</td><td>15401 Eagle Tavern Ln.</td><td>Centreville</td></tr>" + 
-		"<tr><td>Montecinos Joya</td><td>Ingrid Lisseth</td><td>14509 Saint Germain Drive</td><td>Centreville</td></tr>" + 
-		"<tr><td>Monzon de Torres</td><td>Elizabeth Norma</td><td>3746 Farmland Drive</td><td>Fairfax</td></tr>" + 
-		"<tr><td>Newton</td><td>Bethany</td><td>5522 Sully Lake Drive</td><td>Centreville</td></tr>" + 
-		"<tr><td>Ochoa Escobar</td><td>Carmen</td><td>13686 BentTree Circle Apt.#302</td><td>Centreville</td></tr>" + 
-		"<tr><td>Ortube</td><td>Marco</td><td>14004 B Franklin Fox Drive</td><td>Centreville</td></tr>" + 
-		"<tr><td>park</td><td>joo</td><td>6064 clay spor ct</td><td>Centreville</td></tr>" + 
-		"<tr><td>Ramirez Hernandez</td><td>Graciela</td><td>13760 Autumn Valley Court</td><td>Chantilly</td></tr>" + 
-		"<tr><td>Retes Senzano</td><td>Carmen Rosa</td><td>3924 Penderview Drive, # 236</td><td>Fairfax</td></tr>" + 
-		"<tr><td>Reynoso Morrobel</td><td>Rosa Yessenia</td><td>14517 Black Horse Court</td><td>Centreville</td></tr>" + 
-		"<tr><td>Rivera</td><td>Regina Mayrene</td><td>14424 Four Chimeny Dr</td><td>Centreville</td></tr>" + 
-		"<tr><td>Saad,</td><td>Mary Saeed Aittea</td><td>14374 Haysickle Ct</td><td>Centreville</td></tr>" + 
-		"<tr><td>Salazar</td><td>Dora Magaly</td><td>14538 Iberia Cr.</td><td>Chantilly</td></tr>" + 
-		"<tr><td>Sanchez Arutaype</td><td>Viviana, Esstefa</td><td>13848 Laura Ratcliff Ct</td><td>Centreville</td></tr>" + 
-		"<tr><td>Sindi</td><td>Jane</td><td>4662 Kearns Ct</td><td>Centreville</td></tr>" + 
-		"<tr><td>Stokes</td><td>Veronia Roxanne</td><td>3902 Golf Tee Ct Apt 101</td><td>Fairfax</td></tr>" + 
-		"<tr><td>Taboada</td><td>Katherine Paola</td><td>14207 Belt Buckle Ct.</td><td>Centreville</td></tr>" + 
-		"<tr><td>Talyot</td><td>Nagwa Eid Said</td><td>6921 Hovingham Court</td><td>Centreville</td></tr>" + 
-		"<tr><td>Toma</td><td>Merzk</td><td>14802 Lynhodges Ct</td><td>Centreville</td></tr>" + 
-		"<tr><td>Torres</td><td>Dina Esmeralda</td><td>4045 Majestic Lane, Apt A</td><td>Fairfax</td></tr>" + 
-		"<tr><td>Turcios Mejia</td><td>Jessenia Maria</td><td>5520 Sully Lake Drive</td><td>Centreville</td></tr>" + 
-		"<tr><td>Valts</td><td>Samia Rawny</td><td>14626 Croatan Dr.</td><td>Centreville</td></tr>" + 
-		"<tr><td>Velasquez</td><td>Lilian</td><td>7902 John Adams Ct. #202</td><td>Fairfax</td></tr>" + 
-		"<tr><td>Von Der Heyde</td><td>Cesar Augusto</td><td>4418 Lees Comer Rd</td><td>Chantilly</td></tr>" + 
-		"<tr><td>Worthey</td><td>Khairina, Molly</td><td>6427 Paddinston Court #203</td><td>Centreville</td></tr>" + 
-		"<tr><td>Zuniga Soriano</td><td>Rosa Dina</td><td>14619 Stone Crossing Court</td><td>Centreville</td></tr>" +
-		"</table>";
 	}
 	
 	boolean doesOrgMatch(String agentorg) {return sortOrg.equals("Any") || sortOrg.equals(agentorg);}
