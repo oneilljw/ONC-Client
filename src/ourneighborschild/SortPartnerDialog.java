@@ -213,7 +213,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
         progressBar.setVisible(false);
 				
 		String[] emailChoices = {"Email", "New 2015 Season Email", "2015 Giving Tree Email", 
-								"2015 Clothing Donor Email",
+								"2015 Clothing Donor Email", "2015 Clothing Reminder Email",
 //								 "2014 Gift Drop-Off Reminder",
 //								 "Ornament Drop-Off Email",
 //								 "2014 Clothing Donor Reminder Email",
@@ -472,13 +472,12 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 //			cid0 = ContentIDGenerator.getContentId();
 //			attachmentAL.add(new ONCEmailAttachment("onclogosmall.jpg", cid0, MimeBodyPart.INLINE));
 //		}	
-//		else if(emailType == 5)	//Clothing Donor Reminder Email
-//		{
-//			subject = "A Friendly ONC Reminder!";
-//			cid0 = ContentIDGenerator.getContentId();
-//			attachmentAL.add(new ONCEmailAttachment("onclogosmall.jpg", cid0, MimeBodyPart.INLINE));
-//		}
-//		
+		else if(emailType == 4)	//Clothing Donor Reminder Email
+		{
+			subject = "A Friendly ONC Reminder!";
+			cid0 = ContentIDGenerator.getContentId();
+			attachmentAL.add(new ONCEmailAttachment("onclogosmall.jpg", cid0, MimeBodyPart.INLINE));
+		}		
 //		else if(emailType == 7)	//Clothing Donor Not Too Late Email
 //		{
 //			subject = "ONC - children's wishes still available!";
@@ -521,14 +520,14 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 	        		subject = "Hi from Our Neighbor's Child";
 	        	
 	        	emailBody = create2015ClothingDonorEmailBody(cid0);
-	        }        
+	        }
+	        else if(emailType == 4)
+	        	emailBody = create2014ClothingDonorReminderEmailBody(cid0);
 /*	        else if(emailType == 2)
 	        	emailBody = create2014DonorReminderEmailBody();
 //	        	emailBody = createDropOffOrganizationEmailBody(cid0);
 	        else if(emailType == 3)
 	        	emailBody = createOrnamentDropOffEmailBody(cid0);	       
-	        else if(emailType == 5)
-	        	emailBody = create2014ClothingDonorReminderEmailBody(cid0);
 	        else if(emailType == 6)
 	        	emailBody = create2014GivingTreeEmailBody();
 	        else if(emailType == 7)
@@ -649,12 +648,13 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 				+ "to know that we still have nearly 200 children's clothing wishes available for \"adoption\".  " +
 				"If you're able to help - just reply to this email. </p>" +
 				"<p>All gifts must be dropped off at our ONC warehouse. We have a <b>NEW LOCATION:</b> " +
-				"<a href=\"https://goo.gl/maps/PiRro\">3863 Centerview Drive in Chantilly</a></b>.</p>" +
+				"<a href=\"https://goo.gl/maps/KR64TFEqJGw\">4315 Walney Road in Chantilly</a></b>.</p>" +
+				"</p>It's between Route 28 and Route 50, just south of Willard Rd. Look for our ONC directional signs!</p>" +
 				"<p>As a reminder, these are the dates for this season's Gift Drop-Off:</p>" +
-				"<p><b>Sunday, December 7th: 12PM - 2PM</b></p>" +
-				"<p><b>Monday, December 8th: 3PM - 6PM</b></p>" +
-				"<p><b>Tuesday, December 9th: 3PM - 6PM</b></p>" +
-				"<p>It is critically important for us to receive all gifts by Tuesday the 9th at 6PM. " +
+				"<p><b>Sunday, December 6th: 12PM - 2PM</b></p>" +
+				"<p><b>Monday, December 7th: 3:30PM - 6:30PM</b></p>" +
+				"<p><b>Tuesday, December 8th: 3:30PM - 6:30PM</b></p>" +
+				"<p>It is critically important for us to receive all gifts by Tuesday the 8th at 6PM. " +
 				"We inventory all gifts on Wednesday and must send volunteers out to purchase " +
 				"any missing gifts that day.</p>" +
 				"<p><b>In case of a major snow event, please check our website for updates " +
@@ -666,8 +666,6 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 				+ "please visit our website: "
 				+ "<a href=\"http://www.ourneighborschild.org\">www.ourneighborschild.org</a>.</p></div></p>" +
 				"<p>We can't thank you enough for all you do!</p>" +
-//				"<p>If you have any questions, please don't hesitate to contact me at" +
-//				" <a href=\"mailto:somerss@cox.net\">Somerss@cox.net</a>.</p>" +
 				"<p>Warmest Regards,</p>" +
 				"<p>Stephanie Somers<br>Clothing Coordinator<br>" +
 				"<a href=\"http://www.ourneighborschild.org\">Our Neighbor's Child</a></p></div>" +
