@@ -213,7 +213,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
         progressBar.setVisible(false);
 				
 		String[] emailChoices = {"Email", "New 2015 Season Email", "2015 Giving Tree Email", 
-								"2015 Clothing Donor Email", "2015 Clothing Reminder Email",
+								"2015 Clothing Donor Email", "2015 Clothing Not Too Late Email",
 //								 "2014 Gift Drop-Off Reminder",
 //								 "Ornament Drop-Off Email",
 //								 "2014 Clothing Donor Reminder Email",
@@ -472,18 +472,18 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 //			cid0 = ContentIDGenerator.getContentId();
 //			attachmentAL.add(new ONCEmailAttachment("onclogosmall.jpg", cid0, MimeBodyPart.INLINE));
 //		}	
-		else if(emailType == 4)	//Clothing Donor Reminder Email
-		{
-			subject = "A Friendly ONC Reminder!";
-			cid0 = ContentIDGenerator.getContentId();
-			attachmentAL.add(new ONCEmailAttachment("onclogosmall.jpg", cid0, MimeBodyPart.INLINE));
-		}		
-//		else if(emailType == 7)	//Clothing Donor Not Too Late Email
+//		else if(emailType == 4)	//Clothing Donor Reminder Email
 //		{
-//			subject = "ONC - children's wishes still available!";
+//			subject = "A Friendly ONC Reminder!";
 //			cid0 = ContentIDGenerator.getContentId();
 //			attachmentAL.add(new ONCEmailAttachment("onclogosmall.jpg", cid0, MimeBodyPart.INLINE));
-//		}
+//		}		
+		else if(emailType == 4)	//Clothing Donor Not Too Late Email
+		{
+			subject = "ONC - children's wishes still available!";
+			cid0 = ContentIDGenerator.getContentId();
+			attachmentAL.add(new ONCEmailAttachment("onclogosmall.jpg", cid0, MimeBodyPart.INLINE));
+		}
 //		else if(emailType == 8)	//Drop Off Reminder Email
 //		{
 //			subject = "ONC Gift Drop-Off Dates and Warehouse Directions";
@@ -522,21 +522,22 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 	        	emailBody = create2015ClothingDonorEmailBody(cid0);
 	        }
 	        else if(emailType == 4)
-	        	emailBody = create2014ClothingDonorReminderEmailBody(cid0);
-/*	        else if(emailType == 2)
-	        	emailBody = create2014DonorReminderEmailBody();
+	        	emailBody = create2015ClothingDonorNotTooLateEmailBody(cid0);
+	        
+//	        else if(emailType == 4)
+//	        	emailBody = create2014ClothingDonorReminderEmailBody(cid0);
+//	        else if(emailType == 2)
+//	        	emailBody = create2014DonorReminderEmailBody();
 //	        	emailBody = createDropOffOrganizationEmailBody(cid0);
-	        else if(emailType == 3)
-	        	emailBody = createOrnamentDropOffEmailBody(cid0);	       
-	        else if(emailType == 6)
-	        	emailBody = create2014GivingTreeEmailBody();
-	        else if(emailType == 7)
-	        	emailBody = createClothingDonorNotTooLateEmailBody(cid0);
-	        else if(emailType == 8)
-	        	emailBody = createDropOffReminderEmailBody(cid0);
-	        else if(emailType == 9)
-	        	emailBody = createClothingDropOffReminderEmailBody(cid0);
-*/	        
+//	        else if(emailType == 3)
+//	        	emailBody = createOrnamentDropOffEmailBody(cid0);	       
+//	        else if(emailType == 6)
+//	        	emailBody = create2014GivingTreeEmailBody();
+//	        else if(emailType == 8)
+//	        	emailBody = createDropOffReminderEmailBody(cid0);
+//	        else if(emailType == 9)
+//	        	emailBody = createClothingDropOffReminderEmailBody(cid0);
+	        
 	        //Create To: recipients. If the partner has a second contact with a valid email address, the
 	        //To: field will contain both email contacts. If there isn't a valid second contact email
 	        //then only the first email address will be used. If the first email address isn't valid, 
@@ -587,9 +588,6 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		else
 		{
 			bccList.add(new EmailAddress(GIFT_PARTNER_EMAIL_SENDER_ADDRESS, "Partner Contact"));
-//			bccList.add(new EmailAddress("kellylavin1@gmail.com", "Kelly Lavin"));
-//			bccList.add(new EmailAddress("jwoneill1@aol.com", "John O'Neill"));
-//			bccList.add(new EmailAddress("johnwoneill@cox.net", "John O'Neill"));
 		}
 		
 		//Create mail server credentials, then the mailer background task and execute it
@@ -790,7 +788,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		return msg;
 	}
 	
-	String createClothingDonorNotTooLateEmailBody(String cid0)
+	String create2015ClothingDonorNotTooLateEmailBody(String cid0)
 	{
 		String msg = String.format("<html><body>" +
 			"<div><p>Hello Again!</p>" + 
@@ -802,9 +800,10 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 			"us in other ways or at a future time.  I only send a follow-up e-mail to be sure that none " +
 			"were missed or sent to SPAM!</p>" +
 			"<p>Please let me know if you'd like to help and I will assign you your kids right away.  " +
-			"Drop off days are <b>December 8 (noon-2:00 p.m.)</b>, and <b>December 9-10 (3:00-6:00 p.m.)</b>.</p>" +
+			"Drop off days are <b>December 6 (12:00-2:00 p.m.)</b>, and <b>December 7-18 (3:30-6:30 p.m.)</b>.</p>" +
 			"<p>We have a new donated warehouse space this year: " +
-			"<a href=\"http://goo.gl/maps/eWCEr\">4311 Walney Road, Chantilly</a></b>.</p>" +
+			"<a href=\"https://goo.gl/maps/KR64TFEqJGw\">4315 Walney Road in Chantilly</a></b>.</p>" +
+			"</p>It's between Route 28 and Route 50, just south of Willard Rd. Look for our ONC directional signs!</p>" +
 			"<p>Thanks so much,</p>" +
 			"<p>Stephanie Somers<br>Clothing Coordinator<br>" +
 			"<a href=\"http://www.ourneighborschild.org\">Our Neighbor's Child</a></p></div>" +
