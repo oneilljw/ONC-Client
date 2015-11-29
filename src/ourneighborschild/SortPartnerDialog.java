@@ -674,7 +674,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 	String create2015DonorReminderEmailBody()
 	{	
 		String msg = String.format("<html><body><div>" +
-				"<p>Just a reminder of the three ONC Gift Drop dates that begin next Sunday. Please remember our " +
+				"<p>Just a reminder of the three ONC Gift Drop-Off dates that begin next Sunday. Please remember our " +
 				"<b>NEW LOCATION:</b> is: " +
 				"<a href=\"https://goo.gl/maps/KR64TFEqJGw\">4315 Walney Road in Chantilly</a></b>.</p>" +
 				"</p>It's between Route 28 and Route 50, just south of Willard Rd. Look for our ONC directional signs!</p>" +
