@@ -65,10 +65,10 @@ public class ONCUserDialog extends JDialog implements ActionListener, ListSelect
 			userDB.addDatabaseListener(this);
 		
 		
-		//Create the catalog table model
+		//Create the table model
 		dlgTableModel = new DialogTableModel();
 		
-		//create the catalog table
+		//create the table
 		String[] colToolTips = {"Last Name",
 				"First Name",
 				"Permission"};

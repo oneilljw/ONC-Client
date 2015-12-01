@@ -968,29 +968,37 @@ public class OurNeighborsChild implements DatabaseListener
     		else if(e.getSource() == ONCMenuBar.importODBMI) {OnImportMenuItemClicked("ODB");}
     		else if(e.getSource() == ONCMenuBar.importWFCMMI) {OnImportMenuItemClicked("WFCM");}
     		else if(e.getSource() == ONCMenuBar.importRAFMI) { oncFamilyPanel.onImportRAFMenuItemClicked(); }
-    		else if(e.getSource() == ONCMenuBar.importCallResultMI)
-    		{
-    			AngelAutoCallDialog angDlg = new AngelAutoCallDialog();
-    			int nCallItems = angDlg.readAngelCallResults(oncFrame, oncGVs, oncFamDB);
-    			//Confirm with the user that the deletion is really intended
-    			String confirmMssg =String.format("%d call items imported, do you want to process them " +
-    					"and create a call log report?", nCallItems);
-    		
-    			Object[] options= {"Cancel", "Process Call Items"};
-    			JOptionPane confirmOP = new JOptionPane(confirmMssg, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION,
-    								oncGVs.getImageIcon(0), options, "Cancel");
-    			JDialog confirmDlg = confirmOP.createDialog(oncFrame, "*** Confirm Process Call Items ***");
-    			confirmDlg.setVisible(true);
-    		
-    			Object selectedValue = confirmOP.getValue();
-    			if(selectedValue != null && selectedValue.toString().equals("Process Call Items"))
-    			{
-    				angDlg.writeAngelCallResults(oncFrame);
-    				angDlg.updateFamilyDeliveryStatus();
-    			}
-    			else
-    				angDlg.clearCallItemData(); //User chose not to process call items
-    		}
+    		else if(e.getSource() == ONCMenuBar.importCallResultMI) {oncFamilyPanel.showAngelCallDialog();}
+//    		else if(e.getSource() == ONCMenuBar.importCallResultMI)
+//    		{
+//    			AngelAutoCallDialog angDlg = new AngelAutoCallDialog(oncFrame);
+//    			int nCalls = angDlg.readAngelCallResults(oncFrame, oncGVs, oncFamDB);
+//    			if(nCalls > 0)
+//    			{	
+//    				angDlg.setLocationRelativeTo(oncFrame);
+//    				angDlg.setVisible(true);
+//    			}
+//    			
+//    			int nCallItems = angDlg.readAngelCallResults(oncFrame, oncGVs, oncFamDB);
+//    			//Confirm with the user that the call processing is really intended
+//    			String confirmMssg =String.format("%d call items imported, do you want to process them " +
+//    					"and create a call log report?", nCallItems);
+//    		
+//    			Object[] options= {"Cancel", "Process Call Items"};
+//    			JOptionPane confirmOP = new JOptionPane(confirmMssg, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION,
+//    								oncGVs.getImageIcon(0), options, "Cancel");
+//    			JDialog confirmDlg = confirmOP.createDialog(oncFrame, "*** Confirm Process Call Items ***");
+//    			confirmDlg.setVisible(true);
+//    		
+//    			Object selectedValue = confirmOP.getValue();
+//    			if(selectedValue != null && selectedValue.toString().equals("Process Call Items"))
+//    			{
+//    				angDlg.writeAngelCallResults(oncFrame);
+//    				angDlg.updateFamilyDeliveryStatus();
+//    			}
+//    			else
+//    				angDlg.clearCallItemData(); //User chose not to process call items
+//    		}
 //    		else if(e.getSource() == ONCMenuBar.exportMI){ exportFamilyReportToCSV(); }
     		else if(e.getSource() == ONCMenuBar.exportMI){ exportObjectDBToCSV(); }
     		else if(e.getSource() == ONCMenuBar.dbStatusMI) {onDBStatusClicked();}

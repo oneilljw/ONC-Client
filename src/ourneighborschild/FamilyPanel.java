@@ -144,6 +144,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private FamilyCheckDialog dfDlg;
 	private WishLabelViewer wlViewerDlg;
 	private PYChildConnectionDialog pyConnectionDlg;
+	private AngelAutoCallDialog angelDlg;
 	
 //	private LogDialog logDlg;
 	
@@ -646,6 +647,14 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         orgDlg = new OrganizationDialog(parentFrame);
         sortWishesDlg.addEntitySelectionListener(orgDlg);
         sortMealsDlg.addEntitySelectionListener(orgDlg);
+        
+      //Set up the edit gift partner dialog
+       angelDlg = new AngelAutoCallDialog(parentFrame);
+       angelDlg.addEntitySelectionListener(familyChildSelectionListener);
+   	   angelDlg.addEntitySelectionListener(agentInfoDlg);
+       angelDlg.addEntitySelectionListener(dirDlg);
+   	   angelDlg.addEntitySelectionListener(dsDlg);
+   	   angelDlg.addEntitySelectionListener(mealDlg);
         
         //Set up the sort gift partner dialog
         String[] orgToolTips = {"ONC Partner", "Partner Status","Type of Organization",
@@ -1678,6 +1687,16 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			Point pt = parentFrame.getLocation();
 	        sortDriverDlg.setLocation(pt.x + 5, pt.y + 20);
 			sortDriverDlg.setVisible(true);
+		}
+	}
+	
+	void showAngelCallDialog()
+	{
+		if(!angelDlg.isVisible())
+		{	
+			Point pt = parentFrame.getLocation();
+	        angelDlg.setLocation(pt.x + 5, pt.y + 20);
+			angelDlg.setVisible(true);
 		}
 	}
 	
