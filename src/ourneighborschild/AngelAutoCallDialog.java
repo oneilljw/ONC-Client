@@ -2,15 +2,19 @@ package ourneighborschild;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.print.PrinterException;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -21,6 +25,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
@@ -63,7 +68,7 @@ public class AngelAutoCallDialog extends ONCTableDialog implements ActionListene
 	private Families familyDB;
 	private ArrayList<AngelCallItem> stAL;
 	
-	private boolean bCallsProcessed;
+	private boolean bCallsProcessed;	//indicates if delivery status updated as a result of calls in table
 	
 //	private boolean bChangingTable = false;	//Semaphore used to indicate the sort table is being changed
 //	private boolean bSortTableBuildRqrd = false;	//Used to determine a build to sort table is needed
@@ -122,15 +127,22 @@ public class AngelAutoCallDialog extends ONCTableDialog implements ActionListene
 		        JScrollPane dsScrollPane = new JScrollPane(dlgTable);
 		        dsScrollPane.setBorder(UIManager.getBorder("Table.scrollPaneBorder"));
 		        
+		        JPanel bottomPanel = new JPanel();
+		        bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.X_AXIS));
+		        
+		        JPanel countPanel = new JPanel();
+		        countPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+		        
 		        JPanel cntlPanel = new JPanel();
+		        cntlPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
 		        
 		        lblNumOfCalls = new JLabel("Number of Calls: 0");
 
-		        btnImport = new JButton("Import");
+		        btnImport = new JButton("Import Calls");
 		        btnImport.setToolTipText("Import Call Results from csv file");
 		        btnImport.addActionListener(this);
 		      
-		        btnExport = new JButton("Export");
+		        btnExport = new JButton("Export Calls");
 		        btnExport.setToolTipText("Export Call Results to csv file");
 		        btnExport.setEnabled(false);
 		        btnExport.addActionListener(this);
@@ -150,21 +162,25 @@ public class AngelAutoCallDialog extends ONCTableDialog implements ActionListene
 		        btnClear.setEnabled(false);
 		        btnClear.addActionListener(this);
 		        
-		        cntlPanel.add(lblNumOfCalls);
+		        countPanel.add(lblNumOfCalls);
+		        
 		        cntlPanel.add(btnImport);
 		        cntlPanel.add(btnExport);
 		        cntlPanel.add(btnPrint);
-		        cntlPanel.add(btnProcess);
 		        cntlPanel.add(btnClear);
+		        cntlPanel.add(btnProcess);
+		        
+		        bottomPanel.add(countPanel);
+		        bottomPanel.add(cntlPanel);
 		        
 		        getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 		        getContentPane().add(dsScrollPane);
-		        getContentPane().add(cntlPanel);
+		        getContentPane().add(bottomPanel);
 		        
 		        pack();
 		        this.setMinimumSize(new Dimension(tablewidth, 240));
 	}
-	
+/*	
 	int readAngelCallResults(JFrame pFrame, GlobalVariables gvs, Families fdb)
 	{
 		//Initialize the call items read counter
@@ -270,7 +286,7 @@ public class AngelAutoCallDialog extends ONCTableDialog implements ActionListene
 	    
 	    return callitem;
 	}
-	
+*/	
 	String readAngelCallResults()
 	{
 		//Initialize the call items read counter
@@ -374,6 +390,9 @@ public class AngelAutoCallDialog extends ONCTableDialog implements ActionListene
 	    	{
 	    		System.err.format("IOException: %s%n", x);
 	    	}
+	    	
+	    	if(stAL.size() > 0)
+	    		bCallsProcessed = false;	//If calls are imported, can process them
 	    }
 	    
 	    return filename;
@@ -429,7 +448,7 @@ public class AngelAutoCallDialog extends ONCTableDialog implements ActionListene
 		return result;	
 	}
 	
-	 String writeAngelCallResults(JFrame pFrame)
+	 String writeAngelCallResults()
 	 {
 	    String filename = "";
 	    String[] header = {"ONCNum", "Phone #", "Date", "Time", "Dur", "Direction", "Language",
@@ -446,7 +465,7 @@ public class AngelAutoCallDialog extends ONCTableDialog implements ActionListene
 	    	
 	    //Show dialog and return File object if user approves selection, else return a
 	    //null File object if user cancels or an error occurs
-		if(chooser.showSaveDialog(pFrame) == JFileChooser.APPROVE_OPTION)
+		if(chooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION)
 		{
 		    File angelWriteFile =  chooser.getSelectedFile();
 
@@ -464,34 +483,39 @@ public class AngelAutoCallDialog extends ONCTableDialog implements ActionListene
 		    	    writer.writeNext(aci.getCallItemTableRow());
 		    	   
 		    	writer.close();
+
+		    	JOptionPane.showMessageDialog(this, 
+		    			String.format("%d calls exported to %s", stAL.size(), angelWriteFile.getName()),
+						"ONC Call Export Successful",  JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
 		    	      	    
 		    } 
 		    catch (IOException x)
 		    {
 		    	System.err.format("IOException: %s%n", x);
-		    	JOptionPane.showMessageDialog(pFrame, angelWriteFile.getName() + " could not be saved", 
+		    	JOptionPane.showMessageDialog(this, angelWriteFile.getName() + " could not be saved", 
 							"ONC File Save Error", JOptionPane.ERROR_MESSAGE);
 		    }
 		}
 		return filename;
 	 }
 	 
-	 boolean updateFamilyDeliveryStatus()
+	 void updateFamilyDeliveryStatus()
 	 {
-		 boolean bChangedDeliveryStatus = false;
+		 List<ONCDelivery> deliveryList = new ArrayList<ONCDelivery>();
 		 
-		 Families familyDB = Families.getInstance();
+//		 Families familyDB = Families.getInstance();
 //		 DriverDB driverDB = DriverDB.getInstance();
 		 DeliveryDB deliveryDB = DeliveryDB.getInstance();
-		 GlobalVariables gvs = GlobalVariables.getInstance();
+//		 GlobalVariables gvs = GlobalVariables.getInstance();
 				 
 		 for(int i=stAL.size()-1; i >=0; i--)
 		 {
-			 int oncID = stAL.get(i).getONCID();
-			 if(oncID > 0)
+			 ONCFamily f = stAL.get(i).getFamily();
+			 if(f != null)
 			 {
-				 ONCFamily f = familyDB.searchForFamilyByID(stAL.get(i).getONCID());
-				 ONCFamily reqFamUpdate = new ONCFamily(f); //make a copy of the family object
+//				 ONCFamily f = familyDB.searchForFamilyByID(stAL.get(i).getONCID());
+//				 ONCFamily f = stAL.get(i).getFamily();
+//				 ONCFamily reqFamUpdate = new ONCFamily(f); //make a copy of the family object
 			 
 				 //If status == confirmed is an upgrade to status, change the family status and
 				 //create a new ONCDelivery object
@@ -505,38 +529,21 @@ public class AngelAutoCallDialog extends ONCTableDialog implements ActionListene
 							 					GlobalVariables.getUserLNFI(),
 							 					Calendar.getInstance());
 					 
-					 String response = deliveryDB.add(this, reqDelivery);
-					 if(response.startsWith("ADDED_DELIVERY"))
-					 {
-						Gson gson = new Gson();
-						ONCDelivery addedDelivery = gson.fromJson(response.substring(14), ONCDelivery.class);
-						reqFamUpdate.setDeliveryID(addedDelivery.getID());
-						reqFamUpdate.setDeliveryStatus(DELIVERY_STATUS_CONFIRMED);
-
-					 }
-					 else
-					 {
-						//display an error message that update request failed
-						JOptionPane.showMessageDialog(this, "ONC Server denied Delivery Update," +
-								"try again later","Driver Update Failed",  
-								JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
- 					 }
+					 deliveryList.add(reqDelivery);
 					 
-//					 int did = delDB.addDelivery(f.getID(),
-//							 	DELIVERY_STATUS_CONFIRMED,
-//								ddb.getDriverLNFI(delDB.getDeliveredBy(f.getDeliveryID())),
-//								"Angel Call Result: Confirmed",
-//								gvs.getUserLNFI(),
-//								Calendar.getInstance());
-	
-					 //update the family in the data base
-//					 f.setDeliveryID(did);
-//					 f.setChangedBy(gvs.getUserLNFI());
-//
-//					 f.setDeliveryStatus(DELIVERY_STATUS_CONFIRMED);
-					 bChangedDeliveryStatus = true;
-				 }
-				 
+//					 String response = deliveryDB.add(this, reqDelivery);
+//					 if(response.startsWith("ADDED_DELIVERY"))
+//					 {
+//						bCallsProcessed = true;
+//					 }
+//					 else
+//					 {
+//						//display an error message that update request failed
+//						JOptionPane.showMessageDialog(this, "ONC Server denied Delivery Update," +
+//								"try again later","Driver Update Failed",  
+//								JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
+// 					 }
+				 }			 
 				 else if(f.getDeliveryStatus() < DELIVERY_STATUS_CONTACTED)
 				 {
 					//add a new delivery to the delivery data base
@@ -546,39 +553,65 @@ public class AngelAutoCallDialog extends ONCTableDialog implements ActionListene
 							 					GlobalVariables.getUserLNFI(),
 							 					Calendar.getInstance());
 					 
-					 String response = deliveryDB.add(this, reqDelivery);
-					 if(response.startsWith("ADDED_DELIVERY"))
-					 {
-						Gson gson = new Gson();
-						ONCDelivery addedDelivery = gson.fromJson(response.substring(14), ONCDelivery.class);
-						reqFamUpdate.setDeliveryID(addedDelivery.getID());
-						reqFamUpdate.setDeliveryStatus(DELIVERY_STATUS_CONFIRMED);
-
-					 }
-					 else
-					 {
-						//display an error message that update request failed
-						JOptionPane.showMessageDialog(this, "ONC Server denied Driver Update," +
-								"try again later","Driver Update Failed",  
-								JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
- 					 }
-//					 int did = delDB.addDelivery(f.getID(),
-//							 	DELIVERY_STATUS_CONTACTED,
-//								ddb.getDriverLNFI(delDB.getDeliveredBy(f.getDeliveryID())),
-//								"Angel Call Result: Contacted",
-//								gvs.getUserLNFI(),
-//								Calendar.getInstance());
-//	
-//					 f.setDeliveryID(did);
-//					 f.setChangedBy(gvs.getUserLNFI());
-//					 f.setDeliveryStatus(DELIVERY_STATUS_CONTACTED);
-					 bChangedDeliveryStatus = true;
+					 deliveryList.add(reqDelivery);
+//					 
+//					 String response = deliveryDB.add(this, reqDelivery);
+//					 if(response.startsWith("ADDED_DELIVERY"))
+//					 {
+//						bCallsProcessed = true;
+//					 }
+//					 else
+//					 {
+//						//display an error message that update request failed
+//						JOptionPane.showMessageDialog(this, "ONC Server denied Driver Update," +
+//								"try again later","Driver Update Failed",  
+//								JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
+// 					 }
 				 }
 			 }
 		 }
 		 
-		 return bChangedDeliveryStatus;
+		 //now that we have a list of deliveries, if not empty, add them to the data base
+		 if(!deliveryList.isEmpty())
+		 {
+			 String response = deliveryDB.addGroup(this, deliveryList);
+			 if(response.equals("ADDED_GROUP_DELIVERIES"))
+			 {
+				 bCallsProcessed = true;
+				 String mssg = String.format("%d calls processed successfully", deliveryList.size());
+				 JOptionPane.showMessageDialog(this, mssg,"Call Results Processed",  
+							JOptionPane.INFORMATION_MESSAGE, gvs.getImageIcon(0));
+			 }
+			 else
+			 {
+				 JOptionPane.showMessageDialog(this, "ONC Server denied Call Update," +
+							"try again later","Call Update Failed",  
+							JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
+			 }
+		 }
+		 else
+		 {
+			 JOptionPane.showMessageDialog(this, "No valid calls to process","No Calls Processed",  
+						JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
+		 }
 	 }
+	 
+	 void print(String name)
+	 {
+		 try
+		 {
+			 MessageFormat headerFormat = new MessageFormat(name);
+	         MessageFormat footerFormat = new MessageFormat("- {0} -");
+	         dlgTable.print(JTable.PrintMode.FIT_WIDTH, headerFormat, footerFormat);           
+		} 
+		catch (PrinterException e) 
+		{
+			String err_mssg = "Unable to print calls: " + e.getMessage();
+			JOptionPane.showMessageDialog(this, err_mssg, "Print Calls Error",
+										JOptionPane.ERROR_MESSAGE, GlobalVariables.getONCLogo());
+		}
+	}
+
 	 
 	 void clearCallItemData() { stAL.clear(); }	//Called if user cancels processing after read of calls
 	 
@@ -675,21 +708,15 @@ public class AngelAutoCallDialog extends ONCTableDialog implements ActionListene
 			//Confirm with the user that the call processing is really intended
 			String confirmMssg = "Are you sure you want to process calls?";	
 		
-			Object[] options= {"Cancel", "Process Call Items"};
+			Object[] options= {"Cancel", "Process Calls"};
 			JOptionPane confirmOP = new JOptionPane(confirmMssg, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION,
 								gvs.getImageIcon(0), options, "Cancel");
-			JDialog confirmDlg = confirmOP.createDialog(this, "*** Confirm Process Call Items ***");
+			JDialog confirmDlg = confirmOP.createDialog(this, "*** Confirm Process Calls ***");
 			confirmDlg.setVisible(true);
 		
 			Object selectedValue = confirmOP.getValue();
-			if(selectedValue != null && selectedValue.toString().equals("Process Call Items"))
+			if(selectedValue != null && selectedValue.toString().equals("Process Calls"))
 				updateFamilyDeliveryStatus();
-//				writeAngelCallResults(oncFrame);
-			else
-				clearCallItemData(); //User chose not to process call items
-			
-			dlgTableModel.fireTableDataChanged();
-			lblNumOfCalls.setText(String.format("Number of Calls: %d", stAL.size()));
 			
 			checkAndEnableControls();
 		}
@@ -705,14 +732,23 @@ public class AngelAutoCallDialog extends ONCTableDialog implements ActionListene
 			
 			checkAndEnableControls();
 		}
+		else if(e.getSource() == btnExport)
+		{
+			writeAngelCallResults();
+			checkAndEnableControls();
+		}
 		else if(e.getSource() == btnClear)
 		{
 			clearCallItemData();
 			dlgTableModel.fireTableDataChanged();
 			lblNumOfCalls.setText(String.format("Number of Calls: %d", stAL.size()));
+			this.setTitle("ONC Automated Call Results");
 			checkAndEnableControls();
 		}
-	
+		else if(e.getSource() == btnPrint)
+		{
+			print("ONC Call Results");
+		}		
 	}
 
 	@Override

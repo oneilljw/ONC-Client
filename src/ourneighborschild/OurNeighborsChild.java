@@ -530,7 +530,7 @@ public class OurNeighborsChild implements DatabaseListener
         ONCMenuBar.importPYORGMI.addActionListener(menuItemListener);
         ONCMenuBar.importODBMI.addActionListener(menuItemListener);
         ONCMenuBar.importWFCMMI.addActionListener(menuItemListener);
-        ONCMenuBar.importCallResultMI.addActionListener(menuItemListener);
+        ONCMenuBar.manageCallResultMI.addActionListener(menuItemListener);
         ONCMenuBar.exportMI.addActionListener(menuItemListener);
         ONCMenuBar.dbStatusMI.addActionListener(menuItemListener);
         ONCMenuBar.clearMI.addActionListener(menuItemListener);       
@@ -968,7 +968,7 @@ public class OurNeighborsChild implements DatabaseListener
     		else if(e.getSource() == ONCMenuBar.importODBMI) {OnImportMenuItemClicked("ODB");}
     		else if(e.getSource() == ONCMenuBar.importWFCMMI) {OnImportMenuItemClicked("WFCM");}
     		else if(e.getSource() == ONCMenuBar.importRAFMI) { oncFamilyPanel.onImportRAFMenuItemClicked(); }
-    		else if(e.getSource() == ONCMenuBar.importCallResultMI) {oncFamilyPanel.showAngelCallDialog();}
+    		else if(e.getSource() == ONCMenuBar.manageCallResultMI) {oncFamilyPanel.showAngelCallDialog();}
 //    		else if(e.getSource() == ONCMenuBar.importCallResultMI)
 //    		{
 //    			AngelAutoCallDialog angDlg = new AngelAutoCallDialog(oncFrame);

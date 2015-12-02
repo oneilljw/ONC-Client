@@ -8,6 +8,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.List;
+
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -60,6 +62,18 @@ public class DeliveryDB extends ONCDatabase
 			processAddedObject(source, response.substring(14));
 		
 		return response;	
+	}
+	
+	String addGroup(Object source, List<ONCDelivery> deliveryList)
+	{
+		Gson gson = new Gson();
+		Type listtype = new TypeToken<ArrayList<ONCDelivery>>(){}.getType();
+			
+		String response = gson.toJson(deliveryList, listtype);
+		
+		response = serverIF.sendRequest("POST<delivery_group>" + gson.toJson(deliveryList, listtype));
+		
+		return response;
 	}
 	
 	void processAddedObject(Object source, String json)

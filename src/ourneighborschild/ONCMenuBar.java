@@ -18,7 +18,7 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 	public DBStatusDB oncDB;
 	public static JMenuItem newMI;
 	public static JMenuItem importODBMI, importWFCMMI, importRAFMI;
-	public static JMenuItem importONCMI, importPYMI, importPYORGMI,importWishCatMI, importCallResultMI;
+	public static JMenuItem importONCMI, importPYMI, importPYORGMI,importWishCatMI, manageCallResultMI;
 	public static JMenuItem exportMI, dbStatusMI, clearMI, exitMI;
 //	public static JMenuItem font8, font10, font12, font13, font14, font16, font18;
 //	public static JMenuItem compODBtoONCfamMI, compODBtoONCdataMI, compWFCMtoONCfamMI, compWFCMtoONCdataMI;
@@ -88,9 +88,9 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 	    submenuImport.add(importWFCMMI);
 	    
 	    //Import Angel Call Results
-	    importCallResultMI = new JMenuItem("Angel Call Results...");
-	    importCallResultMI.setEnabled(false);
-	    submenuImport.add(importCallResultMI);
+//	    manageCallResultMI = new JMenuItem("Angel Call Results...");
+//	    manageCallResultMI.setEnabled(false);
+//	    submenuImport.add(manageCallResultMI);
 	    
 	    //Import Delivery Partners
 	    importDrvrMI = new JMenuItem("Delivery Partners...");	
@@ -136,8 +136,6 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 	    sortFamiliesMI.setEnabled(false);	    
 	    menuFamilies.add(sortFamiliesMI);
 	    
-	    menuFamilies.addSeparator();
-	    
 	    submenuChangeFamilyNumbers = new JMenu("Change Numbers");
 	    submenuChangeFamilyNumbers.setEnabled(false);   
 	    menuFamilies.add(submenuChangeFamilyNumbers);
@@ -150,6 +148,13 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 	    
 	    changeBatchMI = new JMenuItem("Change Batch #");
 	    submenuChangeFamilyNumbers.add(changeBatchMI);
+	    
+	    menuFamilies.addSeparator();
+	    
+	    //Manage Angel Call Results
+	    manageCallResultMI = new JMenuItem("Manage Call Results");
+	    manageCallResultMI.setEnabled(false);
+	    menuFamilies.add(manageCallResultMI);
 	    
 	    menuFamilies.addSeparator();
 	    
@@ -366,7 +371,7 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 		delChildMI.setEnabled(tf);
 		newChildMI.setEnabled(tf);
 		connectChildMI.setEnabled(tf);
-		importCallResultMI.setEnabled(tf);
+		manageCallResultMI.setEnabled(tf);
 	}
 	
 	void setEnabledWishCatalogAndOrgMenuItems(boolean tf)
