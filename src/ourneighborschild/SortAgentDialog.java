@@ -21,6 +21,7 @@ import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.SwingWorker;
 import javax.swing.event.ListSelectionEvent;
@@ -93,7 +94,8 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		
 		//Add all sort criteria components to dialog pane
         sortCriteriaPanelTop.add(orgCB);
-		sortCriteriaPanelTop.add(titleCB);				
+		sortCriteriaPanelTop.add(titleCB);
+		sortCriteriaPanelTop.add(new JPanel());
 		
         //Set up the cntl panel
 		//Set the text for the agent count label

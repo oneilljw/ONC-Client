@@ -1,14 +1,18 @@
 package ourneighborschild;
 
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
+
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
@@ -59,9 +63,10 @@ public abstract class GiftActionDialog extends SortTableDialog
 		this.setTitle(String.format("Our Neighbor's Child - %s Gifts", dialogType.presentTense()));
 		
 		//Set up the search criteria panel      
-    	oncnumTF = new JTextField();
+    	oncnumTF = new JTextField(5);
     	oncnumTF.setEditable(true);
-    	oncnumTF.setPreferredSize(new Dimension(88,56));
+    	oncnumTF.setMaximumSize(new Dimension(64,56));
+//    	oncnumTF.setAlignmentX(Component.LEFT_ALIGNMENT );//0.0
 		oncnumTF.setBorder(BorderFactory.createTitledBorder("ONC #"));
 		oncnumTF.setToolTipText("Type ONC Family # and press <enter>");
 		oncnumTF.addActionListener(this);
@@ -72,19 +77,25 @@ public abstract class GiftActionDialog extends SortTableDialog
 		startAgeCB = new JComboBox(ages);
 		startAgeCB.setBorder(BorderFactory.createTitledBorder("Child Age"));
 		startAgeCB.setToolTipText("Select or Type Child's Age and press <enter>");
-		startAgeCB.setPreferredSize(new Dimension(88,56));
+		startAgeCB.setMaximumSize(new Dimension(88,56));
+//		startAgeCB.setAlignmentX(Component.LEFT_ALIGNMENT );//0.0
 		startAgeCB.setEditable(true);
 		startAgeCB.addActionListener(this);
 		
 		genderCB = new JComboBox(genders);
 		genderCB.setBorder(BorderFactory.createTitledBorder("Gender"));
 		genderCB.setToolTipText("Select Child's Gender");
-		genderCB.setSize(new Dimension(96,56));
+		genderCB.setMaximumSize(new Dimension(96,56));
+//		genderCB.setAlignmentX(Component.LEFT_ALIGNMENT );//0.0
 		genderCB.addActionListener(this);
-
+		
+		sortCriteriaPanelTop.add(Box.createRigidArea(new Dimension(5,0)));
 		sortCriteriaPanelTop.add(oncnumTF);
+		sortCriteriaPanelTop.add(Box.createRigidArea(new Dimension(5,0)));
 		sortCriteriaPanelTop.add(startAgeCB);
+		sortCriteriaPanelTop.add(Box.createRigidArea(new Dimension(5,0)));
 		sortCriteriaPanelTop.add(genderCB);
+		sortCriteriaPanelTop.add(new JPanel());
 		
 		//change the default row selection setting to single row selection
 		sortTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);

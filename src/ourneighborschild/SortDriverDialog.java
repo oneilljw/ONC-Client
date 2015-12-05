@@ -15,6 +15,7 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
@@ -89,7 +90,7 @@ public class SortDriverDialog extends DependantTableDialog
 		
 //		stoplightCB = new JComboBox(stoplt);
 		stoplightCB = new JComboBox(GlobalVariables.getLights());
-		stoplightCB.setPreferredSize(new Dimension(80, 56));
+		stoplightCB.setMaximumSize(new Dimension(80, 56));
 		stoplightCB.setBorder(BorderFactory.createTitledBorder("Stoplight"));
 		stoplightCB.addActionListener(this);
 		
@@ -98,6 +99,7 @@ public class SortDriverDialog extends DependantTableDialog
         sortCriteriaPanelTop.add(lNameCB);
         sortCriteriaPanelTop.add(changedByCB);
         sortCriteriaPanelTop.add(stoplightCB);
+        sortCriteriaPanelTop.add(new JPanel());
 		
         //Set up the cntl panel
 		//Set the text for the driver count label

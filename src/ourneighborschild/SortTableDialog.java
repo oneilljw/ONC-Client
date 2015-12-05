@@ -1,6 +1,7 @@
 package ourneighborschild;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagLayout;
@@ -93,12 +94,13 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 
 		sortCriteriaPanelTop = new JPanel();
 //		sortCriteriaPanelTop.setLayout(new FlowLayout(FlowLayout.LEFT));
-		sortCriteriaPanelTop.setLayout(new BoxLayout(sortCriteriaPanelTop, BoxLayout.LINE_AXIS));
+		sortCriteriaPanelTop.setLayout(new BoxLayout(sortCriteriaPanelTop, BoxLayout.X_AXIS));
 		sortCriteriaPanelBottom = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		
 		//Create the ONC Icon label and add it to the search criteria panel
     	JLabel lblONCicon = new JLabel(gvs.getImageIcon(0));
     	lblONCicon.setToolTipText("ONC Client v" + GlobalVariables.getVersion());
+    	lblONCicon.setAlignmentX(Component.LEFT_ALIGNMENT );//0.0
         sortCriteriaPanelTop.add(lblONCicon);
 		
 		sortCriteriaPanel.add(sortCriteriaPanelTop);

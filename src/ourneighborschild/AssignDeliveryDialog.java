@@ -5,12 +5,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.Calendar;
+
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 public class AssignDeliveryDialog extends SortFamilyTableDialog 
@@ -55,9 +57,10 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 		sortDStatus=0;
 				
 		//Set up unique sort criteria gui
-    	oncnumTF = new JTextField();
+    	oncnumTF = new JTextField(5);
     	oncnumTF.setEditable(true);
-    	oncnumTF.setPreferredSize(new Dimension(88,56));
+    	oncnumTF.setMaximumSize(new Dimension(64,56));
+//    	oncnumTF.setPreferredSize(new Dimension(88,56));
 		oncnumTF.setBorder(BorderFactory.createTitledBorder("ONC #"));
 		oncnumTF.setToolTipText("Type ONC Family # and press <enter>");
 		oncnumTF.addActionListener(this);
@@ -66,7 +69,7 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
     	regionCBM.addElement("Any");	//superclass has regionCBM
     	sRegCB = new JComboBox();
     	sRegCB.setModel(regionCBM);
-    	sRegCB.setPreferredSize(new Dimension(112,56));
+    	sRegCB.setMaximumSize(new Dimension(48,56));
 		sRegCB.setBorder(BorderFactory.createTitledBorder("Region Start"));
 		sRegCB.addActionListener(this);
 		
@@ -74,12 +77,12 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 		eRegCBM.addElement("Any");
 		eRegCB = new JComboBox();
 		eRegCB.setModel(eRegCBM);
-    	eRegCB.setPreferredSize(new Dimension(112,56));
+    	eRegCB.setMaximumSize(new Dimension(48,56));
 		eRegCB.setBorder(BorderFactory.createTitledBorder("Region End"));
 		eRegCB.addActionListener(this);
 		
 		dstatusCB = new JComboBox(delstatus);
-		dstatusCB.setPreferredSize(new Dimension(192,56));
+		dstatusCB.setMaximumSize(new Dimension(192,56));
 		dstatusCB.setBorder(BorderFactory.createTitledBorder("Delivery Status Less Then"));
 		dstatusCB.addActionListener(this);
 		
@@ -88,6 +91,7 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
         sortCriteriaPanelTop.add(sRegCB);
 		sortCriteriaPanelTop.add(eRegCB);				
 		sortCriteriaPanelTop.add(dstatusCB);
+		sortCriteriaPanelTop.add(new JPanel());
 		 
 		//Set up change data panel gui
         assignDriverTF = new JTextField(12);
