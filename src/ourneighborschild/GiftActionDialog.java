@@ -226,6 +226,9 @@ public abstract class GiftActionDialog extends SortTableDialog
 		//To undo the wish, add the old wish back with the previous status		
 		ONCChildWish lastWish = lastWishChanged.getChildWish();
 		
+		System.out.println(String.format("GiftAction.Dlg.onUndo: lastWishStatus= %s",
+											lastWish.getChildWishStatus().toString()));
+		
 		ONCChildWish addedWish = cwDB.add(this, lastWishChanged.getChild().getID(),
 									lastWish.getWishID(),
 									lastWish.getChildWishDetail(),
@@ -234,7 +237,10 @@ public abstract class GiftActionDialog extends SortTableDialog
 									lastWish.getChildWishStatus(),
 									null);	//null to keep same partner
 		
-	//	lastChild.setChildWishID(wishid, lastWish.getWishNumber());	//Unnecessary: ChildWishDB.processAddedChild takes care of this	
+		System.out.println(String.format("GiftAction.Dlg.onUndo: addedWishStatus= %s", 
+											addedWish.getChildWishStatus().toString()));
+		
+//		lastChild.setChildWishID(wishid, lastWish.getWishNumber());	//Unnecessary: ChildWishDB.processAddedChild takes care of this	
 		
 		//Update the receive gifts sort table itself
 		buildTableList(false);

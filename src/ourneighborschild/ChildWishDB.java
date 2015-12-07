@@ -157,7 +157,7 @@ public class ChildWishDB extends ONCDatabase
 		//determine if gift has been received. If it has, notify the Organization DB
 		//to update partner gift received counts
 		DataChange  wgr = null;
-		if(replacedWish != null && replacedWish.getChildWishStatus() == WishStatus.Assigned  && 
+		if(replacedWish != null && replacedWish.getChildWishStatus() == WishStatus.Delivered  && 
 				addedWish.getChildWishStatus() == WishStatus.Received &&
 				replacedWish.getChildWishAssigneeID() == addedWish.getChildWishAssigneeID())
 		{	
@@ -166,7 +166,7 @@ public class ChildWishDB extends ONCDatabase
 			orgDB.processGiftReceivedChange(wgr);
 		}
 		else if(replacedWish != null && replacedWish.getChildWishStatus() == WishStatus.Received  && 
-				 addedWish.getChildWishStatus() == WishStatus.Assigned &&
+				 addedWish.getChildWishStatus() == WishStatus.Delivered &&
 				 replacedWish.getChildWishAssigneeID() == addedWish.getChildWishAssigneeID())
 		{
 			//gift was un-received from partner it was assigned to. This occurs when an undo
@@ -175,7 +175,7 @@ public class ChildWishDB extends ONCDatabase
 			orgDB.processGiftReceivedChange(wgr);
 		}
 		else if(replacedWish != null && replacedWish.getChildWishStatus() == WishStatus.Received  && 
-				 addedWish.getChildWishStatus() == WishStatus.Assigned &&
+				 addedWish.getChildWishStatus() == WishStatus.Delivered &&
 				 replacedWish.getChildWishAssigneeID() != addedWish.getChildWishAssigneeID())
 		{
 			//In theory, this should never occur. However, if a gift is received twice from two
@@ -318,6 +318,8 @@ public class ChildWishDB extends ONCDatabase
 					newStatus = WishStatus.Missing;
 				else if(reqStatus == WishStatus.Distributed)
 					newStatus = WishStatus.Distributed;
+				else if(reqStatus == WishStatus.Delivered)
+					newStatus = WishStatus.Delivered;
 				break;
 				
 			case Distributed:
