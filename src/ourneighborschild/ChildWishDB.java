@@ -157,12 +157,22 @@ public class ChildWishDB extends ONCDatabase
 		//determine if gift has been received. If it has, notify the Organization DB
 		//to update partner gift received counts
 		DataChange  wgr = null;
-		if(replacedWish != null && replacedWish.getChildWishStatus() == WishStatus.Delivered  && 
+		if(replacedWish != null && 
+			(replacedWish.getChildWishStatus() == WishStatus.Delivered || replacedWish.getChildWishStatus() == WishStatus.Shopping)  && 
 				addedWish.getChildWishStatus() == WishStatus.Received &&
 				replacedWish.getChildWishAssigneeID() == addedWish.getChildWishAssigneeID())
 		{	
-			//gift was received from partner it was assigned to
+			//gift was received from partner it was assigned to or was received from shopping
 			wgr= new DataChange(-1, addedWish.getChildWishAssigneeID());	
+			orgDB.processGiftReceivedChange(wgr);
+		}
+		else if(replacedWish != null && replacedWish.getChildWishStatus() == WishStatus.Delivered  && 
+				 addedWish.getChildWishStatus() == WishStatus.Returned &&
+				 replacedWish.getChildWishAssigneeID() == addedWish.getChildWishAssigneeID())
+		{
+			//ornament was returned from partner it was assigned to. This occurs when a partner returns
+			//ornaments they were unable to fulfill to ONC for ONC to fix
+			wgr= new DataChange(addedWish.getChildWishAssigneeID(), -1);
 			orgDB.processGiftReceivedChange(wgr);
 		}
 		else if(replacedWish != null && replacedWish.getChildWishStatus() == WishStatus.Received  && 
@@ -175,7 +185,7 @@ public class ChildWishDB extends ONCDatabase
 			orgDB.processGiftReceivedChange(wgr);
 		}
 		else if(replacedWish != null && replacedWish.getChildWishStatus() == WishStatus.Received  && 
-				 addedWish.getChildWishStatus() == WishStatus.Delivered &&
+				 addedWish.getChildWishStatus() == WishStatus.Received &&
 				 replacedWish.getChildWishAssigneeID() != addedWish.getChildWishAssigneeID())
 		{
 			//In theory, this should never occur. However, if a gift is received twice from two
