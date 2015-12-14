@@ -58,7 +58,6 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 	
 	private AgentInfoDialog aiDlg;
 	
-
 	SortAgentDialog(JFrame pf, String[] colToolTips, String[] cols, int[] colWidths, int[] center_cols)
 	{
 		super(pf, colToolTips, cols, colWidths, center_cols, 10);
@@ -111,7 +110,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
         progressBar.setStringPainted(true);
         progressBar.setVisible(false);
         
-        String[] emailChoices = {"Email", "2015 Season Agent Email", "2015 Season Gift Confirmation Email"};
+        String[] emailChoices = {"Email", "2015 Season Agent Email", "2015 Season Gift Confirmation Email", "2015 Delivery Status Email"};
         emailCB = new JComboBox(emailChoices);
         emailCB.setPreferredSize(new Dimension(136, 28));
         emailCB.setEnabled(false);
@@ -386,14 +385,14 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 //			attachmentAL.add(new ONCEmailAttachment("DSC_0154.jpeg", cid0 , MimeBodyPart.ATTACHMENT));
 //			attachmentAL.add(new ONCEmailAttachment("Warehouse 3.jpeg", cid1, MimeBodyPart.INLINE));
 //		}
-//		else if(emailType == 3) //In-take work sheet e-mail
-//		{
-//			subject = "Holiday Assitance Update from Our Neighbor's Child";
+		else if(emailType == 3) //Delivery Status Email
+		{
+			subject = "Delivery Status Update from Our Neighbor's Child";
 //			cid0 = ContentIDGenerator.getContentId();
 //			cid1 = ContentIDGenerator.getContentId();
 //			attachmentAL.add(new ONCEmailAttachment("ONC Family Referral Worksheet.xlsx", cid0 , MimeBodyPart.ATTACHMENT));
 //			attachmentAL.add(new ONCEmailAttachment("Warehouse 3.jpeg", cid1, MimeBodyPart.INLINE));
-//		}
+		}
 		else if(emailType == 2) //December Gift Confirmation Email
 		{
 			subject = "December Gift Confirmations";
@@ -465,6 +464,8 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 //				emailBody = create2014AgentIntakeEmail(agent.getAgentFirstName(), cid0);
 			else if(emailType == 2)
 				emailBody = create2015AgentDecemberGiftConfirmationEmail(agent);
+			else if(emailType == 3)
+				emailBody = create2015AgentDeliveryStatusEmail(agent);
 		return emailBody;
 	}
 	
@@ -753,6 +754,38 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
         return msg;
 	}
 	
+	String create2015AgentDeliveryStatusEmail(Agent agt)
+	{
+        //Create the text part of the email using html
+		String msg = "<html><body><div>" +
+				"<p>Dear " + agt.getAgentFirstName() + ",</p>"
+				+"<p>We are sending this email to help you respond to famiies you referred that were scheduled for " 
+				+"December gift assistance delivery from Our Neighbor's Child. "
+				+"<p>Below is a list of families you referred and the status of their delivery. We made or attempted "
+				+ "all deliveries yesterday afternoon. If your family delivery was sucessful, the delivery status "
+				+ "will be \"Delivered\". If the delivery attempt was unsuccessful due to no adult home or an address change, "
+				+ "the delivery status will be \"Attempted\" or \"Returned\".</p>"
+				+"<p>If a family you referred has SA, SBO, or DUP in the Code column next to their delivery status, "
+				+"it is because they were "
+				+"a duplicate of an earlier referral or they signed up with the Salvation Army or "
+				+"other agency as well as ONC. The legend for the Code column is: " 
+				+"SA = Served by The Salvation Army, SBO = Served by Other, DUP = Duplicate Family Referral. "
+				+"In that event, the family was removed from the ONC gift list and should expect to "
+				+"pick up their gifts with the Salvation Army or follow the instructions provided by their serving agency.</p>"
+		        +"<p>As always, thanks so much for your support!</p>"
+		        +"<p>Kelly</p>"
+		        +"<p>Kelly Murray Lavin<br>"
+		        +"Executive Director/Volunteer<br>"
+		        +"Our Neighbor's Child<br>"
+		        +"P.O. Box 276<br>"
+		        +"Centreville, VA 20120<br>"
+		        +"<a href=\"http://www.ourneighborschild.org\">www.ourneighborschild.org</a></p></div>"
+		        +"<p><b>" + agt.getAgentName() + " referrals scheduled for ONC gift delivery:</b></p>"
+		        +createFamiliesDeliveryStatusTableHTML(agt)
+		        +"</body></html>";
+        return msg;
+	}
+	
 	String createServedFamiliesRepresentedTableHTML(Agent a)
 	{
 		StringBuilder familyTableHTML = new StringBuilder("<table style=\"width:100%\">");
@@ -771,6 +804,34 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 				familyTableHTML.append("<td>" + f.getFamilyEmail() + "</td>");
 				familyTableHTML.append("<td>" + f.getHouseNum() + " " + f.getStreet() + " " + f.getUnitNum() + "</td>");
 //				familyTableHTML.append("<td>" + f.getCity() + "</td></tr>");
+				familyTableHTML.append("<td>" + f.getDNSCode() + "</td></tr>");
+			}
+			
+		familyTableHTML.append("</table>");
+				
+		return familyTableHTML.toString();
+	}
+	
+	String createFamiliesDeliveryStatusTableHTML(Agent a)
+	{
+		StringBuilder familyTableHTML = new StringBuilder("<table style=\"width:100%\">");
+		familyTableHTML.append("<th align=\"left\">Last Name</th>");
+		familyTableHTML.append("<th align=\"left\">First Name</th>");
+		familyTableHTML.append("<th align=\"left\">Street Address</th>");
+//		familyTableHTML.append("<th align=\"left\">Family Status</th>");
+		familyTableHTML.append("<th align=\"left\">Delivery Status</th>");
+//		familyTableHTML.append("<th align=\"left\">Meal Status</th>");
+		familyTableHTML.append("<th align=\"left\">Code</th>");
+		
+		for(ONCFamily f:fDB.getList())
+			if(a != null && f.getAgentID() == a.getID())	//family is represented by agent and is being served
+			{
+				familyTableHTML.append("<tr><td>" + f.getHOHLastName() + "</td>");
+				familyTableHTML.append("<td>" + f.getHOHFirstName() + "</td>");
+				familyTableHTML.append("<td>" + f.getHouseNum() + " " + f.getStreet() + " " + f.getUnitNum() + "</td>");
+//				familyTableHTML.append("<td>" + famstatus[f.getFamilyStatus()] + "</td>");
+				familyTableHTML.append("<td>" + delstatus[f.getDeliveryStatus()] + "</td>");
+//				familyTableHTML.append("<td>" + f.getMealStatus().toString() + "</td></tr>");
 				familyTableHTML.append("<td>" + f.getDNSCode() + "</td></tr>");
 			}
 			
