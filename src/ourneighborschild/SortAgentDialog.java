@@ -763,7 +763,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 				+"December gift assistance delivery from Our Neighbor's Child. "
 				+"<p>Below is a list of families you referred and the status of their delivery. We made or attempted "
 				+ "all deliveries yesterday afternoon. If your family delivery was sucessful, the delivery status "
-				+ "will be \"Delivered\". If the delivery attempt was unsuccessful due to no adult home or an address change, "
+				+ "will be \"Delivered\". If the delivery attempt was unsuccessful due to an adult not home or an address change, "
 				+ "the delivery status will be \"Attempted\" or \"Returned\".</p>"
 				+"<p>If a family you referred has SA, SBO, or DUP in the Code column next to their delivery status, "
 				+"it is because they were "
@@ -780,7 +780,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		        +"P.O. Box 276<br>"
 		        +"Centreville, VA 20120<br>"
 		        +"<a href=\"http://www.ourneighborschild.org\">www.ourneighborschild.org</a></p></div>"
-		        +"<p><b>" + agt.getAgentName() + " referrals scheduled for ONC gift delivery:</b></p>"
+		        +"<p><b>" + agt.getAgentName() + " ONC referrals gift delivery status:</b></p>"
 		        +createFamiliesDeliveryStatusTableHTML(agt)
 		        +"</body></html>";
         return msg;
@@ -830,7 +830,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 				familyTableHTML.append("<td>" + f.getHOHFirstName() + "</td>");
 				familyTableHTML.append("<td>" + f.getHouseNum() + " " + f.getStreet() + " " + f.getUnitNum() + "</td>");
 //				familyTableHTML.append("<td>" + famstatus[f.getFamilyStatus()] + "</td>");
-				familyTableHTML.append("<td>" + delstatus[f.getDeliveryStatus()] + "</td>");
+				familyTableHTML.append("<td>" + delstatus[f.getDeliveryStatus()+1] + "</td>");
 //				familyTableHTML.append("<td>" + f.getMealStatus().toString() + "</td></tr>");
 				familyTableHTML.append("<td>" + f.getDNSCode() + "</td></tr>");
 			}
