@@ -322,7 +322,7 @@ public class DriverDialog extends EntityDialog
 			
 			if(response.startsWith("DELETED_DRIVER"))
 			{
-				processDeletedPartner(ddb);
+				processDeletedEntity(ddb);
 			}
 			else
 			{

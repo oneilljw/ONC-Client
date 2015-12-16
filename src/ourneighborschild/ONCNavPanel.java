@@ -177,6 +177,16 @@ public class ONCNavPanel extends JPanel implements ActionListener
 		searchTF.setEnabled(tf);
 	}
 	
+	void clearSearch()
+	{
+		searchTF.setText("");
+		searchAL.clear();
+		srchALindex = 0;
+		rbSrchNext.setVisible(false);
+		rbSrchPrev.setVisible(false);
+		lblMssg.setText(defaultMssg);
+	}
+	
     /** Register a listener for Entity Selection events */
     synchronized public void addEntitySelectionListener(EntitySelectionListener l)
     {
@@ -311,11 +321,7 @@ public class ONCNavPanel extends JPanel implements ActionListener
 		{
 			if(searchTF.getText().isEmpty())
 			{
-				searchAL.clear();
-				srchALindex = 0;
-				rbSrchNext.setVisible(false);
-				rbSrchPrev.setVisible(false);
-				lblMssg.setText(defaultMssg);
+				clearSearch();
 			}	
 		}
 	 }

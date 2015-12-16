@@ -705,7 +705,7 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
 			
 			if(response.startsWith("DELETED_PARTNER"))
 			{
-				processDeletedPartner(odOrgs);
+				processDeletedEntity(odOrgs);
 			}
 			else
 			{

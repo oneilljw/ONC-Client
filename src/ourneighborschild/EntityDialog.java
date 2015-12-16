@@ -83,7 +83,7 @@ public abstract class EntityDialog extends JDialog implements ActionListener, Da
         bAddingNewEntity = false;
     }
     
-    void processDeletedPartner(ONCSearchableDatabase db)	//assumes deleted partner is displayed
+    void processDeletedEntity(ONCSearchableDatabase db)	//assumes deleted entity is displayed
 	{
 		if(nav.getIndex() == 0 && db.size() > 0)
 		{
@@ -101,6 +101,8 @@ public abstract class EntityDialog extends JDialog implements ActionListener, Da
 			nav.setIndex(nav.getIndex() - 1);
 			display(db.getObjectAtIndex(nav.getIndex()));
 		}
+		
+		nav.clearSearch();	//clear the search function; the deleted object maybe in the search
 	}
     
     void setControlState()

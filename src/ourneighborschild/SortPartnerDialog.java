@@ -1090,7 +1090,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 	void onExportRequested()
 	{
 		//Write the selected row data to a .csv file
-    	String[] header = {"Partner ID", "Name", "Type", "Status", "Other", "Special Notes",
+    	String[] header = {"Partner ID", "Name", " Partner Type", "Status", "Collection Type", "Other", "Special Notes",
     						"Orn Req.", "Orn Assign.", "Del To",
     						"Address", "Unit", "City", "Zip", "Phhone #", 
     						"1st Contact", "1st Contact Email", "1st Contact Phone",
@@ -1143,6 +1143,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 						o.getName(),
 						types[o.getType()],
 						status[o.getStatus()+1],
+						o.getGiftCollectionType().toString(),
 						o.getOther(),
 						o.getSpecialNotes(),
 						Integer.toString(o.getNumberOfOrnamentsRequested()),
