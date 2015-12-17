@@ -103,7 +103,7 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 	    oncSeasonStartDate.set(Calendar.SECOND, 0);
 	    oncSeasonStartDate.set(Calendar.MILLISECOND, 0);
 	   
-	    imageIcons = new ImageIcon[40];
+	    imageIcons = new ImageIcon[42];
 		imageIcons[0] = createImageIcon("onclogosmall.gif", "ONC Logo");
 		imageIcons[1] = createImageIcon("InfoIcon.gif", "Info Icon");
 		imageIcons[2] = createImageIcon("Button-Next-icon.gif", "Next Icon");
@@ -155,6 +155,8 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 		imageIcons[37] = createImageIcon("ReferredMeal-icon.png", "Referred Meal");
 		imageIcons[38] = createImageIcon("NoMeal.jpg", "No car");
 		imageIcons[39] = createImageIcon("GoogleMaps-icon.png", "Google Maps");
+		imageIcons[40] = createImageIcon("gift_black.png", "No Gift Card");
+		imageIcons[41] = createImageIcon("gift_white.png", "Gift Card");
 		
 		warehouseAddress = "6476+Trillium+House+Lane+Centreville,VA";
 		fontIndex = 3;

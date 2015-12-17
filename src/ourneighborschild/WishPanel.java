@@ -312,7 +312,9 @@ public class WishPanel extends ONCPanel implements ActionListener, DatabaseListe
 				wishassigneeCB.setEnabled(false);
 			}
 		}
-		else if(wpStatus == WishPanelStatus.Assignee_Only)
+		else if(wpStatus == WishPanelStatus.Assignee_Only && 
+				(ws == WishStatus.Selected || ws == WishStatus.Assigned || ws == WishStatus.Returned ||
+				 ws == WishStatus.Delivered || ws == WishStatus.Missing))
 		{
 			wishCB.setEnabled(false);
 			wishindCB.setEnabled(false);

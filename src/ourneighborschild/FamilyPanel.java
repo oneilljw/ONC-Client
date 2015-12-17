@@ -70,6 +70,8 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private static final int REFERRED_MEAL_ICON_INDEX = 37;
 	private static final int NO_MEAL_ICON_INDEX = 38;
 	private static final int GOOGLE_MAP_ICON_INDEX = 39;
+	private static final int NOT_GIFT_CARD_ONLY_ICON_INDEX = 40;
+	private static final int GIFT_CARD_ONLY_ICON_INDEX = 41;
 	
 	private AdultDB adultDB;
 	private DeliveryDB deliveryDB;
@@ -96,6 +98,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private JLabel lblONCNum, lblRefNum, lblBatchNum, lblRegion, lblNumBags, lblChangedBy;
 	private JRadioButton delRB, altAddressRB, btnMeals, btnShowPriorHistory, btnShowAgentInfo;
 	private JRadioButton btnShowAllPhones, btnShowODBDetails, btnTransportation, btnDirections;
+	private JRadioButton btnNotGiftCardOnly, btnGiftCardOnly;
 	
 //	private JComboBox oncBatchNum, Language, statusCB, delstatCB;
 	private JComboBox Language, statusCB, delstatCB;
@@ -392,6 +395,18 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         btnDirections.setToolTipText("Click for directions to family address");
         btnDirections.setEnabled(false);
         btnDirections.addActionListener(this);
+        
+        btnNotGiftCardOnly = new JRadioButton(gvs.getImageIcon(NOT_GIFT_CARD_ONLY_ICON_INDEX));
+        btnNotGiftCardOnly.setToolTipText("Click for change to Gift Card Only Family");
+        btnNotGiftCardOnly.setEnabled(false);
+        btnNotGiftCardOnly.setVisible(true);
+        btnNotGiftCardOnly.addActionListener(this);
+        
+        btnGiftCardOnly = new JRadioButton(gvs.getImageIcon(GIFT_CARD_ONLY_ICON_INDEX));
+        btnGiftCardOnly.setToolTipText("Click for from Gift Card Only Family");
+        btnGiftCardOnly.setEnabled(false);
+        btnGiftCardOnly.setVisible(false);
+        btnGiftCardOnly.addActionListener(this);
         
         //Set up the Child Table
         childTable = new JTable()
@@ -809,6 +824,8 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         p5.add(btnTransportation);
         p5.add(btnDirections);
         p5.add(delRB);
+        p5.add(btnNotGiftCardOnly);
+        p5.add(btnGiftCardOnly);
               
         this.add(nav);
         this.add(p1);
@@ -991,6 +1008,10 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		btnMeals.setEnabled(true);
 		btnTransportation.setEnabled(true);
 		btnDirections.setEnabled(true);
+		btnNotGiftCardOnly.setEnabled(true);
+		btnNotGiftCardOnly.setVisible(true);
+		btnGiftCardOnly.setEnabled(true);
+		btnGiftCardOnly.setVisible(false);
 		
 		if(bDispAll)
 		{
@@ -1224,6 +1245,9 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			p1.setBackground(Color.GREEN);
 			p2.setBackground(Color.GREEN);
 			p3.setBackground(Color.GREEN);
+			
+			btnNotGiftCardOnly.setVisible(false);
+			btnGiftCardOnly.setVisible(true);
 		}
 	}
 	
