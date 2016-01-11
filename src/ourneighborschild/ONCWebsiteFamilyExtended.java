@@ -13,6 +13,7 @@ public class ONCWebsiteFamilyExtended extends ONCWebsiteFamily
 	private String	OtherPhone;
 	private String	FamilyEmail;
 	private String	details;
+	private String  transportation;
 	private int		mealID;
 	
 	public ONCWebsiteFamilyExtended(ONCFamily f)
@@ -29,6 +30,7 @@ public class ONCWebsiteFamilyExtended extends ONCWebsiteFamily
 		this.OtherPhone = f.getOtherPhon();
 		this.FamilyEmail = f.getFamilyEmail();
 		this.details = f.getDetails();
+		this.transportation = f.getTransportation().toString();
 		this.mealID = f.getMealID();
 	}
 	
@@ -44,6 +46,7 @@ public class ONCWebsiteFamilyExtended extends ONCWebsiteFamily
 	String getOtherPhone() {return OtherPhone;}
 	String getFamilyEmail() {return FamilyEmail;}
 	String getDetails() {return details;}
+	String getTransportation() { return transportation; }
 	int getMealID() {return mealID;}
 
 	//setters
@@ -58,5 +61,6 @@ public class ONCWebsiteFamilyExtended extends ONCWebsiteFamily
 	void setOtherPhone(String otherPhone) {OtherPhone = otherPhone;}
 	void setFamilyEmail(String familyEmail) {FamilyEmail = familyEmail;}
 	void setDetails(String details) {this.details = details;}
+	void setTransportation(Transportation t) {this.transportation = t.toString(); }
 	void setMealID(int mealID) {this.mealID = mealID;}		
 }
