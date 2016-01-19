@@ -60,7 +60,7 @@ public class ONCChildWish extends ONCObject implements Serializable
 	public int getWishID() { return wishID; }
 	public String getChildWishDetail() { return childWishDetail; }
 	public int getWishNumber() { return wishnumber; }
-	int getChildWishIndicator() { return childWishIndicator; }
+	public int getChildWishIndicator() { return childWishIndicator; }
 	public WishStatus getChildWishStatus() {return childWishStatus;}
 	public int getChildWishAssigneeID() {return childWishAssigneeID;}
 	public String getChildWishChangedBy() {return changedBy;}

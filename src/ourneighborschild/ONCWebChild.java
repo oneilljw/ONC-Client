@@ -2,6 +2,7 @@ package ourneighborschild;
 
 public class ONCWebChild
 {
+	private int		id;
 	private int		famid;
 	private String	firstname;
 	private String	lastname;
@@ -11,6 +12,7 @@ public class ONCWebChild
 	
 	public ONCWebChild(ONCChild c)
 	{
+		this.id = c.getID();
 		this.famid = c.getFamID();
 		this.firstname = c.getChildFirstName();
 		this.lastname = c.getChildLastName();
@@ -20,6 +22,7 @@ public class ONCWebChild
 	}
 	
 	//getters
+	int getID() { return id; }
 	int getFamID() { return famid; }
 	String getFirstName() { return firstname; }
 	String getLirstName() { return lastname; }

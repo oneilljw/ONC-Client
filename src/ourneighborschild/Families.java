@@ -1187,27 +1187,8 @@ public class Families extends ONCSearchableDatabase
 		 }
 	 }
 */	 
-	 private class ONCFamilyONCNumComparator implements Comparator<ONCFamily>
+	private class ONCFamilyONCNumComparator implements Comparator<ONCFamily>
 	{
-/*		 
-		@Override
-		public int compare(ONCFamily o1, ONCFamily o2)
-		{
-			Integer onc1, onc2;
-				
-			if(!o1.getONCNum().isEmpty() && isNumeric(o1.getONCNum()))
-				onc1 = Integer.parseInt(o1.getONCNum());
-			else
-				onc1 = MAXIMUM_ONC_NUMBER;
-								
-			if(!o2.getONCNum().isEmpty() && isNumeric(o2.getONCNum()))
-				onc2 = Integer.parseInt(o2.getONCNum());
-			else
-				onc2 = MAXIMUM_ONC_NUMBER;
-				
-			return onc1.compareTo(onc2);
-		}
-*/
 		@Override
 		public int compare(ONCFamily o1, ONCFamily o2)
 		{
