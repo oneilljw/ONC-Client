@@ -2,6 +2,7 @@ package ourneighborschild;
 
 public class ONCWebsiteFamilyExtended extends ONCWebsiteFamily 
 {
+	private String	BatchNum;
 	private String	Language;
 	private String	HouseNum;
 	private String	Street;
@@ -19,6 +20,7 @@ public class ONCWebsiteFamilyExtended extends ONCWebsiteFamily
 	public ONCWebsiteFamilyExtended(ONCFamily f)
 	{
 		super(f);
+		this.BatchNum = f.getBatchNum();
 		this.Language = f.getLanguage();
 		this.HouseNum = f.getHouseNum();
 		this.Street = f.getStreet();
@@ -35,6 +37,7 @@ public class ONCWebsiteFamilyExtended extends ONCWebsiteFamily
 	}
 	
 	//getters
+	String getBatchNum() {return BatchNum; }
 	String getLanguage() {return Language;}
 	String getHouseNum() {return HouseNum;}
 	String getStreet() {return Street;}
@@ -50,6 +53,7 @@ public class ONCWebsiteFamilyExtended extends ONCWebsiteFamily
 	int getMealID() {return mealID;}
 
 	//setters
+	void setBatchNum(String bn) {BatchNum = bn;}
 	void setLanguage(String language) {Language = language;}
 	void setHouseNum(String houseNum) {HouseNum = houseNum;}
 	void setStreet(String street) {Street = street;}
