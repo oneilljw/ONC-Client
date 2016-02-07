@@ -228,7 +228,7 @@ public abstract class DependantTableDialog extends SortTableDialog
 		familytablerow[4] = delstatus[f.getDeliveryStatus()+1];
 		familytablerow[5] = f.getMealStatus().toString();
 		
-		if(gvs.getUser().getPermission().compareTo(UserPermission.WEB_ADMIN) > 0)
+		if(gvs.getUser().getPermission().compareTo(UserPermission.General) > 0)
 		{
 			familytablerow[6] = f.getHOHFirstName();
 			familytablerow[7] = f.getHOHLastName();

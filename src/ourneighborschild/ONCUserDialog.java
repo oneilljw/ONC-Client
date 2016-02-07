@@ -42,10 +42,12 @@ public class ONCUserDialog extends JDialog implements ActionListener, ListSelect
 	private static final long serialVersionUID = 1L;
 	private static final int LAST_NAME_COL= 0;
 	private static final int FIRST_NAME_COL = 1;
-	private static final int PERMISSION_COL = 2;
-	private static final int LOGINS_COL = 3;
-	private static final int LAST_LOGIN_COL = 4;
-	private static final int RESET_PW_COL = 5;
+	private static final int STATUS_COL = 2;
+	private static final int ACCESS_COL = 3;
+	private static final int PERMISSION_COL = 4;
+	private static final int LOGINS_COL = 5;
+	private static final int LAST_LOGIN_COL = 6;
+	private static final int RESET_PW_COL = 7;
 	
 	private ONCTable dlgTable;
 	private AbstractTableModel dlgTableModel;
@@ -69,22 +71,27 @@ public class ONCUserDialog extends JDialog implements ActionListener, ListSelect
 		dlgTableModel = new DialogTableModel();
 		
 		//create the table
-		String[] colToolTips = {"Last Name",
-				"First Name",
-				"Permission"};
+		String[] colToolTips = {"Last Name", "First Name", "Status", "Access", "Permission",
+				"Logins", "Last Login", "Password Change Required?"};
 		
 		dlgTable = new ONCTable(dlgTableModel, colToolTips, new Color(240,248,255));
 
 		dlgTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		dlgTable.getSelectionModel().addListSelectionListener(this);
 		
+		//set up the columns that use combo box editors for the status, access and permission enums
+		TableColumn statusColumn = dlgTable.getColumnModel().getColumn(STATUS_COL);
+		statusColumn.setCellEditor(new DefaultCellEditor(new JComboBox(UserStatus.values())));
+		
+		TableColumn accessColumn = dlgTable.getColumnModel().getColumn(ACCESS_COL);
+		accessColumn.setCellEditor(new DefaultCellEditor(new JComboBox(UserAccess.values())));
+		
 		TableColumn permColumn = dlgTable.getColumnModel().getColumn(PERMISSION_COL);
-		JComboBox comboBox = new JComboBox(UserPermission.values());
-		permColumn.setCellEditor(new DefaultCellEditor(comboBox));
+		permColumn.setCellEditor(new DefaultCellEditor(new JComboBox(UserPermission.values())));
 		
 		//Set table column widths
 		int tablewidth = 0;
-		int[] colWidths = {128, 96, 96, 40, 144, 24};
+		int[] colWidths = {128, 96, 80, 104, 96, 40, 144, 24};
 		for(int col=0; col < colWidths.length; col++)
 		{
 			dlgTable.getColumnModel().getColumn(col).setPreferredWidth(colWidths[col]);
@@ -142,7 +149,7 @@ public class ONCUserDialog extends JDialog implements ActionListener, ListSelect
 	
 	void add()
 	{
-		String[] fieldNames = {"First Name", "Last Name", "User ID", "Permission"};
+		String[] fieldNames = {"First Name", "Last Name", "User ID", "Status", "Access", "Permission"};
     	AddUserDialog auDlg = new AddUserDialog(GlobalVariables.getFrame(), fieldNames);
     	auDlg.setLocationRelativeTo(this);
     	if(userDB != null && auDlg.showDialog())
@@ -177,7 +184,7 @@ public class ONCUserDialog extends JDialog implements ActionListener, ListSelect
 		if(modelrow > -1)
 		{
 			ONCUser reqUpdateUser = new ONCUser(userDB.getUserFromIndex(modelrow));
-			reqUpdateUser.bResetPassword = true;
+			reqUpdateUser.setStatus(UserStatus.Change_PW);
 			
 			//notify the server of the update. When the server sees the reset password
 			//flag set, it will reset the password to a pre-selected password
@@ -279,7 +286,7 @@ public class ONCUserDialog extends JDialog implements ActionListener, ListSelect
 		 */
 		private static final long serialVersionUID = 1L;
 		
-		private String[] columnNames = {"Last Name", "First Name", "Permission",
+		private String[] columnNames = {"Last Name", "First Name", "Status", "Access", "Permission",
 				"Logins", "Last Login", "PW?"};
  
         public int getColumnCount() { return columnNames.length; }
@@ -295,6 +302,10 @@ public class ONCUserDialog extends JDialog implements ActionListener, ListSelect
         		return user.getFirstname();
         	else if(col == LAST_NAME_COL)
         		return user.getLastname();
+        	else if (col == STATUS_COL)
+        		return user.getStatus();
+        	else if (col == ACCESS_COL)
+        		return user.getAccess();
         	else if (col == PERMISSION_COL)
         		return user.getPermission();
         	else if (col == LOGINS_COL)
@@ -317,6 +328,10 @@ public class ONCUserDialog extends JDialog implements ActionListener, ListSelect
         @Override
         public Class<?> getColumnClass(int column)
         {
+        	if(column == STATUS_COL)
+        		return UserStatus.class;
+        	if(column == ACCESS_COL)
+        		return UserAccess.class;
         	if(column == PERMISSION_COL)
         		return UserPermission.class;
         	else if(column == LOGINS_COL)
@@ -329,9 +344,8 @@ public class ONCUserDialog extends JDialog implements ActionListener, ListSelect
  
         public boolean isCellEditable(int row, int col)
         {
-            //Only the check boxes can be edited and then only if there is not
-        	//a wish already selected from the list associated with that column
-        	if(col == LAST_NAME_COL || col == FIRST_NAME_COL || col == PERMISSION_COL)
+        	//Name, Status, Access and Permission are editable
+        	if(col <= PERMISSION_COL)
         		return true;
         	else
         		return false;
@@ -352,6 +366,16 @@ public class ONCUserDialog extends JDialog implements ActionListener, ListSelect
         	{
         		reqUpdateUser = new ONCUser(currUser);	//make a copy
         		reqUpdateUser.setFirstname((String) value);
+        	}
+        	else if(col == STATUS_COL && currUser.getStatus() != (UserStatus) value)
+        	{
+        		reqUpdateUser = new ONCUser(currUser);	//make a copy
+        		reqUpdateUser.setStatus((UserStatus) value);
+        	}
+        	else if(col == ACCESS_COL && currUser.getAccess() != (UserAccess) value)
+        	{
+        		reqUpdateUser = new ONCUser(currUser);	//make a copy
+        		reqUpdateUser.setAccess((UserAccess) value);
         	}
         	else if(col == PERMISSION_COL && currUser.getPermission() != (UserPermission) value)
         	{

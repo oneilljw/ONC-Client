@@ -37,9 +37,12 @@ public class ONCAuthenticationDialog extends ONCConnectDialog
 	private static final long serialVersionUID = 1L;
 	private static final int USER_USERID_FIELD = 0;
 	private static final int USER_PASSWORD_FIELD = 1;
-	private static final int USER_PERMISSION_FIELD = 2;
-	private static final int USER_LAST_NAME_FIELD = 4;
-	private static final int USER_FIRST_NAME_FIELD = 3;
+	private static final int USER_STATUS_FIELD = 2;
+	private static final int USER_ACCESS_FIELD = 3;
+	private static final int USER_PERMISSION_FIELD = 4;
+	private static final int USER_FIRST_NAME_FIELD = 5;
+	private static final int USER_LAST_NAME_FIELD = 6;
+	
 	
 	private int count;	//Login attempts
 	private JPasswordField passwdPF;
@@ -90,11 +93,11 @@ public class ONCAuthenticationDialog extends ONCConnectDialog
 	{
 		usersAL = new ArrayList<String[]>();	
   	  
-    	String[][] users = {{"john", "erin1992", "SYS_ADMIN", "John","O'Neill"},
-  				   		  {"KMLavin", "Redskins5", "SYS_ADMIN", "Kelly", "Lavin"},
-  				   		  {"nicole", "chester", "ADMIN", "Nicole", "Rogers"},
-  				   		  {"ONC Guest", "oncguest", "GENERAL", "", "ONC Guest"},
-  				   		  {"ONC Admin", "oncadmin", "ADMIN", "", "ONC Admin"}};
+    	String[][] users = {{"john", "erin1992", "Active", "App", "SYS_ADMIN", "John","O'Neill"},
+  				   		  {"KMLavin", "Redskins5", "Active", "App", "SYS_ADMIN", "Kelly", "Lavin"},
+  				   		  {"nicole", "chester", "Active", "App", "ADMIN", "Nicole", "Rogers"},
+  				   		  {"ONC Guest", "oncguest", "Active", "App", "GENERAL", "", "ONC Guest"},
+  				   		  {"ONC Admin", "oncadmin", "Active", "App", "ADMIN", "", "ONC Admin"}};
   			 
   		for(int i =0; i<users.length; i++)	//build array list from users[][]
   			usersAL.add(users[i]);
@@ -194,8 +197,10 @@ public class ONCAuthenticationDialog extends ONCConnectDialog
 		{
 			userObj = new ONCUser(index, new Date(), "", 3, "", "", usersAL.get(index)[USER_FIRST_NAME_FIELD],
 										usersAL.get(index)[USER_LAST_NAME_FIELD],
+										UserStatus.valueOf(usersAL.get(index)[USER_STATUS_FIELD]),
+										UserAccess.valueOf(usersAL.get(index)[USER_ACCESS_FIELD]),
 										UserPermission.valueOf(usersAL.get(index)[USER_PERMISSION_FIELD]),
-										0, new Date(), false);
+										0, new Date(), -1);
 										
 			this.dispose();
 		}

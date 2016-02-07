@@ -13,7 +13,7 @@ public class AddUserDialog extends InfoDialog
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private JComboBox permissionCB;
+	private JComboBox statusCB, accessCB, permissionCB;
 	private ONCServerUser reqAddUser;	
 	
 	AddUserDialog(JFrame pf, String[] tfNames)
@@ -33,10 +33,20 @@ public class AddUserDialog extends InfoDialog
 		
 		
 		//set up the transformation panel
+		statusCB = new JComboBox(UserStatus.values());
+		statusCB.setPreferredSize(new Dimension(158,36));
+		infopanel[3].remove(tf[3]);
+		infopanel[3].add(statusCB);
+		
+		accessCB = new JComboBox(UserAccess.values());
+		accessCB.setPreferredSize(new Dimension(158,36));
+		infopanel[4].remove(tf[4]);
+		infopanel[4].add(accessCB);
+		
 		permissionCB = new JComboBox(UserPermission.values());
 		permissionCB.setPreferredSize(new Dimension(158,36));
-		infopanel[3].remove(tf[3]);
-		infopanel[3].add(permissionCB);
+		infopanel[5].remove(tf[5]);
+		infopanel[5].add(permissionCB);
 		
 		//add text to action button
 		btnAction.setText("Add User");
@@ -50,12 +60,14 @@ public class AddUserDialog extends InfoDialog
 	void update()
 	{
 		Date today = new Date();
+		UserStatus userStatus = (UserStatus) statusCB.getSelectedItem();
+		UserAccess userAccess = (UserAccess) accessCB.getSelectedItem();
 		UserPermission userPermission = (UserPermission) permissionCB.getSelectedItem();
 		String pw = "********";
 		reqAddUser = new ONCServerUser(0, today, GlobalVariables.getUserLNFI(), 3, "New user added",
 				GlobalVariables.getUserLNFI(), tf[0].getText(), tf[1].getText(),
-				userPermission, tf[2].getText(), pw, 0,
-				today, true);
+				userStatus, userAccess, userPermission, tf[2].getText(), pw, 0,
+				today, true, -1);
 		
 		result = true;
 		dispose();

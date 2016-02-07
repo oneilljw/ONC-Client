@@ -12,20 +12,22 @@ public class ONCServerUser extends ONCUser
 	private String password;
 	
 	public ONCServerUser(int id, Date today, String chgby, int slpos, String slmssg,
-							String slchgby, String fn, String ln, UserPermission perm,
+							String slchgby, String fn, String ln, 
+							UserStatus stat, UserAccess acc, UserPermission perm,
 							String uid, String pw, long nSessions, Date last_login,
-							boolean bResetPassword)
+							boolean bResetPassword, int agtID)
 	{
-		super(id, today, chgby, slpos, slmssg, slchgby, fn, ln, perm, nSessions, last_login, bResetPassword);
+		super(id, today, chgby, slpos, slmssg, slchgby, fn, ln, stat, acc, perm, nSessions, last_login, agtID);
 		userid = uid;
 		password = pw;
 	}
 	
-	public ONCServerUser(String[] nextLine, Date date_changed, Date last_login, boolean bRP)
+	public ONCServerUser(String[] nextLine, Date date_changed, Date last_login)
 	{
-		super(Integer.parseInt(nextLine[0]), date_changed, nextLine[7], Integer.parseInt(nextLine[8]),
-				nextLine[9], nextLine[10], nextLine[4], nextLine[5], UserPermission.valueOf(nextLine[3]),
-				Long.parseLong(nextLine[11]), last_login, bRP);
+		super(Integer.parseInt(nextLine[0]), date_changed, nextLine[9], Integer.parseInt(nextLine[10]),
+				nextLine[11], nextLine[12], nextLine[6], nextLine[7], UserStatus.valueOf(nextLine[3]),
+				UserAccess.valueOf(nextLine[4]), UserPermission.valueOf(nextLine[5]),
+				Long.parseLong(nextLine[13]), last_login, Integer.parseInt(nextLine[15]));
 				
 		userid = nextLine[1];
 		password = nextLine[2];
@@ -43,17 +45,19 @@ public class ONCServerUser extends ONCUser
 	public ONCUser getUserFromServerUser()
 	{
 		return new ONCUser(id, dateChanged.getTime(), changedBy, slPos, slMssg, slChangedBy, 
-				firstname, lastname, permission, clientID, clientYear, nSessions, lastLogin,
-				bResetPassword);	
+				firstname, lastname, status, access, permission, clientID, clientYear, nSessions, 
+				lastLogin, agentID);	
 	}
 	
 	@Override
 	public String[] getExportRow()
 	{
-		String[] row = {Integer.toString(id), userid, password, permission.toString(), firstname, lastname,
-						Long.toString(dateChanged.getTimeInMillis()), changedBy, Integer.toString(slPos), slMssg,
-						slChangedBy, Long.toString(nSessions), Long.toString(lastLogin.getTimeInMillis()),
-						bResetPassword == true ? "T" : "F"};
+		String[] row = {Integer.toString(id), userid, password, status.toString(), access.toString(), 
+						permission.toString(), firstname, lastname,
+						Long.toString(dateChanged.getTimeInMillis()), changedBy, Integer.toString(slPos), 
+						slMssg,slChangedBy, Long.toString(nSessions), 
+						Long.toString(lastLogin.getTimeInMillis()),
+						Integer.toString(agentID)};
 		return row;
 	}	
 }

@@ -1655,8 +1655,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	{
 		if(!userDlg.isVisible())
 		{
-			Point pt = parentFrame.getLocation();
-	        userDlg.setLocation(pt.x + 125, pt.y + 125);
+	        userDlg.setLocationRelativeTo(this);
 			userDlg.setVisible(true);
 		}
 	}

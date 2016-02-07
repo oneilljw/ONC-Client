@@ -162,7 +162,7 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 		fontIndex = 3;
 		startONCNum = 100;
 		ytyGrwthIndex = 2;
-		user_permission = UserPermission.GENERAL;
+		user_permission = UserPermission.General;
 		version = "N/A";
 	}
 	
@@ -174,7 +174,7 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 	{
 		Calendar tomorrow = Calendar.getInstance();
 		
-		if(user_permission.compareTo(UserPermission.ADMIN) > 0) 	//If superuser, return today set in preference dialog		
+		if(user_permission.compareTo(UserPermission.Admin) > 0) 	//If superuser, return today set in preference dialog		
 			tomorrow = oncDateToday;
 		
 		tomorrow.add(Calendar.DATE, 1);
@@ -216,8 +216,8 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 		else
 			return user.getFirstname() + " " + user.getLastname().charAt(0);
 	}
-	static boolean isUserAdmin() {return user_permission.compareTo(UserPermission.ADMIN) >= 0; }
-	boolean isUserSuperUser() {return user_permission == UserPermission.SYS_ADMIN; }
+	static boolean isUserAdmin() {return user_permission.compareTo(UserPermission.Admin) >= 0; }
+	boolean isUserSuperUser() {return user_permission == UserPermission.Sys_Admin; }
 	public ImageIcon getImageIcon(int icon){ return imageIcons[icon]; }
 	public ImageIcon getImageIcon(String description)
 	{

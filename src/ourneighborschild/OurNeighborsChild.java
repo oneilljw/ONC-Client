@@ -258,23 +258,23 @@ public class OurNeighborsChild implements DatabaseListener
 		if(serverIF != null && serverIF.isConnected())
 			oncMenuBar.setEnabledServerConnected(true);
 		
-        if(user.getPermission() == UserPermission.SYS_ADMIN)	//Superuser privileges
+        if(user.getPermission() == UserPermission.Sys_Admin)	//Superuser privileges
         {
-        	oncGVs.setUserPermission(UserPermission.SYS_ADMIN);
+        	oncGVs.setUserPermission(UserPermission.Sys_Admin);
 //        	prefsDlg.setEnabledDateToday(true);
         	prefsDlg.setEnabledRestrictedPrefrences(true);
         	oncMenuBar.setVisibleAdminFunctions(true);
         	oncMenuBar.setVisibleSpecialImports(true);
         	oncFamilyPanel.setEnabledSuperuserPrivileges(true);
         }
-        else if(user.getPermission() == UserPermission.ADMIN)
+        else if(user.getPermission() == UserPermission.Admin)
         {
-        	oncGVs.setUserPermission(UserPermission.ADMIN);
+        	oncGVs.setUserPermission(UserPermission.Admin);
         	oncMenuBar.setVisibleAdminFunctions(true);
         	prefsDlg.setEnabledRestrictedPrefrences(true);
         }
         else
-        	oncGVs.setUserPermission(UserPermission.GENERAL);
+        	oncGVs.setUserPermission(UserPermission.General);
      
                      	
         oncFamilyPanel.setFamilyPanelDisplayPermission(GlobalVariables.isUserAdmin());	//Restrict personal data for general user
