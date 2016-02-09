@@ -140,16 +140,9 @@ public class ONCAuthenticationDialog extends ONCConnectDialog
 				
 				if (response.startsWith("INVALID"))	//Login unsuccessful, print retry message
 				{
-					String reason = response.substring(7);
+		
+					lblMssg2.setText("<html><font color=red><b>" + response.substring(7) + "</b></font></html>");
 					
-					if(reason.startsWith("Downlevel"))
-						lblMssg2.setText("<html><font color=red><b>" + reason + "</b></font></html>");
-					else if(reason.startsWith("Inactive"))
-						lblMssg2.setText("<html><font color=red><b>" + reason + ", please contact Exec Dir</b></font></html>");
-					else
-						lblMssg2.setText("<html><font color=red><b>" + reason + ", please try agian</b></font></html>");
-					
-//					lblMssg2.setText("<html><font color=red><b>" + reason + remedy + "</b></font></html>");
 					btnAction.setText("Login Try " + Integer.toString(++count));
 					passwdPF.requestFocus();
 					passwdPF.selectAll();
