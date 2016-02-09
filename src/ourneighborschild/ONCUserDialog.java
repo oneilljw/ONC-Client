@@ -149,7 +149,8 @@ public class ONCUserDialog extends JDialog implements ActionListener, ListSelect
 	
 	void add()
 	{
-		String[] fieldNames = {"First Name", "Last Name", "User ID", "Status", "Access", "Permission"};
+		String[] fieldNames = {"First Name", "Last Name", "User ID", "Status", "Access", "Permission",
+								"Orginization", "Title", "Email", "Phone"};
     	AddUserDialog auDlg = new AddUserDialog(GlobalVariables.getFrame(), fieldNames);
     	auDlg.setLocationRelativeTo(this);
     	if(userDB != null && auDlg.showDialog())

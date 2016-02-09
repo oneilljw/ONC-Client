@@ -19,11 +19,15 @@ public class ONCUser extends ONCEntity
 	protected int clientYear;
 	protected long nSessions;
 	protected Calendar lastLogin;
+	protected String email;
+	protected String phone;
+	protected String title;
+	protected String org;
 	protected int agentID;
 	
 	public ONCUser(int id, Date today, String changedBy, int slpos, String slmssg, String slchgby, 
 			String fn, String ln, UserStatus stat, UserAccess acc, UserPermission perm, long nSessions,
-			Date last, int agentID)
+			Date last, String org, String title,String email, String phone, int agentID)
 	{
 		super(id, today, changedBy, slpos, slmssg, slchgby);
 		
@@ -37,13 +41,18 @@ public class ONCUser extends ONCEntity
 		this.nSessions = nSessions;
 		lastLogin = Calendar.getInstance();
 		lastLogin.setTime(last);
+		this.org = org;
+		this.title = title;
+		this.email = email;
+		this.phone = phone;
 		this.agentID = agentID;
 	}
 	
 	//overloaded to allow conversion from ONCServerUser to ONCUser by creating a copy
 	public ONCUser(int id, Date today, String changedBy, int slpos, String slmssg, String slchgby, 
 			String fn, String ln,  UserStatus stat, UserAccess acc, UserPermission perm,
-			long clientID, int clientYear, long nSessions, Calendar lastLogin, int agentID)
+			long clientID, int clientYear, long nSessions, Calendar lastLogin, 
+			String org, String title, String email, String phone, int agentID)
 	{
 		super(id, today, changedBy, slpos, slmssg, slchgby);
 		
@@ -56,6 +65,10 @@ public class ONCUser extends ONCEntity
 		this.clientYear = clientYear;
 		this.nSessions = nSessions;
 		this.lastLogin = lastLogin;
+		this.org = org;
+		this.title = title;
+		this.email = email;
+		this.phone = phone;
 		this.agentID = agentID;
 	}
 	
@@ -72,6 +85,10 @@ public class ONCUser extends ONCEntity
 		this.clientYear = u.clientYear;
 		this.nSessions = u.nSessions;
 		this.lastLogin = u.lastLogin;
+		this.org = u.org;
+		this.title = u.title;
+		this.email = u.email;
+		this.phone = u.phone;
 		this.agentID = u.agentID;
 	}
 	
@@ -97,6 +114,16 @@ public class ONCUser extends ONCEntity
 	public void setAccess(UserAccess access) { this.access = access; }
 	public int getAgentID() { return agentID; }
 	public void setAgentID(int agtID) { this.agentID = agtID; }
+	
+	public String getOrg() { return org; }
+	public String getTitle() { return title; }
+	public String getEmail() { return email; }
+	public String getPhone() { return phone; }
+	
+	public void setOrg(String s) { this.org = s; }
+	public void setTitle(String s) { this.title = s; }
+	public void setEmail(String s) { this.email = s; }
+	public void setPhone(String s) { this.phone = s; }
 
 	public String getLNFI()
 	{

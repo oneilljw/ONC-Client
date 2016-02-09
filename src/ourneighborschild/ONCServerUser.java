@@ -15,9 +15,11 @@ public class ONCServerUser extends ONCUser
 							String slchgby, String fn, String ln, 
 							UserStatus stat, UserAccess acc, UserPermission perm,
 							String uid, String pw, long nSessions, Date last_login,
-							boolean bResetPassword, int agtID)
+							boolean bResetPassword, 
+							String title, String org, String email, String phone, int agtID)
 	{
-		super(id, today, chgby, slpos, slmssg, slchgby, fn, ln, stat, acc, perm, nSessions, last_login, agtID);
+		super(id, today, chgby, slpos, slmssg, slchgby, fn, ln, stat, acc, perm, nSessions, last_login, 
+				title, org, email, phone, agtID);
 		userid = uid;
 		password = pw;
 	}
@@ -27,7 +29,8 @@ public class ONCServerUser extends ONCUser
 		super(Integer.parseInt(nextLine[0]), date_changed, nextLine[9], Integer.parseInt(nextLine[10]),
 				nextLine[11], nextLine[12], nextLine[6], nextLine[7], UserStatus.valueOf(nextLine[3]),
 				UserAccess.valueOf(nextLine[4]), UserPermission.valueOf(nextLine[5]),
-				Long.parseLong(nextLine[13]), last_login, Integer.parseInt(nextLine[15]));
+				Long.parseLong(nextLine[13]), last_login, 
+				nextLine[15], nextLine[16], nextLine[17], nextLine[18], Integer.parseInt(nextLine[19]));
 				
 		userid = nextLine[1];
 		password = nextLine[2];
@@ -46,18 +49,20 @@ public class ONCServerUser extends ONCUser
 	{
 		return new ONCUser(id, dateChanged.getTime(), changedBy, slPos, slMssg, slChangedBy, 
 				firstname, lastname, status, access, permission, clientID, clientYear, nSessions, 
-				lastLogin, agentID);	
+				lastLogin, org, title, email, phone, agentID);	
 	}
 	
 	@Override
 	public String[] getExportRow()
 	{
-		String[] row = {Integer.toString(id), userid, password, status.toString(), access.toString(), 
+		String[] row = {
+						Integer.toString(id), userid, password, status.toString(), access.toString(), 
 						permission.toString(), firstname, lastname,
 						Long.toString(dateChanged.getTimeInMillis()), changedBy, Integer.toString(slPos), 
 						slMssg,slChangedBy, Long.toString(nSessions), 
 						Long.toString(lastLogin.getTimeInMillis()),
-						Integer.toString(agentID)};
+						org, title, email, phone, Integer.toString(agentID)
+						};
 		return row;
 	}	
 }

@@ -67,7 +67,7 @@ public class AddUserDialog extends InfoDialog
 		reqAddUser = new ONCServerUser(0, today, GlobalVariables.getUserLNFI(), 3, "New user added",
 				GlobalVariables.getUserLNFI(), tf[0].getText(), tf[1].getText(),
 				userStatus, userAccess, userPermission, tf[2].getText(), pw, 0,
-				today, true, -1);
+				today, true, tf[6].getText(), tf[7].getText(), tf[8].getText(), tf[9].getText(), -1);
 		
 		result = true;
 		dispose();

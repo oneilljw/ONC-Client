@@ -200,7 +200,7 @@ public class ONCAuthenticationDialog extends ONCConnectDialog
 										UserStatus.valueOf(usersAL.get(index)[USER_STATUS_FIELD]),
 										UserAccess.valueOf(usersAL.get(index)[USER_ACCESS_FIELD]),
 										UserPermission.valueOf(usersAL.get(index)[USER_PERMISSION_FIELD]),
-										0, new Date(), -1);
+										0, new Date(), "", "", "", "", -1);
 										
 			this.dispose();
 		}
