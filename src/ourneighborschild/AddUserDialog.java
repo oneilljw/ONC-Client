@@ -13,40 +13,48 @@ public class AddUserDialog extends InfoDialog
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private JComboBox statusCB, accessCB, permissionCB;
+	
+	private static final int FIRST_NAME_INDEX = 0;
+	private static final int LAST_NAME_INDEX = 1;
+	private static final int USERID_INDEX = 2;
+	private static final int ACCESS_INDEX = 3;
+	private static final int PERMISSION_INDEX = 4;
+	private static final int ORG_INDEX = 5;
+	private static final int TITLE_INDEX = 6;
+	private static final int EMAIL_INDEX = 7;
+	private static final int PHONE_INDEX = 8;
+	
+	private static final String[] fieldNames = {"First Name", "Last Name", "User ID", "Access", "Permission",
+		"Organization", "Title", "Email", "Phone"};
+	
+	private JComboBox accessCB, permissionCB;
 	private ONCServerUser reqAddUser;	
 	
-	AddUserDialog(JFrame pf, String[] tfNames)
+	AddUserDialog(JFrame pf)
 	{
-		super(pf, true, tfNames);
-		this.setTitle("Add New ONC App User");
+		super(pf, true,fieldNames);
+		this.setTitle("Add New ONC User");
 
 		lblONCIcon.setText("<html><font color=blue>Add New User<br>Information Below</font></html>");
 
 		//Set up the main panel, loop to set up components associated with names
-		for(int pn=0; pn < tfNames.length; pn++)
+		for(int pn=0; pn < fieldNames.length; pn++)
 		{
-			tf[pn] = new JTextField(12);
+			tf[pn] = new JTextField(14);
 			tf[pn].addKeyListener(tfkl);
 			infopanel[pn].add(tf[pn]);
 		}
 		
-		
 		//set up the transformation panel
-		statusCB = new JComboBox(UserStatus.values());
-		statusCB.setPreferredSize(new Dimension(158,36));
-		infopanel[3].remove(tf[3]);
-		infopanel[3].add(statusCB);
-		
 		accessCB = new JComboBox(UserAccess.values());
 		accessCB.setPreferredSize(new Dimension(158,36));
-		infopanel[4].remove(tf[4]);
-		infopanel[4].add(accessCB);
+		infopanel[ACCESS_INDEX].remove(tf[ACCESS_INDEX]);
+		infopanel[ACCESS_INDEX].add(accessCB);
 		
 		permissionCB = new JComboBox(UserPermission.values());
 		permissionCB.setPreferredSize(new Dimension(158,36));
-		infopanel[5].remove(tf[5]);
-		infopanel[5].add(permissionCB);
+		infopanel[PERMISSION_INDEX].remove(tf[PERMISSION_INDEX]);
+		infopanel[PERMISSION_INDEX].add(permissionCB);
 		
 		//add text to action button
 		btnAction.setText("Add User");
@@ -60,14 +68,13 @@ public class AddUserDialog extends InfoDialog
 	void update()
 	{
 		Date today = new Date();
-		UserStatus userStatus = (UserStatus) statusCB.getSelectedItem();
 		UserAccess userAccess = (UserAccess) accessCB.getSelectedItem();
 		UserPermission userPermission = (UserPermission) permissionCB.getSelectedItem();
 		String pw = "********";
 		reqAddUser = new ONCServerUser(0, today, GlobalVariables.getUserLNFI(), 3, "New user added",
-				GlobalVariables.getUserLNFI(), tf[0].getText(), tf[1].getText(),
-				userStatus, userAccess, userPermission, tf[2].getText(), pw, 0,
-				today, true, tf[6].getText(), tf[7].getText(), tf[8].getText(), tf[9].getText(), -1);
+				GlobalVariables.getUserLNFI(), tf[FIRST_NAME_INDEX].getText(), tf[LAST_NAME_INDEX].getText(),
+				UserStatus.Change_PW, userAccess, userPermission, tf[USERID_INDEX].getText(), pw, 0,
+				today, true, tf[ORG_INDEX].getText(), tf[TITLE_INDEX].getText(), tf[EMAIL_INDEX].getText(), tf[PHONE_INDEX].getText(), -1);
 		
 		result = true;
 		dispose();

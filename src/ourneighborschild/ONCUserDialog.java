@@ -49,6 +49,7 @@ public class ONCUserDialog extends JDialog implements ActionListener, ListSelect
 	private static final int LAST_LOGIN_COL = 6;
 	private static final int RESET_PW_COL = 7;
 	
+	private JFrame owner;
 	private ONCTable dlgTable;
 	private AbstractTableModel dlgTableModel;
 	private JButton btnAdd, btnEdit, btnResetPW, btnPrint;
@@ -57,7 +58,8 @@ public class ONCUserDialog extends JDialog implements ActionListener, ListSelect
 	public ONCUserDialog(JFrame pf)
 	{
 		super(pf);
-		this.setTitle("ONC Application Elves");
+		this.owner = pf;
+		this.setTitle("ONC App & Website Elves");
 		
 		//Save the reference to the one wish catalog object in the app. It is created in the 
 		//top level object and passed to all objects that require the wish catalog, including
@@ -116,20 +118,20 @@ public class ONCUserDialog extends JDialog implements ActionListener, ListSelect
         
         JPanel cntlPanel = new JPanel();
         
-        btnPrint = new JButton("Print Users");
+        btnPrint = new JButton("Print");
         btnPrint.setToolTipText("Print the user list");
         btnPrint.addActionListener(this);
         
-        btnAdd = new JButton("Add User");
+        btnAdd = new JButton("Add Elf");
         btnAdd.setToolTipText("Add a new user");
         btnAdd.addActionListener(this);
         
-        btnEdit = new JButton("Edit Addl Info");
+        btnEdit = new JButton("Elf Profile");
         btnEdit.setToolTipText("Edit users contact info");
         btnEdit.setEnabled(false);
         btnEdit.addActionListener(this);
         
-        btnResetPW = new JButton("Reset Password");
+        btnResetPW = new JButton("Reset Elf's Password");
         btnResetPW.setToolTipText("Reset the selected user's password");
         btnResetPW.setEnabled(false);
         btnResetPW.addActionListener(this);
@@ -149,9 +151,7 @@ public class ONCUserDialog extends JDialog implements ActionListener, ListSelect
 	
 	void add()
 	{
-		String[] fieldNames = {"First Name", "Last Name", "User ID", "Status", "Access", "Permission",
-								"Orginization", "Title", "Email", "Phone"};
-    	AddUserDialog auDlg = new AddUserDialog(GlobalVariables.getFrame(), fieldNames);
+    	AddUserDialog auDlg = new AddUserDialog(GlobalVariables.getFrame());
     	auDlg.setLocationRelativeTo(this);
     	if(userDB != null && auDlg.showDialog())
     	{
@@ -174,7 +174,15 @@ public class ONCUserDialog extends JDialog implements ActionListener, ListSelect
 	
 	void edit()
 	{
+		//determine selected user
+		int row = dlgTable.getSelectedRow();
+		ONCUser currUser = userDB.getUserFromIndex(row);
 		
+		//construct and display a UserProfile Dialog
+		String[] tfNames = {"Organization", "Title", "Email", "Phone"};
+		UserProfileDialog upDlg = new UserProfileDialog(owner, tfNames, currUser);
+		upDlg.setLocationRelativeTo(this);
+		upDlg.setVisible(true);
 	}
 
 	void delete()	//is really reset password 
@@ -249,7 +257,7 @@ public class ONCUserDialog extends JDialog implements ActionListener, ListSelect
 		
 		if(modelRow > -1)
 		{
-//			btnEdit.setEnabled(true);	//not implemented yet
+			btnEdit.setEnabled(true);	//not implemented yet
 			btnResetPW.setEnabled(true);
 		}
 		else

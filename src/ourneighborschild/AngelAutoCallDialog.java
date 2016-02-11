@@ -11,7 +11,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -27,15 +26,12 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
-import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.JTableHeader;
-
-import com.google.gson.Gson;
 
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
@@ -673,7 +669,6 @@ public class AngelAutoCallDialog extends ONCTableDialog implements ActionListene
 		//getters
 //		int getCallItemNum() { return callItemNum; }
 		ONCFamily getFamily() { return family; }
-		int getONCID() { return oncID; }
 		String getONCNum() { return oncNum; }
 		String getPhoneNum() { return phoneNum; }
 		String getDate() { return date; }

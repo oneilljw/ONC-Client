@@ -43,7 +43,6 @@ public class ONCAuthenticationDialog extends ONCConnectDialog
 	private static final int USER_FIRST_NAME_FIELD = 5;
 	private static final int USER_LAST_NAME_FIELD = 6;
 	
-	
 	private int count;	//Login attempts
 	private JPasswordField passwdPF;
 	private ArrayList<String[]>  usersAL;
@@ -140,7 +139,6 @@ public class ONCAuthenticationDialog extends ONCConnectDialog
 				
 				if (response.startsWith("INVALID"))	//Login unsuccessful, print retry message
 				{
-		
 					lblMssg2.setText("<html><font color=red><b>" + response.substring(7) + "</b></font></html>");
 					
 					btnAction.setText("Login Try " + Integer.toString(++count));

@@ -22,6 +22,7 @@ public abstract class InfoDialog extends JDialog implements ActionListener
 	 * information field. Components to add information are contained in the subclass
 	 */
 	private static final long serialVersionUID = 1L;
+	protected JFrame owner;
 	protected JPanel[] infopanel;
 	protected JLabel[] lblTF;
 	protected JTextField[] tf;
@@ -32,9 +33,10 @@ public abstract class InfoDialog extends JDialog implements ActionListener
 	protected boolean result;
 	protected GlobalVariables gvs;
 	
-	InfoDialog(JFrame owner, boolean bModal, String tfNames[])
+	InfoDialog(JFrame pf, boolean bModal, String tfNames[])
 	{
-		super(owner, bModal);
+		super(pf, bModal);
+		this.owner = pf;
 		
 		result = false;
 		
