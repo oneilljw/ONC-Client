@@ -179,8 +179,7 @@ public class ONCUserDialog extends JDialog implements ActionListener, ListSelect
 		ONCUser currUser = userDB.getUserFromIndex(row);
 		
 		//construct and display a UserProfile Dialog
-		String[] tfNames = {"Organization", "Title", "Email", "Phone"};
-		UserProfileDialog upDlg = new UserProfileDialog(owner, tfNames, currUser);
+		UserProfileDialog upDlg = new UserProfileDialog(owner, currUser);
 		upDlg.setLocationRelativeTo(this);
 		upDlg.setVisible(true);
 	}

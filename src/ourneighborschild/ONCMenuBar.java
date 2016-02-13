@@ -29,7 +29,7 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 	public static JMenu submenuExport, submenuChangeFamilyNumbers, submenuCompareData, submenuDatabase;
 	public static JMenuItem viewDBMI, sortWishesMI, sortFamiliesMI, sortOrgsMI, recGiftsMI, sortMealsMI;
 	public static JMenuItem labelViewerMI, agentMI, orgMI, catMI;
-	public static JMenuItem aboutONCMI, oncPrefrencesMI, userMI, onlineMI, chatMI, changePWMI, stopPollingMI;
+	public static JMenuItem aboutONCMI, oncPrefrencesMI, profileMI, userMI, onlineMI, chatMI, changePWMI, stopPollingMI;
 	public static JMenuItem showServerLogMI, showServerClientIDMI, showCurrDirMI, showWebsiteStatusMI;
 	public List<JMenuItem> dbYears;
 	
@@ -292,6 +292,12 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 	    aboutONCMI = new JMenuItem("About ONC");
 	    menuSettings.add(aboutONCMI);
 	    
+	    profileMI = new JMenuItem("Edit Profile");
+	    menuSettings.add(profileMI);
+	    
+	    changePWMI = new JMenuItem("Change Password");
+	    menuSettings.add(changePWMI);
+	    
 	    oncPrefrencesMI = new JMenuItem("Preferences");
 	    menuSettings.add(oncPrefrencesMI);
 	    
@@ -304,10 +310,7 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 	    
 	    chatMI = new JMenuItem("Private Chat");
 	    menuSettings.add(chatMI);
-	    
-	    changePWMI = new JMenuItem("Change Password");
-	    menuSettings.add(changePWMI);
-	    
+	      
 	    stopPollingMI = new JMenuItem("Stop Server Polling");
 	    stopPollingMI.setVisible(false);
 	    menuSettings.add(stopPollingMI);

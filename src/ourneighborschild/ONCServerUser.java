@@ -43,6 +43,7 @@ public class ONCServerUser extends ONCUser
 	public String getUserPW() { return password; }
 	
 	public void setUserPW(String pw) { password = pw; }
+	public void setUserID(String uid) { userid = uid; }
 	
 	//creates and returns a new ONCUser object from this ONCServerUserObject
 	public ONCUser getUserFromServerUser()

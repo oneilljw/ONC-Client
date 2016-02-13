@@ -9,10 +9,19 @@ public class UserProfileDialog extends InfoDialog implements DatabaseListener
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	
+	private static final String[] tfNames = {"First Name", "last Name", "Organization", "Title", "Email", "Phone"};
+	private static final int FIRST_NAME_INDEX = 0;
+	private static final int LAST_NAME_INDEX = 1;
+	private static final int ORG_INDEX = 2;
+	private static final int TITLE_INDEX = 3;
+	private static final int EMAIL_INDEX = 4;
+	private static final int PHONE_INDEX = 5;
+	
 	private ONCUser user;
 	private UserDB userDB;
 
-	UserProfileDialog(JFrame owner, String[] tfNames, ONCUser user) 
+	UserProfileDialog(JFrame owner, ONCUser user) 
 	{
 		super(owner, true, tfNames);
 		this.user = user;
@@ -45,10 +54,12 @@ public class UserProfileDialog extends InfoDialog implements DatabaseListener
 	
 	void display()
 	{
-		tf[0].setText(user.getOrg());
-		tf[1].setText(user.getTitle());
-		tf[2].setText(user.getEmail());
-		tf[3].setText(user.getPhone());
+		tf[FIRST_NAME_INDEX].setText(user.getFirstname());
+		tf[LAST_NAME_INDEX].setText(user.getLastname());
+		tf[ORG_INDEX].setText(user.getOrg());
+		tf[TITLE_INDEX].setText(user.getTitle());
+		tf[EMAIL_INDEX].setText(user.getEmail());
+		tf[PHONE_INDEX].setText(user.getPhone());
 	}
 
 	@Override
@@ -56,16 +67,20 @@ public class UserProfileDialog extends InfoDialog implements DatabaseListener
 	{
 		//update user profile request
 		ONCUser reqUpdateUser = new ONCUser(user);
-		reqUpdateUser.setOrg(tf[0].getText());
-		reqUpdateUser.setTitle(tf[1].getText());
-		reqUpdateUser.setEmail(tf[2].getText());
-		reqUpdateUser.setPhone(tf[3].getText());
+		reqUpdateUser.setFirstname(tf[FIRST_NAME_INDEX].getText());
+		reqUpdateUser.setLastname(tf[LAST_NAME_INDEX].getText());
+		reqUpdateUser.setOrg(tf[ORG_INDEX].getText());
+		reqUpdateUser.setTitle(tf[TITLE_INDEX].getText());
+		reqUpdateUser.setEmail(tf[EMAIL_INDEX].getText());
+		reqUpdateUser.setPhone(tf[PHONE_INDEX].getText());
 		
 		//send update request to server
 		String response = userDB.update(this, reqUpdateUser);
 		if(response != null && response.startsWith("UPDATED_USER"))
 		{
 			//update the user
+			user.setFirstname(reqUpdateUser.getFirstname());
+			user.setLastname(reqUpdateUser.getLastname());
 			user.setOrg(reqUpdateUser.getOrg());
 			user.setTitle(reqUpdateUser.getTitle());
 			user.setEmail(reqUpdateUser.getEmail());
@@ -87,8 +102,12 @@ public class UserProfileDialog extends InfoDialog implements DatabaseListener
 	@Override
 	boolean fieldUnchanged() 
 	{
-		return user.getOrg().equals(tf[0].getText()) && user.getTitle().equals(tf[1].getText()) &&
-				user.getEmail().equals(tf[2].getText()) && user.getPhone().equals(tf[3].getText());
+		return user.getFirstname().equals(tf[FIRST_NAME_INDEX].getText()) && 
+				user.getLastname().equals(tf[LAST_NAME_INDEX].getText()) &&
+				 user.getOrg().equals(tf[ORG_INDEX].getText()) && 
+				  user.getTitle().equals(tf[TITLE_INDEX].getText()) &&
+				   user.getEmail().equals(tf[EMAIL_INDEX].getText()) && 
+				    user.getPhone().equals(tf[PHONE_INDEX].getText());
 	}
 
 	@Override

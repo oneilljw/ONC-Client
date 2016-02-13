@@ -48,10 +48,8 @@ public class Agent extends ONCObject implements Serializable
 			return "No Name";
 		else if(name_parts.length == 1 || name_parts.length == 2)
 			return name_parts[0];
-		else if(name_parts.length > 2)
+		else
 			return name_parts[0] + " " + name_parts[1];
-		return email;
-		
 	}
 	
 	//setters

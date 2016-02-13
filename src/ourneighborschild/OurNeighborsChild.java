@@ -569,6 +569,7 @@ public class OurNeighborsChild implements DatabaseListener
         ONCMenuBar.connectChildMI.addActionListener(menuItemListener);
         ONCMenuBar.onlineMI.addActionListener(menuItemListener);
         ONCMenuBar.chatMI.addActionListener(menuItemListener);
+        ONCMenuBar.profileMI.addActionListener(menuItemListener);
         ONCMenuBar.changePWMI.addActionListener(menuItemListener);
         ONCMenuBar.stopPollingMI.addActionListener(menuItemListener);
         ONCMenuBar.showServerLogMI.addActionListener(menuItemListener);
@@ -894,6 +895,14 @@ public class OurNeighborsChild implements DatabaseListener
     	statusDlg.setVisible(true);
     }
     
+    void editProfile()
+    {
+    	//construct and display a UserProfile Dialog
+    	UserProfileDialog upDlg = new UserProfileDialog(oncFrame,oncGVs.getUser());
+    	upDlg.setLocationRelativeTo(oncFamilyPanel);
+    	upDlg.setVisible(true);
+    }
+    
     boolean changePassword()
     {
     	String[] fieldNames = {"Current Password", "New Password", "Re-enter New Password"};
@@ -1063,6 +1072,7 @@ public class OurNeighborsChild implements DatabaseListener
     		else if(e.getSource() == ONCMenuBar.userMI) { oncFamilyPanel.showUserDialog(); }
     		else if(e.getSource() == ONCMenuBar.onlineMI) { onWhoIsOnline(); }
     		else if(e.getSource() == ONCMenuBar.chatMI) { onChat(); }
+    		else if(e.getSource() == ONCMenuBar.profileMI) { editProfile(); }
     		else if(e.getSource() == ONCMenuBar.changePWMI) { changePassword(); }
     		else if(e.getSource() == ONCMenuBar.stopPollingMI && serverIF != null) { serverIF.setEnabledServerPolling(false); }
     		else if(e.getSource() == ONCMenuBar.showServerLogMI && serverIF != null)
