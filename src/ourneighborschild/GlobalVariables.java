@@ -475,6 +475,14 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 			processUpdatedWebsiteStatus(this, ue.getJson());
 		}
 	}
+	
+	void processUpdatedUser(ONCUser updatedUser)
+	{
+		//since this database holds the currently signed in user, if the user is updated, need to 
+		//update here
+		if(updatedUser.getID() == user.getID())
+			user = updatedUser;
+	}
 
 	@Override
 	String update(Object source, ONCObject entity)
