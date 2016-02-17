@@ -9,6 +9,7 @@ public class ONCWebsiteFamilyExtended extends ONCWebsiteFamily
 	private String	UnitNum;
 	private String	City;
 	private String	ZipCode;
+	private String 	Region;
 	private String	substituteDeliveryAddress;	//in Google Map Address format		
 	private String	HomePhone;
 	private String	OtherPhone;
@@ -17,7 +18,7 @@ public class ONCWebsiteFamilyExtended extends ONCWebsiteFamily
 	private String  transportation;
 	private int		mealID;
 	
-	public ONCWebsiteFamilyExtended(ONCFamily f)
+	public ONCWebsiteFamilyExtended(ONCFamily f, String region)
 	{
 		super(f);
 		this.BatchNum = f.getBatchNum();
@@ -27,6 +28,7 @@ public class ONCWebsiteFamilyExtended extends ONCWebsiteFamily
 		this.UnitNum = f.getUnitNum();
 		this.City = f.getCity();
 		this.ZipCode = f.getZipCode();
+		this.Region = region;
 		this.substituteDeliveryAddress = f.getSubstituteDeliveryAddress();	//in Google Map Address format		
 		this.HomePhone = f.getHomePhone();
 		this.OtherPhone = f.getOtherPhon();
@@ -44,6 +46,7 @@ public class ONCWebsiteFamilyExtended extends ONCWebsiteFamily
 	String getUnitNum() {return UnitNum;}
 	String getCity() {return City;}
 	String getZipCode() {return ZipCode;}
+	String getRegion() { return Region; }
 	String getSubstituteDeliveryAddress() {return substituteDeliveryAddress;}
 	String getHomePhone() {return HomePhone;}
 	String getOtherPhone() {return OtherPhone;}
@@ -60,6 +63,7 @@ public class ONCWebsiteFamilyExtended extends ONCWebsiteFamily
 	void setUnitNum(String unitNum) {UnitNum = unitNum;}
 	void setCity(String city) {City = city;}
 	void setZipCode(String zipCode) {ZipCode = zipCode;}
+	public void setRegion(String reg) { Region = reg; }
 	void setSubstituteDeliveryAddress(String substituteDeliveryAddress) {this.substituteDeliveryAddress = substituteDeliveryAddress;}
 	void setHomePhone(String homePhone) {HomePhone = homePhone;}
 	void setOtherPhone(String otherPhone) {OtherPhone = otherPhone;}
