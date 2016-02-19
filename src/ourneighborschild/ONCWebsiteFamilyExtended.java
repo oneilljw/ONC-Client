@@ -17,6 +17,8 @@ public class ONCWebsiteFamilyExtended extends ONCWebsiteFamily
 	private String	details;
 	private String  transportation;
 	private int		mealID;
+	private String 	notes;
+	private String  delInstr;
 	
 	public ONCWebsiteFamilyExtended(ONCFamily f, String region)
 	{
@@ -36,6 +38,8 @@ public class ONCWebsiteFamilyExtended extends ONCWebsiteFamily
 		this.details = f.getDetails();
 		this.transportation = f.getTransportation().toString();
 		this.mealID = f.getMealID();
+		this.notes = f.getNotes();
+		this.delInstr = f.getDeliveryInstructions();
 	}
 	
 	//getters
@@ -54,6 +58,8 @@ public class ONCWebsiteFamilyExtended extends ONCWebsiteFamily
 	String getDetails() {return details;}
 	String getTransportation() { return transportation; }
 	int getMealID() {return mealID;}
+	String getNotes() { return notes; }
+	String getDeliveryInstructions() { return delInstr; }
 
 	//setters
 	void setBatchNum(String bn) {BatchNum = bn;}
@@ -70,5 +76,7 @@ public class ONCWebsiteFamilyExtended extends ONCWebsiteFamily
 	void setFamilyEmail(String familyEmail) {FamilyEmail = familyEmail;}
 	void setDetails(String details) {this.details = details;}
 	void setTransportation(Transportation t) {this.transportation = t.toString(); }
-	void setMealID(int mealID) {this.mealID = mealID;}		
+	void setMealID(int mealID) {this.mealID = mealID;}
+	void setNotes( String notes) { this.notes = notes; }
+	void setDeliveryInstructions( String di) { this.delInstr = di; }
 }
