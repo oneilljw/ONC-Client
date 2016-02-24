@@ -20,7 +20,8 @@ import com.google.gson.reflect.TypeToken;
 
 public class ChildDB extends ONCDatabase
 {
-//	private static final int CHILD_DB_HEADER_LENGTH = 12;
+	private static final int NUM_OF_CHILD_WISHES = 3;
+	private static final String GIFT_CARD_WISH_NAME = "Gift Card";
 	private static ChildDB instance = null;
 	private ArrayList<ONCChild> childAL;
 	
@@ -264,6 +265,49 @@ public class ChildDB extends ONCDatabase
 		}
 		
 		return count;
+	}
+	
+	boolean isGiftCardOnlyFamily(int famid)
+	{
+		//set a return variable to true. If we find one instance, we'll set it to false
+		boolean bGiftCardOnlyFamily = true;
+		
+		//first, determine if gift cards are even in the catalog. If they aren't, return false as
+		//it can't be a gift card only family
+		ONCWishCatalog cat = ONCWishCatalog.getInstance();
+		int giftCardID = cat.getWishID(GIFT_CARD_WISH_NAME);
+		if(giftCardID == -1)
+			bGiftCardOnlyFamily = false;
+		else
+		{	
+			List<ONCChild> childList = getChildren(famid);	//get the children in the family
+		
+			//examine each child to see if their assigned gifts are gift cards. If gift is not
+			//assigned or not a gift card, then it's not a gift card only family
+			ChildWishDB cwDB = ChildWishDB.getInstance();	//get reference to child wish DB
+			int childindex=0;
+			while(childindex < childList.size() && bGiftCardOnlyFamily)
+			{
+				ONCChild c = childList.get(childindex++);	//get the child
+				
+				//if all gifts aren't assigned, then not a gift card only family
+				int wn = 0;
+				while(wn < NUM_OF_CHILD_WISHES && bGiftCardOnlyFamily)
+					if(c.getChildWishID(wn++) == -1)
+						bGiftCardOnlyFamily = false;
+				
+				//if all are assigned, examine each gift to see if it's a gift card
+				int giftindex = 0;
+				while(giftindex < NUM_OF_CHILD_WISHES && bGiftCardOnlyFamily)
+				{
+					ONCChildWish cw = cwDB.getWish(c.getChildWishID(giftindex++));
+					if(cw.getWishID() != giftCardID)	//gift card?
+						bGiftCardOnlyFamily = false;
+				}	
+			}
+		}
+		
+		return bGiftCardOnlyFamily;
 	}
 	
 	void setChildWishID(int childid, int newWishID, int wishnumber)

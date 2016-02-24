@@ -62,6 +62,7 @@ public class Region implements Serializable
 	}
 	
 	public String getRegion() { return region; }
+	public String getStreetName() { return streetName; }
 	
 	public static boolean isNumeric(String str)
     {

@@ -56,7 +56,6 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private static final int FAMILY_STATUS_PACKAGED = 5;
 	private static final int FAMILY_STATUS_SELECTION_LIST_PACKAGED_INDEX = 6;
 	private static final int DELIVERY_STATUS_ASSIGNED = 3;
-	private static final String GIFT_CARD_ONLY_TEXT = "gift card only";
 	private static final int NUMBER_OF_WISHES_PER_CHILD = 3;
 	
 	//Icon references for the icon bar
@@ -208,17 +207,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         lblRefNum.setToolTipText("Family Reference # - Consistent across years");
         lblRefNum.setBorder(BorderFactory.createTitledBorder("Ref #"));
         lblONCNum.setHorizontalAlignment(JLabel.CENTER);
-/*        
-        String[] batchNums = {"","B-01","B-02","B-03","B-04","B-05","B-06","B-07","B-08",
-        					  "B-09","B-10", "B-CR", "B-DI"};
-        oncBatchNum = new JComboBox(batchNums);
-//      oncBatchNum.setEditable(true);
-        oncBatchNum.setPreferredSize(new Dimension (96, 52));
-        oncBatchNum.setToolTipText("Which input batch contained this family");
-        oncBatchNum.setBorder(BorderFactory.createTitledBorder("Batch #"));
-        oncBatchNum.setEnabled(false);
-        oncBatchNum.addActionListener(this);
-*/        
+        
         lblBatchNum = new JLabel();
         lblBatchNum.setPreferredSize(new Dimension(64, 52));
         lblBatchNum.setToolTipText("Indicates family intake grouping");
@@ -226,7 +215,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         lblBatchNum.setHorizontalAlignment(JLabel.CENTER);
         
         oncDNScode = new JTextField(6);
-        oncDNScode.setToolTipText("Do not serve family code: e.g, SA- Salvation Army");
+        oncDNScode.setToolTipText("Do not serve family code: e.g, SA= Salvation Army");
         oncDNScode.setBorder(BorderFactory.createTitledBorder("DNS Code"));
         oncDNScode.setEditable(false);
         oncDNScode.addActionListener(this);
@@ -354,38 +343,32 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         btnAssignONCNum.setVisible(false);	//Invisible until ONC Number invalid and region valid
         btnAssignONCNum.addActionListener(this);
         
-//      btnShowPriorHistory = new JButton("Prior History");
         btnShowPriorHistory = new JRadioButton(gvs.getImageIcon(HISTORY_ICON_INDEX));
         btnShowPriorHistory.setToolTipText("Click for prior ONC gift history for highlighted child");
         btnShowPriorHistory.setEnabled(false);
         btnShowPriorHistory.addActionListener(this);
         
-//      btnShowAllPhones = new JButton("All Phone #'s");
         btnShowAllPhones = new JRadioButton(gvs.getImageIcon(PHONE_ICON_INDEX));
         btnShowAllPhones.setToolTipText("Click for all phone numbers for family");
         btnShowAllPhones.setEnabled(false);
         btnShowAllPhones.addActionListener(this);
         
-//      btnShowAgentInfo = new JButton("Agent Info");
         btnShowAgentInfo = new JRadioButton(gvs.getImageIcon(AGENT_INFO_ICON_INDEX));
         btnShowAgentInfo.setToolTipText("Click for info on agent who referred family");
         btnShowAgentInfo.setEnabled(false);
         btnShowAgentInfo.addActionListener(this);
         
-//        btnShowODBDetails = new JButton("Family Details");
         btnShowODBDetails = new JRadioButton(gvs.getImageIcon(FAMILY_DETAILS_ICON_INDEX));
         btnShowODBDetails.setToolTipText("Click for additional details for this family");
         btnShowODBDetails.setEnabled(false);
         btnShowODBDetails.addActionListener(this);
         
-//      btnMeals = new JButton("Meal Assistance");
         btnMeals = new JRadioButton(gvs.getImageIcon(REQUESTED_MEAL_ICON_INDEX));
         btnMeals.setToolTipText("Click for family food assistance status");
         btnMeals.setEnabled(false);
         btnMeals.setActionCommand("None");
         btnMeals.addActionListener(this);
         
-//      btnTransportation = new JButton("Transportation");
         btnTransportation = new JRadioButton(gvs.getImageIcon(TRANSPORTATION_ICON_INDEX));
         btnTransportation.setToolTipText("Click for family transportation status");
         btnTransportation.setEnabled(false);
@@ -1240,7 +1223,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			p2.setBackground(Color.RED);
 			p3.setBackground(Color.RED);
 		}
-		else if(currFam.getNotes().toLowerCase().contains(GIFT_CARD_ONLY_TEXT))
+		else if(cDB.isGiftCardOnlyFamily(currFam.getID()))
 		{
 			p1.setBackground(Color.GREEN);
 			p2.setBackground(Color.GREEN);

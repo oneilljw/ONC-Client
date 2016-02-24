@@ -51,7 +51,7 @@ public class OurNeighborsChild implements DatabaseListener
 	private static final int SERVER_CONNECT_RETRY_LIMIT = 3;
 	private static final int ONC_IMAGE_ICON_INDEX = 0;
 	private static final int ONC_SAVE_FILE = 1;	
-	private static final String ONC_VERSION = "3.23";
+	private static final String ONC_VERSION = "3.24";
 	private static final String ONC_COPYRIGHT = "\u00A92015 John W. O'Neill";	
 	private static final String APPNAME = "Our Neighbor's Child";
 	private static final int DB_UNLOCKED_IMAGE_INDEX = 17;
@@ -789,7 +789,7 @@ public class OurNeighborsChild implements DatabaseListener
 		{
 			oncMenuBar.SetEnabledMenuItems(true);
 			oncFamilyPanel.onFamilyDataLoaded();
-		
+			
 			if(GlobalVariables.isUserAdmin()) 
 				oncMenuBar.setEnabledRestrictedMenuItems(true);
 		}
@@ -1224,7 +1224,7 @@ public class OurNeighborsChild implements DatabaseListener
 			oncMenuBar.setEnabledDataLoadedMenuItems(true);
 			
 			oncFamilyPanel.initializeCatalogWishCounts();
-	    	
+			
 			//check to see if family data is present and enable controls
 			checkFamilyDataLoaded();
     	}
