@@ -528,11 +528,11 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			  "Family Status", "Delivery Status", "Meal Status", "Head of Household First Name", 
 			  "Head of Household Last Name", "House Number","Street",
 			  "Unit or Apartment Number", "Zip Code", "Region",
-			  "Changed By", "Stoplight Color"};
+			  "Changed By", "Gift Card Only Family?", "Stoplight Color"};
     	String[] fdCols = {"ONC", "Batch #", "Ref #", "DNS", "Fam Status", "Del Status", "Meal Status",
-    						"First", "Last", "House", "Street", "Unit", "Zip", "Reg", "Changed By", "SL"};
-    	int[] fdColWidths = {32, 48, 56, 48, 72, 72, 72, 72, 72, 48, 128, 72, 48, 32, 72, 24};
-    	int [] fdCenter_cols = {1, 13};
+    						"First", "Last", "House", "Street", "Unit", "Zip", "Reg", "Changed By", "GCO", "SL"};
+    	int[] fdColWidths = {32, 48, 56, 48, 72, 72, 72, 72, 72, 48, 128, 72, 48, 32, 72, 32, 24};
+    	int [] fdCenter_cols = {1, 13, 15};
         sortFamiliesDlg = new SortFamilyDialog(parentFrame, fdColToolTips, fdCols, fdColWidths, fdCenter_cols);
         sortFamiliesDlg.addEntitySelectionListener(familyChildSelectionListener);
         sortFamiliesDlg.addEntitySelectionListener(dirDlg);
@@ -1223,7 +1223,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			p2.setBackground(Color.RED);
 			p3.setBackground(Color.RED);
 		}
-		else if(cDB.isGiftCardOnlyFamily(currFam.getID()))
+		else if(currFam.isGiftCardOnly())
 		{
 			p1.setBackground(Color.GREEN);
 			p2.setBackground(Color.GREEN);

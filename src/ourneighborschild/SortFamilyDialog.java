@@ -69,7 +69,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	
 	//Unique gui elements for Sort Family Dialog
 	private JComboBox oncCB, batchCB, regionCB, dnsCB, zipCB, fstatusCB, streetCB, lastnameCB;
-	private JComboBox changedByCB, stoplightCB, dstatusCB, mealstatusCB;
+	private JComboBox changedByCB, stoplightCB, dstatusCB, mealstatusCB, giftCardCB;
 	private ComboItem[] changeDelItem, changeFamItem;
 	private JComboBox changeDNSCB;
 	private JComboBox changeFStatusCB, changeDStatusCB;
@@ -80,12 +80,13 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	private ONCEmailer oncEmailer;
 
 	private int sortBatchNum = 0, sortFStatus = 0, sortDStatus=0;
-	private int sortZip = 0, sortRegion = 0, sortChangedBy = 0, sortStoplight = 0;
+	private int sortZip = 0, sortRegion = 0, sortChangedBy = 0, sortGCO = 0, sortStoplight = 0;
 	private String sortLN = "Any", sortStreet= "Any", sortDNSCode;
 	private MealStatus sortMealStatus;
 
+	private static String[] giftCardFilter = {"Any", "True", "False"};
 	private static String[] dnsCodes = {"None", "Any", "DUP", "NC", "NISA", "OPT-OUT", "SA", "SBO", "WA"};
-	private static String[] exportChoices = {"Export", "ODB Crosscheck", "Delivery Instructions"};
+	private static String[] exportChoices = {"Export", "ODB Crosscheck", "Family Floor List", "Delivery Instructions"};
 	private static String[] printChoices = {"Print", "Print Listing", "Print Book Labels", 
 											"Print Family Receiving Sheets",
 											"Print Gift Inventory Sheets", "Print Packaging Sheets",
@@ -174,6 +175,11 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		changedByCB.setBorder(BorderFactory.createTitledBorder("Changed By"));
 		changedByCB.addActionListener(this);
 		
+		giftCardCB = new JComboBox(giftCardFilter);
+		giftCardCB.setPreferredSize(new Dimension(120, 56));
+		giftCardCB.setBorder(BorderFactory.createTitledBorder("Gift Card Only ?"));
+		giftCardCB.addActionListener(this);
+		
 //		stoplightCB = new JComboBox(stoplt);
 		stoplightCB = new JComboBox(GlobalVariables.getLights());
 		stoplightCB.setPreferredSize(new Dimension(80, 56));
@@ -192,6 +198,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		sortCriteriaPanelBottom.add(zipCB);
 		sortCriteriaPanelBottom.add(regionCB);
 		sortCriteriaPanelBottom.add(changedByCB);
+		sortCriteriaPanelBottom.add(giftCardCB);
 		sortCriteriaPanelBottom.add(stoplightCB);
 		
 		//Set the preferred size of the bottom panel since it was used here. The top panel preferred
@@ -328,8 +335,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			f.getZipCode(),
 			regions.getRegionID(f.getRegion()),
 			f.getChangedBy(),
-//			stoplt[f.getStoplightPos()+1].substring(0,1)};
-//			gvs.getImageIcon(24)};
+			f.isGiftCardOnly() ? "T" : "F",
 			gvs.getImageIcon(23 + f.getStoplightPos())};
 		
 		return tablerow;
@@ -372,7 +378,8 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 				      doesZipMatch(f.getZipCode()) &&
 				       doesRegionMatch(f.getRegion()) &&
 				        doesChangedByMatch(f.getChangedBy()) &&
-				         doesStoplightMatch(f.getStoplightPos()))	//Family criteria pass
+				         doesGiftCardOnlyMatch(f.isGiftCardOnly()) &&
+				          doesStoplightMatch(f.getStoplightPos()))	//Family criteria pass
 			{
 				stAL.add(f);
 			}
@@ -1131,6 +1138,11 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		sortChangedBy = 0;
 		changedByCB.addActionListener(this);
 		
+		giftCardCB.removeActionListener(this);
+		giftCardCB.setSelectedIndex(0);
+		sortGCO = 0;
+		giftCardCB.addActionListener(this);
+		
 		stoplightCB.removeActionListener(this);
 		stoplightCB.setSelectedIndex(0);
 		sortStoplight = 0;
@@ -1405,6 +1417,9 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	
 	boolean doesChangedByMatch(String cb) { return sortChangedBy == 0 || cb.equals(changedByCB.getSelectedItem()); }
 	
+	boolean doesGiftCardOnlyMatch(boolean gco) { return sortGCO == 0 || (gco && giftCardCB.getSelectedIndex()== 1) || 
+													(!gco && giftCardCB.getSelectedIndex()== 2); } 
+	
 	boolean doesStoplightMatch(int sl) { return sortStoplight == 0 || sl == stoplightCB.getSelectedIndex()-1; }
 	
 	void setFamilyStatusComboItemEnabled(int index, boolean tf) {changeFamItem[index].setEnabled(tf); }
@@ -1550,6 +1565,55 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	    }
 	}
 	
+	void onExportFamilyFloorList()
+	{
+    	String[] header = {"ONC #", "Region"};
+    	ONCRegions regionDB = ONCRegions.getInstance();
+    						
+    
+    	ONCFileChooser oncfc = new ONCFileChooser(this);
+       	File oncwritefile = oncfc.getFile("Select file for export of ONC families on the floor List" ,
+       										new FileNameExtensionFilter("CSV Files", "csv"), 1);
+       	if(oncwritefile!= null)
+       	{
+       		//If user types a new filename without extension.csv, add it
+	    	String filePath = oncwritefile.getPath();
+	    	if(!filePath.toLowerCase().endsWith(".csv")) 
+	    		oncwritefile = new File(filePath + ".csv");
+	    	
+	    	try 
+	    	{
+	    		CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
+	    	    writer.writeNext(header);
+	    	    
+	    	    int[] row_sel = sortTable.getSelectedRows();
+	    	    for(int i=0; i<sortTable.getSelectedRowCount(); i++)
+	    	    {
+	    	    	int index = row_sel[i];
+	    	    	writer.writeNext(getExportONCFamilyFloorRow(stAL.get(index), regionDB));
+	    	    }
+	    	   
+	    	    writer.close();
+	    	    
+	    	    JOptionPane.showMessageDialog(this, 
+						sortTable.getSelectedRowCount() + " families sucessfully exported to " + oncwritefile.getName(), 
+						"Export Successful", JOptionPane.INFORMATION_MESSAGE, gvs.getImageIcon(0));
+	    	} 
+	    	catch (IOException x)
+	    	{
+	    		JOptionPane.showMessageDialog(this, "Export Failed, I/O Error: "  + x.getMessage(),  
+						"Export Failed", JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
+	    		System.err.format("IOException: %s%n", x);
+	    	}
+	    }
+	}
+	
+	public String[] getExportONCFamilyFloorRow(ONCFamily f, ONCRegions regionDB)
+	{
+		String[] exportRow = {f.getONCNum(), regionDB.getRegionID(f.getRegion())};
+		return exportRow;
+	}
+	
 	public String[] getExportONCDeliveryNotesRow(ONCFamily f)
 	{
 		String delAddress, unit, city, zip;
@@ -1659,6 +1723,11 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			sortChangedBy = changedByCB.getSelectedIndex();
 			buildTableList(false);
 		}
+		else if(e.getSource() == giftCardCB && giftCardCB.getSelectedIndex() != sortGCO)
+		{
+			sortGCO = giftCardCB.getSelectedIndex();
+			buildTableList(false);
+		}
 		else if(e.getSource() == stoplightCB && stoplightCB.getSelectedIndex() != sortStoplight)
 		{
 			sortStoplight = stoplightCB.getSelectedIndex();
@@ -1672,6 +1741,11 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 				exportCB.setSelectedIndex(0);
 			}
 			else if(exportCB.getSelectedItem().toString().equals(exportChoices[2]))
+			{ 
+				onExportFamilyFloorList();
+				exportCB.setSelectedIndex(0);
+			}
+			else if(exportCB.getSelectedItem().toString().equals(exportChoices[3]))
 			{ 
 				onExportDeliveryNotes();
 				exportCB.setSelectedIndex(0);

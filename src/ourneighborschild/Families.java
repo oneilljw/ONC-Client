@@ -1033,6 +1033,8 @@ public class Families extends ONCSearchableDatabase
 			Collections.sort(fal, new ONCFamilyRegionComparator()); }
 		else if(dbField.equals("Changed By")) {
 			Collections.sort(fal, new ONCFamilyCallerComparator()); }
+		else if(dbField.equals("GCO")) {
+			Collections.sort(fal, new ONCFamilyGiftCardOnlyComparator()); }
 		else if(dbField.equals("SL")) {
 			Collections.sort(fal, new ONCFamilyStoplightComparator()); }
 		else if(dbField.equals("# Bikes")) {
@@ -1368,6 +1370,20 @@ public class Families extends ONCSearchableDatabase
 		public int compare(ONCFamily o1, ONCFamily o2)
 		{
 			return o1.getChangedBy().compareTo(o2.getChangedBy());
+		}
+	}
+	
+	private class ONCFamilyGiftCardOnlyComparator implements Comparator<ONCFamily>
+	{
+		@Override
+		public int compare(ONCFamily o1, ONCFamily o2)
+		{
+			if(!o1.isGiftCardOnly() && o2.isGiftCardOnly())
+				return 1;
+			else if(o1.isGiftCardOnly() && !o2.isGiftCardOnly())
+				return -1;
+			else
+				return 0;
 		}
 	}
 		

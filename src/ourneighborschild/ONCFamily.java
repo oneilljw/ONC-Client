@@ -48,7 +48,7 @@ public class ONCFamily extends ONCEntity
 	private int 		mealID;
 	private MealStatus  mealStatus;
 	private Transportation transportation;
-	
+	private boolean		bGiftCardOnly;
 	
 	//constructor used to make a copy for server update requests
 	ONCFamily(ONCFamily f)
@@ -90,6 +90,7 @@ public class ONCFamily extends ONCEntity
 		mealID = f.mealID;
 		mealStatus = f.mealStatus;
 		transportation = f.transportation;
+		bGiftCardOnly = f.bGiftCardOnly;
 	}
 	//Overloaded Constructor - 30 column input from ODB file
 /*	
@@ -274,6 +275,7 @@ public class ONCFamily extends ONCEntity
 				this.transportation = Transportation.valueOf(transportation);
 			else
 				this.transportation = Transportation.TBD;
+			bGiftCardOnly = false;
 
 			parseHOH(HOH);
 			parsePhoneData(ClientFamPhone);
@@ -325,6 +327,7 @@ public class ONCFamily extends ONCEntity
 //		slMssg = getDBString(nextLine[38]);
 //		slChangedBy = getDBString(nextLine[39]);
 		transportation = Transportation.valueOf(nextLine[40]);
+		bGiftCardOnly = nextLine[41].equals("TRUE") ? true : false;
 	}
 	
 	//Overloaded Constructor - Direct Intake Processing
@@ -387,6 +390,7 @@ public class ONCFamily extends ONCEntity
 		this.mealID = mealID;
 		mealStatus = mStatus;
 		this.transportation = transportation;
+		bGiftCardOnly = false;
 	}
 	
 	String getDBString(String s)
@@ -745,6 +749,7 @@ public class ONCFamily extends ONCEntity
 	public int		getMealID() { return mealID; }
 	public MealStatus getMealStatus() { return mealStatus; }
 	public Transportation getTransportation() { return transportation; }
+	public boolean 	isGiftCardOnly() { return bGiftCardOnly; }
 
 	//Setters
 	public void setONCNum(String s) { oncNum = s;}
@@ -782,6 +787,7 @@ public class ONCFamily extends ONCEntity
 	public void setMealID(int id) { mealID = id; }
 	public void setMealStatus(MealStatus ms) { mealStatus = ms; }
 	public void setTransportation(Transportation t) { transportation = t; }
+	public void setGiftCardOnly(boolean gco) { bGiftCardOnly = gco; }
 	
 	public String getGoogleMapAddress()
 	{
@@ -871,6 +877,7 @@ public class ONCFamily extends ONCEntity
 		rowList.add(getStoplightMssg());
 		rowList.add(getStoplightChangedBy());
 		rowList.add(getTransportation().toString());
+		rowList.add(isGiftCardOnly() ? "TRUE" : "FALSE");
 		
 //		String[] rowArray = rowList.toArray(new String[rowList.size()]);
 		return rowList.toArray(new String[rowList.size()]);

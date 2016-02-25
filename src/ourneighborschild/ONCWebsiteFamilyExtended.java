@@ -19,6 +19,7 @@ public class ONCWebsiteFamilyExtended extends ONCWebsiteFamily
 	private int		mealID;
 	private String 	notes;
 	private String  delInstr;
+	private boolean bGiftCardOnly;
 	
 	public ONCWebsiteFamilyExtended(ONCFamily f, String region)
 	{
@@ -40,6 +41,7 @@ public class ONCWebsiteFamilyExtended extends ONCWebsiteFamily
 		this.mealID = f.getMealID();
 		this.notes = f.getNotes();
 		this.delInstr = f.getDeliveryInstructions();
+		this.bGiftCardOnly = f.isGiftCardOnly();
 	}
 	
 	//getters
@@ -60,6 +62,7 @@ public class ONCWebsiteFamilyExtended extends ONCWebsiteFamily
 	int getMealID() {return mealID;}
 	String getNotes() { return notes; }
 	String getDeliveryInstructions() { return delInstr; }
+	boolean isGiftCardOnly() { return bGiftCardOnly; }
 
 	//setters
 	void setBatchNum(String bn) {BatchNum = bn;}
@@ -79,4 +82,5 @@ public class ONCWebsiteFamilyExtended extends ONCWebsiteFamily
 	void setMealID(int mealID) {this.mealID = mealID;}
 	void setNotes( String notes) { this.notes = notes; }
 	void setDeliveryInstructions( String di) { this.delInstr = di; }
+	void setGiftCardOnly( boolean gco) { this.bGiftCardOnly = gco; }
 }

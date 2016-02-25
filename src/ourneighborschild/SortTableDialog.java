@@ -257,57 +257,19 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 		//check to see if table rows need to be re-selected
 		for(int iIndex=0; iIndex < tableRowSelectedObjectList.size(); iIndex++)
 		{
-			if(tableRowSelectedObjectList.get(iIndex).getClass() == SortWishObject.class)
-			{
-//				SortWishObject swo = (SortWishObject) tableRowSelectedObjectList.get(iIndex);
-//				System.out.println(String.format("SortTableDialog.displaySortTable: object to be found cwID = %d is at tablerowselectedList index %d",
-//					swo.getChildWish().getID(), iIndex));
-			}
-			
 			//find the id in the stAL, getting it's row, the reselect it
 			int jIndex = 0;
 			boolean bMatchFound = false;
 			while(jIndex < stAL.size() && !bMatchFound)
 			{
 				if(stAL.get(jIndex).matches(tableRowSelectedObjectList.get(iIndex)))
-				{
 					bMatchFound = true;
-//					if(stAL.get(jIndex).getClass() == SortWishObject.class &&
-//						tableRowSelectedObjectList.get(iIndex).getClass() == SortWishObject.class)
-//					{
-//						SortWishObject stALSWO = (SortWishObject) stAL.get(jIndex);
-//						SortWishObject trsSWO = (SortWishObject) tableRowSelectedObjectList.get(iIndex);
-//						
-//						System.out.println(String.format("SortTableDialog.displaySortTable: stAL cwID %d matched trsel cwID %d at index %d",
-//								stALSWO.getChildWish().getID(), trsSWO.getChildWish().getID(), jIndex));
-//					}
-				}
-				else
-				{
-//					if(stAL.get(jIndex).getClass() == SortWishObject.class &&
-//							tableRowSelectedObjectList.get(iIndex).getClass() == SortWishObject.class)
-//					{
-//						SortWishObject stALSWO = (SortWishObject) stAL.get(jIndex);
-//						SortWishObject trsSWO = (SortWishObject) tableRowSelectedObjectList.get(iIndex);
-//							
-//						System.out.println(String.format("SortTableDialog.displaySortTable: stAL cwID %d did not match trsel cwID %d at index %d",
-//									stALSWO.getChildWish().getID(), trsSWO.getChildWish().getID(), jIndex));
-//					}
-					
+				else		
 					jIndex++;
-				}
 			}
 			
 			if(jIndex < stAL.size())
-			{
 				lsModel.addSelectionInterval(jIndex, jIndex);
-//				if(stAL.get(jIndex).getClass() == SortWishObject.class)
-//				{
-//					SortWishObject foundSWO = (SortWishObject) stAL.get(jIndex);
-//					System.out.println(String.format("SortTableDialog.displaySortTable: matched cwID %d at index %d",
-//							foundSWO.getChildWish().getID(), jIndex));
-//				}
-			}
 		}
 		
 		//re-enable any controls if rows are still selected
