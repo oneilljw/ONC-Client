@@ -1414,7 +1414,7 @@ public class Families extends ONCSearchableDatabase
 		public int compare(ONCFamily o1, ONCFamily o2)
 		{
 			Integer nb1 = getNumberOfBikesSelectedForFamily(o1);
-			Integer nb2 = getNumberOfBikesSelectedForFamily(o1);
+			Integer nb2 = getNumberOfBikesSelectedForFamily(o2);
 			return nb1.compareTo(nb2);
 		}
 	}

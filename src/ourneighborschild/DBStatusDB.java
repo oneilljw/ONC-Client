@@ -2,7 +2,10 @@ package ourneighborschild;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -25,6 +28,8 @@ public class DBStatusDB extends ONCDatabase
 	
 	List<DBYear> getDBStatus()
 	{
+		List<DBYear> dbYearList = null;
+		
 		//notify the server
 		Gson gson = new Gson();
 		Type listOfDBs = new TypeToken<ArrayList<DBYear>>(){}.getType();
@@ -36,9 +41,12 @@ public class DBStatusDB extends ONCDatabase
 		//check response. If response from server indicates a successful return,
 		//return the list of DB Years to the ui who requested the list.
 		if(response != null && response.startsWith("DB_STATUS"))
-			return gson.fromJson(response.substring(9), listOfDBs);
-		else
-			return null;
+		{	
+			dbYearList = gson.fromJson(response.substring(9), listOfDBs);
+			Collections.sort(dbYearList, new DBYearComparator());
+		}
+			
+		return dbYearList;
 	}
 	
 	String add(Object source)
@@ -57,6 +65,7 @@ public class DBStatusDB extends ONCDatabase
     	Gson gson = new Gson();
 		Type listtype = new TypeToken<ArrayList<DBYear>>(){}.getType();
 		ArrayList<DBYear> dbYearList =  gson.fromJson(json, listtype);
+		Collections.sort(dbYearList, new DBYearComparator());
 		
 		//notify listeners of the modified dbYear list
 		fireDataChanged(this, "ADDED_DBYEAR", dbYearList);
@@ -93,6 +102,24 @@ public class DBStatusDB extends ONCDatabase
 		else if(ue.getType().equals("ADDED_DBYEAR"))
 		{
 			processAddedDBYear(ue.getJson());
+		}
+	}
+	
+	private class DBYearComparator implements Comparator<DBYear>
+	{
+		@Override
+		public int compare(DBYear o1, DBYear o2)
+		{
+			//return the earlier year
+			Integer dbYear1 = o1.getYear();
+			Integer dbYear2 = o2.getYear();
+			
+			if(dbYear1 < dbYear2)
+				return 1;
+			else if(dbYear1 > dbYear2)
+				return -1;
+			else
+				return 0;
 		}
 	}
 }
