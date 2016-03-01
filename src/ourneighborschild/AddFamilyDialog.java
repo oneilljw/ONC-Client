@@ -787,7 +787,10 @@ public class AddFamilyDialog extends JDialog implements ActionListener, Database
         @Override
         public Class<?> getColumnClass(int column)
         {
-        	return String.class;
+        	if(column == GENDER_COL)
+        		return AdultGender.class;
+        	else
+        		return String.class;
         }
  
         public boolean isCellEditable(int row, int col)
@@ -807,7 +810,7 @@ public class AddFamilyDialog extends JDialog implements ActionListener, Database
             if(col == NAME_COL)  
             	adult.setName((String) value);
             else
-            	adult.setGender((String) value);  
+            	adult.setGender((AdultGender) value);  
         }  
     }
 

@@ -588,7 +588,17 @@ public class Families extends ONCSearchableDatabase
 				String[] adult = members[i].split(ODB_FAMILY_MEMBER_COLUMN_SEPARATOR, 3);
 				if(adult.length == 3)
 				{
-					ONCAdult reqAddAdult = new ONCAdult(-1, famid, adult[0], adult[1]);
+					//determine the gender, could be anything from ODB!
+					AdultGender gender;
+					if(adult[1].toLowerCase().contains("female") || adult[1].toLowerCase().contains("girl"))
+						gender = AdultGender.Female;
+					else if(adult[1].toLowerCase().contains("male") || adult[1].toLowerCase().contains("boy"))
+						gender = AdultGender.Male;
+					else
+						gender = AdultGender.Unknown;
+							
+					
+					ONCAdult reqAddAdult = new ONCAdult(-1, famid, adult[0], gender);
 				
 					//interact with the server to add the adult
 					adultDB.add(this, reqAddAdult);

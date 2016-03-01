@@ -71,6 +71,8 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private static final int GOOGLE_MAP_ICON_INDEX = 39;
 	private static final int NOT_GIFT_CARD_ONLY_ICON_INDEX = 40;
 	private static final int GIFT_CARD_ONLY_ICON_INDEX = 41;
+	private static final int ADULT_ICON_INDEX = 42;
+	private static final int NO_ADULT_ICON_INDEX = 43;
 	
 	private AdultDB adultDB;
 	private DeliveryDB deliveryDB;
@@ -97,7 +99,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private JLabel lblONCNum, lblRefNum, lblBatchNum, lblRegion, lblNumBags, lblChangedBy;
 	private JRadioButton delRB, altAddressRB, btnMeals, btnShowPriorHistory, btnShowAgentInfo;
 	private JRadioButton btnShowAllPhones, btnShowODBDetails, btnTransportation, btnDirections;
-	private JRadioButton btnNotGiftCardOnly, btnGiftCardOnly;
+	private JRadioButton btnNotGiftCardOnly, btnGiftCardOnly, btnAdults;
 	
 //	private JComboBox oncBatchNum, Language, statusCB, delstatCB;
 	private JComboBox Language, statusCB, delstatCB;
@@ -122,6 +124,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private static ClientMapDialog cmDlg;
 	private DeliveryStatusDialog dsDlg;
 	private MealDialog mealDlg;
+	private AdultDialog adultDlg;
 	private TransportationDialog transportationDlg;
 	private AddMealDialog addMealDlg;
 	private DirectionsDialog dirDlg;
@@ -171,6 +174,8 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			deliveryDB.addDatabaseListener(this);
 		if(cDB != null)
 			cDB.addDatabaseListener(this);
+		if(adultDB != null)
+			adultDB.addDatabaseListener(this);
 
 		//Set layout and border for the Family Panel
 		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
@@ -391,6 +396,11 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         btnGiftCardOnly.setVisible(false);
         btnGiftCardOnly.addActionListener(this);
         
+        btnAdults = new JRadioButton(gvs.getImageIcon(ADULT_ICON_INDEX));
+        btnAdults.setToolTipText("Manage Adults in Family");
+        btnAdults.setEnabled(false);
+        btnAdults.addActionListener(this);
+        
         //Set up the Child Table
         childTable = new JTable()
 		{
@@ -488,6 +498,10 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         //Set up meal history dialog box 
         mealDlg = new MealDialog(parentFrame);
         nav.addEntitySelectionListener(mealDlg);
+        
+        //Set up adult dialog box 
+        adultDlg = new AdultDialog(pf);
+        nav.addEntitySelectionListener(adultDlg);
        
         //Set up delivery directions dialog box 
         try { dirDlg = new DirectionsDialog(parentFrame); }
@@ -809,6 +823,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         p5.add(delRB);
         p5.add(btnNotGiftCardOnly);
         p5.add(btnGiftCardOnly);
+        p5.add(btnAdults);
               
         this.add(nav);
         this.add(p1);
@@ -995,6 +1010,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		btnNotGiftCardOnly.setVisible(true);
 		btnGiftCardOnly.setEnabled(true);
 		btnGiftCardOnly.setVisible(false);
+		btnAdults.setEnabled(true);
 		
 		if(bDispAll)
 		{
@@ -1098,6 +1114,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			else
 				btnTransportation.setIcon(gvs.getImageIcon(NO_TRANSPORTATION_ICON_INDEX));
 			
+			checkForAdultsInFamily();
 		}
 		else	//restricted viewing user
 		{
@@ -1190,7 +1207,9 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 				btnTransportation.setIcon(gvs.getImageIcon(TRANSPORTATION_ICON_INDEX));
 			else
 				btnTransportation.setIcon(gvs.getImageIcon(NO_TRANSPORTATION_ICON_INDEX));
-
+			
+			//set the adults icon
+			checkForAdultsInFamily();
 		}
 		
 		//Disable table list from updating when there's not child data
@@ -1217,6 +1236,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	
 	void checkForDNSorGiftCardOnly()
 	{
+		//determine what color to paint the background
 		if(currFam.getDNSCode().length() > 1)
 		{
 			p1.setBackground(Color.RED);
@@ -1232,6 +1252,15 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			btnNotGiftCardOnly.setVisible(false);
 			btnGiftCardOnly.setVisible(true);
 		}
+	}
+	
+	void checkForAdultsInFamily()
+	{	
+		//set the adults icon
+		if(adultDB.getAdultsInFamily(currFam.getID()).size() > 0)
+			btnAdults.setIcon(gvs.getImageIcon(ADULT_ICON_INDEX));
+		else
+			btnAdults.setIcon(gvs.getImageIcon(NO_ADULT_ICON_INDEX));	
 	}
 	
 //	void displayNewONCnum(String oncNum) { lblONCNum.setText(oncNum); }	//Non-user change to ONC Number TF
@@ -1537,6 +1566,16 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			mealDlg.setLocationRelativeTo(btnMeals);
 			mealDlg.display(currFam);
 			mealDlg.setVisible(true);
+		}
+	}
+	
+	void showAdultDialog()
+	{
+		if(!adultDlg.isShowing())
+		{
+			adultDlg.setLocationRelativeTo(btnAdults);
+			adultDlg.display(currFam);
+			adultDlg.setVisible(true);
 		}
 	}
 	
@@ -2003,13 +2042,13 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			{
 				//create a new adult object and add it to the adult database
 				String name = delChild.getChildFirstName() + " " + delChild.getChildLastName();
-				String gender;
+				AdultGender gender;
 				if(delChild.getChildGender().toLowerCase().equals("girl"))
-					gender = "Female";
+					gender = AdultGender.Female;
 				else if(delChild.getChildGender().toLowerCase().equals("boy"))
-					gender = "Male";
+					gender = AdultGender.Male;
 				else
-					gender = delChild.getChildGender();
+					gender = AdultGender.Unknown;
 				
 				//add to the adult database
 				adultDB.add(this, new ONCAdult(-1, delChild.getFamID(), name, gender));
@@ -2134,6 +2173,10 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 				showAddMealDialog();
 			else
 				showMealStatus();
+		}
+		else if(e.getSource() == btnAdults)
+		{
+			showAdultDialog();
 		}
 		else if(e.getSource() == altAddressRB)			 
 		{	
@@ -2378,7 +2421,6 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 				}
 			}
 		}
-		
 		else if(dbe.getType().equals("ADDED_CHILD")) 
 		{
 			ONCChild changeChild = (ONCChild) dbe.getObject();
@@ -2432,6 +2474,16 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			DataChange servedCountsChange = (DataChange) dbe.getObject();
 			int[] changes = {servedCountsChange.getOldData(), servedCountsChange.getNewData()};
 			updateDBStatus(changes);
+		}
+		else if(dbe.getType().equals("ADDED_ADULT") || dbe.getType().equals("DELETED_ADULT"))
+		{
+			//may have added or deleted from current family, if so need to redisplay
+			ONCAdult changedAdult = (ONCAdult) dbe.getObject();
+			if(currFam.getID() == changedAdult.getFamID())
+			{
+				//update the icon in the icon bar
+				checkForAdultsInFamily();
+			}
 		}
 	}
 

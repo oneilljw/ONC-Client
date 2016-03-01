@@ -58,8 +58,8 @@ public class AdultDB extends ONCDatabase
 		if(serverIF != null && serverIF.isConnected())
 		{
 			Gson gson = new Gson();
-			response = serverIF.sendRequest("POST<add_adult>" + gson.toJson(entity, ONCAdult.class));		
-					
+			response = serverIF.sendRequest("POST<add_adult>" + gson.toJson(entity, ONCAdult.class));
+				
 			//if the server added the adult,  add the new adult to the data base and notify ui's
 			if(response.startsWith("ADDED_ADULT"))		
 				addedAdult =  processAddedAdult(source, response.substring(11));
@@ -73,7 +73,7 @@ public class AdultDB extends ONCDatabase
 		ONCAdult addedAdult = null;
 		Gson gson = new Gson();
 		addedAdult = gson.fromJson(json, ONCAdult.class);
-				
+			
 		if(addedAdult != null)
 		{
 			adultList.add(addedAdult);
@@ -131,22 +131,26 @@ public class AdultDB extends ONCDatabase
 	/*******************************************************************************************
 	 * This method is called when the user requests to delete an adult.
 	 **********************************************************************************************************/
-	void delete(Object source, ONCAdult reqDelAdult)
+	ONCAdult delete(Object source, ONCAdult reqDelAdult)
 	{
 		String response = "";
+		ONCAdult deletedAdult = null;
+		
 		if(serverIF != null && serverIF.isConnected())
 		{
 			Gson gson = new Gson();
 			
-			response = serverIF.sendRequest("POST<delete_adult>" + gson.toJson(reqDelAdult, ONCMeal.class));		
+			response = serverIF.sendRequest("POST<delete_adult>" + gson.toJson(reqDelAdult, ONCAdult.class));		
 			
 			//if the server deleted the meal, notify ui's
 			if(response.startsWith("DELETED_ADULT"))		
-				processDeletedAdult(source, response.substring(13));
+				deletedAdult = processDeletedAdult(source, response.substring(13));
 		}
+		
+		return deletedAdult;
 	}
 	
-	void processDeletedAdult(Object source, String json)
+	ONCAdult processDeletedAdult(Object source, String json)
 	{
 		Gson gson = new Gson();
 		ONCAdult deletedAdult = gson.fromJson(json, ONCAdult.class);
@@ -160,9 +164,11 @@ public class AdultDB extends ONCDatabase
 		{
 			adultList.remove(index);
 			fireDataChanged(source, "DELETED_ADULT", deletedAdult);
+			return deletedAdult;
 		}
 		else
-			System.out.println("Adult DB: Adult deletion failed, adult ID not found");
+			
+			return null;
 	}
 	
 	int getNumberOfOtherAdultsInFamily(int familyID)

@@ -33,11 +33,7 @@ public class ONCUserDialog extends JDialog implements ActionListener, ListSelect
 														DatabaseListener
 {
 	/**
-	 * This class implements a dialog which allows the user to add wishes to the wish catalog
-	 * and specify which child wish lists contain the wish. It also allows the catalog designer
-	 * to specify what additional detail is requested from the user when they select or modify
-	 * a gift for a child. Finally, it shows the user how many of each gift type have been 
-	 * assigned to children in a particular year. 
+	 * This class implements a dialog which allows the user to manage users
 	 */
 	private static final long serialVersionUID = 1L;
 	private static final int LAST_NAME_COL= 0;
