@@ -8,8 +8,13 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -34,38 +39,32 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
 
-
 public class AddFamilyDialog extends JDialog implements ActionListener, DatabaseListener, ListSelectionListener
 {
 	/**
 	 * Dialog allows user to add a family to the database
 	 */
 	private static final long serialVersionUID = 1L;
+	private static final long DAYS_TO_MILLIS = 1000 * 60 * 60 * 24; 
 	private static final Color OLD_LACE = new Color(253, 245, 230);
-	private GlobalVariables gvs;
 	
+	private GlobalVariables gvs;
 	private Families fDB;
 	private ChildDB cDB;
 	private AdultDB adultDB;
 	private DeliveryDB deliveryDB;
-	private ONCRegions regions;
-	private ONCAgents agentDB;
 	private MealDB mealDB;
 	
-	private ONCFamily currFam;	//The panel needs to know which family is being displayed
 	private List<AddChild> childList;
 	private List<ONCAdult> adultList;
-	private ONCChild currChild;	//The panel needs to know which child is being displayed
 	
-	private Color pBkColor; //Used to restore background for panels 1-3, btnShowPriorHistory when changed
-	
-	private JTextPane dietPane;
-	private JTextPane HomePhone, OtherPhone;
+	private JTextPane dietPane, detailsPane;
+	private JTextField HomePhone, OtherPhone, AltPhone;
 	private JButton btnSubmit;
 	private JTextField hohFN, hohLN, email, housenumTF, street, unit, city, zipCode;
 	private JTextField altHousenumTF, altStreet, altUnit, altCity, altZipCode;
 	private JRadioButton btnAddChild, btnDelChild, btnAddAdult, btnDelAdult;
-	private JCheckBox sameAddressCkBox, foodAssistanceCkBox;
+	private JCheckBox sameAddressCkBox, ownTransportCxBox, giftsRequestedCkBox, foodAssistanceCkBox;
 	
 	private JComboBox languageCB, mealsCB;
 	private ONCTable childTable, childWishTable, adultTable;
@@ -74,25 +73,19 @@ public class AddFamilyDialog extends JDialog implements ActionListener, Database
 	private ChildWishTableModel childWishTableModel;
 	
 	public boolean bFamilyDataChanging = false; //Flag indicating program is triggering gui events, not user
-	private boolean bChildTableDataChanging = true;	//Flag indicating that Child Table data is changing
-	private boolean bDispAll = false; //Flag indicating whether all personal family data is displayed or not
 	
 	public AddFamilyDialog(JFrame parentFrame)
 	{
 		super(parentFrame, true);
-		this.setTitle("Request Family Assistance");
+		this.setTitle("Add New Family");
 		
 		gvs = GlobalVariables.getInstance();
 		fDB = Families.getInstance();
 		cDB = ChildDB.getInstance();
 		adultDB = AdultDB.getInstance();
-		agentDB = ONCAgents.getInstance();
 		deliveryDB = DeliveryDB.getInstance();
-		regions = ONCRegions.getInstance();
 		mealDB = MealDB.getInstance();
 		
-		currFam = null;
-
 		//register to listen for family, delivery and child data changed events
 		if(fDB != null)
 			fDB.addDatabaseListener(this);
@@ -125,15 +118,17 @@ public class AddFamilyDialog extends JDialog implements ActionListener, Database
         hohLN = new JTextField(11);
         hohLN.setBorder(BorderFactory.createTitledBorder("Last Name"));
              
-        HomePhone = new JTextPane();
-        JScrollPane homePhoneScrollPane = new JScrollPane(HomePhone);
-        homePhoneScrollPane.setPreferredSize(new Dimension(128, 44));
-        homePhoneScrollPane.setBorder(BorderFactory.createTitledBorder("Primary Phone"));
+        HomePhone = new JTextField();
+        HomePhone.setPreferredSize(new Dimension(128, 44));
+        HomePhone.setBorder(BorderFactory.createTitledBorder("Primary Phone"));
         
-        OtherPhone = new JTextPane();
-        JScrollPane otherPhoneScrollPane = new JScrollPane(OtherPhone);
-        otherPhoneScrollPane.setPreferredSize(new Dimension(128, 44));
-        otherPhoneScrollPane.setBorder(BorderFactory.createTitledBorder("Alternate Phone"));
+        OtherPhone = new JTextField();
+        OtherPhone.setPreferredSize(new Dimension(128, 44));
+        OtherPhone.setBorder(BorderFactory.createTitledBorder("Alternate Phone"));
+        
+        AltPhone = new JTextField();
+        AltPhone.setPreferredSize(new Dimension(128, 44));
+        AltPhone.setBorder(BorderFactory.createTitledBorder("2nd Alt. Phone"));
       
         String[] languages = {"?", "English", "Spanish", "Arabic", "Korean", "Vietnamese", "Other"};
         languageCB = new JComboBox(languages);
@@ -167,8 +162,9 @@ public class AddFamilyDialog extends JDialog implements ActionListener, Database
         //Add components to the panels
         p1.add(hohFN);
         p1.add(hohLN);
-        p1.add(homePhoneScrollPane);
-        p1.add(otherPhoneScrollPane);
+        p1.add(HomePhone);
+        p1.add(OtherPhone);
+        p1.add(AltPhone);
 		p1.add(languageCB);
 		
         p2.add(housenumTF);
@@ -182,38 +178,49 @@ public class AddFamilyDialog extends JDialog implements ActionListener, Database
         hohPanel.add(p2);
         
         //set up the delivery address panel
-        JPanel delAddressPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel delAddressPanel = new JPanel();
+        delAddressPanel.setLayout(new BoxLayout(delAddressPanel, BoxLayout.Y_AXIS));
 		delAddressPanel.setBorder(BorderFactory.createTitledBorder("Delivery Address: ONC will deliver gifts to this address"));
+		JPanel p3 = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		JPanel p4 = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		delAddressPanel.setBackground(OLD_LACE);
+		p3.setBackground(OLD_LACE);
+		p4.setBackground(OLD_LACE);
 		
         sameAddressCkBox = new JCheckBox("Check if same as HOH address");
         sameAddressCkBox.addActionListener(this);
-        delAddressPanel.add(sameAddressCkBox);
+        p3.add(sameAddressCkBox);
         
         altHousenumTF = new JTextField();
         altHousenumTF.setPreferredSize(new Dimension(72, 44));
         altHousenumTF.setBorder(BorderFactory.createTitledBorder("House #"));
-        delAddressPanel.add(altHousenumTF);
+        p3.add(altHousenumTF);
         
         altStreet = new JTextField();
         altStreet.setPreferredSize(new Dimension(192, 44));
         altStreet.setBorder(BorderFactory.createTitledBorder("Street"));
-        delAddressPanel.add(altStreet);
+        p3.add(altStreet);
         
         altUnit = new JTextField();
         altUnit.setPreferredSize(new Dimension(80, 44));
         altUnit.setBorder(BorderFactory.createTitledBorder("Unit"));
-        delAddressPanel.add(altUnit);
+        p3.add(altUnit);
         
         altCity = new JTextField();
         altCity.setPreferredSize(new Dimension(128, 44));
         altCity.setBorder(BorderFactory.createTitledBorder("City"));
-        delAddressPanel.add(altCity);
+        p3.add(altCity);
        
         altZipCode = new JTextField();
         altZipCode.setPreferredSize(new Dimension(88, 44));
         altZipCode.setBorder(BorderFactory.createTitledBorder("Zip Code"));
-        delAddressPanel.add(altZipCode);
+        p3.add(altZipCode);
+        
+        ownTransportCxBox = new JCheckBox("Check if family has their own transporation");
+        p4.add(ownTransportCxBox);
+        
+        delAddressPanel.add(p3);
+        delAddressPanel.add(p4);
       
         //set up the family members panel
         JPanel familyMemberPanel = new JPanel(new GridBagLayout());
@@ -235,8 +242,7 @@ public class AddFamilyDialog extends JDialog implements ActionListener, Database
         adultTable.getSelectionModel().addListSelectionListener(this);
         
         TableColumn adultGenderColumn = adultTable.getColumnModel().getColumn(2);
-		String[] adultGenders = {"Female", "Male", "Unknown"};
-		JComboBox adultGenderCB = new JComboBox(adultGenders);
+		JComboBox adultGenderCB = new JComboBox(AdultGender.values());
 		adultGenderColumn.setCellEditor(new DefaultCellEditor(adultGenderCB));
 
       	//Set table column widths
@@ -416,7 +422,11 @@ public class AddFamilyDialog extends JDialog implements ActionListener, Database
         //set up the child wish table
         JPanel childWishPanel = new JPanel(new GridBagLayout());
         GridBagConstraints c3 = new GridBagConstraints();
-        childWishPanel.setBorder(BorderFactory.createTitledBorder("Gift Assistance: complete for each child in the family"));
+        childWishPanel.setBorder(BorderFactory.createTitledBorder("Gift Assistance: complete if family requested gift assistance"));
+        
+        giftsRequestedCkBox = new JCheckBox("Check if gift assistance requested, then complete table for each child in the family");
+        giftsRequestedCkBox.addActionListener(this);
+        
         String[] cwToolTips = {"Child Number", "First Name", "Last Name", "Wish List"};
       	childWishTable = new ONCTable(cwToolTips, new Color(240,248,255));
 
@@ -454,26 +464,33 @@ public class AddFamilyDialog extends JDialog implements ActionListener, Database
       	c3.gridy=0;
       	c3.gridwidth=1;
       	c3.gridheight = 1;
+      	c3.anchor = GridBagConstraints.PAGE_START; //bottom of space
+      	childWishPanel.add(giftsRequestedCkBox);
+      	
+      	c3.gridx=0;
+      	c3.gridy=1;
+      	c3.gridwidth=6;
+      	c3.gridheight = 1;
       	c3.fill = GridBagConstraints.BOTH;
       	c3.weightx=0.5;
       	c3.weighty=0.5;
+      	c3.anchor = GridBagConstraints.PAGE_END; //bottom of space
       	childWishPanel.add(childWishScrollPane, c3);
       	
       	//set up family details panel
       	JPanel detailsPanel = new JPanel();
       	detailsPanel.setBorder(BorderFactory.createTitledBorder("Family Details"));
       	detailsPanel.setBackground(OLD_LACE);
-      	JTextPane detailsPane = new JTextPane();
+      	detailsPane = new JTextPane();
       	detailsPane.setPreferredSize(new Dimension(800, 52));
       	detailsPane.setBorder(BorderFactory.createTitledBorder("Details about family ONC should know:"));
         JScrollPane detailsScrollPane = new JScrollPane(detailsPane);
         detailsPanel.add(detailsScrollPane);
       	
-      	
         //set up the control panel
         JPanel cntlPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        btnSubmit = new JButton("Submit to ONC");
-        btnSubmit.setToolTipText("Click to submit family to Our Neighbors Child");
+        btnSubmit = new JButton("Add New Family");
+        btnSubmit.setToolTipText("Click to submit new family");
         btnSubmit.setEnabled(false);
         btnSubmit.addActionListener(this);
         cntlPanel.add(btnSubmit);
@@ -489,7 +506,15 @@ public class AddFamilyDialog extends JDialog implements ActionListener, Database
         pack();
         this.setPreferredSize(new Dimension(832, 660));
 	}
-
+	
+	void clearWishTableWishes()
+	{
+		for(AddChild ac:childList)
+			ac.setWishList("");
+		
+		childWishTableModel.fireTableDataChanged();
+	}
+	
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{
@@ -512,7 +537,7 @@ public class AddFamilyDialog extends JDialog implements ActionListener, Database
 				altZipCode.setText("");
 			}
 		}
-		if(e.getSource() == foodAssistanceCkBox)
+		else if(e.getSource() == foodAssistanceCkBox)
 		{
 			if(foodAssistanceCkBox.isSelected())
 			{
@@ -522,9 +547,15 @@ public class AddFamilyDialog extends JDialog implements ActionListener, Database
 			else
 			{
 				mealsCB.setEnabled(false);
+				mealsCB.setSelectedIndex(0);
 				dietPane.setEnabled(false);
 				dietPane.setText("");
 			}
+		}
+		else if(e.getSource() == giftsRequestedCkBox)
+		{
+			if(!giftsRequestedCkBox.isSelected())
+				clearWishTableWishes();
 		}
 		else if(e.getSource() == btnAddChild)
 		{
@@ -552,7 +583,7 @@ public class AddFamilyDialog extends JDialog implements ActionListener, Database
 			adultTableModel.fireTableDataChanged();
 		}
 		
-		if(e.getSource() == btnDelAdult)
+		else if(e.getSource() == btnDelAdult)
 		{
 			int row = adultTable.getSelectedRow();
 			if(row > -1 && row < adultList.size())
@@ -561,7 +592,314 @@ public class AddFamilyDialog extends JDialog implements ActionListener, Database
 				adultTableModel.fireTableDataChanged();
 			}
 		}
+		else if(e.getSource() == btnSubmit)
+		{
+			forceStopCellEditing();
+			processFamilyReferral();
+			this.dispose();
+		}
+	}
+	
+	void processFamilyReferral()
+	{
+		//get the user
+		ONCUser user = gvs.getUser();
+		if(user.getAgentID() == -1)
+			return;
 		
+		//create a meal request, if meal was requested
+		ONCMeal mealReq = null, addedMeal = null;
+		if(foodAssistanceCkBox.isSelected())
+		{
+			mealReq = new ONCMeal(-1, -1, (MealType) mealsCB.getSelectedItem(),
+								dietPane.getText(), -1, user.getLNFI(), new Date(), 3,
+								"Family Referred", user.getLNFI());
+			
+			addedMeal = mealDB.add(this, mealReq);
+		}
+		
+		ONCFamily fam = new ONCFamily(-1, user.getLNFI(), "NNA",
+					"NNA", "B-CR",
+					languageCB.getSelectedIndex()==0 ? "Yes" : "No",
+					(String) languageCB.getSelectedItem(),
+					hohFN.getText(), hohLN.getText(), housenumTF.getText(),
+					ensureUpperCaseStreetName(street.getText()),
+					unit.getText(), city.getText(), zipCode.getText(), 
+					altHousenumTF.getText(),
+					ensureUpperCaseStreetName(altStreet.getText()),
+					altUnit.getText(), altCity.getText(), altZipCode.getText(),
+					HomePhone.getText(), OtherPhone.getText(), AltPhone.getText(),
+					email.getText(), detailsPane.getText(), createFamilySchoolList(),
+					createWishList(), user.getAgentID(), addedMeal != null ? addedMeal.getID() : -1,
+					addedMeal != null ? MealStatus.Requested : MealStatus.None,
+					ownTransportCxBox.isSelected() ? Transportation.Yes : Transportation.No);
+			
+		ONCFamily addedFamily = (ONCFamily) fDB.add(this, fam);
+		
+		if(addedFamily != null)
+		{
+			//update the family id for the meal, if a meal was requested
+			if(addedMeal != null)
+			{
+				addedMeal.setFamilyID(addedFamily.getID());
+				mealDB.update(this, addedMeal);
+			}
+		
+			//add children in the family
+			for(AddChild c: childList)
+			{
+				if(!c.getLastName().isEmpty())	//only add a child if the last name is provided
+				{
+					ONCChild addChildReq = new ONCChild(-1, addedFamily.getID(), c.getFirstName(), c.getLastName(),
+										c.getGender(), createChildDOB(c.getDob()), c.getSchool(), gvs.getCurrentYear());
+					
+					cDB.add(this, addChildReq);
+				}
+			}
+/*			
+			//now that we have added children, we can check for duplicate family in this year.
+			ONCFamily dupFamily = familyDB.getDuplicateFamily(year, addedFamily, addedChildList);
+			
+//			if(dupFamily != null)
+//				System.out.println(String.format("HttpHandler.processFamilyReferral: "
+//						+ "dupFamily HOHLastName= %s, dupRef#= %s, addedFamily HOHLastName = %s, addedFamily Ref#= %s", 
+//						dupFamily.getHOHLastName(), dupFamily.getODBFamilyNum(), 
+//						addedFamily.getHOHLastName(), addedFamily.getODBFamilyNum()));
+//			
+			if(dupFamily == null)	//if not a dup, then for new families, check for prior year
+			{
+				//added family not in current year, check if in prior years
+				//only check new families for prior year existence. If a re-referral,
+				//we already know the reference id was from prior year
+				ONCFamily pyFamily = null;
+				if(bNewFamily)	
+				{
+					pyFamily = familyDB.isPriorYearFamily(year, addedFamily, addedChildList);
+					if(pyFamily != null)
+					{				
+						//added new family was in prior year, keep the prior year reference # 
+						//and reset the newly assigned target id index
+						addedFamily.setODBFamilyNum(pyFamily.getODBFamilyNum());
+						familyDB.decrementReferenceNumber();
+					}
+				}
+			}
+			//else if family was a dup, determine which family has the best reference number to
+			//use. The family with the best reference number is retained and the family with 
+			//the worst reference number is marked as duplicate
+			else if(!dupFamily.getODBFamilyNum().startsWith("C") && 
+						addedFamily.getODBFamilyNum().startsWith("C"))
+			{
+//				System.out.println(String.format("HttpHandler.processFamilyReferral, dupFamily no C: "
+//						+ "dupFamily HOHLastName= %s, dupRef#= %s, addedFamily HOHLastName = %s, addedFamily Ref#= %s", 
+//						dupFamily.getHOHLastName(), dupFamily.getODBFamilyNum(), 
+//						addedFamily.getHOHLastName(), addedFamily.getODBFamilyNum()));
+				
+				//family is in current year already with an ODB referred target ID
+				addedFamily.setONCNum("DEL");
+				addedFamily.setDNSCode("DUP");
+				addedFamily.setStoplightPos(FAMILY_STOPLIGHT_RED);
+				addedFamily.setStoplightMssg("DUP of " + dupFamily.getODBFamilyNum());
+				addedFamily.setODBFamilyNum(dupFamily.getODBFamilyNum());
+				familyDB.decrementReferenceNumber();
+			}	
+			else if(dupFamily.getODBFamilyNum().startsWith("C") && 
+					!addedFamily.getODBFamilyNum().startsWith("C"))
+			{
+//				System.out.println(String.format("HttpHandler.processFamilyReferral: dupFamily with C "
+//						+ "dupFamily HOHLastName= %s, dupRef#= %s, addedFamily HOHLastName = %s, addedFamily Ref#= %s", 
+//						dupFamily.getHOHLastName(), dupFamily.getODBFamilyNum(), 
+//						addedFamily.getHOHLastName(), addedFamily.getODBFamilyNum()));
+				
+				//family is already in current year with an ONC referred target ID and added family 
+				//does not have an ONC target id. In this situation, we can't decrement the assigned
+				//ONC based target id and will just have to burn one.
+				dupFamily.setONCNum("DEL");
+				dupFamily.setDNSCode("DUP");
+				dupFamily.setStoplightPos(FAMILY_STOPLIGHT_RED);
+				dupFamily.setStoplightMssg("DUP of " + addedFamily.getODBFamilyNum());
+				dupFamily.setStoplightChangedBy(wc.getWebUser().getLNFI());
+				dupFamily.setODBFamilyNum(addedFamily.getODBFamilyNum());
+			}
+			else if(dupFamily.getODBFamilyNum().startsWith("C") && 
+					addedFamily.getODBFamilyNum().startsWith("C"))
+			{
+				//which one was first?
+				int dupNumber = Integer.parseInt(dupFamily.getODBFamilyNum().substring(1));
+				int addedNumber = Integer.parseInt(addedFamily.getODBFamilyNum().substring(1));
+				
+				if(dupNumber < addedNumber)
+				{
+					//dup family has the correct ref #, so added family is duplicate
+					addedFamily.setONCNum("DEL");
+					addedFamily.setDNSCode("DUP");
+					addedFamily.setStoplightPos(FAMILY_STOPLIGHT_RED);
+					addedFamily.setStoplightMssg("DUP of " + dupFamily.getODBFamilyNum());
+					addedFamily.setStoplightChangedBy(wc.getWebUser().getLNFI());
+					addedFamily.setODBFamilyNum(dupFamily.getODBFamilyNum());
+					familyDB.decrementReferenceNumber();
+				}
+				else
+				{
+					//added family has the correct ref #, so dup family is the duplicate
+					dupFamily.setONCNum("DEL");
+					dupFamily.setDNSCode("DUP");
+					dupFamily.setStoplightPos(FAMILY_STOPLIGHT_RED);
+					dupFamily.setStoplightMssg("DUP of " + addedFamily.getODBFamilyNum());
+					dupFamily.setStoplightChangedBy(wc.getWebUser().getLNFI());
+					dupFamily.setODBFamilyNum(addedFamily.getODBFamilyNum());
+				}
+			}
+*/			
+			//add adults in the family
+			for(ONCAdult a:adultList)
+				if(!a.getName().isEmpty())
+					adultDB.add(this, new ONCAdult(-1, addedFamily.getID(), a.getName(), a.getGender()));
+		}
+		
+//		return new FamilyResponseCode(0, addedFamily.getHOHLastName() + " Family Referral Accepted",
+//										addedFamily.getODBFamilyNum());
+	}
+	
+	String ensureUpperCaseStreetName(String street)
+	{
+		StringBuffer buff = new StringBuffer();
+		String[] streetparts = street.split(" ");
+		for(int i=0; i< streetparts.length; i++)
+		{	
+			if(streetparts[i].length() > 0)
+			{
+				buff.append(Character.toUpperCase(streetparts[i].charAt(0)) +
+						streetparts[i].substring(1) + " ");
+			}
+		}
+		
+		return buff.toString().trim();
+	}
+	
+	/**************************************************************************************************
+	 * This method takes a string date in one of two formats (yyyy-MM-dd or M/D/yy) and returns a Date
+	 * object from the string. If the input string is not of either format, the current date is returned.
+	 ***************************************************************************************************/
+    Long createChildDOB(String dob)
+    {
+		TimeZone timezone = TimeZone.getTimeZone("GMT");
+		Calendar gmtDOB = Calendar.getInstance(timezone);
+		
+		SimpleDateFormat websitesdf = new SimpleDateFormat();
+		websitesdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+    	
+    	//Create a date formatter to  parse the input string to create an Calendar
+		//variable for DOB. If it can't be determined, set DOB = today.
+		if(dob.length() == 10 && dob.contains("-"))
+			websitesdf.applyPattern("MM-dd-yyyy");
+		else if(dob.length() < 10 && dob.contains("-"))
+			websitesdf.applyPattern("M-d-yy");
+		else if(dob.length() == 10 && dob.contains("/"))
+			websitesdf.applyPattern("MM/dd/yyyy");
+		else
+			websitesdf.applyPattern("M/d/yy");
+		
+		try
+		{
+			gmtDOB.setTime(websitesdf.parse(dob));
+			gmtDOB.set(Calendar.HOUR_OF_DAY, 0);
+			gmtDOB.set(Calendar.MINUTE, 0);
+			gmtDOB.set(Calendar.SECOND, 0);
+			gmtDOB.set(Calendar.MILLISECOND, 0);
+			
+			//perform a check to see that the dob is in UTC with no hours, minutes or seconds
+			//if that's not true correct it.
+			if(gmtDOB.getTimeInMillis() % DAYS_TO_MILLIS != 0)
+			{
+//				System.out.println(String.format("HttpHandler.createChildDOB: Set Time= %d",
+//						gmtDOB.getTimeInMillis()));
+				float badDOBinDays = gmtDOB.getTimeInMillis() / DAYS_TO_MILLIS;
+				int goodDOBinDays = (int) (badDOBinDays + 0.5);
+				gmtDOB.setTimeInMillis(goodDOBinDays * DAYS_TO_MILLIS);
+//				System.out.println(String.format("HttpHandler.createChildDOB: Adj Time= %d",
+//						gmtDOB.getTimeInMillis()));
+			}
+		}
+		catch (ParseException e)
+		{
+			String errMssg = "Couldn't determine DOB from input: " + dob;
+		}
+
+    	//then convert the Calendar to a Date in Millis and return it
+    	return gmtDOB.getTimeInMillis();
+    }
+	
+	String createFamilySchoolList()
+	{
+		int nSchoolsAdded = 0;
+		
+		StringBuffer buff = new StringBuffer();
+		
+		//using child school as the iterator, create list of unique schools
+		for(AddChild ac:childList)
+		{
+			String school = ac.getSchool();
+			if(!school.isEmpty() && buff.indexOf(school) == -1)
+			{
+				if(nSchoolsAdded > 0)
+					buff.append("\r" + school);
+				else
+					buff.append(school);
+				
+				nSchoolsAdded++;
+			}
+		}
+		
+		if(nSchoolsAdded > 0)
+			return buff.toString();
+		else
+			return "";
+	}
+	
+	String createWishList()
+	{
+		//check to see if gift assistance was requested. If not, simply return a message saying that
+		if(giftsRequestedCkBox.isSelected())
+		{
+			//gift assistance was requested
+			StringBuffer buff = new StringBuffer();
+			
+			//using child first name as the iterator, build a wish list string for each 
+			//child in the family
+			for(int i=0; i< childList.size(); i++)
+			{
+				AddChild ac = childList.get(i);
+				if(ac.getWishList().isEmpty())
+					buff.append(String.format("%s %s: %s, %s, %s", ac.getFirstName(), ac.getLastName(), "None", "None", "None"));
+				else
+					buff.append(String.format("%s %s: %s", ac.getFirstName(), ac.getLastName(), ac.getWishList()));
+				
+				if(i < childList.size()-1)
+					buff.append("\n\n");
+			}
+			
+			return buff.toString();
+		}
+		else
+			return "Gift assistance not requested";
+	}
+	
+	/*******
+	 * This method is called to ensure if a user edits a table cell and then clicks a button prior to hitting
+	 * enter or moving to another cell, thereby leaving the editor open and not firing the setValueAt event,
+	 * this method corrects that
+	 */
+	void forceStopCellEditing()
+	{
+		if(childTable.isEditing())
+			childTable.getCellEditor().stopCellEditing();
+		
+		if(adultTable.isEditing())
+			adultTable.getCellEditor().stopCellEditing();
+		
+		if(childWishTable.isEditing())
+			childWishTable.getCellEditor().stopCellEditing();	
 	}
 
 	@Override
@@ -696,7 +1034,7 @@ public class AddFamilyDialog extends JDialog implements ActionListener, Database
  
         public boolean isCellEditable(int row, int col)
         {
-        	if(col == WISHLIST_COL)
+        	if(col == WISHLIST_COL && giftsRequestedCkBox.isSelected())
         		return true;
         	else
         		return false;

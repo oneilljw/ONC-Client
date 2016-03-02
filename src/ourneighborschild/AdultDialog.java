@@ -235,7 +235,7 @@ public class AdultDialog extends JDialog implements ActionListener, EntitySelect
 			//is the adult in the current family being displayed? If so, update the table
 			ONCAdult changedAdult = (ONCAdult) dbe.getObject();
 			
-			if(changedAdult.getFamID() == currFam.getID())
+			if(currFam != null && changedAdult.getFamID() == currFam.getID())
 			{
 				//update the table list and the user table
 				tableList = adultDB.getAdultsInFamily(currFam.getID());

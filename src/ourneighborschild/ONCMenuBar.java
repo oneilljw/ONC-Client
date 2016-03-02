@@ -24,7 +24,7 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 //	public static JMenuItem compODBtoONCfamMI, compODBtoONCdataMI, compWFCMtoONCfamMI, compWFCMtoONCdataMI;
 	public static JMenuItem findDupFamsMI, findDupChldrnMI;
 	public static JMenuItem assignDelMI, editDelMI, manageDelMI, importDrvrMI, mapsMI, delstatusMI, distMI;
-	public static JMenuItem newFamMI, changeONCMI, changeRefMI, changeBatchMI, delFamMI, newChildMI, delChildMI, markAdultMI, connectChildMI;
+	public static JMenuItem newFamMI, changeONCMI, changeRefMI, changeBatchMI, newChildMI, delChildMI, markAdultMI, connectChildMI;
 	public static JMenu submenuImport, submenuFamilyDataChecks;
 	public static JMenu submenuExport, submenuChangeFamilyNumbers, submenuCompareData, submenuDatabase;
 	public static JMenuItem viewDBMI, sortWishesMI, sortFamiliesMI, sortOrgsMI, recGiftsMI, sortMealsMI;
@@ -158,13 +158,9 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 	    
 	    menuFamilies.addSeparator();
 	    
-	    newFamMI = new JMenuItem("New Family");
+	    newFamMI = new JMenuItem("Add New Family");
 //	    newFamMI.setEnabled(false);
 	    menuFamilies.add(newFamMI);
-	    
-	    delFamMI = new JMenuItem("Delete Family");
-	    delFamMI.setEnabled(false);
-	    menuFamilies.add(delFamMI);
 	    
 	    menuFamilies.addSeparator();
 	    
