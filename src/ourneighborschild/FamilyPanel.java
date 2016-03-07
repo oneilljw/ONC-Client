@@ -249,13 +249,13 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         HomePhone = new JTextPane();
         JScrollPane homePhoneScrollPane = new JScrollPane(HomePhone);
         homePhoneScrollPane.setPreferredSize(new Dimension(128, 44));
-        homePhoneScrollPane.setBorder(BorderFactory.createTitledBorder("Home Phone"));
+        homePhoneScrollPane.setBorder(BorderFactory.createTitledBorder("Home Phone(s)"));
         HomePhone.setEditable(false);
         
         OtherPhone = new JTextPane();
         JScrollPane otherPhoneScrollPane = new JScrollPane(OtherPhone);
         otherPhoneScrollPane.setPreferredSize(new Dimension(128, 44));
-        otherPhoneScrollPane.setBorder(BorderFactory.createTitledBorder("Other Phone"));
+        otherPhoneScrollPane.setBorder(BorderFactory.createTitledBorder("Alternate Phone(s)"));
         OtherPhone.setEditable(false);
       
         EMail = new JTextField(18);

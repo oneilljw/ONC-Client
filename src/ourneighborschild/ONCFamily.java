@@ -8,7 +8,7 @@ public class ONCFamily extends ONCEntity
 {
 	/**
 	 * This class provides the blueprint for family object that contains all necessary information about
-	 * family in the ONC application. 
+	 * a family in the ONC application. 
 	 */
 	private static final long serialVersionUID = 1128727192408305791L;
 		
@@ -92,109 +92,13 @@ public class ONCFamily extends ONCEntity
 		transportation = f.transportation;
 		bGiftCardOnly = f.bGiftCardOnly;
 	}
-	//Overloaded Constructor - 30 column input from ODB file
-/*	
-		ONCFamily(String RAName, String RAOrg, String RATitle, String ClientFam, String HOH, String FamMembers,
-				String RAEmail, String ClientFamEmail, String ClientFamPhone, String RAPhone,
-				String DeitaryRestrictions, String schools, String Details, String ID,
-				String StreetAddress, String StreetNum, String Suffix, String StreetName, String UnitNumber, 
-				String AddL2, String AddL3, String Cty, String Zip, String State, String AdoptFor,
-				String nAdults, String nChldren, String Wishlist, String SpeakEng, String Lang, String bn, Date today,
-				int region, String sONC, int id, String cb, int agentid)
-		{
-			super(id, new Date(), cb, STOPLIGHT_OFF, "Family imported", cb);
-			oncNum=sONC;
-			this.region=region;
-			fstatus = 0;
-			dstatus = 0;
-			nBags = 0;
-			nLargeItems = 0;
-			ODBFamilyNum = ID;
-			BatchNum = bn;	
-			DNSCode = "";		
-			Notes = "";
-			DeliveryInstructions = "";
-			if(!ClientFam.isEmpty()) {ClientFamily = ClientFam.split("Household", 2)[0].trim();}
-			HouseNum = "";
-			Street = "";
-			UnitNum = Suffix.concat(UnitNumber.concat(AddL2.concat(AddL3)));	//for batch 3 this was changed from UnitNumber
-			City = Cty;
-			ZipCode = Zip;
-			substituteDeliveryAddress = "";
-			AllPhoneNumbers = ClientFamPhone;			
-			FamilyEmail = ClientFamEmail;
-			details = Details;
-			ChildrenNames = "";
-			Schools = schools;
-			ODBWishList = Wishlist;						
-			AdoptedFor = AdoptFor;
-			agentID = agentid;
-			deliveryID = -1;
-			mealID = -1;
-			mealStatus = MealStatus.None;
-			transportation = Transportation.TBD;
 
-			newGetHOHName(HOH);					//Populate the HOH info
-			parsePhoneData(ClientFamPhone);		//Populate Home and Other phone fields
-			getChildrenNames(FamMembers);
-			parseAddress(StreetNum, StreetAddress);
-			determineLanguage(SpeakEng, Lang);
-		}
-
-	//Overloaded Constructor - 29 column input from ODB file
-	ONCFamily(String RAName, String RAOrg, String RATitle, String ClientFam, String HOH, String FamMembers,
-				String RAEmail, String ClientFamEmail, String ClientFamPhone, String RAPhone, 
-				String DeitaryRestrictions, String Schools, String Details, String ID, String StreetNum,
-				String Suffix, String StreetName, String UnitNumber, String AddL2, String AddL3, String Cty,
-				String Zip, String State, String AdoptFor, String nAdults, String nChldren, String Wishlist,
-				String SpeakEng, String Lang, String bn, Date today, int region, String sONC, int id, String cb, int agentid)
-	{
-		super(id, new Date(), cb, STOPLIGHT_OFF, "Family imported", cb);
-		oncNum=sONC;
-		this.region=region;
-		fstatus = 0;
-		dstatus = 0;
-		nBags = 0;
-		nLargeItems = 0;
-		ODBFamilyNum = ID;
-		BatchNum = bn;	
-		DNSCode = "";			
-		Notes = "";
-		DeliveryInstructions = "";
-		if(!ClientFam.isEmpty()) {ClientFamily = ClientFam.split("Household", 2)[0].trim();}
-		HouseNum = StreetNum;
-		Street = StreetName;
-		UnitNum = AddL2;	//for batch 3 this was changed from UnitNumber
-		City = Cty;
-		ZipCode = Zip;
-		substituteDeliveryAddress = "";
-		AllPhoneNumbers = ClientFamPhone;			
-		FamilyEmail = ClientFamEmail;
-		details = Details;
-		ChildrenNames = "";
-		this.Schools = "";
-		ODBWishList = Wishlist;
-		AdoptedFor = AdoptFor;
-		agentID = agentid;
-		deliveryID = -1;
-		mealID = -1;
-		mealStatus = MealStatus.None;
-		transportation = Transportation.TBD;
-		
-		newGetHOHName(HOH);
-//		getPhones(ClientFamPhone);
-		parsePhoneData(ClientFamPhone);
-		getChildrenNames(FamMembers);
-		parseAddress(StreetNum, StreetName);
-		determineLanguage(SpeakEng, Lang);		
-	}
-	
-	//Overloaded Constructor - 26 column input from ODB file
+	//Overloaded Constructor - 29 column (A to AC) input from ODB .csv file - 2014, 2015
 	ONCFamily(String RAName, String RAOrg, String RATitle, String ClientFam, String HOH, String FamMembers, String RAEmail,
-			String ClientFamEmail, String ClientFamPhone, String RAPhone, String DeitaryRestrictions, String Schools,
-			String Details, String ID, String StreetNum, String Suffix, String StreetName,  String Cty, String Zip,
-			String State,String AdoptFor, String nAdults, String nChldren, String Wishlist, String SpeakEng, String Lang,
-			String bn, Date today, int region, String sONC, int id, String cb, int agentid)
+				String ClientFamEmail, String ClientFamPhone, String RAPhone, String DeitaryRestrictions, String Schools,
+				String Details, String ID, String StreetAdd, String AddL2,  String Cty, String Zip,
+				String State,String AdoptFor, String nAdults, String nChldren, String Wishlist, String SpeakEng,
+				String Lang, String transportation, String bn, Date today, int region, String sONC, int id, String cb, int agentid)
 	{
 		super(id, new Date(), cb, STOPLIGHT_OFF, "Family imported", cb);
 		oncNum = sONC;
@@ -204,14 +108,14 @@ public class ONCFamily extends ONCEntity
 		nBags = 0;
 		nLargeItems = 0;
 		ODBFamilyNum = ID;
-		BatchNum = bn;	
-		DNSCode = "";		
+		BatchNum = bn;
+		DNSCode = "";			
 		Notes = "";
 		DeliveryInstructions = "";
 		if(!ClientFam.isEmpty()) {ClientFamily = ClientFam.split("Household", 2)[0].trim();}
-		HouseNum = StreetNum;
-		Street = StreetName;
-		UnitNum = Suffix;
+		HouseNum = "";
+		Street = StreetAdd;
+		UnitNum = AddL2;
 		City = Cty;
 		ZipCode = Zip;
 		substituteDeliveryAddress = "";
@@ -221,68 +125,24 @@ public class ONCFamily extends ONCEntity
 		this.Schools = Schools;
 		ChildrenNames = "";
 		ODBWishList = Wishlist;
+		AdoptedFor = AdoptFor;
 		agentID = agentid;
 		deliveryID = -1;
 		mealID = -1;
 		mealStatus = MealStatus.None;
-		transportation = Transportation.TBD;
+		if(transportation.equals("Yes") || transportation.equals("No"))
+			this.transportation = Transportation.valueOf(transportation);
+		else
+			this.transportation = Transportation.TBD;
+		bGiftCardOnly = false;
 
-		newGetHOHName(HOH);
+		parseHOH(HOH);
 		parsePhoneData(ClientFamPhone);
 		getChildrenNames(FamMembers);
-		parseAddress(StreetNum, StreetName);
+		parseAddress(StreetAdd, "");
 		determineLanguage(SpeakEng, Lang);
 	}
-*/	
-	//Overloaded Constructor - 29 column (A to AC) input from ODB .csv file - 2014, 2015
-		ONCFamily(String RAName, String RAOrg, String RATitle, String ClientFam, String HOH, String FamMembers, String RAEmail,
-				String ClientFamEmail, String ClientFamPhone, String RAPhone, String DeitaryRestrictions, String Schools,
-				String Details, String ID, String StreetAdd, String AddL2,  String Cty, String Zip,
-				String State,String AdoptFor, String nAdults, String nChldren, String Wishlist, String SpeakEng,
-				String Lang, String transportation, String bn, Date today, int region, String sONC, int id, String cb, int agentid)
-		{
-			super(id, new Date(), cb, STOPLIGHT_OFF, "Family imported", cb);
-			oncNum = sONC;
-			this.region = region;
-			fstatus = 0;
-			dstatus = 0;
-			nBags = 0;
-			nLargeItems = 0;
-			ODBFamilyNum = ID;
-			BatchNum = bn;
-			DNSCode = "";			
-			Notes = "";
-			DeliveryInstructions = "";
-			if(!ClientFam.isEmpty()) {ClientFamily = ClientFam.split("Household", 2)[0].trim();}
-			HouseNum = "";
-			Street = StreetAdd;
-			UnitNum = AddL2;
-			City = Cty;
-			ZipCode = Zip;
-			substituteDeliveryAddress = "";
-			AllPhoneNumbers = ClientFamPhone;			
-			FamilyEmail = ClientFamEmail;
-			details = Details;
-			this.Schools = Schools;
-			ChildrenNames = "";
-			ODBWishList = Wishlist;
-			AdoptedFor = AdoptFor;
-			agentID = agentid;
-			deliveryID = -1;
-			mealID = -1;
-			mealStatus = MealStatus.None;
-			if(transportation.equals("Yes") || transportation.equals("No"))
-				this.transportation = Transportation.valueOf(transportation);
-			else
-				this.transportation = Transportation.TBD;
-			bGiftCardOnly = false;
-
-			parseHOH(HOH);
-			parsePhoneData(ClientFamPhone);
-			getChildrenNames(FamMembers);
-			parseAddress(StreetAdd, "");
-			determineLanguage(SpeakEng, Lang);
-		}
+	
 	//Overloaded Constructor - import Family DB from .csv file
 	public ONCFamily(String[] nextLine)
 	{
@@ -323,9 +183,6 @@ public class ONCFamily extends ONCEntity
 		mealStatus = MealStatus.valueOf(nextLine[34]);
 		nBags = Integer.parseInt(nextLine[35]);
 		nLargeItems = Integer.parseInt(nextLine[36]);
-//		slPos = Integer.parseInt(nextLine[37]);
-//		slMssg = getDBString(nextLine[38]);
-//		slChangedBy = getDBString(nextLine[39]);
 		transportation = Transportation.valueOf(nextLine[40]);
 		bGiftCardOnly = nextLine[41].equals("TRUE") ? true : false;
 	}
@@ -368,17 +225,19 @@ public class ONCFamily extends ONCEntity
 										 altUnitNum +"_" + altCity + "_" + altZipCode ;
 		
 		this.HomePhone = formatPhoneNumber(homePhone);
-		if(altPhone.equals(""))
+		if(altPhone.length() < 10)
 			this.OtherPhone = formatPhoneNumber(otherPhone);
 		else
 			this.OtherPhone = formatPhoneNumber(otherPhone) + "\n" + formatPhoneNumber(altPhone);
 		
-		this.AllPhoneNumbers = "Home Phone: " + HomePhone; 
-		if(!otherPhone.isEmpty())
-			this.AllPhoneNumbers.concat("\n" + "Other phone: " + formatPhoneNumber(otherPhone));
-		if(!altPhone.isEmpty())
-			this.AllPhoneNumbers.concat("\n" + "Other phone: " + formatPhoneNumber(altPhone));
-		
+		//create the AllPhoneNumber field
+		StringBuilder buff = new StringBuilder("Home Phone: " + HomePhone);
+		if(otherPhone.length() > 9)	//Ensure it's a valid 10 digit phone number at minimum
+			buff.append("\n" + "Other phone: " + formatPhoneNumber(otherPhone));
+		if(altPhone.length() > 9)
+			buff.append("\n" + "Other phone: " + formatPhoneNumber(altPhone));
+		this.AllPhoneNumbers = buff.toString();
+
 		this.FamilyEmail = familyEmail;
 		this.details = odbDetails;
 		this.ChildrenNames = "";	//Only used for .csv file export
@@ -397,94 +256,7 @@ public class ONCFamily extends ONCEntity
 	{
 		return s.isEmpty() ? "" : s;
 	}
-/*
-	void getHOHName(String c)
-	{
-		int ch = 0, startch = 0, nNamesFound = 0;
-		boolean bLeadingCharFound = false;
-		
-    	if(c.length() > 0)
-    	{
-    		while(ch < c.length() || nNamesFound < 2)   	
-    		{   
-    			if(c.charAt(ch) == ' ' && bLeadingCharFound == false) //Ignore leading blank characters  		
-    				ch++;
-    		
-    			else if (c.charAt(ch) != ' ' && bLeadingCharFound == false)
-    			{
-    				bLeadingCharFound = true;
-    				ch++;
-    			}
-    	   		
-    			else if(c.charAt(ch) == ' ' && bLeadingCharFound == true && nNamesFound == 0)
-    			{ 			
-    				HOHFirstName = c.substring(startch, ch);
-    				bLeadingCharFound = false;
-    				startch = ++ch;
-    				nNamesFound++;
-    			}
-    		
-    			else if(c.charAt(ch) == ' ' && bLeadingCharFound == true && nNamesFound == 1)
-    			{
-    				HOHLastName = c.substring(startch, ch);   			
-    				startch = ++ch;
-    				nNamesFound++;
-    			}
-    			else
-    				ch++;
-    		}
-    	}
-    	else
-    	{
-    		HOHFirstName = "MISSING";
-    		HOHLastName = "MISSING";   				
-    	}
-	}
-	
-	void newGetHOHName(String HOH)
-	{
-		int ch = 0;
-		String name = "";
-		ArrayList<String> HOHName = new ArrayList<String>();
-				
-		String c = HOH.trim();
-		c = c.replaceAll(" - ", " ");
-		
-		do
-		{
-			name = "";
-			while(ch < c.length() && (c.charAt(ch) != ' '))
-			{
-				name += c.charAt(ch++);
-			}
-			
-			if(!(name.contains("Female") || name.contains("Male") || name.contains("male")
-					|| name.contains("Unknown")) && ch < c.length())
-				HOHName.add(name);
-			
-			ch++;
-		}
-		while(!(name.contains("Female") || name.contains("Male") || name.contains("female") || name.contains("male")
-				|| name.contains("Unknown")) && ch < c.length());
-		
-		
-		if(HOHName.isEmpty())
-		{
-			HOHFirstName = "MISSING";
-			HOHLastName = "MISSING";
-		}
-		else if(HOHName.size() == 1)
-		{
-			HOHFirstName = "MISSING";
-			HOHLastName = HOHName.get(0);
-		}
-		else
-		{
-			HOHFirstName = HOHName.get(0);
-			HOHLastName = HOHName.get(HOHName.size()-1);
-		}
-	}
-*/	
+
 	/****************************************************************************************
 	 * This method takes an ODB head of household field and parses it into the first and last
 	 * name of the first head of household. The input format is name - gender - DOB. If there is
@@ -609,49 +381,7 @@ public class ONCFamily extends ONCEntity
 		else
 			OtherPhone = "None Found";	
 	}
-/*	
-	void getPhones(String cfp)
-	{
-		int ch = 0, startch = 0;
-		boolean bHomeFound = false, bOtherFound = false;
-    	String temp = null;
-    	
-    	for(ch=0; ch<cfp.length(); ch++)
-    	{   
-    		//Process any lines before last line in cell
-    		if(cfp.charAt(ch) == '\n')
-    		{ 
-    			temp = cfp.substring(startch, ch-1);
-    			
-    			if(temp.contains("Home Phone:") && bHomeFound == false)
-    			{
-    				HomePhone = cfp.substring(ch-11, ch-1);
-    				bHomeFound = true;
-    			}
-    			if(temp.contains("Other Phone:") && bOtherFound == false)
-    			{
-    				OtherPhone = cfp.substring(ch-11, ch-1);
-    				bOtherFound = true;
-    			}	
-    			startch=ch+1;   			
-    		}
-    	}
-    	
-    	//Process last line in cell
-    	temp = cfp.substring(startch, ch);
-    	
-    	if(temp.contains("Home Phone:") && bHomeFound == false)
-		{
-			HomePhone = cfp.substring(ch-11, ch);
-			bHomeFound = true;
-		}
-		if(temp.contains("Other Phone:") && bOtherFound == false)
-		{
-			OtherPhone = cfp.substring(ch-11, ch);
-			bOtherFound = true;
-		}   	
-	}
-*/	
+
 	void getChildrenNames(String fm)
 	{
 		int ch = 0, startch = 0;
@@ -879,8 +609,6 @@ public class ONCFamily extends ONCEntity
 		rowList.add(getTransportation().toString());
 		rowList.add(isGiftCardOnly() ? "TRUE" : "FALSE");
 		
-//		String[] rowArray = rowList.toArray(new String[rowList.size()]);
 		return rowList.toArray(new String[rowList.size()]);
 	}
 }
-
