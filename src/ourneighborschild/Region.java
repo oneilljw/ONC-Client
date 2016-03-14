@@ -61,6 +61,20 @@ public class Region implements Serializable
 			return false;
 	}
 	
+	public boolean isRegionMatch(Address address)
+	{	
+		if(isNumeric(address.getStreetNum()))
+		{
+			int stnum = Integer.parseInt(address.getStreetNum());
+			return address.getStreetName().toLowerCase().equals(streetName.toLowerCase()) &&
+					stnum >= addressNumLow && stnum <= addressNumHi &&
+					 address.getStreetDir().equals(streetDir) &&
+					  address.getZipCode().equals(zipCode);
+		}
+		else
+			return false;
+	}
+	
 	public String getRegion() { return region; }
 	public String getStreetName() { return streetName; }
 	
