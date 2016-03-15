@@ -170,8 +170,8 @@ public class MealDialog extends JDialog implements ActionListener, DatabaseListe
 	
 	void addMeal(MealType holiday, String restrictions)
 	{
-		ONCMeal addMealReq = new ONCMeal(-1, currFam.getID(), holiday,
-									restrictions, mealList.get(0).getPartnerID(),
+		ONCMeal addMealReq = new ONCMeal(-1, currFam.getID(), mealList.get(0).getStatus(), 
+									holiday,restrictions, mealList.get(0).getPartnerID(),
 									GlobalVariables.getUserLNFI(), new Date(),
 									mealList.get(0).getStoplightPos(),
 									mealList.get(0).getStoplightMssg(),
@@ -204,7 +204,7 @@ public class MealDialog extends JDialog implements ActionListener, DatabaseListe
 
 		Object selectedValue = confirmOP.getValue();
 	
-		//if the client user confirmed, change the ODB Number
+		//if the client user confirmed, delete the meal
 		Families familyDB = Families.getInstance();
 		if(selectedValue != null && selectedValue.toString().equals(options[1]))
 		{
@@ -321,14 +321,7 @@ public class MealDialog extends JDialog implements ActionListener, DatabaseListe
         	else if(col == RESTRICTIONS_COL)  
         		value = meal.getRestricitons();
         	else if (col == STATUS_COL)
-        	{
-        		if(meal.getPartnerID() > -1)
-        			value = currFam.getMealStatus().toString();
-        		else if(meal.getPartnerID() == -1 && currFam.getMealID() > -1)
-        			value = MealStatus.Requested.toString();
-        		else
-        			value = "Deleted";
-        	}
+        		value = meal.getStatus().toString();
         	else if (col == PARTNER_COL)
         	{
         		if(meal.getPartnerID() > -1)
@@ -367,11 +360,8 @@ public class MealDialog extends JDialog implements ActionListener, DatabaseListe
  
         public boolean isCellEditable(int row, int col)
         {
-            //Only the check boxes can be edited and then only if there is not
-        	//a wish already selected from the list associated with that column
-//        	System.out.println(String.format("MealDlg.isCellEditable: currFam MealStatus: %s", currFam.getMealStatus().toString()));
         	if(row == 0 && (col == HOLIDAY_COL || col == RESTRICTIONS_COL) &&
-        			currFam.getMealStatus() != MealStatus.Referred)
+        			mealList.get(0).getStatus().compareTo(MealStatus.Referred) < 0)
         		return true;
         	else
         		return false;

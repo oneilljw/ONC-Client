@@ -245,7 +245,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 				ONCMeal m = mealDB.getMeal(f.getMealID());
 				if(m != null && doesBatchNumMatch(f.getBatchNum()) && 
 								 doesTypeMatch(m.getType()) &&
-								  doesStatusMatch(f.getMealStatus()) &&
+								  doesStatusMatch(m.getStatus()) &&
 								   doesRegionMatch(f.getRegion()) &&
 								    doesAssigneeMatch(m.getPartnerID()) &&
 								     isMealChangeDateBetween(m.getDateChanged()) &&
@@ -691,7 +691,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 							smo.getFamily().getHOHLastName(),
 							regions.getRegionID(smo.getFamily().getRegion()),
 							smo.getMeal().getType().toString(),
-							smo.getFamily().getMealStatus().toString(),
+							smo.getMeal().getStatus().toString(),
 							partnerName, smo.getMeal().getChangedBy(), ds};
 		return tablerow;
 	}
@@ -721,23 +721,22 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 	{
 		boolean bChangesMade = false;
 		int[] row_sel = sortTable.getSelectedRows();
-		Families familyDB = Families.getInstance();
-			
+		
 		for(int i=0; i < row_sel.length; i++)	
 		{
 			Organization cbPartner = (Organization) changeAssigneeCB.getSelectedItem();
 				
 			//is it a change to either meal status or meal partner?  Can only be a change to one or the
 			//other, can't be both, that's not allowed and is prevented in checkApplyChangesEnabled(). 
-			//If it is a change to meal parter, create and send an add meal request to the server. 
-			//Meals are not updated, meal history is retained. If the partner change causes a status
-			//change, the server will handle it. 
-			//If it is a change to meal status, create and send an update family request. Meal Status
-			//is an ONCFamily field, not an ONCMeal field.
+			//If it is a change to meal parter, create and send an add meal request to the server.
+			//The server will determine the meal status accordingly.Meals are not updated, 
+			//meal history is retained. If it is a change to meal status, create and send a new meal
+			//for the family
 			if(changeAssigneeCB.getSelectedIndex() > 0 && 
 				stAL.get(row_sel[i]).getMeal().getPartnerID() != cbPartner.getID())		
 			{
 				ONCMeal addMealReq = new ONCMeal(-1, stAL.get(row_sel[i]).getMeal().getFamilyID(),
+										stAL.get(row_sel[i]).getMeal().getStatus(),
 										stAL.get(row_sel[i]).getMeal().getType(),
 										stAL.get(row_sel[i]).getMeal().getRestricitons(), 
 										cbPartner.getID(), GlobalVariables.getUserLNFI(),
@@ -750,17 +749,24 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 					bChangesMade = true;
 			}
 			//check if a change to meal status. Can only change meal status if current meal status has
-			//attained at least 'Assigned' status and it's an actual change to the family's meal status
+			//attained at least 'Assigned' status and not yet referred plus, it's an actual change to 
+			//the family's meal status
 			else if(changeStatusCB.getSelectedIndex() > 0 && 
-					 stAL.get(row_sel[i]).getFamily().getMealStatus().compareTo(MealStatus.Assigned) >= 0 &&
-					  stAL.get(row_sel[i]).getFamily().getMealStatus() != changeStatusCB.getSelectedItem())
+					 stAL.get(row_sel[i]).getMeal().getStatus().compareTo(MealStatus.Assigned) >= 0 &&
+					  stAL.get(row_sel[i]).getMeal().getStatus() != changeStatusCB.getSelectedItem())
 			{
-				ONCFamily updateFamilyReq = new ONCFamily(stAL.get(row_sel[i]).getFamily());
-				updateFamilyReq.setMealStatus((MealStatus) changeStatusCB.getSelectedItem());
-				
-				String response = familyDB.update(this, updateFamilyReq);
-				
-				if(response != null && response.startsWith("UPDATED_FAMILY"))
+				ONCMeal addMealReq = new ONCMeal(-1, stAL.get(row_sel[i]).getMeal().getFamilyID(),
+													(MealStatus) changeStatusCB.getSelectedItem(),
+													stAL.get(row_sel[i]).getMeal().getType(),
+													stAL.get(row_sel[i]).getMeal().getRestricitons(), 
+													stAL.get(row_sel[i]).getMeal().getPartnerID(),
+													GlobalVariables.getUserLNFI(), new Date(),
+													stAL.get(row_sel[i]).getMeal().getStoplightPos(),
+													"Changed Status", GlobalVariables.getUserLNFI());
+
+				ONCMeal addedMeal = mealDB.add(this, addMealReq);
+
+				if(addedMeal != null)
 					bChangesMade = true;
 			}
 		}
@@ -1001,7 +1007,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		@Override
 		public int compare(SortMealObject o1, SortMealObject o2)
 		{
-			return o1.getFamily().getMealStatus().compareTo(o2.getFamily().getMealStatus());
+			return o1.getMeal().getStatus().compareTo(o2.getMeal().getStatus());
 		}
 	}
 	

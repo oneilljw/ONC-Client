@@ -197,7 +197,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		pBkColor = p1.getBackground();
 		JPanel p4 = new JPanel(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
-		JPanel p5 = new JPanel();
+		JPanel iconBar = new JPanel();
 
 		//Set up the text fields for each of the characteristics displayed
 		DataChangeListener fdcListener = new DataChangeListener();
@@ -422,7 +422,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		};
 		childTable.setToolTipText("Click or use up/down keys to select a child");
        
-        childTableModel = new DefaultTableModel(new Object[]{"First Name","Last Name", "DOB", "Gend"},0)
+        childTableModel = new DefaultTableModel(new Object[]{"First Name","Last Name", "DoB", "Gend"},0)
         {
            private static final long serialVersionUID = 1L;
            @Override
@@ -811,26 +811,26 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         c.weighty=0.5;
         p4.add(oncDIscrollPane, c);
         
-        p5.add(btnAssignONCNum);
-        p5.add(btnShowPriorHistory);
-        p5.add(btnShowAllPhones);
-        p5.add(altAddressRB);
-        p5.add(btnShowODBDetails);
-        p5.add(btnShowAgentInfo);
-        p5.add(btnMeals);
-        p5.add(btnTransportation);
-        p5.add(btnDirections);
-        p5.add(delRB);
-        p5.add(btnNotGiftCardOnly);
-        p5.add(btnGiftCardOnly);
-        p5.add(btnAdults);
+        iconBar.add(btnAssignONCNum);
+        iconBar.add(btnShowPriorHistory);
+        iconBar.add(btnShowAllPhones);
+        iconBar.add(altAddressRB);
+        iconBar.add(btnShowODBDetails);
+        iconBar.add(btnShowAgentInfo);
+        iconBar.add(btnMeals);
+        iconBar.add(btnTransportation);
+        iconBar.add(btnAdults);
+        iconBar.add(btnNotGiftCardOnly);
+        iconBar.add(btnGiftCardOnly);
+        iconBar.add(btnDirections);
+        iconBar.add(delRB);
               
         this.add(nav);
         this.add(p1);
         this.add(p2);
         this.add(p3);
         this.add(p4);
-        this.add(p5);
+        this.add(iconBar);
         this.add(oncChildPanel);
         this.add(childwishespanel);
 	}
@@ -2479,7 +2479,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		{
 			//may have added or deleted from current family, if so need to redisplay
 			ONCAdult changedAdult = (ONCAdult) dbe.getObject();
-			if(currFam.getID() == changedAdult.getFamID())
+			if(currFam != null && currFam.getID() == changedAdult.getFamID())
 			{
 				//update the icon in the icon bar
 				checkForAdultsInFamily();

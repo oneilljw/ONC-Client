@@ -628,7 +628,7 @@ public class AddFamilyDialog extends JDialog implements ActionListener, ListSele
 		ONCMeal mealReq = null, addedMeal = null;
 		if(foodAssistanceCkBox.isSelected())
 		{
-			mealReq = new ONCMeal(-1, -1, (MealType) mealsCB.getSelectedItem(),
+			mealReq = new ONCMeal(-1, -1, MealStatus.Requested, (MealType) mealsCB.getSelectedItem(),
 								dietPane.getText(), -1, user.getLNFI(), new Date(), 3,
 								"Family Referred", user.getLNFI());
 			

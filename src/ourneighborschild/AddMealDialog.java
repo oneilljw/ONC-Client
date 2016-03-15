@@ -63,7 +63,7 @@ public class AddMealDialog extends InfoDialog implements EntitySelectionListener
 	@Override
 	void update() 
 	{
-		ONCMeal addMealReq = new ONCMeal(-1, f.getID(), (MealType) mealRequestCB.getSelectedItem(), 
+		ONCMeal addMealReq = new ONCMeal(-1, f.getID(), MealStatus.Requested, (MealType) mealRequestCB.getSelectedItem(), 
 										tf[3].getText(), -1, GlobalVariables.getUserLNFI(), 
 										new Date(), 4, "Added Meal", GlobalVariables.getUserLNFI());
 		
