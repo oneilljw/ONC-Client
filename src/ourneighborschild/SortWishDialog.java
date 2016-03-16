@@ -1061,7 +1061,6 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 			{
 				Organization org = orgs.getOrganizationByID(childWishAssigneeID);
 				fireEntitySelected(this, "PARTNER_SELECTED", org, null);
-				
 			}
 			
 			sortTable.requestFocus();

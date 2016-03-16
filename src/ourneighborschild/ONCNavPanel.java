@@ -20,9 +20,9 @@ import javax.swing.border.BevelBorder;
 public class ONCNavPanel extends JPanel implements ActionListener
 {
 	/**
-	 * This class implements a panel used in the ONC Edit dialogs to display ONC Entities.
-	 * The class implements next and previous navigation buttons that incrementally scroll 
-	 * through the associated ONC Entity data base, maintaining the index of the current 
+	 * This class implements a panel used in the ONC Edit dialogs and family panel to display
+	 * ONC Entities. The class implements next and previous navigation buttons that incrementally
+	 * scroll through the associated ONC Entity data base, maintaining the index of the current 
 	 * entity being displayed. The panel also implements a search text field that allows the
 	 * user to search the associated data base for the entity. In addition, the panel 
 	 * implements a stop light function for the entity, and two message fields.
@@ -49,14 +49,14 @@ public class ONCNavPanel extends JPanel implements ActionListener
     private ArrayList<Integer> searchAL;
     private int srchALindex;
     private int index = 0;	//Index for ONCEntity array list
-    private ONCSearchableDatabase db;
+    private ONCSearchableDatabase searchableDB;
     private String defaultMssg;
     
 	public ONCNavPanel(JFrame parentFrame, ONCSearchableDatabase db)
 	{
 		//get Global Variables reference
 		GlobalVariables gvs = GlobalVariables.getInstance();
-		this.db = db;
+		this.searchableDB = db;
 		defaultMssg = DEFAULT_MSSG;
 		
 		//Create the list that holds search results
@@ -229,22 +229,22 @@ public class ONCNavPanel extends JPanel implements ActionListener
 		{
 			if(e.getSource() == btnNext)
 			{						
-				if(++index == db.size())
+				if(++index == searchableDB.size())
 					index=0;
 			}
 			else if(e.getSource() == btnPrevious)
 			{
 				if(--index< 0)
-					index = db.size()-1;
+					index = searchableDB.size()-1;
 			}
 			
 //			fireNavChanged(this, "INDEX_CHANGE", index);
-			fireEntitySelected(this, db.getDBType() +"_SELECTED", db.getObjectAtIndex(index), null);
+			fireEntitySelected(this, searchableDB.getDBType() +"_SELECTED", searchableDB.getObjectAtIndex(index), null);
 		}
 		else if(e.getSource() == searchTF && !searchTF.getText().isEmpty())
 		{
 			String data = searchTF.getText();
-			String type = db.searchForListItem(searchAL, data);	//builds searchAL
+			String type = searchableDB.searchForListItem(searchAL, data);	//builds searchAL
 			
 			if(searchAL.size() > 1)	//duplicate ONC Entities were found   	
 	    		setMssg(Integer.toString(searchAL.size()) +" " + type + " " + data + "'s were found");
@@ -256,9 +256,9 @@ public class ONCNavPanel extends JPanel implements ActionListener
 			if(searchAL.size() > 0)	//Match found in array list has elements
 			{				
     			srchALindex=0;
-    			index = db.getListIndexByID(db.getList(), searchAL.get(srchALindex));
+    			index = searchableDB.getListIndexByID(searchableDB.getList(), searchAL.get(srchALindex));
 //    			fireNavChanged(this, "INDEX_CHANGE", index);
-    			fireEntitySelected(this, db.getDBType() +"_SELECTED", db.getObjectAtIndex(index), null);
+    			fireEntitySelected(this, searchableDB.getDBType() +"_SELECTED", searchableDB.getObjectAtIndex(index), null);
 			}
 			else
 			{
@@ -275,18 +275,18 @@ public class ONCNavPanel extends JPanel implements ActionListener
 			if(++srchALindex == searchAL.size())
 				srchALindex=0;
 			
-			index = db.getListIndexByID(db.getList(), searchAL.get( srchALindex));	
+			index = searchableDB.getListIndexByID(searchableDB.getList(), searchAL.get( srchALindex));	
 //			fireNavChanged(this, "INDEX_CHANGE", index);
-			fireEntitySelected(this, db.getDBType() +"_SELECTED", db.getObjectAtIndex(index), null);
+			fireEntitySelected(this, searchableDB.getDBType() +"_SELECTED", searchableDB.getObjectAtIndex(index), null);
 		}
 		else if(e.getSource() == rbSrchPrev)
 		{
 			if(--srchALindex == -1)
 				srchALindex=searchAL.size()-1;
 			
-			index = db.getListIndexByID(db.getList(), searchAL.get(srchALindex));
+			index = searchableDB.getListIndexByID(searchableDB.getList(), searchAL.get(srchALindex));
 //			fireNavChanged(this, "INDEX_CHANGE", index);
-			fireEntitySelected(this, db.getDBType() +"_SELECTED", db.getObjectAtIndex(index), null);
+			fireEntitySelected(this, searchableDB.getDBType() +"_SELECTED", searchableDB.getObjectAtIndex(index), null);
 		}
 //		else if(e.getSource() == btnLogoff)
 //		{
