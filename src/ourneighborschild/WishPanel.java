@@ -36,7 +36,6 @@ public class WishPanel extends ONCPanel implements ActionListener, DatabaseListe
 	private static final int ONC_GIFT_ICON = 4;
 	private static final int MAX_LABEL_LINE_LENGTH = 26;
 	private static final int FAMILY_STATUS_UNVERIFIED = 0;
-	private static final String GIFT_CARD_ONLY_TEXT = "gift card only";
 	
 	//database references
 	ONCWishCatalog cat;
@@ -256,19 +255,13 @@ public class WishPanel extends ONCPanel implements ActionListener, DatabaseListe
 
 	void setEnabledWish(ONCFamily fam)
 	{
-//		System.out.println(String.format("ChildPanel.setEnabledChildWishes ONC# %s", fam.getONCNum()));
 		//only enable wish panels if family has been verified
 		if(fam.getFamilyStatus() == FAMILY_STATUS_UNVERIFIED)	
 			wpStatus = WishPanelStatus.Disabled;
 		else 
-		{
-			if(fam.getNotes().toLowerCase().contains(GIFT_CARD_ONLY_TEXT))
-				wpStatus = WishPanelStatus.Assignee_Only;
-			else
-				wpStatus = WishPanelStatus.Enabled;
-		}
+			wpStatus = fam.isGiftCardOnly() ? WishPanelStatus.Assignee_Only : WishPanelStatus.Enabled;
 		
-		//now that we've update the panel status, update the component status
+		//now that we've updated the panel status, update the component status
 		if(childWish != null)
 			setEnabledWishPanelComponents(childWish.getChildWishStatus());
 		else

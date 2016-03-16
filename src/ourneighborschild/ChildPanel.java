@@ -19,9 +19,9 @@ import com.toedter.calendar.JDateChooser;
 public class ChildPanel extends ONCPanel implements DatabaseListener, EntitySelectionListener
 {
 	/**
-	 * This class extends JPanel to provide the UI for display and edit of a child
-	 * The child's first and last name, gender, date of birth, age and school are displayed
-	 * in JTextFields or JLabels and all but age can be changed by the user. 
+	 * This class extends ONCPanel to provide the UI for display and edit of a child
+	 * The child's first and last name, gender, date of birth, age and school are displayed and
+	 * all but age can be changed by the user
 	 */
 	private static final long serialVersionUID = 1L;
 	private static final int ONC_MAX_CHILD_AGE = 24; //Used for sorting children into array lists
@@ -146,10 +146,7 @@ public class ChildPanel extends ONCPanel implements DatabaseListener, EntitySele
 		
 		schoolTF.setText(child.getChildSchool());
 		genderTF.setText(child.getChildGender());
-		
-//		for(int wn=0; wn<wishCB.length; wn++)
-//			displayWish(cwDB.getWish(child.getChildWishID(wn)), wn);	
-		
+	
 		bChildDataChanging = false;
 	}
 	
@@ -263,13 +260,7 @@ public class ChildPanel extends ONCPanel implements DatabaseListener, EntitySele
 	
 	boolean hasDOBChanged(ONCChild c)
 	{
-		//get the CAL for the dateChooser date
-		long dcDOBGMT = convertCalendarDOBToGMT(dobDC.getCalendar());
-			
-		if(dcDOBGMT != c.getChildDateOfBirth())
-			return true;
-		else
-			return false;
+		return convertCalendarDOBToGMT(dobDC.getCalendar()) != c.getChildDateOfBirth();
 	}
 	
 	@Override
@@ -314,11 +305,7 @@ public class ChildPanel extends ONCPanel implements DatabaseListener, EntitySele
 			ArrayList<ONCChild> childList = cDB.getChildren(fam.getID());
 			
 			if(dispChild != null)
-			{
-//				System.out.println(String.format("ChildPanel.entitySelected: dispChild= %s",
-//									dispChild.getChildFirstName()));
 				updateChild(dispChild);
-			}
 			
 			//check to see if there are children in the family, is so, display first child
 			if(childList != null && !childList.isEmpty())
@@ -393,15 +380,12 @@ public class ChildPanel extends ONCPanel implements DatabaseListener, EntitySele
 		{
 			if(pce.getSource() == dobDC.getDateEditor() && 
 				"date".equals(pce.getPropertyName()) && 
-				 !bChildDataChanging && dispChild != null && GlobalVariables.isUserAdmin())
+				 !bChildDataChanging && dispChild != null && GlobalVariables.isUserAdmin() &&
+				  dispChild.getChildDateOfBirth() != convertCalendarDOBToGMT(dobDC.getCalendar()))
 				  
 			{
-				
-				if(dispChild.getChildDateOfBirth() != convertCalendarDOBToGMT(dobDC.getCalendar()))
-				{
 					updateChild(dispChild);
 			        displayChild(dispChild);
-				}
 			}		
 		}
 	}

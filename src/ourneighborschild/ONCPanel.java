@@ -82,5 +82,4 @@ public abstract class ONCPanel extends JPanel
     			l.entitySelected(event);
     	}
     }
-
 }

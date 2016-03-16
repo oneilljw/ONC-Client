@@ -577,7 +577,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
     	sortWishesDlg.addEntitySelectionListener(agentInfoDlg);
     	sortMealsDlg.addEntitySelectionListener(agentInfoDlg);
     	
-    	//Set up the dialog to edit family transporation info
+    	//Set up the dialog to edit family transportation info
     	String[] transNames = {"ONC #", "Last Name", "Has Transportation?"};
     	transportationDlg = new TransportationDialog(parentFrame, false, transNames);
     	nav.addEntitySelectionListener(transportationDlg);
