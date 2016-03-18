@@ -1061,4 +1061,11 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 			return o1.getMeal().getDateChanged().compareTo(o2.getMeal().getDateChanged());
 		}
 	}
+
+	@Override
+	void initializeFilters() 
+	{
+		setSortStartDate(gvs.getSeasonStartDate());
+		setSortEndDate(gvs.getTodaysDate());
+	}
 }

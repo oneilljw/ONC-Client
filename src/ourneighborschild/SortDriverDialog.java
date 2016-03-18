@@ -500,4 +500,10 @@ public class SortDriverDialog extends DependantTableDialog
 		
 		buildTableList(false);
 	}
+
+	@Override
+	void initializeFilters() {
+		// TODO Auto-generated method stub
+		
+	}
 }

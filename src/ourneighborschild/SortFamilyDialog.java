@@ -2456,4 +2456,10 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			}
 		}			
 	}
+
+	@Override
+	void initializeFilters() {
+		// TODO Auto-generated method stub
+		
+	}
 }

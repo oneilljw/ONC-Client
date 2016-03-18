@@ -411,4 +411,10 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 		public void keyTyped(KeyEvent arg0){
 		}	
 	 }
+
+	@Override
+	void initializeFilters() {
+		// TODO Auto-generated method stub
+		
+	}
 }

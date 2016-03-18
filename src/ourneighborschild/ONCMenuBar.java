@@ -123,6 +123,7 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 	    menuAgents = new JMenu("Agents");
 	    
 	    agentMI = new JMenuItem("Manage Agents");
+	    agentMI.setActionCommand("Agents");
 	    agentMI.setEnabled(false);	    
 	    menuAgents.add(agentMI);
 	    
@@ -133,6 +134,7 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 	    this.add(menuFamilies);
 	    
 	    sortFamiliesMI = new JMenuItem("Manage Families");
+	    sortFamiliesMI.setActionCommand("Families");
 	    sortFamiliesMI.setEnabled(false);	    
 	    menuFamilies.add(sortFamiliesMI);
 	    
@@ -212,6 +214,7 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 	    menuWishes.add(catMI);
 	    
 	    sortWishesMI = new JMenuItem("Manage Wishes");
+	    sortWishesMI.setActionCommand("Wishes");
 	    sortWishesMI.setEnabled(false);
 	    menuWishes.add(sortWishesMI);
 	    
@@ -232,6 +235,7 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 	    this.add(menuMeals);
 	    
 	    sortMealsMI = new JMenuItem("Manage Meals");
+	    sortMealsMI.setActionCommand("Meals");
 	    sortMealsMI.setEnabled(false);
 	    menuMeals.add(sortMealsMI);
 	    
@@ -243,6 +247,7 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 	    menuPartners.add(orgMI);
 	    
 	    sortOrgsMI = new JMenuItem("Manage Partners");
+	    sortOrgsMI.setActionCommand("Partners");
 	    sortOrgsMI.setEnabled(false);
 	    menuPartners.add(sortOrgsMI);
 	    
@@ -264,11 +269,13 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 	    
 	    //Edit Delivery Partners
 	    manageDelMI = new JMenuItem("Manage Delivery Partners");
+	    manageDelMI.setActionCommand("Drivers");
 	    manageDelMI.setEnabled(false);
 	    menuDelivery.add(manageDelMI);
 	    
 	    //Assign Delivery Partners
-	    assignDelMI = new JMenuItem("Assign Deliveries");	
+	    assignDelMI = new JMenuItem("Assign Deliveries");
+	    assignDelMI.setActionCommand("Deliveries");
 	    assignDelMI.setEnabled(false);
 	    menuDelivery.add(assignDelMI);   
 	    

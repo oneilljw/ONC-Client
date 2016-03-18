@@ -165,7 +165,7 @@ public class DirectionsDialog extends JDialog implements ActionListener, Databas
         setLocation(pt.x + 360, pt.y + 80);
 	}
 	
-	void displayDirections(ONCFamily fam) throws IOException, JSONException
+	void display(ONCFamily fam) throws IOException, JSONException
 	{
 		//Hold reference to ONCFamily object for responding to print
 		f = fam;
@@ -435,7 +435,7 @@ public class DirectionsDialog extends JDialog implements ActionListener, Databas
 		if(dbe.getType().equals("UPDATED_GLOBALS") && this.isVisible())
 		{
 			try {
-				displayDirections(f);
+				display(f);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -455,7 +455,7 @@ public class DirectionsDialog extends JDialog implements ActionListener, Databas
 			ONCFamily fam = (ONCFamily) tse.getObject1();
 			if(fam != null)
 				try {
-					displayDirections(fam);
+					display(fam);
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

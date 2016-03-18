@@ -56,6 +56,7 @@ public class OurNeighborsChild implements DatabaseListener
 	private static final String APPNAME = "Our Neighbor's Child";
 	private static final int DB_UNLOCKED_IMAGE_INDEX = 17;
 	private static final int DB_LOCKED_IMAGE_INDEX = 18;
+	private static final Point SORT_DIALOG_OFFSET = new Point (5, 20);
 	private static final String ONC_SERVER_IP_ADDRESS_FILE = "serveripaddress.txt";
 	
 	//GUI Objects
@@ -1015,9 +1016,11 @@ public class OurNeighborsChild implements DatabaseListener
     		else if(e.getSource() == ONCMenuBar.exitMI)	{exit("LOGOUT");}
     		else if(e.getSource() == ONCMenuBar.findDupFamsMI) {oncFamilyPanel.onCheckForDuplicateFamilies();}
     		else if(e.getSource() == ONCMenuBar.findDupChldrnMI) {oncFamilyPanel.onCheckForDuplicateChildren();}
-    		else if(e.getSource() == ONCMenuBar.assignDelMI) {oncFamilyPanel.showAssignDelivererDialog();}
+    		else if(e.getSource() == ONCMenuBar.assignDelMI)
+    			oncFamilyPanel.showSortDialog(ONCMenuBar.assignDelMI.getActionCommand(), SORT_DIALOG_OFFSET);
     		else if(e.getSource() == ONCMenuBar.editDelMI) {oncFamilyPanel.showDriverDialog();}
-    		else if(e.getSource() == ONCMenuBar.manageDelMI) {oncFamilyPanel.showSortDriverDialog();}
+    		else if(e.getSource() == ONCMenuBar.manageDelMI)
+    			oncFamilyPanel.showSortDialog(ONCMenuBar.manageDelMI.getActionCommand(), SORT_DIALOG_OFFSET);
     		else if(e.getSource() == ONCMenuBar.importDrvrMI)
     		{
     			String mssg = oncDDB.importDrivers(oncFrame, oncGVs.getTodaysDate(),
@@ -1036,15 +1039,20 @@ public class OurNeighborsChild implements DatabaseListener
     		else if(e.getSource() == ONCMenuBar.changeBatchMI) { oncFamilyPanel.showChangeBatchNumberDialog(); }
     		else if(e.getSource() == ONCMenuBar.delstatusMI) {oncFamilyPanel.showDeliveryStatus();}
     		else if(e.getSource() == ONCMenuBar.viewDBMI) {oncFamilyPanel.showEntireDatabase(oncFamDB);}
-    		else if(e.getSource() == ONCMenuBar.sortWishesMI) {oncFamilyPanel.showSortWishesDialog(oncFamDB.getList());}
-    		else if(e.getSource() == ONCMenuBar.sortMealsMI) {oncFamilyPanel.showSortMealsDialog();}
+    		else if(e.getSource() == ONCMenuBar.sortWishesMI)
+    			oncFamilyPanel.showSortDialog(ONCMenuBar.sortWishesMI.getActionCommand(), SORT_DIALOG_OFFSET);
+    		else if(e.getSource() == ONCMenuBar.sortMealsMI)
+    			oncFamilyPanel.showSortDialog(ONCMenuBar.sortMealsMI.getActionCommand(), SORT_DIALOG_OFFSET);
     		else if(e.getSource() == ONCMenuBar.recGiftsMI) {oncFamilyPanel.showReceiveGiftsDialog(oncFamDB.getList());}
     		else if(e.getSource() == ONCMenuBar.labelViewerMI) {oncFamilyPanel.showWishLabelViewerDialog();}
     		else if(e.getSource() == ONCMenuBar.catMI) {oncFamilyPanel.showWishCatalogDialog(); }
     		else if(e.getSource() == ONCMenuBar.orgMI) {oncFamilyPanel.showOrgDialog();}
-    		else if(e.getSource() == ONCMenuBar.sortOrgsMI) {oncFamilyPanel.showSortOrgsDialog();}
-    		else if(e.getSource() == ONCMenuBar.sortFamiliesMI) {oncFamilyPanel.showSortFamiliesDialog(oncFamDB.getList());}
-    		else if(e.getSource() == ONCMenuBar.agentMI) {oncFamilyPanel.showSortAgentDialog(oncAgentDB, oncFamDB.getList()); }
+    		else if(e.getSource() == ONCMenuBar.sortOrgsMI)
+    			oncFamilyPanel.showSortDialog(ONCMenuBar.sortOrgsMI.getActionCommand(), SORT_DIALOG_OFFSET);
+    		else if(e.getSource() == ONCMenuBar.sortFamiliesMI)
+    			oncFamilyPanel.showSortDialog(ONCMenuBar.sortFamiliesMI.getActionCommand(), SORT_DIALOG_OFFSET);
+    		else if(e.getSource() == ONCMenuBar.agentMI)
+    			oncFamilyPanel.showSortDialog(ONCMenuBar.agentMI.getActionCommand(), SORT_DIALOG_OFFSET);
     		else if(e.getSource() == ONCMenuBar.aboutONCMI)
     		{
     			//User has chosen to view the About ONC dialog

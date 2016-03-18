@@ -37,4 +37,10 @@ public class ReceiveGiftsDialog extends GiftActionDialog
 	{
 		return lastWishChanged.getFamily().getFamilyStatus() == FAMILY_STATUS_GIFTS_RECEIVED;
 	}
+
+	@Override
+	void initializeFilters() {
+		// TODO Auto-generated method stub
+		
+	}
 }

@@ -1077,4 +1077,10 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		
 		buildTableList(false);
 	}
+
+	@Override
+	void initializeFilters() {
+		// TODO Auto-generated method stub
+		
+	}
 }

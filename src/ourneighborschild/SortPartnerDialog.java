@@ -1430,5 +1430,10 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 	}
 	
 	@Override
-	boolean isONCNumContainerEmpty() { return false; }	
+	boolean isONCNumContainerEmpty() { return false; }
+	@Override
+	void initializeFilters() {
+		// TODO Auto-generated method stub
+		
+	}	
 }

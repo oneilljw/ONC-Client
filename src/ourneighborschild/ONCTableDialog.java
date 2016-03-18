@@ -8,7 +8,9 @@ import javax.swing.JFrame;
 public abstract class ONCTableDialog extends JDialog
 {
 	/**
-	 * 
+	 * Implements an abstract class for all dialogs that contain tables that display ONC Entities. This
+	 * class provides a blueprint for the inheriting class proving the ability to register entity 
+	 * selection listeners and fire entity selection events
 	 */
 	private static final long serialVersionUID = 1L;
 	protected JFrame parentFrame;

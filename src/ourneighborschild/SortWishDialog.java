@@ -1543,4 +1543,11 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 							swo.getChildWish().getChildWishChangedBy(), ds};
 		return tablerow;
 	}
+
+	@Override
+	void initializeFilters() 
+	{
+		setSortStartDate(gvs.getSeasonStartDate());
+		setSortEndDate(gvs.getTodaysDate());
+	}
 }

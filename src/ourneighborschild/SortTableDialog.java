@@ -208,6 +208,8 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
         setResizable(true);
 	}
 	
+	abstract void initializeFilters();
+	
 	abstract void buildTableList(boolean bPreserveSelections);
 	
 	abstract int sortTableList(int col);

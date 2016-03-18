@@ -96,7 +96,7 @@ public class DeliveryStatusDialog extends JDialog implements TableModelListener,
         setResizable(false);
 	}
 	
-	void displayDeliveryInfo(ONCFamily fam)
+	void display(ONCFamily fam)
 	{	
 		//save a reference to the current family
 		currFam = fam;
@@ -167,7 +167,7 @@ public class DeliveryStatusDialog extends JDialog implements TableModelListener,
 						JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
 			}
 			
-			displayDeliveryInfo(currFam);
+			display(currFam);
 		}				
 	}
 	
@@ -197,13 +197,13 @@ public class DeliveryStatusDialog extends JDialog implements TableModelListener,
 			//If updated delivery belongs to family delivery history being displayed,
 			//re-display it
 			if(currFam != null && currFam.getID() == updatedDelivery.getFamID())
-				displayDeliveryInfo(currFam);
+				display(currFam);
 		}
 		else if(dbe.getSource() != this && this.isVisible() && dbe.getType().equals("ADDED_DRIVER"))
 		{
 			//driver may have been added to current family delivery history
 			if(currFam != null)
-				displayDeliveryInfo(currFam);
+				display(currFam);
 		}
 	}
 
@@ -216,7 +216,7 @@ public class DeliveryStatusDialog extends JDialog implements TableModelListener,
 			ONCFamily fam = (ONCFamily) tse.getObject1();
 			if(fam != null)
 			{
-				displayDeliveryInfo(fam);	
+				display(fam);	
 			}	
 		}
 	}

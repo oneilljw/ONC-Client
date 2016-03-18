@@ -14,11 +14,14 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -121,6 +124,9 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private WishPanel[] wishPanelList;
 	
 	//Dialogs that are children of the family panel
+	Map<String, SortTableDialog> stDlgMap;
+	Map<String, InfoDialog> infoDlgMap;
+	
 	private static ClientMapDialog cmDlg;
 	private DeliveryStatusDialog dsDlg;
 	private MealDialog mealDlg;
@@ -131,25 +137,30 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private DriverDialog driverDlg;
 	private WishCatalogDialog catDlg;
 	private ONCUserDialog userDlg;
-	public  SortWishDialog sortWishesDlg;
-	private SortMealsDialog sortMealsDlg;
+	
 //	public GiftActionDialog recGiftsDlg;
-	public SortFamilyDialog sortFamiliesDlg;
-	public SortAgentDialog sortAgentDlg;
+	
 	private AgentInfoDialog agentInfoDlg;
 	private ChangeONCNumberDialog changeONCNumberDlg;
 	private ChangeReferenceNumberDialog changeReferenceNumberDlg;
 	private ChangeBatchNumberDialog changeBatchNumberDlg;
-	public AssignDeliveryDialog assignDeliveryDlg;
-	public SortDriverDialog sortDriverDlg;
+	
 	private ViewONCDatabaseDialog dbDlg;
 	private OrganizationDialog orgDlg;
-	private SortPartnerDialog sortOrgsDlg;
+	
 	private ChildCheckDialog dcDlg;
 	private FamilyCheckDialog dfDlg;
 	private WishLabelViewer wlViewerDlg;
 	private PYChildConnectionDialog pyConnectionDlg;
 	private AngelAutoCallDialog angelDlg;
+	
+	public SortFamilyDialog sortFamiliesDlg;
+	public SortAgentDialog sortAgentDlg;
+	public AssignDeliveryDialog assignDeliveryDlg;
+	public SortDriverDialog sortDriverDlg;
+	private SortPartnerDialog sortPartnerDlg;
+	public  SortWishDialog sortWishesDlg;
+	private SortMealsDialog sortMealsDlg;
 	
 //	private LogDialog logDlg;
 	
@@ -491,6 +502,10 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         JScrollPane oncDIscrollPane = new JScrollPane(oncDIPane);
         oncDIscrollPane.setBorder(BorderFactory.createTitledBorder("Delivery Instructions"));
         
+        //initialize the dialog maps
+        stDlgMap = new HashMap<String, SortTableDialog>();
+        infoDlgMap = new HashMap<String, InfoDialog>();
+        
         //Set up delivery history dialog box 
         dsDlg = new DeliveryStatusDialog(parentFrame);
         nav.addEntitySelectionListener(dsDlg);
@@ -526,6 +541,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         sortWishesDlg.addEntitySelectionListener(dsDlg);
         sortWishesDlg.addEntitySelectionListener(mealDlg);
         sortWishesDlg.addEntitySelectionListener(dirDlg);
+        stDlgMap.put("Wishes", sortWishesDlg);
     	
     	//Set up the receive gifts dialog
 //    	recGiftsDlg = new GiftActionDialog(parentFrame, WishStatus.Received);
@@ -552,6 +568,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         sortFamiliesDlg.addEntitySelectionListener(dirDlg);
         sortFamiliesDlg.addEntitySelectionListener(dsDlg);
         sortFamiliesDlg.addEntitySelectionListener(mealDlg);
+        stDlgMap.put("Families", sortFamiliesDlg);
         
       //Set up the sort meals dialog
         String[] mealToolTips = {"ONC Family Number", "Batch Number", "HoH Last Name", "Region", "Which holiday is meal for?",
@@ -568,6 +585,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         sortMealsDlg.addEntitySelectionListener(dsDlg);
         sortMealsDlg.addEntitySelectionListener(mealDlg);
         sortMealsDlg.addEntitySelectionListener(dirDlg);
+        stDlgMap.put("Meals", sortMealsDlg);
     	
     	//Set up the dialog to edit agent info
     	String[] tfNames = {"Name", "Organization", "Title", "Email", "Phone"};
@@ -580,6 +598,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
     	//Set up the dialog to edit family transportation info
     	String[] transNames = {"ONC #", "Last Name", "Has Transportation?"};
     	transportationDlg = new TransportationDialog(parentFrame, false, transNames);
+    	infoDlgMap.put("Transportation", transportationDlg);
     	nav.addEntitySelectionListener(transportationDlg);
     	sortFamiliesDlg.addEntitySelectionListener(transportationDlg);
     	sortWishesDlg.addEntitySelectionListener(transportationDlg);
@@ -587,18 +606,22 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
     	//Set up the dialog to add a meal to family
     	String[] mealNames = {"ONC #", "Last Name", "Meal Type", "Restrictions"};
     	addMealDlg = new AddMealDialog(parentFrame, true, mealNames);
+    	infoDlgMap.put("Add Meal", addMealDlg);
     	
     	//Set up the dialog to change family ONC Number
     	String[] oncNum = {"Change ONC #"};
     	changeONCNumberDlg = new ChangeONCNumberDialog(parentFrame, oncNum);
+    	infoDlgMap.put("Change ONC #", changeONCNumberDlg);
     	
     	//Set up the dialog to change family ODB Number
-    	String[] odbNum = {"Change ODB #"};
-    	changeReferenceNumberDlg = new ChangeReferenceNumberDialog(parentFrame, odbNum);
+    	String[] refNum = {"Change Ref #"};
+    	changeReferenceNumberDlg = new ChangeReferenceNumberDialog(parentFrame, refNum);
+    	infoDlgMap.put("Change Ref #", changeReferenceNumberDlg);
     	
     	//Set up the dialog to change family batch number
     	String[] batchNum = {"Change Batch #"};
     	changeBatchNumberDlg = new ChangeBatchNumberDialog(parentFrame, batchNum);
+    	infoDlgMap.put("Change Batch #", changeBatchNumberDlg);
 
     	//Set up the sort agent dialog
     	String[] agtColToolTips = {"Name", "Organization", "Title", "EMail Address", "Phone"};
@@ -610,6 +633,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
     	sortAgentDlg.addEntitySelectionListener(dirDlg);
     	sortAgentDlg.addEntitySelectionListener(dsDlg);
     	sortAgentDlg.addEntitySelectionListener(mealDlg);
+    	stDlgMap.put("Agents", sortAgentDlg);
     	
     	//set up the assign delivery dialog
     	String[] addToolTips = {"ONC Family Number", "Family Status", "Delivery Status",
@@ -627,6 +651,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
     	assignDeliveryDlg.addEntitySelectionListener(dirDlg);
     	assignDeliveryDlg.addEntitySelectionListener(dsDlg);
     	assignDeliveryDlg.addEntitySelectionListener(mealDlg);
+    	stDlgMap.put("Deliveries", assignDeliveryDlg);
     	
     	//set up the sort driver dialog
     	String[] sdToolTips = {"Driver Number", "First Name", "Last Name", "# of Deliveries",
@@ -642,6 +667,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
     	sortDriverDlg.addEntitySelectionListener(dirDlg);
     	sortDriverDlg.addEntitySelectionListener(dsDlg);
     	sortDriverDlg.addEntitySelectionListener(mealDlg);
+    	stDlgMap.put("Drivers", sortDriverDlg);
     	
     	//Set up the edit driver (deliverer) dialog and register it to listen for Family 
     	//Selection events from particular ui's that have driver's associated
@@ -678,8 +704,9 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 				"Date Changed","Changed By","Reg", "SL"};
         int[] orgColWidths = {180, 96, 68, 48, 56, 180, 72, 80, 28, 24};
         int[] orgCenter_cols = {8};
-        sortOrgsDlg = new SortPartnerDialog(parentFrame, orgToolTips, orgCols, orgColWidths, orgCenter_cols);
-        sortOrgsDlg.addEntitySelectionListener(orgDlg);
+        sortPartnerDlg = new SortPartnerDialog(parentFrame, orgToolTips, orgCols, orgColWidths, orgCenter_cols);
+        sortPartnerDlg.addEntitySelectionListener(orgDlg);
+        stDlgMap.put("Partners", sortPartnerDlg);
         
         //set up the data check dialog and table row selection listener
         dcDlg = new ChildCheckDialog(pf);
@@ -1554,7 +1581,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		if(!dsDlg.isShowing())
 		{
 			dsDlg.setLocationRelativeTo(City);
-			dsDlg.displayDeliveryInfo(currFam);
+			dsDlg.display(currFam);
 			dsDlg.setVisible(true);
 		}
 	}
@@ -1584,7 +1611,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		if(!dirDlg.isShowing())
 		{
 			try {
-				dirDlg.displayDirections(currFam);
+				dirDlg.display(currFam);
 				
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
@@ -1600,47 +1627,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	void showClientMap(ArrayList<ONCFamily> oncFAL)
 	{
 		if(!cmDlg.isShowing())
-		{
-			try
-    		{
-    			cmDlg.displayClientMap(oncFAL);
-    		} 
-    		catch (IOException e1)
-    		{
-    			// TODO Auto-generated catch block
-    			e1.printStackTrace();
-    		}
-		}
-	}
-	
-	void showSortWishesDialog(ArrayList<ONCFamily> fAL)
-	{
-		if(!sortWishesDlg.isVisible())
-		{
-			//Dates are set here after Global Variables have been initialized from server
-			sortWishesDlg.setSortStartDate(gvs.getSeasonStartDate());
-			sortWishesDlg.setSortEndDate(gvs.getTodaysDate());
-			sortWishesDlg.buildTableList(true);
-			
-			Point pt = parentFrame.getLocation();
-	        sortWishesDlg.setLocation(pt.x + 5, pt.y + 20);
-			sortWishesDlg.setVisible(true);
-		}
-	}
-	
-	void showSortMealsDialog()
-	{
-		if(!sortMealsDlg.isVisible())
-		{
-			//Dates are set here after Global Variables have been initialized from server
-			sortMealsDlg.setSortStartDate(gvs.getSeasonStartDate());
-			sortMealsDlg.setSortEndDate(gvs.getTodaysDate());
-			sortMealsDlg.buildTableList(true);
-			
-			Point pt = parentFrame.getLocation();
-	        sortMealsDlg.setLocation(pt.x + 5, pt.y + 20);
-			sortMealsDlg.setVisible(true);
-		}
+			cmDlg.display(oncFAL); 
 	}
 	
 	void showReceiveGiftsDialog(ArrayList<ONCFamily> fAL)
@@ -1667,8 +1654,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	{
 		if(!catDlg.isVisible())
 		{
-			Point pt = parentFrame.getLocation();
-	        catDlg.setLocation(pt.x + 125, pt.y + 125);
+	        catDlg.setLocationRelativeTo(this);
 			catDlg.setVisible(true);
 		}
 	}
@@ -1701,17 +1687,6 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		cat.initializeWishCounts(fDB);
 	}
 	
-	void showAssignDelivererDialog()
-	{
-		if(!assignDeliveryDlg.isVisible())
-		{
-			assignDeliveryDlg.buildTableList(true);
-			Point pt = parentFrame.getLocation();
-	        assignDeliveryDlg.setLocation(pt.x + 5, pt.y + 20);
-			assignDeliveryDlg.setVisible(true);
-		}
-	}
-	
 	void showDriverDialog()
 	{	
 		if(!driverDlg.isVisible())
@@ -1720,18 +1695,6 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			Point pt = parentFrame.getLocation();
 	        driverDlg.setLocation(pt.x + 5, pt.y + 20);
 			driverDlg.setVisible(true);
-		}
-	}
-	
-	void showSortDriverDialog()
-	{
-		if(!sortDriverDlg.isVisible())
-		{
-			sortDriverDlg.buildTableList(true);
-			
-			Point pt = parentFrame.getLocation();
-	        sortDriverDlg.setLocation(pt.x + 5, pt.y + 20);
-			sortDriverDlg.setVisible(true);
 		}
 	}
 	
@@ -1745,69 +1708,49 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		}
 	}
 	
-	void showSortFamiliesDialog(ArrayList<ONCFamily> fAL)
+	void showSortDialog(String name, Point offsetPt)
 	{
-		if(!sortFamiliesDlg.isVisible())
+		//retrieve the sort dialog from the map
+		if(stDlgMap.containsKey(name))
 		{
-			sortFamiliesDlg.buildTableList(true);
-			
-			Point pt = parentFrame.getLocation();
-	        sortFamiliesDlg.setLocation(pt.x + 5, pt.y + 20);
-			sortFamiliesDlg.setVisible(true);
+			if(!stDlgMap.get(name).isVisible())
+			{
+				stDlgMap.get(name).initializeFilters();
+				stDlgMap.get(name).buildTableList(true);
+				
+				Point originPt = GlobalVariables.getFrame().getLocation();
+				stDlgMap.get(name).setLocation(originPt.x + offsetPt.x, originPt.y + offsetPt.y);
+		        stDlgMap.get(name).setVisible(true);
+			}
+		}
+		else
+		{
+			String errMssg = String.format("Show Sort Dialog Error: %s dialog doesn't exist, please contact the ONC IT Director", name);
+			JOptionPane.showMessageDialog(parentFrame, errMssg, "System Error - Show Sort Dialog",
+					JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
 		}
 	}
-	
-	void showSortOrgsDialog()
+/*	
+	void showInfoDialog(String name, JComponent relative, ONCObject dispObj)
 	{
-		if(!sortOrgsDlg.isVisible())
+		//retrieve the sort dialog from the map
+		if(infoDlgMap.containsKey(name))
 		{
-			sortOrgsDlg.buildTableList(true);
-			Point pt = GlobalVariables.getFrame().getLocation();
-	        sortOrgsDlg.setLocation(pt.x + 5, pt.y + 20);
-			sortOrgsDlg.setVisible(true);
+			if(!infoDlgMap.get(name).isVisible())
+			{
+				infoDlgMap.get(name).display(dispObj);
+				infoDlgMap.get(name).setLocationRelativeTo(btnShowAgentInfo);
+				infoDlgMap.get(name).showDialog();
+			}
+			else
+			{
+				String errMssg = String.format("Show Info Dialog Error: %s dialog doesn't exist, please contact the ONC IT Director", name);
+				JOptionPane.showMessageDialog(parentFrame, errMssg, "System Error - Show Info Dialog",
+						JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
+			}
 		}
 	}
-	
-	void showSortAgentDialog(ONCAgents agentsDB, ArrayList<ONCFamily> fAL)
-	{
-		if(!sortAgentDlg.isVisible())
-		{
-			sortAgentDlg.buildTableList(true);
-			sortAgentDlg.setLocationRelativeTo(parentFrame);
-			sortAgentDlg.setVisible(true);
-		}
-	}
-	
-	void showAgentInfoDialog(int source)
-	{
-		if(!agentInfoDlg.isVisible())
-		{
-			agentInfoDlg.display(agentDB.getAgent(currFam.getAgentID()));
-			agentInfoDlg.setLocationRelativeTo(btnShowAgentInfo);
-			agentInfoDlg.showDialog();
-		}
-	}
-	
-	void showTransportationDialog()
-	{
-		if(!transportationDlg.isVisible())
-		{
-			transportationDlg.display(currFam);
-			transportationDlg.setLocationRelativeTo(btnTransportation);
-			transportationDlg.showDialog();
-		}
-	}
-	
-	void showAddMealDialog()
-	{
-		if(!addMealDlg.isVisible())
-		{
-			addMealDlg.display(currFam);
-			addMealDlg.setLocationRelativeTo(btnMeals);
-			addMealDlg.showDialog();
-		}
-	}
-	
+*/	
 	/****************************************************************************************
      * Shows a dialog box to change the ONC Number for the family displayed. If no family is 
      * displayed the method displays a warning message
@@ -1849,6 +1792,38 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
     		changeBatchNumberDlg.showDialog();
 		}
     }
+
+	void showAgentInfoDialog()
+	{
+		if(!agentInfoDlg.isVisible())
+		{
+			agentInfoDlg.display(agentDB.getAgent(currFam.getAgentID()));
+			agentInfoDlg.setLocationRelativeTo(btnShowAgentInfo);
+			agentInfoDlg.showDialog();
+		}
+	}
+	
+	void showTransportationDialog()
+	{
+		if(!transportationDlg.isVisible())
+		{
+			transportationDlg.display(currFam);
+			transportationDlg.setLocationRelativeTo(btnTransportation);
+			transportationDlg.showDialog();
+		}
+	}
+	
+	void showAddMealDialog()
+	{
+		if(!addMealDlg.isVisible())
+		{
+			addMealDlg.display(currFam);
+			addMealDlg.setLocationRelativeTo(btnMeals);
+			addMealDlg.showDialog();
+		}
+	}
+	
+	
     
     /****************************************************************************************
      * Shows a dialog to connect prior year child for the family displayed. 
@@ -1903,7 +1878,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	void updateDrivingDirections()
 	{   	
 		try {
-			dirDlg.displayDirections(currFam);
+			dirDlg.display(currFam);
 			
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
@@ -2136,7 +2111,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		}
 		else if(e.getSource() == btnShowAgentInfo)
 		{   
-	        showAgentInfoDialog(0); //Source is family panel button
+	        showAgentInfoDialog(); //Source is family panel button
 		}
 		else if(e.getSource() == btnShowODBDetails)
 		{

@@ -79,7 +79,7 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
         setLocation(pt.x + 50, pt.y + 50);
 	}
 	
-	void displayClientMap(ArrayList<ONCFamily> fAL) throws IOException
+	void display(ArrayList<ONCFamily> fAL)
 	{		
 		//Build # of families in each region-note: regionCount[0] is for unassigned served families		
 		//If the family is served (no DNS Code) and the region contains a string that has
