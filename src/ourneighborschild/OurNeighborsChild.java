@@ -1014,13 +1014,14 @@ public class OurNeighborsChild implements DatabaseListener
     		else if(e.getSource() == ONCMenuBar.dbStatusMI) {onDBStatusClicked();}
     		else if(e.getSource() == ONCMenuBar.clearMI) {OnClearMenuItemClicked();} 			       	
     		else if(e.getSource() == ONCMenuBar.exitMI)	{exit("LOGOUT");}
-    		else if(e.getSource() == ONCMenuBar.findDupFamsMI) {oncFamilyPanel.onCheckForDuplicateFamilies();}
-    		else if(e.getSource() == ONCMenuBar.findDupChldrnMI) {oncFamilyPanel.onCheckForDuplicateChildren();}
+    		else if(e.getSource() == ONCMenuBar.findDupFamsMI)
+    			oncFamilyPanel.showCheckDialog(ONCMenuBar.findDupFamsMI.getActionCommand());
+    		else if(e.getSource() == ONCMenuBar.findDupChldrnMI)
+    			oncFamilyPanel.showCheckDialog(ONCMenuBar.findDupChldrnMI.getActionCommand());
     		else if(e.getSource() == ONCMenuBar.assignDelMI)
     			oncFamilyPanel.showSortDialog(ONCMenuBar.assignDelMI.getActionCommand(), SORT_DIALOG_OFFSET);
     		else if(e.getSource() == ONCMenuBar.editDelMI)
     			oncFamilyPanel.showEntityDialog(ONCMenuBar.editDelMI.getActionCommand(), SORT_DIALOG_OFFSET);
-//    		{oncFamilyPanel.showDriverDialog();}
     		else if(e.getSource() == ONCMenuBar.manageDelMI)
     			oncFamilyPanel.showSortDialog(ONCMenuBar.manageDelMI.getActionCommand(), SORT_DIALOG_OFFSET);
     		else if(e.getSource() == ONCMenuBar.importDrvrMI)

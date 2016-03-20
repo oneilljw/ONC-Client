@@ -165,7 +165,7 @@ public class DirectionsDialog extends JDialog implements ActionListener, Databas
         setLocation(pt.x + 360, pt.y + 80);
 	}
 	
-	void display(ONCFamily fam) throws IOException, JSONException
+	void display(ONCFamily fam)
 	{
 		//Hold reference to ONCFamily object for responding to print
 		f = fam;
@@ -196,47 +196,52 @@ public class DirectionsDialog extends JDialog implements ActionListener, Databas
 		destAddress = f.getGoogleMapAddress();
 		
 		//Get direction JSON
-		JSONObject dirJSONObject = ddir.getGoogleDirections(ddGVs.getWarehouseAddress(), destAddress);
-	    
-		//Get the trip duration and steps
-		leg = ddir.getTripRoute(dirJSONObject);
-//		String duration = ddir.getTripDuration(leg);
-		steps = ddir.getDrivingSteps(leg);
-	    
-	    //Parse JSON steps array to get data, add it to the directions table after 	  	
-	  	//Clearing currently displayed directions in table
-	  	for(int i = dirTableModel.getRowCount() - 1; i >=0; i--)		
-	  		dirTableModel.removeRow(i);
-	  	
-//	  	JSONObject end_loc = null;
-	    JSONObject step;   
-	    for(int i=0; i<steps.length(); i++)
-	    {
-	    	step = steps.getJSONObject(i);
-	    	dirTableModel.addRow(new Object[]{(String) Integer.toString(i+1)+".", "<html>" +
-	    									(String) step.getString("html_instructions"),
-	    									(String) step.getJSONObject("distance").getString("text"),
-	    									(String) step.getJSONObject("duration").getString("text")});
-	    }
-	    
-		//Remove the current map from the panel
-	    mapPanel.remove(lblMap);
-		
-		//Get the updated map from Google Maps with start and end markers and path and add it to 
-	    //the map panel
-	    BufferedImage biMap = ddir.getGoogleMap(leg, destAddress);
-	    
-	    if(biMap != null)
-	    	lblMap.setIcon(new ImageIcon(biMap));
-	    else
-	    	lblMap.setIcon(ddGVs.getImageIcon(0));
-	    
-	    mapPanel.add(lblMap);
-	    	    
-	   //Mark the dialog for repainting since directions table and map have changed
-	    mapPanel.validate();
-	    mapPanel.repaint();
-	  	dirTable.validate();	  	
+		JSONObject dirJSONObject;
+		try 
+		{
+			dirJSONObject = ddir.getGoogleDirections(ddGVs.getWarehouseAddress(), destAddress);
+			leg = ddir.getTripRoute(dirJSONObject);	//Get the trip duration and steps
+			steps = ddir.getDrivingSteps(leg);	//String duration = ddir.getTripDuration(leg);
+			
+			//Parse JSON steps array to get data, add it to the directions table after 	  	
+		  	//Clearing currently displayed directions in table
+		  	for(int i = dirTableModel.getRowCount() - 1; i >=0; i--)		
+		  		dirTableModel.removeRow(i);
+		  	
+		  	JSONObject step;   
+		    for(int i=0; i<steps.length(); i++)
+		    {
+		    	step = steps.getJSONObject(i);
+		    	dirTableModel.addRow(new Object[]{(String) Integer.toString(i+1)+".", "<html>" +
+		    									(String) step.getString("html_instructions"),
+		    									(String) step.getJSONObject("distance").getString("text"),
+		    									(String) step.getJSONObject("duration").getString("text")});
+		    }
+		    
+			//Remove the current map from the panel
+		    mapPanel.remove(lblMap);
+		    
+		  //Get the updated map from Google Maps with start and end markers and path and add it to 
+		    //the map panel
+		    BufferedImage biMap = ddir.getGoogleMap(leg, destAddress);
+		    
+		    if(biMap != null)
+		    	lblMap.setIcon(new ImageIcon(biMap));
+		    else
+		    	lblMap.setIcon(ddGVs.getImageIcon(0));
+		    
+		    mapPanel.add(lblMap);
+		    	    
+		   //Mark the dialog for repainting since directions table and map have changed
+		    mapPanel.validate();
+		    mapPanel.repaint();
+		  	dirTable.validate();
+		} 
+		catch (JSONException e) 
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		  	
 	}
 /*
 	void OnPrintButtonClicked()
@@ -434,15 +439,7 @@ public class DirectionsDialog extends JDialog implements ActionListener, Databas
 	{
 		if(dbe.getType().equals("UPDATED_GLOBALS") && this.isVisible())
 		{
-			try {
-				display(f);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}	
+			display(f);
 		}	
 	}
 
@@ -454,15 +451,7 @@ public class DirectionsDialog extends JDialog implements ActionListener, Databas
 		{
 			ONCFamily fam = (ONCFamily) tse.getObject1();
 			if(fam != null)
-				try {
-					display(fam);
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (JSONException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				display(fam);
 		}	
 	}
 	

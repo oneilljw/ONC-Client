@@ -191,10 +191,12 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 	    submenuFamilyDataChecks = new JMenu("Data Checks");
 	    
 	    findDupFamsMI = new JMenuItem("Duplicate Family Check");
+	    findDupFamsMI.setActionCommand("Duplicate Family Check");
 	    findDupFamsMI.setEnabled(false);
 	    submenuFamilyDataChecks.add(findDupFamsMI);
 	    
 	    findDupChldrnMI = new JMenuItem("Duplicate Children Check");
+	    findDupChldrnMI.setActionCommand("Duplicate Children Check");
 	    findDupChldrnMI.setEnabled(false);
 	    submenuFamilyDataChecks.add(findDupChldrnMI);
 	    

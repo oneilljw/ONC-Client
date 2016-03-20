@@ -11,7 +11,6 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -91,9 +90,6 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private JScrollPane odbWishscrollPane;
 	private JTextPane HomePhone, OtherPhone;
 	private JButton btnAssignONCNum;
-//	private JButton btnShowPriorHistory, btnShowAllPhones, btnShowODBDetails; 
-//	private JButton btnShowAllPhones, btnShowODBDetails;
-//	private JButton btnShowAgentInfo;
 	private JTextField oncDNScode;
 	private JTextField HOHFirstName, HOHLastName, EMail;
 	private JTextField housenumTF, Street, Unit, City, ZipCode;
@@ -101,14 +97,11 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private JRadioButton delRB, altAddressRB, btnMeals, btnShowPriorHistory, btnShowAgentInfo;
 	private JRadioButton btnShowAllPhones, btnShowODBDetails, btnTransportation, btnDirections;
 	private JRadioButton btnNotGiftCardOnly, btnGiftCardOnly, btnAdults;
-	
-//	private JComboBox oncBatchNum, Language, statusCB, delstatCB;
 	private JComboBox Language, statusCB, delstatCB;
 	private ComboItem[] delStatus;
 	public  JTable childTable;
 	private DefaultTableModel childTableModel;
 	private ArrayList<ONCChild> ctAL; //List holds children object references being displayed in table
-//	private int cn; //Child number being displayed
 	
 	public boolean bFamilyDataChanging = false; //Flag indicating program is triggering gui events, not user
 	private boolean bChildTableDataChanging = true;	//Flag indicating that Child Table data is changing
@@ -122,24 +115,20 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private WishPanel[] wishPanelList;
 	
 	//Dialogs that are children of the family panel
-	Map<String, SortTableDialog> stDlgMap;
-	Map<String, InfoDialog> familyInfoDlgMap;
-	Map<String, EntityDialog> entityDlgMap;
-	
 	private static ClientMapDialog cmDlg;
 	private DeliveryHistoryDialog dsDlg;
-//	private DeliveryStatusDialog dsDlg;
 	private MealDialog mealDlg;
 	private AdultDialog adultDlg;
-	
 	private DirectionsDialog dirDlg;
-	
 	private WishCatalogDialog catDlg;
 	private ONCUserDialog userDlg;
-	
-//	public GiftActionDialog recGiftsDlg;
-	
-	//dialogs that change family related info, including agents
+	private ViewONCDatabaseDialog dbDlg;
+	private WishLabelViewer wlViewerDlg;
+	private PYChildConnectionDialog pyConnectionDlg;
+	private AngelAutoCallDialog angelDlg;
+
+	//dialogs that inherit from InfoDialog
+	private Map<String, InfoDialog> familyInfoDlgMap;
 	private AgentInfoDialog agentInfoDlg;
 	private TransportationDialog transportationDlg;
 	private AddMealDialog addMealDlg;
@@ -147,24 +136,26 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private ChangeReferenceNumberDialog changeReferenceNumberDlg;
 	private ChangeBatchNumberDialog changeBatchNumberDlg;
 	
-	private ViewONCDatabaseDialog dbDlg;
-	private OrganizationDialog orgDlg;
-	private DriverDialog driverDlg;
-	
+	//dialogs that inherit from CheckDialog
+	private Map<String, CheckDialog> checkDlgMap;
 	private ChildCheckDialog dcDlg;
 	private FamilyCheckDialog dfDlg;
-	private WishLabelViewer wlViewerDlg;
-	private PYChildConnectionDialog pyConnectionDlg;
-	private AngelAutoCallDialog angelDlg;
 	
-	public SortFamilyDialog sortFamiliesDlg;
-	public SortAgentDialog sortAgentDlg;
-	public AssignDeliveryDialog assignDeliveryDlg;
-	public SortDriverDialog sortDriverDlg;
+	//dialogs that inherit from SortTableDialog
+	private Map<String, SortTableDialog> stDlgMap;
+	private SortFamilyDialog sortFamiliesDlg;
+	private SortAgentDialog sortAgentDlg;
+	private AssignDeliveryDialog assignDeliveryDlg;
+	private SortDriverDialog sortDriverDlg;
 	private SortPartnerDialog sortPartnerDlg;
-	public  SortWishDialog sortWishesDlg;
+	private SortWishDialog sortWishesDlg;
 	private SortMealsDialog sortMealsDlg;
 	private ReceiveGiftsDialog recGiftsDlg;
+	
+	//dialogs that inherit from Entity Dialog
+	private Map<String, EntityDialog> entityDlgMap;
+	private OrganizationDialog orgDlg;
+	private DriverDialog driverDlg;
 	
 //	private LogDialog logDlg;
 	
@@ -179,7 +170,6 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		regions = ONCRegions.getInstance();
 		
 		currFam = null;
-//		cn=0;	//Initialize the child index
 		
 		//register to listen for family, delivery and child data changed events
 		if(fDB != null)
@@ -509,6 +499,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         stDlgMap = new HashMap<String, SortTableDialog>();
         familyInfoDlgMap = new HashMap<String, InfoDialog>();
         entityDlgMap = new HashMap<String, EntityDialog>();
+        checkDlgMap = new HashMap<String, CheckDialog>();
         
         //Set up delivery history dialog box 
         dsDlg = new DeliveryHistoryDialog(parentFrame);
@@ -714,6 +705,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         
         //set up the data check dialog and table row selection listener
         dcDlg = new ChildCheckDialog(pf);
+        checkDlgMap.put("Duplicate Children Check", dcDlg);
         dcDlg.addEntitySelectionListener(familyChildSelectionListener);
         dcDlg.addEntitySelectionListener(agentInfoDlg);
         dcDlg.addEntitySelectionListener(dirDlg);
@@ -722,6 +714,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         
         //set up the family check dialog and table row selection listener
         dfDlg = new FamilyCheckDialog(pf);
+        checkDlgMap.put("Duplicate Family Check", dfDlg);
         dfDlg.addEntitySelectionListener(familyChildSelectionListener);
         dfDlg.addEntitySelectionListener(agentInfoDlg);
         dfDlg.addEntitySelectionListener(dirDlg);
@@ -1627,16 +1620,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	{
 		if(!dirDlg.isShowing())
 		{
-			try {
-				dirDlg.display(currFam);
-				
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (JSONException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-				}
+			dirDlg.display(currFam);
 			dirDlg.setVisible(true);
 		}
 	}
@@ -1710,11 +1694,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			}
 		}
 		else
-		{
-			String errMssg = String.format("Show Sort Dialog Error: %s dialog doesn't exist, please contact the ONC IT Director", name);
-			JOptionPane.showMessageDialog(parentFrame, errMssg, "System Error - Show Sort Dialog",
-					JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
-		}
+			showDialogError(name);
 	}
 	
 	void showFamilyInfoDialog(String name)
@@ -1730,12 +1710,48 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			}
 		}	
 		else
+			showDialogError(name);
+	}
+	
+	void showEntityDialog(String name, Point offsetPt)
+	{
+		//retrieve the sort dialog from the map
+		if(entityDlgMap.containsKey(name))
 		{
-			String errMssg = String.format("<html>Show Famaily Info Dialog Error:<br>%s dialog doesn't exist,<br>"
-					+ "						please contact the ONC IT Director</html>", name);
-			JOptionPane.showMessageDialog(parentFrame, errMssg, "System Error - Show Family Info Dialog",
-					JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
-		}
+			if(!entityDlgMap.get(name).isVisible())
+			{
+				entityDlgMap.get(name).display(null);
+				Point originPt = GlobalVariables.getFrame().getLocation();
+				entityDlgMap.get(name).setLocation(originPt.x + offsetPt.x, originPt.y + offsetPt.y);
+				entityDlgMap.get(name).setVisible(true);
+			}
+		}	
+		else
+			showDialogError(name);
+	}
+	
+	void showCheckDialog(String name)
+	{
+		//retrieve the sort dialog from the map
+		if(checkDlgMap.containsKey(name))
+		{
+			if(!checkDlgMap.get(name).isVisible())
+			{
+				checkDlgMap.get(name).buildTableList();
+				checkDlgMap.get(name).setLocationRelativeTo(this);
+				checkDlgMap.get(name).setVisible(true);
+			}
+		}	
+		else
+			showDialogError(name);
+	}
+
+	void showDialogError(String name)
+	{
+		String errMssg = String.format("<html>Show Famaily Info Dialog Error:<br>%s dialog doesn't exist,<br>"
+				+ "						please contact the ONC IT Director</html>", name);
+		JOptionPane.showMessageDialog(parentFrame, errMssg, "System Error - Show Family Info Dialog",
+				JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
 	}
 
     /****************************************************************************************
@@ -1759,62 +1775,6 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			dbDlg.setVisible(true);
 		}
 	}
-
-	void showEntityDialog(String name, Point offsetPt)
-	{
-		//retrieve the sort dialog from the map
-		if(entityDlgMap.containsKey(name))
-		{
-			if(!entityDlgMap.get(name).isVisible())
-			{
-				entityDlgMap.get(name).display(null);
-				Point originPt = GlobalVariables.getFrame().getLocation();
-				entityDlgMap.get(name).setLocation(originPt.x + offsetPt.x, originPt.y + offsetPt.y);
-				entityDlgMap.get(name).setVisible(true);
-			}
-		}	
-		else
-		{
-			String errMssg = String.format("<html>Show Entity Dialog Error:<br>%s dialog doesn't exist,<br>"
-					+ "						please contact the ONC IT Director</html>", name);
-			JOptionPane.showMessageDialog(parentFrame, errMssg, "System Error - Show Dialog",
-					JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
-		}
-	}
-	
-	void onCheckForDuplicateChildren()
-	{
-	    if(!dcDlg.isVisible())
-	    {
-	    	dcDlg.buildTableList();
-	    	dcDlg.setVisible(true);
-	    }
-	}
-	    
-	void onCheckForDuplicateFamilies()
-	{
-	    if(!dfDlg.isVisible())
-	    {
-	    	dfDlg.buildTableList();
-	    	dfDlg.setVisible(true);
-	    }
-	}
-	
-	void updateDrivingDirections()
-	{   	
-		try {
-			dirDlg.display(currFam);
-			
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (JSONException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-			}
-		dirDlg.setVisible(true);
-	}
-	
 	//Determines whether to show all personal data or restrict data 
 	void setFamilyPanelDisplayPermission(boolean disp_all)
 	{
