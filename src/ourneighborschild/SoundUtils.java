@@ -6,15 +6,13 @@ public class SoundUtils
 {
 	public static float SAMPLE_RATE = 8000f;
 
-	  public static void tone(int hz, int msecs) 
-	     throws LineUnavailableException 
-	  {
-	     tone(hz, msecs, 1.0);
-	  }
+	public static void tone(int hz, int msecs) throws LineUnavailableException 
+	{
+		tone(hz, msecs, 1.0);
+	}
 
-	  public static void tone(int hz, int msecs, double vol)
-	      throws LineUnavailableException 
-	  {
+	public static void tone(int hz, int msecs, double vol) throws LineUnavailableException 
+	{
 	    byte[] buf = new byte[1];
 	    AudioFormat af = 
 	        new AudioFormat(
@@ -34,18 +32,5 @@ public class SoundUtils
 	    sdl.drain();
 	    sdl.stop();
 	    sdl.close();
-	  }
-
-	  public static void main(String[] args) throws Exception {
-	    SoundUtils.tone(1000,100);
-	    Thread.sleep(1000);
-	    SoundUtils.tone(100,1000);
-	    Thread.sleep(1000);
-	    SoundUtils.tone(5000,100);
-	    Thread.sleep(1000);
-	    SoundUtils.tone(400,500);
-	    Thread.sleep(1000);
-	    SoundUtils.tone(400,500, 0.2);
-
-	  }
+	}
 }

@@ -12,7 +12,6 @@ import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -44,8 +43,6 @@ import javax.swing.text.StyleConstants;
 
 import org.json.JSONException;
 
-import com.google.gson.Gson;
-
 public class FamilyPanel extends ONCPanel implements ActionListener, ListSelectionListener,
 													DatabaseListener
 {
@@ -75,6 +72,8 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private static final int ADULT_ICON_INDEX = 42;
 	private static final int NO_ADULT_ICON_INDEX = 43;
 	
+	private static final String[] dStat = {"Empty", "Contacted", "Confirmed", "Assigned", "Attempted",
+											"Returned", "Delivered", "Counselor Pick-Up"};
 	private AdultDB adultDB;
 	private DeliveryDB deliveryDB;
 	private ONCRegions regions;
@@ -93,11 +92,11 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private JTextField oncDNScode;
 	private JTextField HOHFirstName, HOHLastName, EMail;
 	private JTextField housenumTF, Street, Unit, City, ZipCode;
-	private JLabel lblONCNum, lblRefNum, lblBatchNum, lblRegion, lblNumBags, lblChangedBy;
+	private JLabel lblONCNum, lblRefNum, lblBatchNum, lblRegion, lblNumBags, lblChangedBy, lblDelStatus;
 	private JRadioButton delRB, altAddressRB, btnMeals, btnShowPriorHistory, btnShowAgentInfo;
 	private JRadioButton btnShowAllPhones, btnShowODBDetails, btnTransportation, btnDirections;
 	private JRadioButton btnNotGiftCardOnly, btnGiftCardOnly, btnAdults;
-	private JComboBox Language, statusCB, delstatCB;
+	private JComboBox Language, statusCB;
 	private ComboItem[] delStatus;
 	public  JTable childTable;
 	private DefaultTableModel childTableModel;
@@ -116,8 +115,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	
 	//Dialogs that are children of the family panel
 	private static ClientMapDialog cmDlg;
-	private DeliveryHistoryDialog dsDlg;
-	private MealDialog mealDlg;
+	
 	private AdultDialog adultDlg;
 	private DirectionsDialog dirDlg;
 	private WishCatalogDialog catDlg;
@@ -126,7 +124,12 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private WishLabelViewer wlViewerDlg;
 	private PYChildConnectionDialog pyConnectionDlg;
 	private AngelAutoCallDialog angelDlg;
-
+	
+	//dialogs that inherit from HistoryDialog
+	private Map<String, HistoryDialog> historyDlgMap;
+	private DeliveryHistoryDialog dsDlg;
+	private MealDialog mealDlg;
+	
 	//dialogs that inherit from InfoDialog
 	private Map<String, InfoDialog> familyInfoDlgMap;
 	private AgentInfoDialog agentInfoDlg;
@@ -284,18 +287,14 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         delStatus[6] = new ComboItem("Delivered");
         delStatus[7] = new ComboItem("Counselor Pick-Up");
         
-        delstatCB = new JComboBox(delStatus);
-        delstatCB.setRenderer(new ComboRenderer());
-        delstatCB.setBorder(BorderFactory.createTitledBorder("Delivery Status"));
-        delstatCB.setPreferredSize(new Dimension(132, 52));
-        delstatCB.setEnabled(false);
-        delstatCB.addActionListener(new ComboListener(delstatCB));	//Manages "Assigned" list item
-        delstatCB.addActionListener(this);	//Manages actual change events
         
-        delRB = new JRadioButton(gvs.getImageIcon(14));
-        delRB.setToolTipText("Click to see delivery history");
-        delRB.setEnabled(false);
-        delRB.addActionListener(this);
+        lblDelStatus = new JLabel();
+        lblDelStatus.setBorder(BorderFactory.createTitledBorder("Delivery Status"));
+        lblDelStatus.setPreferredSize(new Dimension(132, 52));               
+//      delstatCB.setRenderer(new ComboRenderer());
+//      delstatCB.setEnabled(false);
+//      delstatCB.addActionListener(new ComboListener(delstatCB));	//Manages "Assigned" list item
+//      delstatCB.addActionListener(this);	//Manages actual change events
         
         housenumTF = new JTextField();
         housenumTF.setPreferredSize(new Dimension(72, 44));
@@ -373,9 +372,9 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         btnShowODBDetails.addActionListener(this);
         
         btnMeals = new JRadioButton(gvs.getImageIcon(REQUESTED_MEAL_ICON_INDEX));
+        btnMeals.setActionCommand("Meal History");
         btnMeals.setToolTipText("Click for family food assistance status");
         btnMeals.setEnabled(false);
-        btnMeals.setActionCommand("None");
         btnMeals.addActionListener(this);
         
         btnTransportation = new JRadioButton(gvs.getImageIcon(TRANSPORTATION_ICON_INDEX));
@@ -404,6 +403,12 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         btnAdults.setToolTipText("Manage Adults in Family");
         btnAdults.setEnabled(false);
         btnAdults.addActionListener(this);
+
+        delRB = new JRadioButton(gvs.getImageIcon(14));
+        delRB.setActionCommand("Delivery History");
+        delRB.setToolTipText("Click to see delivery history");
+        delRB.setEnabled(false);
+        delRB.addActionListener(this);
         
         //Set up the Child Table
         childTable = new JTable()
@@ -500,13 +505,16 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         familyInfoDlgMap = new HashMap<String, InfoDialog>();
         entityDlgMap = new HashMap<String, EntityDialog>();
         checkDlgMap = new HashMap<String, CheckDialog>();
+        historyDlgMap = new HashMap<String, HistoryDialog>();
         
         //Set up delivery history dialog box 
         dsDlg = new DeliveryHistoryDialog(parentFrame);
+        historyDlgMap.put("Delivery History", dsDlg);
         nav.addEntitySelectionListener(dsDlg);
         
         //Set up meal history dialog box 
         mealDlg = new MealDialog(parentFrame);
+        historyDlgMap.put("Meal History", mealDlg);
         nav.addEntitySelectionListener(mealDlg);
         
         //Set up adult dialog box 
@@ -803,7 +811,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         p2.add(otherPhoneScrollPane);
         p2.add(EMail);
 		p2.add(Language);
-		p2.add(delstatCB);
+		p2.add(lblDelStatus);
 //		p2.add(delRB);
 		
         p3.add(housenumTF);
@@ -885,8 +893,6 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			OtherPhone.setEditable(tf);
 			EMail.setEditable(tf);
 			Language.setEnabled(tf);
-			delstatCB.setEnabled(tf);
-//			Caller.setEditable(tf);
 			housenumTF.setEditable(tf);
 			Street.setEditable(tf);
 			Unit.setEditable(tf);
@@ -1091,7 +1097,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 				setEnabledAssignedDeliveryStatus(true);
 			else
 				setEnabledAssignedDeliveryStatus(false);
-			delstatCB.setSelectedIndex(currFam.getDeliveryStatus());
+			lblDelStatus.setText(dStat[currFam.getDeliveryStatus()]);
 			lblRegion.setText(regions.getRegionID(currFam.getRegion()));
 			
 			odbWishListPane.setText(currFam.getODBWishList());
@@ -1132,17 +1138,17 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			if(currFam.getMealID()  == -1)
 			{
 				btnMeals.setIcon(gvs.getImageIcon( NO_MEAL_ICON_INDEX));
-				btnMeals.setActionCommand("None");
+				btnMeals.setActionCommand("Add Meal");
 			}
 			else if(currFam.getMealStatus().compareTo(MealStatus.Referred) < 0)	//meal not referrred yet
 			{
 				btnMeals.setIcon(gvs.getImageIcon(REQUESTED_MEAL_ICON_INDEX));
-				btnMeals.setActionCommand("Requested");
+				btnMeals.setActionCommand("Meal History");
 			}
 			else
 			{
 				btnMeals.setIcon(gvs.getImageIcon( REFERRED_MEAL_ICON_INDEX));
-				btnMeals.setActionCommand("Referred");
+				btnMeals.setActionCommand("Meal History");
 			}
 			
 			//set transportation button icon
@@ -1170,7 +1176,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 				setEnabledAssignedDeliveryStatus(true);
 			else
 				setEnabledAssignedDeliveryStatus(false);
-			delstatCB.setSelectedIndex(currFam.getDeliveryStatus());
+			lblDelStatus.setText(dStat[currFam.getDeliveryStatus()]);
 			Language.setSelectedItem((String)currFam.getLanguage());
 //			Caller.setText(f.getCaller());
 			lblChangedBy.setText(currFam.getChangedBy());
@@ -1226,17 +1232,17 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			if(currFam.getMealID()  == -1)
 			{
 				btnMeals.setIcon(gvs.getImageIcon( NO_MEAL_ICON_INDEX));
-				btnMeals.setActionCommand("None");
+				btnMeals.setActionCommand("Add Meal");
 			}
 			else if(currFam.getMealStatus() == MealStatus.Requested)	//meal not referrred yet
 			{
 				btnMeals.setIcon(gvs.getImageIcon(REQUESTED_MEAL_ICON_INDEX));
-				btnMeals.setActionCommand("Requested");
+				btnMeals.setActionCommand("Meal History");
 			}
 			else
 			{
 				btnMeals.setIcon(gvs.getImageIcon( REFERRED_MEAL_ICON_INDEX));
-				btnMeals.setActionCommand("Referred");
+				btnMeals.setActionCommand("Meal History");
 			}
 			
 			//set transportation button icon
@@ -1434,31 +1440,6 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		if(!City.getText().equals(fam.getCity())) {fam.setCity(City.getText()); cf = 13;}
 		if(!ZipCode.getText().equals(fam.getZipCode())) {fam.setZipCode(ZipCode.getText()); cf = 14;}
 		if(statusCB.getSelectedIndex() != fam.getFamilyStatus()) {fam.setFamilyStatus(statusCB.getSelectedIndex()); cf = 15;}
-		if(delstatCB.getSelectedIndex() != fam.getDeliveryStatus())
-		{
-			ONCDelivery reqDelivery = new ONCDelivery(-1, fam.getID(), delstatCB.getSelectedIndex(),
-					deliveryDB.getDeliveredBy(fam.getDeliveryID()),
-					"Delivery Status Updated",
-					GlobalVariables.getUserLNFI(),
-					Calendar.getInstance());
-
-			String response = deliveryDB.add(this, reqDelivery);
-			if(response.startsWith("ADDED_DELIVERY"))
-			{
-				Gson gson = new Gson();
-				ONCDelivery addedDelivery = gson.fromJson(response.substring(14), ONCDelivery.class);
-				fam.setDeliveryID(addedDelivery.getID());
-				fam.setDeliveryStatus(delstatCB.getSelectedIndex());
-//				cf = 16;	//Don't update the family object, the server handles that
-			}
-			else
-			{
-				//display an error message that update request failed
-				JOptionPane.showMessageDialog(GlobalVariables.getFrame(), "ONC Server denied Driver Update," +
-						"try again later","Driver Update Failed",  
-						JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
-			}
-		}
 		if(!odbWishListPane.getText().equals(fam.getODBWishList())) {fam.setODBWishList(odbWishListPane.getText()); cf = 17;}
 		if(!oncNotesPane.getText().equals(fam.getNotes())) {fam.setNotes(oncNotesPane.getText()); cf = 18;}
 		if(!oncDIPane.getText().equals(fam.getDeliveryInstructions())) {fam.setDeliveryInstructions(oncDIPane.getText()); cf = 19;}
@@ -1585,7 +1566,23 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 				setRestrictedEnabledButtons(true);
 		}
     }
-	
+    
+    void showHistoryDialog(String name)
+	{
+		//retrieve the sort dialog from the map
+		if(historyDlgMap.containsKey(name))
+		{
+			if(!historyDlgMap.get(name).isShowing())
+			{
+				historyDlgMap.get(name).setLocationRelativeTo(this);
+				historyDlgMap.get(name).display(currFam);
+				historyDlgMap.get(name).setVisible(true);
+			}
+		}
+		else
+			showDialogError(name);
+	}
+/*	
 	void showDeliveryStatus()
 	{
 		if(!dsDlg.isShowing())
@@ -1605,7 +1602,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			mealDlg.setVisible(true);
 		}
 	}
-	
+*/	
 	void showAdultDialog()
 	{
 		if(!adultDlg.isShowing())
@@ -1625,10 +1622,10 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		}
 	}
 	
-	void showClientMap(ArrayList<ONCFamily> oncFAL)
+	void showClientMap()
 	{
 		if(!cmDlg.isShowing())
-			cmDlg.display(oncFAL); 
+			cmDlg.display(); 
 	}
 
 	void showWishCatalogDialog()
@@ -1762,7 +1759,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
     	if(!pyConnectionDlg.isVisible())
 		{
     		pyConnectionDlg.display(currFam, currChild);
-    		pyConnectionDlg.setLocationRelativeTo(delstatCB);
+    		pyConnectionDlg.setLocationRelativeTo(lblDelStatus);
     		pyConnectionDlg.setVisible(true);
 		}
     }
@@ -2026,14 +2023,14 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		}
 		else if(e.getSource() == delRB)
 		{
-			showDeliveryStatus();
+			showHistoryDialog(delRB.getActionCommand());
 		}
 		else if(e.getSource() == btnMeals)
 		{
-			if(btnMeals.getActionCommand().equals("None"))
-				showFamilyInfoDialog("Add Meal");
+			if(btnMeals.getActionCommand().equals("Add Meal"))
+				showFamilyInfoDialog(btnMeals.getActionCommand());
 			else
-				showMealStatus();
+				showHistoryDialog(btnMeals.getActionCommand());
 		}
 		else if(e.getSource() == btnAdults)
 		{
@@ -2096,11 +2093,6 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 				currFam.setNumOfLargeItems(0);
 			}
 			
-			checkAndUpdateFamilyData(currFam);
-		}
-		else if(e.getSource() == delstatCB && !bFamilyDataChanging &&
-				delstatCB.getSelectedIndex() != currFam.getDeliveryStatus())
-		{
 			checkAndUpdateFamilyData(currFam);
 		}
 		else if(e.getSource() == btnTransportation)

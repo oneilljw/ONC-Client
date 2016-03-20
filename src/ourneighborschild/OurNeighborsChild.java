@@ -955,9 +955,7 @@ public class OurNeighborsChild implements DatabaseListener
 //   		else if(e.getSource() == ONCMenuBar.importONCMI) {OnImportMenuItemClicked("ONC");}
     		else if(e.getSource() == ONCMenuBar.importONCMI) { }
     		else if(e.getSource() == ONCMenuBar.importWishCatMI)
-    		{
     			oncWishCat.importWishCatalog(oncFrame, oncGVs.getImageIcon(ONC_IMAGE_ICON_INDEX), null);
-    		}
     		else if(e.getSource() == ONCMenuBar.importPYMI)
     		{
     			//A prior year child database will be read and then split into different databases that 
@@ -971,10 +969,7 @@ public class OurNeighborsChild implements DatabaseListener
 //    		    if(!pycbyAgeAL.isEmpty()) { oncFamilyPanel.setPriorYearChildArrayList(pycbyAgeAL); }
     		}
     		else if(e.getSource() == ONCMenuBar.importPYORGMI)
-    		{
     			oncOrgDB.importOrgDB(oncFrame, oncGVs.getImageIcon(0), null);
-//    			oncFamilyPanel.updateComboBoxModels();
-    		}
     		else if(e.getSource() == ONCMenuBar.importODBMI) {OnImportMenuItemClicked("ODB");}
     		else if(e.getSource() == ONCMenuBar.importWFCMMI) {OnImportMenuItemClicked("WFCM");}
     		else if(e.getSource() == ONCMenuBar.importRAFMI) { oncFamilyPanel.onImportRAFMenuItemClicked(); }
@@ -1036,17 +1031,15 @@ public class OurNeighborsChild implements DatabaseListener
     					"Import Result", JOptionPane.INFORMATION_MESSAGE, oncGVs.getImageIcon(0));
     		}
     		else if(e.getSource() == ONCMenuBar.mapsMI) {oncFamilyPanel.showDrivingDirections();}
-    		else if(e.getSource() == ONCMenuBar.distMI) {oncFamilyPanel.showClientMap(oncFamDB.getList());}
+    		else if(e.getSource() == ONCMenuBar.distMI) {oncFamilyPanel.showClientMap();}
     		else if(e.getSource() == ONCMenuBar.changeONCMI)
     			oncFamilyPanel.showFamilyInfoDialog(ONCMenuBar.changeONCMI.getActionCommand());
-//    		{ oncFamilyPanel.showChangeONCNumberDialog(); }
     		else if(e.getSource() == ONCMenuBar.changeRefMI)
     			oncFamilyPanel.showFamilyInfoDialog(ONCMenuBar.changeRefMI.getActionCommand());
-//    		{ oncFamilyPanel.showChangeODBNumberDialog(); }
     		else if(e.getSource() == ONCMenuBar.changeBatchMI)
     			oncFamilyPanel.showFamilyInfoDialog(ONCMenuBar.changeBatchMI.getActionCommand());
-//    		{ oncFamilyPanel.showChangeBatchNumberDialog(); }
-    		else if(e.getSource() == ONCMenuBar.delstatusMI) {oncFamilyPanel.showDeliveryStatus();}
+    		else if(e.getSource() == ONCMenuBar.delstatusMI)
+    			oncFamilyPanel.showHistoryDialog(ONCMenuBar.delstatusMI.getActionCommand());
     		else if(e.getSource() == ONCMenuBar.viewDBMI) {oncFamilyPanel.showEntireDatabase(oncFamDB);}
     		else if(e.getSource() == ONCMenuBar.sortWishesMI)
     			oncFamilyPanel.showSortDialog(ONCMenuBar.sortWishesMI.getActionCommand(), SORT_DIALOG_OFFSET);
@@ -1054,12 +1047,10 @@ public class OurNeighborsChild implements DatabaseListener
     			oncFamilyPanel.showSortDialog(ONCMenuBar.sortMealsMI.getActionCommand(), SORT_DIALOG_OFFSET);
     		else if(e.getSource() == ONCMenuBar.recGiftsMI)
     			oncFamilyPanel.showSortDialog(ONCMenuBar.recGiftsMI.getActionCommand(), SORT_DIALOG_OFFSET);  		
-//    		{oncFamilyPanel.showReceiveGiftsDialog(oncFamDB.getList());}
     		else if(e.getSource() == ONCMenuBar.labelViewerMI) {oncFamilyPanel.showWishLabelViewerDialog();}
     		else if(e.getSource() == ONCMenuBar.catMI) {oncFamilyPanel.showWishCatalogDialog(); }
     		else if(e.getSource() == ONCMenuBar.orgMI)
     			oncFamilyPanel.showEntityDialog(ONCMenuBar.orgMI.getActionCommand(), SORT_DIALOG_OFFSET);
-//    		{oncFamilyPanel.showOrgDialog();}
     		else if(e.getSource() == ONCMenuBar.sortOrgsMI)
     			oncFamilyPanel.showSortDialog(ONCMenuBar.sortOrgsMI.getActionCommand(), SORT_DIALOG_OFFSET);
     		else if(e.getSource() == ONCMenuBar.sortFamiliesMI)

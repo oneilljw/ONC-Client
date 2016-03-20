@@ -33,6 +33,8 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 	private JLabel lblLegend, lblTotalServed;
 	private int totalServed;
 	
+	private Families famDB;
+	
 	public ClientMapDialog(JFrame parent)
 	{
 		super(parent);
@@ -42,7 +44,7 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 		if(globalDB != null)
 			globalDB.addDatabaseListener(this);	//listen for warehouse address change
 			
-		Families famDB = Families.getInstance();
+		famDB = Families.getInstance();
 		if(famDB != null)
 			famDB.addDatabaseListener(this);	//listen for family changes
 		
@@ -79,13 +81,13 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
         setLocation(pt.x + 50, pt.y + 50);
 	}
 	
-	void display(ArrayList<ONCFamily> fAL)
+	void display()
 	{		
 		//Build # of families in each region-note: regionCount[0] is for unassigned served families		
 		//If the family is served (no DNS Code) and the region contains a string that has
 		//numeric values, parse the string to an integer and increment that regions count
 		//else if the family is served and the region string isn't numeric, increment the unassigned count
-		buildRegionCounts(fAL);
+		buildRegionCounts(famDB.getList());
 						
 		//Build the map
 		buildClientMap();
