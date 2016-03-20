@@ -87,9 +87,9 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 	private static String [] status = {"Any", "Empty", "Selected", "Assigned", "Received",
 										"Distributed", "Verified"};
 	
-	SortWishDialog(JFrame pf, String[] colToolTips, String[] cols, int[] colWidths, int[] center_cols)
+	SortWishDialog(JFrame pf)
 	{
-		super(pf, colToolTips, cols, colWidths, center_cols);
+		super(pf);
 		this.setTitle("Our Neighbor's Child - Wish Management");
 		
 		//set up the data base references
@@ -286,6 +286,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
         
         //calculate width
         int dlgWidth = 24; //account for vertical scroll bar
+        int[] colWidths = getColumnWidths();
         for(int i=0; i< colWidths.length; i++)
         	dlgWidth += colWidths[i];
         this.setMinimumSize(new Dimension(dlgWidth, 560));
@@ -909,6 +910,39 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		{
 			checkApplyChangesEnabled();
 		}
+	}
+	
+	@Override
+	String[] getColumnToolTips()
+	{
+		String[] colToolTips = {"ONC Family Number", "Child's Age", 
+				"Child's Gender", "Wish Number - 1, 2 or 3", "Wish Assigned", "Wish Detail",
+				"# - Selected by ONC or * - Don't asssign", "Wish Status", "Who is fulfilling?",
+				"User who last changed wish", "Date & Time Wish Last Changed"};
+		
+		return colToolTips;
+	}
+	@Override
+	String[] getColumnNames()
+	{
+		String[] columns = {"ONC", "Age", "Gend", "Wish", "Wish Type", "Details", " Res ",
+				"Status", "Assignee", "Changed By", "Time Stamp"};
+		
+		return columns;
+	}
+	
+	@Override
+	int[] getColumnWidths()
+	{
+		int[] colWidths = {40, 48, 36, 36, 84, 160, 32, 80, 136, 80, 92};
+		return colWidths;
+	}
+	
+	@Override
+	int[] getCenteredColumns()
+	{
+		int[] center_cols = {3,6};
+		return center_cols;
 	}
 	
 	@Override

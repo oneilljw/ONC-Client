@@ -57,9 +57,9 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 	
 	private AgentInfoDialog aiDlg;
 	
-	SortAgentDialog(JFrame pf, String[] colToolTips, String[] cols, int[] colWidths, int[] center_cols)
+	SortAgentDialog(JFrame pf)
 	{
-		super(pf, colToolTips, cols, colWidths, center_cols, 10);
+		super(pf, 10);
 		this.setTitle("Our Neighbor's Child - Agent Management");
 
 		agentDB = ONCAgents.getInstance();
@@ -882,6 +882,33 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 	boolean doesTitleMatch(String agenttitle) {return sortTitle.equals("Any") || sortTitle.equals(agenttitle); }
 	boolean didAgentRefer(Agent agt){ return  allAgentsCxBox.isSelected() || fDB.didAgentRefer(agt.getID()); }
 	
+	@Override
+	String[] getColumnToolTips() 
+	{
+		String[] colToolTips = {"Name", "Organization", "Title", "EMail Address", "Phone"};
+		return colToolTips;
+	}
+
+	@Override
+	String[] getColumnNames() 
+	{
+		String[] columns = {"Name", "Org", "Title", "EMail", "Phone"};
+		return columns;
+	}
+
+	@Override
+	int[] getColumnWidths() 
+	{
+      	int[] colWidths = {144, 160, 120, 168, 120};
+		return colWidths;
+	}
+
+	@Override
+	int[] getCenteredColumns() 
+	{
+		return null;
+	}
+	
 	@Override 
 	public void actionPerformed(ActionEvent e)
 	{
@@ -1083,4 +1110,6 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		// TODO Auto-generated method stub
 		
 	}
+
+	
 }

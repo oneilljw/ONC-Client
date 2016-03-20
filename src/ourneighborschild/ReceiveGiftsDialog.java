@@ -12,10 +12,9 @@ public class ReceiveGiftsDialog extends GiftActionDialog
 	private static final long serialVersionUID = 1L;
 	private static final int FAMILY_STATUS_GIFTS_RECEIVED = 3;
 	
-	ReceiveGiftsDialog(JFrame pf, String[] columnToolTips, String[] columns, int[] colWidths,
-						int[] center_cols, WishStatus dialogType) 
+	ReceiveGiftsDialog(JFrame pf, WishStatus dialogType) 
 	{
-		super(pf, columnToolTips, columns, colWidths, center_cols, dialogType);
+		super(pf, dialogType);
 	}
 
 	@Override
@@ -37,10 +36,40 @@ public class ReceiveGiftsDialog extends GiftActionDialog
 	{
 		return lastWishChanged.getFamily().getFamilyStatus() == FAMILY_STATUS_GIFTS_RECEIVED;
 	}
+	
+	@Override
+	String[] getColumnToolTips() 
+	{
+		 String[] colTT = {"ONC Family Number", "Child Gender", "Child's Age",  
+					"Wish Selected for Child", "Wish Detail"};
+		return colTT;
+	}
+
+	@Override
+	String[] getColumnNames()
+	{
+		String[] columns = {"ONC", "Gend", "Age", "Wish Type", "Details"};
+		return columns;
+	}
+
+	@Override
+	int[] getColumnWidths()
+	{
+		int[] colWidths = {40, 48, 72, 120, 248};
+		return colWidths;
+	}
+
+	@Override
+	int[] getCenteredColumns()
+	{
+		return null;
+	}
 
 	@Override
 	void initializeFilters() {
 		// TODO Auto-generated method stub
 		
 	}
+
+	
 }

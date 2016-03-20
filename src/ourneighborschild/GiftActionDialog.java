@@ -39,9 +39,9 @@ public abstract class GiftActionDialog extends SortTableDialog
 	
 	private static String[] genders = {"Any", "Boy", "Girl"};
 	
-	GiftActionDialog(JFrame pf, String[] columnToolTips, String[] columns, int[] colWidths, int[] center_cols, WishStatus dialogType)
+	GiftActionDialog(JFrame pf, WishStatus dialogType)
 	{
-		super(pf, columnToolTips, columns, colWidths, center_cols, 15);
+		super(pf, 15);
 		
 		cDB = ChildDB.getInstance();
 		cwDB = ChildWishDB.getInstance();

@@ -28,10 +28,10 @@ public abstract class SortFamilyTableDialog extends ChangeDialog
 	
 	protected String[] columns;
 
-	public SortFamilyTableDialog(JFrame pf, String[] colToolTips, String[] cols, int[] colWidths, int[] center_cols)
+	public SortFamilyTableDialog(JFrame pf)
 	{
-		super(pf, colToolTips, cols, colWidths, center_cols);
-		columns = cols;
+		super(pf);
+		columns = getColumnNames();
 		
 		cDB = ChildDB.getInstance();
 		deliveryDB = DeliveryDB.getInstance();

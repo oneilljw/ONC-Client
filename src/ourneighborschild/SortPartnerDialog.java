@@ -83,10 +83,10 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 	private JProgressBar progressBar;
 	private ONCEmailer oncEmailer;
 	
-	SortPartnerDialog(JFrame pf, String[] columnToolTips, String[] cols, int[] colWidths, int[] center_cols)
+	SortPartnerDialog(JFrame pf)
 	{
-		super(pf, columnToolTips, cols, colWidths, center_cols);
-		this.columns = cols;
+		super(pf);
+		this.columns = getColumnNames();
 		this.setTitle("Our Neighbor's Child - Gift Partner Management");
 		
 		regions = ONCRegions.getInstance();
@@ -1174,6 +1174,35 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 	
 	boolean doesStoplightMatch(int sl) { return sortStoplight == 0 || sl == stoplightCB.getSelectedIndex()-1; }
 	
+	@Override
+	String[] getColumnToolTips()
+	{
+		String[] toolTips = {"ONC Partner", "Partner Status","Type of Organization",
+				"Number of Ornaments Requested","Number of Ornaments Assigned",
+				"Special Notes for Partner","Date Partner Info Last Changed", 
+				"ONC User that last changed partner info", "ONC Region that partner is located",
+				"Partner Stop Light Color"};
+		return toolTips;
+	}
+	@Override
+	String[] getColumnNames()
+	{
+		String[] columns = {"Partner","Status", "Type", "Req", "Assigned", "Special Notes",
+				"Date Changed","Changed By","Reg", "SL"};
+		return columns;
+	}
+	@Override
+	int[] getColumnWidths()
+	{
+		int[] colWidths = {180, 96, 68, 48, 56, 180, 72, 80, 28, 24};
+		return colWidths;
+	}
+	@Override
+	int[] getCenteredColumns()
+	{
+		 int[] center_cols = {8};
+		return center_cols;
+	}
 	
 	@Override
 	public void actionPerformed(ActionEvent e)
@@ -1435,5 +1464,6 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 	void initializeFilters() {
 		// TODO Auto-generated method stub
 		
-	}	
+	}
+		
 }

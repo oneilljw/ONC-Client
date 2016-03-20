@@ -38,9 +38,9 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 	private JTextField oncnumTF, assignDriverTF;
 	private JButton btnPrintListing;
 	
-	public AssignDeliveryDialog(JFrame pf, String[] columnToolTips, String[] columns, int[] colWidths, int[] center_cols)
+	public AssignDeliveryDialog(JFrame pf)
 	{
-		super(pf, columnToolTips, columns, colWidths, center_cols);
+		super(pf);
 		this.setTitle("Our Neighbor's Child - Delivery Assignment");
 		
 		DriverDB driverDB = DriverDB.getInstance();
@@ -339,6 +339,42 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 	}
 	
 	@Override
+	String[] getColumnToolTips() 
+	{
+		String[] colToolTips = {"ONC Family Number", "Family Status", "Delivery Status",
+				"# of bags packaged", "# of bikes assigned to family",
+				"# of large items assigned to family",
+				"House Number","Street", "Zip Code", "Region","Changed By",
+				"Stoplight Color", "Driver"};
+
+
+
+		return colToolTips;
+	}
+
+	@Override
+	String[] getColumnNames() 
+	{
+		String[] columns = {"ONC", "Fam Status", "Del Status", "# Bags", "# Bikes", "# Lg It.", "House",
+				"Street", "Zip", "Reg", "Changed By", "SL", "Deliverer"};
+		return columns;
+	}
+
+	@Override
+	int[] getColumnWidths() 
+	{
+		int[] colWidths = {32, 72, 72, 48, 48, 48, 48, 128, 48, 32, 72, 24, 120};
+		return colWidths;
+	}
+
+	@Override
+	int[] getCenteredColumns() 
+	{
+		int[] center_cols = {3, 4, 5, 9};
+		return center_cols;
+	}
+	
+	@Override
 	boolean isONCNumContainerEmpty() { return oncnumTF.getText().isEmpty(); }
 	
 	@Override
@@ -417,4 +453,6 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 		// TODO Auto-generated method stub
 		
 	}
+
+	
 }

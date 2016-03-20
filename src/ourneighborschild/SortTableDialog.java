@@ -74,7 +74,7 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 	protected static String[] delstatus = {"Any", "None", "Contacted", "Confirmed", "Assigned", "Attempted", "Returned", "Delivered", "Counselor Pick-Up"};
 	protected static String[] stoplt = {"Any", "Green", "Yellow", "Red", "Off"};
 	
-	public SortTableDialog(JFrame pf, String[] colToolTips, String[] columns, int[] colWidths, int[] center_cols, int nTableRows)
+	public SortTableDialog(JFrame pf, int nTableRows)
 	{
 		super(pf);
 		
@@ -109,10 +109,10 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 		sortCriteriaPanel.setBorder(BorderFactory.createTitledBorder("Search Filters"));
 	
 		//Set up the sort family table panel
-		sortTable = new ONCTable(colToolTips, new Color(240,248,255));
+		sortTable = new ONCTable(getColumnToolTips(), new Color(240,248,255));
 
 		//Set up the table model. Cells are not editable
-		sortDefaultTableModel = new DefaultTableModel(columns, 0) {
+		sortDefaultTableModel = new DefaultTableModel(getColumnNames(), 0) {
 			private static final long serialVersionUID = 1L;
 			@Override
 			//All cells are locked from being changed by user
@@ -127,6 +127,7 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 
 		//Set table column widths
 		int tablewidth = 0;
+		int[] colWidths = getColumnWidths();
 		for(int i=0; i < colWidths.length; i++)
 		{
 			sortTable.getColumnModel().getColumn(i).setPreferredWidth(colWidths[i]);
@@ -152,7 +153,8 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
             }
         });
 
-		//Center cell entries for specified cells. If parameter is null, no cells to cnter
+		//Center cell entries for specified cells. If parameter is null, no cells to center
+        int[] center_cols = getCenteredColumns();
         if(center_cols != null)
         {
         	DefaultTableCellRenderer dtcr = new DefaultTableCellRenderer();    
@@ -207,6 +209,11 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 
         setResizable(true);
 	}
+	
+	abstract String[] getColumnToolTips();
+	abstract String[] getColumnNames();
+	abstract int[] getColumnWidths();
+	abstract int[] getCenteredColumns();
 	
 	abstract void initializeFilters();
 	

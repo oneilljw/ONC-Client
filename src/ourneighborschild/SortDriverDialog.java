@@ -38,9 +38,9 @@ public class SortDriverDialog extends DependantTableDialog
 	private DriverDB driverDB;
 	private ArrayList<ONCDriver> atAL;	//Holds references to driver objects for driver table
 	
-	SortDriverDialog(JFrame pf, String[] colToolTips, String[] cols, int[] colWidths, int[] center_cols)
+	SortDriverDialog(JFrame pf)
 	{
-		super(pf, colToolTips, cols, colWidths, center_cols, 10);
+		super(pf, 10);
 		this.setTitle("Our Neighbor's Child - Delivery Partner Management");
 		
 		deliveryDB = DeliveryDB.getInstance();
@@ -333,6 +333,37 @@ public class SortDriverDialog extends DependantTableDialog
 	boolean doesStoplightMatch(int sl) { return sortStoplight == 0 || sl == stoplightCB.getSelectedIndex()-1; }
 	
 	@Override
+	String[] getColumnToolTips() 
+	{
+		String[] toolTips = {"Driver Number", "First Name", "Last Name", "# of Deliveries",
+				"Cell Phone #", "Home Phone #",
+				"E-Mail address", "Changed By", "Stoplight Color"};
+		return toolTips;
+	}
+
+	@Override
+	String[] getColumnNames() 
+	{
+		String[] columns = {"Drv #", "First Name", "Last Name", "# Del", "Cell #", "Home #", "E-Mail Address",
+				"Changed By", "SL"};
+		return columns;
+	}
+
+	@Override
+	int[] getColumnWidths() 
+	{
+		int[] colWidths = {32, 80, 96, 28, 88, 88, 168, 88, 16};
+		return colWidths;
+	}
+
+	@Override
+	int[] getCenteredColumns() 
+	{
+		int[] center_cols = {3};
+		return center_cols;
+	}
+	
+	@Override
 	public void actionPerformed(ActionEvent e)
 	{
 		if(e.getSource() == drvCB && !bIgnoreCBEvents && !drvCB.getSelectedItem().toString().equals(sortONCNum))
@@ -506,4 +537,6 @@ public class SortDriverDialog extends DependantTableDialog
 		// TODO Auto-generated method stub
 		
 	}
+
+	
 }

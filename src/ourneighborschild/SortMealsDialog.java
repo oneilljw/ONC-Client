@@ -64,9 +64,9 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 //	private int totalNumOfLabelsToPrint;	//Holds total number of labels requested in a print job
 	
 	
-	SortMealsDialog(JFrame pf, String[] colToolTips, String[] cols, int[] colWidths, int[] center_cols)
+	SortMealsDialog(JFrame pf)
 	{
-		super(pf, colToolTips, cols, colWidths, center_cols);
+		super(pf);
 		this.setTitle("Our Neighbor's Child - Meal Management");
 		
 		//set up the data base references. Family data base reference is inherited.
@@ -474,6 +474,39 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 	    }
        	
        	exportCB.setSelectedIndex(0);
+	}
+
+	@Override
+	String[] getColumnToolTips()
+	{
+		String[] toolTips = {"ONC Family Number", "Batch Number", "HoH Last Name", "Region", "Which holiday is meal for?",
+				"What is the status of the request?",
+				"Who is providing the meal to the family?", 
+				"User who last changed meal request", 
+				"Date & Time Meal Last Changed"};
+		return toolTips;
+	}
+
+	@Override
+	String[] getColumnNames()
+	{
+		String[] columns = {"ONC", "Batch", "Last Name", "Reg", "Holiday", "Status", "Assignee", 
+				"Changed By", "Time Stamp"};
+		return columns;
+	}
+
+	@Override
+	int[] getColumnWidths()
+	{
+		int[] colWidths = {40, 40, 80, 28, 80, 160, 144, 80, 92};
+		return colWidths;
+	}
+
+	@Override
+	int[] getCenteredColumns() 
+	{
+		int[] center_cols = {3};
+		return center_cols;
 	}
 	
 	@Override
@@ -1068,4 +1101,5 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		setSortStartDate(gvs.getSeasonStartDate());
 		setSortEndDate(gvs.getTodaysDate());
 	}
+
 }

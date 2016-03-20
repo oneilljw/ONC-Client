@@ -56,11 +56,10 @@ public abstract class DependantTableDialog extends SortTableDialog
 //	private static String[] stoplt = {"Any", "Green", "Yellow", "Red", "Off"};
 	
 
-	public DependantTableDialog(JFrame pf, String[] colToolTips,
-			String[] cols, int[] colWidths, int[] center_cols, int nTableRows)
+	public DependantTableDialog(JFrame pf, int nTableRows)
 	{
-		super(pf, colToolTips, cols, colWidths, center_cols, 10);
-		columns = cols;
+		super(pf, 10);
+		columns = getColumnNames();
 		
 		regions = ONCRegions.getInstance();
 		

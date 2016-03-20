@@ -92,9 +92,9 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 											"Print Gift Inventory Sheets", "Print Packaging Sheets",
 											"Print Delivery Cards", "Print Delivery Directions"};
 	
-	SortFamilyDialog(JFrame pf, String[] columnToolTips, String[] columns, int[] colWidths, int[] center_cols)
+	SortFamilyDialog(JFrame pf)
 	{
-		super(pf, columnToolTips, columns, colWidths, center_cols);
+		super(pf);
 		this.setTitle("Our Neighbor's Child - Family Management");
 		
 		ONCRegions regions = ONCRegions.getInstance();
@@ -1664,7 +1664,39 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	//no need to listen for it to be cleared
 	@Override
 	boolean isONCNumContainerEmpty() { return false; }
-	
+
+	@Override
+	String[] getColumnToolTips()
+	{
+		String[] toolTips = {"ONC Family Number", "Batch Number", "Reference #", "Do Not Serve Code", 
+				  "Family Status", "Delivery Status", "Meal Status", "Head of Household First Name", 
+				  "Head of Household Last Name", "House Number","Street",
+				  "Unit or Apartment Number", "Zip Code", "Region",
+				  "Changed By", "Gift Card Only Family?", "Stoplight Color"};	
+		return toolTips;
+	}
+
+	@Override
+	String[] getColumnNames() 
+	{
+		String[] columns = {"ONC", "Batch #", "Ref #", "DNS", "Fam Status", "Del Status", "Meal Status",
+				"First", "Last", "House", "Street", "Unit", "Zip", "Reg", "Changed By", "GCO", "SL"};
+		return columns;
+	}
+
+	@Override
+	int[] getColumnWidths()
+	{
+		int[] colWidths = {32, 48, 56, 48, 72, 72, 72, 72, 72, 48, 128, 72, 48, 32, 72, 32, 24};
+		return colWidths;
+	}
+
+	@Override
+	int[] getCenteredColumns()
+	{
+		int [] center_cols = {1, 13, 15};
+		return center_cols;
+	}
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{
