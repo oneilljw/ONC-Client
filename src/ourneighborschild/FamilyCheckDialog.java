@@ -91,7 +91,7 @@ public class FamilyCheckDialog extends CheckDialog
 				cbArray[1].setSelected(false);
 		}
 		
-		buildDupTable();
+		buildTableList();
 		
 	}
 

@@ -98,7 +98,7 @@ public class ChildCheckDialog extends CheckDialog
 				cbArray[4].setSelected(false);
 		}
 		
-		buildDupTable();		
+		buildTableList();		
 	}
 
 	private class DupItemChild1AgeComparator implements Comparator<DupItem>

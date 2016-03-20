@@ -93,4 +93,10 @@ public class AddNewChildDialog extends InfoDialog
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	void display(ONCObject obj) {
+		// TODO Auto-generated method stub
+		
+	}
 }

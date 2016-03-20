@@ -92,7 +92,7 @@ public abstract class InfoDialog extends JDialog implements ActionListener
 		this.setContentPane(contentPanel);
 	}
 	
-//	abstract void display(ONCObject obj);
+	abstract void display(ONCObject obj);
 	
 	abstract void update();
 	

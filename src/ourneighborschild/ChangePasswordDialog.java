@@ -66,4 +66,10 @@ public class ChangePasswordDialog extends InfoDialog
 
 	@Override
 	void delete() { } // Unused, we don't delete passwords
+
+	@Override
+	void display(ONCObject obj) {
+		// TODO Auto-generated method stub
+		
+	}
 }

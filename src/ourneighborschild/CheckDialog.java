@@ -176,7 +176,7 @@ public abstract class CheckDialog extends ONCTableDialog implements ActionListen
 	
 	abstract boolean performDupCheck(boolean[] criteria);
 	
-	protected void buildDupTable()
+	protected void buildTableList()
 	{	
 		dupAL.clear();
 		btnPrint.setEnabled(false);
@@ -256,7 +256,7 @@ public abstract class CheckDialog extends ONCTableDialog implements ActionListen
 		if(dbe.getSource() != this && (dbe.getType().equals("ADDED_CHILD") ||
 										dbe.getType().equals("DELETED_CHILD")))
 		{
-			buildDupTable();
+			buildTableList();
 		}			
 	}
 	

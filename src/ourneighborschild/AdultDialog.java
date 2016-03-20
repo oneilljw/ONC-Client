@@ -29,7 +29,7 @@ import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
 
 public class AdultDialog extends JDialog implements ActionListener, EntitySelectionListener,
-		ListSelectionListener, DatabaseListener 
+														ListSelectionListener, DatabaseListener 
 {
 	/**
 	 * This class implements a dialog which allows the user to manage adults in families
@@ -423,6 +423,12 @@ public class AdultDialog extends JDialog implements ActionListener, EntitySelect
 
 		@Override
 		void delete() {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		void display(ONCObject obj) {
 			// TODO Auto-generated method stub
 			
 		}

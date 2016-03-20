@@ -1,11 +1,5 @@
 package ourneighborschild;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.print.PrinterException;
-import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,24 +7,15 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
-import javax.swing.BoxLayout;
 import javax.swing.DefaultCellEditor;
-import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.ListSelectionModel;
-import javax.swing.UIManager;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
 
-public class MealDialog extends JDialog implements ActionListener, DatabaseListener,
-													EntitySelectionListener
+public class MealDialog extends HistoryDialog
 {
 	/**
 	 * This class implements a dialog which allows the user to see the history of meals
@@ -45,9 +30,9 @@ public class MealDialog extends JDialog implements ActionListener, DatabaseListe
 	private static final int CHANGED_BY_COL = 4;
 	private static final int DATE_CHANGED_COL = 5;
 	
-	private ONCTable dlgTable;
+//	private ONCTable dlgTable;
 	private AbstractTableModel dlgTableModel;
-	private JButton btnDelete, btnPrint;
+//	private JButton btnDelete, btnPrint;
 	
 	private Families familyDB;
 	private MealDB mealDB;
@@ -55,11 +40,11 @@ public class MealDialog extends JDialog implements ActionListener, DatabaseListe
 	
 	private List<ONCMeal> mealList;	//list of meals for current family
 	private Comparator<ONCMeal> mealDateChangedComparator;
-	private ONCFamily currFam; 	//current family
+//	private ONCFamily currFam; 	//current family
 	
 	public MealDialog(JFrame pf)
 	{
-		super(pf);
+		super(pf, "Meals");
 		this.setTitle("Family Meal History");
 		
 		//Save the reference to the family and meal databases.
@@ -77,74 +62,16 @@ public class MealDialog extends JDialog implements ActionListener, DatabaseListe
 		
 		mealList =  new ArrayList<ONCMeal>();
 		mealDateChangedComparator = new MealDateChangedComparator();
-		
-		//Create the meal table model
-		dlgTableModel = new DialogTableModel();
-		
-		//create the catalog table
-		String[] colToolTips = {"When is meal requested","Family Dietary Restrictions",
-								"Status of request", "Partner meal referred to",
-								"Elf who last changed the meal", "When meal was last changed"};
-		
-		dlgTable = new ONCTable(dlgTableModel, colToolTips, new Color(240,248,255));
 
-		dlgTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-//		dlgTable.getSelectionModel().addListSelectionListener(this);
-		
 		TableColumn holidayColumn = dlgTable.getColumnModel().getColumn(HOLIDAY_COL);
 		JComboBox comboBox = new JComboBox(MealType.getSelectionList());
 		holidayColumn.setCellEditor(new DefaultCellEditor(comboBox));
-		
-		//Set table column widths
-		int tablewidth = 0;
-		int[] colWidths = {80, 160, 160, 160, 96, 104};
-		for(int col=0; col < colWidths.length; col++)
-		{
-			dlgTable.getColumnModel().getColumn(col).setPreferredWidth(colWidths[col]);
-			tablewidth += colWidths[col];
-		}
-		tablewidth += 24; 	//count for vertical scroll bar
-		
-//      dlgTable.setAutoCreateRowSorter(true);	//add a sorter
-        
-        JTableHeader anHeader = dlgTable.getTableHeader();
-        anHeader.setForeground( Color.black);
-        anHeader.setBackground( new Color(161,202,241));
-        
-        //left justify columns
-//      DefaultTableCellRenderer dtcr = new DefaultTableCellRenderer();
-//      dtcr.setHorizontalAlignment(SwingConstants.LEFT);
-//      dlgTable.getColumnModel().getColumn(PARTNER_COL).setCellRenderer(dtcr);
-        
-        //Create the scroll pane and add the table to it.
-        JScrollPane dsScrollPane = new JScrollPane(dlgTable);
-        dsScrollPane.setPreferredSize(new Dimension(tablewidth, 96));
-        dsScrollPane.setBorder(UIManager.getBorder("Table.scrollPaneBorder"));
-        
-        JPanel cntlPanel = new JPanel();
-        btnPrint = new JButton("Print Meal History");
-        btnPrint.setToolTipText("Print the meal history");
-        btnPrint.addActionListener(this);
-        
-        btnDelete = new JButton("Delete Family Meal");
-        btnDelete.setToolTipText("Remove meal request from family");
-        btnDelete.setEnabled(false);
-        btnDelete.addActionListener(this);
-          
-        cntlPanel.add(btnDelete);
-        cntlPanel.add(btnPrint);
-        
-        getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
-        getContentPane().add(dsScrollPane);
-        getContentPane().add(cntlPanel);
-        
-        pack();
-  //    this.setMinimumSize(new Dimension(tablewidth, 240));
 	}
 	
-	void display(ONCFamily family)
+	@Override
+	void display(ONCObject family)
 	{
-		this.currFam = family;
+		this.currFam = (ONCFamily) family;
 		setDialogTitle();
 		mealList = getSortedMealList();
 		dlgTableModel.fireTableDataChanged();
@@ -159,15 +86,7 @@ public class MealDialog extends JDialog implements ActionListener, DatabaseListe
 		
 		return familyMealList;
 	}
-	
-	void setDialogTitle()
-	{
-		if(GlobalVariables.isUserAdmin())
-			this.setTitle(currFam.getHOHLastName() +" Family Meal History");
-		else
-			this.setTitle("ONC# " + currFam.getONCNum() + " Family Meal History");
-	}
-	
+
 	void addMeal(MealType holiday, String restrictions)
 	{
 		ONCMeal addMealReq = new ONCMeal(-1, currFam.getID(), mealList.get(0).getStatus(), 
@@ -187,7 +106,8 @@ public class MealDialog extends JDialog implements ActionListener, DatabaseListe
 		}
 	}
 	
-	void deleteMeal()
+	@Override
+	void delete()
 	{
 		//Confirm with the user that the deletion is really intended
 		String confirmMssg = String.format("<html>Are you sure you want to delete<br>the meal for family #%s </html>",
@@ -225,22 +145,6 @@ public class MealDialog extends JDialog implements ActionListener, DatabaseListe
 				this.dispose();
 		}
 	}
-	
-	void onPrintListing(String tablename)
-	{
-		try
-		{
-			MessageFormat headerFormat = new MessageFormat(tablename);
-			MessageFormat footerFormat = new MessageFormat("- {0} -");
-			dlgTable.print(JTable.PrintMode.FIT_WIDTH, headerFormat, footerFormat);           
-		} 
-		catch (PrinterException e) 
-		{
-			JOptionPane.showMessageDialog(this, "Print Error: " + e.getMessage(), "Print Failed",
-					JOptionPane.ERROR_MESSAGE, GlobalVariables.getInstance().getImageIcon(0));
-				e.printStackTrace();
-		}
-	}
 
 	@Override
 	public void dataChanged(DatabaseEvent dbe)
@@ -275,38 +179,49 @@ public class MealDialog extends JDialog implements ActionListener, DatabaseListe
 				dlgTableModel.fireTableDataChanged();
 		}		
 	}
+	
+	@Override
+	AbstractTableModel createTableModel()
+	{
+		dlgTableModel = new DialogTableModel();
+		return dlgTableModel;
+	}
+	
+	@Override
+	String[] getColumnToolTips() 
+	{
+		String[] colToolTips = {"When is meal requested","Family Dietary Restrictions",
+				"Status of request", "Partner meal referred to",
+				"Elf who last changed the meal", "When meal was last changed"};
+		return colToolTips;
+	}
+	
+	@Override
+	int[] getColumnWidths()
+	{
+		int[] colWidths = {80, 160, 160, 160, 96, 104};;
+		return colWidths;
+	}
 
-	@Override
-	public void actionPerformed(ActionEvent e) 
-	{
-		if(e.getSource() == btnPrint)
-			onPrintListing(String.format("Meal History for ONC Family #%s", currFam.getONCNum()));
-		else if(e.getSource() == btnDelete)
-			deleteMeal();
-	}
-	
-	@Override
-	public void entitySelected(EntitySelectionEvent tse)
-	{
-		if(tse.getType().equals("FAMILY_SELECTED"))
-		{
-			display((ONCFamily) tse.getObject1());
-		}
-	}
-	
 	class DialogTableModel extends AbstractTableModel
 	{
         /**
 		 * Implements the table model for the Meal History Dialog
 		 */
-		private static final long serialVersionUID = 1L;
 		
+		private static final long serialVersionUID = 1L;
 		private String[] columnNames = {"Holiday", "Dietary Restrictions", "Status",
 										"Meal Partner", "Changed By", "Last Changed"};
+		SimpleDateFormat sdf;
+		
+		public DialogTableModel()
+		{
+			sdf = new SimpleDateFormat("M/dd/yy H:mm");
+		}
  
         public int getColumnCount() { return columnNames.length; }
  
-        public int getRowCount() { return mealList.size(); }
+        public int getRowCount() { return mealList == null ? 0 : mealList.size(); }
  
         public String getColumnName(int col) { return columnNames[col]; }
  
@@ -335,10 +250,7 @@ public class MealDialog extends JDialog implements ActionListener, DatabaseListe
         	else if (col == CHANGED_BY_COL)
         		value = meal.getChangedBy();
         	else if (col == DATE_CHANGED_COL)
-        	{
-        		SimpleDateFormat sdf = new SimpleDateFormat("M/dd/yy H:mm");
         		value = sdf.format(meal.getDateChanged());
-        	}
         	else
         		value = "Error";
         	

@@ -885,7 +885,7 @@ public class OurNeighborsChild implements DatabaseListener
     	String[] wsdNames = {"Time Back Online", "Website Status"};
     	WebsiteStatusDialog wsDlg = new WebsiteStatusDialog(oncFrame, false, wsdNames);
     	wsDlg.setLocationRelativeTo(oncFrame);
-    	wsDlg.display(oncGVs.getWebsiteStatus());
+    	wsDlg.display(null);	//deosn't require a display parameter
     	wsDlg.setVisible(true);
     }
     
@@ -1018,7 +1018,9 @@ public class OurNeighborsChild implements DatabaseListener
     		else if(e.getSource() == ONCMenuBar.findDupChldrnMI) {oncFamilyPanel.onCheckForDuplicateChildren();}
     		else if(e.getSource() == ONCMenuBar.assignDelMI)
     			oncFamilyPanel.showSortDialog(ONCMenuBar.assignDelMI.getActionCommand(), SORT_DIALOG_OFFSET);
-    		else if(e.getSource() == ONCMenuBar.editDelMI) {oncFamilyPanel.showDriverDialog();}
+    		else if(e.getSource() == ONCMenuBar.editDelMI)
+    			oncFamilyPanel.showEntityDialog(ONCMenuBar.editDelMI.getActionCommand(), SORT_DIALOG_OFFSET);
+//    		{oncFamilyPanel.showDriverDialog();}
     		else if(e.getSource() == ONCMenuBar.manageDelMI)
     			oncFamilyPanel.showSortDialog(ONCMenuBar.manageDelMI.getActionCommand(), SORT_DIALOG_OFFSET);
     		else if(e.getSource() == ONCMenuBar.importDrvrMI)
@@ -1034,19 +1036,29 @@ public class OurNeighborsChild implements DatabaseListener
     		}
     		else if(e.getSource() == ONCMenuBar.mapsMI) {oncFamilyPanel.showDrivingDirections();}
     		else if(e.getSource() == ONCMenuBar.distMI) {oncFamilyPanel.showClientMap(oncFamDB.getList());}
-    		else if(e.getSource() == ONCMenuBar.changeONCMI) { oncFamilyPanel.showChangeONCNumberDialog(); }
-    		else if(e.getSource() == ONCMenuBar.changeRefMI) { oncFamilyPanel.showChangeODBNumberDialog(); }
-    		else if(e.getSource() == ONCMenuBar.changeBatchMI) { oncFamilyPanel.showChangeBatchNumberDialog(); }
+    		else if(e.getSource() == ONCMenuBar.changeONCMI)
+    			oncFamilyPanel.showFamilyInfoDialog(ONCMenuBar.changeONCMI.getActionCommand());
+//    		{ oncFamilyPanel.showChangeONCNumberDialog(); }
+    		else if(e.getSource() == ONCMenuBar.changeRefMI)
+    			oncFamilyPanel.showFamilyInfoDialog(ONCMenuBar.changeRefMI.getActionCommand());
+//    		{ oncFamilyPanel.showChangeODBNumberDialog(); }
+    		else if(e.getSource() == ONCMenuBar.changeBatchMI)
+    			oncFamilyPanel.showFamilyInfoDialog(ONCMenuBar.changeBatchMI.getActionCommand());
+//    		{ oncFamilyPanel.showChangeBatchNumberDialog(); }
     		else if(e.getSource() == ONCMenuBar.delstatusMI) {oncFamilyPanel.showDeliveryStatus();}
     		else if(e.getSource() == ONCMenuBar.viewDBMI) {oncFamilyPanel.showEntireDatabase(oncFamDB);}
     		else if(e.getSource() == ONCMenuBar.sortWishesMI)
     			oncFamilyPanel.showSortDialog(ONCMenuBar.sortWishesMI.getActionCommand(), SORT_DIALOG_OFFSET);
     		else if(e.getSource() == ONCMenuBar.sortMealsMI)
     			oncFamilyPanel.showSortDialog(ONCMenuBar.sortMealsMI.getActionCommand(), SORT_DIALOG_OFFSET);
-    		else if(e.getSource() == ONCMenuBar.recGiftsMI) {oncFamilyPanel.showReceiveGiftsDialog(oncFamDB.getList());}
+    		else if(e.getSource() == ONCMenuBar.recGiftsMI)
+    			oncFamilyPanel.showSortDialog(ONCMenuBar.recGiftsMI.getActionCommand(), SORT_DIALOG_OFFSET);  		
+//    		{oncFamilyPanel.showReceiveGiftsDialog(oncFamDB.getList());}
     		else if(e.getSource() == ONCMenuBar.labelViewerMI) {oncFamilyPanel.showWishLabelViewerDialog();}
     		else if(e.getSource() == ONCMenuBar.catMI) {oncFamilyPanel.showWishCatalogDialog(); }
-    		else if(e.getSource() == ONCMenuBar.orgMI) {oncFamilyPanel.showOrgDialog();}
+    		else if(e.getSource() == ONCMenuBar.orgMI)
+    			oncFamilyPanel.showEntityDialog(ONCMenuBar.orgMI.getActionCommand(), SORT_DIALOG_OFFSET);
+//    		{oncFamilyPanel.showOrgDialog();}
     		else if(e.getSource() == ONCMenuBar.sortOrgsMI)
     			oncFamilyPanel.showSortDialog(ONCMenuBar.sortOrgsMI.getActionCommand(), SORT_DIALOG_OFFSET);
     		else if(e.getSource() == ONCMenuBar.sortFamiliesMI)

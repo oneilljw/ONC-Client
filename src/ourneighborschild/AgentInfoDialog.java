@@ -55,7 +55,13 @@ public class AgentInfoDialog extends InfoDialog implements DatabaseListener, Ent
 	
 	void display(ONCObject obj)
 	{
-		a = (Agent) obj;
+		if (obj instanceof ONCFamily)
+		{
+			ONCFamily fam = (ONCFamily) obj;
+			a = agentDB.getAgent(fam.getAgentID());
+		}
+		else
+			a = (Agent) obj;
 		
 		tf[0].setText(a.getAgentName());
 		tf[0].setCaretPosition(0);
@@ -188,20 +194,15 @@ public class AgentInfoDialog extends InfoDialog implements DatabaseListener, Ent
 				this.update();	//Save current info first, if changed
 				this.display(selAgent);	//Display newly selected agent
 			}
-
 		}
 		else if(tse.getType().equals("FAMILY_SELECTED"))
 		{
 			if(this.isShowing())	//If Agent Info dialog visible, notify agent selection change
 			{
 				ONCFamily selFamily = (ONCFamily) tse.getObject1();
-				Agent selAgent = agentDB.getAgent(selFamily.getAgentID());
-				
 				this.update();	//Save current info first, if changed
-				
-				this.display(selAgent);	//Display newly selected agent
+				this.display(selFamily);	//Display newly selected family's agent
 			}
-
 		}	
 	}
 }

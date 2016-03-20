@@ -64,12 +64,11 @@ public class WebsiteStatusDialog extends InfoDialog implements DatabaseListener
 		pack();
 	}
 	
-	void display(WebsiteStatus ws)
+	void display(ONCObject obj)
 	{
-		websiteStatus = ws;
 		
-		tf[0].setText(ws.getTimeBackUp());
-		if(ws.getWebsiteStatus())
+		tf[0].setText(websiteStatus.getTimeBackUp());
+		if(websiteStatus.getWebsiteStatus())
 			rbOnline.setSelected(true);
 		else
 			rbOffline.setSelected(true);
@@ -147,7 +146,10 @@ public class WebsiteStatusDialog extends InfoDialog implements DatabaseListener
 			if(this.isVisible() && 
 					(updatedWebsiteStatus.getWebsiteStatus() != websiteStatus.getWebsiteStatus() ||
 					 !updatedWebsiteStatus.getTimeBackUp().equals(websiteStatus.getTimeBackUp())))
-				display(updatedWebsiteStatus);
+			{
+				websiteStatus = updatedWebsiteStatus;
+				display(null);
+			}
 		}
 	}
 	

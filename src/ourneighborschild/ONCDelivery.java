@@ -66,22 +66,13 @@ public class ONCDelivery extends ONCObject implements Serializable
 	public String getdDelBy() {return dDelBy;}
 	String getdNotes() {return dNotes;}
 	String getdChangedBy() { return dChangedBy; }
-	String getdChanged() {return new SimpleDateFormat("MM/dd/yyyy H:mm").format(dDateChanged.getTime());}
-	Calendar getTimeStamp() { return dDateChanged; }
+	Date getdChanged() { return dDateChanged.getTime(); }
 	
 	//Setters
 	void setdDelBy(String db) { dDelBy = db; }
 	void setdNotes(String s) {dNotes = s; }
 	void setdChangedBy(String cb) { dChangedBy = cb; }	
 	void setDateChanged(Date d) { dDateChanged.setTime(d); }
-	
-	//Equivalence Determination against delivery comparison object, dtc
-	boolean isEqual(ONCDelivery dtc)
-	{
-		return dStatus == dtc.getdStatus() && dDelBy.equals(dtc.getdDelBy()) &&
-				dNotes.equals(dtc.getdNotes()) && dChangedBy.equals(dtc.getdChangedBy()) &&
-				 dDateChanged.equals(dtc.getTimeStamp());
-	}
 	
 	@Override
 	public String[] getExportRow()

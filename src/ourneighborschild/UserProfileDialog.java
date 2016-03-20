@@ -123,4 +123,10 @@ public class UserProfileDialog extends InfoDialog implements DatabaseListener
 			}
 		}
 	}
+
+	@Override
+	void display(ONCObject obj) {
+		// TODO Auto-generated method stub
+		
+	}
 }

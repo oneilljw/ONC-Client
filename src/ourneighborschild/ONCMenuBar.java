@@ -143,12 +143,15 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 	    menuFamilies.add(submenuChangeFamilyNumbers);
 	       
 	    changeONCMI = new JMenuItem("Change ONC #");
+	    changeONCMI.setActionCommand("Change ONC #");
 	    submenuChangeFamilyNumbers.add(changeONCMI);
 	    
 	    changeRefMI = new JMenuItem("Change Ref #");
+	    changeRefMI.setActionCommand("Change Ref #");
 	    submenuChangeFamilyNumbers.add(changeRefMI);
 	    
 	    changeBatchMI = new JMenuItem("Change Batch #");
+	    changeBatchMI.setActionCommand("Change Batch #");
 	    submenuChangeFamilyNumbers.add(changeBatchMI);
 	    
 	    menuFamilies.addSeparator();
@@ -221,6 +224,7 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 	    menuWishes.addSeparator();
 	    
 	    recGiftsMI = new JMenuItem("Receive Gifts");
+	    recGiftsMI.setActionCommand("Receive Gifts");
 	    recGiftsMI.setEnabled(false);
 	    menuWishes.add(recGiftsMI);
 	    
@@ -243,6 +247,7 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 	    menuPartners = new JMenu("Partners");
 	    
 	    orgMI = new JMenuItem("Edit Partners");
+	    orgMI.setActionCommand("Edit Partners");
 	    orgMI.setEnabled(false);
 	    menuPartners.add(orgMI);
 	    
@@ -264,7 +269,8 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 	    menuDelivery.add(delstatusMI);
 	    
 	    //Edit Delivery Partners
-	    editDelMI = new JMenuItem("Edit Delivery Partners");	
+	    editDelMI = new JMenuItem("Edit Delivery Partners");
+	    editDelMI.setActionCommand("Edit Delivery Partners");
 	    menuDelivery.add(editDelMI);
 	    
 	    //Edit Delivery Partners
