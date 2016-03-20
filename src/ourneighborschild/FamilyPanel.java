@@ -11,6 +11,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,6 +34,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.UIManager;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
@@ -99,7 +101,8 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private JComboBox Language, statusCB;
 	private ComboItem[] delStatus;
 	public  JTable childTable;
-	private DefaultTableModel childTableModel;
+//	private DefaultTableModel childTableModel;
+	private ChildTableModel childTableModel;
 	private ArrayList<ONCChild> ctAL; //List holds children object references being displayed in table
 	
 	public boolean bFamilyDataChanging = false; //Flag indicating program is triggering gui events, not user
@@ -419,14 +422,16 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			}
 		};
 		childTable.setToolTipText("Click or use up/down keys to select a child");
+		
+		childTableModel = new ChildTableModel();
        
-        childTableModel = new DefaultTableModel(new Object[]{"First Name","Last Name", "DoB", "Gend"},0)
-        {
-           private static final long serialVersionUID = 1L;
-           @Override
-           	//every cell cannot be edited
-           	public boolean isCellEditable(int row, int column) {return false;}
-        };      
+ //       childTableModel = new DefaultTableModel(new Object[]{"First Name","Last Name", "DoB", "Gend"},0)
+ //       {
+ //          private static final long serialVersionUID = 1L;
+ //          @Override
+ //          	//every cell cannot be edited
+ //          	public boolean isCellEditable(int row, int column) {return false;}
+ //       };      
         childTable.setModel(childTableModel);
        
         childTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -1092,7 +1097,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			lblChangedBy.setText(currFam.getChangedBy());
 			lblRegion.setText(regions.getRegionID(currFam.getRegion()));
 			
-			//Find all names in the ODB wishlist and replace them with "Child x" before displaying
+			//Find all names in the ODB wish list and replace them with "Child x" before displaying
 			String[] replace = new String[cDB.getNumberOfChildrenInFamily(currFam.getID()) * 2 + 1];
 			replace[0] = currFam.getODBWishList();
 			
@@ -1161,10 +1166,13 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		
 		//Disable table list from updating when there's not child data
 		bChildTableDataChanging = true;		
-		ClearChildTable();
+//		ClearChildTable();
 		if(ctAL.size() > 0)
 		{		
-			addChildrentoTable(ctAL, bDispAll, cn);
+//			addChildrentoTable(ctAL, bDispAll, cn);
+			childTableModel.fireTableDataChanged();
+			childTable.setRowSelectionInterval(cn, cn);
+	    	childTable.requestFocus();
 			if(bDispAll)
 				ONCMenuBar.setEnabledMarkorDeleteChildMenuItem(true);	//Enable Delete Child Menu Bar item
 		}
@@ -1363,7 +1371,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			}
 		}
 	}
-
+/*
 	void addChildrentoTable(ArrayList<ONCChild> childAL, boolean bDispAll, int cn)
     {	
     	for(int index=0; index < ctAL.size(); index++)
@@ -1385,13 +1393,13 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
     	childTable.setRowSelectionInterval(cn, cn);
     	childTable.requestFocus();
     }
-	
+    
 	void ClearChildTable()
     {
 		for(int i = childTableModel.getRowCount() - 1; i >=0; i--)		
 		   childTableModel.removeRow(i);  	
     }
-	
+*/	
 	void RefreshChildTable(String[] childdata, int row)
 	{
 		for(int i=0; i<4; i++)
@@ -2110,15 +2118,16 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 					
 					//update the table row
 					bChildTableDataChanging = true;
+					childTableModel.fireTableRowsUpdated(row, row);
 				
-					if(GlobalVariables.isUserAdmin())
-					{
-						childTableModel.setValueAt(updatedChild.getChildFirstName(), row, 0);
-						childTableModel.setValueAt(updatedChild.getChildLastName(), row, 1);
-					}
-				
-					childTableModel.setValueAt(updatedChild.getChildDOBString("MM/dd/yy"), row, 2);
-					childTableModel.setValueAt(updatedChild.getChildGender(), row, 3);
+//					if(GlobalVariables.isUserAdmin())
+//					{
+//						childTableModel.setValueAt(updatedChild.getChildFirstName(), row, 0);
+//						childTableModel.setValueAt(updatedChild.getChildLastName(), row, 1);
+//					}
+//				
+//					childTableModel.setValueAt(updatedChild.getChildDOBString("MM/dd/yy"), row, 2);
+//					childTableModel.setValueAt(updatedChild.getChildGender(), row, 3);
 				
 					bChildTableDataChanging = false;
 					
@@ -2247,6 +2256,55 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 				}
 			}
 		}
+    }
+	
+	class ChildTableModel extends AbstractTableModel
+	{
+        /**
+		 * Implements the table model for the child table
+		 */
+		
+		private static final long serialVersionUID = 1L;
+		private static final int FIRST_NAME_COL = 0;
+		private static final int LAST_NAME_COL = 1;
+		private static final int DOB_COL = 2;
+		private static final int GENDER_COL = 3;
+		
+		private String[] columnNames = {"First Name", "Last Name", "DoB", "Gend"};
+		
+        public int getColumnCount() { return columnNames.length; }
+ 
+        public int getRowCount() { return ctAL == null ? 0 : ctAL.size(); }
+ 
+        public String getColumnName(int col) { return columnNames[col]; }
+ 
+        public Object getValueAt(int row, int col)
+        {
+        	ONCChild child = ctAL.get(row);
+
+        	if(col == FIRST_NAME_COL)
+        		return GlobalVariables.isUserAdmin() ? child.getChildFirstName() : "Child " + Integer.toString(row+1);
+        	else if(col == LAST_NAME_COL)
+        		return GlobalVariables.isUserAdmin() ? child.getChildLastName() : "";
+        	else if(col == DOB_COL)
+        		return child.getChildDOBString("M/d/yy");
+        	else if(col == GENDER_COL)
+        		return child.getChildGender();
+        	else
+        		return "Error";
+        }
+        
+        //JTable uses this method to determine the default renderer/editor for each cell.
+        @Override
+        public Class<?> getColumnClass(int column)
+        {
+        	return String.class;
+        }
+ 
+        public boolean isCellEditable(int row, int col)
+        {
+        	return false;
+        }
     }
 }
 
