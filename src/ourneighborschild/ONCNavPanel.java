@@ -35,7 +35,6 @@ public class ONCNavPanel extends JPanel implements ActionListener
 	private static final String DEFAULT_MSSG = "Welcome to Our Neighbor's Child";
 	
 	//List of registered listeners for navigation events
-//	private ArrayList<NavigationListener> listeners;
     private ArrayList<EntitySelectionListener> elisteners;
     
     //UI objects
@@ -238,7 +237,6 @@ public class ONCNavPanel extends JPanel implements ActionListener
 					index = searchableDB.size()-1;
 			}
 			
-//			fireNavChanged(this, "INDEX_CHANGE", index);
 			fireEntitySelected(this, searchableDB.getDBType() +"_SELECTED", searchableDB.getObjectAtIndex(index), null);
 		}
 		else if(e.getSource() == searchTF && !searchTF.getText().isEmpty())
@@ -257,7 +255,6 @@ public class ONCNavPanel extends JPanel implements ActionListener
 			{				
     			srchALindex=0;
     			index = searchableDB.getListIndexByID(searchableDB.getList(), searchAL.get(srchALindex));
-//    			fireNavChanged(this, "INDEX_CHANGE", index);
     			fireEntitySelected(this, searchableDB.getDBType() +"_SELECTED", searchableDB.getObjectAtIndex(index), null);
 			}
 			else
@@ -276,7 +273,6 @@ public class ONCNavPanel extends JPanel implements ActionListener
 				srchALindex=0;
 			
 			index = searchableDB.getListIndexByID(searchableDB.getList(), searchAL.get( srchALindex));	
-//			fireNavChanged(this, "INDEX_CHANGE", index);
 			fireEntitySelected(this, searchableDB.getDBType() +"_SELECTED", searchableDB.getObjectAtIndex(index), null);
 		}
 		else if(e.getSource() == rbSrchPrev)
@@ -285,7 +281,6 @@ public class ONCNavPanel extends JPanel implements ActionListener
 				srchALindex=searchAL.size()-1;
 			
 			index = searchableDB.getListIndexByID(searchableDB.getList(), searchAL.get(srchALindex));
-//			fireNavChanged(this, "INDEX_CHANGE", index);
 			fireEntitySelected(this, searchableDB.getDBType() +"_SELECTED", searchableDB.getObjectAtIndex(index), null);
 		}
 //		else if(e.getSource() == btnLogoff)
