@@ -277,9 +277,6 @@ public class OurNeighborsChild implements DatabaseListener
         else
         	oncGVs.setUserPermission(UserPermission.General);
      
-                     	
-        oncFamilyPanel.setFamilyPanelDisplayPermission(GlobalVariables.isUserAdmin());	//Restrict personal data for general user
-        
         //get database years from server to set the data menu item for user to select and get user db so 
         //a chat can start
         if(serverIF != null)

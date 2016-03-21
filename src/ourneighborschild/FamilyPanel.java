@@ -11,7 +11,6 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,7 +34,6 @@ import javax.swing.UIManager;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.text.BadLocationException;
@@ -87,17 +85,17 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private Color pBkColor; //Used to restore background for panels 1-3, btnShowPriorHistory when changed
 	
 	private ONCNavPanel nav;	//public to allow adding/removal of Entity Selection Listeners
-	private JTextPane oncNotesPane, oncDIPane, odbWishListPane;
-	private JScrollPane odbWishscrollPane;
-	private JTextPane HomePhone, OtherPhone;
+	private JTextPane oncNotesPane, oncDIPane, wishlistPane;
+	private JScrollPane wishlistScrollPane;
+	private JTextPane homePhonePane, otherPhonePane;
 	private JButton btnAssignONCNum;
 	private JTextField oncDNScode;
 	private JTextField HOHFirstName, HOHLastName, EMail;
 	private JTextField housenumTF, Street, Unit, City, ZipCode;
 	private JLabel lblONCNum, lblRefNum, lblBatchNum, lblRegion, lblNumBags, lblChangedBy, lblDelStatus;
-	private JRadioButton delRB, altAddressRB, btnMeals, btnShowPriorHistory, btnShowAgentInfo;
-	private JRadioButton btnShowAllPhones, btnShowODBDetails, btnTransportation, btnDirections;
-	private JRadioButton btnNotGiftCardOnly, btnGiftCardOnly, btnAdults;
+	private JRadioButton rbDeliveryHistory, rbAltAddress, rbMeals, rbPriorHistory, rbAgentInfo;
+	private JRadioButton rbShowAllPhones, rbFamDetails, rbTransportation, rbDirections;
+	private JRadioButton rbNotGiftCardOnly, rbGiftCardOnly, rbAdults;
 	private JComboBox Language, statusCB;
 	private ComboItem[] delStatus;
 	public  JTable childTable;
@@ -107,11 +105,9 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	
 	public boolean bFamilyDataChanging = false; //Flag indicating program is triggering gui events, not user
 	private boolean bChildTableDataChanging = true;	//Flag indicating that Child Table data is changing
-	private boolean bDispAll = false; //Flag indicating whether all personal family data is displayed or not
 	
 	//An instance of the private subclass of the default highlight painter
-	private static DefaultHighlighter.DefaultHighlightPainter highlightPainter = 
-	        new DefaultHighlighter.DefaultHighlightPainter(Color.YELLOW);
+	private static DefaultHighlighter.DefaultHighlightPainter highlightPainter;
 	
 	private ChildPanel oncChildPanel;
 	private WishPanel[] wishPanelList;
@@ -186,6 +182,9 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			cDB.addDatabaseListener(this);
 		if(adultDB != null)
 			adultDB.addDatabaseListener(this);
+		
+		//create the highlight painter used in the wish list pane
+		highlightPainter = new DefaultHighlighter.DefaultHighlightPainter(Color.YELLOW);
 
 		//Set layout and border for the Family Panel
 		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
@@ -256,17 +255,17 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         lblNumBags.setPreferredSize(new Dimension(48, 52));
         lblNumBags.setBorder(BorderFactory.createTitledBorder("Bags"));
              
-        HomePhone = new JTextPane();
-        JScrollPane homePhoneScrollPane = new JScrollPane(HomePhone);
+        homePhonePane = new JTextPane();
+        JScrollPane homePhoneScrollPane = new JScrollPane(homePhonePane);
         homePhoneScrollPane.setPreferredSize(new Dimension(128, 44));
         homePhoneScrollPane.setBorder(BorderFactory.createTitledBorder("Home Phone(s)"));
-        HomePhone.setEditable(false);
+        homePhonePane.setEditable(false);
         
-        OtherPhone = new JTextPane();
-        JScrollPane otherPhoneScrollPane = new JScrollPane(OtherPhone);
+        otherPhonePane = new JTextPane();
+        JScrollPane otherPhoneScrollPane = new JScrollPane(otherPhonePane);
         otherPhoneScrollPane.setPreferredSize(new Dimension(128, 44));
         otherPhoneScrollPane.setBorder(BorderFactory.createTitledBorder("Alternate Phone(s)"));
-        OtherPhone.setEditable(false);
+        otherPhonePane.setEditable(false);
       
         EMail = new JTextField(18);
         EMail.setBorder(BorderFactory.createTitledBorder("Email Address"));
@@ -328,10 +327,10 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         lblRegion.setPreferredSize(new Dimension(60, 44));
         lblRegion.setBorder(BorderFactory.createTitledBorder("Region"));
         
-        altAddressRB = new JRadioButton(gvs.getImageIcon(19));
-        altAddressRB.setToolTipText("Click to see alternate address");
-        altAddressRB.setEnabled(false);
-        altAddressRB.addActionListener(this);
+        rbAltAddress = new JRadioButton(gvs.getImageIcon(19));
+        rbAltAddress.setToolTipText("Click to see alternate address");
+        rbAltAddress.setEnabled(false);
+        rbAltAddress.addActionListener(this);
  
         lblChangedBy = new JLabel();
         lblChangedBy.setPreferredSize(new Dimension(128, 44));
@@ -343,64 +342,64 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         btnAssignONCNum.setVisible(false);	//Invisible until ONC Number invalid and region valid
         btnAssignONCNum.addActionListener(this);
         
-        btnShowPriorHistory = new JRadioButton(gvs.getImageIcon(HISTORY_ICON_INDEX));
-        btnShowPriorHistory.setToolTipText("Click for prior ONC gift history for highlighted child");
-        btnShowPriorHistory.setEnabled(false);
-        btnShowPriorHistory.addActionListener(this);
+        rbPriorHistory = new JRadioButton(gvs.getImageIcon(HISTORY_ICON_INDEX));
+        rbPriorHistory.setToolTipText("Click for prior ONC gift history for highlighted child");
+        rbPriorHistory.setEnabled(false);
+        rbPriorHistory.addActionListener(this);
         
-        btnShowAllPhones = new JRadioButton(gvs.getImageIcon(PHONE_ICON_INDEX));
-        btnShowAllPhones.setToolTipText("Click for all phone numbers for family");
-        btnShowAllPhones.setEnabled(false);
-        btnShowAllPhones.addActionListener(this);
+        rbShowAllPhones = new JRadioButton(gvs.getImageIcon(PHONE_ICON_INDEX));
+        rbShowAllPhones.setToolTipText("Click for all phone numbers for family");
+        rbShowAllPhones.setEnabled(false);
+        rbShowAllPhones.addActionListener(this);
         
-        btnShowAgentInfo = new JRadioButton(gvs.getImageIcon(AGENT_INFO_ICON_INDEX));
-        btnShowAgentInfo.setToolTipText("Click for info on agent who referred family");
-        btnShowAgentInfo.setEnabled(false);
-        btnShowAgentInfo.addActionListener(this);
+        rbAgentInfo = new JRadioButton(gvs.getImageIcon(AGENT_INFO_ICON_INDEX));
+        rbAgentInfo.setToolTipText("Click for info on agent who referred family");
+        rbAgentInfo.setEnabled(false);
+        rbAgentInfo.addActionListener(this);
         
-        btnShowODBDetails = new JRadioButton(gvs.getImageIcon(FAMILY_DETAILS_ICON_INDEX));
-        btnShowODBDetails.setToolTipText("Click for additional details for this family");
-        btnShowODBDetails.setEnabled(false);
-        btnShowODBDetails.addActionListener(this);
+        rbFamDetails = new JRadioButton(gvs.getImageIcon(FAMILY_DETAILS_ICON_INDEX));
+        rbFamDetails.setToolTipText("Click for additional details for this family");
+        rbFamDetails.setEnabled(false);
+        rbFamDetails.addActionListener(this);
         
-        btnMeals = new JRadioButton(gvs.getImageIcon(REQUESTED_MEAL_ICON_INDEX));
-        btnMeals.setActionCommand("Meal History");
-        btnMeals.setToolTipText("Click for family food assistance status");
-        btnMeals.setEnabled(false);
-        btnMeals.addActionListener(this);
+        rbMeals = new JRadioButton(gvs.getImageIcon(REQUESTED_MEAL_ICON_INDEX));
+        rbMeals.setActionCommand("Meal History");
+        rbMeals.setToolTipText("Click for family food assistance status");
+        rbMeals.setEnabled(false);
+        rbMeals.addActionListener(this);
         
-        btnTransportation = new JRadioButton(gvs.getImageIcon(TRANSPORTATION_ICON_INDEX));
-        btnTransportation.setToolTipText("Click for family transportation status");
-        btnTransportation.setEnabled(false);
-        btnTransportation.addActionListener(this);
+        rbTransportation = new JRadioButton(gvs.getImageIcon(TRANSPORTATION_ICON_INDEX));
+        rbTransportation.setToolTipText("Click for family transportation status");
+        rbTransportation.setEnabled(false);
+        rbTransportation.addActionListener(this);
         
-        btnDirections = new JRadioButton(gvs.getImageIcon( GOOGLE_MAP_ICON_INDEX));
-        btnDirections.setToolTipText("Click for directions to family address");
-        btnDirections.setEnabled(false);
-        btnDirections.addActionListener(this);
+        rbDirections = new JRadioButton(gvs.getImageIcon( GOOGLE_MAP_ICON_INDEX));
+        rbDirections.setToolTipText("Click for directions to family address");
+        rbDirections.setEnabled(false);
+        rbDirections.addActionListener(this);
         
-        btnNotGiftCardOnly = new JRadioButton(gvs.getImageIcon(NOT_GIFT_CARD_ONLY_ICON_INDEX));
-        btnNotGiftCardOnly.setToolTipText("Click for change to Gift Card Only Family");
-        btnNotGiftCardOnly.setEnabled(false);
-        btnNotGiftCardOnly.setVisible(true);
-        btnNotGiftCardOnly.addActionListener(this);
+        rbNotGiftCardOnly = new JRadioButton(gvs.getImageIcon(NOT_GIFT_CARD_ONLY_ICON_INDEX));
+        rbNotGiftCardOnly.setToolTipText("Click for change to Gift Card Only Family");
+        rbNotGiftCardOnly.setEnabled(false);
+        rbNotGiftCardOnly.setVisible(true);
+        rbNotGiftCardOnly.addActionListener(this);
         
-        btnGiftCardOnly = new JRadioButton(gvs.getImageIcon(GIFT_CARD_ONLY_ICON_INDEX));
-        btnGiftCardOnly.setToolTipText("Click for from Gift Card Only Family");
-        btnGiftCardOnly.setEnabled(false);
-        btnGiftCardOnly.setVisible(false);
-        btnGiftCardOnly.addActionListener(this);
+        rbGiftCardOnly = new JRadioButton(gvs.getImageIcon(GIFT_CARD_ONLY_ICON_INDEX));
+        rbGiftCardOnly.setToolTipText("Click for from Gift Card Only Family");
+        rbGiftCardOnly.setEnabled(false);
+        rbGiftCardOnly.setVisible(false);
+        rbGiftCardOnly.addActionListener(this);
         
-        btnAdults = new JRadioButton(gvs.getImageIcon(ADULT_ICON_INDEX));
-        btnAdults.setToolTipText("Manage Adults in Family");
-        btnAdults.setEnabled(false);
-        btnAdults.addActionListener(this);
+        rbAdults = new JRadioButton(gvs.getImageIcon(ADULT_ICON_INDEX));
+        rbAdults.setToolTipText("Manage Adults in Family");
+        rbAdults.setEnabled(false);
+        rbAdults.addActionListener(this);
 
-        delRB = new JRadioButton(gvs.getImageIcon(14));
-        delRB.setActionCommand("Delivery History");
-        delRB.setToolTipText("Click to see delivery history");
-        delRB.setEnabled(false);
-        delRB.addActionListener(this);
+        rbDeliveryHistory = new JRadioButton(gvs.getImageIcon(14));
+        rbDeliveryHistory.setActionCommand("Delivery History");
+        rbDeliveryHistory.setToolTipText("Click to see delivery history");
+        rbDeliveryHistory.setEnabled(false);
+        rbDeliveryHistory.addActionListener(this);
         
         //Set up the Child Table
         childTable = new JTable()
@@ -455,18 +454,18 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         JScrollPane childscrollPane = new JScrollPane(childTable);
         
         //Set up the ODB Wish List Pane
-        odbWishListPane = new JTextPane();
-        odbWishListPane.setToolTipText("Wish suggestions for child from referral");
+        wishlistPane = new JTextPane();
+        wishlistPane.setToolTipText("Wish suggestions for child from referral");
         SimpleAttributeSet attribs = new SimpleAttributeSet();  
         StyleConstants.setAlignment(attribs , StyleConstants.ALIGN_LEFT);
         StyleConstants.setFontSize(attribs, gvs.getFontSize());
         StyleConstants.setSpaceBelow(attribs, 3);
-        odbWishListPane.setParagraphAttributes(attribs, true);
-  	   	odbWishListPane.setEditable(false);
+        wishlistPane.setParagraphAttributes(attribs, true);
+  	   	wishlistPane.setEditable(false);
   	   	
 	    //Create the ODB Wish List scroll pane and add the Wish List text pane to it.
-        odbWishscrollPane = new JScrollPane(odbWishListPane);
-        odbWishscrollPane.setBorder(BorderFactory.createTitledBorder("Child Wish List"));
+        wishlistScrollPane = new JScrollPane(wishlistPane);
+        wishlistScrollPane.setBorder(BorderFactory.createTitledBorder("Child Wish List"));
         
         //Set up the ONC Notes Pane
         oncNotesPane = new JTextPane();
@@ -769,7 +768,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         c.fill = GridBagConstraints.BOTH;
         c.weightx=1.0;
         c.weighty=1.0;
-        p4.add(odbWishscrollPane, c);
+        p4.add(wishlistScrollPane, c);
         c.gridx=4;
         c.gridy=0;
         c.gridwidth=1;
@@ -788,18 +787,18 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         p4.add(oncDIscrollPane, c);
         
         iconBar.add(btnAssignONCNum);
-        iconBar.add(btnShowPriorHistory);
-        iconBar.add(btnShowAllPhones);
-        iconBar.add(altAddressRB);
-        iconBar.add(btnShowODBDetails);
-        iconBar.add(btnShowAgentInfo);
-        iconBar.add(btnMeals);
-        iconBar.add(btnTransportation);
-        iconBar.add(btnAdults);
-        iconBar.add(btnNotGiftCardOnly);
-        iconBar.add(btnGiftCardOnly);
-        iconBar.add(btnDirections);
-        iconBar.add(delRB);
+        iconBar.add(rbPriorHistory);
+        iconBar.add(rbShowAllPhones);
+        iconBar.add(rbAltAddress);
+        iconBar.add(rbFamDetails);
+        iconBar.add(rbAgentInfo);
+        iconBar.add(rbMeals);
+        iconBar.add(rbTransportation);
+        iconBar.add(rbAdults);
+        iconBar.add(rbNotGiftCardOnly);
+        iconBar.add(rbGiftCardOnly);
+        iconBar.add(rbDirections);
+        iconBar.add(rbDeliveryHistory);
               
         this.add(nav);
         this.add(p1);
@@ -819,8 +818,8 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			HOHFirstName.setEditable(tf);
 			HOHLastName.setEditable(tf);;
 			statusCB.setEnabled(tf);
-			HomePhone.setEditable(tf);
-			OtherPhone.setEditable(tf);
+			homePhonePane.setEditable(tf);
+			otherPhonePane.setEditable(tf);
 			EMail.setEditable(tf);
 			Language.setEnabled(tf);
 			housenumTF.setEditable(tf);
@@ -828,7 +827,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			Unit.setEditable(tf);
 			City.setEditable(tf);
 			ZipCode.setEditable(tf);
-			odbWishListPane.setEditable(tf);
+			wishlistPane.setEditable(tf);
 			oncNotesPane.setEditable(tf);
 			oncDIPane.setEditable(tf);
 		}
@@ -856,7 +855,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         StyleConstants.setAlignment(attribs , StyleConstants.ALIGN_LEFT);
         StyleConstants.setFontSize(attribs, gvs.getFontSize());
         StyleConstants.setSpaceBelow(attribs, 3);
-        odbWishListPane.setParagraphAttributes(attribs, true);
+        wishlistPane.setParagraphAttributes(attribs, true);
         oncNotesPane.setParagraphAttributes(attribs, true);
         oncDIPane.setParagraphAttributes(attribs, true);
         orgDlg.setTextPaneFontSize();
@@ -864,14 +863,14 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	
 	void setRestrictedEnabledButtons(boolean tf)
 	{	 
-		btnShowAllPhones.setEnabled(tf);
-		altAddressRB.setEnabled(tf);
+		rbShowAllPhones.setEnabled(tf);
+		rbAltAddress.setEnabled(tf);
 	}
 	
 	void setEnabledButtons(boolean tf) 
 	{ 
-		btnShowAgentInfo.setEnabled(tf);
-		delRB.setEnabled(tf); 
+		rbAgentInfo.setEnabled(tf);
+		rbDeliveryHistory.setEnabled(tf); 
 	}
 
 /*	
@@ -968,37 +967,79 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		p2.setBackground(pBkColor);
 		p3.setBackground(pBkColor);
 		
-		btnMeals.setEnabled(true);
-		btnTransportation.setEnabled(true);
-		btnDirections.setEnabled(true);
-		btnNotGiftCardOnly.setEnabled(true);
-		btnNotGiftCardOnly.setVisible(true);
-		btnGiftCardOnly.setEnabled(true);
-		btnGiftCardOnly.setVisible(false);
-		btnAdults.setEnabled(true);
+		rbMeals.setEnabled(true);
+		rbTransportation.setEnabled(true);
+		rbDirections.setEnabled(true);
+		rbNotGiftCardOnly.setEnabled(true);
+		rbNotGiftCardOnly.setVisible(true);
+		rbGiftCardOnly.setEnabled(true);
+		rbGiftCardOnly.setVisible(false);
+		rbAdults.setEnabled(true);
 		
-		if(bDispAll)
+		lblONCNum.setText(currFam.getONCNum());
+		lblONCNum.setToolTipText("Family Database ID= " + Integer.toString(currFam.getID()));
+		lblRefNum.setText(currFam.getODBFamilyNum());
+		lblBatchNum.setText(currFam.getBatchNum());
+		oncDNScode.setText(currFam.getDNSCode());
+		oncDNScode.setCaretPosition(0);
+		
+		checkForDNSorGiftCardOnly();
+		
+		statusCB.setSelectedIndex(currFam.getFamilyStatus());
+		lblNumBags.setText(Integer.toString(currFam.getNumOfBags()));
+		
+		lblDelStatus.setText(dStat[currFam.getDeliveryStatus()]);
+		Language.setSelectedItem((String)currFam.getLanguage());
+		lblChangedBy.setText(currFam.getChangedBy());
+		lblRegion.setText(regions.getRegionID(currFam.getRegion()));
+		
+		oncNotesPane.setText(currFam.getNotes());
+		oncNotesPane.setCaretPosition(0);
+		oncDIPane.setText(currFam.getDeliveryInstructions());
+		oncDIPane.setCaretPosition(0);
+		
+		//set meal button icon
+		if(currFam.getMealID()  == -1)
 		{
-			lblONCNum.setText(currFam.getONCNum());
-			lblONCNum.setToolTipText("Family Database ID= " + Integer.toString(currFam.getID()));
-			lblRefNum.setText(currFam.getODBFamilyNum());
-			lblBatchNum.setText(currFam.getBatchNum());
-			oncDNScode.setText(currFam.getDNSCode());
-			oncDNScode.setCaretPosition(0);
-			
-			checkForDNSorGiftCardOnly();
-						
+			rbMeals.setIcon(gvs.getImageIcon( NO_MEAL_ICON_INDEX));
+			rbMeals.setActionCommand("Add Meal");
+		}
+		else if(currFam.getMealStatus() == MealStatus.Requested)	//meal not referred yet
+		{
+			rbMeals.setIcon(gvs.getImageIcon(REQUESTED_MEAL_ICON_INDEX));
+			rbMeals.setActionCommand("Meal History");
+		}
+		else
+		{
+			rbMeals.setIcon(gvs.getImageIcon( REFERRED_MEAL_ICON_INDEX));
+			rbMeals.setActionCommand("Meal History");
+		}
+		
+		//set transportation button icon
+		if(currFam.getTransportation() == Transportation.Yes)
+			rbTransportation.setIcon(gvs.getImageIcon(TRANSPORTATION_ICON_INDEX));
+		else
+			rbTransportation.setIcon(gvs.getImageIcon(NO_TRANSPORTATION_ICON_INDEX));
+		
+		addChildrenToTable(cn);	//update child table
+		checkForAdultsInFamily(); //set the adults icon
+		
+		nav.setStoplightEntity(currFam);
+		nav.btnNextSetEnabled(true);
+		nav.btnPreviousSetEnabled(true);
+		
+		if(GlobalVariables.isUserAdmin())	//show personal information for family
+		{	
 			HOHFirstName.setText(currFam.getHOHFirstName());
 			HOHLastName.setText(currFam.getHOHLastName());
 			
-			HomePhone.setText(currFam.getHomePhone());
-			HomePhone.setCaretPosition(0);
-			OtherPhone.setText(currFam.getOtherPhon());
-			OtherPhone.setCaretPosition(0);
+			homePhonePane.setText(currFam.getHomePhone());
+			homePhonePane.setCaretPosition(0);
+			otherPhonePane.setText(currFam.getOtherPhon());
+			otherPhonePane.setCaretPosition(0);
 			EMail.setText(currFam.getFamilyEmail());
 			EMail.setCaretPosition(0);
-			Language.setSelectedItem((String)currFam.getLanguage());
-			lblChangedBy.setText(currFam.getChangedBy());
+			
 			housenumTF.setText(currFam.getHouseNum());
 			Street.setText(currFam.getStreet());
 			Street.setCaretPosition(0);
@@ -1008,163 +1049,66 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			ZipCode.setText(currFam.getZipCode());
 			if(currFam.getSubstituteDeliveryAddress() != null &&
 				!currFam.getSubstituteDeliveryAddress().isEmpty())
-				altAddressRB.setIcon(gvs.getImageIcon(20));
+				rbAltAddress.setIcon(gvs.getImageIcon(20));
 			else
-				altAddressRB.setIcon(gvs.getImageIcon(19));
+				rbAltAddress.setIcon(gvs.getImageIcon(19));
 			
-			statusCB.setSelectedIndex(currFam.getFamilyStatus());
-			lblNumBags.setText(Integer.toString(currFam.getNumOfBags()));
-			if(currFam.getDeliveryStatus() == DELIVERY_STATUS_ASSIGNED)
-				setEnabledAssignedDeliveryStatus(true);
-			else
-				setEnabledAssignedDeliveryStatus(false);
-			lblDelStatus.setText(dStat[currFam.getDeliveryStatus()]);
-			lblRegion.setText(regions.getRegionID(currFam.getRegion()));
+			wishlistPane.setText(currFam.getODBWishList());
 			
-			odbWishListPane.setText(currFam.getODBWishList());
-			if(ctAL.size() > 0)	//Check to see if the family has children
-			{			;
-				refreshODBWishListHighlights(currFam, currChild);
-				refreshPriorHistoryButton(currFam, currChild);
-			}
-			else
-			{
-				refreshODBWishListHighlights(currFam, null);
-				btnShowPriorHistory.setEnabled(false);
-			}
+			rbFamDetails.setEnabled(currFam.getDetails().length() > 1);
 			
-			//Test to see if an ONC number could be assigned. If so, make the auto assign buttonvisible
+			//Test to see if an ONC number could be assigned. If so, make the auto assign button visible
 			if(!lblONCNum.getText().equals("DEL") && !lblRegion.getText().equals("?") &&
 					  !Character.isDigit(lblONCNum.getText().charAt(0)))	
 				btnAssignONCNum.setVisible(true);
 			else
 				btnAssignONCNum.setVisible(false);
 			
-			oncNotesPane.setText(currFam.getNotes());
-			oncNotesPane.setCaretPosition(0);
-			oncDIPane.setText(currFam.getDeliveryInstructions());
-			oncDIPane.setCaretPosition(0);
-			
-			if(currFam.getDetails().trim().isEmpty())	//Typically, an empty field from ODB contains 1 blank space
-				btnShowODBDetails.setEnabled(false);
-			else
-				btnShowODBDetails.setEnabled(true);
-			
-			//set meal button icon
-			if(currFam.getMealID()  == -1)
-			{
-				btnMeals.setIcon(gvs.getImageIcon( NO_MEAL_ICON_INDEX));
-				btnMeals.setActionCommand("Add Meal");
-			}
-			else if(currFam.getMealStatus().compareTo(MealStatus.Referred) < 0)	//meal not referrred yet
-			{
-				btnMeals.setIcon(gvs.getImageIcon(REQUESTED_MEAL_ICON_INDEX));
-				btnMeals.setActionCommand("Meal History");
-			}
-			else
-			{
-				btnMeals.setIcon(gvs.getImageIcon( REFERRED_MEAL_ICON_INDEX));
-				btnMeals.setActionCommand("Meal History");
-			}
-			
-			//set transportation button icon
-			if(currFam.getTransportation() == Transportation.Yes)
-				btnTransportation.setIcon(gvs.getImageIcon(TRANSPORTATION_ICON_INDEX));
-			else
-				btnTransportation.setIcon(gvs.getImageIcon(NO_TRANSPORTATION_ICON_INDEX));
-			
-			checkForAdultsInFamily();
 		}
-		else	//restricted viewing user
-		{
-			lblONCNum.setText(currFam.getONCNum());
-			lblRefNum.setText(currFam.getODBFamilyNum());
-			lblBatchNum.setText(currFam.getBatchNum());
-			oncDNScode.setText(currFam.getDNSCode());
-			oncDNScode.setCaretPosition(0);
+		else	//eliminate personal data in wish list
+		{	
+			//Find all names in the wish list and replace them with "Child x" before displaying
+			if(!ctAL.isEmpty())
+			{	
+				String[] replace = new String[ctAL.size() * 2 + 1];
+				replace[0] = currFam.getODBWishList();
 			
-			checkForDNSorGiftCardOnly();
-			
-			statusCB.setSelectedIndex(currFam.getFamilyStatus());
-			lblNumBags.setText(Integer.toString(currFam.getNumOfBags()));
-			
-			if(currFam.getDeliveryStatus() == DELIVERY_STATUS_ASSIGNED)
-				setEnabledAssignedDeliveryStatus(true);
-			else
-				setEnabledAssignedDeliveryStatus(false);
-			lblDelStatus.setText(dStat[currFam.getDeliveryStatus()]);
-			Language.setSelectedItem((String)currFam.getLanguage());
-			lblChangedBy.setText(currFam.getChangedBy());
-			lblRegion.setText(regions.getRegionID(currFam.getRegion()));
-			
-			//Find all names in the ODB wish list and replace them with "Child x" before displaying
-			String[] replace = new String[cDB.getNumberOfChildrenInFamily(currFam.getID()) * 2 + 1];
-			replace[0] = currFam.getODBWishList();
-			
-			int cnum = 0, sn = 0;
-			while(cnum < cDB.getNumberOfChildrenInFamily(currFam.getID()))
-			{
-				replace[sn+1] = replace[sn].replaceAll(ctAL.get(cnum).getChildFirstName(),
-						"Child " + Integer.toString(cnum+1));
+				int cnum = 0, sn = 0;
+				while(cnum < ctAL.size())
+				{
+					replace[sn+1] = replace[sn].replaceAll(ctAL.get(cnum).getChildFirstName(),
+							"Child " + Integer.toString(cnum+1));
 				
-				replace[sn+2] = replace[sn+1].replaceFirst(ctAL.get(cnum).getChildLastName(), "");
+					replace[sn+2] = replace[sn+1].replaceFirst(ctAL.get(cnum).getChildLastName(), "");
 				
-				cnum++;	
-				sn += 2;			
-			}
+					cnum++;	
+					sn += 2;			
+				}
 			
-			String almostDone = replace[replace.length-1];
-			String done = almostDone.replaceAll(" :", ":");
-			
-			if(cDB.getNumberOfChildrenInFamily(currFam.getID()) > 0 )	//If no children, don't display a wish list
-				odbWishListPane.setText(done);	
-			else
-				odbWishListPane.setText("");
-
-			if(ctAL.size() > 0)	//Check to see if the family has children
-			{
-				refreshODBWishListHighlights(currFam, currChild);
-				refreshPriorHistoryButton(currFam, currChild);
+				String almostDone = replace[replace.length-1];
+				String done = almostDone.replaceAll(" :", ":");
+				wishlistPane.setText(done);
 			}
 			else
 			{
-				refreshODBWishListHighlights(currFam, null);
-				btnShowPriorHistory.setEnabled(false);
+				wishlistPane.setText("");
 			}
-			oncNotesPane.setText(currFam.getNotes());
-			oncNotesPane.setCaretPosition(0);
-			oncDIPane.setText(currFam.getDeliveryInstructions());
-			oncDIPane.setCaretPosition(0);
-			btnShowODBDetails.setEnabled(false);
-			
-			//set meal button icon
-			if(currFam.getMealID()  == -1)
-			{
-				btnMeals.setIcon(gvs.getImageIcon( NO_MEAL_ICON_INDEX));
-				btnMeals.setActionCommand("Add Meal");
-			}
-			else if(currFam.getMealStatus() == MealStatus.Requested)	//meal not referrred yet
-			{
-				btnMeals.setIcon(gvs.getImageIcon(REQUESTED_MEAL_ICON_INDEX));
-				btnMeals.setActionCommand("Meal History");
-			}
-			else
-			{
-				btnMeals.setIcon(gvs.getImageIcon( REFERRED_MEAL_ICON_INDEX));
-				btnMeals.setActionCommand("Meal History");
-			}
-			
-			//set transportation button icon
-			if(currFam.getTransportation() == Transportation.Yes)
-				btnTransportation.setIcon(gvs.getImageIcon(TRANSPORTATION_ICON_INDEX));
-			else
-				btnTransportation.setIcon(gvs.getImageIcon(NO_TRANSPORTATION_ICON_INDEX));
-			
-			//set the adults icon
-			checkForAdultsInFamily();
 		}
 		
-		//Disable table list from updating when there's not child data
+		if(ctAL.size() > 0)	//Check to see if the family has children
+		{
+			refreshODBWishListHighlights(currFam, currChild);
+			refreshPriorHistoryButton(currFam, currChild);
+		}
+		else
+		{
+			refreshODBWishListHighlights(currFam, null);
+			rbPriorHistory.setEnabled(false);
+		}
+	}
+	
+	void addChildrenToTable(int cn)
+	{
 		bChildTableDataChanging = true;		
 //		ClearChildTable();
 		if(ctAL.size() > 0)
@@ -1173,7 +1117,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			childTableModel.fireTableDataChanged();
 			childTable.setRowSelectionInterval(cn, cn);
 	    	childTable.requestFocus();
-			if(bDispAll)
+			if(GlobalVariables.isUserAdmin())
 				ONCMenuBar.setEnabledMarkorDeleteChildMenuItem(true);	//Enable Delete Child Menu Bar item
 		}
 		else
@@ -1183,10 +1127,6 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			ONCMenuBar.setEnabledMarkorDeleteChildMenuItem(false);	//Disable Delete Child Menu Bar item
 		}
 		bChildTableDataChanging = false;
-		
-		nav.setStoplightEntity(currFam);
-		nav.btnNextSetEnabled(true);
-		nav.btnPreviousSetEnabled(true);														
 	}
 	
 	void checkForDNSorGiftCardOnly()
@@ -1204,8 +1144,8 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			p2.setBackground(Color.GREEN);
 			p3.setBackground(Color.GREEN);
 			
-			btnNotGiftCardOnly.setVisible(false);
-			btnGiftCardOnly.setVisible(true);
+			rbNotGiftCardOnly.setVisible(false);
+			rbGiftCardOnly.setVisible(true);
 		}
 	}
 	
@@ -1213,28 +1153,28 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	{	
 		//set the adults icon
 		if(adultDB.getAdultsInFamily(currFam.getID()).size() > 0)
-			btnAdults.setIcon(gvs.getImageIcon(ADULT_ICON_INDEX));
+			rbAdults.setIcon(gvs.getImageIcon(ADULT_ICON_INDEX));
 		else
-			btnAdults.setIcon(gvs.getImageIcon(NO_ADULT_ICON_INDEX));	
+			rbAdults.setIcon(gvs.getImageIcon(NO_ADULT_ICON_INDEX));	
 	}
 
 	void refreshPriorHistoryButton(ONCFamily fam, ONCChild c)
 	{
 		if(c != null && c.getPriorYearChildID() != -1)
-			btnShowPriorHistory.setEnabled(true);
+			rbPriorHistory.setEnabled(true);
 		else
-			btnShowPriorHistory.setEnabled(false);
+			rbPriorHistory.setEnabled(false);
 	}
 	
 	void refreshODBWishListHighlights(ONCFamily fam, ONCChild c)
 	{		
-		odbWishListPane.getHighlighter().removeAllHighlights();		
-		String odbWishList = odbWishListPane.getText().toLowerCase();
+		wishlistPane.getHighlighter().removeAllHighlights();		
+		String odbWishList = wishlistPane.getText().toLowerCase();
 		
 		if(c == null)	
 			return;	//No children to highlight
 		
-		else if(bDispAll)	//Show all data
+		else if(GlobalVariables.isUserAdmin())	//Show all data
 		{	
 			String childfn = c.getChildFirstName().toLowerCase();
 			String childln = c.getChildLastName().toLowerCase();
@@ -1264,8 +1204,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		}
 		else //Show restricted data
 		{
-			String childfn = "Child " + Integer.toString(childTable.getSelectedRow() + 1);
-			
+			String childfn = "child " + Integer.toString(childTable.getSelectedRow() + 1);
 			int startPos = odbWishList.indexOf(childfn);
 			if(startPos > -1)	//ensure the child full name is found
 			{
@@ -1279,14 +1218,14 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	{
 		try
 		{
-			odbWishListPane.setCaretPosition(startPos);
-			odbWishListPane.getHighlighter().addHighlight(startPos, endPos+1, highlightPainter);
-			int caretPosition = odbWishListPane.getCaretPosition();
-			Rectangle caretRectangle = odbWishListPane.modelToView(caretPosition);
+			wishlistPane.setCaretPosition(startPos);
+			wishlistPane.getHighlighter().addHighlight(startPos, endPos+1, highlightPainter);
+			int caretPosition = wishlistPane.getCaretPosition();
+			Rectangle caretRectangle = wishlistPane.modelToView(caretPosition);
 			Rectangle viewRectangle = new Rectangle(0, caretRectangle.y -
-			        (odbWishscrollPane.getHeight() - caretRectangle.height) / 2,
-			        odbWishscrollPane.getWidth(), odbWishscrollPane.getHeight());
-			odbWishListPane.scrollRectToVisible(viewRectangle);
+			        (wishlistScrollPane.getHeight() - caretRectangle.height) / 2,
+			        wishlistScrollPane.getWidth(), wishlistScrollPane.getHeight());
+			wishlistPane.scrollRectToVisible(viewRectangle);
 		}
 		catch (BadLocationException e)
 		{
@@ -1331,8 +1270,8 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		if(!HOHFirstName.getText().equals(fam.getHOHFirstName())) {fam.setHOHFirstName(HOHFirstName.getText()); cf = 4;}
 		if(!HOHLastName.getText().equals(fam.getHOHLastName())) {fam.setHOHLastName(HOHLastName.getText()); cf = 5;}
 		if(Integer.parseInt(lblNumBags.getText()) != fam.getNumOfBags()) {fam.setNumOfBags(Integer.parseInt(lblNumBags.getText())); cf = 20;}
-		if(!HomePhone.getText().equals(fam.getHomePhone())) {fam.setHomePhone(HomePhone.getText()); cf = 6;}
-		if(!OtherPhone.getText().equals(fam.getOtherPhon())) {fam.setOtherPhon(OtherPhone.getText()); cf = 7;}
+		if(!homePhonePane.getText().equals(fam.getHomePhone())) {fam.setHomePhone(homePhonePane.getText()); cf = 6;}
+		if(!otherPhonePane.getText().equals(fam.getOtherPhon())) {fam.setOtherPhon(otherPhonePane.getText()); cf = 7;}
 		if(!EMail.getText().equals(fam.getFamilyEmail())) {fam.setFamilyEmail(EMail.getText()); cf = 8;}
 		if(!Language.getSelectedItem().toString().equals(fam.getLanguage())){fam.setLanguage(Language.getSelectedItem().toString());cf = 9;}
 		if(!housenumTF.getText().equals(fam.getHouseNum())) {fam.setHouseNum(housenumTF.getText()); cf = 10;}
@@ -1341,7 +1280,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		if(!City.getText().equals(fam.getCity())) {fam.setCity(City.getText()); cf = 13;}
 		if(!ZipCode.getText().equals(fam.getZipCode())) {fam.setZipCode(ZipCode.getText()); cf = 14;}
 		if(statusCB.getSelectedIndex() != fam.getFamilyStatus()) {fam.setFamilyStatus(statusCB.getSelectedIndex()); cf = 15;}
-		if(!odbWishListPane.getText().equals(fam.getODBWishList())) {fam.setODBWishList(odbWishListPane.getText()); cf = 17;}
+		if(!wishlistPane.getText().equals(fam.getODBWishList())) {fam.setODBWishList(wishlistPane.getText()); cf = 17;}
 		if(!oncNotesPane.getText().equals(fam.getNotes())) {fam.setNotes(oncNotesPane.getText()); cf = 18;}
 		if(!oncDIPane.getText().equals(fam.getDeliveryInstructions())) {fam.setDeliveryInstructions(oncDIPane.getText()); cf = 19;}
 		
@@ -1399,20 +1338,20 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		for(int i = childTableModel.getRowCount() - 1; i >=0; i--)		
 		   childTableModel.removeRow(i);  	
     }
-*/	
-	void RefreshChildTable(String[] childdata, int row)
+	
+	void refreshChildTable(String[] childdata, int row)
 	{
 		for(int i=0; i<4; i++)
 			childTableModel.setValueAt(childdata[i], row, i);
 	}
-
+*/
 	void editAltAddress()
 	{
 		//Set up the dialog to edit agent info
 		String[] tfNames = {"House #", "Street", "Unit", "City", "Zip Code"};
     	AltAddressDialog altAddDlg = new AltAddressDialog(parentFrame, true, tfNames);
     	altAddDlg.display(currFam);
-    	altAddDlg.setLocationRelativeTo(altAddressRB);
+    	altAddDlg.setLocationRelativeTo(rbAltAddress);
     	altAddDlg.setVisible(true);
 	}
 	
@@ -1487,7 +1426,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	{
 		if(!adultDlg.isShowing())
 		{
-			adultDlg.setLocationRelativeTo(btnAdults);
+			adultDlg.setLocationRelativeTo(rbAdults);
 			adultDlg.display(currFam);
 			adultDlg.setVisible(true);
 		}
@@ -1505,7 +1444,10 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	void showClientMap()
 	{
 		if(!cmDlg.isShowing())
-			cmDlg.display(); 
+		{
+			cmDlg.display();
+			cmDlg.setVisible(true);
+		}
 	}
 
 	void showWishCatalogDialog()
@@ -1653,10 +1595,10 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		}
 	}
 	//Determines whether to show all personal data or restrict data 
-	void setFamilyPanelDisplayPermission(boolean disp_all)
-	{
-		bDispAll = disp_all;
-	}
+//	void setFamilyPanelDisplayPermission(boolean disp_all)
+//	{
+//		bDispAll = disp_all;
+//	}
 	
 	void setEnabledSuperuserPrivileges(boolean tf)
 	{
@@ -1732,7 +1674,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		
 			//determine child's first name, is it protected? Get it from table
 			String childFN;
-			if(bDispAll)
+			if(GlobalVariables.isUserAdmin())
 				childFN = currChild.getChildFirstName();
 			else
 				childFN = "Child " + Integer.toString(childTable.getSelectedRow() + 1);
@@ -1858,24 +1800,24 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	@Override
 	public void actionPerformed(ActionEvent e) 
 	{
-		if(e.getSource() == btnShowPriorHistory) 
+		if(e.getSource() == rbPriorHistory) 
 		{
 			if(onShowPriorHistory() == false)
 				JOptionPane.showMessageDialog(parentFrame, "Wish History Currently Unavailable",
 						"Wish History Currently Unavailable",  JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
 		}
-		else if(e.getSource() == btnShowAllPhones)
+		else if(e.getSource() == rbShowAllPhones)
 		{
 			JOptionPane.showMessageDialog(parentFrame, currFam.getAllPhoneNumbers(),
 					currFam.getClientFamily() + " family phone #'s", JOptionPane.INFORMATION_MESSAGE, gvs.getImageIcon(0));
 		}
-		else if(e.getSource() == btnShowAgentInfo)
+		else if(e.getSource() == rbAgentInfo)
 		{   
 	        showFamilyInfoDialog("Agent");
 		}
-		else if(e.getSource() == btnShowODBDetails)
+		else if(e.getSource() == rbFamDetails)
 		{
-			//Wrap the ODB Details string on 50 character length boundary's
+			//Wrap the details string on 50 character length boundary's
 			String[] input = currFam.getDetails().split(" ");
 			StringBuffer output = new StringBuffer("");
 			int linelength = 0;
@@ -1892,28 +1834,28 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			}
 			
 			JOptionPane.showMessageDialog(parentFrame, output.toString(),
-				"ODB Details For ONC Family #" + currFam.getONCNum(), JOptionPane.INFORMATION_MESSAGE, gvs.getImageIcon(0));
+				"Details For ONC Family #" + currFam.getONCNum(), JOptionPane.INFORMATION_MESSAGE, gvs.getImageIcon(0));
 		}
 		else if(e.getSource() == btnAssignONCNum)
 		{
 			autoassignONCNum();
 		}
-		else if(e.getSource() == delRB)
+		else if(e.getSource() == rbDeliveryHistory)
 		{
-			showHistoryDialog(delRB.getActionCommand());
+			showHistoryDialog(rbDeliveryHistory.getActionCommand());
 		}
-		else if(e.getSource() == btnMeals)
+		else if(e.getSource() == rbMeals)
 		{
-			if(btnMeals.getActionCommand().equals("Add Meal"))
-				showFamilyInfoDialog(btnMeals.getActionCommand());
+			if(rbMeals.getActionCommand().equals("Add Meal"))
+				showFamilyInfoDialog(rbMeals.getActionCommand());
 			else
-				showHistoryDialog(btnMeals.getActionCommand());
+				showHistoryDialog(rbMeals.getActionCommand());
 		}
-		else if(e.getSource() == btnAdults)
+		else if(e.getSource() == rbAdults)
 		{
 			showAdultDialog();
 		}
-		else if(e.getSource() == altAddressRB)			 
+		else if(e.getSource() == rbAltAddress)			 
 		{	
 			editAltAddress();
 		}
@@ -1967,11 +1909,11 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			
 			checkAndUpdateFamilyData(currFam);
 		}
-		else if(e.getSource() == btnTransportation)
+		else if(e.getSource() == rbTransportation)
 		{
 			showFamilyInfoDialog("Transportation");
 		}
-		else if(e.getSource() == btnDirections)
+		else if(e.getSource() == rbDirections)
 		{
 			showDrivingDirections();
 		}

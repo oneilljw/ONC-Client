@@ -91,9 +91,6 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 						
 		//Build the map
 		buildClientMap();
-		
-		//show the dialog
-		this.setVisible(true);
 	}
 	
 	void buildClientMap()
