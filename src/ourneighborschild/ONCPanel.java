@@ -8,25 +8,22 @@ import javax.swing.JPanel;
 public abstract class ONCPanel extends JPanel
 {
 	/**
-	 * 
+	 * This class is a base class for JPanels in the ONC desktop client that must fire
+	 * entity selection events. An entity selection event is fired whenever the user selects
+	 * a new ONC entity in one of the UI's. ONC entities, such as families, children, partners,
+	 * drivers all inherit from the ONCEntity class.
 	 */
 	private static final long serialVersionUID = 1L;
-	//List of registered listeners for table selection events
-    private ArrayList<EntitySelectionListener> listeners;
+	
+    private ArrayList<EntitySelectionListener> listeners;	//List of listeners for entity selection events
     protected JFrame parentFrame;
     protected GlobalVariables gvs;
-    
-    protected Families fDB;
-	protected ChildDB cDB;
     
     public ONCPanel(JFrame parentFrame)
     {
     	super();
     	this.parentFrame = parentFrame;
     	gvs = GlobalVariables.getInstance();
-    	
-    	fDB = Families.getInstance();
-		cDB = ChildDB.getInstance();
     }
     
     /** Register a listener for Entity Selection events */

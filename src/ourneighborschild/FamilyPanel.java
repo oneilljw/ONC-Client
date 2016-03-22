@@ -74,6 +74,9 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	
 	private static final String[] dStat = {"Empty", "Contacted", "Confirmed", "Assigned", "Attempted",
 											"Returned", "Delivered", "Counselor Pick-Up"};
+	//data base references
+    private Families fDB;
+	private ChildDB cDB;
 	private AdultDB adultDB;
 	private DeliveryDB deliveryDB;
 	private ONCRegions regions;
@@ -120,7 +123,6 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private WishCatalogDialog catDlg;
 	private ONCUserDialog userDlg;
 	private ViewONCDatabaseDialog dbDlg;
-	private WishLabelViewer wlViewerDlg;
 	private PYChildConnectionDialog pyConnectionDlg;
 	private AngelAutoCallDialog angelDlg;
 	
@@ -167,21 +169,23 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	{
 		super(pf);
 
+		//register database listeners for updates
+		fDB = Families.getInstance();
+		cDB = ChildDB.getInstance();
 		adultDB = AdultDB.getInstance();
 		deliveryDB = DeliveryDB.getInstance();
 		regions = ONCRegions.getInstance();
 		
-		currFam = null;
-		
-		//register to listen for family, delivery and child data changed events
 		if(fDB != null)
 			fDB.addDatabaseListener(this);
-		if(deliveryDB != null)
-			deliveryDB.addDatabaseListener(this);
 		if(cDB != null)
 			cDB.addDatabaseListener(this);
 		if(adultDB != null)
 			adultDB.addDatabaseListener(this);
+		if(deliveryDB != null)
+			deliveryDB.addDatabaseListener(this);
+		
+		currFam = null;
 		
 		//create the highlight painter used in the wish list pane
 		highlightPainter = new DefaultHighlighter.DefaultHighlightPainter(Color.YELLOW);
@@ -669,7 +673,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         dfDlg.addEntitySelectionListener(mealDlg);
         
         //Create the Child Panel
-        oncChildPanel = new ChildPanel(pf);
+        oncChildPanel = new ChildPanel();
         nav.addEntitySelectionListener(oncChildPanel);
         sortFamiliesDlg.addEntitySelectionListener(oncChildPanel);
         sortWishesDlg.addEntitySelectionListener(oncChildPanel);
@@ -701,7 +705,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         wishPanelList = new WishPanel[NUMBER_OF_WISHES_PER_CHILD];
         for(int wp=0; wp < wishPanelList.length; wp++)
         {
-        	wishPanelList[wp] = new WishPanel(pf, wp);
+        	wishPanelList[wp] = new WishPanel(wp);
         	childwishespanel.add(wishPanelList[wp]);
         	
         	//add the entity selection listeners
@@ -715,20 +719,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
             recGiftsDlg.addEntitySelectionListener(wishPanelList[wp]);
             this.addEntitySelectionListener(wishPanelList[wp]);
         }
-			
-        //set up the label viewer dialog
-        wlViewerDlg= new WishLabelViewer(pf);
-        nav.addEntitySelectionListener(wlViewerDlg);
-        sortWishesDlg.addEntitySelectionListener(wlViewerDlg);
-        sortAgentDlg.addEntitySelectionListener(wlViewerDlg);
-        sortDriverDlg.addEntitySelectionListener(wlViewerDlg);
-        assignDeliveryDlg.addEntitySelectionListener(wlViewerDlg);
-        sortDriverDlg.addEntitySelectionListener(wlViewerDlg);
-        this.addEntitySelectionListener(wlViewerDlg);
-        oncChildPanel.addEntitySelectionListener(wlViewerDlg);
-        for(int wp=0; wp < wishPanelList.length; wp++)
-        	wishPanelList[wp].addEntitySelectionListener(wlViewerDlg);
-      
+		
         //Add components to the panels
         p1.add(lblONCNum);
         p1.add(lblRefNum);
@@ -1465,19 +1456,6 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		{
 	        userDlg.setLocationRelativeTo(this);
 			userDlg.setVisible(true);
-		}
-	}
-	
-	void showWishLabelViewerDialog()
-	{
-		if(!wlViewerDlg.isVisible())
-		{
-			Point pt = parentFrame.getLocation();
-	        wlViewerDlg.setLocation(pt.x + 225, pt.y + 325);
-	        
-	        if(currFam != null && currChild != null)
-	        	wlViewerDlg.displayLabel(currChild, 0);
-			wlViewerDlg.setVisible(true);
 		}
 	}
 	

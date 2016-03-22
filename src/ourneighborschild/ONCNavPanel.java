@@ -17,7 +17,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.BevelBorder;
 
-public class ONCNavPanel extends JPanel implements ActionListener
+public class ONCNavPanel extends ONCPanel implements ActionListener
 {
 	/**
 	 * This class implements a panel used in the ONC Edit dialogs and family panel to display
@@ -28,15 +28,12 @@ public class ONCNavPanel extends JPanel implements ActionListener
 	 * implements a stop light function for the entity, and two message fields.
 	 * 
 	 *  When the user changes the displayed ONC Entity, the panel fires a Navigation Event
-	 *  to all registered listeners. 
+	 *  to all registered listeners. It inherits from ONCPanel for listener functionality
 	 */
 	private static final long serialVersionUID = 1L;
 
 	private static final String DEFAULT_MSSG = "Welcome to Our Neighbor's Child";
 	
-	//List of registered listeners for navigation events
-    private ArrayList<EntitySelectionListener> elisteners;
-    
     //UI objects
     private JButton btnNext, btnPrevious;
     private JButton  rbSrchNext, rbSrchPrev;
@@ -53,8 +50,8 @@ public class ONCNavPanel extends JPanel implements ActionListener
     
 	public ONCNavPanel(JFrame parentFrame, ONCSearchableDatabase db)
 	{
+		super(parentFrame);
 		//get Global Variables reference
-		GlobalVariables gvs = GlobalVariables.getInstance();
 		this.searchableDB = db;
 		defaultMssg = DEFAULT_MSSG;
 		
@@ -186,41 +183,6 @@ public class ONCNavPanel extends JPanel implements ActionListener
 		lblMssg.setText(defaultMssg);
 	}
 	
-    /** Register a listener for Entity Selection events */
-    synchronized public void addEntitySelectionListener(EntitySelectionListener l)
-    {
-    	if (elisteners == null)
-    		elisteners = new ArrayList<EntitySelectionListener>();
-    	elisteners.add(l);
-    }  
-
-    /** Remove a listener for Entity Selection events */
-    synchronized public void removeEntitySelectionListener(EntitySelectionListener l)
-    {
-    	if (elisteners == null)
-    		elisteners = new ArrayList<EntitySelectionListener>();
-    	elisteners.remove(l);
-    }
-    
-    /** Fire an Entity Selection event to all registered listeners */
-    protected void fireEntitySelected(Object source, String eventType, Object obj1, Object obj2)
-    {
-    	// if we have no listeners, do nothing...
-    	if (elisteners != null && !elisteners.isEmpty())
-    	{
-    		// create the event object to send
-    		EntitySelectionEvent event = new EntitySelectionEvent(source, eventType, obj1, obj2);
-    		
-    		// make a copy of the listener list in case anyone adds/removes listeners
-    		ArrayList<EntitySelectionListener> targets;
-    		synchronized (this) { targets = (ArrayList<EntitySelectionListener>) elisteners.clone(); }
-
-    		// walk through the cloned listener list and call the dataChanged method in each
-    		for(EntitySelectionListener el:targets)
-    			el.entitySelected(event);
-    	}
-    }
-
 	@Override
 	public void actionPerformed(ActionEvent e) 
 	{

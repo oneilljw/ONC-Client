@@ -9,24 +9,31 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.TimeZone;
+
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JTextField;
+
 import com.toedter.calendar.JDateChooser;
 
-public class ChildPanel extends ONCPanel implements DatabaseListener, EntitySelectionListener
+public class ChildPanel extends JPanel implements DatabaseListener, EntitySelectionListener
 {
 	/**
-	 * This class extends ONCPanel to provide the UI for display and edit of a child
+	 * This class extends JPanel to provide the UI for display and edit of a child
 	 * The child's first and last name, gender, date of birth, age and school are displayed and
 	 * all but age can be changed by the user
 	 */
 	private static final long serialVersionUID = 1L;
-	private static final int ONC_MAX_CHILD_AGE = 24; //Used for sorting children into array lists
+	private static final int ONC_MAX_CHILD_AGE = 21; //Used to highlight out of age range children
 	
 	private ONCChild dispChild = null;	//The panel needs to know which child is being displayed for listeners
+	
+	//databases
+	private GlobalVariables gvs;
+    private Families fDB;
+	private ChildDB cDB;
 	
 	//GUI elements
 	private JTextField firstnameTF;
@@ -38,18 +45,22 @@ public class ChildPanel extends ONCPanel implements DatabaseListener, EntitySele
 	//Semaphores
 	private boolean bChildDataChanging = false; //flag indicates child data displayed is updating
 	
-	public ChildPanel(JFrame pf)
+	public ChildPanel()
 	{	
-		super(pf);
+		//register database listeners for updates
+		gvs = GlobalVariables.getInstance();
+    	fDB = Families.getInstance();
+		if(fDB != null)
+			fDB.addDatabaseListener(this);
+		
+		cDB = ChildDB.getInstance();
+		if(cDB != null)
+			cDB.addDatabaseListener(this);
 		
 		//Set layout and border for the Child Panel
 		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 		this.setToolTipText("Information for an ONC child");
 		this.setBorder(BorderFactory.createTitledBorder("Child Information"));
-		
-		//register database listeners for updates
-		if(fDB != null) { fDB.addDatabaseListener(this); }
-		if(cDB != null) { cDB.addDatabaseListener(this); }
 		
 		//Initialize class variables
 		//Create a listener for panel gui events

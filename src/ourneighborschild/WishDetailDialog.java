@@ -74,7 +74,7 @@ public class WishDetailDialog extends JDialog implements ActionListener
 			
 			JTextField contentTF = new JTextField();
 			contentTF.setPreferredSize(new Dimension (392, 44));
-			contentTF.setBorder(BorderFactory.createTitledBorder("List Contents"));
+			contentTF.setBorder(BorderFactory.createTitledBorder("List Contents ( separate list items with a ; )"));
 			contentTFAL.add(contentTF);
 			drsubpanel[i].add(contentTF);
 			

@@ -552,7 +552,6 @@ public class OurNeighborsChild implements DatabaseListener
         ONCMenuBar.sortWishesMI.addActionListener(menuItemListener);
         ONCMenuBar.recGiftsMI.addActionListener(menuItemListener);
         ONCMenuBar.sortMealsMI.addActionListener(menuItemListener);
-        ONCMenuBar.labelViewerMI.addActionListener(menuItemListener);
         ONCMenuBar.orgMI.addActionListener(menuItemListener);
         ONCMenuBar.sortOrgsMI.addActionListener(menuItemListener);
         ONCMenuBar.sortFamiliesMI.addActionListener(menuItemListener);
@@ -1011,8 +1010,7 @@ public class OurNeighborsChild implements DatabaseListener
     		else if(e.getSource() == ONCMenuBar.sortMealsMI)
     			oncFamilyPanel.showSortDialog(ONCMenuBar.sortMealsMI.getActionCommand(), SORT_DIALOG_OFFSET);
     		else if(e.getSource() == ONCMenuBar.recGiftsMI)
-    			oncFamilyPanel.showSortDialog(ONCMenuBar.recGiftsMI.getActionCommand(), SORT_DIALOG_OFFSET);  		
-    		else if(e.getSource() == ONCMenuBar.labelViewerMI) {oncFamilyPanel.showWishLabelViewerDialog();}
+    			oncFamilyPanel.showSortDialog(ONCMenuBar.recGiftsMI.getActionCommand(), SORT_DIALOG_OFFSET);
     		else if(e.getSource() == ONCMenuBar.catMI) {oncFamilyPanel.showWishCatalogDialog(); }
     		else if(e.getSource() == ONCMenuBar.orgMI)
     			oncFamilyPanel.showEntityDialog(ONCMenuBar.orgMI.getActionCommand(), SORT_DIALOG_OFFSET);

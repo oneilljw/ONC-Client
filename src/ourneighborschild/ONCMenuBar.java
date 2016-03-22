@@ -28,7 +28,7 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 	public static JMenu submenuImport, submenuFamilyDataChecks;
 	public static JMenu submenuExport, submenuChangeFamilyNumbers, submenuCompareData, submenuDatabase;
 	public static JMenuItem viewDBMI, sortWishesMI, sortFamiliesMI, sortOrgsMI, recGiftsMI, sortMealsMI;
-	public static JMenuItem labelViewerMI, agentMI, orgMI, catMI;
+	public static JMenuItem agentMI, orgMI, catMI;
 	public static JMenuItem aboutONCMI, oncPrefrencesMI, profileMI, userMI, onlineMI, chatMI, changePWMI, stopPollingMI;
 	public static JMenuItem showServerLogMI, showServerClientIDMI, showCurrDirMI, showWebsiteStatusMI;
 	public List<JMenuItem> dbYears;
@@ -230,12 +230,6 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 	    recGiftsMI.setEnabled(false);
 	    menuWishes.add(recGiftsMI);
 	    
-	    menuWishes.addSeparator();
-	    
-	    labelViewerMI = new JMenuItem("View Wish Labels");
-	    labelViewerMI.setEnabled(false);
-	    menuWishes.add(labelViewerMI);
-	    
 	    //Build Meals Menu Structure
 	    menuMeals = new JMenu("Meals");
 	    this.add(menuMeals);
@@ -368,7 +362,6 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 		distMI.setEnabled(tf);	
 		sortWishesMI.setEnabled(true);
 		recGiftsMI.setEnabled(true);
-		labelViewerMI.setEnabled(true);
 	}
 	
 	void setEnabledRestrictedMenuItems(boolean tf)	//Only Admins can perform these functions

@@ -7,7 +7,6 @@ import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 
 import javax.swing.ImageIcon;
 import javax.swing.JDialog;
@@ -15,7 +14,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-public class WishLabelViewer extends JDialog implements DatabaseListener, EntitySelectionListener
+public class WishLabelViewer extends JDialog implements DatabaseListener
 {
 	/**
 	 * 
@@ -32,13 +31,14 @@ public class WishLabelViewer extends JDialog implements DatabaseListener, Entity
 	
 	private JLabel wishLabel;
 	
-	
 	private ONCChild child;	//current child being displayed
 	private int wn;			//current wish number being displayed
 	
-	WishLabelViewer(JFrame pf)
+	WishLabelViewer(JFrame pf, ONCChild child, int wn)
 	{
-		super(pf);
+		super(pf, true);
+		this.child = child;
+		this.wn = wn;
 		
 		gvs = GlobalVariables.getInstance();
 		cat = ONCWishCatalog.getInstance();
@@ -60,7 +60,9 @@ public class WishLabelViewer extends JDialog implements DatabaseListener, Entity
 		
 		wishLabel = new JLabel();
 		wishLabel.setHorizontalAlignment(JLabel.LEFT);
-		wishLabel.setIcon(GlobalVariables.getSeasonIcon());
+//		wishLabel.setIcon(GlobalVariables.getSeasonIcon());
+		setLabelIcon(GlobalVariables.getSeasonIcon());
+		displayLabel(child, wn);
 		
 		//Create a content panel for the frame and add components to it.
 		this.getContentPane().setLayout(new BorderLayout(20, 0));
@@ -182,7 +184,7 @@ public class WishLabelViewer extends JDialog implements DatabaseListener, Entity
 
 		return line;
 	}
-
+/*
 	@Override
 	public void entitySelected(EntitySelectionEvent tse)
 	{
@@ -215,7 +217,7 @@ public class WishLabelViewer extends JDialog implements DatabaseListener, Entity
 				displayLabel(child, cw.getWishNumber());
 		}
 	}
-
+*/
 	@Override
 	public void dataChanged(DatabaseEvent dbe)
 	{

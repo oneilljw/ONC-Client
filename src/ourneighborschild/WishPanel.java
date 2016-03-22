@@ -6,8 +6,6 @@ import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -27,41 +25,46 @@ import javax.swing.JTextField;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-public class WishPanel extends ONCPanel implements ActionListener, DatabaseListener, EntitySelectionListener
+public class WishPanel extends JPanel implements ActionListener, DatabaseListener, EntitySelectionListener
 {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	private static final int ONC_GIFT_ICON = 4;
+	private static final int ONC_LABEL_ICON = 44;
 	private static final int MAX_LABEL_LINE_LENGTH = 26;
 	private static final int FAMILY_STATUS_UNVERIFIED = 0;
 	
 	//database references
-	ONCWishCatalog cat;
-	ONCOrgs orgDB;
-	
-	private ONCChild child;		//child being displayed on panel
-	private ONCChildWish childWish; 	//wish being displayed on panel
-	private int wishNumber; 	//wish# being displayed on panel
-	
+	private GlobalVariables gvs;
+    private Families fDB;
+	private ChildDB cDB;
 	private ChildWishDB cwDB;
+	private ONCWishCatalog cat;
+	private ONCOrgs orgDB;
 	
-	private boolean bWishChanging; 		//Semaphore indicating changing ComboBoxes
+	private ONCChild child;			//child being displayed on panel
+	private ONCChildWish childWish; //wish being displayed on panel
+	private int wishNumber; 		//wish# being displayed on panel
+	
+	private boolean bWishChanging; 		//semaphore indicating changing ComboBoxes
 	private JComboBox wishCB, wishindCB, wishassigneeCB;
 	private DefaultComboBoxModel wishCBM, assigneeCBM;
 	private JTextField wishdetailTF;
-	private JRadioButton wishRB;
+	private JRadioButton rbWish, rbLabel;
 	private WishPanelStatus wpStatus;
 	
-	public WishPanel(JFrame parentFrame, int wishNumber)
+	public WishPanel(int wishNumber)
 	{
-		super(parentFrame);
 		this.wishNumber = wishNumber;
 		
+		gvs = GlobalVariables.getInstance();
+    	fDB = Families.getInstance();
 		if(fDB != null)
 			fDB.addDatabaseListener(this);
 		
+		cDB = ChildDB.getInstance();
 		if(cDB != null)
 			cDB.addDatabaseListener(this);
 		
@@ -99,27 +102,32 @@ public class WishPanel extends ONCPanel implements ActionListener, DatabaseListe
         wishCBM.addElement(new ONCWish(-1, "None", 7));
         wishCB = new JComboBox();
         wishCB.setModel(wishCBM);
-//        wishCB.setPreferredSize(new Dimension(144, 24));
+        wishCB.setPreferredSize(new Dimension(178, 24));
         wishCB.setToolTipText("Select wish from ONC gift catalog");
         wishCB.setEnabled(false);
         wishCB.addActionListener(this);
             
         wishindCB = new JComboBox(indications);
-//        wishindCB.setPreferredSize(dwi);           
-        wishindCB.setToolTipText("Set Wish Restrictions: #- Not from ODB Wish List, *- Don't assign for fulfillment");
+        wishindCB.setPreferredSize(new Dimension(52, 24));           
+        wishindCB.setToolTipText("Set Wish Restrictions: #- Not from Child Wish List, *- Don't assign to partner");
         wishindCB.setEnabled(false);
         wishindCB.addActionListener(this);
             
-        wishRB = new JRadioButton(gvs.getImageIcon(ONC_GIFT_ICON));
-        wishRB.setToolTipText("Click to see wish history");
-        wishRB.setEnabled(false);
-        wishRB.addActionListener(this);
+        rbWish = new JRadioButton(gvs.getImageIcon(ONC_GIFT_ICON));
+        rbWish.setToolTipText("Click to see wish history");
+        rbWish.setEnabled(false);
+        rbWish.addActionListener(this);
+        
+        rbLabel = new JRadioButton(gvs.getImageIcon(ONC_LABEL_ICON));
+        rbLabel.setToolTipText("Click to see wish label");
+        rbLabel.setEnabled(false);
+        rbLabel.addActionListener(this);
             
         wishdetailTF = new JTextField();
         wishdetailTF.setToolTipText("Type wish details, then hit <Enter>");
         wishdetailTF.setEnabled(false);
         wishdetailTF.addActionListener(this);
-        wishdetailTF.addMouseListener(new WishDetailMouseListener());
+//      wishdetailTF.addMouseListener(new WishDetailMouseListener());
  
         assigneeCBM = new DefaultComboBoxModel();
         assigneeCBM.addElement(new Organization(-1, "None", "None"));
@@ -132,9 +140,11 @@ public class WishPanel extends ONCPanel implements ActionListener, DatabaseListe
         
         wsp1.add(wishCB);
     	wsp1.add(wishindCB);
+    	wsp1.add(rbWish);
     	wsp2.add(wishdetailTF);
         wsp3.add(wishassigneeCB);
-        wsp3.add(wishRB);
+        wsp3.add(rbLabel);
+//      wsp3.add(rbWish);
         
         this.add(wsp1);
     	this.add(wsp2);
@@ -322,7 +332,8 @@ public class WishPanel extends ONCPanel implements ActionListener, DatabaseListe
 			wishassigneeCB.setEnabled(false);
 		}
 		
-		wishRB.setEnabled(true);
+		rbWish.setEnabled(true);
+		rbLabel.setEnabled(ws != WishStatus.Not_Selected);
 	}
 	
 	boolean doesWishFitOnLabel(ONCChildWish cw)
@@ -407,7 +418,7 @@ public class WishPanel extends ONCPanel implements ActionListener, DatabaseListe
 				firstname = "Child " + cDB.getChildNumber(child);
 			WishHistoryDialog whDlg = new WishHistoryDialog(GlobalVariables.getFrame(), wishHistoryTable,
 											wishNumber, firstname);
-			whDlg.setLocationRelativeTo(wishRB);
+			whDlg.setLocationRelativeTo(rbWish);
 			whDlg.setVisible(true);
 		}
 		else
@@ -470,10 +481,17 @@ public class WishPanel extends ONCPanel implements ActionListener, DatabaseListe
 			//Add a new wish with the new organization
 			addWish();
 		}
-		else if(e.getSource() == wishRB)
+		else if(e.getSource() == rbWish)
 		{ 
 			showWishHistoryDlg(); 
-		}	
+		}
+		else if(e.getSource() == rbLabel)
+		{
+			//construct and show label viewer for selected label
+			WishLabelViewer viewer = new WishLabelViewer(GlobalVariables.getFrame(), child, wishNumber);
+			viewer.setLocationRelativeTo(this);
+			viewer.setVisible(true);
+		}
 	}
 	
 	void addWish()
@@ -633,44 +651,7 @@ public class WishPanel extends ONCPanel implements ActionListener, DatabaseListe
 		Disabled,
 		Assignee_Only;
 	}
-	
-	private class WishDetailMouseListener implements MouseListener
-	{
-		@Override
-		public void mouseClicked(MouseEvent me)
-		{
-			if(me.getSource() == wishdetailTF)
-			{
-				//need to get family, child, and child wish objects
-				ONCFamily fam = fDB.getFamily(child.getFamID());
-				fireEntitySelected(this, "WISH_SELECTED", fam, child, childWish);
-			}
-		}
 
-		@Override
-		public void mouseEntered(MouseEvent arg0)
-		{
-			// TODO Auto-generated method stub
-		}
-
-		@Override
-		public void mouseExited(MouseEvent arg0) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void mousePressed(MouseEvent arg0) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void mouseReleased(MouseEvent arg0) {
-			// TODO Auto-generated method stub
-		}
-	}
-	
 	class DetailDialog extends JDialog implements ActionListener
 	{
 		/*****************************************************************************************
