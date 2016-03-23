@@ -2064,8 +2064,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			g2d.setFont(psFont[3]);
 			g2d.drawString("CHILD #" + Integer.toString(childnum) +":", x, y+14);
 			g2d.drawString(childdata, x+56, y + 14);
-
-
+			
 			g2d.setFont(psFont[0]);
 			//Draw Child Gift 1
 			drawThickRect(g2d, x, y+VERIFICATION_SHEET_CHILD_RECORD_LINE_HEIGHT, 12, 12, giftdata[0].contains("Bike-"));

@@ -13,6 +13,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
@@ -535,7 +536,25 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         sortWishesDlg.addEntitySelectionListener(mealDlg);
         sortWishesDlg.addEntitySelectionListener(dirDlg);
         stDlgMap.put("Wishes", sortWishesDlg);
-    	
+/*        
+        //test
+        List<EntitySelectionListener> consumers = new ArrayList<EntitySelectionListener>();
+        consumers.add(dsDlg);
+       
+        List<ONCPanel> panelProducers = new ArrayList<ONCPanel>();
+        panelProducers.add(nav);
+        panelProducers.add(this);
+        
+        List<SortTableDialog> tableProducers = new ArrayList<SortTableDialog>();
+        tableProducers.add(sortWishesDlg);
+        
+        for(ONCPanel panel : panelProducers)
+        	panel.addEntitySelectionListener(consumers.get(0));
+        
+        for(ONCTableDialog table : tableProducers)
+        	table.addEntitySelectionListener(consumers.get(0));
+*/
+        
     	//Set up the manage catalog dialog
     	catDlg = new WishCatalogDialog(parentFrame);
     	
@@ -719,7 +738,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
             recGiftsDlg.addEntitySelectionListener(wishPanelList[wp]);
             this.addEntitySelectionListener(wishPanelList[wp]);
         }
-		
+        
         //Add components to the panels
         p1.add(lblONCNum);
         p1.add(lblRefNum);

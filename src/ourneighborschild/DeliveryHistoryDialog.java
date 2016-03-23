@@ -25,7 +25,7 @@ public class DeliveryHistoryDialog extends HistoryDialog
 	private static final int DATE_CHANGED_COL = 4;
 	private static final String[] dstat = {"Empty", "Contacted", "Confirmed", "Assigned", "Attempted",
 							  			   "Returned", "Delivered", "Counselor Pick-Up"};
-	
+
 	private AbstractTableModel dlgTableModel;
 	
 	private DeliveryDB deliveryDB;
