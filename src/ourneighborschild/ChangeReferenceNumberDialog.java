@@ -128,7 +128,7 @@ public class ChangeReferenceNumberDialog extends InfoDialog implements DatabaseL
 	@Override
 	public void entitySelected(EntitySelectionEvent tse) 
 	{
-		if(tse.getType().equals("FAMILY_SELECTED"))
+		if(tse.getType() == EntityType.FAMILY)
 		{
 			if(this.isShowing())	//If Change ODB Number dialog visible, notify agent selection change
 			{

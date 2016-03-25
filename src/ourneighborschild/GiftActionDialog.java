@@ -341,7 +341,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 		{
 			ONCFamily fam = stAL.get(sortTable.getSelectedRow()).getFamily();
 			ONCChild child = stAL.get(sortTable.getSelectedRow()).getChild();
-			fireEntitySelected(this, "WISH_SELECTED", fam, child);
+			fireEntitySelected(this,EntityType.WISH, fam, child);
 			
 //			System.out.println(String.format("GiftActionDialog.valueChanged: lse received"));
 			checkApplyChangesEnabled();	//Check to see if user postured to change status or assignee.

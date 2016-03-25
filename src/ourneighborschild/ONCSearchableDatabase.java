@@ -14,10 +14,7 @@ public abstract class ONCSearchableDatabase extends ONCDatabase
 		while(index < list.size() && list.get(index).getID() != searchID )
 			index++;
 		
-		if(index < list.size())	//The org was found 
-			return index;
-		else
-			return -1;	
+		return index < list.size() ? index: -1;	//was entity in the list? 
 	}
 	
 	abstract int size();
@@ -26,5 +23,5 @@ public abstract class ONCSearchableDatabase extends ONCDatabase
 	
 	abstract ONCEntity getObjectAtIndex(int index);
 	
-	abstract String getDBType();
+	abstract EntityType getDBType();
 }

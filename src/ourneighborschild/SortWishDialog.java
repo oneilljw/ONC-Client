@@ -1087,14 +1087,14 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 			ONCFamily fam = stAL.get(sortTable.getSelectedRow()).getFamily();
 			ONCChild child = stAL.get(sortTable.getSelectedRow()).getChild();
 			ONCChildWish cw = stAL.get(sortTable.getSelectedRow()).getChildWish();
-			fireEntitySelected(this, "WISH_SELECTED", fam, child, cw);
+			fireEntitySelected(this, EntityType.WISH, fam, child, cw);
 			
 			//determine if a partner has been assigned for the selected wish
 			int childWishAssigneeID = cw.getChildWishAssigneeID();
 			if(childWishAssigneeID > -1)
 			{
 				Organization org = orgs.getOrganizationByID(childWishAssigneeID);
-				fireEntitySelected(this, "PARTNER_SELECTED", org, null);
+				fireEntitySelected(this, EntityType.PARTNER, org, null);
 			}
 			
 			sortTable.requestFocus();

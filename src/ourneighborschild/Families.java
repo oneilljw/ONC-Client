@@ -34,7 +34,7 @@ public class Families extends ONCSearchableDatabase
 	 * In addition, it provides support for managing families such as
 	 * generation of ONC Numbers.
 	 */
-	private static final String DB_TYPE = "FAMILY";
+	private static final EntityType DB_TYPE = EntityType.FAMILY;
 	private static final int ONC_OPEN_FILE = 0;
 	private static final int ONC_REBASELINE_REGION_MARGIN = 5;
 	private static final int NUMBER_OF_WISHES_PER_CHILD = 3;
@@ -78,7 +78,7 @@ public class Families extends ONCSearchableDatabase
 	}
 	
 	ONCFamily getObjectAtIndex(int index) { return oncFamAL.get(index); }
-	String getDBType() { return DB_TYPE; }
+	EntityType getDBType() { return DB_TYPE; }
 	int size() { return oncFamAL.size(); }
 	void clear() { oncFamAL.clear(); }
 	ArrayList<ONCFamily> getList() { return oncFamAL; }

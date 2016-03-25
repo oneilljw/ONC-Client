@@ -845,14 +845,14 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
 		 ************************************************************************************/
 		if(this.isVisible() && !bAddingNewEntity)
 		{
-			if(tse.getSource() != nav && tse.getType().equals("PARTNER_SELECTED"))
+			if(tse.getSource() != nav && tse.getType() == EntityType.PARTNER)
 			{
 				Organization partner = (Organization) tse.getObject1();
 				update();
 				nav.setIndex(odOrgs.getListIndexByID(odOrgs.getList(), partner.getID()));
 				display(partner);
 			}
-			else if(tse.getSource() == nav && tse.getType().equals("PARTNER_SELECTED"))
+			else if(tse.getSource() == nav && tse.getType() == EntityType.PARTNER)
 			{
 				update();
 				display(odOrgs.getObjectAtIndex(nav.getIndex()));

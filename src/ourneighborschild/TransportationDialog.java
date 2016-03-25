@@ -97,7 +97,7 @@ public class TransportationDialog extends InfoDialog implements DatabaseListener
 	@Override
 	public void entitySelected(EntitySelectionEvent tse) 
 	{
-		if(tse.getType().equals("FAMILY_SELECTED"))
+		if(tse.getType() == EntityType.FAMILY || tse.getType() == EntityType.WISH)
 		{
 			if(this.isShowing())	//If Agent Info dialog visible, notify agent selection change
 			{

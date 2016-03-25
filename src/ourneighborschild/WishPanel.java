@@ -600,7 +600,7 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 	@Override
 	public void entitySelected(EntitySelectionEvent tse)
 	{	
-		if(tse.getType().equals("FAMILY_SELECTED"))
+		if(tse.getType() == EntityType.FAMILY)
 		{
 			ONCFamily fam = (ONCFamily) tse.getObject1();
 			ArrayList<ONCChild> childList = cDB.getChildren(fam.getID());
@@ -629,7 +629,7 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 				clearWish();
 			}
 		}
-		else if(tse.getType().equals("CHILD_SELECTED") || tse.getType().equals("WISH_SELECTED")  )
+		else if(tse.getType() == EntityType.CHILD|| tse.getType() == EntityType.WISH)
 		{
 			ONCChild selChild = (ONCChild) tse.getObject2();
 			

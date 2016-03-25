@@ -310,7 +310,7 @@ public class ChildPanel extends JPanel implements DatabaseListener, EntitySelect
 	@Override
 	public void entitySelected(EntitySelectionEvent tse)
 	{
-		if(tse.getType().equals("FAMILY_SELECTED"))
+		if(tse.getType() == EntityType.FAMILY)
 		{
 			ONCFamily fam = (ONCFamily) tse.getObject1();
 			ArrayList<ONCChild> childList = cDB.getChildren(fam.getID());
@@ -335,7 +335,7 @@ public class ChildPanel extends JPanel implements DatabaseListener, EntitySelect
 				clearChildData();
 			}
 		}
-		else if(tse.getType().equals("CHILD_SELECTED"))
+		else if(tse.getType() == EntityType.CHILD)
 		{
 			ONCChild child = (ONCChild) tse.getObject2();
 			
@@ -347,7 +347,7 @@ public class ChildPanel extends JPanel implements DatabaseListener, EntitySelect
 			LogDialog.add(logEntry, "M");
 			displayChild(child);
 		}
-		else if(tse.getType().equals("WISH_SELECTED"))
+		else if(tse.getType() == EntityType.WISH)
 		{
 			ONCChild child = (ONCChild) tse.getObject2();
 			

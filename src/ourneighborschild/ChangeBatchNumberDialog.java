@@ -142,7 +142,7 @@ public class ChangeBatchNumberDialog extends InfoDialog implements DatabaseListe
 	@Override
 	public void entitySelected(EntitySelectionEvent tse) 
 	{
-		if(tse.getType().equals("FAMILY_SELECTED"))
+		if(tse.getType() == EntityType.FAMILY)
 		{
 			if(this.isShowing())	//If Change batch number dialog visible, notify batch # change
 			{

@@ -451,7 +451,7 @@ public class DriverDialog extends EntityDialog
 	{
 		if(this.isVisible() && !bAddingNewEntity)
 		{
-			if(tse.getType().equals("FAMILY_SELECTED") || tse.getType().equals("WISH_SELECTED"))
+			if(tse.getType() == EntityType.FAMILY || tse.getType() == EntityType.WISH)
 			{
 				ONCFamily fam = (ONCFamily) tse.getObject1();
 				
@@ -460,9 +460,7 @@ public class DriverDialog extends EntityDialog
 				LogDialog.add(logEntry, "M");
 				
 				ONCDelivery del = deliveryDB.getDelivery(fam.getDeliveryID());
-//				System.out.println(String.format("DriverDialog.entitySelected - Event Type: %s, Family ID: %d, Delivery ID: %d", 
-//						tse.getType(), fam.getID(), del.getID()));
-				
+			
 				if(del != null && !del.getdDelBy().isEmpty())
 				{
 					//There is s driver assigned. Determine who it is from the driver number
@@ -476,7 +474,7 @@ public class DriverDialog extends EntityDialog
 					}
 				}
 			}
-			else if(tse.getType().equals("DRIVER_SELECTED"))
+			else if(tse.getType() == EntityType.DRIVER)
 			{
 				ONCDriver driver = (ONCDriver) tse.getObject1();
 				update();

@@ -30,7 +30,7 @@ public class ONCOrgs extends ONCSearchableDatabase
 	 * a user to import an external .csv formatted file of organizations. Read and write 
 	 * object methods provide for persistent storage of the organization array list. 
 	 */
-	private static final String DB_TYPE = "PARTNER";
+	private static final EntityType DB_TYPE = EntityType.PARTNER;
 	private static final int ORGANIZATION_DB_HEADER_LENGTH = 27;
 	private static final int STATUS_NO_ACTION_YET = 0;
 	private static final int STATUS_CONFIRMED = 5;
@@ -168,7 +168,7 @@ public class ONCOrgs extends ONCSearchableDatabase
 			return null;
 	}
 	
-	String getDBType() { return DB_TYPE; }
+	EntityType getDBType() { return DB_TYPE; }
 	
 	int size() { return orgsAL.size(); }
 	

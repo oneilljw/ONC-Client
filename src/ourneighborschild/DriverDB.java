@@ -27,7 +27,7 @@ import au.com.bytecode.opencsv.CSVWriter;
 
 public class DriverDB extends ONCSearchableDatabase
 {
-	private static final String DB_TYPE = "DRIVER";
+	private static final EntityType DB_TYPE = EntityType.DRIVER;
 	private static final int DRIVER_OBJECT_CSV_HEADER_LENGTH = 18;
 	private static final int DRIVER_CSVFILE_HEADER_LENGTH = 20;
 	private static DriverDB instance = null;
@@ -55,7 +55,7 @@ public class DriverDB extends ONCSearchableDatabase
 	//implementation of abstract classes
 	ONCDriver getObjectAtIndex(int index) { return driverAL.get(index); }
 	
-	String getDBType() { return DB_TYPE; }
+	EntityType getDBType() { return DB_TYPE; }
 	
 	public List<ONCDriver> getDriverDB() { return driverAL; }
 	

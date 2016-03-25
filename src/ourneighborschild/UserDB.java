@@ -12,7 +12,7 @@ import com.google.gson.reflect.TypeToken;
 
 public class UserDB extends ONCSearchableDatabase
 {
-	private static final String DB_TYPE = "USER";
+	private static final EntityType DB_TYPE = EntityType.USER;
 	private static UserDB instance = null;
 	private List<ONCUser> uAL;
 	
@@ -327,5 +327,5 @@ public class UserDB extends ONCSearchableDatabase
 	ONCEntity getObjectAtIndex(int index) {  return uAL.get(index); }
 
 	@Override
-	String getDBType() { return DB_TYPE; }
+	EntityType getDBType() { return DB_TYPE; }
 }

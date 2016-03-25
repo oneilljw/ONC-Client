@@ -79,7 +79,7 @@ public abstract class SortFamilyTableDialog extends ChangeDialog
 		{
 			ONCFamily fam = (ONCFamily) stAL.get(sortTable.getSelectedRow());
 			
-			fireEntitySelected(this, "FAMILY_SELECTED", fam, null);
+			fireEntitySelected(this, EntityType.FAMILY, fam, null);
 			this.requestFocus();
 		}
 		

@@ -10,6 +10,7 @@ import java.awt.print.PrinterException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
+
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -244,7 +245,7 @@ public abstract class CheckDialog extends ONCTableDialog implements ActionListen
 			ONCFamily fam = di.getFamily1();
 			ONCChild child = di.getChild1();
 			
-			fireEntitySelected(this, "FAMILY_SELECTED", fam, child);
+			fireEntitySelected(this, EntityType.FAMILY, fam, child);
 			requestFocus();
 		}
 	}

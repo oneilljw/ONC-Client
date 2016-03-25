@@ -199,7 +199,7 @@ public class ONCNavPanel extends ONCPanel implements ActionListener
 					index = searchableDB.size()-1;
 			}
 			
-			fireEntitySelected(this, searchableDB.getDBType() +"_SELECTED", searchableDB.getObjectAtIndex(index), null);
+			fireEntitySelected(this, searchableDB.getDBType(), searchableDB.getObjectAtIndex(index), null);
 		}
 		else if(e.getSource() == searchTF && !searchTF.getText().isEmpty())
 		{
@@ -217,7 +217,7 @@ public class ONCNavPanel extends ONCPanel implements ActionListener
 			{				
     			srchALindex=0;
     			index = searchableDB.getListIndexByID(searchableDB.getList(), searchAL.get(srchALindex));
-    			fireEntitySelected(this, searchableDB.getDBType() +"_SELECTED", searchableDB.getObjectAtIndex(index), null);
+    			fireEntitySelected(this, searchableDB.getDBType(), searchableDB.getObjectAtIndex(index), null);
 			}
 			else
 			{
@@ -235,7 +235,7 @@ public class ONCNavPanel extends ONCPanel implements ActionListener
 				srchALindex=0;
 			
 			index = searchableDB.getListIndexByID(searchableDB.getList(), searchAL.get( srchALindex));	
-			fireEntitySelected(this, searchableDB.getDBType() +"_SELECTED", searchableDB.getObjectAtIndex(index), null);
+			fireEntitySelected(this, searchableDB.getDBType(), searchableDB.getObjectAtIndex(index), null);
 		}
 		else if(e.getSource() == rbSrchPrev)
 		{
@@ -243,7 +243,7 @@ public class ONCNavPanel extends ONCPanel implements ActionListener
 				srchALindex=searchAL.size()-1;
 			
 			index = searchableDB.getListIndexByID(searchableDB.getList(), searchAL.get(srchALindex));
-			fireEntitySelected(this, searchableDB.getDBType() +"_SELECTED", searchableDB.getObjectAtIndex(index), null);
+			fireEntitySelected(this, searchableDB.getDBType(), searchableDB.getObjectAtIndex(index), null);
 		}
 //		else if(e.getSource() == btnLogoff)
 //		{

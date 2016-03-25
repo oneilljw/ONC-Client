@@ -754,7 +754,7 @@ public class AngelAutoCallDialog extends ONCTableDialog implements ActionListene
 		
 		if(modelRow > -1 && lse.getSource() == dlgTable.getSelectionModel() && stAL.get(modelRow) != null)
 		{
-			fireEntitySelected(this, "FAMILY_SELECTED", stAL.get(modelRow).getFamily(), null);
+			fireEntitySelected(this, EntityType.FAMILY, stAL.get(modelRow).getFamily(), null);
 			requestFocus();
 		}
 	}

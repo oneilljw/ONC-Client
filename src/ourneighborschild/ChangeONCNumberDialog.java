@@ -128,7 +128,7 @@ public class ChangeONCNumberDialog extends InfoDialog implements DatabaseListene
 	@Override
 	public void entitySelected(EntitySelectionEvent tse) 
 	{
-		if(tse.getType().equals("FAMILY_SELECTED"))
+		if(tse.getType() == EntityType.FAMILY)
 		{
 			if(this.isShowing())	//If Change ONC Number dialog visible, notify agent selection change
 			{

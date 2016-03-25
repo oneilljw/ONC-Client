@@ -538,21 +538,17 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         stDlgMap.put("Wishes", sortWishesDlg);
 /*        
         //test
-        List<EntitySelectionListener> consumers = new ArrayList<EntitySelectionListener>();
-        consumers.add(dsDlg);
+        List<EntitySelectionListener> listenerList = new ArrayList<EntitySelectionListener>();
+        listenerList.add(dsDlg);
        
-        List<ONCPanel> panelProducers = new ArrayList<ONCPanel>();
-        panelProducers.add(nav);
-        panelProducers.add(this);
+        List<EntitySelector> selectorList = new ArrayList<EntitySelector>();
+        selectorList.add(nav);
+        selectorList.add(this);
+        selectorList.add(sortWishesDlg);
         
-        List<SortTableDialog> tableProducers = new ArrayList<SortTableDialog>();
-        tableProducers.add(sortWishesDlg);
-        
-        for(ONCPanel panel : panelProducers)
-        	panel.addEntitySelectionListener(consumers.get(0));
-        
-        for(ONCTableDialog table : tableProducers)
-        	table.addEntitySelectionListener(consumers.get(0));
+        for(EntitySelector es: selectorList)
+        	for(EntitySelectionListener listener: listenerList)
+        		es.addEntitySelectionListener(listener);
 */
         
     	//Set up the manage catalog dialog
@@ -1408,7 +1404,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		if(firstFam != null)
 		{
 			display(firstFam, null);
-			fireEntitySelected(this, "FAMILY_SELECTED", firstFam, null);
+			fireEntitySelected(this, EntityType.FAMILY, firstFam, null);
 			nav.setStoplightEntity(fDB.getObjectAtIndex(nav.getIndex()));
 			
 			if(GlobalVariables.isUserAdmin())
@@ -1927,7 +1923,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			refreshODBWishListHighlights(currFam, currChild);
 			refreshPriorHistoryButton(currFam, currChild);
 			
-			fireEntitySelected(this, "CHILD_SELECTED", currFam, currChild);
+			fireEntitySelected(this, EntityType.CHILD, currFam, currChild);
 		}		
 	}
 
@@ -2107,7 +2103,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 					
 					//need to tell other gui's that if new child is selected (e.g. Child Panel)
 					if(currChild != null)
-						fireEntitySelected(this, "CHILD_SELECTED", currFam, currChild);
+						fireEntitySelected(this, EntityType.CHILD, currFam, currChild);
 				}
 			}
 		}
@@ -2152,7 +2148,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		@Override
 		public void entitySelected(EntitySelectionEvent tse)
 		{
-			if(tse.getType().equals("FAMILY_SELECTED") || tse.getType().equals("WISH_SELECTED"))
+			if(tse.getType() == EntityType.FAMILY || tse.getType() == EntityType.WISH)
 			{
 				ONCFamily selFam = (ONCFamily) tse.getObject1();
 				ONCChild selChild = (ONCChild) tse.getObject2();

@@ -188,7 +188,7 @@ public class WishLabelViewer extends JDialog implements DatabaseListener
 	@Override
 	public void entitySelected(EntitySelectionEvent tse)
 	{
-		if(tse.getType().equals("FAMILY_SELECTED"))
+		if(tse.getType() == EntityType.FAMILY))
 		{
 			ONCFamily fam = (ONCFamily) tse.getObject1();
 			ArrayList<ONCChild> childList = childDB.getChildren(fam.getID());
@@ -197,9 +197,8 @@ public class WishLabelViewer extends JDialog implements DatabaseListener
 				displayLabel(childList.get(0), 0);
 			}	
 		}
-		else if(tse.getType().equals("CHILD_SELECTED"))
+		else if(tse.getType() == EntityType.CHILD)
 		{
-//			System.out.println(String.format("FamilyPanel.entitySelected: Type = %s", tse.getType()));
 			ONCChild child = (ONCChild) tse.getObject2();
 			
 			if(child.getChildWishID(0) != -1)
@@ -207,9 +206,8 @@ public class WishLabelViewer extends JDialog implements DatabaseListener
 				displayLabel(child, 0);
 			}	
 		}
-		else if(tse.getType().equals("WISH_SELECTED"))
+		else if(tse.getType() == EntityType.WISH)
 		{
-//			System.out.println(String.format("FamilyPanel.entitySelected: Type = %s", tse.getType()));
 			ONCChild child = (ONCChild) tse.getObject2();
 			ONCChildWish cw = (ONCChildWish) tse.getObject3();
 			

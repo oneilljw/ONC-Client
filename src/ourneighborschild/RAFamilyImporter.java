@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
+
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -125,7 +126,7 @@ public class RAFamilyImporter extends ONCTableDialog
 								ONCFamily addedFam;
 								if((addedFam = processRAFInput(inputRows)) != null)
 								{
-									fireEntitySelected(this, "FAMILY_SELECTED", addedFam, null);
+									fireEntitySelected(this, EntityType.FAMILY, addedFam, null);
 									result = addedFam.getHOHLastName() + " family imported";
 									mssgType = JOptionPane.INFORMATION_MESSAGE;
 								}

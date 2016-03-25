@@ -654,7 +654,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 				sortTable.getSelectedRow() > -1 && !bChangingTable)
 		{
 			ONCFamily fam = stAL.get(sortTable.getSelectedRow()).getFamily();
-			fireEntitySelected(this, "FAMILY_SELECTED", fam, null);
+			fireEntitySelected(this, EntityType.FAMILY, fam, null);
 			
 			ONCMeal meal = stAL.get(sortTable.getSelectedRow()).getMeal();
 			//determine if a partner has been assigned for the selected meal
@@ -662,7 +662,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 			if(partnerID > -1)
 			{
 				Organization org = orgs.getOrganizationByID(partnerID);
-				fireEntitySelected(this, "PARTNER_SELECTED", org, null);
+				fireEntitySelected(this, EntityType.PARTNER, org, null);
 				
 			}
 			

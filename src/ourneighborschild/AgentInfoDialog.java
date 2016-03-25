@@ -186,7 +186,7 @@ public class AgentInfoDialog extends InfoDialog implements DatabaseListener, Ent
 	@Override
 	public void entitySelected(EntitySelectionEvent tse) 
 	{
-		if(tse.getType().equals("AGENT_SELECTED")  && bAgentSelectedEnabled)
+		if(tse.getType() == EntityType.AGENT  && bAgentSelectedEnabled)
 		{
 			if(this.isShowing())	//If Agent Info dialog visible, notify agent selection change
 			{
@@ -195,7 +195,7 @@ public class AgentInfoDialog extends InfoDialog implements DatabaseListener, Ent
 				this.display(selAgent);	//Display newly selected agent
 			}
 		}
-		else if(tse.getType().equals("FAMILY_SELECTED"))
+		else if(tse.getType() == EntityType.FAMILY)
 		{
 			if(this.isShowing())	//If Agent Info dialog visible, notify agent selection change
 			{

@@ -148,9 +148,7 @@ public class SortDriverDialog extends DependantTableDialog
 				//has a driver, does the delivery driver's ID match the id of the driver selected
 				//in the selection table. If so, add to the defendant table list
 				ONCDelivery del = deliveryDB.getDelivery(f.getDeliveryID());
-//				System.out.println(String.format("DriverDialog.entitySelected - Event Type: %s, Family ID: %d, Delivery ID: %d", 
-//						tse.getType(), fam.getID(), del.getID()));
-				
+			
 				if(del != null && !del.getdDelBy().isEmpty())
 				{
 					//There is s driver assigned. Determine who it is from the driver number
@@ -455,14 +453,14 @@ public class SortDriverDialog extends DependantTableDialog
 //				System.out.println("SortAgtDlg.valueChanged: lse event occurred, agent selected");
 				buildFamilyTableListAndDisplay();
 				
-				fireEntitySelected(this, "DRIVER_SELECTED", atAL.get(sortTable.getSelectedRow()), null);
+				fireEntitySelected(this, EntityType.DRIVER, atAL.get(sortTable.getSelectedRow()), null);
 				requestFocus();
 			}		
 		}
 		else if (!lse.getValueIsAdjusting() && lse.getSource() == familyTable.getSelectionModel() &&
 					!bChangingFamilyTable)
 		{
-			fireEntitySelected(this, "FAMILY_SELECTED", stAL.get(familyTable.getSelectedRow()), null);
+			fireEntitySelected(this, EntityType.FAMILY, stAL.get(familyTable.getSelectedRow()), null);
 			requestFocus();
 		}
 	

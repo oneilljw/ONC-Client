@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 
-public abstract class ONCTableDialog extends JDialog
+public abstract class ONCTableDialog extends JDialog implements EntitySelector
 {
 	/**
 	 * Implements an abstract class for all dialogs that contain tables that display ONC Entities. This
@@ -43,13 +43,13 @@ public abstract class ONCTableDialog extends JDialog
     }
     
     /** Fire an Entity Selection event to all registered listeners */
-    protected void fireEntitySelected(Object source, String eventType, Object obj1, Object obj2)
+    public void fireEntitySelected(Object source, EntityType entityType, Object obj1, Object obj2)
     {
     	// if we have no listeners, do nothing...
     	if (listeners != null && !listeners.isEmpty())
     	{
     		// create the event object to send
-    		EntitySelectionEvent event = new EntitySelectionEvent(source, eventType, obj1, obj2);
+    		EntitySelectionEvent event = new EntitySelectionEvent(source, entityType, obj1, obj2);
     		
     		// make a copy of the listener list in case anyone adds/removes listeners
     		ArrayList<EntitySelectionListener> targets;
@@ -61,13 +61,13 @@ public abstract class ONCTableDialog extends JDialog
     	}
     }
     
-    protected void fireEntitySelected(Object source, String eventType, Object obj1, Object obj2, Object obj3)
+    public void fireEntitySelected(Object source, EntityType entityType, Object obj1, Object obj2, Object obj3)
     {
     	// if we have no listeners, do nothing...
     	if (listeners != null && !listeners.isEmpty())
     	{
     		// create the event object to send
-    		EntitySelectionEvent event = new EntitySelectionEvent(source, eventType, obj1, obj2, obj3);
+    		EntitySelectionEvent event = new EntitySelectionEvent(source, entityType, obj1, obj2, obj3);
     		
     		// make a copy of the listener list in case anyone adds/removes listeners
     		ArrayList<EntitySelectionListener> targets;

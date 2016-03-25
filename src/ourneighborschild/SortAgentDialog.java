@@ -1037,14 +1037,14 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 				buildFamilyTableListAndDisplay();
 				btnEditAgentInfo.setEnabled(true);
 			
-				fireEntitySelected(this, "AGENT_SELECTED", atAL.get(sortTable.getSelectedRow()), null);
+				fireEntitySelected(this, EntityType.AGENT, atAL.get(sortTable.getSelectedRow()), null);
 				requestFocus();
 			}		
 		}
 		else if (!lse.getValueIsAdjusting() && lse.getSource() == familyTable.getSelectionModel() &&
 					!bChangingFamilyTable)
 		{
-			fireEntitySelected(this, "FAMILY_SELECTED", stAL.get(familyTable.getSelectedRow()), null);
+			fireEntitySelected(this, EntityType.FAMILY, stAL.get(familyTable.getSelectedRow()), null);
 			requestFocus();
 		}
 	

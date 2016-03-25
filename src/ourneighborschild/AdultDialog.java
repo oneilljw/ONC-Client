@@ -277,7 +277,7 @@ public class AdultDialog extends JDialog implements ActionListener, EntitySelect
 	@Override
 	public void entitySelected(EntitySelectionEvent tse)
 	{
-		if(tse.getType().equals("FAMILY_SELECTED"))
+		if(tse.getType() == EntityType.FAMILY)
 		{
 			display((ONCFamily) tse.getObject1());
 		}

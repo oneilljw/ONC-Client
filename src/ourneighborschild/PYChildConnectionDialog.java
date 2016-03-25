@@ -337,7 +337,7 @@ public class PYChildConnectionDialog extends JDialog implements ActionListener,
 	@Override
 	public void entitySelected(EntitySelectionEvent tse)
 	{
-		if(tse.getType().equals("FAMILY_SELECTED"))
+		if(tse.getType() == EntityType.FAMILY)
 		{
 			ONCFamily fam = (ONCFamily) tse.getObject1();
 			ArrayList<ONCChild> childList = childDB.getChildren(fam.getID());
@@ -348,13 +348,13 @@ public class PYChildConnectionDialog extends JDialog implements ActionListener,
 			else
 				clearChildData();
 		}
-		else if(tse.getType().equals("CHILD_SELECTED"))
+		else if(tse.getType() == EntityType.CHILD)
 		{
 			ONCFamily fam = (ONCFamily) tse.getObject1();
 			ONCChild child = (ONCChild) tse.getObject2();
 			display(fam, child);
 		}
-		else if(tse.getType().equals("WISH_SELECTED"))
+		else if(tse.getType() == EntityType.WISH)
 		{
 			ONCFamily fam = (ONCFamily) tse.getObject1();
 			ONCChild child = (ONCChild) tse.getObject2();
