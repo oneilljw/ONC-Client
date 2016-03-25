@@ -1,4 +1,5 @@
 package ourneighborschild;
 
-public enum EntityType { AGENT, FAMILY, CHILD, WISH, PARTNER, DRIVER, USER }
+public enum EntityType { AGENT, FAMILY, CHILD, WISH, PARTNER, DRIVER, USER; }
+
 

@@ -536,21 +536,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         sortWishesDlg.addEntitySelectionListener(mealDlg);
         sortWishesDlg.addEntitySelectionListener(dirDlg);
         stDlgMap.put("Wishes", sortWishesDlg);
-/*        
-        //test
-        List<EntitySelectionListener> listenerList = new ArrayList<EntitySelectionListener>();
-        listenerList.add(dsDlg);
-       
-        List<EntitySelector> selectorList = new ArrayList<EntitySelector>();
-        selectorList.add(nav);
-        selectorList.add(this);
-        selectorList.add(sortWishesDlg);
-        
-        for(EntitySelector es: selectorList)
-        	for(EntitySelectionListener listener: listenerList)
-        		es.addEntitySelectionListener(listener);
-*/
-        
+
     	//Set up the manage catalog dialog
     	catDlg = new WishCatalogDialog(parentFrame);
     	

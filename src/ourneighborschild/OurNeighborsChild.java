@@ -52,7 +52,7 @@ public class OurNeighborsChild implements DatabaseListener
 	private static final int ONC_IMAGE_ICON_INDEX = 0;
 	private static final int ONC_SAVE_FILE = 1;	
 	private static final String ONC_VERSION = "3.26";
-	private static final String ONC_COPYRIGHT = "\u00A92015 John W. O'Neill";	
+	private static final String ONC_COPYRIGHT = "\u00A92016 John W. O'Neill";	
 	private static final String APPNAME = "Our Neighbor's Child";
 	private static final int DB_UNLOCKED_IMAGE_INDEX = 17;
 	private static final int DB_LOCKED_IMAGE_INDEX = 18;
