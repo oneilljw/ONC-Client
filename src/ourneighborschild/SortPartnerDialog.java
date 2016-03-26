@@ -1366,7 +1366,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 	}
 	
 	@Override
-	public EnumSet<EntityType> getEntityEventTypes() 
+	public EnumSet<EntityType> getEntityEventSelectorEntityTypes() 
 	{	
 		return EnumSet.of(EntityType.PARTNER);
 	}

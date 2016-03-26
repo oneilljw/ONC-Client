@@ -263,7 +263,7 @@ public abstract class CheckDialog extends ONCTableDialog implements ActionListen
 	}
 	
 	@Override
-	public EnumSet<EntityType> getEntityEventTypes() 
+	public EnumSet<EntityType> getEntityEventSelectorEntityTypes() 
 	{	
 		return EnumSet.of(EntityType.FAMILY);
 	}

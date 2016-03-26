@@ -142,7 +142,7 @@ public class ChangeReferenceNumberDialog extends InfoDialog implements DatabaseL
 	}
 	
 	@Override
-	public EnumSet<EntityType> getListenerEntityTypes() 
+	public EnumSet<EntityType> getEntityEventListenerEntityTypes() 
 	{
 		return EnumSet.of(EntityType.FAMILY);
 	}

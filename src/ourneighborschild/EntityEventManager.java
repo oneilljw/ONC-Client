@@ -51,7 +51,7 @@ public class EntityEventManager
 	{
 		//for each of the selector's EntityTypes, add the selector to the list 
 		//then, add the listeners for each of the selector's EntityTypes to the selector
-		Iterator<EntityType> it = es.getEntityEventTypes().iterator();
+		Iterator<EntityType> it = es.getEntityEventSelectorEntityTypes().iterator();
         while(it.hasNext())
         {
         	EntityType selectorEntityType = it.next();
@@ -64,13 +64,35 @@ public class EntityEventManager
 	}
 	
 	/***
+	 * Removes an EntitySelector panel or dialog to the EntitySelector list for the provided
+	 * EntityType and removes all currently registered listeners for the EntityType from the
+	 * EntitySelector
+	 * @param es - EntitySelector being registered
+	 */
+	void removeEntitySelector(EntitySelector es)
+	{
+		//for each of the selector's EntityTypes, remove the listeners for each of the 
+		//selector's EntityTypes from the selector then remove the selector from the list 
+		Iterator<EntityType> it = es.getEntityEventSelectorEntityTypes().iterator();
+        while(it.hasNext())
+        {
+        	EntityType selectorEntityType = it.next();
+        	//remove all currently registered listeners for that entityType to the selector		
+            for(EntitySelectionListener esl : listenerMap.get(selectorEntityType))
+            	es.removeEntitySelectionListener(esl);
+        	
+            selectorMap.get(selectorEntityType).remove(es);    
+        }
+	}
+	
+	/***
 	 * Adds an EntitySelectionListener panel or dialog to the EntitySelectionListener list for
 	 * the provided EntityType and adds the listener to the all EntitySelectors for the EnityType.
 	 * @param esl - EntitySelectionLister being registered
 	 */
 	void registerEntitySelectionListener(EntitySelectionListener esl)
 	{
-		Iterator<EntityType> it = esl.getListenerEntityTypes().iterator();
+		Iterator<EntityType> it = esl.getEntityEventListenerEntityTypes().iterator();
         while(it.hasNext())
         {
         	EntityType listenerEntityType = it.next();
@@ -89,7 +111,7 @@ public class EntityEventManager
 	 */
 	void removeEntitySelectionListener(EntitySelectionListener esl)
 	{
-		Iterator<EntityType> it = esl.getListenerEntityTypes().iterator();
+		Iterator<EntityType> it = esl.getEntityEventListenerEntityTypes().iterator();
         while(it.hasNext())
         {
         	EntityType listenerEntityType = it.next();

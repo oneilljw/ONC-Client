@@ -45,7 +45,7 @@ import javax.swing.text.StyleConstants;
 import org.json.JSONException;
 
 public class FamilyPanel extends ONCPanel implements ActionListener, ListSelectionListener,
-													DatabaseListener
+													DatabaseListener, EntitySelectionListener
 {
 	/**
 	 * This class provides the blueprint for the main panel in the ONC application. It contains a number of 
@@ -164,8 +164,6 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	
 //	private LogDialog logDlg;
 	
-	FamilyChildSelectionListener familyChildSelectionListener;	//Listener for family/child selection events
-	
 	public FamilyPanel(JFrame pf)
 	{
 		super(pf);
@@ -196,6 +194,9 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		
 		//get a reference to the EntityEventManager
         EntityEventManager eeManager = EntityEventManager.getInstance();
+        
+        //register this panel as a listener
+	    eeManager.registerEntitySelectionListener(this);
 		
 		//Setup the nav panel
 		nav = new ONCNavPanel(pf, fDB);
@@ -206,9 +207,6 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	    nav.setPreviousButtonText("Previous Family");
 	    eeManager.registerEntitySelector(nav);	//register nav as entity selector
 	    
-	    familyChildSelectionListener = new FamilyChildSelectionListener();	//set up the listener
-	    eeManager.registerEntitySelectionListener(familyChildSelectionListener);
-		
 		//Setup sub panels that comprise the Family Panel
 		p1 = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		p2 = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -1310,10 +1308,15 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
      *********************************************************************************************/
     void onImportRAFMenuItemClicked()
     {
+    	//get a reference to the EntityEventManager
+        EntityEventManager eeManager = EntityEventManager.getInstance();
+        
     	RAFamilyImporter importer = new RAFamilyImporter(GlobalVariables.getFrame());
-    	importer.addEntitySelectionListener(familyChildSelectionListener);
+    	eeManager.registerEntitySelector(importer);
+  //  	importer.addEntitySelectionListener(familyChildSelectionListener);
     	importer.onImportRAFMenuItemClicked();
-    	importer.removeEntitySelectionListener(familyChildSelectionListener);
+    	eeManager.removeEntitySelector(importer);
+  //  	importer.removeEntitySelectionListener(familyChildSelectionListener);
     }
     
     /*********************************************************************************************
@@ -2070,64 +2073,62 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		}
 	}
 
-	private class FamilyChildSelectionListener implements EntitySelectionListener
-    {
-		@Override
-		public void entitySelected(EntitySelectionEvent tse)
+	@Override
+	public void entitySelected(EntitySelectionEvent tse)
+	{
+		if(tse.getType() == EntityType.FAMILY || tse.getType() == EntityType.WISH)
 		{
-			if(tse.getType() == EntityType.FAMILY || tse.getType() == EntityType.WISH)
+			ONCFamily selFam = (ONCFamily) tse.getObject1();
+			ONCChild selChild = (ONCChild) tse.getObject2();
+		
+			//is from nav, update and display new family
+			if(tse.getSource() == nav && selFam.getID() != currFam.getID())
 			{
-				ONCFamily selFam = (ONCFamily) tse.getObject1();
-				ONCChild selChild = (ONCChild) tse.getObject2();
-			
-				//is from nav, update and display new family
-				if(tse.getSource() == nav && selFam.getID() != currFam.getID())
+				LogDialog.add("FamilyPanel: " + tse.getType() + " from Nav ONC# " + selFam.getONCNum(), "M");
+				update();
+				display(selFam, selChild);	
+			}
+			//not nav and isn't current family displayed
+			else if(tse.getSource() != nav && selFam.getID() != currFam.getID())
+			{
+				int rtn;
+				if((rtn=fDB.searchForFamilyIndexByID(selFam.getID())) >= 0)
 				{
-					LogDialog.add("FamilyPanel: " + tse.getType() + " from Nav ONC# " + selFam.getONCNum(), "M");
+					LogDialog.add("FamilyPanel: " + tse.getType() + " ONC# " + selFam.getONCNum(), "M");
 					update();
-					display(selFam, selChild);	
+					nav.setIndex(rtn);
+					display(selFam, selChild);
+					
+					nav.setStoplightEntity(selFam);
 				}
-				//not nav and isn't current family displayed
-				else if(tse.getSource() != nav && selFam.getID() != currFam.getID())
+			}
+			//not nav and is current family displayed, but not current child selected
+			else if(tse.getSource() != nav && selFam.getID() == currFam.getID() &&
+					currChild !=null && selChild != null && selChild.getID() != currChild.getID())
+			{
+				int rtn;
+				if((rtn=fDB.searchForFamilyIndexByID(selFam.getID())) >= 0)
 				{
-					int rtn;
-					if((rtn=fDB.searchForFamilyIndexByID(selFam.getID())) >= 0)
-					{
-						LogDialog.add("FamilyPanel: " + tse.getType() + " ONC# " + selFam.getONCNum(), "M");
-						update();
-						nav.setIndex(rtn);
-						display(selFam, selChild);
-						
-						nav.setStoplightEntity(selFam);
-					}
-				}
-				//not nav and is current family displayed, but not current child selected
-				else if(tse.getSource() != nav && selFam.getID() == currFam.getID() &&
-						currChild !=null && selChild != null && selChild.getID() != currChild.getID())
-				{
-					int rtn;
-					if((rtn=fDB.searchForFamilyIndexByID(selFam.getID())) >= 0)
-					{
-						LogDialog.add("FamilyPanel: " + tse.getType() + " ONC# " + selFam.getONCNum(), "M");
-						update();
-						nav.setIndex(rtn);
-						display(selFam, selChild);
-						
-						nav.setStoplightEntity(selFam);
-					}
+					LogDialog.add("FamilyPanel: " + tse.getType() + " ONC# " + selFam.getONCNum(), "M");
+					update();
+					nav.setIndex(rtn);
+					display(selFam, selChild);
+					
+					nav.setStoplightEntity(selFam);
 				}
 			}
 		}
+	}
 
-		@Override
-		public EnumSet<EntityType> getListenerEntityTypes() 
-		{
-			return EnumSet.of(EntityType.FAMILY, EntityType.WISH);
-		}
-    }
+	@Override
+	public EnumSet<EntityType> getEntityEventListenerEntityTypes() 
+	{
+		return EnumSet.of(EntityType.FAMILY, EntityType.WISH);
+	}
+    
 	
 	@Override
-	public EnumSet<EntityType> getEntityEventTypes() 
+	public EnumSet<EntityType> getEntityEventSelectorEntityTypes() 
 	{	
 		return EnumSet.of(EntityType.FAMILY, EntityType.CHILD);
 	}

@@ -538,7 +538,7 @@ public class SortDriverDialog extends DependantTableDialog
 	}
 
 	@Override
-	public EnumSet<EntityType> getEntityEventTypes() 
+	public EnumSet<EntityType> getEntityEventSelectorEntityTypes() 
 	{	
 		return EnumSet.of(EntityType.FAMILY, EntityType.DRIVER);
 	}

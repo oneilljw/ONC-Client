@@ -255,7 +255,7 @@ public class ONCNavPanel extends ONCPanel implements ActionListener
 	}
 	
 	@Override
-	public EnumSet<EntityType> getEntityEventTypes() 
+	public EnumSet<EntityType> getEntityEventSelectorEntityTypes() 
 	{	
 		return EnumSet.of(searchableDB.getDBType());
 	}

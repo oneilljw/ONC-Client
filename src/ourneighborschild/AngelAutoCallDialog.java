@@ -761,7 +761,7 @@ public class AngelAutoCallDialog extends ONCTableDialog implements ActionListene
 	}
 	
 	@Override
-	public EnumSet<EntityType> getEntityEventTypes() 
+	public EnumSet<EntityType> getEntityEventSelectorEntityTypes() 
 	{	
 		return EnumSet.of(EntityType.FAMILY);
 	}

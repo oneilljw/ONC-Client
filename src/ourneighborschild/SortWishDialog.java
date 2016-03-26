@@ -1139,7 +1139,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 	}
 	
 	@Override
-	public EnumSet<EntityType> getEntityEventTypes() 
+	public EnumSet<EntityType> getEntityEventSelectorEntityTypes() 
 	{	
 		return EnumSet.of(EntityType.WISH, EntityType.PARTNER);
 	}

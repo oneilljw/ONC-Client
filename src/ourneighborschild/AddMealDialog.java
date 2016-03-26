@@ -100,7 +100,7 @@ public class AddMealDialog extends InfoDialog implements EntitySelectionListener
 	}
 
 	@Override
-	public EnumSet<EntityType> getListenerEntityTypes() 
+	public EnumSet<EntityType> getEntityEventListenerEntityTypes() 
 	{
 		// TODO Auto-generated method stub
 		return null;

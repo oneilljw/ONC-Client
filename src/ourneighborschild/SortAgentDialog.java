@@ -1113,7 +1113,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 	}
 
 	@Override
-	public EnumSet<EntityType> getEntityEventTypes() 
+	public EnumSet<EntityType> getEntityEventSelectorEntityTypes() 
 	{	
 		return EnumSet.of(EntityType.AGENT, EntityType.FAMILY);
 	}

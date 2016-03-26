@@ -485,7 +485,7 @@ public class DriverDialog extends EntityDialog
 	}
 	
 	@Override
-	public EnumSet<EntityType> getListenerEntityTypes() 
+	public EnumSet<EntityType> getEntityEventListenerEntityTypes() 
 	{
 		return EnumSet.of(EntityType.FAMILY, EntityType.WISH, EntityType.DRIVER);
 	}

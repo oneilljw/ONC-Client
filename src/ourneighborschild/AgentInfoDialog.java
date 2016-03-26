@@ -209,7 +209,7 @@ public class AgentInfoDialog extends InfoDialog implements DatabaseListener, Ent
 	}
 	
 	@Override
-	public EnumSet<EntityType> getListenerEntityTypes() 
+	public EnumSet<EntityType> getEntityEventListenerEntityTypes() 
 	{
 		return EnumSet.of(EntityType.AGENT, EntityType.FAMILY);
 	}

@@ -107,7 +107,7 @@ public class TransportationDialog extends InfoDialog implements DatabaseListener
 		}
 	}
 	@Override
-	public EnumSet<EntityType> getListenerEntityTypes() 
+	public EnumSet<EntityType> getEntityEventListenerEntityTypes() 
 	{
 		return EnumSet.of(EntityType.FAMILY, EntityType.WISH);
 	}

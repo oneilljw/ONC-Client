@@ -363,7 +363,7 @@ public class PYChildConnectionDialog extends JDialog implements ActionListener,
 		}
 	}
 	@Override
-	public EnumSet<EntityType> getListenerEntityTypes() 
+	public EnumSet<EntityType> getEntityEventListenerEntityTypes() 
 	{
 		return EnumSet.of(EntityType.FAMILY, EntityType.CHILD, EntityType.WISH);
 	}

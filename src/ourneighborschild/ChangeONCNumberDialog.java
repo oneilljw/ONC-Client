@@ -142,7 +142,7 @@ public class ChangeONCNumberDialog extends InfoDialog implements DatabaseListene
 	}
 	
 	@Override
-	public EnumSet<EntityType> getListenerEntityTypes() 
+	public EnumSet<EntityType> getEntityEventListenerEntityTypes() 
 	{
 		return EnumSet.of(EntityType.FAMILY);
 	}

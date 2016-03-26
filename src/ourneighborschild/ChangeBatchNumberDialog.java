@@ -155,7 +155,7 @@ public class ChangeBatchNumberDialog extends InfoDialog implements DatabaseListe
 	}
 	
 	@Override
-	public EnumSet<EntityType> getListenerEntityTypes() 
+	public EnumSet<EntityType> getEntityEventListenerEntityTypes() 
 	{
 		return EnumSet.of(EntityType.FAMILY);
 	}

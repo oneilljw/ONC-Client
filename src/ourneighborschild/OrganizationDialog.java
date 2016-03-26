@@ -862,7 +862,7 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
 	}
 	
 	@Override
-	public EnumSet<EntityType> getListenerEntityTypes() 
+	public EnumSet<EntityType> getEntityEventListenerEntityTypes() 
 	{
 		return EnumSet.of(EntityType.PARTNER);
 	}

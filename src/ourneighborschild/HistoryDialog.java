@@ -157,7 +157,7 @@ public abstract class HistoryDialog extends JDialog implements ActionListener, E
 	}
 	
 	@Override
-	public EnumSet<EntityType> getListenerEntityTypes() 
+	public EnumSet<EntityType> getEntityEventListenerEntityTypes() 
 	{
 		return EnumSet.of(EntityType.FAMILY, EntityType.WISH);
 	}

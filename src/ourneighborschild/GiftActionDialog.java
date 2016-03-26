@@ -432,7 +432,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 	boolean isONCNumContainerEmpty() { return oncnumTF.getText().isEmpty(); }
 	
 	@Override
-	public EnumSet<EntityType> getEntityEventTypes() 
+	public EnumSet<EntityType> getEntityEventSelectorEntityTypes() 
 	{	
 		return EnumSet.of(EntityType.WISH);
 	}

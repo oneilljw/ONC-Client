@@ -285,7 +285,7 @@ public class AdultDialog extends JDialog implements ActionListener, EntitySelect
 	}
 	
 	@Override
-	public EnumSet<EntityType> getListenerEntityTypes() 
+	public EnumSet<EntityType> getEntityEventListenerEntityTypes() 
 	{
 		return EnumSet.of(EntityType.FAMILY);
 	}

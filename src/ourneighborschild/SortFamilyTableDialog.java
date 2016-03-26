@@ -88,7 +88,7 @@ public abstract class SortFamilyTableDialog extends ChangeDialog
 	}
 	
 	@Override
-	public EnumSet<EntityType> getEntityEventTypes() 
+	public EnumSet<EntityType> getEntityEventSelectorEntityTypes() 
 	{	
 		return EnumSet.of(EntityType.FAMILY);
 	}

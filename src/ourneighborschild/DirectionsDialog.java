@@ -455,7 +455,7 @@ public class DirectionsDialog extends JDialog implements ActionListener, Databas
 	}
 	
 	@Override
-	public EnumSet<EntityType> getListenerEntityTypes() 
+	public EnumSet<EntityType> getEntityEventListenerEntityTypes() 
 	{
 		return EnumSet.of(EntityType.FAMILY, EntityType.WISH);
 	}
