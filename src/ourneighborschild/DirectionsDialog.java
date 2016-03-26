@@ -13,6 +13,7 @@ import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.EnumSet;
 
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -451,6 +452,12 @@ public class DirectionsDialog extends JDialog implements ActionListener, Databas
 			if(fam != null)
 				display(fam);
 		}	
+	}
+	
+	@Override
+	public EnumSet<EntityType> getListenerEntityTypes() 
+	{
+		return EnumSet.of(EntityType.FAMILY, EntityType.WISH);
 	}
 	
 }

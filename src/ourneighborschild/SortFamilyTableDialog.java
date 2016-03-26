@@ -1,6 +1,7 @@
 package ourneighborschild;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JFrame;
@@ -84,5 +85,11 @@ public abstract class SortFamilyTableDialog extends ChangeDialog
 		}
 		
 		checkApplyChangesEnabled();	//Check to see if user postured to change family		
+	}
+	
+	@Override
+	public EnumSet<EntityType> getEntityEventTypes() 
+	{	
+		return EnumSet.of(EntityType.FAMILY);
 	}
 }

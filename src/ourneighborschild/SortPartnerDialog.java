@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.EnumSet;
 
 import javax.mail.internet.MimeBodyPart;
 import javax.swing.BorderFactory;
@@ -1362,6 +1363,12 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		{
 			updateUserList();
 		}
+	}
+	
+	@Override
+	public EnumSet<EntityType> getEntityEventTypes() 
+	{	
+		return EnumSet.of(EntityType.PARTNER);
 	}
 
 	private class InfoDialog extends JDialog

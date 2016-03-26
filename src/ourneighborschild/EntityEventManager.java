@@ -2,6 +2,7 @@ package ourneighborschild;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -45,33 +46,59 @@ public class EntityEventManager
 	 * EntityType and adds all currently registered listeners for the EntityType to the
 	 * EntitySelector
 	 * @param es - EntitySelector being registered
-	 * @param selectorEntityType - EntityType that the EntitySelector selects
 	 */
-	void registerEntitySelector(EntitySelector es, EntityType selectorEntityType)
+	void registerEntitySelector(EntitySelector es)
 	{
-		//add the selector to the list for the selectorEntityType
-		selectorMap.get(selectorEntityType).add(es);
+		//for each of the selector's EntityTypes, add the selector to the list 
+		//then, add the listeners for each of the selector's EntityTypes to the selector
+		Iterator<EntityType> it = es.getEntityEventTypes().iterator();
+        while(it.hasNext())
+        {
+        	EntityType selectorEntityType = it.next();
+            selectorMap.get(selectorEntityType).add(es);
 		
-		//add all currently registered listeners for that entityType to the selector		
-		for(EntitySelectionListener esl : listenerMap.get(selectorEntityType))
-			es.addEntitySelectionListener(esl);
+            //add all currently registered listeners for that entityType to the selector		
+            for(EntitySelectionListener esl : listenerMap.get(selectorEntityType))
+            	es.addEntitySelectionListener(esl);
+        }
 	}
 	
 	/***
 	 * Adds an EntitySelectionListener panel or dialog to the EntitySelectionListener list for
 	 * the provided EntityType and adds the listener to the all EntitySelectors for the EnityType.
-	 * Note that some panels and dialogs will call this method more than once, since they listener
-	 * for more than one EntityType.
 	 * @param esl - EntitySelectionLister being registered
-	 * @param selectorEntityType - EntityType that the EntitySelectionListener listens for
 	 */
-	void registerEntitySelectionListener(EntitySelectionListener esl, EntityType listenerEntityType)
+	void registerEntitySelectionListener(EntitySelectionListener esl)
 	{
-		//add the listener to the list for that listenerEntityType
-		listenerMap.get(listenerEntityType).add(esl);
-		
-		//add the listener to all selectors for the entity type
-		for(EntitySelector es: selectorMap.get(listenerEntityType))
-			es.addEntitySelectionListener(esl);
+		Iterator<EntityType> it = esl.getListenerEntityTypes().iterator();
+        while(it.hasNext())
+        {
+        	EntityType listenerEntityType = it.next();
+        	listenerMap.get(listenerEntityType).add(esl);	//add the listener to the list for that listenerEntityType
+	
+        	//add the listener to all selectors for the entity type
+        	for(EntitySelector es: selectorMap.get(listenerEntityType))
+        		es.addEntitySelectionListener(esl);
+		}
+	}
+	
+	/***
+	 * Removes an EntitySelectionListener panel or dialog from the EntitySelectionListener list for
+	 * the provided EntityType and removes the listener from the all EntitySelectors for the EnityType.
+	 * @param esl - EntitySelectionLister being removed
+	 */
+	void removeEntitySelectionListener(EntitySelectionListener esl)
+	{
+		Iterator<EntityType> it = esl.getListenerEntityTypes().iterator();
+        while(it.hasNext())
+        {
+        	EntityType listenerEntityType = it.next();
+        	//remove the listener to all selectors for the entity type
+        	for(EntitySelector es: selectorMap.get(listenerEntityType))
+        		es.removeEntitySelectionListener(esl);
+        	
+        	//add the listener to the list for that listenerEntityType
+        	listenerMap.get(listenerEntityType).remove(esl);	
+		}
 	}
 }

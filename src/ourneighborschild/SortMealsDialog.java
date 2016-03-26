@@ -13,6 +13,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.List;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -883,6 +884,11 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 	@Override
 	boolean isONCNumContainerEmpty() { return oncnumTF.getText().isEmpty(); }
 	
+	@Override
+	public EnumSet<EntityType> getEntityEventTypes() 
+	{	
+		return EnumSet.of(EntityType.FAMILY, EntityType.PARTNER);
+	}
 	
 	private class SortMealObject extends ONCObject
 	{

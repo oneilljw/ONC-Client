@@ -2,6 +2,7 @@ package ourneighborschild;
 
 import java.awt.Dimension;
 import java.util.Date;
+import java.util.EnumSet;
 
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -96,5 +97,12 @@ public class AddMealDialog extends InfoDialog implements EntitySelectionListener
 	public void entitySelected(EntitySelectionEvent tse) 
 	{
 		
+	}
+
+	@Override
+	public EnumSet<EntityType> getListenerEntityTypes() 
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

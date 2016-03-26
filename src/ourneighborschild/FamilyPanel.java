@@ -12,8 +12,8 @@ import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
@@ -194,6 +194,9 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		//Set layout and border for the Family Panel
 		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 		
+		//get a reference to the EntityEventManager
+        EntityEventManager eeManager = EntityEventManager.getInstance();
+		
 		//Setup the nav panel
 		nav = new ONCNavPanel(pf, fDB);
 		nav.setMssg("Our Neighbor's Child Families");
@@ -201,8 +204,10 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	    nav.setCount2("Served Children: " + Integer.toString(0));
 	    nav.setNextButtonText("Next Family");
 	    nav.setPreviousButtonText("Previous Family");
+	    eeManager.registerEntitySelector(nav);	//register nav as entity selector
+	    
 	    familyChildSelectionListener = new FamilyChildSelectionListener();	//set up the listener
-	    nav.addEntitySelectionListener(familyChildSelectionListener);	//register the listener
+	    eeManager.registerEntitySelectionListener(familyChildSelectionListener);
 		
 		//Setup sub panels that comprise the Family Panel
 		p1 = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -498,6 +503,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         JScrollPane oncDIscrollPane = new JScrollPane(oncDIPane);
         oncDIscrollPane.setBorder(BorderFactory.createTitledBorder("Delivery Instructions"));
         
+        
         //initialize the dialog maps
         stDlgMap = new HashMap<String, SortTableDialog>();
         familyInfoDlgMap = new HashMap<String, InfoDialog>();
@@ -508,33 +514,29 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         //Set up delivery history dialog box 
         dsDlg = new DeliveryHistoryDialog(parentFrame);
         historyDlgMap.put("Delivery History", dsDlg);
-        nav.addEntitySelectionListener(dsDlg);
+        eeManager.registerEntitySelectionListener(dsDlg);
         
         //Set up meal history dialog box 
         mealDlg = new MealDialog(parentFrame);
         historyDlgMap.put("Meal History", mealDlg);
-        nav.addEntitySelectionListener(mealDlg);
+        eeManager.registerEntitySelectionListener(mealDlg);
         
         //Set up adult dialog box 
         adultDlg = new AdultDialog(pf);
-//      familyInfoDlgMap.put("Adult", adultDlg);
-        nav.addEntitySelectionListener(adultDlg);
+        eeManager.registerEntitySelectionListener(adultDlg);
        
         //Set up delivery directions dialog box 
         try { dirDlg = new DirectionsDialog(parentFrame); }
 		catch (JSONException e1) {// TODO Auto-generated catch block 
 			e1.printStackTrace();}
-        nav.addEntitySelectionListener(dirDlg);
+        eeManager.registerEntitySelectionListener(dirDlg);
         
         //Set up client map dialog
         cmDlg = new ClientMapDialog(parentFrame); 
         
         //Set up the sort wishes dialog
         sortWishesDlg = new SortWishDialog(parentFrame);
-        sortWishesDlg.addEntitySelectionListener(familyChildSelectionListener);
-        sortWishesDlg.addEntitySelectionListener(dsDlg);
-        sortWishesDlg.addEntitySelectionListener(mealDlg);
-        sortWishesDlg.addEntitySelectionListener(dirDlg);
+        eeManager.registerEntitySelector(sortWishesDlg);
         stDlgMap.put("Wishes", sortWishesDlg);
 
     	//Set up the manage catalog dialog
@@ -545,36 +547,25 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
     	
     	 //Set up the sort family dialog
         sortFamiliesDlg = new SortFamilyDialog(parentFrame);
-        sortFamiliesDlg.addEntitySelectionListener(familyChildSelectionListener);
-        sortFamiliesDlg.addEntitySelectionListener(dirDlg);
-        sortFamiliesDlg.addEntitySelectionListener(dsDlg);
-        sortFamiliesDlg.addEntitySelectionListener(mealDlg);
         stDlgMap.put("Families", sortFamiliesDlg);
+        eeManager.registerEntitySelector(sortFamiliesDlg);
         
       //Set up the sort meals dialog
         sortMealsDlg = new SortMealsDialog(parentFrame);
-        sortMealsDlg.addEntitySelectionListener(familyChildSelectionListener);
-        sortMealsDlg.addEntitySelectionListener(dsDlg);
-        sortMealsDlg.addEntitySelectionListener(mealDlg);
-        sortMealsDlg.addEntitySelectionListener(dirDlg);
         stDlgMap.put("Meals", sortMealsDlg);
+        eeManager.registerEntitySelector(sortMealsDlg);
     	
     	//Set up the dialog to edit agent info
     	String[] tfNames = {"Name", "Organization", "Title", "Email", "Phone"};
     	agentInfoDlg = new AgentInfoDialog(parentFrame, tfNames, false);
     	familyInfoDlgMap.put("Agent", agentInfoDlg);
-    	nav.addEntitySelectionListener(agentInfoDlg);
-    	sortFamiliesDlg.addEntitySelectionListener(agentInfoDlg);
-    	sortWishesDlg.addEntitySelectionListener(agentInfoDlg);
-    	sortMealsDlg.addEntitySelectionListener(agentInfoDlg);
+    	eeManager.registerEntitySelectionListener(agentInfoDlg);
     	
     	//Set up the dialog to edit family transportation info
     	String[] transNames = {"ONC #", "Last Name", "Has Transportation?"};
     	transportationDlg = new TransportationDialog(parentFrame, false, transNames);
     	familyInfoDlgMap.put("Transportation", transportationDlg);
-    	nav.addEntitySelectionListener(transportationDlg);
-    	sortFamiliesDlg.addEntitySelectionListener(transportationDlg);
-    	sortWishesDlg.addEntitySelectionListener(transportationDlg);
+    	eeManager.registerEntitySelectionListener(transportationDlg);
     	
     	//Set up the dialog to add a meal to family
     	String[] mealNames = {"ONC #", "Last Name", "Meal Type", "Restrictions"};
@@ -598,40 +589,24 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 
     	//Set up the sort agent dialog
     	sortAgentDlg = new SortAgentDialog(parentFrame);
-    	sortAgentDlg.addEntitySelectionListener(familyChildSelectionListener);
-    	sortAgentDlg.addEntitySelectionListener(agentInfoDlg);
-    	sortAgentDlg.addEntitySelectionListener(dirDlg);
-    	sortAgentDlg.addEntitySelectionListener(dsDlg);
-    	sortAgentDlg.addEntitySelectionListener(mealDlg);
     	stDlgMap.put("Agents", sortAgentDlg);
+    	eeManager.registerEntitySelector(sortAgentDlg);
     	
     	//set up the assign delivery dialog
     	assignDeliveryDlg = new AssignDeliveryDialog(parentFrame);
-    	assignDeliveryDlg.addEntitySelectionListener(familyChildSelectionListener);
-    	assignDeliveryDlg.addEntitySelectionListener(agentInfoDlg);
-    	assignDeliveryDlg.addEntitySelectionListener(dirDlg);
-    	assignDeliveryDlg.addEntitySelectionListener(dsDlg);
-    	assignDeliveryDlg.addEntitySelectionListener(mealDlg);
     	stDlgMap.put("Deliveries", assignDeliveryDlg);
+    	eeManager.registerEntitySelector(sortAgentDlg);
     	
     	//set up the sort driver dialog
     	sortDriverDlg = new SortDriverDialog(parentFrame);
-    	sortDriverDlg.addEntitySelectionListener(familyChildSelectionListener);
-    	sortDriverDlg.addEntitySelectionListener(agentInfoDlg);
-    	sortDriverDlg.addEntitySelectionListener(dirDlg);
-    	sortDriverDlg.addEntitySelectionListener(dsDlg);
-    	sortDriverDlg.addEntitySelectionListener(mealDlg);
     	stDlgMap.put("Drivers", sortDriverDlg);
+    	eeManager.registerEntitySelector(sortDriverDlg);
     	
     	//Set up the edit driver (deliverer) dialog and register it to listen for Family 
     	//Selection events from particular ui's that have driver's associated
         driverDlg = new DriverDialog(parentFrame);
         entityDlgMap.put("Edit Delivery Partners", driverDlg);
-        nav.addEntitySelectionListener(driverDlg);	//family panel/main screen nav
-        assignDeliveryDlg.addEntitySelectionListener(driverDlg);
-        sortDriverDlg.addEntitySelectionListener(driverDlg);
-        sortFamiliesDlg.addEntitySelectionListener(driverDlg);
-        sortWishesDlg.addEntitySelectionListener(driverDlg);
+        eeManager.registerEntitySelectionListener(driverDlg);
         
         //Set up the view family database dialog
         dbDlg = new ViewONCDatabaseDialog(parentFrame);
@@ -639,67 +614,41 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         //Set up the edit gift partner dialog
         orgDlg = new OrganizationDialog(parentFrame);
         entityDlgMap.put("Edit Partners", orgDlg);
-        sortWishesDlg.addEntitySelectionListener(orgDlg);
-        sortMealsDlg.addEntitySelectionListener(orgDlg);
+        eeManager.registerEntitySelectionListener(orgDlg);
         
-      //Set up the edit gift partner dialog
+      //Set up the Angel auto-call dialog
        angelDlg = new AngelAutoCallDialog(parentFrame);
-       angelDlg.addEntitySelectionListener(familyChildSelectionListener);
-   	   angelDlg.addEntitySelectionListener(agentInfoDlg);
-       angelDlg.addEntitySelectionListener(dirDlg);
-   	   angelDlg.addEntitySelectionListener(dsDlg);
-   	   angelDlg.addEntitySelectionListener(mealDlg);
+   	   eeManager.registerEntitySelector(angelDlg);
+   	   
         
         //Set up the sort gift partner dialog
         sortPartnerDlg = new SortPartnerDialog(parentFrame);
-        sortPartnerDlg.addEntitySelectionListener(orgDlg);
         stDlgMap.put("Partners", sortPartnerDlg);
+        eeManager.registerEntitySelector(sortPartnerDlg);
         
         //set up the data check dialog and table row selection listener
         dcDlg = new ChildCheckDialog(pf);
         checkDlgMap.put("Duplicate Children Check", dcDlg);
-        dcDlg.addEntitySelectionListener(familyChildSelectionListener);
-        dcDlg.addEntitySelectionListener(agentInfoDlg);
-        dcDlg.addEntitySelectionListener(dirDlg);
-        dcDlg.addEntitySelectionListener(dsDlg);
-        dcDlg.addEntitySelectionListener(mealDlg);
+        eeManager.registerEntitySelector(dcDlg);
         
         //set up the family check dialog and table row selection listener
         dfDlg = new FamilyCheckDialog(pf);
         checkDlgMap.put("Duplicate Family Check", dfDlg);
-        dfDlg.addEntitySelectionListener(familyChildSelectionListener);
-        dfDlg.addEntitySelectionListener(agentInfoDlg);
-        dfDlg.addEntitySelectionListener(dirDlg);
-        dfDlg.addEntitySelectionListener(dsDlg);
-        dfDlg.addEntitySelectionListener(mealDlg);
+        eeManager.registerEntitySelector(dfDlg);
         
         //Create the Child Panel
         oncChildPanel = new ChildPanel();
-        nav.addEntitySelectionListener(oncChildPanel);
-        sortFamiliesDlg.addEntitySelectionListener(oncChildPanel);
-        sortWishesDlg.addEntitySelectionListener(oncChildPanel);
-        sortAgentDlg.addEntitySelectionListener(oncChildPanel);
-        sortDriverDlg.addEntitySelectionListener(oncChildPanel);
-        assignDeliveryDlg.addEntitySelectionListener(oncChildPanel);
-        sortDriverDlg.addEntitySelectionListener(oncChildPanel);
         this.addEntitySelectionListener(oncChildPanel);
+        eeManager.registerEntitySelectionListener(oncChildPanel);
         
         //set up a dialog to receive gifts
 		recGiftsDlg = new ReceiveGiftsDialog(parentFrame, WishStatus.Received);
 		stDlgMap.put("Receive Gifts", recGiftsDlg);
-    	recGiftsDlg.addEntitySelectionListener(familyChildSelectionListener);
-    	recGiftsDlg.addEntitySelectionListener(oncChildPanel);
+    	eeManager.registerEntitySelector(recGiftsDlg);
         
         //set up a dialog to connect prior year children
     	pyConnectionDlg = new PYChildConnectionDialog(parentFrame);
-    	nav.addEntitySelectionListener(pyConnectionDlg);
-        sortFamiliesDlg.addEntitySelectionListener(pyConnectionDlg);
-        sortWishesDlg.addEntitySelectionListener(pyConnectionDlg);
-        sortAgentDlg.addEntitySelectionListener(pyConnectionDlg);
-        sortDriverDlg.addEntitySelectionListener(pyConnectionDlg);
-        assignDeliveryDlg.addEntitySelectionListener(pyConnectionDlg);
-        sortDriverDlg.addEntitySelectionListener(pyConnectionDlg);
-        this.addEntitySelectionListener(pyConnectionDlg);
+        eeManager.registerEntitySelectionListener(pyConnectionDlg);
         
         //create the wish panels
         JPanel childwishespanel = new JPanel(new GridLayout(1,3));
@@ -709,16 +658,8 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         	wishPanelList[wp] = new WishPanel(wp);
         	childwishespanel.add(wishPanelList[wp]);
         	
-        	//add the entity selection listeners
-        	nav.addEntitySelectionListener(wishPanelList[wp]);
-            sortFamiliesDlg.addEntitySelectionListener(wishPanelList[wp]);
-            sortWishesDlg.addEntitySelectionListener(wishPanelList[wp]);
-            sortAgentDlg.addEntitySelectionListener(wishPanelList[wp]);
-            sortDriverDlg.addEntitySelectionListener(wishPanelList[wp]);
-            assignDeliveryDlg.addEntitySelectionListener(wishPanelList[wp]);
-            sortDriverDlg.addEntitySelectionListener(wishPanelList[wp]);
-            recGiftsDlg.addEntitySelectionListener(wishPanelList[wp]);
-            this.addEntitySelectionListener(wishPanelList[wp]);
+        	//register the entity selection listeners
+            eeManager.registerEntitySelectionListener(wishPanelList[wp]);
         }
         
         //Add components to the panels
@@ -2177,7 +2118,19 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 				}
 			}
 		}
+
+		@Override
+		public EnumSet<EntityType> getListenerEntityTypes() 
+		{
+			return EnumSet.of(EntityType.FAMILY, EntityType.WISH);
+		}
     }
+	
+	@Override
+	public EnumSet<EntityType> getEntityEventTypes() 
+	{	
+		return EnumSet.of(EntityType.FAMILY, EntityType.CHILD);
+	}
 	
 	class ChildTableModel extends AbstractTableModel
 	{

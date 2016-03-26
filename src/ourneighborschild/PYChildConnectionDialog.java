@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.EnumSet;
 import java.util.TimeZone;
 
 import javax.swing.BorderFactory;
@@ -360,6 +361,11 @@ public class PYChildConnectionDialog extends JDialog implements ActionListener,
 			ONCChild child = (ONCChild) tse.getObject2();
 			display(fam, child);
 		}
+	}
+	@Override
+	public EnumSet<EntityType> getListenerEntityTypes() 
+	{
+		return EnumSet.of(EntityType.FAMILY, EntityType.CHILD, EntityType.WISH);
 	}
 
 	@Override

@@ -7,6 +7,7 @@ import java.awt.Point;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.EnumSet;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -858,5 +859,11 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
 				display(odOrgs.getObjectAtIndex(nav.getIndex()));
 			}
 		}
+	}
+	
+	@Override
+	public EnumSet<EntityType> getListenerEntityTypes() 
+	{
+		return EnumSet.of(EntityType.PARTNER);
 	}
 }

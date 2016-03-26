@@ -9,6 +9,7 @@ import java.awt.event.ActionListener;
 import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.EnumSet;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -643,6 +644,11 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 				clearWish();
 			}
 		}
+	}
+	@Override
+	public EnumSet<EntityType> getListenerEntityTypes() 
+	{
+		return EnumSet.of(EntityType.FAMILY, EntityType.CHILD, EntityType.WISH);
 	}
 	
 	private enum WishPanelStatus 

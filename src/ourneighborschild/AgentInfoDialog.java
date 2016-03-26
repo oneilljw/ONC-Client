@@ -1,5 +1,7 @@
 package ourneighborschild;
 
+import java.util.EnumSet;
+
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -204,5 +206,11 @@ public class AgentInfoDialog extends InfoDialog implements DatabaseListener, Ent
 				this.display(selFamily);	//Display newly selected family's agent
 			}
 		}	
+	}
+	
+	@Override
+	public EnumSet<EntityType> getListenerEntityTypes() 
+	{
+		return EnumSet.of(EntityType.AGENT, EntityType.FAMILY);
 	}
 }

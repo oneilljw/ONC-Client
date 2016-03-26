@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Point;
 import java.util.Date;
+import java.util.EnumSet;
 
 import javax.swing.BorderFactory;
 import javax.swing.JDialog;
@@ -481,5 +482,11 @@ public class DriverDialog extends EntityDialog
 				display(driver);
 			}
 		}
+	}
+	
+	@Override
+	public EnumSet<EntityType> getListenerEntityTypes() 
+	{
+		return EnumSet.of(EntityType.FAMILY, EntityType.WISH, EntityType.DRIVER);
 	}
 }

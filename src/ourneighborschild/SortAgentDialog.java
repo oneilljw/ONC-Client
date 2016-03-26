@@ -11,6 +11,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
@@ -1111,5 +1112,9 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		
 	}
 
-	
+	@Override
+	public EnumSet<EntityType> getEntityEventTypes() 
+	{	
+		return EnumSet.of(EntityType.AGENT, EntityType.FAMILY);
+	}
 }

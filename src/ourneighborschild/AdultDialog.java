@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 import java.awt.print.PrinterException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 import javax.swing.BoxLayout;
@@ -281,6 +282,12 @@ public class AdultDialog extends JDialog implements ActionListener, EntitySelect
 		{
 			display((ONCFamily) tse.getObject1());
 		}
+	}
+	
+	@Override
+	public EnumSet<EntityType> getListenerEntityTypes() 
+	{
+		return EnumSet.of(EntityType.FAMILY);
 	}
 	
 	class DialogTableModel extends AbstractTableModel

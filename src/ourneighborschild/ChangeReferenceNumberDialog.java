@@ -1,5 +1,7 @@
 package ourneighborschild;
 
+import java.util.EnumSet;
+
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -137,6 +139,12 @@ public class ChangeReferenceNumberDialog extends InfoDialog implements DatabaseL
 			}
 
 		}	
+	}
+	
+	@Override
+	public EnumSet<EntityType> getListenerEntityTypes() 
+	{
+		return EnumSet.of(EntityType.FAMILY);
 	}
 
 	@Override

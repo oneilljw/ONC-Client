@@ -3,6 +3,7 @@ package ourneighborschild;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.EnumSet;
 
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -104,6 +105,11 @@ public class TransportationDialog extends InfoDialog implements DatabaseListener
 				display((ONCFamily) tse.getObject1());	//Display newly selected agent
 			}
 		}
+	}
+	@Override
+	public EnumSet<EntityType> getListenerEntityTypes() 
+	{
+		return EnumSet.of(EntityType.FAMILY, EntityType.WISH);
 	}
 
 	@Override

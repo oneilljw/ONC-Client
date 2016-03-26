@@ -8,6 +8,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.EnumSet;
 import java.util.TimeZone;
 
 import javax.swing.BorderFactory;
@@ -359,6 +360,12 @@ public class ChildPanel extends JPanel implements DatabaseListener, EntitySelect
 			LogDialog.add(logEntry, "M");
 			displayChild(child);
 		}
+	}
+	
+	@Override
+	public EnumSet<EntityType> getListenerEntityTypes() 
+	{
+		return EnumSet.of(EntityType.FAMILY, EntityType.CHILD);
 	}
 	
 	/***********************************************************************************************

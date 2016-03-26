@@ -27,6 +27,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -1135,6 +1136,12 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		{
 			updateUserList();
 		}
+	}
+	
+	@Override
+	public EnumSet<EntityType> getEntityEventTypes() 
+	{	
+		return EnumSet.of(EntityType.WISH, EntityType.PARTNER);
 	}
 	
 	/**************************************************************************************

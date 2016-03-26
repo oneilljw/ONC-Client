@@ -3,6 +3,7 @@ package ourneighborschild;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.EnumSet;
 
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
@@ -151,6 +152,12 @@ public class ChangeBatchNumberDialog extends InfoDialog implements DatabaseListe
 			}
 
 		}	
+	}
+	
+	@Override
+	public EnumSet<EntityType> getListenerEntityTypes() 
+	{
+		return EnumSet.of(EntityType.FAMILY);
 	}
 
 	@Override

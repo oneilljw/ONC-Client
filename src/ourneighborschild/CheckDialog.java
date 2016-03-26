@@ -10,6 +10,7 @@ import java.awt.print.PrinterException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.EnumSet;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -259,6 +260,12 @@ public abstract class CheckDialog extends ONCTableDialog implements ActionListen
 		{
 			buildTableList();
 		}			
+	}
+	
+	@Override
+	public EnumSet<EntityType> getEntityEventTypes() 
+	{	
+		return EnumSet.of(EntityType.FAMILY);
 	}
 	
 	protected class DupItemONCNumComparator implements Comparator<DupItem>

@@ -5,6 +5,7 @@ import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
+import java.util.EnumSet;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -429,4 +430,10 @@ public abstract class GiftActionDialog extends SortTableDialog
 	
 	@Override
 	boolean isONCNumContainerEmpty() { return oncnumTF.getText().isEmpty(); }
+	
+	@Override
+	public EnumSet<EntityType> getEntityEventTypes() 
+	{	
+		return EnumSet.of(EntityType.WISH);
+	}
 }

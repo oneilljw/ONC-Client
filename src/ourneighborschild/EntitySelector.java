@@ -1,7 +1,12 @@
 package ourneighborschild;
 
+import java.util.EnumSet;
+
 public interface EntitySelector 
 {
+	/** Returns an EnumSet of the EntityTypes selected by the EntitySelector **/
+	EnumSet<EntityType> getEntityEventTypes();
+	
 	/** Register a listener for Entity Selection events */
     void addEntitySelectionListener(EntitySelectionListener l);
     

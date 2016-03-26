@@ -217,6 +217,9 @@ public class OurNeighborsChild implements DatabaseListener
         oncFamDB = Families.getInstance();
         oncDB = DBStatusDB.getInstance();
         
+        //initialize the entity event manager
+        EntityEventManager.getInstance();
+        
         //Initialize the chat manager
         ChatManager.getInstance();
          

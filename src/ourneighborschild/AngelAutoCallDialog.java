@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.EnumSet;
 import java.util.List;
 
 import javax.swing.BoxLayout;
@@ -757,6 +758,12 @@ public class AngelAutoCallDialog extends ONCTableDialog implements ActionListene
 			fireEntitySelected(this, EntityType.FAMILY, stAL.get(modelRow).getFamily(), null);
 			requestFocus();
 		}
+	}
+	
+	@Override
+	public EnumSet<EntityType> getEntityEventTypes() 
+	{	
+		return EnumSet.of(EntityType.FAMILY);
 	}
 	
 	class DialogTableModel extends AbstractTableModel

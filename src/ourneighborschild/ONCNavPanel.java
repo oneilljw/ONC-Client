@@ -8,6 +8,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
+import java.util.EnumSet;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -144,6 +145,7 @@ public class ONCNavPanel extends ONCPanel implements ActionListener
 	
 	//getters
 	int getIndex() { return index; }
+	EntityType getEntityType() { return searchableDB.getDBType(); }
 	
 	//setters
 	void setIndex(int index) { this.index = index; }
@@ -250,6 +252,12 @@ public class ONCNavPanel extends ONCPanel implements ActionListener
 //			System.out.println("ONCNavPanel.actionPerformed: btnLogoff Event");
 //		}
 		
+	}
+	
+	@Override
+	public EnumSet<EntityType> getEntityEventTypes() 
+	{	
+		return EnumSet.of(searchableDB.getDBType());
 	}
 	
 	/***********************************************************************************

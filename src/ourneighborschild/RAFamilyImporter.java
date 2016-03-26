@@ -7,6 +7,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -417,4 +418,10 @@ public class RAFamilyImporter extends ONCTableDialog
     	else
     		return -1;
     }
+    
+    @Override
+	public EnumSet<EntityType> getEntityEventTypes() 
+	{	
+		return EnumSet.of(EntityType.FAMILY);
+	}
 }
