@@ -1517,11 +1517,6 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			dbDlg.setVisible(true);
 		}
 	}
-	//Determines whether to show all personal data or restrict data 
-//	void setFamilyPanelDisplayPermission(boolean disp_all)
-//	{
-//		bDispAll = disp_all;
-//	}
 	
 	void setEnabledSuperuserPrivileges(boolean tf)
 	{
