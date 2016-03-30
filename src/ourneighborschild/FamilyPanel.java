@@ -39,8 +39,8 @@ import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 
-public class FamilyPanel extends ONCPanel implements ActionListener, ListSelectionListener,
-													DatabaseListener, EntitySelectionListener
+public class FamilyPanel extends ONCPanel implements ActionListener, ListSelectionListener, DatabaseListener,
+													EntitySelector, EntitySelectionListener
 {
 	/**
 	 * This class provides the blueprint for the main panel in the ONC application. It contains a number of 
@@ -161,7 +161,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	public FamilyPanel(JFrame pf)
 	{
 		super(pf);
-
+		
 		//register database listeners for updates
 		fDB = Families.getInstance();
 		cDB = ChildDB.getInstance();
@@ -189,7 +189,8 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		//get a reference to the EntityEventManager
         EntityEventManager eeManager = EntityEventManager.getInstance();
         
-        //register this panel as a listener
+        //register this panel as a selector and listener
+        eeManager.registerEntitySelector(this);
 	    eeManager.registerEntitySelectionListener(this);
 		
 		//Setup the nav panel
@@ -1813,6 +1814,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		if(!e.getValueIsAdjusting() && e.getSource() == childTable.getSelectionModel() && !bChildTableDataChanging && 
 				cDB.getNumberOfChildrenInFamily(currFam.getID()) > 0)
 		{
+			System.out.println(String.format("FamPanel.valueChanged Inside: valueAdjusting: %s", e.getValueIsAdjusting()));
 			//Get new child selected by user and display their information
 			currChild = ctAL.get(childTable.getSelectedRow());
 			refreshODBWishListHighlights(currFam, currChild);
@@ -2041,7 +2043,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	@Override
 	public void entitySelected(EntitySelectionEvent tse)
 	{
-		if(tse.getType() == EntityType.FAMILY || tse.getType() == EntityType.WISH)
+		if(tse.getSource() != this && (tse.getType() == EntityType.FAMILY || tse.getType() == EntityType.WISH))
 		{
 			ONCFamily selFam = (ONCFamily) tse.getObject1();
 			ONCChild selChild = (ONCChild) tse.getObject2();
@@ -2094,7 +2096,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	
 	@Override
 	public EnumSet<EntityType> getEntityEventSelectorEntityTypes() 
-	{	
+	{
 		return EnumSet.of(EntityType.FAMILY, EntityType.CHILD);
 	}
 	

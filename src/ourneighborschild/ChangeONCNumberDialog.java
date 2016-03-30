@@ -137,7 +137,6 @@ public class ChangeONCNumberDialog extends InfoDialog implements DatabaseListene
 				ONCFamily selFamily = (ONCFamily) tse.getObject1();
 				this.display(selFamily);	//Display newly selected agent
 			}
-
 		}	
 	}
 	

@@ -80,6 +80,7 @@ public class DialogManager implements EntitySelectionListener
 	private DialogManager()
 	{
 		eeManager = EntityEventManager.getInstance();
+		eeManager.registerEntitySelectionListener(this);
 		
 		 //initialize the dialog maps
         stDlgMap = new HashMap<String, SortTableDialog>();
@@ -434,7 +435,7 @@ public class DialogManager implements EntitySelectionListener
 
 	@Override
 	public void entitySelected(EntitySelectionEvent tse) 
-	{
+	{	
 		if(tse.getType() == EntityType.FAMILY || tse.getType() == EntityType.CHILD || 
 				tse.getType() == EntityType.WISH)
 		{
