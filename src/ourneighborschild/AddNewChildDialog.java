@@ -21,9 +21,9 @@ public class AddNewChildDialog extends InfoDialog
 	private ONCChild newchild;
 	private ONCFamily fam;
 	
-	AddNewChildDialog(JFrame pf, String[] tfNames,  ONCFamily f)
+	AddNewChildDialog(JFrame pf,  ONCFamily f)
 	{
-		super(pf, true, tfNames);
+		super(pf, true);
 		this.setTitle("Add Child to Family");
 		
 		//initialize members
@@ -98,5 +98,11 @@ public class AddNewChildDialog extends InfoDialog
 	void display(ONCObject obj) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	String[] getDialogFieldNames() 
+	{
+		return new String[] {"First Name", "Last Name", "School", "Gender", "Date of Birth"};
 	}
 }

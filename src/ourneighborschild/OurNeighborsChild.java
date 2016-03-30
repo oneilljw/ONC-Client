@@ -92,8 +92,6 @@ public class OurNeighborsChild implements DatabaseListener
 	private static String defaultServerAddress = "96.127.35.251";	//IDT-Amazon cloud based server
 	private static final int PORT = 8901;
 
-	//Check if we are on Mac OS X.  This is crucial to loading and using the OSXAdapter class.
-    	
     public OurNeighborsChild()
     {	
     	//If running under MAC OSX, use the system menu bar and set the application title appropriately and
@@ -248,9 +246,7 @@ public class OurNeighborsChild implements DatabaseListener
 		//must check to see if the password needs to be changed, if so, force the change
 		ONCUser user = oncGVs.setUser(authDlg.getUser());
 		if(user.changePasswordRqrd() && !changePassword())
-		{
 			System.exit(0);
-		}
 		
 		if(oncGVs.getUser().getFirstname().isEmpty())
     		oncFamilyPanel.setMssg("Welcome to Our Neighbor's Child!", true);
@@ -837,8 +833,7 @@ public class OurNeighborsChild implements DatabaseListener
     
     void onWebsiteStatus()
     { 
-    	String[] wsdNames = {"Time Back Online", "Website Status"};
-    	WebsiteStatusDialog wsDlg = new WebsiteStatusDialog(oncFrame, false, wsdNames);
+    	WebsiteStatusDialog wsDlg = new WebsiteStatusDialog(oncFrame, false);
     	wsDlg.setLocationRelativeTo(oncFrame);
     	wsDlg.display(null);	//deosn't require a display parameter
     	wsDlg.setVisible(true);
@@ -861,8 +856,7 @@ public class OurNeighborsChild implements DatabaseListener
     
     boolean changePassword()
     {
-    	String[] fieldNames = {"Current Password", "New Password", "Re-enter New Password"};
-		ChangePasswordDialog cpDlg = new ChangePasswordDialog(oncFrame, fieldNames);
+		ChangePasswordDialog cpDlg = new ChangePasswordDialog(oncFrame);
 		cpDlg.setLocationRelativeTo(oncFrame);
 		String result = "<html>New and re-entered passwords didn't match.<br>Please try again.</html>";
 		boolean bPasswordChanged = false;

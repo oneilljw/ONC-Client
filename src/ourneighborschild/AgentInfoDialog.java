@@ -20,9 +20,9 @@ public class AgentInfoDialog extends InfoDialog implements DatabaseListener, Ent
 	ONCAgents agentDB;
 	boolean bAgentSelectedEnabled;
 	
-	AgentInfoDialog(JFrame owner, String[] tfNames, boolean bAgentSelectedEnabled)
+	AgentInfoDialog(JFrame owner, boolean bAgentSelectedEnabled)
 	{
-		super(owner, false, tfNames);
+		super(owner, false);
 		this.bAgentSelectedEnabled = bAgentSelectedEnabled;
 
 		//Set dialog title and add type label info
@@ -41,7 +41,7 @@ public class AgentInfoDialog extends InfoDialog implements DatabaseListener, Ent
 		familyDB = Families.getInstance();
 		
 		//Set up the main panel, loop to set up components associated with names
-		for(int pn=0; pn < tfNames.length; pn++)
+		for(int pn=0; pn < getDialogFieldNames().length; pn++)
 		{
 			tf[pn] = new JTextField(12);
 			tf[pn].addActionListener(dcl);
@@ -212,5 +212,11 @@ public class AgentInfoDialog extends InfoDialog implements DatabaseListener, Ent
 	public EnumSet<EntityType> getEntityEventListenerEntityTypes() 
 	{
 		return EnumSet.of(EntityType.AGENT, EntityType.FAMILY);
+	}
+
+	@Override
+	String[] getDialogFieldNames()
+	{
+		return new String[] {"Name", "Organization", "Title", "Email", "Phone"};
 	}
 }

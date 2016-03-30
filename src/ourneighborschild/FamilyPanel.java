@@ -1272,8 +1272,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	void editAltAddress()
 	{
 		//Set up the dialog to edit agent info
-		String[] tfNames = {"House #", "Street", "Unit", "City", "Zip Code"};
-    	AltAddressDialog altAddDlg = new AltAddressDialog(parentFrame, true, tfNames);
+    	AltAddressDialog altAddDlg = new AltAddressDialog(parentFrame, true);
     	altAddDlg.display(currFam);
     	altAddDlg.setLocationRelativeTo(rbAltAddress);
     	altAddDlg.setVisible(true);
@@ -1497,8 +1496,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 */	
 	void onAddNewChildClicked()
 	{
-		String[] fieldNames = {"First Name", "Last Name", "School", "Gender", "Date of Birth"};
-		AddNewChildDialog newchildDlg = new AddNewChildDialog(parentFrame, fieldNames, currFam);
+		AddNewChildDialog newchildDlg = new AddNewChildDialog(parentFrame, currFam);
 		newchildDlg.setLocationRelativeTo(childTable);
 		newchildDlg.showDialog();
 		

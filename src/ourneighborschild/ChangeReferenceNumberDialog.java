@@ -15,9 +15,9 @@ public class ChangeReferenceNumberDialog extends InfoDialog implements DatabaseL
 	private static final long serialVersionUID = 1L;
 	private ONCFamily f;
 
-	ChangeReferenceNumberDialog(JFrame owner, String[] tfNames)
+	ChangeReferenceNumberDialog(JFrame owner)
 	{
-		super(owner, false, tfNames);
+		super(owner, false);
 
 		//Set dialog title and add type label info
 		this.setTitle("Change Reference Number");
@@ -32,7 +32,7 @@ public class ChangeReferenceNumberDialog extends InfoDialog implements DatabaseL
 			familyDB.addDatabaseListener(this);
 		
 		//Set up the main panel, loop to set up components associated with names
-		for(int pn=0; pn < tfNames.length; pn++)
+		for(int pn=0; pn < getDialogFieldNames().length; pn++)
 		{
 			tf[pn] = new JTextField(12);
 			tf[pn].addActionListener(dcl);
@@ -149,5 +149,7 @@ public class ChangeReferenceNumberDialog extends InfoDialog implements DatabaseL
 
 	@Override
 	void delete() { } // Unused, we don't delete ODB Numbers
-	
+
+	@Override
+	String[] getDialogFieldNames() { return new String[]  {"Change Ref #"}; }
 }

@@ -13,17 +13,17 @@ public class ChangePasswordDialog extends InfoDialog
 	private JPasswordField[] pf;
 	private String[] pw;
 	
-	ChangePasswordDialog(JFrame owner, String[] tfNames) 
+	ChangePasswordDialog(JFrame owner) 
 	{
-		super(owner, true, tfNames);
+		super(owner, true);
 		this.setTitle("Please Change Your Password");
 		
 		//initialize data structures
-		pf = new JPasswordField[tfNames.length];
-		pw = new String[tfNames.length];
+		pf = new JPasswordField[getDialogFieldNames().length];
+		pw = new String[getDialogFieldNames().length];
 
 		lblONCIcon.setText("<html><font color=blue>Please Enter Password<br>Information Below</font></html>");
-		for(int pn=0; pn< tfNames.length; pn++)
+		for(int pn=0; pn < getDialogFieldNames().length; pn++)
 		{
 			pw[pn] = "";
 			pf[pn] = new JPasswordField(12);
@@ -71,5 +71,11 @@ public class ChangePasswordDialog extends InfoDialog
 	void display(ONCObject obj) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	String[] getDialogFieldNames() 
+	{ 
+		return new String[]  {"Current Password", "New Password", "Re-enter New Password"};
 	}
 }

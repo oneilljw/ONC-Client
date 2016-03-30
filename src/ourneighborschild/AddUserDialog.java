@@ -24,21 +24,18 @@ public class AddUserDialog extends InfoDialog
 	private static final int EMAIL_INDEX = 7;
 	private static final int PHONE_INDEX = 8;
 	
-	private static final String[] fieldNames = {"First Name", "Last Name", "User ID", "Access", "Permission",
-		"Organization", "Title", "Email", "Phone"};
-	
 	private JComboBox accessCB, permissionCB;
 	private ONCServerUser reqAddUser;	
 	
 	AddUserDialog(JFrame pf)
 	{
-		super(pf, true,fieldNames);
+		super(pf, true);
 		this.setTitle("Add New ONC User");
 
 		lblONCIcon.setText("<html><font color=blue>Add New User<br>Information Below</font></html>");
 
 		//Set up the main panel, loop to set up components associated with names
-		for(int pn=0; pn < fieldNames.length; pn++)
+		for(int pn=0; pn < getDialogFieldNames().length; pn++)
 		{
 			tf[pn] = new JTextField(14);
 			tf[pn].addKeyListener(tfkl);
@@ -96,5 +93,13 @@ public class AddUserDialog extends InfoDialog
 	void display(ONCObject obj) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	String[] getDialogFieldNames()
+	{
+		// TODO Auto-generated method stub
+		return new String[] {"First Name", "Last Name", "User ID", "Access", "Permission",
+			"Organization", "Title", "Email", "Phone"};
 	}
 }

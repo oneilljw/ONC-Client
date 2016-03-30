@@ -133,35 +133,29 @@ public class DialogManager implements EntitySelectionListener
         eeManager.registerEntitySelector(sortMealsDlg);
     	
     	//Set up the dialog to edit agent info
-    	String[] tfNames = {"Name", "Organization", "Title", "Email", "Phone"};
-    	agentInfoDlg = new AgentInfoDialog(GlobalVariables.getFrame(), tfNames, false);
+    	agentInfoDlg = new AgentInfoDialog(GlobalVariables.getFrame(), false);
     	familyInfoDlgMap.put("Agent", agentInfoDlg);
     	eeManager.registerEntitySelectionListener(agentInfoDlg);
     	
     	//Set up the dialog to edit family transportation info
-    	String[] transNames = {"ONC #", "Last Name", "Has Transportation?"};
-    	transportationDlg = new TransportationDialog(GlobalVariables.getFrame(), false, transNames);
+    	transportationDlg = new TransportationDialog(GlobalVariables.getFrame(), false);
     	familyInfoDlgMap.put("Transportation", transportationDlg);
     	eeManager.registerEntitySelectionListener(transportationDlg);
     	
     	//Set up the dialog to add a meal to family
-    	String[] mealNames = {"ONC #", "Last Name", "Meal Type", "Restrictions"};
-    	addMealDlg = new AddMealDialog(GlobalVariables.getFrame(), true, mealNames);
+    	addMealDlg = new AddMealDialog(GlobalVariables.getFrame(), true);
     	familyInfoDlgMap.put("Add Meal", addMealDlg);
     	
     	//Set up the dialog to change family ONC Number
-    	String[] oncNum = {"Change ONC #"};
-    	changeONCNumberDlg = new ChangeONCNumberDialog(GlobalVariables.getFrame(), oncNum);
+    	changeONCNumberDlg = new ChangeONCNumberDialog(GlobalVariables.getFrame());
     	familyInfoDlgMap.put("Change ONC #", changeONCNumberDlg);
     	
     	//Set up the dialog to change family ODB Number
-    	String[] refNum = {"Change Ref #"};
-    	changeReferenceNumberDlg = new ChangeReferenceNumberDialog(GlobalVariables.getFrame(), refNum);
+    	changeReferenceNumberDlg = new ChangeReferenceNumberDialog(GlobalVariables.getFrame());
     	familyInfoDlgMap.put("Change Ref #", changeReferenceNumberDlg);
     	
     	//Set up the dialog to change family batch number
-    	String[] batchNum = {"Change Batch #"};
-    	changeBatchNumberDlg = new ChangeBatchNumberDialog(GlobalVariables.getFrame(), batchNum);
+    	changeBatchNumberDlg = new ChangeBatchNumberDialog(GlobalVariables.getFrame());
     	familyInfoDlgMap.put("Change Batch #", changeBatchNumberDlg);
 
     	//Set up the sort agent dialog
@@ -396,8 +390,8 @@ public class DialogManager implements EntitySelectionListener
 	void onAddNewChildClicked()
 	{
 		ChildDB cDB = ChildDB.getInstance();
-		String[] fieldNames = {"First Name", "Last Name", "School", "Gender", "Date of Birth"};
-		AddNewChildDialog newchildDlg = new AddNewChildDialog(GlobalVariables.getFrame(), fieldNames, currFam);
+		
+		AddNewChildDialog newchildDlg = new AddNewChildDialog(GlobalVariables.getFrame(), currFam);
 		newchildDlg.setLocationRelativeTo(GlobalVariables.getFrame());
 		newchildDlg.showDialog();
 			

@@ -21,9 +21,9 @@ public class WebsiteStatusDialog extends InfoDialog implements DatabaseListener
 	private ButtonGroup onlineBG;
 	private JRadioButton rbOnline, rbOffline;
 
-	WebsiteStatusDialog(JFrame owner, boolean bModal, String[] tfNames)
+	WebsiteStatusDialog(JFrame owner, boolean bModal)
 	{
-		super(owner, bModal, tfNames);
+		super(owner, bModal);
 		
 		lblONCIcon.setText("<html><font color=blue>Review/Change ONC Referrral<br>Website Status Below</font></html>");
 		
@@ -34,7 +34,7 @@ public class WebsiteStatusDialog extends InfoDialog implements DatabaseListener
 		}
 		
 		//Set up the main panel, loop to set up components associated with names
-		for(int pn=0; pn < tfNames.length; pn++)
+		for(int pn=0; pn < getDialogFieldNames().length; pn++)
 		{
 			tf[pn] = new JTextField(12);
 			tf[pn].addKeyListener(tfkl);
@@ -176,5 +176,12 @@ public class WebsiteStatusDialog extends InfoDialog implements DatabaseListener
 			
 			checkApplyChangesEnabled();
 		}
+	}
+
+	@Override
+	String[] getDialogFieldNames() 
+	{
+		// TODO Auto-generated method stub
+		return new String[] {"Time Back Online", "Website Status"};
 	}
 }

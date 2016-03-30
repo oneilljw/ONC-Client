@@ -14,9 +14,9 @@ public class AltAddressDialog extends InfoDialog
 	private ONCFamily fam;
 	private String[] origAltAdd; 
 	
-	AltAddressDialog(JFrame owner, boolean bModal, String[] tfNames)
+	AltAddressDialog(JFrame owner, boolean bModal)
 	{
-		super(owner, true, tfNames);
+		super(owner, true);
 
 		//Set dialog title and add type label info
 		this.setTitle("Alternate Delivery Address");
@@ -31,7 +31,7 @@ public class AltAddressDialog extends InfoDialog
 			origAltAdd[i] = "";
 		
 		//Set up the main panel, loop to set up components associated with names
-		for(int pn=0; pn < tfNames.length; pn++)
+		for(int pn=0; pn < getDialogFieldNames().length; pn++)
 		{
 			tf[pn] = new JTextField(12);
 			tf[pn].addKeyListener(tfkl);
@@ -138,5 +138,11 @@ public class AltAddressDialog extends InfoDialog
 									origAltAdd[4].equals(tf[4].getText());
 		
 		return bFieldEmpty || bAddressUnchanged;
+	}
+
+	@Override
+	String[] getDialogFieldNames()
+	{
+		return new String[] {"House #", "Street", "Unit", "City", "Zip Code"};
 	}
 }

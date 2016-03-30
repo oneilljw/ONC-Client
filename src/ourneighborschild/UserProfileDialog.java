@@ -9,8 +9,7 @@ public class UserProfileDialog extends InfoDialog implements DatabaseListener
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
-	private static final String[] tfNames = {"First Name", "last Name", "Organization", "Title", "Email", "Phone"};
+	 
 	private static final int FIRST_NAME_INDEX = 0;
 	private static final int LAST_NAME_INDEX = 1;
 	private static final int ORG_INDEX = 2;
@@ -23,7 +22,7 @@ public class UserProfileDialog extends InfoDialog implements DatabaseListener
 
 	UserProfileDialog(JFrame owner, ONCUser user) 
 	{
-		super(owner, true, tfNames);
+		super(owner, true);
 		this.user = user;
 		this.setTitle(String.format("User Profile for %s", user.getLastname()));
 		
@@ -36,7 +35,7 @@ public class UserProfileDialog extends InfoDialog implements DatabaseListener
 							user.getFirstname(), user.getLastname()));
 
 		//Set up the main panel, loop to set up components associated with names
-		for(int pn=0; pn < tfNames.length; pn++)
+		for(int pn=0; pn < getDialogFieldNames().length; pn++)
 		{
 			tf[pn] = new JTextField(18);
 			tf[pn].addKeyListener(tfkl);
@@ -128,5 +127,11 @@ public class UserProfileDialog extends InfoDialog implements DatabaseListener
 	void display(ONCObject obj) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	String[] getDialogFieldNames() 
+	{
+		return new String[] {"First Name", "last Name", "Organization", "Title", "Email", "Phone"};
 	}
 }

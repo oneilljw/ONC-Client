@@ -33,7 +33,7 @@ public abstract class InfoDialog extends JDialog implements ActionListener
 	protected boolean result;
 	protected GlobalVariables gvs;
 	
-	InfoDialog(JFrame pf, boolean bModal, String tfNames[])
+	InfoDialog(JFrame pf, boolean bModal)
 	{
 		super(pf, bModal);
 		this.owner = pf;
@@ -51,6 +51,7 @@ public abstract class InfoDialog extends JDialog implements ActionListener
 		lblONCIcon.setToolTipText("ONC Client v" + GlobalVariables.getVersion());
 		toppanel.add(lblONCIcon);
 		
+		String[] tfNames = getDialogFieldNames();
 		dcl = new DataChangeListener();
 		tfkl = new TFKeyListener();
 		
@@ -66,6 +67,15 @@ public abstract class InfoDialog extends JDialog implements ActionListener
 			lblTF[pn].setText(String.format("%1$10s:", tfNames[pn]));
 			infopanel[pn].add(lblTF[pn]);
 		}
+		
+		//Set up the main panel, loop to set up components associated with names
+//		for(int pn=0; pn < getDialogFieldNames().length; pn++)
+//		{
+//			tf[pn] = new JTextField(12);
+//			tf[pn].addKeyListener(tfkl);
+//			tf[pn].setEnabled(false);
+//			infopanel[pn].add(tf[pn]);
+//		}
 		
 		//Add control panel
 		JPanel cntlpanel = new JPanel();
@@ -91,6 +101,8 @@ public abstract class InfoDialog extends JDialog implements ActionListener
 		
 		this.setContentPane(contentPanel);
 	}
+	
+	abstract String[] getDialogFieldNames();
 	
 	abstract void display(ONCObject obj);
 	

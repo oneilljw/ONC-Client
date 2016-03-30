@@ -19,9 +19,9 @@ public class AddMealDialog extends InfoDialog implements EntitySelectionListener
 	private MealDB mealDB;
 	private JComboBox mealRequestCB;
 
-	AddMealDialog(JFrame owner, boolean bModal, String[] tfNames) 
+	AddMealDialog(JFrame owner, boolean bModal) 
 	{
-		super(owner, bModal, tfNames);
+		super(owner, bModal);
 		this.setTitle("Add Meal Request");
 
 		lblONCIcon.setText("<html><font color=blue>Add Meal Request<br>Information Below</font></html>");
@@ -30,7 +30,7 @@ public class AddMealDialog extends InfoDialog implements EntitySelectionListener
 		mealDB = MealDB.getInstance();
 
 		//Set up the main panel, loop to set up components associated with names
-		for(int pn=0; pn < tfNames.length; pn++)
+		for(int pn=0; pn < getDialogFieldNames().length; pn++)
 		{
 			tf[pn] = new JTextField(12);
 			tf[pn].addKeyListener(tfkl);
@@ -104,5 +104,11 @@ public class AddMealDialog extends InfoDialog implements EntitySelectionListener
 	{
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	String[] getDialogFieldNames() 
+	{
+		return new String[] {"ONC #", "Last Name", "Meal Type", "Restrictions"};
 	}
 }

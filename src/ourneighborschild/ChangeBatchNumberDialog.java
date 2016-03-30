@@ -20,9 +20,9 @@ public class ChangeBatchNumberDialog extends InfoDialog implements DatabaseListe
 	private JComboBox batchNumCB;
 	private ONCFamily f;
 
-	ChangeBatchNumberDialog(JFrame owner, String[] tfNames)
+	ChangeBatchNumberDialog(JFrame owner)
 	{
-		super(owner, false, tfNames);
+		super(owner, false);
 
 		//Set dialog title and add type label info
 		this.setTitle("Change Batch Number");
@@ -37,7 +37,7 @@ public class ChangeBatchNumberDialog extends InfoDialog implements DatabaseListe
 			familyDB.addDatabaseListener(this);
 		
 		//Set up the main panel, loop to set up components associated with names
-		for(int pn=0; pn < tfNames.length; pn++)
+		for(int pn=0; pn < getDialogFieldNames().length; pn++)
 		{
 			tf[pn] = new JTextField(12);
 			tf[pn].addActionListener(dcl);
@@ -174,5 +174,11 @@ public class ChangeBatchNumberDialog extends InfoDialog implements DatabaseListe
 				else
 					btnAction.setEnabled(false);
 		}
+	}
+
+	@Override
+	String[] getDialogFieldNames()
+	{
+		return new String[] {"Change Batch #"};
 	}
 }

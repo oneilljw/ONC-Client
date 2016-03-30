@@ -142,8 +142,7 @@ public class AdultDialog extends JDialog implements ActionListener, EntitySelect
 	
 	void add()
 	{
-		String[] tfNames = {"Name", "Gender"};
-    	AddAdultDialog addDlg = new AddAdultDialog(owner, tfNames);
+    	AddAdultDialog addDlg = new AddAdultDialog(owner);
     	addDlg.setLocationRelativeTo(this);
     	if(adultDB != null && addDlg.showDialog())
     	{
@@ -383,15 +382,15 @@ public class AdultDialog extends JDialog implements ActionListener, EntitySelect
 		private JComboBox genderCB;
 		private ONCAdult reqAddAdult;	
 		
-		AddAdultDialog(JFrame pf, String[] fieldNames)
+		AddAdultDialog(JFrame pf)
 		{
-			super(pf, true, fieldNames);
+			super(pf, true);
 			this.setTitle("Add New Adult");
 
 			lblONCIcon.setText("<html><font color=blue>Add New Adult<br>Information Below</font></html>");
 
 			//Set up the main panel, loop to set up components associated with names
-			for(int pn=0; pn < fieldNames.length; pn++)
+			for(int pn=0; pn < getDialogFieldNames().length; pn++)
 			{
 				tf[pn] = new JTextField(14);
 				tf[pn].addKeyListener(tfkl);
@@ -438,6 +437,12 @@ public class AdultDialog extends JDialog implements ActionListener, EntitySelect
 		void display(ONCObject obj) {
 			// TODO Auto-generated method stub
 			
+		}
+
+		@Override
+		String[] getDialogFieldNames()
+		{
+			return new String[] {"Name", "Gender"};
 		}
 	}
 }

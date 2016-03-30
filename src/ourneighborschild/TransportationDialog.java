@@ -20,9 +20,9 @@ public class TransportationDialog extends InfoDialog implements DatabaseListener
 	private Families familyDB;
 	private JComboBox transportationCB;
 
-	TransportationDialog(JFrame owner, boolean bModal, String[] tfNames) 
+	TransportationDialog(JFrame owner, boolean bModal) 
 	{
-		super(owner, bModal, tfNames);
+		super(owner, bModal);
 		this.setTitle("Family Has Transportation?");
 
 		lblONCIcon.setText("<html><font color=blue>Edit Family Transportation<br>Information Below</font></html>");
@@ -33,7 +33,7 @@ public class TransportationDialog extends InfoDialog implements DatabaseListener
 			familyDB.addDatabaseListener(this);
 
 		//Set up the main panel, loop to set up components associated with names
-		for(int pn=0; pn < tfNames.length; pn++)
+		for(int pn=0; pn < getDialogFieldNames().length; pn++)
 		{
 			tf[pn] = new JTextField(12);
 			tf[pn].addKeyListener(tfkl);
@@ -136,6 +136,12 @@ public class TransportationDialog extends InfoDialog implements DatabaseListener
 				btnAction.setEnabled(true);
 		}
 		
+	}
+
+	@Override
+	String[] getDialogFieldNames() 
+	{
+		return new String[] {"ONC #", "Last Name", "Has Transportation?"};
 	}
 
 }

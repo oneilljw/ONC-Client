@@ -153,8 +153,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 				BorderFactory.createLoweredBevelBorder(), "Families Represented By Selected Agent(s)"));
 
         //set up the Agent Info Dialog
-        String[] tfNames = {"Name", "Organization", "Title", "Email", "Phone"};
-    	aiDlg = new AgentInfoDialog(GlobalVariables.getFrame(), tfNames, true);
+    	aiDlg = new AgentInfoDialog(GlobalVariables.getFrame(), true);
     	this.addEntitySelectionListener(aiDlg);
         
         this.add(bottomPanel);
