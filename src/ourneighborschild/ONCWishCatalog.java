@@ -341,8 +341,9 @@ public class ONCWishCatalog extends ONCDatabase
 		return  wishlist;
 	}
 
-	void initializeWishCounts(Families fDB)
-	{		
+	void initializeWishCounts()
+	{	
+		Families fDB = Families.getInstance();
 		ArrayList<int[]> wishCounts = fDB.getWishBaseSelectedCounts(getCatalogWishList());
 		for(int index=0; index < wishCounts.size(); index++)
 			wishCatalog.get(index).setWishCounts(wishCounts.get(index));		

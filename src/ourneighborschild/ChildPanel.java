@@ -365,7 +365,7 @@ public class ChildPanel extends JPanel implements DatabaseListener, EntitySelect
 	@Override
 	public EnumSet<EntityType> getEntityEventListenerEntityTypes() 
 	{
-		return EnumSet.of(EntityType.FAMILY, EntityType.CHILD);
+		return EnumSet.of(EntityType.FAMILY, EntityType.CHILD, EntityType.WISH);
 	}
 	
 	/***********************************************************************************************

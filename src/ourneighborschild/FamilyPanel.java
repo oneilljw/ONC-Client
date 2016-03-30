@@ -7,14 +7,11 @@ import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
-import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -42,8 +39,6 @@ import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 
-import org.json.JSONException;
-
 public class FamilyPanel extends ONCPanel implements ActionListener, ListSelectionListener,
 													DatabaseListener, EntitySelectionListener
 {
@@ -53,7 +48,6 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	 */
 	private static final long serialVersionUID = 1L;
 	private static final int FAMILY_STATUS_PACKAGED = 5;
-	private static final int FAMILY_STATUS_SELECTION_LIST_PACKAGED_INDEX = 6;
 	private static final int DELIVERY_STATUS_ASSIGNED = 3;
 	private static final int NUMBER_OF_WISHES_PER_CHILD = 3;
 	
@@ -117,50 +111,50 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private WishPanel[] wishPanelList;
 	
 	//Dialogs that are children of the family panel
-	private static ClientMapDialog cmDlg;
+//	private static ClientMapDialog cmDlg;
 	
-	private AdultDialog adultDlg;
-	private DirectionsDialog dirDlg;
-	private WishCatalogDialog catDlg;
-	private ONCUserDialog userDlg;
-	private ViewONCDatabaseDialog dbDlg;
-	private PYChildConnectionDialog pyConnectionDlg;
-	private AngelAutoCallDialog angelDlg;
+//	private AdultDialog adultDlg;
+//	private DirectionsDialog dirDlg;
+//	private WishCatalogDialog catDlg;
+//	private ONCUserDialog userDlg;
+//	private ViewONCDatabaseDialog dbDlg;
+//	private PYChildConnectionDialog pyConnectionDlg;
+//	private AngelAutoCallDialog angelDlg;
 	
 	//dialogs that inherit from HistoryDialog
-	private Map<String, HistoryDialog> historyDlgMap;
-	private DeliveryHistoryDialog dsDlg;
-	private MealDialog mealDlg;
+//	private Map<String, HistoryDialog> historyDlgMap;
+//	private DeliveryHistoryDialog dsDlg;
+//	private MealDialog mealDlg;
 	
 	//dialogs that inherit from InfoDialog
-	private Map<String, InfoDialog> familyInfoDlgMap;
-	private AgentInfoDialog agentInfoDlg;
-	private TransportationDialog transportationDlg;
-	private AddMealDialog addMealDlg;
-	private ChangeONCNumberDialog changeONCNumberDlg;
-	private ChangeReferenceNumberDialog changeReferenceNumberDlg;
-	private ChangeBatchNumberDialog changeBatchNumberDlg;
+//	private Map<String, InfoDialog> familyInfoDlgMap;
+//	private AgentInfoDialog agentInfoDlg;
+//	private TransportationDialog transportationDlg;
+//	private AddMealDialog addMealDlg;
+//	private ChangeONCNumberDialog changeONCNumberDlg;
+//	private ChangeReferenceNumberDialog changeReferenceNumberDlg;
+//	private ChangeBatchNumberDialog changeBatchNumberDlg;
 	
 	//dialogs that inherit from CheckDialog
-	private Map<String, CheckDialog> checkDlgMap;
-	private ChildCheckDialog dcDlg;
-	private FamilyCheckDialog dfDlg;
+//	private Map<String, CheckDialog> checkDlgMap;
+//	private ChildCheckDialog dcDlg;
+//	private FamilyCheckDialog dfDlg;
 	
 	//dialogs that inherit from SortTableDialog
-	private Map<String, SortTableDialog> stDlgMap;
-	private SortFamilyDialog sortFamiliesDlg;
-	private SortAgentDialog sortAgentDlg;
-	private AssignDeliveryDialog assignDeliveryDlg;
-	private SortDriverDialog sortDriverDlg;
-	private SortPartnerDialog sortPartnerDlg;
-	private SortWishDialog sortWishesDlg;
-	private SortMealsDialog sortMealsDlg;
-	private ReceiveGiftsDialog recGiftsDlg;
+//	private Map<String, SortTableDialog> stDlgMap;
+//	private SortFamilyDialog sortFamiliesDlg;
+//	private SortAgentDialog sortAgentDlg;
+//	private AssignDeliveryDialog assignDeliveryDlg;
+//	private SortDriverDialog sortDriverDlg;
+//	private SortPartnerDialog sortPartnerDlg;
+//	private SortWishDialog sortWishesDlg;
+//	private SortMealsDialog sortMealsDlg;
+//	private ReceiveGiftsDialog recGiftsDlg;
 	
 	//dialogs that inherit from Entity Dialog
-	private Map<String, EntityDialog> entityDlgMap;
-	private OrganizationDialog orgDlg;
-	private DriverDialog driverDlg;
+//	private Map<String, EntityDialog> entityDlgMap;
+//	private OrganizationDialog orgDlg;
+//	private DriverDialog driverDlg;
 	
 //	private LogDialog logDlg;
 	
@@ -501,7 +495,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         JScrollPane oncDIscrollPane = new JScrollPane(oncDIPane);
         oncDIscrollPane.setBorder(BorderFactory.createTitledBorder("Delivery Instructions"));
         
-        
+/*        
         //initialize the dialog maps
         stDlgMap = new HashMap<String, SortTableDialog>();
         familyInfoDlgMap = new HashMap<String, InfoDialog>();
@@ -633,12 +627,12 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         dfDlg = new FamilyCheckDialog(pf);
         checkDlgMap.put("Duplicate Family Check", dfDlg);
         eeManager.registerEntitySelector(dfDlg);
-        
+*/        
         //Create the Child Panel
         oncChildPanel = new ChildPanel();
         this.addEntitySelectionListener(oncChildPanel);
         eeManager.registerEntitySelectionListener(oncChildPanel);
-        
+/*        
         //set up a dialog to receive gifts
 		recGiftsDlg = new ReceiveGiftsDialog(parentFrame, WishStatus.Received);
 		stDlgMap.put("Receive Gifts", recGiftsDlg);
@@ -647,7 +641,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         //set up a dialog to connect prior year children
     	pyConnectionDlg = new PYChildConnectionDialog(parentFrame);
         eeManager.registerEntitySelectionListener(pyConnectionDlg);
-        
+*/        
         //create the wish panels
         JPanel childwishespanel = new JPanel(new GridLayout(1,3));
         wishPanelList = new WishPanel[NUMBER_OF_WISHES_PER_CHILD];
@@ -789,7 +783,6 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         wishlistPane.setParagraphAttributes(attribs, true);
         oncNotesPane.setParagraphAttributes(attribs, true);
         oncDIPane.setParagraphAttributes(attribs, true);
-        orgDlg.setTextPaneFontSize();
 	}
 	
 	void setRestrictedEnabledButtons(boolean tf)
@@ -1300,25 +1293,6 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
     	nav.setCount2("Served Children: " + Integer.toString((dbCounts[1])));
     }
 	
-	 /*********************************************************************************************
-     * This method imports a .csv file that contains a ONC Family Referral Worksheet. It creates
-     * a RAFamilyImporter object and registers the family panel to receive family selection 
-     * events from the importer. Then it executes the importer which will interface with 
-     * the user to select and import a sequence of ONC Family Referral Worksheets
-     *********************************************************************************************/
-    void onImportRAFMenuItemClicked()
-    {
-    	//get a reference to the EntityEventManager
-        EntityEventManager eeManager = EntityEventManager.getInstance();
-        
-    	RAFamilyImporter importer = new RAFamilyImporter(GlobalVariables.getFrame());
-    	eeManager.registerEntitySelector(importer);
-  //  	importer.addEntitySelectionListener(familyChildSelectionListener);
-    	importer.onImportRAFMenuItemClicked();
-    	eeManager.removeEntitySelector(importer);
-  //  	importer.removeEntitySelectionListener(familyChildSelectionListener);
-    }
-    
     /*********************************************************************************************
      * This method updates the family panel when the user imports one or more families
      *********************************************************************************************/
@@ -1341,7 +1315,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 				setRestrictedEnabledButtons(true);
 		}
     }
-    
+ /*   
     void showHistoryDialog(String name)
 	{
 		//retrieve the sort dialog from the map
@@ -1409,7 +1383,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		ONCWishCatalog cat = ONCWishCatalog.getInstance();
 		cat.initializeWishCounts(fDB);
 	}
-	
+/*	
 	void showAngelCallDialog()
 	{
 		if(!angelDlg.isVisible())
@@ -1419,7 +1393,8 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			angelDlg.setVisible(true);
 		}
 	}
-	
+*/	
+/*	
 	void showSortDialog(String name, Point offsetPt)
 	{
 		//retrieve the sort dialog from the map
@@ -1495,10 +1470,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		JOptionPane.showMessageDialog(parentFrame, errMssg, "System Error - Show Family Info Dialog",
 				JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
 	}
-
-    /****************************************************************************************
-     * Shows a dialog to connect prior year child for the family displayed. 
-     */
+    
     void showConnectPYChildDialog()
     {
     	if(!pyConnectionDlg.isVisible())
@@ -1508,12 +1480,12 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
     		pyConnectionDlg.setVisible(true);
 		}
     }
-	
-	void showEntireDatabase(Families fDB)
+/*	
+	void showEntireDatabase()
 	{
 		if(!dbDlg.isVisible())
 		{
-			dbDlg.buildDatabase(fDB);
+			dbDlg.buildDatabase();
 			dbDlg.setVisible(true);
 		}
 	}
@@ -1522,7 +1494,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	{
 		sortFamiliesDlg.setFamilyStatusComboItemEnabled(FAMILY_STATUS_SELECTION_LIST_PACKAGED_INDEX, tf);
 	}
-	
+*/	
 	void onAddNewChildClicked()
 	{
 		String[] fieldNames = {"First Name", "Last Name", "School", "Gender", "Date of Birth"};
@@ -1731,7 +1703,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		}
 		else if(e.getSource() == rbAgentInfo)
 		{   
-	        showFamilyInfoDialog("Agent");
+	        DialogManager.getInstance().showFamilyInfoDialog("Agent");
 		}
 		else if(e.getSource() == rbFamDetails)
 		{
@@ -1760,18 +1732,18 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		}
 		else if(e.getSource() == rbDeliveryHistory)
 		{
-			showHistoryDialog(rbDeliveryHistory.getActionCommand());
+			DialogManager.getInstance().showHistoryDialog(rbDeliveryHistory.getActionCommand());
 		}
 		else if(e.getSource() == rbMeals)
 		{
 			if(rbMeals.getActionCommand().equals("Add Meal"))
-				showFamilyInfoDialog(rbMeals.getActionCommand());
+				DialogManager.getInstance().showFamilyInfoDialog(rbMeals.getActionCommand());
 			else
-				showHistoryDialog(rbMeals.getActionCommand());
+				DialogManager.getInstance().showHistoryDialog(rbMeals.getActionCommand());
 		}
 		else if(e.getSource() == rbAdults)
 		{
-			showAdultDialog();
+			DialogManager.getInstance().showAdultDialog();
 		}
 		else if(e.getSource() == rbAltAddress)			 
 		{	
@@ -1829,11 +1801,11 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		}
 		else if(e.getSource() == rbTransportation)
 		{
-			showFamilyInfoDialog("Transportation");
+			DialogManager.getInstance().showFamilyInfoDialog("Transportation");
 		}
 		else if(e.getSource() == rbDirections)
 		{
-			showDrivingDirections();
+			DialogManager.getInstance().showDrivingDirections();
 		}
 	}
 

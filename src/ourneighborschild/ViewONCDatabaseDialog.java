@@ -117,8 +117,10 @@ public class ViewONCDatabaseDialog extends JDialog
     	setLocation(pt.x + 10, pt.y + 10);
 	}
 	
-	void buildDatabase(Families fDB)
-	{		
+	void buildDatabase()
+	{	
+		Families fDB = Families.getInstance();
+		
 		bChangingTable = true;	//don't process table messages while being changed
 		
 		while (dbTableModel.getRowCount() > 0)	//Clear the Sort Table

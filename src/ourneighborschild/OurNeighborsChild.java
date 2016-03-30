@@ -47,11 +47,10 @@ public class OurNeighborsChild implements DatabaseListener
 	 * Executable Main Class for ONC application
 	 */
 	//Static Final Variables
-	private static final boolean DEBUG_MODE = false;
 	private static final int SERVER_CONNECT_RETRY_LIMIT = 3;
 	private static final int ONC_IMAGE_ICON_INDEX = 0;
 	private static final int ONC_SAVE_FILE = 1;	
-	private static final String ONC_VERSION = "3.26";
+	private static final String ONC_VERSION = "3.27";
 	private static final String ONC_COPYRIGHT = "\u00A92016 John W. O'Neill";	
 	private static final String APPNAME = "Our Neighbor's Child";
 	private static final int DB_UNLOCKED_IMAGE_INDEX = 17;
@@ -84,6 +83,8 @@ public class OurNeighborsChild implements DatabaseListener
 	private AdultDB oncAdultDB;				//Holds ONC Adult database
 	private MealDB oncMealDB;				//Holds ONC Meal database
 	
+	private DialogManager dlgManager;		//Managed all dialogs in client
+	
 	//Server Connection
 	private ServerIF serverIF;	
 //	private static String defaultServerAddress = "72.209.233.207";	//Cox based server
@@ -92,13 +93,12 @@ public class OurNeighborsChild implements DatabaseListener
 	private static final int PORT = 8901;
 
 	//Check if we are on Mac OS X.  This is crucial to loading and using the OSXAdapter class.
-    private static boolean MAC_OS_X = (System.getProperty("os.name").toLowerCase().startsWith("mac os x"));
     	
     public OurNeighborsChild()
     {	
     	//If running under MAC OSX, use the system menu bar and set the application title appropriately and
     	//set up our application to respond to the Mac OS X application menu
-        if (MAC_OS_X) 
+        if(System.getProperty("os.name").toLowerCase().startsWith("mac os x"))
         {          	
             System.setProperty("apple.laf.useScreenMenuBar", "true");
             System.setProperty("com.apple.mrj.application.apple.menu.about.name", APPNAME);
@@ -155,7 +155,6 @@ public class OurNeighborsChild implements DatabaseListener
         	} 
         	catch (SocketTimeoutException e2) 
         	{
-        		System.out.println("SocketTimeoutException");
         		serverIPAddress = getServerIPAddress(serverIPAddress);
         		if(serverIPAddress == null)
         			break;
@@ -183,16 +182,15 @@ public class OurNeighborsChild implements DatabaseListener
         //if the server if is not connected, notify and exit
         if(serverIF == null)
         {
-        	JOptionPane.showMessageDialog(oncFrame, "Server connection not established, please contact " +
-        			"the ONC IT director", "ONC Server Connecton Error", JOptionPane.ERROR_MESSAGE);
+        	String mssg = "<html>Server connection could not established,<br>"
+        					+ "please contact the ONC IT director</html>";
+        	JOptionPane.showMessageDialog(oncFrame, mssg, "ONC Server Connecton Failure", JOptionPane.ERROR_MESSAGE);
         	System.exit(0);
         }
         else
-        {
-        	//write the server address successfully used
-        	writeServerIPAddressToFile(serverIPAddress);
-        }
+        	writeServerIPAddressToFile(serverIPAddress);	//write the server address successfully used
         
+        //server is connected, proceed with initialization
         //create the log dialog
         logDlg = new LogDialog();	//create the static log dialog
         
@@ -201,7 +199,7 @@ public class OurNeighborsChild implements DatabaseListener
         oncGVs.setFrame(oncFrame);
         oncGVs.setVersion(ONC_VERSION);
         
-        //Initialize data structures
+        //initialize data structures
         oncRegions = ONCRegions.getInstance();
         oncUserDB = UserDB.getInstance();
         oncAgentDB = ONCAgents.getInstance();
@@ -220,8 +218,9 @@ public class OurNeighborsChild implements DatabaseListener
         //initialize the entity event manager
         EntityEventManager.getInstance();
         
-        //Initialize the chat manager
+        //Initialize the chat and dialog managers
         ChatManager.getInstance();
+        dlgManager = DialogManager.getInstance();
          
         //create mainframe window for the application
         createandshowGUI();
@@ -234,14 +233,15 @@ public class OurNeighborsChild implements DatabaseListener
 			public void actionPerformed(ActionEvent e)
 			{
 				oncGVs.setFontIndex(prefsDlg.oncFontSizeCB.getSelectedIndex());
-				oncFamilyPanel.setTextPaneFontSize();				
+				oncFamilyPanel.setTextPaneFontSize();
+				dlgManager.setTextPaneFontSize();
 			}      	
         });
 
         //Get and authenticate user and privileges with Authentication dialog. Can't get past this
         //modal dialog unless a valid user id and password is authenticated by the server. 
         ONCAuthenticationDialog authDlg = null;
-		authDlg = new ONCAuthenticationDialog(oncFrame, DEBUG_MODE);	
+		authDlg = new ONCAuthenticationDialog(oncFrame);	
 		authDlg.setVisible(true);
 		
 		//if we get here, the server has authenticated this client's userID and password
@@ -269,7 +269,7 @@ public class OurNeighborsChild implements DatabaseListener
         	prefsDlg.setEnabledRestrictedPrefrences(true);
         	oncMenuBar.setVisibleAdminFunctions(true);
         	oncMenuBar.setVisibleSpecialImports(true);
-        	oncFamilyPanel.setEnabledSuperuserPrivileges(true);
+        	dlgManager.setEnabledSuperuserPrivileges(true);
         }
         else if(user.getPermission() == UserPermission.Admin)
         {
@@ -305,13 +305,7 @@ public class OurNeighborsChild implements DatabaseListener
         
         //initialize web site status
         oncGVs.initializeWebsiteStatusFromServer();
-        
-        if(DEBUG_MODE)
- 		{
-        	//Debug - get year 2013 automatically
-        	importObjectsFromDB(2013);
-		}
-        
+       
         //everything is initialized, start polling server for changes
         if(serverIF != null && serverIF.isConnected())
         	serverIF.setEnabledServerPolling(true);   	
@@ -365,64 +359,26 @@ public class OurNeighborsChild implements DatabaseListener
     
     String readServerIPAddressFromFile()
     {
-    	String serverIPAddress = defaultServerAddress;
+    	String serverIPAddress;
+    	String line;
     	
-    	//Construct FileReader
+    	//Construct FileReader and BufferedReader from FileReader
     	FileReader reader = null;
+    	BufferedReader br = null;
+    	
 		try
 		{
 			reader = new FileReader(System.getProperty("user.dir") + "/" + ONC_SERVER_IP_ADDRESS_FILE);
-		}
-		catch (FileNotFoundException e)
-		{
-			// TODO Auto-generated catch block
-			serverIPAddress = defaultServerAddress;
+			br = new BufferedReader(reader);
 			
-	    	String mssg = "<html>Could not find file<br>" + ONC_SERVER_IP_ADDRESS_FILE +"</html>";		
-	    	JOptionPane.showMessageDialog(oncFrame, mssg, "ONC Client File Error", JOptionPane.ERROR_MESSAGE,
-	    									createImageIcon("onclogosmall.gif", "ONC Logo"));
-			return serverIPAddress;
-		}
-		
-    	// Construct BufferedReader from FileReader
-    	BufferedReader br = new BufferedReader(reader);
-     
-    	String line = null;
-    	try
-    	{
-			if((line = br.readLine()) != null)
-				serverIPAddress = line;
-			else
-			{
-				serverIPAddress = defaultServerAddress;
-				
-		    	String mssg = "<html>Could not read IP address in<br>" + ONC_SERVER_IP_ADDRESS_FILE +"</html>";		
-		    	JOptionPane.showMessageDialog(oncFrame, mssg, "ONC Client File Error", JOptionPane.ERROR_MESSAGE,
-		    									createImageIcon("onclogosmall.gif", "ONC Logo"));
-			}
-		} 
-    	catch (IOException e)
-    	{
-			serverIPAddress = defaultServerAddress;
+			serverIPAddress = (line = br.readLine()) == null ? defaultServerAddress : line;
 			
-			String mssg = "<html>Could not read file<br>" + ONC_SERVER_IP_ADDRESS_FILE +"</html>";		
-	    	JOptionPane.showMessageDialog(oncFrame, mssg, "ONC Client File Error", JOptionPane.ERROR_MESSAGE,
-	    									createImageIcon("onclogosmall.gif", "ONC Logo"));
+			br.close();
 			
 			return serverIPAddress;
-			
 		}
-    	finally
-    	{
-    		try {
-    			br.close();
-    		} catch (IOException e) {
-    			// TODO Auto-generated catch block
-    			e.printStackTrace();
-    		}
-    	}
-    	
-    	return serverIPAddress;
+		catch (FileNotFoundException e) { return defaultServerAddress; }
+    	catch (IOException e) { return defaultServerAddress; }
     }
     
     void writeServerIPAddressToFile(String ipAddress)
@@ -970,22 +926,22 @@ public class OurNeighborsChild implements DatabaseListener
     			oncOrgDB.importOrgDB(oncFrame, oncGVs.getImageIcon(0), null);
     		else if(e.getSource() == ONCMenuBar.importODBMI) {OnImportMenuItemClicked("ODB");}
     		else if(e.getSource() == ONCMenuBar.importWFCMMI) {OnImportMenuItemClicked("WFCM");}
-    		else if(e.getSource() == ONCMenuBar.importRAFMI) { oncFamilyPanel.onImportRAFMenuItemClicked(); }
-    		else if(e.getSource() == ONCMenuBar.manageCallResultMI) {oncFamilyPanel.showAngelCallDialog();}
+    		else if(e.getSource() == ONCMenuBar.importRAFMI) { dlgManager.onImportRAFMenuItemClicked(); }
+    		else if(e.getSource() == ONCMenuBar.manageCallResultMI) {dlgManager.showAngelCallDialog();}
     		else if(e.getSource() == ONCMenuBar.exportMI){ exportObjectDBToCSV(); }
     		else if(e.getSource() == ONCMenuBar.dbStatusMI) {onDBStatusClicked();}
     		else if(e.getSource() == ONCMenuBar.clearMI) {OnClearMenuItemClicked();} 			       	
     		else if(e.getSource() == ONCMenuBar.exitMI)	{exit("LOGOUT");}
     		else if(e.getSource() == ONCMenuBar.findDupFamsMI)
-    			oncFamilyPanel.showCheckDialog(ONCMenuBar.findDupFamsMI.getActionCommand());
+    			dlgManager.showCheckDialog(ONCMenuBar.findDupFamsMI.getActionCommand());
     		else if(e.getSource() == ONCMenuBar.findDupChldrnMI)
-    			oncFamilyPanel.showCheckDialog(ONCMenuBar.findDupChldrnMI.getActionCommand());
+    			dlgManager.showCheckDialog(ONCMenuBar.findDupChldrnMI.getActionCommand());
     		else if(e.getSource() == ONCMenuBar.assignDelMI)
-    			oncFamilyPanel.showSortDialog(ONCMenuBar.assignDelMI.getActionCommand(), SORT_DIALOG_OFFSET);
+    			dlgManager.showSortDialog(ONCMenuBar.assignDelMI.getActionCommand(), SORT_DIALOG_OFFSET);
     		else if(e.getSource() == ONCMenuBar.editDelMI)
-    			oncFamilyPanel.showEntityDialog(ONCMenuBar.editDelMI.getActionCommand(), SORT_DIALOG_OFFSET);
+    			dlgManager.showEntityDialog(ONCMenuBar.editDelMI.getActionCommand(), SORT_DIALOG_OFFSET);
     		else if(e.getSource() == ONCMenuBar.manageDelMI)
-    			oncFamilyPanel.showSortDialog(ONCMenuBar.manageDelMI.getActionCommand(), SORT_DIALOG_OFFSET);
+    			dlgManager.showSortDialog(ONCMenuBar.manageDelMI.getActionCommand(), SORT_DIALOG_OFFSET);
     		else if(e.getSource() == ONCMenuBar.importDrvrMI)
     		{
     			String mssg = oncDDB.importDrivers(oncFrame, oncGVs.getTodaysDate(),
@@ -997,32 +953,32 @@ public class OurNeighborsChild implements DatabaseListener
     		    JOptionPane.showMessageDialog(oncFrame, mssg,
     					"Import Result", JOptionPane.INFORMATION_MESSAGE, oncGVs.getImageIcon(0));
     		}
-    		else if(e.getSource() == ONCMenuBar.mapsMI) {oncFamilyPanel.showDrivingDirections();}
-    		else if(e.getSource() == ONCMenuBar.distMI) {oncFamilyPanel.showClientMap();}
+    		else if(e.getSource() == ONCMenuBar.mapsMI) {dlgManager.showDrivingDirections();}
+    		else if(e.getSource() == ONCMenuBar.distMI) {dlgManager.showClientMap();}
     		else if(e.getSource() == ONCMenuBar.changeONCMI)
-    			oncFamilyPanel.showFamilyInfoDialog(ONCMenuBar.changeONCMI.getActionCommand());
+    			dlgManager.showFamilyInfoDialog(ONCMenuBar.changeONCMI.getActionCommand());
     		else if(e.getSource() == ONCMenuBar.changeRefMI)
-    			oncFamilyPanel.showFamilyInfoDialog(ONCMenuBar.changeRefMI.getActionCommand());
+    			dlgManager.showFamilyInfoDialog(ONCMenuBar.changeRefMI.getActionCommand());
     		else if(e.getSource() == ONCMenuBar.changeBatchMI)
-    			oncFamilyPanel.showFamilyInfoDialog(ONCMenuBar.changeBatchMI.getActionCommand());
+    			dlgManager.showFamilyInfoDialog(ONCMenuBar.changeBatchMI.getActionCommand());
     		else if(e.getSource() == ONCMenuBar.delstatusMI)
-    			oncFamilyPanel.showHistoryDialog(ONCMenuBar.delstatusMI.getActionCommand());
-    		else if(e.getSource() == ONCMenuBar.viewDBMI) {oncFamilyPanel.showEntireDatabase(oncFamDB);}
+    			dlgManager.showHistoryDialog(ONCMenuBar.delstatusMI.getActionCommand());
+    		else if(e.getSource() == ONCMenuBar.viewDBMI) {dlgManager.showEntireDatabase();}
     		else if(e.getSource() == ONCMenuBar.sortWishesMI)
-    			oncFamilyPanel.showSortDialog(ONCMenuBar.sortWishesMI.getActionCommand(), SORT_DIALOG_OFFSET);
+    			dlgManager.showSortDialog(ONCMenuBar.sortWishesMI.getActionCommand(), SORT_DIALOG_OFFSET);
     		else if(e.getSource() == ONCMenuBar.sortMealsMI)
-    			oncFamilyPanel.showSortDialog(ONCMenuBar.sortMealsMI.getActionCommand(), SORT_DIALOG_OFFSET);
+    			dlgManager.showSortDialog(ONCMenuBar.sortMealsMI.getActionCommand(), SORT_DIALOG_OFFSET);
     		else if(e.getSource() == ONCMenuBar.recGiftsMI)
-    			oncFamilyPanel.showSortDialog(ONCMenuBar.recGiftsMI.getActionCommand(), SORT_DIALOG_OFFSET);
-    		else if(e.getSource() == ONCMenuBar.catMI) {oncFamilyPanel.showWishCatalogDialog(); }
+    			dlgManager.showSortDialog(ONCMenuBar.recGiftsMI.getActionCommand(), SORT_DIALOG_OFFSET);
+    		else if(e.getSource() == ONCMenuBar.catMI) {dlgManager.showWishCatalogDialog(); }
     		else if(e.getSource() == ONCMenuBar.orgMI)
-    			oncFamilyPanel.showEntityDialog(ONCMenuBar.orgMI.getActionCommand(), SORT_DIALOG_OFFSET);
+    			dlgManager.showEntityDialog(ONCMenuBar.orgMI.getActionCommand(), SORT_DIALOG_OFFSET);
     		else if(e.getSource() == ONCMenuBar.sortOrgsMI)
-    			oncFamilyPanel.showSortDialog(ONCMenuBar.sortOrgsMI.getActionCommand(), SORT_DIALOG_OFFSET);
+    			dlgManager.showSortDialog(ONCMenuBar.sortOrgsMI.getActionCommand(), SORT_DIALOG_OFFSET);
     		else if(e.getSource() == ONCMenuBar.sortFamiliesMI)
-    			oncFamilyPanel.showSortDialog(ONCMenuBar.sortFamiliesMI.getActionCommand(), SORT_DIALOG_OFFSET);
+    			dlgManager.showSortDialog(ONCMenuBar.sortFamiliesMI.getActionCommand(), SORT_DIALOG_OFFSET);
     		else if(e.getSource() == ONCMenuBar.agentMI)
-    			oncFamilyPanel.showSortDialog(ONCMenuBar.agentMI.getActionCommand(), SORT_DIALOG_OFFSET);
+    			dlgManager.showSortDialog(ONCMenuBar.agentMI.getActionCommand(), SORT_DIALOG_OFFSET);
     		else if(e.getSource() == ONCMenuBar.aboutONCMI)
     		{
     			//User has chosen to view the About ONC dialog
@@ -1046,8 +1002,8 @@ public class OurNeighborsChild implements DatabaseListener
     		else if(e.getSource() == ONCMenuBar.delChildMI) { oncFamilyPanel.deleteChild(); }
     		else if(e.getSource() == ONCMenuBar.newChildMI) { oncFamilyPanel.onAddNewChildClicked(); }
     		else if(e.getSource() == ONCMenuBar.markAdultMI) { oncFamilyPanel.markChildAsAdult(); }
-    		else if(e.getSource() == ONCMenuBar.connectChildMI) { oncFamilyPanel.showConnectPYChildDialog(); }
-    		else if(e.getSource() == ONCMenuBar.userMI) { oncFamilyPanel.showUserDialog(); }
+    		else if(e.getSource() == ONCMenuBar.connectChildMI) { dlgManager.showConnectPYChildDialog(); }
+    		else if(e.getSource() == ONCMenuBar.userMI) { dlgManager.showUserDialog(); }
     		else if(e.getSource() == ONCMenuBar.onlineMI) { onWhoIsOnline(); }
     		else if(e.getSource() == ONCMenuBar.chatMI) { onChat(); }
     		else if(e.getSource() == ONCMenuBar.profileMI) { editProfile(); }
@@ -1201,7 +1157,7 @@ public class OurNeighborsChild implements DatabaseListener
 			//year and users can import drivers or add them if they wish
 			oncMenuBar.setEnabledDataLoadedMenuItems(true);
 			
-			oncFamilyPanel.initializeCatalogWishCounts();
+			ONCWishCatalog.getInstance().initializeWishCounts();
 			
 			//check to see if family data is present and enable controls
 			checkFamilyDataLoaded();
