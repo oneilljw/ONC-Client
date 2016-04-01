@@ -245,7 +245,7 @@ public class OurNeighborsChild implements DatabaseListener
 		//if we get here, the server has authenticated this client's userID and password
 		//must check to see if the password needs to be changed, if so, force the change
 		ONCUser user = oncGVs.setUser(authDlg.getUser());
-		if(user.changePasswordRqrd() && !changePassword())
+		if(user.changePasswordRqrd() && !dlgManager.onChangePassword())
 			System.exit(0);
 		
 		if(oncGVs.getUser().getFirstname().isEmpty())
@@ -782,106 +782,7 @@ public class OurNeighborsChild implements DatabaseListener
 		savedbPU.show("Database Export Result", mssg);		
     }
 
-    void onWhoIsOnline()
-    {
-    	List<ONCUser> onlineUserList = null;
-    	//get online users from user data base
-    	if(oncUserDB != null)
-    	{
-    		String response = "";
-    		response = serverIF.sendRequest("GET<online_users>");
-    		
-    		if(response.startsWith("ONLINE_USERS"))
-    		{
-    			Gson gson = new Gson();
-    			Type listtype = new TypeToken<ArrayList<ONCUser>>(){}.getType();
-    			
-    			onlineUserList = gson.fromJson(response.substring(12), listtype);
-    		}
-    	}
-    	
-		if(onlineUserList != null)
-		{
-			StringBuffer sb = new StringBuffer("<html>");
-			
-			for(ONCUser ou: onlineUserList)
-				if(ou != null)	//can be null if server log in failure -- known server issue Oct 16, 2014
-				{
-					String year = ou.getClientYear() == -1 ? "None" : Integer.toString(ou.getClientYear());
-					sb.append(ou.getFirstname() + " " + ou.getLastname() + ": " + year + "<br>");
-				}
-			
-			sb.append("</html>");
-					
-			//Show user list
-	        JOptionPane.showMessageDialog(oncFrame, sb.toString(),
-			"ONC Elves Online", JOptionPane.INFORMATION_MESSAGE,oncGVs.getImageIcon(0));
-		}
-		else
-		{
-			JOptionPane.showMessageDialog(oncFrame, "Couldn't retrive online users from ONC Server",
-        			"ONC Server Error", JOptionPane.ERROR_MESSAGE,oncGVs.getImageIcon(0));
-		}
-    }
-    
-    void onChat()
-    {
-    	ChatDialog chatDlg = new ChatDialog(oncFrame, true, -1);	//true=user initiated chat, -1=no target yet
-    	chatDlg.setLocationRelativeTo(oncFrame);
-    	chatDlg.setVisible(true);
-    }
-    
-    void onWebsiteStatus()
-    { 
-    	WebsiteStatusDialog wsDlg = new WebsiteStatusDialog(oncFrame, false);
-    	wsDlg.setLocationRelativeTo(oncFrame);
-    	wsDlg.display(null);	//deosn't require a display parameter
-    	wsDlg.setVisible(true);
-    }
-    
-    void onDBStatusClicked()
-    {
-    	DatabaseStatusDialog statusDlg = new DatabaseStatusDialog(oncFrame);
-    	statusDlg.setLocationRelativeTo(oncFrame);
-    	statusDlg.setVisible(true);
-    }
-    
-    void editProfile()
-    {
-    	//construct and display a UserProfile Dialog
-    	UserProfileDialog upDlg = new UserProfileDialog(oncFrame,oncGVs.getUser());
-    	upDlg.setLocationRelativeTo(oncFamilyPanel);
-    	upDlg.setVisible(true);
-    }
-    
-    boolean changePassword()
-    {
-		ChangePasswordDialog cpDlg = new ChangePasswordDialog(oncFrame);
-		cpDlg.setLocationRelativeTo(oncFrame);
-		String result = "<html>New and re-entered passwords didn't match.<br>Please try again.</html>";
-		boolean bPasswordChanged = false;
-		
-		if(cpDlg.showDialog())
-		{
-			if(cpDlg.doNewPasswordsMatch())
-			{
-				ONCUser currUser = oncGVs.getUser();
-				String[] pwInfo = cpDlg.getPWInfo();
-				
-				ChangePasswordRequest cpwReq = new ChangePasswordRequest(currUser.getID(),
-						currUser.getFirstname(), currUser.getLastname(),
-						ONCEncryptor.encrypt(pwInfo[0]), ONCEncryptor.encrypt(pwInfo[1]));
-				
-				if((result = oncUserDB.changePassword(this, cpwReq)).contains("changed"))
-					bPasswordChanged = true;
-			}
-			
-			JOptionPane.showMessageDialog(oncFrame, result,"Change Password Result",
-        			 JOptionPane.ERROR_MESSAGE,oncGVs.getImageIcon(0));
-		}
-		
-		return bPasswordChanged;
-    } 
+   
 
     private class MenuItemDBYearsListener implements ActionListener
     {
@@ -923,7 +824,7 @@ public class OurNeighborsChild implements DatabaseListener
     		else if(e.getSource() == ONCMenuBar.importRAFMI) { dlgManager.onImportRAFMenuItemClicked(); }
     		else if(e.getSource() == ONCMenuBar.manageCallResultMI) {dlgManager.showAngelCallDialog();}
     		else if(e.getSource() == ONCMenuBar.exportMI){ exportObjectDBToCSV(); }
-    		else if(e.getSource() == ONCMenuBar.dbStatusMI) {onDBStatusClicked();}
+    		else if(e.getSource() == ONCMenuBar.dbStatusMI) {dlgManager.onDBStatusClicked();}
     		else if(e.getSource() == ONCMenuBar.clearMI) {OnClearMenuItemClicked();} 			       	
     		else if(e.getSource() == ONCMenuBar.exitMI)	{exit("LOGOUT");}
     		else if(e.getSource() == ONCMenuBar.findDupFamsMI)
@@ -993,15 +894,15 @@ public class OurNeighborsChild implements DatabaseListener
     			AddFamilyDialog afDlg = new AddFamilyDialog(oncFrame);
     			afDlg.setVisible(true);
     		}
-    		else if(e.getSource() == ONCMenuBar.delChildMI) { oncFamilyPanel.deleteChild(); }
-    		else if(e.getSource() == ONCMenuBar.newChildMI) { oncFamilyPanel.onAddNewChildClicked(); }
-    		else if(e.getSource() == ONCMenuBar.markAdultMI) { oncFamilyPanel.markChildAsAdult(); }
+    		else if(e.getSource() == ONCMenuBar.delChildMI) { dlgManager.onDeleteChild(); }
+    		else if(e.getSource() == ONCMenuBar.newChildMI) { dlgManager.onAddNewChildClicked(); }
+    		else if(e.getSource() == ONCMenuBar.markAdultMI) { dlgManager.onMarkChildAsAdult(); }
     		else if(e.getSource() == ONCMenuBar.connectChildMI) { dlgManager.showConnectPYChildDialog(); }
     		else if(e.getSource() == ONCMenuBar.userMI) { dlgManager.showUserDialog(); }
-    		else if(e.getSource() == ONCMenuBar.onlineMI) { onWhoIsOnline(); }
-    		else if(e.getSource() == ONCMenuBar.chatMI) { onChat(); }
-    		else if(e.getSource() == ONCMenuBar.profileMI) { editProfile(); }
-    		else if(e.getSource() == ONCMenuBar.changePWMI) { changePassword(); }
+    		else if(e.getSource() == ONCMenuBar.onlineMI) { dlgManager.onWhoIsOnline(); }
+    		else if(e.getSource() == ONCMenuBar.chatMI) { dlgManager.onChat(); }
+    		else if(e.getSource() == ONCMenuBar.profileMI) { dlgManager.onEditProfile(); }
+    		else if(e.getSource() == ONCMenuBar.changePWMI) { dlgManager.onChangePassword(); }
     		else if(e.getSource() == ONCMenuBar.stopPollingMI && serverIF != null) { serverIF.setEnabledServerPolling(false); }
     		else if(e.getSource() == ONCMenuBar.showServerLogMI && serverIF != null)
     		{
@@ -1011,18 +912,18 @@ public class OurNeighborsChild implements DatabaseListener
     		else if(e.getSource() == ONCMenuBar.showServerClientIDMI)
     		{
     			ONCPopupMessage clientIDPU = new ONCPopupMessage( oncGVs.getImageIcon(0));
-    			clientIDPU.setLocationRelativeTo(oncFamilyPanel);
+    			clientIDPU.setLocationRelativeTo(GlobalVariables.getFrame());
     			String mssg = String.format("Your ONC Server Client ID is: %d", oncGVs.getUser().getClientID());
     			clientIDPU.show("ONC Server Client ID", mssg);
     		}    		
     		else if(e.getSource() == ONCMenuBar.showCurrDirMI)
     		{
     			ONCPopupMessage clientIDPU = new ONCPopupMessage( oncGVs.getImageIcon(0));
-    			clientIDPU.setLocationRelativeTo(oncFamilyPanel);
+    			clientIDPU.setLocationRelativeTo(GlobalVariables.getFrame());
     			String mssg = String.format("Current folder is: %s", System.getProperty("user.dir"));
     			clientIDPU.show("ONC Client Current Folder", mssg);
     		}
-    		else if(e.getSource() == ONCMenuBar.showWebsiteStatusMI) { onWebsiteStatus(); }
+    		else if(e.getSource() == ONCMenuBar.showWebsiteStatusMI) { dlgManager.onWebsiteStatus(); }
     	}   	
     }
     

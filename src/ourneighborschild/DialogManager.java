@@ -3,8 +3,10 @@ package ourneighborschild;
 import java.awt.Point;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 
 import org.json.JSONException;
@@ -390,8 +392,6 @@ public class DialogManager implements EntitySelectionListener
 		
 	void onAddNewChildClicked()
 	{
-		ChildDB cDB = ChildDB.getInstance();
-		
 		AddNewChildDialog newchildDlg = new AddNewChildDialog(GlobalVariables.getFrame(), currFam);
 		newchildDlg.setLocationRelativeTo(GlobalVariables.getFrame());
 		newchildDlg.showDialog();
@@ -399,10 +399,91 @@ public class DialogManager implements EntitySelectionListener
 		ONCChild newchild = newchildDlg.getNewChild();
 		if(newchild != null)
 		{
-			cDB.add(this, newchild);
+			ChildDB.getInstance().add(this, newchild);
 		}
 	}
 	
+	/*************************************************************************************************************
+	 * This method is called when the user requests to mark a child as an adult from the menu bar. 
+	 * The child object is added to the adult db and deleted from the child db.The child to be
+	 * marked as an adult is the child currently selected in child table in the family panel.
+	 * The first step in mark is to confirm with the user that they intended to mark as an adult. 
+	 **********************************************************************************************************/
+	void onMarkChildAsAdult()
+	{
+		//Obtain the child to be marked as an Adult
+		AdultDB adultDB = AdultDB.getInstance();
+		ChildDB childDB = ChildDB.getInstance();
+		if(currFam != null && childDB != null && adultDB != null)
+		{
+			//Save any changed family data prior to moving the child to adult
+//			checkAndUpdateFamilyData(currFam);
+			
+			ONCChild delChild = currChild;
+		
+			//Confirm with the user that the mark is really intended
+			String confirmMssg =String.format("Are you sure you want to change %s %s to an adult?", 
+											delChild.getChildFirstName(), delChild.getChildLastName());
+		
+			Object[] options= {"Cancel", "Make Adult"};
+			JOptionPane confirmOP = new JOptionPane(confirmMssg, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION,
+								GlobalVariables.getONCLogo(), options, "Cancel");
+			JDialog confirmDlg = confirmOP.createDialog(GlobalVariables.getFrame(), "*** Confirm Child to Adult Change ***");
+			confirmDlg.setVisible(true);
+		
+			Object selectedValue = confirmOP.getValue();
+			if(selectedValue != null && selectedValue.toString().equals("Make Adult"))
+			{
+				//create a new adult object and add it to the adult database
+				String name = delChild.getChildFirstName() + " " + delChild.getChildLastName();
+				AdultGender gender;
+				if(delChild.getChildGender().toLowerCase().equals("girl"))
+					gender = AdultGender.Female;
+				else if(delChild.getChildGender().toLowerCase().equals("boy"))
+					gender = AdultGender.Male;
+				else
+					gender = AdultGender.Unknown;
+				
+				//add to the adult database
+				adultDB.add(this, new ONCAdult(-1, delChild.getFamID(), name, gender));
+				
+				//delete from the child data base
+				childDB.delete(this, delChild);
+			}
+		}
+	}
+	
+	/*************************************************************************************************************
+	 * This method is called when the user requests to delete a child from the menu bar. The child to be deleted
+	 * is the child currently selected in child table in the family panel. The first step in deletion is to confirm
+	 * with the user that they intended to delete the child. 
+	 **********************************************************************************************************/
+	void onDeleteChild()
+	{
+		ChildDB childDB = ChildDB.getInstance();
+		//Obtain the child to be deleted
+		if(currFam != null && childDB != null)
+		{
+			//Save any changed family data prior to the deletion of the child
+//			checkAndUpdateFamilyData(currFam);
+			
+			ONCChild delChild = currChild;
+		
+			//Confirm with the user that the deletion is really intended
+			String confirmMssg =String.format("Are you sure you want to delete %s %s from the data base?", 
+											delChild.getChildFirstName(), delChild.getChildLastName());
+		
+			Object[] options= {"Cancel", "Delete"};
+			JOptionPane confirmOP = new JOptionPane(confirmMssg, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION,
+								GlobalVariables.getONCLogo(), options, "Cancel");
+			JDialog confirmDlg = confirmOP.createDialog(GlobalVariables.getFrame(), "*** Confirm Child Database Deletion ***");
+			confirmDlg.setVisible(true);
+		
+			Object selectedValue = confirmOP.getValue();
+			if(selectedValue != null && selectedValue.toString().equals("Delete"))
+				childDB.delete(this, delChild);
+		}
+	}
 
 	 /*********************************************************************************************
     * This method imports a .csv file that contains a ONC Family Referral Worksheet. It creates
@@ -422,6 +503,98 @@ public class DialogManager implements EntitySelectionListener
    		eeManager.removeEntitySelector(importer);
  //  	importer.removeEntitySelectionListener(familyChildSelectionListener);
    }
+   
+   void onWhoIsOnline()
+   {
+   		//get online users from user data base
+   		UserDB userDB = UserDB.getInstance();
+   		if(userDB != null)
+   		{
+   			List<ONCUser> onlineUserList = userDB.getOnlineUsers();
+   			if(onlineUserList != null)
+   			{
+   				StringBuffer sb = new StringBuffer("<html>");
+			
+   				for(ONCUser ou: onlineUserList)
+   					if(ou != null)	//can be null if server log in failure -- known server issue Oct 16, 2014
+   					{
+   						String year = ou.getClientYear() == -1 ? "None" : Integer.toString(ou.getClientYear());
+   						sb.append(ou.getFirstname() + " " + ou.getLastname() + ": " + year + "<br>");
+   					}
+			
+   				sb.append("</html>");
+					
+   				//Show user list
+   				JOptionPane.showMessageDialog(GlobalVariables.getFrame(), sb.toString(),
+   						"ONC Elves Online", JOptionPane.INFORMATION_MESSAGE, GlobalVariables.getONCLogo());
+   			}
+   			else
+   			{
+   				JOptionPane.showMessageDialog(GlobalVariables.getFrame(), "Couldn't retrive online users from ONC Server",
+   						"ONC Server Error", JOptionPane.ERROR_MESSAGE, GlobalVariables.getONCLogo());
+   			}
+   		}
+   }
+   
+   void onChat()
+   {
+   	ChatDialog chatDlg = new ChatDialog(GlobalVariables.getFrame(), true, -1);	//true=user initiated chat, -1=no target yet
+   	chatDlg.setLocationRelativeTo(GlobalVariables.getFrame());
+   	chatDlg.setVisible(true);
+   }
+   
+   void onWebsiteStatus()
+   { 
+   	WebsiteStatusDialog wsDlg = new WebsiteStatusDialog(GlobalVariables.getFrame(), false);
+   	wsDlg.setLocationRelativeTo(GlobalVariables.getFrame());
+   	wsDlg.display(null);	//deosn't require a display parameter
+   	wsDlg.setVisible(true);
+   }
+   
+   void onDBStatusClicked()
+   {
+   	DatabaseStatusDialog statusDlg = new DatabaseStatusDialog(GlobalVariables.getFrame());
+   	statusDlg.setLocationRelativeTo(GlobalVariables.getFrame());
+   	statusDlg.setVisible(true);
+   }
+   
+   void onEditProfile()
+   {
+   	//construct and display a UserProfile Dialog
+	ONCUser user = GlobalVariables.getInstance().getUser();
+   	UserProfileDialog upDlg = new UserProfileDialog(GlobalVariables.getFrame(), user);
+   	upDlg.setLocationRelativeTo(GlobalVariables.getFrame());
+   	upDlg.setVisible(true);
+   }
+   
+   boolean onChangePassword()
+   {
+		ChangePasswordDialog cpDlg = new ChangePasswordDialog(GlobalVariables.getFrame());
+		cpDlg.setLocationRelativeTo(GlobalVariables.getFrame());
+		String result = "<html>New and re-entered passwords didn't match.<br>Please try again.</html>";
+		boolean bPasswordChanged = false;
+		
+		if(cpDlg.showDialog())
+		{
+			if(cpDlg.doNewPasswordsMatch())
+			{
+				ONCUser currUser = GlobalVariables.getInstance().getUser();
+				String[] pwInfo = cpDlg.getPWInfo();
+				
+				ChangePasswordRequest cpwReq = new ChangePasswordRequest(currUser.getID(),
+						currUser.getFirstname(), currUser.getLastname(),
+						ONCEncryptor.encrypt(pwInfo[0]), ONCEncryptor.encrypt(pwInfo[1]));
+				
+				if((result = UserDB.getInstance().changePassword(this, cpwReq)).contains("changed"))
+					bPasswordChanged = true;
+			}
+			
+			JOptionPane.showMessageDialog(GlobalVariables.getFrame(), result,"Change Password Result",
+       			 JOptionPane.ERROR_MESSAGE,GlobalVariables.getONCLogo());
+		}
+		
+		return bPasswordChanged;
+   } 
 	
 	void setEnabledSuperuserPrivileges(boolean tf)
 	{

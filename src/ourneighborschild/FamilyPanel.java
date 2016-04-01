@@ -1494,7 +1494,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	{
 		sortFamiliesDlg.setFamilyStatusComboItemEnabled(FAMILY_STATUS_SELECTION_LIST_PACKAGED_INDEX, tf);
 	}
-*/	
+	
 	void onAddNewChildClicked()
 	{
 		AddNewChildDialog newchildDlg = new AddNewChildDialog(parentFrame, currFam);
@@ -1504,10 +1504,10 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		ONCChild newchild = newchildDlg.getNewChild();
 		if(newchild != null)
 		{
-			cDB.add(this, newchild);
+			ChildDB.getInstance().add(this, newchild);
 		}
 	}
-	
+*/	
 	/****************
 	 * Method fetches a prior year child from the server for the current child selected in
 	 * the child table. It displays the wish history for the child in a modal dialog. No
@@ -1579,84 +1579,9 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	
 	void setEnabledAssignedDeliveryStatus(boolean tf) { delStatus[DELIVERY_STATUS_ASSIGNED].setEnabled(tf); }
 	
-	/*************************************************************************************************************
-	 * This method is called when the user requests to mark a child as an adult from the menu bar. 
-	 * The child object is added to the adult db and deleted from the child db.The child to be
-	 * marked as an adult is the child currently selected in child table in the family panel.
-	 * The first step in mark is to confirm with the user that they intended to mark as an adult. 
-	 **********************************************************************************************************/
-	void markChildAsAdult()
-	{
-		//Obtain the child to be marked as an Adult
-		if(currFam != null)
-		{
-			//Save any changed family data prior to moving the child to adult
-			checkAndUpdateFamilyData(currFam);
-			
-			ONCChild delChild = currChild;
-		
-			//Confirm with the user that the mark is really intended
-			String confirmMssg =String.format("Are you sure you want to change %s %s to an adult?", 
-											delChild.getChildFirstName(), delChild.getChildLastName());
-		
-			Object[] options= {"Cancel", "Make Adult"};
-			JOptionPane confirmOP = new JOptionPane(confirmMssg, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION,
-								gvs.getImageIcon(0), options, "Cancel");
-			JDialog confirmDlg = confirmOP.createDialog(parentFrame, "*** Confirm Child to Adult Change ***");
-			confirmDlg.setVisible(true);
-		
-			Object selectedValue = confirmOP.getValue();
-			if(selectedValue != null && selectedValue.toString().equals("Make Adult"))
-			{
-				//create a new adult object and add it to the adult database
-				String name = delChild.getChildFirstName() + " " + delChild.getChildLastName();
-				AdultGender gender;
-				if(delChild.getChildGender().toLowerCase().equals("girl"))
-					gender = AdultGender.Female;
-				else if(delChild.getChildGender().toLowerCase().equals("boy"))
-					gender = AdultGender.Male;
-				else
-					gender = AdultGender.Unknown;
-				
-				//add to the adult database
-				adultDB.add(this, new ONCAdult(-1, delChild.getFamID(), name, gender));
-				
-				//delete from the child data base
-				cDB.delete(this, delChild);
-			}
-		}
-	}
+	
 
-	/*************************************************************************************************************
-	 * This method is called when the user requests to delete a child from the menu bar. The child to be deleted
-	 * is the child currently selected in child table in the family panel. The first step in deletion is to confirm
-	 * with the user that they intended to delete the child. 
-	 **********************************************************************************************************/
-	void deleteChild()
-	{
-		//Obtain the child to be deleted
-		if(currFam != null)
-		{
-			//Save any changed family data prior to the deletion of the child
-			checkAndUpdateFamilyData(currFam);
-			
-			ONCChild delChild = currChild;
-		
-			//Confirm with the user that the deletion is really intended
-			String confirmMssg =String.format("Are you sure you want to delete %s %s from the data base?", 
-											delChild.getChildFirstName(), delChild.getChildLastName());
-		
-			Object[] options= {"Cancel", "Delete"};
-			JOptionPane confirmOP = new JOptionPane(confirmMssg, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION,
-								gvs.getImageIcon(0), options, "Cancel");
-			JDialog confirmDlg = confirmOP.createDialog(parentFrame, "*** Confirm Child Database Deletion ***");
-			confirmDlg.setVisible(true);
-		
-			Object selectedValue = confirmOP.getValue();
-			if(selectedValue != null && selectedValue.toString().equals("Delete"))
-				cDB.delete(this, delChild);
-		}
-	}
+	
 	
     /******************************************************************************************
      * This method automatically assigns an ONC number to a family that doesn't have one.The 
