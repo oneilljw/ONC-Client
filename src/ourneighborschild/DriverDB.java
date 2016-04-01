@@ -35,7 +35,7 @@ public class DriverDB extends ONCSearchableDatabase
 	
 	private DriverDB()
 	{
-		super();
+		super(DB_TYPE);
 		driverAL = new ArrayList<ONCDriver>();
 	}
 	
@@ -54,8 +54,6 @@ public class DriverDB extends ONCSearchableDatabase
 	
 	//implementation of abstract classes
 	ONCDriver getObjectAtIndex(int index) { return driverAL.get(index); }
-	
-	EntityType getDBType() { return DB_TYPE; }
 	
 	public List<ONCDriver> getDriverDB() { return driverAL; }
 	

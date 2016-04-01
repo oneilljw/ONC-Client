@@ -200,7 +200,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	    nav.setCount2("Served Children: " + Integer.toString(0));
 	    nav.setNextButtonText("Next Family");
 	    nav.setPreviousButtonText("Previous Family");
-	    eeManager.registerEntitySelector(nav);	//register nav as entity selector
+//	    eeManager.registerEntitySelector(nav);	//register nav as entity selector
 	    
 		//Setup sub panels that comprise the Family Panel
 		p1 = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -631,7 +631,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 */        
         //Create the Child Panel
         oncChildPanel = new ChildPanel();
-        this.addEntitySelectionListener(oncChildPanel);
+//      this.addEntitySelectionListener(oncChildPanel);
         eeManager.registerEntitySelectionListener(oncChildPanel);
 /*        
         //set up a dialog to receive gifts

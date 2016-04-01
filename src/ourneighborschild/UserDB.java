@@ -18,7 +18,7 @@ public class UserDB extends ONCSearchableDatabase
 	
 	private UserDB()
 	{
-		super();
+		super(DB_TYPE);
 		uAL = new ArrayList<ONCUser>();
 	}
 
@@ -325,7 +325,4 @@ public class UserDB extends ONCSearchableDatabase
 
 	@Override
 	ONCEntity getObjectAtIndex(int index) {  return uAL.get(index); }
-
-	@Override
-	EntityType getDBType() { return DB_TYPE; }
 }

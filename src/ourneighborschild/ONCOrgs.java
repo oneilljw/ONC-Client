@@ -45,7 +45,7 @@ public class ONCOrgs extends ONCSearchableDatabase
 	
 	private ONCOrgs()
 	{
-		super();
+		super(DB_TYPE);
 		//Instantiate the organization and confirmed organization lists
 		orgsAL = new ArrayList<Organization>();
 //		cOrgs = new ArrayList<String>();
@@ -167,8 +167,6 @@ public class ONCOrgs extends ONCSearchableDatabase
 		else
 			return null;
 	}
-	
-	EntityType getDBType() { return DB_TYPE; }
 	
 	int size() { return orgsAL.size(); }
 	

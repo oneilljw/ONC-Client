@@ -14,6 +14,10 @@ public class EntityEventManager
 	 * maintains lists of EntitySelectors and EntitySelectionListenrs for each EntitySelection
 	 * event type. Event types are maintained in the EventType enumeration; EventType.FAMILY is an 
 	 * example. The selector and listener lists are stored in maps using EventType as keys.
+	 * 
+	 * Objects that wish to globally produce or consume EntitySelection events register
+	 * using this manager. Objects may still register for EntitySelections events directly with
+	 * a producer if the scope is less than global.
 	 */
 	private static EntityEventManager eventManagerInstance = null;	//singleton instance
 	
@@ -59,12 +63,7 @@ public class EntityEventManager
 		
             //add all currently registered listeners for that entityType to the selector		
             for(EntitySelectionListener esl : listenerMap.get(selectorEntityType))
-            {
-            	if(es.toString().toLowerCase().contains("familypanel") && esl.toString().toLowerCase().contains("dialogmanager"))
-        			System.out.println("EntityEventMgr.regSelector: adding dlgMgr to famPanel listener list");
-            
-            	es.addEntitySelectionListener(esl);
-            }
+            	es.addEntitySelectionListener(selectorEntityType, esl);
         }
 	}
 	
@@ -84,7 +83,7 @@ public class EntityEventManager
         	EntityType selectorEntityType = it.next();
         	//remove all currently registered listeners for that entityType to the selector		
             for(EntitySelectionListener esl : listenerMap.get(selectorEntityType))
-            	es.removeEntitySelectionListener(esl);
+            	es.removeEntitySelectionListener(selectorEntityType, esl);
         	
             selectorMap.get(selectorEntityType).remove(es);    
         }
@@ -105,15 +104,8 @@ public class EntityEventManager
 	
         	//add the listener to all selectors for the entity type
         	for(EntitySelector es: selectorMap.get(listenerEntityType))
-        	{
-        		if(es.toString().toLowerCase().contains("familypanel") && esl.toString().toLowerCase().contains("dialogmanager"))
-        			System.out.println("EntityEventMgr.regListener: adding dlgMgr to famPanel listener list");
-        	
-        		es.addEntitySelectionListener(esl);
-        	}
-		}
-        
-        
+        		es.addEntitySelectionListener(listenerEntityType, esl);
+		}  
 	}
 	
 	/***
@@ -129,18 +121,10 @@ public class EntityEventManager
         	EntityType listenerEntityType = it.next();
         	//remove the listener to all selectors for the entity type
         	for(EntitySelector es: selectorMap.get(listenerEntityType))
-        		es.removeEntitySelectionListener(esl);
+        		es.removeEntitySelectionListener(listenerEntityType, esl);
         	
         	//add the listener to the list for that listenerEntityType
         	listenerMap.get(listenerEntityType).remove(esl);	
-		}
-	}
-	
-	void printListenerList(EntityType type)
-	{
-		for(EntitySelectionListener esl : listenerMap.get(type))
-		{
-			System.out.println(esl.toString());
 		}
 	}
 }

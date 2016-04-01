@@ -54,7 +54,7 @@ public class Families extends ONCSearchableDatabase
 	private Families()
 	{
 		//Instantiate the organization and confirmed organization lists
-		super();
+		super(DB_TYPE);
 		childDB = ChildDB.getInstance();
 		adultDB = AdultDB.getInstance();
 		childwishDB = ChildWishDB.getInstance();
@@ -78,7 +78,6 @@ public class Families extends ONCSearchableDatabase
 	}
 	
 	ONCFamily getObjectAtIndex(int index) { return oncFamAL.get(index); }
-	EntityType getDBType() { return DB_TYPE; }
 	int size() { return oncFamAL.size(); }
 	void clear() { oncFamAL.clear(); }
 	ArrayList<ONCFamily> getList() { return oncFamAL; }

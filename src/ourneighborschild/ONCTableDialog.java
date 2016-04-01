@@ -1,6 +1,8 @@
 package ourneighborschild;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -16,36 +18,38 @@ public abstract class ONCTableDialog extends JDialog implements EntitySelector
 	protected JFrame parentFrame;
 	protected GlobalVariables gvs;
 	
-	//List of registered listeners for table selection events
-    private ArrayList<EntitySelectionListener> listeners;
+	//Map of registered listeners for table selection events
+	private Map<EntityType, ArrayList<EntitySelectionListener>> listenerMap;
     
     public ONCTableDialog(JFrame parentFrame)
     {
     	super(parentFrame);
     	this.parentFrame = parentFrame;
     	gvs = GlobalVariables.getInstance();
+    	
+    	listenerMap = new HashMap<EntityType, ArrayList<EntitySelectionListener>>();
+    	for(EntityType entityType : getEntityEventSelectorEntityTypes())
+			listenerMap.put(entityType, new ArrayList<EntitySelectionListener>());	
     }
     
     /** Register a listener for Entity Selection events */
-    synchronized public void addEntitySelectionListener(EntitySelectionListener l)
+    synchronized public void addEntitySelectionListener(EntityType type, EntitySelectionListener l)
     {
-    	if (listeners == null)
-    		listeners = new ArrayList<EntitySelectionListener>();
-    	listeners.add(l);
+    	listenerMap.get(type).add(l);
     }  
 
     /** Remove a listener for Entity Selection events */
-    synchronized public void removeEntitySelectionListener(EntitySelectionListener l)
+    synchronized public void removeEntitySelectionListener(EntityType type, EntitySelectionListener l)
     {
-    	if (listeners == null)
-    		listeners = new ArrayList<EntitySelectionListener>();
-    	listeners.remove(l);
+    	
+    	listenerMap.get(type).remove(l);
     }
     
     /** Fire an Entity Selection event to all registered listeners */
     public void fireEntitySelected(Object source, EntityType entityType, Object obj1, Object obj2)
     {
     	// if we have no listeners, do nothing...
+    	ArrayList<EntitySelectionListener> listeners = listenerMap.get(entityType);
     	if (listeners != null && !listeners.isEmpty())
     	{
     		// create the event object to send
@@ -64,6 +68,7 @@ public abstract class ONCTableDialog extends JDialog implements EntitySelector
     public void fireEntitySelected(Object source, EntityType entityType, Object obj1, Object obj2, Object obj3)
     {
     	// if we have no listeners, do nothing...
+    	ArrayList<EntitySelectionListener> listeners = listenerMap.get(entityType);
     	if (listeners != null && !listeners.isEmpty())
     	{
     		// create the event object to send

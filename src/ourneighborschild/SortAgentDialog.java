@@ -152,9 +152,11 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
         familyTableScrollPane.setBorder(BorderFactory.createTitledBorder(
 				BorderFactory.createLoweredBevelBorder(), "Families Represented By Selected Agent(s)"));
 
-        //set up the Agent Info Dialog
+        //set up the Agent Info Dialog and register it for just Entity Selection Events from this
+        //dialog, not from any other. To do that, don't use the Entity Event Manager registration for
+        //global entity selection event registration
     	aiDlg = new AgentInfoDialog(GlobalVariables.getFrame(), true);
-    	this.addEntitySelectionListener(aiDlg);
+    	this.addEntitySelectionListener(EntityType.AGENT, aiDlg);
         
         this.add(bottomPanel);
         this.add(familyTableScrollPane);

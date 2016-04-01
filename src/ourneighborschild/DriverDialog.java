@@ -42,7 +42,7 @@ public class DriverDialog extends EntityDialog
 		super(pf);
 		this.setTitle("Our Neighbor's Child - Delivery Partner Information");
 		
-		//Initialize object variables
+		//Initialize database object variables and register listeners
 		ddb = DriverDB.getInstance();	//Reference to the driver data base
 		if(ddb != null)
 			ddb.addDatabaseListener(this);
@@ -61,7 +61,7 @@ public class DriverDialog extends EntityDialog
         nav.setNextButtonText("Next Partner");
         nav.setPreviousButtonText("Previous Partner");
 //      nav.addNavigationListener(this);
-        nav.addEntitySelectionListener(this);
+//      nav.addEntitySelectionListener(this);
 
         //Set up driver panel
         entityPanel.setBorder(BorderFactory.createTitledBorder("Delivery Partner Information"));

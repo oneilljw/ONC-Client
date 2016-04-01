@@ -28,8 +28,8 @@ public class ONCNavPanel extends ONCPanel implements ActionListener
 	 * user to search the associated data base for the entity. In addition, the panel 
 	 * implements a stop light function for the entity, and two message fields.
 	 * 
-	 *  When the user changes the displayed ONC Entity, the panel fires a Navigation Event
-	 *  to all registered listeners. It inherits from ONCPanel for listener functionality
+	 *  When the user changes the displayed ONC Entity, the panel fires an EntitySelection event
+	 *  to all registered listeners. It inherits from ONCPanel for EntitySelection functionality
 	 */
 	private static final long serialVersionUID = 1L;
 
@@ -38,7 +38,7 @@ public class ONCNavPanel extends ONCPanel implements ActionListener
     //UI objects
     private JButton btnNext, btnPrevious;
     private JButton  rbSrchNext, rbSrchPrev;
-//  private JButton btnLogoff;
+//  private JButton btnLogoff;	//logoff not implemented at this time
     private JTextField searchTF;
     private Stoplight sl;
     private JLabel lblCount1, lblCount2;
@@ -51,10 +51,12 @@ public class ONCNavPanel extends ONCPanel implements ActionListener
     
 	public ONCNavPanel(JFrame parentFrame, ONCSearchableDatabase db)
 	{
-		super(parentFrame);
-		//get Global Variables reference
+		super(parentFrame, db.getDBType());
 		this.searchableDB = db;
 		defaultMssg = DEFAULT_MSSG;
+		
+		//register to fire entity selection events
+		EntityEventManager.getInstance().registerEntitySelector(this);
 		
 		//Create the list that holds search results
 		searchAL = new ArrayList<Integer>();

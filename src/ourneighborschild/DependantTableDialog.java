@@ -35,7 +35,6 @@ public abstract class DependantTableDialog extends SortTableDialog
 	 * The Manage Agent Dialog and Manage Driver Dialog subclass this class.
 	 */
 	private static final long serialVersionUID = 1L;
-	private static final int ONC_GENERAL_USER = 0;
 	private static final int NUM_FAMILY_ROWS_TO_DISPLAY = 15;
 	
 	protected ONCRegions regions;

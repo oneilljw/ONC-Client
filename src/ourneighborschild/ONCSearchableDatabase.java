@@ -5,6 +5,13 @@ import java.util.List;
 
 public abstract class ONCSearchableDatabase extends ONCDatabase 
 {
+	protected EntityType dbType ;
+	
+	public ONCSearchableDatabase(EntityType dbType)
+	{
+		this.dbType = dbType;
+	}
+	
 	abstract String searchForListItem(ArrayList<Integer> searchAL, String data);
 	
 	Integer getListIndexByID(List<? extends ONCEntity> list, Integer searchID)
@@ -23,5 +30,5 @@ public abstract class ONCSearchableDatabase extends ONCDatabase
 	
 	abstract ONCEntity getObjectAtIndex(int index);
 	
-	abstract EntityType getDBType();
+	EntityType getDBType() { return dbType; }
 }
