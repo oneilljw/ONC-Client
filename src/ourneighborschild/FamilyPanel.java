@@ -70,6 +70,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private static final String[] dStat = {"Empty", "Contacted", "Confirmed", "Assigned", "Attempted",
 											"Returned", "Delivered", "Counselor Pick-Up"};
 	//data base references
+	private DatabaseManager dbMgr;
     private Families fDB;
 	private ChildDB cDB;
 	private AdultDB adultDB;
@@ -163,12 +164,15 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		super(pf);
 		
 		//register database listeners for updates
+		dbMgr = DatabaseManager.getInstance();
 		fDB = Families.getInstance();
 		cDB = ChildDB.getInstance();
 		adultDB = AdultDB.getInstance();
 		deliveryDB = DeliveryDB.getInstance();
 		regions = ONCRegions.getInstance();
 		
+		if(dbMgr != null)
+			dbMgr.addDatabaseListener(this);
 		if(fDB != null)
 			fDB.addDatabaseListener(this);
 		if(cDB != null)
@@ -1825,6 +1829,8 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	@Override
 	public void dataChanged(DatabaseEvent dbe) 
 	{
+		System.out.println(dbe.getType());
+		
 		if(dbe.getSource() != this && dbe.getType().equals("UPDATED_FAMILY"))
 		{
 //			System.out.println(String.format("FamilyPanel DB Event: Source: %s, Type: %s, Object: %s",
@@ -1962,6 +1968,18 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 				//update the icon in the icon bar
 				checkForAdultsInFamily();
 			}
+		}
+		else if(dbe.getType().equals("SERVER_DATA_LOADED"))
+		{
+			String mssg;
+			String year = (String) dbe.getObject();
+			
+			if(gvs.getUser().getFirstname().equals(""))
+				mssg = year + " season data has been loaded";
+			else
+				mssg = gvs.getUser().getFirstname() + ", " + year + " season data has been loaded";
+			
+    		setMssg(mssg, true);
 		}
 	}
 

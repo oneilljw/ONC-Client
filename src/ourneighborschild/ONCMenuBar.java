@@ -1,44 +1,62 @@
 package ourneighborschild;
 
+import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import javax.swing.ImageIcon;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 
-public class ONCMenuBar extends JMenuBar implements DatabaseListener
+public class ONCMenuBar extends JMenuBar implements ActionListener, DatabaseListener
 {
 	/**
 	 * This class provides the blueprint for the menu bar in the ONC application
 	 */
 	private static final long serialVersionUID = 1L;
+	private static final Point SORT_DIALOG_OFFSET = new Point (5, 20);
+	private static final int DB_UNLOCKED_IMAGE_INDEX = 17;
+	private static final int DB_LOCKED_IMAGE_INDEX = 18;
 	
-	public DBStatusDB oncDB;
-	public static JMenuItem newMI;
-	public static JMenuItem importODBMI, importWFCMMI, importRAFMI;
-	public static JMenuItem importONCMI, importPYMI, importPYORGMI,importWishCatMI, manageCallResultMI;
-	public static JMenuItem exportMI, dbStatusMI, clearMI, exitMI;
+	private DatabaseManager oncDB;
+	private static JMenuItem newMI;
+	private static JMenuItem importODBMI, importWFCMMI, importRAFMI;
+	private static JMenuItem importONCMI, importPYMI, importPYORGMI,importWishCatMI, manageCallResultMI;
+	private static JMenuItem exportMI, dbStatusMI, clearMI;
+	public static JMenuItem exitMI;	//public since exit method is external to the menu bar
 //	public static JMenuItem font8, font10, font12, font13, font14, font16, font18;
-//	public static JMenuItem compODBtoONCfamMI, compODBtoONCdataMI, compWFCMtoONCfamMI, compWFCMtoONCdataMI;
-	public static JMenuItem findDupFamsMI, findDupChldrnMI;
-	public static JMenuItem assignDelMI, editDelMI, manageDelMI, importDrvrMI, mapsMI, delstatusMI, distMI;
-	public static JMenuItem newFamMI, changeONCMI, changeRefMI, changeBatchMI, newChildMI, delChildMI, markAdultMI, connectChildMI;
-	public static JMenu submenuImport, submenuFamilyDataChecks;
-	public static JMenu submenuExport, submenuChangeFamilyNumbers, submenuCompareData, submenuDatabase;
-	public static JMenuItem viewDBMI, sortWishesMI, sortFamiliesMI, sortOrgsMI, recGiftsMI, sortMealsMI;
-	public static JMenuItem agentMI, orgMI, catMI;
-	public static JMenuItem aboutONCMI, oncPrefrencesMI, profileMI, userMI, onlineMI, chatMI, changePWMI, stopPollingMI;
-	public static JMenuItem showServerLogMI, showServerClientIDMI, showCurrDirMI, showWebsiteStatusMI;
-	public List<JMenuItem> dbYears;
+//	private static JMenuItem compODBtoONCfamMI, compODBtoONCdataMI, compWFCMtoONCfamMI, compWFCMtoONCdataMI;
+	private static JMenuItem findDupFamsMI, findDupChldrnMI;
+	private static JMenuItem assignDelMI, editDelMI, manageDelMI, importDrvrMI, mapsMI, delstatusMI, distMI;
+	private static JMenuItem newFamMI, changeONCMI, changeRefMI, changeBatchMI, newChildMI, delChildMI, markAdultMI, connectChildMI;
+	private static JMenu submenuImport, submenuFamilyDataChecks;
+	private static JMenu submenuExport, submenuChangeFamilyNumbers, submenuCompareData, submenuDatabase;
+	private static JMenuItem viewDBMI, sortWishesMI, sortFamiliesMI, sortOrgsMI, recGiftsMI, sortMealsMI;
+	private static JMenuItem agentMI, orgMI, catMI;
+	private static JMenuItem aboutONCMI, oncPrefrencesMI, profileMI, userMI, onlineMI, chatMI, changePWMI, stopPollingMI;
+	private static JMenuItem showServerLogMI, showServerClientIDMI, showCurrDirMI, showWebsiteStatusMI;
+	private List<JMenuItem> dbYears;
+	
+	private DialogManager dlgManager;
+	private DatabaseManager dbManager;
+	
+	private Families familyDB;
 	
 	public ONCMenuBar()
 	{
 		//get reference to onc data base
-		oncDB = DBStatusDB.getInstance();
+		oncDB = DatabaseManager.getInstance();
 		if(oncDB != null)
 			oncDB.addDatabaseListener(this);
+		
+		familyDB = Families.getInstance();
+		if(familyDB != null)
+			familyDB.addDatabaseListener(this);
 		
 		JMenu menuFile, menuAgents, menuFamilies, menuWishes, menuMeals, menuPartners, menuDelivery, menuSettings;	    
         
@@ -54,10 +72,12 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 	    newMI = new JMenuItem("Add Year");
 	    newMI.setEnabled(false);
 	    newMI.setVisible(false);
+	    newMI.addActionListener(this);
 	    menuFile.add(newMI);
 	    
 	    dbStatusMI = new JMenuItem("Lock/Unlock Year");
 	    dbStatusMI.setVisible(false);
+	    dbStatusMI.addActionListener(this);
 	    menuFile.add(dbStatusMI);
 
 	    menuFile.addSeparator();
@@ -67,24 +87,30 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 	       
 	    importONCMI = new JMenuItem("Curent year ONC .csv file");
 	    importONCMI.setVisible(false);
+	    importONCMI.addActionListener(this);
 	    submenuImport.add(importONCMI);
 	    
 	    importPYMI = new JMenuItem("Prior year ONC .csv file");
 	    importPYMI.setVisible(false);
+	    importPYMI.addActionListener(this);
 	    submenuImport.add(importPYMI);
 	    
 	    importPYORGMI = new JMenuItem("ONC Organizations .csv file");
 	    importPYORGMI.setVisible(false);
+	    importPYORGMI.addActionListener(this);
 	    submenuImport.add(importPYORGMI);
 	    
 	    importWishCatMI = new JMenuItem("Wish Catalog .csv file");
 	    importWishCatMI.setVisible(false);
+	    importWishCatMI.addActionListener(this);
 	    submenuImport.add(importWishCatMI);
 	  	    
 	    importODBMI = new JMenuItem("From ODB...");
+	    importODBMI.addActionListener(this);
 	    submenuImport.add(importODBMI);
 	    
 	    importWFCMMI = new JMenuItem("From WFCM...");
+	    importWFCMMI.addActionListener(this);
 	    submenuImport.add(importWFCMMI);
 	    
 	    //Import Angel Call Results
@@ -93,11 +119,13 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 //	    submenuImport.add(manageCallResultMI);
 	    
 	    //Import Delivery Partners
-	    importDrvrMI = new JMenuItem("Delivery Partners...");	
+	    importDrvrMI = new JMenuItem("Delivery Partners...");
+	    importDrvrMI.addActionListener(this);
 	    submenuImport.add(importDrvrMI);
 	    
 	    //Import Referring Agent Families
 	    importRAFMI = new JMenuItem("RA Families...");	
+	    importRAFMI.addActionListener(this);
 	    submenuImport.add(importRAFMI);
     
 	    menuFile.add(submenuImport);
@@ -106,6 +134,7 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 	    submenuExport.setEnabled(false);
 	    	    
 	    exportMI = new JMenuItem("Database to .csv files");
+	    exportMI.addActionListener(this);
 	    submenuExport.add(exportMI);
 	    
 	    menuFile.add(submenuExport);
@@ -114,9 +143,11 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 	    
 	    clearMI = new JMenuItem("Clear");
 	    clearMI.setEnabled(false);
+	    clearMI.addActionListener(this);
 	    menuFile.add(clearMI);
 	    
 	    exitMI = new JMenuItem("Log Out");
+	    exitMI.addActionListener(this);
 	    menuFile.add(exitMI);
 	    	    
 	    //Build the Agents menu.
@@ -124,7 +155,8 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 	    
 	    agentMI = new JMenuItem("Manage Agents");
 	    agentMI.setActionCommand("Agents");
-	    agentMI.setEnabled(false);	    
+	    agentMI.setEnabled(false);	
+	    agentMI.addActionListener(this);
 	    menuAgents.add(agentMI);
 	    
 	    this.add(menuAgents);
@@ -135,7 +167,8 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 	    
 	    sortFamiliesMI = new JMenuItem("Manage Families");
 	    sortFamiliesMI.setActionCommand("Families");
-	    sortFamiliesMI.setEnabled(false);	    
+	    sortFamiliesMI.setEnabled(false);
+	    sortFamiliesMI.addActionListener(this);
 	    menuFamilies.add(sortFamiliesMI);
 	    
 	    submenuChangeFamilyNumbers = new JMenu("Change Numbers");
@@ -144,14 +177,17 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 	       
 	    changeONCMI = new JMenuItem("Change ONC #");
 	    changeONCMI.setActionCommand("Change ONC #");
+	    changeONCMI.addActionListener(this);
 	    submenuChangeFamilyNumbers.add(changeONCMI);
 	    
 	    changeRefMI = new JMenuItem("Change Ref #");
 	    changeRefMI.setActionCommand("Change Ref #");
+	    changeRefMI.addActionListener(this);
 	    submenuChangeFamilyNumbers.add(changeRefMI);
 	    
 	    changeBatchMI = new JMenuItem("Change Batch #");
 	    changeBatchMI.setActionCommand("Change Batch #");
+	    changeBatchMI.addActionListener(this);
 	    submenuChangeFamilyNumbers.add(changeBatchMI);
 	    
 	    menuFamilies.addSeparator();
@@ -159,30 +195,36 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 	    //Manage Angel Call Results
 	    manageCallResultMI = new JMenuItem("Manage Call Results");
 	    manageCallResultMI.setEnabled(false);
+	    manageCallResultMI.addActionListener(this);
 	    menuFamilies.add(manageCallResultMI);
 	    
 	    menuFamilies.addSeparator();
 	    
 	    newFamMI = new JMenuItem("Add New Family");
 //	    newFamMI.setEnabled(false);
+	    newFamMI.addActionListener(this);
 	    menuFamilies.add(newFamMI);
 	    
 	    menuFamilies.addSeparator();
 	    
 	    newChildMI = new JMenuItem("Add New Child");
 	    newChildMI.setEnabled(false);
+	    newChildMI.addActionListener(this);
 	    menuFamilies.add(newChildMI);
 	    
 	    markAdultMI = new JMenuItem("Mark Child as Adult");
 	    markAdultMI.setEnabled(false);
+	    markAdultMI.addActionListener(this);
 	    menuFamilies.add(markAdultMI);
 	    
 	    delChildMI = new JMenuItem("Delete Child");
 	    delChildMI.setEnabled(false);
+	    delChildMI.addActionListener(this);
 	    menuFamilies.add(delChildMI);
 	    
 	    connectChildMI = new JMenuItem("Connect PY Child");
 	    connectChildMI.setEnabled(false);
+	    connectChildMI.addActionListener(this);
 	    menuFamilies.add(connectChildMI);
 	    
 	    menuFamilies.addSeparator();
@@ -193,11 +235,13 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 	    findDupFamsMI = new JMenuItem("Duplicate Family Check");
 	    findDupFamsMI.setActionCommand("Duplicate Family Check");
 	    findDupFamsMI.setEnabled(false);
+	    findDupFamsMI.addActionListener(this);
 	    submenuFamilyDataChecks.add(findDupFamsMI);
 	    
 	    findDupChldrnMI = new JMenuItem("Duplicate Children Check");
 	    findDupChldrnMI.setActionCommand("Duplicate Children Check");
 	    findDupChldrnMI.setEnabled(false);
+	    findDupChldrnMI.addActionListener(this);
 	    submenuFamilyDataChecks.add(findDupChldrnMI);
 	    
 	    menuFamilies.add(submenuFamilyDataChecks);
@@ -206,6 +250,7 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 	    
 	    viewDBMI = new JMenuItem("View All Family Data");
 	    viewDBMI.setEnabled(false);
+	    viewDBMI.addActionListener(this);
 	    menuFamilies.add(viewDBMI);
 	    
 	    this.add(menuFamilies);
@@ -216,11 +261,13 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 	    
 	    catMI = new JMenuItem("Manage Catalog");
 	    catMI.setEnabled(false);
+	    catMI.addActionListener(this);
 	    menuWishes.add(catMI);
 	    
 	    sortWishesMI = new JMenuItem("Manage Wishes");
 	    sortWishesMI.setActionCommand("Wishes");
 	    sortWishesMI.setEnabled(false);
+	    sortWishesMI.addActionListener(this);
 	    menuWishes.add(sortWishesMI);
 	    
 	    menuWishes.addSeparator();
@@ -228,6 +275,7 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 	    recGiftsMI = new JMenuItem("Receive Gifts");
 	    recGiftsMI.setActionCommand("Receive Gifts");
 	    recGiftsMI.setEnabled(false);
+	    recGiftsMI.addActionListener(this);;
 	    menuWishes.add(recGiftsMI);
 	    
 	    //Build Meals Menu Structure
@@ -237,6 +285,7 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 	    sortMealsMI = new JMenuItem("Manage Meals");
 	    sortMealsMI.setActionCommand("Meals");
 	    sortMealsMI.setEnabled(false);
+	    sortMealsMI.addActionListener(this);
 	    menuMeals.add(sortMealsMI);
 	    
 	    //Build Partners Menu
@@ -245,11 +294,13 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 	    orgMI = new JMenuItem("Edit Partners");
 	    orgMI.setActionCommand("Edit Partners");
 	    orgMI.setEnabled(false);
+	    orgMI.addActionListener(this);;
 	    menuPartners.add(orgMI);
 	    
 	    sortOrgsMI = new JMenuItem("Manage Partners");
 	    sortOrgsMI.setActionCommand("Partners");
 	    sortOrgsMI.setEnabled(false);
+	    sortOrgsMI.addActionListener(this);
 	    menuPartners.add(sortOrgsMI);
 	    
 	    this.add(menuPartners);
@@ -263,32 +314,38 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 	    delstatusMI = new JMenuItem("Delivery Status");
 	    delstatusMI.setActionCommand("Delivery History");
 	    delstatusMI.setEnabled(false);
+	    delstatusMI.addActionListener(this);
 	    menuDelivery.add(delstatusMI);
 	    
 	    //Edit Delivery Partners
 	    editDelMI = new JMenuItem("Edit Delivery Partners");
 	    editDelMI.setActionCommand("Edit Delivery Partners");
+	    editDelMI.addActionListener(this);
 	    menuDelivery.add(editDelMI);
 	    
 	    //Edit Delivery Partners
 	    manageDelMI = new JMenuItem("Manage Delivery Partners");
 	    manageDelMI.setActionCommand("Drivers");
 	    manageDelMI.setEnabled(false);
+	    manageDelMI.addActionListener(this);
 	    menuDelivery.add(manageDelMI);
 	    
 	    //Assign Delivery Partners
 	    assignDelMI = new JMenuItem("Assign Deliveries");
 	    assignDelMI.setActionCommand("Deliveries");
 	    assignDelMI.setEnabled(false);
+	    assignDelMI.addActionListener(this);
 	    menuDelivery.add(assignDelMI);   
 	    
 	    mapsMI = new JMenuItem("Delivery Directions");	
 	    mapsMI.setEnabled(false);
+	    mapsMI.addActionListener(this);
 	    menuDelivery.add(mapsMI);
 	    
 	    //Delivery Map & Directions
 	    distMI = new JMenuItem("Delivery Distribution");	
 	    distMI.setEnabled(false);
+	    distMI.addActionListener(this);
 	    menuDelivery.add(distMI);
 	    	    
 	    //Build About Menu
@@ -296,44 +353,73 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 	    this.add(menuSettings);
 	    
 	    aboutONCMI = new JMenuItem("About ONC");
+	    aboutONCMI.addActionListener(this);
 	    menuSettings.add(aboutONCMI);
 	    
 	    profileMI = new JMenuItem("Edit Profile");
+	    profileMI.addActionListener(this);
 	    menuSettings.add(profileMI);
 	    
 	    changePWMI = new JMenuItem("Change Password");
+	    changePWMI.addActionListener(this);
 	    menuSettings.add(changePWMI);
 	    
 	    oncPrefrencesMI = new JMenuItem("Preferences");
+	    oncPrefrencesMI.addActionListener(this);
 	    menuSettings.add(oncPrefrencesMI);
 	    
 	    userMI = new JMenuItem("Manage Users");
 	    userMI.setVisible(false);
+	    userMI.addActionListener(this);
 	    menuSettings.add(userMI);
 	    
 	    onlineMI = new JMenuItem("Who's Online?");
+	    onlineMI.addActionListener(this);
 	    menuSettings.add(onlineMI);
 	    
 	    chatMI = new JMenuItem("Private Chat");
+	    chatMI.addActionListener(this);
 	    menuSettings.add(chatMI);
 	      
 	    stopPollingMI = new JMenuItem("Stop Server Polling");
 	    stopPollingMI.setVisible(false);
+	    stopPollingMI.addActionListener(this);
 	    menuSettings.add(stopPollingMI);
 	    
 	    showServerLogMI = new JMenuItem("Message Log");
+	    showServerLogMI.addActionListener(this);
 	    menuSettings.add(showServerLogMI);
 	    
 	    showServerClientIDMI = new JMenuItem("Server Client ID");
+	    showServerClientIDMI.addActionListener(this);
 	    menuSettings.add(showServerClientIDMI);
 	    
 	    showCurrDirMI = new JMenuItem("Current Directory");
+	    showCurrDirMI.addActionListener(this);
 	    menuSettings.add(showCurrDirMI);
 	    
 	    showWebsiteStatusMI = new JMenuItem("Website Status");
 	    showWebsiteStatusMI.setVisible(false);
+	    showWebsiteStatusMI.addActionListener(this);
 	    menuSettings.add(showWebsiteStatusMI);
+	    
+	    //get a reference to the dialog manager and database manager
+	    dlgManager = DialogManager.getInstance();
+	    dbManager = DatabaseManager.getInstance();
 	}
+	
+	/******************************************************************************************
+     * The  addDBYear method is separate as it is called when the application instantiates as well
+     * as when the user requests addition of a new ONC season by adding a year to the list
+     * @param dbYear
+     ****************************************************************************************/
+    void addDBYear(DBYear dbYear)
+    {	
+    	String zYear = Integer.toString(dbYear.getYear());
+		JMenuItem mi = addDBYear(zYear, GlobalVariables.getInstance().getImageIcon(dbYear.isLocked() ? 
+				DB_LOCKED_IMAGE_INDEX : DB_UNLOCKED_IMAGE_INDEX));
+		mi.addActionListener(new MenuItemDBYearsListener());
+    }
 	
 	JMenuItem addDBYear(String year, ImageIcon lockIcon)
 	{
@@ -345,13 +431,26 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 		
 		return mi;
 	}
-
 	
-	void clearDataBaseYears()
-	{ 
+	void processDBYears(List<DBYear> dbYears)
+    {
+    	//clear the current list
 		submenuDatabase.removeAll();
-		dbYears.clear(); 
-	}
+//		dbYears.clear(); 
+    	
+		for(DBYear dbYear:dbYears)
+			addDBYear(dbYear);
+		
+		//determine if we can allow the user to add a new season. Enable adding a new
+		//season if the current date is in the year to be added, the year hasn't already
+		//been added, the user has administrative privileges and a data base has not been loaded
+		Calendar today = Calendar.getInstance();
+		today.setTime(GlobalVariables.getInstance().getTodaysDate());
+		int currYear = today.get(Calendar.YEAR);
+		
+		if(currYear != dbYears.get(dbYears.size()-1).getYear() && GlobalVariables.isUserAdmin())
+			setEnabledNewMenuItem(true);	
+    }
 	
 	void SetEnabledMenuItems(boolean tf)	//Only with at least one family present in db
 	{
@@ -446,5 +545,192 @@ public class ONCMenuBar extends JMenuBar implements DatabaseListener
 				dbYears.get(index).setIcon(updatedDBYear.isLocked() ? 
 						GlobalVariables.getLockedIcon() : GlobalVariables.getUnLockedIcon());
 		}
+		else if(dbe.getType().equals("ADDED_DBYEAR"))
+		{
+			DBYear addedDBYear = (DBYear) dbe.getObject();
+			addDBYear(addedDBYear);
+			
+			//now that the year is added, disable adding another year
+			setEnabledNewMenuItem(false);
+		}
+		
+		//if this is the first family loaded locally, show it on the display
+		else if(dbe.getSource() != this && dbe.getType().equals("ADDED_FAMILY"))
+		{
+			if(familyDB.size() == 1)
+			{
+				SetEnabledMenuItems(true);
+				if(GlobalVariables.isUserAdmin()) 
+					setEnabledRestrictedMenuItems(true);
+			}
+		}
+		else if(dbe.getSource() != this && dbe.getType().equals("SERVER_DATA_LOADED"))
+		{
+			setEnabledYear(false);
+    		setEnabledNewMenuItem(false);
+    		setEnabledWishCatalogAndOrgMenuItems(true);
+    		
+    		if(GlobalVariables.isUserAdmin()) 
+				setEnabledImportMenuItems(true);
+    		
+    		if(familyDB.size() > 0)
+			{
+				SetEnabledMenuItems(true);
+				if(GlobalVariables.isUserAdmin()) 
+					setEnabledRestrictedMenuItems(true);
+			}
+    		
+    		setEnabledDataLoadedMenuItems(true);
+		}
 	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) 
+	{
+		if(e.getSource() == ONCMenuBar.newMI) { dbManager.addONCSeason(); }
+//		else if(e.getSource() == ONCMenuBar.importONCMI) {OnImportMenuItemClicked("ONC");}
+		else if(e.getSource() == ONCMenuBar.importONCMI) { }
+		else if(e.getSource() == ONCMenuBar.importWishCatMI)
+		{
+			ONCWishCatalog cat = ONCWishCatalog.getInstance();
+			cat.importWishCatalog(GlobalVariables.getFrame(), GlobalVariables.getONCLogo(), null);
+		}
+		else if(e.getSource() == ONCMenuBar.importPYMI)
+		{
+			//A prior year child database will be read and then split into different databases that 
+			//correspond to prior year child birth years. This allows higher performance when trying
+		    //to match a child from one season with a child from another season. 
+			//This ArrayList holds each array lists of PriorYearChild objects by year of birth
+//			ReadPriorYearCSVFile(oncPYCDB.getPriorYearChildAL());
+//		    ArrayList<ArrayList<ONCPriorYearChild>> pycbyAgeAL = buildPriorYearByAgeArrayList();
+			    			
+			//Enable the family panel to use prior year child data bases
+//		    if(!pycbyAgeAL.isEmpty()) { oncFamilyPanel.setPriorYearChildArrayList(pycbyAgeAL); }
+		}
+		else if(e.getSource() == ONCMenuBar.importPYORGMI)
+		{
+			ONCOrgs partnerDB = ONCOrgs.getInstance();
+			partnerDB.importOrgDB(GlobalVariables.getFrame(), GlobalVariables.getONCLogo(), null);
+		}
+		else if(e.getSource() == ONCMenuBar.importODBMI) {dbManager.onImportMenuItemClicked("ODB");}
+		else if(e.getSource() == ONCMenuBar.importWFCMMI) {dbManager.onImportMenuItemClicked("WFCM");}
+		else if(e.getSource() == ONCMenuBar.importRAFMI) { dlgManager.onImportRAFMenuItemClicked(); }
+		else if(e.getSource() == ONCMenuBar.manageCallResultMI) {dlgManager.showAngelCallDialog();}
+		else if(e.getSource() == ONCMenuBar.exportMI){ dbManager.exportObjectDBToCSV(); }
+		else if(e.getSource() == ONCMenuBar.dbStatusMI) {dlgManager.onDBStatusClicked();}
+		else if(e.getSource() == ONCMenuBar.clearMI) {dlgManager.onClearMenuItemClicked();} 			       	
+//		else if(e.getSource() == ONCMenuBar.exitMI)	{exit("LOGOUT");}
+		else if(e.getSource() == ONCMenuBar.findDupFamsMI)
+			dlgManager.showCheckDialog(ONCMenuBar.findDupFamsMI.getActionCommand());
+		else if(e.getSource() == ONCMenuBar.findDupChldrnMI)
+			dlgManager.showCheckDialog(ONCMenuBar.findDupChldrnMI.getActionCommand());
+		else if(e.getSource() == ONCMenuBar.assignDelMI)
+			dlgManager.showSortDialog(ONCMenuBar.assignDelMI.getActionCommand(), SORT_DIALOG_OFFSET);
+		else if(e.getSource() == ONCMenuBar.editDelMI)
+			dlgManager.showEntityDialog(ONCMenuBar.editDelMI.getActionCommand(), SORT_DIALOG_OFFSET);
+		else if(e.getSource() == ONCMenuBar.manageDelMI)
+			dlgManager.showSortDialog(ONCMenuBar.manageDelMI.getActionCommand(), SORT_DIALOG_OFFSET);
+		else if(e.getSource() == ONCMenuBar.importDrvrMI)
+		{
+			DriverDB driverDB = DriverDB.getInstance();
+			String mssg = driverDB.importDrivers(GlobalVariables.getFrame(), 
+									GlobalVariables.getInstance().getTodaysDate(),
+									GlobalVariables.getUserLNFI(), GlobalVariables.getONCLogo());
+			
+//			oncFamilyPanel.refreshDriverDisplays();	//Update dialog based on imported info
+			
+			//Information message that the drivr import completed successfully
+		    JOptionPane.showMessageDialog(GlobalVariables.getFrame(), mssg,
+					"Import Result", JOptionPane.INFORMATION_MESSAGE, GlobalVariables.getONCLogo());
+		}
+		else if(e.getSource() == ONCMenuBar.mapsMI) {dlgManager.showDrivingDirections();}
+		else if(e.getSource() == ONCMenuBar.distMI) {dlgManager.showClientMap();}
+		else if(e.getSource() == ONCMenuBar.changeONCMI)
+			dlgManager.showFamilyInfoDialog(ONCMenuBar.changeONCMI.getActionCommand());
+		else if(e.getSource() == ONCMenuBar.changeRefMI)
+			dlgManager.showFamilyInfoDialog(ONCMenuBar.changeRefMI.getActionCommand());
+		else if(e.getSource() == ONCMenuBar.changeBatchMI)
+			dlgManager.showFamilyInfoDialog(ONCMenuBar.changeBatchMI.getActionCommand());
+		else if(e.getSource() == ONCMenuBar.delstatusMI)
+			dlgManager.showHistoryDialog(ONCMenuBar.delstatusMI.getActionCommand());
+		else if(e.getSource() == ONCMenuBar.viewDBMI) {dlgManager.showEntireDatabase();}
+		else if(e.getSource() == ONCMenuBar.sortWishesMI)
+			dlgManager.showSortDialog(ONCMenuBar.sortWishesMI.getActionCommand(), SORT_DIALOG_OFFSET);
+		else if(e.getSource() == ONCMenuBar.sortMealsMI)
+			dlgManager.showSortDialog(ONCMenuBar.sortMealsMI.getActionCommand(), SORT_DIALOG_OFFSET);
+		else if(e.getSource() == ONCMenuBar.recGiftsMI)
+			dlgManager.showSortDialog(ONCMenuBar.recGiftsMI.getActionCommand(), SORT_DIALOG_OFFSET);
+		else if(e.getSource() == ONCMenuBar.catMI) {dlgManager.showWishCatalogDialog(); }
+		else if(e.getSource() == ONCMenuBar.orgMI)
+			dlgManager.showEntityDialog(ONCMenuBar.orgMI.getActionCommand(), SORT_DIALOG_OFFSET);
+		else if(e.getSource() == ONCMenuBar.sortOrgsMI)
+			dlgManager.showSortDialog(ONCMenuBar.sortOrgsMI.getActionCommand(), SORT_DIALOG_OFFSET);
+		else if(e.getSource() == ONCMenuBar.sortFamiliesMI)
+			dlgManager.showSortDialog(ONCMenuBar.sortFamiliesMI.getActionCommand(), SORT_DIALOG_OFFSET);
+		else if(e.getSource() == ONCMenuBar.agentMI)
+			dlgManager.showSortDialog(ONCMenuBar.agentMI.getActionCommand(), SORT_DIALOG_OFFSET);
+		else if(e.getSource() == ONCMenuBar.aboutONCMI)
+			dlgManager.showAboutONCDialog();
+		else if(e.getSource() == ONCMenuBar.oncPrefrencesMI)
+			dlgManager.showPreferencesDialog();
+		else if(e.getSource() == ONCMenuBar.newFamMI)
+		{
+			AddFamilyDialog afDlg = new AddFamilyDialog(GlobalVariables.getFrame());
+			afDlg.setVisible(true);
+		}
+		else if(e.getSource() == ONCMenuBar.delChildMI) { dlgManager.onDeleteChild(); }
+		else if(e.getSource() == ONCMenuBar.newChildMI) { dlgManager.onAddNewChildClicked(); }
+		else if(e.getSource() == ONCMenuBar.markAdultMI) { dlgManager.onMarkChildAsAdult(); }
+		else if(e.getSource() == ONCMenuBar.connectChildMI) { dlgManager.showConnectPYChildDialog(); }
+		else if(e.getSource() == ONCMenuBar.userMI) { dlgManager.showUserDialog(); }
+		else if(e.getSource() == ONCMenuBar.onlineMI) { dlgManager.onWhoIsOnline(); }
+		else if(e.getSource() == ONCMenuBar.chatMI) { dlgManager.onChat(); }
+		else if(e.getSource() == ONCMenuBar.profileMI) { dlgManager.onEditProfile(); }
+		else if(e.getSource() == ONCMenuBar.changePWMI) { dlgManager.onChangePassword(); }
+		else if(e.getSource() == ONCMenuBar.stopPollingMI)
+		{
+			ServerIF serverIF = ServerIF.getInstance();
+			if(serverIF != null)
+				serverIF.setEnabledServerPolling(false); 
+		}
+		else if(e.getSource() == ONCMenuBar.showServerLogMI)
+		{
+			ServerIF serverIF = ServerIF.getInstance();
+			if(serverIF != null)
+			{
+				LogDialog logDlg = new LogDialog();
+				logDlg.setLocationRelativeTo(GlobalVariables.getFrame());
+				logDlg.setVisible(true);
+			}
+		}
+		else if(e.getSource() == ONCMenuBar.showServerClientIDMI)
+		{
+			ONCPopupMessage clientIDPU = new ONCPopupMessage(GlobalVariables.getONCLogo());
+			clientIDPU.setLocationRelativeTo(GlobalVariables.getFrame());
+			String mssg = String.format("Your ONC Server Client ID is: %d", 
+								GlobalVariables.getInstance().getUser().getClientID());
+			clientIDPU.show("ONC Server Client ID", mssg);
+		}    		
+		else if(e.getSource() == ONCMenuBar.showCurrDirMI)
+		{
+			ONCPopupMessage clientIDPU = new ONCPopupMessage(GlobalVariables.getONCLogo());
+			clientIDPU.setLocationRelativeTo(GlobalVariables.getFrame());
+			String mssg = String.format("Current folder is: %s", System.getProperty("user.dir"));
+			clientIDPU.show("ONC Client Current Folder", mssg);
+		}
+		else if(e.getSource() == ONCMenuBar.showWebsiteStatusMI) { dlgManager.onWebsiteStatus(); }
+	}
+	
+	 private class MenuItemDBYearsListener implements ActionListener
+	 {
+		 public void actionPerformed(ActionEvent e)
+	     {
+	    	for(int i=0; i< dbYears.size(); i++)
+	    	{
+	    		JMenuItem mi = dbYears.get(i);
+	    		if(e.getSource() == mi)
+	    			dbManager.importObjectsFromDB(Integer.parseInt(e.getActionCommand())); 
+	    	}
+	     }
+	 }
 }

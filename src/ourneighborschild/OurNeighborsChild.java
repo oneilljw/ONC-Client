@@ -2,60 +2,38 @@ package ourneighborschild;
 
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import java.awt.Dimension;
-import java.awt.Point;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.lang.reflect.Type;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
-import javax.swing.filechooser.FileNameExtensionFilter;
-
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-
-import au.com.bytecode.opencsv.CSVWriter;
-
-public class OurNeighborsChild implements DatabaseListener
+public class OurNeighborsChild
 {
 	/**
 	 * Executable Main Class for ONC application
 	 */
 	//Static Final Variables
 	private static final int SERVER_CONNECT_RETRY_LIMIT = 3;
-	private static final int ONC_IMAGE_ICON_INDEX = 0;
-	private static final int ONC_SAVE_FILE = 1;	
 	private static final String ONC_VERSION = "3.27";
-	private static final String ONC_COPYRIGHT = "\u00A92016 John W. O'Neill";	
 	private static final String APPNAME = "Our Neighbor's Child";
-	private static final int DB_UNLOCKED_IMAGE_INDEX = 17;
-	private static final int DB_LOCKED_IMAGE_INDEX = 18;
-	private static final Point SORT_DIALOG_OFFSET = new Point (5, 20);
 	private static final String ONC_SERVER_IP_ADDRESS_FILE = "serveripaddress.txt";
 	
 	//GUI Objects
@@ -64,24 +42,24 @@ public class OurNeighborsChild implements DatabaseListener
 	private GlobalVariables oncGVs;
 	private FamilyPanel oncFamilyPanel;
 	private ONCMenuBar oncMenuBar;
-	private PreferencesDialog prefsDlg;
-	private LogDialog logDlg;
+	
 
 	//Local Data Base Structures
-	private UserDB oncUserDB;
-	private Families oncFamDB;				//Holds ONC Family Database
-	private ChildDB oncChildDB;				//Holds ONC Child database
-	private ChildWishDB oncChildWishDB; 	//Holds ONC Child Wish database
-	private ONCAgents oncAgentDB;			//Holds ONC Agents
-	private ONCOrgs oncOrgDB;				//Holds ONC Partner Organizations
-	private ONCWishCatalog oncWishCat;		//Holds ONC Wish Catalog
-	private WishDetailDB oncWishDetailDB;	//Holds ONC Wish Detail Data Base
-	private DriverDB oncDDB;				//Holds the ONC Driver Data Base
-	private DeliveryDB oncDelDB;			//Holds the ONC Delivery Data Base
-	private ONCRegions oncRegions;
-	private DBStatusDB oncDB;				//Holds the years loaded on the server
-	private AdultDB oncAdultDB;				//Holds ONC Adult database
-	private MealDB oncMealDB;				//Holds ONC Meal database
+	private DatabaseManager dbManager;			//Holds the years loaded on the server
+	
+//	private UserDB oncUserDB;
+//	private Families oncFamDB;				//Holds ONC Family Database
+//	private ChildDB oncChildDB;				//Holds ONC Child database
+//	private ChildWishDB oncChildWishDB; 	//Holds ONC Child Wish database
+//	private ONCAgents oncAgentDB;			//Holds ONC Agents
+//	private ONCOrgs oncOrgDB;				//Holds ONC Partner Organizations
+//	private ONCWishCatalog oncWishCat;		//Holds ONC Wish Catalog
+//	private WishDetailDB oncWishDetailDB;	//Holds ONC Wish Detail Data Base
+//	private DriverDB oncDDB;				//Holds the ONC Driver Data Base
+//	private DeliveryDB oncDelDB;			//Holds the ONC Delivery Data Base
+//	private ONCRegions oncRegions;
+//	private AdultDB oncAdultDB;				//Holds ONC Adult database
+//	private MealDB oncMealDB;				//Holds ONC Meal database
 	
 	private DialogManager dlgManager;		//Managed all dialogs in client
 	
@@ -189,14 +167,15 @@ public class OurNeighborsChild implements DatabaseListener
         	writeServerIPAddressToFile(serverIPAddress);	//write the server address successfully used
         
         //server is connected, proceed with initialization
-        //create the log dialog
-        logDlg = new LogDialog();	//create the static log dialog
+        
         
         //Create global variables, set the main frame and the version number
         oncGVs = GlobalVariables.getInstance();
         oncGVs.setFrame(oncFrame);
         oncGVs.setVersion(ONC_VERSION);
         
+        dbManager = DatabaseManager.getInstance();
+/*        
         //initialize data structures
         oncRegions = ONCRegions.getInstance();
         oncUserDB = UserDB.getInstance();
@@ -211,8 +190,8 @@ public class OurNeighborsChild implements DatabaseListener
         oncAdultDB = AdultDB.getInstance();
         oncMealDB = MealDB.getInstance();
         oncFamDB = Families.getInstance();
-        oncDB = DBStatusDB.getInstance();
-        
+        oncDB = DatabaseManager.getInstance();
+*/        
         //initialize the entity event manager
         EntityEventManager.getInstance();
         
@@ -222,19 +201,6 @@ public class OurNeighborsChild implements DatabaseListener
          
         //create mainframe window for the application
         createandshowGUI();
-        
-        // set up the preferences dialog
-        prefsDlg = new PreferencesDialog(oncFrame);
-        prefsDlg.oncFontSizeCB.addActionListener(new ActionListener() //Notify family panel of font changes
-        {
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				oncGVs.setFontIndex(prefsDlg.oncFontSizeCB.getSelectedIndex());
-				oncFamilyPanel.setTextPaneFontSize();
-				dlgManager.setTextPaneFontSize();
-			}      	
-        });
 
         //Get and authenticate user and privileges with Authentication dialog. Can't get past this
         //modal dialog unless a valid user id and password is authenticated by the server. 
@@ -261,8 +227,7 @@ public class OurNeighborsChild implements DatabaseListener
         if(user.getPermission() == UserPermission.Sys_Admin)	//Superuser privileges
         {
         	oncGVs.setUserPermission(UserPermission.Sys_Admin);
-//        	prefsDlg.setEnabledDateToday(true);
-        	prefsDlg.setEnabledRestrictedPrefrences(true);
+        	dlgManager.setEnabledAdminPrivileges(true);
         	oncMenuBar.setVisibleAdminFunctions(true);
         	oncMenuBar.setVisibleSpecialImports(true);
         	dlgManager.setEnabledSuperuserPrivileges(true);
@@ -271,7 +236,7 @@ public class OurNeighborsChild implements DatabaseListener
         {
         	oncGVs.setUserPermission(UserPermission.Admin);
         	oncMenuBar.setVisibleAdminFunctions(true);
-        	prefsDlg.setEnabledRestrictedPrefrences(true);
+        	dlgManager.setEnabledAdminPrivileges(true);
         }
         else
         	oncGVs.setUserPermission(UserPermission.General);
@@ -281,23 +246,18 @@ public class OurNeighborsChild implements DatabaseListener
         if(serverIF != null)
         {
         	//get the list of data bases on the server
-        	List<DBYear> dbYears = oncDB.getDBStatus();
+        	List<DBYear> dbYears = dbManager.getDBStatus();
         	if(dbYears != null)
-        		processDBYears(dbYears);	
+        		oncMenuBar.processDBYears(dbYears);	
         	
         	//get user data base
-        	oncUserDB.importUserDatabase();		//imported here to support chat prior to loading a year
+        	UserDB.getInstance().importUserDatabase();
+//        	oncUserDB.importUserDatabase();		//imported here to support chat prior to loading a year
         }
         
         //remove splash panel after authentication
         oncContentPane.remove(oncSplashPanel);
         oncContentPane.revalidate();
-        
-        //add listener for odb/wfcm family imports and new season adds
-        if(oncFamDB != null)
-        	oncFamDB.addDatabaseListener(this);
-        if(oncDB != null)
-        	oncDB.addDatabaseListener(this);
         
         //initialize web site status
         oncGVs.initializeWebsiteStatusFromServer();
@@ -305,42 +265,6 @@ public class OurNeighborsChild implements DatabaseListener
         //everything is initialized, start polling server for changes
         if(serverIF != null && serverIF.isConnected())
         	serverIF.setEnabledServerPolling(true);   	
-    }
-    
-    void processDBYears(List<DBYear> dbYears)
-    {
-    	//clear the current list
-    	oncMenuBar.clearDataBaseYears();
-    	
-    	//create the listener for each year in the year list in the menu
-    	MenuItemDBYearsListener menuItemDBYearListener = new MenuItemDBYearsListener();
-		
-		for(DBYear dbYear:dbYears)
-			addDBYear(dbYear, menuItemDBYearListener);
-		
-		//determine if we can allow the user to add a new season. Enable adding a new
-		//season if the current date is in the year to be added, the year hasn't already
-		//been added, the user has administrative privileges and a data base has not been loaded
-		Calendar today = Calendar.getInstance();
-		today.setTime(oncGVs.getTodaysDate());
-		int currYear = today.get(Calendar.YEAR);
-		
-		if(currYear != dbYears.get(dbYears.size()-1).getYear() && GlobalVariables.isUserAdmin())
-			oncMenuBar.setEnabledNewMenuItem(true);	
-    }
-    
-    /******************************************************************************************
-     * The  addDBYear method is separate as it is called when the application instantiates as well
-     * as when the user requests addition of a new ONC season by adding a year to the list
-     * @param dbYear
-     * @param menuItemDBYearListener
-     ****************************************************************************************/
-    void addDBYear(DBYear dbYear, MenuItemDBYearsListener menuItemDBYearListener)
-    {	
-    	String zYear = Integer.toString(dbYear.getYear());
-		JMenuItem mi = oncMenuBar.addDBYear(zYear, oncGVs.getImageIcon(dbYear.isLocked() ? 
-				DB_LOCKED_IMAGE_INDEX : DB_UNLOCKED_IMAGE_INDEX));
-		mi.addActionListener(menuItemDBYearListener);
     }
     
     String getServerIPAddress(String serverIPAddress)
@@ -418,20 +342,14 @@ public class OurNeighborsChild implements DatabaseListener
     // "About OSXAdapter" is selected from the application menu   
     public void about()
     {
-    	//User has chosen to view the About ONC dialog
-		String versionMsg = String.format("Our Neighbor's Child Client Version %s\n%s", 
-											ONC_VERSION, ONC_COPYRIGHT);
-		JOptionPane.showMessageDialog(oncFrame, versionMsg, "About the ONC App", 
-										JOptionPane.INFORMATION_MESSAGE,oncGVs.getImageIcon(0));
+    	dlgManager.showAboutONCDialog();
     }
 
     // General preferences dialog; fed to the OSXAdapter as the method to call when
     // "Preferences..." is selected from the application menu
     public void preferences()
     {
-    	prefsDlg.setLocation((int)oncFrame.getLocation().getX() + 22, (int)oncFrame.getLocation().getY() + 22);
-    	prefsDlg.display();
-        prefsDlg.setVisible(true);   	
+    	dlgManager.showPreferencesDialog(); 	
     }
     
     private void createMainFrame()
@@ -474,6 +392,12 @@ public class OurNeighborsChild implements DatabaseListener
         oncMenuBar = new ONCMenuBar();
         oncFrame.setJMenuBar(oncMenuBar);
         
+        ONCMenuBar.exitMI.addActionListener(new ActionListener()
+        {		
+        	@Override
+        	public void actionPerformed(ActionEvent e) { exit("LOGOUT"); }
+        });
+/*        
         MenuItemListener menuItemListener = new MenuItemListener();
         
         ONCMenuBar.newMI.addActionListener(menuItemListener);
@@ -528,95 +452,12 @@ public class OurNeighborsChild implements DatabaseListener
         ONCMenuBar.showServerClientIDMI.addActionListener(menuItemListener);
         ONCMenuBar.showCurrDirMI.addActionListener(menuItemListener);
         ONCMenuBar.showWebsiteStatusMI.addActionListener(menuItemListener);
-
+*/
         //Create the family panel
         oncFamilyPanel = new FamilyPanel(oncFrame);
         oncContentPane.add(oncFamilyPanel);        
 	}
-    
-    String exportFamilyReportToCSV()
-    {
-    	String filename = null;
-    	
-    	ONCFileChooser fc = new ONCFileChooser(oncFrame);
-    	File oncwritefile= fc.getFile("Select .csv file to save to",
-										new FileNameExtensionFilter("CSV Files", "csv"), ONC_SAVE_FILE);
-    	if(oncwritefile!= null)
-    	{
-    		//If user types a new filename and doesn't include the .csv, add it
-	    	String filePath = oncwritefile.getPath();		
-	    	if(!filePath.toLowerCase().endsWith(".csv")) 
-	    		oncwritefile = new File(filePath + ".csv");
-	    	
-	    	try 
-	    	{
-	    		ONCFamilyReportRowBuilder rb = new ONCFamilyReportRowBuilder();
-	    		
-	    		CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
-	    	    writer.writeNext(rb.getFamilyReportHeader());
-	    	    
-	    	    for(ONCFamily fam:oncFamDB.getList())
-	    	    	writer.writeNext(rb.getFamilyReportCSVRowData(fam));	//Get family data
-	    	 
-	    	    writer.close();
-	    	    filename = oncwritefile.getName();
-	    	       	    
-	    	} 
-	    	catch (IOException x)
-	    	{
-	    		System.err.format("IO Exception: %s%n", x);
-	    		JOptionPane.showMessageDialog(oncFrame, oncwritefile.getName() + " could not be saved", 
-						"ONC File Save Error", JOptionPane.ERROR_MESSAGE);
-	    	}
-	    }
-    	
-	    return filename;
-    }
-
-    void OnImportMenuItemClicked(String source)
-	{
-    	int olddbsize = oncFamDB.size();
-    	
-    	oncFamDB.importCSVFile(source, oncFrame);
-    	oncFamilyPanel.setMssg(Integer.toString(oncFamDB.size() - olddbsize) + " families were imported", false);
-    	
-    	checkFamilyDataLoaded();
-	}
-
-    void OnClearMenuItemClicked()
-    {
-/*    	
-    	//Clear the GUI's which disables buttons that are dependent on db being loaded
-    	//These methods clear the buttons as necessary
-    	oncStatusPanel.ClearData();
-    	oncFamilyPanel.ClearFamilyData();
-    	
-    	//Clear any existing persistent data
-    	if(oncFamDB.size() > 0)	//Clear child and delivery data before clearing family data
-    		for(ONCFamily fam:oncFamDB.getList())
-    		{
-//   			fam.getChildArrayList().clear();
-//    			fam.getDeliveryStatusAL().clear();	//NO LONGER NEEDED WHEN SEPARATE DELIVERY DB CREATED
-    		}
-    	
-    	oncFamDB.clear();	
-    	oncOrgDB.clear();
-//    	oncPYCDB.clear();
-    	oncWishCat.clearCatalogData();
-    	
-    	//Close all dialogs
-    	oncFamilyPanel.closeAllDialogs();
-    	
-    	//Disable the menu bar for items that can't function without data
-    	oncMenuBar.SetEnabledMenuItems(false);
-    	oncMenuBar.SetEnabledRestrictedMenuItems(false);
-    	
-    	oncFrame.setTitle(APPNAME);
-    	
-    	return;
-*/    	  	
-    }
-    
+      
     void exit(String command)
     {
     	if(serverIF != null && serverIF.isConnected())
@@ -627,114 +468,13 @@ public class OurNeighborsChild implements DatabaseListener
     	
     	System.exit(0);
     }
-   
-    /********************************************************************************************
-     * This method is called to add a new ONC season to the server.The user is asked to confirm
-     * they really want to add a new year. If confirmed, the request is sent to the server. If
-     * the server successfully adds the year, it responds with a new DBYear list that includes
-     * the new year at the end. The list is processed to update the Menu Bar Database available
-     * years list
-     *******************************************************************************************/
-    void addONCSeason()
-    {    
-    	//determine what year we'll be adding to the ONC Server 
-		Calendar today = Calendar.getInstance();
-		today.setTime(oncGVs.getTodaysDate());
-		
-		//ask the user to confirm the add of the new year
-    	String confirmMssg = String.format("<html>%s, please confirm you want to add<br>the %d year to the ONC Server</html>", 
-    			oncGVs.getUser().getFirstname(), today.get(Calendar.YEAR));
-    	
-    	Object[] options= {"Cancel", "Add " + today.get(Calendar.YEAR) };
-		JOptionPane confirmOP = new JOptionPane(confirmMssg, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION,
-							oncGVs.getImageIcon(0), options, "Cancel");
-		JDialog confirmDlg = confirmOP.createDialog(oncFrame, "*** Confirm Add New Year ***");
-		confirmDlg.setVisible(true);
-	
-		Object selectedValue = confirmOP.getValue();
-		
-		//if confirmed, send the add request to the server and await the response
-		if(selectedValue != null && selectedValue.toString().startsWith("Add"))
-		{
-			//set up user notification of result
-	    	String mssg ="";
-	    	String title = "Add Year Failed";
-	    	int mssgType = JOptionPane.ERROR_MESSAGE;
-	    	
-			//send add new year request to the ONC Server via the  DBStatus data base
-	    	//and process response
-			String response = "Error message missing";
-			if(oncDB != null)
-			{
-				response = oncDB.add(this);	//request add of new ONC season
-				
-				//if the response indicates the server successfully add the year, it returns a 
-				//json of a list of new DBYear objects with the new year added to the end. 
-				//Process the list
-				if(response != null && response.startsWith("ADDED_DBYEAR"))
-				{
-					Gson gson = new Gson();
-					Type listtype = new TypeToken<ArrayList<DBYear>>(){}.getType();
-					ArrayList<DBYear> dbYearList =  gson.fromJson(response.substring(12), listtype);
-					
-					int newYear = processAddedONCSeason(dbYearList);
-					
-					mssg = String.format("%d sucessfully added to ONC Server", newYear);
-					title = "Add Year Successful";
-					mssgType = JOptionPane.INFORMATION_MESSAGE;
-				}
-				else if(response != null && response.startsWith("ADD_DBYEAR_FAILED")) //alert the user the add failed
-					mssg = response.substring(17);					
-				else //general server error - didn't respond
-					mssg = "Error: ONC Server failed to respond";	
-			}
-			else //server is not connected
-				mssg = "Error: Client is not connected to the ONC Server";
-			
-			JOptionPane.showMessageDialog(oncFrame, mssg, title, mssgType, oncGVs.getImageIcon(0));
-		}
-    }
-    
-    int processAddedONCSeason(ArrayList<DBYear> dbYearList)
-    {
-    	MenuItemDBYearsListener menuItemDBYearListener = new MenuItemDBYearsListener();
-    	
-    	//clear the current list
-    	oncMenuBar.clearDataBaseYears();
-		
-		for(DBYear dbYear:dbYearList)
-			addDBYear(dbYear, menuItemDBYearListener);
-		
-		//now that the year is added, disable adding another year
-		oncMenuBar.setEnabledNewMenuItem(false);
-		
-		//return last year in the list
-		return dbYearList.get(dbYearList.size()-1).getYear();
-    }
-    
-    void importObjectsFromDB(int year)
-    {
-    	//create the progress bar frame
-    	ONCProgressBar pb = new ONCProgressBar(oncGVs.getImageIcon(0), 100);
-    	Point loc = oncFrame.getLocationOnScreen();
-		pb.setLocation(loc.x+450, loc.y+70);
-    	
-		//create the swing worker background task to get the data from the server
-		ONCServerDBImporter dataImporter = new ONCServerDBImporter(year, pb);
-	    dataImporter.addPropertyChangeListener(pb);
-	    
-	    //show the progress bar.
-	    pb.show("Loading " + Integer.toString(year) + " Data", null);
-	    
-	    //execute the background swing worker task
-	    dataImporter.execute();
-    }
     
     /*******************************************************************************************
      * This method is called when a server ADDED_FAMILY message is processed. If there were
      * no families in the local database and the ADDED_FAMILY is the first, it will display
      * that family and enable the navigation controls as well as the Menu Bar permissions
      */
+/*    
     void checkFamilyDataLoaded()
     {
     	if(oncFamDB.size() > 0)
@@ -746,56 +486,8 @@ public class OurNeighborsChild implements DatabaseListener
 				oncMenuBar.setEnabledRestrictedMenuItems(true);
 		}
     }
-    
-    void exportObjectDBToCSV()
-    {
-    	ONCFileChooser fc = new ONCFileChooser(oncFrame);
-    	File folder = fc.getDirectory("Select folder to save DB .csv files to");
-    	
-    	String mssg;
-    	if(folder == null) 
-    		mssg = "Database save failed, no folder selected";	
-    	else if(!folder.exists())
-    		mssg = String.format("Database save failed:<br>%s", folder.toString());	
-    	else
-    	{	
-    		String path = folder.toString();
-    	
-    		oncAdultDB.exportDBToCSV(oncFrame, path + "/AdultDB.csv");
-    		oncAgentDB.exportDBToCSV(oncFrame, path + "/AgentDB.csv");
-    		oncChildDB.exportDBToCSV(oncFrame, path + "/ChildDB.csv");
-    		oncChildWishDB.exportDBToCSV(oncFrame, path + "/ChildWishDB.csv");
-    		oncDelDB.exportDBToCSV(oncFrame, path + "/DeliveryDB.csv");
-    		oncDDB.exportDBToCSV(oncFrame, path + "/DriverDB.csv");
-    		oncFamDB.exportDBToCSV(oncFrame, path + "/FamilyDB.csv");
-    		oncGVs.exportDBToCSV(oncFrame, path + "/GlobalVariables.csv");
-    		oncMealDB.exportDBToCSV(oncFrame, path + "/MealDB.csv");
-    		oncOrgDB.exportDBToCSV(path + "/OrgDB.csv");
-    		oncWishCat.exportToCSV(oncFrame, path + "/WishCatalog.csv");
-    		oncWishDetailDB.exportDBToCSV(oncFrame, path + "/WishDetailDB.csv");
-    		
-    		mssg = String.format("Database sucessfully saved to:<br>%s", path); 			
-    	}
-    	
-    	ONCPopupMessage savedbPU = new ONCPopupMessage(oncGVs.getImageIcon(0));
-		savedbPU.setLocationRelativeTo(oncFrame);
-		savedbPU.show("Database Export Result", mssg);		
-    }
-
-   
-
-    private class MenuItemDBYearsListener implements ActionListener
-    {
-    	public void actionPerformed(ActionEvent e)
-    	{
-    		for(int i=0; i< oncMenuBar.dbYears.size(); i++)
-    		{
-    			JMenuItem mi = oncMenuBar.dbYears.get(i);
-    			if(e.getSource() == mi)
-    				importObjectsFromDB(Integer.parseInt(e.getActionCommand())); 
-    		}
-    	}
-    }
+*/    
+/* 
     private class MenuItemListener implements ActionListener
     {
     	public void actionPerformed(ActionEvent e)
@@ -825,7 +517,7 @@ public class OurNeighborsChild implements DatabaseListener
     		else if(e.getSource() == ONCMenuBar.manageCallResultMI) {dlgManager.showAngelCallDialog();}
     		else if(e.getSource() == ONCMenuBar.exportMI){ exportObjectDBToCSV(); }
     		else if(e.getSource() == ONCMenuBar.dbStatusMI) {dlgManager.onDBStatusClicked();}
-    		else if(e.getSource() == ONCMenuBar.clearMI) {OnClearMenuItemClicked();} 			       	
+    		else if(e.getSource() == ONCMenuBar.clearMI) {dlgManager.onClearMenuItemClicked();} 			       	
     		else if(e.getSource() == ONCMenuBar.exitMI)	{exit("LOGOUT");}
     		else if(e.getSource() == ONCMenuBar.findDupFamsMI)
     			dlgManager.showCheckDialog(ONCMenuBar.findDupFamsMI.getActionCommand());
@@ -927,12 +619,13 @@ public class OurNeighborsChild implements DatabaseListener
     	}   	
     }
     
-
+*/
     /***************************************************************************************************
      * This class communicates with the ONC Server to fetch season data from the server data base
      * and store in the local data base. This executes as a background task. A progress bar,
      * provided at the time the class is instantiated, shows the user the progress in fetching data. 
      **************************************************************************************************/
+/*    
     public class ONCServerDBImporter extends SwingWorker<Void, Void>
     {
     	private static final int NUM_OF_DBs = 13;
@@ -1015,9 +708,7 @@ public class OurNeighborsChild implements DatabaseListener
 			return null;
 		}
 		
-		 /*
-	     * Executed in event dispatching thread
-	     */
+		 // Executed in event dispatching thread
 	    @Override
 	    public void done()
 	    {
@@ -1026,61 +717,7 @@ public class OurNeighborsChild implements DatabaseListener
 	        pb.dispose();
 	    }
     }
-    
-    void serverDataLoadComplete(boolean bServerDataLoaded, String year)
-    {
-    	if(bServerDataLoaded)
-    	{
-    		//Now that we have season data loaded
-        	//let the user know that data has been loaded
-    		oncFrame.setTitle(APPNAME + " - " + year + " Season Data");
-			if(GlobalVariables.isUserAdmin()) 
-				oncMenuBar.setEnabledImportMenuItems(true);
-			
-			String mssg;
-			if(oncGVs.getUser().getFirstname().equals(""))
-				mssg = year + " season data has been loaded";
-			else
-				mssg = oncGVs.getUser().getFirstname() + ", " + year + " season data has been loaded";
-    		oncFamilyPanel.setMssg(mssg, true);
-    		
-    		oncMenuBar.setEnabledYear(false);
-    		oncMenuBar.setEnabledNewMenuItem(false);
-    		oncMenuBar.setEnabledWishCatalogAndOrgMenuItems(true);
-		
-			//Families may not have been imported from ODB yet, however, agents exist from prior
-			//year and users can import drivers or add them if they wish
-			oncMenuBar.setEnabledDataLoadedMenuItems(true);
-			
-			ONCWishCatalog.getInstance().initializeWishCounts();
-			
-			//check to see if family data is present and enable controls
-			checkFamilyDataLoaded();
-    	}
-
-    	//tell the server if to pass on server data base changes to local data bases
-    	if(serverIF != null)
-    		serverIF.setDatabaseLoaded(true);	
-    }
-
-	@Override
-	public void dataChanged(DatabaseEvent dbe) 
-	{
-		//if this is the first family loaded locally, show it on the display
-		if(dbe.getSource() != this && dbe.getType().equals("ADDED_FAMILY")  && oncFamDB.size() == 1)
-			checkFamilyDataLoaded();
-		else if(dbe.getSource() != this && dbe.getType().equals("ADDED_DBYEAR"))
-		{
-			ArrayList<DBYear> newDBYearList = (ArrayList<DBYear>) dbe.getObject();
-			int addedYear = processAddedONCSeason(newDBYearList);
-			
-			String mssg = String.format("%d database added, now available", addedYear);
-			ONCPopupMessage popup = new ONCPopupMessage( oncGVs.getImageIcon(0));
-			Point loc = oncFrame.getLocationOnScreen();
-			popup.setLocation(loc.x+450, loc.y+70);
-			popup.show("Message from ONC Server", mssg);	
-		}
-	}
+*/    
 	
 	 public static void main(String args[])
 	 {

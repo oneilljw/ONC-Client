@@ -24,7 +24,7 @@ public class DatabaseStatusDialog extends JDialog implements ActionListener, Dat
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	private DBStatusDB statusDB;
+	private DatabaseManager statusDB;
 	private List<DBYearAndButton> dbYearButtonList;
 
 	DatabaseStatusDialog(JFrame pFrame)
@@ -33,7 +33,7 @@ public class DatabaseStatusDialog extends JDialog implements ActionListener, Dat
 		this.setTitle("Database Status");
 		
 		//get a reference to the DBStatus data base and the User data base
-		statusDB = DBStatusDB.getInstance();
+		statusDB = DatabaseManager.getInstance();
 		if(statusDB != null)
 			statusDB.addDatabaseListener(this);
 		

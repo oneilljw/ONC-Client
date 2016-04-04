@@ -1,6 +1,8 @@
 package ourneighborschild;
 
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -70,7 +72,9 @@ public class DialogManager implements EntitySelectionListener
 	private OrganizationDialog orgDlg;
 	private DriverDialog driverDlg;
 		
-//	private LogDialog logDlg;
+	private LogDialog logDlg;
+	private PreferencesDialog prefsDlg;
+	
 	public static DialogManager getInstance()
 	{
 		if(instance == null)
@@ -84,7 +88,24 @@ public class DialogManager implements EntitySelectionListener
 		eeManager = EntityEventManager.getInstance();
 		eeManager.registerEntitySelectionListener(this);
 		
-		 //initialize the dialog maps
+		//create the log dialog
+        logDlg = new LogDialog();	//create the static log dialog
+        
+        // set up the preferences dialog
+        prefsDlg = new PreferencesDialog(GlobalVariables.getFrame());
+        prefsDlg.oncFontSizeCB.addActionListener(new ActionListener() //Notify family panel of font changes
+        {
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				GlobalVariables gvs = GlobalVariables.getInstance();
+				gvs.setFontIndex(prefsDlg.oncFontSizeCB.getSelectedIndex());
+//				oncFamilyPanel.setTextPaneFontSize();
+				setTextPaneFontSize();
+			}      	
+        });
+        
+		//initialize the dialog maps
         stDlgMap = new HashMap<String, SortTableDialog>();
         familyInfoDlgMap = new HashMap<String, InfoDialog>();
         entityDlgMap = new HashMap<String, EntityDialog>();
@@ -359,6 +380,26 @@ public class DialogManager implements EntitySelectionListener
 		else
 			showDialogError(name);
 	}
+	
+	void showPreferencesDialog()
+	{
+		if(!prefsDlg.isShowing())
+		{
+			prefsDlg.setLocationRelativeTo(GlobalVariables.getFrame());
+			prefsDlg.display();
+			prefsDlg.setVisible(true);
+		}
+	}
+	
+	void showAboutONCDialog()
+	{
+		//User has chosen to view the About ONC dialog
+		String versionMsg = String.format("Our Neighbor's Child Client Version %s\n%s", 
+				GlobalVariables.getVersion(),  "\u00A92012 - 2016 John W. O'Neill");
+		
+		JOptionPane.showMessageDialog(GlobalVariables.getFrame(), versionMsg, "About the ONC App", 
+										JOptionPane.INFORMATION_MESSAGE, GlobalVariables.getONCLogo());
+	}
 
 	void showDialogError(String name)
 	{
@@ -594,10 +635,51 @@ public class DialogManager implements EntitySelectionListener
 		}
 		
 		return bPasswordChanged;
-   } 
+   }
+   
+   void onClearMenuItemClicked()
+   {
+/*    	
+   	//Clear the GUI's which disables buttons that are dependent on db being loaded
+   	//These methods clear the buttons as necessary
+   	oncStatusPanel.ClearData();
+   	oncFamilyPanel.ClearFamilyData();
+   	
+   	//Clear any existing persistent data
+   	if(oncFamDB.size() > 0)	//Clear child and delivery data before clearing family data
+   		for(ONCFamily fam:oncFamDB.getList())
+   		{
+//  			fam.getChildArrayList().clear();
+//   			fam.getDeliveryStatusAL().clear();	//NO LONGER NEEDED WHEN SEPARATE DELIVERY DB CREATED
+   		}
+   	
+   	oncFamDB.clear();	
+   	oncOrgDB.clear();
+//   	oncPYCDB.clear();
+   	oncWishCat.clearCatalogData();
+   	
+   	//Close all dialogs
+   	oncFamilyPanel.closeAllDialogs();
+   	
+   	//Disable the menu bar for items that can't function without data
+   	oncMenuBar.SetEnabledMenuItems(false);
+   	oncMenuBar.SetEnabledRestrictedMenuItems(false);
+   	
+   	oncFrame.setTitle(APPNAME);
+   	
+   	return;
+*/    	  	
+   }
+   
+   void setEnabledAdminPrivileges(boolean tf)
+   {
+	   prefsDlg.setEnabledRestrictedPrefrences(tf);
+   }
 	
 	void setEnabledSuperuserPrivileges(boolean tf)
 	{
+//    	prefsDlg.setEnabledDateToday(true);
+		prefsDlg.setEnabledRestrictedPrefrences(tf);
 		sortFamiliesDlg.setFamilyStatusComboItemEnabled(FAMILY_STATUS_SELECTION_LIST_PACKAGED_INDEX, tf);
 	}
 	
