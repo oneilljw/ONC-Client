@@ -26,7 +26,7 @@ import javax.swing.text.StyleConstants;
 
 import com.google.gson.Gson;
 
-public class PartnerDialog extends EntityDialog implements EntitySelectionListener
+public class PartnerDialog extends EntityDialog
 {
 	/***********************************************************************************************
 	 * Implements a dialog to manage ONC Partner organizations. This dialog looks like the main
@@ -49,13 +49,12 @@ public class PartnerDialog extends EntityDialog implements EntitySelectionListen
     private JLabel lblPYReq, lblPYAssigned, lblPYRec;
     private JTextField nameTF, cyReqTF;
     private JTextField streetnumTF, streetnameTF, unitTF, cityTF, zipTF, phoneTF;
-//  private JTextField deliverToTF;
     private JTextField contact1TF, email1TF, phone1TF;
     private JTextField contact2TF, email2TF, phone2TF;
     private PartnerDB partnerDB;
-    private int partnerCount = 0, wishCount = 0;	//Holds the status panel overall counts
+    private int partnerCount = 0, wishCount = 0;	//Holds the navigation panel overall counts
     
-    private ONCPartner currPartner;	//reference to ONCPartner obect being displayed
+    private ONCPartner currPartner;	//reference to ONCPartner object being displayed
 
 	PartnerDialog(JFrame parentFrame)
 	{
@@ -250,9 +249,6 @@ public class PartnerDialog extends EntityDialog implements EntitySelectionListen
               
         specialNotesTP = new JTextPane();
         specialNotesTP.setPreferredSize(new Dimension (264, 100));  
-//      StyleConstants.setAlignment(attribs , StyleConstants.ALIGN_LEFT);
-//      StyleConstants.setFontSize(attribs, gvs.getFontSize());
-//      StyleConstants.setSpaceBelow(attribs, 3);
         specialNotesTP.setParagraphAttributes(attribs,true);             
 	   	specialNotesTP.setEditable(true);
 	   	
@@ -261,11 +257,8 @@ public class PartnerDialog extends EntityDialog implements EntitySelectionListen
                    
         deliverToTP = new JTextPane();
         deliverToTP.setPreferredSize(new Dimension (180, 100));  
-//      deliverToTP.setToolTipText("Instructions on where gifts will be delivered");
-//      deliverToTP.setBorder(BorderFactory.createTitledBorder("Gift Delivery Info"));
         deliverToTP.setParagraphAttributes(attribs,true);             
         deliverToTP.setEditable(true);
-//      deliverToTP.addActionListener(dcListener);
         
         JScrollPane deliverToTPSP = new JScrollPane(deliverToTP);
         deliverToTPSP.setBorder(BorderFactory.createTitledBorder("Gift Delivery Info"));
@@ -316,23 +309,18 @@ public class PartnerDialog extends EntityDialog implements EntitySelectionListen
         lblPYReq.setToolTipText("Number of prior year ornaments reqeusted by partner");
         lblPYReq.setBorder(BorderFactory.createTitledBorder("Prior Yr Req"));
         lblPYReq.setHorizontalAlignment(JLabel.RIGHT);
-//        pyReqTF.addActionListener(dcListener);
         
         lblPYAssigned = new JLabel();
         lblPYAssigned.setPreferredSize(ornDimension);
         lblPYAssigned.setToolTipText("Number of prior year ornaments assigned to partner");
         lblPYAssigned.setBorder(BorderFactory.createTitledBorder("Prior Yr Assig"));
         lblPYAssigned.setHorizontalAlignment(JLabel.RIGHT);
-//        pyAssignedTF.setHorizontalAlignment(JTextField.RIGHT);
-//        pyAssignedTF.addActionListener(dcListener);
         
         lblPYRec = new JLabel();
         lblPYRec.setPreferredSize(ornDimension);
         lblPYRec.setToolTipText("Number of prior year gifts received from partner");
         lblPYRec.setBorder(BorderFactory.createTitledBorder("Prior Yr Rec"));
         lblPYRec.setHorizontalAlignment(JLabel.RIGHT);
-//        pyRecTF.setHorizontalAlignment(JT.RIGHT);
-//        pyRecTF.addActionListener(dcListener);
         
         cyReqTF = new JTextField();
         cyReqTF.setPreferredSize(ornDimension);
@@ -435,8 +423,6 @@ public class PartnerDialog extends EntityDialog implements EntitySelectionListen
 			
 			bIgnoreEvents = true;
 			
-//			currOrg = odOrgs.getObjectAtIndex(nav.getIndex());
-		
 			lblOrgID.setText(Long.toString(currPartner.getID()));
 			nameTF.setText(currPartner.getName());
 			nameTF.setCaretPosition(0);
@@ -462,7 +448,6 @@ public class PartnerDialog extends EntityDialog implements EntitySelectionListen
 			else
 				btnDelete.setEnabled(false);
 			
-//			cyAssignedTF.setText(currOrg.getOrnamentDelivery());
 			cyReqTF.setText(Integer.toString(currPartner.getNumberOfOrnamentsRequested()));
 			lblCYAssigned.setText(Integer.toString(currPartner.getNumberOfOrnamentsAssigned()));
 			lblCYRec.setText(Integer.toString(currPartner.getNumberOfOrnamentsReceived()));
@@ -544,24 +529,21 @@ public class PartnerDialog extends EntityDialog implements EntitySelectionListen
 		}
 		if(typeCB.getSelectedIndex() != reqPartner.getType())
 		{
-			//The organization type has changed, store the new type and update the 
-			//confirmed organization list since changes between gift organizations 
+			//The partner type has changed, store the new type and update the 
+			//confirmed organization list since changes between gift partners 
 			//and clothing and coat donors are displayed differently
-			//in the confirmed organization list. 
+			//in the confirmed partner list. 
 			reqPartner.setType(typeCB.getSelectedIndex());
-//			odOrgs.structureConfirmedOrgsList();
 			bCD = true;
 		}
 		if(!collTypeCB.getSelectedItem().equals(reqPartner.getGiftCollectionType()))
 		{
-			//The organization collection type has changed, store the new type and update the 
-			//confirmed organization list since changes between general and ornament affect 
-			//the organization selection lists in other ui's
+			//The partner collection type has changed, store the new type and update the 
+			//confirmed partnerlist since changes between general and ornament affect 
+			//the partner selection lists in other ui's
 			reqPartner.setGiftCollectionType((GiftCollection) collTypeCB.getSelectedItem());
 			bCD = true;
 		}
-//		if(!cyAssignedTF.getText().equals(reqOrg.getOrnamentDelivery())) { reqOrg.setOrnamentDelivery(cyAssignedTF.getText()); bCD = true; }
-		
 		if(cyReqTF.getText().isEmpty())
 			reqPartner.setNumberOfOrnamentsRequested(0);
 		else if((n=Integer.parseInt(cyReqTF.getText().trim().replaceAll(",", ""))) != 
@@ -570,10 +552,8 @@ public class PartnerDialog extends EntityDialog implements EntitySelectionListen
 			reqPartner.setNumberOfOrnamentsRequested(n);
 			bCD = true;
 		}
-		
 		if(!otherTP.getText().equals(reqPartner.getOther())) {reqPartner.setOther(otherTP.getText()); bCD = true; }
 		if(!specialNotesTP.getText().equals(reqPartner.getSpecialNotes())) { reqPartner.setSpecialNotes(specialNotesTP.getText()); bCD = true; }
-		
 		if(streetnumTF.getText().isEmpty())
 		{
 			reqPartner.setStreetnum(0);
@@ -602,11 +582,10 @@ public class PartnerDialog extends EntityDialog implements EntitySelectionListen
 		if(!email2TF.getText().equals(reqPartner.getContact2_email())) { reqPartner.setContact2_email(email2TF.getText()); bCD = true; }
 		if(!phone2TF.getText().equals(reqPartner.getContact2_phone())) { reqPartner.setContact2_phone(phone2TF.getText()); bCD = true; }
 		
-		if(bCD)	//If an update to organization data (not stop light data) was detected
+		if(bCD)	//If an update to partner data (not stop light data) was detected
 		{
 			reqPartner.setDateChanged(gvs.getTodaysDate());
 			reqPartner.setChangedBy(GlobalVariables.getUserLNFI());
-//			reqOrg.setStoplightChangedBy(gvs.getUserLNFI());
 			
 			String response = partnerDB.update(this, reqPartner);	//notify the database of the change
 			
@@ -636,7 +615,6 @@ public class PartnerDialog extends EntityDialog implements EntitySelectionListen
 		statusCB.setSelectedIndex(0);
 		typeCB.setSelectedIndex(0);
 		collTypeCB.setSelectedIndex(0);
-//		cyAssignedTF.setText("");
 		cyReqTF.setText("");
 		lblCYAssigned.setText("0");
 		otherTP.setText("");
@@ -671,6 +649,7 @@ public class PartnerDialog extends EntityDialog implements EntitySelectionListen
         StyleConstants.setSpaceBelow(attribs, 3);
         otherTP.setParagraphAttributes(attribs, true);
         specialNotesTP.setParagraphAttributes(attribs, true);
+        deliverToTP.setParagraphAttributes(attribs, true);
 	}
 
 	void onNew()
@@ -722,7 +701,7 @@ public class PartnerDialog extends EntityDialog implements EntitySelectionListen
 	
 	void onSaveNew()
 	{
-		//construct a new organization from user input	
+		//construct a new partner from user input	
 		ONCPartner newPartner = new ONCPartner(-1, new Date(), GlobalVariables.getUserLNFI(),
 				3, "Partner Created", GlobalVariables.getUserLNFI(),
 				statusCB.getSelectedIndex(), typeCB.getSelectedIndex(),
@@ -734,7 +713,7 @@ public class PartnerDialog extends EntityDialog implements EntitySelectionListen
 				contact1TF.getText(), email1TF.getText(), phone1TF.getText(),
 				contact2TF.getText(), email2TF.getText(), phone2TF.getText());
 		
-		//send request to add new partner/organization to the local data base
+		//send request to add new partner to the local data base
 		String response = partnerDB.add(this, newPartner);
 		
 		if(response.startsWith("ADDED_PARTNER"))
@@ -755,7 +734,7 @@ public class PartnerDialog extends EntityDialog implements EntitySelectionListen
 			display(currPartner);
 		}
 		
-		//reset to review mode and display the proper organization
+		//reset to review mode and display the proper partner
 		nav.navSetEnabled(true);
 		entityPanel.setBorder(BorderFactory.createTitledBorder("Partner Information"));
 		entityPanel.setBackground(pBkColor);
