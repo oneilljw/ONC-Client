@@ -25,7 +25,7 @@ public class WishLabelViewer extends JDialog implements DatabaseListener
 	//database references
 	private GlobalVariables gvs;
 	private ONCWishCatalog cat;
-	private Families familyDB;
+	private FamilyDB familyDB;
 	private ChildDB childDB;
 	private ChildWishDB childWishDB;
 	
@@ -42,7 +42,7 @@ public class WishLabelViewer extends JDialog implements DatabaseListener
 		
 		gvs = GlobalVariables.getInstance();
 		cat = ONCWishCatalog.getInstance();
-		familyDB = Families.getInstance();
+		familyDB = FamilyDB.getInstance();
 		
 		childDB = ChildDB.getInstance();
 		if(childDB != null)

@@ -59,10 +59,10 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 	private static final Integer MAXIMUM_ON_NUMBER = 9999;
 	private static final int MAX_LABEL_LINE_LENGTH = 26;
 	
-	private Families fDB;
+	private FamilyDB fDB;
 	private ChildDB cDB;
 	private ChildWishDB cwDB;
-	private ONCOrgs orgs;
+	private PartnerDB orgs;
 	private ONCWishCatalog cat;
 
 	private ArrayList<SortWishObject> stAL;
@@ -94,10 +94,10 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		this.setTitle("Our Neighbor's Child - Wish Management");
 		
 		//set up the data base references
-		fDB = Families.getInstance();
+		fDB = FamilyDB.getInstance();
 		cDB = ChildDB.getInstance();
 		cwDB = ChildWishDB.getInstance();
-		orgs = ONCOrgs.getInstance();
+		orgs = PartnerDB.getInstance();
 		cat = ONCWishCatalog.getInstance();
 		
 		//set up data base listeners
@@ -199,8 +199,8 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		assignCBM = new DefaultComboBoxModel();
 		
 		//take advantage of the fact that partner id's are 7 digits and start with the calendar year
-	    assignCBM.addElement(new Organization(0, "Any", "Any"));
-	    assignCBM.addElement(new Organization(-1, "Unassigned", "Unassigned"));
+	    assignCBM.addElement(new ONCPartner(0, "Any", "Any"));
+	    assignCBM.addElement(new ONCPartner(-1, "Unassigned", "Unassigned"));
 	    assignCB.setModel(assignCBM);
 		assignCB.setPreferredSize(new Dimension(192, 56));
 		assignCB.setBorder(BorderFactory.createTitledBorder("Assigned To"));
@@ -239,8 +239,8 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
         
         changeAssigneeCB = new JComboBox();
         changeAssigneeCBM = new DefaultComboBoxModel();
-	    changeAssigneeCBM.addElement(new Organization(0, "No Change", "No Change"));
-	    changeAssigneeCBM.addElement(new Organization(-1, "None", "None"));
+	    changeAssigneeCBM.addElement(new ONCPartner(0, "No Change", "No Change"));
+	    changeAssigneeCBM.addElement(new ONCPartner(-1, "None", "None"));
         changeAssigneeCB.setModel(changeAssigneeCBM);
         changeAssigneeCB.setPreferredSize(new Dimension(192, 56));
 		changeAssigneeCB.setBorder(BorderFactory.createTitledBorder("Change Assignee To:"));
@@ -403,7 +403,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 			String cwd = cw.getChildWishDetail();
 			int cwi = cw.getChildWishIndicator();
 			WishStatus cws = cw.getChildWishStatus();
-			Organization org = null;
+			ONCPartner org = null;
 			if(cw.getChildWishAssigneeID() > -1)
 				org = orgs.getOrganizationByID(cw.getChildWishAssigneeID());
 			
@@ -422,13 +422,13 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 			
 			//Determine if a change to wish assignee, if so, set new wish assignee in request
 			if(changeAssigneeCB.getSelectedIndex() > 0 &&
-					cw.getChildWishAssigneeID() != ((Organization)changeAssigneeCB.getSelectedItem()).getID())
+					cw.getChildWishAssigneeID() != ((ONCPartner)changeAssigneeCB.getSelectedItem()).getID())
 			{
 				//can only change wish assignees in certain WishState's
 				if(cws == WishStatus.Selected || cws == WishStatus.Assigned ||
 					cws == WishStatus.Delivered || cws == WishStatus.Returned || cws == WishStatus.Missing)
 				{
-					org = ((Organization)changeAssigneeCB.getSelectedItem());
+					org = ((ONCPartner)changeAssigneeCB.getSelectedItem());
 					bNewWishRqrd = true;
 				}
 			}
@@ -524,10 +524,10 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		int currentChangeAssigneeIndex = changeAssigneeCB.getSelectedIndex();
 		
 		if(assignCB.getSelectedIndex() > 1)	//leaves the current selection null if no selection made
-			currentAssigneeID = ((Organization)assignCB.getSelectedItem()).getID();
+			currentAssigneeID = ((ONCPartner)assignCB.getSelectedItem()).getID();
 		
 		if(changeAssigneeCB.getSelectedIndex() > 1)
-			currentChangeAssigneeID = ((Organization)changeAssigneeCB.getSelectedItem()).getID();
+			currentChangeAssigneeID = ((ONCPartner)changeAssigneeCB.getSelectedItem()).getID();
 		
 		assignCB.setSelectedIndex(0);
 		sortAssigneeID = 0;
@@ -537,12 +537,12 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		changeAssigneeCBM.removeAllElements();
 		
 		//take advantage of the fact that partner id's are 7 digits and start with the calendar year
-		assignCBM.addElement(new Organization(0, "Any", "Any"));
-		assignCBM.addElement(new Organization(-1, "Unassigned", "Unassigned"));
-		changeAssigneeCBM.addElement(new Organization(-1, "No Change", "No Change"));
-		changeAssigneeCBM.addElement(new Organization(-1, "None", "None"));
+		assignCBM.addElement(new ONCPartner(0, "Any", "Any"));
+		assignCBM.addElement(new ONCPartner(-1, "Unassigned", "Unassigned"));
+		changeAssigneeCBM.addElement(new ONCPartner(-1, "No Change", "No Change"));
+		changeAssigneeCBM.addElement(new ONCPartner(-1, "None", "None"));
 		
-		for(Organization confOrg :orgs.getConfirmedOrgList(GiftCollection.Ornament))
+		for(ONCPartner confOrg :orgs.getConfirmedOrgList(GiftCollection.Ornament))
 		{
 			assignCBM.addElement(confOrg);
 			changeAssigneeCBM.addElement(confOrg);
@@ -558,7 +558,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		}
 		else if(currentAssigneeIndex > 1)
 		{
-			Organization assigneeOrg = orgs.getOrganizationByID(currentAssigneeID);
+			ONCPartner assigneeOrg = orgs.getOrganizationByID(currentAssigneeID);
 			if(assigneeOrg != null)
 			{
 				assignCB.setSelectedItem(assigneeOrg);
@@ -570,7 +570,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 			changeAssigneeCB.setSelectedIndex(1);
 		else
 		{
-			Organization changeAssigneeOrg = orgs.getOrganizationByID(currentChangeAssigneeID);
+			ONCPartner changeAssigneeOrg = orgs.getOrganizationByID(currentChangeAssigneeID);
 			if(changeAssigneeOrg != null)
 				changeAssigneeCB.setSelectedItem(changeAssigneeOrg);
 		}
@@ -624,7 +624,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 			{
 				int countonpage = sortTable.getSelectedRowCount() - i*RS_ITEMS_PER_PAGE;
 				int count = countonpage > RS_ITEMS_PER_PAGE ? RS_ITEMS_PER_PAGE : countonpage;
-				rsAL.add(new ONCReceivingSheet(((Organization) assignCB.getSelectedItem()).getName(), 
+				rsAL.add(new ONCReceivingSheet(((ONCPartner) assignCB.getSelectedItem()).getName(), 
 											   i*RS_ITEMS_PER_PAGE, count, i+1, totalpages));
 			}
 			
@@ -872,9 +872,9 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 			buildTableList(false);
 		}
 		else if(e.getSource() == assignCB && !bIgnoreCBEvents && 
-				((Organization)assignCB.getSelectedItem()).getID() != sortAssigneeID )
+				((ONCPartner)assignCB.getSelectedItem()).getID() != sortAssigneeID )
 		{						
-			sortAssigneeID = ((Organization)assignCB.getSelectedItem()).getID();
+			sortAssigneeID = ((ONCPartner)assignCB.getSelectedItem()).getID();
 			buildTableList(false);
 		}
 		else if(e.getSource() == printCB)
@@ -1094,7 +1094,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 			int childWishAssigneeID = cw.getChildWishAssigneeID();
 			if(childWishAssigneeID > -1)
 			{
-				Organization org = orgs.getOrganizationByID(childWishAssigneeID);
+				ONCPartner org = orgs.getOrganizationByID(childWishAssigneeID);
 				fireEntitySelected(this, EntityType.PARTNER, org, null);
 			}
 			
@@ -1533,7 +1533,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		@Override
 		public int compare(SortWishObject o1, SortWishObject o2)
 		{
-			ONCOrgs partnerDB = ONCOrgs.getInstance();
+			PartnerDB partnerDB = PartnerDB.getInstance();
 			String part1 = partnerDB.getOrganizationByID(o1.getChildWish().getChildWishAssigneeID()).getName();
 			String part2 = partnerDB.getOrganizationByID(o2.getChildWish().getChildWishAssigneeID()).getName();
 			return part1.compareTo(part2);
@@ -1568,7 +1568,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		String[] indicator = {"", "*", "#"};
 		ONCWish wish = cat.getWishByID(swo.getChildWish().getWishID());
 		String wishName = wish == null ? "None" : wish.getName();
-		Organization partner = orgs.getOrganizationByID(swo.getChildWish().getChildWishAssigneeID());
+		ONCPartner partner = orgs.getOrganizationByID(swo.getChildWish().getChildWishAssigneeID());
 		String partnerName = partner != null ? partner.getName() : "";
 		String ds = new SimpleDateFormat("MM/dd H:mm").format(swo.getChildWish().getChildWishDateChanged().getTime());
 		String[] tablerow = {

@@ -32,7 +32,7 @@ public class ChangeBatchNumberDialog extends InfoDialog implements DatabaseListe
 		this.setAlwaysOnTop(true);
 		
 		//connect to local Family DB
-		Families familyDB = Families.getInstance();
+		FamilyDB familyDB = FamilyDB.getInstance();
 		if(familyDB != null)
 			familyDB.addDatabaseListener(this);
 		
@@ -107,7 +107,7 @@ public class ChangeBatchNumberDialog extends InfoDialog implements DatabaseListe
 			Object selectedValue = confirmOP.getValue();
 		
 			//if the client user confirmed, change the Batch Number
-			Families familyDB = Families.getInstance();
+			FamilyDB familyDB = FamilyDB.getInstance();
 			if(selectedValue != null && selectedValue.toString().equals(options[1]))
 			{
 				ONCFamily reqFamily = new ONCFamily(f);	//make a copy of current family

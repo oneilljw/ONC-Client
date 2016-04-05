@@ -119,7 +119,7 @@ public class ViewONCDatabaseDialog extends JDialog
 	
 	void buildDatabase()
 	{	
-		Families fDB = Families.getInstance();
+		FamilyDB fDB = FamilyDB.getInstance();
 		
 		bChangingTable = true;	//don't process table messages while being changed
 		

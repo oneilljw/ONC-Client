@@ -62,7 +62,7 @@ public class AngelAutoCallDialog extends ONCTableDialog implements ActionListene
 	private JButton btnImport, btnExport, btnPrint, btnProcess, btnClear;
 	private JLabel lblNumOfCalls;
 	
-	private Families familyDB;
+	private FamilyDB familyDB;
 	private ArrayList<AngelCallItem> stAL;
 	
 	private boolean bCallsProcessed;	//indicates if delivery status updated as a result of calls in table
@@ -82,7 +82,7 @@ public class AngelAutoCallDialog extends ONCTableDialog implements ActionListene
 		super(pf);
 		this.setTitle("ONC Automated Call Results");
 		
-		familyDB = Families.getInstance();
+		familyDB = FamilyDB.getInstance();
 		stAL = new ArrayList<AngelCallItem>();
 		bCallsProcessed = false;
 		

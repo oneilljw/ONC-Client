@@ -21,7 +21,7 @@ import com.google.gson.reflect.TypeToken;
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
 
-public class ONCOrgs extends ONCSearchableDatabase
+public class PartnerDB extends ONCSearchableDatabase
 {
 	/**
 	 * This method provides an interface to the organizations managed by the ONC application.
@@ -38,37 +38,37 @@ public class ONCOrgs extends ONCSearchableDatabase
 //	private static final int ORG_TYPE_COAT = 5;
 	private static final int MAX_ORGANIZATION_ID_LENGTH = 10;
 	
-	private static ONCOrgs instance = null;
-	private ArrayList<Organization> orgsAL;	//The list of Organizations
+	private static PartnerDB instance = null;
+	private ArrayList<ONCPartner> orgsAL;	//The list of Organizations
 //	private ArrayList<String> cOrgs;	//The list of confirmed Organizations
 	private GlobalVariables orgGVs;
 	
-	private ONCOrgs()
+	private PartnerDB()
 	{
 		super(DB_TYPE);
 		//Instantiate the organization and confirmed organization lists
-		orgsAL = new ArrayList<Organization>();
+		orgsAL = new ArrayList<ONCPartner>();
 //		cOrgs = new ArrayList<String>();
 		orgGVs = GlobalVariables.getInstance();
 	}
 	
-	public static ONCOrgs getInstance()
+	public static PartnerDB getInstance()
 	{
 		if(instance == null)
-			instance = new ONCOrgs();
+			instance = new PartnerDB();
 		
 		return instance;
 	}
 
 	public void readOrgALObject(ObjectInputStream ois)
 	{
-		ArrayList<Organization> orgDB = new ArrayList<Organization>();
+		ArrayList<ONCPartner> orgDB = new ArrayList<ONCPartner>();
 	
 		//Read the ONC Family data base and ONC region ranges
 		try {
-			orgDB = (ArrayList<Organization>) ois.readObject();
+			orgDB = (ArrayList<ONCPartner>) ois.readObject();
 			orgsAL.clear();
-			for(Organization o: orgDB)
+			for(ONCPartner o: orgDB)
 			{
 				orgsAL.add(o);
 //				if(o.getStatus() == STATUS_CONFIRMED)			
@@ -112,7 +112,7 @@ public class ONCOrgs extends ONCSearchableDatabase
 	 * and leaves the organization status confirmed. After processing the request the method returns the
 	 * organizations status
 	 *********************************************************************************************************/
-	int requestOrgStatusChange(Organization o, int newstatus)
+	int requestOrgStatusChange(ONCPartner o, int newstatus)
 	{
 		if(o.getStatus() != STATUS_CONFIRMED && newstatus == STATUS_CONFIRMED)
 		{
@@ -152,11 +152,11 @@ public class ONCOrgs extends ONCSearchableDatabase
 	}
 	
 	//implementation of abstract classes
-	List<Organization> getList() {return orgsAL; }
+	List<ONCPartner> getList() {return orgsAL; }
 	
-	Organization getObjectAtIndex(int on) { return orgsAL.get(on); }
+	ONCPartner getObjectAtIndex(int on) { return orgsAL.get(on); }
 	
-	Organization getOrganizationByID(int id )
+	ONCPartner getOrganizationByID(int id )
 	{
 		int index = 0;
 		while(index < orgsAL.size() && orgsAL.get(index).getID() != id)
@@ -190,7 +190,7 @@ public class ONCOrgs extends ONCSearchableDatabase
     	{
 //			for(int i=0; i<this.getNumberOfOrganizations(); i++)
     		searchType = "Partner Name, Email or Contacts";
-			for(Organization o:orgsAL)
+			for(ONCPartner o:orgsAL)
 			{
 				if(o.getName().toLowerCase().contains(data.toLowerCase()) ||
 					o.getContact_email().toLowerCase().contains(data.toLowerCase()) ||
@@ -217,7 +217,7 @@ public class ONCOrgs extends ONCSearchableDatabase
 	int[] getOrnamentAndWishCounts()
 	{
 		int orgcount = 0, wishcount = 0;
-		for(Organization org:orgsAL)
+		for(ONCPartner org:orgsAL)
 		{		
 			if(org.getStatus() == STATUS_CONFIRMED) 
 			{ 
@@ -253,15 +253,15 @@ public class ONCOrgs extends ONCSearchableDatabase
 	 * The top half of the list are confirmed businesses, churches and schools, sorted alphabetically.
 	 * The bottom half of the list are all other confirmed organizations sorted alphabetically
 	 *****************************************************************************************/
-	List<Organization> getConfirmedOrgList(GiftCollection collectionType)
+	List<ONCPartner> getConfirmedOrgList(GiftCollection collectionType)
 	{
 		//Create two lists, the list to be returned and a temporary list
-		ArrayList<Organization> confOrgList = new ArrayList<Organization>();
-		ArrayList<Organization> confOrgOtherList = new ArrayList<Organization>();
+		ArrayList<ONCPartner> confOrgList = new ArrayList<ONCPartner>();
+		ArrayList<ONCPartner> confOrgOtherList = new ArrayList<ONCPartner>();
 		
 		//Add the confirmed business, church and schools to the returned list and add all other 
 		//confirmed organizations to the temporary list
-		for(Organization o: orgsAL)
+		for(ONCPartner o: orgsAL)
 		{
 			if(o.getStatus() == STATUS_CONFIRMED && o.getGiftCollectionType() == collectionType && 
 				o.getType() < ORG_TYPE_CLOTHING)
@@ -276,7 +276,7 @@ public class ONCOrgs extends ONCSearchableDatabase
 		Collections.sort(confOrgOtherList, nameComparator);	//Sort alphabetically
 		
 		//Append the all other temporary confirmed list to the bottom of the confirmed list
-		for(Organization otherOrg:confOrgOtherList)
+		for(ONCPartner otherOrg:confOrgOtherList)
 			confOrgList.add(otherOrg);
 		
 		//return the integrated list
@@ -478,17 +478,17 @@ public class ONCOrgs extends ONCSearchableDatabase
 */
 	void resetAllOrgsStatus()
 	{
-		for(Organization o:orgsAL)
+		for(ONCPartner o:orgsAL)
 			o.setStatus(STATUS_NO_ACTION_YET);
 //		cOrgs.clear();	
 	}
 	
 	//Overloaded sortDB methods allow user to specify a data base to be sorted
 	//or use the current data base
-	boolean sortDB(ArrayList<Organization> oal, String dbField) { return sortList(oal, dbField); }
+	boolean sortDB(ArrayList<ONCPartner> oal, String dbField) { return sortList(oal, dbField); }
 	boolean sortDB(String dbField) { return sortList(orgsAL, dbField); }
 	
-	private boolean sortList(ArrayList<Organization> oal, String dbField)
+	private boolean sortList(ArrayList<ONCPartner> oal, String dbField)
 	{
 		boolean bSortOccurred = true;
 		
@@ -527,7 +527,7 @@ public class ONCOrgs extends ONCSearchableDatabase
 		if(serverIF != null && serverIF.isConnected())
 		{
 			Gson gson = new Gson();
-			Type listtype = new TypeToken<ArrayList<Organization>>(){}.getType();
+			Type listtype = new TypeToken<ArrayList<ONCPartner>>(){}.getType();
 			
 			response = serverIF.sendRequest("GET<partners>");
 			orgsAL = gson.fromJson(response, listtype);	
@@ -585,7 +585,7 @@ public class ONCOrgs extends ONCSearchableDatabase
 	    				orgsAL.clear();
 	    				while ((nextLine = reader.readNext()) != null)	// nextLine[] is an array of values from the line
 	    				{	
-	    					Organization newOrg = new Organization(nextLine);
+	    					ONCPartner newOrg = new ONCPartner(nextLine);
 	    					orgsAL.add(newOrg);
 	    				
 //	    					if(newOrg.getStatus() == STATUS_CONFIRMED)
@@ -648,7 +648,7 @@ public class ONCOrgs extends ONCSearchableDatabase
 	    		CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
 	    	    writer.writeNext(header);
 	    	    
-	    	    for(Organization o: orgsAL)
+	    	    for(ONCPartner o: orgsAL)
 	    	    	writer.writeNext(o.getExportRow());	//Get family data
 	    	 
 	    	    writer.close();
@@ -727,7 +727,7 @@ public class ONCOrgs extends ONCSearchableDatabase
 		String response = "";
 		
 		response = serverIF.sendRequest("POST<add_partner>" + 
-											gson.toJson(entity, Organization.class));
+											gson.toJson(entity, ONCPartner.class));
 		
 		if(response.startsWith("ADDED_PARTNER"))
 			processAddedPartner(source, response.substring(13));
@@ -739,7 +739,7 @@ public class ONCOrgs extends ONCSearchableDatabase
 	{
 		//Store added organization in local data base
 		Gson gson = new Gson();
-		Organization addedOrg = gson.fromJson(json, Organization.class);
+		ONCPartner addedOrg = gson.fromJson(json, ONCPartner.class);
 		orgsAL.add(addedOrg);
 		
 		//Notify local user IFs that an organization/partner was added
@@ -762,7 +762,7 @@ public class ONCOrgs extends ONCSearchableDatabase
 		String response = "";
 		
 		response = serverIF.sendRequest("POST<delete_partner>" + 
-											gson.toJson(entity, Organization.class));
+											gson.toJson(entity, ONCPartner.class));
 		
 		if(response.startsWith("DELETED_PARTNER"))
 			processDeletedPartner(source, response.substring(15));
@@ -774,7 +774,7 @@ public class ONCOrgs extends ONCSearchableDatabase
 	{
 		//remove deleted organization in local data base
 		Gson gson = new Gson();
-		Organization deletedOrg = gson.fromJson(json, Organization.class);
+		ONCPartner deletedOrg = gson.fromJson(json, ONCPartner.class);
 		
 		int index=0;
 		while(index < orgsAL.size() && orgsAL.get(index).getID() != deletedOrg.getID())
@@ -801,7 +801,7 @@ public class ONCOrgs extends ONCSearchableDatabase
 	void processUpdatedPartner(Object source, String json)
 	{
 		Gson gson = new Gson();
-		Organization updatedOrg = gson.fromJson(json, Organization.class);
+		ONCPartner updatedOrg = gson.fromJson(json, ONCPartner.class);
 		
 		//store updated organization in the Organization data base
 		int index = 0;
@@ -810,7 +810,7 @@ public class ONCOrgs extends ONCSearchableDatabase
 		
 		if(index < orgsAL.size())
 		{
-			Organization replacedOrg = orgsAL.get(index);	//use replaced org for change assessment
+			ONCPartner replacedOrg = orgsAL.get(index);	//use replaced org for change assessment
 			orgsAL.set(index,  updatedOrg);
 			
 			//Notify local user IFs that a change occurred
@@ -864,7 +864,7 @@ public class ONCOrgs extends ONCSearchableDatabase
 	{
 		Gson gson = new Gson();
 		String response = "";
-		response = serverIF.sendRequest("POST<update_partner>" + gson.toJson(entity, Organization.class));
+		response = serverIF.sendRequest("POST<update_partner>" + gson.toJson(entity, ONCPartner.class));
 		
 		if(response != null && response.startsWith("UPDATED_PARTNER"))
 		{
@@ -917,58 +917,58 @@ public class ONCOrgs extends ONCSearchableDatabase
 		}	
 	}
 	
-	private class OrgNameComparator implements Comparator<Organization>
+	private class OrgNameComparator implements Comparator<ONCPartner>
 	{
 		@Override
-		public int compare(Organization o1, Organization o2)
+		public int compare(ONCPartner o1, ONCPartner o2)
 		{			
 			return o1.getName().compareTo(o2.getName());
 		}
 	}
-	private class OrgStatusComparator implements Comparator<Organization>
+	private class OrgStatusComparator implements Comparator<ONCPartner>
 	{
 		@Override
-		public int compare(Organization o1, Organization o2)
+		public int compare(ONCPartner o1, ONCPartner o2)
 		{
 			Integer s1 = o1.getStatus();
 			Integer s2 = o2.getStatus();
 			return s1.compareTo(s2);	
 		}
 	}
-	private class OrgTypeComparator implements Comparator<Organization>
+	private class OrgTypeComparator implements Comparator<ONCPartner>
 	{
 		@Override
-		public int compare(Organization o1, Organization o2)
+		public int compare(ONCPartner o1, ONCPartner o2)
 		{
 			Integer t1 = o1.getType();
 			Integer t2 = o2.getType();
 			return t1.compareTo(t2);
 		}
 	}
-	private class OrgOrnReqComparator implements Comparator<Organization>
+	private class OrgOrnReqComparator implements Comparator<ONCPartner>
 	{
 		@Override
-		public int compare(Organization o1, Organization o2)
+		public int compare(ONCPartner o1, ONCPartner o2)
 		{			
 			Integer or1 = o1.getNumberOfOrnamentsRequested();
 			Integer or2 = o2.getNumberOfOrnamentsRequested();
 			return or1.compareTo(or2);
 		}
 	}
-	private class OrgOrnAssignedComparator implements Comparator<Organization>
+	private class OrgOrnAssignedComparator implements Comparator<ONCPartner>
 	{
 		@Override
-		public int compare(Organization o1, Organization o2)
+		public int compare(ONCPartner o1, ONCPartner o2)
 		{
 			Integer oa1 = o1.getNumberOfOrnamentsAssigned();
 			Integer oa2 = o2.getNumberOfOrnamentsAssigned();
 			return oa1.compareTo(oa2);
 		}
 	}
-	private class OrgSpecialNotesComparator implements Comparator<Organization>
+	private class OrgSpecialNotesComparator implements Comparator<ONCPartner>
 	{
 		@Override
-		public int compare(Organization o1, Organization o2)
+		public int compare(ONCPartner o1, ONCPartner o2)
 		{
 			if(o1.getSpecialNotes().equals("") || o2.getSpecialNotes().equals(""))
 				return 10;			
@@ -976,36 +976,36 @@ public class ONCOrgs extends ONCSearchableDatabase
 				return o1.getSpecialNotes().compareTo(o2.getSpecialNotes());
 		}
 	}
-	private class OrgDateChangedComparator implements Comparator<Organization>
+	private class OrgDateChangedComparator implements Comparator<ONCPartner>
 	{
 		@Override
-		public int compare(Organization o1, Organization o2)
+		public int compare(ONCPartner o1, ONCPartner o2)
 		{			
 			return o1.getDateChanged().compareTo(o2.getDateChanged());
 		}
 	}
-	private class OrgChangedByComparator implements Comparator<Organization>
+	private class OrgChangedByComparator implements Comparator<ONCPartner>
 	{
 		@Override
-		public int compare(Organization o1, Organization o2)
+		public int compare(ONCPartner o1, ONCPartner o2)
 		{			
 			return o1.getStoplightChangedBy().compareTo(o2.getStoplightChangedBy());
 		}
 	}
-	private class OrgRegionComparator implements Comparator<Organization>
+	private class OrgRegionComparator implements Comparator<ONCPartner>
 	{
 		@Override
-		public int compare(Organization o1, Organization o2)
+		public int compare(ONCPartner o1, ONCPartner o2)
 		{	
 			Integer r1 = o1.getRegion();
 			Integer r2 = o2.getRegion();
 			return r1.compareTo(r2);
 		}
 	}
-	private class OrgStoplightComparator implements Comparator<Organization>
+	private class OrgStoplightComparator implements Comparator<ONCPartner>
 	{
 		@Override
-		public int compare(Organization o1, Organization o2)
+		public int compare(ONCPartner o1, ONCPartner o2)
 		{	
 			Integer slp1 = o1.getStoplightPos();
 			Integer slp2 = o2.getStoplightPos();

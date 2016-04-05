@@ -26,16 +26,16 @@ import javax.swing.text.StyleConstants;
 
 import com.google.gson.Gson;
 
-public class OrganizationDialog extends EntityDialog implements EntitySelectionListener
+public class PartnerDialog extends EntityDialog implements EntitySelectionListener
 {
 	/***********************************************************************************************
-	 * Implements a dialog to manage ONC Organizations. This dialog looks like the main screen and 
-	 * allows the user to scroll thru the organization data base, search the data base for
-	 * organizations by ID, name or contact email address, edit the various fields that are
-	 * contained in an organization object, and add and delete organizations from the data base.
+	 * Implements a dialog to manage ONC Partner organizations. This dialog looks like the main
+	 * screen. It allows the user to scroll thru the partner data base, search the data base 
+	 * for partners by ID, name or contact email address, edit the various fields that are
+	 * contained in a partner object, and add and delete partners from the data base.
 	 * 
-	 * The organization data base is implemented by the ONCOrgs class. The data base is an array list
-	 * of Organization objects. 
+	 * The partner data base is implemented by the PartnerDB class. The data base is an array list
+	 * of ONCPartner objects. 
 	 *********************************************************************************************/
 	private static final long serialVersionUID = 1L;
 	private static final int	CONFIRMED_STATUS_INDEX = 5;
@@ -52,23 +52,23 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
 //  private JTextField deliverToTF;
     private JTextField contact1TF, email1TF, phone1TF;
     private JTextField contact2TF, email2TF, phone2TF;
-    private ONCOrgs odOrgs;
-    private int orgcount = 0, wishcount = 0;	//Holds the status panel overall counts
+    private PartnerDB partnerDB;
+    private int partnerCount = 0, wishCount = 0;	//Holds the status panel overall counts
     
-    private Organization currOrg;	//reference to org being displayed
+    private ONCPartner currPartner;	//reference to ONCPartner obect being displayed
 
-	OrganizationDialog(JFrame parentFrame)
+	PartnerDialog(JFrame parentFrame)
 	{
 		super(parentFrame);
 		this.setTitle("Our Neighbor's Child - Gift Partner Information");
 		
 		regions = ONCRegions.getInstance();
-		odOrgs = ONCOrgs.getInstance();
+		partnerDB = PartnerDB.getInstance();
 		
 		//register to listen for partner, global variable, child and  and childwish
 		//data changed events
-		if(odOrgs != null)
-			odOrgs.addDatabaseListener(this);
+		if(partnerDB != null)
+			partnerDB.addDatabaseListener(this);
 		
 		if(gvs != null)
 			gvs.addDatabaseListener(this);
@@ -86,13 +86,12 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
         odContentPane.setLayout(new BoxLayout(odContentPane, BoxLayout.PAGE_AXIS));
         
         //set up the navigation panel at the top of dialog
-        nav = new ONCNavPanel(parentFrame, odOrgs);
+        nav = new ONCNavPanel(parentFrame, partnerDB);
         nav.setDefaultMssg("Our Neighbor's Child Gift Partners");
         nav.setCount1("Confirmed: " + Integer.toString(0));
         nav.setCount2("Assigned: " + Integer.toString(0));
         nav.setNextButtonText("Next Partner");
         nav.setPreviousButtonText("Previous Partner");
-//      nav.addEntitySelectionListener(this);
 
         //set up the edit organization panel
         entityPanel.setBorder(BorderFactory.createTitledBorder("Gift Partner Information"));
@@ -418,9 +417,9 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
 	
 	void display(ONCEntity partner)	//displays currOrg
 	{
-		if(odOrgs.size() <=0 )
+		if(partnerDB.size() <=0 )
 		{
-			currOrg = null;
+			currPartner = null;
 			clear();
 			lblOrgID.setText("No Orgs Yet");	//If no organizations, display this message
 			nav.btnNextSetEnabled(false);
@@ -429,24 +428,24 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
 		else
 		{
 			//Determine what to display based on currDriver and driver
-			if(currOrg == null && partner == null)
-				currOrg = odOrgs.getObjectAtIndex(0);
-			else if(partner != null  && currOrg != partner)
-				currOrg = (Organization) partner;
+			if(currPartner == null && partner == null)
+				currPartner = partnerDB.getObjectAtIndex(0);
+			else if(partner != null  && currPartner != partner)
+				currPartner = (ONCPartner) partner;
 			
 			bIgnoreEvents = true;
 			
 //			currOrg = odOrgs.getObjectAtIndex(nav.getIndex());
 		
-			lblOrgID.setText(Long.toString(currOrg.getID()));
-			nameTF.setText(currOrg.getName());
+			lblOrgID.setText(Long.toString(currPartner.getID()));
+			nameTF.setText(currPartner.getName());
 			nameTF.setCaretPosition(0);
-			statusCB.setSelectedIndex(currOrg.getStatus());
-			typeCB.setSelectedIndex(currOrg.getType());
-			collTypeCB.setSelectedItem(currOrg.getGiftCollectionType());
+			statusCB.setSelectedIndex(currPartner.getStatus());
+			typeCB.setSelectedIndex(currPartner.getType());
+			collTypeCB.setSelectedItem(currPartner.getGiftCollectionType());
 			
 			//Can't change stats or collection type of organization with ornaments assigned
-			if(currOrg.getNumberOfOrnamentsAssigned() == 0)
+			if(currPartner.getNumberOfOrnamentsAssigned() == 0)
 			{
 				statusCB.setEnabled(true);
 				collTypeCB.setEnabled(true);
@@ -458,55 +457,55 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
 			}
 			
 			//CANNOT DELETE A ORGANIZATION THAT IS CONFIRMED
-			if(currOrg.getStatus() != CONFIRMED_STATUS_INDEX)
+			if(currPartner.getStatus() != CONFIRMED_STATUS_INDEX)
 				btnDelete.setEnabled(true);	
 			else
 				btnDelete.setEnabled(false);
 			
 //			cyAssignedTF.setText(currOrg.getOrnamentDelivery());
-			cyReqTF.setText(Integer.toString(currOrg.getNumberOfOrnamentsRequested()));
-			lblCYAssigned.setText(Integer.toString(currOrg.getNumberOfOrnamentsAssigned()));
-			lblCYRec.setText(Integer.toString(currOrg.getNumberOfOrnamentsReceived()));
-			otherTP.setText(currOrg.getOther());
+			cyReqTF.setText(Integer.toString(currPartner.getNumberOfOrnamentsRequested()));
+			lblCYAssigned.setText(Integer.toString(currPartner.getNumberOfOrnamentsAssigned()));
+			lblCYRec.setText(Integer.toString(currPartner.getNumberOfOrnamentsReceived()));
+			otherTP.setText(currPartner.getOther());
 			otherTP.setCaretPosition(0);
-			specialNotesTP.setText(currOrg.getSpecialNotes());
+			specialNotesTP.setText(currPartner.getSpecialNotes());
 			specialNotesTP.setCaretPosition(0);
-			streetnumTF.setText(Integer.toString(currOrg.getStreetnum()));
-			streetnameTF.setText(currOrg.getStreetname());
-			unitTF.setText(currOrg.getUnit());
-			cityTF.setText(currOrg.getCity());
-			zipTF.setText(currOrg.getZipcode());
-			phoneTF.setText(currOrg.getPhone());
+			streetnumTF.setText(Integer.toString(currPartner.getStreetnum()));
+			streetnameTF.setText(currPartner.getStreetname());
+			unitTF.setText(currPartner.getUnit());
+			cityTF.setText(currPartner.getCity());
+			zipTF.setText(currPartner.getZipcode());
+			phoneTF.setText(currPartner.getPhone());
 			phoneTF.setCaretPosition(0);
-			lblRegion.setText(regions.getRegionID(currOrg.getRegion()));
-			deliverToTP.setText(currOrg.getDeliverTo());
+			lblRegion.setText(regions.getRegionID(currPartner.getRegion()));
+			deliverToTP.setText(currPartner.getDeliverTo());
 			deliverToTP.setCaretPosition(0);
 			SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy");
-			lblDateChanged.setText(sdf.format(currOrg.getDateChanged()));
-			lblChangedBy.setText(currOrg.getChangedBy());
-			contact1TF.setText(currOrg.getContact());
+			lblDateChanged.setText(sdf.format(currPartner.getDateChanged()));
+			lblChangedBy.setText(currPartner.getChangedBy());
+			contact1TF.setText(currPartner.getContact());
 			contact1TF.setCaretPosition(0);
-			email1TF.setText(currOrg.getContact_email());
+			email1TF.setText(currPartner.getContact_email());
 			email1TF.setCaretPosition(0);
-			phone1TF.setText(currOrg.getContact_phone());
+			phone1TF.setText(currPartner.getContact_phone());
 			phone1TF.setCaretPosition(0);
-			contact2TF.setText(currOrg.getContact2());
+			contact2TF.setText(currPartner.getContact2());
 			contact2TF.setCaretPosition(0);
-			email2TF.setText(currOrg.getContact2_email());
+			email2TF.setText(currPartner.getContact2_email());
 			email2TF.setCaretPosition(0);
-			phone2TF.setText(currOrg.getContact2_phone());
+			phone2TF.setText(currPartner.getContact2_phone());
 			phone1TF.setCaretPosition(0);
-			lblPYReq.setText(Integer.toString(currOrg.getPriorYearRequested()));
-			lblPYAssigned.setText(Integer.toString(currOrg.getPriorYearAssigned()));
-			lblPYRec.setText(Integer.toString(currOrg.getPriorYearReceived()));
+			lblPYReq.setText(Integer.toString(currPartner.getPriorYearRequested()));
+			lblPYAssigned.setText(Integer.toString(currPartner.getPriorYearAssigned()));
+			lblPYRec.setText(Integer.toString(currPartner.getPriorYearReceived()));
 		
-			int[] counts = odOrgs.getOrnamentAndWishCounts();
-			orgcount = counts[0];
-			wishcount = counts[1];
-			nav.setCount1("Confirmed: " + Integer.toString(orgcount));
-			nav.setCount2("Assigned: " + Integer.toString(wishcount));
+			int[] counts = partnerDB.getOrnamentAndWishCounts();
+			partnerCount = counts[0];
+			wishCount = counts[1];
+			nav.setCount1("Confirmed: " + Integer.toString(partnerCount));
+			nav.setCount2("Assigned: " + Integer.toString(wishCount));
 			
-			nav.setStoplightEntity(currOrg);
+			nav.setStoplightEntity(currPartner);
 			nav.btnNextSetEnabled(true);
 			nav.btnPreviousSetEnabled(true);
 			
@@ -517,10 +516,10 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
 	void update()
 	{
 		//Check to see if user has changed any field, if so, save it
-		Organization reqOrg;
+		ONCPartner reqPartner;
 		
-		if(currOrg != null)
-			reqOrg = new Organization(currOrg);	//make a copy for update request
+		if(currPartner != null)
+			reqPartner = new ONCPartner(currPartner);	//make a copy for update request
 		else
 		{
 			//display an error message that update request failed
@@ -533,87 +532,87 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
 		int n;
 		boolean bCD = false; //used to indicate a change has been detected
 		
-		if(!nameTF.getText().equals(reqOrg.getName())) { reqOrg.setName(nameTF.getText()); bCD = true; }
-		if(statusCB.getSelectedIndex() !=reqOrg.getStatus())
+		if(!nameTF.getText().equals(reqPartner.getName())) { reqPartner.setName(nameTF.getText()); bCD = true; }
+		if(statusCB.getSelectedIndex() !=reqPartner.getStatus())
 		{
 			//Can only change status if not confirmed or if confirmed and no ornaments assigned
-			if(reqOrg.getStatus() != CONFIRMED_STATUS_INDEX || reqOrg.getNumberOfOrnamentsAssigned() == 0)
+			if(reqPartner.getStatus() != CONFIRMED_STATUS_INDEX || reqPartner.getNumberOfOrnamentsAssigned() == 0)
 			{
-				reqOrg.setStatus(statusCB.getSelectedIndex());
+				reqPartner.setStatus(statusCB.getSelectedIndex());
 				bCD = true;
 			}
 		}
-		if(typeCB.getSelectedIndex() != reqOrg.getType())
+		if(typeCB.getSelectedIndex() != reqPartner.getType())
 		{
 			//The organization type has changed, store the new type and update the 
 			//confirmed organization list since changes between gift organizations 
 			//and clothing and coat donors are displayed differently
 			//in the confirmed organization list. 
-			reqOrg.setType(typeCB.getSelectedIndex());
+			reqPartner.setType(typeCB.getSelectedIndex());
 //			odOrgs.structureConfirmedOrgsList();
 			bCD = true;
 		}
-		if(!collTypeCB.getSelectedItem().equals(reqOrg.getGiftCollectionType()))
+		if(!collTypeCB.getSelectedItem().equals(reqPartner.getGiftCollectionType()))
 		{
 			//The organization collection type has changed, store the new type and update the 
 			//confirmed organization list since changes between general and ornament affect 
 			//the organization selection lists in other ui's
-			reqOrg.setGiftCollectionType((GiftCollection) collTypeCB.getSelectedItem());
+			reqPartner.setGiftCollectionType((GiftCollection) collTypeCB.getSelectedItem());
 			bCD = true;
 		}
 //		if(!cyAssignedTF.getText().equals(reqOrg.getOrnamentDelivery())) { reqOrg.setOrnamentDelivery(cyAssignedTF.getText()); bCD = true; }
 		
 		if(cyReqTF.getText().isEmpty())
-			reqOrg.setNumberOfOrnamentsRequested(0);
+			reqPartner.setNumberOfOrnamentsRequested(0);
 		else if((n=Integer.parseInt(cyReqTF.getText().trim().replaceAll(",", ""))) != 
-					reqOrg.getNumberOfOrnamentsRequested())
+					reqPartner.getNumberOfOrnamentsRequested())
 		{
-			reqOrg.setNumberOfOrnamentsRequested(n);
+			reqPartner.setNumberOfOrnamentsRequested(n);
 			bCD = true;
 		}
 		
-		if(!otherTP.getText().equals(reqOrg.getOther())) {reqOrg.setOther(otherTP.getText()); bCD = true; }
-		if(!specialNotesTP.getText().equals(reqOrg.getSpecialNotes())) { reqOrg.setSpecialNotes(specialNotesTP.getText()); bCD = true; }
+		if(!otherTP.getText().equals(reqPartner.getOther())) {reqPartner.setOther(otherTP.getText()); bCD = true; }
+		if(!specialNotesTP.getText().equals(reqPartner.getSpecialNotes())) { reqPartner.setSpecialNotes(specialNotesTP.getText()); bCD = true; }
 		
 		if(streetnumTF.getText().isEmpty())
 		{
-			reqOrg.setStreetnum(0);
+			reqPartner.setStreetnum(0);
 			bCD = true;
 		}
-		else if((n=Integer.parseInt(streetnumTF.getText().trim())) != reqOrg.getStreetnum())
+		else if((n=Integer.parseInt(streetnumTF.getText().trim())) != reqPartner.getStreetnum())
 		{
-			reqOrg.setStreetnum(n);
+			reqPartner.setStreetnum(n);
 			bCD = true;
 		}
 		
-		if(!streetnameTF.getText().equals(reqOrg.getStreetname()))
+		if(!streetnameTF.getText().equals(reqPartner.getStreetname()))
 		{
-			reqOrg.setStreetname(streetnameTF.getText());
+			reqPartner.setStreetname(streetnameTF.getText());
 			bCD = true;
 		}
-		if(!unitTF.getText().equals(reqOrg.getUnit())) { reqOrg.setUnit(unitTF.getText()); bCD = true; }
-		if(!cityTF.getText().equals(reqOrg.getCity())) { reqOrg.setCity(cityTF.getText()); bCD = true; }
-		if(!zipTF.getText().equals(reqOrg.getZipcode())) { reqOrg.setZipcode(zipTF.getText()); bCD = true; }
-		if(!phoneTF.getText().equals(reqOrg.getPhone())) { reqOrg.setPhone(phoneTF.getText()); bCD = true; }
-		if(!deliverToTP.getText().equals(reqOrg.getDeliverTo())) { reqOrg.setDeliverTo(deliverToTP.getText()); bCD = true; }
-		if(!contact1TF.getText().equals(reqOrg.getContact())) { reqOrg.setContact(contact1TF.getText()); bCD = true; }
-		if(!email1TF.getText().equals(reqOrg.getContact_email())) { reqOrg.setContact_email(email1TF.getText()); bCD = true; }
-		if(!phone1TF.getText().equals(reqOrg.getContact_phone())) { reqOrg.setContact_phone(phone1TF.getText()); bCD = true; }
-		if(!contact2TF.getText().equals(reqOrg.getContact2())) { reqOrg.setContact2(contact2TF.getText()); bCD = true; }
-		if(!email2TF.getText().equals(reqOrg.getContact2_email())) { reqOrg.setContact2_email(email2TF.getText()); bCD = true; }
-		if(!phone2TF.getText().equals(reqOrg.getContact2_phone())) { reqOrg.setContact2_phone(phone2TF.getText()); bCD = true; }
+		if(!unitTF.getText().equals(reqPartner.getUnit())) { reqPartner.setUnit(unitTF.getText()); bCD = true; }
+		if(!cityTF.getText().equals(reqPartner.getCity())) { reqPartner.setCity(cityTF.getText()); bCD = true; }
+		if(!zipTF.getText().equals(reqPartner.getZipcode())) { reqPartner.setZipcode(zipTF.getText()); bCD = true; }
+		if(!phoneTF.getText().equals(reqPartner.getPhone())) { reqPartner.setPhone(phoneTF.getText()); bCD = true; }
+		if(!deliverToTP.getText().equals(reqPartner.getDeliverTo())) { reqPartner.setDeliverTo(deliverToTP.getText()); bCD = true; }
+		if(!contact1TF.getText().equals(reqPartner.getContact())) { reqPartner.setContact(contact1TF.getText()); bCD = true; }
+		if(!email1TF.getText().equals(reqPartner.getContact_email())) { reqPartner.setContact_email(email1TF.getText()); bCD = true; }
+		if(!phone1TF.getText().equals(reqPartner.getContact_phone())) { reqPartner.setContact_phone(phone1TF.getText()); bCD = true; }
+		if(!contact2TF.getText().equals(reqPartner.getContact2())) { reqPartner.setContact2(contact2TF.getText()); bCD = true; }
+		if(!email2TF.getText().equals(reqPartner.getContact2_email())) { reqPartner.setContact2_email(email2TF.getText()); bCD = true; }
+		if(!phone2TF.getText().equals(reqPartner.getContact2_phone())) { reqPartner.setContact2_phone(phone2TF.getText()); bCD = true; }
 		
 		if(bCD)	//If an update to organization data (not stop light data) was detected
 		{
-			reqOrg.setDateChanged(gvs.getTodaysDate());
-			reqOrg.setChangedBy(GlobalVariables.getUserLNFI());
+			reqPartner.setDateChanged(gvs.getTodaysDate());
+			reqPartner.setChangedBy(GlobalVariables.getUserLNFI());
 //			reqOrg.setStoplightChangedBy(gvs.getUserLNFI());
 			
-			String response = odOrgs.update(this, reqOrg);	//notify the database of the change
+			String response = partnerDB.update(this, reqPartner);	//notify the database of the change
 			
 			if(response.startsWith("UPDATED_PARTNER"))
 			{
-				display(reqOrg);
+				display(reqPartner);
 			}
 			else
 			{
@@ -621,7 +620,7 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
 				JOptionPane.showMessageDialog(this, "ONC Server denied Partner Update," +
 						"try again later","Partner Update Failed",  
 						JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
-				display(currOrg);
+				display(currPartner);
 			}
 					
 			bCD = false;
@@ -689,11 +688,11 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
 	
 	void onDelete()
 	{
-		Organization delOrg = odOrgs.getObjectAtIndex(nav.getIndex());
+		ONCPartner delPartner = partnerDB.getObjectAtIndex(nav.getIndex());
 		
 		//Confirm with the user that the deletion is really intended
 		String confirmMssg = String.format("Are you sure you want to delete %s from the data base?", 
-											delOrg.getName());
+											delPartner.getName());
 	
 		Object[] options= {"Cancel", "Delete"};
 		JOptionPane confirmOP = new JOptionPane(confirmMssg, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION,
@@ -705,18 +704,18 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
 		if(selectedValue != null && selectedValue.toString().equals("Delete"))
 		{
 			//send request to data base
-			String response = odOrgs.delete(this, delOrg);
+			String response = partnerDB.delete(this, delPartner);
 			
 			if(response.startsWith("DELETED_PARTNER"))
 			{
-				processDeletedEntity(odOrgs);
+				processDeletedEntity(partnerDB);
 			}
 			else
 			{
 				String err_mssg = "ONC Server denied delete partner request, try again later";
 				JOptionPane.showMessageDialog(this, err_mssg, "Delete Partner Request Failure",
 												JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
-				display(currOrg);
+				display(currPartner);
 			}
 		}
 	}
@@ -724,7 +723,7 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
 	void onSaveNew()
 	{
 		//construct a new organization from user input	
-		Organization newOrg = new Organization(-1, new Date(), GlobalVariables.getUserLNFI(),
+		ONCPartner newPartner = new ONCPartner(-1, new Date(), GlobalVariables.getUserLNFI(),
 				3, "Partner Created", GlobalVariables.getUserLNFI(),
 				statusCB.getSelectedIndex(), typeCB.getSelectedIndex(),
 				(GiftCollection) collTypeCB.getSelectedItem(), nameTF.getText(), "", 
@@ -736,16 +735,16 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
 				contact2TF.getText(), email2TF.getText(), phone2TF.getText());
 		
 		//send request to add new partner/organization to the local data base
-		String response = odOrgs.add(this, newOrg);
+		String response = partnerDB.add(this, newPartner);
 		
 		if(response.startsWith("ADDED_PARTNER"))
 		{
 			//update the ui with new partner id assigned by the server 
 			Gson gson = new Gson();
-			Organization addedOrg = gson.fromJson(response.substring(13), Organization.class);
+			ONCPartner addedOrg = gson.fromJson(response.substring(13), ONCPartner.class);
 			
 			//set the display index, on, to the new partner added and display organization
-			nav.setIndex(odOrgs.getListIndexByID(odOrgs.getList(), addedOrg.getID()));
+			nav.setIndex(partnerDB.getListIndexByID(partnerDB.getList(), addedOrg.getID()));
 			display(addedOrg);
 		}
 		else
@@ -753,7 +752,7 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
 			String err_mssg = "ONC Server denied add partner request, try again later";
 			JOptionPane.showMessageDialog(this, err_mssg, "Add Partner Request Failure",
 											JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
-			display(currOrg);
+			display(currPartner);
 		}
 		
 		//reset to review mode and display the proper organization
@@ -769,7 +768,7 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
 	{
 		nav.navSetEnabled(true);
 		entityPanel.setBorder(BorderFactory.createTitledBorder("Partner Information"));
-		display(currOrg);
+		display(currPartner);
 		entityPanel.setBackground(pBkColor);
 		bAddingNewEntity = false;
 		setControlState();
@@ -780,18 +779,18 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
 	{
 		if(dbe.getSource() != this && dbe.getType().equals("UPDATED_PARTNER"))
 		{
-			Organization updatedOrg = (Organization) dbe.getObject();
+			ONCPartner updatedPartner = (ONCPartner) dbe.getObject();
 			
 			//If current partner is being displayed has changed, reshow it
-			if(isNumeric(lblOrgID.getText()) && Integer.parseInt(lblOrgID.getText()) == updatedOrg.getID() && !bAddingNewEntity)
-				display(updatedOrg); 
+			if(isNumeric(lblOrgID.getText()) && Integer.parseInt(lblOrgID.getText()) == updatedPartner.getID() && !bAddingNewEntity)
+				display(updatedPartner); 
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("DELETED_PARTNER"))
 		{
 			//if the deleted partner was the only partner in data base, clear the display
 			//otherwise, if the deleted partner is currently being displayed, change the on
 			//to the next prior partner and display.
-			if(odOrgs.size() == 0)
+			if(partnerDB.size() == 0)
 			{
 				nav.setIndex(0);
 				clear();
@@ -799,15 +798,15 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
 			}
 			else
 			{
-				Organization deletedOrg = (Organization) dbe.getObject();
-				if(Integer.parseInt(lblOrgID.getText()) == deletedOrg.getID())
+				ONCPartner deletedPartner = (ONCPartner) dbe.getObject();
+				if(Integer.parseInt(lblOrgID.getText()) == deletedPartner.getID())
 				{
 					if(nav.getIndex() == 0)
-						nav.setIndex(odOrgs.size() - 1);
+						nav.setIndex(partnerDB.size() - 1);
 					else
 						nav.setIndex(nav.getIndex() - 1);
 					
-					display(odOrgs.getObjectAtIndex(nav.getIndex()));
+					display(partnerDB.getObjectAtIndex(nav.getIndex()));
 				}
 			}
 		}
@@ -825,16 +824,16 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
 			
 			//if current partner being displayed gifts assigned or received have changed,
 			//refresh the displayed data
-			if(!bAddingNewEntity && currOrg != null && (currOrg.getID() == change.getOldData() ||
-															currOrg.getID() == change.getNewData()))
-				display(currOrg); 
+			if(!bAddingNewEntity && currPartner != null && (currPartner.getID() == change.getOldData() ||
+															currPartner.getID() == change.getNewData()))
+				display(currPartner); 
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("DELETED_CHILD"))
 		{
 			if(this.isVisible())
 			{
 				//Assume that partner displayed gift count assigned has changed
-				display(currOrg);
+				display(currPartner);
 			}
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_FONT_SIZE"))
@@ -856,15 +855,15 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
 		{
 			if(tse.getSource() != nav && tse.getType() == EntityType.PARTNER)
 			{
-				Organization partner = (Organization) tse.getObject1();
+				ONCPartner partner = (ONCPartner) tse.getObject1();
 				update();
-				nav.setIndex(odOrgs.getListIndexByID(odOrgs.getList(), partner.getID()));
+				nav.setIndex(partnerDB.getListIndexByID(partnerDB.getList(), partner.getID()));
 				display(partner);
 			}
 			else if(tse.getSource() == nav && tse.getType() == EntityType.PARTNER)
 			{
 				update();
-				display(odOrgs.getObjectAtIndex(nav.getIndex()));
+				display(partnerDB.getObjectAtIndex(nav.getIndex()));
 			}
 		}
 	}

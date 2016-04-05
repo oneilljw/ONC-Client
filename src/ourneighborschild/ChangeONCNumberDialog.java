@@ -27,7 +27,7 @@ public class ChangeONCNumberDialog extends InfoDialog implements DatabaseListene
 		this.setAlwaysOnTop(true);
 		
 		//connect to local Family DB
-		Families familyDB = Families.getInstance();
+		FamilyDB familyDB = FamilyDB.getInstance();
 		if(familyDB != null)
 			familyDB.addDatabaseListener(this);
 		
@@ -93,7 +93,7 @@ public class ChangeONCNumberDialog extends InfoDialog implements DatabaseListene
 			Object selectedValue = confirmOP.getValue();
 		
 			//if the client user confirmed, change the ONC Number
-			Families familyDB = Families.getInstance();
+			FamilyDB familyDB = FamilyDB.getInstance();
 			if(selectedValue != null && selectedValue.toString().equals(options[1]))
 			{
 				ONCFamily reqFamily = new ONCFamily(f);	//make a copy of current family

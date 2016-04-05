@@ -33,7 +33,7 @@ public class ChildPanel extends JPanel implements DatabaseListener, EntitySelect
 	
 	//databases
 	private GlobalVariables gvs;
-    private Families fDB;
+    private FamilyDB fDB;
 	private ChildDB cDB;
 	
 	//GUI elements
@@ -50,7 +50,7 @@ public class ChildPanel extends JPanel implements DatabaseListener, EntitySelect
 	{	
 		//register database listeners for updates
 		gvs = GlobalVariables.getInstance();
-    	fDB = Families.getInstance();
+    	fDB = FamilyDB.getInstance();
 		if(fDB != null)
 			fDB.addDatabaseListener(this);
 		

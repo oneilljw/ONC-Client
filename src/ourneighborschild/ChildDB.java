@@ -69,7 +69,7 @@ public class ChildDB extends ONCDatabase
 			childAL.add(addedChild);
 			fireDataChanged(source, "ADDED_CHILD", addedChild);
 			
-			Families fDB = Families.getInstance();
+			FamilyDB fDB = FamilyDB.getInstance();
 			int[] countsChange = fDB.getServedFamilyAndChildCount();
 			DataChange servedCountsChange = new DataChange(countsChange[0], countsChange[1]);
 			fireDataChanged(source, "UPDATED_SERVED_COUNTS", servedCountsChange);
@@ -105,7 +105,7 @@ public class ChildDB extends ONCDatabase
 	void processDeletedChild(Object source, String json)
 	{
 		ChildWishDB cwDB = ChildWishDB.getInstance();
-		ONCOrgs partnerDB = ONCOrgs.getInstance();
+		PartnerDB partnerDB = PartnerDB.getInstance();
 		
 		Gson gson = new Gson();
 		ONCChild deletedChild = gson.fromJson(json, ONCChild.class);
@@ -125,7 +125,7 @@ public class ChildDB extends ONCDatabase
 				//deleted wish - need to tell wish catalog dialog to adjust wish counts
 				fireDataChanged(source, "WISH_BASE_CHANGED", change);
 			
-			Families fDB = Families.getInstance();
+			FamilyDB fDB = FamilyDB.getInstance();
 			int[] countsChange = fDB.getServedFamilyAndChildCount();
 			DataChange servedCountsChange = new DataChange(countsChange[0], countsChange[1]);
 			fireDataChanged(source, "UPDATED_SERVED_COUNTS", servedCountsChange);

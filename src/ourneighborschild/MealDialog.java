@@ -34,9 +34,9 @@ public class MealDialog extends HistoryDialog
 	private AbstractTableModel dlgTableModel;
 //	private JButton btnDelete, btnPrint;
 	
-	private Families familyDB;
+	private FamilyDB familyDB;
 	private MealDB mealDB;
-	private ONCOrgs partnerDB;
+	private PartnerDB partnerDB;
 	
 	private List<ONCMeal> mealList;	//list of meals for current family
 	private Comparator<ONCMeal> mealDateChangedComparator;
@@ -48,7 +48,7 @@ public class MealDialog extends HistoryDialog
 		this.setTitle("Family Meal History");
 		
 		//Save the reference to the family and meal databases.
-		familyDB = Families.getInstance();
+		familyDB = FamilyDB.getInstance();
 		if(familyDB != null)
 			familyDB.addDatabaseListener(this);
 		
@@ -56,7 +56,7 @@ public class MealDialog extends HistoryDialog
 		if(mealDB != null)
 			mealDB.addDatabaseListener(this);
 		
-		partnerDB = ONCOrgs.getInstance();
+		partnerDB = PartnerDB.getInstance();
 		if(partnerDB != null)
 			partnerDB.addDatabaseListener(this);
 		
@@ -125,7 +125,7 @@ public class MealDialog extends HistoryDialog
 		Object selectedValue = confirmOP.getValue();
 	
 		//if the client user confirmed, delete the meal
-		Families familyDB = Families.getInstance();
+		FamilyDB familyDB = FamilyDB.getInstance();
 		if(selectedValue != null && selectedValue.toString().equals(options[1]))
 		{
 			ONCFamily delFamMealReq = new ONCFamily(currFam);
@@ -241,7 +241,7 @@ public class MealDialog extends HistoryDialog
         	{
         		if(meal.getPartnerID() > -1)
         		{
-        			Organization partner = partnerDB.getOrganizationByID(meal.getPartnerID());
+        			ONCPartner partner = partnerDB.getOrganizationByID(meal.getPartnerID());
         			value = partner.getName();
         		}
         		else

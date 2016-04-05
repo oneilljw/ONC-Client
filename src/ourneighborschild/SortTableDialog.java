@@ -49,7 +49,7 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 	private static final long serialVersionUID = 1L;
 	private static final int SORT_TABLE_VERTICAL_SCROLL_WIDTH = 24;
 
-	protected Families fDB;
+	protected FamilyDB fDB;
 	
 	//sort column
 	protected int tableSortCol;
@@ -78,7 +78,7 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 	{
 		super(pf);
 		
-		fDB = Families.getInstance();
+		fDB = FamilyDB.getInstance();
 		
 		if(fDB != null)
 			fDB.addDatabaseListener(this);

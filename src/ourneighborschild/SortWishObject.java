@@ -9,7 +9,7 @@ public class SortWishObject extends ONCObject
 	private ONCChild	 soChild;
 	private ONCChildWish soChildWish;
 	
-	ONCOrgs partnerDB;
+	PartnerDB partnerDB;
 	ONCWishCatalog cat;
 	
 	String[] indicator = {"", "*", "#"};
@@ -21,7 +21,7 @@ public class SortWishObject extends ONCObject
 		soChild = c;
 		soChildWish = cw;
 		
-		partnerDB = ONCOrgs.getInstance();
+		partnerDB = PartnerDB.getInstance();
 		cat = ONCWishCatalog.getInstance();
 	}
 	
@@ -39,7 +39,7 @@ public class SortWishObject extends ONCObject
 		ONCWish wish = cat.getWishByID(soChildWish.getWishID());
 		String wishName = wish == null ? "None" : wish.getName();
 		
-		Organization partner = partnerDB.getOrganizationByID(soChildWish.getChildWishAssigneeID());
+		ONCPartner partner = partnerDB.getOrganizationByID(soChildWish.getChildWishAssigneeID());
 		String partnerName = partner == null ? "" : partner.getName();
 		
 		String[] exportRow = {soFamily.getONCNum(), soChild.getChildGender(),

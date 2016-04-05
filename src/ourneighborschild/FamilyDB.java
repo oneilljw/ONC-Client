@@ -22,7 +22,7 @@ import com.google.gson.reflect.TypeToken;
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
 
-public class Families extends ONCSearchableDatabase
+public class FamilyDB extends ONCSearchableDatabase
 {
 	/**
 	 * This class implements a data base that holds families managed by Our
@@ -40,7 +40,7 @@ public class Families extends ONCSearchableDatabase
 	private static final int NUMBER_OF_WISHES_PER_CHILD = 3;
 	private static final String ODB_FAMILY_MEMBER_COLUMN_SEPARATOR = " - ";
 	
-	private static Families instance = null;
+	private static FamilyDB instance = null;
 	private ArrayList<ONCFamily> oncFamAL;	//The list of families
 	private int[] oncnumRegionRanges;		//Holds starting ONC number for each region
 	private ChildDB childDB;
@@ -51,7 +51,7 @@ public class Families extends ONCSearchableDatabase
 	private DeliveryDB deliveryDB;
 	private GlobalVariables fGVs;
 	
-	private Families()
+	private FamilyDB()
 	{
 		//Instantiate the organization and confirmed organization lists
 		super(DB_TYPE);
@@ -69,10 +69,10 @@ public class Families extends ONCSearchableDatabase
 //		initializeONCNumberRegionRanges();
 	}
 	
-	public static Families getInstance()
+	public static FamilyDB getInstance()
 	{
 		if(instance == null)
-			instance = new Families();
+			instance = new FamilyDB();
 		
 		return instance;
 	}

@@ -56,7 +56,7 @@ public class AddFamilyDialog extends JDialog implements ActionListener, ListSele
 	private static final Color OLD_LACE = new Color(253, 245, 230);
 	
 	private GlobalVariables gvs;
-	private Families fDB;
+	private FamilyDB fDB;
 	private ChildDB cDB;
 	private AdultDB adultDB;
 	private MealDB mealDB;
@@ -87,7 +87,7 @@ public class AddFamilyDialog extends JDialog implements ActionListener, ListSele
 		this.setTitle("Add New Family");
 		
 		gvs = GlobalVariables.getInstance();
-		fDB = Families.getInstance();
+		fDB = FamilyDB.getInstance();
 		cDB = ChildDB.getInstance();
 		adultDB = AdultDB.getInstance();
 		mealDB = MealDB.getInstance();

@@ -46,7 +46,7 @@ public abstract class CheckDialog extends ONCTableDialog implements ActionListen
 	protected JLabel lblCount;
 	protected JButton btnPrint;
 	protected ArrayList<DupItem> dupAL;
-	protected Families fDB;
+	protected FamilyDB fDB;
 	
 	protected boolean bChangingTable;
 	
@@ -62,7 +62,7 @@ public abstract class CheckDialog extends ONCTableDialog implements ActionListen
 		this.type = type;
 		this.setTitle("Our Neighbor's Child -" + type + " Database Checks");
 
-		fDB = Families.getInstance();
+		fDB = FamilyDB.getInstance();
 		
 		//Initialize Dup Table data structure
 		dupAL = new ArrayList<DupItem>();

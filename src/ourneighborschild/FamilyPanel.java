@@ -71,7 +71,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 											"Returned", "Delivered", "Counselor Pick-Up"};
 	//data base references
 	private DatabaseManager dbMgr;
-    private Families fDB;
+    private FamilyDB fDB;
 	private ChildDB cDB;
 	private AdultDB adultDB;
 	private DeliveryDB deliveryDB;
@@ -165,7 +165,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		
 		//register database listeners for updates
 		dbMgr = DatabaseManager.getInstance();
-		fDB = Families.getInstance();
+		fDB = FamilyDB.getInstance();
 		cDB = ChildDB.getInstance();
 		adultDB = AdultDB.getInstance();
 		deliveryDB = DeliveryDB.getInstance();

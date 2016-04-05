@@ -85,7 +85,7 @@ public class AltAddressDialog extends InfoDialog
 		}
 		reqFam.setSubstituteDeliveryAddress(altAddressSB.toString());
 				
-		Families familyDB = Families.getInstance();
+		FamilyDB familyDB = FamilyDB.getInstance();
 		String response = familyDB.update(this, reqFam);
 				
 		if(!response.startsWith("UPDATED_FAMILY"))
@@ -108,7 +108,7 @@ public class AltAddressDialog extends InfoDialog
 		ONCFamily reqFam = new ONCFamily(fam);	//make a copy for update
 		reqFam.setSubstituteDeliveryAddress("");
 						
-		Families familyDB = Families.getInstance();
+		FamilyDB familyDB = FamilyDB.getInstance();
 		String response = familyDB.update(this, reqFam);
 						
 		if(!response.startsWith("UPDATED_FAMILY"))

@@ -39,11 +39,11 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 	
 	//database references
 	private GlobalVariables gvs;
-    private Families fDB;
+    private FamilyDB fDB;
 	private ChildDB cDB;
 	private ChildWishDB cwDB;
 	private ONCWishCatalog cat;
-	private ONCOrgs orgDB;
+	private PartnerDB orgDB;
 	
 	private ONCChild child;			//child being displayed on panel
 	private ONCChildWish childWish; //wish being displayed on panel
@@ -61,7 +61,7 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 		this.wishNumber = wishNumber;
 		
 		gvs = GlobalVariables.getInstance();
-    	fDB = Families.getInstance();
+    	fDB = FamilyDB.getInstance();
 		if(fDB != null)
 			fDB.addDatabaseListener(this);
 		
@@ -77,7 +77,7 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 		if(cat != null)
 			cat.addDatabaseListener(this);
 		
-		orgDB = ONCOrgs.getInstance();
+		orgDB = PartnerDB.getInstance();
 		if(orgDB != null)
 			orgDB.addDatabaseListener(this);
 		
@@ -131,7 +131,7 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 //      wishdetailTF.addMouseListener(new WishDetailMouseListener());
  
         assigneeCBM = new DefaultComboBoxModel();
-        assigneeCBM.addElement(new Organization(-1, "None", "None"));
+        assigneeCBM.addElement(new ONCPartner(-1, "None", "None"));
         wishassigneeCB = new JComboBox();
         wishassigneeCB.setModel(assigneeCBM);
         wishassigneeCB.setPreferredSize(dwa);
@@ -193,7 +193,7 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 		else
 			wishdetailTF.setBackground(Color.YELLOW);
 
-		Organization org = orgDB.getOrganizationByID(cw.getChildWishAssigneeID());
+		ONCPartner org = orgDB.getOrganizationByID(cw.getChildWishAssigneeID());
 		if(org != null)
 			wishassigneeCB.setSelectedItem(org);
 		else
@@ -246,13 +246,13 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 	 ***********************************************************************************************/
 	void updateWishAssigneeSelectionList()
 	{
-		ONCOrgs orgDB = ONCOrgs.getInstance();
+		PartnerDB orgDB = PartnerDB.getInstance();
 		bWishChanging = true;
 		
 		assigneeCBM.removeAllElements();
-		assigneeCBM.addElement(new Organization(-1, "None", "None"));
+		assigneeCBM.addElement(new ONCPartner(-1, "None", "None"));
 		
-		for(Organization confOrg: orgDB.getConfirmedOrgList(GiftCollection.Ornament))
+		for(ONCPartner confOrg: orgDB.getConfirmedOrgList(GiftCollection.Ornament))
 			assigneeCBM.addElement(confOrg);
 		
 		//Restore selection to prior selection, if they are still confirmed
@@ -392,13 +392,13 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 			
 			//need to add the assignee name based on the assignee ID for the table
 			String[] indicators = {"", "*", "#"};
-			ONCOrgs orgDB = ONCOrgs.getInstance();
+			PartnerDB orgDB = PartnerDB.getInstance();
 			
 			ArrayList<String[]> wishHistoryTable = new ArrayList<String[]>();
 			for(ONCChildWish cw:cwh)
 			{
 				ONCWish wish = cat.getWishByID(cw.getWishID());
-				Organization assignee = orgDB.getOrganizationByID(cw.getChildWishAssigneeID());
+				ONCPartner assignee = orgDB.getOrganizationByID(cw.getChildWishAssigneeID());
 				
 				String[] whTR = new String[7];
 				whTR[0] = wish == null ? "None" : wish.getName();
@@ -477,7 +477,7 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 			addWish();
 		}
 		else if(!bWishChanging && e.getSource() == wishassigneeCB &&
-				childWish.getChildWishAssigneeID() != ((Organization) wishassigneeCB.getSelectedItem()).getID()) 
+				childWish.getChildWishAssigneeID() != ((ONCPartner) wishassigneeCB.getSelectedItem()).getID()) 
 		{
 			//Add a new wish with the new organization
 			addWish();
@@ -501,7 +501,7 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 		ONCChildWish addedWish =  cwDB.add(this, child.getID(),
 									((ONCWish) wishCB.getSelectedItem()).getID(),
 									wishdetailTF.getText(), wishNumber, wishindCB.getSelectedIndex(),
-									ws, (Organization) wishassigneeCB.getSelectedItem());
+									ws, (ONCPartner) wishassigneeCB.getSelectedItem());
 		
 		if(addedWish != null)
 			displayWish(addedWish, child);

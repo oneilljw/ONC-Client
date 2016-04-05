@@ -17,7 +17,7 @@ public class TransportationDialog extends InfoDialog implements DatabaseListener
 	 */
 	private static final long serialVersionUID = 1L;
 	private ONCFamily f;
-	private Families familyDB;
+	private FamilyDB familyDB;
 	private JComboBox transportationCB;
 
 	TransportationDialog(JFrame owner, boolean bModal) 
@@ -28,7 +28,7 @@ public class TransportationDialog extends InfoDialog implements DatabaseListener
 		lblONCIcon.setText("<html><font color=blue>Edit Family Transportation<br>Information Below</font></html>");
 		
 		//initialize reference to family data base
-		familyDB = Families.getInstance();
+		familyDB = FamilyDB.getInstance();
 		if(familyDB != null)
 			familyDB.addDatabaseListener(this);
 

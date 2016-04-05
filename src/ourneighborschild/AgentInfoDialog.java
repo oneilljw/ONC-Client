@@ -16,7 +16,7 @@ public class AgentInfoDialog extends InfoDialog implements DatabaseListener, Ent
 	 */
 	private static final long serialVersionUID = 1L;
 	private Agent a;
-	private Families familyDB;
+	private FamilyDB familyDB;
 	ONCAgents agentDB;
 	boolean bAgentSelectedEnabled;
 	
@@ -38,7 +38,7 @@ public class AgentInfoDialog extends InfoDialog implements DatabaseListener, Ent
 			agentDB.addDatabaseListener(this);
 		
 		//get a reference to Family Db
-		familyDB = Families.getInstance();
+		familyDB = FamilyDB.getInstance();
 		
 		//Set up the main panel, loop to set up components associated with names
 		for(int pn=0; pn < getDialogFieldNames().length; pn++)

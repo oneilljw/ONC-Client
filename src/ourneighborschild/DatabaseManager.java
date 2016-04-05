@@ -37,11 +37,11 @@ public class DatabaseManager extends ONCDatabase
 	
 	//Local Data Base Structures
 	private GlobalVariables oncGVs;			//Holds the Global Variables
-	private Families oncFamDB;				//Holds ONC Family Database
+	private FamilyDB oncFamDB;				//Holds ONC Family Database
 	private ChildDB oncChildDB;				//Holds ONC Child database
 	private ChildWishDB oncChildWishDB; 	//Holds ONC Child Wish database
 	private ONCAgents oncAgentDB;			//Holds ONC Agents
-	private ONCOrgs oncOrgDB;				//Holds ONC Partner Organizations
+	private PartnerDB oncOrgDB;				//Holds ONC Partner Organizations
 	private ONCWishCatalog oncWishCat;		//Holds ONC Wish Catalog
 	private WishDetailDB oncWishDetailDB;	//Holds ONC Wish Detail Data Base
 	private DriverDB oncDDB;				//Holds the ONC Driver Data Base
@@ -59,7 +59,7 @@ public class DatabaseManager extends ONCDatabase
 		oncRegions = ONCRegions.getInstance();
 		UserDB.getInstance();
 		oncAgentDB = ONCAgents.getInstance();
-		oncOrgDB = ONCOrgs.getInstance();
+		oncOrgDB = PartnerDB.getInstance();
 		oncWishDetailDB = WishDetailDB.getInstance();
 		oncWishCat = ONCWishCatalog.getInstance();
 		oncDDB = DriverDB.getInstance();
@@ -68,7 +68,7 @@ public class DatabaseManager extends ONCDatabase
 		oncChildWishDB = ChildWishDB.getInstance();
 		oncAdultDB = AdultDB.getInstance();
 		oncMealDB = MealDB.getInstance();
-		oncFamDB = Families.getInstance();
+		oncFamDB = FamilyDB.getInstance();
 	}
 	
 	public static DatabaseManager getInstance()

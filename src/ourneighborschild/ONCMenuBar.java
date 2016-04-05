@@ -47,7 +47,7 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 	private DialogManager dlgManager;
 	private DatabaseManager dbManager;
 	
-	private Families familyDB;
+	private FamilyDB familyDB;
 	
 	private ONCMenuBar()
 	{
@@ -56,7 +56,7 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 		if(oncDB != null)
 			oncDB.addDatabaseListener(this);
 		
-		familyDB = Families.getInstance();
+		familyDB = FamilyDB.getInstance();
 		if(familyDB != null)
 			familyDB.addDatabaseListener(this);
 		
@@ -608,7 +608,7 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 		}
 		else if(e.getSource() == importPYORGMI)
 		{
-			ONCOrgs partnerDB = ONCOrgs.getInstance();
+			PartnerDB partnerDB = PartnerDB.getInstance();
 			partnerDB.importOrgDB(GlobalVariables.getFrame(), GlobalVariables.getONCLogo(), null);
 		}
 		else if(e.getSource() == importODBMI) {dbManager.onImportMenuItemClicked("ODB");}

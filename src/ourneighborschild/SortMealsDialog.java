@@ -44,7 +44,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 	private static final Integer MAXIMUM_ON_NUMBER = 9999;
 
 	private MealDB mealDB;
-	private ONCOrgs orgs;
+	private PartnerDB orgs;
 	protected ONCRegions regions;
 
 	private ArrayList<SortMealObject> stAL;
@@ -72,7 +72,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		
 		//set up the data base references. Family data base reference is inherited.
 		mealDB = MealDB.getInstance();
-		orgs = ONCOrgs.getInstance();
+		orgs = PartnerDB.getInstance();
 		regions = ONCRegions.getInstance();
 		
 		//set up data base listeners
@@ -123,8 +123,8 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		
 		assignCB = new JComboBox();
 		assignCBM = new DefaultComboBoxModel();
-	    assignCBM.addElement(new Organization(0, "Any", "Any"));
-	    assignCBM.addElement(new Organization(-1, "None", "None"));
+	    assignCBM.addElement(new ONCPartner(0, "Any", "Any"));
+	    assignCBM.addElement(new ONCPartner(-1, "None", "None"));
 	    assignCB.setModel(assignCBM);
 		assignCB.setPreferredSize(new Dimension(192, 56));
 		assignCB.setBorder(BorderFactory.createTitledBorder("Meal Assigned To"));
@@ -178,8 +178,8 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		
         changeAssigneeCB = new JComboBox();
         changeAssigneeCBM = new DefaultComboBoxModel();
-	    changeAssigneeCBM.addElement(new Organization(0, "No Change", "No Change"));
-	    changeAssigneeCBM.addElement(new Organization(-1, "None", "None"));
+	    changeAssigneeCBM.addElement(new ONCPartner(0, "No Change", "No Change"));
+	    changeAssigneeCBM.addElement(new ONCPartner(-1, "None", "None"));
         changeAssigneeCB.setModel(changeAssigneeCBM);
         changeAssigneeCB.setPreferredSize(new Dimension(192, 56));
 		changeAssigneeCB.setBorder(BorderFactory.createTitledBorder("Change Assignee To:"));
@@ -295,10 +295,10 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		int currentChangeAssigneeIndex = changeAssigneeCB.getSelectedIndex();
 		
 		if(assignCB.getSelectedIndex() > 1)	//leaves the current selection null if no selection made
-			currentAssigneeID = ((Organization)assignCB.getSelectedItem()).getID();
+			currentAssigneeID = ((ONCPartner)assignCB.getSelectedItem()).getID();
 		
 		if(changeAssigneeCB.getSelectedIndex() > 1)
-			currentChangeAssigneeID = ((Organization)changeAssigneeCB.getSelectedItem()).getID();
+			currentChangeAssigneeID = ((ONCPartner)changeAssigneeCB.getSelectedItem()).getID();
 		
 		assignCB.setSelectedIndex(0);
 		sortAssigneeID = 0;
@@ -307,12 +307,12 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		assignCBM.removeAllElements();
 		changeAssigneeCBM.removeAllElements();
 		
-		assignCBM.addElement(new Organization(0, "Any", "Any"));
-		assignCBM.addElement(new Organization(-1, "None", "None"));
-		changeAssigneeCBM.addElement(new Organization(-1, "No_Change", "No_Change"));
-		changeAssigneeCBM.addElement(new Organization(-1, "None", "None"));
+		assignCBM.addElement(new ONCPartner(0, "Any", "Any"));
+		assignCBM.addElement(new ONCPartner(-1, "None", "None"));
+		changeAssigneeCBM.addElement(new ONCPartner(-1, "No_Change", "No_Change"));
+		changeAssigneeCBM.addElement(new ONCPartner(-1, "None", "None"));
 		
-		for(Organization confOrg :orgs.getConfirmedOrgList(GiftCollection.Meals))
+		for(ONCPartner confOrg :orgs.getConfirmedOrgList(GiftCollection.Meals))
 		{
 			assignCBM.addElement(confOrg);
 			changeAssigneeCBM.addElement(confOrg);
@@ -328,7 +328,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		}
 		else if(currentAssigneeIndex > 1)
 		{
-			Organization assigneeOrg = orgs.getOrganizationByID(currentAssigneeID);
+			ONCPartner assigneeOrg = orgs.getOrganizationByID(currentAssigneeID);
 			if(assigneeOrg != null)
 			{
 				assignCB.setSelectedItem(assigneeOrg);
@@ -340,7 +340,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 			changeAssigneeCB.setSelectedIndex(1);
 		else
 		{
-			Organization changeAssigneeOrg = orgs.getOrganizationByID(currentChangeAssigneeID);
+			ONCPartner changeAssigneeOrg = orgs.getOrganizationByID(currentChangeAssigneeID);
 			if(changeAssigneeOrg != null)
 				changeAssigneeCB.setSelectedItem(changeAssigneeOrg);
 		}
@@ -539,9 +539,9 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 			buildTableList(false);
 		}
 			else if(e.getSource() == assignCB && !bIgnoreCBEvents && 
-					((Organization)assignCB.getSelectedItem()).getID() != sortAssigneeID )
+					((ONCPartner)assignCB.getSelectedItem()).getID() != sortAssigneeID )
 		{						
-			sortAssigneeID = ((Organization)assignCB.getSelectedItem()).getID();
+			sortAssigneeID = ((ONCPartner)assignCB.getSelectedItem()).getID();
 				buildTableList(false);
 		}
 		else if(e.getSource() == changedByCB && !bIgnoreCBEvents &&
@@ -662,7 +662,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 			int partnerID = meal.getPartnerID();
 			if(partnerID > -1)
 			{
-				Organization org = orgs.getOrganizationByID(partnerID);
+				ONCPartner org = orgs.getOrganizationByID(partnerID);
 				fireEntitySelected(this, EntityType.PARTNER, org, null);
 				
 			}
@@ -717,7 +717,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 	{
 		SortMealObject smo = (SortMealObject) o;
 		
-		Organization partner = orgs.getOrganizationByID(smo.getMeal().getPartnerID());
+		ONCPartner partner = orgs.getOrganizationByID(smo.getMeal().getPartnerID());
 		String partnerName = partner != null ? partner.getName() : "None";
 		String ds = new SimpleDateFormat("MM/dd H:mm").format(smo.getMeal().getDateChanged().getTime());
 		String[] tablerow = {smo.getFamily().getONCNum(),
@@ -758,7 +758,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		
 		for(int i=0; i < row_sel.length; i++)	
 		{
-			Organization cbPartner = (Organization) changeAssigneeCB.getSelectedItem();
+			ONCPartner cbPartner = (ONCPartner) changeAssigneeCB.getSelectedItem();
 				
 			//is it a change to either meal status or meal partner?  Can only be a change to one or the
 			//other, can't be both, that's not allowed and is prevented in checkApplyChangesEnabled(). 
@@ -896,7 +896,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		private ONCMeal	 	soMeal;
 		
 		ONCAgents agentDB;
-		ONCOrgs partnerDB;
+		PartnerDB partnerDB;
 		
 		public SortMealObject(int itemID, ONCFamily fam, ONCMeal meal) 
 		{
@@ -905,7 +905,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 			soMeal = meal;
 			
 			agentDB = ONCAgents.getInstance();
-			partnerDB = ONCOrgs.getInstance();
+			partnerDB = PartnerDB.getInstance();
 		}
 		
 		//getters
@@ -915,7 +915,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		public String[] getExportRow()
 		{
 			Agent agent = agentDB.getAgent(soFamily.getAgentID());
-			Organization partner = partnerDB.getOrganizationByID(soMeal.getPartnerID());
+			ONCPartner partner = partnerDB.getOrganizationByID(soMeal.getPartnerID());
 			
 			String delAddress, unit, city, zip;
 			if(soFamily.getSubstituteDeliveryAddress().isEmpty())
@@ -1066,7 +1066,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		@Override
 		public int compare(SortMealObject o1, SortMealObject o2)
 		{
-			ONCOrgs partnerDB = ONCOrgs.getInstance();
+			PartnerDB partnerDB = PartnerDB.getInstance();
 			String part1, part2;
 			 
 			if(o1.getMeal().getPartnerID() > -1 )

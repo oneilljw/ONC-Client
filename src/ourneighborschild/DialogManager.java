@@ -67,7 +67,7 @@ public class DialogManager implements EntitySelectionListener
 		
 	//dialogs that inherit from Entity Dialog
 	private Map<String, EntityDialog> entityDlgMap;
-	private OrganizationDialog orgDlg;
+	private PartnerDialog orgDlg;
 	private DriverDialog driverDlg;
 		
 	private PreferencesDialog prefsDlg;
@@ -193,7 +193,7 @@ public class DialogManager implements EntitySelectionListener
         dbDlg = new ViewONCDatabaseDialog(GlobalVariables.getFrame());
         
         //Set up the edit gift partner dialog
-        orgDlg = new OrganizationDialog(GlobalVariables.getFrame());
+        orgDlg = new PartnerDialog(GlobalVariables.getFrame());
         entityDlgMap.put("Edit Partners", orgDlg);
         eeManager.registerEntitySelectionListener(orgDlg);
         

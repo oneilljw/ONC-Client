@@ -54,7 +54,7 @@ public class DirectionsDialog extends JDialog implements ActionListener, Databas
 	private DefaultTableModel dirTableModel;
 	private JButton btnPrint;
 	private ONCFamily f;
-	private Families fDB;
+	private FamilyDB fDB;
 	private JSONArray steps;
 	private JSONObject leg;
 	private String destAddress;
@@ -62,7 +62,7 @@ public class DirectionsDialog extends JDialog implements ActionListener, Databas
 	public DirectionsDialog(JFrame parent) throws JSONException								
 	{
 		super(parent);
-		fDB = Families.getInstance();
+		fDB = FamilyDB.getInstance();
 		ddGVs = GlobalVariables.getInstance();
 		if(ddGVs != null)
 			ddGVs.addDatabaseListener(this);

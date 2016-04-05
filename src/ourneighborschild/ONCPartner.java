@@ -2,7 +2,7 @@ package ourneighborschild;
 
 import java.util.Date;
 
-public class Organization extends ONCEntity
+public class ONCPartner extends ONCEntity
 {
 	/**
 	 * 
@@ -38,7 +38,7 @@ public class Organization extends ONCEntity
 	private int pyAssigned;
 	private int pyReceived;
 	
-	Organization(int orgid, String createdBy)
+	ONCPartner(int orgid, String createdBy)
 	{
 		//constructor used when adding a new organization
 		super(orgid, new Date(), createdBy, STOPLIGHT_OFF, "Partner created", createdBy);
@@ -72,7 +72,7 @@ public class Organization extends ONCEntity
 		pyReceived = 0;
 	}
 	
-	Organization(int orgid, String name, String createdBy)
+	ONCPartner(int orgid, String name, String createdBy)
 	{
 		//constructor used when adding creating a non-assigned organization for wish filter and 
 		//selection lists
@@ -107,7 +107,7 @@ public class Organization extends ONCEntity
 		pyReceived = 0;
 	}
 	
-	Organization(int orgid, Date date, String changedBy, int slPos, String slMssg, String slChangedBy,
+	ONCPartner(int orgid, Date date, String changedBy, int slPos, String slMssg, String slChangedBy,
 			int status, int type, GiftCollection collection, String name, String ornDelivery, int streetnum, String streetname,
 			String unit, String city, String zipcode, String phone, int orn_req, String other, 
 			String deliverTo, String specialNotes, String contact, String contact_email,
@@ -146,7 +146,7 @@ public class Organization extends ONCEntity
 	}
 	
 	//copy constructor - makes a copy of the organanization
-	public Organization(Organization o)
+	public ONCPartner(ONCPartner o)
 	{
 		super(o.getID(), o.getDateChanged(), o.getChangedBy(), o.getStoplightPos(),
 				o.getStoplightMssg(), o.getStoplightChangedBy());
@@ -181,7 +181,7 @@ public class Organization extends ONCEntity
 	}
 	
 	//Constructor for import from .csv
-	public Organization(String[] nextLine)	
+	public ONCPartner(String[] nextLine)	
 	{
 		super(Integer.parseInt(nextLine[0]), Long.parseLong(nextLine[25]), nextLine[26],
 				Integer.parseInt(nextLine[27]), nextLine[28], nextLine[29]);

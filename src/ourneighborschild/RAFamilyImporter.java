@@ -35,7 +35,7 @@ public class RAFamilyImporter extends ONCTableDialog
 	private String defaultDirectory;
 	private String batchNum;
 	private ONCAgents agentDB;
-	private Families famDB;
+	private FamilyDB famDB;
 	private ChildDB childDB;
 	
 	RAFamilyImporter(JFrame parentFrame)
@@ -48,7 +48,7 @@ public class RAFamilyImporter extends ONCTableDialog
 		
 		//set up data base references. Each DB is a singleton
 		agentDB = ONCAgents.getInstance();
-		famDB = Families.getInstance();
+		famDB = FamilyDB.getInstance();
 		childDB = ChildDB.getInstance();
 	}
 	

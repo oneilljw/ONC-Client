@@ -33,7 +33,7 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 	private JLabel lblLegend, lblTotalServed;
 	private int totalServed;
 	
-	private Families famDB;
+	private FamilyDB famDB;
 	
 	public ClientMapDialog(JFrame parent)
 	{
@@ -44,7 +44,7 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 		if(globalDB != null)
 			globalDB.addDatabaseListener(this);	//listen for warehouse address change
 			
-		famDB = Families.getInstance();
+		famDB = FamilyDB.getInstance();
 		if(famDB != null)
 			famDB.addDatabaseListener(this);	//listen for family changes
 		

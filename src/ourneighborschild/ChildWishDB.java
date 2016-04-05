@@ -50,7 +50,7 @@ public class ChildWishDB extends ONCDatabase
 	 * an automatic change needs to occur as well. The new wish, with correct status is 
 	 * then sent to the server. 
 	 */
-	ONCChildWish add(Object source, int childid, int wishid, String wd, int wn, int wi, WishStatus ws, Organization org)
+	ONCChildWish add(Object source, int childid, int wishid, String wd, int wn, int wi, WishStatus ws, ONCPartner org)
 	{	
 		GlobalVariables gvs = GlobalVariables.getInstance();
 		String cb = GlobalVariables.getUserLNFI();
@@ -142,7 +142,7 @@ public class ChildWishDB extends ONCDatabase
 		
 		//determine if gift assignments have changed. If they have, notify the Organization DB
 		//to update partner assignment counts
-		ONCOrgs orgDB = ONCOrgs.getInstance();
+		PartnerDB orgDB = PartnerDB.getInstance();
 		DataChange  wac = null;
 		if(replacedWish != null && replacedWish.getChildWishAssigneeID() != 
 									addedWish.getChildWishAssigneeID())
@@ -257,7 +257,7 @@ public class ChildWishDB extends ONCDatabase
 	 * a wish was selected from the catalog and is reset to empty, the wish status is set to
 	 * CHILD_WISH_EMPTY.
 	 ************************************************************************************************************/
-	WishStatus checkForStatusChange(ONCChildWish oldWish, int wishBase, WishStatus reqStatus, Organization reqOrg)
+	WishStatus checkForStatusChange(ONCChildWish oldWish, int wishBase, WishStatus reqStatus, ONCPartner reqOrg)
 	{
 		WishStatus currStatus, newStatus;
 		

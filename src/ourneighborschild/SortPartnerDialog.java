@@ -57,7 +57,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 	private static final String CLOTHING_PARTNER_EMAIL_SENDER_ADDRESS = "Clothing@ourneighborschild.org";
 	
 	private ONCRegions regions;
-	private ONCOrgs orgs;
+	private PartnerDB orgs;
 	private ChildDB childDB;
 	
 	private JComboBox regionCB, statusCB, typeCB;
@@ -69,7 +69,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 	private JButton btnExport;
 	private JComboBox printCB, emailCB;
 	private JLabel lblOrnReq;
-	private ArrayList<Organization> stAL;
+	private ArrayList<ONCPartner> stAL;
 //	private ArrayList<Organization> tableRowSelectedObjectList;
 
 	private int sortStatus = 0, sortType = 0, sortRegion = 0, sortChangedBy = 0, sortStoplight = 0;
@@ -91,7 +91,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		this.setTitle("Our Neighbor's Child - Gift Partner Management");
 		
 		regions = ONCRegions.getInstance();
-		orgs = ONCOrgs.getInstance();
+		orgs = PartnerDB.getInstance();
 		childDB = ChildDB.getInstance();
 		
 		//Get reference for data base listeners
@@ -113,7 +113,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 			childwishDB.addDatabaseListener(this);	//listen for partner gift assignment changes
 		
 		//Set up the array lists
-		stAL = new ArrayList<Organization>();
+		stAL = new ArrayList<ONCPartner>();
 //		tableRowSelectedObjectList = new ArrayList<Organization>();
 				
 		//Set up the search criteria panel      
@@ -271,7 +271,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 	@Override
 	public Object[] getTableRow(ONCObject obj)
 	{
-		Organization o = (Organization) obj;
+		ONCPartner o = (ONCPartner) obj;
 		SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yy");
 		Object[] sorttablerow = {o.getName(), status[o.getStatus()+1], types[o.getType()],
 								 Integer.toString(o.getNumberOfOrnamentsRequested()),
@@ -296,7 +296,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		stAL.clear();	//Clear the prior table data array list
 		int totalornreq = 0;	//total number of orn requested in table
 		
-		for(Organization o : orgs.getList())
+		for(ONCPartner o : orgs.getList())
 		{
 			if(doesStatusMatch(o.getStatus()) &&
 				doesTypeMatch(o.getType()) &&
@@ -369,7 +369,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		{
 			//Find index for organization selected
 //			Organization o = stAL.get(row_sel[i]);
-			Organization updatedOrg = new Organization(stAL.get(row_sel[i]));	//make a copy for update request
+			ONCPartner updatedOrg = new ONCPartner(stAL.get(row_sel[i]));	//make a copy for update request
 			
 			//If status changed, process it
 			int oldstatus = updatedOrg.getStatus();
@@ -505,7 +505,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		for(int row=0; row< sortTable.getSelectedRowCount(); row++)
 		{
 			//Get organization object
-			Organization o = stAL.get(row_sel[row]);
+			ONCPartner o = stAL.get(row_sel[row]);
 			
 			//Create the email body and potentially subject
 	        if(emailType == 1)
@@ -898,7 +898,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		return msg;
 	}
 */	
-	String create2015SeasonOrganizationEmailBody(Organization o, String cid0, String cid1)
+	String create2015SeasonOrganizationEmailBody(ONCPartner o, String cid0, String cid1)
 //	String create2014SeasonOrganizationEmailBody(Organization o)
 	{
 		 //Create the variables for the body of the email     
@@ -1135,7 +1135,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 	
 	String[] getExportRow(int index)
 	{
-		Organization o = stAL.get(index);
+		ONCPartner o = stAL.get(index);
 		
 		SimpleDateFormat date = new SimpleDateFormat("MM-dd-yyyy");
 		
@@ -1432,7 +1432,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 			anHeader.setBackground( new Color(161,202,241));	
 	
 			//add rows to the table
-			for(Organization o:stAL)	//Build the new table
+			for(ONCPartner o:stAL)	//Build the new table
 				infoTableModel.addRow(o.getOrgInfoTableRow());
 			
 			infoTable.setBorder(UIManager.getBorder("Table.scrollPaneBorder"));
