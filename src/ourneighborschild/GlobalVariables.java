@@ -266,7 +266,14 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 	//Setters locally used
 	void setFrame(JFrame frame) { oncFrame = frame; }
 	void setTodaysDate(Date today) { oncDateToday.setTime(today);}
-	public void setFontIndex(int fs) { fontIndex = fs; }
+	public void setFontIndex(Object source, int fi) 
+	{ 
+		if(fontIndex != fi)
+		{
+			fontIndex = fi; 
+			this.fireDataChanged(source, "UPDATED_FONT_SIZE", Integer.parseInt(fontSizes[fontIndex]));
+		}
+	}
 	void setImageIcons(ImageIcon[] ii) {imageIcons = ii; }
 	ONCUser setUser(ONCUser u) { user = u; return user; }
 	void setUserPermission(UserPermission p) { user_permission = p; }

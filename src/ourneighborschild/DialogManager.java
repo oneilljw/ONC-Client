@@ -1,8 +1,6 @@
 package ourneighborschild;
 
 import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -72,7 +70,6 @@ public class DialogManager implements EntitySelectionListener
 	private OrganizationDialog orgDlg;
 	private DriverDialog driverDlg;
 		
-	private LogDialog logDlg;
 	private PreferencesDialog prefsDlg;
 	
 	public static DialogManager getInstance()
@@ -89,21 +86,10 @@ public class DialogManager implements EntitySelectionListener
 		eeManager.registerEntitySelectionListener(this);
 		
 		//create the log dialog
-        logDlg = new LogDialog();	//create the static log dialog
+        LogDialog logDlg = new LogDialog();	//create the static log dialog
         
         // set up the preferences dialog
         prefsDlg = new PreferencesDialog(GlobalVariables.getFrame());
-        prefsDlg.oncFontSizeCB.addActionListener(new ActionListener() //Notify family panel of font changes
-        {
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				GlobalVariables gvs = GlobalVariables.getInstance();
-				gvs.setFontIndex(prefsDlg.oncFontSizeCB.getSelectedIndex());
-//				oncFamilyPanel.setTextPaneFontSize();
-				setTextPaneFontSize();
-			}      	
-        });
         
 		//initialize the dialog maps
         stDlgMap = new HashMap<String, SortTableDialog>();
@@ -455,7 +441,7 @@ public class DialogManager implements EntitySelectionListener
 		//Obtain the child to be marked as an Adult
 		AdultDB adultDB = AdultDB.getInstance();
 		ChildDB childDB = ChildDB.getInstance();
-		if(currFam != null && childDB != null && adultDB != null)
+		if(currFam != null && currChild != null && childDB != null && adultDB != null)
 		{
 			//Save any changed family data prior to moving the child to adult
 //			checkAndUpdateFamilyData(currFam);
@@ -683,11 +669,6 @@ public class DialogManager implements EntitySelectionListener
 		sortFamiliesDlg.setFamilyStatusComboItemEnabled(FAMILY_STATUS_SELECTION_LIST_PACKAGED_INDEX, tf);
 	}
 	
-	void setTextPaneFontSize()
-	{
-		 orgDlg.setTextPaneFontSize();
-	}
-
 	@Override
 	public void entitySelected(EntitySelectionEvent tse) 
 	{	
@@ -695,7 +676,16 @@ public class DialogManager implements EntitySelectionListener
 				tse.getType() == EntityType.WISH)
 		{
 			currFam = (ONCFamily) tse.getObject1();
-			currChild = (ONCChild) tse.getObject2();
+			
+			if(tse.getObject2() != null)
+				currChild = (ONCChild) tse.getObject2();
+			else
+			{
+				ChildDB cDB = ChildDB.getInstance();
+				List<ONCChild> childList = cDB.getChildren(currFam.getID());
+				if(!childList.isEmpty())
+					currChild = childList.get(0);
+			}
 		}
 	}
 

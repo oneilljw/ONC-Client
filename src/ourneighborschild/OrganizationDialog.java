@@ -65,10 +65,13 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
 		regions = ONCRegions.getInstance();
 		odOrgs = ONCOrgs.getInstance();
 		
-		//register to receive changed data events
-		//register to listen for family and child data changed events
+		//register to listen for partner, global variable, child and  and childwish
+		//data changed events
 		if(odOrgs != null)
 			odOrgs.addDatabaseListener(this);
+		
+		if(gvs != null)
+			gvs.addDatabaseListener(this);
 		
 		ChildDB childDB = ChildDB.getInstance();	//Listen for deleted child
 		if(childDB != null)
@@ -661,11 +664,11 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
 		bIgnoreEvents = false;
 	}
 	
-	void setTextPaneFontSize()
+	void setTextPaneFontSize(Integer fontSize)
 	{
 		SimpleAttributeSet attribs = new SimpleAttributeSet();  
         StyleConstants.setAlignment(attribs , StyleConstants.ALIGN_LEFT);
-        StyleConstants.setFontSize(attribs, gvs.getFontSize());
+        StyleConstants.setFontSize(attribs, fontSize);
         StyleConstants.setSpaceBelow(attribs, 3);
         otherTP.setParagraphAttributes(attribs, true);
         specialNotesTP.setParagraphAttributes(attribs, true);
@@ -833,6 +836,11 @@ public class OrganizationDialog extends EntityDialog implements EntitySelectionL
 				//Assume that partner displayed gift count assigned has changed
 				display(currOrg);
 			}
+		}
+		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_FONT_SIZE"))
+		{
+			Integer fontSize = (Integer) dbe.getObject();
+			setTextPaneFontSize(fontSize);
 		}
 	}
 

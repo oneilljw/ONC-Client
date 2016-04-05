@@ -173,6 +173,8 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		
 		if(dbMgr != null)
 			dbMgr.addDatabaseListener(this);
+		if(gvs != null)
+			gvs.addDatabaseListener(this);
 		if(fDB != null)
 			fDB.addDatabaseListener(this);
 		if(cDB != null)
@@ -779,11 +781,11 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		changeONCNumberDlg.setVisible(false);
 	}
 */	
-	void setTextPaneFontSize()
+	void setTextPaneFontSize(Integer fontSize)
 	{
 		SimpleAttributeSet attribs = new SimpleAttributeSet();  
         StyleConstants.setAlignment(attribs , StyleConstants.ALIGN_LEFT);
-        StyleConstants.setFontSize(attribs, gvs.getFontSize());
+        StyleConstants.setFontSize(attribs, fontSize);
         StyleConstants.setSpaceBelow(attribs, 3);
         wishlistPane.setParagraphAttributes(attribs, true);
         oncNotesPane.setParagraphAttributes(attribs, true);
@@ -1038,6 +1040,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	
 	void addChildrenToTable(int cn)
 	{
+		ONCMenuBar menuBar = ONCMenuBar.getInstance();
 		bChildTableDataChanging = true;		
 //		ClearChildTable();
 		if(ctAL.size() > 0)
@@ -1047,13 +1050,13 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			childTable.setRowSelectionInterval(cn, cn);
 	    	childTable.requestFocus();
 			if(GlobalVariables.isUserAdmin())
-				ONCMenuBar.setEnabledMarkorDeleteChildMenuItem(true);	//Enable Delete Child Menu Bar item
+				menuBar.setEnabledMarkorDeleteChildMenuItem(true);	//Enable Delete Child Menu Bar item
 		}
 		else
 		{
 			//family has no children, clear the child panel
 			currChild = null;
-			ONCMenuBar.setEnabledMarkorDeleteChildMenuItem(false);	//Disable Delete Child Menu Bar item
+			menuBar.setEnabledMarkorDeleteChildMenuItem(false);	//Disable Delete Child Menu Bar item
 		}
 		bChildTableDataChanging = false;
 	}
@@ -1986,6 +1989,11 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
     			display(currFam, null); //will set currChild if family has children
     			this.fireEntitySelected(this, EntityType.FAMILY, currFam, currChild);	
     		}
+		}
+		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_FONT_SIZE"))
+		{
+			Integer fontSize = (Integer) dbe.getObject();
+			setTextPaneFontSize(fontSize);
 		}
 	}
 

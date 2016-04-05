@@ -145,6 +145,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		oncFontSizeCB = new JComboBox(pdGVs.getFontSizes());
 		oncFontSizeCB.setSelectedIndex(pdGVs.getFontIndex());
 //		oncFontSizeCB.setBorder(BorderFactory.createTitledBorder("Font Size"));
+		oncFontSizeCB.addActionListener(this);
 		viewPanel.add(lblFont);
 		viewPanel.add(oncFontSizeCB);
 			
@@ -311,6 +312,10 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 			update();
 //			this.setVisible(false);
 //			this.dispose();
+		}
+		else if(e.getSource() == oncFontSizeCB)
+		{
+			pdGVs.setFontIndex(this, oncFontSizeCB.getSelectedIndex());
 		}
 	}
 

@@ -24,7 +24,16 @@ import com.google.gson.reflect.TypeToken;
 
 public class DatabaseManager extends ONCDatabase
 {
-	private static DatabaseManager oncDB = null;
+	/***
+	 * This singleton class implements a manager for all ONC component databases. The manager
+	 * initializes each component data base and loads them from the server. It uses a Swing
+	 * Worker to load the component data bases in a background thread. In addition, it 
+	 * can export the local component data bases to .csv files. 
+	 * 
+	 * The method also manages retrieving data base status from the server and adding a new
+	 * season to the server data base.
+	 */
+	private static DatabaseManager instance = null;
 	
 	//Local Data Base Structures
 	private GlobalVariables oncGVs;			//Holds the Global Variables
@@ -38,7 +47,6 @@ public class DatabaseManager extends ONCDatabase
 	private DriverDB oncDDB;				//Holds the ONC Driver Data Base
 	private DeliveryDB oncDelDB;			//Holds the ONC Delivery Data Base
 	private ONCRegions oncRegions;
-//	private DatabaseManager oncDB;				//Holds the years loaded on the server
 	private AdultDB oncAdultDB;				//Holds ONC Adult database
 	private MealDB oncMealDB;				//Holds ONC Meal database
 	
@@ -46,7 +54,7 @@ public class DatabaseManager extends ONCDatabase
 	{
 		super();
 		
-		//initialize the data structures
+		//initialize the component data bases
 		oncGVs = GlobalVariables.getInstance();
 		oncRegions = ONCRegions.getInstance();
 		UserDB.getInstance();
@@ -61,15 +69,14 @@ public class DatabaseManager extends ONCDatabase
 		oncAdultDB = AdultDB.getInstance();
 		oncMealDB = MealDB.getInstance();
 		oncFamDB = Families.getInstance();
-//		oncDB = DatabaseManager.getInstance();
 	}
 	
 	public static DatabaseManager getInstance()
 	{
-		if(oncDB == null)
-			oncDB = new DatabaseManager();
+		if(instance == null)
+			instance = new DatabaseManager();
 		
-		return oncDB;
+		return instance;
 	}
 	
 	void importObjectsFromDB(int year)
@@ -148,28 +155,27 @@ public class DatabaseManager extends ONCDatabase
 	    	int mssgType = JOptionPane.ERROR_MESSAGE;
 	    	
 			//send add new year request to the ONC Server via the  DBStatus data base
-	    	//and process response
-			String response = "Error message missing";
-			response = add(this);	//request add of new ONC season
-			
-			//the add method will notify the registered database listeners of the
-			//added season. We simply need to let the user know the result of the add 
-			//request	
+	    	//and process response. Inform the user of the result
+//			String response = "Error message missing";
+//			response = add(this);	//request add of new ONC season
+			String response = serverIF.sendRequest("POST<add_newseason>");		
 			if(response != null && response.startsWith("ADDED_DBYEAR"))
 			{
+				processAddedDBYear(response.substring(12));
+				
 				mssg = String.format("New season ucessfully added to ONC Server");
 				title = "Add Year Successful";
 				mssgType = JOptionPane.INFORMATION_MESSAGE;
 			}
-			else if(response != null && response.startsWith("ADD_DBYEAR_FAILED")) //alert the user the add failed
-				mssg = response.substring(17);					
-			else //general server error - didn't respond
-				mssg = "Error: ONC Server failed to respond";	
+			else if(response != null && response.startsWith("ADD_DBYEAR_FAILED"))
+				mssg = response.substring(17);	 //alert the user the add failed				
+			else 
+				mssg = "Error: ONC Server failed to respond";	//general server error - didn't respond
 			
 			JOptionPane.showMessageDialog(GlobalVariables.getFrame(), mssg, title, mssgType, oncGVs.getImageIcon(0));
 		}
     }
- 
+/* 
 	String add(Object source)
 	{
 		String response = serverIF.sendRequest("POST<add_newseason>");
@@ -179,7 +185,7 @@ public class DatabaseManager extends ONCDatabase
 				
 		return response;
 	}
-	
+*/	
 	void processAddedDBYear(String json)
 	{
 		//create the dbYear list object returned by the server

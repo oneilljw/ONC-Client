@@ -43,31 +43,14 @@ public class OurNeighborsChild
 	private FamilyPanel oncFamilyPanel;
 	private ONCMenuBar oncMenuBar;
 	
-
-	//Local Data Base Structures
-	private DatabaseManager dbManager;			//Holds the years loaded on the server
-	
-//	private UserDB oncUserDB;
-//	private Families oncFamDB;				//Holds ONC Family Database
-//	private ChildDB oncChildDB;				//Holds ONC Child database
-//	private ChildWishDB oncChildWishDB; 	//Holds ONC Child Wish database
-//	private ONCAgents oncAgentDB;			//Holds ONC Agents
-//	private ONCOrgs oncOrgDB;				//Holds ONC Partner Organizations
-//	private ONCWishCatalog oncWishCat;		//Holds ONC Wish Catalog
-//	private WishDetailDB oncWishDetailDB;	//Holds ONC Wish Detail Data Base
-//	private DriverDB oncDDB;				//Holds the ONC Driver Data Base
-//	private DeliveryDB oncDelDB;			//Holds the ONC Delivery Data Base
-//	private ONCRegions oncRegions;
-//	private AdultDB oncAdultDB;				//Holds ONC Adult database
-//	private MealDB oncMealDB;				//Holds ONC Meal database
-	
-	private DialogManager dlgManager;		//Managed all dialogs in client
+	private DatabaseManager dbManager;	//manages the local data base
+	private DialogManager dlgManager;	//manages all dialogs in client
 	
 	//Server Connection
 	private ServerIF serverIF;	
-//	private static String defaultServerAddress = "72.209.233.207";	//Cox based server
-//	private static String defaultServerAddress = "localhost";
-	private static String defaultServerAddress = "96.127.35.251";	//IDT-Amazon cloud based server
+//	private static final String defaultServerAddress = "72.209.233.207";	//Cox based server
+//	private static final String defaultServerAddress = "localhost";
+	private static final String defaultServerAddress = "96.127.35.251";	//IDT-Amazon cloud based server
 	private static final int PORT = 8901;
 
     public OurNeighborsChild()
@@ -167,31 +150,14 @@ public class OurNeighborsChild
         	writeServerIPAddressToFile(serverIPAddress);	//write the server address successfully used
         
         //server is connected, proceed with initialization
-        
-        
-        //Create global variables, set the main frame and the version number
+        //create global variables, set the main frame and the version number
         oncGVs = GlobalVariables.getInstance();
         oncGVs.setFrame(oncFrame);
         oncGVs.setVersion(ONC_VERSION);
         
-        dbManager = DatabaseManager.getInstance();
-/*        
         //initialize data structures
-        oncRegions = ONCRegions.getInstance();
-        oncUserDB = UserDB.getInstance();
-        oncAgentDB = ONCAgents.getInstance();
-        oncOrgDB = ONCOrgs.getInstance();
-        oncWishDetailDB = WishDetailDB.getInstance();
-        oncWishCat = ONCWishCatalog.getInstance();
-        oncDDB = DriverDB.getInstance();
-        oncDelDB = DeliveryDB.getInstance();
-        oncChildDB = ChildDB.getInstance();
-        oncChildWishDB = ChildWishDB.getInstance();
-        oncAdultDB = AdultDB.getInstance();
-        oncMealDB = MealDB.getInstance();
-        oncFamDB = Families.getInstance();
-        oncDB = DatabaseManager.getInstance();
-*/        
+        dbManager = DatabaseManager.getInstance();	
+
         //initialize the entity event manager
         EntityEventManager.getInstance();
         
@@ -252,7 +218,6 @@ public class OurNeighborsChild
         	
         	//get user data base
         	UserDB.getInstance().importUserDatabase();
-//        	oncUserDB.importUserDatabase();		//imported here to support chat prior to loading a year
         }
         
         //remove splash panel after authentication
@@ -389,71 +354,15 @@ public class OurNeighborsChild
     private void createandshowGUI()
 	{
         //Create the menu bar and set action listener for each menu item
-        oncMenuBar = new ONCMenuBar();
-        oncFrame.setJMenuBar(oncMenuBar);
-        
-        ONCMenuBar.exitMI.addActionListener(new ActionListener()
+        oncMenuBar = ONCMenuBar.getInstance(); 
+        oncMenuBar.exitMI.addActionListener(new ActionListener()
         {		
         	@Override
         	public void actionPerformed(ActionEvent e) { exit("LOGOUT"); }
         });
-/*        
-        MenuItemListener menuItemListener = new MenuItemListener();
-        
-        ONCMenuBar.newMI.addActionListener(menuItemListener);
-        ONCMenuBar.importONCMI.addActionListener(menuItemListener);
-        ONCMenuBar.importWishCatMI.addActionListener(menuItemListener);
-        ONCMenuBar.importPYMI.addActionListener(menuItemListener);
-        ONCMenuBar.importPYORGMI.addActionListener(menuItemListener);
-        ONCMenuBar.importODBMI.addActionListener(menuItemListener);
-        ONCMenuBar.importWFCMMI.addActionListener(menuItemListener);
-        ONCMenuBar.manageCallResultMI.addActionListener(menuItemListener);
-        ONCMenuBar.exportMI.addActionListener(menuItemListener);
-        ONCMenuBar.dbStatusMI.addActionListener(menuItemListener);
-        ONCMenuBar.clearMI.addActionListener(menuItemListener);       
-        ONCMenuBar.exitMI.addActionListener(menuItemListener);       
-        ONCMenuBar.findDupFamsMI.addActionListener(menuItemListener);
-        ONCMenuBar.findDupChldrnMI.addActionListener(menuItemListener);
-        ONCMenuBar.editDelMI.addActionListener(menuItemListener);
-        ONCMenuBar.manageDelMI.addActionListener(menuItemListener);
-        ONCMenuBar.importDrvrMI.addActionListener(menuItemListener);
-        ONCMenuBar.importRAFMI.addActionListener(menuItemListener);
-        ONCMenuBar.assignDelMI.addActionListener(menuItemListener);
-        ONCMenuBar.mapsMI.addActionListener(menuItemListener);
-        ONCMenuBar.distMI.addActionListener(menuItemListener);
-        ONCMenuBar.changeONCMI.addActionListener(menuItemListener);
-        ONCMenuBar.changeRefMI.addActionListener(menuItemListener);
-        ONCMenuBar.changeBatchMI.addActionListener(menuItemListener);
-//      ONCMenuBar.sortByONCMI.addActionListener(menuItemListener);
-        ONCMenuBar.delstatusMI.addActionListener(menuItemListener);             
-        ONCMenuBar.viewDBMI.addActionListener(menuItemListener);
-        ONCMenuBar.catMI.addActionListener(menuItemListener);
-        ONCMenuBar.sortWishesMI.addActionListener(menuItemListener);
-        ONCMenuBar.recGiftsMI.addActionListener(menuItemListener);
-        ONCMenuBar.sortMealsMI.addActionListener(menuItemListener);
-        ONCMenuBar.orgMI.addActionListener(menuItemListener);
-        ONCMenuBar.sortOrgsMI.addActionListener(menuItemListener);
-        ONCMenuBar.sortFamiliesMI.addActionListener(menuItemListener);
-        ONCMenuBar.agentMI.addActionListener(menuItemListener);
-        ONCMenuBar.aboutONCMI.addActionListener(menuItemListener);
-        ONCMenuBar.oncPrefrencesMI.addActionListener(menuItemListener);
-        ONCMenuBar.userMI.addActionListener(menuItemListener);
-        ONCMenuBar.newFamMI.addActionListener(menuItemListener);
-        ONCMenuBar.newChildMI.addActionListener(menuItemListener);
-        ONCMenuBar.markAdultMI.addActionListener(menuItemListener);
-        ONCMenuBar.delChildMI.addActionListener(menuItemListener);
-        ONCMenuBar.connectChildMI.addActionListener(menuItemListener);
-        ONCMenuBar.onlineMI.addActionListener(menuItemListener);
-        ONCMenuBar.chatMI.addActionListener(menuItemListener);
-        ONCMenuBar.profileMI.addActionListener(menuItemListener);
-        ONCMenuBar.changePWMI.addActionListener(menuItemListener);
-        ONCMenuBar.stopPollingMI.addActionListener(menuItemListener);
-        ONCMenuBar.showServerLogMI.addActionListener(menuItemListener);
-        ONCMenuBar.showServerClientIDMI.addActionListener(menuItemListener);
-        ONCMenuBar.showCurrDirMI.addActionListener(menuItemListener);
-        ONCMenuBar.showWebsiteStatusMI.addActionListener(menuItemListener);
-*/
-        //Create the family panel
+        oncFrame.setJMenuBar(oncMenuBar);
+
+        //Create the family panel main screen
         oncFamilyPanel = new FamilyPanel(oncFrame);
         oncContentPane.add(oncFamilyPanel);        
 	}
@@ -469,260 +378,11 @@ public class OurNeighborsChild
     	System.exit(0);
     }
     
-    /*******************************************************************************************
-     * This method is called when a server ADDED_FAMILY message is processed. If there were
-     * no families in the local database and the ADDED_FAMILY is the first, it will display
-     * that family and enable the navigation controls as well as the Menu Bar permissions
-     */
-/*    
-    void checkFamilyDataLoaded()
-    {
-    	if(oncFamDB.size() > 0)
+    public static void main(String args[])
+	{
+		SwingUtilities.invokeLater(new Runnable()
 		{
-			oncMenuBar.SetEnabledMenuItems(true);
-			oncFamilyPanel.onFamilyDataLoaded();
-			
-			if(GlobalVariables.isUserAdmin()) 
-				oncMenuBar.setEnabledRestrictedMenuItems(true);
-		}
-    }
-*/    
-/* 
-    private class MenuItemListener implements ActionListener
-    {
-    	public void actionPerformed(ActionEvent e)
-    	{
-    		if(e.getSource() == ONCMenuBar.newMI) { addONCSeason(); }
-//   		else if(e.getSource() == ONCMenuBar.importONCMI) {OnImportMenuItemClicked("ONC");}
-    		else if(e.getSource() == ONCMenuBar.importONCMI) { }
-    		else if(e.getSource() == ONCMenuBar.importWishCatMI)
-    			oncWishCat.importWishCatalog(oncFrame, oncGVs.getImageIcon(ONC_IMAGE_ICON_INDEX), null);
-    		else if(e.getSource() == ONCMenuBar.importPYMI)
-    		{
-    			//A prior year child database will be read and then split into different databases that 
-    			//correspond to prior year child birth years. This allows higher performance when trying
-    		    //to match a child from one season with a child from another season. 
-    			//This ArrayList holds each array lists of PriorYearChild objects by year of birth
-//    			ReadPriorYearCSVFile(oncPYCDB.getPriorYearChildAL());
-//    		    ArrayList<ArrayList<ONCPriorYearChild>> pycbyAgeAL = buildPriorYearByAgeArrayList();
-    			    			
-    			//Enable the family panel to use prior year child data bases
-//    		    if(!pycbyAgeAL.isEmpty()) { oncFamilyPanel.setPriorYearChildArrayList(pycbyAgeAL); }
-    		}
-    		else if(e.getSource() == ONCMenuBar.importPYORGMI)
-    			oncOrgDB.importOrgDB(oncFrame, oncGVs.getImageIcon(0), null);
-    		else if(e.getSource() == ONCMenuBar.importODBMI) {OnImportMenuItemClicked("ODB");}
-    		else if(e.getSource() == ONCMenuBar.importWFCMMI) {OnImportMenuItemClicked("WFCM");}
-    		else if(e.getSource() == ONCMenuBar.importRAFMI) { dlgManager.onImportRAFMenuItemClicked(); }
-    		else if(e.getSource() == ONCMenuBar.manageCallResultMI) {dlgManager.showAngelCallDialog();}
-    		else if(e.getSource() == ONCMenuBar.exportMI){ exportObjectDBToCSV(); }
-    		else if(e.getSource() == ONCMenuBar.dbStatusMI) {dlgManager.onDBStatusClicked();}
-    		else if(e.getSource() == ONCMenuBar.clearMI) {dlgManager.onClearMenuItemClicked();} 			       	
-    		else if(e.getSource() == ONCMenuBar.exitMI)	{exit("LOGOUT");}
-    		else if(e.getSource() == ONCMenuBar.findDupFamsMI)
-    			dlgManager.showCheckDialog(ONCMenuBar.findDupFamsMI.getActionCommand());
-    		else if(e.getSource() == ONCMenuBar.findDupChldrnMI)
-    			dlgManager.showCheckDialog(ONCMenuBar.findDupChldrnMI.getActionCommand());
-    		else if(e.getSource() == ONCMenuBar.assignDelMI)
-    			dlgManager.showSortDialog(ONCMenuBar.assignDelMI.getActionCommand(), SORT_DIALOG_OFFSET);
-    		else if(e.getSource() == ONCMenuBar.editDelMI)
-    			dlgManager.showEntityDialog(ONCMenuBar.editDelMI.getActionCommand(), SORT_DIALOG_OFFSET);
-    		else if(e.getSource() == ONCMenuBar.manageDelMI)
-    			dlgManager.showSortDialog(ONCMenuBar.manageDelMI.getActionCommand(), SORT_DIALOG_OFFSET);
-    		else if(e.getSource() == ONCMenuBar.importDrvrMI)
-    		{
-    			String mssg = oncDDB.importDrivers(oncFrame, oncGVs.getTodaysDate(),
-    									GlobalVariables.getUserLNFI(), oncGVs.getImageIcon(ONC_IMAGE_ICON_INDEX));
-    			
-//    			oncFamilyPanel.refreshDriverDisplays();	//Update dialog based on imported info
-    			
-    			//Information message that the drivr import completed successfully
-    		    JOptionPane.showMessageDialog(oncFrame, mssg,
-    					"Import Result", JOptionPane.INFORMATION_MESSAGE, oncGVs.getImageIcon(0));
-    		}
-    		else if(e.getSource() == ONCMenuBar.mapsMI) {dlgManager.showDrivingDirections();}
-    		else if(e.getSource() == ONCMenuBar.distMI) {dlgManager.showClientMap();}
-    		else if(e.getSource() == ONCMenuBar.changeONCMI)
-    			dlgManager.showFamilyInfoDialog(ONCMenuBar.changeONCMI.getActionCommand());
-    		else if(e.getSource() == ONCMenuBar.changeRefMI)
-    			dlgManager.showFamilyInfoDialog(ONCMenuBar.changeRefMI.getActionCommand());
-    		else if(e.getSource() == ONCMenuBar.changeBatchMI)
-    			dlgManager.showFamilyInfoDialog(ONCMenuBar.changeBatchMI.getActionCommand());
-    		else if(e.getSource() == ONCMenuBar.delstatusMI)
-    			dlgManager.showHistoryDialog(ONCMenuBar.delstatusMI.getActionCommand());
-    		else if(e.getSource() == ONCMenuBar.viewDBMI) {dlgManager.showEntireDatabase();}
-    		else if(e.getSource() == ONCMenuBar.sortWishesMI)
-    			dlgManager.showSortDialog(ONCMenuBar.sortWishesMI.getActionCommand(), SORT_DIALOG_OFFSET);
-    		else if(e.getSource() == ONCMenuBar.sortMealsMI)
-    			dlgManager.showSortDialog(ONCMenuBar.sortMealsMI.getActionCommand(), SORT_DIALOG_OFFSET);
-    		else if(e.getSource() == ONCMenuBar.recGiftsMI)
-    			dlgManager.showSortDialog(ONCMenuBar.recGiftsMI.getActionCommand(), SORT_DIALOG_OFFSET);
-    		else if(e.getSource() == ONCMenuBar.catMI) {dlgManager.showWishCatalogDialog(); }
-    		else if(e.getSource() == ONCMenuBar.orgMI)
-    			dlgManager.showEntityDialog(ONCMenuBar.orgMI.getActionCommand(), SORT_DIALOG_OFFSET);
-    		else if(e.getSource() == ONCMenuBar.sortOrgsMI)
-    			dlgManager.showSortDialog(ONCMenuBar.sortOrgsMI.getActionCommand(), SORT_DIALOG_OFFSET);
-    		else if(e.getSource() == ONCMenuBar.sortFamiliesMI)
-    			dlgManager.showSortDialog(ONCMenuBar.sortFamiliesMI.getActionCommand(), SORT_DIALOG_OFFSET);
-    		else if(e.getSource() == ONCMenuBar.agentMI)
-    			dlgManager.showSortDialog(ONCMenuBar.agentMI.getActionCommand(), SORT_DIALOG_OFFSET);
-    		else if(e.getSource() == ONCMenuBar.aboutONCMI)
-    		{
-    			//User has chosen to view the About ONC dialog
-    			String versionMsg = String.format("Our Neighbor's Child Client Version %s\n%s", ONC_VERSION, ONC_COPYRIGHT);
-        		JOptionPane.showMessageDialog(oncFrame, versionMsg, "About the ONC App", 
-        										JOptionPane.INFORMATION_MESSAGE,oncGVs.getImageIcon(0));
-    		}
-    		else if(e.getSource() == ONCMenuBar.oncPrefrencesMI)
-    		{
-    			//User has chosen to view the preferences dialog
-    			prefsDlg.setLocation((int)oncFrame.getLocation().getX() + 22, 
-    									(int)oncFrame.getLocation().getY() + 22);
-    	    	prefsDlg.display();
-    	        prefsDlg.setVisible(true); 
-    		}
-    		else if(e.getSource() == ONCMenuBar.newFamMI)
-    		{
-    			AddFamilyDialog afDlg = new AddFamilyDialog(oncFrame);
-    			afDlg.setVisible(true);
-    		}
-    		else if(e.getSource() == ONCMenuBar.delChildMI) { dlgManager.onDeleteChild(); }
-    		else if(e.getSource() == ONCMenuBar.newChildMI) { dlgManager.onAddNewChildClicked(); }
-    		else if(e.getSource() == ONCMenuBar.markAdultMI) { dlgManager.onMarkChildAsAdult(); }
-    		else if(e.getSource() == ONCMenuBar.connectChildMI) { dlgManager.showConnectPYChildDialog(); }
-    		else if(e.getSource() == ONCMenuBar.userMI) { dlgManager.showUserDialog(); }
-    		else if(e.getSource() == ONCMenuBar.onlineMI) { dlgManager.onWhoIsOnline(); }
-    		else if(e.getSource() == ONCMenuBar.chatMI) { dlgManager.onChat(); }
-    		else if(e.getSource() == ONCMenuBar.profileMI) { dlgManager.onEditProfile(); }
-    		else if(e.getSource() == ONCMenuBar.changePWMI) { dlgManager.onChangePassword(); }
-    		else if(e.getSource() == ONCMenuBar.stopPollingMI && serverIF != null) { serverIF.setEnabledServerPolling(false); }
-    		else if(e.getSource() == ONCMenuBar.showServerLogMI && serverIF != null)
-    		{
-    			logDlg.setLocationRelativeTo(oncFrame);
-    			logDlg.setVisible(true);
-    		}
-    		else if(e.getSource() == ONCMenuBar.showServerClientIDMI)
-    		{
-    			ONCPopupMessage clientIDPU = new ONCPopupMessage( oncGVs.getImageIcon(0));
-    			clientIDPU.setLocationRelativeTo(GlobalVariables.getFrame());
-    			String mssg = String.format("Your ONC Server Client ID is: %d", oncGVs.getUser().getClientID());
-    			clientIDPU.show("ONC Server Client ID", mssg);
-    		}    		
-    		else if(e.getSource() == ONCMenuBar.showCurrDirMI)
-    		{
-    			ONCPopupMessage clientIDPU = new ONCPopupMessage( oncGVs.getImageIcon(0));
-    			clientIDPU.setLocationRelativeTo(GlobalVariables.getFrame());
-    			String mssg = String.format("Current folder is: %s", System.getProperty("user.dir"));
-    			clientIDPU.show("ONC Client Current Folder", mssg);
-    		}
-    		else if(e.getSource() == ONCMenuBar.showWebsiteStatusMI) { dlgManager.onWebsiteStatus(); }
-    	}   	
-    }
-    
-*/
-    /***************************************************************************************************
-     * This class communicates with the ONC Server to fetch season data from the server data base
-     * and store in the local data base. This executes as a background task. A progress bar,
-     * provided at the time the class is instantiated, shows the user the progress in fetching data. 
-     **************************************************************************************************/
-/*    
-    public class ONCServerDBImporter extends SwingWorker<Void, Void>
-    {
-    	private static final int NUM_OF_DBs = 13;
-    	String year;
-    	ONCProgressBar pb;
-    	boolean bServerDataLoaded;
-    	
-    	ONCServerDBImporter(int year, ONCProgressBar pb)
-    	{
-    		this.year = Integer.toString(year);;
-    		this.pb = pb;
-    		bServerDataLoaded = false;
-    	}
-    	
-		@Override
-		protected Void doInBackground() throws Exception
-		{
-			int progress = 0;
-			int increment = 100/NUM_OF_DBs;
-			this.setProgress(progress);
-	    	
-	    	//Set the year this client will be working with
-	    	serverIF.sendRequest("POST<setyear>" + year);
-			
-			//import from ONC Server
-	    	pb.updateHeaderText("<html>Loading Regions</html>");
-			oncRegions.getRegionsFromServer();
-			this.setProgress(progress += increment);
-			
-			pb.updateHeaderText("Loading Season Data");
-			oncGVs.importGlobalVariableDatabase();
-			this.setProgress(progress += increment);
-
-			pb.updateHeaderText("Loading Families");
-			oncFamDB.importDB();
-			this.setProgress(progress += increment);
-			
-			pb.updateHeaderText("Loading Adults");
-			oncAdultDB.importDB();
-			this.setProgress(progress += increment);
-			
-			pb.updateHeaderText("Loading Meals");
-			oncMealDB.importDB();
-			this.setProgress(progress += increment);
-			
-			pb.updateHeaderText("Loading Children");
-			oncChildDB.importChildDatabase();
-			this.setProgress(progress += increment);
-			
-			pb.updateHeaderText("Loading Wishes");
-			oncChildWishDB.importChildWishDatabase();
-			this.setProgress(progress += increment);
-			
-			pb.updateHeaderText("Loading Agents");
-			oncAgentDB.importAgentDatabase();
-			this.setProgress(progress += increment);
-			
-			pb.updateHeaderText("Loading Partners");
-			oncOrgDB.importDB();
-			this.setProgress(progress += increment);
-			
-			pb.updateHeaderText("Loading Drivers");
-			oncDDB.importDriverDatabase();
-			this.setProgress(progress += increment);
-			
-			pb.updateHeaderText("Loading Deliveries");
-			oncDelDB.importDeliveryDatabase();
-			this.setProgress(progress += increment);
-			
-			pb.updateHeaderText("Loading Catalog");
-			oncWishCat.importWishCatalogFromServer();
-			this.setProgress(progress += increment);
-			
-			pb.updateHeaderText("Loading Detail");
-			oncWishDetailDB.importWishDetailDatabase();
-			this.setProgress(progress += increment);
-			
-			bServerDataLoaded = true;
-			
-			return null;
-		}
-		
-		 // Executed in event dispatching thread
-	    @Override
-	    public void done()
-	    {
-	    	serverDataLoadComplete(bServerDataLoaded, year);
-	        Toolkit.getDefaultToolkit().beep();
-	        pb.dispose();
-	    }
-    }
-*/    
-	
-	 public static void main(String args[])
-	 {
-		 SwingUtilities.invokeLater(new Runnable() {
-	            public void run() { new OurNeighborsChild(); }
-	     });
-	 }	    
+			public void run() { new OurNeighborsChild(); }
+	    });
+	}	    
 }//End of Class
