@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-import javax.swing.ImageIcon;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -35,12 +34,12 @@ public class ONCMenuBar extends JMenuBar implements ActionListener, DatabaseList
 	private static JMenuItem assignDelMI, editDelMI, manageDelMI, importDrvrMI, mapsMI, delstatusMI, distMI;
 	private static JMenuItem newFamMI, changeONCMI, changeRefMI, changeBatchMI, newChildMI, delChildMI, markAdultMI, connectChildMI;
 	private static JMenu submenuImport, submenuFamilyDataChecks;
-	private static JMenu submenuExport, submenuChangeFamilyNumbers, submenuCompareData, submenuDatabase;
+	private static JMenu submenuExport, submenuChangeFamilyNumbers, submenuCompareData, submenuDBYearList;
 	private static JMenuItem viewDBMI, sortWishesMI, sortFamiliesMI, sortOrgsMI, recGiftsMI, sortMealsMI;
 	private static JMenuItem agentMI, orgMI, catMI;
 	private static JMenuItem aboutONCMI, oncPrefrencesMI, profileMI, userMI, onlineMI, chatMI, changePWMI, stopPollingMI;
 	private static JMenuItem showServerLogMI, showServerClientIDMI, showCurrDirMI, showWebsiteStatusMI;
-	private List<JMenuItem> dbYears;
+	private List<JMenuItem> dbYearsMIList;
 	
 	private DialogManager dlgManager;
 	private DatabaseManager dbManager;
@@ -58,29 +57,29 @@ public class ONCMenuBar extends JMenuBar implements ActionListener, DatabaseList
 		if(familyDB != null)
 			familyDB.addDatabaseListener(this);
 		
-		JMenu menuFile, menuAgents, menuFamilies, menuWishes, menuMeals, menuPartners, menuDelivery, menuSettings;	    
+		JMenu menuDatabase, menuAgents, menuFamilies, menuWishes, menuMeals, menuPartners, menuDelivery, menuSettings;	    
         
 	    //Build the Database menu.
-	    menuFile = new JMenu("Database");
-	    this.add(menuFile);
+	    menuDatabase = new JMenu("Database");
+	    this.add(menuDatabase);
 	 
-	    submenuDatabase = new JMenu("Select Year");
-	    submenuDatabase.setEnabled(false);   
-	    dbYears = new ArrayList<JMenuItem>();
-	    menuFile.add(submenuDatabase);
+	    submenuDBYearList = new JMenu("Select Year");
+	    submenuDBYearList.setEnabled(false);   
+	    dbYearsMIList = new ArrayList<JMenuItem>();
+	    menuDatabase.add(submenuDBYearList);
 	    
 	    newMI = new JMenuItem("Add Year");
 	    newMI.setEnabled(false);
 	    newMI.setVisible(false);
 	    newMI.addActionListener(this);
-	    menuFile.add(newMI);
+	    menuDatabase.add(newMI);
 	    
 	    dbStatusMI = new JMenuItem("Lock/Unlock Year");
 	    dbStatusMI.setVisible(false);
 	    dbStatusMI.addActionListener(this);
-	    menuFile.add(dbStatusMI);
+	    menuDatabase.add(dbStatusMI);
 
-	    menuFile.addSeparator();
+	    menuDatabase.addSeparator();
 	    
 	    submenuImport = new JMenu("Import");
 	    submenuImport.setEnabled(false);
@@ -112,12 +111,7 @@ public class ONCMenuBar extends JMenuBar implements ActionListener, DatabaseList
 	    importWFCMMI = new JMenuItem("From WFCM...");
 	    importWFCMMI.addActionListener(this);
 	    submenuImport.add(importWFCMMI);
-	    
-	    //Import Angel Call Results
-//	    manageCallResultMI = new JMenuItem("Angel Call Results...");
-//	    manageCallResultMI.setEnabled(false);
-//	    submenuImport.add(manageCallResultMI);
-	    
+
 	    //Import Delivery Partners
 	    importDrvrMI = new JMenuItem("Delivery Partners...");
 	    importDrvrMI.addActionListener(this);
@@ -128,7 +122,7 @@ public class ONCMenuBar extends JMenuBar implements ActionListener, DatabaseList
 	    importRAFMI.addActionListener(this);
 	    submenuImport.add(importRAFMI);
     
-	    menuFile.add(submenuImport);
+	    menuDatabase.add(submenuImport);
 	    
 	    submenuExport = new JMenu("Export");
 	    submenuExport.setEnabled(false);
@@ -137,18 +131,18 @@ public class ONCMenuBar extends JMenuBar implements ActionListener, DatabaseList
 	    exportMI.addActionListener(this);
 	    submenuExport.add(exportMI);
 	    
-	    menuFile.add(submenuExport);
+	    menuDatabase.add(submenuExport);
 	   
-	    menuFile.addSeparator();
+	    menuDatabase.addSeparator();
 	    
 	    clearMI = new JMenuItem("Clear");
 	    clearMI.setEnabled(false);
 	    clearMI.addActionListener(this);
-	    menuFile.add(clearMI);
+	    menuDatabase.add(clearMI);
 	    
 	    exitMI = new JMenuItem("Log Out");
 	    exitMI.addActionListener(this);
-	    menuFile.add(exitMI);
+	    menuDatabase.add(exitMI);
 	    	    
 	    //Build the Agents menu.
 	    menuAgents = new JMenu("Agents");
@@ -409,18 +403,25 @@ public class ONCMenuBar extends JMenuBar implements ActionListener, DatabaseList
 	}
 	
 	/******************************************************************************************
-     * The  addDBYear method is separate as it is called when the application instantiates as well
-     * as when the user requests addition of a new ONC season by adding a year to the list
-     * @param dbYear
+     * Adds a DBYear to the Database menu SelectYear submenu
      ****************************************************************************************/
-    void addDBYear(DBYear dbYear)
+    void addDBYearToSubmenu(DBYear dbYear)
     {	
     	String zYear = Integer.toString(dbYear.getYear());
-		JMenuItem mi = addDBYear(zYear, GlobalVariables.getInstance().getImageIcon(dbYear.isLocked() ? 
+    	
+//		JMenuItem mi = addDBYear(zYear, GlobalVariables.getInstance().getImageIcon(dbYear.isLocked() ? 
+//				DB_LOCKED_IMAGE_INDEX : DB_UNLOCKED_IMAGE_INDEX));
+		
+		JMenuItem mi = new JMenuItem(zYear, GlobalVariables.getInstance().getImageIcon(dbYear.isLocked() ? 
 				DB_LOCKED_IMAGE_INDEX : DB_UNLOCKED_IMAGE_INDEX));
+		mi.setActionCommand(zYear);
+			
+		dbYearsMIList.add(mi);
+		submenuDBYearList.add(mi);
+		
 		mi.addActionListener(new MenuItemDBYearsListener());
     }
-	
+/*	
 	JMenuItem addDBYear(String year, ImageIcon lockIcon)
 	{
 		JMenuItem mi = new JMenuItem(year, lockIcon);
@@ -431,15 +432,15 @@ public class ONCMenuBar extends JMenuBar implements ActionListener, DatabaseList
 		
 		return mi;
 	}
-	
+*/	
 	void processDBYears(List<DBYear> dbYears)
     {
     	//clear the current list
-		submenuDatabase.removeAll();
+		submenuDBYearList.removeAll();
 //		dbYears.clear(); 
     	
 		for(DBYear dbYear:dbYears)
-			addDBYear(dbYear);
+			addDBYearToSubmenu(dbYear);
 		
 		//determine if we can allow the user to add a new season. Enable adding a new
 		//season if the current date is in the year to be added, the year hasn't already
@@ -509,10 +510,10 @@ public class ONCMenuBar extends JMenuBar implements ActionListener, DatabaseList
 	
 	void setEnabledServerConnected(boolean tf)
 	{
-		submenuDatabase.setEnabled(tf);
+		submenuDBYearList.setEnabled(tf);
 	}
 	
-	void setEnabledYear(boolean tf) {submenuDatabase.setEnabled(tf);}
+	void setEnabledYear(boolean tf) {submenuDBYearList.setEnabled(tf);}
 	void setEnabledNewMenuItem(boolean tf) { newMI.setEnabled(tf); }
 	void setEnabledPriorYearSpecialImport(boolean tf) { importPYMI.setEnabled(tf); }
 	void setEnabledImportMenuItems(boolean tf) { submenuImport.setEnabled(tf); }
@@ -537,21 +538,22 @@ public class ONCMenuBar extends JMenuBar implements ActionListener, DatabaseList
 			DBYear updatedDBYear = (DBYear) dbe.getObject();
 			
 			int index=0;
-			while(index<dbYears.size() &&
-					!dbYears.get(index).getActionCommand().equals(updatedDBYear.toString()))
+			while(index<dbYearsMIList.size() &&
+					!dbYearsMIList.get(index).getActionCommand().equals(updatedDBYear.toString()))
 				index++;
 			
-			if(index < dbYears.size())
-				dbYears.get(index).setIcon(updatedDBYear.isLocked() ? 
+			if(index < dbYearsMIList.size())
+				dbYearsMIList.get(index).setIcon(updatedDBYear.isLocked() ? 
 						GlobalVariables.getLockedIcon() : GlobalVariables.getUnLockedIcon());
 		}
 		else if(dbe.getType().equals("ADDED_DBYEAR"))
 		{
-			DBYear addedDBYear = (DBYear) dbe.getObject();
-			addDBYear(addedDBYear);
+			//returns a list of added years. Clear the menu item list of years and add new ones
+			List<DBYear> dbYears = (List<DBYear>) dbe.getObject();
+			processDBYears(dbYears);
 			
 			//now that the year is added, disable adding another year
-			setEnabledNewMenuItem(false);
+//			setEnabledNewMenuItem(false);
 		}
 		
 		//if this is the first family loaded locally, show it on the display
@@ -564,7 +566,7 @@ public class ONCMenuBar extends JMenuBar implements ActionListener, DatabaseList
 					setEnabledRestrictedMenuItems(true);
 			}
 		}
-		else if(dbe.getSource() != this && dbe.getType().equals("SERVER_DATA_LOADED"))
+		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_DATABASE"))
 		{
 			setEnabledYear(false);
     		setEnabledNewMenuItem(false);
@@ -725,9 +727,9 @@ public class ONCMenuBar extends JMenuBar implements ActionListener, DatabaseList
 	 {
 		 public void actionPerformed(ActionEvent e)
 	     {
-	    	for(int i=0; i< dbYears.size(); i++)
+	    	for(int i=0; i< dbYearsMIList.size(); i++)
 	    	{
-	    		JMenuItem mi = dbYears.get(i);
+	    		JMenuItem mi = dbYearsMIList.get(i);
 	    		if(e.getSource() == mi)
 	    			dbManager.importObjectsFromDB(Integer.parseInt(e.getActionCommand())); 
 	    	}

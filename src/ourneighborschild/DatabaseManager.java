@@ -103,7 +103,8 @@ public class DatabaseManager extends ONCDatabase
 		response = serverIF.sendRequest("GET<dbstatus>");
 				
 		//check response. If response from server indicates a successful return,
-		//return the list of DB Years to the ui who requested the list.
+		//return the list of DB Years to the ui who requested the list. Sort
+		//the list such that most current year is at the top of the list (index = 0)
 		if(response != null && response.startsWith("DB_STATUS"))
 		{	
 			dbYearList = gson.fromJson(response.substring(9), listOfDBs);
@@ -142,59 +143,33 @@ public class DatabaseManager extends ONCDatabase
 		if(selectedValue != null && selectedValue.toString().startsWith("Add"))
 		{
 			//set up user notification of result
-	    	String mssg ="";
+			String mssg;
 	    	String title = "Add Year Failed";
 	    	int mssgType = JOptionPane.ERROR_MESSAGE;
 	    	
 			//send add new year request to the ONC Server via the  DBStatus data base
 	    	//and process response
 			String response = "Error message missing";
-			if(oncDB != null)
+			response = add(this);	//request add of new ONC season
+			
+			//the add method will notify the registered database listeners of the
+			//added season. We simply need to let the user know the result of the add 
+			//request	
+			if(response != null && response.startsWith("ADDED_DBYEAR"))
 			{
-				response = oncDB.add(this);	//request add of new ONC season
-				
-				//if the response indicates the server successfully add the year, it returns a 
-				//json of a list of new DBYear objects with the new year added to the end. 
-				//Process the list
-				if(response != null && response.startsWith("ADDED_DBYEAR"))
-				{
-					Gson gson = new Gson();
-					Type listtype = new TypeToken<ArrayList<DBYear>>(){}.getType();
-					ArrayList<DBYear> dbYearList =  gson.fromJson(response.substring(12), listtype);
-					
-//					int newYear = processAddedONCSeason(dbYearList);
-					
-					mssg = String.format("New season ucessfully added to ONC Server");
-					title = "Add Year Successful";
-					mssgType = JOptionPane.INFORMATION_MESSAGE;
-				}
-				else if(response != null && response.startsWith("ADD_DBYEAR_FAILED")) //alert the user the add failed
-					mssg = response.substring(17);					
-				else //general server error - didn't respond
-					mssg = "Error: ONC Server failed to respond";	
+				mssg = String.format("New season ucessfully added to ONC Server");
+				title = "Add Year Successful";
+				mssgType = JOptionPane.INFORMATION_MESSAGE;
 			}
-			else //server is not connected
-				mssg = "Error: Client is not connected to the ONC Server";
+			else if(response != null && response.startsWith("ADD_DBYEAR_FAILED")) //alert the user the add failed
+				mssg = response.substring(17);					
+			else //general server error - didn't respond
+				mssg = "Error: ONC Server failed to respond";	
 			
 			JOptionPane.showMessageDialog(GlobalVariables.getFrame(), mssg, title, mssgType, oncGVs.getImageIcon(0));
 		}
     }
- /*   
-    int processAddedONCSeason(ArrayList<DBYear> dbYearList)
-    {    	
-    	//clear the current list
-    	oncMenuBar.clearDataBaseYears();
-		
-		for(DBYear dbYear:dbYearList)
-			addDBYear(dbYear, menuItemDBYearListener);
-		
-		//now that the year is added, disable adding another year
-		oncMenuBar.setEnabledNewMenuItem(false);
-		
-		//return last year in the list
-		return dbYearList.get(dbYearList.size()-1).getYear();
-    }
-*/	
+ 
 	String add(Object source)
 	{
 		String response = serverIF.sendRequest("POST<add_newseason>");
@@ -375,7 +350,7 @@ public class DatabaseManager extends ONCDatabase
 			
 			//check to see if family data is present and enable controls
 //			checkFamilyDataLoaded();
-			this.fireDataChanged(this, "SERVER_DATA_LOADED", year);
+			this.fireDataChanged(this, "LOADED_DATABASE", year);
     	}
 
     	//tell the server if to pass on server data base changes to local data bases

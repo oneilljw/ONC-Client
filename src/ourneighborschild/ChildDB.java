@@ -312,7 +312,8 @@ public class ChildDB extends ONCDatabase
 			if(!response.startsWith("NO_CHILDREN"))
 			{
 				response =  "CHILDREN_LOADED";
-			}	fireDataChanged(this, "LOADED_CHILDREN", null);
+				fireDataChanged(this, "LOADED_CHILDREN", null);
+			}
 		}
 		
 		return response;

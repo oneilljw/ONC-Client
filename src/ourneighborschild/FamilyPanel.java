@@ -1743,7 +1743,6 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		if(!e.getValueIsAdjusting() && e.getSource() == childTable.getSelectionModel() && !bChildTableDataChanging && 
 				cDB.getNumberOfChildrenInFamily(currFam.getID()) > 0)
 		{
-			System.out.println(String.format("FamPanel.valueChanged Inside: valueAdjusting: %s", e.getValueIsAdjusting()));
 			//Get new child selected by user and display their information
 			currChild = ctAL.get(childTable.getSelectedRow());
 			refreshODBWishListHighlights(currFam, currChild);
@@ -1829,8 +1828,6 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	@Override
 	public void dataChanged(DatabaseEvent dbe) 
 	{
-		System.out.println(dbe.getType());
-		
 		if(dbe.getSource() != this && dbe.getType().equals("UPDATED_FAMILY"))
 		{
 //			System.out.println(String.format("FamilyPanel DB Event: Source: %s, Type: %s, Object: %s",
@@ -1969,8 +1966,9 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 				checkForAdultsInFamily();
 			}
 		}
-		else if(dbe.getType().equals("SERVER_DATA_LOADED"))
+		else if(dbe.getType().equals("LOADED_DATABASE"))
 		{
+			//set the family panel nav message
 			String mssg;
 			String year = (String) dbe.getObject();
 			
@@ -1980,6 +1978,14 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 				mssg = gvs.getUser().getFirstname() + ", " + year + " season data has been loaded";
 			
     		setMssg(mssg, true);
+    		
+    		//if first family is present, load family and fire family selected event
+    		if(fDB.size() > 0)
+    		{
+    			currFam = (ONCFamily) fDB.getObjectAtIndex(nav.getIndex());
+    			display(currFam, null); //will set currChild if family has children
+    			this.fireEntitySelected(this, EntityType.FAMILY, currFam, currChild);	
+    		}
 		}
 	}
 
