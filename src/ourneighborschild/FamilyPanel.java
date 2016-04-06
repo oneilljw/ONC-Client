@@ -98,7 +98,6 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private JComboBox Language, statusCB;
 	private ComboItem[] delStatus;
 	public  JTable childTable;
-//	private DefaultTableModel childTableModel;
 	private ChildTableModel childTableModel;
 	private ArrayList<ONCChild> ctAL; //List holds children object references being displayed in table
 	
@@ -108,56 +107,9 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	//An instance of the private subclass of the default highlight painter
 	private static DefaultHighlighter.DefaultHighlightPainter highlightPainter;
 	
+	//sub-panels of the family panel
 	private ChildPanel oncChildPanel;
 	private WishPanel[] wishPanelList;
-	
-	//Dialogs that are children of the family panel
-//	private static ClientMapDialog cmDlg;
-	
-//	private AdultDialog adultDlg;
-//	private DirectionsDialog dirDlg;
-//	private WishCatalogDialog catDlg;
-//	private ONCUserDialog userDlg;
-//	private ViewONCDatabaseDialog dbDlg;
-//	private PYChildConnectionDialog pyConnectionDlg;
-//	private AngelAutoCallDialog angelDlg;
-	
-	//dialogs that inherit from HistoryDialog
-//	private Map<String, HistoryDialog> historyDlgMap;
-//	private DeliveryHistoryDialog dsDlg;
-//	private MealDialog mealDlg;
-	
-	//dialogs that inherit from InfoDialog
-//	private Map<String, InfoDialog> familyInfoDlgMap;
-//	private AgentInfoDialog agentInfoDlg;
-//	private TransportationDialog transportationDlg;
-//	private AddMealDialog addMealDlg;
-//	private ChangeONCNumberDialog changeONCNumberDlg;
-//	private ChangeReferenceNumberDialog changeReferenceNumberDlg;
-//	private ChangeBatchNumberDialog changeBatchNumberDlg;
-	
-	//dialogs that inherit from CheckDialog
-//	private Map<String, CheckDialog> checkDlgMap;
-//	private ChildCheckDialog dcDlg;
-//	private FamilyCheckDialog dfDlg;
-	
-	//dialogs that inherit from SortTableDialog
-//	private Map<String, SortTableDialog> stDlgMap;
-//	private SortFamilyDialog sortFamiliesDlg;
-//	private SortAgentDialog sortAgentDlg;
-//	private AssignDeliveryDialog assignDeliveryDlg;
-//	private SortDriverDialog sortDriverDlg;
-//	private SortPartnerDialog sortPartnerDlg;
-//	private SortWishDialog sortWishesDlg;
-//	private SortMealsDialog sortMealsDlg;
-//	private ReceiveGiftsDialog recGiftsDlg;
-	
-	//dialogs that inherit from Entity Dialog
-//	private Map<String, EntityDialog> entityDlgMap;
-//	private OrganizationDialog orgDlg;
-//	private DriverDialog driverDlg;
-	
-//	private LogDialog logDlg;
 	
 	public FamilyPanel(JFrame pf)
 	{
@@ -206,7 +158,6 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	    nav.setCount2("Served Children: " + Integer.toString(0));
 	    nav.setNextButtonText("Next Family");
 	    nav.setPreviousButtonText("Previous Family");
-//	    eeManager.registerEntitySelector(nav);	//register nav as entity selector
 	    
 		//Setup sub panels that comprise the Family Panel
 		p1 = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -431,17 +382,8 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		};
 		childTable.setToolTipText("Click or use up/down keys to select a child");
 		
-		childTableModel = new ChildTableModel();
-       
- //       childTableModel = new DefaultTableModel(new Object[]{"First Name","Last Name", "DoB", "Gend"},0)
- //       {
- //          private static final long serialVersionUID = 1L;
- //          @Override
- //          	//every cell cannot be edited
- //          	public boolean isCellEditable(int row, int column) {return false;}
- //       };      
+		childTableModel = new ChildTableModel();     
         childTable.setModel(childTableModel);
-       
         childTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
              
         childTable.getColumnModel().getColumn(0).setPreferredWidth(72);
@@ -501,154 +443,11 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	    //Create the ONC Delivery Instructions scroll pane and add the ONC Note text pane to it.
         JScrollPane oncDIscrollPane = new JScrollPane(oncDIPane);
         oncDIscrollPane.setBorder(BorderFactory.createTitledBorder("Delivery Instructions"));
-        
-/*        
-        //initialize the dialog maps
-        stDlgMap = new HashMap<String, SortTableDialog>();
-        familyInfoDlgMap = new HashMap<String, InfoDialog>();
-        entityDlgMap = new HashMap<String, EntityDialog>();
-        checkDlgMap = new HashMap<String, CheckDialog>();
-        historyDlgMap = new HashMap<String, HistoryDialog>();
-        
-        //Set up delivery history dialog box 
-        dsDlg = new DeliveryHistoryDialog(parentFrame);
-        historyDlgMap.put("Delivery History", dsDlg);
-        eeManager.registerEntitySelectionListener(dsDlg);
-        
-        //Set up meal history dialog box 
-        mealDlg = new MealDialog(parentFrame);
-        historyDlgMap.put("Meal History", mealDlg);
-        eeManager.registerEntitySelectionListener(mealDlg);
-        
-        //Set up adult dialog box 
-        adultDlg = new AdultDialog(pf);
-        eeManager.registerEntitySelectionListener(adultDlg);
-       
-        //Set up delivery directions dialog box 
-        try { dirDlg = new DirectionsDialog(parentFrame); }
-		catch (JSONException e1) {// TODO Auto-generated catch block 
-			e1.printStackTrace();}
-        eeManager.registerEntitySelectionListener(dirDlg);
-        
-        //Set up client map dialog
-        cmDlg = new ClientMapDialog(parentFrame); 
-        
-        //Set up the sort wishes dialog
-        sortWishesDlg = new SortWishDialog(parentFrame);
-        eeManager.registerEntitySelector(sortWishesDlg);
-        stDlgMap.put("Wishes", sortWishesDlg);
-
-    	//Set up the manage catalog dialog
-    	catDlg = new WishCatalogDialog(parentFrame);
-    	
-    	//Set up the manage user dialog
-    	userDlg = new ONCUserDialog(parentFrame);
-    	
-    	 //Set up the sort family dialog
-        sortFamiliesDlg = new SortFamilyDialog(parentFrame);
-        stDlgMap.put("Families", sortFamiliesDlg);
-        eeManager.registerEntitySelector(sortFamiliesDlg);
-        
-      //Set up the sort meals dialog
-        sortMealsDlg = new SortMealsDialog(parentFrame);
-        stDlgMap.put("Meals", sortMealsDlg);
-        eeManager.registerEntitySelector(sortMealsDlg);
-    	
-    	//Set up the dialog to edit agent info
-    	String[] tfNames = {"Name", "Organization", "Title", "Email", "Phone"};
-    	agentInfoDlg = new AgentInfoDialog(parentFrame, tfNames, false);
-    	familyInfoDlgMap.put("Agent", agentInfoDlg);
-    	eeManager.registerEntitySelectionListener(agentInfoDlg);
-    	
-    	//Set up the dialog to edit family transportation info
-    	String[] transNames = {"ONC #", "Last Name", "Has Transportation?"};
-    	transportationDlg = new TransportationDialog(parentFrame, false, transNames);
-    	familyInfoDlgMap.put("Transportation", transportationDlg);
-    	eeManager.registerEntitySelectionListener(transportationDlg);
-    	
-    	//Set up the dialog to add a meal to family
-    	String[] mealNames = {"ONC #", "Last Name", "Meal Type", "Restrictions"};
-    	addMealDlg = new AddMealDialog(parentFrame, true, mealNames);
-    	familyInfoDlgMap.put("Add Meal", addMealDlg);
-    	
-    	//Set up the dialog to change family ONC Number
-    	String[] oncNum = {"Change ONC #"};
-    	changeONCNumberDlg = new ChangeONCNumberDialog(parentFrame, oncNum);
-    	familyInfoDlgMap.put("Change ONC #", changeONCNumberDlg);
-    	
-    	//Set up the dialog to change family ODB Number
-    	String[] refNum = {"Change Ref #"};
-    	changeReferenceNumberDlg = new ChangeReferenceNumberDialog(parentFrame, refNum);
-    	familyInfoDlgMap.put("Change Ref #", changeReferenceNumberDlg);
-    	
-    	//Set up the dialog to change family batch number
-    	String[] batchNum = {"Change Batch #"};
-    	changeBatchNumberDlg = new ChangeBatchNumberDialog(parentFrame, batchNum);
-    	familyInfoDlgMap.put("Change Batch #", changeBatchNumberDlg);
-
-    	//Set up the sort agent dialog
-    	sortAgentDlg = new SortAgentDialog(parentFrame);
-    	stDlgMap.put("Agents", sortAgentDlg);
-    	eeManager.registerEntitySelector(sortAgentDlg);
-    	
-    	//set up the assign delivery dialog
-    	assignDeliveryDlg = new AssignDeliveryDialog(parentFrame);
-    	stDlgMap.put("Deliveries", assignDeliveryDlg);
-    	eeManager.registerEntitySelector(sortAgentDlg);
-    	
-    	//set up the sort driver dialog
-    	sortDriverDlg = new SortDriverDialog(parentFrame);
-    	stDlgMap.put("Drivers", sortDriverDlg);
-    	eeManager.registerEntitySelector(sortDriverDlg);
-    	
-    	//Set up the edit driver (deliverer) dialog and register it to listen for Family 
-    	//Selection events from particular ui's that have driver's associated
-        driverDlg = new DriverDialog(parentFrame);
-        entityDlgMap.put("Edit Delivery Partners", driverDlg);
-        eeManager.registerEntitySelectionListener(driverDlg);
-        
-        //Set up the view family database dialog
-        dbDlg = new ViewONCDatabaseDialog(parentFrame);
-        
-        //Set up the edit gift partner dialog
-        orgDlg = new OrganizationDialog(parentFrame);
-        entityDlgMap.put("Edit Partners", orgDlg);
-        eeManager.registerEntitySelectionListener(orgDlg);
-        
-      //Set up the Angel auto-call dialog
-       angelDlg = new AngelAutoCallDialog(parentFrame);
-   	   eeManager.registerEntitySelector(angelDlg);
-   	   
-        
-        //Set up the sort gift partner dialog
-        sortPartnerDlg = new SortPartnerDialog(parentFrame);
-        stDlgMap.put("Partners", sortPartnerDlg);
-        eeManager.registerEntitySelector(sortPartnerDlg);
-        
-        //set up the data check dialog and table row selection listener
-        dcDlg = new ChildCheckDialog(pf);
-        checkDlgMap.put("Duplicate Children Check", dcDlg);
-        eeManager.registerEntitySelector(dcDlg);
-        
-        //set up the family check dialog and table row selection listener
-        dfDlg = new FamilyCheckDialog(pf);
-        checkDlgMap.put("Duplicate Family Check", dfDlg);
-        eeManager.registerEntitySelector(dfDlg);
-*/        
+            
         //Create the Child Panel
         oncChildPanel = new ChildPanel();
-//      this.addEntitySelectionListener(oncChildPanel);
         eeManager.registerEntitySelectionListener(oncChildPanel);
-/*        
-        //set up a dialog to receive gifts
-		recGiftsDlg = new ReceiveGiftsDialog(parentFrame, WishStatus.Received);
-		stDlgMap.put("Receive Gifts", recGiftsDlg);
-    	eeManager.registerEntitySelector(recGiftsDlg);
         
-        //set up a dialog to connect prior year children
-    	pyConnectionDlg = new PYChildConnectionDialog(parentFrame);
-        eeManager.registerEntitySelectionListener(pyConnectionDlg);
-*/        
         //create the wish panels
         JPanel childwishespanel = new JPanel(new GridLayout(1,3));
         wishPanelList = new WishPanel[NUMBER_OF_WISHES_PER_CHILD];
@@ -764,23 +563,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			oncDIPane.setEditable(tf);
 		}
 	}
-/*	
-	void closeAllDialogs()
-	{
-		cmDlg.setVisible(false);
-		dsDlg.setVisible(false);
-		dirDlg.setVisible(false);
-		sortWishesDlg.setVisible(false);
-		sortFamiliesDlg.setVisible(false);
-		sortAgentDlg.setVisible(false);
-		assignDeliveryDlg.setVisible(false);
-		dbDlg.setVisible(false);
-		orgDlg.setVisible(false);
-		catDlg.setVisible(false);
-		agentInfoDlg.setVisible(false);
-		changeONCNumberDlg.setVisible(false);
-	}
-*/	
+
 	void setTextPaneFontSize(Integer fontSize)
 	{
 		SimpleAttributeSet attribs = new SimpleAttributeSet();  
@@ -1042,10 +825,9 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	{
 		ONCMenuBar menuBar = ONCMenuBar.getInstance();
 		bChildTableDataChanging = true;		
-//		ClearChildTable();
+
 		if(ctAL.size() > 0)
 		{		
-//			addChildrentoTable(ctAL, bDispAll, cn);
 			childTableModel.fireTableDataChanged();
 			childTable.setRowSelectionInterval(cn, cn);
 	    	childTable.requestFocus();
@@ -1242,41 +1024,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			}
 		}
 	}
-/*
-	void addChildrentoTable(ArrayList<ONCChild> childAL, boolean bDispAll, int cn)
-    {	
-    	for(int index=0; index < ctAL.size(); index++)
-    	{
-    		ONCChild child = ctAL.get(index);
-    		
-    		if(bDispAll)
-    			childTableModel.addRow(new String[]{child.getChildFirstName(), 
-    												child.getChildLastName(),
-        											child.getChildDOBString("MM/dd/yy"),
-        											child.getChildGender()});
-    		else
-    			childTableModel.addRow(new String[]{"Child " + Integer.toString(index+1),
-    												"",
-													child.getChildDOBString("MM/dd/yy"),
-													child.getChildGender()});		
-    	}
-    	
-    	childTable.setRowSelectionInterval(cn, cn);
-    	childTable.requestFocus();
-    }
-    
-	void ClearChildTable()
-    {
-		for(int i = childTableModel.getRowCount() - 1; i >=0; i--)		
-		   childTableModel.removeRow(i);  	
-    }
-	
-	void refreshChildTable(String[] childdata, int row)
-	{
-		for(int i=0; i<4; i++)
-			childTableModel.setValueAt(childdata[i], row, i);
-	}
-*/
+
 	void editAltAddress()
 	{
 		//Set up the dialog to edit agent info
@@ -1301,220 +1049,19 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
     }
 	
     /*********************************************************************************************
-     * This method updates the family panel when the user imports one or more families
+     * This method updates the family panel when one or more families are loaded/added/imported
      *********************************************************************************************/
-    void onFamilyDataLoaded()
+    void onInitialFamilyDataLoaded()
     {
     	nav.navSetEnabled(true);
     	
 		setEnabledButtons(true);
 		setEditableGUIFields(true);
-		updateDBStatus(fDB.getServedFamilyAndChildCount());
-		ONCFamily firstFam = fDB.getObjectAtIndex(nav.getIndex());
-		
-		if(firstFam != null)
-		{
-			display(firstFam, null);
-			fireEntitySelected(this, EntityType.FAMILY, firstFam, null);
-			nav.setStoplightEntity(fDB.getObjectAtIndex(nav.getIndex()));
-			
-			if(GlobalVariables.isUserAdmin())
-				setRestrictedEnabledButtons(true);
-		}
+
+		if(GlobalVariables.isUserAdmin())
+			setRestrictedEnabledButtons(true);
     }
- /*   
-    void showHistoryDialog(String name)
-	{
-		//retrieve the sort dialog from the map
-		if(historyDlgMap.containsKey(name))
-		{
-			if(!historyDlgMap.get(name).isShowing())
-			{
-				historyDlgMap.get(name).setLocationRelativeTo(this);
-				historyDlgMap.get(name).display(currFam);
-				historyDlgMap.get(name).setVisible(true);
-			}
-		}
-		else
-			showDialogError(name);
-	}
-
-	void showAdultDialog()
-	{
-		if(!adultDlg.isShowing())
-		{
-			adultDlg.setLocationRelativeTo(rbAdults);
-			adultDlg.display(currFam);
-			adultDlg.setVisible(true);
-		}
-	}
 	
-	void showDrivingDirections()
-	{
-		if(!dirDlg.isShowing())
-		{
-			dirDlg.display(currFam);
-			dirDlg.setVisible(true);
-		}
-	}
-	
-	void showClientMap()
-	{
-		if(!cmDlg.isShowing())
-		{
-			cmDlg.display();
-			cmDlg.setVisible(true);
-		}
-	}
-
-	void showWishCatalogDialog()
-	{
-		if(!catDlg.isVisible())
-		{
-	        catDlg.setLocationRelativeTo(this);
-			catDlg.setVisible(true);
-		}
-	}
-	
-	void showUserDialog()
-	{
-		if(!userDlg.isVisible())
-		{
-	        userDlg.setLocationRelativeTo(this);
-			userDlg.setVisible(true);
-		}
-	}
-	
-	void initializeCatalogWishCounts()
-	{
-		ONCWishCatalog cat = ONCWishCatalog.getInstance();
-		cat.initializeWishCounts(fDB);
-	}
-/*	
-	void showAngelCallDialog()
-	{
-		if(!angelDlg.isVisible())
-		{	
-			Point pt = parentFrame.getLocation();
-	        angelDlg.setLocation(pt.x + 5, pt.y + 20);
-			angelDlg.setVisible(true);
-		}
-	}
-*/	
-/*	
-	void showSortDialog(String name, Point offsetPt)
-	{
-		//retrieve the sort dialog from the map
-		if(stDlgMap.containsKey(name))
-		{
-			if(!stDlgMap.get(name).isVisible())
-			{
-				stDlgMap.get(name).initializeFilters();
-				stDlgMap.get(name).buildTableList(true);
-				
-				Point originPt = GlobalVariables.getFrame().getLocation();
-				stDlgMap.get(name).setLocation(originPt.x + offsetPt.x, originPt.y + offsetPt.y);
-		        stDlgMap.get(name).setVisible(true);
-			}
-		}
-		else
-			showDialogError(name);
-	}
-	
-	void showFamilyInfoDialog(String name)
-	{
-		//retrieve the sort dialog from the map
-		if(familyInfoDlgMap.containsKey(name))
-		{
-			if(!familyInfoDlgMap.get(name).isVisible())
-			{
-				familyInfoDlgMap.get(name).display(currFam);
-				familyInfoDlgMap.get(name).setLocationRelativeTo(this);
-				familyInfoDlgMap.get(name).showDialog();
-			}
-		}	
-		else
-			showDialogError(name);
-	}
-	
-	void showEntityDialog(String name, Point offsetPt)
-	{
-		//retrieve the sort dialog from the map
-		if(entityDlgMap.containsKey(name))
-		{
-			if(!entityDlgMap.get(name).isVisible())
-			{
-				entityDlgMap.get(name).display(null);
-				Point originPt = GlobalVariables.getFrame().getLocation();
-				entityDlgMap.get(name).setLocation(originPt.x + offsetPt.x, originPt.y + offsetPt.y);
-				entityDlgMap.get(name).setVisible(true);
-			}
-		}	
-		else
-			showDialogError(name);
-	}
-	
-	void showCheckDialog(String name)
-	{
-		//retrieve the sort dialog from the map
-		if(checkDlgMap.containsKey(name))
-		{
-			if(!checkDlgMap.get(name).isVisible())
-			{
-				checkDlgMap.get(name).buildTableList();
-				checkDlgMap.get(name).setLocationRelativeTo(this);
-				checkDlgMap.get(name).setVisible(true);
-			}
-		}	
-		else
-			showDialogError(name);
-	}
-
-	void showDialogError(String name)
-	{
-		String errMssg = String.format("<html>Show Famaily Info Dialog Error:<br>%s dialog doesn't exist,<br>"
-				+ "						please contact the ONC IT Director</html>", name);
-		JOptionPane.showMessageDialog(parentFrame, errMssg, "System Error - Show Family Info Dialog",
-				JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
-	}
-    
-    void showConnectPYChildDialog()
-    {
-    	if(!pyConnectionDlg.isVisible())
-		{
-    		pyConnectionDlg.display(currFam, currChild);
-    		pyConnectionDlg.setLocationRelativeTo(lblDelStatus);
-    		pyConnectionDlg.setVisible(true);
-		}
-    }
-/*	
-	void showEntireDatabase()
-	{
-		if(!dbDlg.isVisible())
-		{
-			dbDlg.buildDatabase();
-			dbDlg.setVisible(true);
-		}
-	}
-	
-	void setEnabledSuperuserPrivileges(boolean tf)
-	{
-		sortFamiliesDlg.setFamilyStatusComboItemEnabled(FAMILY_STATUS_SELECTION_LIST_PACKAGED_INDEX, tf);
-	}
-	
-	void onAddNewChildClicked()
-	{
-		AddNewChildDialog newchildDlg = new AddNewChildDialog(parentFrame, currFam);
-		newchildDlg.setLocationRelativeTo(childTable);
-		newchildDlg.showDialog();
-		
-		ONCChild newchild = newchildDlg.getNewChild();
-		if(newchild != null)
-		{
-			ChildDB.getInstance().add(this, newchild);
-		}
-	}
-*/	
 	/****************
 	 * Method fetches a prior year child from the server for the current child selected in
 	 * the child table. It displays the wish history for the child in a modal dialog. No
@@ -1585,11 +1132,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	}
 	
 	void setEnabledAssignedDeliveryStatus(boolean tf) { delStatus[DELIVERY_STATUS_ASSIGNED].setEnabled(tf); }
-	
-	
-
-	
-	
+		
     /******************************************************************************************
      * This method automatically assigns an ONC number to a family that doesn't have one.The 
      * server assigns all ONC #'s. The client simply asks the server to do. Using
@@ -1754,79 +1297,6 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			fireEntitySelected(this, EntityType.CHILD, currFam, currChild);
 		}		
 	}
-
-	class FamilyBagDialog extends JDialog implements ActionListener
-	{
-		private static final long serialVersionUID = 1L;
-		private JComboBox bagsPackagedCB, largeItemCB;
-		private JButton btnOK;
-		
-		FamilyBagDialog(JFrame pf)
-		{
-			super(pf, true);
-			this.setTitle("Family Packging Bag Detail");
-			
-			String[] selections = {"0", "1", "2", "3", "4", "5", "6", "7", "8"};
-			
-			JPanel bagPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-			JLabel lblBagMssg = new JLabel("Select the number of bags used");
-			bagsPackagedCB = new JComboBox(selections);
-			bagPanel.add(lblBagMssg);
-			bagPanel.add(bagsPackagedCB);
-			
-			JPanel liPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-			JLabel lblLIMssg = new JLabel("Select the number of large items");
-			largeItemCB = new JComboBox(selections);
-			liPanel.add(lblLIMssg);
-			liPanel.add(largeItemCB);
-					
-			JPanel cntlpanel = new JPanel();
-			btnOK = new JButton("Ok");
-			btnOK.addActionListener(this);
-			cntlpanel.add(btnOK);
-			
-			 //Add the components to the frame pane
-	        this.getContentPane().setLayout(new BoxLayout(this.getContentPane(), BoxLayout.Y_AXIS));        
-	        this.add(bagPanel);
-	        this.add(liPanel);
-	        this.add(cntlpanel);
-	        
-	        pack();
-	        this.setLocationRelativeTo(statusCB);
-		}
-		
-		int getNumOfBags()
-		{
-			return bagsPackagedCB.getSelectedIndex(); 
-		}
-		
-		int getNumOfLargeItems()
-		{
-			return largeItemCB.getSelectedIndex();
-		}
-
-		@Override
-		public void actionPerformed(ActionEvent e)
-		{
-			if(e.getSource() == btnOK)
-				this.dispose();			
-		}
-	}
-	
-	/***********************************************************************************************
-	 * This class implements a listener for the fields in the family panel that need to check for 
-	 * data updates when the user presses the <Enter> key. The only action this listener takes is to
-	 * call the check and update family data method which checks if the data has changed, if it has 
-	 * it saves the new data and set the flag that unsaved changes have occurred to family data. 
-	 ***********************************************************************************************/
-	private class DataChangeListener implements ActionListener
-	{
-		@Override
-		public void actionPerformed(ActionEvent e)
-		{
-			checkAndUpdateFamilyData(currFam);
-		}	
-	}
 	
 	@Override
 	public void dataChanged(DatabaseEvent dbe) 
@@ -1850,13 +1320,17 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 //			System.out.println(String.format("FamilyPanel DB Event: Source: %s, Type: %s, Object: %s",
 //					dbe.getSource().toString(), dbe.getType(), dbe.getObject().toString()));
 			
-			ONCFamily updatedFam = (ONCFamily) dbe.getObject();
+			ONCFamily addedFam = (ONCFamily) dbe.getObject();
 			
-			//If no current family being displayed (null) display the added family
-			if(currFam == null)
+			//If no current family being displayed (null) display the added family and fire
+			//entity selected event
+			if(fDB.size() == 1)
 			{
-				LogDialog.add("FamilyPanel: ADDED_FAMILY ONC# " + updatedFam.getONCNum(), "M");
-				display(updatedFam, null); //No child to display, probably
+				LogDialog.add("FamilyPanel: ADDED_FAMILY ONC# " + addedFam.getONCNum(), "M");
+				display(addedFam, null); //No child to display, probably
+				nav.setStoplightEntity(addedFam);
+				onInitialFamilyDataLoaded();
+				this.fireEntitySelected(this, EntityType.FAMILY, currFam, currChild);
 //				System.out.println(String.format("FamilyPanel DB Event -- displayed family: Source: %s, Type: %s, Object: %s",
 //						dbe.getSource().toString(), dbe.getType(), dbe.getObject().toString()));
 			}
@@ -1881,17 +1355,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 					
 					//update the table row
 					bChildTableDataChanging = true;
-					childTableModel.fireTableRowsUpdated(row, row);
-				
-//					if(GlobalVariables.isUserAdmin())
-//					{
-//						childTableModel.setValueAt(updatedChild.getChildFirstName(), row, 0);
-//						childTableModel.setValueAt(updatedChild.getChildLastName(), row, 1);
-//					}
-//				
-//					childTableModel.setValueAt(updatedChild.getChildDOBString("MM/dd/yy"), row, 2);
-//					childTableModel.setValueAt(updatedChild.getChildGender(), row, 3);
-				
+					childTableModel.fireTableRowsUpdated(row, row);				
 					bChildTableDataChanging = false;
 					
 					//If current child is being displayed on child panel, refresh the
@@ -1987,6 +1451,9 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
     		{
     			currFam = (ONCFamily) fDB.getObjectAtIndex(nav.getIndex());
     			display(currFam, null); //will set currChild if family has children
+    			nav.setStoplightEntity(currFam);
+    			onInitialFamilyDataLoaded();
+    			updateDBStatus(fDB.getServedFamilyAndChildCount());
     			this.fireEntitySelected(this, EntityType.FAMILY, currFam, currChild);	
     		}
 		}
@@ -2050,14 +1517,86 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		return EnumSet.of(EntityType.FAMILY, EntityType.WISH);
 	}
     
-	
 	@Override
 	public EnumSet<EntityType> getEntityEventSelectorEntityTypes() 
 	{
 		return EnumSet.of(EntityType.FAMILY, EntityType.CHILD);
 	}
+
+	class FamilyBagDialog extends JDialog implements ActionListener
+	{
+		private static final long serialVersionUID = 1L;
+		private JComboBox bagsPackagedCB, largeItemCB;
+		private JButton btnOK;
+		
+		FamilyBagDialog(JFrame pf)
+		{
+			super(pf, true);
+			this.setTitle("Family Packging Bag Detail");
+			
+			String[] selections = {"0", "1", "2", "3", "4", "5", "6", "7", "8"};
+			
+			JPanel bagPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+			JLabel lblBagMssg = new JLabel("Select the number of bags used");
+			bagsPackagedCB = new JComboBox(selections);
+			bagPanel.add(lblBagMssg);
+			bagPanel.add(bagsPackagedCB);
+			
+			JPanel liPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+			JLabel lblLIMssg = new JLabel("Select the number of large items");
+			largeItemCB = new JComboBox(selections);
+			liPanel.add(lblLIMssg);
+			liPanel.add(largeItemCB);
+					
+			JPanel cntlpanel = new JPanel();
+			btnOK = new JButton("Ok");
+			btnOK.addActionListener(this);
+			cntlpanel.add(btnOK);
+			
+			 //Add the components to the frame pane
+	        this.getContentPane().setLayout(new BoxLayout(this.getContentPane(), BoxLayout.Y_AXIS));        
+	        this.add(bagPanel);
+	        this.add(liPanel);
+	        this.add(cntlpanel);
+	        
+	        pack();
+	        this.setLocationRelativeTo(statusCB);
+		}
+		
+		int getNumOfBags()
+		{
+			return bagsPackagedCB.getSelectedIndex(); 
+		}
+		
+		int getNumOfLargeItems()
+		{
+			return largeItemCB.getSelectedIndex();
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			if(e.getSource() == btnOK)
+				this.dispose();			
+		}
+	}
 	
-	class ChildTableModel extends AbstractTableModel
+	/***********************************************************************************************
+	 * This class implements a listener for the fields in the family panel that need to check for 
+	 * data updates when the user presses the <Enter> key. The only action this listener takes is to
+	 * call the check and update family data method which checks if the data has changed, if it has 
+	 * it saves the new data and set the flag that unsaved changes have occurred to family data. 
+	 ***********************************************************************************************/
+	private class DataChangeListener implements ActionListener
+	{
+		@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			checkAndUpdateFamilyData(currFam);
+		}	
+	}
+	
+	private class ChildTableModel extends AbstractTableModel
 	{
         /**
 		 * Implements the table model for the child table
