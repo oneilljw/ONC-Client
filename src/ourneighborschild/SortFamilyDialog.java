@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
@@ -510,7 +511,9 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		changedByCBM.addElement("Anyone");
 		
 		int index = 0;
-		for(ONCUser user:userDB.getUserList())
+		@SuppressWarnings("unchecked")
+		List<ONCUser> userList = (List<ONCUser>) userDB.getList();
+		for(ONCUser user : userList)
 		{
 			changedByCBM.addElement(user.getLNFI());
 			index++;

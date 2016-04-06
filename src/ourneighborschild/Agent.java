@@ -1,13 +1,10 @@
 package ourneighborschild;
 
-import java.io.Serializable;
-
-public class Agent extends ONCObject implements Serializable
+public class Agent extends ONCObject
 {
 	/**
 	 * This class provides the blueprint for agent objects in the ONC app. 
 	 */
-	private static final long serialVersionUID = -2000749350333763441L;
 	private String name;
 	private String org;
 	private String title;
@@ -80,6 +77,7 @@ public class Agent extends ONCObject implements Serializable
 		
 		return result;
 	}
+	
 	//get string array of agent info
 	String[] getAgentInfo()
 	{
@@ -93,23 +91,4 @@ public class Agent extends ONCObject implements Serializable
 		String[] row= {Integer.toString(id), name, org, title, email, phone};
 		return row;
 	}
-/*	
-	//determine if two SortWishObjects match
-	@Override
-	public boolean matches(ONCObject otherObj)
-	{
-		if(otherObj != null && otherObj.getClass() == Agent.class)
-		{
-			Agent otherSO = (Agent) otherObj;
-				
-//			System.out.println(String.format("ONCSortObject.matches: SO.cwID = %d, otherSO.cwID = %d",
-//					soChildWish.getID(), otherSO.soChildWish.getID()));
-//					
-			return otherSO.name.equals(this.name);
-								
-		}
-		else
-			return false;
-	}
-*/	
 }

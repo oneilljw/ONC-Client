@@ -53,7 +53,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 	private JProgressBar progressBar;
 	private ONCEmailer oncEmailer;
 
-	private ONCAgents agentDB;
+	private AgentDB agentDB;
 	private ArrayList<Agent> atAL;	//Holds references to agent objects for agent table
 	
 	private AgentInfoDialog aiDlg;
@@ -63,7 +63,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		super(pf, 10);
 		this.setTitle("Our Neighbor's Child - Agent Management");
 
-		agentDB = ONCAgents.getInstance();
+		agentDB = AgentDB.getInstance();
 		if(agentDB != null)
 			agentDB.addDatabaseListener(this);
 		
@@ -198,7 +198,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		clearFamilyTable();
 		familyTable.clearSelection();
 		
-		for(Agent a:agentDB.getAgentsAL())
+		for(Agent a:agentDB.getList())
 			if(doesOrgMatch(a.getAgentOrg()) &&
 				doesTitleMatch(a.getAgentTitle())
 				 && didAgentRefer(a))
@@ -222,7 +222,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		orgCBM.removeAllElements();
 		
 		
-		for(Agent a:agentDB.getAgentsAL())
+		for(Agent a:agentDB.getList())
 		{
 			int index = 0;
 			while(index < orgItemAL.size() && !a.getAgentOrg().equals(orgItemAL.get(index)))
@@ -249,7 +249,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		titleCBM.removeAllElements();
 		
 		
-		for(Agent a:agentDB.getAgentsAL())
+		for(Agent a:agentDB.getList())
 		{
 			int index = 0;
 			while(index < titleItemAL.size() && !a.getAgentTitle().equals(titleItemAL.get(index)))
@@ -313,7 +313,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 	String[] getDependantTableExportRow(int index)
 	{
 		ONCFamily f = stAL.get(index);
-		Agent a = agentDB.getAgent(f.getAgentID());
+		Agent a = (Agent) agentDB.getONCObject(f.getAgentID());
 		
 		String[] row = {
 						a.getAgentName(),

@@ -145,7 +145,6 @@ public class ChildDB extends ONCDatabase
 		//notify the server
 		Gson gson = new Gson();
 		String response = null;
-		ServerIF serverIF = ServerIF.getInstance();
 		response = serverIF.sendRequest("POST<update_child>" + 
 												gson.toJson(updatedChild, ONCChild.class));
 		
@@ -295,7 +294,7 @@ public class ChildDB extends ONCDatabase
     		}	
     }
 	
-	ArrayList<ONCChild> getChildDB() { return childAL; }
+	ArrayList<ONCChild> getList() { return childAL; }
 	
 	String importChildDatabase()
 	{

@@ -22,105 +22,57 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import au.com.bytecode.opencsv.CSVWriter;
 
-public class ONCAgents extends ONCDatabase
+public class AgentDB extends ONCDatabase
 {
 	/****************************************************************************************
-	 * This class implements a data base for ONC Agents. Agent objects are contained in an 
-	 * array list. The class provides methods for adding and retrieving agent objects to/from the
-	 * data base. Agent objects can be retrieved by id. The class implements support for 
-	 * serializing Agent objects to/from the input/output stream and clearing the data base.
-	 * Finally, the class provides support for merging two agent object data bases together
-	 * The ONC application maintains one Agent data base per instance of the application currently.
+	 * This singleton class implements a data base for ONC Agents. Agent objects are contained
+	 * in a list. The class provides methods for adding and retrieving agent objects to/from 
+	 * the data base.
 	 **************************************************************************************/
-//	private static final int AGENT_DB_HEADER_LENGTH = 6;
-	private static ONCAgents instance = null;
-	private ArrayList<Agent> agentsAL;	//The agent object array list data base
+	private static AgentDB instance = null;
+	private ArrayList<Agent> oncObjectList;	//The agent object array list data base
 	
-	private ONCAgents()
+	private AgentDB()
 	{
 		super();
-		agentsAL = new ArrayList<Agent>();
+		oncObjectList = new ArrayList<Agent>();
 	}
 	
-	public static ONCAgents getInstance()
+	public static AgentDB getInstance()
 	{
 		if(instance == null)
-			instance = new ONCAgents();
+			instance = new AgentDB();
 		
 		return instance;
 	}	
 	
 	/***********************************************************************************
-	 * This method retrieves an Agent object from the array list data base. An id is 
-	 * passed as a parameter and the array list is searched for a matching Agent id. If
+	 * This method retrieves an Agent object from the agent list. An id is 
+	 * passed as a parameter and the list is searched for a matching Agent id. If
 	 * the id is located, a reference to the first Agent object containing that id is returned.
 	 * If the id is not located, the method returns a null Agent object. 
 	 * @param id
 	 * @return
 	 ***********************************************************************************/
-	Agent getAgent(int id)
+	ONCObject getONCObject(int id)
 	{
 		int index = 0;
-		while(index < agentsAL.size() && id != agentsAL.get(index).getID())
+		while(index < oncObjectList.size() && id != oncObjectList.get(index).getID())
 			index++;
 		
-		if(index == agentsAL.size())
+		if(index == oncObjectList.size())
 			return null;
 		else
-			return agentsAL.get(index);		
+			return oncObjectList.get(index);		
 	}
 	
-	ArrayList<Agent> getAgentsAL() { return agentsAL; }
-/*	
-	public void readAgentALObject(ObjectInputStream ois)
-	{
-		ArrayList<Agent> agentDB = new ArrayList<Agent>();
-		try 
-		{
-			agentDB = (ArrayList<Agent>) ois.readObject();
-			
-			for(Agent a:agentDB)
-				agentsAL.add(a);
-
-			agentDB.clear();
-		} 
-		catch (IOException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		catch (ClassNotFoundException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	public void writeAgentALObject(ObjectOutputStream oos)
-	{
-		try
-		{
-			oos.writeObject(agentsAL);
-		}
-		catch (IOException e) 
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	void clearAgentData()
-	{
-		agentsAL.clear();
-	}
-*/	
+	ArrayList<Agent> getList() { return oncObjectList; }
 	ONCAgentNameComparator getAgentNameComparator() { return  new ONCAgentNameComparator(); }
 	ONCAgentOrgComparator getAgentOrgComparator() { return new ONCAgentOrgComparator(); }
 	ONCAgentTitleComparator getAgentTitleComparator() { return new ONCAgentTitleComparator(); }
 	
 	String importAgentDatabase()
 	{
-		ServerIF serverIF = ServerIF.getInstance();
 		String response = "NO_AGENTS";
 		
 		if(serverIF != null && serverIF.isConnected())
@@ -129,7 +81,7 @@ public class ONCAgents extends ONCDatabase
 			Type listtype = new TypeToken<ArrayList<Agent>>(){}.getType();
 			
 			response = serverIF.sendRequest("GET<agents>");
-			agentsAL = gson.fromJson(response, listtype);				
+			oncObjectList = gson.fromJson(response, listtype);				
 
 			if(!response.startsWith("NO_AGENTS"))
 			{
@@ -140,65 +92,7 @@ public class ONCAgents extends ONCDatabase
 		
 		return response;
 	}
-/*	
-	String importAgentDB(JFrame pf, ImageIcon oncIcon, String path)	//Only used by superuser to import from .csv file
-	{   		
-		File pyfile;
-		JFileChooser chooser;
-		String filename = "";
-		int returnVal = JFileChooser.CANCEL_OPTION;
-		
-		if(path != null)
-		{
-			System.out.println(path);
-			pyfile = new File(path + "AgentDB.csv");
-			returnVal = JFileChooser.APPROVE_OPTION;
-		}
-		else
-		{
-    		chooser = new JFileChooser();
-    		chooser.setDialogTitle("Select Agent DB .csv file to import");	
-    		chooser.setFileFilter(new FileNameExtensionFilter("CSV Files", "csv"));
-    		returnVal = chooser.showOpenDialog(pf);
-    		pyfile = chooser.getSelectedFile();
-		}
-		
-	    if(returnVal == JFileChooser.APPROVE_OPTION)
-	    {	    
-	    	filename = pyfile.getName();
-	    	try 
-	    	{
-	    		CSVReader reader = new CSVReader(new FileReader(pyfile.getAbsoluteFile()));
-	    		String[] nextLine, header;
-    		
-	    		if((header = reader.readNext()) != null)
-	    		{
-	    			//Read the ONC CSV File
-	    			if(header.length == AGENT_DB_HEADER_LENGTH)
-	    			{
-	    				agentsAL.clear();
-	    				while ((nextLine = reader.readNext()) != null)	// nextLine[] is an array of values from the line
-	    					agentsAL.add(new Agent(Integer.parseInt(nextLine[0]), nextLine[1], nextLine[2],
-	    											nextLine[3], nextLine[4], nextLine[5]));
-	    			}
-	    			else
-	    				JOptionPane.showMessageDialog(pf, "Agent DB file corrupted, header length = " + Integer.toString(header.length), 
-    						"Invalid Agent DB File", JOptionPane.ERROR_MESSAGE, oncIcon);   			
-	    		}
-	    		else
-	    			JOptionPane.showMessageDialog(pf, "Couldn't read header in Agent DB file: " + filename, 
-	    					"Invalid Agent DB File", JOptionPane.ERROR_MESSAGE, oncIcon); 
-	    	} 
-	    	catch (IOException x)
-	    	{
-	    		JOptionPane.showMessageDialog(pf, "Unable to open Agent db file: " + filename, 
-    				"Agent DB file not found", JOptionPane.ERROR_MESSAGE, oncIcon);
-	    	}
-	    }
-	    
-	    return filename;    
-	}
-*/	
+
 	String exportDBToCSV(JFrame pf, String filename)
     {
 		File oncwritefile = null;
@@ -226,7 +120,7 @@ public class ONCAgents extends ONCDatabase
 	    		CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
 	    	    writer.writeNext(header);
 	    	    
-	    	    for(Agent a:agentsAL)
+	    	    for(Agent a:oncObjectList)
 	    	    	writer.writeNext(a.getExportRow());	//Get family data
 	    	 
 	    	    writer.close();
@@ -244,33 +138,6 @@ public class ONCAgents extends ONCDatabase
 	    return filename;
     }
 	
-	private class ONCAgentNameComparator implements Comparator<Agent>
-	{
-		@Override
-		public int compare(Agent o1, Agent o2)
-		{
-			return o1.getAgentName().compareTo(o2.getAgentName());
-		}
-	}
-	
-	private class ONCAgentOrgComparator implements Comparator<Agent>
-	{
-		@Override
-		public int compare(Agent o1, Agent o2)
-		{			
-			return o1.getAgentOrg().compareTo(o2.getAgentOrg());
-		}
-	}
-	
-	private class ONCAgentTitleComparator implements Comparator<Agent>
-	{
-		@Override
-		public int compare(Agent o1, Agent o2)
-		{			
-			return o1.getAgentTitle().compareTo(o2.getAgentTitle());
-		}
-	}
-
 	@Override
 	public void dataChanged(ServerEvent ue)
 	{
@@ -313,20 +180,19 @@ public class ONCAgents extends ONCDatabase
 		updatedAgt = gson.fromJson(json, Agent.class);
 		
 		int index = 0;
-		while(updatedAgt != null && index < agentsAL.size() && 
-				updatedAgt.getID() != agentsAL.get(index).getID())
+		while(updatedAgt != null && index < oncObjectList.size() && 
+				updatedAgt.getID() != oncObjectList.get(index).getID())
 			index++;
 		
-		if(updatedAgt != null && index < agentsAL.size())
+		if(updatedAgt != null && index < oncObjectList.size())
 		{
-			agentsAL.set(index, updatedAgt);
+			oncObjectList.set(index, updatedAgt);
 			fireDataChanged(source, "UPDATED_AGENT", updatedAgt);
 		}
 		
 		return updatedAgt;
 	}
 
-	
 	/************************************************************************************
 	 * This method takes agent info, searches the agent array list for a name match.
 	 * If a match name match is found, the agent org, title, email and phone are overwritten.
@@ -361,7 +227,7 @@ public class ONCAgents extends ONCDatabase
 		
 		if(addedAgt != null)
 		{
-			agentsAL.add(addedAgt);
+			oncObjectList.add(addedAgt);
 			fireDataChanged(source, "ADDED_AGENT", addedAgt);
 		}
 		
@@ -389,12 +255,12 @@ public class ONCAgents extends ONCDatabase
 		Gson gson = new Gson();
 		Agent deletedAgt = gson.fromJson(json, Agent.class);
 		int index = 0;
-		while(deletedAgt != null && index < agentsAL.size() && 
-				deletedAgt.getID() != agentsAL.get(index).getID())
+		while(deletedAgt != null && index < oncObjectList.size() && 
+				deletedAgt.getID() != oncObjectList.get(index).getID())
 			index++;
 		
-		if(index < agentsAL.size())
-			agentsAL.remove(index);
+		if(index < oncObjectList.size())
+			oncObjectList.remove(index);
 		
 		fireDataChanged(source, "DELETED_AGENT", deletedAgt);
 		
@@ -415,5 +281,32 @@ public class ONCAgents extends ONCDatabase
 			bSortOccurred = false;
 		
 		return bSortOccurred;	
+	}
+	
+	private class ONCAgentNameComparator implements Comparator<Agent>
+	{
+		@Override
+		public int compare(Agent o1, Agent o2)
+		{
+			return o1.getAgentName().compareTo(o2.getAgentName());
+		}
+	}
+	
+	private class ONCAgentOrgComparator implements Comparator<Agent>
+	{
+		@Override
+		public int compare(Agent o1, Agent o2)
+		{			
+			return o1.getAgentOrg().compareTo(o2.getAgentOrg());
+		}
+	}
+	
+	private class ONCAgentTitleComparator implements Comparator<Agent>
+	{
+		@Override
+		public int compare(Agent o1, Agent o2)
+		{			
+			return o1.getAgentTitle().compareTo(o2.getAgentTitle());
+		}
 	}
 }

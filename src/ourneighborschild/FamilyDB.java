@@ -46,7 +46,7 @@ public class FamilyDB extends ONCSearchableDatabase
 	private ChildDB childDB;
 	private AdultDB adultDB;
 	private ChildWishDB childwishDB;
-	private ONCAgents oncAgentDB;
+	private AgentDB oncAgentDB;
 	private DriverDB driverDB;
 	private DeliveryDB deliveryDB;
 	private GlobalVariables fGVs;
@@ -60,7 +60,7 @@ public class FamilyDB extends ONCSearchableDatabase
 		childwishDB = ChildWishDB.getInstance();
 		driverDB = DriverDB.getInstance();
 		deliveryDB = DeliveryDB.getInstance();
-		oncAgentDB = ONCAgents.getInstance();;
+		oncAgentDB = AgentDB.getInstance();;
 		
 		oncFamAL = new ArrayList<ONCFamily>();
 		fGVs = GlobalVariables.getInstance();

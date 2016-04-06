@@ -17,7 +17,7 @@ public class AgentInfoDialog extends InfoDialog implements DatabaseListener, Ent
 	private static final long serialVersionUID = 1L;
 	private Agent a;
 	private FamilyDB familyDB;
-	ONCAgents agentDB;
+	AgentDB agentDB;
 	boolean bAgentSelectedEnabled;
 	
 	AgentInfoDialog(JFrame owner, boolean bAgentSelectedEnabled)
@@ -33,7 +33,7 @@ public class AgentInfoDialog extends InfoDialog implements DatabaseListener, Ent
 		this.setAlwaysOnTop(true);
 		
 		//connect to local Agent DB
-		agentDB = ONCAgents.getInstance();
+		agentDB = AgentDB.getInstance();
 		if(agentDB != null)
 			agentDB.addDatabaseListener(this);
 		
@@ -60,7 +60,7 @@ public class AgentInfoDialog extends InfoDialog implements DatabaseListener, Ent
 		if (obj instanceof ONCFamily)
 		{
 			ONCFamily fam = (ONCFamily) obj;
-			a = agentDB.getAgent(fam.getAgentID());
+			a = (Agent) agentDB.getONCObject(fam.getAgentID());
 		}
 		else
 			a = (Agent) obj;
@@ -100,13 +100,13 @@ public class AgentInfoDialog extends InfoDialog implements DatabaseListener, Ent
 		
 		if(cf > 0)
 		{
-			ONCAgents agentDB = ONCAgents.getInstance();
+			AgentDB agentDB = AgentDB.getInstance();
 			String response = agentDB.update(this, reqAgt);
 			if(response.startsWith("UPDATED_AGENT"))
 			{
 				//agent id will not change from update request, get updated agent
 				//from the data base and display
-				display(agentDB.getAgent(reqAgt.getID()));
+				display((Agent) agentDB.getONCObject(reqAgt.getID()));
 			}
 			else
 			{
@@ -137,7 +137,7 @@ public class AgentInfoDialog extends InfoDialog implements DatabaseListener, Ent
 		{
 			Agent reqDelAgt = new Agent(a);	//make a copy of current agent
 			
-			ONCAgents agentDB = ONCAgents.getInstance();
+			AgentDB agentDB = AgentDB.getInstance();
 			Agent delAgent = (Agent)agentDB.delete(this, reqDelAgt);
 			
 			if(delAgent != null && delAgent.getID() == reqDelAgt.getID())

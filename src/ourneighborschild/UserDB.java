@@ -192,8 +192,8 @@ public class UserDB extends ONCSearchableDatabase
 		
 		return response;
 	}
-	
-	List<ONCUser> getUserList() { return uAL; }
+
+//	List<ONCUser> getList() { return uAL; }
 	
 	int getUserID(String name)
 	{

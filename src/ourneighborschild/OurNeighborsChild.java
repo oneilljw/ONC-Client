@@ -339,6 +339,7 @@ public class OurNeighborsChild
       	oncSplashPanel.add(lblONCicon);	 
         oncContentPane.add(oncSplashPanel);
         
+        
         oncFrame.setContentPane(oncContentPane); 
         oncFrame.setVisible(true);
     }

@@ -468,11 +468,10 @@ public class ChildWishDB extends ONCDatabase
 	
 	int getNumberOfWishesPerChild() { return NUMBER_OF_WISHES_PER_CHILD; }
 	
-	ArrayList<ONCChildWish> getChildWishAL() { return childwishAL; }
+	ArrayList<ONCChildWish> getList() { return childwishAL; }
 	
 	String importChildWishDatabase()
 	{
-		ServerIF serverIF = ServerIF.getInstance();
 		String response = "NO_WISHES";
 		
 		if(serverIF != null && serverIF.isConnected())

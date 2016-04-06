@@ -40,7 +40,7 @@ public class DatabaseManager extends ONCDatabase
 	private FamilyDB oncFamDB;				//Holds ONC Family Database
 	private ChildDB oncChildDB;				//Holds ONC Child database
 	private ChildWishDB oncChildWishDB; 	//Holds ONC Child Wish database
-	private ONCAgents oncAgentDB;			//Holds ONC Agents
+	private AgentDB oncAgentDB;			//Holds ONC Agents
 	private PartnerDB oncOrgDB;				//Holds ONC Partner Organizations
 	private ONCWishCatalog oncWishCat;		//Holds ONC Wish Catalog
 	private WishDetailDB oncWishDetailDB;	//Holds ONC Wish Detail Data Base
@@ -58,7 +58,7 @@ public class DatabaseManager extends ONCDatabase
 		oncGVs = GlobalVariables.getInstance();
 		oncRegions = ONCRegions.getInstance();
 		UserDB.getInstance();
-		oncAgentDB = ONCAgents.getInstance();
+		oncAgentDB = AgentDB.getInstance();
 		oncOrgDB = PartnerDB.getInstance();
 		oncWishDetailDB = WishDetailDB.getInstance();
 		oncWishCat = ONCWishCatalog.getInstance();
@@ -106,7 +106,6 @@ public class DatabaseManager extends ONCDatabase
 		Type listOfDBs = new TypeToken<ArrayList<DBYear>>(){}.getType();
 		
 		String response = null;
-		ServerIF serverIF = ServerIF.getInstance();
 		response = serverIF.sendRequest("GET<dbstatus>");
 				
 		//check response. If response from server indicates a successful return,
@@ -213,7 +212,6 @@ public class DatabaseManager extends ONCDatabase
 		//notify the server
 		Gson gson = new Gson();
 		String response = null;
-		ServerIF serverIF = ServerIF.getInstance();
 		response = serverIF.sendRequest("POST<update_dbyear>" + gson.toJson(oncObject, DBYear.class));
 				
 		//check response. If response from server indicates a successful update,

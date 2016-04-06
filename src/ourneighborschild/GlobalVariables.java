@@ -293,7 +293,6 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 	{
 		ServerGVs gvs = null;
 		String response = "NO_GLOBALS";
-		ServerIF serverIF = ServerIF.getInstance();
 		
 		if(serverIF != null && serverIF.isConnected())
 		{
@@ -323,9 +322,7 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 	}
 	
 	String initializeWebsiteStatusFromServer()
-	{
-		ServerIF serverIF = ServerIF.getInstance();
-		
+	{	
 		if(serverIF != null && serverIF.isConnected())
 		{
 			Gson gson = new Gson();

@@ -14,6 +14,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+//public abstract class ONCConnectDialog extends JDialog implements ActionListener
 public abstract class ONCConnectDialog extends JDialog implements ActionListener
 {
 	/*************************************************************************************
@@ -84,13 +85,20 @@ public abstract class ONCConnectDialog extends JDialog implements ActionListener
 		btnAction.addActionListener(this);    		
 		p5.add(btnAction);
 				
-		this.getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.PAGE_AXIS));
-		
+		this.getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.PAGE_AXIS));		
 		this.getContentPane().add(p1);
 		this.getContentPane().add(p2);
 		this.getContentPane().add(p3);
 		this.getContentPane().add(p4);
 		this.getContentPane().add(p5);
+/*			
+		setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));		
+		this.add(p1);
+		this.add(p2);
+		this.add(p3);
+		this.add(p4);
+		this.add(p5);
+*/		
 		this.getRootPane().setDefaultButton(btnAction);
 			
 		this.pack();

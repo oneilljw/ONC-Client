@@ -592,7 +592,9 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		changedByCBM.addElement("Anyone");
 
 		int index = 0;
-		for(ONCUser user:userDB.getUserList())
+		@SuppressWarnings("unchecked")
+		List<ONCUser> userList = (List<ONCUser>) userDB.getList();
+		for(ONCUser user : userList)
 		{
 			changedByCBM.addElement(user.getLNFI());
 			index++;

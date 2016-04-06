@@ -15,6 +15,7 @@ import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.List;
 
 import javax.mail.internet.MimeBodyPart;
 import javax.swing.BorderFactory;
@@ -1012,7 +1013,9 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		changedByCBM.addElement("Anyone");
 		
 		int index = 0;
-		for(ONCUser user:userDB.getUserList())
+		@SuppressWarnings("unchecked")
+		List<ONCUser> userList = (List<ONCUser>) userDB.getList();
+		for(ONCUser user : userList)
 		{
 			changedByCBM.addElement(user.getLNFI());
 			index++;

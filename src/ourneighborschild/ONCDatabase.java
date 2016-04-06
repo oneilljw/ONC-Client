@@ -12,7 +12,25 @@ public abstract class ONCDatabase implements ServerListener
 		serverIF = ServerIF.getInstance();
 		serverIF.addServerListener(this);
 	}
+/*	
+	ONCObject getONCObject(int id)
+	{
+		List<ONCObject> oncObjectList = getList();
+		int index = 0;
+		while(index < oncObjectList.size() && id != oncObjectList.get(index).getID())
+			index++;
+		
+		if(index == oncObjectList.size())
+			return null;
+		else
+			return oncObjectList.get(index);		
+	}
 	
+	List<ONCObject> getList()
+	{
+		return null;
+	}
+*/	
 	//All databases must implement an update class for notifications of changes
 	abstract String update(Object source, ONCObject entity);
 	

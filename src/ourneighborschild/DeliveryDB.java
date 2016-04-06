@@ -175,7 +175,6 @@ public class DeliveryDB extends ONCDatabase
 	
 	String importDeliveryDatabase()
 	{
-		ServerIF serverIF = ServerIF.getInstance();
 		String response = "NO_DELIVERIES";
 		
 		if(serverIF != null && serverIF.isConnected())
@@ -323,7 +322,6 @@ public class DeliveryDB extends ONCDatabase
 		//notify the server
 		Gson gson = new Gson();
 		String response = null;
-		ServerIF serverIF = ServerIF.getInstance();
 		
 		response = serverIF.sendRequest("POST<update_delivery>" + 
 												gson.toJson(updatedDelivery, ONCDelivery.class));

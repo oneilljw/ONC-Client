@@ -265,7 +265,6 @@ public class DriverDB extends ONCSearchableDatabase
 	
 	String importDriverDatabase()
 	{
-		ServerIF serverIF = ServerIF.getInstance();
 		String response = "NO_DRIVERS";
 		
 		if(serverIF != null && serverIF.isConnected())

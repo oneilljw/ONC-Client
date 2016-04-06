@@ -183,7 +183,6 @@ public class WishDetailDB extends ONCDatabase
 	
 	String importWishDetailDatabase()
 	{
-		ServerIF serverIF = ServerIF.getInstance();
 		String response = "NO_DETAIL";
 		
 		if(serverIF != null && serverIF.isConnected())

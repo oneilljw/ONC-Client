@@ -402,7 +402,6 @@ public class ONCWishCatalog extends ONCDatabase
 	String importWishCatalogFromServer()
 	{
 		ArrayList<ONCWish> wishList = new ArrayList<ONCWish>();
-		ServerIF serverIF = ServerIF.getInstance();
 		String response = "NO_CATALOG";
 		
 		if(serverIF != null && serverIF.isConnected())

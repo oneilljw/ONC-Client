@@ -104,7 +104,6 @@ public class MealDB extends ONCDatabase
 		//notify the server
 		Gson gson = new Gson();
 		String response = null;
-		ServerIF serverIF = ServerIF.getInstance();
 		response = serverIF.sendRequest("POST<update_meal>" + 
 												gson.toJson(updatedMeal, ONCMeal.class));
 		

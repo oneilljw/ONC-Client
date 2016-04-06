@@ -34,7 +34,7 @@ public class RAFamilyImporter extends ONCTableDialog
 	private static final int ONC_FAMILY_REFERRAL_WORKSHEET_RECORD_LENGTH = 11;
 	private String defaultDirectory;
 	private String batchNum;
-	private ONCAgents agentDB;
+	private AgentDB agentDB;
 	private FamilyDB famDB;
 	private ChildDB childDB;
 	
@@ -47,7 +47,7 @@ public class RAFamilyImporter extends ONCTableDialog
 		defaultDirectory = null;	//holds the path for the first family file imported and reused
 		
 		//set up data base references. Each DB is a singleton
-		agentDB = ONCAgents.getInstance();
+		agentDB = AgentDB.getInstance();
 		famDB = FamilyDB.getInstance();
 		childDB = ChildDB.getInstance();
 	}

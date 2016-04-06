@@ -521,7 +521,6 @@ public class PartnerDB extends ONCSearchableDatabase
 	
 	String importDB()
 	{
-		ServerIF serverIF = ServerIF.getInstance();
 		String response = "NO_PARTNERS";
 		
 		if(serverIF != null && serverIF.isConnected())
@@ -531,13 +530,7 @@ public class PartnerDB extends ONCSearchableDatabase
 			
 			response = serverIF.sendRequest("GET<partners>");
 			orgsAL = gson.fromJson(response, listtype);	
-				
-//			for(Organization o:orgsAL)
-//				if(o.getStatus() == STATUS_CONFIRMED)
-//					cOrgs.add(o.getName());				
-//				
-//			structureConfirmedOrgsList();	//Sort by org type and alphabetically
-			
+					
 			if(!response.startsWith("NO_PARTNERS"))
 			{
 				response = "PARTNERS_LOADED";

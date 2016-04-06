@@ -379,7 +379,9 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		changedByCBM.addElement("Anyone");
 
 		int index = 0;
-		for(ONCUser user:userDB.getUserList())
+		@SuppressWarnings("unchecked")
+		List<ONCUser> userList = (List<ONCUser>) userDB.getList();
+		for(ONCUser user : userList)
 		{
 			changedByCBM.addElement(user.getLNFI());
 			index++;
@@ -895,7 +897,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		private ONCFamily	soFamily;
 		private ONCMeal	 	soMeal;
 		
-		ONCAgents agentDB;
+		AgentDB agentDB;
 		PartnerDB partnerDB;
 		
 		public SortMealObject(int itemID, ONCFamily fam, ONCMeal meal) 
@@ -904,7 +906,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 			soFamily = fam;
 			soMeal = meal;
 			
-			agentDB = ONCAgents.getInstance();
+			agentDB = AgentDB.getInstance();
 			partnerDB = PartnerDB.getInstance();
 		}
 		
@@ -914,7 +916,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		
 		public String[] getExportRow()
 		{
-			Agent agent = agentDB.getAgent(soFamily.getAgentID());
+			Agent agent = (Agent) agentDB.getONCObject(soFamily.getAgentID());
 			ONCPartner partner = partnerDB.getOrganizationByID(soMeal.getPartnerID());
 			
 			String delAddress, unit, city, zip;
