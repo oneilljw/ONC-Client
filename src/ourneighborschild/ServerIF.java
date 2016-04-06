@@ -123,7 +123,10 @@ public class ServerIF
         instance = this;
     }
     
-    public synchronized static ServerIF getInstance() { return instance; }
+    public synchronized static ServerIF getInstance()
+    {
+    	return instance; 
+    }
     
     void setEnabledServerPolling(boolean tf)
     {

@@ -93,7 +93,6 @@ public class AdultDB extends ONCDatabase
 		//notify the server
 		Gson gson = new Gson();
 		String response = null;
-		ServerIF serverIF = ServerIF.getInstance();
 		response = serverIF.sendRequest("POST<update_adult>" + 
 												gson.toJson(updatedAdult, ONCAdult.class));
 		
@@ -274,6 +273,5 @@ public class AdultDB extends ONCDatabase
 		{
 			processDeletedAdult(this, ue.getJson());
 		}			
-
 	}
 }
