@@ -57,7 +57,9 @@ public class ONCServerUser extends ONCUser
 	public String[] getExportRow()
 	{
 		String[] row = {
-						Integer.toString(id), userid, password, status.toString(), access.toString(), 
+						Integer.toString(id), 
+						ONCEncryptor.encrypt(userid), ONCEncryptor.encrypt(password),
+						status.toString(), access.toString(), 
 						permission.toString(), firstname, lastname,
 						Long.toString(dateChanged.getTimeInMillis()), changedBy, Integer.toString(slPos), 
 						slMssg,slChangedBy, Long.toString(nSessions), 
