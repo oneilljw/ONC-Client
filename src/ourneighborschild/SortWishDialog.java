@@ -42,6 +42,9 @@ import javax.swing.JTextField;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import org.krysalis.barcode4j.impl.postnet.POSTNETBean;
+import org.krysalis.barcode4j.output.java2d.Java2DCanvasProvider;
+
 import au.com.bytecode.opencsv.CSVWriter;
 
 import com.toedter.calendar.JDateChooser;
@@ -1348,15 +1351,17 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		    
 		    if(line[3] == null)	//Only a 3 line label
 		    {
-		    	g2d.setFont(lFont[2]);
-		    	drawCenteredString(line[2], 120, x+50, y+35, g2d);	//Draw line 3
+//		    	g2d.setFont(lFont[2]);
+//		    	drawCenteredString(line[2], 120, x+50, y+35, g2d);	//Draw line 3
+		    	drawBarCode(120, x+50, y+35, g2d);
 		    }
 		    else	//A 4 line label
 		    {	    	
 		    	drawCenteredString(line[2], 120, x+50, y+35, g2d);	//Draw line 3	    	
 		    	g2d.setFont(lFont[2]);
-		    	drawCenteredString(line[3], 120, x+50, y+50, g2d);	//Draw line 4
-		    }	    
+//		    	drawCenteredString(line[3], 120, x+50, y+50, g2d);	//Draw line 4
+		    	drawBarCode(120, x+50, y+50, g2d);
+		    }
 		}
 		
 		private void drawCenteredString(String s, int width, int XPos, int YPos, Graphics2D g2d)
@@ -1364,7 +1369,23 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 	        int stringLen = (int) g2d.getFontMetrics().getStringBounds(s, g2d).getWidth();  
 	        int start = width/2 - stringLen/2;  
 	        g2d.drawString(s, start + XPos, YPos);  
-		}  
+		}
+		
+		private void drawBarCode(int width, double xPos, double yPos, Graphics2D g2d)
+		{
+			//create the bar code
+			POSTNETBean bean = new POSTNETBean();
+			
+			//create the canvass
+			Java2DCanvasProvider cc = new Java2DCanvasProvider(g2d, 0);
+			g2d.scale(2.835, 2.835);	//scale from millimeters to points
+			g2d.translate(50, 50);
+			g2d.setRenderingHint( RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
+
+			
+			//set the bean content
+			bean.generateBarcode(cc, "123456789");
+		}
 		
 		@Override
 		public int print(Graphics g, PageFormat pf, int page) throws PrinterException
