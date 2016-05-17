@@ -77,72 +77,20 @@ public class SortWishObject extends ONCObject
 		GlobalVariables gvs = GlobalVariables.getInstance();
 		ONCWishCatalog cat = ONCWishCatalog.getInstance();
 		
-		String[] line = new String[4];
+		String[] line = new String[5];
 		SimpleDateFormat sYear = new SimpleDateFormat("yyyy");
 		
 		String[] indicator = {"", "*", "#"};
 		
+		//Changed when adding bar code to labels			
 		line[0] = soChild.getChildAge() + " " + soChild.getChildGender();
 		
-		//Combine the wish base and wish detail and return one or two lines depending
-		//on the length of the combined string. If two lines are required, break the
-		//string on a word boundary. Limit the second string to a max number of
-		//characters based on MAX_LABEL_LINE_LENGTH
-/*		
-		StringBuilder l1 = new StringBuilder(cat.getWishByID(soChildWish.getWishID()).getName());
-		
-		if(!soChildWish.getChildWishDetail().isEmpty())	//Wish detail may need two lines
-		{
-			l1.append(" - ");
-		
-			String[] wishDetail = soChildWish.getChildWishDetail().split(" ");
-			int index = 0;
-		
-			//Build 2nd line. Limit it to MAX_LABEL_LINE_LENGTH on a word boundary
-			while(index < wishDetail.length &&
-					l1.length() + wishDetail[index].length() + 1 < MAX_LABEL_LINE_LENGTH)
-			{
-				l1.append(wishDetail[index++] + " ");
-			}
-			line[1] = l1.toString();
-		
-			//If wish is too long to fit on one line, break it into a 2nd line
-			StringBuilder l2 = new StringBuilder("");
-			while(index < wishDetail.length &&
-				l2.length() + wishDetail[index].length() + 1 < MAX_LABEL_LINE_LENGTH)
-			{
-				l2.append(wishDetail[index++] + " ");
-			}
-		
-			//If the wish required two lines make the 3rd line the ONC Year line 4
-			//else make the ONC Year line 3
-			if(l2.length() > 0)
-			{
-				line[2] = l2.toString();
-				line[3] = "ONC " + sYear.format(gvs.getSeasonStartDate()) + 
-						" |  Family # " + soFamily.getONCNum();
-			}
-			else
-			{			
-				line[2] = "ONC " + sYear.format(gvs.getSeasonStartDate()) + 
-						" |  Family # " + soFamily.getONCNum();
-				line[3] = null;
-			}
-		}
-		else	//No wish detail
-		{
-			line[1] = l1.toString();
-			line[2] = "ONC " + sYear.format(gvs.getSeasonStartDate()) + 
-					" |  Family # " + soFamily.getONCNum();
-			line[3] = null;
-		}
-*/		
 		if(soChildWish.getChildWishDetail().isEmpty())
 		{
 			ONCWish wish = cat.getWishByID(soChildWish.getWishID());
 			String wishName = wish == null ? "None" : wish.getName();
 			
-			line[1] = indicator[soChildWish.getChildWishIndicator()] + wishName + " - ";
+			line[1] = indicator[soChildWish.getChildWishIndicator()] + wishName + "- ";
 			line[2] = "ONC " + sYear.format(gvs.getSeasonStartDate()) + 
 						" |  Family # " + soFamily.getONCNum();
 			line[3] = null;
@@ -153,7 +101,7 @@ public class SortWishObject extends ONCObject
 			String wishName = catWish == null ? "None" : catWish.getName();
 			
 			String wish = indicator[soChildWish.getChildWishIndicator()] + wishName +
-					" - " + soChildWish.getChildWishDetail();
+					"- " + soChildWish.getChildWishDetail();
 	
 			//does it fit on one line?
 			if(wish.length() <= MAX_LABEL_LINE_LENGTH)
@@ -190,6 +138,17 @@ public class SortWishObject extends ONCObject
 				line[3] = null;
 			}
 		}
+		
+		if(soChildWish.getID() < 10)
+			line[4] = "0000" + Integer.toString(soChildWish.getID()) + "17";
+		else if(soChildWish.getID() < 100)
+			line[4] = "000" + Integer.toString(soChildWish.getID()) + "17";
+		else if(soChildWish.getID() < 1000)
+			line[4] = "00" + Integer.toString(soChildWish.getID()) + "17";
+		else if(soChildWish.getID() < 10000)
+			line[4] = "0" + Integer.toString(soChildWish.getID()) + "17";
+		else
+			line[4] = Integer.toString(soChildWish.getID()) + "17";
 		
 		return line;
 	}

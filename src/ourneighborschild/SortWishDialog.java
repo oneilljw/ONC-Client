@@ -11,6 +11,7 @@ import java.awt.Insets;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.awt.event.ActionEvent;
+import java.awt.image.BufferedImage;
 import java.awt.print.PageFormat;
 import java.awt.print.Printable;
 import java.awt.print.PrinterException;
@@ -42,7 +43,7 @@ import javax.swing.JTextField;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import org.krysalis.barcode4j.impl.postnet.POSTNETBean;
+import org.krysalis.barcode4j.impl.code128.Code128Bean;
 import org.krysalis.barcode4j.output.java2d.Java2DCanvasProvider;
 
 import au.com.bytecode.opencsv.CSVWriter;
@@ -1328,20 +1329,18 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		private static final int AVERY_COLUMNS_PER_PAGE = 3;
 		private static final int AVERY_LABEL_HEIGHT = 72;
 		private static final int AVERY_LABEL_WIDTH = 196;
+		private static final int AVERY_LABEL_X_BARCODE_OFFSET = 0;
+		private static final int AVERY_LABEL_Y_BARCODE_OFFSET = 4;
 		
 		void printLabel(int x, int y, String[] line, Font[] lFont, Image img, Graphics2D g2d)
 		{
+//			System.out.println("Printing label for wish id " + line[4]);
+			//draw this seasons onc icon on label
+//			drawHolidayIcon(x, y, img, g2d);
 			
-			double scaleFactor = (72d / 300d) * 2;
-		     	     
-		    // Now we perform our rendering 	       	    
-		    int destX1 = (int) (img.getWidth(null) * scaleFactor);
-		    int destY1 = (int) (img.getHeight(null) * scaleFactor);
-		    
-		    //Draw image scaled to fit image clip region on the label
-		    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		    g2d.drawImage(img, x, y, x+destX1, y+destY1, 0,0, img.getWidth(null),img.getHeight(null),null); 
-		    
+			//draw the barcode
+			drawBarCode(line[4], x, y, g2d);
+  
 		    //Draw the label text, either 3 or 4 lines, depending on the wish base + detail length
 		    g2d.setFont(lFont[0]);
 		    drawCenteredString(line[0], 120, x+50, y+5, g2d);	//Draw line 1
@@ -1351,17 +1350,28 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		    
 		    if(line[3] == null)	//Only a 3 line label
 		    {
-//		    	g2d.setFont(lFont[2]);
-//		    	drawCenteredString(line[2], 120, x+50, y+35, g2d);	//Draw line 3
-		    	drawBarCode(120, x+50, y+35, g2d);
+		    	g2d.setFont(lFont[2]);
+		    	drawCenteredString(line[2], 120, x+50, y+35, g2d);	//Draw line 3
 		    }
 		    else	//A 4 line label
 		    {	    	
 		    	drawCenteredString(line[2], 120, x+50, y+35, g2d);	//Draw line 3	    	
 		    	g2d.setFont(lFont[2]);
-//		    	drawCenteredString(line[3], 120, x+50, y+50, g2d);	//Draw line 4
-		    	drawBarCode(120, x+50, y+50, g2d);
+		    	drawCenteredString(line[3], 120, x+50, y+50, g2d);	//Draw line 4
 		    }
+		}
+		
+		private void drawHolidayIcon(int x, int y, Image img, Graphics2D g2d)
+		{
+			double scaleFactor = (72d / 300d) * 2;
+    	     
+		    // Now we perform our rendering 	       	    
+		    int destX1 = (int) (img.getWidth(null) * scaleFactor);
+		    int destY1 = (int) (img.getHeight(null) * scaleFactor);
+		    
+		    //Draw image scaled to fit image clip region on the label
+		    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		    g2d.drawImage(img, x, y, x+destX1, y+destY1, 0,0, img.getWidth(null),img.getHeight(null),null); 
 		}
 		
 		private void drawCenteredString(String s, int width, int XPos, int YPos, Graphics2D g2d)
@@ -1370,23 +1380,50 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 	        int start = width/2 - stringLen/2;  
 	        g2d.drawString(s, start + XPos, YPos);  
 		}
-		
-		private void drawBarCode(int width, double xPos, double yPos, Graphics2D g2d)
+
+		private void drawBarCode(String code, int x, int y, Graphics2D g2d)
 		{
 			//create the bar code
-			POSTNETBean bean = new POSTNETBean();
+			Code128Bean bean = new Code128Bean();
+			
+			//get a temporary graphics context
+			Graphics2D tempg2d = (Graphics2D) g2d.create();
 			
 			//create the canvass
-			Java2DCanvasProvider cc = new Java2DCanvasProvider(g2d, 0);
-			g2d.scale(2.835, 2.835);	//scale from millimeters to points
-			g2d.translate(50, 50);
-			g2d.setRenderingHint( RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
-
+			Java2DCanvasProvider cc = new Java2DCanvasProvider(tempg2d, 0);
+			tempg2d.translate(x + AVERY_LABEL_X_BARCODE_OFFSET, y + AVERY_LABEL_Y_BARCODE_OFFSET);
+//			tempg2d.translate(x, y);
 			
+			tempg2d.setRenderingHint( RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
+//			tempg2d.scale(2.835, 2.835);	//scale from millimeters to points
+			tempg2d.scale(2.4, 2.4);	//scale from millimeters to points
+
 			//set the bean content
-			bean.generateBarcode(cc, "123456789");
+			bean.generateBarcode(cc, code);
+			
+			//release the graphics context
+			tempg2d.dispose(); 
 		}
-		
+/*		
+		private void drawBarbequeBarCode(int x, int y, Graphics2D g2d)
+		{
+			try 
+			{
+				Barcode code = BarcodeFactory.createPostNet("123456789");
+				code.setBarHeight(20);
+				code.setBarWidth(1);
+				code.draw(g2d, x + AVERY_LABEL_X_BARCODE_OFFSET, y + AVERY_LABEL_Y_BARCODE_OFFSET);
+			} 
+			catch (BarcodeException e) 
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (OutputException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+*/		
 		@Override
 		public int print(Graphics g, PageFormat pf, int page) throws PrinterException
 		{
@@ -1407,7 +1444,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 
 			Font[] lFont = new Font[3];
 		    lFont[0] = new Font("Calibri", Font.ITALIC, 11);
-		    lFont[1] = new Font("Calibri", Font.BOLD, 12);
+		    lFont[1] = new Font("Calibri", Font.BOLD, 11);
 		    lFont[2] = new Font("Calibri", Font.PLAIN, 10);	     
 		    
 		    int endOfSelection = 0, index = 0;

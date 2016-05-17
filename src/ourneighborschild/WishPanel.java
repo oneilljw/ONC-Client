@@ -347,7 +347,7 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 		String[] indicator = {"", "*", "#"};
 		
 		String wish = indicator[cw.getChildWishIndicator()] +
-				wishName + " - " + cw.getChildWishDetail();
+				wishName + "- " + cw.getChildWishDetail();
 		
 		//does it fit on one line?
 		if(wish != null && wish.length() <= MAX_LABEL_LINE_LENGTH)
