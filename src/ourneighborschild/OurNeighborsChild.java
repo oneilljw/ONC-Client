@@ -32,7 +32,7 @@ public class OurNeighborsChild
 	 */
 	//Static Final Variables
 	private static final int SERVER_CONNECT_RETRY_LIMIT = 3;
-	private static final String ONC_VERSION = "3.27";
+	private static final String ONC_VERSION = "3.28";
 	private static final String APPNAME = "Our Neighbor's Child";
 	private static final String ONC_SERVER_IP_ADDRESS_FILE = "serveripaddress.txt";
 	
