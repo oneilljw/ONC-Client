@@ -50,6 +50,7 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 	private static ONCUser user;
 	private static String version;
 	private static WebsiteStatus websiteStatus;
+	private static boolean bBarcodeOnOrnmament;
 	
 	public static GlobalVariables getInstance()
 	{
@@ -167,6 +168,7 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 		ytyGrwthIndex = 2;
 		user_permission = UserPermission.General;
 		version = "N/A";
+		bBarcodeOnOrnmament = false;
 	}
 	
 	//Getters
@@ -253,6 +255,7 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 		return imageIcons[oncSeasonStartDate.get(Calendar.YEAR) % NUM_OF_XMAS_ICONS + XMAS_ICON_OFFSET];
 	}
 	WebsiteStatus getWebsiteStatus() {return websiteStatus; }
+	boolean includeBarcodeOnLabels() { return bBarcodeOnOrnmament; }
 	
 	//setters globally used - need to update at the server and broadcast
 	public void setDeliveryDate(Date dd) { oncDeliveryDate.setTime(dd); }
@@ -262,6 +265,7 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 	public void setFamilyEditDeadline(Date fed) { familyEditDeadline.setTime(fed); }
 	public void setSeasonStartDate(Date ssd) { oncSeasonStartDate.setTime(ssd); }
 	public void setWarehouseAddress(String address) {warehouseAddress = address; }
+	public void setIncludeBarcodeOnLabels(boolean tf) { bBarcodeOnOrnmament = tf; }
 	
 	//Setters locally used
 	void setFrame(JFrame frame) { oncFrame = frame; }

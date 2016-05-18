@@ -1334,12 +1334,11 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		
 		void printLabel(int x, int y, String[] line, Font[] lFont, Image img, Graphics2D g2d)
 		{
-//			System.out.println("Printing label for wish id " + line[4]);
-			//draw this seasons onc icon on label
-//			drawHolidayIcon(x, y, img, g2d);
-			
-			//draw the barcode
-			drawBarCode(line[4], x, y, g2d);
+			//draw either the season Icon or a bar code
+			if(GlobalVariables.getInstance().includeBarcodeOnLabels())
+				drawBarCode(line[4], x, y, g2d);	//draw the bar code on label
+			else
+				drawHolidayIcon(x, y, img, g2d);	//draw this seasons ONC icon on label
   
 		    //Draw the label text, either 3 or 4 lines, depending on the wish base + detail length
 		    g2d.setFont(lFont[0]);

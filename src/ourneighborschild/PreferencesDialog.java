@@ -12,6 +12,7 @@ import java.beans.PropertyChangeListener;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -37,6 +38,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 	public JComboBox oncFontSizeCB;
 	private JButton btnApplyChanges;
 	private boolean bIgnoreDialogEvents;
+	private JCheckBox barcodeCkBox;
 	
 	PreferencesDialog(JFrame parentFrame)
 	{
@@ -148,6 +150,14 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		oncFontSizeCB.addActionListener(this);
 		viewPanel.add(lblFont);
 		viewPanel.add(oncFontSizeCB);
+		
+		JPanel wishlabelPanel = new JPanel();
+		wishlabelPanel.setBorder(BorderFactory.createTitledBorder("Change Ornament Label Parameters:"));
+		
+		barcodeCkBox = new JCheckBox("Include barcode on ornament label");
+		barcodeCkBox.setSelected(pdGVs.includeBarcodeOnLabels());
+		barcodeCkBox.addActionListener(this);
+		wishlabelPanel.add(barcodeCkBox);
 			
 		JPanel cntlPanel = new JPanel();
 		btnApplyChanges = new JButton("Apply Date or Address Changes");
@@ -160,6 +170,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
         this.getContentPane().add(datePanel);
         this.getContentPane().add(addressPanel);
         this.getContentPane().add(viewPanel);
+        this.getContentPane().add(wishlabelPanel);
         this.getContentPane().add(cntlPanel);
                
         this.pack();
@@ -180,6 +191,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		dc_InfoEditCutoff.setDate(pdGVs.getFamilyEditDeadline());
 		oncFontSizeCB.setSelectedIndex(pdGVs.getFontIndex());
 		displayWarehouseAddress();
+		barcodeCkBox.setSelected(pdGVs.includeBarcodeOnLabels());
 		
 		btnApplyChanges.setEnabled(false);
 		
@@ -316,6 +328,10 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		else if(e.getSource() == oncFontSizeCB)
 		{
 			pdGVs.setFontIndex(this, oncFontSizeCB.getSelectedIndex());
+		}
+		else if(e.getSource() == barcodeCkBox)
+		{
+			pdGVs.setIncludeBarcodeOnLabels(barcodeCkBox.isSelected());
 		}
 	}
 
