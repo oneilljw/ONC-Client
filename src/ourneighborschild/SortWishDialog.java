@@ -43,8 +43,10 @@ import javax.swing.JTextField;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import org.krysalis.barcode4j.impl.AbstractBarcodeBean;
 import org.krysalis.barcode4j.impl.code128.Code128Bean;
 import org.krysalis.barcode4j.output.java2d.Java2DCanvasProvider;
+import org.krysalis.barcode4j.impl.upcean.UPCEBean;
 
 import au.com.bytecode.opencsv.CSVWriter;
 
@@ -1323,7 +1325,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		
 	private class AveryWishLabelPrinter implements Printable
 	{		
-		private static final int AVERY_LABEL_X_OFFSET = 30;
+		private static final int AVERY_LABEL_X_OFFSET = 20;
 		private static final int AVERY_LABEL_Y_OFFSET = 50;
 		private static final int AVERY_LABELS_PER_PAGE = 30;
 		private static final int AVERY_COLUMNS_PER_PAGE = 3;
@@ -1383,7 +1385,12 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		private void drawBarCode(String code, int x, int y, Graphics2D g2d)
 		{
 			//create the bar code
-			Code128Bean bean = new Code128Bean();
+			
+			AbstractBarcodeBean bean;
+			if(gvs.getBarcodeCode() == Barcode.CODE128)
+				 bean = new Code128Bean();
+			else
+				bean = new UPCEBean();
 			
 			//get a temporary graphics context
 			Graphics2D tempg2d = (Graphics2D) g2d.create();
@@ -1403,26 +1410,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 			//release the graphics context
 			tempg2d.dispose(); 
 		}
-/*		
-		private void drawBarbequeBarCode(int x, int y, Graphics2D g2d)
-		{
-			try 
-			{
-				Barcode code = BarcodeFactory.createPostNet("123456789");
-				code.setBarHeight(20);
-				code.setBarWidth(1);
-				code.draw(g2d, x + AVERY_LABEL_X_BARCODE_OFFSET, y + AVERY_LABEL_Y_BARCODE_OFFSET);
-			} 
-			catch (BarcodeException e) 
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (OutputException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-*/		
+
 		@Override
 		public int print(Graphics g, PageFormat pf, int page) throws PrinterException
 		{

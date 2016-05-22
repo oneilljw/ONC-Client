@@ -24,7 +24,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private JTextField oncnumTF;
+	private JTextField oncnumTF, barcodeTF;
 	private JComboBox startAgeCB, genderCB;
 	private JButton btnUndo; 
 	
@@ -89,12 +89,23 @@ public abstract class GiftActionDialog extends SortTableDialog
 //		genderCB.setAlignmentX(Component.LEFT_ALIGNMENT );//0.0
 		genderCB.addActionListener(this);
 		
+		barcodeTF = new JTextField(6);
+//    	barcodeTF.setEditable(true);
+    	barcodeTF.setMaximumSize(new Dimension(112,56));
+//    	oncnumTF.setAlignmentX(Component.LEFT_ALIGNMENT );//0.0
+		barcodeTF.setBorder(BorderFactory.createTitledBorder("Barcode"));
+		barcodeTF.setToolTipText("Type Barcode and press <enter>");
+		barcodeTF.addActionListener(this);
+//		barcodeTF.addKeyListener(new ONCNumberKeyListener());
+		
 		sortCriteriaPanelTop.add(Box.createRigidArea(new Dimension(5,0)));
 		sortCriteriaPanelTop.add(oncnumTF);
 		sortCriteriaPanelTop.add(Box.createRigidArea(new Dimension(5,0)));
 		sortCriteriaPanelTop.add(startAgeCB);
 		sortCriteriaPanelTop.add(Box.createRigidArea(new Dimension(5,0)));
 		sortCriteriaPanelTop.add(genderCB);
+		sortCriteriaPanelTop.add(Box.createRigidArea(new Dimension(5,0)));
+		sortCriteriaPanelTop.add(barcodeTF);
 		sortCriteriaPanelTop.add(new JPanel());
 		
 		//change the default row selection setting to single row selection
@@ -118,6 +129,8 @@ public abstract class GiftActionDialog extends SortTableDialog
         this.add(bottomPanel);       
         pack();
         this.setResizable(false);
+        
+        barcodeTF.requestFocus();
 	}
 
 	void buildTableList(boolean bPreserveSelections)
@@ -157,6 +170,33 @@ public abstract class GiftActionDialog extends SortTableDialog
 		}
 		
 		displaySortTable(stAL, true, tableRowSelectedObjectList);		//Display the table after table array list is built	
+	}
+	
+	void buildTableListFromBarcode(int childwishID, boolean bPreserveSelections)
+	{
+		//archive the table rows selected prior to rebuild so the can be reselected if the
+		//build occurred due to an external modification of the table
+		tableRowSelectedObjectList.clear();
+		if(bPreserveSelections)
+			archiveTableSelections(stAL);
+		else
+			tableSortCol = -1;
+		
+		stAL.clear();	//Clear the prior table information in the array list
+		
+		ONCChildWish cw = cwDB.getWish(childwishID);
+		if(cw != null)
+		{
+			ONCChild c = cDB.getChild(cw.getChildID());
+		
+			ONCFamily f = fDB.getFamily(c.getFamID());
+		
+			stAL.add(new SortWishObject(0, f, c, cw));
+		
+			displaySortTable(stAL, true, tableRowSelectedObjectList);		//Display the table after table array list is built
+			
+			clearBarCode();
+		}
 	}
 /*	
 	void archiveTableSelections(ArrayList<? extends ONCObject> stAL)
@@ -308,6 +348,18 @@ public abstract class GiftActionDialog extends SortTableDialog
 			//with update of the child panel and family status
 			onUndoReceiveGift();
 		}
+		else if(e.getSource() == barcodeTF)
+		{
+			//if using UPC-E, eliminate check digits before converting to childwishID integer
+			int cwID;
+			if(gvs.getBarcodeCode() == Barcode.UPC_E)
+				cwID = Integer.parseInt(barcodeTF.getText().substring(0, barcodeTF.getText().length()-1));
+			else
+				cwID = Integer.parseInt(barcodeTF.getText());
+			
+			//search for it
+			buildTableListFromBarcode(cwID, false);	
+		}
 	}
 	
 	//Resets each search criteria gui and its corresponding member variable to the initial
@@ -331,7 +383,18 @@ public abstract class GiftActionDialog extends SortTableDialog
 		sortGender = 0;
 		genderCB.addActionListener(this);
 		
+		clearBarCode();
+		
 		buildTableList(false);
+		
+		barcodeTF.requestFocus();
+	}
+	
+	void clearBarCode()
+	{
+		barcodeTF.removeActionListener(this);
+		barcodeTF.setText("");	//no need to test for a change here.
+		barcodeTF.addActionListener(this);
 	}
 	
 	@Override

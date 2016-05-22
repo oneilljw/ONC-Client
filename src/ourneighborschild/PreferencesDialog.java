@@ -39,6 +39,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 	private JButton btnApplyChanges;
 	private boolean bIgnoreDialogEvents;
 	private JCheckBox barcodeCkBox;
+	private JComboBox barcodeCB;
 	
 	PreferencesDialog(JFrame parentFrame)
 	{
@@ -158,6 +159,11 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		barcodeCkBox.setSelected(pdGVs.includeBarcodeOnLabels());
 		barcodeCkBox.addActionListener(this);
 		wishlabelPanel.add(barcodeCkBox);
+		
+		barcodeCB = new JComboBox(Barcode.values());
+		barcodeCB.setSelectedItem(pdGVs.getBarcodeCode());
+		barcodeCB.addActionListener(this);;
+		wishlabelPanel.add(barcodeCB);
 			
 		JPanel cntlPanel = new JPanel();
 		btnApplyChanges = new JButton("Apply Date or Address Changes");
@@ -333,6 +339,10 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		{
 			pdGVs.setIncludeBarcodeOnLabels(barcodeCkBox.isSelected());
 		}
+		else if(e.getSource() == barcodeCB && pdGVs.getBarcodeCode() != barcodeCB.getSelectedItem())
+		{
+			pdGVs.setBarcode( (Barcode) barcodeCB.getSelectedItem());
+		}
 	}
 
 	@Override
@@ -342,7 +352,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		{
 			display();
 		}	
-	}
+	} 
 	
 	private class DateChangeListener implements PropertyChangeListener
 	{
