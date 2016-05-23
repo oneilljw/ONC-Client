@@ -39,7 +39,7 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 	private JMenu submenuImport, submenuFamilyDataChecks;
 	private JMenu submenuExport, submenuChangeFamilyNumbers, submenuDBYearList;
 	private JMenuItem viewDBMI, sortWishesMI, sortFamiliesMI, sortOrgsMI, recGiftsMI, sortMealsMI;
-	private JMenuItem agentMI, orgMI, catMI;
+	private JMenuItem agentMI, orgMI, catMI, barcodeWishHistoryMI;
 	private JMenuItem aboutONCMI, oncPrefrencesMI, profileMI, userMI, onlineMI, chatMI, changePWMI, stopPollingMI;
 	private JMenuItem showServerLogMI, showServerClientIDMI, showCurrDirMI, showWebsiteStatusMI;
 	private List<JMenuItem> dbYearsMIList;
@@ -275,6 +275,12 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 	    recGiftsMI.addActionListener(this);;
 	    menuWishes.add(recGiftsMI);
 	    
+	    barcodeWishHistoryMI = new JMenuItem("Barcode Wish History");
+	    barcodeWishHistoryMI.setActionCommand("Barcode Wish History");
+	    barcodeWishHistoryMI.setEnabled(false);
+	    barcodeWishHistoryMI.addActionListener(this);
+	    menuWishes.add(barcodeWishHistoryMI);
+	    
 	    //Build Meals Menu Structure
 	    menuMeals = new JMenu("Meals");
 	    this.add(menuMeals);
@@ -458,6 +464,7 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 		distMI.setEnabled(tf);	
 		sortWishesMI.setEnabled(true);
 		recGiftsMI.setEnabled(true);
+		barcodeWishHistoryMI.setEnabled(true);
 	}
 	
 	void setEnabledRestrictedMenuItems(boolean tf)	//Only Admins can perform these functions
@@ -659,6 +666,8 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 			dlgManager.showSortDialog(sortMealsMI.getActionCommand(), SORT_DIALOG_OFFSET);
 		else if(e.getSource() == recGiftsMI)
 			dlgManager.showSortDialog(recGiftsMI.getActionCommand(), SORT_DIALOG_OFFSET);
+		else if(e.getSource() == barcodeWishHistoryMI)
+			dlgManager.showBarcodeWishHistoryDialog();
 		else if(e.getSource() == catMI) {dlgManager.showWishCatalogDialog(); }
 		else if(e.getSource() == orgMI)
 			dlgManager.showEntityDialog(orgMI.getActionCommand(), SORT_DIALOG_OFFSET);

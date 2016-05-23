@@ -466,6 +466,24 @@ public class ChildWishDB extends ONCDatabase
 			return childwishAL.get(index);
 	}
 	
+	List<ONCChildWish> getWishHistory(int childID, int wn)
+	{
+		List<ONCChildWish> cwhList = new ArrayList<ONCChildWish>();
+		Gson gson = new Gson();
+		
+		HistoryRequest req = new HistoryRequest(childID, wn);
+		String response = serverIF.sendRequest("GET<wishhistory>"+ 
+											gson.toJson(req, HistoryRequest.class));
+		
+		if(response != null)
+		{
+			Type listtype = new TypeToken<ArrayList<ONCChildWish>>(){}.getType();	
+			cwhList = gson.fromJson(response, listtype);
+		}
+		
+		return cwhList;
+	}
+	
 	int getNumberOfWishesPerChild() { return NUMBER_OF_WISHES_PER_CHILD; }
 	
 	ArrayList<ONCChildWish> getList() { return childwishAL; }

@@ -6,10 +6,10 @@ import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -23,8 +23,6 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 public class WishPanel extends JPanel implements ActionListener, DatabaseListener, EntitySelectionListener
 {
@@ -367,35 +365,17 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 	
 	void showWishHistoryDlg()
 	{
-		ServerIF serverIF = ServerIF.getInstance();
-		Gson gson = new Gson();
-		String response = null, errTitle = "ONC Server Failed to Respond";
+		List<ONCChildWish> cwhList = null;
 		
-		if(serverIF != null && serverIF.isConnected())
-		{	
-			if(childWish != null)
-			{
-				HistoryRequest req = new HistoryRequest(childWish.getChildID(), wishNumber);
-				response = serverIF.sendRequest("GET<wishhistory>"+ 
-													gson.toJson(req, HistoryRequest.class));
-			}
-			else
-				errTitle = "No History Yet";
-		}
-		
-		if(response != null)
+		if(childWish != null &&
+			!(cwhList = cwDB.getWishHistory(childWish.getChildID(), wishNumber)).isEmpty())
 		{
-			ArrayList<ONCChildWish> cwh = new ArrayList<ONCChildWish>();
-			Type listtype = new TypeToken<ArrayList<ONCChildWish>>(){}.getType();
-			
-			cwh = gson.fromJson(response, listtype);
-			
 			//need to add the assignee name based on the assignee ID for the table
 			String[] indicators = {"", "*", "#"};
 			PartnerDB orgDB = PartnerDB.getInstance();
 			
 			ArrayList<String[]> wishHistoryTable = new ArrayList<String[]>();
-			for(ONCChildWish cw:cwh)
+			for(ONCChildWish cw:cwhList)
 			{
 				ONCWish wish = cat.getWishByID(cw.getWishID());
 				ONCPartner assignee = orgDB.getOrganizationByID(cw.getChildWishAssigneeID());
@@ -426,7 +406,7 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 		{
 			JOptionPane.showMessageDialog(GlobalVariables.getFrame(), 
 					"Child Wish History Not Available", 
-					errTitle, JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
+					"No History Available", JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
 		}
 	}
 

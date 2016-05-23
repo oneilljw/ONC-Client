@@ -78,7 +78,6 @@ public abstract class CheckDialog extends ONCTableDialog implements ActionListen
 		topPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 		topPanel.setBorder(BorderFactory.createTitledBorder(type + " Data Check Criteria"));
 		
-		GlobalVariables gvs = GlobalVariables.getInstance();
 		JLabel lblONCIcon = new JLabel(gvs.getImageIcon(0));
 		
 		checkCriteriaPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));

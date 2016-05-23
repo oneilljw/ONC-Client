@@ -48,7 +48,10 @@ public class DialogManager implements EntitySelectionListener
 	private ChangeONCNumberDialog changeONCNumberDlg;
 	private ChangeReferenceNumberDialog changeReferenceNumberDlg;
 	private ChangeBatchNumberDialog changeBatchNumberDlg;
-		
+	
+	
+	
+	
 	//dialogs that inherit from CheckDialog
 	private Map<String, CheckDialog> checkDlgMap;
 	private ChildCheckDialog dcDlg;
@@ -71,6 +74,7 @@ public class DialogManager implements EntitySelectionListener
 	private DriverDialog driverDlg;
 		
 	private PreferencesDialog prefsDlg;
+	private BarcodeWishHistoryDialog barcodeWHDlg;
 	
 	public static DialogManager getInstance()
 	{
@@ -221,6 +225,10 @@ public class DialogManager implements EntitySelectionListener
 		recGiftsDlg = new ReceiveGiftsDialog(GlobalVariables.getFrame(), WishStatus.Received);
 		stDlgMap.put("Receive Gifts", recGiftsDlg);
     	eeManager.registerEntitySelector(recGiftsDlg);
+    	
+    	//set up a dialog to search for wish history from bar code scan
+    	barcodeWHDlg = new BarcodeWishHistoryDialog(GlobalVariables.getFrame());
+    	eeManager.registerEntitySelector(barcodeWHDlg);
         
         //set up a dialog to connect prior year children
     	pyConnectionDlg = new PYChildConnectionDialog(GlobalVariables.getFrame());
@@ -377,6 +385,15 @@ public class DialogManager implements EntitySelectionListener
 		}
 	}
 	
+	void showBarcodeWishHistoryDialog()
+	{
+		if(!barcodeWHDlg.isShowing())
+		{
+			barcodeWHDlg.setLocationRelativeTo(GlobalVariables.getFrame());
+			barcodeWHDlg.setVisible(true);	
+		}
+	}
+	
 	void showAboutONCDialog()
 	{
 		//User has chosen to view the About ONC dialog
@@ -389,7 +406,7 @@ public class DialogManager implements EntitySelectionListener
 
 	void showDialogError(String name)
 	{
-		String errMssg = String.format("<html>Show Famaily Info Dialog Error:<br>%s dialog doesn't exist,<br>"
+		String errMssg = String.format("<html>Show Family Info Dialog Error:<br>%s dialog doesn't exist,<br>"
 				+ "						please contact the ONC IT Director</html>", name);
 		JOptionPane.showMessageDialog(GlobalVariables.getFrame(), errMssg, "System Error - Show Family Info Dialog",
 				JOptionPane.ERROR_MESSAGE, GlobalVariables.getONCLogo());

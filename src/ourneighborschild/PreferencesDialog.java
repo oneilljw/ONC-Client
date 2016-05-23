@@ -19,6 +19,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 
 import com.toedter.calendar.JDateChooser;
@@ -51,10 +52,13 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		
 		bIgnoreDialogEvents = false;
 		
+		JTabbedPane tabbedPane = new JTabbedPane();
+		
 		JPanel datePanel = new JPanel();
 //		p1.setLayout(new BoxLayout(p1, BoxLayout.PAGE_AXIS));
 		datePanel.setLayout(new GridLayout(3,3));
-		datePanel.setBorder(BorderFactory.createTitledBorder("ONC Season Dates:"));
+//		datePanel.setBorder(BorderFactory.createTitledBorder("ONC Season Dates:"));
+		
 		
 //		String mssg ="<html><b><FONT COLOR=BLUE>Set Preferences, then click OK</FONT></b></html>";		
 //		lblMssg = new JLabel(mssg, JLabel.CENTER);
@@ -114,6 +118,8 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		dc_giftsreceived.getDateEditor().addPropertyChangeListener(dcl);		
 		datePanel.add(dc_giftsreceived);
 		
+		tabbedPane.addTab("ONC Season Dates", datePanel);
+		
 		JPanel addressPanel = new JPanel();
 		addressPanel.setBorder(BorderFactory.createTitledBorder("Warehouse Address:"));
 		
@@ -141,6 +147,8 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		addressPanel.add(whCityTF);
 		addressPanel.add(whStateTF);
 		
+		tabbedPane.addTab("Warehouse", addressPanel);
+		
 		JPanel viewPanel = new JPanel();
 		viewPanel.setBorder(BorderFactory.createTitledBorder("Change View Parameters:"));
 		
@@ -152,10 +160,12 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		viewPanel.add(lblFont);
 		viewPanel.add(oncFontSizeCB);
 		
-		JPanel wishlabelPanel = new JPanel();
-		wishlabelPanel.setBorder(BorderFactory.createTitledBorder("Change Ornament Label Parameters:"));
+		tabbedPane.addTab("Display", viewPanel);
 		
-		barcodeCkBox = new JCheckBox("Include barcode on ornament label");
+		JPanel wishlabelPanel = new JPanel();
+//		wishlabelPanel.setBorder(BorderFactory.createTitledBorder("Change Ornament Label Parameters:"));
+		
+		barcodeCkBox = new JCheckBox("Include barcode on ornament label using baarcode:");
 		barcodeCkBox.setSelected(pdGVs.includeBarcodeOnLabels());
 		barcodeCkBox.addActionListener(this);
 		wishlabelPanel.add(barcodeCkBox);
@@ -164,6 +174,8 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		barcodeCB.setSelectedItem(pdGVs.getBarcodeCode());
 		barcodeCB.addActionListener(this);;
 		wishlabelPanel.add(barcodeCB);
+		
+		tabbedPane.addTab("Ornament Labels", wishlabelPanel);
 			
 		JPanel cntlPanel = new JPanel();
 		btnApplyChanges = new JButton("Apply Date or Address Changes");
@@ -173,10 +185,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		
 		//Add the components to the frame pane
         this.getContentPane().setLayout(new BoxLayout(this.getContentPane(), BoxLayout.Y_AXIS));
-        this.getContentPane().add(datePanel);
-        this.getContentPane().add(addressPanel);
-        this.getContentPane().add(viewPanel);
-        this.getContentPane().add(wishlabelPanel);
+        this.getContentPane().add(tabbedPane);
         this.getContentPane().add(cntlPanel);
                
         this.pack();
