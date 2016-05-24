@@ -1044,11 +1044,12 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 	{
 		if(sortTable.getSelectedRowCount() > 0)	 //Print selected rows. If no rows selected, do nothing
 		{
-			totalNumOfLabelsToPrint = sortTable.getSelectedRowCount();
+//			totalNumOfLabelsToPrint = sortTable.getSelectedRowCount();
 			
 			PrinterJob pj = PrinterJob.getPrinterJob();
 
-			pj.setPrintable(new AveryWishLabelPrinter());
+			AveryWishLabelPrinter awlp = new AveryWishLabelPrinter(stAL, sortTable, sortTable.getSelectedRowCount());
+			pj.setPrintable(awlp);
          
 			boolean ok = pj.printDialog();
 			if (ok)
@@ -1322,7 +1323,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		int getRSPage() { return page; }
 		int getRSTotalpages() { return totalpages; }
 	}
-		
+/*		
 	private class AveryWishLabelPrinter implements Printable
 	{		
 		private static final int AVERY_LABEL_X_OFFSET = 20;
@@ -1334,7 +1335,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		private static final int AVERY_LABEL_X_BARCODE_OFFSET = 0;
 		private static final int AVERY_LABEL_Y_BARCODE_OFFSET = 4;
 		
-		void printLabel(int x, int y, String[] line, Font[] lFont, Image img, Graphics2D g2d)
+		void drawLabel(int x, int y, String[] line, Font[] lFont, Image img, Graphics2D g2d)
 		{
 			//draw either the season Icon or a bar code
 			if(GlobalVariables.getInstance().includeBarcodeOnLabels())
@@ -1453,7 +1454,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		    while(row < AVERY_LABELS_PER_PAGE/AVERY_COLUMNS_PER_PAGE && index < endOfSelection)
 		    {
 		    	line = stAL.get(row_sel[index++]).getWishLabel();
-		    	printLabel(col * AVERY_LABEL_WIDTH, row * AVERY_LABEL_HEIGHT, line, lFont, img, g2d);	
+		    	drawLabel(col * AVERY_LABEL_WIDTH, row * AVERY_LABEL_HEIGHT, line, lFont, img, g2d);	
 		    	if(++col == AVERY_COLUMNS_PER_PAGE)
 		    	{ 
 		    		row++; 
@@ -1461,11 +1462,11 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		    	} 	
 		    }
 		    	    
-		     /* tell the caller that this page is part of the printed document */
+		     // tell the caller that this page is part of the printed document
 		     return PAGE_EXISTS;
 		}
 	}
-
+*/
 	private class ONCSortItemAgeComparator implements Comparator<SortWishObject>
 	{
 		@Override

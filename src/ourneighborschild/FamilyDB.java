@@ -629,10 +629,15 @@ public class FamilyDB extends ONCSearchableDatabase
 			searchForONCNumber(s, rAL);
 			searchtype = "ONC Number";
 		}
-		else if((s.startsWith("ONC") || s.matches("-?\\d+(\\.\\d+)?")) && s.length() < 7)
+		else if((s.startsWith("C") || s.startsWith("W") || s.matches("-?\\d+(\\.\\d+)?")) && s.length() < 7)
 		{
 			searchForODBNumber(s, rAL);
 			searchtype = "ODB Number";
+		}
+		else if(s.matches("-?\\d+(\\.\\d+)?") && s.length() == 8 )
+		{
+			searchForBarcode(s, rAL);
+			searchtype = "Barcode";
 		}
 		else if(s.matches("-?\\d+(\\.\\d+)?") && s.length() < 13)
 		{
@@ -721,6 +726,30 @@ public class FamilyDB extends ONCSearchableDatabase
     	//search the child db
     	childDB.searchForLastName(s, rAL);
     }
+	
+	private void searchForBarcode(String s, List<Integer> rAL)
+	{
+		//convert search string to wish UD
+		//if using UPC-E, eliminate check digits before converting to childwishID integer
+		int cwID;
+		if(fGVs.getBarcodeCode() == Barcode.UPC_E)
+			cwID = Integer.parseInt(s.substring(0, s.length()-1));
+		else
+			cwID = Integer.parseInt(s);
+		
+		//find wish in ChildWishDB
+		ONCChildWish cw = childwishDB.getWish(cwID);
+		if(cw != null)
+		{
+			ONCChild c = childDB.getChild(cw.getChildID());	//get ONCChild from ChildDB
+			if(c != null)
+			{
+				ONCFamily searchFamily = getFamily(c.getFamID());	//get ONCFamily
+				if(searchFamily != null)
+					rAL.add(searchFamily.getID());
+			}
+		}
+	}
 	
 	private void searchForPhoneNumber(String s, List<Integer> rAL)
     {
@@ -1457,6 +1486,11 @@ public class FamilyDB extends ONCSearchableDatabase
 			//WFCM Format
 			searchForODBNumber(data, searchAL);
 			searchtype = "ODB Number";
+		}
+		else if(data.matches("-?\\d+(\\.\\d+)?") && data.length() == 8)
+		{
+			searchForBarcode(data, searchAL);
+			searchtype = "Family for barcode";
 		}
 		else if(data.matches("-?\\d+(\\.\\d+)?") && data.length() < 13)
 		{

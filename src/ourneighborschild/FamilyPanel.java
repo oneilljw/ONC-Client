@@ -1510,6 +1510,11 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			}
 		}
 	}
+	
+	void gainedFocus()
+	{
+		nav.gainedFocus();
+	}
 
 	@Override
 	public EnumSet<EntityType> getEntityEventListenerEntityTypes() 

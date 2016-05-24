@@ -5,8 +5,6 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.EnumSet;
 
@@ -21,7 +19,7 @@ import javax.swing.border.BevelBorder;
 public class ONCNavPanel extends ONCPanel implements ActionListener
 {
 	/**
-	 * This class implements a panel used in the ONC Edit dialogs and family panel to display
+	 * This class implements a panel used in the ONC Edit dialogs and the family panel to display
 	 * ONC Entities. The class implements next and previous navigation buttons that incrementally
 	 * scroll through the associated ONC Entity data base, maintaining the index of the current 
 	 * entity being displayed. The panel also implements a search text field that allows the
@@ -103,7 +101,7 @@ public class ONCNavPanel extends ONCPanel implements ActionListener
 	    searchTF = new JTextField(13);
 	    searchTF.setToolTipText("Type the data you want to find, then press <Enter>");
 	    searchTF.addActionListener(this);
-	    searchTF.addKeyListener(new SearchTFKeyListener());
+//	    searchTF.addKeyListener(new SearchTFKeyListener());
 	    searchsubpanel.add(searchTF);
 	    	
 	    rbSrchPrev = new JButton(gvs.getImageIcon(3));
@@ -143,6 +141,8 @@ public class ONCNavPanel extends ONCPanel implements ActionListener
 	    this.add(tp2);
 	    this.add(tp3);
 	    this.add(tp4);
+	    
+	    searchTF.requestFocus();
 	}
 	
 	//getters
@@ -150,7 +150,13 @@ public class ONCNavPanel extends ONCPanel implements ActionListener
 	EntityType getEntityType() { return searchableDB.getDBType(); }
 	
 	//setters
-	void setIndex(int index) { this.index = index; }
+	void setIndex(int index) 
+	{
+		if(!searchAL.isEmpty())	//clear the search if a new entity is selected
+			clearSearch();
+		
+		this.index = index; 
+	}
 	void setNextButtonText(String text) {btnNext.setText(text); }
 	void setPreviousButtonText(String text) {btnPrevious.setText(text); }
 	void btnNextSetEnabled(boolean tf) { btnNext.setEnabled(tf); }
@@ -187,6 +193,16 @@ public class ONCNavPanel extends ONCPanel implements ActionListener
 		lblMssg.setText(defaultMssg);
 	}
 	
+	void clearSearchText()
+	{
+		searchTF.setText("");
+	}
+	
+	void gainedFocus()
+	{
+		searchTF.requestFocusInWindow();
+	}
+	
 	@Override
 	public void actionPerformed(ActionEvent e) 
 	{
@@ -203,6 +219,9 @@ public class ONCNavPanel extends ONCPanel implements ActionListener
 					index = searchableDB.size()-1;
 			}
 			
+			if(!searchAL.isEmpty())
+				clearSearch();	//clear a prior search, if there is one displayed
+			
 			fireEntitySelected(this, searchableDB.getDBType(), searchableDB.getObjectAtIndex(index), null);
 		}
 		else if(e.getSource() == searchTF && !searchTF.getText().isEmpty())
@@ -215,9 +234,9 @@ public class ONCNavPanel extends ONCPanel implements ActionListener
 	    	else if(searchAL.size() == 1)
 	    		setMssg(type + " " + data + " found");
 	    	else
-	    		setMssg(type + " " +data + " not found");
+	    		setMssg(type + " " + data + " not found");
 			
-			if(searchAL.size() > 0)	//Match found in array list has elements
+			if(searchAL.size() > 0)	//Match found, search list has elements
 			{				
     			srchALindex=0;
     			index = searchableDB.getListIndexByID(searchableDB.getList(), searchAL.get(srchALindex));
@@ -225,13 +244,15 @@ public class ONCNavPanel extends ONCPanel implements ActionListener
 			}
 			else
 			{
-				searchTF.setText(searchTF.getText() + " Not Found");
+				setMssg(searchTF.getText() + " Not Found");
 				searchTF.setCaretPosition(0);
 			}
 			
 			//If multiple partners found, show scroll radio buttons
 			rbSrchNext.setVisible(searchAL.size() > 1);
 			rbSrchPrev.setVisible(searchAL.size() > 1);
+			
+			searchTF.setText("");
 		}
 		else if(e.getSource() == rbSrchNext)
 		{
@@ -254,6 +275,8 @@ public class ONCNavPanel extends ONCPanel implements ActionListener
 //			System.out.println("ONCNavPanel.actionPerformed: btnLogoff Event");
 //		}
 		
+		searchTF.requestFocusInWindow();
+		
 	}
 	
 	@Override
@@ -261,35 +284,4 @@ public class ONCNavPanel extends ONCPanel implements ActionListener
 	{	
 		return EnumSet.of(searchableDB.getDBType());
 	}
-	
-	/***********************************************************************************
-	 * This class implements a key listener for the OrganizationDialog class that
-	 * listens to the search text field to determine when it is empty. If it becomes empty,
-	 * the listener clears the search array list, and sets the scroll radio buttons invisible.
-	 * It also sets the displayed message to the original GENERIC_MSSG
-	 * @author johnwoneill
-	 ***********************************************************************************/
-	 private class SearchTFKeyListener implements KeyListener
-	 {
-		@Override
-		public void keyPressed(KeyEvent arg0) {
-			// TODO Auto-generated method stub
-				
-		}
-
-		@Override
-		public void keyReleased(KeyEvent arg0) {
-			// TODO Auto-generated method stub
-				
-		}
-
-		@Override
-		public void keyTyped(KeyEvent arg0)
-		{
-			if(searchTF.getText().isEmpty())
-			{
-				clearSearch();
-			}	
-		}
-	 }
 }

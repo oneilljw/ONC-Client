@@ -365,7 +365,13 @@ public class OurNeighborsChild
 
         //Create the family panel main screen
         oncFamilyPanel = new FamilyPanel(oncFrame);
-        oncContentPane.add(oncFamilyPanel);        
+        oncContentPane.add(oncFamilyPanel);
+        
+        oncFrame.addWindowFocusListener(new WindowAdapter() {
+		    public void windowGainedFocus(WindowEvent e) {
+		        oncFamilyPanel.gainedFocus();
+		    }
+		});
 	}
       
     void exit(String command)
