@@ -101,17 +101,6 @@ public class BarcodeWishHistoryDialog extends ONCTableDialog implements ActionLi
 		dlgTable = new ONCTable(dlgTableModel, colToolTips, new Color(240,248,255));
 
 		dlgTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-//		dlgTable.getSelectionModel().addListSelectionListener(this);
-		
-		//set up the columns that use combo box editors for the status, access and permission enums
-//		TableColumn statusColumn = dlgTable.getColumnModel().getColumn(STATUS_COL);
-//		statusColumn.setCellEditor(new DefaultCellEditor(new JComboBox(UserStatus.values())));
-//		
-//		TableColumn accessColumn = dlgTable.getColumnModel().getColumn(ACCESS_COL);
-//		accessColumn.setCellEditor(new DefaultCellEditor(new JComboBox(UserAccess.values())));
-//		
-//		TableColumn permColumn = dlgTable.getColumnModel().getColumn(PERMISSION_COL);
-//		permColumn.setCellEditor(new DefaultCellEditor(new JComboBox(UserPermission.values())));
 		
 		//Set table column widths
 		int tablewidth = 0;
@@ -208,7 +197,7 @@ public class BarcodeWishHistoryDialog extends ONCTableDialog implements ActionLi
 		{
 			//if using UPC-E, eliminate check digits before converting to childwishID integer
 			int cwID;
-			if(gvs.getBarcodeCode() == Barcode.UPC_E)
+			if(gvs.getBarcodeCode() == Barcode.UPCE)
 				cwID = Integer.parseInt(barcodeTF.getText().substring(0, barcodeTF.getText().length()-1));
 			else
 				cwID = Integer.parseInt(barcodeTF.getText());

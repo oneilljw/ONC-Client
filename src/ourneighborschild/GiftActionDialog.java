@@ -1,5 +1,6 @@
 package ourneighborschild;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
@@ -7,6 +8,7 @@ import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.EnumSet;
 
+import javax.sound.sampled.LineUnavailableException;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JButton;
@@ -23,10 +25,14 @@ public abstract class GiftActionDialog extends SortTableDialog
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	private static final int SOUND_DURATION = 250;
+	private static final int SUCCESS_SOUND_FREQ = 500;
+	private static final int FAILED_SOUND_FREQ = 150;
 
 	private JTextField oncnumTF, barcodeTF;
 	private JComboBox startAgeCB, genderCB;
-	private JButton btnUndo; 
+	private JButton btnUndo;
+	private Color pBkColor; //Used to restore background after gift action successful
 	
 	private ChildDB cDB;
 	private ChildWishDB cwDB;
@@ -62,6 +68,8 @@ public abstract class GiftActionDialog extends SortTableDialog
 		//set the title in accordance with the purpose
 		this.setTitle(String.format("Our Neighbor's Child - %s Gifts", dialogType.presentTense()));
 		
+		pBkColor = sortCriteriaPanelTop.getBackground();
+		
 		//Set up the search criteria panel      
     	oncnumTF = new JTextField(5);
     	oncnumTF.setEditable(true);
@@ -91,7 +99,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 		
 		barcodeTF = new JTextField(6);
 //    	barcodeTF.setEditable(true);
-    	barcodeTF.setMaximumSize(new Dimension(112,56));
+    	barcodeTF.setMaximumSize(new Dimension(192,56));
 //    	oncnumTF.setAlignmentX(Component.LEFT_ALIGNMENT );//0.0
 		barcodeTF.setBorder(BorderFactory.createTitledBorder("Barcode"));
 		barcodeTF.setToolTipText("Type Barcode and press <enter>");
@@ -106,7 +114,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 		sortCriteriaPanelTop.add(genderCB);
 		sortCriteriaPanelTop.add(Box.createRigidArea(new Dimension(5,0)));
 		sortCriteriaPanelTop.add(barcodeTF);
-		sortCriteriaPanelTop.add(new JPanel());
+//		sortCriteriaPanelTop.add(new JPanel());
 		
 		//change the default row selection setting to single row selection
 		sortTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -172,30 +180,24 @@ public abstract class GiftActionDialog extends SortTableDialog
 		displaySortTable(stAL, true, tableRowSelectedObjectList);		//Display the table after table array list is built	
 	}
 	
-	void buildTableListFromBarcode(int childwishID, boolean bPreserveSelections)
+	boolean actOnGiftFromBarcode(int childwishID, boolean bPreserveSelections)
 	{
-		//archive the table rows selected prior to rebuild so the can be reselected if the
-		//build occurred due to an external modification of the table
-		tableRowSelectedObjectList.clear();
-		if(bPreserveSelections)
-			archiveTableSelections(stAL);
-		else
-			tableSortCol = -1;
-		
-		stAL.clear();	//Clear the prior table information in the array list
-		
 		ONCChildWish cw = cwDB.getWish(childwishID);
-		if(cw != null)
+		if(cw != null && doesChildWishStatusMatch(cw))
 		{
-			ONCChild c = cDB.getChild(cw.getChildID());
-		
-			ONCFamily f = fDB.getFamily(c.getFamID());
-		
-			stAL.add(new SortWishObject(0, f, c, cw));
-		
-			displaySortTable(stAL, true, tableRowSelectedObjectList);		//Display the table after table array list is built
-			
-			clearBarCode();
+//				ONCChild c = cDB.getChild(cw.getChildID());
+//				ONCFamily f = fDB.getFamily(c.getFamID());				
+//				SortWishObject gift = new SortWishObject(0, f, c, cw);
+
+				setSearchCriteriaBackgroundColor(Color.GREEN);
+				clearBarCode();
+				return true;
+		}
+		else
+		{
+			setSearchCriteriaBackgroundColor(Color.RED);
+			clearBarCode();	
+			return false;
 		}
 	}
 /*	
@@ -329,37 +331,60 @@ public abstract class GiftActionDialog extends SortTableDialog
 		{
 			sortStartAge = startAgeCB.getSelectedIndex();
 			sortONCNum = oncnumTF.getText();	//TF might have changed, without enter key
-			buildTableList(false);		
+			buildTableList(false);
+			setSearchCriteriaBackgroundColor(pBkColor);
 		}		
 		else if(e.getSource() == genderCB && genderCB.getSelectedIndex() != sortGender)
 		{
 			sortGender = genderCB.getSelectedIndex();
 			sortONCNum = oncnumTF.getText();	//TF might have changed, without enter key
 			buildTableList(false);
+			setSearchCriteriaBackgroundColor(pBkColor);
 		}
 		else if(e.getSource() == oncnumTF && !sortONCNum.equals(oncnumTF.getText()))
 		{
 			sortONCNum = oncnumTF.getText();
 			buildTableList(false);
+			setSearchCriteriaBackgroundColor(pBkColor);
 		}
 		else if(e.getSource() == btnUndo)
 		{
 			//Receive gifts dialog recGift button event handler is in this class for coordination
 			//with update of the child panel and family status
 			onUndoReceiveGift();
+			setSearchCriteriaBackgroundColor(pBkColor);
 		}
 		else if(e.getSource() == barcodeTF)
 		{
 			//if using UPC-E, eliminate check digits before converting to childwishID integer
 			int cwID;
-			if(gvs.getBarcodeCode() == Barcode.UPC_E)
+			if(gvs.getBarcodeCode() == Barcode.UPCE)
 				cwID = Integer.parseInt(barcodeTF.getText().substring(0, barcodeTF.getText().length()-1));
 			else
 				cwID = Integer.parseInt(barcodeTF.getText());
 			
 			//search for it
-			buildTableListFromBarcode(cwID, false);	
+			//determine if gift is receivable. It is if it's found and it's the only one found.
+			try
+			{
+				if(actOnGiftFromBarcode(cwID, false))
+				{
+					sortTable.setRowSelectionInterval(0,0);
+					SoundUtils.tone(SUCCESS_SOUND_FREQ, SOUND_DURATION);
+				}
+				else
+				{
+					SoundUtils.tone(FAILED_SOUND_FREQ, SOUND_DURATION);
+				}
+			} 
+			catch (LineUnavailableException lue) 
+			{
+				// TODO Auto-generated catch block
+				lue.printStackTrace();
+			}
 		}
+		
+		barcodeTF.requestFocusInWindow();
 	}
 	
 	//Resets each search criteria gui and its corresponding member variable to the initial
@@ -385,9 +410,17 @@ public abstract class GiftActionDialog extends SortTableDialog
 		
 		clearBarCode();
 		
+		setSearchCriteriaBackgroundColor(pBkColor);
+		
 		buildTableList(false);
 		
 		barcodeTF.requestFocus();
+	}
+	
+	void setSearchCriteriaBackgroundColor(Color color)
+	{
+		sortCriteriaPanelTop.setBackground(color);
+		sortCriteriaPanelBottom.setBackground(color);
 	}
 	
 	void clearBarCode()

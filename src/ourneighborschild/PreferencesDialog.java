@@ -2,6 +2,7 @@ package ourneighborschild;
 
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -19,8 +20,12 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import com.toedter.calendar.JDateChooser;
 
@@ -41,6 +46,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 	private boolean bIgnoreDialogEvents;
 	private JCheckBox barcodeCkBox;
 	private JComboBox barcodeCB;
+	private JSpinner averyXOffsetSpinner, averyYOffsetSpinner;
 	
 	PreferencesDialog(JFrame parentFrame)
 	{
@@ -163,17 +169,36 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		tabbedPane.addTab("Display", viewPanel);
 		
 		JPanel wishlabelPanel = new JPanel();
+		wishlabelPanel.setLayout(new BoxLayout(wishlabelPanel, BoxLayout.Y_AXIS));
+		JPanel wishlabelPanelTop = new JPanel();
+		JPanel wishlabelPanelBottom = new JPanel();
 //		wishlabelPanel.setBorder(BorderFactory.createTitledBorder("Change Ornament Label Parameters:"));
 		
 		barcodeCkBox = new JCheckBox("Include barcode on ornament label using baarcode:");
 		barcodeCkBox.setSelected(pdGVs.includeBarcodeOnLabels());
 		barcodeCkBox.addActionListener(this);
-		wishlabelPanel.add(barcodeCkBox);
+		wishlabelPanelTop.add(barcodeCkBox);
 		
 		barcodeCB = new JComboBox(Barcode.values());
 		barcodeCB.setSelectedItem(pdGVs.getBarcodeCode());
 		barcodeCB.addActionListener(this);;
-		wishlabelPanel.add(barcodeCB);
+		wishlabelPanelTop.add(barcodeCB);
+		
+		Point lblOffset = pdGVs.getAveryLabelOffset();
+		averyXOffsetSpinner = new JSpinner(new SpinnerNumberModel(lblOffset.x, 0, 100, 1));
+		averyYOffsetSpinner = new JSpinner(new SpinnerNumberModel(lblOffset.y, 0, 100, 1));
+		
+		SpinnerChangeListener listener = new SpinnerChangeListener();
+		averyXOffsetSpinner.addChangeListener(listener);
+		averyYOffsetSpinner.addChangeListener(listener);
+		
+		wishlabelPanelBottom.add(new JLabel("Label X Offset:"));
+		wishlabelPanelBottom.add(averyXOffsetSpinner);
+		wishlabelPanelBottom.add(new JLabel("Label Y Offset:"));
+		wishlabelPanelBottom.add(averyYOffsetSpinner);
+		
+		wishlabelPanel.add(wishlabelPanelTop);
+		wishlabelPanel.add(wishlabelPanelBottom);
 		
 		tabbedPane.addTab("Ornament Labels", wishlabelPanel);
 			
@@ -396,6 +421,23 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		@Override
 		public void keyTyped(KeyEvent ke)
 		{
+			
+		}
+	 }
+	 
+	 private class SpinnerChangeListener implements ChangeListener
+	 {
+
+		@Override
+		public void stateChanged(ChangeEvent ce)
+		{
+			if(ce.getSource() == averyXOffsetSpinner || ce.getSource() == averyYOffsetSpinner)
+			{
+				Point offset = new Point((Integer)averyXOffsetSpinner.getValue(), 
+										 (Integer)averyYOffsetSpinner.getValue());
+				
+				pdGVs.setAveryLabelOffset(offset);
+			}
 			
 		}
 	 }

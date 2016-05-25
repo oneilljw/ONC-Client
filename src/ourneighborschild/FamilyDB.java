@@ -732,7 +732,7 @@ public class FamilyDB extends ONCSearchableDatabase
 		//convert search string to wish UD
 		//if using UPC-E, eliminate check digits before converting to childwishID integer
 		int cwID;
-		if(fGVs.getBarcodeCode() == Barcode.UPC_E)
+		if(fGVs.getBarcodeCode() == Barcode.UPCE)
 			cwID = Integer.parseInt(s.substring(0, s.length()-1));
 		else
 			cwID = Integer.parseInt(s);

@@ -1,3 +1,3 @@
 package ourneighborschild;
 
-public enum Barcode { UPC_E, CODE128 }
+public enum Barcode { UPCE, CODE128 }

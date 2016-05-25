@@ -94,88 +94,82 @@ public class AngelAutoCallDialog extends ONCTableDialog implements ActionListene
 						"Time call was placed", "Length of Call", "Call Direction",
 						"Language caller or recipient chose", "Result of Call"};
 				
-				dlgTable = new ONCTable(dlgTableModel, colToolTips, new Color(240,248,255));
-
-				dlgTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-				dlgTable.getSelectionModel().addListSelectionListener(this);
+		dlgTable = new ONCTable(dlgTableModel, colToolTips, new Color(240,248,255));
+		dlgTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		dlgTable.getSelectionModel().addListSelectionListener(this);
 				
-				//Set table column widths
-				int tablewidth = 0;
-				int[] colWidths = {48, 112, 88, 88, 32, 72, 78, 220};
-				for(int col=0; col < colWidths.length; col++)
-				{
-					dlgTable.getColumnModel().getColumn(col).setPreferredWidth(colWidths[col]);
-					tablewidth += colWidths[col];
-				}
-				tablewidth += 24; 	//count for vertical scroll bar
+		//Set table column widths
+		int tablewidth = 0;
+		int[] colWidths = {48, 112, 88, 88, 32, 72, 78, 220};
+		for(int col=0; col < colWidths.length; col++)
+		{
+			dlgTable.getColumnModel().getColumn(col).setPreferredWidth(colWidths[col]);
+			tablewidth += colWidths[col];
+		}
+		tablewidth += 24; 	//count for vertical scroll bar
 				
-		        dlgTable.setAutoCreateRowSorter(true);	//add a sorter
+		dlgTable.setAutoCreateRowSorter(true);	//add a sorter
 		        
-		        JTableHeader anHeader = dlgTable.getTableHeader();
-		        anHeader.setForeground( Color.black);
-		        anHeader.setBackground( new Color(161,202,241));
+		JTableHeader anHeader = dlgTable.getTableHeader();
+		anHeader.setForeground( Color.black);
+		anHeader.setBackground( new Color(161,202,241));
 		        
-		        //left justify duration column
-//		        DefaultTableCellRenderer dtcr = new DefaultTableCellRenderer();
-//		        dtcr.setHorizontalAlignment(SwingConstants.LEFT);
-//		        dlgTable.getColumnModel().getColumn(DURATION_COL).setCellRenderer(dtcr);
+		//Create the scroll pane and add the table to it.
+		JScrollPane dsScrollPane = new JScrollPane(dlgTable);
+		dsScrollPane.setBorder(UIManager.getBorder("Table.scrollPaneBorder"));
 		        
-		        //Create the scroll pane and add the table to it.
-		        JScrollPane dsScrollPane = new JScrollPane(dlgTable);
-		        dsScrollPane.setBorder(UIManager.getBorder("Table.scrollPaneBorder"));
+		JPanel bottomPanel = new JPanel();
+		bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.X_AXIS));
 		        
-		        JPanel bottomPanel = new JPanel();
-		        bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.X_AXIS));
+		JPanel countPanel = new JPanel();
+		countPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 		        
-		        JPanel countPanel = new JPanel();
-		        countPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+		JPanel cntlPanel = new JPanel();
+		cntlPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
 		        
-		        JPanel cntlPanel = new JPanel();
-		        cntlPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
-		        
-		        lblNumOfCalls = new JLabel("Number of Calls: 0");
+		lblNumOfCalls = new JLabel("Number of Calls: 0");
 
-		        btnImport = new JButton("Import Calls");
-		        btnImport.setToolTipText("Import Call Results from csv file");
-		        btnImport.addActionListener(this);
+		btnImport = new JButton("Import Calls");
+		btnImport.setToolTipText("Import Call Results from csv file");
+		btnImport.addActionListener(this);
 		      
-		        btnExport = new JButton("Export Calls");
-		        btnExport.setToolTipText("Export Call Results to csv file");
-		        btnExport.setEnabled(false);
-		        btnExport.addActionListener(this);
+		btnExport = new JButton("Export Calls");
+		btnExport.setToolTipText("Export Call Results to csv file");
+		btnExport.setEnabled(false);
+		btnExport.addActionListener(this);
 		        
-		        btnPrint = new JButton("Print");
-		        btnPrint.setToolTipText("Print call results");
-		        btnPrint.setEnabled(false);
-		        btnPrint.addActionListener(this);
+		btnPrint = new JButton("Print");
+		btnPrint.setToolTipText("Print call results");
+		btnPrint.setEnabled(false);
+		btnPrint.addActionListener(this);
 		        
-		        btnProcess = new JButton("Process Calls");
-		        btnProcess.setToolTipText("Update Family Delivery Status from Call Results");
-		        btnProcess.setEnabled(false);
-		        btnProcess.addActionListener(this);
+		btnProcess = new JButton("Process Calls");
+		btnProcess.setToolTipText("Update Family Delivery Status from Call Results");
+		btnProcess.setEnabled(false);
+		btnProcess.addActionListener(this);
 		        
-		        btnClear = new JButton("Clear");
-		        btnClear.setToolTipText("Clear Call Results");
-		        btnClear.setEnabled(false);
-		        btnClear.addActionListener(this);
+		btnClear = new JButton("Clear");
+		btnClear.setToolTipText("Clear Call Results");
+		btnClear.setEnabled(false);
+		btnClear.addActionListener(this);
 		        
-		        countPanel.add(lblNumOfCalls);
+		countPanel.add(lblNumOfCalls);
 		        
-		        cntlPanel.add(btnImport);
-		        cntlPanel.add(btnExport);
-		        cntlPanel.add(btnPrint);
-		        cntlPanel.add(btnClear);
-		        cntlPanel.add(btnProcess);
+		cntlPanel.add(btnImport);
+		cntlPanel.add(btnExport);
+		cntlPanel.add(btnPrint);
+		cntlPanel.add(btnClear);
+		cntlPanel.add(btnProcess);
 		        
-		        bottomPanel.add(countPanel);
-		        bottomPanel.add(cntlPanel);
+		bottomPanel.add(countPanel);
+		bottomPanel.add(cntlPanel);
 		        
-		        getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
-		        getContentPane().add(dsScrollPane);
-		        getContentPane().add(bottomPanel);
+		getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
+		getContentPane().add(dsScrollPane);
+		getContentPane().add(bottomPanel);
 		        
-		        pack();
-		        this.setMinimumSize(new Dimension(tablewidth, 240));
+		pack();
+		this.setMinimumSize(new Dimension(tablewidth, 240));
 	}
 /*	
 	int readAngelCallResults(JFrame pFrame, GlobalVariables gvs, Families fdb)
@@ -797,11 +791,7 @@ public class AngelAutoCallDialog extends ONCTableDialog implements ActionListene
         	else if (col == DURATION_COL)
         		return aci.getDuration();
         	else if (col == DIRECTION_COL)
-        	{
         		return aci.getDirection();
-//        		SimpleDateFormat sdf = new SimpleDateFormat("M/dd/yy H:mm:ss");
-//        		return sdf.format(user.getLastLogin());
-        	}
         	else if (col == LANGUAGE_COL)
         		return aci.getLanguage();
         	else if (col == RESULT_COL)
@@ -821,43 +811,5 @@ public class AngelAutoCallDialog extends ONCTableDialog implements ActionListene
         {
         	return false;
         }
-/*
-        public void setValueAt(Object value, int row, int col)
-        { 
-        	ONCUser currUser = userDB.getUserFromIndex(row);
-        	ONCUser reqUpdateUser = null;
-        	
-        	//determine if the user made a change to a user object
-        	if(col == LAST_NAME_COL && !currUser.getLastname().equals((String)value))
-        	{
-        		reqUpdateUser = new ONCUser(currUser);	//make a copy
-        		reqUpdateUser.setLastname((String) value);
-        	}
-        	else if(col == FIRST_NAME_COL && !currUser.getFirstname().equals((String) value))
-        	{
-        		reqUpdateUser = new ONCUser(currUser);	//make a copy
-        		reqUpdateUser.setFirstname((String) value);
-        	}
-        	else if(col == PERMISSION_COL && currUser.getPermission() != (UserPermission) value)
-        	{
-        		reqUpdateUser = new ONCUser(currUser);	//make a copy
-        		reqUpdateUser.setPermission((UserPermission) value);
-        	}
-        	
-        	//if the user made a change in the table, attempt to update the user object in
-        	//the local user data base
-        	if(reqUpdateUser != null)
-        	{
-        		String response = userDB.update(this, reqUpdateUser);        		
-        		if(response == null || (response !=null && !response.startsWith("UPDATED_USER")))
-        		{
-        			//request failed
-        			String err_mssg = "ONC Server denied update user request, try again later";
-        			JOptionPane.showMessageDialog(GlobalVariables.getFrame(), err_mssg, "Update User Request Failure",
-													JOptionPane.ERROR_MESSAGE, GlobalVariables.getONCLogo());
-        		}
-        	}
-        }
-*/          
     }
 }

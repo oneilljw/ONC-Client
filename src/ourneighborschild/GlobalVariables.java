@@ -1,6 +1,7 @@
 package ourneighborschild;
 
 import java.awt.Image;
+import java.awt.Point;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -52,6 +53,7 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 	private static WebsiteStatus websiteStatus;
 	private static boolean bBarcodeOnOrnmament;
 	private Barcode barcode;
+	private Point averyLabelOffsetPoint;
 	
 	public static GlobalVariables getInstance()
 	{
@@ -170,7 +172,8 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 		user_permission = UserPermission.General;
 		version = "N/A";
 		bBarcodeOnOrnmament = false;
-		barcode = Barcode.UPC_E;
+		barcode = Barcode.UPCE;
+		averyLabelOffsetPoint = new Point(20, 50);
 	}
 	
 	//Getters
@@ -259,6 +262,7 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 	WebsiteStatus getWebsiteStatus() {return websiteStatus; }
 	boolean includeBarcodeOnLabels() { return bBarcodeOnOrnmament; }
 	Barcode getBarcodeCode() { return barcode; }
+	Point getAveryLabelOffset() { return averyLabelOffsetPoint; }
 	
 	//setters globally used - need to update at the server and broadcast
 	public void setDeliveryDate(Date dd) { oncDeliveryDate.setTime(dd); }
@@ -270,6 +274,7 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 	public void setWarehouseAddress(String address) {warehouseAddress = address; }
 	public void setIncludeBarcodeOnLabels(boolean tf) { bBarcodeOnOrnmament = tf; }
 	public void setBarcode(Barcode barcode) { this.barcode = barcode; }
+	public void setAveryLabelOffset(Point offset) { this.averyLabelOffsetPoint = offset; }
 	
 	//Setters locally used
 	void setFrame(JFrame frame) { oncFrame = frame; }

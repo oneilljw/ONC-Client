@@ -17,8 +17,8 @@ import org.krysalis.barcode4j.output.java2d.Java2DCanvasProvider;
 
 public class AveryWishLabelPrinter implements Printable 
 {
-	private static final int AVERY_LABEL_X_OFFSET = 20;
-	private static final int AVERY_LABEL_Y_OFFSET = 50;
+	private static final int AVERY_LABEL_X_OFFSET = 26;
+	private static final int AVERY_LABEL_Y_OFFSET = 40;
 	private static final int AVERY_LABELS_PER_PAGE = 30;
 	private static final int AVERY_COLUMNS_PER_PAGE = 3;
 	private static final int AVERY_LABEL_HEIGHT = 72;
@@ -152,7 +152,7 @@ public class AveryWishLabelPrinter implements Printable
 	    // User (0,0) is typically outside the imageable area, so we must
 	    //translate by the X and Y values in the PageFormat to avoid clipping
 	    Graphics2D g2d = (Graphics2D)g;
-	    g2d.translate(AVERY_LABEL_X_OFFSET, AVERY_LABEL_Y_OFFSET);	//For a 8150 Label
+	    g2d.translate(gvs.getAveryLabelOffset().x, gvs.getAveryLabelOffset().y);	//For a 8150 Label
 	    
 	    String line[];
 	    int row = 0, col = 0;
