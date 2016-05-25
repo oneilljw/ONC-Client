@@ -102,14 +102,25 @@ public class WishLabelViewer extends JDialog implements DatabaseListener
 		private static final double X_DISPLAY_SCALE_FACTOR = 1.6;
 		private static final double Y_DISPLAY_SCALE_FACTOR = 1.4;
 		
+		private Font[] lFont;
+		private AveryWishLabelPrinter awlp;
+		
+		
 		public WishLabelPanel()
 		{
+			awlp = new AveryWishLabelPrinter();
+			
 			this.setBackground(Color.white);
+			
+			Font[] lFont = new Font[3];
+		    lFont[0] = new Font("Calibri", Font.ITALIC, 11);
+		    lFont[1] = new Font("Calibri", Font.BOLD, 11);
+		    lFont[2] = new Font("Calibri", Font.PLAIN, 10);
 		}
 		
 		/**
-		 * paintComponent paints the shapes that are
-		 * in the shapeList
+		 * paintComponent paints the label on the panel using
+		 * the AveryWishLabelPrinter.
 		 */
 		protected void paintComponent(Graphics g)
 		{
@@ -117,20 +128,13 @@ public class WishLabelViewer extends JDialog implements DatabaseListener
 			Graphics2D g2d = (Graphics2D) g;
 			
 			g2d.scale(X_DISPLAY_SCALE_FACTOR, Y_DISPLAY_SCALE_FACTOR);
-			
-			Font[] lFont = new Font[3];
-		    lFont[0] = new Font("Calibri", Font.ITALIC, 11);
-		    lFont[1] = new Font("Calibri", Font.BOLD, 11);
-		    lFont[2] = new Font("Calibri", Font.PLAIN, 10);	
 		    
-		    //create the sort wish object list. We're reusing the AveryWishLabelPrinter class
+		    //create the sort wish object list.
 		    ONCFamily fam = familyDB.getFamily(child.getFamID());
 			ONCChildWish cw = childWishDB.getWish(child.getID(), wn);
 		    SortWishObject swo = new SortWishObject(0, fam, child, cw);
-		    String[] line = swo.getWishLabel();
 		    
-		    AveryWishLabelPrinter awlp = new AveryWishLabelPrinter();
-		    awlp.drawLabel(10, 20, line, lFont, img, g2d);
+		    awlp.drawLabel(10, 20, swo.getWishLabel(), lFont, img, g2d);
 		}
 	}	
 }
