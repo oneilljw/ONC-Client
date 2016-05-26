@@ -11,7 +11,6 @@ import java.awt.Insets;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.awt.event.ActionEvent;
-import java.awt.image.BufferedImage;
 import java.awt.print.PageFormat;
 import java.awt.print.Printable;
 import java.awt.print.PrinterException;
@@ -42,11 +41,6 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.filechooser.FileNameExtensionFilter;
-
-import org.krysalis.barcode4j.impl.AbstractBarcodeBean;
-import org.krysalis.barcode4j.impl.code128.Code128Bean;
-import org.krysalis.barcode4j.output.java2d.Java2DCanvasProvider;
-import org.krysalis.barcode4j.impl.upcean.UPCEBean;
 
 import au.com.bytecode.opencsv.CSVWriter;
 
@@ -87,7 +81,6 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 	private WishStatus sortStatus = WishStatus.Any;
 	private int sortWishID = -2;
 	private boolean bOversizeWishes = false;
-	private int totalNumOfLabelsToPrint;	//Holds total number of labels requested in a print job
 	
 	private static String[] genders = {"Any", "Boy", "Girl"};
 	private static String[] res = {"Any", "Blank", "*", "#"};

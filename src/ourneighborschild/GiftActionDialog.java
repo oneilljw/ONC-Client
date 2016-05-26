@@ -14,7 +14,6 @@ import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
@@ -183,15 +182,20 @@ public abstract class GiftActionDialog extends SortTableDialog
 	boolean actOnGiftFromBarcode(int childwishID, boolean bPreserveSelections)
 	{
 		ONCChildWish cw = cwDB.getWish(childwishID);
-		if(cw != null && doesChildWishStatusMatch(cw))
+		SortWishObject swo = null;
+		
+		if(cw != null)
+		{	
+			ONCChild c = cDB.getChild(cw.getChildID());
+			ONCFamily f = fDB.getFamily(c.getFamID());
+			swo = new SortWishObject(-1, f, c, cw);
+		}
+		
+		if(swo!= null && doesChildWishStatusMatch(cw) && actOnGift(swo))
 		{
-//				ONCChild c = cDB.getChild(cw.getChildID());
-//				ONCFamily f = fDB.getFamily(c.getFamID());				
-//				SortWishObject gift = new SortWishObject(0, f, c, cw);
-
-				setSearchCriteriaBackgroundColor(Color.GREEN);
-				clearBarCode();
-				return true;
+			setSearchCriteriaBackgroundColor(Color.GREEN);
+			clearBarCode();
+			return true;
 		}
 		else
 		{
@@ -216,33 +220,24 @@ public abstract class GiftActionDialog extends SortTableDialog
 	@Override
 	boolean onApplyChanges()
 	{
-//		bChangingTable = true;
+//		int row_sel = sortTable.getSelectedRow();
+//		
+//		//Find child and wish number for selected
+//		ONCFamily fam = fDB.searchForFamilyByID(stAL.get(row_sel).getFamily().getID());
 		
-		int row_sel = sortTable.getSelectedRow();
-		
-		//Find child and wish number for selected
-		int oncID = stAL.get(row_sel).getFamily().getID();
-		
-		ONCFamily fam = fDB.searchForFamilyByID(oncID);
-			
+		return actOnGift(stAL.get(sortTable.getSelectedRow()));
+/*			
 		ONCChild c = stAL.get(row_sel).getChild();
 		int wn = stAL.get(row_sel).getChildWish().getWishNumber();
 		ONCChildWish cw = cwDB.getWish(c.getChildWishID(wn));
 
-		//Get current wish information
-		int wishtypeid = cw.getWishID();
-		String cwd = cw.getChildWishDetail();
-		int cwi = cw.getChildWishIndicator();
-			
 		//Process change to wish status. Store the new wish to be added in case of an undo operation 
 		//and add the new wish to the child wish history. We reuse an ONCSortObject to store the
 		//new wish. Organization parameter is null, indicating we're not changing the gift partner
 		lastWishChanged = new SortWishObject(-1, fam, c, cw);
 			
-		ONCChildWish addedWish = cwDB.add(this, c.getID(), wishtypeid, cwd, wn, cwi,
-											getGiftStatusAction(), null);
-			
-//		c.setChildWishID(wishid, wn);	//Unnecessary: ChildWishDB.processAddedChild takes care of this			
+		ONCChildWish addedWish = cwDB.add(this, c.getID(), cw.getWishID(), cw.getChildWishDetail(),
+				wn, cw.getChildWishIndicator(), getGiftStatusAction(), null);
 				
 		//Update the sort table itself
 		if(addedWish != null)
@@ -250,13 +245,43 @@ public abstract class GiftActionDialog extends SortTableDialog
 		
 		sortTable.clearSelection();
 		
-		btnApplyChanges.setEnabled(false);
-		
 		btnUndo.setEnabled(true);
 		
-//		bChangingTable = false;
+		btnApplyChanges.setEnabled(false);
 		
 		return true;
+*/		
+	}
+	
+	boolean actOnGift(SortWishObject swo)
+	{
+		//Process change to wish status. Store the new wish to be added in case of an undo operation 
+		//and add the new wish to the child wish history. We reuse an ONCSortObject to store the
+		//new wish. Organization parameter is null, indicating we're not changing the gift partner
+		lastWishChanged = new SortWishObject(-1, swo.getFamily(), swo.getChild(), swo.getChildWish());
+					
+		ONCChildWish addedWish = cwDB.add(this, swo.getChild().getID(), swo.getChildWish().getWishID(),
+											swo.getChildWish().getChildWishDetail(),
+											swo.getChildWish().getWishNumber(),
+											swo.getChildWish().getChildWishIndicator(), 
+											getGiftStatusAction(), null);
+		
+		//Update the sort table, as the wish status should have changed
+		
+		bChangingTable = true;
+		
+		if(addedWish != null)
+			buildTableList(false);
+				
+		sortTable.clearSelection();
+		
+		bChangingTable = false;
+				
+		btnUndo.setEnabled(true);
+				
+		btnApplyChanges.setEnabled(false);
+		
+		return addedWish != null;
 	}
 	
 	abstract WishStatus getGiftStatusAction();
@@ -356,24 +381,26 @@ public abstract class GiftActionDialog extends SortTableDialog
 		}
 		else if(e.getSource() == barcodeTF)
 		{
+			System.out.println("GiftActionDialog.actionPerformed: Barcode Event");
 			//if using UPC-E, eliminate check digits before converting to childwishID integer
 			int cwID;
 			if(gvs.getBarcodeCode() == Barcode.UPCE)
 				cwID = Integer.parseInt(barcodeTF.getText().substring(0, barcodeTF.getText().length()-1));
 			else
 				cwID = Integer.parseInt(barcodeTF.getText());
-			
-			//search for it
+
 			//determine if gift is receivable. It is if it's found and it's the only one found.
 			try
 			{
 				if(actOnGiftFromBarcode(cwID, false))
 				{
+					System.out.println(String.format("GiftActionDialog.actionPerformed: Gift Received, cwID %d", cwID));
 					sortTable.setRowSelectionInterval(0,0);
 					SoundUtils.tone(SUCCESS_SOUND_FREQ, SOUND_DURATION);
 				}
 				else
 				{
+					System.out.println(String.format("GiftActionDialog.actionPerformed: Gift Received Failed, cwID %d", cwID));
 					SoundUtils.tone(FAILED_SOUND_FREQ, SOUND_DURATION);
 				}
 			} 
@@ -384,7 +411,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 			}
 		}
 		
-		barcodeTF.requestFocusInWindow();
+		barcodeTF.requestFocus();
 	}
 	
 	//Resets each search criteria gui and its corresponding member variable to the initial
@@ -414,6 +441,8 @@ public abstract class GiftActionDialog extends SortTableDialog
 		
 		buildTableList(false);
 		
+		checkApplyChangesEnabled();
+		
 		barcodeTF.requestFocus();
 	}
 	
@@ -440,7 +469,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 			ONCChild child = stAL.get(sortTable.getSelectedRow()).getChild();
 			fireEntitySelected(this,EntityType.WISH, fam, child);
 			
-//			System.out.println(String.format("GiftActionDialog.valueChanged: lse received"));
+			System.out.println(String.format("GiftActionDialog.valueChanged: lse received"));
 			checkApplyChangesEnabled();	//Check to see if user postured to change status or assignee.
 			
 			sortTable.requestFocus();
@@ -514,6 +543,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 										 dbe.getType().equals("WISH_ADDED") ||
 										  dbe.getType().equals("UPDATED_CHILD_WISH")))
 		{
+			System.out.println(String.format("GiftActionDialog.dataChanged: %s", dbe.getType()));
 			buildTableList(true);
 		}		
 	}

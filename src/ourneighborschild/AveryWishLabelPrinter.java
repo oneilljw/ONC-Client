@@ -17,9 +17,7 @@ import org.krysalis.barcode4j.output.java2d.Java2DCanvasProvider;
 
 public class AveryWishLabelPrinter implements Printable 
 {
-	private static final int AVERY_LABEL_X_OFFSET = 26;
-	private static final int AVERY_LABEL_Y_OFFSET = 40;
-	private static final int AVERY_LABELS_PER_PAGE = 30;
+	private static final int AVERY_LABELS_PER_PAGE = 30;	//5160 label sheet
 	private static final int AVERY_COLUMNS_PER_PAGE = 3;
 	private static final int AVERY_LABEL_HEIGHT = 72;
 	private static final int AVERY_LABEL_WIDTH = 196;
