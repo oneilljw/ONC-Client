@@ -36,13 +36,12 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 	 */
 	private static final long serialVersionUID = 1L;
 	private GlobalVariables pdGVs;
-//	private JLabel lblMssg;
 	private JDateChooser dc_today, dc_delivery, dc_seasonstart, dc_giftsreceived;
 	private JDateChooser dc_DecemberCutoff, dc_InfoEditCutoff, dc_ThanksgivingCutoff;
 	private JTextField whStreetNumTF, whStreetTF, whCityTF, whStateTF;
 	private String whStreetNum, whStreet,whCity, whState;
 	public JComboBox oncFontSizeCB;
-	private JButton btnApplyChanges;
+	private JButton btnApplyDateChanges, btnApplyAddressChanges;
 	private boolean bIgnoreDialogEvents;
 	private JCheckBox barcodeCkBox;
 	private JComboBox barcodeCB;
@@ -50,7 +49,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 	
 	PreferencesDialog(JFrame parentFrame)
 	{
-		super(parentFrame, true);
+		super(parentFrame, false);
 		pdGVs = GlobalVariables.getInstance();
 		if(pdGVs != null)
 			pdGVs.addDatabaseListener(this);
@@ -60,18 +59,13 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		
 		JTabbedPane tabbedPane = new JTabbedPane();
 		
+		//set up the date tab
+		JPanel dateTab = new JPanel();
+		dateTab.setLayout(new BoxLayout(dateTab, BoxLayout.Y_AXIS));
+		
 		JPanel datePanel = new JPanel();
-//		p1.setLayout(new BoxLayout(p1, BoxLayout.PAGE_AXIS));
 		datePanel.setLayout(new GridLayout(3,3));
-//		datePanel.setBorder(BorderFactory.createTitledBorder("ONC Season Dates:"));
-		
-		
-//		String mssg ="<html><b><FONT COLOR=BLUE>Set Preferences, then click OK</FONT></b></html>";		
-//		lblMssg = new JLabel(mssg, JLabel.CENTER);
-//		p1.add(lblMssg);
-		
-		//set up a listener for all date changes
-		DateChangeListener dcl = new DateChangeListener();
+		DateChangeListener dcl = new DateChangeListener();	//listener for all date changes
 		
 		Dimension dateSize = new Dimension(120, 56);
 		dc_today = new JDateChooser(pdGVs.getTodaysDate());
@@ -124,13 +118,22 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		dc_giftsreceived.getDateEditor().addPropertyChangeListener(dcl);		
 		datePanel.add(dc_giftsreceived);
 		
-		tabbedPane.addTab("ONC Season Dates", datePanel);
+		btnApplyDateChanges = new JButton("Apply Date Changes");
+		btnApplyDateChanges.setEnabled(false);
+		btnApplyDateChanges.addActionListener(this);
+		
+		dateTab.add(datePanel);
+		dateTab.add(btnApplyDateChanges);
+		
+		tabbedPane.addTab("ONC Season Dates", dateTab);
+		
+		//set up the address tab
+		JPanel addressTab = new JPanel();
+		addressTab.setLayout(new BoxLayout(addressTab, BoxLayout.Y_AXIS));
+		addressTab.setBorder(BorderFactory.createTitledBorder("Warehouse Address:"));
 		
 		JPanel addressPanel = new JPanel();
-		addressPanel.setBorder(BorderFactory.createTitledBorder("Warehouse Address:"));
-		
-		//create a address key listener
-		AddressKeyListener akl = new AddressKeyListener();
+		AddressKeyListener akl = new AddressKeyListener();	//address key listener
 		
 		whStreetNumTF = new JTextField(5);
 		whStreetNumTF.setBorder(BorderFactory.createTitledBorder("Street #"));
@@ -153,28 +156,36 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		addressPanel.add(whCityTF);
 		addressPanel.add(whStateTF);
 		
-		tabbedPane.addTab("Warehouse", addressPanel);
+		JPanel addressCntlPanel = new JPanel();
+		btnApplyAddressChanges = new JButton("Apply Address Changes");
+		btnApplyAddressChanges.setEnabled(false);
+		btnApplyAddressChanges.addActionListener(this);
+		addressCntlPanel.add(btnApplyAddressChanges);
 		
+		addressTab.add(addressPanel);
+		addressTab.add(addressCntlPanel);
+		
+		tabbedPane.addTab("Warehouse", addressTab);
+		
+		//set up display tab
 		JPanel viewPanel = new JPanel();
-		viewPanel.setBorder(BorderFactory.createTitledBorder("Change View Parameters:"));
 		
 		JLabel lblFont = new JLabel("Font Size:");
 		oncFontSizeCB = new JComboBox(pdGVs.getFontSizes());
 		oncFontSizeCB.setSelectedIndex(pdGVs.getFontIndex());
-//		oncFontSizeCB.setBorder(BorderFactory.createTitledBorder("Font Size"));
 		oncFontSizeCB.addActionListener(this);
 		viewPanel.add(lblFont);
 		viewPanel.add(oncFontSizeCB);
 		
 		tabbedPane.addTab("Display", viewPanel);
 		
+		//set up the ornament label tab
 		JPanel wishlabelPanel = new JPanel();
 		wishlabelPanel.setLayout(new BoxLayout(wishlabelPanel, BoxLayout.Y_AXIS));
 		JPanel wishlabelPanelTop = new JPanel();
 		JPanel wishlabelPanelBottom = new JPanel();
-//		wishlabelPanel.setBorder(BorderFactory.createTitledBorder("Change Ornament Label Parameters:"));
 		
-		barcodeCkBox = new JCheckBox("Include barcode on ornament label using baarcode:");
+		barcodeCkBox = new JCheckBox("Use barcode instead of icon on label using barcode:");
 		barcodeCkBox.setSelected(pdGVs.includeBarcodeOnLabels());
 		barcodeCkBox.addActionListener(this);
 		wishlabelPanelTop.add(barcodeCkBox);
@@ -201,21 +212,14 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		wishlabelPanel.add(wishlabelPanelBottom);
 		
 		tabbedPane.addTab("Ornament Labels", wishlabelPanel);
-			
-		JPanel cntlPanel = new JPanel();
-		btnApplyChanges = new JButton("Apply Date or Address Changes");
-		btnApplyChanges.setEnabled(false);
-		btnApplyChanges.addActionListener(this);
-		cntlPanel.add(btnApplyChanges);
 		
 		//Add the components to the frame pane
-        this.getContentPane().setLayout(new BoxLayout(this.getContentPane(), BoxLayout.Y_AXIS));
+//      this.getContentPane().setLayout(new BoxLayout(this.getContentPane(), BoxLayout.Y_AXIS));
         this.getContentPane().add(tabbedPane);
-        this.getContentPane().add(cntlPanel);
                
         this.pack();
         this.setMinimumSize(new Dimension(520, 200));
-        btnApplyChanges.requestFocusInWindow();
+        btnApplyDateChanges.requestFocusInWindow();
 	}
 	
 	void display()	//Update gui with preference data changes (called when an saved ONC object loaded)
@@ -233,7 +237,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		displayWarehouseAddress();
 		barcodeCkBox.setSelected(pdGVs.includeBarcodeOnLabels());
 		
-		btnApplyChanges.setEnabled(false);
+		btnApplyDateChanges.setEnabled(false);
 		
 		bIgnoreDialogEvents = false;
 	}
@@ -342,41 +346,37 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 			!pdGVs.getGiftsReceivedDate().equals(dc_giftsreceived.getDate()) ||
 			!pdGVs.getThanksgivingDeadline().equals(dc_ThanksgivingCutoff.getDate()) ||
 			!pdGVs.getDecemberDeadline().equals(dc_DecemberCutoff.getDate()) ||
-			!pdGVs.getFamilyEditDeadline().equals(dc_InfoEditCutoff.getDate()) ||
-			!whStreetNum.equals(whStreetNumTF.getText()) ||
+			!pdGVs.getFamilyEditDeadline().equals(dc_InfoEditCutoff.getDate()))
+		{
+			btnApplyDateChanges.setEnabled(true);
+		}
+		else
+			btnApplyDateChanges.setEnabled(false);
+		
+		if(!whStreetNum.equals(whStreetNumTF.getText()) ||
 			!whStreet.equals(whStreetTF.getText()) ||
 			!whCity.equals(whCityTF.getText()) ||
 			!whState.equals(whStateTF.getText()))
 		{
-			btnApplyChanges.setEnabled(true);
+			btnApplyAddressChanges.setEnabled(true);
 		}
 		else
-			btnApplyChanges.setEnabled(false);
+			btnApplyAddressChanges.setEnabled(false);
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{
-		if(!bIgnoreDialogEvents && e.getSource()==btnApplyChanges)
-		{
-//			pdGVs.setWarehouseAddress(oncWarehouseAddressTA.getText());
-//			System.out.println(getWarehouseAddressInGoogleMapsFormat());
+		if(!bIgnoreDialogEvents && e.getSource()==btnApplyDateChanges)
 			update();
-//			this.setVisible(false);
-//			this.dispose();
-		}
+		else if(!bIgnoreDialogEvents && e.getSource()==btnApplyAddressChanges)
+			update();
 		else if(e.getSource() == oncFontSizeCB)
-		{
 			pdGVs.setFontIndex(this, oncFontSizeCB.getSelectedIndex());
-		}
 		else if(e.getSource() == barcodeCkBox)
-		{
 			pdGVs.setIncludeBarcodeOnLabels(barcodeCkBox.isSelected());
-		}
 		else if(e.getSource() == barcodeCB && pdGVs.getBarcodeCode() != barcodeCB.getSelectedItem())
-		{
 			pdGVs.setBarcode( (Barcode) barcodeCB.getSelectedItem());
-		}
 	}
 
 	@Override
@@ -394,10 +394,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		public void propertyChange(PropertyChangeEvent pce)
 		{
 			if(!bIgnoreDialogEvents && "date".equals(pce.getPropertyName()))
-			{
-//				update();
 				checkApplyChangesEnabled();
-			}					
 		}
 	}
 	

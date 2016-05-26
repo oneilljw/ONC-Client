@@ -101,7 +101,7 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
         wishCBM.addElement(new ONCWish(-1, "None", 7));
         wishCB = new JComboBox();
         wishCB.setModel(wishCBM);
-        wishCB.setPreferredSize(new Dimension(178, 24));
+        wishCB.setPreferredSize(new Dimension(177, 24));
         wishCB.setToolTipText("Select wish from ONC gift catalog");
         wishCB.setEnabled(false);
         wishCB.addActionListener(this);

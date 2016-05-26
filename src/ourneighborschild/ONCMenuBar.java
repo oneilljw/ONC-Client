@@ -275,7 +275,7 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 	    recGiftsMI.addActionListener(this);;
 	    menuWishes.add(recGiftsMI);
 	    
-	    barcodeWishHistoryMI = new JMenuItem("Barcode Wish History");
+	    barcodeWishHistoryMI = new JMenuItem("Wish History");
 	    barcodeWishHistoryMI.setActionCommand("Barcode Wish History");
 	    barcodeWishHistoryMI.setEnabled(false);
 	    barcodeWishHistoryMI.addActionListener(this);

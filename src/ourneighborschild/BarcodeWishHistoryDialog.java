@@ -215,9 +215,14 @@ public class BarcodeWishHistoryDialog extends ONCTableDialog implements ActionLi
 					if(family != null)
 					{
 						fireEntitySelected(this, EntityType.WISH, family, child, cw);
-						lblChildInfo.setText(String.format("Wish History for %s %s, ONC #%s, Wish %d, Barcode %s",
+						if(GlobalVariables.isUserAdmin())
+							lblChildInfo.setText(String.format("Wish History for %s %s, Wish %d, Family #%s, Barcode %s",
 								child.getChildFirstName(), child.getChildLastName(),
-								family.getONCNum(), cw.getWishNumber()+1, barcodeTF.getText()));
+								cw.getWishNumber()+1, family.getONCNum(), barcodeTF.getText()));
+						else
+							lblChildInfo.setText(String.format("Wish History for %s %d,  Wish %d, Family #%s, Barcode %s",
+								"Child", cDB.getChildNumber(child),
+								cw.getWishNumber()+1, family.getONCNum(), barcodeTF.getText()));
 					}
 				}
 			}

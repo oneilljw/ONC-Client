@@ -51,7 +51,7 @@ public class WishLabelViewer extends JDialog implements DatabaseListener
 		
 		this.setContentPane(labelPanel);
 		
-		this.setSize(300, 140);
+		this.setSize(300, 136);
 		this.setResizable(false);
 	}
 
@@ -105,14 +105,13 @@ public class WishLabelViewer extends JDialog implements DatabaseListener
 		private Font[] lFont;
 		private AveryWishLabelPrinter awlp;
 		
-		
 		public WishLabelPanel()
 		{
 			awlp = new AveryWishLabelPrinter();
 			
 			this.setBackground(Color.white);
 			
-			Font[] lFont = new Font[3];
+			lFont = new Font[3];
 		    lFont[0] = new Font("Calibri", Font.ITALIC, 11);
 		    lFont[1] = new Font("Calibri", Font.BOLD, 11);
 		    lFont[2] = new Font("Calibri", Font.PLAIN, 10);

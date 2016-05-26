@@ -35,6 +35,8 @@ public class OurNeighborsChild
 	private static final String ONC_VERSION = "3.28";
 	private static final String APPNAME = "Our Neighbor's Child";
 	private static final String ONC_SERVER_IP_ADDRESS_FILE = "serveripaddress.txt";
+	private static final int MAIN_FRAME_WIDTH = 837;
+	private static final int MAIN_FRAME_HEIGHT = 668;
 	
 	//GUI Objects
 	private JFrame oncFrame;
@@ -326,7 +328,7 @@ public class OurNeighborsChild
 				exit("QUIT");			  
 			 }});
         oncFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);	//On close, user is prompted to confirm
-        oncFrame.setMinimumSize(new Dimension(832, 668));
+        oncFrame.setMinimumSize(new Dimension(MAIN_FRAME_WIDTH, MAIN_FRAME_HEIGHT));
         oncFrame.setLocationByPlatform(true);
         
         //Create a content panel for the frame and add components to it.
@@ -392,4 +394,4 @@ public class OurNeighborsChild
 			public void run() { new OurNeighborsChild(); }
 	    });
 	}	    
-}//End of Class
+}
