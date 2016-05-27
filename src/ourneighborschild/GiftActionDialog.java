@@ -14,6 +14,7 @@ import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
@@ -27,10 +28,12 @@ public abstract class GiftActionDialog extends SortTableDialog
 	private static final int SOUND_DURATION = 250;
 	private static final int SUCCESS_SOUND_FREQ = 500;
 	private static final int FAILED_SOUND_FREQ = 150;
+	private static final String BLANK_RESULT_LABEL = "          ";
 
 	private JTextField oncnumTF, barcodeTF;
 	private JComboBox startAgeCB, genderCB;
 	private JButton btnUndo;
+	private JLabel lblResult;
 	private Color pBkColor; //Used to restore background after gift action successful
 	
 	private ChildDB cDB;
@@ -125,9 +128,17 @@ public abstract class GiftActionDialog extends SortTableDialog
         btnUndo.addActionListener(this);
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx=0;
-        gbc.fill = GridBagConstraints.BOTH;
-        gbc.insets = new Insets(0,0,0,250);
+        gbc.insets = new Insets(0,0,0,6);
         cntlPanel.add(btnUndo, gbc);
+        
+        lblResult = new JLabel();
+        gbc.gridx = 1;
+        cntlPanel.add(lblResult, gbc);
+        
+        gbc.gridx=2;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(0,0,0,60);
+        cntlPanel.add(new JLabel(BLANK_RESULT_LABEL), gbc);
         
         //change the text of the super class apply changes button
         btnApplyChanges.setText(String.format("%s Gift", dialogType.presentTense()));
@@ -135,7 +146,7 @@ public abstract class GiftActionDialog extends SortTableDialog
         //Add the components to the frame pane and pack
         this.add(bottomPanel);       
         pack();
-        this.setResizable(false);
+//      this.setResizable(false);
         
         barcodeTF.requestFocus();
 	}
@@ -179,30 +190,40 @@ public abstract class GiftActionDialog extends SortTableDialog
 		displaySortTable(stAL, true, tableRowSelectedObjectList);		//Display the table after table array list is built	
 	}
 	
-	boolean actOnGiftFromBarcode(int childwishID, boolean bPreserveSelections)
+	int actOnGiftFromBarcode(int cwID)
 	{
-		ONCChildWish cw = cwDB.getWish(childwishID);
-		SortWishObject swo = null;
+		//bar code could be from a wish that is not in the local data base because it is not
+		//current. Or it may be in the local DB and not a current wish.
+		//Need to account for both of these. Cannot act on a gift that is not current
+		int returnCode;
 		
-		if(cw != null)
-		{	
-			ONCChild c = cDB.getChild(cw.getChildID());
-			ONCFamily f = fDB.getFamily(c.getFamID());
-			swo = new SortWishObject(-1, f, c, cw);
-		}
-		
-		if(swo!= null && doesChildWishStatusMatch(cw) && actOnGift(swo))
-		{
-			setSearchCriteriaBackgroundColor(Color.GREEN);
-			clearBarCode();
-			return true;
-		}
+		ONCChildWish cw = cwDB.getWish(cwID);
+		if(cw == null)
+			returnCode = -1;
 		else
 		{
-			setSearchCriteriaBackgroundColor(Color.RED);
-			clearBarCode();	
-			return false;
+			//determine if wish is current
+			ONCChild c = cDB.getChild(cw.getChildID());
+			if(c.getChildWishID(cw.getWishNumber()) != cwID)
+				returnCode = -2;
+			else
+			{
+				ONCFamily f = fDB.getFamily(c.getFamID());
+				SortWishObject swo = new SortWishObject(-1, f, c, cw);
+				if(!doesChildWishStatusMatch(cw))
+					returnCode = -3;
+				else
+					returnCode = actOnGift(swo) ? 0 : -4;
+			}
 		}
+		
+		if(returnCode == 0)
+			setSearchCriteriaBackgroundColor(Color.GREEN);
+		else
+			setSearchCriteriaBackgroundColor(Color.RED);
+		
+		clearBarCode();
+		return returnCode;
 	}
 /*	
 	void archiveTableSelections(ArrayList<? extends ONCObject> stAL)
@@ -381,33 +402,60 @@ public abstract class GiftActionDialog extends SortTableDialog
 		}
 		else if(e.getSource() == barcodeTF)
 		{
-			System.out.println("GiftActionDialog.actionPerformed: Barcode Event");
-			//if using UPC-E, eliminate check digits before converting to childwishID integer
-			int cwID;
-			if(gvs.getBarcodeCode() == Barcode.UPCE)
-				cwID = Integer.parseInt(barcodeTF.getText().substring(0, barcodeTF.getText().length()-1));
-			else
-				cwID = Integer.parseInt(barcodeTF.getText());
-
-			//determine if gift is receivable. It is if it's found and it's the only one found.
-			try
+			if(gvs.getBarcodeCode().length() != barcodeTF.getText().length())
 			{
-				if(actOnGiftFromBarcode(cwID, false))
-				{
-					System.out.println(String.format("GiftActionDialog.actionPerformed: Gift Received, cwID %d", cwID));
-					sortTable.setRowSelectionInterval(0,0);
-					SoundUtils.tone(SUCCESS_SOUND_FREQ, SOUND_DURATION);
-				}
-				else
-				{
-					System.out.println(String.format("GiftActionDialog.actionPerformed: Gift Received Failed, cwID %d", cwID));
+				lblResult.setText(String.format("Barcode %s is invalid", barcodeTF.getText()));
+				try {
 					SoundUtils.tone(FAILED_SOUND_FREQ, SOUND_DURATION);
+				} catch (LineUnavailableException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
 				}
-			} 
-			catch (LineUnavailableException lue) 
+			}
+			else
 			{
-				// TODO Auto-generated catch block
-				lue.printStackTrace();
+				//if using UPC-E, eliminate check digits before converting to childwishID integer
+				int cwID;
+				if(gvs.getBarcodeCode() == Barcode.UPCE)
+					cwID = Integer.parseInt(barcodeTF.getText().substring(0, barcodeTF.getText().length()-1));
+				else
+					cwID = Integer.parseInt(barcodeTF.getText());
+			
+				try
+				{
+					int rc = actOnGiftFromBarcode(cwID);
+					if(rc == 0)
+					{
+						lblResult.setText(String.format("Gift %d received", cwID));
+						SoundUtils.tone(SUCCESS_SOUND_FREQ, SOUND_DURATION);
+					}
+					else if(rc == -1)
+					{
+						lblResult.setText(String.format("Gift %d not in local DB", cwID));
+						SoundUtils.tone(FAILED_SOUND_FREQ, SOUND_DURATION);
+					}
+					else if(rc == -2)
+					{
+						lblResult.setText(String.format("Gift %d not current", cwID));
+						SoundUtils.tone(FAILED_SOUND_FREQ, SOUND_DURATION);
+					}
+					else if(rc == -3)
+					{
+						lblResult.setText(String.format("Gift %d status invalid", cwID));
+						SoundUtils.tone(FAILED_SOUND_FREQ, SOUND_DURATION);
+					}
+					else if(rc == -4)
+					{
+						lblResult.setText(String.format("Gift %d receive server error", cwID));
+						SoundUtils.tone(FAILED_SOUND_FREQ, SOUND_DURATION);
+					}
+					
+				} 
+				catch (LineUnavailableException lue) 
+				{
+					// TODO Auto-generated catch block
+					lue.printStackTrace();
+				}
 			}
 		}
 		
@@ -443,6 +491,8 @@ public abstract class GiftActionDialog extends SortTableDialog
 		
 		checkApplyChangesEnabled();
 		
+		lblResult.setText(BLANK_RESULT_LABEL);
+		
 		barcodeTF.requestFocus();
 	}
 	
@@ -469,7 +519,6 @@ public abstract class GiftActionDialog extends SortTableDialog
 			ONCChild child = stAL.get(sortTable.getSelectedRow()).getChild();
 			fireEntitySelected(this,EntityType.WISH, fam, child);
 			
-			System.out.println(String.format("GiftActionDialog.valueChanged: lse received"));
 			checkApplyChangesEnabled();	//Check to see if user postured to change status or assignee.
 			
 			sortTable.requestFocus();
@@ -543,7 +592,6 @@ public abstract class GiftActionDialog extends SortTableDialog
 										 dbe.getType().equals("WISH_ADDED") ||
 										  dbe.getType().equals("UPDATED_CHILD_WISH")))
 		{
-			System.out.println(String.format("GiftActionDialog.dataChanged: %s", dbe.getType()));
 			buildTableList(true);
 		}		
 	}
