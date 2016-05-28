@@ -1,8 +1,10 @@
 package ourneighborschild;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.print.PrinterException;
@@ -203,7 +205,9 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
         gbc.weightx = 1.0;
         changePanel.add(changeDataPanel, gbc);
         
-		//Set up the control panel
+		//Set up the control panel that goes in the bottom panel with border layout
+        JPanel cntlPanel = new JPanel();
+      	cntlPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
 		btnExport = new JButton("Export Data");
 	    btnExport.setEnabled(false);
 	    btnExport.addActionListener(this);
@@ -234,15 +238,16 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		printCB.setEnabled(false);
 		printCB.addActionListener(this);
   
-		//Add the components to the control panel
 		cntlPanel.add(progressBar);
 		cntlPanel.add(btnExport);
 		cntlPanel.add(emailCB);
 		cntlPanel.add(printCB);
+		
+		bottomPanel.add(cntlPanel, BorderLayout.CENTER);
 
 		//Add the change and bottom panels to the dialog pane
-		 this.add(changePanel);
-	     this.add(bottomPanel);
+		this.add(changePanel);
+	    this.add(bottomPanel);
 	        
 		pack();
 	}

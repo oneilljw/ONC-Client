@@ -1,6 +1,8 @@
 package ourneighborschild;
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -111,11 +113,15 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
         //Change the text of the ApplyChanges button
         btnApplyChanges.setText("Assign Delivery");
         
-        //Add Print Listing button to the control panel
+        //Add Print Listing button to a control panel
+        JPanel cntlPanel = new JPanel();
+        cntlPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
+        
         btnPrintListing = new JButton("Print Listing");
         btnPrintListing.addActionListener(this);
         
         cntlPanel.add(btnPrintListing);
+        bottomPanel.add(cntlPanel, BorderLayout.CENTER);
         
         this.add(changePanel);
         this.add(bottomPanel);

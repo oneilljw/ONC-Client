@@ -1,9 +1,8 @@
 package ourneighborschild;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -15,6 +14,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
@@ -120,33 +120,28 @@ public abstract class GiftActionDialog extends SortTableDialog
 		
 		//change the default row selection setting to single row selection
 		sortTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		
+		 //change the text of the super class apply changes button
+        btnApplyChanges.setText(String.format("%s Gift", dialogType.presentTense()));
 
-        //add an undo button to the control panel
+        //add an undo button and label to the a control panel.
+		JPanel cntlPanel = new JPanel();
+		
 		btnUndo = new JButton(gvs.getImageIcon(16));
         btnUndo.setToolTipText(String.format("Click to undo last gift %s", dialogType.toString()));
         btnUndo.setEnabled(false);
         btnUndo.addActionListener(this);
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx=0;
-        gbc.insets = new Insets(0,0,0,6);
-        cntlPanel.add(btnUndo, gbc);
+        cntlPanel.add(btnUndo);
         
         lblResult = new JLabel();
-        gbc.gridx = 1;
-        cntlPanel.add(lblResult, gbc);
+        cntlPanel.add(lblResult);
         
-        gbc.gridx=2;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(0,0,0,60);
-        cntlPanel.add(new JLabel(BLANK_RESULT_LABEL), gbc);
+        bottomPanel.add(cntlPanel, BorderLayout.LINE_START);
         
-        //change the text of the super class apply changes button
-        btnApplyChanges.setText(String.format("%s Gift", dialogType.presentTense()));
-         
         //Add the components to the frame pane and pack
         this.add(bottomPanel);       
         pack();
-//      this.setResizable(false);
+        this.setResizable(false);
         
         barcodeTF.requestFocus();
 	}

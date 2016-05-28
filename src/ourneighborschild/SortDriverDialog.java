@@ -1,8 +1,8 @@
 package ourneighborschild;
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileWriter;
@@ -103,32 +103,31 @@ public class SortDriverDialog extends DependantTableDialog
         sortCriteriaPanelTop.add(stoplightCB);
         sortCriteriaPanelTop.add(new JPanel());
 		
-        //Set up the cntl panel
-		//Set the text for the driver count label
+        //Set up a panel and label for the driver count
+        JPanel infoPanel = new JPanel();
+        infoPanel.add(objectCountPanel);
+
 		lblObjectMssg.setText("# of Delivery Partners:"); 
       
+		JPanel cntlPanel = new JPanel();
+      	cntlPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
+      	
       	//Create a print button for agent information
       	String[] agentPrintChoices = {"Print", "Print Driver Listing"};
         printCB = new JComboBox(agentPrintChoices);
         printCB.setPreferredSize(new Dimension(136, 28));
         printCB.setEnabled(false);
         printCB.addActionListener(this);
-                      
-        //Add the components to the control panel
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.fill = GridBagConstraints.BOTH;
-        gbc.insets = new Insets(0,0,0,396);
-      	cntlPanel.add(objectCountPanel, gbc);
-      	
-      	gbc.gridx = 1;
-        gbc.insets = new Insets(0,0,0,0);
-        cntlPanel.add(printCB, gbc);
+        
+        cntlPanel.add(printCB);
         
         //set the border title for the family table 
         familyTableScrollPane.setBorder(BorderFactory.createTitledBorder(
 				BorderFactory.createLoweredBevelBorder(), "Family Deliveries Made/Attempted By Selected Delivery Partner(s)"));
 
+        bottomPanel.add(infoPanel, BorderLayout.LINE_START);
+    	bottomPanel.add(cntlPanel, BorderLayout.CENTER);
+        
         this.add(bottomPanel);
         this.add(familyTableScrollPane);
         this.add(lowercntlpanel);

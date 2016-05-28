@@ -1,8 +1,8 @@
 package ourneighborschild;
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.print.PrinterException;
 import java.beans.PropertyChangeEvent;
@@ -25,6 +25,7 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.event.ListSelectionEvent;
@@ -193,7 +194,10 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 	    gbc.weightx = 1.0;
 	    changePanel.add(changeDataPanel, gbc);
 
-	    //set up the dialog defined control panel
+	    //set up the dialog defined control panel that is added to the bottom
+	    //panel which uses Border Layout
+	    JPanel cntlPanel = new JPanel();
+      	cntlPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
         exportCB = new JComboBox(exportChoices);
         exportCB.setEnabled(false);
         exportCB.addActionListener(this);
@@ -204,22 +208,17 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
         printCB.setEnabled(true);
         printCB.addActionListener(this);
         
-//        btnApplyChanges = new JButton("Apply Changes");
-//        btnApplyChanges.setEnabled(false);
-//        btnApplyChanges.addActionListener(this);
+//      btnApplyChanges = new JButton("Apply Changes");
+//      btnApplyChanges.setEnabled(false);
+//      btnApplyChanges.addActionListener(this);
         
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx=0;
-        gbc.fill = GridBagConstraints.BOTH;
-        gbc.insets = new Insets(0,0,0,120);
-//        cntlPanel.add(labelFitCxBox, gbc);
-        gbc.gridx=1;
-        gbc.insets = new Insets(0,0,0,0);
-        cntlPanel.add(exportCB, gbc);
-        gbc.gridx=2;
-        cntlPanel.add(printCB, gbc);
+        //Add the components to the control panel
+        cntlPanel.add(exportCB);
+        cntlPanel.add(printCB);
  
-        //add the bottom two panels to the dialog and pack
+        //add the bottom two panels to the dialog and pack     
+        bottomPanel.add(cntlPanel, BorderLayout.CENTER);
+        
         this.add(changePanel);
         this.add(bottomPanel);
         pack();

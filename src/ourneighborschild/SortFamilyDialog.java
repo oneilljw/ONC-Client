@@ -1,6 +1,8 @@
 package ourneighborschild;
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -27,6 +29,7 @@ import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.SwingWorker;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -264,6 +267,8 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
         changePanel.add(changeDataPanel, gbc);
         
 		//set up the unique control gui for this dialog
+        JPanel cntlPanel = new JPanel();
+      	cntlPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
         exportCB = new JComboBox(exportChoices);
         exportCB.setPreferredSize(new Dimension(136, 28));
         exportCB.setEnabled(false);
@@ -298,6 +303,8 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
         cntlPanel.add(callCB);
         cntlPanel.add(emailCB);
         cntlPanel.add(printCB);
+        
+        bottomPanel.add(cntlPanel, BorderLayout.CENTER);
         
         this.add(changePanel);
         this.add(bottomPanel);

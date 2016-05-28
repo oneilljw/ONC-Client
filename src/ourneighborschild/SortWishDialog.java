@@ -1,13 +1,13 @@
 package ourneighborschild;
 
 import java.awt.BasicStroke;
+import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.GridBagConstraints;
 import java.awt.Image;
-import java.awt.Insets;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.awt.event.ActionEvent;
@@ -37,6 +37,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.event.ListSelectionEvent;
@@ -254,11 +255,15 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 	    gbc.weightx = 1.0;
 	    changePanel.add(changeDataPanel, gbc);
 
-	    //set up the dialog defined control panel
+	    //set up the dialog defined control panel to add to the bottom panel
+	    JPanel infoPanel = new JPanel();
 	    labelFitCxBox = new JCheckBox("Over Length Wishes Only");
 	    labelFitCxBox.setSelected(bOversizeWishes);
 	    labelFitCxBox.addActionListener(this);
+	    infoPanel.add(labelFitCxBox);
 	    
+	    JPanel cntlPanel = new JPanel();
+	    cntlPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
         btnExport = new JButton("Export Data");
         btnExport.setEnabled(false);
         btnExport.addActionListener(this);
@@ -269,16 +274,11 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
         printCB.setEnabled(true);
         printCB.addActionListener(this);
    
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx=0;
-        gbc.fill = GridBagConstraints.BOTH;
-        gbc.insets = new Insets(0,0,0,120);
-        cntlPanel.add(labelFitCxBox, gbc);
-        gbc.gridx=1;
-        gbc.insets = new Insets(0,0,0,0);
-        cntlPanel.add(btnExport, gbc);
-        gbc.gridx=2;
-        cntlPanel.add(printCB, gbc);
+        cntlPanel.add(btnExport);
+      	cntlPanel.add(printCB);
+      	
+      	bottomPanel.add(infoPanel, BorderLayout.LINE_START);
+    	bottomPanel.add(cntlPanel, BorderLayout.CENTER);
  
         //add the bottom two panels to the dialog and pack
         this.add(changePanel);

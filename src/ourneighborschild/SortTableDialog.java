@@ -1,10 +1,10 @@
 package ourneighborschild;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -56,7 +56,7 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 	
 	//JPanels the inherited class may use to add GUI elements
 	protected JPanel sortCriteriaPanelTop, sortCriteriaPanelBottom;
-	protected JPanel cntlPanel, bottomPanel;
+	protected JPanel bottomPanel;
 	
 	protected ArrayList<ONCObject> tableRowSelectedObjectList;
 	
@@ -172,12 +172,14 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 
 		sortScrollPane.setPreferredSize(new Dimension(tablewidth, sortTable.getRowHeight()*nTableRows));
 		
-        //Set up the subclass defined button control panel and the common Reset Criteria and
-        //Apply Changes buttons as part of the bottom panel
-		bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-//		cntlPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT)); 
-//		cntlPanel = new JPanel(new BorderLayout());
-		cntlPanel = new JPanel(new GridBagLayout());
+        //Set up the bottom panel using border layout. Add common Reset Criteria and
+        //Apply Changes buttons to a base panel as part of the bottom panel. This base panel
+		//will be added to
+		//the bottom panel at LINE_END so it is always the right most two buttons
+		//Subclass dialogs will add additional panels to the bottom panel, either at LINE_START
+		//or CENTER, or both
+		bottomPanel = new JPanel(new BorderLayout());
+		JPanel basePanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		
         btnResetCriteria = new JButton("Reset Filters");
         btnResetCriteria.addActionListener(this);  
@@ -187,6 +189,7 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
     			if(e.getSource() == btnResetCriteria) { onResetCriteriaClicked(); }
     		}	
         });
+        basePanel.add(btnResetCriteria);
  
         btnApplyChanges = new JButton("Apply Changes");
         btnApplyChanges.setEnabled(false);
@@ -196,10 +199,9 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
     			if(e.getSource() == btnApplyChanges) { onApplyChanges(); }
     		}	
         });
+        basePanel.add(btnApplyChanges);
        
-        bottomPanel.add(cntlPanel);
-        bottomPanel.add(btnResetCriteria);
-        bottomPanel.add(btnApplyChanges);
+        bottomPanel.add(basePanel, BorderLayout.LINE_END);
                 
         //Add the top two panels to the dialog pane, the other panels are added
         //by the subclasses
