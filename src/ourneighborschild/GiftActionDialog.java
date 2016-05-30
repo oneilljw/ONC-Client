@@ -22,7 +22,10 @@ import javax.swing.event.ListSelectionEvent;
 public abstract class GiftActionDialog extends SortTableDialog
 {
 	/**
-	 * 
+	 * Provides a base class for dialogs that allow users to act on gifts in the warehouse
+	 * operation. Gifts can be received or audited in the warehouse, using either
+	 * manual data entry from a keyboard or by scanning a bar code on the ornament label
+	 * if the bar code option is employed when labels are generated
 	 */
 	private static final long serialVersionUID = 1L;
 	private static final int SOUND_DURATION = 250;
@@ -41,7 +44,6 @@ public abstract class GiftActionDialog extends SortTableDialog
 	private ONCWishCatalog cat;
 	
 	private ArrayList<SortWishObject> stAL;
-//	protected ArrayList<ONCSortObject> tableRowSelectedObjectList;
 	protected SortWishObject lastWishChanged;	//Holds the last wish received for undo function
 	
 	private int sortStartAge, sortGender;
@@ -63,7 +65,6 @@ public abstract class GiftActionDialog extends SortTableDialog
 		
 		//Create/initialize the class variables
 		stAL = new ArrayList<SortWishObject>();
-//		tableRowSelectedObjectList = new ArrayList<ONCSortObject>();
 		sortStartAge = 0;
 		sortGender = 0;
 		
@@ -76,7 +77,6 @@ public abstract class GiftActionDialog extends SortTableDialog
     	oncnumTF = new JTextField(5);
     	oncnumTF.setEditable(true);
     	oncnumTF.setMaximumSize(new Dimension(64,56));
-//    	oncnumTF.setAlignmentX(Component.LEFT_ALIGNMENT );//0.0
 		oncnumTF.setBorder(BorderFactory.createTitledBorder("ONC #"));
 		oncnumTF.setToolTipText("Type ONC Family # and press <enter>");
 		oncnumTF.addActionListener(this);
@@ -88,7 +88,6 @@ public abstract class GiftActionDialog extends SortTableDialog
 		startAgeCB.setBorder(BorderFactory.createTitledBorder("Child Age"));
 		startAgeCB.setToolTipText("Select or Type Child's Age and press <enter>");
 		startAgeCB.setMaximumSize(new Dimension(88,56));
-//		startAgeCB.setAlignmentX(Component.LEFT_ALIGNMENT );//0.0
 		startAgeCB.setEditable(true);
 		startAgeCB.addActionListener(this);
 		
@@ -96,17 +95,13 @@ public abstract class GiftActionDialog extends SortTableDialog
 		genderCB.setBorder(BorderFactory.createTitledBorder("Gender"));
 		genderCB.setToolTipText("Select Child's Gender");
 		genderCB.setMaximumSize(new Dimension(96,56));
-//		genderCB.setAlignmentX(Component.LEFT_ALIGNMENT );//0.0
 		genderCB.addActionListener(this);
 		
 		barcodeTF = new JTextField(6);
-//    	barcodeTF.setEditable(true);
     	barcodeTF.setMaximumSize(new Dimension(192,56));
-//    	oncnumTF.setAlignmentX(Component.LEFT_ALIGNMENT );//0.0
 		barcodeTF.setBorder(BorderFactory.createTitledBorder("Barcode"));
 		barcodeTF.setToolTipText("Type Barcode and press <enter>");
 		barcodeTF.addActionListener(this);
-//		barcodeTF.addKeyListener(new ONCNumberKeyListener());
 		
 		sortCriteriaPanelTop.add(Box.createRigidArea(new Dimension(5,0)));
 		sortCriteriaPanelTop.add(oncnumTF);
@@ -116,7 +111,6 @@ public abstract class GiftActionDialog extends SortTableDialog
 		sortCriteriaPanelTop.add(genderCB);
 		sortCriteriaPanelTop.add(Box.createRigidArea(new Dimension(5,0)));
 		sortCriteriaPanelTop.add(barcodeTF);
-//		sortCriteriaPanelTop.add(new JPanel());
 		
 		//change the default row selection setting to single row selection
 		sortTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -205,14 +199,17 @@ public abstract class GiftActionDialog extends SortTableDialog
 			{
 				ONCFamily f = fDB.getFamily(c.getFamID());
 				SortWishObject swo = new SortWishObject(-1, f, c, cw);
-				if(!doesChildWishStatusMatch(cw))
+				int rc = doesChildWishStatusMatchForBarcode(cw);
+				if(rc  == -1)
 					returnCode = -3;
+				else if(rc == 1)
+					returnCode = 1;	//gift already in acted upon status
 				else
 					returnCode = actOnGift(swo) ? 0 : -4;
 			}
 		}
 		
-		if(returnCode == 0)
+		if(returnCode >= 0)
 			setSearchCriteriaBackgroundColor(Color.GREEN);
 		else
 			setSearchCriteriaBackgroundColor(Color.RED);
@@ -220,53 +217,11 @@ public abstract class GiftActionDialog extends SortTableDialog
 		clearBarCode();
 		return returnCode;
 	}
-/*	
-	void archiveTableSelections(ArrayList<? extends ONCObject> stAL)
-	{
-		tableRowSelectedObjectList.clear();
-		
-		int[] row_sel = sortTable.getSelectedRows();
-		for(int i=0; i<row_sel.length; i++)
-		{
-			ONCSortObject so = (ONCSortObject) stAL.get(row_sel[i]);
-			tableRowSelectedObjectList.add(so);
-		}
-	}
-*/	
+
 	@Override
 	boolean onApplyChanges()
 	{
-//		int row_sel = sortTable.getSelectedRow();
-//		
-//		//Find child and wish number for selected
-//		ONCFamily fam = fDB.searchForFamilyByID(stAL.get(row_sel).getFamily().getID());
-		
 		return actOnGift(stAL.get(sortTable.getSelectedRow()));
-/*			
-		ONCChild c = stAL.get(row_sel).getChild();
-		int wn = stAL.get(row_sel).getChildWish().getWishNumber();
-		ONCChildWish cw = cwDB.getWish(c.getChildWishID(wn));
-
-		//Process change to wish status. Store the new wish to be added in case of an undo operation 
-		//and add the new wish to the child wish history. We reuse an ONCSortObject to store the
-		//new wish. Organization parameter is null, indicating we're not changing the gift partner
-		lastWishChanged = new SortWishObject(-1, fam, c, cw);
-			
-		ONCChildWish addedWish = cwDB.add(this, c.getID(), cw.getWishID(), cw.getChildWishDetail(),
-				wn, cw.getChildWishIndicator(), getGiftStatusAction(), null);
-				
-		//Update the sort table itself
-		if(addedWish != null)
-			buildTableList(false);
-		
-		sortTable.clearSelection();
-		
-		btnUndo.setEnabled(true);
-		
-		btnApplyChanges.setEnabled(false);
-		
-		return true;
-*/		
 	}
 	
 	boolean actOnGift(SortWishObject swo)
@@ -283,20 +238,14 @@ public abstract class GiftActionDialog extends SortTableDialog
 											getGiftStatusAction(), null);
 		
 		//Update the sort table, as the wish status should have changed
-		
-		bChangingTable = true;
-		
 		if(addedWish != null)
+		{
 			buildTableList(false);
-				
+			btnUndo.setEnabled(true);
+			btnApplyChanges.setEnabled(false);
+		}
+		
 		sortTable.clearSelection();
-		
-		bChangingTable = false;
-				
-		btnUndo.setEnabled(true);
-				
-		btnApplyChanges.setEnabled(false);
-		
 		return addedWish != null;
 	}
 	
@@ -304,8 +253,6 @@ public abstract class GiftActionDialog extends SortTableDialog
 	
 	void onUndoReceiveGift()
 	{
-//		bChangingTable = true;
-		
 		//To undo the wish, add the old wish back with the previous status		
 		ONCChildWish lastWish = lastWishChanged.getChildWish();
 		
@@ -316,8 +263,6 @@ public abstract class GiftActionDialog extends SortTableDialog
 									lastWish.getChildWishIndicator(),
 									lastWish.getChildWishStatus(),
 									null);	//null to keep same partner
-		
-//		lastChild.setChildWishID(wishid, lastWish.getWishNumber());	//Unnecessary: ChildWishDB.processAddedChild takes care of this	
 		
 		//Update the receive gifts sort table itself
 		buildTableList(false);
@@ -333,8 +278,6 @@ public abstract class GiftActionDialog extends SortTableDialog
 		btnApplyChanges.setEnabled(false);
 		
 		btnUndo.setEnabled(false);
-		
-//		bChangingTable = false;
 	}
 	
 	abstract boolean changeFamilyStatus();
@@ -348,7 +291,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 	@Override
 	void setEnabledControls(boolean tf)
 	{
-		//Undo button is only control
+		//Undo button is only control and it is enabled when a gift is acted on
 	}
 
 	private boolean isAgeInRange(ONCChild c)
@@ -362,6 +305,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 	}
 	
 	abstract boolean doesChildWishStatusMatch(ONCChildWish cw);
+	abstract int doesChildWishStatusMatchForBarcode(ONCChildWish cw);
 
 	private boolean doesONCNumMatch(String s) { return sortONCNum.isEmpty() || sortONCNum.equals(s); }
 	
@@ -422,6 +366,11 @@ public abstract class GiftActionDialog extends SortTableDialog
 					if(rc == 0)
 					{
 						lblResult.setText(String.format("Gift %d received", cwID));
+						SoundUtils.tone(SUCCESS_SOUND_FREQ, SOUND_DURATION);
+					}
+					else if(rc == 1)
+					{
+						lblResult.setText(String.format("Gift %d already received", cwID));
 						SoundUtils.tone(SUCCESS_SOUND_FREQ, SOUND_DURATION);
 					}
 					else if(rc == -1)
@@ -533,52 +482,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 		
 		return tableRow;
 	}
-/*
-	private class GiftSortItem extends ONCSortObject
-	{	
-		public GiftSortItem(int id, ONCFamily fam, ONCChild c, ONCChildWish cw)
-		{
-			super(id, fam, c, cw);
-		}
-		
-		public String[] getSortTableRow()
-		{
-			String[] sorttablerow = {soFamily.getONCNum(), soChild.getChildGender(),
-										soChild.getChildAge(),
-										cat.getWishByID(soChildWish.getWishID()).getName(),
-										soChildWish.getChildWishDetail()};
-			return sorttablerow;
-		}
-	}
 
-	 /************************************************************************************
-	  * This class defines the object used to store the last wish received by the Receive
-	  * Gifts dialog user in support of the undo function.
-	  * @author John O'Neill
-	  ************************************************************************************/
-/*	
-	 class LastWishChanged
-	 {
-		 private ONCFamily fam;
-		 private int lastFamilyStatus;
-		 private ONCChild child;
-		 private ONCChildWish lastWishReceived;
-		 
-		 LastWishChanged(ONCFamily f, ONCChild c, ONCChildWish lwr)
-		 {
-			 fam = f;
-			 lastFamilyStatus = f.getFamilyStatus();
-			 child = c;
-			 lastWishReceived = lwr;
-		 }
-		 
-		 //getters
-		 ONCFamily getLastFamily() { return fam; }
-		 int getLastFamilyStatus() { return lastFamilyStatus; }
-		 ONCChild getLastChild() { return child; }
-		 ONCChildWish getLastWishReceived() { return lastWishReceived; }
-	 }
-*/
 	@Override
 	public void dataChanged(DatabaseEvent dbe)
 	{
