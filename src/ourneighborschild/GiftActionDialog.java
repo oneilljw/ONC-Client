@@ -188,24 +188,30 @@ public abstract class GiftActionDialog extends SortTableDialog
 		
 		ONCChildWish cw = cwDB.getWish(cwID);
 		if(cw == null)
-			returnCode = -1;
+			returnCode = -1;	//wish not in local child wish data base
 		else
 		{
 			//determine if wish is current
 			ONCChild c = cDB.getChild(cw.getChildID());
 			if(c.getChildWishID(cw.getWishNumber()) != cwID)
-				returnCode = -2;
+			{
+				//wish is not current, determine if it's in the correct status already, i.e.
+				//it's accidently been double scanned.
+				ONCChildWish newerWish = cwDB.getWish(c.getID(), cw.getWishNumber());
+				if(newerWish.getChildWishStatus() == getGiftStatusAction() && 
+						doesChildWishStatusMatch(cw))
+					returnCode = 1;	//double scan
+				else
+					returnCode = -2;	//wish not current and not in correct state
+			}
 			else
 			{
 				ONCFamily f = fDB.getFamily(c.getFamID());
 				SortWishObject swo = new SortWishObject(-1, f, c, cw);
-				int rc = doesChildWishStatusMatchForBarcode(cw);
-				if(rc  == -1)
-					returnCode = -3;
-				else if(rc == 1)
-					returnCode = 1;	//gift already in acted upon status
+				if(!doesChildWishStatusMatch(cw))
+					returnCode = -3;	//wish is current and not in correct state
 				else
-					returnCode = actOnGift(swo) ? 0 : -4;
+					returnCode = actOnGift(swo) ? 0 : -4;	//if false, server didn't accept update
 			}
 		}
 		
@@ -246,6 +252,8 @@ public abstract class GiftActionDialog extends SortTableDialog
 		}
 		
 		sortTable.clearSelection();
+		barcodeTF.requestFocusInWindow();
+		
 		return addedWish != null;
 	}
 	
@@ -305,7 +313,6 @@ public abstract class GiftActionDialog extends SortTableDialog
 	}
 	
 	abstract boolean doesChildWishStatusMatch(ONCChildWish cw);
-	abstract int doesChildWishStatusMatchForBarcode(ONCChildWish cw);
 
 	private boolean doesONCNumMatch(String s) { return sortONCNum.isEmpty() || sortONCNum.equals(s); }
 	
@@ -403,7 +410,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 			}
 		}
 		
-		barcodeTF.requestFocus();
+//		barcodeTF.requestFocus();
 	}
 	
 	//Resets each search criteria gui and its corresponding member variable to the initial

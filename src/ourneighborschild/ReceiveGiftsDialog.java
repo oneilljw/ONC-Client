@@ -25,25 +25,6 @@ public class ReceiveGiftsDialog extends GiftActionDialog
 				 cw.getChildWishStatus() == WishStatus.Missing;
 	}
 	
-	/***
-	 * When receiving a gift via bar code, it's possible the elf receiving the gift will
-	 * accidently scan it twice. The logic will allow that gift to be received twice.
-	 * 
-	 * return - 0 if gift receipt is valid next state, 1 if gift was already received, -1
-	 * if gift receipt is not a valid state in the ONCWishLifeCycle
-	 */
-	int doesChildWishStatusMatchForBarcode(ONCChildWish cw) 
-	{
-		if(cw.getChildWishStatus() == WishStatus.Delivered || 
-				cw.getChildWishStatus() == WishStatus.Shopping ||
-				 cw.getChildWishStatus() == WishStatus.Missing)
-			return 0;
-		else if(cw.getChildWishStatus() == WishStatus.Received)
-			return 1;
-		else
-			return -1;
-	}
-
 	@Override
 	WishStatus getGiftStatusAction() 
 	{
