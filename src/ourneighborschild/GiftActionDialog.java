@@ -252,7 +252,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 		}
 		
 		sortTable.clearSelection();
-		barcodeTF.requestFocusInWindow();
+		barcodeTF.grabFocus();
 		
 		return addedWish != null;
 	}

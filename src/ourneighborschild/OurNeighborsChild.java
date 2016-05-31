@@ -369,9 +369,10 @@ public class OurNeighborsChild
         oncFamilyPanel = new FamilyPanel(oncFrame);
         oncContentPane.add(oncFamilyPanel);
         
-        oncFrame.addWindowFocusListener(new WindowAdapter() {
+      oncFrame.addWindowFocusListener(new WindowAdapter() {
 		    public void windowGainedFocus(WindowEvent e) {
-		        oncFamilyPanel.gainedFocus();
+		    	System.out.println("Main frame gained focus");
+//		        oncFamilyPanel.gainedFocus();
 		    }
 		});
 	}

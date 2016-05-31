@@ -141,8 +141,6 @@ public class ONCNavPanel extends ONCPanel implements ActionListener
 	    this.add(tp2);
 	    this.add(tp3);
 	    this.add(tp4);
-	    
-	    searchTF.requestFocus();
 	}
 	
 	//getters
@@ -196,11 +194,6 @@ public class ONCNavPanel extends ONCPanel implements ActionListener
 	void clearSearchText()
 	{
 		searchTF.setText("");
-	}
-	
-	void gainedFocus()
-	{
-		searchTF.requestFocusInWindow();
 	}
 	
 	@Override
@@ -274,9 +267,6 @@ public class ONCNavPanel extends ONCPanel implements ActionListener
 //		{
 //			System.out.println("ONCNavPanel.actionPerformed: btnLogoff Event");
 //		}
-		
-		searchTF.requestFocusInWindow();
-		
 	}
 	
 	@Override
