@@ -7,12 +7,12 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
-public class Stoplight extends JPanel implements ActionListener, DatabaseListener
+public class StoplightPanel extends JPanel implements ActionListener, DatabaseListener
 {
 	/**
 	 * This class implements a stop light that the user can click and set the color and
-	 * add a message as a tool tip. All objects that have stop lights in the ONC app are
-	 * derived from ONCEntity. This class listens to data base changes. If change objects
+	 * add a message as a tool tip. All objects that have stop lights in the ONC application
+	 * are derived from ONCEntity. This class listens to data base changes. If change objects
 	 * are derived from type ONCEntity, the the stop light is updated. 
 	 */
 	private static final long serialVersionUID = 1L;
@@ -22,7 +22,7 @@ public class Stoplight extends JPanel implements ActionListener, DatabaseListene
 	private GlobalVariables gvs;
 	private JFrame frame;
 	
-	Stoplight(JFrame frame, ONCDatabase db)
+	StoplightPanel(JFrame frame, ONCDatabase db)
 	{
 		this.frame = frame;
 		this.db = db;

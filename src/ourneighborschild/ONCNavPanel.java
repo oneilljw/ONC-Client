@@ -38,7 +38,7 @@ public class ONCNavPanel extends ONCPanel implements ActionListener
     private JButton  rbSrchNext, rbSrchPrev;
 //  private JButton btnLogoff;	//logoff not implemented at this time
     private JTextField searchTF;
-    private Stoplight sl;
+    private StoplightPanel sl;
     private JLabel lblCount1, lblCount2;
     private JLabel lblMssg;
     private ArrayList<Integer> searchAL;
@@ -122,7 +122,7 @@ public class ONCNavPanel extends ONCPanel implements ActionListener
 	    mssgsubpanel.add(lblMssg);
 	    tp3.add(mssgsubpanel);
 	    	
-	    sl = new Stoplight(parentFrame, db);
+	    sl = new StoplightPanel(parentFrame, db);
 /*	    
 //	    btnLogoff = new JButton("<html><font color=\"blue\">Log Out</font></html>");
 	    btnLogoff = new JButton("Logoff");

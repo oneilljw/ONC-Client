@@ -49,9 +49,6 @@ public class DialogManager implements EntitySelectionListener
 	private ChangeReferenceNumberDialog changeReferenceNumberDlg;
 	private ChangeBatchNumberDialog changeBatchNumberDlg;
 	
-	
-	
-	
 	//dialogs that inherit from CheckDialog
 	private Map<String, CheckDialog> checkDlgMap;
 	private ChildCheckDialog dcDlg;
@@ -202,10 +199,9 @@ public class DialogManager implements EntitySelectionListener
         eeManager.registerEntitySelectionListener(orgDlg);
         
         //Set up the Angel auto-call dialog
-       angelDlg = new AngelAutoCallDialog(GlobalVariables.getFrame());
-   	   eeManager.registerEntitySelector(angelDlg);
-   	   
-        
+        angelDlg = new AngelAutoCallDialog(GlobalVariables.getFrame());
+        eeManager.registerEntitySelector(angelDlg);
+   	    
         //Set up the sort gift partner dialog
         sortPartnerDlg = new SortPartnerDialog(GlobalVariables.getFrame());
         stDlgMap.put("Partners", sortPartnerDlg);
@@ -220,11 +216,6 @@ public class DialogManager implements EntitySelectionListener
         dfDlg = new FamilyCheckDialog(GlobalVariables.getFrame());
         checkDlgMap.put("Duplicate Family Check", dfDlg);
         eeManager.registerEntitySelector(dfDlg);
-        
-        //set up a dialog to receive gifts
-		recGiftsDlg = new ReceiveGiftsDialog(GlobalVariables.getFrame(), WishStatus.Received);
-		stDlgMap.put("Receive Gifts", recGiftsDlg);
-    	eeManager.registerEntitySelector(recGiftsDlg);
     	
     	//set up a dialog to search for wish history from bar code scan
     	barcodeWHDlg = new BarcodeWishHistoryDialog(GlobalVariables.getFrame());
@@ -233,6 +224,13 @@ public class DialogManager implements EntitySelectionListener
         //set up a dialog to connect prior year children
     	pyConnectionDlg = new PYChildConnectionDialog(GlobalVariables.getFrame());
         eeManager.registerEntitySelectionListener(pyConnectionDlg);
+        
+        //set up a dialog to receive gifts. This is last so it's the last called when a 
+        //change is received at the server. This allows the bar code text field to retain
+        //focus.
+      	recGiftsDlg = new ReceiveGiftsDialog(GlobalVariables.getFrame(), WishStatus.Received);
+      	stDlgMap.put("Receive Gifts", recGiftsDlg);
+      	eeManager.registerEntitySelector(recGiftsDlg);
 	}
 	
 	void showAdultDialog()

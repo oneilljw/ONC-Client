@@ -499,7 +499,12 @@ public abstract class GiftActionDialog extends SortTableDialog
 										  dbe.getType().equals("UPDATED_CHILD_WISH")))
 		{
 			buildTableList(true);
-		}		
+			barcodeTF.grabFocus();
+		}
+		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_FAMILY"))
+		{
+			barcodeTF.grabFocus();
+		}
 	}
 	
 	@Override
