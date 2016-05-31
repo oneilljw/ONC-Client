@@ -371,7 +371,7 @@ public class OurNeighborsChild
         
       oncFrame.addWindowFocusListener(new WindowAdapter() {
 		    public void windowGainedFocus(WindowEvent e) {
-		    	System.out.println("Main frame gained focus");
+//		    	System.out.println("Main frame gained focus");
 //		        oncFamilyPanel.gainedFocus();
 		    }
 		});
