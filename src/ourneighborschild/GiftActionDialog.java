@@ -4,7 +4,9 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.EnumSet;
 
 import javax.sound.sampled.LineUnavailableException;
@@ -71,7 +73,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 		//set the title in accordance with the purpose
 		this.setTitle(String.format("Our Neighbor's Child - %s Gifts", dialogType.presentTense()));
 		
-		pBkColor = sortCriteriaPanelTop.getBackground();
+		pBkColor = sortCriteriaPanel.getBackground();
 		
 		//Set up the search criteria panel      
     	oncnumTF = new JTextField(5);
@@ -98,19 +100,23 @@ public abstract class GiftActionDialog extends SortTableDialog
 		genderCB.addActionListener(this);
 		
 		barcodeTF = new JTextField(6);
-    	barcodeTF.setMaximumSize(new Dimension(192,56));
+    	barcodeTF.setMaximumSize(new Dimension(96,56));
 		barcodeTF.setBorder(BorderFactory.createTitledBorder("Barcode"));
 		barcodeTF.setToolTipText("Type Barcode and press <enter>");
 		barcodeTF.addActionListener(this);
 		
+		
 		sortCriteriaPanelTop.add(Box.createRigidArea(new Dimension(5,0)));
-		sortCriteriaPanelTop.add(oncnumTF);
+		sortCriteriaPanelTop.add(oncnumTF);		
 		sortCriteriaPanelTop.add(Box.createRigidArea(new Dimension(5,0)));
 		sortCriteriaPanelTop.add(startAgeCB);
 		sortCriteriaPanelTop.add(Box.createRigidArea(new Dimension(5,0)));
 		sortCriteriaPanelTop.add(genderCB);
-		sortCriteriaPanelTop.add(Box.createRigidArea(new Dimension(5,0)));
+//		sortCriteriaPanelTop.add(Box.createRigidArea(new Dimension(5,0)));
+		sortCriteriaPanelTop.add(Box.createHorizontalGlue());
 		sortCriteriaPanelTop.add(barcodeTF);
+		
+		sortCriteriaPanel.remove(sortCriteriaPanelBottom);
 		
 		//change the default row selection setting to single row selection
 		sortTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -252,7 +258,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 		}
 		
 		sortTable.clearSelection();
-		barcodeTF.grabFocus();
+		barcodeTF.requestFocus();
 		
 		return addedWish != null;
 	}
@@ -449,6 +455,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 	
 	void setSearchCriteriaBackgroundColor(Color color)
 	{
+		sortCriteriaPanel.setBackground(color);
 		sortCriteriaPanelTop.setBackground(color);
 		sortCriteriaPanelBottom.setBackground(color);
 	}
@@ -458,6 +465,11 @@ public abstract class GiftActionDialog extends SortTableDialog
 		barcodeTF.removeActionListener(this);
 		barcodeTF.setText("");	//no need to test for a change here.
 		barcodeTF.addActionListener(this);
+	}
+	
+	void barcodeRequestFocus()
+	{
+		barcodeTF.requestFocus();
 	}
 	
 	@Override
@@ -472,7 +484,8 @@ public abstract class GiftActionDialog extends SortTableDialog
 			
 			checkApplyChangesEnabled();	//Check to see if user postured to change status or assignee.
 			
-			sortTable.requestFocus();
+//			sortTable.requestFocus();
+			barcodeTF.requestFocus();
 		}
 	}
 	
@@ -499,11 +512,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 										  dbe.getType().equals("UPDATED_CHILD_WISH")))
 		{
 			buildTableList(true);
-			barcodeTF.grabFocus();
-		}
-		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_FAMILY"))
-		{
-			barcodeTF.grabFocus();
+			barcodeTF.requestFocus();
 		}
 	}
 	

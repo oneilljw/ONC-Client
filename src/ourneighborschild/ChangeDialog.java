@@ -44,7 +44,7 @@ public abstract class ChangeDialog extends SortTableDialog
         
         changeDataPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         
-        this.add(changePanel);
-        this.add(bottomPanel);
+//      this.add(changePanel);
+//      this.add(bottomPanel);
 	}
 }

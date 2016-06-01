@@ -79,4 +79,6 @@ public abstract class ONCDatabase implements ServerListener
     			l.dataChanged(event);
     	}
     }
+    
+    ArrayList<DatabaseListener> getListenerList() { return listeners; }
 }

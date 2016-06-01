@@ -163,12 +163,12 @@ public class OurNeighborsChild
         //initialize the entity event manager
         EntityEventManager.getInstance();
         
+        //create mainframe window for the application
+        createandshowGUI();
+        
         //Initialize the chat and dialog managers
         ChatManager.getInstance();
         dlgManager = DialogManager.getInstance();
-         
-        //create mainframe window for the application
-        createandshowGUI();
 
         //Get and authenticate user and privileges with Authentication dialog. Can't get past this
         //modal dialog unless a valid user id and password is authenticated by the server. 
@@ -231,7 +231,12 @@ public class OurNeighborsChild
        
         //everything is initialized, start polling server for changes
         if(serverIF != null && serverIF.isConnected())
-        	serverIF.setEnabledServerPolling(true);   	
+        	serverIF.setEnabledServerPolling(true);
+        
+        //diagnostic for who is a registered listener for FamilyDB data changed events
+//        FamilyDB fDB = FamilyDB.getInstance();
+//        for(DatabaseListener dbl : fDB.getListenerList())
+//        	System.out.println(dbl.toString());
     }
     
     String getServerIPAddress(String serverIPAddress)
@@ -356,7 +361,18 @@ public class OurNeighborsChild
 
     private void createandshowGUI()
 	{
-        //Create the menu bar and set action listener for each menu item
+        //Create the family panel main screen
+        oncFamilyPanel = new FamilyPanel(oncFrame);
+        oncContentPane.add(oncFamilyPanel);
+        
+        oncFrame.addWindowFocusListener(new WindowAdapter() {
+		    public void windowGainedFocus(WindowEvent e) {
+//		    	System.out.println("Main frame gained focus");
+//		        oncFamilyPanel.gainedFocus();
+		    }
+		});
+        
+      //Create the menu bar and set action listener for exit menu item
         oncMenuBar = ONCMenuBar.getInstance(); 
         oncMenuBar.exitMI.addActionListener(new ActionListener()
         {		
@@ -364,17 +380,6 @@ public class OurNeighborsChild
         	public void actionPerformed(ActionEvent e) { exit("LOGOUT"); }
         });
         oncFrame.setJMenuBar(oncMenuBar);
-
-        //Create the family panel main screen
-        oncFamilyPanel = new FamilyPanel(oncFrame);
-        oncContentPane.add(oncFamilyPanel);
-        
-      oncFrame.addWindowFocusListener(new WindowAdapter() {
-		    public void windowGainedFocus(WindowEvent e) {
-//		    	System.out.println("Main frame gained focus");
-//		        oncFamilyPanel.gainedFocus();
-		    }
-		});
 	}
       
     void exit(String command)

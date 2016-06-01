@@ -10,7 +10,9 @@ import java.awt.GridLayout;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.EnumSet;
 
 import javax.swing.BorderFactory;
@@ -111,10 +113,12 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private ChildPanel oncChildPanel;
 	private WishPanel[] wishPanelList;
 	
+	//Temporary for debug
+	SimpleDateFormat sdf;
+	
 	public FamilyPanel(JFrame pf)
 	{
 		super(pf);
-		
 		//register database listeners for updates
 		dbMgr = DatabaseManager.getInstance();
 		fDB = FamilyDB.getInstance();
@@ -459,6 +463,9 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         	//register the entity selection listeners
             eeManager.registerEntitySelectionListener(wishPanelList[wp]);
         }
+        
+        //temporary for debug
+        sdf = new SimpleDateFormat("HH:mm:ss:SSS"); 
         
         //Add components to the panels
         p1.add(lblONCNum);
@@ -1300,26 +1307,25 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	
 	@Override
 	public void dataChanged(DatabaseEvent dbe) 
-	{
+	{ 
 		if(dbe.getSource() != this && dbe.getType().equals("UPDATED_FAMILY"))
 		{
-//			System.out.println(String.format("FamilyPanel DB Event: Source: %s, Type: %s, Object: %s",
-//					dbe.getSource().toString(), dbe.getType(), dbe.getObject().toString()));
-			
 			ONCFamily updatedFam = (ONCFamily) dbe.getObject();
 			
 			//If current family being displayed has changed, reshow it
 			if(currFam.getID() == updatedFam.getID())
 			{
-				LogDialog.add("FamilyPanel: UPDATED_FAMILY ONC# " + updatedFam.getONCNum(), "M");
-				display(updatedFam, currChild); //Don't change the displayed child		
+				LogDialog.add(String.format("FamilyPanel: UPDATED_FAMILY ONC #%s at %s", 
+						updatedFam.getONCNum(), sdf.format(new Date(System.currentTimeMillis()))), "M");
+				display(updatedFam, currChild); //Don't change the displayed child
+				
+				//in case the user is receiving gifts with the bar code scanner, attempt
+				//to set focus to the scanner
+				DialogManager.getInstance().receiveGiftBarcodeRequestFocus();
 			}
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("ADDED_FAMILY"))
 		{
-//			System.out.println(String.format("FamilyPanel DB Event: Source: %s, Type: %s, Object: %s",
-//					dbe.getSource().toString(), dbe.getType(), dbe.getObject().toString()));
-			
 			ONCFamily addedFam = (ONCFamily) dbe.getObject();
 			
 			//If no current family being displayed (null) display the added family and fire

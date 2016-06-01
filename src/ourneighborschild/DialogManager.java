@@ -684,6 +684,12 @@ public class DialogManager implements EntitySelectionListener
 		sortFamiliesDlg.setFamilyStatusComboItemEnabled(FAMILY_STATUS_SELECTION_LIST_PACKAGED_INDEX, tf);
 	}
 	
+	void receiveGiftBarcodeRequestFocus()
+	{
+		if(recGiftsDlg != null && recGiftsDlg.isVisible())
+			recGiftsDlg.barcodeRequestFocus();
+	}
+	
 	@Override
 	public void entitySelected(EntitySelectionEvent tse) 
 	{	

@@ -55,7 +55,7 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 	protected int tableSortCol;
 	
 	//JPanels the inherited class may use to add GUI elements
-	protected JPanel sortCriteriaPanelTop, sortCriteriaPanelBottom;
+	protected JPanel sortCriteriaPanel, sortCriteriaPanelTop, sortCriteriaPanelBottom;
 	protected JPanel bottomPanel;
 	
 	protected ArrayList<ONCObject> tableRowSelectedObjectList;
@@ -82,18 +82,17 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 		
 		if(fDB != null)
 			fDB.addDatabaseListener(this);
-
+		
 		//initialize member variables
 		sortONCNum = "";
 		tableSortCol = -1;
 		tableRowSelectedObjectList = new ArrayList<ONCObject>();
 		
 		//Set up the search criteria panel      
-		JPanel sortCriteriaPanel = new JPanel();
+		sortCriteriaPanel = new JPanel();
 		sortCriteriaPanel.setLayout(new BoxLayout(sortCriteriaPanel, BoxLayout.Y_AXIS));
 
 		sortCriteriaPanelTop = new JPanel();
-//		sortCriteriaPanelTop.setLayout(new FlowLayout(FlowLayout.LEFT));
 		sortCriteriaPanelTop.setLayout(new BoxLayout(sortCriteriaPanelTop, BoxLayout.X_AXIS));
 		sortCriteriaPanelBottom = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		
@@ -104,8 +103,7 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
         sortCriteriaPanelTop.add(lblONCicon);
 		
 		sortCriteriaPanel.add(sortCriteriaPanelTop);
-		sortCriteriaPanel.add(sortCriteriaPanelBottom);
-		
+		sortCriteriaPanel.add(sortCriteriaPanelBottom);	
 		sortCriteriaPanel.setBorder(BorderFactory.createTitledBorder("Search Filters"));
 	
 		//Set up the sort family table panel
