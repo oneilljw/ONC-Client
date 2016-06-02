@@ -24,6 +24,7 @@ public class ONCUser extends ONCEntity
 	protected String title;
 	protected String org;
 	protected int agentID;
+	protected UserPreferences preferences;
 	
 	public ONCUser(int id, Date today, String changedBy, int slpos, String slmssg, String slchgby, 
 			String fn, String ln, UserStatus stat, UserAccess acc, UserPermission perm, long nSessions,
@@ -46,13 +47,40 @@ public class ONCUser extends ONCEntity
 		this.email = email;
 		this.phone = phone;
 		this.agentID = agentID;
+		this.preferences = new UserPreferences();
+	}
+	
+	//overloaded -- used when including UserPreferences in the construction
+	public ONCUser(int id, Date today, String changedBy, int slpos, String slmssg, String slchgby, 
+			String fn, String ln, UserStatus stat, UserAccess acc, UserPermission perm, long nSessions,
+			Date last, String org, String title,String email, String phone, int agentID,
+			int fontSize, int wafPos, int fdfPos)
+	{
+		super(id, today, changedBy, slpos, slmssg, slchgby);
+		
+		firstname = fn;
+		lastname = ln;
+		status = stat;
+		access = acc;
+		permission = perm;
+		clientID = -1;
+		clientYear = -1;
+		this.nSessions = nSessions;
+		lastLogin = Calendar.getInstance();
+		lastLogin.setTime(last);
+		this.org = org;
+		this.title = title;
+		this.email = email;
+		this.phone = phone;
+		this.agentID = agentID;
+		this.preferences = new UserPreferences(fontSize, wafPos, fdfPos);
 	}
 	
 	//overloaded to allow conversion from ONCServerUser to ONCUser by creating a copy
 	public ONCUser(int id, Date today, String changedBy, int slpos, String slmssg, String slchgby, 
 			String fn, String ln,  UserStatus stat, UserAccess acc, UserPermission perm,
 			long clientID, int clientYear, long nSessions, Calendar lastLogin, 
-			String org, String title, String email, String phone, int agentID)
+			String org, String title, String email, String phone, int agentID, UserPreferences prefs)
 	{
 		super(id, today, changedBy, slpos, slmssg, slchgby);
 		
@@ -70,6 +98,7 @@ public class ONCUser extends ONCEntity
 		this.email = email;
 		this.phone = phone;
 		this.agentID = agentID;
+		this.preferences = prefs;
 	}
 	
 	public ONCUser(ONCUser u)
@@ -90,6 +119,7 @@ public class ONCUser extends ONCEntity
 		this.email = u.email;
 		this.phone = u.phone;
 		this.agentID = u.agentID;
+		this.preferences = u.preferences;
 	}
 	
 	public long getClientID() { return clientID; }
@@ -101,6 +131,7 @@ public class ONCUser extends ONCEntity
 	public void setLastLogin(Date last_login) { lastLogin.setTime(last_login); }
 	public long incrementSessions() { return ++nSessions; }
 	public boolean changePasswordRqrd() { return status.equals(UserStatus.Change_PW); }
+	public UserPreferences getPreferences() { return preferences; }
 	
 	public String getFirstname() { return firstname; }
 	public void setFirstname(String firstname) { this.firstname = firstname; }
@@ -114,6 +145,7 @@ public class ONCUser extends ONCEntity
 	public void setAccess(UserAccess access) { this.access = access; }
 	public int getAgentID() { return agentID; }
 	public void setAgentID(int agtID) { this.agentID = agtID; }
+	public void setPreferences(UserPreferences prefs) { this.preferences = prefs; }
 	
 	public String getOrg() { return org; }
 	public String getTitle() { return title; }

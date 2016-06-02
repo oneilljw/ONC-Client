@@ -263,6 +263,8 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 	boolean includeBarcodeOnLabels() { return bBarcodeOnOrnmament; }
 	Barcode getBarcodeCode() { return barcode; }
 	Point getAveryLabelOffset() { return averyLabelOffsetPoint; }
+	int getFamilyDNSFilterDefaultIndex() { return user != null ? user.getPreferences().getFamilyDNSFilter() : 0; }
+	int getWishAssigneeFilterDefaultIndex() { return user != null ? user.getPreferences().getWishAssigneeFilter() : 0; }
 	
 	//setters globally used - need to update at the server and broadcast
 	public void setDeliveryDate(Date dd) { oncDeliveryDate.setTime(dd); }
@@ -288,7 +290,15 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 		}
 	}
 	void setImageIcons(ImageIcon[] ii) {imageIcons = ii; }
-	ONCUser setUser(ONCUser u) { user = u; return user; }
+	ONCUser setUser(ONCUser u) 
+	{
+		if(user == null || user.getID() != u.getID())
+		{
+			user = u;
+			this.fireDataChanged(this, "CHANGED_USER", user);
+		}
+		return user; 
+	}
 	void setUserPermission(UserPermission p) { user_permission = p; }
 	void setYTYGrowthIndex(int index) { ytyGrwthIndex = index; }
 	void setStartONCNum(int startoncnum) { startONCNum = startoncnum; }
@@ -490,18 +500,27 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 		{
 			processUpdatedObject(this, ue.getJson());
 		}
+		else if(ue.getType().equals("UPDATED_USER"))
+		{
+			processUpdatedUser(this, ue.getJson());
+		}
 		else if(ue.getType().equals("UPDATED_WEBSITE_STATUS"))
 		{
 			processUpdatedWebsiteStatus(this, ue.getJson());
 		}
 	}
 	
-	void processUpdatedUser(ONCUser updatedUser)
+	void processUpdatedUser(Object source, String updatedUserJson)
 	{
 		//since this database holds the currently signed in user, if the user is updated, need to 
 		//update here
-		if(updatedUser.getID() == user.getID())
+		Gson gson = new Gson();
+		ONCUser updatedUser = gson.fromJson(updatedUserJson, ONCUser.class);
+		
+		if(updatedUser != null && updatedUser.getID() == user.getID())
 			user = updatedUser;
+		
+		fireDataChanged(source, "UPDATED_USER", updatedUser);
 	}
 
 	@Override

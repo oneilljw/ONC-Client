@@ -204,8 +204,11 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 	    assignCB.setModel(assignCBM);
 		assignCB.setPreferredSize(new Dimension(192, 56));
 		assignCB.setBorder(BorderFactory.createTitledBorder("Assigned To"));
-		assignCB.setSelectedIndex(1);	//set to No one
+		
+		//set the user preference for assignee filter default setting
+		assignCB.setSelectedIndex(1);
 		sortAssigneeID = -1;
+		
 		assignCB.addActionListener(this);
 
 		sortCriteriaPanelTop.add(oncnumTF);
@@ -994,8 +997,9 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		statusCB.addActionListener(this);
 		
 		assignCB.removeActionListener(this);
-		assignCB.setSelectedIndex(1);
-		sortAssigneeID = -1;
+		//set the user preference for assignee filter default setting
+		assignCB.setSelectedIndex(gvs.getUser().getPreferences().getWishAssigneeFilter());
+		sortAssigneeID = assignCB.getSelectedIndex() == 0 ? 0 : -1;
 		assignCB.addActionListener(this);
 		
 		changeResCB.removeActionListener(this);

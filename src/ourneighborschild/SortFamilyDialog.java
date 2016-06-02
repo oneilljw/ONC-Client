@@ -108,12 +108,15 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		UserDB userDB = UserDB.getInstance();
 		if(userDB != null)
 			userDB.addDatabaseListener(this);
+		
+		if(gvs != null)
+			gvs.addDatabaseListener(this);  //listen for preferences changes
 
 		//set up search comparison variables
 		sortONCNum = "Any";
 		sortDNSCode = dnsCodes[0];
 		
-		//Set up unique serach criteria gui
+		//Set up unique search criteria GUI
     	String[] oncStrings = {"Any", "NNA", "OOR", "RNV", "DEL"};
     	oncCB = new JComboBox(oncStrings);
     	oncCB.setEditable(true);
@@ -502,6 +505,23 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 //		bChangingTable = false;
 		
 		return bDataChanged;
+	}
+	
+	void updateUserPreferences()
+	{
+		//if there was a change to user preferences and the DNS filter is set to "Any" or
+		//"None" and the new preference is different, update the filter selection and rebuild
+		//the table
+		if(dnsCB.getSelectedIndex() < 2 &&
+			dnsCB.getSelectedIndex() != gvs.getFamilyDNSFilterDefaultIndex())
+		{
+			dnsCB.removeActionListener(this);
+			dnsCB.setSelectedIndex(gvs.getFamilyDNSFilterDefaultIndex());
+			sortDNSCode = dnsCodes[gvs.getFamilyDNSFilterDefaultIndex()];
+			dnsCB.addActionListener(this);
+			
+			buildTableList(false);
+		}
 	}
 	
 	void updateUserList()
@@ -1104,8 +1124,8 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		batchCB.addActionListener(this);
 		
 		dnsCB.removeActionListener(this);
-		dnsCB.setSelectedIndex(0);
-		sortDNSCode = dnsCodes[0];
+		dnsCB.setSelectedIndex(gvs.getFamilyDNSFilterDefaultIndex());
+		sortDNSCode = dnsCodes[gvs.getFamilyDNSFilterDefaultIndex()];
 		dnsCB.addActionListener(this);
 		
 		fstatusCB.removeActionListener(this);
@@ -1874,9 +1894,15 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			String[] regList = (String[]) dbe.getObject();
 			updateRegionList(regList);
 		}
-		else if(dbe.getType().contains("_USER"))
+		else if(dbe.getType().contains("ADDED_USER") || dbe.getType().contains("UPDATED_USER"))
 		{
 			updateUserList();
+			updateUserPreferences();
+		}
+		else if(dbe.getType().contains("CHANGED_USER"))
+		{
+			//new user logged in, update preferences used by this dialog
+			updateUserPreferences();
 		}
 	}
 	

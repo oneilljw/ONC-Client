@@ -30,7 +30,8 @@ public class ONCServerUser extends ONCUser
 				nextLine[11], nextLine[12], nextLine[6], nextLine[7], UserStatus.valueOf(nextLine[3]),
 				UserAccess.valueOf(nextLine[4]), UserPermission.valueOf(nextLine[5]),
 				Long.parseLong(nextLine[13]), last_login, 
-				nextLine[15], nextLine[16], nextLine[17], nextLine[18], Integer.parseInt(nextLine[19]));
+				nextLine[15], nextLine[16], nextLine[17], nextLine[18], Integer.parseInt(nextLine[19]),
+				Integer.parseInt(nextLine[20]), Integer.parseInt(nextLine[21]), Integer.parseInt(nextLine[22]));
 				
 		userid = nextLine[1];
 		password = nextLine[2];
@@ -50,7 +51,7 @@ public class ONCServerUser extends ONCUser
 	{
 		return new ONCUser(id, dateChanged.getTime(), changedBy, slPos, slMssg, slChangedBy, 
 				firstname, lastname, status, access, permission, clientID, clientYear, nSessions, 
-				lastLogin, org, title, email, phone, agentID);	
+				lastLogin, org, title, email, phone, agentID, preferences);	
 	}
 	
 	@Override
@@ -64,7 +65,10 @@ public class ONCServerUser extends ONCUser
 						Long.toString(dateChanged.getTimeInMillis()), changedBy, Integer.toString(slPos), 
 						slMssg,slChangedBy, Long.toString(nSessions), 
 						Long.toString(lastLogin.getTimeInMillis()),
-						org, title, email, phone, Integer.toString(agentID)
+						org, title, email, phone, Integer.toString(agentID),
+						Integer.toString(preferences.getFontSize()), 
+						Integer.toString(preferences.getWishAssigneeFilter()), 
+						Integer.toString(preferences.getFamilyDNSFilter())
 						};
 		return row;
 	}	

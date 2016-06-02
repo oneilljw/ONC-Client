@@ -4,9 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.EnumSet;
 
 import javax.sound.sampled.LineUnavailableException;
@@ -34,6 +32,14 @@ public abstract class GiftActionDialog extends SortTableDialog
 	private static final int SUCCESS_SOUND_FREQ = 500;
 	private static final int FAILED_SOUND_FREQ = 150;
 	private static final String BLANK_RESULT_LABEL = "          ";
+	
+	private static final int GIFT_ACTION_SUCCESSFUL = 0;
+	private static final int GIFT_ACTION_ALREADY_OCCURRED = 1;
+	private static final int GIFT_NOT_IN_LOCAL_DB = -1;
+	private static final int GIFT_NOT_CURRENT = -2;
+	private static final int GIFT_STATUS_INVALID = -3;
+	private static final int GIFT_ACTION_REQUEST_SERVER_FAILURE = -4;
+	
 
 	private JTextField oncnumTF, barcodeTF;
 	private JComboBox startAgeCB, genderCB;
@@ -105,26 +111,24 @@ public abstract class GiftActionDialog extends SortTableDialog
 		barcodeTF.setToolTipText("Type Barcode and press <enter>");
 		barcodeTF.addActionListener(this);
 		
-		
 		sortCriteriaPanelTop.add(Box.createRigidArea(new Dimension(5,0)));
 		sortCriteriaPanelTop.add(oncnumTF);		
 		sortCriteriaPanelTop.add(Box.createRigidArea(new Dimension(5,0)));
 		sortCriteriaPanelTop.add(startAgeCB);
 		sortCriteriaPanelTop.add(Box.createRigidArea(new Dimension(5,0)));
 		sortCriteriaPanelTop.add(genderCB);
-//		sortCriteriaPanelTop.add(Box.createRigidArea(new Dimension(5,0)));
 		sortCriteriaPanelTop.add(Box.createHorizontalGlue());
 		sortCriteriaPanelTop.add(barcodeTF);
 		
-		sortCriteriaPanel.remove(sortCriteriaPanelBottom);
+		sortCriteriaPanel.remove(sortCriteriaPanelBottom);	//inherited panel not used
 		
 		//change the default row selection setting to single row selection
 		sortTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		
-		 //change the text of the super class apply changes button
+		//change the text of the super class apply changes button
         btnApplyChanges.setText(String.format("%s Gift", dialogType.presentTense()));
 
-        //add an undo button and label to the a control panel.
+        //add an undo button and label to the control panel.
 		JPanel cntlPanel = new JPanel();
 		
 		btnUndo = new JButton(gvs.getImageIcon(16));
@@ -138,12 +142,12 @@ public abstract class GiftActionDialog extends SortTableDialog
         
         bottomPanel.add(cntlPanel, BorderLayout.LINE_START);
         
+        barcodeTF.requestFocus();	//we want scans to process immediately
+        
         //Add the components to the frame pane and pack
         this.add(bottomPanel);       
         pack();
         this.setResizable(false);
-        
-        barcodeTF.requestFocus();
 	}
 
 	void buildTableList(boolean bPreserveSelections)
@@ -185,6 +189,26 @@ public abstract class GiftActionDialog extends SortTableDialog
 		displaySortTable(stAL, true, tableRowSelectedObjectList);		//Display the table after table array list is built	
 	}
 	
+	/****
+	 * Method processes a gift identified by child wish ID. The method checks the validity
+	 * of both the child wish ID and the subsequent child wish/gift. If the child wish/gift is
+	 * valid, the method will call actOnGift to change the status of the child wish/gift.
+	 * A number of error conditions may occur that result in the wish/gift being invalid.
+	 * The method returns an integer code that provides a result of the attempt to change the
+	 * wish/gift status. The background color of the search criteria panel color is changed to
+	 * either green or red depending on the success of the requested state change
+	 * 
+	 * Return codes are:
+	 * 0: wish/gift status successfully changed
+	 * 1: wish/gift status unchanged, was already successfully changed
+	 * -1: wish/gift is not in the local copy of the server data base, indicating the wish/gift
+	 * is not current
+	 * -2: wish/gift is in the local data base, but is not current & also not in a valid state
+	 * -3: wish/gift is current, but not in valid state for the requested action
+	 * -4: wish/gift state change not processed successfully by the server
+	 * @param cwID - childwish ID number
+	 * @return int error code 0 or 1 indicates success, a negative number indicates an error
+	 */
 	int actOnGiftFromBarcode(int cwID)
 	{
 		//bar code could be from a wish that is not in the local data base because it is not
@@ -194,30 +218,30 @@ public abstract class GiftActionDialog extends SortTableDialog
 		
 		ONCChildWish cw = cwDB.getWish(cwID);
 		if(cw == null)
-			returnCode = -1;	//wish not in local child wish data base
+			returnCode = GIFT_NOT_IN_LOCAL_DB;	//wish not in local child wish data base
 		else
 		{
 			//determine if wish is current
 			ONCChild c = cDB.getChild(cw.getChildID());
 			if(c.getChildWishID(cw.getWishNumber()) != cwID)
 			{
-				//wish is not current, determine if it's in the correct status already, i.e.
+				//wish is not current, determine if it's in the correct status for the action, i.e.
 				//it's accidently been double scanned.
 				ONCChildWish newerWish = cwDB.getWish(c.getID(), cw.getWishNumber());
 				if(newerWish.getChildWishStatus() == getGiftStatusAction() && 
 						doesChildWishStatusMatch(cw))
-					returnCode = 1;	//double scan
+					returnCode = GIFT_ACTION_ALREADY_OCCURRED;	//double scan
 				else
-					returnCode = -2;	//wish not current and not in correct state
+					returnCode = GIFT_NOT_CURRENT;	//wish not current and not in valid state
 			}
 			else
 			{
 				ONCFamily f = fDB.getFamily(c.getFamID());
 				SortWishObject swo = new SortWishObject(-1, f, c, cw);
 				if(!doesChildWishStatusMatch(cw))
-					returnCode = -3;	//wish is current and not in correct state
-				else
-					returnCode = actOnGift(swo) ? 0 : -4;	//if false, server didn't accept update
+					returnCode = GIFT_STATUS_INVALID;	//wish/gift is current and not in valid state
+				else	//attempt to act on the wish/gift,if it fails, server didn't accept update
+					returnCode = actOnGift(swo) ? GIFT_ACTION_SUCCESSFUL : GIFT_ACTION_REQUEST_SERVER_FAILURE;
 			}
 		}
 		
@@ -270,13 +294,10 @@ public abstract class GiftActionDialog extends SortTableDialog
 		//To undo the wish, add the old wish back with the previous status		
 		ONCChildWish lastWish = lastWishChanged.getChildWish();
 		
-		ONCChildWish addedWish = cwDB.add(this, lastWishChanged.getChild().getID(),
-									lastWish.getWishID(),
-									lastWish.getChildWishDetail(),
-									lastWish.getWishNumber(),
-									lastWish.getChildWishIndicator(),
-									lastWish.getChildWishStatus(),
-									null);	//null to keep same partner
+		cwDB.add(this, lastWishChanged.getChild().getID(),
+					lastWish.getWishID(), lastWish.getChildWishDetail(),
+					lastWish.getWishNumber(),lastWish.getChildWishIndicator(),
+					lastWish.getChildWishStatus(),null);	//null to keep same partner
 		
 		//Update the receive gifts sort table itself
 		buildTableList(false);
@@ -376,37 +397,36 @@ public abstract class GiftActionDialog extends SortTableDialog
 				try
 				{
 					int rc = actOnGiftFromBarcode(cwID);
-					if(rc == 0)
+					if(rc == GIFT_ACTION_SUCCESSFUL)
 					{
 						lblResult.setText(String.format("Gift %d received", cwID));
 						SoundUtils.tone(SUCCESS_SOUND_FREQ, SOUND_DURATION);
 					}
-					else if(rc == 1)
+					else if(rc == GIFT_ACTION_ALREADY_OCCURRED)
 					{
 						lblResult.setText(String.format("Gift %d already received", cwID));
 						SoundUtils.tone(SUCCESS_SOUND_FREQ, SOUND_DURATION);
 					}
-					else if(rc == -1)
+					else if(rc == GIFT_NOT_IN_LOCAL_DB)
 					{
 						lblResult.setText(String.format("Gift %d not in local DB", cwID));
 						SoundUtils.tone(FAILED_SOUND_FREQ, SOUND_DURATION);
 					}
-					else if(rc == -2)
+					else if(rc == GIFT_NOT_CURRENT)
 					{
 						lblResult.setText(String.format("Gift %d not current", cwID));
 						SoundUtils.tone(FAILED_SOUND_FREQ, SOUND_DURATION);
 					}
-					else if(rc == -3)
+					else if(rc == GIFT_STATUS_INVALID)
 					{
 						lblResult.setText(String.format("Gift %d status invalid", cwID));
 						SoundUtils.tone(FAILED_SOUND_FREQ, SOUND_DURATION);
 					}
-					else if(rc == -4)
+					else if(rc == GIFT_ACTION_REQUEST_SERVER_FAILURE)
 					{
 						lblResult.setText(String.format("Gift %d receive server error", cwID));
 						SoundUtils.tone(FAILED_SOUND_FREQ, SOUND_DURATION);
 					}
-					
 				} 
 				catch (LineUnavailableException lue) 
 				{

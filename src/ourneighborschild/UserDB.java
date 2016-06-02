@@ -159,11 +159,13 @@ public class UserDB extends ONCSearchableDatabase
 			}
 		
 			uAL.set(index, updatedUser);
-			fireDataChanged(source, "UPDATED_USER", updatedUser);
 			
-			//notify the GlobalVariableDB of the update
-			GlobalVariables gvs = GlobalVariables.getInstance();
-			gvs.processUpdatedUser(updatedUser);
+//			//notify the GlobalVariableDB of the update since it holds the logged in user
+//			GlobalVariables gvs = GlobalVariables.getInstance();
+//			gvs.processUpdatedUser(updatedUser);
+			
+			//notify all the databases
+			fireDataChanged(source, "UPDATED_USER", updatedUser);
 			
 			return updatedUser;
 		}
