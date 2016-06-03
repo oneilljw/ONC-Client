@@ -63,6 +63,7 @@ public class AngelAutoCallDialog extends ONCTableDialog implements ActionListene
 	private JLabel lblNumOfCalls;
 	
 	private FamilyDB familyDB;
+	private UserDB userDB;
 	private ArrayList<AngelCallItem> stAL;
 	
 	private boolean bCallsProcessed;	//indicates if delivery status updated as a result of calls in table
@@ -83,6 +84,7 @@ public class AngelAutoCallDialog extends ONCTableDialog implements ActionListene
 		this.setTitle("ONC Automated Call Results");
 		
 		familyDB = FamilyDB.getInstance();
+		userDB = UserDB.getInstance();
 		stAL = new ArrayList<AngelCallItem>();
 		bCallsProcessed = false;
 		
@@ -517,7 +519,7 @@ public class AngelAutoCallDialog extends ONCTableDialog implements ActionListene
 					 ONCDelivery reqDelivery = new ONCDelivery(-1, f.getID(), DELIVERY_STATUS_CONFIRMED,
 							 					deliveryDB.getDeliveredBy(f.getDeliveryID()),
 							 					"Angel Call Result: Confirmed",
-							 					GlobalVariables.getUserLNFI(),
+							 					userDB.getUserLNFI(),
 							 					Calendar.getInstance());
 					 
 					 deliveryList.add(reqDelivery);
@@ -541,7 +543,7 @@ public class AngelAutoCallDialog extends ONCTableDialog implements ActionListene
 					 ONCDelivery reqDelivery = new ONCDelivery(-1, f.getID(), DELIVERY_STATUS_CONTACTED,
 							 					deliveryDB.getDeliveredBy(f.getDeliveryID()),
 							 					"Angel Call Result: Contacted",
-							 					GlobalVariables.getUserLNFI(),
+							 					userDB.getUserLNFI(),
 							 					Calendar.getInstance());
 					 
 					 deliveryList.add(reqDelivery);

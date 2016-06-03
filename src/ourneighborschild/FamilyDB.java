@@ -388,7 +388,8 @@ public class FamilyDB extends ONCSearchableDatabase
 	    							nextLine[10], nextLine[11], nextLine[12], nextLine[13], nextLine[14], nextLine[15],
 	    							nextLine[16], nextLine[18], nextLine[19], nextLine[20],
 	    							nextLine[22], nextLine[23], nextLine[24], nextLine[25], nextLine[26], nextLine[27],
-	    							nextLine[28], batchNum, fGVs.getTodaysDate(), -1, "NNA",-1, GlobalVariables.getUserLNFI(), 
+	    							nextLine[28], batchNum, fGVs.getTodaysDate(), -1, "NNA",-1, 
+	    							UserDB.getInstance().getUserLNFI(), 
 	    							agentID);
 	    					
 	    					ONCFamily addedFam = (ONCFamily) add(this, reqAddFam);

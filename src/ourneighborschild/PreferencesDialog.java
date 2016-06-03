@@ -35,7 +35,10 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 	 * This class implements the preferences dialog for ONC
 	 */
 	private static final long serialVersionUID = 1L;
+	private static final Integer DEFAULT_FONT_SIZE = 13;
+	
 	private GlobalVariables pdGVs;
+	private UserDB userDB;
 	private JDateChooser dc_today, dc_delivery, dc_seasonstart, dc_giftsreceived;
 	private JDateChooser dc_DecemberCutoff, dc_InfoEditCutoff, dc_ThanksgivingCutoff;
 	private JTextField whStreetNumTF, whStreetTF, whCityTF, whStateTF;
@@ -46,6 +49,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 	private JCheckBox barcodeCkBox;
 	private JComboBox barcodeCB, wishAssigneeFilterDefaultCB, fdnsFilterDefaultCB;
 	private JSpinner averyXOffsetSpinner, averyYOffsetSpinner;
+	private Integer[] fontSizes = {8, 10, 12, 13, 14, 16, 18};
 	
 	PreferencesDialog(JFrame parentFrame)
 	{
@@ -55,6 +59,10 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		pdGVs = GlobalVariables.getInstance();
 		if(pdGVs != null)
 			pdGVs.addDatabaseListener(this);
+		
+		userDB = UserDB.getInstance();
+		if(userDB != null)
+			userDB.addDatabaseListener(this);
 		
 		bIgnoreDialogEvents = false;
 		
@@ -174,8 +182,8 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		
 		JPanel fontPanel = new JPanel();
 		JLabel lblFont = new JLabel("Font Size:");
-		oncFontSizeCB = new JComboBox(pdGVs.getFontSizes());
-		oncFontSizeCB.setSelectedIndex(pdGVs.getFontIndex());
+		oncFontSizeCB = new JComboBox(fontSizes);
+		oncFontSizeCB.setSelectedItem(DEFAULT_FONT_SIZE);
 		oncFontSizeCB.setEnabled(false);
 		oncFontSizeCB.addActionListener(this);
 		fontPanel.add(lblFont);
@@ -264,18 +272,32 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		
 		displayWarehouseAddress();
 		
-		oncFontSizeCB.setSelectedIndex(pdGVs.getFontIndex());
-		ONCUser user = pdGVs.getUser();
+		oncFontSizeCB.removeActionListener(this);
+		wishAssigneeFilterDefaultCB.removeActionListener(this);
+		fdnsFilterDefaultCB.removeActionListener(this);
+		
+		ONCUser user = userDB.getLoggedInUser();
 		if(user != null)
 		{
+//			System.out.println(String.format("PrefDlg.display: font: %d, wishIndex: %d, dnsIndex: %d",
+//					user.getPreferences().getFontSize(),
+//					user.getPreferences().getWishAssigneeFilter(),
+//					user.getPreferences().getFamilyDNSFilter()));
+			
+			oncFontSizeCB.setSelectedItem(user.getPreferences().getFontSize());
 			wishAssigneeFilterDefaultCB.setSelectedIndex(user.getPreferences().getWishAssigneeFilter());
 			fdnsFilterDefaultCB.setSelectedIndex(user.getPreferences().getFamilyDNSFilter());
 		}
 		else
 		{
+			oncFontSizeCB.setSelectedItem(DEFAULT_FONT_SIZE);
 			wishAssigneeFilterDefaultCB.setSelectedIndex(0);
 			fdnsFilterDefaultCB.setSelectedIndex(0);
 		}
+		
+		oncFontSizeCB.addActionListener(this);
+		wishAssigneeFilterDefaultCB.addActionListener(this);
+		fdnsFilterDefaultCB.addActionListener(this);
 		
 		barcodeCkBox.setSelected(pdGVs.includeBarcodeOnLabels());
 		
@@ -413,16 +435,27 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 			update();
 		else if(!bIgnoreDialogEvents && e.getSource()==btnApplyAddressChanges)
 			update();
-		else if(e.getSource() == oncFontSizeCB)
-			pdGVs.setFontIndex(this, oncFontSizeCB.getSelectedIndex());
+		else if(e.getSource() == oncFontSizeCB && 
+				userDB.getLoggedInUser().getPreferences().getFontSize() != (Integer) oncFontSizeCB.getSelectedItem())
+		{
+			ONCUser updateUserReq = new ONCUser(userDB.getLoggedInUser());
+			UserPreferences userPrefs = updateUserReq.getPreferences();
+			userPrefs.setFontSize((Integer)oncFontSizeCB.getSelectedItem());
+			
+			String response = UserDB.getInstance().update(this, updateUserReq);
+			if(!response.equals("UDATED_USER"))
+			{
+				//we have a failure
+			}
+		}
 		else if(e.getSource() == barcodeCkBox)
 			pdGVs.setIncludeBarcodeOnLabels(barcodeCkBox.isSelected());
 		else if(e.getSource() == barcodeCB && pdGVs.getBarcodeCode() != barcodeCB.getSelectedItem())
 			pdGVs.setBarcode( (Barcode) barcodeCB.getSelectedItem());
 		else if(e.getSource() == wishAssigneeFilterDefaultCB &&
-				pdGVs.getUser().getPreferences().getWishAssigneeFilter() != wishAssigneeFilterDefaultCB.getSelectedIndex())
+				userDB.getLoggedInUser().getPreferences().getWishAssigneeFilter() != wishAssigneeFilterDefaultCB.getSelectedIndex())
 		{
-			ONCUser updateUserReq = new ONCUser(pdGVs.getUser());
+			ONCUser updateUserReq = new ONCUser(userDB.getLoggedInUser());
 			UserPreferences userPrefs = updateUserReq.getPreferences();
 			userPrefs.setWishAssigneeFilter(wishAssigneeFilterDefaultCB.getSelectedIndex());
 			
@@ -434,9 +467,9 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 				
 		}
 		else if(e.getSource() == fdnsFilterDefaultCB &&
-				pdGVs.getUser().getPreferences().getFamilyDNSFilter() != fdnsFilterDefaultCB.getSelectedIndex())
+				userDB.getUserPreferences().getFamilyDNSFilter() != fdnsFilterDefaultCB.getSelectedIndex())
 		{
-			ONCUser updateUserReq = new ONCUser(pdGVs.getUser());
+			ONCUser updateUserReq = new ONCUser(userDB.getLoggedInUser());
 			UserPreferences userPrefs = updateUserReq.getPreferences();
 			userPrefs.setFamilyDNSFilter(fdnsFilterDefaultCB.getSelectedIndex());
 			
@@ -458,16 +491,20 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		else if(dbe.getSource() != this && (dbe.getType().equals("UPDATED_USER") || 
 				dbe.getType().equals("CHANGED_USER")))	
 		{
-			//verify one of the user preferences has changed
-			ONCUser user = pdGVs.getUser();
-			if(user != null && 
-				(user.getPreferences().getWishAssigneeFilter() != wishAssigneeFilterDefaultCB.getSelectedIndex() ||
-				 user.getPreferences().getFamilyDNSFilter() != fdnsFilterDefaultCB.getSelectedIndex()))
+			//verify one of the user preferences has changed for the current user
+			ONCUser updatedUser = (ONCUser) dbe.getObject();
+			if(updatedUser != null && userDB.getLoggedInUser().getID() == updatedUser.getID() &&
+				(updatedUser.getPreferences().getWishAssigneeFilter() != wishAssigneeFilterDefaultCB.getSelectedIndex() ||
+				 updatedUser.getPreferences().getFamilyDNSFilter() != fdnsFilterDefaultCB.getSelectedIndex()) ||
+				 updatedUser.getPreferences().getFontSize() != (Integer)oncFontSizeCB.getSelectedItem())
 			{
 				display();
-				wishAssigneeFilterDefaultCB.setEnabled(true);
-				fdnsFilterDefaultCB.setEnabled(true);
 			}
+			
+			//we have a user, so enable changing preferences
+			oncFontSizeCB.setEnabled(true);
+			wishAssigneeFilterDefaultCB.setEnabled(true);
+			fdnsFilterDefaultCB.setEnabled(true);
 		}
 	} 
 	

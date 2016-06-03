@@ -134,8 +134,9 @@ public class DatabaseManager extends ONCDatabase
 		today.setTime(oncGVs.getTodaysDate());
 		
 		//ask the user to confirm the add of the new year
+		UserDB userDB = UserDB.getInstance();
     	String confirmMssg = String.format("<html>%s, please confirm you want to add<br>the %d year to the ONC Server</html>", 
-    			oncGVs.getUser().getFirstname(), today.get(Calendar.YEAR));
+    			userDB.getLoggedInUser().getFirstname(), today.get(Calendar.YEAR));
     	
     	Object[] options= {"Cancel", "Add " + today.get(Calendar.YEAR) };
 		JOptionPane confirmOP = new JOptionPane(confirmMssg, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION,

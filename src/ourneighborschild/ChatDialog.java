@@ -113,7 +113,7 @@ public class ChatDialog extends JDialog implements ActionListener, DatabaseListe
     	onlineUserList = new ArrayList<ONCUser>();
 		for(ONCUser onlineuser:oncUserDB.getOnlineUsers())
 		{
-			if(onlineuser.getClientID() != gvs.getUser().getClientID())	//can't chat with yourself
+			if(onlineuser.getClientID() != oncUserDB.getLoggedInUser().getClientID())	//can't chat with yourself
 			{
 				onlineUserList.add(onlineuser);
 //				chattersCBM.addElement(onlineuser.toString());
@@ -256,7 +256,7 @@ public class ChatDialog extends JDialog implements ActionListener, DatabaseListe
 //		chatTargetClientID = onlineUserList.get(chattersCB.getSelectedIndex()-1).getClientID();
 		chatTargetClientID = ((ONCUser) chattersCBM.getSelectedItem()).getClientID();
 		
-		ChatMessage reqMssg = new ChatMessage(gvs.getUser().getClientID(), chatTargetClientID);
+		ChatMessage reqMssg = new ChatMessage(oncUserDB.getLoggedInUser().getClientID(), chatTargetClientID);
 		
 		String response = chatMgr.requestChat(this,reqMssg);
 		
@@ -274,7 +274,7 @@ public class ChatDialog extends JDialog implements ActionListener, DatabaseListe
 	
 	void sendChatMessage(String message)
 	{	
-		ChatMessage chatMssg = new ChatMessage(gvs.getUser().getClientID(), chatTargetClientID, message);
+		ChatMessage chatMssg = new ChatMessage(oncUserDB.getLoggedInUser().getClientID(), chatTargetClientID, message);
 		String response = chatMgr.sendMessage(this,chatMssg);
 		
 		if(response.equals("CHAT_MSSG_SENT"))
@@ -288,7 +288,7 @@ public class ChatDialog extends JDialog implements ActionListener, DatabaseListe
 		//when the dialog closes, send an end_chat message to the chat partner if chat state wasn't idle
 		if(chatState != ChatState.IDLE)
 		{
-			ChatMessage endChat = new ChatMessage(gvs.getUser().getClientID(), chatTargetClientID, "");
+			ChatMessage endChat = new ChatMessage(oncUserDB.getLoggedInUser().getClientID(), chatTargetClientID, "");
 		
 			String response = chatMgr.endChat(this, endChat);
 			if(response.equals("CHAT_END_SENT"))
@@ -303,7 +303,7 @@ public class ChatDialog extends JDialog implements ActionListener, DatabaseListe
 		//send message back to requester that chat accepted
 		String response = "SERVER_COMMUNICATION_ERROR";
 				
-		ChatMessage retMssg = new ChatMessage(gvs.getUser().getClientID(), chatTargetClientID);
+		ChatMessage retMssg = new ChatMessage(oncUserDB.getLoggedInUser().getClientID(), chatTargetClientID);
 			
 		response = chatMgr.acceptChat(this, retMssg);		
 		if(response.equals("CHAT_ACCEPTED_SENT"))
@@ -332,7 +332,7 @@ public class ChatDialog extends JDialog implements ActionListener, DatabaseListe
 		//send message back to requester that chat accepted
 		String response = "SERVER_COMMUNICATION_ERROR";
 				
-		ChatMessage retMssg = new ChatMessage(gvs.getUser().getClientID(), chatTargetClientID);
+		ChatMessage retMssg = new ChatMessage(oncUserDB.getLoggedInUser().getClientID(), chatTargetClientID);
 			
 		response = chatMgr.rejectChat(this, retMssg);		
 		if(response.equals("CHAT_END_SENT"))
@@ -391,7 +391,7 @@ public class ChatDialog extends JDialog implements ActionListener, DatabaseListe
 		{
 			if(!dataTF.getText().isEmpty())
 			{
-				sendChatMessage(gvs.getUserFNLI() + ": " + dataTF.getText());
+				sendChatMessage(oncUserDB.getUserFNLI() + ": " + dataTF.getText());
 				dataTF.setText("");
 			}
 		}

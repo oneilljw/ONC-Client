@@ -178,14 +178,14 @@ public class OurNeighborsChild
 		
 		//if we get here, the server has authenticated this client's userID and password
 		//must check to see if the password needs to be changed, if so, force the change
-		ONCUser user = oncGVs.setUser(authDlg.getUser());
+		ONCUser user = UserDB.getInstance().setLoggedInUser(authDlg.getUser());
 		if(user.changePasswordRqrd() && !dlgManager.onChangePassword())
 			System.exit(0);
 		
-		if(oncGVs.getUser().getFirstname().isEmpty())
+		if(user.getFirstname().isEmpty())
     		oncFamilyPanel.setMssg("Welcome to Our Neighbor's Child!", true);
     	else
-    		oncFamilyPanel.setMssg(oncGVs.getUser().getFirstname() + ", welcome to " +
+    		oncFamilyPanel.setMssg(user.getFirstname() + ", welcome to " +
     								"Our Neighbor's Child!", true);
 		
 		//Connected & logged in to server
@@ -194,7 +194,6 @@ public class OurNeighborsChild
 		
         if(user.getPermission() == UserPermission.Sys_Admin)	//Superuser privileges
         {
-        	oncGVs.setUserPermission(UserPermission.Sys_Admin);
         	dlgManager.setEnabledAdminPrivileges(true);
         	oncMenuBar.setVisibleAdminFunctions(true);
         	oncMenuBar.setVisibleSpecialImports(true);
@@ -202,12 +201,9 @@ public class OurNeighborsChild
         }
         else if(user.getPermission() == UserPermission.Admin)
         {
-        	oncGVs.setUserPermission(UserPermission.Admin);
         	oncMenuBar.setVisibleAdminFunctions(true);
         	dlgManager.setEnabledAdminPrivileges(true);
         }
-        else
-        	oncGVs.setUserPermission(UserPermission.General);
      
         //get database years from server to set the data menu item for user to select and get user db so 
         //a chat can start

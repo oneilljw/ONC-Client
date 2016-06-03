@@ -84,7 +84,7 @@ public class StoplightPanel extends JPanel implements ActionListener, DatabaseLi
 			//user changed stop light, update ONCEntity
 			e.setStoplightPos(slDlg.getStoplightPos());
 			e.setStoplightMssg(slDlg.getStoplightMssg());
-			e.setStoplightChangedBy(GlobalVariables.getUserLNFI());
+			e.setStoplightChangedBy(UserDB.getInstance().getUserLNFI());
 			
 			//notify data base of update
 			db.update(this, e);

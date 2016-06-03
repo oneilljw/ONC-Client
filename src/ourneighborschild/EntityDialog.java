@@ -20,6 +20,7 @@ public abstract class EntityDialog extends JDialog implements ActionListener, Da
 	
 	//database references
 	protected GlobalVariables gvs;
+	protected UserDB userDB;
 	
 	//listeners
 	protected FieldChangeListener dcListener;
@@ -42,6 +43,7 @@ public abstract class EntityDialog extends JDialog implements ActionListener, Da
 		this.setTitle("Our Neighbor's Child - Driver Management");
 		
 		gvs = GlobalVariables.getInstance();	//Reference to the one global variable object
+		userDB = UserDB.getInstance();
 		
 		dcListener = new FieldChangeListener();
 		

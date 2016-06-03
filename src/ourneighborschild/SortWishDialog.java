@@ -60,7 +60,6 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 	private static final Integer MAXIMUM_ON_NUMBER = 9999;
 	private static final int MAX_LABEL_LINE_LENGTH = 26;
 	
-	private FamilyDB fDB;
 	private ChildDB cDB;
 	private ChildWishDB cwDB;
 	private PartnerDB orgs;
@@ -94,14 +93,12 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		this.setTitle("Our Neighbor's Child - Wish Management");
 		
 		//set up the data base references
-		fDB = FamilyDB.getInstance();
 		cDB = ChildDB.getInstance();
 		cwDB = ChildWishDB.getInstance();
 		orgs = PartnerDB.getInstance();
 		cat = ONCWishCatalog.getInstance();
 		
 		//set up data base listeners
-		UserDB userDB = UserDB.getInstance();
 		if(userDB != null)
 			userDB.addDatabaseListener(this);
 		if(cDB != null)
@@ -611,6 +608,23 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		bIgnoreCBEvents = false;
 	}
 	
+	void updateUserPreferences(ONCUser u)
+	{
+		//if there was a change to user preferences and the assignee filter is set to "Any" or
+		//"Unassigned" and the new preference is different, update the filter selection and rebuild
+		//the table
+		if(assignCB.getSelectedIndex() < 2 &&
+			assignCB.getSelectedIndex() != u.getPreferences().getWishAssigneeFilter())
+		{
+			assignCB.removeActionListener(this);
+			assignCB.setSelectedIndex(u.getPreferences().getWishAssigneeFilter());
+			sortAssigneeID = assignCB.getSelectedIndex() == 0 ? 0 : -1;
+			assignCB.addActionListener(this);
+			
+			buildTableList(false);
+		}
+	}
+	
 	void onPrintReceivingCheckSheets()
 	{
 		if(sortTable.getSelectedRowCount() > 0)	//Only print selected rows
@@ -998,7 +1012,8 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		
 		assignCB.removeActionListener(this);
 		//set the user preference for assignee filter default setting
-		assignCB.setSelectedIndex(gvs.getUser().getPreferences().getWishAssigneeFilter());
+		UserPreferences uPrefs = userDB.getUserPreferences();
+		assignCB.setSelectedIndex(uPrefs.getWishAssigneeFilter());
 		sortAssigneeID = assignCB.getSelectedIndex() == 0 ? 0 : -1;
 		assignCB.addActionListener(this);
 		
@@ -1028,9 +1043,9 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 			ds.setDate(sortStartCal.getTime());	//Will not trigger the event handler
 		}
 		
-		if(!sdf.format(sortEndCal.getTime()).equals(sdf.format(gvs.getTomorrowsDate())))
+		if(!sdf.format(sortEndCal.getTime()).equals(sdf.format(getTomorrowsDate())))
 		{
-			sortEndCal.setTime(gvs.getTomorrowsDate());
+			sortEndCal.setTime(getTomorrowsDate());
 			de.setDate(sortEndCal.getTime());	//Will not trigger the event handler
 		}
 			
@@ -1138,9 +1153,18 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		{			
 			updateWishSelectionList();
 		}
-		else if(dbe.getType().contains("_USER"))
+		else if(dbe.getType().contains("ADDED_USER") || dbe.getType().contains("UPDATED_USER"))
 		{
 			updateUserList();
+			
+			ONCUser updatedUser = (ONCUser)dbe.getObject();
+ 			if(userDB.getLoggedInUser().getID() == updatedUser.getID())
+				updateUserPreferences(updatedUser);
+		}
+		else if(dbe.getType().contains("CHANGED_USER"))
+		{
+			//new user logged in, update preferences used by this dialog
+			updateUserPreferences((ONCUser) dbe.getObject());
 		}
 	}
 	

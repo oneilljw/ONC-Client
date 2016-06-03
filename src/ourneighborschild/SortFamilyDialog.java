@@ -71,6 +71,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	
 	public enum FamilyStatus {Empty, InfoVerified, GiftsSelected, GiftsReveived, GiftsVerified, Packaged}
 	
+	
 	//Unique gui elements for Sort Family Dialog
 	private JComboBox oncCB, batchCB, regionCB, dnsCB, zipCB, fstatusCB, streetCB, lastnameCB;
 	private JComboBox changedByCB, stoplightCB, dstatusCB, mealstatusCB, giftCardCB;
@@ -105,10 +106,10 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		if(regions != null)
 			regions.addDatabaseListener(this);
 		
-		UserDB userDB = UserDB.getInstance();
 		if(userDB != null)
 			userDB.addDatabaseListener(this);
-		
+
+		//listen for CHANGED_USER events
 		if(gvs != null)
 			gvs.addDatabaseListener(this);  //listen for preferences changes
 
@@ -429,7 +430,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 					!f.getDNSCode().equals(changeDNSCB.getSelectedItem()))
 			{
 				String newDNSCode = (String) changeDNSCB.getSelectedItem();
-				String chngdBy = GlobalVariables.getUserLNFI();
+				String chngdBy = userDB.getUserLNFI();
 				
 				f.setDNSCode(newDNSCode);
 				f.setChangedBy(chngdBy);	//Set the changed by field to current user
@@ -446,7 +447,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 					f.setNumOfBags(0);
 				
 				f.setFamilyStatus(changeFStatusCB.getSelectedIndex()-1);
-				f.setChangedBy(GlobalVariables.getUserLNFI());	//Set the changed by field to current user
+				f.setChangedBy(userDB.getUserLNFI());	//Set the changed by field to current user
 
 				bFamilyChangeDetected = true;
 			}
@@ -460,7 +461,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 						changeDStatusCB.getSelectedIndex()-1,
 						deliveryDB.getDeliveredBy(f.getDeliveryID()),
 						"Delivery Status Changed",
-						GlobalVariables.getUserLNFI(),
+						userDB.getUserLNFI(),
 						Calendar.getInstance());
 
 				String response = deliveryDB.add(this, reqDelivery);
@@ -507,17 +508,17 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		return bDataChanged;
 	}
 	
-	void updateUserPreferences()
+	void updateUserPreferences(ONCUser u)
 	{
 		//if there was a change to user preferences and the DNS filter is set to "Any" or
 		//"None" and the new preference is different, update the filter selection and rebuild
 		//the table
 		if(dnsCB.getSelectedIndex() < 2 &&
-			dnsCB.getSelectedIndex() != gvs.getFamilyDNSFilterDefaultIndex())
+			dnsCB.getSelectedIndex() != u.getPreferences().getFamilyDNSFilter())
 		{
 			dnsCB.removeActionListener(this);
-			dnsCB.setSelectedIndex(gvs.getFamilyDNSFilterDefaultIndex());
-			sortDNSCode = dnsCodes[gvs.getFamilyDNSFilterDefaultIndex()];
+			dnsCB.setSelectedIndex(u.getPreferences().getFamilyDNSFilter());
+			sortDNSCode = dnsCodes[u.getPreferences().getFamilyDNSFilter()];
 			dnsCB.addActionListener(this);
 			
 			buildTableList(false);
@@ -1091,7 +1092,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		{
 			printCB.setEnabled(true);
 			
-			if(GlobalVariables.isUserAdmin())
+			if(userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0 )
 			{
 				exportCB.setEnabled(true);
 				emailCB.setEnabled(true);
@@ -1124,8 +1125,9 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		batchCB.addActionListener(this);
 		
 		dnsCB.removeActionListener(this);
-		dnsCB.setSelectedIndex(gvs.getFamilyDNSFilterDefaultIndex());
-		sortDNSCode = dnsCodes[gvs.getFamilyDNSFilterDefaultIndex()];
+		UserPreferences uPrefs = userDB.getUserPreferences();
+		dnsCB.setSelectedIndex(uPrefs.getFamilyDNSFilter());
+		sortDNSCode = dnsCodes[uPrefs.getFamilyDNSFilter()];
 		dnsCB.addActionListener(this);
 		
 		fstatusCB.removeActionListener(this);
@@ -1896,13 +1898,16 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		}
 		else if(dbe.getType().contains("ADDED_USER") || dbe.getType().contains("UPDATED_USER"))
 		{
+			ONCUser updatedUser = (ONCUser)dbe.getObject();
 			updateUserList();
-			updateUserPreferences();
+			
+			if(userDB.getLoggedInUser().getID() == updatedUser.getID())
+				updateUserPreferences(updatedUser);
 		}
 		else if(dbe.getType().contains("CHANGED_USER"))
 		{
 			//new user logged in, update preferences used by this dialog
-			updateUserPreferences();
+			updateUserPreferences((ONCUser)dbe.getObject());
 		}
 	}
 	

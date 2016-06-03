@@ -42,6 +42,7 @@ public class PartnerDB extends ONCSearchableDatabase
 	private ArrayList<ONCPartner> orgsAL;	//The list of Organizations
 //	private ArrayList<String> cOrgs;	//The list of confirmed Organizations
 	private GlobalVariables orgGVs;
+	private UserDB userDB;
 	
 	private PartnerDB()
 	{
@@ -50,6 +51,7 @@ public class PartnerDB extends ONCSearchableDatabase
 		orgsAL = new ArrayList<ONCPartner>();
 //		cOrgs = new ArrayList<String>();
 		orgGVs = GlobalVariables.getInstance();
+		userDB = UserDB.getInstance();
 	}
 	
 	public static PartnerDB getInstance()
@@ -119,7 +121,7 @@ public class PartnerDB extends ONCSearchableDatabase
 			//A change from a previous status to confirmed has occurred, add to the confirmed array
 			o.setStatus(STATUS_CONFIRMED);
 			o.setDateChanged(orgGVs.getTodaysDate());
-			o.setStoplightChangedBy(GlobalVariables.getUserLNFI());
+			o.setStoplightChangedBy(userDB.getUserLNFI());
 //			addConfirmedOrganization(o.getName());
 		}
 		else if(o.getStatus() == STATUS_CONFIRMED && newstatus != STATUS_CONFIRMED)
@@ -131,7 +133,7 @@ public class PartnerDB extends ONCSearchableDatabase
 			{
 				o.setStatus(newstatus);
 				o.setDateChanged(orgGVs.getTodaysDate());
-				o.setStoplightChangedBy(GlobalVariables.getUserLNFI());
+				o.setStoplightChangedBy(userDB.getUserLNFI());
 //				deleteConfirmedOrganization(o.getName());
 			}		
 		}
@@ -139,7 +141,7 @@ public class PartnerDB extends ONCSearchableDatabase
 		{
 			o.setStatus(newstatus);
 			o.setDateChanged(orgGVs.getTodaysDate());
-			o.setStoplightChangedBy(GlobalVariables.getUserLNFI());
+			o.setStoplightChangedBy(userDB.getUserLNFI());
 		}
 			
 		return o.getStatus();

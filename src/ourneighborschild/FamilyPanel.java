@@ -78,6 +78,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private AdultDB adultDB;
 	private DeliveryDB deliveryDB;
 	private ONCRegions regions;
+	private UserDB userDB;
 	
 	private ONCFamily currFam;	//The panel needs to know which family is being displayed
 	private ONCChild currChild;	//The panel needs to know which child is being displayed
@@ -126,6 +127,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		adultDB = AdultDB.getInstance();
 		deliveryDB = DeliveryDB.getInstance();
 		regions = ONCRegions.getInstance();
+		userDB = UserDB.getInstance();
 		
 		if(dbMgr != null)
 			dbMgr.addDatabaseListener(this);
@@ -139,6 +141,8 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			adultDB.addDatabaseListener(this);
 		if(deliveryDB != null)
 			deliveryDB.addDatabaseListener(this);
+		if(userDB != null)
+			userDB.addDatabaseListener(this);	//font preference updates
 		
 		currFam = null;
 		
@@ -413,7 +417,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         wishlistPane.setToolTipText("Wish suggestions for child from referral");
         SimpleAttributeSet attribs = new SimpleAttributeSet();  
         StyleConstants.setAlignment(attribs , StyleConstants.ALIGN_LEFT);
-        StyleConstants.setFontSize(attribs, gvs.getFontSize());
+        StyleConstants.setFontSize(attribs, userDB.getUserPreferences().getFontSize());
         StyleConstants.setSpaceBelow(attribs, 3);
         wishlistPane.setParagraphAttributes(attribs, true);
   	   	wishlistPane.setEditable(false);
@@ -426,7 +430,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         oncNotesPane = new JTextPane();
         oncNotesPane.setToolTipText("Family specific notes entered by ONC elf");
         StyleConstants.setAlignment(attribs , StyleConstants.ALIGN_LEFT);
-        StyleConstants.setFontSize(attribs, gvs.getFontSize());
+        StyleConstants.setFontSize(attribs, userDB.getUserPreferences().getFontSize());
         StyleConstants.setSpaceBelow(attribs, 3);
         oncNotesPane.setParagraphAttributes(attribs,true);             
 	   	oncNotesPane.setEditable(false);
@@ -439,7 +443,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         oncDIPane = new JTextPane();
         oncDIPane.setToolTipText("Family specific delivery instructions entered by ONC elf");
         StyleConstants.setAlignment(attribs , StyleConstants.ALIGN_LEFT);
-        StyleConstants.setFontSize(attribs, gvs.getFontSize());
+        StyleConstants.setFontSize(attribs, userDB.getUserPreferences().getFontSize());
         StyleConstants.setSpaceBelow(attribs, 3);
         oncDIPane.setParagraphAttributes(attribs,true);             
 	   	oncDIPane.setEditable(false);
@@ -550,7 +554,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 
 	void setEditableGUIFields(boolean tf)
 	{
-		if(GlobalVariables.isUserAdmin())
+		if(userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0)
 		{
 			oncDNScode.setEditable(tf);
 			HOHFirstName.setEditable(tf);
@@ -749,8 +753,9 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		nav.btnNextSetEnabled(true);
 		nav.btnPreviousSetEnabled(true);
 		
-		if(GlobalVariables.isUserAdmin())	//show personal information for family
+		if(userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0)
 		{	
+			//show personal information for family since user is Administrator or higher
 			HOHFirstName.setText(currFam.getHOHFirstName());
 			HOHLastName.setText(currFam.getHOHLastName());
 			
@@ -838,7 +843,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			childTableModel.fireTableDataChanged();
 			childTable.setRowSelectionInterval(cn, cn);
 	    	childTable.requestFocus();
-			if(GlobalVariables.isUserAdmin())
+			if(userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0)
 				menuBar.setEnabledMarkorDeleteChildMenuItem(true);	//Enable Delete Child Menu Bar item
 		}
 		else
@@ -895,7 +900,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		if(c == null)	
 			return;	//No children to highlight
 		
-		else if(GlobalVariables.isUserAdmin())	//Show all data
+		else if(userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0)	//Show all data
 		{	
 			String childfn = c.getChildFirstName().toLowerCase();
 			String childln = c.getChildLastName().toLowerCase();
@@ -973,7 +978,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	****************************************************************************************************/
 	void checkAndUpdateFamilyData(ONCFamily family)
 	{
-		if(!GlobalVariables.isUserAdmin())	//must have administrative privilege to make changes to families
+		if(userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) < 0)	//must have administrative privilege to make changes to families
 			return;
 
 		//make a copy of the current family object to create the request
@@ -1009,7 +1014,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		{
 //			System.out.println(String.format("Family Panel - Family Change Detected, Field: %d", cf));
 			
-			fam.setChangedBy(GlobalVariables.getUserLNFI());
+			fam.setChangedBy(userDB.getUserFNLI());
 			lblChangedBy.setText(fam.getChangedBy());	//Set the changed by field to current user
 			
 			String response = fDB.update(this, fam);
@@ -1065,7 +1070,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		setEnabledButtons(true);
 		setEditableGUIFields(true);
 
-		if(GlobalVariables.isUserAdmin())
+		if(userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0)
 			setRestrictedEnabledButtons(true);
     }
 	
@@ -1124,7 +1129,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		
 			//determine child's first name, is it protected? Get it from table
 			String childFN;
-			if(GlobalVariables.isUserAdmin())
+			if(userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0)
 				childFN = currChild.getChildFirstName();
 			else
 				childFN = "Child " + Integer.toString(childTable.getSelectedRow() + 1);
@@ -1231,24 +1236,28 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			editAltAddress();
 		}
 		else if(e.getSource() == housenumTF && !bFamilyDataChanging && 
-				!housenumTF.getText().equals(currFam.getHouseNum()) && GlobalVariables.isUserAdmin()) 
+				!housenumTF.getText().equals(currFam.getHouseNum()) && 
+				userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0) 
 		{
 			checkAndUpdateFamilyData(currFam);
 			
 		}
 		else if(e.getSource() == Street && !bFamilyDataChanging && 
-								!Street.getText().equals(currFam.getStreet()) && GlobalVariables.isUserAdmin()) 
+								!Street.getText().equals(currFam.getStreet()) &&
+								userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0) 
 		{
 			checkAndUpdateFamilyData(currFam);	
 		}
 		else if(e.getSource() == City && !bFamilyDataChanging &&
-								!City.getText().equals(currFam.getCity()) && GlobalVariables.isUserAdmin()) 
+								!City.getText().equals(currFam.getCity()) && 
+								userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0) 
 		{
 			checkAndUpdateFamilyData(currFam);
 			
 		}
 		else if(e.getSource() == ZipCode && !bFamilyDataChanging &&
-				!ZipCode.getText().equals(currFam.getZipCode()) && GlobalVariables.isUserAdmin()) 
+				!ZipCode.getText().equals(currFam.getZipCode()) &&
+				userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0) 
 		{
 			checkAndUpdateFamilyData(currFam);
 		}
@@ -1445,10 +1454,10 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			String mssg;
 			String year = (String) dbe.getObject();
 			
-			if(gvs.getUser().getFirstname().equals(""))
+			if(userDB.getLoggedInUser().getFirstname().equals(""))
 				mssg = year + " season data has been loaded";
 			else
-				mssg = gvs.getUser().getFirstname() + ", " + year + " season data has been loaded";
+				mssg = userDB.getLoggedInUser().getFirstname() + ", " + year + " season data has been loaded";
 			
     		setMssg(mssg, true);
     		
@@ -1627,9 +1636,9 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         	ONCChild child = ctAL.get(row);
 
         	if(col == FIRST_NAME_COL)
-        		return GlobalVariables.isUserAdmin() ? child.getChildFirstName() : "Child " + Integer.toString(row+1);
+        		return userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0 ? child.getChildFirstName() : "Child " + Integer.toString(row+1);
         	else if(col == LAST_NAME_COL)
-        		return GlobalVariables.isUserAdmin() ? child.getChildLastName() : "";
+        		return userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0 ? child.getChildLastName() : "";
         	else if(col == DOB_COL)
         		return child.getChildDOBString("M/d/yy");
         	else if(col == GENDER_COL)

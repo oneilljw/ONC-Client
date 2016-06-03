@@ -68,8 +68,8 @@ public class AddUserDialog extends InfoDialog
 		UserAccess userAccess = (UserAccess) accessCB.getSelectedItem();
 		UserPermission userPermission = (UserPermission) permissionCB.getSelectedItem();
 		String pw = "********";
-		reqAddUser = new ONCServerUser(0, today, GlobalVariables.getUserLNFI(), 3, "New user added",
-				GlobalVariables.getUserLNFI(), tf[FIRST_NAME_INDEX].getText(), tf[LAST_NAME_INDEX].getText(),
+		reqAddUser = new ONCServerUser(0, today, userDB.getUserLNFI(), 3, "New user added",
+				userDB.getUserLNFI(), tf[FIRST_NAME_INDEX].getText(), tf[LAST_NAME_INDEX].getText(),
 				UserStatus.Change_PW, userAccess, userPermission, tf[USERID_INDEX].getText(), pw, 0,
 				today, true, tf[ORG_INDEX].getText(), tf[TITLE_INDEX].getText(), tf[EMAIL_INDEX].getText(), tf[PHONE_INDEX].getText(), -1);
 		

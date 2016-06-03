@@ -42,13 +42,12 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 	private Calendar thanksgivingDeadline, decemberDeadline;
 	private Calendar familyEditDeadline;
 	private String warehouseAddress;
-	private transient String[] fontSizes = {"8", "10", "12", "13", "14", "16", "18"};
-	private transient static UserPermission user_permission;
+	
 	private transient String[] sGrwth_pcts = {"5%", "10%", "15%", "20%", "25%"};
 	private transient int[] nGrwth_pcts = {5,10,15,20,25};
-	private transient int fontIndex, startONCNum, ytyGrwthIndex;
+	private transient int startONCNum, ytyGrwthIndex;
 	private static ImageIcon imageIcons[];
-	private static ONCUser user;
+
 	private static String version;
 	private static WebsiteStatus websiteStatus;
 	private static boolean bBarcodeOnOrnmament;
@@ -166,10 +165,9 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 		imageIcons[44] = createImageIcon("Green_tag.png", "Gift Label");
 		
 		warehouseAddress = "6476+Trillium+House+Lane+Centreville,VA";
-		fontIndex = 3;
 		startONCNum = 100;
 		ytyGrwthIndex = 2;
-		user_permission = UserPermission.General;
+//		user_permission = UserPermission.General;
 		version = "N/A";
 		bBarcodeOnOrnmament = false;
 		barcode = Barcode.UPCE;
@@ -180,21 +178,6 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 	static JFrame getFrame() { return oncFrame; }
 	Date getTodaysDate() { return Calendar.getInstance().getTime(); }
 	
-	Date getTomorrowsDate()
-	{
-		Calendar tomorrow = Calendar.getInstance();
-		
-		if(user_permission.compareTo(UserPermission.Admin) > 0) 	//If superuser, return today set in preference dialog		
-			tomorrow = oncDateToday;
-		
-		tomorrow.add(Calendar.DATE, 1);
-		tomorrow.set(Calendar.HOUR_OF_DAY, 0);
-	    tomorrow.set(Calendar.MINUTE, 0);
-	    tomorrow.set(Calendar.SECOND, 0);
-	   	tomorrow.set(Calendar.MILLISECOND, 0);
-		return tomorrow.getTime();
-	}
-	
 	static int getCurrentSeason() { return oncSeasonStartDate.get(Calendar.YEAR); }
 	int getCurrentYear() { return oncDateToday.get(Calendar.YEAR); }
 	public Date getDeliveryDate() { return oncDeliveryDate.getTime(); }
@@ -204,30 +187,11 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 	public Date getFamilyEditDeadline() { return familyEditDeadline.getTime(); }
 	public Date getSeasonStartDate() { return oncSeasonStartDate.getTime(); }
 	public String getWarehouseAddress() { return warehouseAddress; }
-	int getStartONCNum() { return startONCNum; }
-	int getFontSize() { return Integer.parseInt(fontSizes[fontIndex]); }
-	public int getFontIndex() { return fontIndex; }
+	int getStartONCNum() { return startONCNum; };
 	int getYTYGrwthIndex() { return ytyGrwthIndex; }
-	int getYTYGrwthPct() {return nGrwth_pcts[ytyGrwthIndex]; }
-	String[] getFontSizes() { return fontSizes; }
+	int getYTYGrwthPct() { return nGrwth_pcts[ytyGrwthIndex]; } 
 	String[] getGrwthPcts() { return sGrwth_pcts; }
-	ONCUser getUser() {return user; }
-	static String getUserLNFI()
-	{
-		if(user.getFirstname().isEmpty())
-			return user.getLastname();
-		else
-			return user.getLastname() + ", " + user.getFirstname().charAt(0);
-	}
-	String getUserFNLI()
-	{
-		if(user.getFirstname().isEmpty())
-			return user.getLastname();
-		else
-			return user.getFirstname() + " " + user.getLastname().charAt(0);
-	}
-	static boolean isUserAdmin() {return user_permission.compareTo(UserPermission.Admin) >= 0; }
-	boolean isUserSuperUser() {return user_permission == UserPermission.Sys_Admin; }
+
 	public ImageIcon getImageIcon(int icon){ return imageIcons[icon]; }
 	public ImageIcon getImageIcon(String description)
 	{
@@ -263,8 +227,8 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 	boolean includeBarcodeOnLabels() { return bBarcodeOnOrnmament; }
 	Barcode getBarcodeCode() { return barcode; }
 	Point getAveryLabelOffset() { return averyLabelOffsetPoint; }
-	int getFamilyDNSFilterDefaultIndex() { return user != null ? user.getPreferences().getFamilyDNSFilter() : 0; }
-	int getWishAssigneeFilterDefaultIndex() { return user != null ? user.getPreferences().getWishAssigneeFilter() : 0; }
+//	int getFamilyDNSFilterDefaultIndex() { return user != null ? user.getPreferences().getFamilyDNSFilter() : 0; }
+//	int getWishAssigneeFilterDefaultIndex() { return user != null ? user.getPreferences().getWishAssigneeFilter() : 0; }
 	
 	//setters globally used - need to update at the server and broadcast
 	public void setDeliveryDate(Date dd) { oncDeliveryDate.setTime(dd); }
@@ -280,26 +244,7 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 	
 	//Setters locally used
 	void setFrame(JFrame frame) { oncFrame = frame; }
-	void setTodaysDate(Date today) { oncDateToday.setTime(today);}
-	public void setFontIndex(Object source, int fi) 
-	{ 
-		if(fontIndex != fi)
-		{
-			fontIndex = fi; 
-			this.fireDataChanged(source, "UPDATED_FONT_SIZE", Integer.parseInt(fontSizes[fontIndex]));
-		}
-	}
 	void setImageIcons(ImageIcon[] ii) {imageIcons = ii; }
-	ONCUser setUser(ONCUser u) 
-	{
-		if(user == null || user.getID() != u.getID())
-		{
-			user = u;
-			this.fireDataChanged(this, "CHANGED_USER", user);
-		}
-		return user; 
-	}
-	void setUserPermission(UserPermission p) { user_permission = p; }
 	void setYTYGrowthIndex(int index) { ytyGrwthIndex = index; }
 	void setStartONCNum(int startoncnum) { startONCNum = startoncnum; }
 	void setVersion(String version) { GlobalVariables.version = version; }
@@ -500,28 +445,26 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 		{
 			processUpdatedObject(this, ue.getJson());
 		}
-		else if(ue.getType().equals("UPDATED_USER"))
-		{
-			processUpdatedUser(this, ue.getJson());
-		}
+//		else if(ue.getType().equals("UPDATED_USER"))
+//		{
+//			processUpdatedUser(this, ue.getJson());
+//		}
 		else if(ue.getType().equals("UPDATED_WEBSITE_STATUS"))
 		{
 			processUpdatedWebsiteStatus(this, ue.getJson());
 		}
 	}
 	
-	void processUpdatedUser(Object source, String updatedUserJson)
-	{
-		//since this database holds the currently signed in user, if the user is updated, need to 
-		//update here
-		Gson gson = new Gson();
-		ONCUser updatedUser = gson.fromJson(updatedUserJson, ONCUser.class);
-		
-		if(updatedUser != null && updatedUser.getID() == user.getID())
-			user = updatedUser;
-		
-		fireDataChanged(source, "UPDATED_USER", updatedUser);
-	}
+//	void processUpdatedUser(Object source, String updatedUserJson)
+//	{
+//		//since this database holds the currently signed in user, if the user is updated, need to 
+//		//update here
+//		Gson gson = new Gson();
+//		ONCUser updatedUser = gson.fromJson(updatedUserJson, ONCUser.class);
+//		
+//		if(updatedUser != null && updatedUser.getID() == user.getID())
+//			user = updatedUser;
+//	}
 
 	@Override
 	String update(Object source, ONCObject entity)

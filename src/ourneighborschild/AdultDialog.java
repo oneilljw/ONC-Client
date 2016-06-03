@@ -45,6 +45,7 @@ public class AdultDialog extends JDialog implements ActionListener, EntitySelect
 	private AbstractTableModel dlgTableModel;
 	private JButton btnAdd, btnDelete, btnPrint;
 	private AdultDB adultDB;
+	private UserDB userDB;
 	private ONCFamily currFam;
 	private List<ONCAdult> tableList;
 	
@@ -57,6 +58,8 @@ public class AdultDialog extends JDialog implements ActionListener, EntitySelect
 		adultDB = AdultDB.getInstance();
 		if(adultDB != null)
 			adultDB.addDatabaseListener(this);
+		
+		userDB = UserDB.getInstance();
 		
 		//create the list of adults shown in the table
 		tableList = new ArrayList<ONCAdult>();
@@ -129,7 +132,7 @@ public class AdultDialog extends JDialog implements ActionListener, EntitySelect
 		currFam = fam;
 		tableList = adultDB.getAdultsInFamily(currFam.getID());
 		
-		if(GlobalVariables.isUserAdmin())	//can't add is not administrator or higher permission
+		if(userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0)	//can't add is not administrator or higher permission
 		{
 			btnAdd.setEnabled(true);
 			this.setTitle(String.format("%s Family Other Adults", currFam.getHOHLastName()));
@@ -250,7 +253,7 @@ public class AdultDialog extends JDialog implements ActionListener, EntitySelect
 		int modelRow = dlgTable.getSelectedRow() == -1 ? -1 : 
 						dlgTable.convertRowIndexToModel(dlgTable.getSelectedRow());
 		
-		if(modelRow > -1 && GlobalVariables.isUserAdmin())
+		if(modelRow > -1 && userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0)
 			btnDelete.setEnabled(true);
 		
 		else
@@ -310,7 +313,7 @@ public class AdultDialog extends JDialog implements ActionListener, EntitySelect
         	if(col == ONC_NUM_COL)  
         		return currFam.getONCNum();
         	else if(col == NAME_COL)
-        		return GlobalVariables.isUserAdmin() ? adult.getName() : String.format("Adult %d", row+1);
+        		return userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0 ? adult.getName() : String.format("Adult %d", row+1);
         	else if (col == GENDER_COL)
         		return adult.getGender();
         	else
@@ -330,7 +333,7 @@ public class AdultDialog extends JDialog implements ActionListener, EntitySelect
         public boolean isCellEditable(int row, int col)
         {
         	//Name, Status, Access and Permission are editable
-        	if(col > ONC_NUM_COL && GlobalVariables.isUserAdmin())
+        	if(col > ONC_NUM_COL && userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0)
         		return true;
         	else
         		return false;

@@ -7,12 +7,12 @@ import com.google.gson.Gson;
 public class ChatManager extends ONCDatabase implements ActionListener
 {
 	private static ChatManager instance = null;
-	private GlobalVariables gvs;
+	private UserDB userDB;
 	
 	private ChatManager()
 	{
 		super();
-		gvs = GlobalVariables.getInstance();
+		userDB = UserDB.getInstance();
 	}
 	
 	public static ChatManager getInstance()
@@ -74,7 +74,7 @@ public class ChatManager extends ONCDatabase implements ActionListener
 	void processChatRequest(Object source, ChatMessage reqMssg)
 	{
 		//Determine if the chat request was sent to this user
-		if(reqMssg.getReceiverClientID() == gvs.getUser().getClientID())
+		if(reqMssg.getReceiverClientID() == userDB.getLoggedInUser().getClientID())
 		{
 			//create and display a new chat dialog with the combo box set to the requesting user
 			//and state sent to chat
@@ -121,7 +121,7 @@ public class ChatManager extends ONCDatabase implements ActionListener
 			Gson gson = new Gson();
 			ChatMessage chatMssg = gson.fromJson(ue.getJson(), ChatMessage.class);
 			
-			if(chatMssg.getReceiverClientID() == gvs.getUser().getClientID())	//is this client the chat message target?
+			if(chatMssg.getReceiverClientID() == userDB.getLoggedInUser().getClientID())	//is this client the chat message target?
 			{
 				//The chat command was sent to this client. If it was a chat request, process it in this object.
 				//All other chat commands are sent to the chat dialogs to process

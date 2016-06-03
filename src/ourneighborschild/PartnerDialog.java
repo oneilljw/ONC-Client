@@ -238,7 +238,7 @@ public class PartnerDialog extends EntityDialog
         otherTP.setPreferredSize(new Dimension (264, 100));
         SimpleAttributeSet attribs = new SimpleAttributeSet(); 
         StyleConstants.setAlignment(attribs , StyleConstants.ALIGN_LEFT);
-        StyleConstants.setFontSize(attribs, gvs.getFontSize());
+        StyleConstants.setFontSize(attribs, userDB.getUserPreferences().getFontSize());
         StyleConstants.setSpaceBelow(attribs, 3);
         otherTP.setParagraphAttributes(attribs,true);             
 	   	otherTP.setEditable(true);
@@ -585,7 +585,7 @@ public class PartnerDialog extends EntityDialog
 		if(bCD)	//If an update to partner data (not stop light data) was detected
 		{
 			reqPartner.setDateChanged(gvs.getTodaysDate());
-			reqPartner.setChangedBy(GlobalVariables.getUserLNFI());
+			reqPartner.setChangedBy(userDB.getUserLNFI());
 			
 			String response = partnerDB.update(this, reqPartner);	//notify the database of the change
 			
@@ -702,8 +702,8 @@ public class PartnerDialog extends EntityDialog
 	void onSaveNew()
 	{
 		//construct a new partner from user input	
-		ONCPartner newPartner = new ONCPartner(-1, new Date(), GlobalVariables.getUserLNFI(),
-				3, "Partner Created", GlobalVariables.getUserLNFI(),
+		ONCPartner newPartner = new ONCPartner(-1, new Date(), userDB.getUserLNFI(),
+				3, "Partner Created", userDB.getUserLNFI(),
 				statusCB.getSelectedIndex(), typeCB.getSelectedIndex(),
 				(GiftCollection) collTypeCB.getSelectedItem(), nameTF.getText(), "", 
 				streetnumTF.getText().isEmpty() ? 0 : Integer.parseInt(streetnumTF.getText()),

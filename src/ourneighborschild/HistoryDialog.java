@@ -30,6 +30,8 @@ public abstract class HistoryDialog extends JDialog implements ActionListener, E
 	 */
 	private static final long serialVersionUID = 1L;
 	
+	protected UserDB userDB;
+	
 	protected ONCTable dlgTable;
 	protected JButton btnDelete, btnPrint;
 	
@@ -41,6 +43,9 @@ public abstract class HistoryDialog extends JDialog implements ActionListener, E
 	{
 		super(pf);
 		this.type = type;
+		
+		//reference to the User data base
+		userDB = UserDB.getInstance();
 		
 		//create the history table
 		dlgTable = new ONCTable(createTableModel(), getColumnToolTips(), new Color(240,248,255));
@@ -111,7 +116,7 @@ public abstract class HistoryDialog extends JDialog implements ActionListener, E
 	
 	void setDialogTitle()
 	{
-		if(GlobalVariables.isUserAdmin())
+		if(UserDB.getInstance().getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0)
 			this.setTitle(String.format("%s Family %s History", currFam.getHOHLastName(), type)); 
 		else
 			this.setTitle(String.format("ONC# %s Family %s History", currFam.getONCNum(), type));

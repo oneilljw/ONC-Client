@@ -50,6 +50,7 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 	private static final int SORT_TABLE_VERTICAL_SCROLL_WIDTH = 24;
 
 	protected FamilyDB fDB;
+	protected UserDB userDB;
 	
 	//sort column
 	protected int tableSortCol;
@@ -82,6 +83,8 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 		
 		if(fDB != null)
 			fDB.addDatabaseListener(this);
+		
+		userDB = UserDB.getInstance();
 		
 		//initialize member variables
 		sortONCNum = "";

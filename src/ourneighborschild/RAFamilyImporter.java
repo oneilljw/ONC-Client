@@ -259,7 +259,7 @@ public class RAFamilyImporter extends ONCTableDialog
     	}
 		
 		//add the family to the local family data base -- DOESN'T ALLOW ALT DELIVERY ADDRESS
-		ONCFamily reqAddFam = new ONCFamily(-1, GlobalVariables.getUserLNFI(), "NNA", oncODBNum, batchNum,
+		ONCFamily reqAddFam = new ONCFamily(-1, UserDB.getInstance().getUserLNFI(), "NNA", oncODBNum, batchNum,
 				speakEnglish, language, inputRows.get(7)[2], inputRows.get(7)[3], houseNum,
 				street, "", inputRows.get(7)[8], inputRows.get(7)[10], "", "", "", "", "",
 				processPhoneNumber(inputRows.get(7)[5]), processPhoneNumber(inputRows.get(7)[6]), "",

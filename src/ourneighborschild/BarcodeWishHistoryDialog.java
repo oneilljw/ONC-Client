@@ -53,7 +53,9 @@ public class BarcodeWishHistoryDialog extends ONCTableDialog implements ActionLi
 	private ChildWishDB cwDB;
 	private ONCWishCatalog cat;
 	private PartnerDB partnerDB;
+	private UserDB userDB;
 	
+	private ONCChildWish cw;
 	private List<ONCChildWish> stAL;
 		
 	public BarcodeWishHistoryDialog(JFrame pf)
@@ -71,6 +73,7 @@ public class BarcodeWishHistoryDialog extends ONCTableDialog implements ActionLi
 			cwDB.addDatabaseListener(this);
 		cat = ONCWishCatalog.getInstance();
 		partnerDB = PartnerDB.getInstance();
+		userDB = UserDB.getInstance();
 		
 		stAL = new ArrayList<ONCChildWish>();
 		
@@ -186,7 +189,14 @@ public class BarcodeWishHistoryDialog extends ONCTableDialog implements ActionLi
 	{
 		if(dbe.getSource() != this && dbe.getType().equals("ADDED_WISH"))
 		{
+			//update the wish history displayed if the added wish is from same child and wish #
 			ONCChildWish addedWish = (ONCChildWish) dbe.getObject();
+			if(cw != null && addedWish.getChildID() == cw.getChildID() &&
+					addedWish.getWishNumber() == cw.getWishNumber())
+			{
+				getWishHistory(cw);
+				dlgTableModel.fireTableDataChanged();
+			}
 		}
 	}
 
@@ -204,7 +214,7 @@ public class BarcodeWishHistoryDialog extends ONCTableDialog implements ActionLi
 			
 			//get Wish History for bar code wish id. If found, notify entity listeners of
 			//the Wish entity selection.
-			ONCChildWish cw = cwDB.getWish(cwID);
+			cw = cwDB.getWish(cwID);
 			if(cw != null)
 			{
 				getWishHistory(cw);
@@ -215,7 +225,7 @@ public class BarcodeWishHistoryDialog extends ONCTableDialog implements ActionLi
 					if(family != null)
 					{
 						fireEntitySelected(this, EntityType.WISH, family, child, cw);
-						if(GlobalVariables.isUserAdmin())
+						if(userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0)
 							lblChildInfo.setText(String.format("Wish History for %s %s, Wish %d, Family #%s, Barcode %s",
 								child.getChildFirstName(), child.getChildLastName(),
 								cw.getWishNumber()+1, family.getONCNum(), barcodeTF.getText()));

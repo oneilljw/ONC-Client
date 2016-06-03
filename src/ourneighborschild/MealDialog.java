@@ -91,7 +91,7 @@ public class MealDialog extends HistoryDialog
 	{
 		ONCMeal addMealReq = new ONCMeal(-1, currFam.getID(), mealList.get(0).getStatus(), 
 									holiday,restrictions, mealList.get(0).getPartnerID(),
-									GlobalVariables.getUserLNFI(), new Date(),
+									userDB.getUserLNFI(), new Date(),
 									mealList.get(0).getStoplightPos(),
 									mealList.get(0).getStoplightMssg(),
 									mealList.get(0).getStoplightChangedBy());

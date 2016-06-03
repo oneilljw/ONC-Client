@@ -342,7 +342,7 @@ public class DriverDialog extends EntityDialog
 					emailTF.getText(), streetnumTF.getText(), streetnameTF.getText(), 
 					unitTF.getText(), cityTF.getText(), zipTF.getText(), 
 					hPhoneTF.getText(), cPhoneTF.getText(), "", "", new Date(),
-					GlobalVariables.getUserLNFI());
+					userDB.getUserLNFI());
 						
 		//send add request to the local data base
 		String response = ddb.add(this, newDriver);

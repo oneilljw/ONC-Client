@@ -16,6 +16,8 @@ public class UserDB extends ONCSearchableDatabase
 	private static UserDB instance = null;
 	private List<ONCUser> uAL;
 	
+	private ONCUser loggedInUser;
+	
 	private UserDB()
 	{
 		super(DB_TYPE);
@@ -41,6 +43,45 @@ public class UserDB extends ONCSearchableDatabase
 		else
 			return null;
 	}
+	
+	ONCUser setLoggedInUser(ONCUser u) 
+	{
+		if(loggedInUser == null || loggedInUser.getID() != u.getID())
+		{
+			loggedInUser = u;
+			this.fireDataChanged(this, "CHANGED_USER", loggedInUser);
+		}
+		
+		return loggedInUser; 
+	}
+	
+	ONCUser getLoggedInUser() { return loggedInUser; }
+	
+	String getUserFNLI()
+	{
+		if(loggedInUser.getFirstname().isEmpty())
+			return loggedInUser.getLastname();
+		else
+			return loggedInUser.getFirstname() + " " + loggedInUser.getLastname().charAt(0);
+	}
+	
+	String getUserLNFI()
+	{
+		if(loggedInUser.getFirstname().isEmpty())
+			return loggedInUser.getLastname();
+		else
+			return loggedInUser.getLastname() + ", " + loggedInUser.getFirstname().charAt(0);
+	}
+	
+	UserPreferences getUserPreferences()
+	{
+		if(loggedInUser != null)
+			return loggedInUser.getPreferences();
+		else
+			return new UserPreferences();
+	}
+	
+//	void setUserPermission(UserPermission p) { user_permission = p; }
 	
 	ONCUser getUserFromIndex(int index)
 	{
@@ -134,18 +175,20 @@ public class UserDB extends ONCSearchableDatabase
 	
 	ONCUser processUpdatedObject(Object source, String json)
 	{
-		//Store added catalog wish in local wish catalog
+		//store updated User object in local data base
+		//extract the object from the json
 		Gson gson = new Gson();
 		ONCUser updatedUser = gson.fromJson(json, ONCUser.class);
 		
-		//find the user
+		//find the user in the local data base
 		int index = 0;
 		while(index < uAL.size() && uAL.get(index).getID() != updatedUser.getID())
 			index++;
 		
 		if(index < uAL.size())
 		{
-			//if found, replace the list entity and notify ui clients
+			//if found, replace the user and notify ui clients. Also,
+			//check to see if it's a new login. If so, broadcast a GUI message
 			ONCUser oldUser = uAL.get(index);
 			if(oldUser.getNSessions() != updatedUser.getNSessions())
 			{
@@ -160,11 +203,20 @@ public class UserDB extends ONCSearchableDatabase
 		
 			uAL.set(index, updatedUser);
 			
+			//update the current user if they were the update
+			if(updatedUser.getID() == loggedInUser.getID())
+				loggedInUser = updatedUser;
+			
+//			System.out.println(String.format("UserDB.processUpdatedObject: font: %d, wishIndex: %d, dnsIndex: %d",
+//					updatedUser.getPreferences().getFontSize(),
+//					updatedUser.getPreferences().getWishAssigneeFilter(),
+//					updatedUser.getPreferences().getFamilyDNSFilter()));
+			
 //			//notify the GlobalVariableDB of the update since it holds the logged in user
 //			GlobalVariables gvs = GlobalVariables.getInstance();
 //			gvs.processUpdatedUser(updatedUser);
 			
-			//notify all the databases
+			//notify all the ui's
 			fireDataChanged(source, "UPDATED_USER", updatedUser);
 			
 			return updatedUser;

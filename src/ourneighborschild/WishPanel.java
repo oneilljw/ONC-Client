@@ -42,6 +42,7 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 	private ChildWishDB cwDB;
 	private ONCWishCatalog cat;
 	private PartnerDB orgDB;
+	private UserDB userDB;
 	
 	private ONCChild child;			//child being displayed on panel
 	private ONCChildWish childWish; //wish being displayed on panel
@@ -78,6 +79,8 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 		orgDB = PartnerDB.getInstance();
 		if(orgDB != null)
 			orgDB.addDatabaseListener(this);
+		
+		userDB = UserDB.getInstance();
 		
 		this.setLayout(new GridLayout(3,1));
 		
@@ -393,7 +396,7 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 			}
 			//need to determine what name to use for child due to user privileges
 			String firstname;
-			if(GlobalVariables.isUserAdmin())
+			if(userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0)
 				firstname = child.getChildFirstName();
 			else
 				firstname = "Child " + cDB.getChildNumber(child);

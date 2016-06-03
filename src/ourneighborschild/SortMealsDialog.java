@@ -774,9 +774,9 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 										stAL.get(row_sel[i]).getMeal().getStatus(),
 										stAL.get(row_sel[i]).getMeal().getType(),
 										stAL.get(row_sel[i]).getMeal().getRestricitons(), 
-										cbPartner.getID(), GlobalVariables.getUserLNFI(),
+										cbPartner.getID(),userDB.getUserLNFI(),
 										new Date(), stAL.get(row_sel[i]).getMeal().getStoplightPos(),
-										"Changed Partner", GlobalVariables.getUserLNFI());
+										"Changed Partner", userDB.getUserLNFI());
 				
 				ONCMeal addedMeal = mealDB.add(this, addMealReq);
 				
@@ -795,9 +795,9 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 													stAL.get(row_sel[i]).getMeal().getType(),
 													stAL.get(row_sel[i]).getMeal().getRestricitons(), 
 													stAL.get(row_sel[i]).getMeal().getPartnerID(),
-													GlobalVariables.getUserLNFI(), new Date(),
+													userDB.getUserLNFI(), new Date(),
 													stAL.get(row_sel[i]).getMeal().getStoplightPos(),
-													"Changed Status", GlobalVariables.getUserLNFI());
+													"Changed Status", userDB.getUserLNFI());
 
 				ONCMeal addedMeal = mealDB.add(this, addMealReq);
 
@@ -873,9 +873,9 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 			ds.setDate(sortStartCal.getTime());	//Will not trigger the event handler
 		}
 		
-		if(!sdf.format(sortEndCal.getTime()).equals(sdf.format(gvs.getTomorrowsDate())))
+		if(!sdf.format(sortEndCal.getTime()).equals(sdf.format(getTomorrowsDate())))
 		{
-			sortEndCal.setTime(gvs.getTomorrowsDate());
+			sortEndCal.setTime(getTomorrowsDate());
 			de.setDate(sortEndCal.getTime());	//Will not trigger the event handler
 		}
 			

@@ -619,7 +619,7 @@ public class AddFamilyDialog extends JDialog implements ActionListener, ListSele
 	void processFamilyReferral()
 	{
 		//get the user
-		ONCUser user = gvs.getUser();
+		ONCUser user = UserDB.getInstance().getLoggedInUser();
 		if(user.getAgentID() == -1)
 			return;
 		

@@ -603,7 +603,7 @@ public class DialogManager implements EntitySelectionListener
    void onEditProfile()
    {
    	//construct and display a UserProfile Dialog
-	ONCUser user = GlobalVariables.getInstance().getUser();
+	ONCUser user = UserDB.getInstance().getLoggedInUser();
    	UserProfileDialog upDlg = new UserProfileDialog(GlobalVariables.getFrame(), user);
    	upDlg.setLocationRelativeTo(GlobalVariables.getFrame());
    	upDlg.setVisible(true);
@@ -620,7 +620,7 @@ public class DialogManager implements EntitySelectionListener
 		{
 			if(cpDlg.doNewPasswordsMatch())
 			{
-				ONCUser currUser = GlobalVariables.getInstance().getUser();
+				ONCUser currUser = UserDB.getInstance().getLoggedInUser();
 				String[] pwInfo = cpDlg.getPWInfo();
 				
 				ChangePasswordRequest cpwReq = new ChangePasswordRequest(currUser.getID(),

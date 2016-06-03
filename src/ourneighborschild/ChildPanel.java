@@ -35,6 +35,7 @@ public class ChildPanel extends JPanel implements DatabaseListener, EntitySelect
 	private GlobalVariables gvs;
     private FamilyDB fDB;
 	private ChildDB cDB;
+	private UserDB userDB;
 	
 	//GUI elements
 	private JTextField firstnameTF;
@@ -57,6 +58,8 @@ public class ChildPanel extends JPanel implements DatabaseListener, EntitySelect
 		cDB = ChildDB.getInstance();
 		if(cDB != null)
 			cDB.addDatabaseListener(this);
+		
+		userDB = UserDB.getInstance();
 		
 		//Set layout and border for the Child Panel
 		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
@@ -117,7 +120,7 @@ public class ChildPanel extends JPanel implements DatabaseListener, EntitySelect
 	
 	void setEditableGUIFields(boolean tf)
 	{
-		if(GlobalVariables.isUserAdmin())
+		if(userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0)
 		{
 			firstnameTF.setEditable(tf);
 			lastnameTF.setEditable(tf);
@@ -136,13 +139,15 @@ public class ChildPanel extends JPanel implements DatabaseListener, EntitySelect
 											child.getChildFirstName());
 		LogDialog.add(logEntry, "M");
 		
-		if(GlobalVariables.isUserAdmin())	//Only display child's actual name if user permission permits
+		if(userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0)
 		{
+			//Only display child's actual name if user permission permits
 			firstnameTF.setText(child.getChildFirstName());
 			lastnameTF.setText(child.getChildLastName());
 		}
-		else	//Else, display the restricted name for the child
+		else
 		{
+			//Else, display the restricted name for the child
 			firstnameTF.setText("Child " + cDB.getChildNumber(child));
 			lastnameTF.setText("");
 		}
@@ -222,7 +227,8 @@ public class ChildPanel extends JPanel implements DatabaseListener, EntitySelect
 	void updateChild(ONCChild c)
 	{
 		//field changed and user has permission to change
-		if(c != null && GlobalVariables.isUserAdmin() &&
+		if(c != null &&
+				userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0 &&
 				(!firstnameTF.getText().equals(c.getChildFirstName()) ||
 				  !lastnameTF.getText().equals(c.getChildLastName()) ||
 				   !schoolTF.getText().equals(c.getChildSchool()) ||
@@ -383,11 +389,10 @@ public class ChildPanel extends JPanel implements DatabaseListener, EntitySelect
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
-			if(dispChild != null && !bChildDataChanging && GlobalVariables.isUserAdmin() && 
-													(e.getSource() == firstnameTF || 
-													 e.getSource() == lastnameTF ||
-													 e.getSource() == schoolTF ||
-													 e.getSource() == genderTF))
+			if(dispChild != null && !bChildDataChanging &&
+				userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0 && 
+				 (e.getSource() == firstnameTF || e.getSource() == lastnameTF ||
+					e.getSource() == schoolTF ||e.getSource() == genderTF))
 			{
 				updateChild(dispChild);	
 			}
@@ -398,8 +403,9 @@ public class ChildPanel extends JPanel implements DatabaseListener, EntitySelect
 		{
 			if(pce.getSource() == dobDC.getDateEditor() && 
 				"date".equals(pce.getPropertyName()) && 
-				 !bChildDataChanging && dispChild != null && GlobalVariables.isUserAdmin() &&
-				  dispChild.getChildDateOfBirth() != convertCalendarDOBToGMT(dobDC.getCalendar()))
+				 !bChildDataChanging && dispChild != null &&
+				  userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0 &&
+				   dispChild.getChildDateOfBirth() != convertCalendarDOBToGMT(dobDC.getCalendar()))
 				  
 			{
 					updateChild(dispChild);

@@ -91,7 +91,7 @@ public class DeliveryHistoryDialog extends HistoryDialog
 			
 		//Update the notes and changed by fields in the request
 		updateDelReq.setdNotes(notes);
-		updateDelReq.setdChangedBy(GlobalVariables.getUserLNFI());
+		updateDelReq.setdChangedBy(userDB.getUserLNFI());
 			
 		//send the request to the local data base
 		String response = deliveryDB.update(this, updateDelReq);	

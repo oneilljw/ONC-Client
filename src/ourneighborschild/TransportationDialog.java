@@ -18,6 +18,7 @@ public class TransportationDialog extends InfoDialog implements DatabaseListener
 	private static final long serialVersionUID = 1L;
 	private ONCFamily f;
 	private FamilyDB familyDB;
+	private UserDB userDB;
 	private JComboBox transportationCB;
 
 	TransportationDialog(JFrame owner, boolean bModal) 
@@ -31,6 +32,8 @@ public class TransportationDialog extends InfoDialog implements DatabaseListener
 		familyDB = FamilyDB.getInstance();
 		if(familyDB != null)
 			familyDB.addDatabaseListener(this);
+		
+		userDB = UserDB.getInstance();
 
 		//Set up the main panel, loop to set up components associated with names
 		for(int pn=0; pn < getDialogFieldNames().length; pn++)
@@ -60,7 +63,7 @@ public class TransportationDialog extends InfoDialog implements DatabaseListener
 		f = (ONCFamily) obj;
 		
 		tf[0].setText(f.getONCNum());
-		tf[1].setText(GlobalVariables.isUserAdmin() ? f.getHOHLastName() : "");
+		tf[1].setText(userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0 ? f.getHOHLastName() : "");
 		transportationCB.setSelectedItem(f.getTransportation());
 		
 		btnAction.setEnabled(false);		

@@ -48,6 +48,7 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 	private DatabaseManager dbManager;
 	
 	private FamilyDB familyDB;
+	private UserDB userDB;
 	
 	private ONCMenuBar()
 	{
@@ -59,6 +60,8 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 		familyDB = FamilyDB.getInstance();
 		if(familyDB != null)
 			familyDB.addDatabaseListener(this);
+		
+		userDB = UserDB.getInstance();
 		
 		JMenu menuDatabase, menuAgents, menuFamilies, menuWishes, menuMeals, menuPartners, menuDelivery, menuSettings;	    
         
@@ -451,7 +454,8 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 		today.setTime(GlobalVariables.getInstance().getTodaysDate());
 		int currYear = today.get(Calendar.YEAR);
 		
-		if(currYear != dbYears.get(dbYears.size()-1).getYear() && GlobalVariables.isUserAdmin())
+		if(currYear != dbYears.get(dbYears.size()-1).getYear() && 
+				userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0)
 			setEnabledNewMenuItem(true);	
     }
 	
@@ -566,7 +570,7 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 			if(familyDB.size() == 1)
 			{
 				SetEnabledMenuItems(true);
-				if(GlobalVariables.isUserAdmin()) 
+				if(userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0) 
 					setEnabledRestrictedMenuItems(true);
 			}
 		}
@@ -576,13 +580,13 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
     		setEnabledNewMenuItem(false);
     		setEnabledWishCatalogAndOrgMenuItems(true);
     		
-    		if(GlobalVariables.isUserAdmin()) 
+    		if(userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0) 
 				setEnabledImportMenuItems(true);
     		
     		if(familyDB.size() > 0)
 			{
 				SetEnabledMenuItems(true);
-				if(GlobalVariables.isUserAdmin()) 
+				if(userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0) 
 					setEnabledRestrictedMenuItems(true);
 			}
     		
@@ -641,7 +645,7 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 			DriverDB driverDB = DriverDB.getInstance();
 			String mssg = driverDB.importDrivers(GlobalVariables.getFrame(), 
 									GlobalVariables.getInstance().getTodaysDate(),
-									GlobalVariables.getUserLNFI(), GlobalVariables.getONCLogo());
+									userDB.getUserLNFI(), GlobalVariables.getONCLogo());
 			
 //			oncFamilyPanel.refreshDriverDisplays();	//Update dialog based on imported info
 			
@@ -716,7 +720,7 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 			ONCPopupMessage clientIDPU = new ONCPopupMessage(GlobalVariables.getONCLogo());
 			clientIDPU.setLocationRelativeTo(GlobalVariables.getFrame());
 			String mssg = String.format("Your ONC Server Client ID is: %d", 
-								GlobalVariables.getInstance().getUser().getClientID());
+								userDB.getLoggedInUser().getClientID());
 			clientIDPU.show("ONC Server Client ID", mssg);
 		}    		
 		else if(e.getSource() == showCurrDirMI)

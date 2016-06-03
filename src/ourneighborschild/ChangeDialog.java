@@ -3,6 +3,8 @@ package ourneighborschild;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.util.Calendar;
+import java.util.Date;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
@@ -46,5 +48,17 @@ public abstract class ChangeDialog extends SortTableDialog
         
 //      this.add(changePanel);
 //      this.add(bottomPanel);
+	}
+	
+	Date getTomorrowsDate()
+	{
+		Calendar tomorrow = Calendar.getInstance();
+		
+		tomorrow.add(Calendar.DATE, 1);
+		tomorrow.set(Calendar.HOUR_OF_DAY, 0);
+	    tomorrow.set(Calendar.MINUTE, 0);
+	    tomorrow.set(Calendar.SECOND, 0);
+	   	tomorrow.set(Calendar.MILLISECOND, 0);
+		return tomorrow.getTime();
 	}
 }
