@@ -347,13 +347,13 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         rbDirections.addActionListener(this);
         
         rbNotGiftCardOnly = new JRadioButton(gvs.getImageIcon(NOT_GIFT_CARD_ONLY_ICON_INDEX));
-        rbNotGiftCardOnly.setToolTipText("Click for change to Gift Card Only Family");
+        rbNotGiftCardOnly.setToolTipText("Family is not a Gift Card Only Family");
         rbNotGiftCardOnly.setEnabled(false);
         rbNotGiftCardOnly.setVisible(true);
         rbNotGiftCardOnly.addActionListener(this);
         
         rbGiftCardOnly = new JRadioButton(gvs.getImageIcon(GIFT_CARD_ONLY_ICON_INDEX));
-        rbGiftCardOnly.setToolTipText("Click for from Gift Card Only Family");
+        rbGiftCardOnly.setToolTipText("Family is a Gift Card Only Family");
         rbGiftCardOnly.setEnabled(false);
         rbGiftCardOnly.setVisible(false);
         rbGiftCardOnly.addActionListener(this);
@@ -584,6 +584,9 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         wishlistPane.setParagraphAttributes(attribs, true);
         oncNotesPane.setParagraphAttributes(attribs, true);
         oncDIPane.setParagraphAttributes(attribs, true);
+        
+        if(currFam != null && currChild != null)
+        	display(currFam, currChild);
 	}
 	
 	void setRestrictedEnabledButtons(boolean tf)
@@ -1472,10 +1475,13 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
     			this.fireEntitySelected(this, EntityType.FAMILY, currFam, currChild);	
     		}
 		}
-		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_FONT_SIZE"))
+		else if(dbe.getSource() != this && (dbe.getType().equals("UPDATED_USER") ||
+				dbe.getType().equals("CHANGED_USER")))
 		{
-			Integer fontSize = (Integer) dbe.getObject();
-			setTextPaneFontSize(fontSize);
+			//determine if it's the currently logged in user
+			ONCUser updatedUser = (ONCUser)dbe.getObject();
+			if(userDB.getLoggedInUser().getID() == updatedUser.getID())
+				setTextPaneFontSize(updatedUser.getPreferences().getFontSize());
 		}
 	}
 

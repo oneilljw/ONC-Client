@@ -194,6 +194,7 @@ public class ONCNavPanel extends ONCPanel implements ActionListener
 	void clearSearchText()
 	{
 		searchTF.setText("");
+		searchTF.requestFocusInWindow();
 	}
 	
 	@Override
@@ -245,7 +246,7 @@ public class ONCNavPanel extends ONCPanel implements ActionListener
 			rbSrchNext.setVisible(searchAL.size() > 1);
 			rbSrchPrev.setVisible(searchAL.size() > 1);
 			
-			searchTF.setText("");
+			clearSearchText();
 		}
 		else if(e.getSource() == rbSrchNext)
 		{

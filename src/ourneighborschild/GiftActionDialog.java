@@ -142,12 +142,14 @@ public abstract class GiftActionDialog extends SortTableDialog
         
         bottomPanel.add(cntlPanel, BorderLayout.LINE_START);
         
-        barcodeTF.requestFocus();	//we want scans to process immediately
+       
         
         //Add the components to the frame pane and pack
-        this.add(bottomPanel);       
-        pack();
+        this.add(bottomPanel);
         this.setResizable(false);
+        pack();
+        
+        barcodeTF.requestFocusInWindow();	//we want scans to process immediately
 	}
 
 	void buildTableList(boolean bPreserveSelections)

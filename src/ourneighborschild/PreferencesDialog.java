@@ -39,6 +39,9 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 	
 	private GlobalVariables pdGVs;
 	private UserDB userDB;
+	
+	private UserPreferences uPrefs;
+	
 	private JDateChooser dc_today, dc_delivery, dc_seasonstart, dc_giftsreceived;
 	private JDateChooser dc_DecemberCutoff, dc_InfoEditCutoff, dc_ThanksgivingCutoff;
 	private JTextField whStreetNumTF, whStreetTF, whCityTF, whStateTF;
@@ -54,7 +57,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 	PreferencesDialog(JFrame parentFrame)
 	{
 		super(parentFrame, false);
-		this.setTitle("Our Neighbor's Child Season Settings");
+		this.setTitle("Our Neighbor's Child Elf & Season Settings");
 		
 		pdGVs = GlobalVariables.getInstance();
 		if(pdGVs != null)
@@ -67,6 +70,45 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		bIgnoreDialogEvents = false;
 		
 		JTabbedPane tabbedPane = new JTabbedPane();
+		
+		//set up personal elf settings tab
+		JPanel elfSettingsPanel = new JPanel();
+		elfSettingsPanel.setLayout(new BoxLayout(elfSettingsPanel, BoxLayout.Y_AXIS));
+		
+		JPanel fontPanel = new JPanel();
+		JLabel lblFont = new JLabel("Font Size:");
+		oncFontSizeCB = new JComboBox(fontSizes);
+		oncFontSizeCB.setSelectedItem(DEFAULT_FONT_SIZE);
+		oncFontSizeCB.setEnabled(false);
+		oncFontSizeCB.addActionListener(this);
+		fontPanel.add(lblFont);
+		fontPanel.add(oncFontSizeCB);
+		
+		JPanel wafdPanel = new JPanel();
+		JLabel lblWAFD = new JLabel("Wish Assignee Filter Default:");
+		String[] choices = {"Any", "Unassigned"};
+		wishAssigneeFilterDefaultCB = new JComboBox(choices);
+		wishAssigneeFilterDefaultCB.setSelectedIndex(0);
+		wishAssigneeFilterDefaultCB.setEnabled(false);
+		wishAssigneeFilterDefaultCB.addActionListener(this);
+		wafdPanel.add(lblWAFD);
+		wafdPanel.add(wishAssigneeFilterDefaultCB);
+		
+		JPanel fdfPanel = new JPanel();
+		JLabel lblFDF = new JLabel("Family Do Not Serve Filter Default:");
+		String[] options = {"None", "Any"};
+		fdnsFilterDefaultCB = new JComboBox(options);
+		fdnsFilterDefaultCB.setSelectedIndex(0);
+		fdnsFilterDefaultCB.setEnabled(false);
+		fdnsFilterDefaultCB.addActionListener(this);
+		fdfPanel.add(lblFDF);
+		fdfPanel.add(fdnsFilterDefaultCB);
+		
+		elfSettingsPanel.add(fontPanel);
+		elfSettingsPanel.add(wafdPanel);
+		elfSettingsPanel.add(fdfPanel);
+		
+		tabbedPane.addTab("Elf Filters/Font", elfSettingsPanel);
 		
 		//set up the date tab
 		JPanel dateTab = new JPanel();
@@ -176,45 +218,6 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		
 		tabbedPane.addTab("Warehouse", addressTab);
 		
-		//set up display tab
-		JPanel viewPanel = new JPanel();
-		viewPanel.setLayout(new BoxLayout(viewPanel, BoxLayout.Y_AXIS));
-		
-		JPanel fontPanel = new JPanel();
-		JLabel lblFont = new JLabel("Font Size:");
-		oncFontSizeCB = new JComboBox(fontSizes);
-		oncFontSizeCB.setSelectedItem(DEFAULT_FONT_SIZE);
-		oncFontSizeCB.setEnabled(false);
-		oncFontSizeCB.addActionListener(this);
-		fontPanel.add(lblFont);
-		fontPanel.add(oncFontSizeCB);
-		
-		JPanel wafdPanel = new JPanel();
-		JLabel lblWAFD = new JLabel("Wish Assignee Filter Default:");
-		String[] choices = {"Any", "Unassigned"};
-		wishAssigneeFilterDefaultCB = new JComboBox(choices);
-		wishAssigneeFilterDefaultCB.setSelectedIndex(0);
-		wishAssigneeFilterDefaultCB.setEnabled(false);
-		wishAssigneeFilterDefaultCB.addActionListener(this);
-		wafdPanel.add(lblWAFD);
-		wafdPanel.add(wishAssigneeFilterDefaultCB);
-		
-		JPanel fdfPanel = new JPanel();
-		JLabel lblFDF = new JLabel("Family Do Not Serve Filter Default:");
-		String[] options = {"None", "Any"};
-		fdnsFilterDefaultCB = new JComboBox(options);
-		fdnsFilterDefaultCB.setSelectedIndex(0);
-		fdnsFilterDefaultCB.setEnabled(false);
-		fdnsFilterDefaultCB.addActionListener(this);
-		fdfPanel.add(lblFDF);
-		fdfPanel.add(fdnsFilterDefaultCB);
-		
-		viewPanel.add(fontPanel);
-		viewPanel.add(wafdPanel);
-		viewPanel.add(fdfPanel);
-		
-		tabbedPane.addTab("Filters/Fonts", viewPanel);
-		
 		//set up the ornament label tab
 		JPanel wishlabelPanel = new JPanel();
 		wishlabelPanel.setLayout(new BoxLayout(wishlabelPanel, BoxLayout.Y_AXIS));
@@ -250,7 +253,6 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		tabbedPane.addTab("Ornament Labels", wishlabelPanel);
 		
 		//Add the components to the frame pane
-//      this.getContentPane().setLayout(new BoxLayout(this.getContentPane(), BoxLayout.Y_AXIS));
         this.getContentPane().add(tabbedPane);
                
         this.pack();
@@ -258,8 +260,11 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
         btnApplyDateChanges.requestFocusInWindow();
 	}
 	
-	void display()	//Update gui with preference data changes (called when an saved ONC object loaded)
+	void display(UserPreferences uPrefs)	//Update gui with preference data changes (called when an saved ONC object loaded)
 	{
+		if(uPrefs != null)
+			this.uPrefs = uPrefs;
+		
 		bIgnoreDialogEvents = true;
 		
 		dc_today.setDate(pdGVs.getTodaysDate());
@@ -271,10 +276,6 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		dc_InfoEditCutoff.setDate(pdGVs.getFamilyEditDeadline());
 		
 		displayWarehouseAddress();
-		
-		oncFontSizeCB.removeActionListener(this);
-		wishAssigneeFilterDefaultCB.removeActionListener(this);
-		fdnsFilterDefaultCB.removeActionListener(this);
 		
 		ONCUser user = userDB.getLoggedInUser();
 		if(user != null)
@@ -294,10 +295,6 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 			wishAssigneeFilterDefaultCB.setSelectedIndex(0);
 			fdnsFilterDefaultCB.setSelectedIndex(0);
 		}
-		
-		oncFontSizeCB.addActionListener(this);
-		wishAssigneeFilterDefaultCB.addActionListener(this);
-		fdnsFilterDefaultCB.addActionListener(this);
 		
 		barcodeCkBox.setSelected(pdGVs.includeBarcodeOnLabels());
 		
@@ -383,7 +380,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 			}
 			else
 			{
-				display();
+				display(uPrefs);
 			}
 		}
 	}
@@ -435,49 +432,41 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 			update();
 		else if(!bIgnoreDialogEvents && e.getSource()==btnApplyAddressChanges)
 			update();
-		else if(e.getSource() == oncFontSizeCB && 
+		else if(!bIgnoreDialogEvents && e.getSource() == oncFontSizeCB && 
 				userDB.getLoggedInUser().getPreferences().getFontSize() != (Integer) oncFontSizeCB.getSelectedItem())
 		{
-			ONCUser updateUserReq = new ONCUser(userDB.getLoggedInUser());
-			UserPreferences userPrefs = updateUserReq.getPreferences();
-			userPrefs.setFontSize((Integer)oncFontSizeCB.getSelectedItem());
-			
-			String response = UserDB.getInstance().update(this, updateUserReq);
-			if(!response.equals("UDATED_USER"))
-			{
-				//we have a failure
-			}
+			updateUserPreferences();
 		}
-		else if(e.getSource() == barcodeCkBox)
+		else if(!bIgnoreDialogEvents && e.getSource() == barcodeCkBox)
 			pdGVs.setIncludeBarcodeOnLabels(barcodeCkBox.isSelected());
-		else if(e.getSource() == barcodeCB && pdGVs.getBarcodeCode() != barcodeCB.getSelectedItem())
+		else if(!bIgnoreDialogEvents && e.getSource() == barcodeCB && pdGVs.getBarcodeCode() != barcodeCB.getSelectedItem())
 			pdGVs.setBarcode( (Barcode) barcodeCB.getSelectedItem());
-		else if(e.getSource() == wishAssigneeFilterDefaultCB &&
+		else if(!bIgnoreDialogEvents && e.getSource() == wishAssigneeFilterDefaultCB &&
 				userDB.getLoggedInUser().getPreferences().getWishAssigneeFilter() != wishAssigneeFilterDefaultCB.getSelectedIndex())
 		{
-			ONCUser updateUserReq = new ONCUser(userDB.getLoggedInUser());
-			UserPreferences userPrefs = updateUserReq.getPreferences();
-			userPrefs.setWishAssigneeFilter(wishAssigneeFilterDefaultCB.getSelectedIndex());
-			
-			String response = UserDB.getInstance().update(this, updateUserReq);
-			if(!response.equals("UDATED_USER"))
-			{
-				//we have a failure
-			}
-				
+			updateUserPreferences();
 		}
-		else if(e.getSource() == fdnsFilterDefaultCB &&
+		else if(!bIgnoreDialogEvents && e.getSource() == fdnsFilterDefaultCB &&
 				userDB.getUserPreferences().getFamilyDNSFilter() != fdnsFilterDefaultCB.getSelectedIndex())
 		{
-			ONCUser updateUserReq = new ONCUser(userDB.getLoggedInUser());
-			UserPreferences userPrefs = updateUserReq.getPreferences();
-			userPrefs.setFamilyDNSFilter(fdnsFilterDefaultCB.getSelectedIndex());
-			
-			String response = UserDB.getInstance().update(this, updateUserReq);
-			if(!response.equals("UDATED_USER"))
-			{
-				//we have a failure
-			}
+			updateUserPreferences();
+		}
+	}
+	
+	void updateUserPreferences()
+	{
+		ONCUser updateUserReq = new ONCUser(userDB.getLoggedInUser());
+		UserPreferences userPrefs = updateUserReq.getPreferences();
+		
+		userPrefs.setFontSize((Integer)oncFontSizeCB.getSelectedItem());
+		userPrefs.setWishAssigneeFilter(wishAssigneeFilterDefaultCB.getSelectedIndex());
+		userPrefs.setFamilyDNSFilter(fdnsFilterDefaultCB.getSelectedIndex());
+		
+		String response = UserDB.getInstance().update(this, updateUserReq);
+		if(!response.equals("UDATED_USER"))
+		{
+			//we have a failure, display the original preferences
+			display(uPrefs);
 		}
 	}
 
@@ -486,7 +475,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 	{
 		if(dbe.getSource() != this && dbe.getType().equals("UPDATED_GLOBALS"))
 		{
-			display();
+			display(uPrefs);
 		}
 		else if(dbe.getSource() != this && (dbe.getType().equals("UPDATED_USER") || 
 				dbe.getType().equals("CHANGED_USER")))	
@@ -498,7 +487,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 				 updatedUser.getPreferences().getFamilyDNSFilter() != fdnsFilterDefaultCB.getSelectedIndex()) ||
 				 updatedUser.getPreferences().getFontSize() != (Integer)oncFontSizeCB.getSelectedItem())
 			{
-				display();
+				display(updatedUser.getPreferences());
 			}
 			
 			//we have a user, so enable changing preferences

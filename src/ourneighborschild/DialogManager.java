@@ -378,7 +378,7 @@ public class DialogManager implements EntitySelectionListener
 		if(!prefsDlg.isShowing())
 		{
 			prefsDlg.setLocationRelativeTo(GlobalVariables.getFrame());
-			prefsDlg.display();
+			prefsDlg.display(null);	//keep current user preferences, no change
 			prefsDlg.setVisible(true);
 		}
 	}
@@ -684,10 +684,15 @@ public class DialogManager implements EntitySelectionListener
 		sortFamiliesDlg.setFamilyStatusComboItemEnabled(FAMILY_STATUS_SELECTION_LIST_PACKAGED_INDEX, tf);
 	}
 	
-	void receiveGiftBarcodeRequestFocus()
+	boolean receiveGiftBarcodeRequestFocus()
 	{
 		if(recGiftsDlg != null && recGiftsDlg.isVisible())
+		{
 			recGiftsDlg.barcodeRequestFocus();
+			return true;
+		}
+		else
+			return false;
 	}
 	
 	@Override

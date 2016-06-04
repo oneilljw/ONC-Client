@@ -1901,6 +1901,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			ONCUser updatedUser = (ONCUser)dbe.getObject();
 			updateUserList();
 			
+			//check to see if the current user was updated to update preferences
 			if(userDB.getLoggedInUser().getID() == updatedUser.getID())
 				updateUserPreferences(updatedUser);
 		}

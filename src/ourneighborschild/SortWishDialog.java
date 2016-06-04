@@ -1157,6 +1157,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		{
 			updateUserList();
 			
+			//check to see if the current user was updated to update preferences
 			ONCUser updatedUser = (ONCUser)dbe.getObject();
  			if(userDB.getLoggedInUser().getID() == updatedUser.getID())
 				updateUserPreferences(updatedUser);

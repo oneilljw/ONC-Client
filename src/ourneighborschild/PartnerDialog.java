@@ -69,8 +69,8 @@ public class PartnerDialog extends EntityDialog
 		if(partnerDB != null)
 			partnerDB.addDatabaseListener(this);
 		
-		if(gvs != null)
-			gvs.addDatabaseListener(this);
+		if(userDB != null)
+			userDB.addDatabaseListener(this);
 		
 		ChildDB childDB = ChildDB.getInstance();	//Listen for deleted child
 		if(childDB != null)
@@ -647,9 +647,22 @@ public class PartnerDialog extends EntityDialog
         StyleConstants.setAlignment(attribs , StyleConstants.ALIGN_LEFT);
         StyleConstants.setFontSize(attribs, fontSize);
         StyleConstants.setSpaceBelow(attribs, 3);
+        
         otherTP.setParagraphAttributes(attribs, true);
         specialNotesTP.setParagraphAttributes(attribs, true);
         deliverToTP.setParagraphAttributes(attribs, true);
+        
+        if(currPartner != null)
+        {
+        	otherTP.setText(currPartner.getOther());
+        	otherTP.setCaretPosition(0);
+      
+        	specialNotesTP.setText(currPartner.getSpecialNotes());
+        	specialNotesTP.setCaretPosition(0);
+		
+        	deliverToTP.setText(currPartner.getDeliverTo());
+        	deliverToTP.setCaretPosition(0);
+        }
 	}
 
 	void onNew()
@@ -815,10 +828,13 @@ public class PartnerDialog extends EntityDialog
 				display(currPartner);
 			}
 		}
-		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_FONT_SIZE"))
+		else if(dbe.getSource() != this && (dbe.getType().equals("UPDATED_USER") ||
+				dbe.getType().equals("CHANGED_USER")))
 		{
-			Integer fontSize = (Integer) dbe.getObject();
-			setTextPaneFontSize(fontSize);
+			//determine if it's the currently logged in user
+			ONCUser updatedUser = (ONCUser)dbe.getObject();
+			if(userDB.getLoggedInUser().getID() == updatedUser.getID())
+				setTextPaneFontSize(updatedUser.getPreferences().getFontSize());
 		}
 	}
 
