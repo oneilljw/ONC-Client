@@ -1,5 +1,6 @@
 package ourneighborschild;
 
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -57,21 +58,21 @@ public class AveryWishLabelPrinter implements Printable
 
 	    //Draw the label text, either 3 or 4 lines, depending on the wish base + detail length
 	    g2d.setFont(lFont[0]);
-	    drawCenteredString(line[0], 120, x+50, y+5, g2d);	//Draw line 1
+	    drawCenteredString(line[0], 120, x+50, y+5, g2d, Color.BLACK);	//Draw line 1
 	    
 	    g2d.setFont(lFont[1]);
-	    drawCenteredString(line[1], 120, x+50, y+20, g2d);	//Draw line 2
+	    drawCenteredString(line[1], 120, x+50, y+20, g2d, Color.BLACK);	//Draw line 2
 	    
 	    if(line[3] == null)	//Only a 3 line label
 	    {
 	    	g2d.setFont(lFont[2]);
-	    	drawCenteredString(line[2], 120, x+50, y+35, g2d);	//Draw line 3
+	    	drawCenteredString(line[2], 120, x+50, y+35, g2d, Color.BLACK);	//Draw line 3
 	    }
 	    else	//A 4 line label
 	    {	    	
-	    	drawCenteredString(line[2], 120, x+50, y+35, g2d);	//Draw line 3	    	
+	    	drawCenteredString(line[2], 120, x+50, y+35, g2d, Color.BLACK);	//Draw line 3	    	
 	    	g2d.setFont(lFont[2]);
-	    	drawCenteredString(line[3], 120, x+50, y+50, g2d);	//Draw line 4
+	    	drawCenteredString(line[3], 120, x+50, y+50, g2d, Color.BLACK);	//Draw line 4
 	    }
 	}
 	
@@ -88,11 +89,14 @@ public class AveryWishLabelPrinter implements Printable
 	    g2d.drawImage(img, x, y, x+destX1, y+destY1, 0,0, img.getWidth(null),img.getHeight(null),null); 
 	}
 	
-	private void drawCenteredString(String s, int width, int XPos, int YPos, Graphics2D g2d)
+	private void drawCenteredString(String s, int width, int XPos, int YPos, Graphics2D g2d, Color color)
 	{  
+		Color originalColor = g2d.getColor();
+		g2d.setColor(color);
         int stringLen = (int) g2d.getFontMetrics().getStringBounds(s, g2d).getWidth();  
         int start = width/2 - stringLen/2;  
-        g2d.drawString(s, start + XPos, YPos);  
+        g2d.drawString(s, start + XPos, YPos);
+        g2d.setColor(originalColor);
 	}
 
 	private void drawBarCode(String code, int x, int y, Graphics2D g2d)
@@ -121,7 +125,20 @@ public class AveryWishLabelPrinter implements Printable
 		bean.generateBarcode(cc, code);
 		
 		//release the graphics context
-		tempg2d.dispose(); 
+		tempg2d.dispose();
+		
+		//draw the corner hat
+		final Image img = GlobalVariables.getInstance().getImage(45);
+		
+		double scaleFactor = (72d / 300d) * 2;
+	     
+	    // Now we perform our rendering 	       	    
+	    int destX1 = (int) (img.getWidth(null) * scaleFactor);
+	    int destY1 = (int) (img.getHeight(null) * scaleFactor);
+	    
+	    //Draw image scaled to fit image clip region on the label
+	    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+	    g2d.drawImage(img, x-7, y-7, x+destX1-7, y+destY1-7, 0,0, img.getWidth(null),img.getHeight(null),null); 
 	}
 
 	@Override
