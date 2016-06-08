@@ -12,7 +12,7 @@ public class HistoryRequest
 	private int id;
 	private int num;
 	
-	HistoryRequest(int id, int wn)
+	public HistoryRequest(int id, int wn)
 	{
 		this.id = id;
 		num = wn;

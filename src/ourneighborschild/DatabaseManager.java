@@ -49,6 +49,7 @@ public class DatabaseManager extends ONCDatabase
 	private ONCRegions oncRegions;
 	private AdultDB oncAdultDB;				//Holds ONC Adult database
 	private MealDB oncMealDB;				//Holds ONC Meal database
+	private InventoryDB oncInvDB;			//Holds current inventory
 	
 	private DatabaseManager()
 	{
@@ -68,6 +69,7 @@ public class DatabaseManager extends ONCDatabase
 		oncChildWishDB = ChildWishDB.getInstance();
 		oncAdultDB = AdultDB.getInstance();
 		oncMealDB = MealDB.getInstance();
+		oncInvDB = InventoryDB.getInstance();
 		oncFamDB = FamilyDB.getInstance();
 	}
 	
@@ -246,6 +248,7 @@ public class DatabaseManager extends ONCDatabase
     		oncDDB.exportDBToCSV(GlobalVariables.getFrame(), path + "/DriverDB.csv");
     		oncFamDB.exportDBToCSV(GlobalVariables.getFrame(), path + "/FamilyDB.csv");
     		oncGVs.exportDBToCSV(GlobalVariables.getFrame(), path + "/GlobalVariables.csv");
+    		oncInvDB.exportDBToCSV(GlobalVariables.getFrame(), path + "/Inventory.csv");
     		oncMealDB.exportDBToCSV(GlobalVariables.getFrame(), path + "/MealDB.csv");
     		oncOrgDB.exportDBToCSV(path + "/OrgDB.csv");
     		oncWishCat.exportToCSV(GlobalVariables.getFrame(), path + "/WishCatalog.csv");
@@ -385,7 +388,7 @@ public class DatabaseManager extends ONCDatabase
      **************************************************************************************************/
     public class ONCServerDBImporter extends SwingWorker<Void, Void>
     {
-    	private static final int NUM_OF_DBs = 13;
+    	private static final int NUM_OF_DBs = 14;
     	String year;
     	ONCProgressBar pb;
     	boolean bServerDataLoaded;
@@ -434,6 +437,10 @@ public class DatabaseManager extends ONCDatabase
 			
 			pb.updateHeaderText("Loading Wishes");
 			oncChildWishDB.importChildWishDatabase();
+			this.setProgress(progress += increment);
+			
+			pb.updateHeaderText("Loading Inventory");
+			oncInvDB.importInventoryDatabase();
 			this.setProgress(progress += increment);
 			
 			pb.updateHeaderText("Loading Agents");
