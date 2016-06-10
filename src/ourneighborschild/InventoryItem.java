@@ -17,7 +17,7 @@ public class InventoryItem extends ONCObject
 	public InventoryItem(int id, UPCDatabaseItem item) 
 	{
 		super(id);
-		this.count = 0;
+		this.count = 1;
 		this.number = item.getNumber();
 		this.itemname  = item.getItemName();
 		this.alias = item.getAlias();
@@ -51,7 +51,7 @@ public class InventoryItem extends ONCObject
 	int getRateDown() { return rate_down; }
 	
 	//setters
-	void setValid(int count) { this.count = count; }
+	void setCount(int count) { this.count = count; }
 	void setNumber(String number) { this.number = number; }
 	void setItemName(String itemname) { this.itemname = itemname; }
 	void setAlias(String alias) { this.alias = alias; }
@@ -59,6 +59,9 @@ public class InventoryItem extends ONCObject
 	void setAvgPrice(String avg_price) { this.avg_price = avg_price; }
 	void setRateUp(int rate_up) { this.rate_up = rate_up; }
 	void setRateDown(int rate_down) { this.rate_down = rate_down; }
+	
+	//count change
+	public int incrementCount(int amount) { return count += amount; }
 	
 	@Override
 	public String[] getExportRow()

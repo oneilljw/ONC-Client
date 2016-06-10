@@ -72,6 +72,7 @@ public class DialogManager implements EntitySelectionListener
 		
 	private PreferencesDialog prefsDlg;
 	private BarcodeWishHistoryDialog barcodeWHDlg;
+	private InventoryDialog inventoryDlg;
 	
 	public static DialogManager getInstance()
 	{
@@ -220,6 +221,10 @@ public class DialogManager implements EntitySelectionListener
     	//set up a dialog to search for wish history from bar code scan
     	barcodeWHDlg = new BarcodeWishHistoryDialog(GlobalVariables.getFrame());
     	eeManager.registerEntitySelector(barcodeWHDlg);
+    	
+    	//set up a dialog to search for wish history from bar code scan
+    	inventoryDlg = new InventoryDialog(GlobalVariables.getFrame());
+    	eeManager.registerEntitySelector(inventoryDlg);
         
         //set up a dialog to connect prior year children
     	pyConnectionDlg = new PYChildConnectionDialog(GlobalVariables.getFrame());
@@ -389,6 +394,15 @@ public class DialogManager implements EntitySelectionListener
 		{
 			barcodeWHDlg.setLocationRelativeTo(GlobalVariables.getFrame());
 			barcodeWHDlg.setVisible(true);	
+		}
+	}
+	
+	void showInventoryDialog()
+	{
+		if(!inventoryDlg.isShowing())
+		{
+			inventoryDlg.setLocationRelativeTo(GlobalVariables.getFrame());
+			inventoryDlg.setVisible(true);	
 		}
 	}
 	

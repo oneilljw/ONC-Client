@@ -12,8 +12,8 @@ public class UPCDatabaseItem
 	private int rate_down;
 	
 	//getters
-	String getValid() { return valid; }
-	String getNumber() { return number; }
+	public String getValid() { return valid; }
+	public String getNumber() { return number; }
 	String getItemName() { return itemname; }
 	String getAlias() { return alias; }
 	String getDescription() { return description; }
@@ -23,7 +23,7 @@ public class UPCDatabaseItem
 	
 	//setters
 	void setValid(String valid) { this.valid = valid; }
-	void setNumber(String number) { this.number = number; }
+	public void setNumber(String number) { this.number = number; }
 	void setItemName(String itemname) { this.itemname = itemname; }
 	void setAlias(String alias) { this.alias = alias; }
 	void setDescription(String description) { this.description = description; }

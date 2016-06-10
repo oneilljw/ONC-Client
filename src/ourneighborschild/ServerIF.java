@@ -302,6 +302,8 @@ public class ServerIF
     						  "ADDED_WISH_DETAIL", "UPDATED_WISH_DETAIL", "DELETED_WISH_DETAIL",
     						  "ADDED_DELIVERY","UPDATED_DELIVERY",
     						  "ADDED_DRIVER", "UPDATED_DRIVER", "DELETED_DRIVER",
+    						  "ADDED_INVENTORY_ITEM", "INCREMENTED_INVENTORY_ITEM",
+    						  "UPDATED_INVENTORY_ITEM", "DELETED_INVENTORY_ITEM",
     						  "UPDATED_WEBSITE_STATUS"};
     	
     	String[] chatResponses = {"CHAT_REQUESTED", "CHAT_ACCEPTED", "CHAT_MESSAGE", "CHAT_ENDED",  "ADDED_NEW_YEAR"};
@@ -350,30 +352,16 @@ public class ServerIF
     			int index = 0;
     			while(index < restrictedResponses.length && !change.startsWith(restrictedResponses[index]))
     				index++;
-    	
+    			
     			if(index < restrictedResponses.length)
     			{
     				String logEntry = String.format("Server IF.processChanges Event: %s, Message: %s",
-    						restrictedResponses[index], change.substring(restrictedResponses[index].length()).substring(0, 40));
+    						restrictedResponses[index], change);
     				LogDialog.add(logEntry, "S");
     				fireDataChanged(restrictedResponses[index], change.substring(restrictedResponses[index].length()));
     			}
     		}
     	}
-/*   	
-    	int index = 0;
-    	while(index < responses.length)
-    	{
-    		if(change.startsWith(responses[index]))
-    		{
-//    			System.out.println(String.format("Response index %d change received", index));
-    			fireDataChanged(responses[index], change.substring(responses[index].length()));
-    			break;
-    		}
-    		
-    		index++;
-    	}
-*/
     }
     
     /** Register a listener for server DataChange events */

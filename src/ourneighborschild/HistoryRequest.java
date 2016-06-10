@@ -2,8 +2,9 @@ package ourneighborschild;
 
 /******************************************************************
  * This class implements a request object that is used when
- * obtaining either a child's wish history or a family's delivery
- * history from the ONC Server for display to the user
+ * obtaining either a child's wish history, a family's delivery
+ * history or an inventory item update from the ONC Server for 
+ * display to the user
  * @author johnwoneill
  *
  ****************************************************************/
@@ -19,5 +20,5 @@ public class HistoryRequest
 	}
 	
 	public int getID() { return id; }
-	public int getWishNumber() { return num; }
+	public int getNumber() { return num; }
 }
