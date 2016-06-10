@@ -86,9 +86,14 @@ public class InventoryDialog extends BarcodeTableDialog
 			UPCFailure failure = gson.fromJson(response.substring(20), UPCFailure.class);
 			lblInfo.setText(failure.getReason());
 		}
-		else
+		else if(response.startsWith("INCREMENTED_INVENTORY_ITEM"))
 		{
-			lblInfo.setText(response.substring(0, 20));
+			lblInfo.setText("Increased Item Count");
+			dlgTableModel.fireTableDataChanged();
+		}
+		else if(response.startsWith("ADDED_INVENTORY_ITEM"))
+		{
+			lblInfo.setText("Added New Item to Inventory");
 			dlgTableModel.fireTableDataChanged();
 		}
 	}
