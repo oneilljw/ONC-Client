@@ -40,6 +40,19 @@ public class InventoryItem extends ONCObject
 		this.rate_down = nextLine[8].isEmpty() ? 0 : Integer.parseInt(nextLine[8]);
 	}
 	
+	public InventoryItem(InventoryItem ii)	//make a new object that is a copy
+	{
+		super(ii.id);
+		this.count = ii.count;
+		this.number = ii.number;
+		this.itemname  = ii.itemname;
+		this.alias = ii.alias;
+		this.description = ii.description;
+		this.avg_price = ii.avg_price;
+		this.rate_up = ii.rate_up;
+		this.rate_down = ii.rate_down;
+	}
+	
 	//getters
 	int getCount() { return count; }
 	public String getNumber() { return number; }

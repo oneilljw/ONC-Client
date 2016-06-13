@@ -3,6 +3,7 @@ package ourneighborschild;
 import java.util.EnumSet;
 
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.table.AbstractTableModel;
 
 import com.google.gson.Gson;
@@ -13,14 +14,14 @@ public class InventoryDialog extends BarcodeTableDialog
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private static final int BARCODE_COL= 0;
+	private static final int BARCODE_COL= 2;
 	private static final int COUNT_COL = 1;
-	private static final int NAME_COL = 2;
-	private static final int ALIAS_COL = 3;
+	private static final int NAME_COL = 0;
+//	private static final int ALIAS_COL = 3;
 //	private static final int DESC_COL = 4;
-	private static final int AVG_PRICE_COL = 4;
-	private static final int RATE_UP_COL = 5;
-	private static final int RATE_DOWN_COL = 6;
+//	private static final int AVG_PRICE_COL = 4;
+//	private static final int RATE_UP_COL = 5;
+//	private static final int RATE_DOWN_COL = 6;
 	
 	private InventoryDB inventoryDB;
 
@@ -46,24 +47,23 @@ public class InventoryDialog extends BarcodeTableDialog
 	@Override
 	String[] getColumnToolTips()
 	{
-		return new String[] {"Barcode", "Count", "Item Name", "Alias", "Average Price", 
-							 "Rate Up", "Rate Down"};
+		return new String[] {"Item Name & Description", "Quanity of item in inventory", "Barcode"};
 	}
 	
 	@Override
-	int[] getColumnWidths() { return new int[] {96, 24, 360, 36, 36, 24, 24}; }
+	int[] getColumnWidths() { return new int[] {440, 32, 96}; }
 	
 	@Override
 	int[] getLeftColumns() { return new int[] {}; }
 	
 	@Override
-	int[] getCenteredColumns() { return new int[] {COUNT_COL, RATE_UP_COL, RATE_DOWN_COL}; }
+	int[] getCenteredColumns() { return new int[] {COUNT_COL}; }
 
 	@Override
 	AbstractTableModel getDialogTableModel() { return new DialogTableModel(); }
 
 	@Override
-	void onBarcodeEvent() 
+	void onBarcodeTFEvent() 
 	{
 		//add the bar coded item to inventory
 		String barcode = barcodeTF.getText();
@@ -114,7 +114,7 @@ public class InventoryDialog extends BarcodeTableDialog
 		 */
 		private static final long serialVersionUID = 1L;
 		
-		private String[] columnNames = {"Barcode", "#", "Item", "Alias", "Avg", "RU", "RD"};
+		private String[] columnNames = {"Item", "Qty", "Barcode"};
  
         public int getColumnCount() { return columnNames.length; }
  
@@ -126,21 +126,21 @@ public class InventoryDialog extends BarcodeTableDialog
  
         public Object getValueAt(int row, int col)
         {
-        	InventoryItem ii = inventoryDB.getItem(row);
+        	InventoryItem ii = inventoryDB.getItem(dlgTable.convertRowIndexToView(row));
         	if(col == BARCODE_COL)
         		return ii.getNumber();
         	else if(col == COUNT_COL)
         		return ii.getCount();
         	else if (col == NAME_COL)
-        		return ii.getItemName() + ii.getDescription();
-        	else if (col == ALIAS_COL)
-        		return ii.getAlias();
-        	else if (col == AVG_PRICE_COL)
-        		return ii.getAvgPrice();
-        	else if (col == RATE_UP_COL)
-        		return ii.getRateUp();
-        	else if (col == RATE_DOWN_COL)
-        		return ii.getRateDown();
+        		return ii.getItemName().isEmpty() ?  ii.getDescription() : ii.getItemName();
+//        	else if (col == ALIAS_COL)
+//        		return ii.getAlias();
+//        	else if (col == AVG_PRICE_COL)
+//        		return ii.getAvgPrice();
+//        	else if (col == RATE_UP_COL)
+//        		return ii.getRateUp();
+//        	else if (col == RATE_DOWN_COL)
+//        		return ii.getRateDown();
         	else
         		return "Error";
         }
@@ -149,7 +149,7 @@ public class InventoryDialog extends BarcodeTableDialog
         @Override
         public Class<?> getColumnClass(int column)
         {
-        	if(column > AVG_PRICE_COL)
+        	if(column == COUNT_COL)
         		return Integer.class;
         	else
         		return String.class;
@@ -157,7 +157,46 @@ public class InventoryDialog extends BarcodeTableDialog
  
         public boolean isCellEditable(int row, int col)
         {
-        	return false;
-        }  
+        	return col == NAME_COL ||
+        			(col == COUNT_COL &&  
+        			UserDB.getInstance().getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0);
+        }
+        
+        public void setValueAt(Object value, int row, int col)
+        { 
+        	InventoryItem selItem = inventoryDB.getItem(dlgTable.convertRowIndexToView(row));
+        	InventoryItem reqUpdateItem = null;
+        	
+        	//determine if the user made a change to a user object
+        	if(col == NAME_COL && !selItem.getItemName().equals((String)value))
+        	{
+        		reqUpdateItem = new InventoryItem(selItem);	//make a copy
+        		reqUpdateItem.setItemName((String) value);
+        	}
+        	else if(col == COUNT_COL && selItem.getCount() != ((Integer) value))
+        	{
+        		reqUpdateItem = new InventoryItem(selItem);	//make a copy
+        		reqUpdateItem.setCount((Integer) value);
+        	}
+        	
+        	//if the user made a change in the table, attempt to update the user object in
+        	//the local user data base
+        	if(reqUpdateItem != null)
+        	{
+        		String response = inventoryDB.update(this, reqUpdateItem);        		
+        		if(response == null || (response !=null && !response.startsWith("UPDATED_INVENTORY_ITEM")))
+        		{
+        			//request failed
+        			String err_mssg = "ONC Server denied update item request, try again later";
+        			JOptionPane.showMessageDialog(GlobalVariables.getFrame(), err_mssg, "Update Inventory Item Failure",
+													JOptionPane.ERROR_MESSAGE, GlobalVariables.getONCLogo());
+        		}
+        		else
+        		{
+        			lblInfo.setText("Updated Inventory Item");
+        			dlgTableModel.fireTableDataChanged();
+        		}
+        	}
+        }
     }
 }

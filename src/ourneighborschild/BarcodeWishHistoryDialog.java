@@ -85,7 +85,7 @@ public class BarcodeWishHistoryDialog extends BarcodeTableDialog
 	@Override
 	String getPrintTitle() { return "ONC Wish History"; }
 	
-	void onBarcodeEvent()
+	void onBarcodeTFEvent()
 	{
 		//if using UPC-E, eliminate check digits before converting to childwishID integer
 		int cwID;

@@ -33,7 +33,7 @@ public abstract class BarcodeTableDialog extends ONCTableDialog implements Actio
 	 */
 	private static final long serialVersionUID = 1L;
 	protected JTextField barcodeTF;
-	private ONCTable dlgTable;
+	protected ONCTable dlgTable;
 	protected AbstractTableModel dlgTableModel;
 	protected JLabel lblInfo;
 	private JButton btnPrint;
@@ -49,8 +49,8 @@ public abstract class BarcodeTableDialog extends ONCTableDialog implements Actio
 		
 		JLabel lblONCIcon = new JLabel(gvs.getImageIcon(0));
 		
-		barcodeTF = new JTextField(6);
-    	barcodeTF.setMaximumSize(new Dimension(112,56));
+		barcodeTF = new JTextField(9);
+    	barcodeTF.setMaximumSize(new Dimension(136,56));
 		barcodeTF.setBorder(BorderFactory.createTitledBorder("Barcode"));
 		barcodeTF.setToolTipText("Scan barcode or type barcode # and press <enter>");
 		barcodeTF.addActionListener(this);
@@ -131,7 +131,7 @@ public abstract class BarcodeTableDialog extends ONCTableDialog implements Actio
 	abstract int[] getCenteredColumns();
 	abstract int[] getLeftColumns();
 	abstract AbstractTableModel getDialogTableModel();
-	abstract void onBarcodeEvent();
+	abstract void onBarcodeTFEvent();
 	abstract String getPrintTitle();
 	
 	
@@ -156,7 +156,7 @@ public abstract class BarcodeTableDialog extends ONCTableDialog implements Actio
 	{
 		if(e.getSource() == barcodeTF)
 		{ 
-			onBarcodeEvent();
+			onBarcodeTFEvent();
 			barcodeTF.removeActionListener(this);
 			barcodeTF.setText("");
 			barcodeTF.addActionListener(this);
