@@ -1,9 +1,14 @@
 package ourneighborschild;
 
+import java.awt.BorderLayout;
 import java.util.EnumSet;
 
+import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.table.AbstractTableModel;
 
 import com.google.gson.Gson;
@@ -22,17 +27,40 @@ public class InventoryDialog extends BarcodeTableDialog
 //	private static final int AVG_PRICE_COL = 4;
 //	private static final int RATE_UP_COL = 5;
 //	private static final int RATE_DOWN_COL = 6;
+	private static final int DEFAULT_TABLE_ROW_COUNT = 15;
 	
 	private InventoryDB inventoryDB;
+	
+	JRadioButton btnReview, btnAdd, btnRemove;
+	
 
 	public InventoryDialog(JFrame parentFrame) 
 	{
 		super(parentFrame);
-		this.setTitle("ONC Inventory");
+		this.setTitle("ONC Inventory Manager");
 		
 		inventoryDB = InventoryDB.getInstance();
 		if(inventoryDB != null)
 			inventoryDB.addDatabaseListener(this);
+		
+		JPanel buttonPanel = new JPanel();
+		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
+		
+		btnReview = new JRadioButton("Review");
+		btnAdd = new JRadioButton("Add");
+		btnRemove = new JRadioButton("Remove");
+		
+		ButtonGroup modeGroup = new ButtonGroup();
+		modeGroup.add(btnReview);
+		modeGroup.add(btnAdd);
+		modeGroup.add(btnRemove);
+		btnReview.setSelected(true);
+		
+		buttonPanel.add(btnReview);
+		buttonPanel.add(btnAdd);
+		buttonPanel.add(btnRemove);
+		
+		topPanel.add(buttonPanel, BorderLayout.EAST);
 	}
 
 	@Override
@@ -58,6 +86,9 @@ public class InventoryDialog extends BarcodeTableDialog
 	
 	@Override
 	int[] getCenteredColumns() { return new int[] {COUNT_COL}; }
+	
+	@Override
+	int getDefaultRowCount() { return DEFAULT_TABLE_ROW_COUNT; }
 
 	@Override
 	AbstractTableModel getDialogTableModel() { return new DialogTableModel(); }
@@ -65,37 +96,44 @@ public class InventoryDialog extends BarcodeTableDialog
 	@Override
 	void onBarcodeTFEvent() 
 	{
-		//add the bar coded item to inventory
-		String barcode = barcodeTF.getText();
-		InventoryRequest invAddReq = new InventoryRequest(barcode, 1);
+		//action is based on selected mode: review, add or remove. Add adds an item to 
+		//inventory, remove removes an item from inventory. Review does nothing.
 		
-		Gson gson = new Gson();
-		String response = inventoryDB.add(this, invAddReq);
+		if(!btnReview.isSelected())
+		{
+			String barcode = barcodeTF.getText();
+			InventoryRequest invAddReq = new InventoryRequest(barcode, btnAdd.isSelected() ? 1 : -1);
 		
-		if(response == null)
-		{
-			lblInfo.setText("Server Did Not Respond");
+			Gson gson = new Gson();
+			String response = inventoryDB.add(this, invAddReq);
+		
+			if(response == null)
+			{
+				lblInfo.setText("Server Did Not Respond");
+			}
+			else if(response.startsWith("UPC_LOOKUP_FAILED"))
+			{
+				UPCFailure failure = gson.fromJson(response.substring(17), UPCFailure.class);
+				lblInfo.setText(failure.getReason());
+			}
+			else if(response.startsWith("ADD_INVENTORY_FALIED"))
+			{
+				UPCFailure failure = gson.fromJson(response.substring(20), UPCFailure.class);
+				lblInfo.setText(failure.getReason());
+			}
+			else if(response.startsWith("INCREMENTED_INVENTORY_ITEM"))
+			{
+				lblInfo.setText(btnAdd.isSelected() ? "Increased " : "Decreased " + "Item Count");
+				dlgTableModel.fireTableDataChanged();
+			}
+			else if(response.startsWith("ADDED_INVENTORY_ITEM"))
+			{
+				lblInfo.setText("Added New Item to Inventory");
+				dlgTableModel.fireTableDataChanged();
+			}
 		}
-		else if(response.startsWith("UPC_LOOKUP_FAILED"))
-		{
-			UPCFailure failure = gson.fromJson(response.substring(17), UPCFailure.class);
-			lblInfo.setText(failure.getReason());
-		}
-		else if(response.startsWith("ADD_INVENTORY_FALIED"))
-		{
-			UPCFailure failure = gson.fromJson(response.substring(20), UPCFailure.class);
-			lblInfo.setText(failure.getReason());
-		}
-		else if(response.startsWith("INCREMENTED_INVENTORY_ITEM"))
-		{
-			lblInfo.setText("Increased Item Count");
-			dlgTableModel.fireTableDataChanged();
-		}
-		else if(response.startsWith("ADDED_INVENTORY_ITEM"))
-		{
-			lblInfo.setText("Added New Item to Inventory");
-			dlgTableModel.fireTableDataChanged();
-		}
+		else
+			lblInfo.setText("Set mode to Add or Remove to change inventory counts");
 	}
 
 	@Override
@@ -117,16 +155,14 @@ public class InventoryDialog extends BarcodeTableDialog
 		private String[] columnNames = {"Item", "Qty", "Barcode"};
  
         public int getColumnCount() { return columnNames.length; }
- 
-//      public int getRowCount() { return stAL != null ? stAL.size() : 0; }
-        
+  
         public int getRowCount() { return inventoryDB != null ? inventoryDB.size() : 0; }
  
         public String getColumnName(int col) { return columnNames[col]; }
  
         public Object getValueAt(int row, int col)
         {
-        	InventoryItem ii = inventoryDB.getItem(dlgTable.convertRowIndexToView(row));
+        	InventoryItem ii = inventoryDB.getItem(row);
         	if(col == BARCODE_COL)
         		return ii.getNumber();
         	else if(col == COUNT_COL)
@@ -155,16 +191,20 @@ public class InventoryDialog extends BarcodeTableDialog
         		return String.class;
         }
  
+        /****
+         * A table cell is editable if the mode is set to  either add or remove inventory.
+         * Only a user with Administrative or higher privilege may change the count
+         */
         public boolean isCellEditable(int row, int col)
         {
-        	return col == NAME_COL ||
+        	return !btnReview.isSelected() && (col == NAME_COL ||
         			(col == COUNT_COL &&  
-        			UserDB.getInstance().getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0);
+        			UserDB.getInstance().getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0));
         }
         
         public void setValueAt(Object value, int row, int col)
         { 
-        	InventoryItem selItem = inventoryDB.getItem(dlgTable.convertRowIndexToView(row));
+        	InventoryItem selItem = inventoryDB.getItem(row);
         	InventoryItem reqUpdateItem = null;
         	
         	//determine if the user made a change to a user object

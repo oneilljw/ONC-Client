@@ -54,7 +54,7 @@ public class InventoryItem extends ONCObject
 	}
 	
 	//getters
-	int getCount() { return count; }
+	public int getCount() { return count; }
 	public String getNumber() { return number; }
 	public String getItemName() { return itemname; }
 	String getAlias() { return alias; }

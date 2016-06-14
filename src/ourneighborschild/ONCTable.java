@@ -65,10 +65,11 @@ public class ONCTable extends JTable
 	
 	@Override
 	public Class getColumnClass(int column)
-    {
+	{
 		if(getRowCount() > 0)
 			return getValueAt(0, column).getClass();
 		else
 			return Object.class;
     }
+    
 }

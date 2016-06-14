@@ -21,6 +21,7 @@ public class BarcodeWishHistoryDialog extends BarcodeTableDialog
 	private static final int ASSIGNEE_COL = 4;
 	private static final int CHANGEDBY_COL = 5;
 	private static final int TIMESTAMP_COL = 6;
+	private static final int DEFAULT_TABLE_ROW_COUNT = 7;
 	
 	private FamilyDB fDB;
 	private ChildDB cDB;
@@ -68,6 +69,9 @@ public class BarcodeWishHistoryDialog extends BarcodeTableDialog
 	
 	@Override
 	int[] getCenteredColumns() { return new int[] {}; }
+	
+	@Override
+	int getDefaultRowCount() { return DEFAULT_TABLE_ROW_COUNT; }
 	
 	@Override
 	AbstractTableModel getDialogTableModel() { return new DialogTableModel(); }

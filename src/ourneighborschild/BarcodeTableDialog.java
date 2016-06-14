@@ -1,5 +1,6 @@
 package ourneighborschild;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -32,6 +33,7 @@ public abstract class BarcodeTableDialog extends ONCTableDialog implements Actio
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	protected JPanel topPanel;
 	protected JTextField barcodeTF;
 	protected ONCTable dlgTable;
 	protected AbstractTableModel dlgTableModel;
@@ -44,8 +46,10 @@ public abstract class BarcodeTableDialog extends ONCTableDialog implements Actio
 	{
 		super(parentFrame);
 		
-		JPanel topPanel = new JPanel();
-		topPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+		topPanel = new JPanel(new BorderLayout());
+		
+		JPanel barcodePanel = new JPanel();
+		barcodePanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 		
 		JLabel lblONCIcon = new JLabel(gvs.getImageIcon(0));
 		
@@ -55,8 +59,10 @@ public abstract class BarcodeTableDialog extends ONCTableDialog implements Actio
 		barcodeTF.setToolTipText("Scan barcode or type barcode # and press <enter>");
 		barcodeTF.addActionListener(this);
 		
-		topPanel.add(lblONCIcon);
-		topPanel.add(barcodeTF);
+		barcodePanel.add(lblONCIcon);
+		barcodePanel.add(barcodeTF);
+		
+		topPanel.add(barcodePanel, BorderLayout.WEST);
 		
 		//Create the table model
 		dlgTableModel = getDialogTableModel();
@@ -81,7 +87,7 @@ public abstract class BarcodeTableDialog extends ONCTableDialog implements Actio
         JTableHeader anHeader = dlgTable.getTableHeader();
         anHeader.setForeground( Color.black);
         anHeader.setBackground( new Color(161,202,241));
-        
+       
         //left justify wish count column
         DefaultTableCellRenderer dtcr = new DefaultTableCellRenderer();
         dtcr.setHorizontalAlignment(SwingConstants.LEFT);
@@ -93,12 +99,11 @@ public abstract class BarcodeTableDialog extends ONCTableDialog implements Actio
         cols = getCenteredColumns();
         for(int i=0; i< cols.length; i++)
         	dlgTable.getColumnModel().getColumn(cols[i]).setCellRenderer(dtcr);
-        
+      
         //Create the scroll pane and add the table to it.
         JScrollPane dsScrollPane = new JScrollPane(dlgTable);
         dsScrollPane.setBorder(UIManager.getBorder("Table.scrollPaneBorder"));
-        dsScrollPane.setPreferredSize(new Dimension(tablewidth, dlgTable.getRowHeight()*7));
-        
+        dsScrollPane.setPreferredSize(new Dimension(tablewidth, dlgTable.getRowHeight()*getDefaultRowCount()));
         
         JPanel bottomPanel = new JPanel();
         bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.X_AXIS));
@@ -130,6 +135,7 @@ public abstract class BarcodeTableDialog extends ONCTableDialog implements Actio
 	abstract int[] getColumnWidths(); 
 	abstract int[] getCenteredColumns();
 	abstract int[] getLeftColumns();
+	abstract int getDefaultRowCount();
 	abstract AbstractTableModel getDialogTableModel();
 	abstract void onBarcodeTFEvent();
 	abstract String getPrintTitle();
