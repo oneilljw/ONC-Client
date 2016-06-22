@@ -39,16 +39,31 @@ public class InventoryDB extends ONCDatabase
 	
 	InventoryItem getItem(int index) { return invList != null ? invList.get(index) : null; }
 	
+	InventoryItem getItemByBarcode(String barcode)
+	{
+		int index = 0;
+		while(index < invList.size() && !invList.get(index).getNumber().equals(barcode))
+			index++;
+		
+		return index < invList.size() ? invList.get(index) : null;
+	}
+	
 	String add(Object source, Object entity)
 	{
-		//send add bar code request to server. Server will return either a ADDED_INVENTORY_ITEM
-		//message, an INCREMENTED_INVENTORY_ITEM messsage or and ADDED_INVENTORY_FAILED message
+		//the entity parameter may be either an InventoryRequest object (UPC bar code scan)
+		//or an InventoryItem (manual bar code entry). The method will determine which and send
+		//the appropriate json embedded in the add request to the server. The server will return 
+		//either a ADDED_INVENTORY_ITEM message, an INCREMENTED_INVENTORY_ITEM message or and ADDED_INVENTORY_FAILED message
+		
 		String response = "";
 				
 		if(serverIF != null && serverIF.isConnected())
 		{
 			Gson gson = new Gson();
-			response = serverIF.sendRequest("POST<add_inventory>" + gson.toJson(entity, InventoryRequest.class));		
+			if(entity instanceof InventoryItem)
+				response = serverIF.sendRequest("POST<add_inventory>" + gson.toJson(entity, InventoryItem.class));
+			else
+				response = serverIF.sendRequest("POST<add_barcode>" + gson.toJson(entity, InventoryRequest.class));
 					
 			//if the server added the item,  add the new child to the data base and notify ui's
 			if(response.startsWith("ADDED_INVENTORY_ITEM"))		

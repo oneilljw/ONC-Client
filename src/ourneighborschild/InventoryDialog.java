@@ -1,19 +1,25 @@
 package ourneighborschild;
 
 import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.EnumSet;
 
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JTextField;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 
 import com.google.gson.Gson;
 
-public class InventoryDialog extends BarcodeTableDialog 
+public class InventoryDialog extends BarcodeTableDialog implements ActionListener, ListSelectionListener
 {
 	/**
 	 * 
@@ -30,9 +36,7 @@ public class InventoryDialog extends BarcodeTableDialog
 	private static final int DEFAULT_TABLE_ROW_COUNT = 15;
 	
 	private InventoryDB inventoryDB;
-	
-	JRadioButton btnReview, btnAdd, btnRemove;
-	
+	private JRadioButton rbSearch, rbAdd, rbRemove;
 
 	public InventoryDialog(JFrame parentFrame) 
 	{
@@ -46,21 +50,25 @@ public class InventoryDialog extends BarcodeTableDialog
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
 		
-		btnReview = new JRadioButton("Review");
-		btnAdd = new JRadioButton("Add");
-		btnRemove = new JRadioButton("Remove");
+		rbSearch = new JRadioButton("Search");
+		rbAdd = new JRadioButton("Add");
+		rbRemove = new JRadioButton("Remove");
 		
 		ButtonGroup modeGroup = new ButtonGroup();
-		modeGroup.add(btnReview);
-		modeGroup.add(btnAdd);
-		modeGroup.add(btnRemove);
-		btnReview.setSelected(true);
+		modeGroup.add(rbSearch);
+		modeGroup.add(rbAdd);
+		modeGroup.add(rbRemove);
+		rbSearch.setSelected(true);
 		
-		buttonPanel.add(btnReview);
-		buttonPanel.add(btnAdd);
-		buttonPanel.add(btnRemove);
+		buttonPanel.add(rbSearch);
+		buttonPanel.add(rbAdd);
+		buttonPanel.add(rbRemove);
 		
 		topPanel.add(buttonPanel, BorderLayout.EAST);
+		
+		dlgTable.getSelectionModel().addListSelectionListener(this);
+		
+		btnAction.setText("Add Item");
 	}
 
 	@Override
@@ -75,7 +83,7 @@ public class InventoryDialog extends BarcodeTableDialog
 	@Override
 	String[] getColumnToolTips()
 	{
-		return new String[] {"Item Name & Description", "Quanity of item in inventory", "Barcode"};
+		return new String[] {"Item Name & Description", "Quanity of item in inventory", "Item Barcode"};
 	}
 	
 	@Override
@@ -99,10 +107,10 @@ public class InventoryDialog extends BarcodeTableDialog
 		//action is based on selected mode: review, add or remove. Add adds an item to 
 		//inventory, remove removes an item from inventory. Review does nothing.
 		
-		if(!btnReview.isSelected())
+		if(!rbSearch.isSelected())
 		{
 			String barcode = barcodeTF.getText();
-			InventoryRequest invAddReq = new InventoryRequest(barcode, btnAdd.isSelected() ? 1 : -1);
+			InventoryRequest invAddReq = new InventoryRequest(barcode, rbAdd.isSelected() ? 1 : -1);
 		
 			Gson gson = new Gson();
 			String response = inventoryDB.add(this, invAddReq);
@@ -123,7 +131,7 @@ public class InventoryDialog extends BarcodeTableDialog
 			}
 			else if(response.startsWith("INCREMENTED_INVENTORY_ITEM"))
 			{
-				lblInfo.setText(btnAdd.isSelected() ? "Increased " : "Decreased " + "Item Count");
+				lblInfo.setText(rbAdd.isSelected() ? "Increased Qty" : "Decreased Qty");
 				dlgTableModel.fireTableDataChanged();
 			}
 			else if(response.startsWith("ADDED_INVENTORY_ITEM"))
@@ -133,11 +141,84 @@ public class InventoryDialog extends BarcodeTableDialog
 			}
 		}
 		else
-			lblInfo.setText("Set mode to Add or Remove to change inventory counts");
+			lblInfo.setText("Set Mode to Add or Remove Items");
 	}
 
 	@Override
 	String getPrintTitle() { return "Current Inventory"; }
+	
+	@Override
+	void onActionEvent(ActionEvent e)
+	{
+		if(e.getSource() == btnAction)
+		{
+			AddInventoryItemDialog addDlg = new AddInventoryItemDialog(parentFrame, true);
+			addDlg.setLocationRelativeTo(this);
+			if(addDlg.showDialog())
+			{
+				InventoryItem addItemReq = addDlg.getAddItemRequest();
+				
+				//make sure item isn't already in the inventory. Suppress leading zeros
+				String searchCode = addItemReq.getNumber().replaceFirst("^0+(?!$)", "");
+				if(addItemReq != null && inventoryDB.getItemByBarcode(searchCode) == null)
+				{
+					//add it to the database
+					String result = inventoryDB.add(this, addItemReq);
+					if(result.startsWith("ADDED_INVENTORY_ITEM"))
+					{
+						lblInfo.setText("Added Inventory Item");
+						dlgTableModel.fireTableDataChanged();
+					}
+					else
+						lblInfo.setText("Add Inventory Request Rejected by Server");
+				}
+				else
+					lblInfo.setText("Item already in database or invalid");
+			}
+		}
+		else if(e.getSource() == btnDelete)
+		{
+			//get the selected item name from the model
+			InventoryItem reqDelItem = inventoryDB.getItem(dlgTable.convertRowIndexToModel(dlgTable.getSelectedRow()));
+			
+			//Confirm with the user that the deletion is really intended
+			String confirmMssg = String.format("<html>Are you sure you want to delete <br>%s<br>from the data base?</html>", 
+											reqDelItem.getItemName());
+			
+			Object[] options= {"Cancel", "Delete"};
+			JOptionPane confirmOP = new JOptionPane(confirmMssg, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION,
+								GlobalVariables.getONCLogo(), options, "Cancel");
+			JDialog confirmDlg = confirmOP.createDialog(GlobalVariables.getFrame(), "*** Confirm Item Deletion ***");
+			confirmDlg.setVisible(true);
+		
+			Object selectedValue = confirmOP.getValue();
+			if(selectedValue != null && selectedValue.toString().equals("Delete"))
+			{
+				String response = inventoryDB.delete(this, reqDelItem);
+				if(response != null && response.startsWith("DELETED_INVENTORY_ITEM"))
+				{
+					dlgTableModel.fireTableDataChanged();
+					lblInfo.setText("Inventory Item Deleted");
+				}
+				else
+					lblInfo.setText("Delete Item Request Failed");	
+			}
+		}
+	}
+	
+	@Override
+	public void valueChanged(ListSelectionEvent lse) 
+	{
+		int selRow = dlgTable.getSelectedRow();
+		if(selRow > -1)
+		{
+			int modelRow = dlgTable.convertRowIndexToModel(selRow);
+			int count = (Integer) dlgTableModel.getValueAt(modelRow, COUNT_COL);
+			btnDelete.setEnabled(count == 0);
+		}
+		else
+			btnDelete.setEnabled(false);
+	}
 	
 	@Override
 	public EnumSet<EntityType> getEntityEventSelectorEntityTypes() 
@@ -197,9 +278,9 @@ public class InventoryDialog extends BarcodeTableDialog
          */
         public boolean isCellEditable(int row, int col)
         {
-        	return !btnReview.isSelected() && (col == NAME_COL ||
-        			(col == COUNT_COL &&  
-        			UserDB.getInstance().getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0));
+        	return col == NAME_COL ||
+        			col == COUNT_COL &&  
+        			UserDB.getInstance().getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0;
         }
         
         public void setValueAt(Object value, int row, int col)
@@ -239,4 +320,88 @@ public class InventoryDialog extends BarcodeTableDialog
         	}
         }
     }
+	
+	private class AddInventoryItemDialog extends InfoDialog
+	{
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		private static final int BARCODE_FIELD_LENGTH = 12;
+		
+		private InventoryItem addItemReq;
+		
+
+		AddInventoryItemDialog(JFrame pf, boolean bModal)
+		{
+			super(pf, bModal);
+			this.setTitle("Add Inventory Item");
+			
+			addItemReq = null;
+			
+			lblONCIcon.setText("<html><font color=blue>Add New Inventory Item<br>Information Below</font></html>");
+			btnAction.setText("Add Item");
+			
+			//Set up the main panel, loop to set up components associated with names
+			for(int pn=0; pn < getDialogFieldNames().length; pn++)
+			{
+				tf[pn] = new JTextField(20);
+				tf[pn].addKeyListener(tfkl);
+				infopanel[pn].add(tf[pn]);
+			}
+			
+			pack();
+		}
+		
+		InventoryItem getAddItemRequest() {return addItemReq;}
+
+		@Override
+		String[] getDialogFieldNames() 
+		{
+			return new String[] {"Item", "Barcode"};
+		}
+
+		@Override
+		void display(ONCObject obj) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		void update() //user clicked the action button
+		{
+			//generate an add inventory item request object and close the dialog
+			addItemReq = new InventoryItem(tf[0].getText(), tf[1].getText());
+			result = true;
+			this.dispose();
+		}
+
+		@Override
+		void delete() {	/* TODO Auto-generated method stub */  }
+
+		@Override
+		boolean fieldUnchanged()
+		{ 
+			//check that item text field isn't empty, the bar code text field is of proper
+			//length and the bar code text field only contains digit characters (is numeric)
+			if(!tf[0].getText().isEmpty())
+			{
+				//item is not empty, check the bar code field length 
+				char[] barcode = tf[1].getText().toCharArray();
+				if(barcode.length == BARCODE_FIELD_LENGTH)
+				{
+					//bar code is of proper length, check if all characters are numeric
+					int index = 0;
+					while(index < barcode.length && Character.isDigit(barcode[index++]));
+					
+					//if we get here, the item field is not empty, the bar code field contains
+					//the proper number of characters. index should equal bar code length if
+					//it's an acceptable bar code.
+					return index < barcode.length;	//returns false if all conditions met and
+				}									//item is acceptable to be added
+			}
+			
+			return true;	//item is not ready to be added
+		}
+	}
 }

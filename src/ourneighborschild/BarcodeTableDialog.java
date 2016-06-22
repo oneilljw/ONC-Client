@@ -33,18 +33,21 @@ public abstract class BarcodeTableDialog extends ONCTableDialog implements Actio
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	protected JPanel topPanel;
+	protected JPanel topPanel, cntlPanel;
 	protected JTextField barcodeTF;
 	protected ONCTable dlgTable;
 	protected AbstractTableModel dlgTableModel;
 	protected JLabel lblInfo;
+	protected JButton btnAction, btnDelete;
 	private JButton btnPrint;
+	protected JFrame parentFrame;
 	
 	protected List<? extends ONCObject> stAL;
 
 	public BarcodeTableDialog(JFrame parentFrame)
 	{
 		super(parentFrame);
+		this.parentFrame = parentFrame;
 		
 		topPanel = new JPanel(new BorderLayout());
 		
@@ -105,23 +108,31 @@ public abstract class BarcodeTableDialog extends ONCTableDialog implements Actio
         dsScrollPane.setBorder(UIManager.getBorder("Table.scrollPaneBorder"));
         dsScrollPane.setPreferredSize(new Dimension(tablewidth, dlgTable.getRowHeight()*getDefaultRowCount()));
         
-        JPanel bottomPanel = new JPanel();
-        bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.X_AXIS));
-        
-        JPanel textPanel = new JPanel();
-        textPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+        JPanel bottomPanel = new JPanel(new BorderLayout());
+ 
         lblInfo = new JLabel("");
-        textPanel.add(lblInfo);
-        bottomPanel.add(textPanel);
+        bottomPanel.add(lblInfo, BorderLayout.WEST);
+
         
-        JPanel cntlPanel = new JPanel();
-        cntlPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
+        cntlPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        bottomPanel.add(cntlPanel, BorderLayout.CENTER);
+        
+        btnDelete = new JButton("Delete Item");
+        btnDelete.setToolTipText("Delete the item from Inventory if Qty = 0");
+        btnDelete.setEnabled(false);
+        btnDelete.addActionListener(this);
+        cntlPanel.add(btnDelete);
+        
+        btnAction = new JButton();
+        btnAction.addActionListener(this);
+        cntlPanel.add(btnAction);
+       
         btnPrint = new JButton("Print");
-        btnPrint.setToolTipText("Print the wish history");
         btnPrint.addActionListener(this);
         cntlPanel.add(btnPrint);
-        bottomPanel.add(cntlPanel);
         
+        bottomPanel.add(cntlPanel, BorderLayout.EAST);
+       
         getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
         getContentPane().add(topPanel);
         getContentPane().add(dsScrollPane);
@@ -139,7 +150,7 @@ public abstract class BarcodeTableDialog extends ONCTableDialog implements Actio
 	abstract AbstractTableModel getDialogTableModel();
 	abstract void onBarcodeTFEvent();
 	abstract String getPrintTitle();
-	
+	abstract void onActionEvent(ActionEvent e);
 	
 	void print()
 	{
@@ -171,6 +182,10 @@ public abstract class BarcodeTableDialog extends ONCTableDialog implements Actio
 		else if(e.getSource() == btnPrint)
 		{
 			print(); 
-		}		
+		}
+		else if(e.getSource() == btnAction || e.getSource() == btnDelete) 
+		{
+			onActionEvent(e);
+		}
 	}
 }

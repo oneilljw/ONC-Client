@@ -53,10 +53,23 @@ public class InventoryItem extends ONCObject
 		this.rate_down = ii.rate_down;
 	}
 	
+	public InventoryItem(String name, String barcode)
+	{
+		super(-1);	//server will add correct id
+		this.count = 0;	//can add an item that has no stock on hand
+		this.number = barcode;
+		this.itemname = name;
+		this.alias = "";
+		this.description = "";
+		this.avg_price = "";
+		this.rate_up = 0;
+		this.rate_down = 0;
+	}
+	
 	//getters
 	public int getCount() { return count; }
 	public String getNumber() { return number; }
-	public String getItemName() { return itemname; }
+	public String getItemName() { return itemname.isEmpty() ? description : itemname; }
 	String getAlias() { return alias; }
 	String getDescription() { return description; }
 	String getAvgPrice() { return avg_price; }
@@ -65,7 +78,7 @@ public class InventoryItem extends ONCObject
 	
 	//setters
 	void setCount(int count) { this.count = count; }
-	void setNumber(String number) { this.number = number; }
+	public void setNumber(String number) { this.number = number; }
 	void setItemName(String itemname) { this.itemname = itemname; }
 	void setAlias(String alias) { this.alias = alias; }
 	void setDescription(String description) { this.description = description; }
@@ -92,4 +105,12 @@ public class InventoryItem extends ONCObject
 		
 		return rowList.toArray(new String[rowList.size()]);
 	}
+	
+	public String toString()
+	{
+		return String.format("id=%d, count=%d, name=%s, barcode= %s, alias=%s, desc=%s, avg_price=%s, rate_up=%d, rate_down=%d", 
+				this.id, this.count, this.itemname, this.number, this.alias, this.description,
+				this.avg_price, this.rate_up, this.rate_down);
+	}
+
 }

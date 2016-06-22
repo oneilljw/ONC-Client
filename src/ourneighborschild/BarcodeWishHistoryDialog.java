@@ -1,6 +1,7 @@
 package ourneighborschild;
 
 
+import java.awt.event.ActionEvent;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -50,6 +51,8 @@ public class BarcodeWishHistoryDialog extends BarcodeTableDialog
 		userDB = UserDB.getInstance();
 		
 		stAL = new ArrayList<ONCChildWish>();
+		
+		btnAction.setVisible(false);
 	}
 	
 	@Override
@@ -147,6 +150,7 @@ public class BarcodeWishHistoryDialog extends BarcodeTableDialog
 		}
 	}
 	
+	
 	@Override
 	public EnumSet<EntityType> getEntityEventSelectorEntityTypes() 
 	{	
@@ -213,4 +217,9 @@ public class BarcodeWishHistoryDialog extends BarcodeTableDialog
         	return false;
         }  
     }
+
+	@Override
+	void onActionEvent(ActionEvent e) {
+		// TODO Auto-generated method stub
+	}
 }
