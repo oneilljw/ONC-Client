@@ -1,18 +1,24 @@
 package ourneighborschild;
 
 import java.awt.BorderLayout;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.util.EnumSet;
 
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
+import javax.swing.TransferHandler;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
@@ -36,7 +42,7 @@ public class InventoryDialog extends BarcodeTableDialog implements ActionListene
 	private static final int DEFAULT_TABLE_ROW_COUNT = 15;
 	
 	private InventoryDB inventoryDB;
-	private JRadioButton rbSearch, rbAdd, rbRemove;
+	private JRadioButton rbEdit, rbAdd, rbRemove;
 
 	public InventoryDialog(JFrame parentFrame) 
 	{
@@ -50,23 +56,25 @@ public class InventoryDialog extends BarcodeTableDialog implements ActionListene
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
 		
-		rbSearch = new JRadioButton("Search");
-		rbAdd = new JRadioButton("Add");
-		rbRemove = new JRadioButton("Remove");
+		rbEdit = new JRadioButton("Edit Item");
+		rbAdd = new JRadioButton("Add Qtu");
+		rbRemove = new JRadioButton("Remove Gty");
 		
 		ButtonGroup modeGroup = new ButtonGroup();
-		modeGroup.add(rbSearch);
+		modeGroup.add(rbEdit);
 		modeGroup.add(rbAdd);
 		modeGroup.add(rbRemove);
-		rbSearch.setSelected(true);
+		rbEdit.setSelected(true);
 		
-		buttonPanel.add(rbSearch);
+		buttonPanel.add(rbEdit);
 		buttonPanel.add(rbAdd);
 		buttonPanel.add(rbRemove);
 		
 		topPanel.add(buttonPanel, BorderLayout.EAST);
 		
 		dlgTable.getSelectionModel().addListSelectionListener(this);
+		dlgTable.setDragEnabled(true);
+		dlgTable.setTransferHandler(new InventoryTransferhandler());
 		
 		btnAction.setText("Add Item");
 	}
@@ -107,7 +115,7 @@ public class InventoryDialog extends BarcodeTableDialog implements ActionListene
 		//action is based on selected mode: review, add or remove. Add adds an item to 
 		//inventory, remove removes an item from inventory. Review does nothing.
 		
-		if(!rbSearch.isSelected())
+		if(!rbEdit.isSelected())
 		{
 			String barcode = barcodeTF.getText();
 			InventoryRequest invAddReq = new InventoryRequest(barcode, rbAdd.isSelected() ? 1 : -1);
@@ -278,9 +286,9 @@ public class InventoryDialog extends BarcodeTableDialog implements ActionListene
          */
         public boolean isCellEditable(int row, int col)
         {
-        	return col == NAME_COL ||
+        	return rbEdit.isSelected() && (col == NAME_COL ||
         			col == COUNT_COL &&  
-        			UserDB.getInstance().getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0;
+        			UserDB.getInstance().getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0);
         }
         
         public void setValueAt(Object value, int row, int col)
@@ -320,6 +328,77 @@ public class InventoryDialog extends BarcodeTableDialog implements ActionListene
         	}
         }
     }
+	
+	private class InventoryTransferhandler extends TransferHandler
+	{
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
+		public int getSourceActions(JComponent c)
+		{
+			return TransferHandler.COPY;
+		}
+		
+		protected Transferable createTransferable(JComponent c)
+		{
+			Transferable iit = new InventoryItemTransferable();
+			
+			InventoryItem ii = null;
+			try 
+			{
+				ii = (InventoryItem) iit.getTransferData(iit.getTransferDataFlavors()[0]);
+			} 
+			catch (UnsupportedFlavorException e) 
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			catch (IOException e) 
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			System.out.println(ii.getNumber());
+			return iit;
+		}
+		
+		protected void exportDone(JComponent source, Transferable data, int action)
+		{
+			System.out.println(String.format("Export Done %d", action));
+		}
+	}
+	
+	private class InventoryItemTransferable implements Transferable
+	{
+		private DataFlavor invItemDataFlavor;
+		
+		public InventoryItemTransferable()
+		{
+			invItemDataFlavor = new DataFlavor(InventoryItem.class, "Inventory Item");
+		}
+		
+		@Override
+		public Object getTransferData(DataFlavor df) throws UnsupportedFlavorException, IOException 
+		{
+			if(df.equals(invItemDataFlavor))
+				throw new UnsupportedFlavorException(df);
+			else
+			{
+				int modelrow = dlgTable.convertRowIndexToModel(dlgTable.getSelectedRow());
+				InventoryItem selItem = inventoryDB.getItem(modelrow);
+				return selItem;
+			}	
+		}
+
+		@Override
+		public DataFlavor[] getTransferDataFlavors() { return new DataFlavor[] { invItemDataFlavor }; }
+			
+		@Override
+		public boolean isDataFlavorSupported(DataFlavor df) { return df.equals(invItemDataFlavor); }
+	}
 	
 	private class AddInventoryItemDialog extends InfoDialog
 	{
