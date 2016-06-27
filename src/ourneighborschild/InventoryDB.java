@@ -93,9 +93,9 @@ public class InventoryDB extends ONCDatabase
 	InventoryItem processIncrementedItem(Object source, String json)
 	{
 		InventoryItem item = null;
-		HistoryRequest incrementedItem = null;
+		InventoryChange incrementedItem = null;
 		Gson gson = new Gson();
-		incrementedItem = gson.fromJson(json, HistoryRequest.class);
+		incrementedItem = gson.fromJson(json, InventoryChange.class);
 		
 		if(incrementedItem != null)
 		{
@@ -107,7 +107,8 @@ public class InventoryDB extends ONCDatabase
 			if(index < invList.size())
 			{
 				item = invList.get(index);
-				item.setCount(incrementedItem.getNumber());
+				item.setCount(incrementedItem.getCount());
+				item.setNCommits(incrementedItem.getCommits());
 				fireDataChanged(source, "INCREMENTED_INVENTORY_ITEM", item);
 			}
 		}

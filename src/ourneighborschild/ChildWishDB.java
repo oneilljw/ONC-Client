@@ -50,27 +50,28 @@ public class ChildWishDB extends ONCDatabase
 	 * an automatic change needs to occur as well. The new wish, with correct status is 
 	 * then sent to the server. 
 	 */
-	ONCChildWish add(Object source, int childid, int wishid, String wd, int wn, int wi, WishStatus ws, ONCPartner org)
+	ONCChildWish add(Object source, int childid, int wishid, String wd, int wn, int wi,
+						WishStatus ws, ONCPartner partner)
 	{	
 		GlobalVariables gvs = GlobalVariables.getInstance();
 		String cb = UserDB.getInstance().getUserLNFI();
 		Date dc = gvs.getTodaysDate();
 		
 		//Get the old wish being replaced. getWish method returns null if wish not found
-		ONCChildWish replWish = getWish(childid, wn);
+		ONCChildWish replacedWish = getWish(childid, wn);
 		
 		//Determine if we're changing the organization id. Org is null if it's staying the same
 		int orgID = -1;
-		if(org == null && replWish != null)
-			orgID = replWish.getChildWishAssigneeID(); 	//Staying the same
-		else if(org != null)
-			orgID = org.getID();
+		if(partner == null && replacedWish != null)
+			orgID = replacedWish.getChildWishAssigneeID(); 	//Staying the same
+		else if(partner != null)
+			orgID = partner.getID();
 		
 		//create the new wish, with childwishID = -1, meaning no wish selected
 		//the server will add the childwishID and return it
 		ONCChildWish retCW = null;
 		ONCChildWish reqCW = new ONCChildWish(-1, childid, wishid, wd, wn, wi,
-											   checkForStatusChange(replWish, wishid, ws, org), 
+											   checkForStatusChange(replacedWish, wishid, ws, partner), 
 											   orgID, cb, dc);		
 		Gson gson = new Gson();
 		String response = null, helmetResponse = null;
@@ -92,8 +93,8 @@ public class ChildWishDB extends ONCDatabase
 			ONCChild child = childDB.getChild(retCW.getChildID());
 			int bikeID = cat.getWishID("Bike");
 			int helmetID = cat.getWishID("Helmet");
-			if(retCW.getWishNumber() == 0 && replWish != null && replWish.getWishID() != bikeID && 
-				retCW.getWishID() == bikeID || retCW.getWishNumber() == 0 && replWish == null &&
+			if(retCW.getWishNumber() == 0 && replacedWish != null && replacedWish.getWishID() != bikeID && 
+				retCW.getWishID() == bikeID || retCW.getWishNumber() == 0 && replacedWish == null &&
 				 retCW.getWishID() == bikeID)		
 			{
 				//add Helmet as wish 1
@@ -105,8 +106,8 @@ public class ChildWishDB extends ONCDatabase
 			}
 			//if replaced wish was a bike and now isn't and wish 1 was a helmet, make
 			//wish one empty
-			else if(retCW.getWishNumber() == 0 && replWish != null && child.getChildWishID(1) > -1 &&
-					replWish.getWishID() == bikeID && retCW.getWishID() != bikeID)
+			else if(retCW.getWishNumber() == 0 && replacedWish != null && child.getChildWishID(1) > -1 &&
+					replacedWish.getWishID() == bikeID && retCW.getWishID() != bikeID)
 			{
 				//change wish 1 from Helmet to None
 				ONCChildWish helmetCW = new ONCChildWish(-1, childid, -1, "", 1, 0,
@@ -217,36 +218,7 @@ public class ChildWishDB extends ONCDatabase
 		return addedWish;
 	}
 	
-	/************************************************************************************************************
-	 * This method implements a rules engine governing the relationship between a wish type and wish status and
-	 * wish assignment and wish status. It is called when a child's wish  or assignee changes and implements an
-	 * automatic change of wish status.
-	 * 
-	 * For example, if a child's base wish is empty and it is changing to a wish selected from the catalog, this
-	 * method will set the wish status to CHILD_WISH_SELECTED. Conversely, if a wish was selected from the catalog
-	 * and is reset to empty, the wish status is set to CHILD_WISH_EMPTY.
-	 ************************************************************************************************************/
-/*	
-	int checkForStatusChange(ONCChildWish oldWish, int wishBase, int wishStatus, int wishAssigneeID)
-	{
-		int currentwishstatus;
-		if(oldWish == null)	//Creating first wish
-			currentwishstatus = CHILD_WISH_STATUS_EMPTY;
-		else	
-			currentwishstatus = oldWish.getChildWishStatus();
-		
-		if(currentwishstatus > CHILD_WISH_STATUS_EMPTY && wishStatus > CHILD_WISH_STATUS_ASSIGNED)
-			return wishStatus;		//Can receive, distribute or verify any gift without automatic change
-		else if(wishBase < 0)
-			return CHILD_WISH_STATUS_EMPTY;
-		else if(wishBase >= 0  && wishAssigneeID <= 0)
-			return CHILD_WISH_STATUS_SELECTED;
-		else if(wishBase >= 0 && wishAssigneeID > 0  && currentwishstatus < CHILD_WISH_STATUS_SELECTED)
-			return CHILD_WISH_STATUS_SELECTED;
-		else
-			return wishStatus;				
-	}
-*/	
+
 	/*******************************************************************************************
 	 * This method implements a rules engine governing the relationship between a wish type and
 	 * wish status and wish assignment and wish status. It is called when a child's wish or
@@ -272,7 +244,9 @@ public class ChildWishDB extends ONCDatabase
 		switch(currStatus)
 		{
 			case Not_Selected:
-				if(wishBase > -1)
+				if(wishBase > -1 && reqOrg.getID() != -1)
+					newStatus = WishStatus.Assigned;	//wish assigned from inventory
+				else if(wishBase > -1)
 					newStatus = WishStatus.Selected;
 				break;
 				
@@ -296,9 +270,10 @@ public class ChildWishDB extends ONCDatabase
 				if(reqStatus == WishStatus.Returned)
 					newStatus = WishStatus.Returned;
 				else if(reqStatus == WishStatus.Delivered && reqOrg != null && 
-							reqOrg.getID() > -1 && 
-						reqOrg.getType() == ORG_TYPE_ONC_SHOPPER)
+							reqOrg.getID() > -1 && reqOrg.getType() == ORG_TYPE_ONC_SHOPPER)
 					newStatus = WishStatus.Shopping;
+				else if(reqStatus == WishStatus.Assigned && reqOrg != null && reqOrg.getID() > -1)
+					newStatus = WishStatus.Assigned;
 				else if(reqStatus == WishStatus.Shopping)
 					newStatus = WishStatus.Shopping;
 				else if(reqStatus == WishStatus.Received)
@@ -344,7 +319,8 @@ public class ChildWishDB extends ONCDatabase
 					newStatus = WishStatus.Received;
 				else if(reqOrg.getType() == ORG_TYPE_ONC_SHOPPER)
 					newStatus = WishStatus.Shopping;
-				
+				else if(reqStatus == WishStatus.Assigned && reqOrg != null && reqOrg.getID() > -1)
+					newStatus = WishStatus.Assigned;
 				break;
 				
 			case Verified:

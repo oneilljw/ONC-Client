@@ -4,8 +4,12 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Point;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -16,15 +20,17 @@ import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
+import javax.swing.TransferHandler;
 
-
-public class WishPanel extends JPanel implements ActionListener, DatabaseListener, EntitySelectionListener
+public class WishPanel extends JPanel implements ActionListener, DatabaseListener,
+									EntitySelectionListener
 {
 	/**
 	 * 
@@ -41,7 +47,7 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 	private ChildDB cDB;
 	private ChildWishDB cwDB;
 	private ONCWishCatalog cat;
-	private PartnerDB orgDB;
+	private PartnerDB partnerDB;
 	private UserDB userDB;
 	
 	private ONCChild child;			//child being displayed on panel
@@ -58,6 +64,7 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 	public WishPanel(int wishNumber)
 	{
 		this.wishNumber = wishNumber;
+		this.setTransferHandler(new InventoryTransferhandler());
 		
 		gvs = GlobalVariables.getInstance();
     	fDB = FamilyDB.getInstance();
@@ -76,9 +83,9 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 		if(cat != null)
 			cat.addDatabaseListener(this);
 		
-		orgDB = PartnerDB.getInstance();
-		if(orgDB != null)
-			orgDB.addDatabaseListener(this);
+		partnerDB = PartnerDB.getInstance();
+		if(partnerDB != null)
+			partnerDB.addDatabaseListener(this);
 		
 		userDB = UserDB.getInstance();
 		
@@ -194,7 +201,7 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 		else
 			wishdetailTF.setBackground(Color.YELLOW);
 
-		ONCPartner org = orgDB.getOrganizationByID(cw.getChildWishAssigneeID());
+		ONCPartner org = partnerDB.getOrganizationByID(cw.getChildWishAssigneeID());
 		if(org != null)
 			wishassigneeCB.setSelectedItem(org);
 		else
@@ -732,6 +739,72 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 		{
 			if(e.getSource() == btnOK) 
 				this.setVisible(false);
+		}
+	}
+	
+	private class InventoryTransferhandler extends TransferHandler
+	{
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public boolean canImport(JComponent comp, DataFlavor[] transferFlavors)
+		{
+			if(wpStatus.equals(WishPanelStatus.Disabled))
+				return false;
+			else
+			{
+				WishStatus ws = childWish.getChildWishStatus();
+				if(ws.compareTo(WishStatus.Delivered) <= 0)
+					return true;
+				else if(ws.equals(WishStatus.Returned))
+					return true;
+				else if(ws.equals(WishStatus.Missing))
+					return true;
+				else
+					return false;
+			}
+		}
+		
+		@Override
+		public boolean importData(JComponent comp, Transferable t)
+		{
+			DataFlavor df = new DataFlavor(InventoryItem.class, "InventoryItem");
+			InventoryItem transItem;
+			try 
+			{
+				transItem = (InventoryItem) t.getTransferData(df);
+				ONCChildWish transferredWish = createWishFromInventoryTransfer(transItem);
+				if(transferredWish != null)
+					displayWish(transferredWish, child);
+				return true;
+			} 
+			catch (UnsupportedFlavorException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			return false;
+		}
+		
+		ONCChildWish createWishFromInventoryTransfer(InventoryItem ii)
+		{
+			//create new wish with the wish status = WishStatus.ASSIGNED && assignee = ONC_CONTAINER
+			ONCPartner partner = partnerDB.getOrganizationByNameAndType("ONC Container", 6);
+			ONCChildWish addWishReq = null;
+			if(partner != null && child != null)
+			{
+				addWishReq = cwDB.add(this, child.getID(), ii.getWishID(), ii.getItemName(),
+										wishNumber, 0, WishStatus.Assigned, partner);
+			}
+			
+			return addWishReq;
 		}
 	}
 }

@@ -2,22 +2,24 @@ package ourneighborschild;
 
 /******************************************************************
  * This class implements a request object that is used when
- * obtaining either a child's wish history or a family's delivery
- * history from the ONC Server for display to the user
+ * the sever processes an inventory request from a client
  * @author johnwoneill
  *
  ****************************************************************/
-public class HistoryRequest
+public class InventoryChange
 {
 	private int id;
-	private int num;
+	private int count;
+	private int commits;
 	
-	public HistoryRequest(int id, int wn)
+	public InventoryChange(int id, int count, int commits)
 	{
 		this.id = id;
-		num = wn;
+		this.count = count;
+		this.commits = commits;
 	}
 	
 	public int getID() { return id; }
-	public int getNumber() { return num; }
+	public int getCount() { return count; }
+	public int getCommits() { return commits; }
 }

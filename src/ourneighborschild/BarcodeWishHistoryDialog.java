@@ -2,12 +2,19 @@ package ourneighborschild;
 
 
 import java.awt.event.ActionEvent;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.EnumSet;
 
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.AbstractTableModel;
+
+import au.com.bytecode.opencsv.CSVWriter;
 
 public class BarcodeWishHistoryDialog extends BarcodeTableDialog
 {
@@ -78,6 +85,56 @@ public class BarcodeWishHistoryDialog extends BarcodeTableDialog
 	
 	@Override
 	AbstractTableModel getDialogTableModel() { return new DialogTableModel(); }
+	
+	@Override
+	void onExport()
+	{
+    	String[] header = {"Wish", "Details", "Ind", "Status", "Assignee", "Changed By", "Time Stamp"};
+    
+    	ONCFileChooser oncfc = new ONCFileChooser(this);
+       	File oncwritefile = oncfc.getFile("Select file for export of Wish History" ,
+       										new FileNameExtensionFilter("CSV Files", "csv"), 1);
+       	if(oncwritefile!= null)
+       	{
+       		//If user types a new filename without extension.csv, add it
+	    	String filePath = oncwritefile.getPath();
+	    	if(!filePath.toLowerCase().endsWith(".csv")) 
+	    		oncwritefile = new File(filePath + ".csv");
+	    	
+	    	try 
+	    	{
+	    		CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
+	    	    writer.writeNext(header);
+	    	    
+	    	    int[] row_sel = dlgTable.getSelectedRows();
+	    	    ArrayList<String> exportRow = new ArrayList<String>();
+	    	    
+	    	    for(int i=0; i<dlgTable.getSelectedRowCount(); i++)
+	    	    {
+	    	    	//build the export row
+	    	    	int row = row_sel[i];
+	    	    	for(int col=0; col < header.length; col++)
+	    	    		exportRow.add((String) dlgTable.getValueAt(row,  col));
+		    	    	
+	    	    	writer.writeNext(exportRow.toArray(new String[exportRow.size()]));
+	    	    	
+	    	    	exportRow.clear();
+	    	    }
+	    	   
+	    	    writer.close();
+	    	    
+	    	    JOptionPane.showMessageDialog(this, 
+						dlgTable.getSelectedRowCount() + " inventory gifts sucessfully exported to " + oncwritefile.getName(), 
+						"Export Successful", JOptionPane.INFORMATION_MESSAGE, gvs.getImageIcon(0));
+	    	} 
+	    	catch (IOException x)
+	    	{
+	    		JOptionPane.showMessageDialog(this, "Export Failed, I/O Error: "  + x.getMessage(),  
+						"Export Failed", JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
+	    		System.err.format("IOException: %s%n", x);
+	    	}
+	    }
+	}
 	
 	void getWishHistory(ONCChildWish cw)
 	{	

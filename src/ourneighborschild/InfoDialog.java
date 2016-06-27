@@ -125,7 +125,7 @@ public abstract class InfoDialog extends JDialog implements ActionListener
 	{
 		if(ae.getSource() == btnAction) 
 			update();
-		if(ae.getSource() == btnDelete)
+		else if(ae.getSource() == btnDelete)
 			delete();		
 	}
 	

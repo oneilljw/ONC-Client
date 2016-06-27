@@ -38,7 +38,7 @@ public abstract class BarcodeTableDialog extends ONCTableDialog implements Actio
 	protected ONCTable dlgTable;
 	protected AbstractTableModel dlgTableModel;
 	protected JLabel lblInfo;
-	protected JButton btnAction, btnDelete;
+	protected JButton btnAction, btnDelete, btnExport;
 	private JButton btnPrint;
 	protected JFrame parentFrame;
 	
@@ -73,7 +73,7 @@ public abstract class BarcodeTableDialog extends ONCTableDialog implements Actio
 		//create the table
 		dlgTable = new ONCTable(dlgTableModel, getColumnToolTips(), new Color(240,248,255));
 
-		dlgTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		dlgTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		
 		//Set table column widths
 		int tablewidth = 0;
@@ -117,7 +117,11 @@ public abstract class BarcodeTableDialog extends ONCTableDialog implements Actio
         cntlPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         bottomPanel.add(cntlPanel, BorderLayout.CENTER);
         
-        btnDelete = new JButton("Delete Item");
+        btnExport = new JButton("Export");
+        btnExport.addActionListener(this);
+        cntlPanel.add(btnExport);
+               
+        btnDelete = new JButton("Delete");
         btnDelete.setToolTipText("Delete the item from Inventory if Qty = 0");
         btnDelete.setEnabled(false);
         btnDelete.addActionListener(this);
@@ -126,7 +130,7 @@ public abstract class BarcodeTableDialog extends ONCTableDialog implements Actio
         btnAction = new JButton();
         btnAction.addActionListener(this);
         cntlPanel.add(btnAction);
-       
+        
         btnPrint = new JButton("Print");
         btnPrint.addActionListener(this);
         cntlPanel.add(btnPrint);
@@ -151,6 +155,7 @@ public abstract class BarcodeTableDialog extends ONCTableDialog implements Actio
 	abstract void onBarcodeTFEvent();
 	abstract String getPrintTitle();
 	abstract void onActionEvent(ActionEvent e);
+	abstract void onExport();
 	
 	void print()
 	{
@@ -177,7 +182,10 @@ public abstract class BarcodeTableDialog extends ONCTableDialog implements Actio
 			barcodeTF.removeActionListener(this);
 			barcodeTF.setText("");
 			barcodeTF.addActionListener(this);
-			barcodeTF.requestFocus();
+		}
+		else if(e.getSource() == btnExport)
+		{
+			onExport();
 		}
 		else if(e.getSource() == btnPrint)
 		{
@@ -187,5 +195,7 @@ public abstract class BarcodeTableDialog extends ONCTableDialog implements Actio
 		{
 			onActionEvent(e);
 		}
+		
+		barcodeTF.requestFocus();
 	}
 }

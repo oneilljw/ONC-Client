@@ -170,6 +170,19 @@ public class PartnerDB extends ONCSearchableDatabase
 			return null;
 	}
 	
+	ONCPartner getOrganizationByNameAndType(String name, int type )
+	{
+		int index = 0;
+		while(index < orgsAL.size() && orgsAL.get(index).getType() != type && 
+				!orgsAL.get(index).getName().equals(name))
+			index++;
+		
+		if(index < orgsAL.size())
+			return orgsAL.get(index);
+		else
+			return null;
+	}
+	
 	int size() { return orgsAL.size(); }
 	
 	String searchForListItem(ArrayList<Integer> searchAL, String data)
