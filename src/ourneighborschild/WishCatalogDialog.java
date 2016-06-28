@@ -125,7 +125,7 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
           
         cntlPanel.add(btnAdd);
         cntlPanel.add(btnEdit);
-        cntlPanel.add(btnDelete);
+//      cntlPanel.add(btnDelete);
         cntlPanel.add(btnPrint);
         
         getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
