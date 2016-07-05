@@ -754,6 +754,8 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 		{
 			if(wpStatus.equals(WishPanelStatus.Disabled))
 				return false;
+			else if(childWish == null)
+				return true;
 			else
 			{
 				WishStatus ws = childWish.getChildWishStatus();
