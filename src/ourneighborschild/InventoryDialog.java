@@ -143,7 +143,7 @@ public class InventoryDialog extends BarcodeTableDialog implements ActionListene
 	    	    	int index = row_sel[i];
 	    	    	InventoryItem ii = inventoryDB.getItem(index);
 	    	    	String[] exportRow = new String[3];
-	    	    	exportRow[0] = ii.getItemName().isEmpty() ?  ii.getDescription() : ii.getItemName();
+	    	    	exportRow[0] = ii.getItemName();
 	    	    	exportRow[1] = ii.getWishID() == -1 ? " None" : cat.getWishName(ii.getWishID());
 	    	    	exportRow[2] = Integer.toString(ii.getCount());
 	    	    	exportRow[2] = Integer.toString(ii.getNCommits());
@@ -359,19 +359,11 @@ public class InventoryDialog extends BarcodeTableDialog implements ActionListene
         	else if(col == COUNT_COL)
         		return ii.getCount();
         	else if (col == NAME_COL)
-        		return ii.getItemName().isEmpty() ?  ii.getDescription() : ii.getItemName();
+        		return ii.getItemName();
         	else if(col == COMMIT_COL)
         		return ii.getNCommits();
         	else if(col == TYPE_COL)
         		return ii.getWishID() == -1 ? new ONCWish(-1, "None", 7) : cat.getWishByID(ii.getWishID());
-//        	else if (col == ALIAS_COL)
-//        		return ii.getAlias();
-//        	else if (col == AVG_PRICE_COL)
-//        		return ii.getAvgPrice();
-//        	else if (col == RATE_UP_COL)
-//        		return ii.getRateUp();
-//        	else if (col == RATE_DOWN_COL)
-//        		return ii.getRateDown();
         	else
         		return "Error";
         }

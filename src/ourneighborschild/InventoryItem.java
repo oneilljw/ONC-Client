@@ -10,12 +10,12 @@ public class InventoryItem extends ONCObject
 	private int nCommits;	//number of times the item has been committed from inventory
 	private String itemname;
 	private int wishID; 	//id of wish from ONC Wish Catalog
-	private String alias;
-	private String description;
-	private String avg_price;
-	private int rate_up;
-	private int rate_down;
-	
+//	private String alias;
+//	private String description;
+//	private String avg_price;
+//	private int rate_up;
+//	private int rate_down;
+/*	
 	public InventoryItem(int id, UPCDatabaseItem item) 
 	{
 		super(id);
@@ -30,6 +30,16 @@ public class InventoryItem extends ONCObject
 		this.rate_up = item.getRateUp();
 		this.rate_down = item.getRateDown();
 	}
+*/	
+	public InventoryItem(int id, String number, String name) 
+	{
+		super(id);
+		this.count = 1;
+		this.nCommits = 0;
+		this.number = number;
+		this.itemname  = name;
+		this.wishID = -1;
+	}
 	
 	public InventoryItem(String[] nextLine)
 	{
@@ -39,11 +49,6 @@ public class InventoryItem extends ONCObject
 		this.number = nextLine[3].isEmpty() ? "" : nextLine[3];
 		this.itemname  = nextLine[4].isEmpty() ? "" : nextLine[4];
 		this.wishID = nextLine[5].isEmpty() ? 0 : Integer.parseInt(nextLine[5]);
-		this.alias = nextLine[6].isEmpty() ? "" : nextLine[6];
-		this.description = nextLine[7].isEmpty() ? "" : nextLine[7];
-		this.avg_price = nextLine[8].isEmpty() ? "" : nextLine[8];
-		this.rate_up = nextLine[9].isEmpty() ? 0 : Integer.parseInt(nextLine[9]);
-		this.rate_down = nextLine[10].isEmpty() ? 0 : Integer.parseInt(nextLine[10]);
 	}
 	
 	public InventoryItem(InventoryItem ii)	//make a new object that is a copy
@@ -54,11 +59,6 @@ public class InventoryItem extends ONCObject
 		this.number = ii.number;
 		this.itemname  = ii.itemname;
 		this.wishID = ii.wishID;
-		this.alias = ii.alias;
-		this.description = ii.description;
-		this.avg_price = ii.avg_price;
-		this.rate_up = ii.rate_up;
-		this.rate_down = ii.rate_down;
 	}
 	
 	public InventoryItem(String name, int wishID, String barcode)
@@ -69,24 +69,14 @@ public class InventoryItem extends ONCObject
 		this.number = barcode;
 		this.itemname = name;
 		this.wishID = wishID;
-		this.alias = "";
-		this.description = "";
-		this.avg_price = "";
-		this.rate_up = 0;
-		this.rate_down = 0;
 	}
 	
 	//getters
 	public int getCount() { return count; }
 	int getNCommits() { return nCommits; }
 	public String getNumber() { return number; }
-	public String getItemName() { return itemname.isEmpty() ? description : itemname; }
+	public String getItemName() { return itemname; }
 	int getWishID() { return wishID; }
-	String getAlias() { return alias; }
-	String getDescription() { return description; }
-	String getAvgPrice() { return avg_price; }
-	int getRateUp() { return rate_up; }
-	int getRateDown() { return rate_down; }
 	
 	//setters
 	void setCount(int count) { this.count = count; }
@@ -94,11 +84,6 @@ public class InventoryItem extends ONCObject
 	public void setNumber(String number) { this.number = number; }
 	void setItemName(String itemname) { this.itemname = itemname; }
 	void setWishID(int wishID) { this.wishID = wishID; }
-	void setAlias(String alias) { this.alias = alias; }
-	void setDescription(String description) { this.description = description; }
-	void setAvgPrice(String avg_price) { this.avg_price = avg_price; }
-	void setRateUp(int rate_up) { this.rate_up = rate_up; }
-	void setRateDown(int rate_down) { this.rate_down = rate_down; }
 	
 	//count change
 	public int incrementCount(int amount)
@@ -130,21 +115,13 @@ public class InventoryItem extends ONCObject
 		rowList.add(number);
 		rowList.add(itemname);
 		rowList.add(Integer.toString(wishID));
-		rowList.add(alias);	
-		rowList.add(description);
-		rowList.add(avg_price);
-		rowList.add(Integer.toString(rate_up));
-		rowList.add(Integer.toString(rate_down));
 		
 		return rowList.toArray(new String[rowList.size()]);
 	}
 	
 	public String toString()
 	{
-		return String.format("id=%d, count=%d, nCommits = %d, name=%s, wishID = %d, barcode= %s,"
-				+ "alias=%s, desc=%s, avg_price=%s, rate_up=%d, rate_down=%d", 
-				this.id, this.count, this.nCommits, this.itemname, this.wishID, this.number, 
-				this.alias, this.description, this.avg_price, this.rate_up, this.rate_down);
+		return String.format("id=%d, count=%d, nCommits = %d, name=%s, wishID = %d, barcode= %s,", 
+				this.id, this.count, this.nCommits, this.itemname, this.wishID, this.number);
 	}
-
 }
