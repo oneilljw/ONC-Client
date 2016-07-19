@@ -41,14 +41,11 @@ public class InventoryDialog extends BarcodeTableDialog implements ActionListene
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private static final int BARCODE_COL= 4;
-	private static final int COUNT_COL = 2;
 	private static final int NAME_COL = 0;
 	private static final int TYPE_COL = 1;
+	private static final int COUNT_COL = 2;
 	private static final int COMMIT_COL = 3;
-//	private static final int AVG_PRICE_COL = 4;
-//	private static final int RATE_UP_COL = 5;
-//	private static final int RATE_DOWN_COL = 6;
+	private static final int BARCODE_COL= 4;
 	private static final int DEFAULT_TABLE_ROW_COUNT = 15;
 	
 	private InventoryDB inventoryDB;
@@ -189,7 +186,7 @@ public class InventoryDialog extends BarcodeTableDialog implements ActionListene
 	}
 	
 	@Override
-	int[] getColumnWidths() { return new int[] {440, 177, 32, 32, 96}; }
+	int[] getColumnWidths() { return new int[] {432, 177, 32, 32, 104}; }
 	
 	@Override
 	int[] getLeftColumns() { return new int[] {}; }
