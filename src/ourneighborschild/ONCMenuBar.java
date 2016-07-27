@@ -31,8 +31,6 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 	private JMenuItem importONCMI, importPYMI, importPYORGMI,importWishCatMI, manageCallResultMI;
 	private JMenuItem exportMI, dbStatusMI, clearMI;
 	public JMenuItem exitMI;	//public since exit method is external to the menu bar
-//	public static JMenuItem font8, font10, font12, font13, font14, font16, font18;
-//	private static JMenuItem compODBtoONCfamMI, compODBtoONCdataMI, compWFCMtoONCfamMI, compWFCMtoONCdataMI;
 	private JMenuItem findDupFamsMI, findDupChldrnMI;
 	private JMenuItem assignDelMI, editDelMI, manageDelMI, importDrvrMI, mapsMI, delstatusMI, distMI;
 	private JMenuItem newFamMI, changeONCMI, changeRefMI, changeBatchMI, newChildMI, delChildMI, markAdultMI, connectChildMI;
@@ -477,7 +475,6 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 		sortWishesMI.setEnabled(true);
 		recGiftsMI.setEnabled(true);
 		barcodeWishHistoryMI.setEnabled(true);
-		inventoryMI.setEnabled(true);
 	}
 	
 	void setEnabledRestrictedMenuItems(boolean tf)	//Only Admins can perform these functions
@@ -487,8 +484,6 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 		viewDBMI.setEnabled(tf);
 		submenuExport.setEnabled(tf);
 		submenuChangeFamilyNumbers.setEnabled(tf);
-//		changeONCMI.setEnabled(tf);
-//		changeRefMI.setEnabled(tf);
 		sortFamiliesMI.setEnabled(tf);
 		sortMealsMI.setEnabled(tf);
 		markAdultMI.setEnabled(tf);
@@ -507,10 +502,6 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 	
 	void setVisibleSpecialImports(boolean tf)	//Only Superuser can perform these functions
     {
-//    	importONCMI.setVisible(tf);	//Only with no data loaded
-//    	importWishCatMI.setVisible(tf);
-//    	importPYMI.setVisible(tf);	//Only with no prior year data loaded
-//    	importPYORGMI.setVisible(tf);
     	submenuImport.setEnabled(true);
     	
     	showWebsiteStatusMI.setVisible(true);
@@ -542,6 +533,7 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 	{ 
 		agentMI.setEnabled(tf);
 		manageDelMI.setEnabled(tf);
+		inventoryMI.setEnabled(tf);
 	}
 
 	@Override
