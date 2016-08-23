@@ -1719,7 +1719,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	@Override
 	int[] getColumnWidths()
 	{
-		int[] colWidths = {32, 48, 56, 48, 72, 72, 72, 72, 72, 48, 128, 72, 48, 32, 72, 32, 24};
+		int[] colWidths = {36, 48, 56, 48, 72, 72, 72, 72, 72, 48, 128, 72, 48, 32, 72, 32, 24};
 		return colWidths;
 	}
 
@@ -1904,6 +1904,10 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			//check to see if the current user was updated to update preferences
 			if(userDB.getLoggedInUser().getID() == updatedUser.getID())
 				updateUserPreferences(updatedUser);
+		}
+		else if(dbe.getType().contains("LOADED_USERS"))
+		{
+			updateUserList();
 		}
 		else if(dbe.getType().contains("CHANGED_USER"))
 		{

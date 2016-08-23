@@ -171,7 +171,7 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 		ytyGrwthIndex = 2;
 //		user_permission = UserPermission.General;
 		version = "N/A";
-		bBarcodeOnOrnmament = false;
+		bBarcodeOnOrnmament = true;
 		barcode = Barcode.UPCE;
 		averyLabelOffsetPoint = new Point(20, 50);
 	}

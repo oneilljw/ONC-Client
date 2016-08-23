@@ -1017,7 +1017,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		{
 //			System.out.println(String.format("Family Panel - Family Change Detected, Field: %d", cf));
 			
-			fam.setChangedBy(userDB.getUserFNLI());
+			fam.setChangedBy(userDB.getUserLNFI());
 			lblChangedBy.setText(fam.getChangedBy());	//Set the changed by field to current user
 			
 			String response = fDB.update(this, fam);

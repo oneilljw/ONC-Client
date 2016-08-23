@@ -1162,6 +1162,10 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
  			if(userDB.getLoggedInUser().getID() == updatedUser.getID())
 				updateUserPreferences(updatedUser);
 		}
+		else if(dbe.getType().contains("LOADED_USERS"))
+		{
+			updateUserList();
+		}
 		else if(dbe.getType().contains("CHANGED_USER"))
 		{
 			//new user logged in, update preferences used by this dialog
