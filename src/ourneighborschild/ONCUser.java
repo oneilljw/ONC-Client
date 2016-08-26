@@ -28,7 +28,7 @@ public class ONCUser extends ONCEntity
 	
 	public ONCUser(int id, Date today, String changedBy, int slpos, String slmssg, String slchgby, 
 			String fn, String ln, UserStatus stat, UserAccess acc, UserPermission perm, long nSessions,
-			Date last, String org, String title,String email, String phone, int agentID)
+			Date last, String org, String title, String email, String phone, int agentID)
 	{
 		super(id, today, changedBy, slpos, slmssg, slchgby);
 		

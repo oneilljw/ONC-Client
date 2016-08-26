@@ -16,12 +16,23 @@ public class ONCServerUser extends ONCUser
 							UserStatus stat, UserAccess acc, UserPermission perm,
 							String uid, String pw, long nSessions, Date last_login,
 							boolean bResetPassword, 
-							String title, String org, String email, String phone, int agtID)
+							String org, String title, String email, String phone, int agtID)
 	{
 		super(id, today, chgby, slpos, slmssg, slchgby, fn, ln, stat, acc, perm, nSessions, last_login, 
 				title, org, email, phone, agtID);
 		userid = uid;
 		password = pw;
+	}
+	
+	public ONCServerUser(ONCServerUser currUser)	//make a new object copy
+	{
+		
+		super(currUser.id, currUser.dateChanged.getTime(), currUser.changedBy, currUser.slPos, currUser.slMssg,
+				currUser.slChangedBy, currUser.firstname, currUser.lastname, currUser.status, 
+				currUser.access, currUser.permission, currUser.nSessions, currUser.lastLogin.getTime(), 
+				currUser.org, currUser.title, currUser.email, currUser.phone, currUser.agentID);
+		userid = currUser.userid;
+		password = currUser.password;
 	}
 	
 	public ONCServerUser(String[] nextLine, Date date_changed, Date last_login)
@@ -71,5 +82,5 @@ public class ONCServerUser extends ONCUser
 						Integer.toString(preferences.getFamilyDNSFilter())
 						};
 		return row;
-	}	
+	}
 }
