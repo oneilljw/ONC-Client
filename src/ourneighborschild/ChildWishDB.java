@@ -48,7 +48,8 @@ public class ChildWishDB extends ONCDatabase
 	 * deleted, a new wish is always created to take an old wish's place. If the new wish 
 	 * being added has a base or assignee change, the wish status must be check to see if 
 	 * an automatic change needs to occur as well. The new wish, with correct status is 
-	 * then sent to the server. 
+	 * then sent to the server. The list should never be sorted, that way the newest wish for
+	 * a child and wish number is at the bottom of the list
 	 */
 	ONCChildWish add(Object source, int childid, int wishid, String wd, int wn, int wi,
 						WishStatus ws, ONCPartner partner)

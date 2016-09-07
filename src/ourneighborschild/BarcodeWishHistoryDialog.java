@@ -152,19 +152,27 @@ public class BarcodeWishHistoryDialog extends BarcodeTableDialog
 	void onBarcodeTFEvent()
 	{
 		//if using UPC-E, eliminate check digits before converting to childwishID integer
-		int cwID;
+		int cID, wn;
+		String s = barcodeTF.getText();
 		if(gvs.getBarcodeCode() == Barcode.UPCE)
-			cwID = Integer.parseInt(barcodeTF.getText().substring(0, barcodeTF.getText().length()-1));
+		{
+			cID = Integer.parseInt(s.substring(0, s.length()-2));
+			wn = Integer.parseInt(s.substring(s.length()-2, s.length()-1));
+				
+		}
 		else
-			cwID = Integer.parseInt(barcodeTF.getText());
+		{
+			cID = Integer.parseInt(s.substring(0, s.length()-1));
+			wn = Integer.parseInt(s.substring(s.length()-1, s.length()-0));
+		}
 		
 		//get Wish History for bar code wish id. If found, notify entity listeners of
 		//the Wish entity selection.
-		cw = cwDB.getWish(cwID);
+		cw = cwDB.getWish(cID, wn);
 		if(cw != null)
 		{
 			getWishHistory(cw);
-			ONCChild child = cDB.getChild(cw.getChildID());
+			ONCChild child = cDB.getChild(cID);
 			if(child != null)
 			{
 				ONCFamily family = fDB.getFamily(child.getFamID());
@@ -172,13 +180,13 @@ public class BarcodeWishHistoryDialog extends BarcodeTableDialog
 				{
 					fireEntitySelected(this, EntityType.WISH, family, child, cw);
 					if(userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0)
-						lblInfo.setText(String.format("Wish History for %s %s, Wish %d, Family #%s, Barcode %s",
+						lblInfo.setText(String.format("Wish History for %s %s, Wish %d, Family #%s",
 							child.getChildFirstName(), child.getChildLastName(),
-							cw.getWishNumber()+1, family.getONCNum(), barcodeTF.getText()));
+							cw.getWishNumber()+1, family.getONCNum()));
 					else
-						lblInfo.setText(String.format("Wish History for %s %d,  Wish %d, Family #%s, Barcode %s",
+						lblInfo.setText(String.format("Wish History for %s %d,  Wish %d, Family #%s",
 							"Child", cDB.getChildNumber(child),
-							cw.getWishNumber()+1, family.getONCNum(), barcodeTF.getText()));
+							cw.getWishNumber()+1, family.getONCNum()));
 				}
 			}
 		}

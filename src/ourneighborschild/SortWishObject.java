@@ -139,6 +139,24 @@ public class SortWishObject extends ONCObject
 			}
 		}
 		
+		//generate leading zero padded bar code string for child # & wish #
+		if(soChildWish.getChildID() < 10)
+			line[4] = "00000" + Integer.toString(soChildWish.getChildID());
+		else if(soChildWish.getChildID() < 100)
+			line[4] = "0000" + Integer.toString(soChildWish.getChildID());
+		else if(soChildWish.getChildID() < 1000)
+			line[4] = "000" + Integer.toString(soChildWish.getChildID());
+		else if(soChildWish.getChildID() < 10000)
+			line[4] = "00" + Integer.toString(soChildWish.getChildID());
+		else if(soChildWish.getChildID() < 100000)
+			line[4] = "0" + Integer.toString(soChildWish.getChildID());
+		else if(soChildWish.getChildID() < 1000000)
+			line[4] =  Integer.toString(soChildWish.getChildID());
+		else
+			line[4] = Integer.toString(soChildWish.getID());
+		
+		line[4] = line[4] + Integer.toString(soChildWish.getWishNumber());	
+/*		
 		//generate leading zero padded bar code string for child wish id
 		if(soChildWish.getID() < 10)
 			line[4] = "000000" + Integer.toString(soChildWish.getID());
@@ -154,7 +172,7 @@ public class SortWishObject extends ONCObject
 			line[4] = "0" + Integer.toString(soChildWish.getID());
 		else
 			line[4] = Integer.toString(soChildWish.getID());
-		
+*/		
 		return line;
 	}
 	
