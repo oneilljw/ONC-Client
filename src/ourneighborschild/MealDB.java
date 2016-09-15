@@ -219,7 +219,7 @@ public class MealDB extends ONCDatabase
 	    	
 	    	try 
 	    	{
-	    		 String[] header = {"Meal ID", "Family ID", "Partner ID", "Restrictions", 
+	    		 String[] header = {"Meal ID", "Family ID", "Status", "Type", "Partner ID", "Restrictions", 
 	    				 			"Changed By", "Time Stamp", "SL Pos", "SL Mssg", "SL Changed By"};
 	    		
 	    		CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));

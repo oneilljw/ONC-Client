@@ -73,6 +73,7 @@ public class DialogManager implements EntitySelectionListener
 	private PreferencesDialog prefsDlg;
 	private BarcodeWishHistoryDialog barcodeWHDlg;
 	private InventoryDialog inventoryDlg;
+	private CrosscheckDialog ccDlg;
 	
 	public static DialogManager getInstance()
 	{
@@ -236,6 +237,9 @@ public class DialogManager implements EntitySelectionListener
       	recGiftsDlg = new ReceiveGiftsDialog(GlobalVariables.getFrame(), WishStatus.Received);
       	stDlgMap.put("Receive Gifts", recGiftsDlg);
       	eeManager.registerEntitySelector(recGiftsDlg);
+      	
+      	//set up a dialog to perform CBO cross checks agains our family data base
+      	ccDlg = new CrosscheckDialog(GlobalVariables.getFrame());
 	}
 	
 	void showAdultDialog()
@@ -403,6 +407,15 @@ public class DialogManager implements EntitySelectionListener
 		{
 			inventoryDlg.setLocationRelativeTo(GlobalVariables.getFrame());
 			inventoryDlg.setVisible(true);	
+		}
+	}
+	
+	void showCrosscheckDialog()
+	{
+		if(!ccDlg.isShowing())
+		{
+			ccDlg.setLocationRelativeTo(GlobalVariables.getFrame());
+			ccDlg.setVisible(true);	
 		}
 	}
 	

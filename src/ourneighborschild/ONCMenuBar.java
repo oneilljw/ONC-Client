@@ -31,7 +31,7 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 	private JMenuItem importONCMI, importPYMI, importPYORGMI,importWishCatMI, manageCallResultMI;
 	private JMenuItem exportMI, dbStatusMI, clearMI;
 	public JMenuItem exitMI;	//public since exit method is external to the menu bar
-	private JMenuItem findDupFamsMI, findDupChldrnMI;
+	private JMenuItem findDupFamsMI, findDupChldrnMI, crosscheckMI;
 	private JMenuItem assignDelMI, editDelMI, manageDelMI, importDrvrMI, mapsMI, delstatusMI, distMI;
 	private JMenuItem newFamMI, changeONCMI, changeRefMI, changeBatchMI, newChildMI, delChildMI, markAdultMI, connectChildMI;
 	private JMenu submenuImport, submenuFamilyDataChecks;
@@ -241,6 +241,12 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 	    findDupChldrnMI.setEnabled(false);
 	    findDupChldrnMI.addActionListener(this);
 	    submenuFamilyDataChecks.add(findDupChldrnMI);
+	    
+	    crosscheckMI = new JMenuItem("CBO Crosscheck");
+	    crosscheckMI.setActionCommand("CBO Crosscheck");
+	    crosscheckMI.setEnabled(false);
+	    crosscheckMI.addActionListener(this);
+	    submenuFamilyDataChecks.add(crosscheckMI);
 	    
 	    menuFamilies.add(submenuFamilyDataChecks);
 	    
@@ -481,6 +487,7 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 	{												//when at least one family is present in db
 		findDupFamsMI.setEnabled(tf);
 		findDupChldrnMI.setEnabled(tf);
+		crosscheckMI.setEnabled(tf);
 		viewDBMI.setEnabled(tf);
 		submenuExport.setEnabled(tf);
 		submenuChangeFamilyNumbers.setEnabled(tf);
@@ -635,6 +642,8 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 			dlgManager.showCheckDialog(findDupFamsMI.getActionCommand());
 		else if(e.getSource() == findDupChldrnMI)
 			dlgManager.showCheckDialog(findDupChldrnMI.getActionCommand());
+		else if(e.getSource() == crosscheckMI)
+			dlgManager.showCrosscheckDialog();
 		else if(e.getSource() == assignDelMI)
 			dlgManager.showSortDialog(assignDelMI.getActionCommand(), SORT_DIALOG_OFFSET);
 		else if(e.getSource() == editDelMI)

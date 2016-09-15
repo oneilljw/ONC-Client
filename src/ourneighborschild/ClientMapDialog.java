@@ -103,35 +103,36 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 			URL mapURL = null;
 			BufferedImage map = null;
 			String url = "http://maps.googleapis.com/maps/api/staticmap?";
-			String parms = "&size=640x525";
+			String parms = "&size=640x525&zoom=12&center=38.84765,-77.40215";
 			String marker = "&markers=color:green%7C" + gvs.getWarehouseAddress();
 			StringBuffer markers = new StringBuffer(marker);
 			String sensor = "&sensor=false";
 					
 			String[] regionAddresses = {"Unassigned, no Address",	//PLACE HOLDER FOR UNASSIGNED FAMILIES
-										"Batavia+Dr+Centreville,VA",
-										"Woodmere+Dr+Centreville,VA",
-										"Havener+House+Way+Centreville,VA",
-										"Rydell+Rd+Centreville,VA",
-										"Blue+Ridge+View+Dr+Centreville,VA",
-										"Lavender+Mist+Ln+Centreville,VA",
-										"Bent+Tree+Circle+Centrevile,VA",
-										"Field+Flower+Trail+Centrevile,VA",
-										"Ravenscar+Ct+Centreville,VA",
-										"Gunners+Pl+Centreville,VA",
-										"Wildflower+Ln+Clifton,VA",
-										"Richards+Ln+Clifton,VA",
-										"Sydney+Rd+Fairfax+Station,VA",
-										"Carrier+Ct+Chantilly,VA",
-										"Airline+Parkway+Chantilly,VA",
-										"Foxfield+Ln+Fairfax,VA",
-										"Rockland+Village+Dr+Chantilly,VA",
-										"Fox+Creek+Ct+Chantilly,VA",
-										"Billberry+Dr+Fairfax,VA",
-										"Golf+tee+Ct+Fairfax,VA",
-										"Ragan+Oaks+Ct+Fairfax,VA",
-										"Leafcrest+Ln+Fairfax,VA",
-										"Malrae+Ct+Fairfax,VA"};
+					"Munsey+Pl+Centreville,VA",
+					"Knoughton+Way+Centreville,VA",
+					"Four+Chimney+Dr+Centreville,VA",
+					"Lynhodge+Ct+Centreville,VA",
+					"Gold+Post+Ct+Dr+Centreville,VA",
+					"Ormond+Stone+Cir+Centreville,VA",
+					"Rock+Landing+Ct+Centrevile,VA",
+					"Battalion+St+Centrevile,VA",
+					"Mossy+Bank+Ln+Centreville,VA",
+					"Emerald+Green+Ct+Centreville,VA",
+					"Rock+Hollow+Ln+Clifton,VA",
+					"Water+St+Clifton,VA",
+					"Sydney+Rd+Fairfax+Station,VA",
+					"Donegal+Church+Ct+Chantilly,VA",
+					"Northeast+Pl+Chantilly,VA",
+					"Canoe+Birch+Ct+Fairfax,VA",
+					"Holton+Pl+Chantilly,VA",
+					"Marble+Rock+Ct+Chantilly,VA",
+					"Ruben+Simpson+Ct+Fairfax,VA",
+					"Maple+Hill+Rd+Fairfax,VA",
+					"Field+Lark+Ln+Fairfax,VA",
+					"Maepine+Ct+Fairfax,VA",
+					"Fair+Valley+Ct+Fairfax,VA",
+					"Edman+Cir+Centreville,VA"};
 					
 			for(int i=1; i<regionAddresses.length; i++)
 					markers.append("&markers=label:"+ regions.getRegionID(i)+"%7C" + regionAddresses[i]);
