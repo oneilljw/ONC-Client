@@ -102,7 +102,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		super(pf);
 		this.setTitle("Our Neighbor's Child - Family Management");
 		
-		ONCRegions regions = ONCRegions.getInstance();
+//		ONCRegions regions = ONCRegions.getInstance();
 		if(regions != null)
 			regions.addDatabaseListener(this);
 		

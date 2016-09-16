@@ -214,11 +214,11 @@ public class FamilyDB extends ONCSearchableDatabase
 				}				
 			}
 			
-			if(!currONCNum.equals(updatedFamily.getONCNum()))
-			{
-				//Sort the family array list so next/previous is in numerical order
-		    	sortDB("ONC");
-			}
+//			if(!currONCNum.equals(updatedFamily.getONCNum()))
+//			{
+//				//Sort the family array list so next/previous is in numerical order
+//		    	sortDB("ONC");
+//			}
 		}
 		
 		return updatedFamily;

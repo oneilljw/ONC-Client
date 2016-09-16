@@ -89,7 +89,7 @@ public class ONCUserDialog extends JDialog implements ActionListener, ListSelect
 		
 		//Set table column widths
 		int tablewidth = 0;
-		int[] colWidths = {128, 96, 80, 104, 96, 40, 144, 24};
+		int[] colWidths = {128, 96, 80, 104, 96, 48, 144, 32};
 		for(int col=0; col < colWidths.length; col++)
 		{
 			dlgTable.getColumnModel().getColumn(col).setPreferredWidth(colWidths[col]);

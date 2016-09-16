@@ -64,12 +64,13 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 	private ChildWishDB cwDB;
 	private PartnerDB orgs;
 	private ONCWishCatalog cat;
+	ONCRegions regions;
 
 	private ArrayList<SortWishObject> stAL;
 	
 	private JComboBox startAgeCB, endAgeCB, genderCB, wishnumCB, wishCB, resCB, assignCB, statusCB, changedByCB;
-	private JComboBox changeResCB, changeStatusCB, changeAssigneeCB, printCB;
-	private DefaultComboBoxModel wishCBM, assignCBM, changeAssigneeCBM, changedByCBM;
+	private JComboBox changeResCB, changeStatusCB, changeAssigneeCB, printCB, regionCB;
+	private DefaultComboBoxModel wishCBM, assignCBM, changeAssigneeCBM, changedByCBM, regionCBM;
 	private JTextField oncnumTF;
 	private JButton btnExport;
 	private JDateChooser ds, de;
@@ -77,7 +78,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 	private JCheckBox labelFitCxBox;
 	
 	private int sortStartAge = 0, sortEndAge = ONC_AGE_LIMIT, sortGender = 0, sortChangedBy = 0;
-	private int sortWishNum = 0, sortRes = 0, sortAssigneeID;
+	private int sortWishNum = 0, sortRes = 0, sortAssigneeID, sortRegion = 0;
 	private WishStatus sortStatus = WishStatus.Any;
 	private int sortWishID = -2;
 	private boolean bOversizeWishes = false;
@@ -97,6 +98,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		cwDB = ChildWishDB.getInstance();
 		orgs = PartnerDB.getInstance();
 		cat = ONCWishCatalog.getInstance();
+		regions = ONCRegions.getInstance();
 		
 		//set up data base listeners
 		if(userDB != null)
@@ -109,6 +111,8 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 			orgs.addDatabaseListener(this);
 		if(cat != null)
 			cat.addDatabaseListener(this);
+		if(regions != null)
+			regions.addDatabaseListener(this);
 		
 		//initialize member variables
 		stAL = new ArrayList<SortWishObject>();
@@ -121,6 +125,14 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		oncnumTF.setToolTipText("Type ONC Family # and press <enter>");
 		oncnumTF.addActionListener(this);
 		oncnumTF.addKeyListener(new ONCNumberKeyListener());
+		
+		regionCBM = new DefaultComboBoxModel();
+		regionCBM.addElement("Any");
+		regionCB = new JComboBox();
+		regionCB.setModel(regionCBM);
+		regionCB.setBorder(BorderFactory.createTitledBorder("Region"));
+		regionCB.setPreferredSize(new Dimension(64,56));
+		regionCB.addActionListener(this);
     	
 		String[] ages = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10",
 				"11","12", "13", "14", "15", "16", "17", "18", "19", "20", "21"};
@@ -205,16 +217,16 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		//set the user preference for assignee filter default setting
 		assignCB.setSelectedIndex(1);
 		sortAssigneeID = -1;
-		
 		assignCB.addActionListener(this);
 
 		sortCriteriaPanelTop.add(oncnumTF);
+		sortCriteriaPanelTop.add(regionCB);
 		sortCriteriaPanelTop.add(startAgeCB);
 		sortCriteriaPanelTop.add(endAgeCB);
 		sortCriteriaPanelTop.add(genderCB);
 		sortCriteriaPanelTop.add(wishnumCB);
 		sortCriteriaPanelTop.add(wishCB);
-		sortCriteriaPanelTop.add(resCB);
+		sortCriteriaPanelBottom.add(resCB);
 		sortCriteriaPanelBottom.add(statusCB);
 		sortCriteriaPanelBottom.add(assignCB);
 		sortCriteriaPanelBottom.add(changedByCB);
@@ -300,25 +312,27 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		
 		if(col == 0)	//Sort on ONC Family Number
     		Collections.sort(stAL, new ONCSortItemFamNumComparator());
-    	else if(col == 1)	// Sort on Child's Age
+		else if(col == 1)	// Sort on Child's Age
+    		Collections.sort(stAL, new ONCSortItemFamilyRegionComparator());
+    	else if(col == 2)	// Sort on Child's Age
     		Collections.sort(stAL, new ONCSortItemAgeComparator());
-    	else if(col == 2)	//Sort on Child's Gender
+    	else if(col == 3)	//Sort on Child's Gender
     		Collections.sort(stAL, new ONCSortItemGenderComparator());
-    	else if(col == 3)	//Sort on Child's Wish #
+    	else if(col == 4)	//Sort on Child's Wish #
     		Collections.sort(stAL, new ONCSortItemWishNumComparator());
-    	else if(col == 4)	//Sort on Child's Base Wish
+    	else if(col == 5)	//Sort on Child's Base Wish
     		Collections.sort(stAL, new ONCSortItemWishBaseComparator());
-    	else if(col == 5)	//Sort on Child's Wish Detail
+    	else if(col == 6)	//Sort on Child's Wish Detail
     		Collections.sort(stAL, new ONCSortItemWishDetailComparator());
-    	else if(col == 6)	//Sort on Child's Wish Indicator
+    	else if(col == 7)	//Sort on Child's Wish Indicator
     		Collections.sort(stAL, new ONCSortItemWishIndicatorComparator());
-    	else if(col == 7)	//Sort on Child's Wish Status
+    	else if(col == 8)	//Sort on Child's Wish Status
     		Collections.sort(stAL, new ONCSortItemWishStatusComparator());
-    	else if(col == 8)	//Sort on Child's Wish Assignee
+    	else if(col == 9)	//Sort on Child's Wish Assignee
     		Collections.sort(stAL, new ONCSortItemWishAssigneeComparator());
-    	else if(col ==  9)	//Sort on Child's Wish Changed By
+    	else if(col ==  10)	//Sort on Child's Wish Changed By
     		Collections.sort(stAL, new ONCSortItemWishChangedByComparator());
-    	else if(col == 10)	//Sort on Child's Wish Date Changed
+    	else if(col == 11)	//Sort on Child's Wish Date Changed
     		Collections.sort(stAL, new ONCSortItemWishDateChangedComparator());
     	else
     		col = -1;
@@ -350,7 +364,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		int itemID = 0;
 		for(ONCFamily f:fDB.getList())
 		{
-			if(isNumeric(f.getONCNum()) && doesONCNumMatch(f.getONCNum()))	//Must be a valid family	
+			if(isNumeric(f.getONCNum()) && doesONCNumMatch(f.getONCNum()) && doesRegionMatch(f.getRegion()))	//Must be a valid family	
 			{
 				for(ONCChild c:cDB.getChildren(f.getID()))
 				{
@@ -379,7 +393,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		}
 		
 		lblNumOfTableItems.setText(Integer.toString(stAL.size()));
-		displaySortTable(stAL, true, tableRowSelectedObjectList);		//Display the table after table array list is built	
+		displaySortTable(stAL, true, tableRowSelectedObjectList);		//Display the table after table list is built	
 	}
 
 	boolean onApplyChanges()
@@ -608,6 +622,23 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		bIgnoreCBEvents = false;
 	}
 	
+	void updateRegionList(String[] regions)
+	{
+		regionCB.removeActionListener(this);
+		String currSel = regionCB.getSelectedItem().toString();
+		
+		regionCBM.removeAllElements();	//Clear the combo box selection list
+		regionCBM.addElement("Any");
+		
+		for(String s: regions)	//Add new list elements
+				regionCBM.addElement(s);
+			
+		//Reselect the prior region, if it still exists
+		regionCB.setSelectedItem(currSel);
+		
+		regionCB.addActionListener(this);
+	}
+	
 	void updateUserPreferences(ONCUser u)
 	{
 		//if there was a change to user preferences and the assignee filter is set to "Any" or
@@ -779,6 +810,8 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 	
 	private boolean doesResMatch(int res) { return sortRes == 0  || sortRes == res+1; }
 	
+	boolean doesRegionMatch(int fr) { return sortRegion == 0 || fr == regionCB.getSelectedIndex()-1; }
+	
 	private boolean doesStatusMatch(WishStatus ws){return sortStatus == WishStatus.Any || sortStatus.compareTo(ws) == 0;}
 	
 	private boolean doesAssigneeMatch(int assigneeID)
@@ -879,6 +912,11 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 			sortRes = resCB.getSelectedIndex();
 			buildTableList(false);
 		}
+		else if(e.getSource() == regionCB && regionCB.getSelectedIndex() != sortRegion)
+		{
+			sortRegion = regionCB.getSelectedIndex();
+			buildTableList(false);
+		}
 		else if(e.getSource() == statusCB && statusCB.getSelectedItem() != sortStatus )
 		{						
 			sortStatus = (WishStatus) statusCB.getSelectedItem();
@@ -944,7 +982,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 	@Override
 	String[] getColumnNames()
 	{
-		String[] columns = {"ONC", "Age", "Gend", "Wish", "Wish Type", "Details", " Res ",
+		String[] columns = {"ONC", "Reg","Age", "Gend", "Wish", "Wish Type", "Details", " Res ",
 				"Status", "Assignee", "Changed By", "Time Stamp"};
 		
 		return columns;
@@ -953,14 +991,14 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 	@Override
 	int[] getColumnWidths()
 	{
-		int[] colWidths = {40, 48, 36, 36, 84, 160, 32, 80, 136, 80, 92};
+		int[] colWidths = {40, 32, 48, 36, 36, 84, 180, 32, 80, 160, 88, 92};
 		return colWidths;
 	}
 	
 	@Override
 	int[] getCenteredColumns()
 	{
-		int[] center_cols = {3,6};
+		int[] center_cols = {1,4,7};
 		return center_cols;
 	}
 	
@@ -1008,6 +1046,11 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		statusCB.removeActionListener(this);
 		statusCB.setSelectedIndex(0);
 		sortStatus = WishStatus.Any;
+		statusCB.addActionListener(this);
+		
+		regionCB.removeActionListener(this);
+		regionCB.setSelectedIndex(0);
+		sortRegion = 0;
 		statusCB.addActionListener(this);
 		
 		assignCB.removeActionListener(this);
@@ -1132,7 +1175,8 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		if(dbe.getSource() != this && (dbe.getType().equals("WISH_ADDED") ||
 										dbe.getType().equals("UPDATED_CHILD_WISH") ||
 										 dbe.getType().equals("UPDATED_CHILD") || 
-										  dbe.getType().equals("DELETED_CHILD")))
+										  dbe.getType().equals("DELETED_CHILD") ||
+										   dbe.getType().equals("UPDATED_FAMILY")))	//ONC# or region?
 			
 		{
 			buildTableList(true);
@@ -1170,6 +1214,11 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		{
 			//new user logged in, update preferences used by this dialog
 			updateUserPreferences((ONCUser) dbe.getObject());
+		}
+		else if(dbe.getType().equals("UPDATED_REGION_LIST"))
+		{
+			String[] regList = (String[]) dbe.getObject();
+			updateRegionList(regList);
 		}
 	}
 	
@@ -1349,150 +1398,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		int getRSPage() { return page; }
 		int getRSTotalpages() { return totalpages; }
 	}
-/*		
-	private class AveryWishLabelPrinter implements Printable
-	{		
-		private static final int AVERY_LABEL_X_OFFSET = 20;
-		private static final int AVERY_LABEL_Y_OFFSET = 50;
-		private static final int AVERY_LABELS_PER_PAGE = 30;
-		private static final int AVERY_COLUMNS_PER_PAGE = 3;
-		private static final int AVERY_LABEL_HEIGHT = 72;
-		private static final int AVERY_LABEL_WIDTH = 196;
-		private static final int AVERY_LABEL_X_BARCODE_OFFSET = 0;
-		private static final int AVERY_LABEL_Y_BARCODE_OFFSET = 4;
-		
-		void drawLabel(int x, int y, String[] line, Font[] lFont, Image img, Graphics2D g2d)
-		{
-			//draw either the season Icon or a bar code
-			if(GlobalVariables.getInstance().includeBarcodeOnLabels())
-				drawBarCode(line[4], x, y, g2d);	//draw the bar code on label
-			else
-				drawHolidayIcon(x, y, img, g2d);	//draw this seasons ONC icon on label
-  
-		    //Draw the label text, either 3 or 4 lines, depending on the wish base + detail length
-		    g2d.setFont(lFont[0]);
-		    drawCenteredString(line[0], 120, x+50, y+5, g2d);	//Draw line 1
-		    
-		    g2d.setFont(lFont[1]);
-		    drawCenteredString(line[1], 120, x+50, y+20, g2d);	//Draw line 2
-		    
-		    if(line[3] == null)	//Only a 3 line label
-		    {
-		    	g2d.setFont(lFont[2]);
-		    	drawCenteredString(line[2], 120, x+50, y+35, g2d);	//Draw line 3
-		    }
-		    else	//A 4 line label
-		    {	    	
-		    	drawCenteredString(line[2], 120, x+50, y+35, g2d);	//Draw line 3	    	
-		    	g2d.setFont(lFont[2]);
-		    	drawCenteredString(line[3], 120, x+50, y+50, g2d);	//Draw line 4
-		    }
-		}
-		
-		private void drawHolidayIcon(int x, int y, Image img, Graphics2D g2d)
-		{
-			double scaleFactor = (72d / 300d) * 2;
-    	     
-		    // Now we perform our rendering 	       	    
-		    int destX1 = (int) (img.getWidth(null) * scaleFactor);
-		    int destY1 = (int) (img.getHeight(null) * scaleFactor);
-		    
-		    //Draw image scaled to fit image clip region on the label
-		    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		    g2d.drawImage(img, x, y, x+destX1, y+destY1, 0,0, img.getWidth(null),img.getHeight(null),null); 
-		}
-		
-		private void drawCenteredString(String s, int width, int XPos, int YPos, Graphics2D g2d)
-		{  
-	        int stringLen = (int) g2d.getFontMetrics().getStringBounds(s, g2d).getWidth();  
-	        int start = width/2 - stringLen/2;  
-	        g2d.drawString(s, start + XPos, YPos);  
-		}
 
-		private void drawBarCode(String code, int x, int y, Graphics2D g2d)
-		{
-			//create the bar code
-			
-			AbstractBarcodeBean bean;
-			if(gvs.getBarcodeCode() == Barcode.CODE128)
-				 bean = new Code128Bean();
-			else
-				bean = new UPCEBean();
-			
-			//get a temporary graphics context
-			Graphics2D tempg2d = (Graphics2D) g2d.create();
-			
-			//create the canvass
-			Java2DCanvasProvider cc = new Java2DCanvasProvider(tempg2d, 0);
-			tempg2d.translate(x + AVERY_LABEL_X_BARCODE_OFFSET, y + AVERY_LABEL_Y_BARCODE_OFFSET);
-//			tempg2d.translate(x, y);
-			
-			tempg2d.setRenderingHint( RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
-//			tempg2d.scale(2.835, 2.835);	//scale from millimeters to points
-			tempg2d.scale(2.4, 2.4);	//scale from millimeters to points
-
-			//set the bean content
-			bean.generateBarcode(cc, code);
-			
-			//release the graphics context
-			tempg2d.dispose(); 
-		}
-
-		@Override
-		public int print(Graphics g, PageFormat pf, int page) throws PrinterException
-		{
-			String logEntry;
-			
-			if (page > (totalNumOfLabelsToPrint+1)/AVERY_LABELS_PER_PAGE)		//'page' is zero-based 
-			{ 
-				return NO_SUCH_PAGE;
-		    }
-			
-			if(gvs == null)
-			{
-				logEntry = String.format("SortWishDialog.print: gvs reference is null");
-				LogDialog.add(logEntry, "M");
-			}
-			
-			final Image img = GlobalVariables.getSeasonIcon().getImage();
-
-			Font[] lFont = new Font[3];
-		    lFont[0] = new Font("Calibri", Font.ITALIC, 11);
-		    lFont[1] = new Font("Calibri", Font.BOLD, 11);
-		    lFont[2] = new Font("Calibri", Font.PLAIN, 10);	     
-		    
-		    int endOfSelection = 0, index = 0;
-		    int[] row_sel = sortTable.getSelectedRows();
-	 		if(sortTable.getSelectedRowCount() > 0)
-	 		{	//print a label for each row selected
-	 			index = page * AVERY_LABELS_PER_PAGE;
-	 			endOfSelection = row_sel.length;
-	 		}
-		    	 
-		    // User (0,0) is typically outside the imageable area, so we must
-		    //translate by the X and Y values in the PageFormat to avoid clipping
-		    Graphics2D g2d = (Graphics2D)g;
-		    g2d.translate(AVERY_LABEL_X_OFFSET, AVERY_LABEL_Y_OFFSET);	//For a 8150 Label
-		    
-		    String line[];
-		    int row = 0, col = 0;
-		    
-		    while(row < AVERY_LABELS_PER_PAGE/AVERY_COLUMNS_PER_PAGE && index < endOfSelection)
-		    {
-		    	line = stAL.get(row_sel[index++]).getWishLabel();
-		    	drawLabel(col * AVERY_LABEL_WIDTH, row * AVERY_LABEL_HEIGHT, line, lFont, img, g2d);	
-		    	if(++col == AVERY_COLUMNS_PER_PAGE)
-		    	{ 
-		    		row++; 
-		    		col = 0;
-		    	} 	
-		    }
-		    	    
-		     // tell the caller that this page is part of the printed document
-		     return PAGE_EXISTS;
-		}
-	}
-*/
 	private class ONCSortItemAgeComparator implements Comparator<SortWishObject>
 	{
 		@Override
@@ -1520,6 +1426,17 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 				onc2 = MAXIMUM_ON_NUMBER;
 			
 			return onc1.compareTo(onc2);
+		}
+	}
+	
+	private class ONCSortItemFamilyRegionComparator implements Comparator<SortWishObject>
+	{
+		@Override
+		public int compare(SortWishObject o1, SortWishObject o2)
+		{
+			Integer o1Reg = (Integer) o1.getFamily().getRegion();
+			Integer o2Reg = (Integer) o2.getFamily().getRegion();
+			return o1Reg.compareTo(o2Reg);
 		}
 	}
 	
@@ -1647,6 +1564,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		String ds = new SimpleDateFormat("MM/dd H:mm").format(swo.getChildWish().getChildWishDateChanged().getTime());
 		String[] tablerow = {
 							swo.getFamily().getONCNum(),
+							regions.getRegionID(swo.getFamily().getRegion()),
 							swo.getChild().getChildAge().split("old", 2)[0].trim(), //Take the word "old" out of string
 							swo.getChild().getChildGender(),
 							Integer.toString(swo.getChildWish().getWishNumber()+1),
