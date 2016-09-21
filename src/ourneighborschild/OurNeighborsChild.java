@@ -32,9 +32,9 @@ public class OurNeighborsChild
 	 */
 	//Static Final Variables
 	private static final int SERVER_CONNECT_RETRY_LIMIT = 3;
-	private static final String VERSION = "4.02";
+	private static final String VERSION = "4.03";
 	private static final String APPNAME = "Our Neighbor's Child";
-	private static final String ONC_SERVER_IP_ADDRESS_FILE = "serveripaddress.txt";
+	private static final String ONC_SERVER_IP_ADDRESS_FILE = "serveraddress.txt";
 	private static final int MAIN_FRAME_WIDTH = 837;
 	private static final int MAIN_FRAME_HEIGHT = 668;
 	
@@ -52,7 +52,8 @@ public class OurNeighborsChild
 	private ServerIF serverIF;	
 //	private static final String defaultServerAddress = "72.209.233.207";	//Cox based server
 //	private static final String defaultServerAddress = "localhost";
-	private static final String defaultServerAddress = "96.127.35.251";	//IDT-Amazon cloud based server
+//	private static final String defaultServerAddress = "96.127.35.251";	//IDT-Amazon cloud based server
+	private static final String defaultServerAddress = "onc.idtus.com";	//IDT-Amazon cloud based server
 	private static final int PORT = 8901;
 
     public OurNeighborsChild()
@@ -102,8 +103,9 @@ public class OurNeighborsChild
         serverIF = null;
         int retrycount = 0;
         
-        //get the last server address saved in the ipaddressfile.txt located in the same folder as the
-        //client application .jar or .app
+        //see if there is an override server address file. If there is, use that address in
+        //place of the default address. The method will return that address or the default address
+        //if the file doesn't exist
         String serverIPAddress = readServerIPAddressFromFile();
         
         //connect to server
@@ -148,10 +150,10 @@ public class OurNeighborsChild
         	JOptionPane.showMessageDialog(oncFrame, mssg, "ONC Server Connecton Failure", JOptionPane.ERROR_MESSAGE);
         	System.exit(0);
         }
-        else
-        	writeServerIPAddressToFile(serverIPAddress);	//write the server address successfully used
+//      else
+//       	writeServerIPAddressToFile(serverIPAddress);	//write the server address successfully used
         
-        //server is connected, proceed with initialization
+        //since we didn't exit, server is connected, proceed with initialization
         //create global variables, set the main frame and the version number
         oncGVs = GlobalVariables.getInstance();
         oncGVs.setFrame(oncFrame);
@@ -280,6 +282,7 @@ public class OurNeighborsChild
 			outputStream = new PrintWriter(fileWriter);
 			 
 		    outputStream.println(ipAddress);
+		    System.out.println("Wrote " + ipAddress + " to " + System.getProperty("user.dir") + "/" + ONC_SERVER_IP_ADDRESS_FILE);
 		} 
 		catch (IOException e) 
 		{
