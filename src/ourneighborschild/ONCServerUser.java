@@ -19,7 +19,7 @@ public class ONCServerUser extends ONCUser
 							String org, String title, String email, String phone, int agtID)
 	{
 		super(id, today, chgby, slpos, slmssg, slchgby, fn, ln, stat, acc, perm, nSessions, last_login, 
-				title, org, email, phone, agtID);
+				 org, title, email, phone, agtID);
 		userid = uid;
 		password = pw;
 	}

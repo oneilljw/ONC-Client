@@ -368,8 +368,6 @@ public class CrosscheckDialog extends JDialog implements ActionListener, Databas
 			this.remarks = line[18].trim();
 			
 			oncNum = "None";
-			
-			System.out.println(String.format("CrosscheckDlg.CrosscheckFamily: FN: %s,  LN: %s", hohFN, hohLN));
 		}
 		
 		//getters
@@ -391,7 +389,8 @@ public class CrosscheckDialog extends JDialog implements ActionListener, Databas
 			String lastname = "";
 			if(hohLN.contains("Household"))
 			{
-				String[] parts = hohLN.split("Household");
+				String[] parts = hohLN.split(" ");
+				
 				for(int i=0; i<parts.length-1; i++)
 					lastname = lastname.concat(parts[i] + " ");	
 				
@@ -401,6 +400,11 @@ public class CrosscheckDialog extends JDialog implements ActionListener, Databas
 				lastname = hohLN.trim();
 			
 			String matchAddress = f.getHouseNum() + " " + f.getStreet();
+			
+			//DEBUG *************************************************
+			if(f.getHOHLastName().equalsIgnoreCase("Abdelshayed") && hohLN.equals("Abdelshayed Household"))
+				System.out.println(String.format("Crosscheck Dlg: ONC LN: %s, hohLN: %s, modified LN: %s", f.getHOHLastName(), hohLN, lastname));
+			
 			
 			if(f.getHOHLastName().equalsIgnoreCase(lastname) && matchAddress.equalsIgnoreCase(delAddress) ||
 					!phone.isEmpty() && f.getHomePhone().contains(phone))
