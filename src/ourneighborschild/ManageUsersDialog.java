@@ -337,11 +337,7 @@ public class ManageUsersDialog extends JDialog implements ActionListener, ListSe
         	else if (col == LOGINS_COL)
         		return user.getNSessions();
         	else if (col == LAST_LOGIN_COL)
-        	{
-//        		SimpleDateFormat sdf = new SimpleDateFormat("M/dd/yy H:mm:ss");
-//        		return sdf.format(user.getLastLogin());
         		return user.getLastLogin();
-        	}
         	else if (col == RESET_PW_COL)
         	{
         		GlobalVariables gvs = GlobalVariables.getInstance();
