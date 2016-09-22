@@ -90,9 +90,11 @@ public class ManageUsersDialog extends JDialog implements ActionListener, ListSe
 		TableColumn permColumn = dlgTable.getColumnModel().getColumn(PERMISSION_COL);
 		permColumn.setCellEditor(new DefaultCellEditor(new JComboBox(UserPermission.values())));
 		
-		TableCellRenderer tableCellRenderer = new DefaultTableCellRenderer() {
-
-		    SimpleDateFormat f = new SimpleDateFormat("M/dd/yy H:mm:ss");
+		//set up a cell renderer for the LAST_LOGINS column to display the date 
+		TableCellRenderer tableCellRenderer = new DefaultTableCellRenderer()
+		{
+			private static final long serialVersionUID = 1L;
+			SimpleDateFormat f = new SimpleDateFormat("M/dd/yy H:mm:ss");
 
 		    public Component getTableCellRendererComponent(JTable table,Object value,
 		            boolean isSelected, boolean hasFocus, int row, int column)
