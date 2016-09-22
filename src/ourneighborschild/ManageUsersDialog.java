@@ -106,7 +106,6 @@ public class ManageUsersDialog extends JDialog implements ActionListener, ListSe
 		                hasFocus, row, column);
 		    }
 		};
-
 		dlgTable.getColumnModel().getColumn(LAST_LOGIN_COL).setCellRenderer(tableCellRenderer);
 		
 		//Set table column widths
