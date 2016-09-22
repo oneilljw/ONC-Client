@@ -30,7 +30,7 @@ public class DialogManager implements EntitySelectionListener
 	private AdultDialog adultDlg;
 	private DirectionsDialog dirDlg;
 	private WishCatalogDialog catDlg;
-	private ONCUserDialog userDlg;
+	private ManageUsersDialog userDlg;
 	private ViewONCDatabaseDialog dbDlg;
 	private PYChildConnectionDialog pyConnectionDlg;
 	private AngelAutoCallDialog angelDlg;
@@ -133,7 +133,7 @@ public class DialogManager implements EntitySelectionListener
     	catDlg = new WishCatalogDialog(GlobalVariables.getFrame());
     	
     	//Set up the manage user dialog
-    	userDlg = new ONCUserDialog(GlobalVariables.getFrame());
+    	userDlg = new ManageUsersDialog(GlobalVariables.getFrame());
     	
     	 //Set up the sort family dialog
         sortFamiliesDlg = new SortFamilyDialog(GlobalVariables.getFrame());

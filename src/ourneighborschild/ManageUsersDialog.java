@@ -1,10 +1,12 @@
 package ourneighborschild;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.print.PrinterException;
+import java.sql.Date;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 
@@ -27,9 +29,10 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
-public class ONCUserDialog extends JDialog implements ActionListener, ListSelectionListener,
+public class ManageUsersDialog extends JDialog implements ActionListener, ListSelectionListener,
 														DatabaseListener
 {
 	/**
@@ -51,7 +54,7 @@ public class ONCUserDialog extends JDialog implements ActionListener, ListSelect
 	private JButton btnAdd, btnEdit, btnResetPW, btnPrint;
 	private UserDB userDB;
 		
-	public ONCUserDialog(JFrame pf)
+	public ManageUsersDialog(JFrame pf)
 	{
 		super(pf);
 		this.owner = pf;
@@ -87,6 +90,23 @@ public class ONCUserDialog extends JDialog implements ActionListener, ListSelect
 		TableColumn permColumn = dlgTable.getColumnModel().getColumn(PERMISSION_COL);
 		permColumn.setCellEditor(new DefaultCellEditor(new JComboBox(UserPermission.values())));
 		
+		TableCellRenderer tableCellRenderer = new DefaultTableCellRenderer() {
+
+		    SimpleDateFormat f = new SimpleDateFormat("M/dd/yy H:mm:ss");
+
+		    public Component getTableCellRendererComponent(JTable table,Object value,
+		            boolean isSelected, boolean hasFocus, int row, int column)
+		    {
+		        if( value instanceof Date)
+		            value = f.format(value);
+		        
+		        return super.getTableCellRendererComponent(table, value, isSelected,
+		                hasFocus, row, column);
+		    }
+		};
+
+		dlgTable.getColumnModel().getColumn(LAST_LOGIN_COL).setCellRenderer(tableCellRenderer);
+		
 		//Set table column widths
 		int tablewidth = 0;
 		int[] colWidths = {128, 96, 80, 104, 96, 48, 144, 32};
@@ -98,6 +118,7 @@ public class ONCUserDialog extends JDialog implements ActionListener, ListSelect
 		tablewidth += 24; 	//count for vertical scroll bar
 		
         dlgTable.setAutoCreateRowSorter(true);	//add a sorter
+        
         
         JTableHeader anHeader = dlgTable.getTableHeader();
         anHeader.setForeground( Color.black);
@@ -316,8 +337,9 @@ public class ONCUserDialog extends JDialog implements ActionListener, ListSelect
         		return user.getNSessions();
         	else if (col == LAST_LOGIN_COL)
         	{
-        		SimpleDateFormat sdf = new SimpleDateFormat("M/dd/yy H:mm:ss");
-        		return sdf.format(user.getLastLogin());
+//        		SimpleDateFormat sdf = new SimpleDateFormat("M/dd/yy H:mm:ss");
+//        		return sdf.format(user.getLastLogin());
+        		return user.getLastLogin();
         	}
         	else if (col == RESET_PW_COL)
         	{
@@ -342,6 +364,8 @@ public class ONCUserDialog extends JDialog implements ActionListener, ListSelect
         		return Long.class;
         	else if(column == RESET_PW_COL)
         		return ImageIcon.class;
+        	else if(column == LAST_LOGIN_COL)
+        		return Date.class;
         	else
         		return String.class;
         }
