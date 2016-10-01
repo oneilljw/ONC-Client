@@ -197,9 +197,9 @@ public class ManageUsersDialog extends JDialog implements ActionListener, ListSe
 		ONCUser currUser = userDB.getUserFromIndex(row);
 		
 		//construct and display a UserProfile Dialog
-		UserProfileDialog upDlg = new UserProfileDialog(owner, currUser);
+		UserProfileDialog upDlg = new UserProfileDialog(owner, currUser, null);
 		upDlg.setLocationRelativeTo(this);
-		upDlg.setVisible(true);
+		upDlg.showDialog();
 	}
 
 	void delete()	//is really reset password 

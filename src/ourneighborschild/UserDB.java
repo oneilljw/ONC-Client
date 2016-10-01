@@ -3,6 +3,7 @@ package ourneighborschild;
 import java.awt.Point;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -203,9 +204,24 @@ public class UserDB extends ONCSearchableDatabase
 		
 			uAL.set(index, updatedUser);
 			
-			//update the current user if they were the update
+			//update the current user if they were the update. Do not update the client id, as the
+			//a user may be logged in more than once
 			if(updatedUser.getID() == loggedInUser.getID())
-				loggedInUser = updatedUser;
+			{
+				loggedInUser.setFirstname(updatedUser.getFirstname());
+				loggedInUser.setLastname(updatedUser.getLastname());
+				loggedInUser.setStatus(updatedUser.getStatus());
+				loggedInUser.setAccess(updatedUser.getAccess());
+				loggedInUser.setPermission(updatedUser.getPermission());
+				loggedInUser.setNSessions(updatedUser.getNSessions());
+				loggedInUser.setLastLogin(updatedUser.getLastLogin());
+				loggedInUser.setEmail(updatedUser.getEmail());
+				loggedInUser.setTitle(updatedUser.getTitle());
+				loggedInUser.setOrg(updatedUser.getOrg());
+				loggedInUser.setPhone(updatedUser.getPhone());
+				loggedInUser.setAgentID(updatedUser.getAgentID());
+				loggedInUser.setPreferences(updatedUser.getPreferences());
+			}
 			
 //			System.out.println(String.format("UserDB.processUpdatedObject: font: %d, wishIndex: %d, dnsIndex: %d",
 //					updatedUser.getPreferences().getFontSize(),

@@ -179,10 +179,17 @@ public class OurNeighborsChild
 		authDlg.setVisible(true);
 		
 		//if we get here, the server has authenticated this client's userID and password
-		//must check to see if the password needs to be changed, if so, force the change
+		//must check to see if the password needs to be changed, if so, force the change.
+		//if password change isnt required, check to see if user should review their profile.
 		ONCUser user = UserDB.getInstance().setLoggedInUser(authDlg.getUser());
 		if(user.changePasswordRqrd() && !dlgManager.onChangePassword())
 			System.exit(0);
+		else if(user.getStatus() == UserStatus.Update_Profile)
+		{
+			UserProfileDialog upDlg = new UserProfileDialog(oncFrame, user, "Please Review & Update Your Profile:");
+			upDlg.setLocationRelativeTo(oncFrame);
+			upDlg.showDialog();
+		}
 		
 		if(user.getFirstname().isEmpty())
     		oncFamilyPanel.setMssg("Welcome to Our Neighbor's Child!", true);

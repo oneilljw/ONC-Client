@@ -631,9 +631,9 @@ public class DialogManager implements EntitySelectionListener
    {
    	//construct and display a UserProfile Dialog
 	ONCUser user = UserDB.getInstance().getLoggedInUser();
-   	UserProfileDialog upDlg = new UserProfileDialog(GlobalVariables.getFrame(), user);
+   	UserProfileDialog upDlg = new UserProfileDialog(GlobalVariables.getFrame(), user, null);
    	upDlg.setLocationRelativeTo(GlobalVariables.getFrame());
-   	upDlg.setVisible(true);
+   	upDlg.showDialog();
    }
    
    boolean onChangePassword()

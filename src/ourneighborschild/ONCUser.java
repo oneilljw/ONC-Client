@@ -127,6 +127,7 @@ public class ONCUser extends ONCEntity
 	public int getClientYear() { return clientYear; }
 	public void setClientYear(int year) { clientYear = year; }
 	public long getNSessions() { return nSessions; }
+	public void setNSessions(long nSessions) { this.nSessions = nSessions; }
 	public Date getLastLogin() { return lastLogin.getTime(); }
 	public void setLastLogin(Date last_login) { lastLogin.setTime(last_login); }
 	public long incrementSessions() { return ++nSessions; }

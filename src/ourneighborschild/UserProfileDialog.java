@@ -19,20 +19,27 @@ public class UserProfileDialog extends InfoDialog implements DatabaseListener
 	
 	private ONCUser user;
 	private UserDB userDB;
+	private boolean bProfileUpdated;
 
-	UserProfileDialog(JFrame owner, ONCUser user) 
+	UserProfileDialog(JFrame owner, ONCUser user, String message) 
 	{
 		super(owner, true);
 		this.user = user;
 		this.setTitle(String.format("User Profile for %s", user.getLastname()));
+		
+		bProfileUpdated = false;	//set to true if profile is updated
 		
 		//connect to User DB and register this dialog as a listener
 		userDB = UserDB.getInstance();
 		if(userDB != null)
 			userDB.addDatabaseListener(this);
 
-		lblONCIcon.setText(String.format("<html><font color=blue>User Profile Information for<br>%s %s</font></html>", 
+		if(message == null)
+			lblONCIcon.setText(String.format("<html><font color=blue>User Profile Information for<br>%s %s</font></html>", 
 							user.getFirstname(), user.getLastname()));
+		else
+			lblONCIcon.setText(String.format("<html><font color=blue>%s<br>%s %s</font></html>", 
+					message, user.getFirstname(), user.getLastname()));
 
 		//Set up the main panel, loop to set up components associated with names
 		for(int pn=0; pn < getDialogFieldNames().length; pn++)
@@ -45,10 +52,21 @@ public class UserProfileDialog extends InfoDialog implements DatabaseListener
 		//display profile data
 		display();
 		
-		//add text to action button
+		//add text to action(Update) and delete(No Update) buttons
 		btnAction.setText("Update Profile");
+		btnDelete.setText("Don't Update");
+		
+		//set Profile is Correct button visible
+		btnDelete.setVisible(true);
 				
 		pack();
+	}
+	
+	boolean showDialog()
+	{
+		display();
+		this.setVisible(true);	//modal dialog, blocks here until next action
+		return bProfileUpdated;
 	}
 	
 	void display()
@@ -73,6 +91,11 @@ public class UserProfileDialog extends InfoDialog implements DatabaseListener
 		reqUpdateUser.setEmail(tf[EMAIL_INDEX].getText());
 		reqUpdateUser.setPhone(tf[PHONE_INDEX].getText());
 		
+		//if the user was prompted to update their profile (status = UserStatus.Update_Profile)
+		//change the status in the update request to UserStatus.Active
+		if(user.getStatus() == UserStatus.Update_Profile)
+			reqUpdateUser.setStatus(UserStatus.Active);
+	
 		//send update request to server
 		String response = userDB.update(this, reqUpdateUser);
 		if(response != null && response.startsWith("UPDATED_USER"))
@@ -84,6 +107,9 @@ public class UserProfileDialog extends InfoDialog implements DatabaseListener
 			user.setTitle(reqUpdateUser.getTitle());
 			user.setEmail(reqUpdateUser.getEmail());
 			user.setPhone(reqUpdateUser.getPhone());
+			
+			bProfileUpdated = true;
+			this.dispose();
 		}
 		else
 		{
@@ -93,9 +119,26 @@ public class UserProfileDialog extends InfoDialog implements DatabaseListener
 	}
 
 	@Override
-	void delete() 
+	void delete() //is used for indicating profile is up to date already
 	{
-		// no delete button in this child dialog, unused from parent
+		//if no change was made and the user status == UserStatus.Update_Profile, we need to 
+		//let the server know that the user did indeed verify their profile is still accurate
+		if(user.getStatus() == UserStatus.Update_Profile)
+		{
+			ONCUser reqUpdateUser = new ONCUser(user); 
+			reqUpdateUser.setStatus(UserStatus.Active);
+			
+			//send update request to server
+			String response = userDB.update(this, reqUpdateUser);
+			if(response != null && response.startsWith("UPDATED_USER"))
+			{
+				//update the user
+				user.setStatus(reqUpdateUser.getStatus());
+				bProfileUpdated = true;
+			}
+		}
+	
+		this.dispose();
 	}
 
 	@Override
