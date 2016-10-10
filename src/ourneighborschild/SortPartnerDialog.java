@@ -454,8 +454,8 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 			subject = "Greetings From Our Neighbor's Child";
 			cid0 = ContentIDGenerator.getContentId();
 			cid1 = ContentIDGenerator.getContentId();
-			attachmentAL.add(new ONCEmailAttachment("DSC_0704.JPG", cid0, MimeBodyPart.INLINE));
-			attachmentAL.add(new ONCEmailAttachment("DSC_0764.JPG", cid1, MimeBodyPart.INLINE));
+			attachmentAL.add(new ONCEmailAttachment("2016 Partner 1.jpg", cid0, MimeBodyPart.INLINE));
+			attachmentAL.add(new ONCEmailAttachment("2016 Partner 2.jpg", cid1, MimeBodyPart.INLINE));
 		}
 		else if(emailType == 2)	//Giving Tree Warehouse Email
 		{
@@ -996,7 +996,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
         		+ "and information on Our Neighbor's Child: <a href=\"http://www.ourneighborschild.org\">www.ourneighborschild.org</a>. "
         		+ "We welcome you and anyone associated with your organization to join us in other "
         		+ "volunteer activities as well.</p>"
-        		+ "<p>Though the number of families needing holiday assistance in our community has"
+        		+ "<p>Though the number of families needing holiday assistance in our community has "
         		+ "grown exponentially in 25 years, ONC has continued as an ALL volunteer "
         		+ "organization with EVERY donation dollar used to provide a gift for a child in need.</p>"
         		+ "<p>We are deeply grateful for your support and look forward to working with you "
