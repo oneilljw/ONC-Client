@@ -513,6 +513,8 @@ public class PartnerDB extends ONCSearchableDatabase
 			Collections.sort(oal, new OrgStatusComparator()); }
 		else if(dbField.equals("Type")) {
 			Collections.sort(oal, new OrgTypeComparator()); }
+		else if(dbField.equals("Collection")) {
+			Collections.sort(oal, new OrgCollectionComparator()); }
 		else if(dbField.equals("Req")) {
 			Collections.sort(oal, new OrgOrnReqComparator()); }
 		else if(dbField.equals("Assigned")) {
@@ -951,6 +953,14 @@ public class PartnerDB extends ONCSearchableDatabase
 			Integer t1 = o1.getType();
 			Integer t2 = o2.getType();
 			return t1.compareTo(t2);
+		}
+	}
+	private class OrgCollectionComparator implements Comparator<ONCPartner>
+	{
+		@Override
+		public int compare(ONCPartner o1, ONCPartner o2)
+		{
+			return o1.getGiftCollectionType().compareTo(o2.getGiftCollectionType());
 		}
 	}
 	private class OrgOrnReqComparator implements Comparator<ONCPartner>

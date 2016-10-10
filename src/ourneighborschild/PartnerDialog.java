@@ -44,7 +44,7 @@ public class PartnerDialog extends EntityDialog
 	
 	private JLabel lblCYAssigned, lblCYRec;
 	private JLabel lblOrgID, lblRegion, lblDateChanged, lblChangedBy;
-    private JComboBox typeCB, statusCB, collTypeCB;
+    private JComboBox typeCB, statusCB, collectionCB;
     private JTextPane otherTP, specialNotesTP, deliverToTP;
     private JLabel lblPYReq, lblPYAssigned, lblPYRec;
     private JTextField nameTF, cyReqTF;
@@ -119,11 +119,11 @@ public class PartnerDialog extends EntityDialog
         typeCB.setBorder(BorderFactory.createTitledBorder("Partner Type"));
         typeCB.addActionListener(dcListener);
         
-        collTypeCB = new JComboBox();
-        collTypeCB.setModel(new DefaultComboBoxModel(GiftCollection.values()));
-        collTypeCB.setPreferredSize(new Dimension (128, 48));
-        collTypeCB.setBorder(BorderFactory.createTitledBorder("Collection Type"));
-        collTypeCB.addActionListener(dcListener);
+        collectionCB = new JComboBox();
+        collectionCB.setModel(new DefaultComboBoxModel(GiftCollection.selectionValues()));
+        collectionCB.setPreferredSize(new Dimension (128, 48));
+        collectionCB.setBorder(BorderFactory.createTitledBorder("Collection Type"));
+        collectionCB.addActionListener(dcListener);
                      
         String[] status = {"No Action Yet", "1st Email Sent", "Responded", "2nd Email Sent", "Called, Left Mssg", "Confirmed", "Not Participating"}; 
         statusCB = new JComboBox(status);
@@ -134,7 +134,7 @@ public class PartnerDialog extends EntityDialog
         op1.add(lblOrgID);
         op1.add(nameTF);
         op1.add(typeCB);
-        op1.add(collTypeCB);
+        op1.add(collectionCB);
         op1.add(statusCB);
         
         //set up panel 2
@@ -428,18 +428,18 @@ public class PartnerDialog extends EntityDialog
 			nameTF.setCaretPosition(0);
 			statusCB.setSelectedIndex(currPartner.getStatus());
 			typeCB.setSelectedIndex(currPartner.getType());
-			collTypeCB.setSelectedItem(currPartner.getGiftCollectionType());
+			collectionCB.setSelectedItem(currPartner.getGiftCollectionType());
 			
 			//Can't change stats or collection type of organization with ornaments assigned
 			if(currPartner.getNumberOfOrnamentsAssigned() == 0)
 			{
 				statusCB.setEnabled(true);
-				collTypeCB.setEnabled(true);
+				collectionCB.setEnabled(true);
 			}
 			else
 			{
 				statusCB.setEnabled(false);
-				collTypeCB.setEnabled(false);
+				collectionCB.setEnabled(false);
 			}
 			
 			//CANNOT DELETE A ORGANIZATION THAT IS CONFIRMED
@@ -536,12 +536,12 @@ public class PartnerDialog extends EntityDialog
 			reqPartner.setType(typeCB.getSelectedIndex());
 			bCD = true;
 		}
-		if(!collTypeCB.getSelectedItem().equals(reqPartner.getGiftCollectionType()))
+		if(!collectionCB.getSelectedItem().equals(reqPartner.getGiftCollectionType()))
 		{
 			//The partner collection type has changed, store the new type and update the 
 			//confirmed partnerlist since changes between general and ornament affect 
 			//the partner selection lists in other ui's
-			reqPartner.setGiftCollectionType((GiftCollection) collTypeCB.getSelectedItem());
+			reqPartner.setGiftCollectionType((GiftCollection) collectionCB.getSelectedItem());
 			bCD = true;
 		}
 		if(cyReqTF.getText().isEmpty())
@@ -614,7 +614,7 @@ public class PartnerDialog extends EntityDialog
 		nameTF.setText("");		
 		statusCB.setSelectedIndex(0);
 		typeCB.setSelectedIndex(0);
-		collTypeCB.setSelectedIndex(0);
+		collectionCB.setSelectedIndex(0);
 		cyReqTF.setText("");
 		lblCYAssigned.setText("0");
 		otherTP.setText("");
@@ -718,7 +718,7 @@ public class PartnerDialog extends EntityDialog
 		ONCPartner newPartner = new ONCPartner(-1, new Date(), userDB.getUserLNFI(),
 				3, "Partner Created", userDB.getUserLNFI(),
 				statusCB.getSelectedIndex(), typeCB.getSelectedIndex(),
-				(GiftCollection) collTypeCB.getSelectedItem(), nameTF.getText(), "", 
+				(GiftCollection) collectionCB.getSelectedItem(), nameTF.getText(), "", 
 				streetnumTF.getText().isEmpty() ? 0 : Integer.parseInt(streetnumTF.getText()),
 				streetnameTF.getText(), unitTF.getText(), cityTF.getText(), zipTF.getText(), 
 				phoneTF.getText(), cyReqTF.getText().isEmpty() ? 0 : Integer.parseInt(cyReqTF.getText()),
