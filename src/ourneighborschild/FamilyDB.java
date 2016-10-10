@@ -374,16 +374,18 @@ public class FamilyDB extends ONCSearchableDatabase
 	    			{
 	    				while ((nextLine = reader.readNext()) != null)	// nextLine[] is an array of values from the line
 	    				{
-	    					//determine if agent already exists or not. If agent action fails, set
-	    					//agent ID to -1
-	    					Agent reqAgent = new Agent(-1, nextLine[0], nextLine[1], nextLine[2], nextLine[7], nextLine[10]);
+	    					if(nextLine.length == 29)	//if improper size, skip
+	    					{
+	    						//determine if agent already exists or not. If agent action fails, set
+	    						//agent ID to -1
+	    						Agent reqAgent = new Agent(-1, nextLine[0], nextLine[1], nextLine[2], nextLine[7], nextLine[10]);
 	    					
-	    					Agent responseAgt = (Agent) oncAgentDB.add(this, reqAgent);
-	    					if(responseAgt != null)
-	    						agentID = responseAgt.getID();
+	    						Agent responseAgt = (Agent) oncAgentDB.add(this, reqAgent);
+	    						if(responseAgt != null)
+	    							agentID = responseAgt.getID();
 	    					
-	    					//now that the agent has been separated from the input data, create the family
-	    					ONCFamily reqAddFam = new ONCFamily(nextLine[0], nextLine[1], nextLine[2],
+	    						//now that the agent has been separated from the input data, create the family
+	    						ONCFamily reqAddFam = new ONCFamily(nextLine[0], nextLine[1], nextLine[2],
 	    							nextLine[4], nextLine[5], nextLine[6], nextLine[7], nextLine[8], nextLine[9],
 	    							nextLine[10], nextLine[11], nextLine[12], nextLine[13], nextLine[14], nextLine[15],
 	    							nextLine[16], nextLine[18], nextLine[19], nextLine[20],
@@ -392,28 +394,28 @@ public class FamilyDB extends ONCSearchableDatabase
 	    							UserDB.getInstance().getUserLNFI(), 
 	    							agentID);
 	    					
-	    					ONCFamily addedFam = (ONCFamily) add(this, reqAddFam);
+	    						ONCFamily addedFam = (ONCFamily) add(this, reqAddFam);
 	    					
-	    					//if family add was successful, add children to child data base
-	    					if(addedFam != null)
-	    						addFamiliesChildrenAndAdults(addedFam.getID(), nextLine[6]);
+	    						//if family add was successful, add children to child data base
+	    						if(addedFam != null)
+	    							addFamiliesChildrenAndAdults(addedFam.getID(), nextLine[6]);
 /*	    					
-	    					//need to tell the server here to check if family is a duplicate once
-	    					//adults and children are added
-	    					Gson gson = new Gson();
-	    					String response = null;
-	    					response = serverIF.sendRequest("POST<check_duplicatefamily>" + gson.toJson(addedFam, ONCFamily.class));
+	    						//need to tell the server here to check if family is a duplicate once
+	    						//adults and children are added
+	    						Gson gson = new Gson();
+	    						String response = null;
+	    						response = serverIF.sendRequest("POST<check_duplicatefamily>" + gson.toJson(addedFam, ONCFamily.class));
 	    					
-	    					//response will determine if agent already existed or a new agent was added
-	    					if(response == null || response.startsWith("DUPLICATE_FAMILY") || response.startsWith("UNIQUE_FAMILY"))
-	    					{
+	    						//response will determine if agent already existed or a new agent was added
+	    						if(response == null || response.startsWith("DUPLICATE_FAMILY") || response.startsWith("UNIQUE_FAMILY"))
+	    						{
 	    						
-	    					}
+	    						}
 */	    					
+	    					}
 	    				}
 	    				
 	    				Collections.sort(oncFamAL, new ONCFamilyONCNumComparator());
-	    				
 	    			}
 /*	    			
 	    			else if(header.length == 26)
@@ -578,11 +580,12 @@ public class FamilyDB extends ONCSearchableDatabase
 	 */
 	void addFamiliesChildrenAndAdults(int famid, String fm)
 	{
-		String[] members = fm.split("\n");
+		String[] members = fm.trim().split("\n");
 		
 		for(int i=0; i<members.length; i++)
 		{
-			if(members[i].toLowerCase().contains("adult"))
+//			System.out.println(String.format("#: %d part[%d]: %s. length= %d", members.length, i, members[i], members[i].length()));
+			if(!members[i].isEmpty() && members[i].toLowerCase().contains("adult"))
 			{
 				//crate the add adult request object
 				String[] adult = members[i].split(ODB_FAMILY_MEMBER_COLUMN_SEPARATOR, 3);
@@ -604,7 +607,7 @@ public class FamilyDB extends ONCSearchableDatabase
 					adultDB.add(this, reqAddAdult);
 				}
 			}
-			else
+			else if(!members[i].isEmpty())
 			{
 				//crate the add child request object
 				ONCChild reqAddChild = new ONCChild(-1, famid, members[i],

@@ -218,9 +218,10 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
         progressBar.setStringPainted(true);
         progressBar.setVisible(false);
 				
-		String[] emailChoices = {"Email", "New 2015 Season Email", "2015 Giving Tree Email", 
-								"2015 Clothing Donor Email", "2015 Clothing Not Too Late Email",
-								 "2015 Gift Drop-Off Reminder"
+		String[] emailChoices = {"Email", "2016 Season Start Email"
+//								,"2015 Giving Tree Email" 
+//								 ,"2015 Clothing Donor Email", "2015 Clothing Not Too Late Email",
+//								 "2015 Gift Drop-Off Reminder"
 //								 "Ornament Drop-Off Email",
 //								 "2014 Clothing Donor Reminder Email",
 //								 "Clothing Donor Not Too Late Email",
@@ -515,7 +516,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 			
 			//Create the email body and potentially subject
 	        if(emailType == 1)
-	        	emailBody = create2015SeasonOrganizationEmailBody(o, cid0, cid1);
+	        	emailBody = create2016SeasonOrganizationEmailBody(o, cid0, cid1);
 	        else if(emailType == 2)
 	        	emailBody = create2015GivingTreeEmailBody();
 	        else if(emailType == 3)
@@ -903,8 +904,9 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		
 		return msg;
 	}
-*/	
-	String create2015SeasonOrganizationEmailBody(ONCPartner o, String cid0, String cid1)
+*/
+	String create2016SeasonOrganizationEmailBody(ONCPartner o, String cid0, String cid1)
+//	String create2015SeasonOrganizationEmailBody(ONCPartner o, String cid0, String cid1)
 //	String create2014SeasonOrganizationEmailBody(Organization o)
 	{
 		 //Create the variables for the body of the email     
@@ -940,18 +942,21 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 //        	notes = o.getSpecialNotes();
         
         String msgtop = String.format("<html><body><div>"
-        		+ "<p>The weather may be warm (and wet!) but planning is well underway to serve "
-        		+ "our area's less fortunate children this holiday season.</p>"
-        		+ "<p>With your continued and valued support, the <b>all-volunteer</b> team at "
+        		+ "<p>It's hard to believe a quarter of a century has passed since we first "
+        		+ "gathered gifts for a handful of local families in need.</p>"
+        		+ "<p>With your continued and valued support, your <b>all-volunteer</b> team at "
         		+ "<b>Our Neighbor's Child</b> is gearing up to coordinate "
-        		+ "our 24th year of community service. This effort is only possible when our community "
-        		+ "comes together, including the consistent and generous support of ONC partners like %s.</p>"
-        		+" <p>We hope you're able to join us again this year.  The need continues to be great, with hundreds "
-        		+ "of families in our area still struggling to meet their families' most basic needs.  " 
-        		+ "When we provide children's gifts at the holidays, it allows many of these families "
-        		+ "to direct their limited financial resources toward essential housing, utilities and especially food.</p>"
-        		+ "<p>We also hope it makes a difference in your life, and others like you who are fortunate enough to give.</p>"
-        		+ "<p><b>Kindly review the following information we currently have on file for your organization:</b></p>"
+        		+ "a 25<sup>th</sup> year of holiday assistance for our less fortunate neighbors.</p>"
+        		+ "<p>This effort is only possible when our community "
+        		+ "comes together and through the consistent, generous support of ONC partners like %s.</p>"
+        		+ "<p>Hundreds of families in our area still struggle to meet their most basic needs. "
+        		+ "When we help out with children's gifts at the holidays, it allows many of these "
+        		+ "families to direct their stretched financial resources toward essential housing, "
+        		+ "utilities and critically important food needs.</p>"
+        		+ "<p>We also hope participating makes a difference in your life, and the lives of "
+        		+ "others fortunate and generous enough to give.</p>"
+        		+ "<p><b>Would you mind taking a moment to review our notes from last year? "
+        		+ "Accurate information is KEY to our successful partnership:</b></p>"
         		+ "<font color=\"red\">"
         		+ "&emsp;ONC Gift Partner:  %s<br>"
         		+ "&emsp;Address:  %s<br>" 
@@ -975,31 +980,37 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
         String msgbot = String.format(
         		"<font color=\"red\">"
         		+ "&emsp;Gift Collection Type: %s<br>"
-        		+ "&emsp;Ornaments Requested in 2014:  %d<br>"
+        		+ "&emsp;Ornaments Requested in 2015:  %d<br>"
 //        		+ "&emsp;Gifts Received By Deadline in 2014:  %d<br>"
         		+ "&emsp;Special Notes or Instructions:</font><br>"
-        		+ "<p><b>Please reply at your earliest convenience with any corrections, updates or questions.</b></p>"
-        		+ "I'll be your ONC Contact again this year as Gift Partner Coordinator and I hope you'll feel free "
-        		+ "to contact me with any questions at any time.</p>"
-        		+ "<p>This year we'll be delivering gift wish \"ornaments\" on Wednesday, November 18th.</p>"
-        		+ "<p>Gift drop-off dates will be Sunday, Monday and Tuesday, December 6, 7, and 8. Delivery to the "
-        		+ "families' homes will be Sunday, December 13.<p>"
-        		+ "<p>I've included a few photos from prior seasons and hope you'll visit our web-site for more photos "
+        		+ "<p><b>Please reply at your earliest convenience with any corrections, updates or "
+        		+ "questions.</b></p>"
+        		+ "<p>This is my third year as ONC's Gift Partner Coordinator and I hope you'll feel "
+        		+ "free to contact me with questions at any time.</p>"
+        		+ "<p>Here are a few important dates: Gift wish \"ornaments\" will be delivered "
+        		+ "on Wednesday, November 16th.</p>"
+        		+ "<p>Gift drop-off dates will be Sunday, Monday and Tuesday, December 11, 12, and 13. "
+        		+ "Delivery to families' homes will be Sunday, December 18. Churches with space or "
+        		+ "storage concerns may make arrangements for early drop-off by appointment.</p>"
+        		+ "<p>I've included a few photos from prior seasons and hope you'll visit our website for more photos "
         		+ "and information on Our Neighbor's Child: <a href=\"http://www.ourneighborschild.org\">www.ourneighborschild.org</a>. "
-        		+ "We welcome you and anyone associated with your organization to join us in other volunteer activities as well.</p>"
-        		+ "<p>Please remember that ONC remains an all volunteer organization and every penny we raise goes "
-        		+ "directly to provide a gift for a child in need.</p>"
-        		+ "<p>We look forward to working with you this season.</p>"
-        		+" <p>Fondly,<br><br>"
+        		+ "We welcome you and anyone associated with your organization to join us in other "
+        		+ "volunteer activities as well.</p>"
+        		+ "<p>Though the number of families needing holiday assistance in our community has"
+        		+ "grown exponentially in 25 years, ONC has continued as an ALL volunteer "
+        		+ "organization with EVERY donation dollar used to provide a gift for a child in need.</p>"
+        		+ "<p>We are deeply grateful for your support and look forward to working with you "
+        		+ "again this holiday season!</p>"
+        		+ "<p>Fondly,<br><br>"
         		+ "Denise McInerney<br>"
         		+ "Gift Partner Coordinator<br>"
-        		+"Our Neighbor's Child<br>"
-        		+"P.O. Box 276<br>"
-        		+"Centreville, VA  20120<br>" 
-        		+"<a href=\"http://www.ourneighborschild.org\">www.ourneighborschild.org</a><br><br></div></p>"+
-        		"<p><div><img src=\"cid:" + cid0 + "\" /></div></p>" +
-        		"<p><div><img src=\"cid:" + cid1 + "\" /></div></p>" +
-        		"</body></html>", giftCollectionType, orn_requested);
+        		+ "Our Neighbor's Child<br>"
+        		+ "P.O. Box 276<br>"
+        		+ "Centreville, VA  20120<br>" 
+        		+ "<a href=\"http://www.ourneighborschild.org\">www.ourneighborschild.org</a><br><br></div></p>"
+        		+ "<p><div><img src=\"cid:" + cid0 + "\" /></div></p>"
+        		+ "<p><div><img src=\"cid:" + cid1 + "\" /></div></p>"
+        		+ "</body></html>", giftCollectionType, orn_requested);
         
         return msgtop + msgmid + msgbot;
 	}
