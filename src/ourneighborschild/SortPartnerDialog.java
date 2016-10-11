@@ -919,6 +919,36 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 	{
 		 //Create the variables for the body of the email     
         String name = o.getName();
+        
+        //The next section of code is a temporary fix until the ONCPartner object is updated
+        //to split the contact and contact2 name fields into contact fn, contact ln
+        //contact2 fn and contact2 ln fields.
+        String fn = "";
+        if(o.getContact().length() > 1)
+        {
+        	 String[] names1 = o.getContact().split(" ");
+        	if(names1.length == 1 || names1.length == 2)
+        		fn = names1[0];
+        	else
+        		fn = names1[0] + " " + names1[1];
+		}
+        
+        String fn2 = "";
+        if(o.getContact2().length() > 1)
+        {
+        	String[] names2 = o.getContact2().split(" ");
+        	if(names2.length == 1 || names2.length == 2)
+        		fn2 = names2[0];
+        	else
+        		fn2 = names2[0] + " " + names2[1];
+        }
+        
+        if(fn.length() <= 1 && fn2.length() > 1)	//contact 1 empty, contact2 exists
+        	fn = fn2;
+        else if(fn.length() > 1 && fn2.length() > 1)	//both contacts exist
+        	fn = fn.concat(" & " + fn2);        
+        //End of temporary code to handle contact name splitting
+   
         String address = o.getStreetnum() + " " + o.getStreetname() + " " + o.getUnit() + " " +
         				 o.getCity() + ", VA " + o.getZipcode();
         String contact = o.getContact();
@@ -943,6 +973,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
         
         String giftCollectionType = o.getGiftCollectionType().toString();
         int orn_requested = o.getPriorYearRequested();
+        String specNotes = o.getSpecialNotes();
 //      int orn_receivedByDeadline = o.getPriorYearReceived();
         
 //        String notes = "None";
@@ -950,6 +981,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 //        	notes = o.getSpecialNotes();
         
         String msgtop = String.format("<html><body><div>"
+        		+ "<p>Dear %s,"
         		+ "<p>It's hard to believe a quarter of a century has passed since we first "
         		+ "gathered gifts for a handful of local families in need.</p>"
         		+ "<p>With your continued and valued support, your <b>all-volunteer</b> team at "
@@ -971,7 +1003,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
         		+ "&emsp;Phone #:  %s<br>" 
         		+ "&emsp;Contact:  %s<br>" 
         		+ "&emsp;Phone #:  %s<br>" 
-        		+ "&emsp;Email:  %s</font><br>", name, name, address, busphone, contact, contactphone, contactemail);
+        		+ "&emsp;Email:  %s</font><br>", fn, name, name, address, busphone, contact, contactphone, contactemail);
         
         //Create the middle part of the message if 2nd contact exists
         String msgmid = "";
@@ -990,7 +1022,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
         		+ "&emsp;Gift Collection Type: %s<br>"
         		+ "&emsp;Ornaments Requested in 2015:  %d<br>"
 //        		+ "&emsp;Gifts Received By Deadline in 2014:  %d<br>"
-        		+ "&emsp;Special Notes or Instructions:</font><br>"
+        		+ "&emsp;Special Notes or Instructions: %s</font><br>"
         		+ "<p><b>Please reply at your earliest convenience with any corrections, updates or "
         		+ "questions.</b></p>"
         		+ "<p>This is my third year as ONC's Gift Partner Coordinator and I hope you'll feel "
@@ -1018,7 +1050,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
         		+ "<a href=\"http://www.ourneighborschild.org\">www.ourneighborschild.org</a><br><br></div></p>"
         		+ "<p><div><img src=\"cid:" + cid0 + "\" /></div></p>"
         		+ "<p><div><img src=\"cid:" + cid1 + "\" /></div></p>"
-        		+ "</body></html>", giftCollectionType, orn_requested);
+        		+ "</body></html>", giftCollectionType, orn_requested, specNotes);
         
         return msgtop + msgmid + msgbot;
 	}
