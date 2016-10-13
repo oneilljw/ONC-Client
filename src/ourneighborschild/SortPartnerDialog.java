@@ -973,7 +973,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
         
         String giftCollectionType = o.getGiftCollectionType().toString();
         int orn_requested = o.getPriorYearRequested();
-        String specNotes = o.getSpecialNotes();
+//      String specNotes = o.getSpecialNotes();
 //      int orn_receivedByDeadline = o.getPriorYearReceived();
         
 //        String notes = "None";
@@ -1022,7 +1022,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
         		+ "&emsp;Gift Collection Type: %s<br>"
         		+ "&emsp;Ornaments Requested in 2015:  %d<br>"
 //        		+ "&emsp;Gifts Received By Deadline in 2014:  %d<br>"
-        		+ "&emsp;Special Notes or Instructions: %s</font><br>"
+        		+ "&emsp;Special Notes or Instructions:</font><br>"
         		+ "<p><b>Please reply at your earliest convenience with any corrections, updates or "
         		+ "questions.</b></p>"
         		+ "<p>This is my third year as ONC's Gift Partner Coordinator and I hope you'll feel "
@@ -1050,7 +1050,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
         		+ "<a href=\"http://www.ourneighborschild.org\">www.ourneighborschild.org</a><br><br></div></p>"
         		+ "<p><div><img src=\"cid:" + cid0 + "\" /></div></p>"
         		+ "<p><div><img src=\"cid:" + cid1 + "\" /></div></p>"
-        		+ "</body></html>", giftCollectionType, orn_requested, specNotes);
+        		+ "</body></html>", giftCollectionType, orn_requested);
         
         return msgtop + msgmid + msgbot;
 	}
