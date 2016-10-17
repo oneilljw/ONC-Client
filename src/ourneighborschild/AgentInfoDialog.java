@@ -15,14 +15,17 @@ public class AgentInfoDialog extends InfoDialog implements DatabaseListener, Ent
 	 *  the local agent data base to make and listen for agent changes.
 	 */
 	private static final long serialVersionUID = 1L;
+	private JFrame owner;
 	private Agent a;
-	private FamilyDB familyDB;
-	AgentDB agentDB;
-	boolean bAgentSelectedEnabled;
+	private ONCFamily currFamily;
+//	private FamilyDB familyDB;
+	private AgentDB agentDB;
+	private boolean bAgentSelectedEnabled;
 	
 	AgentInfoDialog(JFrame owner, boolean bAgentSelectedEnabled)
 	{
 		super(owner, false);
+		this.owner = owner;
 		this.bAgentSelectedEnabled = bAgentSelectedEnabled;
 
 		//Set dialog title and add type label info
@@ -38,7 +41,7 @@ public class AgentInfoDialog extends InfoDialog implements DatabaseListener, Ent
 			agentDB.addDatabaseListener(this);
 		
 		//get a reference to Family Db
-		familyDB = FamilyDB.getInstance();
+//		familyDB = FamilyDB.getInstance();
 		
 		//Set up the main panel, loop to set up components associated with names
 		for(int pn=0; pn < getDialogFieldNames().length; pn++)
@@ -49,7 +52,7 @@ public class AgentInfoDialog extends InfoDialog implements DatabaseListener, Ent
 			infopanel[pn].add(tf[pn]);
 		}
 		
-		btnDelete.setText("Delete Agent");
+		btnDelete.setText("Change Agent");
 		btnAction.setText("Save Agent");
 		
 		pack();
@@ -59,8 +62,8 @@ public class AgentInfoDialog extends InfoDialog implements DatabaseListener, Ent
 	{
 		if (obj instanceof ONCFamily)
 		{
-			ONCFamily fam = (ONCFamily) obj;
-			a = (Agent) agentDB.getONCObject(fam.getAgentID());
+			currFamily = (ONCFamily) obj;
+			a = (Agent) agentDB.getONCObject(currFamily.getAgentID());
 		}
 		else
 			a = (Agent) obj;
@@ -82,8 +85,8 @@ public class AgentInfoDialog extends InfoDialog implements DatabaseListener, Ent
 		
 		btnAction.setEnabled(false);
 		
-		//can only delete an agent if no family assigned
-		btnDelete.setVisible(familyDB.getNuberOfFamiliesWithAgent(a.getID()) == 0);
+		//can only change an agent if there is a family identified
+		btnDelete.setVisible(currFamily != null);
 	}
 	
 	@Override
@@ -120,8 +123,14 @@ public class AgentInfoDialog extends InfoDialog implements DatabaseListener, Ent
 		}
 	}
 	
+	//CANT DELTE AN AGENT AS OF 10-13-16 *** JWO
 	void delete()
 	{
+		ChangeAgentDialog caDlg = new ChangeAgentDialog(owner, true);
+		caDlg.setLocationRelativeTo(btnAction);
+		caDlg.display(currFamily);
+		caDlg.setVisible(true);
+/*
 		//Confirm with the user that the deletion is really intended
 		String confirmMssg = String.format("<html>Are you sure you want to delete<br><b>%s</b> from the database?</html>", a.getAgentName()); 
 										
@@ -155,6 +164,7 @@ public class AgentInfoDialog extends InfoDialog implements DatabaseListener, Ent
 						JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
 			}
 		}
+*/		
 	}
 	
 	@Override

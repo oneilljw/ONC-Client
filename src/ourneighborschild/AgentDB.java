@@ -233,7 +233,7 @@ public class AgentDB extends ONCDatabase
 		
 		return addedAgt;
 	}
-	
+/*	
 	//Delete an object from database.
 	ONCObject delete(Object source, ONCObject entity) 
 	{
@@ -249,7 +249,7 @@ public class AgentDB extends ONCDatabase
 		
 		return delAgent;	
 	}
-	
+*/	
 	ONCObject processDeletedObject(Object source, String json)
 	{
 		Gson gson = new Gson();

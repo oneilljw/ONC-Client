@@ -91,7 +91,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 
 	private static String[] giftCardFilter = {"Any", "True", "False"};
 	private static String[] dnsCodes = {"None", "Any", "DUP", "NC", "NISA", "OPT-OUT", "SA", "SBO", "WA"};
-	private static String[] exportChoices = {"Export", "ODB Crosscheck", "Family Floor List", "Delivery Instructions"};
+	private static String[] exportChoices = {"Export", "Britepath Crosscheck", "Family Floor List", "Delivery Instructions"};
 	private static String[] printChoices = {"Print", "Print Listing", "Print Book Labels", 
 											"Print Family Receiving Sheets",
 											"Print Gift Inventory Sheets", "Print Packaging Sheets",
@@ -1456,16 +1456,16 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	
 	void setFamilyStatusComboItemEnabled(int index, boolean tf) {changeFamItem[index].setEnabled(tf); }
 
+	//updated for 2016 season, Britepaths changed the format
 	void onExportODBCrosscheck()
 	{
-    	String[] header = {"Name of CBO", "First Name of Head of Household", "Last Name of Head of Household",
+    	String[] header = {"Data As Of Date", "Internal ID", "Name of CBO",
+    						"First Name of Head of Household", "Last Name of Head of Household",
     						"Phone Number", "Delivery Street Address", "Delivery Address Line 2",
-    						"Delivery City", "Delivery Zip Code", "Delivery State", 
-    						"Head of Household Email", "Adopted for Thanksgiving?", 
-    						"Adopted for Dec. Food?", "Adopted for Dec. Gifts?", 
+    						"Delivery City", "Delivery Zip Code", 
+    						"Adopted for Thanksgiving?", "Adopted for Dec. Food?", "Adopted for Dec. Gifts?", 
     						"Number of Adults in Household", "Number of Children in Household",
     						"Total Number of people in the Household",
-    						"Does the family speak English?",	"If No. Language spoken",
     						"Remarks"};
     
     	ONCFileChooser oncfc = new ONCFileChooser(this);
@@ -1541,14 +1541,15 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 				zDecemberMeal = "Y";	
 		}
 		
-		String[] exportRow = { "ONC", f.getHOHFirstName(), f.getHOHLastName(),
-								formatPhoneNumber(f.getHomePhone().trim()),
-								delAddress, unit, city, zip, "VA",
-								f.getFamilyEmail(), zThanksgivingMeal, zDecemberMeal, "Y", 
+		Calendar today = Calendar.getInstance();
+		SimpleDateFormat sdf = new SimpleDateFormat("M/d/yyyy");
+		
+		String[] exportRow = { sdf.format(today.getTime()), f.getONCNum(), "ONC", f.getHOHFirstName(), 
+								f.getHOHLastName(), formatPhoneNumber(f.getHomePhone().trim()),
+								delAddress, unit, city, zip,
+								zThanksgivingMeal, zDecemberMeal, "Y", 
 								Integer.toString(numAdults), Integer.toString(numChildren),
 								Integer.toString(numAdults + numChildren),
-								f.getLanguage().equalsIgnoreCase("english") ? "Y" : "N",
-								f.getLanguage().equalsIgnoreCase("english") ? "" : f.getLanguage(),
 								f.getDetails()};
 
 		return exportRow;
