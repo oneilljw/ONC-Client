@@ -853,6 +853,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		{
 			//family has no children, clear the child panel
 			currChild = null;
+			childTableModel.fireTableDataChanged();
 			menuBar.setEnabledMarkorDeleteChildMenuItem(false);	//Disable Delete Child Menu Bar item
 		}
 		bChildTableDataChanging = false;
