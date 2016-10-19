@@ -579,7 +579,7 @@ public class DialogManager implements EntitySelectionListener
    		eeManager.removeEntitySelector(importer);
  //  	importer.removeEntitySelectionListener(familyChildSelectionListener);
    }
-   
+/*   
    void onWhoIsOnline()
    {
    		//get online users from user data base
@@ -611,7 +611,7 @@ public class DialogManager implements EntitySelectionListener
    			}
    		}
    }
-   
+*/   
    void onChat()
    {
    	ChatDialog chatDlg = new ChatDialog(GlobalVariables.getFrame(), true, -1);	//true=user initiated chat, -1=no target yet
