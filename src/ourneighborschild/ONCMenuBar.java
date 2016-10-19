@@ -707,7 +707,7 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 		else if(e.getSource() == markAdultMI) { dlgManager.onMarkChildAsAdult(); }
 		else if(e.getSource() == connectChildMI) { dlgManager.showConnectPYChildDialog(); }
 		else if(e.getSource() == userMI) { dlgManager.showUserDialog(); }
-		else if(e.getSource() == onlineMI) { dlgManager.onWhoIsOnline(); }
+		else if(e.getSource() == onlineMI) { dlgManager.showOnlineUsers(); }
 		else if(e.getSource() == chatMI) { dlgManager.onChat(); }
 		else if(e.getSource() == profileMI) { dlgManager.onEditProfile(); }
 		else if(e.getSource() == changePWMI) { dlgManager.onChangePassword(); }

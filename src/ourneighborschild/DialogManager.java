@@ -458,6 +458,13 @@ public class DialogManager implements EntitySelectionListener
 			dbDlg.setVisible(true);
 		}
 	}
+	
+	void showOnlineUsers()
+	{
+		OnlineUserDialog onlineUserDlg = new OnlineUserDialog(GlobalVariables.getFrame());
+		onlineUserDlg.setLocationRelativeTo(GlobalVariables.getFrame());
+		onlineUserDlg.setVisible(true);
+	}
 		
 	void onAddNewChildClicked()
 	{
