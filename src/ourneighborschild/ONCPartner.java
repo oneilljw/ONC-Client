@@ -175,9 +175,9 @@ public class ONCPartner extends ONCEntity
 		this.contact2 = o.contact2;
 		this.contact2_email = o.contact2_email;
 		this.contact2_phone = o.contact2_phone;
-		this.pyRequested = 0;
-		this.pyAssigned = 0;
-		this.pyReceived = 0;
+		this.pyRequested = o.pyRequested;
+		this.pyAssigned = o.pyAssigned;
+		this.pyReceived = o.pyReceived;
 	}
 	
 	//Constructor for import from .csv
