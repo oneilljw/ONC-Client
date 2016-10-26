@@ -81,7 +81,8 @@ public class AgentDB extends ONCDatabase
 			Type listtype = new TypeToken<ArrayList<Agent>>(){}.getType();
 			
 			response = serverIF.sendRequest("GET<agents>");
-			oncObjectList = gson.fromJson(response, listtype);				
+			oncObjectList = gson.fromJson(response, listtype);
+			Collections.sort(oncObjectList, new ONCAgentNameComparator());
 
 			if(!response.startsWith("NO_AGENTS"))
 			{
@@ -187,6 +188,7 @@ public class AgentDB extends ONCDatabase
 		if(updatedAgt != null && index < oncObjectList.size())
 		{
 			oncObjectList.set(index, updatedAgt);
+			Collections.sort(oncObjectList, new ONCAgentNameComparator());
 			fireDataChanged(source, "UPDATED_AGENT", updatedAgt);
 		}
 		
@@ -228,6 +230,7 @@ public class AgentDB extends ONCDatabase
 		if(addedAgt != null)
 		{
 			oncObjectList.add(addedAgt);
+			Collections.sort(oncObjectList, new ONCAgentNameComparator());
 			fireDataChanged(source, "ADDED_AGENT", addedAgt);
 		}
 		

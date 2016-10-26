@@ -32,6 +32,9 @@ public class Agent extends ONCObject
 		phone = agt.phone;
 	}
 	
+	//toString()
+	public String toString() { return name; }
+	
 	//getters
 	public String getAgentName() { return name; }
 	public String getAgentOrg() { return org; }

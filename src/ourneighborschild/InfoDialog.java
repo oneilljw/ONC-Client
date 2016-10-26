@@ -23,6 +23,7 @@ public abstract class InfoDialog extends JDialog implements ActionListener
 	 */
 	private static final long serialVersionUID = 1L;
 	protected JFrame owner;
+	protected JPanel contentPanel;
 	protected JPanel[] infopanel;
 	protected JLabel[] lblTF;
 	protected JTextField[] tf;
@@ -42,11 +43,12 @@ public abstract class InfoDialog extends JDialog implements ActionListener
 		result = false;
 		
 		//Set up the main panel
-		JPanel contentPanel = new JPanel();
+		contentPanel = new JPanel();
 		contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
 		
 		gvs = GlobalVariables.getInstance();
 		userDB = UserDB.getInstance();
+		
 		JPanel toppanel = new JPanel();
 		toppanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 		lblONCIcon = new JLabel(gvs.getImageIcon(0), JLabel.LEFT);
