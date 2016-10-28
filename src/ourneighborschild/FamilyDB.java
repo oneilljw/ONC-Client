@@ -290,7 +290,6 @@ public class FamilyDB extends ONCSearchableDatabase
 	 * @param famID
 	 * @return
 	 */
-
 	String importCSVFile(String source, JFrame parentFrame)
     { 
 //    	ONCRegions regions = ONCRegions.getInstance();
@@ -411,7 +410,7 @@ public class FamilyDB extends ONCSearchableDatabase
 	    						{
 	    						
 	    						}
-*/	    					
+*/	  
 	    					}
 	    				}
 	    				
@@ -500,6 +499,75 @@ public class FamilyDB extends ONCSearchableDatabase
 	    						odbfile.getName() + " is not in ODB format, cannot be imported", 
 	    						"Invalid ODB Format", JOptionPane.ERROR_MESSAGE, fGVs.getImageIcon(0)); 			    			
 	    		}
+	    		
+	    		reader.close();
+	    		
+	    	} 
+	    	catch (IOException x)
+	    	{
+	    		System.err.format("IOException: %s%n", x);
+	    	}
+	    }
+	   
+	    return filename;
+    }
+	
+
+	/**************************************************************************************************
+	 * Return the delivered by field in the most recent delivery for the family
+	 * @param famID
+	 * @return
+	 */
+	String importBPFile(String source, JFrame parentFrame)
+    { 
+//    	ONCRegions regions = ONCRegions.getInstance();
+//    	Agent a;
+    	
+    	File bpFile = new ONCFileChooser(parentFrame).getFile("Select " + source + " .csv file to import Britepath families from",
+				new FileNameExtensionFilter("CSV Files", "csv"), ONC_OPEN_FILE);
+    	
+    	String filename = "";
+    	
+    	if( bpFile!= null)
+    	{
+	    	filename = bpFile.getName();
+	    	
+	    	//Solicit a batch number for the import from the user by instantiating the modal
+	    	//batch number dialog. Dialog returns a batch number or "N/A" if cancelled
+	    	BatchNumDialog bnDlg = new BatchNumDialog(parentFrame, generateRecommendedImportBatchNum());
+	    	bnDlg.setVisible(true);
+	    	String batchNum = bnDlg.getBatchNumberFromDlg();
+	    	
+	    	//Check to see if user canceled the modal batch number dialog
+	    	//If so, cancel the import and return a blank filename
+	    	if(batchNum == null)	{ return "";}
+	    	
+	    	//If user selected OK in batch dialog, then proceed with the import
+	    	try 
+	    	{
+	    		CSVReader reader = new CSVReader(new FileReader(bpFile.getAbsoluteFile()));
+	    		String[] nextLine;
+	    		String[] header;
+	    		
+	    		if((header = reader.readNext()) != null && header.length == 29)
+	    		{
+	    			List<BritepathFamily> bpFamilyList = new ArrayList<BritepathFamily>();
+	    				
+	    			while ((nextLine = reader.readNext()) != null)	// nextLine[] is an array of values from the line
+	    				if(nextLine.length == 29)	//if improper size, skip
+	    					bpFamilyList.add(new BritepathFamily(batchNum, nextLine));
+	    			
+	    			//create the request to the server to import the families
+	    			Gson gson = new Gson();
+	    			Type listtype = new TypeToken<ArrayList<BritepathFamily>>(){}.getType();
+	    			
+	    			String response = serverIF.sendRequest("POST<family_group>" + gson.toJson(bpFamilyList, listtype));
+	    		}
+
+	    		else
+	    			JOptionPane.showMessageDialog(parentFrame, 
+	    				bpFile.getName() + " is not in agreed upon Britepath format, cannot be imported", 
+	    				"Invalid Britepath Format", JOptionPane.ERROR_MESSAGE, fGVs.getImageIcon(0)); 			    			
 	    		
 	    		reader.close();
 	    		

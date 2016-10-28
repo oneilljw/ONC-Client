@@ -94,7 +94,7 @@ public class ONCFamily extends ONCEntity
 	}
 
 	//Overloaded Constructor - 29 column (A to AC) input from ODB .csv file - 2014, 2015
-	ONCFamily(String RAName, String RAOrg, String RATitle, String ClientFam, String HOH, String FamMembers, String RAEmail,
+	public ONCFamily(String RAName, String RAOrg, String RATitle, String ClientFam, String HOH, String FamMembers, String RAEmail,
 				String ClientFamEmail, String ClientFamPhone, String RAPhone, String DeitaryRestrictions, String Schools,
 				String Details, String ID, String StreetAdd, String AddL2,  String Cty, String Zip,
 				String State,String AdoptFor, String nAdults, String nChldren, String Wishlist, String SpeakEng,

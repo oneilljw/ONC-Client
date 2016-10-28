@@ -16,12 +16,19 @@ public class ONCWebsiteFamily
 	public ONCWebsiteFamily(ONCFamily f)
 	{
 		String[] famstatus = {"Unverified", "Info Verified", "Gifts Selected", "Gifts Received", "Gifts Verified", "Packaged"};
-		String[] delstatus = {"Empty", "Contacted", "Confirmed", "Assigned", "Attempted", "Returned", "Delivered", "Counselor Pick-Up"};
+		String[] delstatus = {"Requested", "Contacted", "Confirmed", "Assigned", "Attempted", "Returned", "Delivered", "Counselor Pick-Up"};
 		this.id = f.id;
 		this.oncNum = f.getONCNum();
 		this.targetID = f.getODBFamilyNum();
 		this.fstatus = famstatus[f.getFamilyStatus()];
-		this.dstatus = delstatus[f.getDeliveryStatus()];
+		
+		if(f.getDeliveryStatus() == 0 && f.getODBWishList().contains("assistance not requested"))
+				this.dstatus ="Not Requested";
+		else if(f.getDeliveryStatus() == 0 && f.getFamilyStatus() > 1)
+				this.dstatus = famstatus[f.getFamilyStatus()];
+		else
+			this.dstatus = delstatus[f.getDeliveryStatus()];
+		
 		this.DNSCode = f.getDNSCode();
 		this.HOHFirstName = f.getHOHFirstName();
 		this.HOHLastName = f.getHOHLastName();
