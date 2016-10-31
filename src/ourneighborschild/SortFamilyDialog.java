@@ -91,7 +91,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 
 	private static String[] giftCardFilter = {"Any", "True", "False"};
 	private static String[] dnsCodes = {"None", "Any", "DUP", "NC", "NISA", "OPT-OUT", "SA", "SBO", "WA"};
-	private static String[] exportChoices = {"Export", "Britepath Crosscheck", "Family Floor List", "Delivery Instructions"};
+	private static String[] exportChoices = {"Export", "Britepath Crosscheck", "Family Floor List", "Delivery Instructions", "Toys for Tots Application"};
 	private static String[] printChoices = {"Print", "Print Listing", "Print Book Labels", 
 											"Print Family Receiving Sheets",
 											"Print Gift Inventory Sheets", "Print Packaging Sheets",
@@ -1693,6 +1693,210 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			return phoneNumber;
 	}
 	
+	//updated for 2016 season, Toys for Tots application form export
+	void onExportToysForTotsApplication()
+	{
+	    ONCFileChooser oncfc = new ONCFileChooser(this);
+	    File oncwritefile = oncfc.getFile("Select file for export of Toys for Tots Application" ,
+	       										new FileNameExtensionFilter("CSV Files", "csv"), 1);
+	    if(oncwritefile!= null)
+	    {
+	       	//If user types a new filename without extension.csv, add it
+		    String filePath = oncwritefile.getPath();
+		    if(!filePath.toLowerCase().endsWith(".csv")) 
+		    	oncwritefile = new File(filePath + ".csv");
+		    	
+		    try 
+		    {
+		    	CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
+		    	
+		    	//write the control number line
+		    	String[] cntlNumber ={"Referring Control Number (if this requestr is an update to a previous request):", ""};
+		    	writer.writeNext(cntlNumber);
+		    	
+		    	//write the Organization line
+		    	String[] org = {"Organization:", "Our Neighbor's Child"};
+		    	writer.writeNext(org);
+		    	
+		    	//write the Tax ID line
+		    	String[] taxid = {"Federal Tax/501C3 ID:", "54-1887072"};
+		    	writer.writeNext(taxid);
+		    	
+		    	//write the address line
+		    	String[] address = {"Address:", "P.O. Box 276"};
+		    	writer.writeNext(address);
+		    	
+		    	//write the city line
+		    	String[] city = {"City:", "Centreville"};
+		    	writer.writeNext(city);
+		    	
+		    	//write the state line
+		    	String[] state = {"State:", "Virginia"};
+		    	writer.writeNext(state);
+		    	
+		    	//write the zip code line
+		    	String[] zipcode = {"Zip Code:", "20120"};
+		    	writer.writeNext(zipcode);
+		    	
+		    	//write the municipality line
+		    	String[] county = {"County - Municipality:", "Fairfax County"};
+		    	writer.writeNext(county);
+		    	
+		    	//write the Contact LN line
+		    	String[] contactLN = {"Contact Last Name:", "Lavin"};
+		    	writer.writeNext(contactLN);
+		    	
+		    	//write the Contact FN line
+		    	String[] contactFN = {"Contact First Name:", "Kelly"};
+		    	writer.writeNext(contactFN);
+		    	
+		    	//write the phone line
+		    	String[] phone = {"Phone:", "703-926-2396"};
+		    	writer.writeNext(phone);
+		    	
+		    	//write the secondary phone line
+		    	String[] altPhone = {"Secondary Phone:", "703-830-2699"};
+		    	writer.writeNext(altPhone);
+		    	
+		    	//write the email line
+		    	String[] email = {"Email:", "KellyLavin@ourneighborschild.org"};
+		    	writer.writeNext(email);
+		    	
+		    	//write the confirm email line
+		    	String[] confirmEmail = {"Confirm Email:", "KellyLavin@ourneighborschild.org"};
+		    	writer.writeNext(confirmEmail);
+		    	
+		    	//write the website line
+		    	String[] website = {"Website:", "www.ourneighborschild.org"};
+		    	writer.writeNext(website);
+		    	
+		    	//write the list on website? line
+		    	String[] listOnline = {"List on Website?:", "No"};
+		    	writer.writeNext(listOnline);
+		    	
+		    	//write the list on header line line
+		    	String[] childHeader = {"AGES", "NUMER BOYS", "BOYS NAME", "NUMBER GIRLS", "GIRLS NAME"};
+		    	writer.writeNext(childHeader);
+
+		    	//build a list of all selected families
+		    	List<ONCFamily> selFamList = new ArrayList<ONCFamily>();
+		    	int[] row_sel = sortTable.getSelectedRows();
+		    	for(int i=0; i<sortTable.getSelectedRowCount(); i++)
+		    	    selFamList.add(stAL.get(row_sel[i]));
+		    	
+		    	//create the age range map
+		    	List<String> ageRanges = new ArrayList<String>();
+		    	ageRanges.add("0-2:");
+		    	ageRanges.add("3-5:");
+		    	ageRanges.add("6-7:");
+		    	ageRanges.add("8-10:");
+		    	ageRanges.add("11-older:");
+		    	
+		    	//create the child lists for the selected families
+		    	ArrayList<ArrayList<ONCChild>> childrenLists = new ArrayList<ArrayList<ONCChild>>();
+		    	childrenLists.add(getListOfChildrenByAgeAndGender(selFamList, 0, 2, "Boy"));
+		    	childrenLists.add(getListOfChildrenByAgeAndGender(selFamList, 0, 2, "Girl"));		 
+		    	childrenLists.add(getListOfChildrenByAgeAndGender(selFamList, 3, 5, "Boy"));
+		    	childrenLists.add(getListOfChildrenByAgeAndGender(selFamList, 3, 5, "Girl"));
+		    	childrenLists.add(getListOfChildrenByAgeAndGender(selFamList, 6, 7, "Boy"));
+		    	childrenLists.add(getListOfChildrenByAgeAndGender(selFamList, 6, 7, "Girl"));
+		    	childrenLists.add(getListOfChildrenByAgeAndGender(selFamList, 8, 10, "Boy"));
+		    	childrenLists.add(getListOfChildrenByAgeAndGender(selFamList, 8, 10, "Girl"));
+		    	childrenLists.add(getListOfChildrenByAgeAndGender(selFamList, 11, 21, "Boy"));
+		    	childrenLists.add(getListOfChildrenByAgeAndGender(selFamList, 11, 21, "Girl"));
+		    			    			    	
+		    	//write the list of age ranges, boys and girls by line
+		    	for(int listnum = 0; listnum < ageRanges.size()*2; listnum += 2)
+		    	{
+		    		int index = 0;
+		    		while(index < childrenLists.get(listnum).size() || index < childrenLists.get(listnum+1).size())
+		    		{
+		    			String[] line = new String[5];
+		    			String zNumBoys = Integer.toString(childrenLists.get(listnum).size());
+		    			String zNumGirls = Integer.toString(childrenLists.get(listnum+1).size());
+	    			
+		    			if(index == 0)	//generate the counts that are used in first line only
+		    			{
+		    				line[0] = ageRanges.get(listnum/2);
+		    				line[1] = zNumBoys;
+		    				if(index < childrenLists.get(listnum).size())
+		    					line[2] = childrenLists.get(listnum).get(index).getChildFirstName() + " " + childrenLists.get(listnum).get(index).getChildLastName();
+		    				else
+		    					line[2] = "";
+		    				line[3] = zNumGirls;
+		    				if(index < childrenLists.get(listnum+1).size())
+		    					line[4] = childrenLists.get(listnum+1).get(index).getChildFirstName() + " " + childrenLists.get(listnum+1).get(index).getChildLastName();
+		    				else
+		    					line[4] = "";
+		    			}
+		    			else
+		    			{
+		    				line[0] = "";
+		    				line[1] = "";
+		    				if(index < childrenLists.get(listnum).size())
+		    					line[2] = childrenLists.get(listnum).get(index).getChildFirstName() + " " + childrenLists.get(listnum).get(index).getChildLastName();
+		    				else
+		    					line[2] = "";
+		    				line[3] = "";
+		    				if(index < childrenLists.get(listnum+1).size())
+		    					line[4] = childrenLists.get(listnum+1).get(index).getChildFirstName() + " " + childrenLists.get(listnum+1).get(index).getChildLastName();
+		    				else
+		    					line[4] = "";
+		    			}
+		    			writer.writeNext(line);
+		    			index++;
+		    		}
+		    	}
+		    	
+		    	//write the additional comments line
+		    	String[] comments = {"Additional Comments and Instructions (please review form instructions above for any additional information required:", ""};
+		    	writer.writeNext(comments);
+		    	
+		    	writer.close();
+		    		   		    	    
+		    	JOptionPane.showMessageDialog(this, 
+					sortTable.getSelectedRowCount() + " families included in the Toys for Tots Application exported to " + oncwritefile.getName(), 
+					"Export Successful", JOptionPane.INFORMATION_MESSAGE, gvs.getImageIcon(0));				
+		    } 		    
+		    catch (IOException x)
+		    {
+		    	JOptionPane.showMessageDialog(this, "Export Failed, I/O Error: "  + x.getMessage(),  
+						"Export Failed", JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
+		    	System.err.format("IOException: %s%n", x);
+		    }
+		}
+	}
+	
+	ArrayList<ONCChild> getListOfChildrenByAgeAndGender(List<ONCFamily> famList, int startAge, int endAge, String gender)
+	{
+		ArrayList<ONCChild> matchingChildList = new ArrayList<ONCChild>();
+		
+		for(ONCFamily f: famList)
+		{
+			//iterate over the list of children in each family and add the children meeting the
+			//age and gender criteria to the list of children that is returned
+//			List<ONCChild> famChildrenList = cDB.getChildren(f.getID());
+			
+			for(ONCChild c: cDB.getChildren(f.getID()))
+			{
+//				int childAge;
+//				if(c.getChildAge().equals("Future DoB") || c.getChildAge().equals("Newborn"))
+//					childAge = 0;
+//				else
+//				{
+//					String ageParts[] = c.getChildAge().trim().split(" ");
+//					childAge = Integer.parseInt(ageParts[0]);
+//				}
+				
+				if(c.getChildIntegerAge() >= startAge && c.getChildIntegerAge() <= endAge && 
+						c.getChildGender().equalsIgnoreCase(gender))
+					matchingChildList.add(c);
+			}
+		}
+		
+		return matchingChildList;
+	}
+	
 	//Not used in this dialog. The ONC number text field is replaced by a combo box, so
 	//no need to listen for it to be cleared
 	@Override
@@ -1813,6 +2017,11 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			else if(exportCB.getSelectedItem().toString().equals(exportChoices[3]))
 			{ 
 				onExportDeliveryNotes();
+				exportCB.setSelectedIndex(0);
+			}
+			else if(exportCB.getSelectedItem().toString().equals(exportChoices[4]))
+			{ 
+				onExportToysForTotsApplication();
 				exportCB.setSelectedIndex(0);
 			}
 		}

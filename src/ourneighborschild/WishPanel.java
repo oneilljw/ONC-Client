@@ -278,7 +278,8 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 		if(fam.getFamilyStatus() == FAMILY_STATUS_UNVERIFIED)	
 			wpStatus = WishPanelStatus.Disabled;
 		else 
-			wpStatus = fam.isGiftCardOnly() ? WishPanelStatus.Assignee_Only : WishPanelStatus.Enabled;
+//			wpStatus = fam.isGiftCardOnly() ? WishPanelStatus.Assignee_Only : WishPanelStatus.Enabled;
+			wpStatus = WishPanelStatus.Enabled;
 		
 		//now that we've updated the panel status, update the component status
 		if(childWish != null)
