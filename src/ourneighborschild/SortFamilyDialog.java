@@ -1711,7 +1711,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		    	CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
 		    	
 		    	//write the control number line
-		    	String[] cntlNumber ={"Referring Control Number (if this requestr is an update to a previous request):", ""};
+		    	String[] cntlNumber ={"Referring Control Number (if this request is an update to a previous request):", ""};
 		    	writer.writeNext(cntlNumber);
 		    	
 		    	//write the Organization line
