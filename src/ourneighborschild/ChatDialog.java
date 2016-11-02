@@ -43,7 +43,6 @@ public class ChatDialog extends JDialog implements ActionListener, DatabaseListe
 	private static final int CHAT_TEXT_FONT_SIZE = 13;
 	
 	//references to singletons
-	private GlobalVariables gvs;
 	private UserDB oncUserDB;
 	private ChatManager chatMgr;
 	
@@ -76,7 +75,6 @@ public class ChatDialog extends JDialog implements ActionListener, DatabaseListe
 			public void windowClosing(WindowEvent we){ endChat(); }});
 		
 		//references to singletons
-		gvs = GlobalVariables.getInstance();
 		oncUserDB = UserDB.getInstance();
 		chatMgr = ChatManager.getInstance();
 		
@@ -113,10 +111,11 @@ public class ChatDialog extends JDialog implements ActionListener, DatabaseListe
     	onlineUserList = new ArrayList<ONCUser>();
 		for(ONCUser onlineuser:oncUserDB.getOnlineUsers())
 		{
-			if(onlineuser.getClientID() != oncUserDB.getLoggedInUser().getClientID())	//can't chat with yourself
+			//test to see if a user can be a chat partner. Cannot chat with a web user or yourself
+			if(onlineuser.getClientID() > -1 && 
+				onlineuser.getClientID() != oncUserDB.getLoggedInUser().getClientID())
 			{
 				onlineUserList.add(onlineuser);
-//				chattersCBM.addElement(onlineuser.toString());
 				chattersCBM.addElement(onlineuser);
 			}
 		}
@@ -189,28 +188,12 @@ public class ChatDialog extends JDialog implements ActionListener, DatabaseListe
 		contentPane.add(chatterspanel);
 		contentPane.add(textpanel);
 		
-//		String username;
 		if(!bInitiateChat)	//dialog instantiated in response to chat request
 		{
 			ONCUser chatPartner = getChatPartnerUser(chatTargetClientID);
 			if(chatPartner != null)
-			//find the target client ID in the list of onlineUsers
-//			int index = 0;
-//			while(index < onlineUserList.size() && onlineUserList.get(index).getClientID() != chatTargetClientID)
-//				index++;
-			
-			//find the target client ID in the combobox model
-//			int index = 1;	//first entry is the header
-//			while(index < chattersCBM.getSize() && ((ONCUser) chattersCBM.getElementAt(index)).getClientID() != chatTargetClientID)
-//				index++;
-			
-//			if(index < onlineUserList.size())
-//			if(index < chattersCBM.getSize())
 			{
 				//found the requester client ID in the list of online users
-//				username = onlineUserList.get(index).getFirstname() + " " + onlineUserList.get(index).getLastname();
-//				username = chattersCBM.getElementAt(index).toString();
-			
 				this.setTitle("Chat Request From " + chatPartner.toString());
 				lblChatters.setText("Request from:");
 				displayChatText("Accept or Reject Chat Request from " + chatPartner.toString(), systemAttribs);
