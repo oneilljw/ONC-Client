@@ -331,22 +331,6 @@ public class ChatDialog extends JDialog implements ActionListener, DatabaseListe
 	}
 	
 	/*************************************************************************************
-	 * Helper method to find chat partner user
-	 ************************************************************************************/
-//	ONCUser getChatPartnerUser(long chatPartnerClientID)
-//	{
-//		//find the target client ID in the list of onlineUsers
-//		int index = 0;
-//		while(index < onlineUserList.size() && onlineUserList.get(index).getClientID() != chatTargetClientID)
-//			index++;
-//		
-//		if(index < onlineUserList.size())
-//			return onlineUserList.get(index);
-//		else
-//			return null;
-//	}
-	
-	/*************************************************************************************
 	 * Helper method to find chat partner ONCUser
 	 ************************************************************************************/
 	ONCUser getChatPartnerUser(long chatPartnerClientID)
