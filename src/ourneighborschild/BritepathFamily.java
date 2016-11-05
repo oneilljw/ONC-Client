@@ -74,4 +74,6 @@ public class BritepathFamily
 	{
 		return new Agent(-1, referringAgentName, referringAgentOrg, referringAgentTitle, referringAgentEmail, referringAgentPhone);
 	}
+	
+	public String getFamilyMembers() { return familyMembers; }
 }
