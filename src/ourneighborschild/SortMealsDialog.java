@@ -62,8 +62,8 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 	private MealStatus sortStatus = MealStatus.Any;
 	private MealType sortType = MealType.Any;
 
-	private String[] exportChoices = {"Export Data", "Export: 2016 WFCM Format", "Export: 2015 WFCM Format"};
-//	private int totalNumOfLabelsToPrint;	//Holds total number of labels requested in a print job
+	private String[] exportChoices = {"Export Data", "2016 WFCM Format", "2016 WFCM Format+", "2015 WFCM Format"};
+//	private int totalNumOfLabelsToPrint;	//Holds total number of labels requested in a peint job
 	
 	
 	SortMealsDialog(JFrame pf)
@@ -478,14 +478,36 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
        	exportCB.setSelectedIndex(0);
 	}
 	
-	void on2016ExportRequested()
+	void on2016ExportRequested(int choice)
 	{
 		//Write the selected row data to a .csv file
-    	String[] header = {"Client ID", "First Name", "Last Name", "Client Home Phone #", "Client Cell Phone #", "Number",
-    						"Street", "Apt", "City", "ZipCode", "Referring School Name", "Language",
-    						"Trans", "Count of Adults", "Count of Children", "Total",
-    						"Dietary Restrictions"};
-    
+		List<String> headerList = new ArrayList<String>();
+		headerList.add("Client ID");
+		headerList.add("First Name");
+		headerList.add("Last Name");
+		headerList.add("Client Home Phone #");
+		headerList.add("Client Celluar Phone #");
+		headerList.add("Number");
+		headerList.add("Street");
+		headerList.add("Apt");
+		headerList.add("City");
+		headerList.add("ZipCode");
+		headerList.add("Referring School Name");
+		headerList.add("Language");
+		headerList.add("Trans");
+		headerList.add("Count of Adults");
+		headerList.add("Count of Children");
+		headerList.add("CTotal");
+		
+		if(choice == 2)	//requested 2016 WFCM format +
+		{
+			headerList.add("Requested For");
+			headerList.add("Dietary Restrictions");
+			headerList.add("Family Details");
+		}
+		
+		String[] header = headerList.toArray(new String[0]);
+			
     	ONCFileChooser oncfc = new ONCFileChooser(this);
        	File oncwritefile = oncfc.getFile("Select file for export of selected meals" ,
        										new FileNameExtensionFilter("CSV Files", "csv"), 1);
@@ -505,7 +527,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 	    	    for(int i=0; i<sortTable.getSelectedRowCount(); i++)
 	    	    {
 	    	    	int index = row_sel[i];
-	    	    	writer.writeNext(stAL.get(index).get2016ExportRow());
+	    	    	writer.writeNext(stAL.get(index).get2016ExportRow(choice));
 	    	    }
 	    	   
 	    	    writer.close();
@@ -608,9 +630,10 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		else if(e.getSource() == exportCB)
 		{
 			if(exportCB.getSelectedItem().toString().equals(exportChoices[1]))
-				on2016ExportRequested();
-			
+				on2016ExportRequested(1);
 			else if(exportCB.getSelectedItem().toString().equals(exportChoices[2]))
+				on2016ExportRequested(2);
+			else if(exportCB.getSelectedItem().toString().equals(exportChoices[3]))
 				on2015ExportRequested();
 		}
 		else if(!bIgnoreCBEvents && (e.getSource() == changeAssigneeCB))
@@ -1030,7 +1053,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 			return exportRow;
 		}
 		
-		public String[] get2016ExportRow()
+		public String[] get2016ExportRow(int choice)
 		{
 			Agent agent = (Agent) agentDB.getONCObject(soFamily.getAgentID());
 			
@@ -1071,20 +1094,33 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 			int nAdults = adultDB.getNumberOfOtherAdultsInFamily(soFamily.getID())+1;
 			int nChildren = childDB.getNumberOfChildrenInFamily(soFamily.getID());
 			
-			String[] exportRow = { "", soFamily.getHOHFirstName(), soFamily.getHOHLastName(),
-									firstPhone, secondPhone,
-									delStreetNum, delStreet, unit, city, zip,
-									agent.getAgentOrg(),
-									soFamily.getLanguage(),
-									soFamily.getTransportation().toString(),
-									Integer.toString(nAdults),
-									Integer.toString(nChildren),
-									Integer.toString(nAdults + nChildren),
-//									agent.getAgentName(),
-//									soMeal.getType().toString(),
-									soMeal.getRestricitons()};
-
-			return exportRow;
+			List<String> exportRowList = new ArrayList<String>();
+			
+			exportRowList.add("");
+			exportRowList.add(soFamily.getHOHFirstName());
+			exportRowList.add(soFamily.getHOHLastName());
+			exportRowList.add(firstPhone);
+			exportRowList.add(secondPhone);
+			exportRowList.add(delStreetNum);
+			exportRowList.add(delStreet);
+			exportRowList.add(unit);
+			exportRowList.add(city);
+			exportRowList.add(zip);
+			exportRowList.add(agent.getAgentOrg());
+			exportRowList.add(soFamily.getLanguage());
+			exportRowList.add(soFamily.getTransportation().toString());
+			exportRowList.add(Integer.toString(nAdults));
+			exportRowList.add(Integer.toString(nChildren));
+			exportRowList.add(Integer.toString(nAdults + nChildren));
+			
+			if(choice == 2) //2016 WFCM+ format
+			{
+				exportRowList.add(soMeal.getType().toString());
+				exportRowList.add(soMeal.getRestricitons());
+				exportRowList.add(soFamily.getDetails());
+			}
+			
+			return exportRowList.toArray(new String[0]);
 		}
 		
 		String buildChildString(ONCChild c)

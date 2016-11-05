@@ -90,7 +90,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	private MealStatus sortMealStatus;
 
 	private static String[] giftCardFilter = {"Any", "True", "False"};
-	private static String[] dnsCodes = {"None", "Any", "DUP", "NC", "NISA", "OPT-OUT", "SA", "SBO", "WA"};
+	private static String[] dnsCodes = {"None", "Any", "DUP", "FO", "NC", "NISA", "OPT-OUT", "SA", "SBO", "WA"};
 	private static String[] exportChoices = {"Export", "Britepath Crosscheck", "Family Floor List", "Delivery Instructions", "Toys for Tots Application"};
 	private static String[] printChoices = {"Print", "Print Listing", "Print Book Labels", 
 											"Print Family Receiving Sheets",
