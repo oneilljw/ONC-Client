@@ -62,7 +62,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 	private MealStatus sortStatus = MealStatus.Any;
 	private MealType sortType = MealType.Any;
 
-	private String[] exportChoices = {"Export Data", "Export: 2016 WFCM", "Export: 2015 WFCM"};
+	private String[] exportChoices = {"Export Data", "Export: 2016 WFCM Format", "Export: 2015 WFCM Format"};
 //	private int totalNumOfLabelsToPrint;	//Holds total number of labels requested in a print job
 	
 	
@@ -481,9 +481,9 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 	void on2016ExportRequested()
 	{
 		//Write the selected row data to a .csv file
-    	String[] header = {"Client ID", "First Name", ":ast Name", "1st Phone", "2nd Phone", "#",
-    						"Street", "Unit", "City", "Zip Code", "Referring School", "Language",
-    						"Transportation", "Adults", "Children", "Referring Agent Name",
+    	String[] header = {"Client ID", "First Name", "Last Name", "Client Home Phone #", "Client Cell Phone #", "Number",
+    						"Street", "Apt", "City", "ZipCode", "Referring School Name", "Language",
+    						"Trans", "Count of Adults", "Count of Children", "Total",
     						"Dietary Restrictions"};
     
     	ONCFileChooser oncfc = new ONCFileChooser(this);
@@ -1034,10 +1034,11 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		{
 			Agent agent = (Agent) agentDB.getONCObject(soFamily.getAgentID());
 			
-			String delAddress, unit, city, zip;
+			String delStreetNum, delStreet, unit, city, zip;
 			if(soFamily.getSubstituteDeliveryAddress().isEmpty())
 			{
-				delAddress = soFamily.getHouseNum() + " " + soFamily.getStreet();
+				delStreetNum = soFamily.getHouseNum();
+				delStreet = soFamily.getStreet();
 				unit = soFamily.getUnitNum();
 				city = soFamily.getCity();
 				zip = soFamily.getZipCode();
@@ -1045,7 +1046,8 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 			else
 			{
 				String[] parts = soFamily.getSubstituteDeliveryAddress().split("_");
-				delAddress = parts[0] + " " + parts[1];
+				delStreetNum = parts[0];
+				delStreet = parts[1];
 				unit = parts[2].equals("None")  ? "" : parts[2];
 				city = parts[3];
 				zip = parts[4];
@@ -1061,22 +1063,25 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 			if(soFamily.getOtherPhon() != null && soFamily.getOtherPhon().length() >= 10)
 			{
 				String[] secondPhoneParts = soFamily.getOtherPhon().split("\n");
-				firstPhone = secondPhoneParts[0];
+				secondPhone = secondPhoneParts[0];
 			}
 			
 			AdultDB adultDB = AdultDB.getInstance();
 			ChildDB childDB = ChildDB.getInstance();
+			int nAdults = adultDB.getNumberOfOtherAdultsInFamily(soFamily.getID())+1;
+			int nChildren = childDB.getNumberOfChildrenInFamily(soFamily.getID());
 			
 			String[] exportRow = { "", soFamily.getHOHFirstName(), soFamily.getHOHLastName(),
 									firstPhone, secondPhone,
-									delAddress, unit, "", city, zip,
+									delStreetNum, delStreet, unit, city, zip,
 									agent.getAgentOrg(),
 									soFamily.getLanguage(),
 									soFamily.getTransportation().toString(),
-									Integer.toString(adultDB.getNumberOfOtherAdultsInFamily(soFamily.getID())+1),
-									Integer.toString(childDB.getNumberOfChildrenInFamily(soFamily.getID())),							
-									agent.getAgentName(),
-	//								soMeal.getType().toString(),
+									Integer.toString(nAdults),
+									Integer.toString(nChildren),
+									Integer.toString(nAdults + nChildren),
+//									agent.getAgentName(),
+//									soMeal.getType().toString(),
 									soMeal.getRestricitons()};
 
 			return exportRow;
