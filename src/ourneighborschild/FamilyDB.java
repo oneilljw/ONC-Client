@@ -562,6 +562,22 @@ public class FamilyDB extends ONCSearchableDatabase
 	    			Type listtype = new TypeToken<ArrayList<BritepathFamily>>(){}.getType();
 	    			
 	    			String response = serverIF.sendRequest("POST<family_group>" + gson.toJson(bpFamilyList, listtype));
+	    			
+	    			if(response.startsWith("ADDED_BRITEPATH_FAMILIES"))
+	    			{
+	    				
+	    				String mssg = String.format("%s families successfylly imported from %s", 
+	    						response.substring(24), bpFile.getName());
+	    				
+	    				JOptionPane.showMessageDialog(parentFrame, mssg, "Britepath Family Import Successful",
+		    	    		 JOptionPane.ERROR_MESSAGE, fGVs.getImageIcon(0));
+	    			}
+	    			else
+	    			{
+	    				JOptionPane.showMessageDialog(parentFrame, "An error occured, " +
+	    	    			bpFile.getName() + " cannot be imported by the server", 
+	    	    			"ONC Server Britepath Import Error", JOptionPane.ERROR_MESSAGE, fGVs.getImageIcon(0));
+	    			}
 	    		}
 
 	    		else
