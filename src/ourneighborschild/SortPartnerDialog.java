@@ -702,7 +702,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 	{	
 		String msg = String.format("<html><body><div>" +
 				"<p>Dear %s,</p>" +
-				"<p><font color=\"green\">\"Unless someone like you cares a whole awful lot, nothing is going to get better. It's not.\"   Dr. Seuss</font></p>" +
+				"<p><font color=\"green\">\"Unless someone like you cares a whole awful lot, nothing is going to get better. It's not.\"    Dr. Seuss.</font></p>" +
 				"<p>Thankfully, someone like you HAS cared.  ONC is celebrating " +
 				"<font color=\"red\"><b>25 years</b></font>" +
 				" of providing " +
