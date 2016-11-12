@@ -38,7 +38,8 @@ public class FamilyDB extends ONCSearchableDatabase
 	private static final int ONC_OPEN_FILE = 0;
 	private static final int ONC_REBASELINE_REGION_MARGIN = 5;
 	private static final int NUMBER_OF_WISHES_PER_CHILD = 3;
-	private static final String ODB_FAMILY_MEMBER_COLUMN_SEPARATOR = " - ";
+	private static final int BRITEPATHS_FAMILY_RECORD_LENGTH = 29;
+	private static final String BRITEPATHS_FAMILY_MEMBER_COLUMN_SEPARATOR = " - ";
 	
 	private static FamilyDB instance = null;
 	private ArrayList<ONCFamily> oncFamAL;	//The list of families
@@ -46,7 +47,7 @@ public class FamilyDB extends ONCSearchableDatabase
 	private ChildDB childDB;
 	private AdultDB adultDB;
 	private ChildWishDB childwishDB;
-	private AgentDB oncAgentDB;
+	private AgentDB agentDB;
 	private DriverDB driverDB;
 	private DeliveryDB deliveryDB;
 	private GlobalVariables fGVs;
@@ -60,7 +61,7 @@ public class FamilyDB extends ONCSearchableDatabase
 		childwishDB = ChildWishDB.getInstance();
 		driverDB = DriverDB.getInstance();
 		deliveryDB = DeliveryDB.getInstance();
-		oncAgentDB = AgentDB.getInstance();;
+		agentDB = AgentDB.getInstance();;
 		
 		oncFamAL = new ArrayList<ONCFamily>();
 		fGVs = GlobalVariables.getInstance();
@@ -213,12 +214,6 @@ public class FamilyDB extends ONCSearchableDatabase
 					fireDataChanged(this, "UPDATED_SERVED_COUNTS", servedCountsChange);
 				}				
 			}
-			
-//			if(!currONCNum.equals(updatedFamily.getONCNum()))
-//			{
-//				//Sort the family array list so next/previous is in numerical order
-//		    	sortDB("ONC");
-//			}
 		}
 		
 		return updatedFamily;
@@ -273,257 +268,22 @@ public class FamilyDB extends ONCSearchableDatabase
 		
 		return addedFamily;
 	}
-/*	
-	void setONCNumberRegionRanges(String[] nextLine)
-	{
-		if(nextLine != null)
-		{
-			oncnumRegionRanges = new int[nextLine.length];
-			
-			for(int i=0; i<nextLine.length; i++)
-				oncnumRegionRanges[i] = Integer.parseInt(nextLine[i]);	
-		}
-	}
-*/
-	/**************************************************************************************************
-	 * Return the delivered by field in the most recent delivery for the family
-	 * @param famID
-	 * @return
-	 */
-	String importCSVFile(String source, JFrame parentFrame)
-    { 
-//    	ONCRegions regions = ONCRegions.getInstance();
-//    	Agent a;
-    	
-    	File odbfile = new ONCFileChooser(parentFrame).getFile("Select " + source + " .csv file to import families from",
-				new FileNameExtensionFilter("CSV Files", "csv"), ONC_OPEN_FILE);
-    	
-    	String filename = "";
-    	
-    	if( odbfile!= null)
-    	{
-	    	filename = odbfile.getName();
-	    	
-	    	//Solicit a batch number for the import from the user by instantiating the modal
-	    	//batch number dialog. Dialog returns a batch number or "N/A" if cancelled
-	    	BatchNumDialog bnDlg = new BatchNumDialog(parentFrame, generateRecommendedImportBatchNum());
-	    	bnDlg.setVisible(true);
-	    	String batchNum = bnDlg.getBatchNumberFromDlg();
-	    	
-	    	//Check to see if user canceled the modal batch number dialog
-	    	//If so, cancel the import and return a blank filename
-	    	if(batchNum == null)	{ return "";}
-	    	
-//	    	int oncID = getHighestONCID() + 1;	//Start with the next ONC ID number
-	    	
-	    	//If user selected OK in batch dialog, then proceed with the import
-	    	try 
-	    	{
-	    		CSVReader reader = new CSVReader(new FileReader(odbfile.getAbsoluteFile()));
-	    		String[] nextLine;
-	    		String[] header;
-	    		
-	    		if((header = reader.readNext()) != null)
-	    		{
-	    			int agentID = -1;
-	    			
-	    			//Determine which format ODB or WFCM is using
-//	    			if(header.length == 29)
-//	    			{
-//	    				while ((nextLine = reader.readNext()) != null)	// nextLine[] is an array of values from the line
-//	    				{
-//	    					//determine if agent already exists or not. If agent action fails, set
-//	    					//agent ID to -1
-//	    					Agent reqAgent = new Agent(-1, nextLine[0], nextLine[1], nextLine[2], nextLine[6], nextLine[9]);
-//	    					
-//	    					Agent responseAgt = (Agent) oncAgentDB.add(this, reqAgent);
-//	    					if(responseAgt != null)
-//	    						agentID = responseAgt.getID();
-//	    					
-//	    					//now that the agent has been separated from the input data, create the
-//	    					//family
-//	    					ONCFamily reqAddFam = new ONCFamily(nextLine[0], nextLine[1], nextLine[2], nextLine[3],
-//	    							nextLine[4], nextLine[5], nextLine[6], nextLine[7], nextLine[8], nextLine[9],
-//	    							nextLine[10], nextLine[11], nextLine[12], nextLine[13], nextLine[14], nextLine[15],
-//	    							nextLine[16], nextLine[17], nextLine[18], nextLine[19], nextLine[20], nextLine[21],
-//	    							nextLine[22], nextLine[23], nextLine[24], nextLine[25], nextLine[26], nextLine[27],
-//	    							nextLine[28], batchNum, fGVs.getTodaysDate(),
-//	    							-1,
-//	    							"NNA",
-//	    							generateONCNumber(regions.getRegionMatch(nextLine[14], nextLine[16]), null),
-//	    							oncID,
-//	    							-1,
-//	    							fGVs.getUserLNFI(), 
-//	    							agentID);
-//	    					
-//	    					ONCFamily addedFam = (ONCFamily) add(this, reqAddFam);
-//	    					
-//	    					//if family add was successful, add children to child data base
-//	    					if(addedFam != null)
-//	    						addFamiliesChildren(addedFam.getID(), nextLine[5]);	
-//	    				}
-//	    				
-//	    				Collections.sort(oncFamAL, new ONCFamilyONCNumComparator());
-//	    			}
-	    			
-	    			//For 2014 ODB .csv format, take 29 field per record input and use 25 field ONCFamily constructor
-	    			//For 2013 ODB .csv format, take 28 field per record input and use 25 field ONCFamily constructor
-	    			//The Sponsor Contact Name, Delivery Address Line 3 and Donor Type fields are ignored after being read
-	    			if(header.length == 29)
-	    			{
-	    				while ((nextLine = reader.readNext()) != null)	// nextLine[] is an array of values from the line
-	    				{
-	    					if(nextLine.length == 29)	//if improper size, skip
-	    					{
-	    						//determine if agent already exists or not. If agent action fails, set
-	    						//agent ID to -1
-	    						Agent reqAgent = new Agent(-1, nextLine[0], nextLine[1], nextLine[2], nextLine[7], nextLine[10]);
-	    					
-	    						Agent responseAgt = (Agent) oncAgentDB.add(this, reqAgent);
-	    						if(responseAgt != null)
-	    							agentID = responseAgt.getID();
-	    					
-	    						//now that the agent has been separated from the input data, create the family
-	    						ONCFamily reqAddFam = new ONCFamily(nextLine[0], nextLine[1], nextLine[2],
-	    							nextLine[4], nextLine[5], nextLine[6], nextLine[7], nextLine[8], nextLine[9],
-	    							nextLine[10], nextLine[11], nextLine[12], nextLine[13], nextLine[14], nextLine[15],
-	    							nextLine[16], nextLine[18], nextLine[19], nextLine[20],
-	    							nextLine[22], nextLine[23], nextLine[24], nextLine[25], nextLine[26], nextLine[27],
-	    							nextLine[28], batchNum, fGVs.getTodaysDate(), -1, "NNA",-1, 
-	    							UserDB.getInstance().getUserLNFI(), 
-	    							agentID);
-	    					
-	    						ONCFamily addedFam = (ONCFamily) add(this, reqAddFam);
-	    					
-	    						//if family add was successful, add children to child data base
-	    						if(addedFam != null)
-	    							addFamiliesChildrenAndAdults(addedFam.getID(), nextLine[6]);
-/*	    					
-	    						//need to tell the server here to check if family is a duplicate once
-	    						//adults and children are added
-	    						Gson gson = new Gson();
-	    						String response = null;
-	    						response = serverIF.sendRequest("POST<check_duplicatefamily>" + gson.toJson(addedFam, ONCFamily.class));
-	    					
-	    						//response will determine if agent already existed or a new agent was added
-	    						if(response == null || response.startsWith("DUPLICATE_FAMILY") || response.startsWith("UNIQUE_FAMILY"))
-	    						{
-	    						
-	    						}
-*/	  
-	    					}
-	    				}
-	    				
-	    				Collections.sort(oncFamAL, new ONCFamilyONCNumComparator());
-	    			}
-/*	    			
-	    			else if(header.length == 26)
-	    			{
-	    				while ((nextLine = reader.readNext()) != null)	// nextLine[] is an array of values from the line
-	    				{
-	    					a=oncAgentDB.add(nextLine[0], nextLine[1], nextLine[2], nextLine[6], nextLine[9]);
-	    					
-	    					oncFamAL.add(new ONCFamily(nextLine[0], nextLine[1], nextLine[2], nextLine[3],
-	    							nextLine[4], nextLine[5], nextLine[6], nextLine[7], nextLine[8], nextLine[9],
-	    							nextLine[10], nextLine[11], nextLine[12], nextLine[13], nextLine[14], nextLine[15],
-	    							nextLine[16], nextLine[17], nextLine[18], nextLine[19], nextLine[20], nextLine[21],
-	    							nextLine[22], nextLine[23], nextLine[24], nextLine[25], batchNum,
-	    							fGVs.getTodaysDate(), regions.getRegionMatch(nextLine[14], nextLine[16]),
-	    							generateONCNumber(regions.getRegionMatch(nextLine[14], nextLine[16]), null), oncID,  fGVs.getUserLNFI(),
-	    							a.getID()));
-	    					
-	    					addFamiliesChildren(oncID++, nextLine[5]);	//add children to child data base
-	    					
-	    				}
-	    				Collections.sort(oncFamAL, new ONCFamilyONCNumComparator());
-	    			}
-	    			else if(header.length == 25)	//ODB Batch 4 modified
-	    			{
-	    				while ((nextLine = reader.readNext()) != null)	// nextLine[] is an array of values from the line
-	    				{	
-	    					a=oncAgentDB.add(nextLine[0], nextLine[1], nextLine[2], nextLine[6], nextLine[9]);
-	    					oncFamAL.add(new ONCFamily(nextLine[0], nextLine[1], nextLine[2], nextLine[3],
-	    							nextLine[4], nextLine[5], nextLine[6], nextLine[7], nextLine[8], nextLine[9],
-	    							nextLine[10], nextLine[11], nextLine[12], nextLine[13], nextLine[14], nextLine[15],
-	    							nextLine[16], nextLine[17], nextLine[18], nextLine[19], nextLine[20], nextLine[21],
-	    							nextLine[22], nextLine[23], nextLine[24], batchNum,
-	    							fGVs.getTodaysDate(), regions.getRegionMatch("", nextLine[14]),
-	    							generateONCNumber(regions.getRegionMatch("", nextLine[14]), null), oncID,  fGVs.getUserLNFI(),					
-	    							a.getID()));
-	    					
-	    					addFamiliesChildren(oncID++, nextLine[5]);	//add children to child data base
-	    					
-	    				}
-	    				Collections.sort(oncFamAL, new ONCFamilyONCNumComparator());
-	    			}
-	    			else if(header.length == 30 & source.equals("ODB"))	//ODB Batch 4 modified
-	    			{
-	    				while ((nextLine = reader.readNext()) != null)	// nextLine[] is an array of values from the line
-	    				{
-	    					a=oncAgentDB.add(nextLine[0], nextLine[1], nextLine[2], nextLine[6], nextLine[9]);
-	    					oncFamAL.add(new ONCFamily(nextLine[0], nextLine[1], nextLine[2], nextLine[3],
-	    							nextLine[4], nextLine[5], nextLine[6], nextLine[7], nextLine[8], nextLine[9],
-	    							nextLine[10], nextLine[11], nextLine[12], nextLine[13], nextLine[14], nextLine[15],
-	    							nextLine[16], nextLine[17], nextLine[18], nextLine[19], nextLine[20], nextLine[21],
-	    							nextLine[22], nextLine[23], nextLine[24], nextLine[25], nextLine[26], nextLine[27],
-	    							nextLine[28], nextLine[29], batchNum, fGVs.getTodaysDate(), regions.getRegionMatch(nextLine[15], nextLine[17]),
-	    							generateONCNumber(regions.getRegionMatch(nextLine[15],nextLine[17]), null), oncID,  fGVs.getUserLNFI(),
-	    							a.getID()));
-	    					
-	    					addFamiliesChildren(oncID++, nextLine[5]);	//add children to child data base
-	    				}
-	    				Collections.sort(oncFamAL, new ONCFamilyONCNumComparator());
-	    			}
-	    			else if(header.length == 30 & source.equals("WFCM"))	//WFCM format
-	    			{
-	    				while ((nextLine = reader.readNext()) != null)	// nextLine[] is an array of values from the line
-	    				{	
-	    					a=oncAgentDB.add(nextLine[25], nextLine[27], nextLine[28], nextLine[29], nextLine[26]);
-	    					oncFamAL.add(new ONCFamily(nextLine[25], nextLine[27], nextLine[28], nextLine[6],
-	    							nextLine[7], nextLine[8], nextLine[29], nextLine[20], nextLine[17],
-	    							nextLine[26], nextLine[21], nextLine[22], nextLine[23], nextLine[24],
-	    							nextLine[12], nextLine[11], nextLine[13], nextLine[12], "", "", "", nextLine[14],
-	    							nextLine[16], nextLine[13], "", nextLine[9], nextLine[10], "",
-	    							nextLine[18], nextLine[19], batchNum, fGVs.getTodaysDate(),
-	    							regions.getRegionMatch(nextLine[11], nextLine[12]),
-	    							generateONCNumber(regions.getRegionMatch(nextLine[11], nextLine[17]), null), oncID,  fGVs.getUserLNFI(),
-	    							a.getID()));
-	    					
-	    					addFamiliesChildren(oncID++, nextLine[8]);	//add children to child data base
-	    				}
-	    				Collections.sort(oncFamAL, new ONCFamilyONCNumComparator());
-	    			}
-*/	    			
-	    			else
-	    				JOptionPane.showMessageDialog(parentFrame, 
-	    						odbfile.getName() + " is not in ODB format, cannot be imported", 
-	    						"Invalid ODB Format", JOptionPane.ERROR_MESSAGE, fGVs.getImageIcon(0)); 			    			
-	    		}
-	    		
-	    		reader.close();
-	    		
-	    	} 
-	    	catch (IOException x)
-	    	{
-	    		System.err.format("IOException: %s%n", x);
-	    	}
-	    }
-	   
-	    return filename;
-    }
-	
 
 	/**************************************************************************************************
-	 * Return the delivered by field in the most recent delivery for the family
-	 * @param famID
+	 * Import of families from Britepaths. User selects the input .csv file from a FileChooser dialog,
+	 * and assigns a batch number through a batch number dialog.
+	 * Method creates a BritepathFamily object for each family record in the .csv and sends a json
+	 * array of families to the server for processing. If successful, server returns a json array of
+	 * ONCObject (Agents, ONCFamily, ONCAdult and ONC Children that were imported. Method processes
+	 * each of the objects, adding them to the respective component data bases and displays a 
+	 * success message dialog. If the Britepaths file is in the wrong format or some other error is 
+	 * detected, an error message dialog is displayed.
+	 * @param parentFrame - JFrame that owns the file select and message dialogs
 	 * @return
 	 */
-	String importBPFile(String source, JFrame parentFrame)
+	String importBPFile(JFrame parentFrame)
     { 
-//    	ONCRegions regions = ONCRegions.getInstance();
-//    	Agent a;
-    	
-    	File bpFile = new ONCFileChooser(parentFrame).getFile("Select " + source + " .csv file to import Britepath families from",
+    	File bpFile = new ONCFileChooser(parentFrame).getFile("Select Britepaths .csv file to import families from",
 				new FileNameExtensionFilter("CSV Files", "csv"), ONC_OPEN_FILE);
     	
     	String filename = "";
@@ -549,7 +309,7 @@ public class FamilyDB extends ONCSearchableDatabase
 	    		String[] nextLine;
 	    		String[] header;
 	    		
-	    		if((header = reader.readNext()) != null && header.length == 29)
+	    		if((header = reader.readNext()) != null && header.length == BRITEPATHS_FAMILY_RECORD_LENGTH)
 	    		{
 	    			List<BritepathFamily> bpFamilyList = new ArrayList<BritepathFamily>();
 	    				
@@ -563,11 +323,35 @@ public class FamilyDB extends ONCSearchableDatabase
 	    			
 	    			String response = serverIF.sendRequest("POST<family_group>" + gson.toJson(bpFamilyList, listtype));
 	    			
-	    			if(response.startsWith("ADDED_BRITEPATH_FAMILIES"))
+	    			if(response != null && response.startsWith("ADDED_BRITEPATH_FAMILIES"))
 	    			{
+	    				//process the list of jsons returned, adding agent, families, adults
+	    				//and children to the local databases
+	    		    	Type jsonlisttype = new TypeToken<ArrayList<String>>(){}.getType();
+	    		    	ArrayList<String> changeList = gson.fromJson(response.substring(24), jsonlisttype);
+	    		    	
+	    		    	//loop thru list of changes, processing each one
+	    		    	int familiesImportedCount = 0;
+	    		    	for(String change: changeList)
+	    		    	{
+	    		    		if(change.startsWith("ADDED_AGENT"))
+	    		    			agentDB.processAddedObject(this, change.substring("ADDED_AGENT".length()));
+	    		    		else if(change.startsWith("UPDATED_AGENT"))
+	    		    			agentDB.processUpdatedObject(this, change.substring("UPDATED_AGENT".length()));
+	    		    		else if(change.startsWith("ADDED_FAMILY"))
+	    		    		{
+	    		    			this.processAddedObject(this, change.substring("ADDED_FAMILY".length()));
+	    		    			familiesImportedCount++;
+	    		    		}
+	    		    		else if(change.startsWith("ADDED_ADULT"))
+	    		    			adultDB.processAddedAdult(this,  change.substring("ADDED_ADULT".length()));
+	    		    		else if(change.startsWith("ADDED_CHILD"))
+	    		    			childDB.processAddedChild(this,  change.substring("ADDED_AGENT".length()));
+	    		    	}
 	    				
-	    				String mssg = String.format("%s families successfylly imported from %s", 
-	    						response.substring(24), bpFile.getName());
+	    		    	//display success dialog
+	    				String mssg = String.format("%d families successfylly imported from %s", 
+	    						familiesImportedCount, bpFile.getName());
 	    				
 	    				JOptionPane.showMessageDialog(parentFrame, mssg, "Britepath Family Import Successful",
 		    	    		 JOptionPane.ERROR_MESSAGE, fGVs.getImageIcon(0));
@@ -590,7 +374,8 @@ public class FamilyDB extends ONCSearchableDatabase
 	    	} 
 	    	catch (IOException x)
 	    	{
-	    		System.err.format("IOException: %s%n", x);
+	    		JOptionPane.showMessageDialog(parentFrame, "Britepath import failed. Error: " + x.getMessage(), 
+	    			"Britepath Import I/O Error", JOptionPane.ERROR_MESSAGE, fGVs.getImageIcon(0));
 	    	}
 	    }
 	   
@@ -672,7 +457,7 @@ public class FamilyDB extends ONCSearchableDatabase
 			if(!members[i].isEmpty() && members[i].toLowerCase().contains("adult"))
 			{
 				//crate the add adult request object
-				String[] adult = members[i].split(ODB_FAMILY_MEMBER_COLUMN_SEPARATOR, 3);
+				String[] adult = members[i].split(BRITEPATHS_FAMILY_MEMBER_COLUMN_SEPARATOR, 3);
 				if(adult.length == 3)
 				{
 					//determine the gender, could be anything from ODB!

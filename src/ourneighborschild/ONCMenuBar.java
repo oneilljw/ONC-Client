@@ -27,7 +27,7 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 	
 	private DatabaseManager oncDB;
 	private JMenuItem newMI;
-	private JMenuItem importODBMI, importWFCMMI, importRAFMI;
+	private JMenuItem importBritepathsMI, importWFCMMI, importRAFMI;
 	private JMenuItem importONCMI, importPYMI, importPYORGMI,importWishCatMI, manageCallResultMI;
 	private JMenuItem exportMI, dbStatusMI, clearMI;
 	public JMenuItem exitMI;	//public since exit method is external to the menu bar
@@ -108,9 +108,9 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 	    importWishCatMI.addActionListener(this);
 	    submenuImport.add(importWishCatMI);
 	  	    
-	    importODBMI = new JMenuItem("From ODB...");
-	    importODBMI.addActionListener(this);
-	    submenuImport.add(importODBMI);
+	    importBritepathsMI = new JMenuItem("From Britepaths...");
+	    importBritepathsMI.addActionListener(this);
+	    submenuImport.add(importBritepathsMI);
 	    
 	    importWFCMMI = new JMenuItem("From WFCM...");
 	    importWFCMMI.addActionListener(this);
@@ -630,8 +630,7 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 			PartnerDB partnerDB = PartnerDB.getInstance();
 			partnerDB.importOrgDB(GlobalVariables.getFrame(), GlobalVariables.getONCLogo(), null);
 		}
-		else if(e.getSource() == importODBMI) {dbManager.onImportMenuItemClicked("ODB");}
-		else if(e.getSource() == importWFCMMI) {dbManager.onImportMenuItemClicked("WFCM");}
+		else if(e.getSource() == importBritepathsMI) {familyDB.importBPFile(GlobalVariables.getFrame()); }
 		else if(e.getSource() == importRAFMI) { dlgManager.onImportRAFMenuItemClicked(); }
 		else if(e.getSource() == manageCallResultMI) {dlgManager.showAngelCallDialog();}
 		else if(e.getSource() == exportMI){ dbManager.exportObjectDBToCSV(); }

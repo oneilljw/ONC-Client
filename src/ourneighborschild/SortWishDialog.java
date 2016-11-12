@@ -1259,7 +1259,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 			updateSchoolFilterList();
 			buildTableList(true);
 		}
-		else if(dbe.getSource() != this && (dbe.getType().equals("ADDED_CHILDD")))	//ONC# or region?
+		else if(dbe.getSource() != this && (dbe.getType().equals("ADDED_CHILD")))	//ONC# or region?
 		{
 			updateSchoolFilterList();
 		}
