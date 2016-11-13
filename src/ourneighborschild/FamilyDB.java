@@ -969,6 +969,7 @@ public class FamilyDB extends ONCSearchableDatabase
 			{
 				Collections.sort(oncFamAL, new ONCFamilyONCNumComparator());
 				response = "FAMILIES_LOADED";
+				this.fireDataChanged(this, "LOADED_FAMILIES",  null);
 			}
 		}
 		

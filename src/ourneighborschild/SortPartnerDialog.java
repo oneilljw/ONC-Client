@@ -94,7 +94,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 	{
 		super(pf);
 		this.columns = getColumnNames();
-		this.setTitle("Our Neighbor's Child - Gift Partner Management");
+		this.setTitle("Our Neighbor's Child - Partner Management");
 		
 		regions = ONCRegions.getInstance();
 		orgs = PartnerDB.getInstance();
@@ -1457,6 +1457,10 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		else if(dbe.getType().contains("_USER"))
 		{
 			updateUserList();
+		}
+		else if(dbe.getType().equals("LOADED_PARTNERS"))
+		{
+			this.setTitle(String.format("Our Neighbor's Child - %d Partner Management", GlobalVariables.getCurrentSeason()));
 		}
 	}
 	

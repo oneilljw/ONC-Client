@@ -428,6 +428,10 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 			String[] regList = (String[]) dbe.getObject();
 			updateRegionList(regList);
 		}
+		else if(dbe.getType().equals("LOADED_DRIVERS"))
+		{
+			this.setTitle(String.format("Our Neighbor's Child - %d Delivery Assignment", GlobalVariables.getCurrentSeason()));
+		}
 	}
 
 	/***********************************************************************************

@@ -701,6 +701,10 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 			String[] regList = (String[]) dbe.getObject();
 			updateRegionList(regList);
 		}
+		else if(dbe.getType().equals("LOADED_MEALS"))
+		{
+			this.setTitle(String.format("Our Neighbor's Child - %d Meal Management", GlobalVariables.getCurrentSeason()));
+		}
 	}
 	
 	@Override

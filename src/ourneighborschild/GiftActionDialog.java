@@ -522,6 +522,11 @@ public abstract class GiftActionDialog extends SortTableDialog
 			buildTableList(true);
 			barcodeTF.requestFocus();
 		}
+		else if(dbe.getType().equals("LOADED_WISHES"))
+		{
+			this.setTitle(String.format("Our Neighbor's Child - %s %d Gifts", 
+				getGiftStatusAction().presentTense(), GlobalVariables.getCurrentSeason()));
+		}
 	}
 	
 	@Override

@@ -1295,6 +1295,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		else if(dbe.getType().contains("LOADED_CHILDREN"))
 		{
 			updateSchoolFilterList();
+			this.setTitle(String.format("Our Neighbor's Child - %d Wish Management", GlobalVariables.getCurrentSeason()));
 		}
 		else if(dbe.getType().contains("CHANGED_USER"))
 		{
