@@ -1412,6 +1412,13 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	
 	boolean doesBatchNumMatch(String bn) {return sortBatchNum == 0 ||  bn.equals(batchCB.getSelectedItem());}
 	
+	/******
+	 * compares the families Do Not Serve Code to the filter for matches.
+	 * DNS codes are strings of one or more DNS code. If more
+	 * than one DNS code is given to a family, the codes are separated by commas
+	 * @param dnsc - DNS code for a family
+	 * @return - true if DNS Code string contains a match with the filter
+	 */
 	boolean doesDNSCodeMatch(String dnsc)
 	{
 		boolean bDNSMatch = false;
