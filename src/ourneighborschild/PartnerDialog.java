@@ -613,8 +613,10 @@ public class PartnerDialog extends EntityDialog
 		lblOrgID.setText("");
 		nameTF.setText("");		
 		statusCB.setSelectedIndex(0);
+		statusCB.setEnabled(true);
 		typeCB.setSelectedIndex(0);
 		collectionCB.setSelectedIndex(0);
+		collectionCB.setEnabled(true);
 		cyReqTF.setText("");
 		lblCYAssigned.setText("0");
 		otherTP.setText("");
