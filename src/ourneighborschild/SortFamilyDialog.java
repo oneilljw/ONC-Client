@@ -1414,14 +1414,24 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	
 	boolean doesDNSCodeMatch(String dnsc)
 	{
+		boolean bDNSMatch = false;
 		if(sortDNSCode.equals("Any"))
-			return true;
+			bDNSMatch = true;
 		else if(sortDNSCode.equals("None") && dnsc.isEmpty())
-			return true;
-		else if(dnsc.equalsIgnoreCase(dnsCB.getSelectedItem().toString()))
-			return true;
+			bDNSMatch = true;
 		else
-			return false;
+		{
+			String[] dnsParts = dnsc.split(",");
+			int index = 0;
+			while(index < dnsParts.length && 
+					!dnsParts[index].trim().equalsIgnoreCase(dnsCB.getSelectedItem().toString()))
+				index++;
+		
+			if(index < dnsParts.length)
+				bDNSMatch = true;
+		}
+		
+		return bDNSMatch;
 	}
 	
 	boolean doesFStatusMatch(int fstat) {return sortFStatus == 0  || fstat == fstatusCB.getSelectedIndex()-1;}
