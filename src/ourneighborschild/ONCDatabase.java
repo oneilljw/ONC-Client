@@ -12,6 +12,7 @@ public abstract class ONCDatabase implements ServerListener
 		serverIF = ServerIF.getInstance();
 		serverIF.addServerListener(this);
 	}
+	
 /*	
 	ONCObject getONCObject(int id)
 	{
