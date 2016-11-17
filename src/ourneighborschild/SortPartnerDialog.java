@@ -293,7 +293,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 								 o.getGiftCollectionType().toString(),
 								 Integer.toString(o.getNumberOfOrnamentsRequested()),
 								 Integer.toString(o.getNumberOfOrnamentsAssigned()),
-								 o.getSpecialNotes(),
+								 o.getDeliverTo(),
 								 sdf.format(o.getDateChanged().getTime()),
 								 o.getChangedBy(),
 								 regions.getRegionID(o.getRegion()),
@@ -1265,7 +1265,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 	{
 		String[] toolTips = {"ONC Partner", "Partner Status","Type of Organization",
 				"Number of Ornaments Requested","Number of Ornaments Assigned",
-				"Special Notes for Partner","Date Partner Info Last Changed", 
+				"Gift Delivery Info for Partner","Date Partner Info Last Changed", 
 				"ONC User that last changed partner info", "ONC Region that partner is located",
 				"Partner Stop Light Color"};
 		return toolTips;
@@ -1273,7 +1273,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 	@Override
 	String[] getColumnNames()
 	{
-		String[] columns = {"Partner","Status", "Type", "Collection", "Req", "Assigned", "Special Notes",
+		String[] columns = {"Partner","Status", "Type", "Collection", "Req", "Assigned", "Delivery Information",
 				"Date Changed","Changed By","Reg", "SL"};
 		return columns;
 	}
