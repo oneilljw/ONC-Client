@@ -80,7 +80,7 @@ public class SortWishObject extends ONCObject
 		String[] line = new String[5];
 		SimpleDateFormat sYear = new SimpleDateFormat("yyyy");
 		
-		String[] indicator = {"", "*", "#"};
+//		String[] indicator = {"", "*", "#"};
 		
 		//Changed when adding bar code to labels			
 		line[0] = soChild.getChildAge() + " " + soChild.getChildGender();
@@ -90,7 +90,7 @@ public class SortWishObject extends ONCObject
 			ONCWish wish = cat.getWishByID(soChildWish.getWishID());
 			String wishName = wish == null ? "None" : wish.getName();
 			
-			line[1] = indicator[soChildWish.getChildWishIndicator()] + wishName + "- ";
+			line[1] = wishName + "- ";
 			line[2] = "ONC " + sYear.format(gvs.getSeasonStartDate()) + 
 						" |  Family # " + soFamily.getONCNum();
 			line[3] = null;
@@ -100,8 +100,7 @@ public class SortWishObject extends ONCObject
 			ONCWish catWish = cat.getWishByID(soChildWish.getWishID());
 			String wishName = catWish == null ? "None" : catWish.getName();
 			
-			String wish = indicator[soChildWish.getChildWishIndicator()] + wishName +
-					"- " + soChildWish.getChildWishDetail();
+			String wish = wishName + "- " + soChildWish.getChildWishDetail();
 	
 			//does it fit on one line?
 			if(wish.length() <= MAX_LABEL_LINE_LENGTH)

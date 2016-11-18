@@ -245,7 +245,7 @@ public class PartnerDialog extends EntityDialog
 	   	
 	    //Create a scroll pane and add the other text pane to it.
         JScrollPane otherTPSP = new JScrollPane(otherTP);
-        otherTPSP.setBorder(BorderFactory.createTitledBorder("Other Partner Info"));
+        otherTPSP.setBorder(BorderFactory.createTitledBorder("General Partner Information"));
               
         specialNotesTP = new JTextPane();
         specialNotesTP.setPreferredSize(new Dimension (264, 100));  
@@ -253,7 +253,7 @@ public class PartnerDialog extends EntityDialog
 	   	specialNotesTP.setEditable(true);
 	   	
         JScrollPane specialNotesTPSP = new JScrollPane(specialNotesTP);
-        specialNotesTPSP.setBorder(BorderFactory.createTitledBorder("Special Notes About Partner"));
+        specialNotesTPSP.setBorder(BorderFactory.createTitledBorder("Current Year Notes"));
                    
         deliverToTP = new JTextPane();
         deliverToTP.setPreferredSize(new Dimension (180, 100));  
@@ -261,7 +261,7 @@ public class PartnerDialog extends EntityDialog
         deliverToTP.setEditable(true);
         
         JScrollPane deliverToTPSP = new JScrollPane(deliverToTP);
-        deliverToTPSP.setBorder(BorderFactory.createTitledBorder("Gift Delivery Info"));
+        deliverToTPSP.setBorder(BorderFactory.createTitledBorder("Gift Delivery Information"));
 /*        
         //Set up gridbag layout for 5th panel
         GridBagConstraints c = new GridBagConstraints();
@@ -613,8 +613,10 @@ public class PartnerDialog extends EntityDialog
 		lblOrgID.setText("");
 		nameTF.setText("");		
 		statusCB.setSelectedIndex(0);
+		statusCB.setEnabled(true);
 		typeCB.setSelectedIndex(0);
 		collectionCB.setSelectedIndex(0);
+		collectionCB.setEnabled(true);
 		cyReqTF.setText("");
 		lblCYAssigned.setText("0");
 		otherTP.setText("");

@@ -90,7 +90,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	private MealStatus sortMealStatus;
 
 	private static String[] giftCardFilter = {"Any", "True", "False"};
-	private static String[] dnsCodes = {"None", "Any", "DUP", "NC", "NISA", "OPT-OUT", "SA", "SBO", "WA"};
+	private static String[] dnsCodes = {"None", "Any", "DUP", "FO", "NC", "NISA", "OPT-OUT", "SA", "SBO", "WA"};
 	private static String[] exportChoices = {"Export", "Britepath Crosscheck", "Family Floor List", "Delivery Instructions", "Toys for Tots Application"};
 	private static String[] printChoices = {"Print", "Print Listing", "Print Book Labels", 
 											"Print Family Receiving Sheets",
@@ -1412,16 +1412,33 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	
 	boolean doesBatchNumMatch(String bn) {return sortBatchNum == 0 ||  bn.equals(batchCB.getSelectedItem());}
 	
+	/******
+	 * compares the families Do Not Serve Code to the filter for matches.
+	 * DNS codes are strings of one or more DNS code. If more
+	 * than one DNS code is given to a family, the codes are separated by commas
+	 * @param dnsc - DNS code for a family
+	 * @return - true if DNS Code string contains a match with the filter
+	 */
 	boolean doesDNSCodeMatch(String dnsc)
 	{
+		boolean bDNSMatch = false;
 		if(sortDNSCode.equals("Any"))
-			return true;
+			bDNSMatch = true;
 		else if(sortDNSCode.equals("None") && dnsc.isEmpty())
-			return true;
-		else if(dnsc.equalsIgnoreCase(dnsCB.getSelectedItem().toString()))
-			return true;
+			bDNSMatch = true;
 		else
-			return false;
+		{
+			String[] dnsParts = dnsc.split(",");
+			int index = 0;
+			while(index < dnsParts.length && 
+					!dnsParts[index].trim().equalsIgnoreCase(dnsCB.getSelectedItem().toString()))
+				index++;
+		
+			if(index < dnsParts.length)
+				bDNSMatch = true;
+		}
+		
+		return bDNSMatch;
 	}
 	
 	boolean doesFStatusMatch(int fstat) {return sortFStatus == 0  || fstat == fstatusCB.getSelectedIndex()-1;}
@@ -2119,6 +2136,10 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		{
 			updateUserList();
 		}
+		else if(dbe.getType().equals("LOADED_FAMILIES"))
+		{
+			this.setTitle(String.format("Our Neighbor's Child - %d Family Management", GlobalVariables.getCurrentSeason()));
+		}
 		else if(dbe.getType().contains("CHANGED_USER"))
 		{
 			//new user logged in, update preferences used by this dialog
@@ -2318,23 +2339,23 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 
 			//Draw Child Info
 			g2d.setFont(psFont[3]);
-			g2d.drawString("CHILD #" + Integer.toString(childnum) +":", x, y+14);
+			g2d.drawString("CHILD " + Integer.toString(childnum) +":", x, y+14);
 			g2d.drawString(childdata, x+56, y + 14);
 			
 			g2d.setFont(psFont[0]);
 			//Draw Child Gift 1
 			drawThickRect(g2d, x, y+VERIFICATION_SHEET_CHILD_RECORD_LINE_HEIGHT, 12, 12, giftdata[0].contains("Bike-"));
-			g2d.drawString("GIFT #1:", x+24, y+VERIFICATION_SHEET_CHILD_RECORD_LINE_HEIGHT+12);
+			g2d.drawString("GIFT 1:", x+24, y+VERIFICATION_SHEET_CHILD_RECORD_LINE_HEIGHT+12);
 			g2d.drawString(giftdata[0], x+76, y+VERIFICATION_SHEET_CHILD_RECORD_LINE_HEIGHT+12);
 
 			//Draw Child Gift 2		
 			drawThickRect(g2d, x, y+VERIFICATION_SHEET_CHILD_RECORD_LINE_HEIGHT*2, 12, 12, giftdata[0].contains("Bike-") && giftdata[1].contains("Helmet-"));
-			g2d.drawString("GIFT #2:", x+24, y+VERIFICATION_SHEET_CHILD_RECORD_LINE_HEIGHT*2+12);
+			g2d.drawString("GIFT 2:", x+24, y+VERIFICATION_SHEET_CHILD_RECORD_LINE_HEIGHT*2+12);
 			g2d.drawString(giftdata[1], x+76, y+VERIFICATION_SHEET_CHILD_RECORD_LINE_HEIGHT*2+12);
 
 			//Draw Child Gift 3		
 			drawThickRect(g2d, x, y+VERIFICATION_SHEET_CHILD_RECORD_LINE_HEIGHT*3, 12, 12, false);
-			g2d.drawString("GIFT #3:", x+24, y+VERIFICATION_SHEET_CHILD_RECORD_LINE_HEIGHT*3+12);
+			g2d.drawString("GIFT 3:", x+24, y+VERIFICATION_SHEET_CHILD_RECORD_LINE_HEIGHT*3+12);
 			g2d.drawString(giftdata[2], x+76, y+VERIFICATION_SHEET_CHILD_RECORD_LINE_HEIGHT*3+12);
 
 			//Draw Battery Info		
@@ -2445,7 +2466,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 
 			//Draw Child Info
 			g2d.setFont(psFont[3]);
-			g2d.drawString("CHILD #" + Integer.toString(childnum) +":", x, y+14);
+			g2d.drawString("CHILD " + Integer.toString(childnum) +":", x, y+14);
 			g2d.drawString(childdata, x+56, y + 14);
 
 
@@ -2453,19 +2474,19 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			//Draw Child Gift 1
 			boolean addCheck1 = giftdata[0].contains("Bike") || giftdata[0].contains("Video Game") || giftdata[0].contains("Gift Card");
 			drawThickRect(g2d, x, y+VERIFICATION_SHEET_CHILD_RECORD_LINE_HEIGHT, 12, 12, addCheck1);
-			g2d.drawString("GIFT #1:", x+24, y+VERIFICATION_SHEET_CHILD_RECORD_LINE_HEIGHT+12);
+			g2d.drawString("GIFT 1:", x+24, y+VERIFICATION_SHEET_CHILD_RECORD_LINE_HEIGHT+12);
 			g2d.drawString(giftdata[0], x+76, y+VERIFICATION_SHEET_CHILD_RECORD_LINE_HEIGHT+12);
 
 			//Draw Child Gift 2
 			boolean addCheck2 = (giftdata[0].contains("Bike") && giftdata[1].contains("Helmet")) || giftdata[1].contains("Video Game") || giftdata[1].contains("Gift Card");
 			drawThickRect(g2d, x, y+VERIFICATION_SHEET_CHILD_RECORD_LINE_HEIGHT*2, 12, 12, addCheck2);
-			g2d.drawString("GIFT #2:", x+24, y+VERIFICATION_SHEET_CHILD_RECORD_LINE_HEIGHT*2+12);
+			g2d.drawString("GIFT 2:", x+24, y+VERIFICATION_SHEET_CHILD_RECORD_LINE_HEIGHT*2+12);
 			g2d.drawString(giftdata[1], x+76, y+VERIFICATION_SHEET_CHILD_RECORD_LINE_HEIGHT*2+12);
 
 			//Draw Child Gift 3
 			boolean addCheck3 = giftdata[2].contains("Video Game") || giftdata[2].contains("Gift Card");
 			drawThickRect(g2d, x, y+VERIFICATION_SHEET_CHILD_RECORD_LINE_HEIGHT*3, 12, 12, addCheck3);
-			g2d.drawString("GIFT #3:", x+24, y+VERIFICATION_SHEET_CHILD_RECORD_LINE_HEIGHT*3+12);
+			g2d.drawString("GIFT 3:", x+24, y+VERIFICATION_SHEET_CHILD_RECORD_LINE_HEIGHT*3+12);
 			g2d.drawString(giftdata[2], x+76, y+VERIFICATION_SHEET_CHILD_RECORD_LINE_HEIGHT*3+12);
 
 			//Draw Duplicate + Battery Info
@@ -2555,24 +2576,24 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 
 			//Draw Child Info
 			g2d.setFont(psFont[3]);
-			g2d.drawString("CHILD #" + Integer.toString(childnum) +":", x, y+14);
+			g2d.drawString("CHILD " + Integer.toString(childnum) +":", x, y+14);
 			g2d.drawString(childdata, x+56, y + 14);
 
 
 			g2d.setFont(psFont[0]);
 			//Draw Child Gift 1
 			drawThickRect(g2d, x, y+VERIFICATION_SHEET_CHILD_RECORD_LINE_HEIGHT, 12, 12, giftdata[0].contains("Bike"));
-			g2d.drawString("GIFT #1:", x+24, y+VERIFICATION_SHEET_CHILD_RECORD_LINE_HEIGHT+12);
+			g2d.drawString("GIFT 1:", x+24, y+VERIFICATION_SHEET_CHILD_RECORD_LINE_HEIGHT+12);
 			g2d.drawString(giftdata[0], x+76, y+VERIFICATION_SHEET_CHILD_RECORD_LINE_HEIGHT+12);
 
 			//Draw Child Gift 2		
 			drawThickRect(g2d, x, y+VERIFICATION_SHEET_CHILD_RECORD_LINE_HEIGHT*2, 12, 12, giftdata[0].contains("Bike") && giftdata[1].contains("Helmet"));
-			g2d.drawString("GIFT #2:", x+24, y+VERIFICATION_SHEET_CHILD_RECORD_LINE_HEIGHT*2+12);
+			g2d.drawString("GIFT 2:", x+24, y+VERIFICATION_SHEET_CHILD_RECORD_LINE_HEIGHT*2+12);
 			g2d.drawString(giftdata[1], x+76, y+VERIFICATION_SHEET_CHILD_RECORD_LINE_HEIGHT*2+12);
 
 			//Draw Child Gift 3		
 			drawThickRect(g2d, x, y+VERIFICATION_SHEET_CHILD_RECORD_LINE_HEIGHT*3, 12, 12, false);
-			g2d.drawString("GIFT #3:", x+24, y+VERIFICATION_SHEET_CHILD_RECORD_LINE_HEIGHT*3+12);
+			g2d.drawString("GIFT 3:", x+24, y+VERIFICATION_SHEET_CHILD_RECORD_LINE_HEIGHT*3+12);
 			g2d.drawString(giftdata[2], x+76, y+VERIFICATION_SHEET_CHILD_RECORD_LINE_HEIGHT*3+12);
 /*
 			//Draw Duplicate + Battery Info

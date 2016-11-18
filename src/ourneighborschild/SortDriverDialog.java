@@ -426,6 +426,10 @@ public class SortDriverDialog extends DependantTableDialog
 //					dbe.getSource().toString(), dbe.getType(), dbe.getObject().toString()));
 			buildFamilyTableListAndDisplay();		
 		}
+		else if(dbe.getType().equals("LOADED_DRIVERS"))
+		{
+			this.setTitle(String.format("Our Neighbor's Child - %d Delivery Partner Management", GlobalVariables.getCurrentSeason()));
+		}
 		else if(dbe.getType().contains("_DRIVER"))	//build on add, update or delete event
 		{
 			//update the agent table and update the org and title combo box models

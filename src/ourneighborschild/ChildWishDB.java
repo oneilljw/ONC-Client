@@ -50,9 +50,11 @@ public class ChildWishDB extends ONCDatabase
 	 * an automatic change needs to occur as well. The new wish, with correct status is 
 	 * then sent to the server. The list should never be sorted, that way the newest wish for
 	 * a child and wish number is at the bottom of the list
+	 * @param currPartner - defines who the requested partner is. null to leave the 
+	 * current partner unchanged
 	 */
 	ONCChildWish add(Object source, int childid, int wishid, String wd, int wn, int wi,
-						WishStatus ws, ONCPartner partner)
+						WishStatus ws, ONCPartner currPartner)
 	{	
 		GlobalVariables gvs = GlobalVariables.getInstance();
 		String cb = UserDB.getInstance().getUserLNFI();
@@ -61,18 +63,20 @@ public class ChildWishDB extends ONCDatabase
 		//Get the old wish being replaced. getWish method returns null if wish not found
 		ONCChildWish replacedWish = getWish(childid, wn);
 		
-		//Determine if we're changing the organization id. Org is null if it's staying the same
+		//determine if we need to change the org id
 		int orgID = -1;
-		if(partner == null && replacedWish != null)
+		if(replacedWish != null && replacedWish.getWishID() != wishid)
+			orgID = -1;
+		else if(currPartner == null && replacedWish != null)
 			orgID = replacedWish.getChildWishAssigneeID(); 	//Staying the same
-		else if(partner != null)
-			orgID = partner.getID();
+		else if(currPartner != null)
+			orgID = currPartner.getID();
 		
 		//create the new wish, with childwishID = -1, meaning no wish selected
 		//the server will add the childwishID and return it
 		ONCChildWish retCW = null;
 		ONCChildWish reqCW = new ONCChildWish(-1, childid, wishid, wd, wn, wi,
-											   checkForStatusChange(replacedWish, wishid, ws, partner), 
+											   checkForStatusChange(replacedWish, wishid, ws, currPartner), 
 											   orgID, cb, dc);		
 		Gson gson = new Gson();
 		String response = null, helmetResponse = null;
@@ -261,6 +265,8 @@ public class ChildWishDB extends ONCDatabase
 			case Assigned:
 				if(wishBase == -1)
 					newStatus = WishStatus.Not_Selected;
+				else if(oldWish.getWishID() != wishBase)
+					newStatus = WishStatus.Selected;
 				else if(reqOrg == null || reqOrg != null && reqOrg.getID() == -1)
 					newStatus = WishStatus.Selected;
 				else if(reqStatus == WishStatus.Delivered)

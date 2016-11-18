@@ -99,7 +99,7 @@ public abstract class VerificationSheetPrinter implements Printable
 	    cFonts[6] = new Font("Calibri", Font.BOLD + Font.ITALIC, 14);	//Packaged By: Font
 		
 		//Print page header
-	    String oncFamNum = "Family # " + vsAL.get(page).getONCNum();
+	    String oncFamNum = "Family " + vsAL.get(page).getONCNum();
 		printVerificationSheetHeader(VERIFICATION_SHEET_X_OFFSET, 0, img, oncSeason, oncFamNum, cFonts, g2d);
 		
 		int nchildrenonpage;

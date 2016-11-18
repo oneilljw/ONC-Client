@@ -162,8 +162,8 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		//Setup the nav panel
 		nav = new ONCNavPanel(pf, fDB);
 		nav.setMssg("Our Neighbor's Child Families");
-	    nav.setCount1("Served Families: " + Integer.toString(0));
-	    nav.setCount2("Served Children: " + Integer.toString(0));
+	    nav.setCount1("Families Served Gifts: " + Integer.toString(0));
+	    nav.setCount2("Children Served Gifts: " + Integer.toString(0));
 	    nav.setNextButtonText("Next Family");
 	    nav.setPreviousButtonText("Previous Family");
 	    
@@ -1060,8 +1060,8 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	
 	void updateDBStatus(int[] dbCounts)
     {
-    	nav.setCount1("Served Families: " + Integer.toString((dbCounts[0])));
-    	nav.setCount2("Served Children: " + Integer.toString((dbCounts[1])));
+    	nav.setCount1("Families Served Gifts: " + Integer.toString((dbCounts[0])));
+    	nav.setCount2("Children Served Gifts: " + Integer.toString((dbCounts[1])));
     }
 	
     /*********************************************************************************************

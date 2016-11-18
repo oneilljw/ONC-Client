@@ -302,27 +302,6 @@ public class DatabaseManager extends ONCDatabase
 	    return filename;
     }
 
-	/*****
-	 * Method is called when the user selects the import of families from the menu bar
-	 * @param source
-	 */
-    void onImportMenuItemClicked(String source)
-	{
-    	int olddbsize = oncFamDB.size();
-    	
-    	oncFamDB.importCSVFile(source, GlobalVariables.getFrame());
-    	
-    	//show a popup of result of import
-    	String mssg = String.format("%d families were imported", oncFamDB.size() - olddbsize);
-		ONCPopupMessage popup = new ONCPopupMessage( oncGVs.getImageIcon(0));
-		Point loc = GlobalVariables.getFrame().getLocationOnScreen();
-		popup.setLocation(loc.x+450, loc.y+70);
-		popup.show("Message from ONC Server", mssg);
-   
-// No longer needed, family panel checks if first family and updates
-//   	checkFamilyDataLoaded();
-	}
-    
     /****
      * Method is called when data is loaded from the server to the local data base
      * @param bServerDataLoaded

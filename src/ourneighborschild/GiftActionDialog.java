@@ -282,7 +282,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 		cwDB.add(this, lastWishChanged.getChild().getID(),
 					lastWish.getWishID(), lastWish.getChildWishDetail(),
 					lastWish.getWishNumber(),lastWish.getChildWishIndicator(),
-					lastWish.getChildWishStatus(),null);	//null to keep same partner
+					lastWish.getChildWishStatus(), null);	//null to keep same partner
 		
 		//Update the receive gifts sort table itself
 		buildTableList(false);
@@ -521,6 +521,11 @@ public abstract class GiftActionDialog extends SortTableDialog
 		{
 			buildTableList(true);
 			barcodeTF.requestFocus();
+		}
+		else if(dbe.getType().equals("LOADED_WISHES"))
+		{
+			this.setTitle(String.format("Our Neighbor's Child - %s %d Gifts", 
+				getGiftStatusAction().presentTense(), GlobalVariables.getCurrentSeason()));
 		}
 	}
 	

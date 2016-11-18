@@ -111,7 +111,7 @@ public class ONCChild extends ONCObject implements Serializable
 	}
 	
 	//Constructor that uses ODB/WFCM child name string which has format First Name Last Name - Gender - DOB
-	ONCChild(int id, int famid, String c, int currYear)
+	public ONCChild(int id, int famid, String c, int currYear)
 	{
 		super(id);
 		this.famid = famid;

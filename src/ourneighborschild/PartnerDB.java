@@ -519,8 +519,8 @@ public class PartnerDB extends ONCSearchableDatabase
 			Collections.sort(oal, new OrgOrnReqComparator()); }
 		else if(dbField.equals("Assigned")) {
 			Collections.sort(oal, new OrgOrnAssignedComparator()); }
-		else if(dbField.equals("Special Notes")) {
-			Collections.sort(oal, new OrgSpecialNotesComparator()); }
+		else if(dbField.equals("Delivery Information")) {
+			Collections.sort(oal, new OrgDeliveryInfoComparator()); }
 		else if(dbField.equals("Date Changed")) {
 			Collections.sort(oal, new OrgDateChangedComparator()); }
 		else if(dbField.equals("Changed By")) {
@@ -983,15 +983,17 @@ public class PartnerDB extends ONCSearchableDatabase
 			return oa1.compareTo(oa2);
 		}
 	}
-	private class OrgSpecialNotesComparator implements Comparator<ONCPartner>
+	private class OrgDeliveryInfoComparator implements Comparator<ONCPartner>
 	{
 		@Override
 		public int compare(ONCPartner o1, ONCPartner o2)
 		{
-			if(o1.getSpecialNotes().equals("") || o2.getSpecialNotes().equals(""))
-				return 10;			
+			if(o1.getDeliverTo().isEmpty() && !o2.getDeliverTo().isEmpty())
+				return 10;
+			else if(!o1.getDeliverTo().isEmpty() && o2.getDeliverTo().isEmpty())
+				return -10;
 			else
-				return o1.getSpecialNotes().compareTo(o2.getSpecialNotes());
+				return  o1.getDeliverTo().compareTo(o2.getDeliverTo());
 		}
 	}
 	private class OrgDateChangedComparator implements Comparator<ONCPartner>

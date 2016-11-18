@@ -62,8 +62,8 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 	private MealStatus sortStatus = MealStatus.Any;
 	private MealType sortType = MealType.Any;
 
-	private String[] exportChoices = {"Export Data", "Export: WFCM"};
-//	private int totalNumOfLabelsToPrint;	//Holds total number of labels requested in a print job
+	private String[] exportChoices = {"Export Data", "2016 WFCM Format", "2016 WFCM Format+", "2015 WFCM Format"};
+//	private int totalNumOfLabelsToPrint;	//Holds total number of labels requested in a peint job
 	
 	
 	SortMealsDialog(JFrame pf)
@@ -425,7 +425,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 			
 		 printCB.setSelectedIndex(0);	//Reset the user print request
 	}
-	void onExportRequested()
+	void on2015ExportRequested()
 	{
 		//Write the selected row data to a .csv file
     	String[] header = {"Referring Agent Name", "Referring Organization", "Referring Agent Title",
@@ -459,6 +459,75 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 	    	    {
 	    	    	int index = row_sel[i];
 	    	    	writer.writeNext(stAL.get(index).getExportRow());
+	    	    }
+	    	   
+	    	    writer.close();
+	    	    
+	    	    JOptionPane.showMessageDialog(this, 
+						sortTable.getSelectedRowCount() + " meals sucessfully exported to " + oncwritefile.getName(), 
+						"Export Successful", JOptionPane.INFORMATION_MESSAGE, gvs.getImageIcon(0));
+	    	} 
+	    	catch (IOException x)
+	    	{
+	    		JOptionPane.showMessageDialog(this, "Export Failed, I/O Error: "  + x.getMessage(),  
+						"Export Failed", JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
+	    		System.err.format("IOException: %s%n", x);
+	    	}
+	    }
+       	
+       	exportCB.setSelectedIndex(0);
+	}
+	
+	void on2016ExportRequested(int choice)
+	{
+		//Write the selected row data to a .csv file
+		List<String> headerList = new ArrayList<String>();
+		headerList.add("Client ID");
+		headerList.add("First Name");
+		headerList.add("Last Name");
+		headerList.add("Client Home Phone #");
+		headerList.add("Client Celluar Phone #");
+		headerList.add("Number");
+		headerList.add("Street");
+		headerList.add("Apt");
+		headerList.add("City");
+		headerList.add("ZipCode");
+		headerList.add("Referring School Name");
+		headerList.add("Language");
+		headerList.add("Trans");
+		headerList.add("Count of Adults");
+		headerList.add("Count of Children");
+		headerList.add("CTotal");
+		
+		if(choice == 2)	//requested 2016 WFCM format +
+		{
+			headerList.add("Requested For");
+			headerList.add("Dietary Restrictions");
+			headerList.add("Family Details");
+		}
+		
+		String[] header = headerList.toArray(new String[0]);
+			
+    	ONCFileChooser oncfc = new ONCFileChooser(this);
+       	File oncwritefile = oncfc.getFile("Select file for export of selected meals" ,
+       										new FileNameExtensionFilter("CSV Files", "csv"), 1);
+       	if(oncwritefile!= null)
+       	{
+       		//If user types a new filename without extension.csv, add it
+	    	String filePath = oncwritefile.getPath();
+	    	if(!filePath.toLowerCase().endsWith(".csv")) 
+	    		oncwritefile = new File(filePath + ".csv");
+	    	
+	    	try 
+	    	{
+	    		CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
+	    	    writer.writeNext(header);
+	    	    
+	    	    int[] row_sel = sortTable.getSelectedRows();
+	    	    for(int i=0; i<sortTable.getSelectedRowCount(); i++)
+	    	    {
+	    	    	int index = row_sel[i];
+	    	    	writer.writeNext(stAL.get(index).get2016ExportRow(choice));
 	    	    }
 	    	   
 	    	    writer.close();
@@ -561,9 +630,11 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		else if(e.getSource() == exportCB)
 		{
 			if(exportCB.getSelectedItem().toString().equals(exportChoices[1]))
-			{
-				onExportRequested();
-			}
+				on2016ExportRequested(1);
+			else if(exportCB.getSelectedItem().toString().equals(exportChoices[2]))
+				on2016ExportRequested(2);
+			else if(exportCB.getSelectedItem().toString().equals(exportChoices[3]))
+				on2015ExportRequested();
 		}
 		else if(!bIgnoreCBEvents && (e.getSource() == changeAssigneeCB))
 		{
@@ -629,6 +700,10 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		{
 			String[] regList = (String[]) dbe.getObject();
 			updateRegionList(regList);
+		}
+		else if(dbe.getType().equals("LOADED_MEALS"))
+		{
+			this.setTitle(String.format("Our Neighbor's Child - %d Meal Management", GlobalVariables.getCurrentSeason()));
 		}
 	}
 	
@@ -980,6 +1055,76 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 									soFamily.getTransportation().toString()};
 
 			return exportRow;
+		}
+		
+		public String[] get2016ExportRow(int choice)
+		{
+			Agent agent = (Agent) agentDB.getONCObject(soFamily.getAgentID());
+			
+			String delStreetNum, delStreet, unit, city, zip;
+			if(soFamily.getSubstituteDeliveryAddress().isEmpty())
+			{
+				delStreetNum = soFamily.getHouseNum();
+				delStreet = soFamily.getStreet();
+				unit = soFamily.getUnitNum();
+				city = soFamily.getCity();
+				zip = soFamily.getZipCode();
+			}
+			else
+			{
+				String[] parts = soFamily.getSubstituteDeliveryAddress().split("_");
+				delStreetNum = parts[0];
+				delStreet = parts[1];
+				unit = parts[2].equals("None")  ? "" : parts[2];
+				city = parts[3];
+				zip = parts[4];
+			}
+			
+			//determine 1st and 2md phones
+			String firstPhone = "", secondPhone = "";
+			if(soFamily.getHomePhone() != null && soFamily.getHomePhone().length() >= 10)
+			{
+				String[] firstPhoneParts = soFamily.getHomePhone().split("\n");
+				firstPhone = firstPhoneParts[0];
+			}			
+			if(soFamily.getOtherPhon() != null && soFamily.getOtherPhon().length() >= 10)
+			{
+				String[] secondPhoneParts = soFamily.getOtherPhon().split("\n");
+				secondPhone = secondPhoneParts[0];
+			}
+			
+			AdultDB adultDB = AdultDB.getInstance();
+			ChildDB childDB = ChildDB.getInstance();
+			int nAdults = adultDB.getNumberOfOtherAdultsInFamily(soFamily.getID())+1;
+			int nChildren = childDB.getNumberOfChildrenInFamily(soFamily.getID());
+			
+			List<String> exportRowList = new ArrayList<String>();
+			
+			exportRowList.add("");
+			exportRowList.add(soFamily.getHOHFirstName());
+			exportRowList.add(soFamily.getHOHLastName());
+			exportRowList.add(firstPhone);
+			exportRowList.add(secondPhone);
+			exportRowList.add(delStreetNum);
+			exportRowList.add(delStreet);
+			exportRowList.add(unit);
+			exportRowList.add(city);
+			exportRowList.add(zip);
+			exportRowList.add(agent.getAgentOrg());
+			exportRowList.add(soFamily.getLanguage());
+			exportRowList.add(soFamily.getTransportation().toString());
+			exportRowList.add(Integer.toString(nAdults));
+			exportRowList.add(Integer.toString(nChildren));
+			exportRowList.add(Integer.toString(nAdults + nChildren));
+			
+			if(choice == 2) //2016 WFCM+ format
+			{
+				exportRowList.add(soMeal.getType().toString());
+				exportRowList.add(soMeal.getRestricitons());
+				exportRowList.add(soFamily.getDetails());
+			}
+			
+			return exportRowList.toArray(new String[0]);
 		}
 		
 		String buildChildString(ONCChild c)

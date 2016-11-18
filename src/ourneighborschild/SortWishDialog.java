@@ -69,8 +69,8 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 	private ArrayList<SortWishObject> stAL;
 	
 	private JComboBox startAgeCB, endAgeCB, genderCB, wishnumCB, wishCB, resCB, assignCB, statusCB, changedByCB;
-	private JComboBox changeResCB, changeStatusCB, changeAssigneeCB, printCB, regionCB;
-	private DefaultComboBoxModel wishCBM, assignCBM, changeAssigneeCBM, changedByCBM, regionCBM;
+	private JComboBox changeResCB, changeStatusCB, changeAssigneeCB, printCB, regionCB, schoolCB;
+	private DefaultComboBoxModel wishCBM, assignCBM, changeAssigneeCBM, changedByCBM, regionCBM, schoolCBM;
 	private JTextField oncnumTF;
 	private JButton btnExport;
 	private JDateChooser ds, de;
@@ -80,6 +80,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 	private int sortStartAge = 0, sortEndAge = ONC_AGE_LIMIT, sortGender = 0, sortChangedBy = 0;
 	private int sortWishNum = 0, sortRes = 0, sortAssigneeID, sortRegion = 0;
 	private WishStatus sortStatus = WishStatus.Any;
+	private String sortSchool = "Any";
 	private int sortWishID = -2;
 	private boolean bOversizeWishes = false;
 	
@@ -159,6 +160,14 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		startAgeCB.setPreferredSize(new Dimension(72,56));
 		wishnumCB.addActionListener(this);
 		
+		schoolCBM = new DefaultComboBoxModel();
+	    schoolCBM.addElement("Any");
+		schoolCB = new JComboBox();		
+        schoolCB.setModel(schoolCBM);
+		schoolCB.setPreferredSize(new Dimension(180, 56));
+		schoolCB.setBorder(BorderFactory.createTitledBorder("School Attended"));
+		schoolCB.addActionListener(this);
+		
 		wishCBM = new DefaultComboBoxModel();
 	    wishCBM.addElement(new ONCWish(-2, "Any", 7));
 		wishCB = new JComboBox();		
@@ -224,8 +233,9 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		sortCriteriaPanelTop.add(startAgeCB);
 		sortCriteriaPanelTop.add(endAgeCB);
 		sortCriteriaPanelTop.add(genderCB);
+		sortCriteriaPanelTop.add(schoolCB);
 		sortCriteriaPanelTop.add(wishnumCB);
-		sortCriteriaPanelTop.add(wishCB);
+		sortCriteriaPanelBottom.add(wishCB);
 		sortCriteriaPanelBottom.add(resCB);
 		sortCriteriaPanelBottom.add(statusCB);
 		sortCriteriaPanelBottom.add(assignCB);
@@ -318,21 +328,23 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
     		Collections.sort(stAL, new ONCSortItemAgeComparator());
     	else if(col == 3)	//Sort on Child's Gender
     		Collections.sort(stAL, new ONCSortItemGenderComparator());
-    	else if(col == 4)	//Sort on Child's Wish #
+    	else if(col == 4)	//Sort on Child's School
+    		Collections.sort(stAL, new ONCSortItemSchoolComparator());
+    	else if(col == 5)	//Sort on Child's Wish #
     		Collections.sort(stAL, new ONCSortItemWishNumComparator());
-    	else if(col == 5)	//Sort on Child's Base Wish
+    	else if(col == 6)	//Sort on Child's Base Wish
     		Collections.sort(stAL, new ONCSortItemWishBaseComparator());
-    	else if(col == 6)	//Sort on Child's Wish Detail
+    	else if(col == 7)	//Sort on Child's Wish Detail
     		Collections.sort(stAL, new ONCSortItemWishDetailComparator());
-    	else if(col == 7)	//Sort on Child's Wish Indicator
+    	else if(col == 8)	//Sort on Child's Wish Indicator
     		Collections.sort(stAL, new ONCSortItemWishIndicatorComparator());
-    	else if(col == 8)	//Sort on Child's Wish Status
+    	else if(col == 9)	//Sort on Child's Wish Status
     		Collections.sort(stAL, new ONCSortItemWishStatusComparator());
-    	else if(col == 9)	//Sort on Child's Wish Assignee
+    	else if(col == 10)	//Sort on Child's Wish Assignee
     		Collections.sort(stAL, new ONCSortItemWishAssigneeComparator());
-    	else if(col ==  10)	//Sort on Child's Wish Changed By
+    	else if(col ==  11)	//Sort on Child's Wish Changed By
     		Collections.sort(stAL, new ONCSortItemWishChangedByComparator());
-    	else if(col == 11)	//Sort on Child's Wish Date Changed
+    	else if(col == 12)	//Sort on Child's Wish Date Changed
     		Collections.sort(stAL, new ONCSortItemWishDateChangedComparator());
     	else
     		col = -1;
@@ -368,7 +380,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 			{
 				for(ONCChild c:cDB.getChildren(f.getID()))
 				{
-					if(isAgeInRange(c) && doesGenderMatch(c))	//Children criteria pass
+					if(isAgeInRange(c) && doesGenderMatch(c) && doesSchoolMatch(c))	//Children criteria pass
 					{
 						for(int i=0; i< cwDB.getNumberOfWishesPerChild(); i++)
 						{	 //Assignee, Status, Date & Wish match
@@ -392,6 +404,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 			}
 		}
 		
+		updateSchoolFilterList();
 		lblNumOfTableItems.setText(Integer.toString(stAL.size()));
 		displaySortTable(stAL, true, tableRowSelectedObjectList);		//Display the table after table list is built	
 	}
@@ -803,6 +816,11 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		return sortGender == 0 || (c.getChildGender().equalsIgnoreCase(genders[sortGender]));		
 	}
 	
+	private boolean doesSchoolMatch(ONCChild c)
+	{
+		return sortSchool.equals("Any") || (c.getChildSchool().equalsIgnoreCase(sortSchool));		
+	}
+	
 	private boolean doesWishNumMatch(int wn)
 	{
 		return sortWishNum == 0 || sortWishNum == wn+1;		
@@ -867,6 +885,50 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 	void setSortStartDate(Date sd) {sortStartCal.setTime(sd); ds.setDate(sortStartCal.getTime());}
 	
 	void setSortEndDate(Date ed) {sortEndCal.setTime(ed); sortEndCal.add(Calendar.DATE, 1); de.setDate(sortEndCal.getTime());}
+	
+	void updateSchoolFilterList()
+	{
+		bIgnoreCBEvents = true;
+		
+		//archive the current selection. 
+		String currSchool = (String) schoolCB.getSelectedItem();
+		
+		schoolCBM.removeAllElements();
+		schoolCBM.addElement("Any");
+		
+		//create a list of schools that we will sort afterwards and before populating the
+		//combo box model
+		List<String> schoolList = new ArrayList<String>();
+			
+		//iterate thru the list of children and build the school list. Prevent duplicates
+		for(ONCChild c : cDB.getList())
+		{
+			int index = 0;
+			while(index < schoolList.size() && !c.getChildSchool().isEmpty() && 
+					!c.getChildSchool().equalsIgnoreCase(schoolList.get(index)))
+				index++;
+		
+			if(index == schoolList.size())
+				schoolList.add(c.getChildSchool());
+		}
+		
+		//sort the list of schools alphabetically
+		Collections.sort(schoolList);
+		
+		//copy the list to the combo box model
+		for(String school : schoolList)
+			schoolCBM.addElement(school);
+		
+		//set the selected index to "Any" before trying to reselect the currently selected school.
+		//in case the currently selected school was removed by a deleted child action. The JCombobox
+		//will not change the selection if the item is not in the model and the combo box is not 
+		//editable
+		schoolCB.setSelectedIndex(0);
+		schoolCB.setSelectedItem(currSchool);
+		sortSchool = (String) schoolCB.getSelectedItem();
+		
+		bIgnoreCBEvents = false;
+	}
 
 	@Override
 	public void actionPerformed(ActionEvent e)
@@ -890,6 +952,14 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		{
 			sortGender = genderCB.getSelectedIndex();
 			buildTableList(false);
+		}
+		else if(e.getSource() == schoolCB)
+		{
+			if(schoolCBM.getSize() > 0 && sortSchool != null && !schoolCB.getSelectedItem().equals(sortSchool))
+			{
+				sortSchool = (String) schoolCB.getSelectedItem();
+				buildTableList(false);
+			}
 		}
 		else if(e.getSource() == wishnumCB && wishnumCB.getSelectedIndex() != sortWishNum)
 		{
@@ -973,7 +1043,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 	String[] getColumnToolTips()
 	{
 		String[] colToolTips = {"ONC Family Number", "Child's Age", 
-				"Child's Gender", "Wish Number - 1, 2 or 3", "Wish Assigned", "Wish Detail",
+				"Child's Gender", "School Child Attends", "Wish Number - 1, 2 or 3", "Wish Assigned", "Wish Detail",
 				"# - Selected by ONC or * - Don't asssign", "Wish Status", "Who is fulfilling?",
 				"User who last changed wish", "Date & Time Wish Last Changed"};
 		
@@ -982,7 +1052,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 	@Override
 	String[] getColumnNames()
 	{
-		String[] columns = {"ONC", "Reg","Age", "Gend", "Wish", "Wish Type", "Details", " Res ",
+		String[] columns = {"ONC", "Reg","Age", "Gend", "School", "Wish", "Wish Type", "Details", " Res ",
 				"Status", "Assignee", "Changed By", "Time Stamp"};
 		
 		return columns;
@@ -991,14 +1061,14 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 	@Override
 	int[] getColumnWidths()
 	{
-		int[] colWidths = {40, 32, 48, 36, 36, 84, 180, 32, 80, 160, 88, 92};
+		int[] colWidths = {40, 32, 48, 36, 96, 36, 84, 180, 32, 80, 160, 88, 92};
 		return colWidths;
 	}
 	
 	@Override
 	int[] getCenteredColumns()
 	{
-		int[] center_cols = {1,4,7};
+		int[] center_cols = {1,5,8};
 		return center_cols;
 	}
 	
@@ -1022,6 +1092,11 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		genderCB.setSelectedIndex(0);	//no need to test for a change here.
 		sortGender = 0;
 		genderCB.addActionListener(this);
+		
+		schoolCB.removeActionListener(this);
+		schoolCB.setSelectedIndex(0);	//no need to test for a change here.
+		sortSchool = "Any";
+		schoolCB.addActionListener(this);
 		
 		wishnumCB.removeActionListener(this);
 		wishnumCB.setSelectedIndex(0);
@@ -1174,12 +1249,19 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 	{
 		if(dbe.getSource() != this && (dbe.getType().equals("WISH_ADDED") ||
 										dbe.getType().equals("UPDATED_CHILD_WISH") ||
-										 dbe.getType().equals("UPDATED_CHILD") || 
-										  dbe.getType().equals("DELETED_CHILD") ||
-										   dbe.getType().equals("UPDATED_FAMILY")))	//ONC# or region?
-			
+										   dbe.getType().equals("UPDATED_FAMILY")))	//ONC# or region?	
 		{
 			buildTableList(true);
+		}
+		else if(dbe.getSource() != this && (dbe.getType().equals("UPDATED_CHILD") || 
+				  dbe.getType().equals("DELETED_CHILD")))	//ONC# or region?
+		{
+			updateSchoolFilterList();
+			buildTableList(true);
+		}
+		else if(dbe.getSource() != this && (dbe.getType().equals("ADDED_CHILD")))	//ONC# or region?
+		{
+			updateSchoolFilterList();
 		}
 		else if(dbe.getSource() != this && (dbe.getType().equals("ADDED_CONFIRMED_PARTNER") ||
 											dbe.getType().equals("DELETED_CONFIRMED_PARTNER") ||
@@ -1209,6 +1291,11 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		else if(dbe.getType().contains("LOADED_USERS"))
 		{
 			updateUserList();
+		}
+		else if(dbe.getType().contains("LOADED_CHILDREN"))
+		{
+			updateSchoolFilterList();
+			this.setTitle(String.format("Our Neighbor's Child - %d Wish Management", GlobalVariables.getCurrentSeason()));
 		}
 		else if(dbe.getType().contains("CHANGED_USER"))
 		{
@@ -1449,6 +1536,15 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		}
 	}
 	
+	private class ONCSortItemSchoolComparator implements Comparator<SortWishObject>
+	{
+		@Override
+		public int compare(SortWishObject o1, SortWishObject o2)
+		{
+			return o1.getChild().getChildSchool().compareTo(o2.getChild().getChildSchool());
+		}
+	}
+	
 	private class ONCSortItemWishNumComparator implements Comparator<SortWishObject>
 	{
 		@Override
@@ -1567,6 +1663,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 							regions.getRegionID(swo.getFamily().getRegion()),
 							swo.getChild().getChildAge().split("old", 2)[0].trim(), //Take the word "old" out of string
 							swo.getChild().getChildGender(),
+							swo.getChild().getChildSchool(),
 							Integer.toString(swo.getChildWish().getWishNumber()+1),
 							wishName,
 							swo.getChildWish().getChildWishDetail(),
