@@ -193,8 +193,9 @@ public class ManageUsersDialog extends JDialog implements ActionListener, ListSe
 	void edit()
 	{
 		//determine selected user
-		int row = dlgTable.getSelectedRow();
-		ONCUser currUser = userDB.getUserFromIndex(row);
+		int viewrow = dlgTable.getSelectedRow();
+		int modelrow = dlgTable.convertRowIndexToModel(viewrow);
+		ONCUser currUser = userDB.getUserFromIndex(modelrow);
 		
 		//construct and display a UserProfile Dialog
 		UserProfileDialog upDlg = new UserProfileDialog(owner, currUser, null);
