@@ -118,7 +118,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
         progressBar.setStringPainted(true);
         progressBar.setVisible(false);
         
-        String[] emailChoices = {"Email", "2015 Season Agent Email", "2015 Season Gift Confirmation Email", "2015 Delivery Status Email"};
+        String[] emailChoices = {"Email", "2016 Season Gift Confirmation Email"};
         emailCB = new JComboBox(emailChoices);
         emailCB.setPreferredSize(new Dimension(136, 28));
         emailCB.setEnabled(false);
@@ -368,14 +368,14 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		String subject = null;
 		
 		//Create the subject and attachment array list
-		if(emailType == 1)
-		{
-			subject = "2015 Holiday Information From Our Neighbor's Child";
+//		if(emailType == 1)
+//		{
+//			subject = "2015 Holiday Information From Our Neighbor's Child";
 //			cid0 = ContentIDGenerator.getContentId();
 //			cid1 = ContentIDGenerator.getContentId();
 //			attachmentAL.add(new ONCEmailAttachment("DSC_0154.jpeg", cid0 , MimeBodyPart.INLINE));
 //			attachmentAL.add(new ONCEmailAttachment("Warehouse 3.jpeg", cid1, MimeBodyPart.INLINE));
-		}
+//		}
 //		else if(emailType == 2)//Reminder email
 //		{
 //			subject = "Important Reminder from Our Neighbor's Child";
@@ -384,7 +384,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 //			attachmentAL.add(new ONCEmailAttachment("DSC_0154.jpeg", cid0 , MimeBodyPart.ATTACHMENT));
 //			attachmentAL.add(new ONCEmailAttachment("Warehouse 3.jpeg", cid1, MimeBodyPart.INLINE));
 //		}
-		else if(emailType == 3) //Delivery Status Email
+		if(emailType == 1) //Delivery Status Email
 		{
 			subject = "Delivery Status Update from Our Neighbor's Child";
 //			cid0 = ContentIDGenerator.getContentId();
@@ -392,14 +392,14 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 //			attachmentAL.add(new ONCEmailAttachment("ONC Family Referral Worksheet.xlsx", cid0 , MimeBodyPart.ATTACHMENT));
 //			attachmentAL.add(new ONCEmailAttachment("Warehouse 3.jpeg", cid1, MimeBodyPart.INLINE));
 		}
-		else if(emailType == 2) //December Gift Confirmation Email
-		{
-			subject = "December Gift Confirmations";
+//		else if(emailType == 2) //December Gift Confirmation Email
+//		{
+//			subject = "December Gift Confirmations";
 //			cid0 = ContentIDGenerator.getContentId();
 //			cid1 = ContentIDGenerator.getContentId();
 //			attachmentAL.add(new ONCEmailAttachment("ONC Family Referral Worksheet.xlsx", cid0 , MimeBodyPart.ATTACHMENT));
 //			attachmentAL.add(new ONCEmailAttachment("Warehouse 3.jpeg", cid1, MimeBodyPart.INLINE));
-		}
+//		}
 		
 		//For each agent selected, create the email body and recipient information in an
 		//ONCEmail object and add it to the email array list
@@ -455,16 +455,16 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		//verify the agent has a valid name. If not, return an empty list
 		if(agent != null && agent.getAgentFirstName() != null && agent.getAgentFirstName().length() > MIN_EMAIL_NAME_LENGTH)
 //			emailBody = createAgentEmailText(agent, cid0, cid1); 	//2013 Email Body
-			if(emailType == 1)
-				emailBody = create2015AgentEmailText(agent.getAgentFirstName());	//2015 email body
+//			if(emailType == 1)
+//				emailBody = create2015AgentEmailText(agent.getAgentFirstName());	//2015 email body
 //			else if(emailType == 2)
 //				emailBody = create2014AgentReminderEmail(agent.getAgentFirstName());
 //			else if(emailType == 3)
 //				emailBody = create2014AgentIntakeEmail(agent.getAgentFirstName(), cid0);
-			else if(emailType == 2)
-				emailBody = create2015AgentDecemberGiftConfirmationEmail(agent);
-			else if(emailType == 3)
-				emailBody = create2015AgentDeliveryStatusEmail(agent);
+			if(emailType == 1)
+				emailBody = create2016AgentDecemberGiftConfirmationEmail(agent);
+//			else if(emailType == 3)
+//				emailBody = create2015AgentDeliveryStatusEmail(agent);
 		return emailBody;
 	}
 	
@@ -711,15 +711,15 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
         return msg;
 	}
 	
-	String create2015AgentDecemberGiftConfirmationEmail(Agent agt)
+	String create2016AgentDecemberGiftConfirmationEmail(Agent agt)
 	{
         //Create the text part of the email using html
 		String msg = "<html><body><div>" +
 				"<p>Dear " + agt.getAgentFirstName() + ",</p>"
 				+"<p>We realize you and the families you've referred are anxious to receive confirmation about " 
 				+"December gift assistance from Our Neighbor's Child.</p>"
-				+"<p>If you included an e-mail address for any family you referred, the family has "
-				+"received an e-mail at that address yesterday or today. It's written in both English and Spanish. "
+				+"<p>If you included an e-mail address for any family you referred, the family will "
+				+"received an e-mail at that address today or tomorrow. It's written in both English and Spanish. "
 				+ "For your reference we've included an English version sample at the bottom of this email.</p>"
 				+"<p>We have also included a table of families you referred. "
 				+"<b>If a valid e-mail address was not provided with the referral, the family will not receive an e-mail confirmation</b>. "
@@ -730,11 +730,12 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 				+"a duplicate of an earlier referral or they signed up with the Salvation Army or "
 				+"other agency as well as ONC. The legend for the Code column is: " 
 				+"SA = Served by The Salvation Army, SBO = Served by Other, DUP = Duplicate Family Referral. "
+				+"FO = Food Only, Gift Assistance Not Requested, NISA - Not In ONC's Serving Area. "
 				+"In that event, the family has been removed from the ONC gift list and should expect to "
 				+"pick up their gifts with the Salvation Army or follow the instructions provided by their serving agency.</p>"
 				+"<p>We will still use our automated calling system (after Thanksgiving) to notify all families who have not "
-				+"acknowlegded our email nor confirmed that they will be home on "
-				+"Sunday, December 13th from 1 to 4PM to receive their children's gifts.</p>"
+				+"acknowledged our email nor confirmed that they will be home on "
+				+"Sunday, December 18th from 1 to 4PM to receive their children's gifts.</p>"
 				+"<p>Our all-volunteer team at Our Neighbor's Child is actively working to collect their gifts and organize all the community "
 				+"volunteers who help make this day possible.</p>"
 		        +"<p>As always, thanks so much for your support!</p>"
@@ -847,8 +848,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
         	"<p>Dear [Client Family First Name],</p>"+
         	"<p>Your request for Holiday Assistance has been received by Our Neighbor's Child, the local, " +
         	"community-based volunteer organization that provides holiday gifts to children in your area.</p>" +
-        	"<p>This e-mail is being sent to you (if you included an e-mail address) and/or your referring agent " +
-        	"(if no e-mail address was provided).</p>" +
+        	"<p><b>Please read this email carefully. Your reply is required to ensure your family receives gifts.</b></p>" +
         	"<p>This e-mail only pertains to <b>HOLIDAY GIFTS</b> for your child/children.  Holiday food assistance is " +
         	"handled by other organizations and notification is separate.</p>" +
         	"<p><b>Here is the information that was provided by your School Counselor or other referring agent:</b></p>" +
@@ -861,7 +861,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
     		"&emsp;<b>Alternate Delivery Address:</b>  <br>" +
     		"&emsp;<b>Alternate Delivery Address:</b>  <br>" + 
         	"<p>An Our Neighbor's Child volunteer will deliver your children's gifts to the address listed above " +
-        	"on <b>Sunday, December 13th between 1 and 4PM.</b>  "
+        	"on <b>Sunday, December 18th between 1 and 4PM.</b>  "
         	+"Please reply to this email (in English or Spanish) to confirm that an adult will be home that "
         	+"day to receive your children's gifts. We may also attempt to contact you with an automated phone call.</p>" +
         	"<p><b>Important:  Families will only be served by one organization.</b> If your child/children's name " +
@@ -869,7 +869,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
         	"unable to deliver gifts to your home.</p>" +
         	"<p>If your address or telephone number should change, PLEASE include those changes in your REPLY to this e-mail. "
         	+ "We are unable to accept any gift requests or changes to gift requests.</p>" +
-        	"<p>If an emergency arises and you are unable to have an adult home on Sunday, December 14th between 1 " +
+        	"<p>If an emergency arises and you are unable to have an adult home on Sunday, December 18th between 1 " +
         	"and 4PM - PLEASE REPLY to this e-mail with an alternate local address (Centreville, Chantilly, Clifton or Fairfax) where " +
         	"someone will be home to receive the gifts on that day between 1 and 4PM.</p>"+
         	"<p>Thank you for your assistance and Happy Holidays!</p>" +

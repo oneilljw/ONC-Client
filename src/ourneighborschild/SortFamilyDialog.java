@@ -1297,16 +1297,17 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
         	"<p>Dear %s,</p>"+
         	"<p>Your request for Holiday Assistance has been received by Our Neighbor's Child, the local, " +
         	"community-based volunteer organization that provides holiday gifts to children in your area.</p>" +
-        	"<p>This e-mail is being sent to you (if you included an e-mail address) and/or your referring agent " +
-        	"(if no e-mail address was provided).</p>" +
+//        	"<p>This e-mail is being sent to you (if you included an e-mail address) and/or your referring agent " +
+//        	"(if no e-mail address was provided).</p>" +
+			"<p><b>Please read this email carefully. Your reply is required to ensure your family receives gifts.</b></p>" +
         	"<p>This e-mail only pertains to <b>HOLIDAY GIFTS</b> for your child/children.  Holiday food assistance is " +
         	"handled by other organizations and notification is separate.</p>" +
         	"<p><b>Here is the information that was provided by your School Counselor or other referring agent:</b></p>" +
     		"&emsp;<b>Family Name:</b>  %s<br>" +
     		"&emsp;<b>Address:</b>  %s<br>" +
     		"&emsp;<b>Address:</b>  %s<br>" +
-    		"&emsp;<b>Home Phone #:</b>  %s<br>" +
-    		"&emsp;<b>Other Phone #:</b>  %s<br>" +
+    		"&emsp;<b>Home Phone #'s:</b>  %s<br>" +
+    		"&emsp;<b>Other Phone #'s:</b>  %s<br>" +
     		"&emsp;<b>Email Address:</b>  %s<br>" + 
     		"&emsp;<b>Alternate Delivery Address:</b>  %s<br>" +
     		"&emsp;<b>Alternate Delivery Address:</b>  %s<br>" + 
@@ -1328,8 +1329,10 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
         	"<p>Querido %s,</p>"+
         	"<p>Su solicitud de Asistencia de Navidad fue recibido por Our Neighbor's Child, la organizaci&#243;n " +
         	"local de voluntarios que proporciona regalos de Navidad a los ni&#241;os en la comunidad.</p>" +
-        	"<p>Se recibe este mensaje (si se incluyo una direcci&#243;n de correo electr&#243;nico) y/o el agente que lo " +
-        	"refiri&#243; (si no se proporcion&#243; una direcci&#243;n de correo electr&#243;nico).</p>" +
+//        	"<p>Se recibe este mensaje (si se incluyo una direcci&#243;n de correo electr&#243;nico) y/o el agente que lo " +
+//        	"refiri&#243; (si no se proporcion&#243; una direcci&#243;n de correo electr&#243;nico).</p>" +
+			"<p><b>Por favor, lea este mensaje con atenci&#243;n. Su respuesta es necessario para asegurar " +
+			"que su familia recibe regalos.</b></p>" +
         	"<p>Este mensaje electr&#243;nico sol&#243; pertenece a LOS REGALOS DE NAVIDAD para su hijo/hijos. La asistencia " +
         	"de comida de Navidad viene de otras organizaciones y la notificaci&#243;n es separada.</p>" +
         	"<p><b>Aqu&#237; est&#225; la informaci&#243;n que fue proporcionado por su consejero de la escuela o el otro agente " +
@@ -1356,7 +1359,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
         	"la 1 y las 4 de la tarde <b>Por favor, responda a este mensaje con una direcci&#243;n local alternativa </b>" +
         	"(en Centreville, Clifton, o Fairfax) en que un adulto estar&#225; durante el d&#237;a de entrega entre la 1 y " +
         	"las 4.</p>"+
-        	"<p>Gracias por al asistencia y &#161;Feliz Navidad!</p>" +
+        	"<p>Gracias por la asistencia y &#161;Feliz Navidad!</p>" +
         	"<p><b>Our Neighbor's Child</b></p>" +
         	"</div></body></html>", hohFirstName, familyname, streetaddress, citystatezip, homephones, otherphones, 
         	emailaddress, altstreetaddress, altcitystatezip, hohFirstName, familyname, streetaddress, citystatezip, 
