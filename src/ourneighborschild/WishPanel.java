@@ -309,12 +309,12 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 				wishdetailTF.setEnabled(true);
 				wishassigneeCB.setEnabled(true);
 			}
-			else if(ws == WishStatus.Delivered || ws == WishStatus.Missing)
+			else if(ws == WishStatus.Delivered || ws == WishStatus.Shopping || 
+					ws == WishStatus.Missing)
 			{
-				
 				wishCB.setEnabled(false);
-				wishindCB.setEnabled(false);
-				wishdetailTF.setEnabled(false);
+				wishindCB.setEnabled(true);
+				wishdetailTF.setEnabled(true);
 				wishassigneeCB.setEnabled(true);
 			}
 			else

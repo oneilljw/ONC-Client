@@ -437,9 +437,9 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 			if(changeResCB.getSelectedIndex() > 0 && cwi != changeResCB.getSelectedIndex()-1)
 			{
 				//a change to the indicator is requested. Can only change wish restrictions
-				//in certain WishState's
+				//in certain WishStatus
 				if(cws == WishStatus.Selected || cws == WishStatus.Assigned
-						||cws == WishStatus.Returned)
+						||cws == WishStatus.Shopping || cws == WishStatus.Returned)
 				{
 					cwi = changeResCB.getSelectedIndex()-1;	//Restrictions start at 0
 					bNewWishRqrd = true;
@@ -451,8 +451,8 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 					cw.getChildWishAssigneeID() != ((ONCPartner)changeAssigneeCB.getSelectedItem()).getID())
 			{
 				//can only change wish assignees in certain WishState's
-				if(cws == WishStatus.Selected || cws == WishStatus.Assigned ||
-					cws == WishStatus.Delivered || cws == WishStatus.Returned || cws == WishStatus.Missing)
+				if(cws == WishStatus.Selected || cws == WishStatus.Assigned || cws == WishStatus.Delivered ||
+					cws == WishStatus.Shopping || cws == WishStatus.Returned || cws == WishStatus.Missing)
 				{
 					org = ((ONCPartner)changeAssigneeCB.getSelectedItem());
 					bNewWishRqrd = true;

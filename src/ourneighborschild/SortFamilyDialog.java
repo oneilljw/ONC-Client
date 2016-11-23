@@ -283,7 +283,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
         printCB.setEnabled(false);
         printCB.addActionListener(this);
         
-        String[] emailChoices = {"Email", "2015 Family Confirmation Email"};
+        String[] emailChoices = {"Email", "2016 Family Confirmation Email"};
         emailCB = new JComboBox(emailChoices);
         emailCB.setPreferredSize(new Dimension(136, 28));
         emailCB.setEnabled(false);
@@ -1260,13 +1260,13 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		//verify the family has a valid name. If not, return a null body
 		if(fam != null && fam.getHOHFirstName() != null && fam.getHOHFirstName().length() >= MIN_EMAIL_NAME_LENGTH) 
 		{
-			emailBody = create2015FamilyEmailText(fam);
+			emailBody = create2016FamilyEmailText(fam);
 		}
         	
 		return emailBody;
 	}
 	
-	String create2015FamilyEmailText(ONCFamily fam)
+	String create2016FamilyEmailText(ONCFamily fam)
 	{
 		//Create the variables for the body of the email 
 		String hohFirstName = fam.getHOHFirstName();
@@ -1311,7 +1311,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
     		"&emsp;<b>Alternate Delivery Address:</b>  %s<br>" +
     		"&emsp;<b>Alternate Delivery Address:</b>  %s<br>" + 
         	"<p>An Our Neighbor's Child volunteer will deliver your children's gifts to the address listed above " +
-        	"on Sunday, December 13th between 1 and 4PM. <b>Please reply to this email (in English or Spanish) to "
+        	"on Sunday, December 18th between 1 and 4PM. <b>Please reply to this email (in English or Spanish) to "
         	+ "confirm that an adult will be home that day to receive your children's gifts.</b> We may also attempt to "
         	+ "contact you with an automated phone call.</p>" +
         	"<p><b>Important:  Families will only be served by one organization.</b> If your child/children's name " +
@@ -1319,7 +1319,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
         	"unable to deliver gifts to your home.</p>" +
         	"<p>If your address or telephone number should change, <b>Please include those changes in your reply</b> to this e-mail. "
         	+ "We are unable to accept any gift requests or changes to gift requests.</p>" +
-        	"<p>If an emergency arises and you are unable to have an adult home on Sunday, December 14th between 1 " +
+        	"<p>If an emergency arises and you are unable to have an adult home on Sunday, December 18th between 1 " +
         	"and 4PM - <b>Please reply to this e-mail with an alternate local address</b> (Centreville, Chantilly, Clifton or Fairfax) where " +
         	"someone will be home to receive the gifts on that day between 1 and 4PM.</p>"+
         	"<p>Thank you for your assistance and Happy Holidays!</p>" +
@@ -1343,7 +1343,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
     		"&emsp;<b>Direcci&#243;n alternativo:</b>  %s<br>" +
     		"&emsp;<b>Direcci&#243;n alternativo:</b>  %s<br>" +
         	"<p>Un voluntario de Our Neighbor's Child entregar&#225; los regalos para su hijo/hijos a la direcci&#243;n de " +
-        	"arriba el domingo, 13 de diciembre entre la 1 y la 4 de la tarde. "
+        	"arriba el domingo, 18 de diciembre entre la 1 y la 4 de la tarde. "
         	+ "<b>Por favor, responda a este correo electrónico (en Inglés o Español) para confirmar que un adulto estará "
         	+ "en casa ese día para recibir regalos de sus hijos</b>. También vamos a contactar a usted con una "
         	+ "llamada telefónica automatizada."
@@ -1352,7 +1352,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
         	"de nuestra lista y no podr&#225; entregar los regalos a su hogar</p>"
         	+"<p>Si su direcci&#243;n o numero de tel&#233;fono cambia, <b>Por favor, incluya los cambios en la respuesta a este "
         	+ "correo electrónico.</b> Sin embargo, no podemos aceptar peticiones de regalos o cambios de peticiones.</p>" +
-        	"<p>Si hay una emergencia y un adulto no puede estar en su casa el domingo, 13 de diciembre, entre " +
+        	"<p>Si hay una emergencia y un adulto no puede estar en su casa el domingo, 18 de diciembre, entre " +
         	"la 1 y las 4 de la tarde <b>Por favor, responda a este mensaje con una direcci&#243;n local alternativa </b>" +
         	"(en Centreville, Clifton, o Fairfax) en que un adulto estar&#225; durante el d&#237;a de entrega entre la 1 y " +
         	"las 4.</p>"+

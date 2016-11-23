@@ -20,7 +20,9 @@ import au.com.bytecode.opencsv.CSVWriter;
 public class ChildWishDB extends ONCDatabase
 {
 //	private static final int CHILD_WISH_DB_HEADER_LENGTH = 10;
-	private static final int ORG_TYPE_ONC_SHOPPER = 6;
+	private static final int PARTNER_TYPE_ONC_SHOPPER = 6;
+	private static final int WISH_INDICATOR_ALLOW_SUBSTITUE = 2;
+	private static final String CHILD_WISH_DEFAULT_DETAIL = "Age appropriate";
 	
 	private static ChildWishDB instance = null;
 	private ONCWishCatalog cat;
@@ -75,7 +77,9 @@ public class ChildWishDB extends ONCDatabase
 		//create the new wish, with childwishID = -1, meaning no wish selected
 		//the server will add the childwishID and return it
 		ONCChildWish retCW = null;
-		ONCChildWish reqCW = new ONCChildWish(-1, childid, wishid, wd, wn, wi,
+		ONCChildWish reqCW = new ONCChildWish(-1, childid, wishid,
+											   checkForDetailChange(replacedWish, currPartner), 
+											   wn, wi,
 											   checkForStatusChange(replacedWish, wishid, ws, currPartner), 
 											   orgID, cb, dc);		
 		Gson gson = new Gson();
@@ -87,7 +91,6 @@ public class ChildWishDB extends ONCDatabase
 		//get the wish in the sever response and add it to the local cache data base
 		//it contains the wish id assigned by the server child wish data base
 		//Notify all other ui's that a wish has been added
-//		System.out.println(String.format("ChildWishDB: addWish Sever Response: %s", response));
 		if(response != null && response.startsWith("WISH_ADDED"))
 		{
 //			System.out.println("ChildWish DB_add: Server Response: " + response);
@@ -277,7 +280,7 @@ public class ChildWishDB extends ONCDatabase
 				if(reqStatus == WishStatus.Returned)
 					newStatus = WishStatus.Returned;
 				else if(reqStatus == WishStatus.Delivered && reqOrg != null && 
-							reqOrg.getID() > -1 && reqOrg.getType() == ORG_TYPE_ONC_SHOPPER)
+							reqOrg.getID() > -1 && reqOrg.getType() == PARTNER_TYPE_ONC_SHOPPER)
 					newStatus = WishStatus.Shopping;
 				else if(reqStatus == WishStatus.Assigned && reqOrg != null && reqOrg.getID() > -1)
 					newStatus = WishStatus.Assigned;
@@ -292,9 +295,9 @@ public class ChildWishDB extends ONCDatabase
 					newStatus = WishStatus.Not_Selected;
 				else if(reqOrg.getID() == -1)
 					newStatus = WishStatus.Selected;
-				else if(reqOrg.getType() != ORG_TYPE_ONC_SHOPPER)
+				else if(reqOrg.getType() != PARTNER_TYPE_ONC_SHOPPER)
 					newStatus = WishStatus.Assigned;
-				else if(reqOrg.getType() == ORG_TYPE_ONC_SHOPPER)
+				else if(reqOrg.getType() == PARTNER_TYPE_ONC_SHOPPER)
 					newStatus = WishStatus.Shopping;
 				break;
 				
@@ -324,7 +327,7 @@ public class ChildWishDB extends ONCDatabase
 			case Missing:
 				if(reqStatus == WishStatus.Received)
 					newStatus = WishStatus.Received;
-				else if(reqOrg.getType() == ORG_TYPE_ONC_SHOPPER)
+				else if(reqOrg.getType() == PARTNER_TYPE_ONC_SHOPPER)
 					newStatus = WishStatus.Shopping;
 				else if(reqStatus == WishStatus.Assigned && reqOrg != null && reqOrg.getID() > -1)
 					newStatus = WishStatus.Assigned;
@@ -340,6 +343,23 @@ public class ChildWishDB extends ONCDatabase
 		}
 		
 		return newStatus;			
+	}
+	
+	String checkForDetailChange(ONCChildWish currWish, ONCPartner reqPartner)
+	{
+//		System.out.println(String.format("ChildWishDB.checkforDetailChange: currWishID= %d, currWishStatus= %s, currWishInd= %d, reqPartnerType = %d",
+//				currWish.getWishID(), currWish.getChildWishStatus().toString(), 
+//				currWish.getChildWishIndicator(), reqPartner.getType() ));
+		
+		if(currWish != null && reqPartner != null && 
+			currWish.getChildWishStatus() == WishStatus.Delivered && 
+			 reqPartner.getType() == PARTNER_TYPE_ONC_SHOPPER && 
+			  currWish.getChildWishIndicator() == WISH_INDICATOR_ALLOW_SUBSTITUE)
+		{
+			return CHILD_WISH_DEFAULT_DETAIL;
+		}
+		
+		return currWish.getChildWishDetail();
 	}
 
 	/**
