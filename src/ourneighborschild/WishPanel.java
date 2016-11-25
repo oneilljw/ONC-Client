@@ -292,9 +292,6 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 
 	void setEnabledWishPanelComponents(WishStatus ws)
 	{
-		if(wishNumber == 0)
-			System.out.println(String.format("WishPanel.setEnabledWishPanelComponents panel= %d, ws = %s",
-											wishNumber, ws.toString()));
 		if(wpStatus == WishPanelStatus.Enabled)
 		{
 			if(ws == WishStatus.Not_Selected)
@@ -595,10 +592,6 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 	@Override
 	public void entitySelected(EntitySelectionEvent tse)
 	{
-		if(wishNumber == 0)
-			System.out.println(String.format("WishPanel.entitySelected: type = %s, source = %s",
-				tse.getType().toString(), tse.getSource().toString()));
-		
 		if(tse.getType() == EntityType.FAMILY)
 		{
 			ONCFamily fam = (ONCFamily) tse.getObject1();
