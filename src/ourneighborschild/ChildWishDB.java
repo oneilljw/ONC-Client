@@ -57,7 +57,7 @@ public class ChildWishDB extends ONCDatabase
 	 */
 	ONCChildWish add(Object source, int childid, int wishid, String wd, int wn, int wi,
 						WishStatus ws, ONCPartner currPartner)
-	{	
+	{		
 		GlobalVariables gvs = GlobalVariables.getInstance();
 		String cb = UserDB.getInstance().getUserLNFI();
 		Date dc = gvs.getTodaysDate();
@@ -78,7 +78,7 @@ public class ChildWishDB extends ONCDatabase
 		//the server will add the childwishID and return it
 		ONCChildWish retCW = null;
 		ONCChildWish reqCW = new ONCChildWish(-1, childid, wishid,
-											   checkForDetailChange(replacedWish, currPartner), 
+											   checkForDetailChange(wi, wd, currPartner, replacedWish), 
 											   wn, wi,
 											   checkForStatusChange(replacedWish, wishid, ws, currPartner), 
 											   orgID, cb, dc);		
@@ -252,7 +252,7 @@ public class ChildWishDB extends ONCDatabase
 		switch(currStatus)
 		{
 			case Not_Selected:
-				if(wishBase > -1 && reqOrg.getID() != -1)
+				if(wishBase > -1 && reqOrg != null && reqOrg.getID() != -1)
 					newStatus = WishStatus.Assigned;	//wish assigned from inventory
 				else if(wishBase > -1)
 					newStatus = WishStatus.Selected;
@@ -261,7 +261,7 @@ public class ChildWishDB extends ONCDatabase
 			case Selected:
 				if(wishBase == -1)
 					newStatus = WishStatus.Not_Selected;
-				else if(reqOrg.getID() != -1)
+				else if(reqOrg != null && reqOrg.getID() != -1)
 					newStatus = WishStatus.Assigned;
 				break;
 				
@@ -293,11 +293,11 @@ public class ChildWishDB extends ONCDatabase
 			case Returned:
 				if(wishBase == -1)
 					newStatus = WishStatus.Not_Selected;
-				else if(reqOrg.getID() == -1)
+				else if(reqOrg != null && reqOrg.getID() == -1)
 					newStatus = WishStatus.Selected;
-				else if(reqOrg.getType() != PARTNER_TYPE_ONC_SHOPPER)
+				else if(reqOrg != null && reqOrg.getType() != PARTNER_TYPE_ONC_SHOPPER)
 					newStatus = WishStatus.Assigned;
-				else if(reqOrg.getType() == PARTNER_TYPE_ONC_SHOPPER)
+				else if(reqOrg != null && reqOrg.getType() == PARTNER_TYPE_ONC_SHOPPER)
 					newStatus = WishStatus.Shopping;
 				break;
 				
@@ -327,7 +327,7 @@ public class ChildWishDB extends ONCDatabase
 			case Missing:
 				if(reqStatus == WishStatus.Received)
 					newStatus = WishStatus.Received;
-				else if(reqOrg.getType() == PARTNER_TYPE_ONC_SHOPPER)
+				else if(reqOrg != null && reqOrg.getType() == PARTNER_TYPE_ONC_SHOPPER)
 					newStatus = WishStatus.Shopping;
 				else if(reqStatus == WishStatus.Assigned && reqOrg != null && reqOrg.getID() > -1)
 					newStatus = WishStatus.Assigned;
@@ -345,21 +345,27 @@ public class ChildWishDB extends ONCDatabase
 		return newStatus;			
 	}
 	
-	String checkForDetailChange(ONCChildWish currWish, ONCPartner reqPartner)
+	/*** checks for automatic change of wish detail. An automatic change is triggered if
+	 * the replaced wish is of status Delivered and requested parter is of type ONC Shopper
+	 * and the requested wish indicator is #. 
+	 */
+	String checkForDetailChange(int reqWishRes, String reqWishDetail,
+									ONCPartner reqPartner, ONCChildWish replWish)
 	{
-//		System.out.println(String.format("ChildWishDB.checkforDetailChange: currWishID= %d, currWishStatus= %s, currWishInd= %d, reqPartnerType = %d",
-//				currWish.getWishID(), currWish.getChildWishStatus().toString(), 
-//				currWish.getChildWishIndicator(), reqPartner.getType() ));
-		
-		if(currWish != null && reqPartner != null && 
-			currWish.getChildWishStatus() == WishStatus.Delivered && 
+//		if(replWish != null && reqPartner != null)
+//			System.out.println(String.format("ChildWishDB.checkforDetailChange: replWishStatus= %s, reqWishInd= %d, reqPartnerType = %d, reqDetail= %s",
+//				replWish.getChildWishStatus().toString(), reqWishRes, reqPartner.getType(),
+//				reqWishDetail));
+	
+		if(replWish != null && reqPartner != null && 
+			replWish.getChildWishStatus() == WishStatus.Delivered && 
 			 reqPartner.getType() == PARTNER_TYPE_ONC_SHOPPER && 
-			  currWish.getChildWishIndicator() == WISH_INDICATOR_ALLOW_SUBSTITUE)
+			  reqWishRes == WISH_INDICATOR_ALLOW_SUBSTITUE)
 		{
 			return CHILD_WISH_DEFAULT_DETAIL;
 		}
-		
-		return currWish.getChildWishDetail();
+		else
+			return reqWishDetail;
 	}
 
 	/**

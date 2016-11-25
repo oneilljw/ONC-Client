@@ -280,7 +280,6 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 		if(fam.getFamilyStatus() == FAMILY_STATUS_UNVERIFIED)	
 			wpStatus = WishPanelStatus.Disabled;
 		else 
-//			wpStatus = fam.isGiftCardOnly() ? WishPanelStatus.Assignee_Only : WishPanelStatus.Enabled;
 			wpStatus = WishPanelStatus.Enabled;
 		
 		//now that we've updated the panel status, update the component status
@@ -313,8 +312,8 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 					ws == WishStatus.Missing)
 			{
 				wishCB.setEnabled(false);
-				wishindCB.setEnabled(true);
-				wishdetailTF.setEnabled(true);
+				wishindCB.setEnabled(false);
+				wishdetailTF.setEnabled(false);
 				wishassigneeCB.setEnabled(true);
 			}
 			else
@@ -324,15 +323,6 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 				wishdetailTF.setEnabled(false);
 				wishassigneeCB.setEnabled(false);
 			}
-		}
-		else if(wpStatus == WishPanelStatus.Assignee_Only && 
-				(ws == WishStatus.Selected || ws == WishStatus.Assigned || ws == WishStatus.Returned ||
-				 ws == WishStatus.Delivered || ws == WishStatus.Missing))
-		{
-			wishCB.setEnabled(false);
-			wishindCB.setEnabled(false);
-			wishdetailTF.setEnabled(false);
-			wishassigneeCB.setEnabled(true);
 		}
 		else
 		{	
@@ -650,7 +640,6 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 	{
 		Enabled,
 		Disabled,
-		Assignee_Only;
 	}
 
 	class DetailDialog extends JDialog implements ActionListener
