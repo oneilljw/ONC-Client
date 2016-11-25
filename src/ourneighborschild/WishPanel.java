@@ -224,6 +224,8 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 		wishindCB.setSelectedIndex(0);
 		wishassigneeCB.setSelectedIndex(0);
 		
+		setEnabledWishPanelComponents(WishStatus.Not_Selected);
+		
 		bWishChanging = false;
 	}
 	
@@ -282,16 +284,17 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 			wpStatus = WishPanelStatus.Enabled;
 		
 		//now that we've updated the panel status, update the component status
-		if(childWish != null)
-			setEnabledWishPanelComponents(childWish.getChildWishStatus());
-		else
-			setEnabledWishPanelComponents(WishStatus.Not_Selected);
+//		if(childWish != null)
+//			setEnabledWishPanelComponents(childWish.getChildWishStatus());
+//		else
+//			setEnabledWishPanelComponents(WishStatus.Not_Selected);
 	}
 
 	void setEnabledWishPanelComponents(WishStatus ws)
 	{
-//		System.out.println(String.format("ChildPanel.setEnabledWishPanelComponenst  wn = %d, ws = %s",
-//											wn, ws));
+		if(wishNumber == 0)
+			System.out.println(String.format("WishPanel.setEnabledWishPanelComponents panel= %d, ws = %s",
+											wishNumber, ws.toString()));
 		if(wpStatus == WishPanelStatus.Enabled)
 		{
 			if(ws == WishStatus.Not_Selected)
@@ -591,15 +594,17 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 	
 	@Override
 	public void entitySelected(EntitySelectionEvent tse)
-	{	
+	{
+		if(wishNumber == 0)
+			System.out.println(String.format("WishPanel.entitySelected: type = %s, source = %s",
+				tse.getType().toString(), tse.getSource().toString()));
+		
 		if(tse.getType() == EntityType.FAMILY)
 		{
 			ONCFamily fam = (ONCFamily) tse.getObject1();
 			ArrayList<ONCChild> childList = cDB.getChildren(fam.getID());
 			
 			checkForUpdateToWishDetail();
-		
-			setEnabledWish(fam);
 			
 			//check to see if there are children in the family, is so, display first child
 			if(childList != null && !childList.isEmpty() &&
@@ -620,9 +625,12 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 				
 				clearWish();
 			}
+			
+			setEnabledWish(fam);	//lock or unlock the panel and/or panel components
 		}
-		else if(tse.getType() == EntityType.CHILD|| tse.getType() == EntityType.WISH)
+		else if(tse.getType() == EntityType.CHILD || tse.getType() == EntityType.WISH)
 		{
+			ONCFamily fam = (ONCFamily) tse.getObject1();
 			ONCChild selChild = (ONCChild) tse.getObject2();
 			
 			checkForUpdateToWishDetail();
@@ -634,8 +642,11 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 				child = selChild;
 				clearWish();
 			}
+			
+			setEnabledWish(fam);	//lock or unlock the panel and/or panel components
 		}
 	}
+	
 	@Override
 	public EnumSet<EntityType> getEntityEventListenerEntityTypes() 
 	{
