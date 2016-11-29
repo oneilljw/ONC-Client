@@ -31,6 +31,8 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 	private static final int GV_CSV_HEADER_LENGTH = 3;
 	private static final int NUM_OF_XMAS_ICONS = 5;
 	private static final int XMAS_ICON_OFFSET = 9;
+	private static final int AVERY_LABEL_DEFAULT_X_OFFSET = 24;
+	private static final int AVERY_LABEL_DEFAULT_Y_OFFSET = 50;
 	
 	private static GlobalVariables instance = null;
 	
@@ -173,7 +175,8 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 		version = "N/A";
 		bBarcodeOnOrnmament = true;
 		barcode = Barcode.UPCE;
-		averyLabelOffsetPoint = new Point(20, 50);
+		averyLabelOffsetPoint = new Point(AVERY_LABEL_DEFAULT_X_OFFSET,
+											AVERY_LABEL_DEFAULT_Y_OFFSET);
 	}
 	
 	//Getters
