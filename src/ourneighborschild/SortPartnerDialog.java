@@ -487,7 +487,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		}
 		else if(emailType == 5)	//Coat & Clothing Drop Off Reminder Email
 		{
-			subject = "ONC Gift Drop Off Times and Location";
+			subject = "ONC Clothing Drop Off Times and Location";
 		}		
 		//For each organization selected, create the email body and recipient information in an
 		//ONCEMail object and add it to the emailAL
@@ -722,21 +722,24 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 	{
 		String msg = String.format("<html><body><div>"
 				+ "<p>Dear %s,</p>"
-				+ "<p>Just a reminder of the three ONC Gift Drop-Off dates that begin next Sunday, December 11<sup>th</sup>.</p>"
+				+ "<p>Just a reminder of the three ONC Clothing Gift Drop-Off dates that begin next Sunday, December 11<sup>th</sup>.</p>"
 				+ "<p>Each year we rely on a new donated warehouse space for our efforts. "
 				+ "This year's <b>NEW LOCATION</b> is: "
 				+ "<a href=\"https://goo.gl/maps/DUGd19Jzdqk\">3900 Stonecroft Boulevard in Chantilly</a></b>.</p>"
 				+ "<p>From Route 50 (west of Route 28), take a right on Stonecroft and look for ONC directional signs!</p>"
-				+ "<p>This season's Gift Drop-Off dates/times are:</p>"
+				+ "<p>This season's Clothing Gift Drop-Off dates/times are:</p>"
 				+ "<p><b>Sunday, December 11<sup>th</sup>, 2016: 12PM - 2PM</b></p>"
 				+ "<p><b>Monday, December 12<sup>th</sup>, 2016: 3:30PM - 6:30PM</b></p>"
 				+ "<p><b>Tuesday, December 13<sup>th</sup>, 2016: 3:30PM - 6:30PM</b></p>"
-				+ "<p><i>Don't forget to clearly label your clothing gifts!!!</i></p>"
+				+ "<p>If you are a Centreville resident and would like to use our Front Porch "
+				+ "Pick-up option, please reply to this email with \"Front Porch Pick-Up\" "
+				+ "in the subject line NO LATER than 8AM on Sunday, December 11.</p>"
+				+ "<p><i>Please don't forget to clearly label your clothing gifts!!!</i></p>"
 				+ "<p>It is vitally important to our efforts that all gifts arrive at the warehouse "
-				+ "no later than 6:30PM Tuesday evening.  We inventory all gifts on Wednesday and "
+				+ "no later than 6:30PM Tuesday evening.  We inventory <i>all</i> gifts on Wednesday and "
 				+ "need to send volunteers out to purchase any missing gifts that day.</p>"
 				+ "<p><b>In case of a major snow event, please check our website for updates and "
-				+ "drop off your gifts as soon as safely possible!</b></p>"
+				+ "drop off your clothing gifts as soon as safely possible!</b></p>"
 				+ "<p>Thank you for your willingness to support the children of our community in this way.</p>"
 				+ "<p>If you have any questions or concerns, please reply to this email.</p>"
 				+ "<p>Best wishes for your own happy holidays!</p>" 
