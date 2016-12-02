@@ -1621,9 +1621,24 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		public int compare(SortWishObject o1, SortWishObject o2)
 		{
 			PartnerDB partnerDB = PartnerDB.getInstance();
-			String part1 = partnerDB.getOrganizationByID(o1.getChildWish().getChildWishAssigneeID()).getName();
-			String part2 = partnerDB.getOrganizationByID(o2.getChildWish().getChildWishAssigneeID()).getName();
-			return part1.compareTo(part2);
+			
+			ONCChildWish wish1 = o1.getChildWish();
+			if(wish1 == null)
+				return 10;
+			
+			ONCPartner partner1 =  partnerDB.getOrganizationByID(wish1.getChildWishAssigneeID());
+			if(partner1 == null)
+				return 10;
+			
+			ONCChildWish wish2 = o2.getChildWish();
+			if(wish2 == null)
+				return -10;
+			
+			ONCPartner partner2 =  partnerDB.getOrganizationByID(wish2.getChildWishAssigneeID());
+			if(partner2 == null)	
+				return -10;
+				
+			return partner1.getName().compareTo(partner2.getName());
 		}
 	}
 	
