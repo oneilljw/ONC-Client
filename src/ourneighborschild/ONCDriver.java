@@ -21,16 +21,16 @@ public class ONCDriver extends ONCEntity
 	private String email;
 	private String homePhone;
 	private String cellPhone;
-	private String drLicense;
-	private String car;
+	private int	   activityCode;
+	private String group;
+	private String comment;
 	private int delAssigned;
-	
-	String[] stoplt = {"G", "Y", "R", "O"};
+	private int signIns;
 	
 	public ONCDriver(int driverid, String drvNum, String fName, String lName, String email, String hNum, 
 						String street, String unit, String city, String zipcode, 
-						String homePhone, String cellPhone, String drLicense,
-						String car, Date today, String changedBy)
+						String homePhone, String cellPhone, int activityCode, String group,
+						String comment, Date today, String changedBy)
 	{
 		super(driverid, new Date(), changedBy, STOPLIGHT_OFF, "Driver created", changedBy);
 		this.drvNum = drvNum;
@@ -44,12 +44,14 @@ public class ONCDriver extends ONCEntity
 		this.zipcode = zipcode;
 		this.homePhone = homePhone;
 		this.cellPhone = cellPhone;
-		this.drLicense = drLicense;
-		this.car = car;
-		this.delAssigned = 0;		
+		this.activityCode = activityCode;
+		this.group = group;
+		this.comment = comment;
+		this.delAssigned = 0;
+		this.signIns = 0;
 	}
 	
-	public ONCDriver(String[] nextLine, int driverid, Date today, String changedBy)
+	public ONCDriver(String[] nextLine, int driverid, Date today, String changedBy, int activityCode)
 	{
 		super(driverid, new Date(), changedBy, STOPLIGHT_OFF, "Driver created", changedBy);
 		
@@ -95,22 +97,25 @@ public class ONCDriver extends ONCEntity
 			this.homePhone = "";
 			this.cellPhone = "";
 		}
-		this.drLicense = "";
-		this.car = "";
+		this.activityCode = activityCode;
+		this.group = "";
+		this.comment = "";
 		this.delAssigned = 0;
+		this.signIns = 0;
 	}
 	
-	ONCDriver(int id)
+	ONCDriver(int id, String changedBy)
 	{
 		//constructor used when adding a new entity
-		super(id, new Date(), "", STOPLIGHT_OFF, "Driver created", "");
+		super(id, new Date(), changedBy, STOPLIGHT_OFF, "Driver created", changedBy);
 		delAssigned = 0;
+		signIns = 0;
 	}
 	
 	public ONCDriver(String[] nextLine)
 	{
-		super(Integer.parseInt(nextLine[0]), Long.parseLong(nextLine[15]), nextLine[18],
-				Integer.parseInt(nextLine[16]), nextLine[17], nextLine[18]);
+		super(Integer.parseInt(nextLine[0]), Long.parseLong(nextLine[17]), nextLine[18],
+				Integer.parseInt(nextLine[19]), nextLine[20], nextLine[21]);
 		drvNum = getDBString(nextLine[1]);
 		fName = getDBString(nextLine[2]);
 		lName = getDBString(nextLine[3]);
@@ -122,9 +127,11 @@ public class ONCDriver extends ONCEntity
 		email = getDBString(nextLine[9]);
 		homePhone = getDBString(nextLine[10]);
 		cellPhone = getDBString(nextLine[11]);
-		drLicense = getDBString(nextLine[12]);
-		car = getDBString(nextLine[13]);
-		delAssigned = Integer.parseInt(nextLine[14]); 
+		activityCode = nextLine[12].isEmpty() ? 0 : Integer.parseInt(nextLine[12]);
+		group = getDBString(nextLine[13]);
+		comment = getDBString(nextLine[14]);
+		delAssigned = nextLine[15].isEmpty() ? 0 : Integer.parseInt(nextLine[15]);;
+		signIns = nextLine[16].isEmpty() ? 0 : Integer.parseInt(nextLine[16]);
 	}
 	
 	public ONCDriver(ONCDriver d)	//copy constructor
@@ -142,9 +149,11 @@ public class ONCDriver extends ONCEntity
 		email = d.email;
 		homePhone = d.homePhone;
 		cellPhone = d.cellPhone;
-		drLicense = d.drLicense;
-		car = d.car;
+		activityCode = d.activityCode;
+		group = d.group;
+		comment = d.comment;
 		delAssigned = d.delAssigned; 
+		signIns = d.signIns;
 	}
 	
 	String getDBString(String s)
@@ -164,9 +173,12 @@ public class ONCDriver extends ONCEntity
 	public String getZipcode() { return zipcode; }
 	public String getEmail() { return email; }
 	public String getHomePhone() { return homePhone; }
-	public String getDrLicense() { return drLicense; }
-	public String getCar() { return car; }
+	public String getGroup() { return group; }
+	public String getComment() { return comment; }
 	public int getDelAssigned() { return delAssigned; }
+	public int getSignIns() { return signIns; }
+	public int getActivityCode() { return activityCode; }
+	public String getChangedBy() { return changedBy; }
 	
 	//setters
 	public void setDrvNum(String drvNum) { this.drvNum = drvNum; }
@@ -180,9 +192,12 @@ public class ONCDriver extends ONCEntity
 	public void setEmail(String em) { this.email = em; }
 	public void setHomePhone(String homePhone) { this.homePhone = homePhone; }
 	public void setCellPhone(String cellPhone) { this.cellPhone = cellPhone; }	
-	public void setDrLicense(String drl) { this.drLicense = drl; }
-	public void setCar(String c) { this.car = c; }
+	public void setActivityCode(int activityCode) { this.activityCode = activityCode; }
+	public void setGroup(String drl) { this.group = drl; }
+	public void setComment(String c) { this.comment = c; }
 	public void setDelAssigned(int da) { delAssigned = da; }
+	public void setSignIns(int si) { signIns = si; }
+	public void setChangedBy(String cb) { changedBy = cb; }
 	
 	public void incrementDeliveryCount(int count) { delAssigned += count; }
 	
@@ -190,8 +205,9 @@ public class ONCDriver extends ONCEntity
 	public String[] getExportRow()
 	{
 		String[] row = {Integer.toString(id), drvNum, fName, lName, hNum, street, unit, city, zipcode,
-						email, homePhone, cellPhone, drLicense, car, Integer.toString(delAssigned),
-						Long.toString(dateChanged.getTimeInMillis()), Integer.toString(slPos),
+						email, homePhone, cellPhone, Integer.toString(activityCode), group, comment, 
+						Integer.toString(delAssigned), Integer.toString(signIns),
+						Long.toString(dateChanged.getTimeInMillis()), changedBy,  Integer.toString(slPos),
 						slMssg, slChangedBy};
 		
 		return row;

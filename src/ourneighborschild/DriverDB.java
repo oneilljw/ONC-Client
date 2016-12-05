@@ -90,7 +90,7 @@ public class DriverDB extends ONCSearchableDatabase
 	    					{
 	    						//If it is, read them into an array list of string[]
 	    						//If it is, generate and send add request to the server
-	    						ONCDriver addDriverReq = new ONCDriver(nextLine, generateDriverID(), today, user);
+	    						ONCDriver addDriverReq = new ONCDriver(nextLine, generateDriverID(), today, user, 1);
 	    						String response = add(this, addDriverReq);
 	    						
 	    						if(response.startsWith("ADDED_DRIVER"))

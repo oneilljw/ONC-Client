@@ -30,7 +30,7 @@ public class DriverDialog extends EntityDialog
 	private DeliveryDB deliveryDB;
 	
 	//ui components
-	private JLabel lblFamDel;
+	private JLabel lblFamDel, lblSignIns;
     private JTextField drvNumTF, firstnameTF,lastnameTF;
     private JTextField streetnumTF, streetnameTF, unitTF, cityTF, zipTF, hPhoneTF, cPhoneTF;
     private JTextField emailTF;
@@ -74,18 +74,13 @@ public class DriverDialog extends EntityDialog
         drvNumTF.setHorizontalAlignment(JLabel.RIGHT);
         drvNumTF.addActionListener(dcListener);
         
-        firstnameTF = new JTextField(12);
+        firstnameTF = new JTextField(10);
         firstnameTF.setBorder(BorderFactory.createTitledBorder("First Name"));
         firstnameTF.addActionListener(dcListener);
         
-        lastnameTF = new JTextField(12);
+        lastnameTF = new JTextField(10);
         lastnameTF.setBorder(BorderFactory.createTitledBorder("Last Name"));
         lastnameTF.addActionListener(dcListener);
-        
-        lblFamDel = new JLabel("0", JLabel.RIGHT);
-        lblFamDel.setPreferredSize(new Dimension (52, 48));
-        lblFamDel.setToolTipText("# Deliveries Partner Made");
-        lblFamDel.setBorder(BorderFactory.createTitledBorder("# Del"));
         
         hPhoneTF = new JTextField(9);
         hPhoneTF.setToolTipText("Delivery partner home phone #");
@@ -96,6 +91,16 @@ public class DriverDialog extends EntityDialog
         cPhoneTF.setToolTipText("Delivery partner cell phone #");
         cPhoneTF.setBorder(BorderFactory.createTitledBorder(" Cell Phone #"));
         cPhoneTF.addActionListener(dcListener);
+        
+        lblFamDel = new JLabel("0", JLabel.RIGHT);
+        lblFamDel.setPreferredSize(new Dimension (52, 48));
+        lblFamDel.setToolTipText("# Deliveries Partner Made");
+        lblFamDel.setBorder(BorderFactory.createTitledBorder("# Del"));
+        
+        lblSignIns = new JLabel("0", JLabel.RIGHT);
+        lblSignIns.setPreferredSize(new Dimension (64, 48));
+        lblSignIns.setToolTipText("# Warehouse Sign-Ins");
+        lblSignIns.setBorder(BorderFactory.createTitledBorder("Sign-Ins"));
                 
         op1.add(drvNumTF);
         op1.add(firstnameTF);
@@ -103,6 +108,7 @@ public class DriverDialog extends EntityDialog
         op1.add(hPhoneTF);
         op1.add(cPhoneTF);
         op1.add(lblFamDel);
+        op1.add(lblSignIns);
                                            
         emailTF = new JTextField(18);
         emailTF.setToolTipText("Delivery partner email address");
@@ -253,6 +259,7 @@ public class DriverDialog extends EntityDialog
 			cPhoneTF.setCaretPosition(0);
 				
 			lblFamDel.setText(Integer.toString(currDriver.getDelAssigned()));
+			lblSignIns.setText(Integer.toString(currDriver.getSignIns()));
 			
 			if(currDriver.getDelAssigned() == 0)	//Can only delete if a delivery was assigned
 				btnDelete.setEnabled(true);
@@ -277,6 +284,7 @@ public class DriverDialog extends EntityDialog
 		firstnameTF.setText("");
 		lastnameTF.setText("");
 		lblFamDel.setText("0");
+		lblSignIns.setText("0");
 		hPhoneTF.setText("");
 		cPhoneTF.setText("");
 		emailTF.setText("");		
@@ -341,7 +349,7 @@ public class DriverDialog extends EntityDialog
 		ONCDriver newDriver = new ONCDriver(-1, "N/A", firstnameTF.getText(), lastnameTF.getText(),
 					emailTF.getText(), streetnumTF.getText(), streetnameTF.getText(), 
 					unitTF.getText(), cityTF.getText(), zipTF.getText(), 
-					hPhoneTF.getText(), cPhoneTF.getText(), "", "", new Date(),
+					hPhoneTF.getText(), cPhoneTF.getText(), 1, "", "", new Date(),
 					userDB.getUserLNFI());
 						
 		//send add request to the local data base
@@ -391,7 +399,7 @@ public class DriverDialog extends EntityDialog
 			ONCDriver updatedDriver = (ONCDriver) dbe.getObject();
 			
 			//If current driver is being displayed has changed, re-display it
-			if(currDriver.getID() == updatedDriver.getID() && !bAddingNewEntity)
+			if(currDriver != null && currDriver.getID() == updatedDriver.getID() && !bAddingNewEntity)
 				display(updatedDriver);
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("ADDED_DRIVER"))
