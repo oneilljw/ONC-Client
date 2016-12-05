@@ -392,6 +392,22 @@ public class DriverDB extends ONCSearchableDatabase
 	    return filename;
     }
 	
+	List<ONCWarehouseVolunteer> getWarehouseHistory(int volID)
+	{
+		List<ONCWarehouseVolunteer> whList = new ArrayList<ONCWarehouseVolunteer>();
+		Gson gson = new Gson();
+		
+		String response = serverIF.sendRequest("GET<warehousehistory>" + Integer.toString(volID));
+		
+		if(response != null)
+		{
+			Type listtype = new TypeToken<ArrayList<ONCWarehouseVolunteer>>(){}.getType();	
+			whList = gson.fromJson(response, listtype);
+		}
+		
+		return whList;
+	}
+	
 	String add(Object source, ONCObject entity)
 	{
 		Gson gson = new Gson();

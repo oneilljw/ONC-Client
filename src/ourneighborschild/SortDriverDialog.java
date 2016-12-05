@@ -43,7 +43,7 @@ public class SortDriverDialog extends DependantTableDialog
 	SortDriverDialog(JFrame pf)
 	{
 		super(pf, 10);
-		this.setTitle("Our Neighbor's Child - Delivery Partner Management");
+		this.setTitle("Our Neighbor's Child - Delivery Volunteer Management");
 		
 		deliveryDB = DeliveryDB.getInstance();
 		
@@ -182,8 +182,9 @@ public class SortDriverDialog extends DependantTableDialog
 		familyTable.clearSelection();
 		
 		for(ONCDriver d:driverDB.getDriverDB())
-			if(doesDrvNumMatch(d.getDrvNum()) && doesLNameMatch(d.getlName()) && 
-				doesChangedByMatch(d.getChangedBy()) && doesStoplightMatch(d.getStoplightPos()))
+			if((d.getActivityCode() & ActivityCode.Delivery.code()) > 0 && 
+			    doesDrvNumMatch(d.getDrvNum()) && doesLNameMatch(d.getlName()) && 
+				 doesChangedByMatch(d.getChangedBy()) && doesStoplightMatch(d.getStoplightPos()))
 				atAL.add(d);
 			
 		lblNumOfObjects.setText(Integer.toString(atAL.size()));
@@ -428,7 +429,7 @@ public class SortDriverDialog extends DependantTableDialog
 		}
 		else if(dbe.getType().equals("LOADED_DRIVERS"))
 		{
-			this.setTitle(String.format("Our Neighbor's Child - %d Delivery Partner Management", GlobalVariables.getCurrentSeason()));
+			this.setTitle(String.format("Our Neighbor's Child - %d Delivery Volunteer Management", GlobalVariables.getCurrentSeason()));
 		}
 		else if(dbe.getType().contains("_DRIVER"))	//build on add, update or delete event
 		{

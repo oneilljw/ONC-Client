@@ -4,16 +4,23 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.EnumSet;
+import java.util.List;
 
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.JTextPane;
 
 import com.google.gson.Gson;
 
@@ -23,24 +30,26 @@ public class DriverDialog extends EntityDialog
 	 * Implements a dialog to manage ONC Delivery Drivers
 	 */
 	private static final long serialVersionUID = 1L;
-	private static final String NO_DRIVER_MSSG = "No Partners";
+	private static final String NO_DRIVER_MSSG = "No Volunteers";
 	
 	//database references
 	private DriverDB ddb;
 	private DeliveryDB deliveryDB;
 	
 	//ui components
-	private JLabel lblFamDel, lblSignIns;
+	private JLabel lblFamDel, lblSignIns, lblGroup, lblComment, lblLastSignIn;
     private JTextField drvNumTF, firstnameTF,lastnameTF;
     private JTextField streetnumTF, streetnameTF, unitTF, cityTF, zipTF, hPhoneTF, cPhoneTF;
     private JTextField emailTF;
+    private JTextPane activitiesTP;
+    private JButton btnLog;
     
     private ONCDriver currDriver;	//reference to the current ONCDriver object being displayed
     
 	public DriverDialog(JFrame pf)
 	{
 		super(pf);
-		this.setTitle("Our Neighbor's Child - Delivery Partner Information");
+		this.setTitle("Our Neighbor's Child - Volunteer Information");
 		
 		//Initialize database object variables and register listeners
 		ddb = DriverDB.getInstance();	//Reference to the driver data base
@@ -55,7 +64,7 @@ public class DriverDialog extends EntityDialog
         
         //set up the navigation panel at the top of dialog
         nav = new ONCNavPanel(pf, ddb);
-        nav.setDefaultMssg("Our Neighbor's Child Delivery Partners");
+        nav.setDefaultMssg("Our Neighbor's Child Volunteers");
         nav.setCount1("Attempted: " + Integer.toString(0));
         nav.setCount2("Delivered: " + Integer.toString(0));
         nav.setNextButtonText("Next Partner");
@@ -67,6 +76,8 @@ public class DriverDialog extends EntityDialog
         entityPanel.setBorder(BorderFactory.createTitledBorder("Delivery Partner Information"));
         JPanel op1 = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JPanel op2 = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel op3 = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel op4 = new JPanel(new FlowLayout(FlowLayout.LEFT));
         
         drvNumTF = new JTextField(NO_DRIVER_MSSG);
         drvNumTF.setPreferredSize(new Dimension (72, 48));
@@ -81,16 +92,12 @@ public class DriverDialog extends EntityDialog
         lastnameTF = new JTextField(10);
         lastnameTF.setBorder(BorderFactory.createTitledBorder("Last Name"));
         lastnameTF.addActionListener(dcListener);
-        
-        hPhoneTF = new JTextField(9);
-        hPhoneTF.setToolTipText("Delivery partner home phone #");
-        hPhoneTF.setBorder(BorderFactory.createTitledBorder("Home Phone #"));
-        hPhoneTF.addActionListener(dcListener);
-        
-        cPhoneTF = new JTextField(9);
-        cPhoneTF.setToolTipText("Delivery partner cell phone #");
-        cPhoneTF.setBorder(BorderFactory.createTitledBorder(" Cell Phone #"));
-        cPhoneTF.addActionListener(dcListener);
+
+        activitiesTP = new JTextPane();
+        JScrollPane activitiesScrollPane = new JScrollPane(activitiesTP);
+        activitiesScrollPane.setPreferredSize(new Dimension(192, 44));
+        activitiesScrollPane.setBorder(BorderFactory.createTitledBorder("Activities"));
+        activitiesTP.setEditable(false);
         
         lblFamDel = new JLabel("0", JLabel.RIGHT);
         lblFamDel.setPreferredSize(new Dimension (52, 48));
@@ -101,20 +108,55 @@ public class DriverDialog extends EntityDialog
         lblSignIns.setPreferredSize(new Dimension (64, 48));
         lblSignIns.setToolTipText("# Warehouse Sign-Ins");
         lblSignIns.setBorder(BorderFactory.createTitledBorder("Sign-Ins"));
-                
+        
         op1.add(drvNumTF);
         op1.add(firstnameTF);
         op1.add(lastnameTF);
-        op1.add(hPhoneTF);
-        op1.add(cPhoneTF);
+        op1.add(activitiesScrollPane);
         op1.add(lblFamDel);
         op1.add(lblSignIns);
-                                           
+        
+        hPhoneTF = new JTextField(9);
+        hPhoneTF.setToolTipText("Delivery partner home phone #");
+        hPhoneTF.setBorder(BorderFactory.createTitledBorder("Home Phone #"));
+        hPhoneTF.addActionListener(dcListener);
+        
+        cPhoneTF = new JTextField(9);
+        cPhoneTF.setToolTipText("Delivery partner cell phone #");
+        cPhoneTF.setBorder(BorderFactory.createTitledBorder(" Cell Phone #"));
+        cPhoneTF.addActionListener(dcListener);
+                                          
         emailTF = new JTextField(18);
         emailTF.setToolTipText("Delivery partner email address");
         emailTF.setBorder(BorderFactory.createTitledBorder("Email Address"));
         emailTF.setHorizontalAlignment(JTextField.LEFT);
         emailTF.addActionListener(dcListener);
+        
+        lblLastSignIn = new JLabel("Never");
+        lblLastSignIn.setPreferredSize(new Dimension (104, 48));
+        lblLastSignIn.setToolTipText("Last time volunteer signed into the warehouse");
+        lblLastSignIn.setBorder(BorderFactory.createTitledBorder("Last Sign In"));
+        
+        btnLog = new JButton("Log");
+        btnLog.setToolTipText("Click to view volunteer's sign-in history");
+        btnLog.setVisible(true);
+        btnLog.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) 
+			{
+				List<ONCWarehouseVolunteer> volList = ddb.getWarehouseHistory(2);
+				
+				SimpleDateFormat sdf = new SimpleDateFormat("M/dd hh:mm:ss");
+				for(ONCWarehouseVolunteer vol : volList)
+					System.out.println(String.format("Sign In: %s", sdf.format(vol.getTimestamp())));
+			}
+        });
+        
+        op2.add(hPhoneTF);
+        op2.add(cPhoneTF);
+        op2.add(emailTF);
+        op2.add(lblLastSignIn);
+        op2.add(btnLog);
  
         streetnumTF = new JTextField(4);
         streetnumTF.setToolTipText("Address of delivery partner");
@@ -140,16 +182,30 @@ public class DriverDialog extends EntityDialog
         zipTF.setToolTipText("Address of deliverer");
         zipTF.setBorder(BorderFactory.createTitledBorder("Zip"));
         zipTF.addActionListener(dcListener);
+        
+        lblGroup = new JLabel("None");
+        lblGroup.setPreferredSize(new Dimension (192, 48));
+        lblGroup.setToolTipText("Group volunteer is with");
+        lblGroup.setBorder(BorderFactory.createTitledBorder("Group"));
               
-        op2.add(streetnumTF);
-        op2.add(streetnameTF);
-        op2.add(unitTF);
-        op2.add(cityTF);
-        op2.add(zipTF);
-        op2.add(emailTF);
-                      
+        op3.add(streetnumTF);
+        op3.add(streetnameTF);
+        op3.add(unitTF);
+        op3.add(cityTF);
+        op3.add(zipTF);
+        op3.add(lblGroup);
+                
+        lblComment = new JLabel("None");
+        lblComment.setPreferredSize(new Dimension (640, 48));
+        lblComment.setToolTipText("Last comment from volunteer");
+        lblComment.setBorder(BorderFactory.createTitledBorder("Comment"));
+        
+        op4.add(lblComment);
+               
         entityPanel.add(op1);
         entityPanel.add(op2);
+        entityPanel.add(op3);
+        entityPanel.add(op4);
         
         //Set up control panel
         btnNew.setText("Add New Driver");
@@ -271,6 +327,15 @@ public class DriverDialog extends EntityDialog
 			unitTF.setText(currDriver.getUnit());
 			cityTF.setText(currDriver.getCity());
 			zipTF.setText(currDriver.getZipcode());
+			
+			lblGroup.setText(currDriver.getGroup().isEmpty() ? "None" : currDriver.getGroup());
+			lblComment.setText(currDriver.getComment());
+			
+			SimpleDateFormat sdf = new SimpleDateFormat("M/dd h:mm");
+			lblLastSignIn.setText(currDriver.getSignIns() == 0 ? "Never" : sdf.format(currDriver.getDateChanged()));
+			
+			activitiesTP.setText(currDriver.getActivities());
+			activitiesTP.setCaretPosition(0);
 
 			nav.setStoplightEntity(currDriver);
 			nav.btnNextSetEnabled(true);
@@ -349,7 +414,7 @@ public class DriverDialog extends EntityDialog
 		ONCDriver newDriver = new ONCDriver(-1, "N/A", firstnameTF.getText(), lastnameTF.getText(),
 					emailTF.getText(), streetnumTF.getText(), streetnameTF.getText(), 
 					unitTF.getText(), cityTF.getText(), zipTF.getText(), 
-					hPhoneTF.getText(), cPhoneTF.getText(), 1, "", "", new Date(),
+					hPhoneTF.getText(), cPhoneTF.getText(), "Delivery", "", "", new Date(),
 					userDB.getUserLNFI());
 						
 		//send add request to the local data base
@@ -445,6 +510,10 @@ public class DriverDialog extends EntityDialog
 					del.getdDelBy().equals(currDriver.getDrvNum()))
 				
 				display(currDriver);
+		}
+		else if(dbe.getType().equals("LOADED_DRIVERS"))
+		{
+			this.setTitle(String.format("Our Neighbor's Child - %d Volunteer Information", GlobalVariables.getCurrentSeason()));
 		}
 	}
 

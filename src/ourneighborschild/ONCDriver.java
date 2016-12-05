@@ -29,7 +29,7 @@ public class ONCDriver extends ONCEntity
 	
 	public ONCDriver(int driverid, String drvNum, String fName, String lName, String email, String hNum, 
 						String street, String unit, String city, String zipcode, 
-						String homePhone, String cellPhone, int activityCode, String group,
+						String homePhone, String cellPhone, String activityCode, String group,
 						String comment, Date today, String changedBy)
 	{
 		super(driverid, new Date(), changedBy, STOPLIGHT_OFF, "Driver created", changedBy);
@@ -44,7 +44,7 @@ public class ONCDriver extends ONCEntity
 		this.zipcode = zipcode;
 		this.homePhone = homePhone;
 		this.cellPhone = cellPhone;
-		this.activityCode = activityCode;
+		this.activityCode = activityCode.isEmpty() ? 1 : ActivityCode.valueOf(activityCode).code();
 		this.group = group;
 		this.comment = comment;
 		this.delAssigned = 0;
@@ -179,6 +179,26 @@ public class ONCDriver extends ONCEntity
 	public int getSignIns() { return signIns; }
 	public int getActivityCode() { return activityCode; }
 	public String getChangedBy() { return changedBy; }
+	
+	String getActivities()
+	{
+		if(activityCode > 0)
+		{
+			StringBuffer sb = new StringBuffer();
+			
+			for(int mask = 1; mask <= ActivityCode.lastCode(); mask = mask << 1)
+			{
+				if((mask & activityCode) > 0)
+					sb.append(ActivityCode.getActivity(mask).activity() + "\n");
+			}
+			
+			//remove the last newline
+			String result = sb.toString();
+			return result.substring(0, result.length()-1);
+		}
+		else
+			return "None";
+	}
 	
 	//setters
 	public void setDrvNum(String drvNum) { this.drvNum = drvNum; }
