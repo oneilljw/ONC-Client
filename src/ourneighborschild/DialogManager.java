@@ -1,5 +1,6 @@
 package ourneighborschild;
 
+import java.awt.Component;
 import java.awt.Point;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -34,6 +35,7 @@ public class DialogManager implements EntitySelectionListener
 	private ViewONCDatabaseDialog dbDlg;
 	private PYChildConnectionDialog pyConnectionDlg;
 	private AngelAutoCallDialog angelDlg;
+	private SignInHistoryDialog siHistoryDlg;
 		
 	//dialogs that inherit from HistoryDialog
 	private Map<String, HistoryDialog> historyDlgMap;
@@ -110,6 +112,10 @@ public class DialogManager implements EntitySelectionListener
         mealDlg = new MealDialog(GlobalVariables.getFrame());
         historyDlgMap.put("Meal History", mealDlg);
         eeManager.registerEntitySelectionListener(mealDlg);
+        
+        //Set up meal history dialog box 
+        siHistoryDlg = new SignInHistoryDialog(GlobalVariables.getFrame());
+        eeManager.registerEntitySelectionListener(siHistoryDlg);
         
         //Set up adult dialog box 
         adultDlg = new AdultDialog(GlobalVariables.getFrame());
@@ -295,6 +301,16 @@ public class DialogManager implements EntitySelectionListener
 			Point pt = GlobalVariables.getFrame().getLocation();
 		    angelDlg.setLocation(pt.x + 5, pt.y + 20);
 			angelDlg.setVisible(true);
+		}
+	}
+	
+	void showSignInHistoryDialog(ONCVolunteer currVol, Component component)
+	{
+		if(!siHistoryDlg.isVisible())
+		{	
+		    siHistoryDlg.setLocationRelativeTo(component);
+		    siHistoryDlg.display(currVol);
+			siHistoryDlg.setVisible(true);
 		}
 	}
 		

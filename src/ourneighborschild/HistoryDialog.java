@@ -51,12 +51,7 @@ public abstract class HistoryDialog extends JDialog implements ActionListener, E
 		dlgTable = new ONCTable(createTableModel(), getColumnToolTips(), new Color(240,248,255));
 
 		dlgTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-//		dlgTable.getSelectionModel().addListSelectionListener(this);
-		
-//		TableColumn holidayColumn = dlgTable.getColumnModel().getColumn(HOLIDAY_COL);
-//		JComboBox comboBox = new JComboBox(MealType.getSelectionList());
-//		holidayColumn.setCellEditor(new DefaultCellEditor(comboBox));
-		
+
 		//Set table column widths
 		int tablewidth = 0;
 		int[] colWidths = getColumnWidths();

@@ -61,7 +61,8 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 		
 		userDB = UserDB.getInstance();
 		
-		JMenu menuDatabase, menuAgents, menuFamilies, menuWishes, menuMeals, menuPartners, menuDelivery, menuSettings;	    
+		JMenu menuDatabase, menuAgents, menuFamilies, menuWishes, menuMeals, menuPartners, 
+				menuVolunteers, menuDelivery, menuSettings;	    
         
 	    //Build the Database menu.
 	    menuDatabase = new JMenu("Database");
@@ -323,6 +324,16 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 	    
 	    this.add(menuPartners);
 	    
+	    //build Volunteer Menu
+	    menuVolunteers = new JMenu("Volunteers");
+	    this.add(menuVolunteers);
+	    
+	    //Edit Volunteers
+	    editVolMI = new JMenuItem("Edit Volunteers");
+	    editVolMI.setActionCommand("Edit Volunteers");
+	    editVolMI.addActionListener(this);
+	    menuVolunteers.add(editVolMI);
+	 
 	    //Build Delivery Menu
 	    menuDelivery = new JMenu("Deliveries");
 	    menuDelivery.setEnabled(true);
@@ -335,13 +346,7 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 	    delstatusMI.addActionListener(this);
 	    menuDelivery.add(delstatusMI);
 	    
-	    //Edit Volunteers
-	    editVolMI = new JMenuItem("Edit Volunteers");
-	    editVolMI.setActionCommand("Edit Volunteers");
-	    editVolMI.addActionListener(this);
-	    menuDelivery.add(editVolMI);
-	    
-	    //Manage Delivery Voluntters
+	    //Manage Delivery Volunteers
 	    manageDelMI = new JMenuItem("Manage Delivery Volunteers");
 	    manageDelMI.setActionCommand("Drivers");
 	    manageDelMI.setEnabled(false);
