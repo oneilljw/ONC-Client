@@ -24,15 +24,16 @@ public class ONCVolunteer extends ONCEntity
 	private int	   activityCode;
 	private String group;
 	private String comment;
+	private int qty;
 	private int delAssigned;
 	private int signIns;
 	
 	public ONCVolunteer(int driverid, String drvNum, String fName, String lName, String email, String hNum, 
 						String street, String unit, String city, String zipcode, 
-						String homePhone, String cellPhone, String activityCode, String group,
+						String homePhone, String cellPhone, String qty, String activityCode, String group,
 						String comment, Date today, String changedBy)
 	{
-		super(driverid, new Date(), changedBy, STOPLIGHT_OFF, "Driver created", changedBy);
+		super(driverid, new Date(), changedBy, STOPLIGHT_OFF, "Volunteer added", changedBy);
 		this.drvNum = drvNum;
 		this.fName = fName;
 		this.lName = lName;
@@ -47,13 +48,14 @@ public class ONCVolunteer extends ONCEntity
 		this.activityCode = activityCode.isEmpty() ? 1 : ActivityCode.valueOf(activityCode).code();
 		this.group = group;
 		this.comment = comment;
+		this.qty = qty.isEmpty() ? 0 : Integer.parseInt(qty);
 		this.delAssigned = 0;
 		this.signIns = 0;
 	}
 	
 	public ONCVolunteer(String[] nextLine, int driverid, Date today, String changedBy, int activityCode)
 	{
-		super(driverid, new Date(), changedBy, STOPLIGHT_OFF, "Driver created", changedBy);
+		super(driverid, new Date(), changedBy, STOPLIGHT_OFF, "Volunteer added", changedBy);
 		
 		drvNum = "N/A";
 		
@@ -100,6 +102,7 @@ public class ONCVolunteer extends ONCEntity
 		this.activityCode = activityCode;
 		this.group = "";
 		this.comment = "";
+		this.qty = 1;
 		this.delAssigned = 0;
 		this.signIns = 0;
 	}
@@ -107,15 +110,16 @@ public class ONCVolunteer extends ONCEntity
 	ONCVolunteer(int id, String changedBy)
 	{
 		//constructor used when adding a new entity
-		super(id, new Date(), changedBy, STOPLIGHT_OFF, "Driver created", changedBy);
+		super(id, new Date(), changedBy, STOPLIGHT_OFF, "Volunteer Added", changedBy);
+		qty = 1;
 		delAssigned = 0;
 		signIns = 0;
 	}
 	
 	public ONCVolunteer(String[] nextLine)
 	{
-		super(Integer.parseInt(nextLine[0]), Long.parseLong(nextLine[17]), nextLine[18],
-				Integer.parseInt(nextLine[19]), nextLine[20], nextLine[21]);
+		super(Integer.parseInt(nextLine[0]), Long.parseLong(nextLine[18]), nextLine[19],
+				Integer.parseInt(nextLine[20]), nextLine[21], nextLine[22]);
 		drvNum = getDBString(nextLine[1]);
 		fName = getDBString(nextLine[2]);
 		lName = getDBString(nextLine[3]);
@@ -130,8 +134,9 @@ public class ONCVolunteer extends ONCEntity
 		activityCode = nextLine[12].isEmpty() ? 0 : Integer.parseInt(nextLine[12]);
 		group = getDBString(nextLine[13]);
 		comment = getDBString(nextLine[14]);
-		delAssigned = nextLine[15].isEmpty() ? 0 : Integer.parseInt(nextLine[15]);;
-		signIns = nextLine[16].isEmpty() ? 0 : Integer.parseInt(nextLine[16]);
+		qty = nextLine[15].isEmpty() ? 0 : Integer.parseInt(nextLine[15]);;
+		delAssigned = nextLine[16].isEmpty() ? 0 : Integer.parseInt(nextLine[16]);;
+		signIns = nextLine[17].isEmpty() ? 0 : Integer.parseInt(nextLine[17]);
 	}
 	
 	public ONCVolunteer(ONCVolunteer d)	//copy constructor
@@ -152,6 +157,7 @@ public class ONCVolunteer extends ONCEntity
 		activityCode = d.activityCode;
 		group = d.group;
 		comment = d.comment;
+		qty = d.qty;
 		delAssigned = d.delAssigned; 
 		signIns = d.signIns;
 	}
@@ -175,6 +181,7 @@ public class ONCVolunteer extends ONCEntity
 	public String getHomePhone() { return homePhone; }
 	public String getGroup() { return group; }
 	public String getComment() { return comment; }
+	public int getQty() { return qty; }
 	public int getDelAssigned() { return delAssigned; }
 	public int getSignIns() { return signIns; }
 	public int getActivityCode() { return activityCode; }
@@ -215,6 +222,7 @@ public class ONCVolunteer extends ONCEntity
 	public void setActivityCode(int activityCode) { this.activityCode = activityCode; }
 	public void setGroup(String drl) { this.group = drl; }
 	public void setComment(String c) { this.comment = c; }
+	public void setQtyd(int qty) { this.qty = qty; }
 	public void setDelAssigned(int da) { delAssigned = da; }
 	public void setSignIns(int si) { signIns = si; }
 	public void setChangedBy(String cb) { changedBy = cb; }
@@ -226,7 +234,7 @@ public class ONCVolunteer extends ONCEntity
 	{
 		String[] row = {Integer.toString(id), drvNum, fName, lName, hNum, street, unit, city, zipcode,
 						email, homePhone, cellPhone, Integer.toString(activityCode), group, comment, 
-						Integer.toString(delAssigned), Integer.toString(signIns),
+						Integer.toString(qty), Integer.toString(delAssigned), Integer.toString(signIns),
 						Long.toString(dateChanged.getTimeInMillis()), changedBy,  Integer.toString(slPos),
 						slMssg, slChangedBy};
 		

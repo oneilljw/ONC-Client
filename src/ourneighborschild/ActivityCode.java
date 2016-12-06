@@ -4,9 +4,14 @@ public enum ActivityCode
 {
 	Any (0, "Any"),
 	No_Change (0, "No_Change"),
-	Delivery (1, "Delivery"),
-	Warehouse (2, "Warehouse Support"),
-	Packager (4, "Packaging");
+	Delivery_SetUp (1, "Delivery Set-Up"),
+	Delivery (2, "Delivery"),
+	Warehouse (4, "Warehouse Support"),
+	Packager (8, "Packaging"),
+	Gift_Inventory (16, "Gift Inventory"),
+	Shopper (32, "Shopping"),
+	Cookie_Baker (64, "Cookie Baker"),
+	Warehouse_CleanUp (128, "Warehouse Clean-Up");
 	
 	private final int code;
 	private final String activity;
@@ -45,24 +50,33 @@ public enum ActivityCode
 	
 	static ActivityCode[] getSearchFilterList()
 	{
-		ActivityCode[] actSearch = {ActivityCode.Any, ActivityCode.Delivery,
-									ActivityCode.Warehouse, ActivityCode.Packager};
+		ActivityCode[] actSearch = {ActivityCode.Any, ActivityCode.Delivery_SetUp,
+									ActivityCode.Delivery, ActivityCode.Warehouse, 
+									ActivityCode.Packager, ActivityCode.Gift_Inventory,
+									ActivityCode.Shopper, ActivityCode.Cookie_Baker,
+									ActivityCode.Warehouse_CleanUp};
 							
 		return actSearch;
 	}
 	
 	static ActivityCode[] getChangeList()
 	{
-		ActivityCode[] actChange = {ActivityCode.No_Change, ActivityCode.Delivery,
-									ActivityCode.Warehouse, ActivityCode.Packager};
+		ActivityCode[] actChange = {ActivityCode.No_Change, ActivityCode.Delivery_SetUp,
+									ActivityCode.Delivery, ActivityCode.Warehouse, 
+									ActivityCode.Packager, ActivityCode.Gift_Inventory,
+									ActivityCode.Shopper, ActivityCode.Cookie_Baker,
+									ActivityCode.Warehouse_CleanUp};
 		
 		return actChange;
 	}
 	
 	static ActivityCode[] getActivityList()
 	{
-		ActivityCode[] actChange = { ActivityCode.Delivery, ActivityCode.Warehouse, 
-									 ActivityCode.Packager};
+		ActivityCode[] actChange = {ActivityCode.Delivery_SetUp,
+									ActivityCode.Delivery, ActivityCode.Warehouse, 
+									ActivityCode.Packager, ActivityCode.Gift_Inventory,
+									ActivityCode.Shopper, ActivityCode.Cookie_Baker,
+									ActivityCode.Warehouse_CleanUp};
 		
 		return actChange;
 	}

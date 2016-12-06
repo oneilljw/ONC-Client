@@ -32,7 +32,7 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 	private JMenuItem exportMI, dbStatusMI, clearMI;
 	public JMenuItem exitMI;	//public since exit method is external to the menu bar
 	private JMenuItem findDupFamsMI, findDupChldrnMI, crosscheckMI;
-	private JMenuItem assignDelMI, editDelMI, manageDelMI, importDrvrMI, mapsMI, delstatusMI, distMI;
+	private JMenuItem assignDelMI, editVolMI, manageDelMI, importVolMI, mapsMI, delstatusMI, distMI;
 	private JMenuItem newFamMI, changeONCMI, changeRefMI, changeBatchMI, newChildMI, delChildMI, markAdultMI, connectChildMI;
 	private JMenu submenuImport, submenuFamilyDataChecks;
 	private JMenu submenuExport, submenuChangeFamilyNumbers, submenuDBYearList;
@@ -117,9 +117,9 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 	    submenuImport.add(importWFCMMI);
 
 	    //Import Delivery Partners
-	    importDrvrMI = new JMenuItem("Delivery Partners...");
-	    importDrvrMI.addActionListener(this);
-	    submenuImport.add(importDrvrMI);
+	    importVolMI = new JMenuItem("Delivery Partners...");
+	    importVolMI.addActionListener(this);
+	    submenuImport.add(importVolMI);
 	    
 	    //Import Referring Agent Families
 	    importRAFMI = new JMenuItem("RA Families...");	
@@ -335,14 +335,14 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 	    delstatusMI.addActionListener(this);
 	    menuDelivery.add(delstatusMI);
 	    
-	    //Edit Delivery Partners
-	    editDelMI = new JMenuItem("Edit Delivery Partners");
-	    editDelMI.setActionCommand("Edit Delivery Partners");
-	    editDelMI.addActionListener(this);
-	    menuDelivery.add(editDelMI);
+	    //Edit Volunteers
+	    editVolMI = new JMenuItem("Edit Volunteers");
+	    editVolMI.setActionCommand("Edit Volunteers");
+	    editVolMI.addActionListener(this);
+	    menuDelivery.add(editVolMI);
 	    
-	    //Edit Delivery Partners
-	    manageDelMI = new JMenuItem("Manage Delivery Partners");
+	    //Manage Delivery Voluntters
+	    manageDelMI = new JMenuItem("Manage Delivery Volunteers");
 	    manageDelMI.setActionCommand("Drivers");
 	    manageDelMI.setEnabled(false);
 	    manageDelMI.addActionListener(this);
@@ -645,11 +645,11 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 			dlgManager.showCrosscheckDialog();
 		else if(e.getSource() == assignDelMI)
 			dlgManager.showSortDialog(assignDelMI.getActionCommand(), SORT_DIALOG_OFFSET);
-		else if(e.getSource() == editDelMI)
-			dlgManager.showEntityDialog(editDelMI.getActionCommand(), SORT_DIALOG_OFFSET);
+		else if(e.getSource() == editVolMI)
+			dlgManager.showEntityDialog(editVolMI.getActionCommand(), SORT_DIALOG_OFFSET);
 		else if(e.getSource() == manageDelMI)
 			dlgManager.showSortDialog(manageDelMI.getActionCommand(), SORT_DIALOG_OFFSET);
-		else if(e.getSource() == importDrvrMI)
+		else if(e.getSource() == importVolMI)
 		{
 			VolunteerDB volunteerDB = VolunteerDB.getInstance();
 			String mssg = volunteerDB.importDrivers(GlobalVariables.getFrame(), 

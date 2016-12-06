@@ -37,7 +37,7 @@ public class VolunteerDialog extends EntityDialog
 	private DeliveryDB deliveryDB;
 	
 	//ui components
-	private JLabel lblFamDel, lblSignIns, lblGroup, lblComment, lblLastSignIn;
+	private JLabel lblFamDel, lblSignIns, lblGroup, lblComment, lblLastSignIn, lblQty;
     private JTextField drvNumTF, firstnameTF,lastnameTF;
     private JTextField streetnumTF, streetnameTF, unitTF, cityTF, zipTF, hPhoneTF, cPhoneTF;
     private JTextField emailTF;
@@ -99,22 +99,22 @@ public class VolunteerDialog extends EntityDialog
         activitiesScrollPane.setBorder(BorderFactory.createTitledBorder("Activities"));
         activitiesTP.setEditable(false);
         
+        lblQty = new JLabel("1", JLabel.RIGHT);
+        lblQty.setPreferredSize(new Dimension (48, 48));
+        lblQty.setToolTipText("# in group");
+        lblQty.setBorder(BorderFactory.createTitledBorder("Qty"));
+        
         lblFamDel = new JLabel("0", JLabel.RIGHT);
         lblFamDel.setPreferredSize(new Dimension (52, 48));
         lblFamDel.setToolTipText("# Deliveries Partner Made");
         lblFamDel.setBorder(BorderFactory.createTitledBorder("# Del"));
-        
-        lblSignIns = new JLabel("0", JLabel.RIGHT);
-        lblSignIns.setPreferredSize(new Dimension (64, 48));
-        lblSignIns.setToolTipText("# Warehouse Sign-Ins");
-        lblSignIns.setBorder(BorderFactory.createTitledBorder("Sign-Ins"));
-        
+         
         op1.add(drvNumTF);
         op1.add(firstnameTF);
         op1.add(lastnameTF);
         op1.add(activitiesScrollPane);
+        op1.add(lblQty);
         op1.add(lblFamDel);
-        op1.add(lblSignIns);
         
         hPhoneTF = new JTextField(9);
         hPhoneTF.setToolTipText("Delivery partner home phone #");
@@ -132,31 +132,21 @@ public class VolunteerDialog extends EntityDialog
         emailTF.setHorizontalAlignment(JTextField.LEFT);
         emailTF.addActionListener(dcListener);
         
+        lblSignIns = new JLabel("0", JLabel.RIGHT);
+        lblSignIns.setPreferredSize(new Dimension (72, 48));
+        lblSignIns.setToolTipText("# Warehouse Sign-Ins");
+        lblSignIns.setBorder(BorderFactory.createTitledBorder("Sign-Ins"));
+        
         lblLastSignIn = new JLabel("Never");
         lblLastSignIn.setPreferredSize(new Dimension (104, 48));
         lblLastSignIn.setToolTipText("Last time volunteer signed into the warehouse");
         lblLastSignIn.setBorder(BorderFactory.createTitledBorder("Last Sign In"));
-        
-        btnLog = new JButton("Log");
-        btnLog.setToolTipText("Click to view volunteer's sign-in history");
-        btnLog.setVisible(true);
-        btnLog.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) 
-			{
-				List<ONCWarehouseVolunteer> volList = ddb.getWarehouseHistory(2);
-				
-				SimpleDateFormat sdf = new SimpleDateFormat("M/dd hh:mm:ss");
-				for(ONCWarehouseVolunteer vol : volList)
-					System.out.println(String.format("Sign In: %s", sdf.format(vol.getTimestamp())));
-			}
-        });
-        
+      
         op2.add(hPhoneTF);
         op2.add(cPhoneTF);
         op2.add(emailTF);
+        op2.add(lblSignIns);
         op2.add(lblLastSignIn);
-        op2.add(btnLog);
  
         streetnumTF = new JTextField(4);
         streetnumTF.setToolTipText("Address of delivery partner");
@@ -196,11 +186,27 @@ public class VolunteerDialog extends EntityDialog
         op3.add(lblGroup);
                 
         lblComment = new JLabel("None");
-        lblComment.setPreferredSize(new Dimension (640, 48));
+        lblComment.setPreferredSize(new Dimension (600, 48));
         lblComment.setToolTipText("Last comment from volunteer");
         lblComment.setBorder(BorderFactory.createTitledBorder("Comment"));
         
+        btnLog = new JButton("Log");
+        btnLog.setToolTipText("Click to view volunteer's sign-in history");
+        btnLog.setEnabled(false);
+        btnLog.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) 
+			{
+				List<ONCWarehouseVolunteer> volList = ddb.getWarehouseHistory(2);
+				
+				SimpleDateFormat sdf = new SimpleDateFormat("M/dd hh:mm:ss");
+				for(ONCWarehouseVolunteer vol : volList)
+					System.out.println(String.format("Sign In: %s", sdf.format(vol.getTimestamp())));
+			}
+        });
+        
         op4.add(lblComment);
+        op4.add(btnLog);
                
         entityPanel.add(op1);
         entityPanel.add(op2);
@@ -208,18 +214,17 @@ public class VolunteerDialog extends EntityDialog
         entityPanel.add(op4);
         
         //Set up control panel
-        btnNew.setText("Add New Driver");
-    	btnNew.setToolTipText("Click to add a new driverr");
+        btnNew.setText("Add New Volunteer");
+    	btnNew.setToolTipText("Click to add a new volunteer");
      
-        btnDelete.setText("Delete Driver");
-    	btnDelete.setToolTipText("Click to delete this driver");
+        btnDelete.setText("Delete Volunteer");
+    	btnDelete.setToolTipText("Click to delete this volunteer");
     	
+        btnSave.setText("Save New Volunteer");
+    	btnSave.setToolTipText("Click to save the new volunteer");
         
-        btnSave.setText("Save NewDriver");
-    	btnSave.setToolTipText("Click to save the new driver");
-        
-        btnCancel.setText("Cancel Add New Driver");
-    	btnCancel.setToolTipText("Click to cancel adding a new drivonconer");
+        btnCancel.setText("Cancel Add New Volunteer");
+    	btnCancel.setToolTipText("Click to cancel adding a new volunteer");
 
     	//add the panels to the content pane
         contentPane.add(nav);
@@ -292,6 +297,7 @@ public class VolunteerDialog extends EntityDialog
 			drvNumTF.setText("None");	//If no organizations, display this message
 			nav.btnNextSetEnabled(false);
 			nav.btnPreviousSetEnabled(false);
+			btnLog.setEnabled(false);
 		}
 		else 
 		{
@@ -314,6 +320,7 @@ public class VolunteerDialog extends EntityDialog
 			cPhoneTF.setText(currDriver.getCellPhone());
 			cPhoneTF.setCaretPosition(0);
 				
+			lblQty.setText(Integer.toString(currDriver.getQty()));
 			lblFamDel.setText(Integer.toString(currDriver.getDelAssigned()));
 			lblSignIns.setText(Integer.toString(currDriver.getSignIns()));
 			
@@ -336,6 +343,8 @@ public class VolunteerDialog extends EntityDialog
 			
 			activitiesTP.setText(currDriver.getActivities());
 			activitiesTP.setCaretPosition(0);
+			
+			btnLog.setEnabled(currDriver.getSignIns() > 0);
 
 			nav.setStoplightEntity(currDriver);
 			nav.btnNextSetEnabled(true);
@@ -348,8 +357,12 @@ public class VolunteerDialog extends EntityDialog
 		drvNumTF.setText("");
 		firstnameTF.setText("");
 		lastnameTF.setText("");
+		lblQty.setText("0");
 		lblFamDel.setText("0");
 		lblSignIns.setText("0");
+		lblComment.setText("");
+		lblGroup.setText("");
+		activitiesTP.setText("");
 		hPhoneTF.setText("");
 		cPhoneTF.setText("");
 		emailTF.setText("");		
@@ -359,6 +372,7 @@ public class VolunteerDialog extends EntityDialog
 		cityTF.setText("");
 		zipTF.setText("");
 		nav.clearStoplight();
+		btnLog.setEnabled(false);
 	}
 
 	void onNew()
@@ -410,11 +424,11 @@ public class VolunteerDialog extends EntityDialog
 	
 	void onSaveNew()
 	{
-		//construct a new driver from user input	
+		//construct a new volunteer from user input	
 		ONCVolunteer newDriver = new ONCVolunteer(-1, "N/A", firstnameTF.getText(), lastnameTF.getText(),
 					emailTF.getText(), streetnumTF.getText(), streetnameTF.getText(), 
 					unitTF.getText(), cityTF.getText(), zipTF.getText(), 
-					hPhoneTF.getText(), cPhoneTF.getText(), "Delivery", "", "", new Date(),
+					hPhoneTF.getText(), cPhoneTF.getText(), "1", "Delivery", "", "", new Date(),
 					userDB.getUserLNFI());
 						
 		//send add request to the local data base
