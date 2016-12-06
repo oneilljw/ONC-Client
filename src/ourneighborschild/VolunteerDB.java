@@ -25,37 +25,37 @@ import com.google.gson.reflect.TypeToken;
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
 
-public class DriverDB extends ONCSearchableDatabase
+public class VolunteerDB extends ONCSearchableDatabase
 {
 	private static final EntityType DB_TYPE = EntityType.DRIVER;
 	private static final int DRIVER_OBJECT_CSV_HEADER_LENGTH = 18;
 	private static final int DRIVER_CSVFILE_HEADER_LENGTH = 20;
-	private static DriverDB instance = null;
-	private List<ONCDriver> driverAL;
+	private static VolunteerDB instance = null;
+	private List<ONCVolunteer> driverAL;
 	
-	private DriverDB()
+	private VolunteerDB()
 	{
 		super(DB_TYPE);
-		driverAL = new ArrayList<ONCDriver>();
+		driverAL = new ArrayList<ONCVolunteer>();
 	}
 	
-	public static DriverDB getInstance()
+	public static VolunteerDB getInstance()
 	{
 		if(instance == null)
-			instance = new DriverDB();
+			instance = new VolunteerDB();
 		
 		return instance;
 	}
 	
 	@Override
-	List<ONCDriver> getList() { return driverAL; }
+	List<ONCVolunteer> getList() { return driverAL; }
 	
-	ONCDriver getDriver(int index) { return driverAL.get(index); }
+	ONCVolunteer getDriver(int index) { return driverAL.get(index); }
 	
 	//implementation of abstract classes
-	ONCDriver getObjectAtIndex(int index) { return driverAL.get(index); }
+	ONCVolunteer getObjectAtIndex(int index) { return driverAL.get(index); }
 	
-	public List<ONCDriver> getDriverDB() { return driverAL; }
+	public List<ONCVolunteer> getDriverDB() { return driverAL; }
 	
 	String importDrivers(JFrame pFrame, Date today, String user, ImageIcon oncIcon)	
 	{	
@@ -90,7 +90,7 @@ public class DriverDB extends ONCSearchableDatabase
 	    					{
 	    						//If it is, read them into an array list of string[]
 	    						//If it is, generate and send add request to the server
-	    						ONCDriver addDriverReq = new ONCDriver(nextLine, generateDriverID(), today, user, 1);
+	    						ONCVolunteer addDriverReq = new ONCVolunteer(nextLine, generateDriverID(), today, user, 1);
 	    						String response = add(this, addDriverReq);
 	    						
 	    						if(response.startsWith("ADDED_DRIVER"))
@@ -141,7 +141,7 @@ public class DriverDB extends ONCSearchableDatabase
 	{
 		try 
 		{
-			driverAL = (ArrayList<ONCDriver>) ois.readObject();		
+			driverAL = (ArrayList<ONCVolunteer>) ois.readObject();		
 		} 
 		catch (IOException e)
 		{
@@ -270,7 +270,7 @@ public class DriverDB extends ONCSearchableDatabase
 		if(serverIF != null && serverIF.isConnected())
 		{		
 			Gson gson = new Gson();
-			Type listtype = new TypeToken<ArrayList<ONCDriver>>(){}.getType();
+			Type listtype = new TypeToken<ArrayList<ONCVolunteer>>(){}.getType();
 			
 			response = serverIF.sendRequest("GET<drivers>");
 				driverAL = gson.fromJson(response, listtype);				
@@ -322,7 +322,7 @@ public class DriverDB extends ONCSearchableDatabase
 	    			{
 	    				driverAL.clear();
 	    				while ((nextLine = reader.readNext()) != null)	// nextLine[] is an array of values from the line
-	    					driverAL.add(new ONCDriver(nextLine));
+	    					driverAL.add(new ONCVolunteer(nextLine));
 	    			}
 	    			else
 	    				JOptionPane.showMessageDialog(pf, "Driver database file corrupted, header length = " + Integer.toString(header.length), 
@@ -374,7 +374,7 @@ public class DriverDB extends ONCSearchableDatabase
 	    		CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
 	    	    writer.writeNext(header);
 	    	    
-	    	    for(ONCDriver d:driverAL)
+	    	    for(ONCVolunteer d:driverAL)
 	    	    	writer.writeNext(d.getExportRow());	//Get family data
 	    	 
 	    	    writer.close();
@@ -414,7 +414,7 @@ public class DriverDB extends ONCSearchableDatabase
 		String response = "";
 		
 		response = serverIF.sendRequest("POST<add_driver>" + 
-											gson.toJson(entity, ONCDriver.class));
+											gson.toJson(entity, ONCVolunteer.class));
 		
 		if(response.startsWith("ADDED_DRIVER"))
 			processAddedObject(source, response.substring(12));
@@ -426,7 +426,7 @@ public class DriverDB extends ONCSearchableDatabase
 	{
 		//Store added organization in local data base
 		Gson gson = new Gson();
-		ONCDriver addedDriver = gson.fromJson(json, ONCDriver.class);
+		ONCVolunteer addedDriver = gson.fromJson(json, ONCVolunteer.class);
 		driverAL.add(addedDriver);
 //		System.out.println(String.format("DriverDB processAddedDriver: Driver Added ID: %d",
 //				addedDriver.getID()));
@@ -441,7 +441,7 @@ public class DriverDB extends ONCSearchableDatabase
 		String response = "";
 		
 		response = serverIF.sendRequest("POST<update_driver>" + 
-											gson.toJson(entity, ONCDriver.class));
+											gson.toJson(entity, ONCVolunteer.class));
 		
 		if(response.startsWith("UPDATED_DRIVER"))
 		{
@@ -454,7 +454,7 @@ public class DriverDB extends ONCSearchableDatabase
 	void processUpdatedObject(Object source, String json, List<? extends ONCObject> objList)
 	{
 		Gson gson = new Gson();
-		ONCDriver updatedObj = gson.fromJson(json, ONCDriver.class);
+		ONCVolunteer updatedObj = gson.fromJson(json, ONCVolunteer.class);
 		
 		//store updated object in local data base
 		int index = 0;
@@ -476,7 +476,7 @@ public class DriverDB extends ONCSearchableDatabase
 		String response = "";
 		
 		response = serverIF.sendRequest("POST<delete_driver>" + 
-											gson.toJson(entity, ONCDriver.class));
+											gson.toJson(entity, ONCVolunteer.class));
 		
 		
 		if(response.startsWith("DELETED_DRIVER"))
@@ -489,7 +489,7 @@ public class DriverDB extends ONCSearchableDatabase
 	{
 		//remove deleted organization in local data base
 		Gson gson = new Gson();
-		ONCDriver deletedObj = gson.fromJson(json, ONCDriver.class);
+		ONCVolunteer deletedObj = gson.fromJson(json, ONCVolunteer.class);
 		
 		int index=0;
 		while(index < driverAL.size() && driverAL.get(index).getID() != deletedObj.getID())
@@ -512,7 +512,7 @@ public class DriverDB extends ONCSearchableDatabase
 	 *************************************************************************/
 	void replaceObject(int index, ONCObject updatedObj)
 	{
-		ONCDriver updatedDriver = (ONCDriver) updatedObj;
+		ONCVolunteer updatedDriver = (ONCVolunteer) updatedObj;
 		driverAL.set(index,  updatedDriver);
 //		System.out.println(String.format("DriverDB- replaceObject: first name: %s", updatedDriver.getfName()));
 	}
@@ -561,7 +561,7 @@ public class DriverDB extends ONCSearchableDatabase
     	{
     		searchType = "Driver Name";
 //			for(int i=0; i<this.getNumberOfOrganizations(); i++)
-			for(ONCDriver d:driverAL)
+			for(ONCVolunteer d:driverAL)
 			{
 				if(d.getfName().toLowerCase().contains(data.toLowerCase()) ||
 					d.getlName().toLowerCase().contains(data.toLowerCase()))
@@ -577,7 +577,7 @@ public class DriverDB extends ONCSearchableDatabase
 	@Override
 	int size() { return driverAL.size(); }
 	
-	boolean sortDB(ArrayList<ONCDriver> dAL, String dbField)
+	boolean sortDB(ArrayList<ONCVolunteer> dAL, String dbField)
 	{
 		boolean bSortOccurred = true;
 		
@@ -597,10 +597,10 @@ public class DriverDB extends ONCSearchableDatabase
 		return bSortOccurred;	
 	}
 
-	private class ONCDriverNumberComparator implements Comparator<ONCDriver>
+	private class ONCDriverNumberComparator implements Comparator<ONCVolunteer>
 	{
 		@Override
-		public int compare(ONCDriver o1, ONCDriver o2)
+		public int compare(ONCVolunteer o1, ONCVolunteer o2)
 		{
 			if(isNumeric(o1.getDrvNum()) && isNumeric(o2.getDrvNum()))
 			{
@@ -617,19 +617,19 @@ public class DriverDB extends ONCSearchableDatabase
 		}
 	}
 	
-	private class ONCDriverLastNameComparator implements Comparator<ONCDriver>
+	private class ONCDriverLastNameComparator implements Comparator<ONCVolunteer>
 	{
 		@Override
-		public int compare(ONCDriver o1, ONCDriver o2)
+		public int compare(ONCVolunteer o1, ONCVolunteer o2)
 		{
 			return o1.getlName().compareTo(o2.getlName());
 		}
 	}
 	
-	private class ONCDriverDeliveryComparator implements Comparator<ONCDriver>
+	private class ONCDriverDeliveryComparator implements Comparator<ONCVolunteer>
 	{
 		@Override
-		public int compare(ONCDriver o1, ONCDriver o2)
+		public int compare(ONCVolunteer o1, ONCVolunteer o2)
 		{
 			Integer o1Del = (Integer) o1.getDelAssigned();
 			Integer o2Del = (Integer) o2.getDelAssigned();
@@ -637,19 +637,19 @@ public class DriverDB extends ONCSearchableDatabase
 		}
 	}
 	
-	private class ONCDriverChangedByComparator implements Comparator<ONCDriver>
+	private class ONCDriverChangedByComparator implements Comparator<ONCVolunteer>
 	{
 		@Override
-		public int compare(ONCDriver o1, ONCDriver o2)
+		public int compare(ONCVolunteer o1, ONCVolunteer o2)
 		{
 			return o1.getChangedBy().compareTo(o2.getChangedBy());
 		}
 	}
 	
-	private class ONCDriverStoplightComparator implements Comparator<ONCDriver>
+	private class ONCDriverStoplightComparator implements Comparator<ONCVolunteer>
 	{
 		@Override
-		public int compare(ONCDriver o1, ONCDriver o2)
+		public int compare(ONCVolunteer o1, ONCVolunteer o2)
 		{
 			Integer o1SL = (Integer) o1.getStoplightPos();
 			Integer o2SL = (Integer) o2.getStoplightPos();

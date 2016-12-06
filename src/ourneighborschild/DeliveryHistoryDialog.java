@@ -29,7 +29,7 @@ public class DeliveryHistoryDialog extends HistoryDialog
 	private AbstractTableModel dlgTableModel;
 	
 	private DeliveryDB deliveryDB;
-	private DriverDB driverDB;
+	private VolunteerDB volunteerDB;
 	
 	private List<ONCDelivery> delList;
 	
@@ -38,11 +38,11 @@ public class DeliveryHistoryDialog extends HistoryDialog
 		super(pf, "Delivery");
 		// TODO Auto-generated constructor stub
 		
-		driverDB = DriverDB.getInstance();
+		volunteerDB = VolunteerDB.getInstance();
 		deliveryDB = DeliveryDB.getInstance();
 		
-		if(driverDB != null)
-			driverDB.addDatabaseListener(this);
+		if(volunteerDB != null)
+			volunteerDB.addDatabaseListener(this);
 		
 		if(deliveryDB != null)
 			deliveryDB.addDatabaseListener(this);
@@ -183,7 +183,7 @@ public class DeliveryHistoryDialog extends HistoryDialog
         	if(col == STATUS_COL)
         		value = dstat[del.getdStatus()];
         	else if(col == DELIVERED_BY_COL)  
-        		value = driverDB.getDriverLNFN(del.getdDelBy());
+        		value = volunteerDB.getDriverLNFN(del.getdDelBy());
         	else if(col == NOTES_COL)
         		value = del.getdNotes();
         	else if(col == CHANGED_BY_COL)

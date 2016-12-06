@@ -651,8 +651,8 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 			dlgManager.showSortDialog(manageDelMI.getActionCommand(), SORT_DIALOG_OFFSET);
 		else if(e.getSource() == importDrvrMI)
 		{
-			DriverDB driverDB = DriverDB.getInstance();
-			String mssg = driverDB.importDrivers(GlobalVariables.getFrame(), 
+			VolunteerDB volunteerDB = VolunteerDB.getInstance();
+			String mssg = volunteerDB.importDrivers(GlobalVariables.getFrame(), 
 									GlobalVariables.getInstance().getTodaysDate(),
 									userDB.getUserLNFI(), GlobalVariables.getONCLogo());
 			

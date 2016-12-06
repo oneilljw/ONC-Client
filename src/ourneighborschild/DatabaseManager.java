@@ -44,7 +44,7 @@ public class DatabaseManager extends ONCDatabase
 	private PartnerDB oncOrgDB;				//Holds ONC Partner Organizations
 	private ONCWishCatalog oncWishCat;		//Holds ONC Wish Catalog
 	private WishDetailDB oncWishDetailDB;	//Holds ONC Wish Detail Data Base
-	private DriverDB oncDDB;				//Holds the ONC Driver Data Base
+	private VolunteerDB oncDDB;				//Holds the ONC Driver Data Base
 	private DeliveryDB oncDelDB;			//Holds the ONC Delivery Data Base
 	private ONCRegions oncRegions;
 	private AdultDB oncAdultDB;				//Holds ONC Adult database
@@ -63,7 +63,7 @@ public class DatabaseManager extends ONCDatabase
 		oncOrgDB = PartnerDB.getInstance();
 		oncWishDetailDB = WishDetailDB.getInstance();
 		oncWishCat = ONCWishCatalog.getInstance();
-		oncDDB = DriverDB.getInstance();
+		oncDDB = VolunteerDB.getInstance();
 		oncDelDB = DeliveryDB.getInstance();
 		oncChildDB = ChildDB.getInstance();
 		oncChildWishDB = ChildWishDB.getInstance();

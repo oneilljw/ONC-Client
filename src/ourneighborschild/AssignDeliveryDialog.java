@@ -45,9 +45,9 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 		super(pf);
 		this.setTitle("Our Neighbor's Child - Delivery Assignment");
 		
-		DriverDB driverDB = DriverDB.getInstance();
-		if(driverDB != null)
-			driverDB.addDatabaseListener(this);
+		VolunteerDB volunteerDB = VolunteerDB.getInstance();
+		if(volunteerDB != null)
+			volunteerDB.addDatabaseListener(this);
 		
 		ONCRegions regions = ONCRegions.getInstance();
 		if(regions != null)
@@ -202,7 +202,7 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 	 **********************************************************************************/
 	protected String[] getTableRow(ONCObject o)
 	{
-		DriverDB driverDB = DriverDB.getInstance();
+		VolunteerDB volunteerDB = VolunteerDB.getInstance();
 		
 		ONCFamily si = (ONCFamily) o;
 		
@@ -218,7 +218,7 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 				 regions.getRegionID(si.getRegion()),
 				 si.getChangedBy(),
 				 stoplt[si.getStoplightPos()+1].substring(0, 1), 
-				 driverDB.getDriverLNFN(deliveryDB.getDeliveredBy(si.getDeliveryID()))};
+				 volunteerDB.getDriverLNFN(deliveryDB.getDeliveredBy(si.getDeliveryID()))};
 		
 		return deliverytablerow;
 	}

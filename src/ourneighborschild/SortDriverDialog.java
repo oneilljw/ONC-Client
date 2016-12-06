@@ -37,8 +37,8 @@ public class SortDriverDialog extends DependantTableDialog
 	private JComboBox drvCB, printCB;
 	
 	private DeliveryDB deliveryDB;
-	private DriverDB driverDB;
-	private ArrayList<ONCDriver> atAL;	//Holds references to driver objects for driver table
+	private VolunteerDB volunteerDB;
+	private ArrayList<ONCVolunteer> atAL;	//Holds references to driver objects for driver table
 	
 	SortDriverDialog(JFrame pf)
 	{
@@ -47,16 +47,16 @@ public class SortDriverDialog extends DependantTableDialog
 		
 		deliveryDB = DeliveryDB.getInstance();
 		
-		driverDB = DriverDB.getInstance();
-		if(driverDB != null)
-			driverDB.addDatabaseListener(this);
+		volunteerDB = VolunteerDB.getInstance();
+		if(volunteerDB != null)
+			volunteerDB.addDatabaseListener(this);
 		
 		UserDB userDB = UserDB.getInstance();
 		if(userDB != null)
 			userDB.addDatabaseListener(this);
 		
 		//Set up the agent table content array list
-		atAL = new ArrayList<ONCDriver>();
+		atAL = new ArrayList<ONCVolunteer>();
 		
 		//Initialize the sort criteria variables. Reusing superclass sortONCNum for driver number
 		sortONCNum = "Any";
@@ -154,8 +154,8 @@ public class SortDriverDialog extends DependantTableDialog
 				{
 					//There is s driver assigned. Determine who it is from the driver number
 					//and check to see if it matches the selected driver(s) in the selection table
-					int index = driverDB.getDriverIndex(del.getdDelBy());
-					if(index > -1 && driverDB.getDriver(index).getDrvNum().equals(atAL.get(row_sel[i]).getDrvNum()))
+					int index = volunteerDB.getDriverIndex(del.getdDelBy());
+					if(index > -1 && volunteerDB.getDriver(index).getDrvNum().equals(atAL.get(row_sel[i]).getDrvNum()))
 						stAL.add(f);
 				}	
 			}
@@ -181,7 +181,7 @@ public class SortDriverDialog extends DependantTableDialog
 		clearFamilyTable();
 		familyTable.clearSelection();
 		
-		for(ONCDriver d:driverDB.getDriverDB())
+		for(ONCVolunteer d:volunteerDB.getDriverDB())
 			if((d.getActivityCode() & ActivityCode.Delivery.code()) > 0 && 
 			    doesDrvNumMatch(d.getDrvNum()) && doesLNameMatch(d.getlName()) && 
 				 doesChangedByMatch(d.getChangedBy()) && doesStoplightMatch(d.getStoplightPos()))
@@ -200,7 +200,7 @@ public class SortDriverDialog extends DependantTableDialog
 		lNameCBM.removeAllElements();
 		
 		
-		for(ONCDriver d:driverDB.getDriverDB())
+		for(ONCVolunteer d:volunteerDB.getDriverDB())
 		{
 			int index = 0;
 			while(index < lNameAL.size() && !d.getlName().equals(lNameAL.get(index)))
@@ -295,7 +295,7 @@ public class SortDriverDialog extends DependantTableDialog
 		ONCFamily f = stAL.get(index);
 		
 		String[] row = {
-						driverDB.getDriverLNFN(deliveryDB.getDelivery(f.getDeliveryID()).getdDelBy()),
+						volunteerDB.getDriverLNFN(deliveryDB.getDelivery(f.getDeliveryID()).getdDelBy()),
 						f.getONCNum(),
 						f.getBatchNum(),
 						f.getDNSCode(),
@@ -480,7 +480,7 @@ public class SortDriverDialog extends DependantTableDialog
 	{
 		archiveTableSelections(atAL);
 		
-		if(driverDB.sortDB(atAL, columns[col]))
+		if(volunteerDB.sortDB(atAL, columns[col]))
 		{
 			displaySortTable(atAL, false, tableRowSelectedObjectList);
 			return col;
@@ -498,7 +498,7 @@ public class SortDriverDialog extends DependantTableDialog
 	@Override
 	Object[] getTableRow(ONCObject o) 
 	{
-		ONCDriver d = (ONCDriver) o;
+		ONCVolunteer d = (ONCVolunteer) o;
 		Object[] di = {d.getDrvNum(), d.getfName(), d.getlName(),
 						Integer.toString(d.getDelAssigned()),
 						d.getCellPhone(), d.getHomePhone(), d.getEmail(), d.getChangedBy(),

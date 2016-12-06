@@ -24,7 +24,7 @@ import javax.swing.JTextPane;
 
 import com.google.gson.Gson;
 
-public class DriverDialog extends EntityDialog
+public class VolunteerDialog extends EntityDialog
 {
 	/**
 	 * Implements a dialog to manage ONC Delivery Drivers
@@ -33,7 +33,7 @@ public class DriverDialog extends EntityDialog
 	private static final String NO_DRIVER_MSSG = "No Volunteers";
 	
 	//database references
-	private DriverDB ddb;
+	private VolunteerDB ddb;
 	private DeliveryDB deliveryDB;
 	
 	//ui components
@@ -44,15 +44,15 @@ public class DriverDialog extends EntityDialog
     private JTextPane activitiesTP;
     private JButton btnLog;
     
-    private ONCDriver currDriver;	//reference to the current ONCDriver object being displayed
+    private ONCVolunteer currDriver;	//reference to the current ONCDriver object being displayed
     
-	public DriverDialog(JFrame pf)
+	public VolunteerDialog(JFrame pf)
 	{
 		super(pf);
 		this.setTitle("Our Neighbor's Child - Volunteer Information");
 		
 		//Initialize database object variables and register listeners
-		ddb = DriverDB.getInstance();	//Reference to the driver data base
+		ddb = VolunteerDB.getInstance();	//Reference to the driver data base
 		if(ddb != null)
 			ddb.addDatabaseListener(this);
 		
@@ -237,7 +237,7 @@ public class DriverDialog extends EntityDialog
 	void update()
 	{
 		//Check to see if user has changed any field, if so, save it	
-		ONCDriver updateDriver = new ONCDriver(currDriver);	//make a copy of current driver
+		ONCVolunteer updateDriver = new ONCVolunteer(currDriver);	//make a copy of current driver
 		boolean bCD = false; //used to indicate a change has been detected
 		
 		if(!drvNumTF.getText().equals(updateDriver.getDrvNum()))
@@ -299,7 +299,7 @@ public class DriverDialog extends EntityDialog
 			if(currDriver == null && driver == null)
 				currDriver = ddb.getObjectAtIndex(0);
 			else if(driver != null  && driver != currDriver)
-				currDriver = (ONCDriver) driver;
+				currDriver = (ONCVolunteer) driver;
 				
 			//display the current driver
 			drvNumTF.setText(currDriver.getDrvNum());
@@ -376,7 +376,7 @@ public class DriverDialog extends EntityDialog
 	
 	void onDelete()
 	{
-		ONCDriver delDriver = ddb.getObjectAtIndex(nav.getIndex());
+		ONCVolunteer delDriver = ddb.getObjectAtIndex(nav.getIndex());
 		
 		//Confirm with the user that the deletion is really intended
 		String confirmMssg = String.format("Are you sure you want to delete %s from the data base?", 
@@ -411,7 +411,7 @@ public class DriverDialog extends EntityDialog
 	void onSaveNew()
 	{
 		//construct a new driver from user input	
-		ONCDriver newDriver = new ONCDriver(-1, "N/A", firstnameTF.getText(), lastnameTF.getText(),
+		ONCVolunteer newDriver = new ONCVolunteer(-1, "N/A", firstnameTF.getText(), lastnameTF.getText(),
 					emailTF.getText(), streetnumTF.getText(), streetnameTF.getText(), 
 					unitTF.getText(), cityTF.getText(), zipTF.getText(), 
 					hPhoneTF.getText(), cPhoneTF.getText(), "Delivery", "", "", new Date(),
@@ -424,7 +424,7 @@ public class DriverDialog extends EntityDialog
 		{
 			//update the ui with new id assigned by the server 
 			Gson gson = new Gson();
-			ONCDriver addedDriver = gson.fromJson(response.substring(12), ONCDriver.class);
+			ONCVolunteer addedDriver = gson.fromJson(response.substring(12), ONCVolunteer.class);
 							
 			//set the display index, on, to the new partner added and display organization
 			display(addedDriver);
@@ -461,7 +461,7 @@ public class DriverDialog extends EntityDialog
 	{
 		if(dbe.getSource() != this && dbe.getType().equals("UPDATED_DRIVER"))
 		{
-			ONCDriver updatedDriver = (ONCDriver) dbe.getObject();
+			ONCVolunteer updatedDriver = (ONCVolunteer) dbe.getObject();
 			
 			//If current driver is being displayed has changed, re-display it
 			if(currDriver != null && currDriver.getID() == updatedDriver.getID() && !bAddingNewEntity)
@@ -469,7 +469,7 @@ public class DriverDialog extends EntityDialog
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("ADDED_DRIVER"))
 		{
-			ONCDriver addedDriver = (ONCDriver) dbe.getObject();
+			ONCVolunteer addedDriver = (ONCVolunteer) dbe.getObject();
 			//If no driver is being displayed, display the added one
 			if(currDriver == null && ddb.size() > 0 && !bAddingNewEntity)
 				display(addedDriver);
@@ -488,7 +488,7 @@ public class DriverDialog extends EntityDialog
 			}
 			else
 			{
-				ONCDriver deletedDriver = (ONCDriver) dbe.getObject();
+				ONCVolunteer deletedDriver = (ONCVolunteer) dbe.getObject();
 				if(currDriver.getID() == deletedDriver.getID())
 				{
 					if(nav.getIndex() == 0)
@@ -554,7 +554,7 @@ public class DriverDialog extends EntityDialog
 			}
 			else if(tse.getType() == EntityType.DRIVER)
 			{
-				ONCDriver driver = (ONCDriver) tse.getObject1();
+				ONCVolunteer driver = (ONCVolunteer) tse.getObject1();
 				update();
 				display(driver);
 			}

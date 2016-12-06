@@ -68,7 +68,7 @@ public class DialogManager implements EntitySelectionListener
 	//dialogs that inherit from Entity Dialog
 	private Map<String, EntityDialog> entityDlgMap;
 	private PartnerDialog orgDlg;
-	private DriverDialog driverDlg;
+	private VolunteerDialog driverDlg;
 		
 	private PreferencesDialog prefsDlg;
 	private BarcodeWishHistoryDialog barcodeWHDlg;
@@ -188,7 +188,7 @@ public class DialogManager implements EntitySelectionListener
     	
     	//Set up the edit driver (deliverer) dialog and register it to listen for Family 
     	//Selection events from particular ui's that have driver's associated
-        driverDlg = new DriverDialog(GlobalVariables.getFrame());
+        driverDlg = new VolunteerDialog(GlobalVariables.getFrame());
         entityDlgMap.put("Edit Delivery Partners", driverDlg);
         eeManager.registerEntitySelectionListener(driverDlg);
         

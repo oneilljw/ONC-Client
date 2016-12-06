@@ -3,7 +3,7 @@ package ourneighborschild;
 //import java.io.Serializable;
 import java.util.Date;
 
-public class ONCDriver extends ONCEntity
+public class ONCVolunteer extends ONCEntity
 {
 	/**
 	 * 
@@ -27,7 +27,7 @@ public class ONCDriver extends ONCEntity
 	private int delAssigned;
 	private int signIns;
 	
-	public ONCDriver(int driverid, String drvNum, String fName, String lName, String email, String hNum, 
+	public ONCVolunteer(int driverid, String drvNum, String fName, String lName, String email, String hNum, 
 						String street, String unit, String city, String zipcode, 
 						String homePhone, String cellPhone, String activityCode, String group,
 						String comment, Date today, String changedBy)
@@ -51,7 +51,7 @@ public class ONCDriver extends ONCEntity
 		this.signIns = 0;
 	}
 	
-	public ONCDriver(String[] nextLine, int driverid, Date today, String changedBy, int activityCode)
+	public ONCVolunteer(String[] nextLine, int driverid, Date today, String changedBy, int activityCode)
 	{
 		super(driverid, new Date(), changedBy, STOPLIGHT_OFF, "Driver created", changedBy);
 		
@@ -104,7 +104,7 @@ public class ONCDriver extends ONCEntity
 		this.signIns = 0;
 	}
 	
-	ONCDriver(int id, String changedBy)
+	ONCVolunteer(int id, String changedBy)
 	{
 		//constructor used when adding a new entity
 		super(id, new Date(), changedBy, STOPLIGHT_OFF, "Driver created", changedBy);
@@ -112,7 +112,7 @@ public class ONCDriver extends ONCEntity
 		signIns = 0;
 	}
 	
-	public ONCDriver(String[] nextLine)
+	public ONCVolunteer(String[] nextLine)
 	{
 		super(Integer.parseInt(nextLine[0]), Long.parseLong(nextLine[17]), nextLine[18],
 				Integer.parseInt(nextLine[19]), nextLine[20], nextLine[21]);
@@ -134,7 +134,7 @@ public class ONCDriver extends ONCEntity
 		signIns = nextLine[16].isEmpty() ? 0 : Integer.parseInt(nextLine[16]);
 	}
 	
-	public ONCDriver(ONCDriver d)	//copy constructor
+	public ONCVolunteer(ONCVolunteer d)	//copy constructor
 	{
 		super(d.getID(), d.getDateChanged(), d.getChangedBy(), d.getStoplightPos(),
 				d.getStoplightMssg(), d.getStoplightChangedBy());

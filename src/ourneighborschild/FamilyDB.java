@@ -48,7 +48,7 @@ public class FamilyDB extends ONCSearchableDatabase
 	private AdultDB adultDB;
 	private ChildWishDB childwishDB;
 	private AgentDB agentDB;
-	private DriverDB driverDB;
+	private VolunteerDB volunteerDB;
 	private DeliveryDB deliveryDB;
 	private GlobalVariables fGVs;
 	
@@ -59,7 +59,7 @@ public class FamilyDB extends ONCSearchableDatabase
 		childDB = ChildDB.getInstance();
 		adultDB = AdultDB.getInstance();
 		childwishDB = ChildWishDB.getInstance();
-		driverDB = DriverDB.getInstance();
+		volunteerDB = VolunteerDB.getInstance();
 		deliveryDB = DeliveryDB.getInstance();
 		agentDB = AgentDB.getInstance();;
 		
@@ -1321,8 +1321,8 @@ public class FamilyDB extends ONCSearchableDatabase
 		@Override
 		public int compare(ONCFamily o1, ONCFamily o2)
 		{
-			return driverDB.getDriverLNFN(deliveryDB.getDeliveredBy(o1.getDeliveryID())).compareTo
-					(driverDB.getDriverLNFN(deliveryDB.getDeliveredBy(o2.getDeliveryID())));
+			return volunteerDB.getDriverLNFN(deliveryDB.getDeliveredBy(o1.getDeliveryID())).compareTo
+					(volunteerDB.getDriverLNFN(deliveryDB.getDeliveredBy(o2.getDeliveryID())));
 		}
 	}
 
