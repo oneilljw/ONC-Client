@@ -35,7 +35,6 @@ public class DialogManager implements EntitySelectionListener
 	private ViewONCDatabaseDialog dbDlg;
 	private PYChildConnectionDialog pyConnectionDlg;
 	private AngelAutoCallDialog angelDlg;
-	private SignInHistoryDialog siHistoryDlg;
 		
 	//dialogs that inherit from HistoryDialog
 	private Map<String, HistoryDialog> historyDlgMap;
@@ -113,9 +112,6 @@ public class DialogManager implements EntitySelectionListener
         historyDlgMap.put("Meal History", mealDlg);
         eeManager.registerEntitySelectionListener(mealDlg);
         
-        //Set up meal history dialog box 
-        siHistoryDlg = new SignInHistoryDialog(GlobalVariables.getFrame());
-        eeManager.registerEntitySelectionListener(siHistoryDlg);
         
         //Set up adult dialog box 
         adultDlg = new AdultDialog(GlobalVariables.getFrame());
@@ -304,16 +300,6 @@ public class DialogManager implements EntitySelectionListener
 		}
 	}
 	
-	void showSignInHistoryDialog(ONCVolunteer currVol, Component component)
-	{
-		if(!siHistoryDlg.isVisible())
-		{	
-		    siHistoryDlg.setLocationRelativeTo(component);
-		    siHistoryDlg.display(currVol);
-			siHistoryDlg.setVisible(true);
-		}
-	}
-		
 	void showSortDialog(String name, Point offsetPt)
 	{
 		//retrieve the sort dialog from the map

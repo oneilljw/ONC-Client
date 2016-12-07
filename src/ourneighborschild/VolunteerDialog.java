@@ -9,7 +9,6 @@ import java.awt.event.ActionListener;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.EnumSet;
-import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -71,8 +70,6 @@ public class VolunteerDialog extends EntityDialog
         nav.setCount2("Delivered: " + Integer.toString(0));
         nav.setNextButtonText("Next Partner");
         nav.setPreviousButtonText("Previous Partner");
-//      nav.addNavigationListener(this);
-//      nav.addEntitySelectionListener(this);
 
         //Set up driver panel
         entityPanel.setBorder(BorderFactory.createTitledBorder("Volunteer Information"));
@@ -182,15 +179,8 @@ public class VolunteerDialog extends EntityDialog
         btnLog = new JRadioButton(gvs.getImageIcon(HISTORY_ICON_INDEX));
         btnLog.setToolTipText("Click to view volunteer's sign-in history");
         btnLog.setEnabled(false);
-        btnLog.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) 
-			{
-				DialogManager dialogMgr = DialogManager.getInstance();
-				dialogMgr.showSignInHistoryDialog(currVolunteer, btnLog);
-			}
-        });
-              
+        btnLog.addActionListener(new SignInHistoryListener(this)); 
+        
         op3.add(streetnumTF);
         op3.add(streetnameTF);
         op3.add(unitTF);
@@ -603,7 +593,7 @@ public class VolunteerDialog extends EntityDialog
 					}
 				}
 			}
-			else if(tse.getType() == EntityType.DRIVER)
+			else if(tse.getType() == EntityType.VOLUNTEER)
 			{
 				ONCVolunteer driver = (ONCVolunteer) tse.getObject1();
 				update();
@@ -615,6 +605,33 @@ public class VolunteerDialog extends EntityDialog
 	@Override
 	public EnumSet<EntityType> getEntityEventListenerEntityTypes() 
 	{
-		return EnumSet.of(EntityType.FAMILY, EntityType.WISH, EntityType.DRIVER);
+		return EnumSet.of(EntityType.FAMILY, EntityType.WISH, EntityType.VOLUNTEER);
+	}
+	
+	/***********************************************************************************************
+	 * This class implements a listener for the sign-in history radio button. When the button is
+	 * clicked (the button is only enabled when a volunteer has at least one warehouse sign-in)
+	 * a SignInHistory dialog is created and displayed. 
+	 ***********************************************************************************************/
+	private class SignInHistoryListener implements ActionListener
+	{
+		private JDialog owner;
+		
+		SignInHistoryListener(JDialog owner)
+		{
+			this.owner = owner;
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent e) 
+		{
+			//create and show the sign-in history dialog
+			SignInHistoryDialog siHistoryDlg = new SignInHistoryDialog(owner, true);
+	        EntityEventManager.getInstance().registerEntitySelectionListener(siHistoryDlg);
+	        
+	        siHistoryDlg.setLocationRelativeTo(btnLog);
+	        siHistoryDlg.display(currVolunteer);
+	    	siHistoryDlg.setVisible(true);
+		}
 	}
 }

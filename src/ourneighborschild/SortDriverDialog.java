@@ -461,7 +461,7 @@ public class SortDriverDialog extends DependantTableDialog
 //				System.out.println("SortAgtDlg.valueChanged: lse event occurred, agent selected");
 				buildFamilyTableListAndDisplay();
 				
-				fireEntitySelected(this, EntityType.DRIVER, atAL.get(sortTable.getSelectedRow()), null);
+				fireEntitySelected(this, EntityType.VOLUNTEER, atAL.get(sortTable.getSelectedRow()), null);
 				requestFocus();
 			}		
 		}
@@ -547,6 +547,6 @@ public class SortDriverDialog extends DependantTableDialog
 	@Override
 	public EnumSet<EntityType> getEntityEventSelectorEntityTypes() 
 	{	
-		return EnumSet.of(EntityType.FAMILY, EntityType.DRIVER);
+		return EnumSet.of(EntityType.FAMILY, EntityType.VOLUNTEER);
 	}
 }

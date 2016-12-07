@@ -9,7 +9,6 @@ import java.util.List;
 
 import javax.swing.BoxLayout;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
@@ -21,7 +20,7 @@ import javax.swing.table.JTableHeader;
 public class SignInHistoryDialog extends JDialog implements  EntitySelectionListener, DatabaseListener
 {
 	/**
-	 * 
+	 * Displays a table of warehouse sign-in history for a volunteer 
 	 */
 	private static final long serialVersionUID = 1L;
 	private static final int NAME_COL= 0;
@@ -36,9 +35,9 @@ public class SignInHistoryDialog extends JDialog implements  EntitySelectionList
 	private VolunteerDB volunteerDB;
 	private ONCVolunteer currVol;
 
-	public SignInHistoryDialog(JFrame pf)
+	public SignInHistoryDialog(JDialog owner, boolean modality)
 	{
-		super(pf);
+		super(owner, modality);
 
 		volunteerDB = VolunteerDB.getInstance();
 		if(volunteerDB != null)
@@ -46,14 +45,14 @@ public class SignInHistoryDialog extends JDialog implements  EntitySelectionList
 		
 		signInList = new ArrayList<ONCWarehouseVolunteer>();
 		
-		//create the history table
+		//create the sign-in history table
 		dlgTableModel = new DialogTableModel();
 		String[] colTT = {"Name of Volunteer that signed in", "Sign In #", "Sign-In Time"};
 		dlgTable = new ONCTable(dlgTableModel, colTT, new Color(240,248,255));
 
 		dlgTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-		//Set table column widths
+		//set table column widths
 		int tablewidth = 0;
 		int[] colWidths = {120, 32, 120};
 		for(int col=0; col < colWidths.length; col++)
@@ -74,9 +73,9 @@ public class SignInHistoryDialog extends JDialog implements  EntitySelectionList
 		dtcr.setHorizontalAlignment(SwingConstants.CENTER);
 		dlgTable.getColumnModel().getColumn(NUM_COL).setCellRenderer(dtcr);
 		        
-		//Create the scroll pane and add the table to it.
+		//create the scroll pane and add the table to it.
 		JScrollPane dsScrollPane = new JScrollPane(dlgTable);
-		dsScrollPane.setPreferredSize(new Dimension(tablewidth, 96));
+		dsScrollPane.setPreferredSize(new Dimension(tablewidth, 120));
 		dsScrollPane.setBorder(UIManager.getBorder("Table.scrollPaneBorder"));
 		
 		getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
@@ -85,30 +84,33 @@ public class SignInHistoryDialog extends JDialog implements  EntitySelectionList
 		pack();
 	}
 
-	@Override
-	public void dataChanged(DatabaseEvent dbe) {
-		// TODO Auto-generated method stub
-		
-	}
-
 	void display(ONCObject obj) 
 	{
 		this.currVol = (ONCVolunteer) obj;
-		setDialogTitle();
+		this.setTitle(String.format("%s %s's Sign-In History", currVol.getfName(), currVol.getlName()));
 		
 		signInList = volunteerDB.getWarehouseHistory(currVol.getID());
 		dlgTableModel.fireTableDataChanged();
 	}
 	
-	void setDialogTitle()
+	@Override
+	public void dataChanged(DatabaseEvent dbe) 
 	{
-		this.setTitle(String.format("%s %s's Sign-In History", currVol.getfName(), currVol.getlName()));
+		if(dbe.getSource() != this && this.isVisible() && dbe.getType().equals("UPDATED_DRIVER"))
+		{
+			ONCVolunteer updatedVolunteer = (ONCVolunteer) dbe.getObject();
+			
+			//If updated delivery belongs to family delivery history being displayed,
+			//re-display it
+			if(currVol != null && currVol.getID() == updatedVolunteer.getID())
+				display(currVol);
+		}
 	}
 	
 	@Override
 	public void entitySelected(EntitySelectionEvent tse)
 	{
-		if(this.isVisible() && tse.getType() == EntityType.DRIVER)
+		if(this.isVisible() && tse.getType() == EntityType.VOLUNTEER)
 		{
 			ONCVolunteer vol = (ONCVolunteer) tse.getObject1();
 			if(vol != null)
@@ -121,7 +123,7 @@ public class SignInHistoryDialog extends JDialog implements  EntitySelectionList
 	@Override
 	public EnumSet<EntityType> getEntityEventListenerEntityTypes() 
 	{
-		return EnumSet.of(EntityType.DRIVER);
+		return EnumSet.of(EntityType.VOLUNTEER);
 	}
 
 	class DialogTableModel extends AbstractTableModel

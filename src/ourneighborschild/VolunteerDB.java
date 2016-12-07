@@ -27,7 +27,7 @@ import au.com.bytecode.opencsv.CSVWriter;
 
 public class VolunteerDB extends ONCSearchableDatabase
 {
-	private static final EntityType DB_TYPE = EntityType.DRIVER;
+	private static final EntityType DB_TYPE = EntityType.VOLUNTEER;
 	private static final int DRIVER_OBJECT_CSV_HEADER_LENGTH = 18;
 	private static final int DRIVER_CSVFILE_HEADER_LENGTH = 20;
 	private static VolunteerDB instance = null;
