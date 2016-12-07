@@ -42,7 +42,7 @@ public class VolunteerDialog extends EntityDialog
     private JTextField drvNumTF, firstnameTF,lastnameTF;
     private JTextField streetnumTF, streetnameTF, unitTF, cityTF, zipTF, hPhoneTF, cPhoneTF;
     private JTextField emailTF;
-    private JRadioButton btnLog;
+    private JRadioButton btnSignInHistory;
     private JCheckBox[] ckBoxActivities;
     
     private ONCVolunteer currVolunteer;	//reference to the current ONCDriver object being displayed
@@ -176,10 +176,10 @@ public class VolunteerDialog extends EntityDialog
         lblFamDel.setToolTipText("# Deliveries Partner Made");
         lblFamDel.setBorder(BorderFactory.createTitledBorder("# Del"));
         
-        btnLog = new JRadioButton(gvs.getImageIcon(HISTORY_ICON_INDEX));
-        btnLog.setToolTipText("Click to view volunteer's sign-in history");
-        btnLog.setEnabled(false);
-        btnLog.addActionListener(new SignInHistoryListener(this)); 
+        btnSignInHistory = new JRadioButton(gvs.getImageIcon(HISTORY_ICON_INDEX));
+        btnSignInHistory.setToolTipText("Click to view volunteer's sign-in history");
+        btnSignInHistory.setEnabled(false);
+        btnSignInHistory.addActionListener(new SignInHistoryListener(this)); 
         
         op3.add(streetnumTF);
         op3.add(streetnameTF);
@@ -187,7 +187,7 @@ public class VolunteerDialog extends EntityDialog
         op3.add(cityTF);
         op3.add(zipTF);
         op3.add(lblFamDel);
-        op3.add(btnLog);
+        op3.add(btnSignInHistory);
                 
         lblComment = new JLabel("None");
         lblComment.setPreferredSize(new Dimension (600, 48));
@@ -306,7 +306,7 @@ public class VolunteerDialog extends EntityDialog
 			drvNumTF.setText("None");	//If no organizations, display this message
 			nav.btnNextSetEnabled(false);
 			nav.btnPreviousSetEnabled(false);
-			btnLog.setEnabled(false);
+			btnSignInHistory.setEnabled(false);
 		}
 		else 
 		{
@@ -352,7 +352,7 @@ public class VolunteerDialog extends EntityDialog
 			
 			setActivities(currVolunteer.getActivityCode());
 			
-			btnLog.setEnabled(currVolunteer.getSignIns() > 0);
+			btnSignInHistory.setEnabled(currVolunteer.getSignIns() > 0);
 
 			nav.setStoplightEntity(currVolunteer);
 			nav.btnNextSetEnabled(true);
@@ -399,7 +399,7 @@ public class VolunteerDialog extends EntityDialog
 		nav.clearStoplight();
 		
 		clearActivities();
-		btnLog.setEnabled(false);
+		btnSignInHistory.setEnabled(false);
 	}
 
 	void onNew()
@@ -625,13 +625,15 @@ public class VolunteerDialog extends EntityDialog
 		@Override
 		public void actionPerformed(ActionEvent e) 
 		{
-			//create and show the sign-in history dialog
+			//create and display sign-in history as a modal dialog
 			SignInHistoryDialog siHistoryDlg = new SignInHistoryDialog(owner, true);
 	        EntityEventManager.getInstance().registerEntitySelectionListener(siHistoryDlg);
 	        
-	        siHistoryDlg.setLocationRelativeTo(btnLog);
+	        siHistoryDlg.setLocationRelativeTo(btnSignInHistory);
 	        siHistoryDlg.display(currVolunteer);
 	    	siHistoryDlg.setVisible(true);
+	    	
+	    	EntityEventManager.getInstance().removeEntitySelectionListener(siHistoryDlg);
 		}
 	}
 }
