@@ -624,15 +624,15 @@ public class VolunteerDialog extends EntityDialog
 		@Override
 		public void actionPerformed(ActionEvent e) 
 		{
-			//create and display sign-in history as a modal dialog
+			//create and display sign-in history as a modal dialog.
 			SignInHistoryDialog siHistoryDlg = new SignInHistoryDialog(owner, true);
-	        EntityEventManager.getInstance().registerEntitySelectionListener(siHistoryDlg);
+//	        EntityEventManager.getInstance().registerEntitySelectionListener(siHistoryDlg);
 	        
 	        siHistoryDlg.setLocationRelativeTo(btnSignInHistory);
 	        siHistoryDlg.display(currVolunteer);
 	    	siHistoryDlg.setVisible(true);
 	    	
-	    	EntityEventManager.getInstance().removeEntitySelectionListener(siHistoryDlg);
+//	    	EntityEventManager.getInstance().removeEntitySelectionListener(siHistoryDlg);
 		}
 	}
 }
