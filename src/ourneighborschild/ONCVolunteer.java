@@ -9,6 +9,7 @@ public class ONCVolunteer extends ONCEntity
 	 * 
 	 */
 	private static final long serialVersionUID = -5277718159822649083L;
+	private static final int HEXADECIMAL = 16;
 	
 	private String drvNum;
 	private String fName;
@@ -30,7 +31,7 @@ public class ONCVolunteer extends ONCEntity
 	
 	public ONCVolunteer(int driverid, String drvNum, String fName, String lName, String email, String hNum, 
 						String street, String unit, String city, String zipcode, 
-						String homePhone, String cellPhone, String qty, String activityCode, String group,
+						String homePhone, String cellPhone, String qty, String zActivityCode, String group,
 						String comment, Date today, String changedBy)
 	{
 		super(driverid, new Date(), changedBy, STOPLIGHT_OFF, "Volunteer added", changedBy);
@@ -45,7 +46,7 @@ public class ONCVolunteer extends ONCEntity
 		this.zipcode = zipcode;
 		this.homePhone = homePhone;
 		this.cellPhone = cellPhone;
-		this.activityCode = activityCode.isEmpty() ? 1 : ActivityCode.valueOf(activityCode).code();
+		this.activityCode = createActivityCode(zActivityCode, HEXADECIMAL);
 		this.group = group;
 		this.comment = comment;
 		this.qty = qty.isEmpty() ? 0 : Integer.parseInt(qty);
@@ -53,6 +54,7 @@ public class ONCVolunteer extends ONCEntity
 		this.signIns = 0;
 	}
 	
+	//used when importing volunteers from Sign-Up Genius .csv export
 	public ONCVolunteer(String[] nextLine, int driverid, Date today, String changedBy, int activityCode)
 	{
 		super(driverid, new Date(), changedBy, STOPLIGHT_OFF, "Volunteer added", changedBy);
@@ -228,6 +230,14 @@ public class ONCVolunteer extends ONCEntity
 	public void setChangedBy(String cb) { changedBy = cb; }
 	
 	public void incrementDeliveryCount(int count) { delAssigned += count; }
+	
+	/***
+	 * takes a binary string parameter, verifies it only contains digits returns the corresponding integer, else return 0
+	****/
+	int createActivityCode(String zActivityCode, int radix)
+	{
+		return isNumeric(zActivityCode) ? Integer.parseInt(zActivityCode, radix) : 0;
+	}
 	
 	@Override
 	public String[] getExportRow()

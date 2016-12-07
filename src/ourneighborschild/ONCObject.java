@@ -14,5 +14,7 @@ public abstract class ONCObject
 	
 	public abstract String[] getExportRow();
 	
-	public boolean matches(ONCObject other) { return other != null && other.id == id; } 
+	public boolean matches(ONCObject other) { return other != null && other.id == id; }
+	
+	public boolean isNumeric(String s){ return s.matches("-?\\d+(\\.\\d+)?"); }
 }

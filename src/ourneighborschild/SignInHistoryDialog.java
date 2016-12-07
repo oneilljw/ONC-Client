@@ -23,9 +23,10 @@ public class SignInHistoryDialog extends JDialog implements  EntitySelectionList
 	 * Displays a table of warehouse sign-in history for a volunteer 
 	 */
 	private static final long serialVersionUID = 1L;
-	private static final int NAME_COL= 0;
-	private static final int NUM_COL= 1;
+	private static final int NUM_COL= 0;
+	private static final int GROUP_COL= 1;
 	private static final int DATE_COL = 2;
+	private static final int COMMENT_COL = 3;
 	
 	private List<ONCWarehouseVolunteer> signInList;
 	
@@ -47,14 +48,14 @@ public class SignInHistoryDialog extends JDialog implements  EntitySelectionList
 		
 		//create the sign-in history table
 		dlgTableModel = new DialogTableModel();
-		String[] colTT = {"Name of Volunteer that signed in", "Sign In #", "Sign-In Time"};
+		String[] colTT = {"Group volunteer listed at sign-in", "Sign-In #", "Sign-In time", "Sign-In comment"};
 		dlgTable = new ONCTable(dlgTableModel, colTT, new Color(240,248,255));
 
 		dlgTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
 		//set table column widths
 		int tablewidth = 0;
-		int[] colWidths = {120, 32, 120};
+		int[] colWidths = {28, 120, 120, 180};
 		for(int col=0; col < colWidths.length; col++)
 		{
 			dlgTable.getColumnModel().getColumn(col).setPreferredWidth(colWidths[col]);
@@ -132,7 +133,7 @@ public class SignInHistoryDialog extends JDialog implements  EntitySelectionList
 		 * Implements the table model for the Delivery History Dialog
 		 */
 		private static final long serialVersionUID = 1L;
-		private String[] columnNames = {"Volunteer Name", " # ", "Sign In Date & Time"};
+		private String[] columnNames = {"#", "Group", "Sign In Date & Time", "Comment"};
 		private SimpleDateFormat sdf;
 		
 		public DialogTableModel()
@@ -152,12 +153,14 @@ public class SignInHistoryDialog extends JDialog implements  EntitySelectionList
         	
         	ONCWarehouseVolunteer vol = signInList.get(row);
         	
-        	if(col == NAME_COL)
-        		value = currVol.getfName() + " " + currVol.getlName();
+        	if(col == GROUP_COL)
+        		value = vol.getGroup();
         	else if(col == NUM_COL)
         		value = row + 1;
         	else if(col == DATE_COL)  
         		value = sdf.format(vol.getTimestamp());
+        	else if(col == COMMENT_COL)
+        		value = vol.getComment();
         	else
         		value = "Error";
         	

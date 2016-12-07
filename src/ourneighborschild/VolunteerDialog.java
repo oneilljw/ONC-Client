@@ -37,8 +37,8 @@ public class VolunteerDialog extends EntityDialog
 	private DeliveryDB deliveryDB;
 
 	//ui components
-	private JLabel lblFamDel, lblSignIns, lblGroup, lblComment, lblLastSignIn, lblQty;
-    private JTextField drvNumTF, firstnameTF,lastnameTF;
+	private JLabel lblFamDel, lblSignIns, lblLastSignIn, lblQty;
+    private JTextField drvNumTF, firstnameTF,lastnameTF, groupTF, commentTF;
     private JTextField streetnumTF, streetnameTF, unitTF, cityTF, zipTF, hPhoneTF, cPhoneTF;
     private JTextField emailTF;
     private JRadioButton btnSignInHistory;
@@ -97,10 +97,11 @@ public class VolunteerDialog extends EntityDialog
         lastnameTF.setBorder(BorderFactory.createTitledBorder("Last Name"));
         lastnameTF.addActionListener(dcListener);
         
-        lblGroup = new JLabel("None");
-        lblGroup.setPreferredSize(new Dimension (216, 48));
-        lblGroup.setToolTipText("Group volunteer is with");
-        lblGroup.setBorder(BorderFactory.createTitledBorder("Group"));
+        groupTF = new JTextField(18);
+//        groupTF.setPreferredSize(new Dimension (216, 48));
+        groupTF.setToolTipText("Group volunteer is with");
+        groupTF.setBorder(BorderFactory.createTitledBorder("Group"));
+        groupTF.addActionListener(dcListener);
         
         lblQty = new JLabel("1", JLabel.RIGHT);
         lblQty.setPreferredSize(new Dimension (48, 48));
@@ -110,7 +111,7 @@ public class VolunteerDialog extends EntityDialog
         op1.add(drvNumTF);
         op1.add(firstnameTF);
         op1.add(lastnameTF);
-        op1.add(lblGroup);
+        op1.add(groupTF);
         op1.add(lblQty);
         
         hPhoneTF = new JTextField(8);
@@ -188,12 +189,13 @@ public class VolunteerDialog extends EntityDialog
         op3.add(lblFamDel);
         op3.add(btnSignInHistory);
                 
-        lblComment = new JLabel("None");
-        lblComment.setPreferredSize(new Dimension (600, 48));
-        lblComment.setToolTipText("Last comment from volunteer");
-        lblComment.setBorder(BorderFactory.createTitledBorder("Volunteer Comment"));
+        commentTF = new JTextField(50);
+//      commentTF.setPreferredSize(new Dimension (600, 48));
+        commentTF.setToolTipText("Last comment from volunteer");
+        commentTF.setBorder(BorderFactory.createTitledBorder("Last Volunteer Comment"));
+        commentTF.addActionListener(dcListener);
        
-        op4.add(lblComment);
+        op4.add(commentTF);
         
         ckBoxActivities = new JCheckBox[8];
         ckBoxActivities[0] = new JCheckBox("Delivery Set Up");
@@ -206,11 +208,17 @@ public class VolunteerDialog extends EntityDialog
         ckBoxActivities[7] = new JCheckBox("Warehouse Clean Up");
         
         int bn;
-        for(bn=0; bn<5; bn++ )
+        for(bn=0; bn < 5; bn++ )
+        {
+        	ckBoxActivities[bn].addActionListener(dcListener);
         	op5.add(ckBoxActivities[bn]);
+        }	
         
         for(bn=5; bn < ckBoxActivities.length; bn++)
+        {
+        	ckBoxActivities[bn].addActionListener(dcListener);
         	op6.add(ckBoxActivities[bn]);
+        }
        
         ckBoxPanel.add(op5);
         ckBoxPanel.add(op6);
@@ -250,39 +258,42 @@ public class VolunteerDialog extends EntityDialog
 	void update()
 	{
 		//Check to see if user has changed any field, if so, save it	
-		ONCVolunteer updateVolunteer = new ONCVolunteer(currVolunteer);	//make a copy of current driver
+		ONCVolunteer updateVol = new ONCVolunteer(currVolunteer);	//make a copy of current driver
 		boolean bCD = false; //used to indicate a change has been detected
 		
-		if(!drvNumTF.getText().equals(updateVolunteer.getDrvNum()))
+		if(!drvNumTF.getText().equals(updateVol.getDrvNum()))
 		{
-			updateVolunteer.setDrvNum(drvNumTF.getText());
+			updateVol.setDrvNum(drvNumTF.getText());
 			bCD = true;
 		}
-		if(!firstnameTF.getText().equals(updateVolunteer.getfName()))
+		if(!firstnameTF.getText().equals(updateVol.getfName()))
 		{
-			updateVolunteer.setfName(firstnameTF.getText());
+			updateVol.setfName(firstnameTF.getText());
 			bCD = true;
 		}
-		if(!lastnameTF.getText().equals(updateVolunteer.getlName())) { updateVolunteer.setlName(lastnameTF.getText()); bCD = true; }
-		if(!hPhoneTF.getText().equals(updateVolunteer.getHomePhone())) { updateVolunteer.setHomePhone(hPhoneTF.getText()); bCD = true; }
-		if(!cPhoneTF.getText().equals(updateVolunteer.getCellPhone())) { updateVolunteer.setCellPhone(cPhoneTF.getText()); bCD = true; }
-		if(!emailTF.getText().equals(updateVolunteer.getEmail())) { updateVolunteer.setEmail(emailTF.getText()); bCD = true; }
-		if(!streetnumTF.getText().equals(updateVolunteer.gethNum())) { updateVolunteer.sethNum(streetnumTF.getText()); bCD = true; }
-		if(!streetnameTF.getText().equals(updateVolunteer.getStreet())) { updateVolunteer.setStreet(streetnameTF.getText()); bCD = true; }		
-		if(!unitTF.getText().equals(updateVolunteer.getUnit())) { updateVolunteer.setUnit(unitTF.getText()); bCD = true; }
-		if(!cityTF.getText().equals(updateVolunteer.getCity())) { updateVolunteer.setCity(cityTF.getText()); bCD = true; }
-		if(!zipTF.getText().equals(updateVolunteer.getZipcode())) { updateVolunteer.setZipcode(zipTF.getText()); bCD = true; }
+		if(!lastnameTF.getText().equals(updateVol.getlName())) { updateVol.setlName(lastnameTF.getText()); bCD = true; }
+		if(!groupTF.getText().equals(updateVol.getGroup())) { updateVol.setGroup(groupTF.getText()); bCD = true; }
+		if(!hPhoneTF.getText().equals(updateVol.getHomePhone())) { updateVol.setHomePhone(hPhoneTF.getText()); bCD = true; }
+		if(!cPhoneTF.getText().equals(updateVol.getCellPhone())) { updateVol.setCellPhone(cPhoneTF.getText()); bCD = true; }
+		if(!emailTF.getText().equals(updateVol.getEmail())) { updateVol.setEmail(emailTF.getText()); bCD = true; }
+		if(!streetnumTF.getText().equals(updateVol.gethNum())) { updateVol.sethNum(streetnumTF.getText()); bCD = true; }
+		if(!streetnameTF.getText().equals(updateVol.getStreet())) { updateVol.setStreet(streetnameTF.getText()); bCD = true; }		
+		if(!unitTF.getText().equals(updateVol.getUnit())) { updateVol.setUnit(unitTF.getText()); bCD = true; }
+		if(!cityTF.getText().equals(updateVol.getCity())) { updateVol.setCity(cityTF.getText()); bCD = true; }
+		if(!zipTF.getText().equals(updateVol.getZipcode())) { updateVol.setZipcode(zipTF.getText()); bCD = true; }
+		if(!commentTF.getText().equals(updateVol.getComment())) { updateVol.setComment(commentTF.getText()); bCD = true; }
+		if(generateActivityCode() != updateVol.getActivityCode()) { updateVol.setActivityCode(generateActivityCode()); bCD = true; }
 		
 		if(bCD)	//If an update to organization data (not stop light data) was detected
 		{
-			updateVolunteer.setDateChanged(gvs.getTodaysDate());
+			updateVol.setDateChanged(gvs.getTodaysDate());
 			
 			//request an update from the server
-			String response = volDB.update(this, updateVolunteer);
+			String response = volDB.update(this, updateVol);
 			
 			if(response.startsWith("UPDATED_DRIVER"))
 			{
-				display(updateVolunteer);
+				display(updateVol);
 			}
 			else
 			{
@@ -316,6 +327,8 @@ public class VolunteerDialog extends EntityDialog
 				currVolunteer = (ONCVolunteer) volunteer;
 				
 			//display the current volunteer
+			bIgnoreEvents = true;
+			
 			drvNumTF.setText(currVolunteer.getDrvNum());
 			firstnameTF.setText(currVolunteer.getfName());
 			firstnameTF.setCaretPosition(0);
@@ -344,8 +357,8 @@ public class VolunteerDialog extends EntityDialog
 			cityTF.setText(currVolunteer.getCity());
 			zipTF.setText(currVolunteer.getZipcode());
 			
-			lblGroup.setText(currVolunteer.getGroup().isEmpty() ? "None" : currVolunteer.getGroup());
-			lblComment.setText(currVolunteer.getComment());
+			groupTF.setText(currVolunteer.getGroup().isEmpty() ? "None" : currVolunteer.getGroup());
+			commentTF.setText(currVolunteer.getComment());
 			
 			SimpleDateFormat sdf = new SimpleDateFormat("M/dd h:mm");
 			lblLastSignIn.setText(currVolunteer.getSignIns() == 0 ? "Never" : sdf.format(currVolunteer.getDateChanged()));
@@ -357,6 +370,8 @@ public class VolunteerDialog extends EntityDialog
 			nav.setStoplightEntity(currVolunteer);
 			nav.btnNextSetEnabled(true);
 			nav.btnPreviousSetEnabled(true);
+			
+			bIgnoreEvents = false;
 		}
 	}
 	
@@ -364,12 +379,23 @@ public class VolunteerDialog extends EntityDialog
 	{
 		if(activityCode > 0)
 		{
-			int bn = 0;
+			int cbIndex = 0;
 			for(int mask = 1; mask <= ActivityCode.lastCode(); mask = mask << 1)
-				ckBoxActivities[bn++].setSelected((mask & activityCode) > 0);
+				ckBoxActivities[cbIndex++].setSelected((mask & activityCode) > 0);
 		}		
 		else
 			clearActivities();
+	}
+	
+	int generateActivityCode()
+	{
+		int activitycode = 0;
+		int cbIndex = 0;
+		for(int mask = 1; mask <= ActivityCode.lastCode(); mask = mask << 1)
+			if(ckBoxActivities[cbIndex++].isSelected())
+				activitycode = activitycode | mask;
+			
+		return activitycode;
 	}
 	
 	void clearActivities()
@@ -386,8 +412,8 @@ public class VolunteerDialog extends EntityDialog
 		lblQty.setText("0");
 		lblFamDel.setText("0");
 		lblSignIns.setText("0");
-		lblComment.setText("");
-		lblGroup.setText("");
+		commentTF.setText("");
+		groupTF.setText("");
 		hPhoneTF.setText("");
 		cPhoneTF.setText("");
 		emailTF.setText("");		
@@ -452,24 +478,25 @@ public class VolunteerDialog extends EntityDialog
 	void onSaveNew()
 	{
 		//construct a new volunteer from user input	
-		ONCVolunteer newDriver = new ONCVolunteer(-1, "N/A", firstnameTF.getText(), lastnameTF.getText(),
+		ONCVolunteer newVol = new ONCVolunteer(-1, "N/A", firstnameTF.getText(), lastnameTF.getText(),
 					emailTF.getText(), streetnumTF.getText(), streetnameTF.getText(), 
 					unitTF.getText(), cityTF.getText(), zipTF.getText(), 
-					hPhoneTF.getText(), cPhoneTF.getText(), "1", "Delivery", "", "", new Date(),
-					userDB.getUserLNFI());
+					hPhoneTF.getText(), cPhoneTF.getText(), "1", 
+					Integer.toHexString(generateActivityCode()), "", "",
+					new Date(), userDB.getUserLNFI());
 						
 		//send add request to the local data base
-		String response = volDB.add(this, newDriver);
+		String response = volDB.add(this, newVol);
 						
 		if(response.startsWith("ADDED_DRIVER"))
 		{
 			//update the ui with new id assigned by the server 
 			Gson gson = new Gson();
-			ONCVolunteer addedDriver = gson.fromJson(response.substring(12), ONCVolunteer.class);
+			ONCVolunteer addedVol = gson.fromJson(response.substring(12), ONCVolunteer.class);
 							
 			//set the display index, on, to the new volunteer added and display group
-			display(addedDriver);
-			nav.setIndex(volDB.getListIndexByID(volDB.getList(), addedDriver.getID()));
+			display(addedVol);
+			nav.setIndex(volDB.getListIndexByID(volDB.getList(), addedVol.getID()));
 		}
 		else
 		{
