@@ -3,7 +3,7 @@ package ourneighborschild;
 //import java.io.Serializable;
 import java.util.Date;
 
-public class ONCVolunteer extends ONCEntity
+public class ONCVolunteer extends ONCEntity implements Comparable<ONCVolunteer>
 {
 	/**
 	 * 
@@ -46,7 +46,7 @@ public class ONCVolunteer extends ONCEntity
 		this.zipcode = zipcode;
 		this.homePhone = homePhone;
 		this.cellPhone = cellPhone;
-		this.activityCode = createActivityCode(zActivityCode, HEXADECIMAL);
+		this.activityCode = convertActivityCode(zActivityCode, HEXADECIMAL);
 		this.group = group;
 		this.comment = comment;
 		this.qty = qty.isEmpty() ? 0 : Integer.parseInt(qty);
@@ -55,11 +55,12 @@ public class ONCVolunteer extends ONCEntity
 	}
 	
 	//used when importing volunteers from Sign-Up Genius .csv export
-	public ONCVolunteer(String[] nextLine, int driverid, Date today, String changedBy, int activityCode)
+	public ONCVolunteer(String[] nextLine, Date today, String changedBy, int activityCode)
 	{
-		super(driverid, new Date(), changedBy, STOPLIGHT_OFF, "Volunteer added", changedBy);
+		super(-1, new Date(), changedBy, STOPLIGHT_OFF, "Volunteer added", changedBy);
 		
 		drvNum = "N/A";
+		qty = nextLine[3].isEmpty() ? 1: Integer.parseInt(nextLine[3]);
 		
 		if(nextLine[6].isEmpty())
 			fName = "No First Name";
@@ -102,9 +103,8 @@ public class ONCVolunteer extends ONCEntity
 			this.cellPhone = "";
 		}
 		this.activityCode = activityCode;
-		this.group = "";
-		this.comment = "";
-		this.qty = 1;
+		this.group = "Self";
+		this.comment = nextLine[9];
 		this.delAssigned = 0;
 		this.signIns = 0;
 	}
@@ -234,7 +234,7 @@ public class ONCVolunteer extends ONCEntity
 	/***
 	 * takes a binary string parameter, verifies it only contains digits returns the corresponding integer, else return 0
 	****/
-	int createActivityCode(String zActivityCode, int radix)
+	int convertActivityCode(String zActivityCode, int radix)
 	{
 		return isNumeric(zActivityCode) ? Integer.parseInt(zActivityCode, radix) : 0;
 	}
@@ -250,4 +250,30 @@ public class ONCVolunteer extends ONCEntity
 		
 		return row;
 	}
+
+    public boolean equals(Object o)
+    {
+        if (!(o instanceof ONCVolunteer))
+            return false;
+        
+        ONCVolunteer v = (ONCVolunteer) o;
+        return v.fName.equals(this.fName) && v.lName.equals(this.lName) && 
+        		v.email.equals(this.email);
+    }
+    
+	@Override
+    public int hashCode() 
+	{
+        int hash = 1;
+        hash = hash * 17 + (fName == null ? 0 : fName.hashCode());
+        hash = hash * 31 + (lName == null ? 0 : lName.hashCode());
+        hash = hash * 13 + (email == null ? 0 : email.hashCode());
+        return hash;
+    }
+	
+	public int compareTo(ONCVolunteer v) 
+	{
+        int lastCmp = lName.compareTo(v.lName);
+        return (lastCmp != 0 ? lastCmp : fName.compareTo(v.fName));
+    }
 }

@@ -259,32 +259,32 @@ public class VolunteerDialog extends EntityDialog
 	{
 		//Check to see if user has changed any field, if so, save it	
 		ONCVolunteer updateVol = new ONCVolunteer(currVolunteer);	//make a copy of current driver
-		boolean bCD = false; //used to indicate a change has been detected
+		int bCD = 0; //used to indicate a change has been detected
 		
 		if(!drvNumTF.getText().equals(updateVol.getDrvNum()))
 		{
 			updateVol.setDrvNum(drvNumTF.getText());
-			bCD = true;
+			bCD = bCD | 1;
 		}
 		if(!firstnameTF.getText().equals(updateVol.getfName()))
 		{
 			updateVol.setfName(firstnameTF.getText());
-			bCD = true;
+			bCD = bCD | 2;
 		}
-		if(!lastnameTF.getText().equals(updateVol.getlName())) { updateVol.setlName(lastnameTF.getText()); bCD = true; }
-		if(!groupTF.getText().equals(updateVol.getGroup())) { updateVol.setGroup(groupTF.getText()); bCD = true; }
-		if(!hPhoneTF.getText().equals(updateVol.getHomePhone())) { updateVol.setHomePhone(hPhoneTF.getText()); bCD = true; }
-		if(!cPhoneTF.getText().equals(updateVol.getCellPhone())) { updateVol.setCellPhone(cPhoneTF.getText()); bCD = true; }
-		if(!emailTF.getText().equals(updateVol.getEmail())) { updateVol.setEmail(emailTF.getText()); bCD = true; }
-		if(!streetnumTF.getText().equals(updateVol.gethNum())) { updateVol.sethNum(streetnumTF.getText()); bCD = true; }
-		if(!streetnameTF.getText().equals(updateVol.getStreet())) { updateVol.setStreet(streetnameTF.getText()); bCD = true; }		
-		if(!unitTF.getText().equals(updateVol.getUnit())) { updateVol.setUnit(unitTF.getText()); bCD = true; }
-		if(!cityTF.getText().equals(updateVol.getCity())) { updateVol.setCity(cityTF.getText()); bCD = true; }
-		if(!zipTF.getText().equals(updateVol.getZipcode())) { updateVol.setZipcode(zipTF.getText()); bCD = true; }
-		if(!commentTF.getText().equals(updateVol.getComment())) { updateVol.setComment(commentTF.getText()); bCD = true; }
-		if(generateActivityCode() != updateVol.getActivityCode()) { updateVol.setActivityCode(generateActivityCode()); bCD = true; }
+		if(!lastnameTF.getText().equals(updateVol.getlName())) { updateVol.setlName(lastnameTF.getText()); bCD = bCD | 4; }
+		if(!groupTF.getText().equals(updateVol.getGroup())) { updateVol.setGroup(groupTF.getText()); bCD = bCD | 8; }
+		if(!hPhoneTF.getText().equals(updateVol.getHomePhone())) { updateVol.setHomePhone(hPhoneTF.getText()); bCD = bCD | 16; }
+		if(!cPhoneTF.getText().equals(updateVol.getCellPhone())) { updateVol.setCellPhone(cPhoneTF.getText()); bCD = bCD | 32; }
+		if(!emailTF.getText().equals(updateVol.getEmail())) { updateVol.setEmail(emailTF.getText()); bCD = bCD | 64; }
+		if(!streetnumTF.getText().equals(updateVol.gethNum())) { updateVol.sethNum(streetnumTF.getText()); bCD = bCD | 128; }
+		if(!streetnameTF.getText().equals(updateVol.getStreet())) { updateVol.setStreet(streetnameTF.getText()); bCD = bCD | 256; }		
+		if(!unitTF.getText().equals(updateVol.getUnit())) { updateVol.setUnit(unitTF.getText()); bCD = bCD | 512; }
+		if(!cityTF.getText().equals(updateVol.getCity())) { updateVol.setCity(cityTF.getText()); bCD = bCD | 1024; }
+		if(!zipTF.getText().equals(updateVol.getZipcode())) { updateVol.setZipcode(zipTF.getText()); bCD = bCD | 2048; }
+		if(!commentTF.getText().equals(updateVol.getComment())) { updateVol.setComment(commentTF.getText()); bCD = bCD | 4096; }
+		if(generateActivityCode() != updateVol.getActivityCode()) { updateVol.setActivityCode(generateActivityCode()); bCD = bCD | 8192; }
 		
-		if(bCD)	//If an update to organization data (not stop light data) was detected
+		if(bCD > 0)	//If an update to organization data (not stop light data) was detected
 		{
 			updateVol.setDateChanged(gvs.getTodaysDate());
 			
@@ -303,7 +303,7 @@ public class VolunteerDialog extends EntityDialog
 						JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
 			}
 			
-			bCD = false;
+//			bCD = false;
 		}
 	}
 	

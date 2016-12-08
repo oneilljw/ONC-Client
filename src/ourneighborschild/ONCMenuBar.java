@@ -118,7 +118,7 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 	    submenuImport.add(importWFCMMI);
 
 	    //Import Delivery Partners
-	    importVolMI = new JMenuItem("Delivery Partners...");
+	    importVolMI = new JMenuItem("Volunteers");
 	    importVolMI.addActionListener(this);
 	    submenuImport.add(importVolMI);
 	    

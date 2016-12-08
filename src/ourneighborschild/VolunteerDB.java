@@ -60,21 +60,20 @@ public class VolunteerDB extends ONCSearchableDatabase
 	String importDrivers(JFrame pFrame, Date today, String user, ImageIcon oncIcon)	
 	{	
     	JFileChooser chooser = new JFileChooser();
-    	chooser.setDialogTitle("Select Driver .csv file to import");	
+    	chooser.setDialogTitle("Select Volunteer .csv file to import");	
  	    chooser.setFileFilter(new FileNameExtensionFilter("CSV Files", "csv"));
  	       
-	    String filename = "";
-	    int importcount = 0;
+	    int volunteersAddedCount = 0;
+	    File volFile = null;
 	    
 	    int returnVal = chooser.showOpenDialog(pFrame);
 	    if(returnVal == JFileChooser.APPROVE_OPTION)
 	    {	    
-	    	File pyfile = chooser.getSelectedFile();
-	    	filename = pyfile.getName();
+	    	volFile = chooser.getSelectedFile();
 	    	CSVReader reader = null;
 	    	try 
 	    	{
-	    		reader = new CSVReader(new FileReader(pyfile.getAbsoluteFile()));
+	    		reader = new CSVReader(new FileReader(volFile.getAbsoluteFile()));
 	    		String[] nextLine, header;
     		
 	    		if((header = reader.readNext()) != null)
@@ -82,40 +81,76 @@ public class VolunteerDB extends ONCSearchableDatabase
 	    			//Read the ONC CSV File
 	    			if(header.length == DRIVER_CSVFILE_HEADER_LENGTH)
 	    			{
+	    				//build a list of ONCVolunteers from the file.
+	    				List<ONCVolunteer> volList = new ArrayList<ONCVolunteer>();
+	    				
 	    				while ((nextLine = reader.readNext()) != null)	// nextLine[] is an array of values from the line
 	    				{
-	    					//Check to see if its a delivery day driver
-	    					if(nextLine[5].contains("Deliver gifts to recipients") && 
-	    							!(nextLine[6].isEmpty() && nextLine[7].isEmpty()))
+	    					//don't process records that don't have at least a first or last name
+	    					if(nextLine[6].length() + nextLine[7].length() > 2)
 	    					{
-	    						//If it is, read them into an array list of string[]
-	    						//If it is, generate and send add request to the server
-	    						ONCVolunteer addDriverReq = new ONCVolunteer(nextLine, generateDriverID(), today, user, 1);
-	    						String response = add(this, addDriverReq);
-	    						
-	    						if(response.startsWith("ADDED_DRIVER"))
-	    							importcount++;
+	    						ONCVolunteer currVol = searchVolunteerListForMatch(nextLine[6], nextLine[7], volList);
+	    					
+	    						if(currVol != null)
+	    						{
+	    							//update the volunteer with the activity from this line
+	    							currVol.setActivityCode(updateActivityCode(nextLine[4], currVol.getActivityCode()));
+	    						}
 	    						else
 	    						{
-	    							JOptionPane.showMessageDialog(pFrame, "Add Driver failed, driver: " + addDriverReq.getlName(), 
-	    		    						"Server ADD DRIVER failed", JOptionPane.ERROR_MESSAGE, oncIcon); 
+	    							//create a new volunteer and add it
+	    							int newActivityCode = updateActivityCode(nextLine[4], 0);
+	    							ONCVolunteer newVol = new ONCVolunteer(nextLine, today, user, newActivityCode);
+	    						
+	    							volList.add(newVol);
 	    						}
 	    					}
 	    				}
-	 
+	    				
+	    				Collections.sort(volList);
+	    				
+	    				//now that we have a list of volunteers from the file, send the to the
+	    				//server to add to the existing database
+	    				//create the request to the server to import the families
+		    			Gson gson = new Gson();
+		    			Type listtype = new TypeToken<ArrayList<ONCVolunteer>>(){}.getType();
+		    			
+		    			String response = serverIF.sendRequest("POST<volunteer_group>" + gson.toJson(volList, listtype));
+		    			
+		    			if(response != null && response.startsWith("ADDED_VOLUNTEER_GROUP"))
+		    			{
+		    				//process the list of jsons returned, adding agent, families, adults
+		    				//and children to the local databases
+		    		    	Type jsonlisttype = new TypeToken<ArrayList<String>>(){}.getType();
+		    		    	ArrayList<String> changeList = gson.fromJson(response.substring(21), jsonlisttype);
+		    		    	
+		    		    	//loop thru list of changes, processing each one
+		    		    	for(String change: changeList)
+		    		    		if(change.startsWith("ADDED_DRIVER"))
+		    		    		{
+		    		    			this.processAddedObject(this, change.substring("ADDED_DRIVER".length()));
+		    		    			volunteersAddedCount++;
+		    		    		}
+		    			}
+		    			else
+		    			{
+		    				JOptionPane.showMessageDialog(pFrame, "An error occured, " +
+		    	    			 volFile.getName() + " cannot be imported by the server", 
+		    	    			"ONC Server Britepath Import Error", JOptionPane.ERROR_MESSAGE, GlobalVariables.getONCLogo());
+		    			}
 	    			}
 	    			else
-	    				JOptionPane.showMessageDialog(pFrame, "Driver file corrupted, header length = " + Integer.toString(header.length), 
-    						"Invalid Driver File", JOptionPane.ERROR_MESSAGE, oncIcon);   			
+	    				JOptionPane.showMessageDialog(pFrame, "Volunteer file corrupted, header length = " + Integer.toString(header.length), 
+    						"Invalid Volunteer File", JOptionPane.ERROR_MESSAGE, oncIcon);   			
 	    		}
 	    		else
-	    			JOptionPane.showMessageDialog(pFrame, "Couldn't read header in file: " + filename, 
-						"Invalid Driver File", JOptionPane.ERROR_MESSAGE, oncIcon); 
+	    			JOptionPane.showMessageDialog(pFrame, "Couldn't read header in file: " + volFile.getName(), 
+						"Invalid Volunteer File", JOptionPane.ERROR_MESSAGE, oncIcon); 
 	    	} 
 	    	catch (IOException x)
 	    	{
-	    		JOptionPane.showMessageDialog(pFrame, "Unable to open Driver file: " + filename, 
-    				"Organizations file not found", JOptionPane.ERROR_MESSAGE, oncIcon);
+	    		JOptionPane.showMessageDialog(pFrame, "Unable to open Volunteer file: " + volFile.getName(), 
+    				"Volunteer file not found", JOptionPane.ERROR_MESSAGE, oncIcon);
 	    	}
 	    	finally
 	    	{
@@ -129,12 +164,46 @@ public class VolunteerDB extends ONCSearchableDatabase
 	    }
 	    
 	    //If no drivers were in the file
-	    if(importcount == 0)
+	    if(volFile == null || volunteersAddedCount == 0)
 	    	return "No Delivery Drivers were imported";
-	    else	//Alphabetize and add new driver objects to the driver db
-	    {
-	    	return String.format("%d Delivery Drivers imported from %s", importcount, filename);
-	    }
+	    else
+	    	return String.format("%d Delivery Drivers imported from %s", volunteersAddedCount, volFile.getName());
+	    
+	}
+	
+	int updateActivityCode(String line, int activityCode)
+	{
+		String[] choices = {"Gift Inventory and Set up",
+							"Adult Warehouse Volunteers",
+							"Shopper",
+							"Packaging",
+							"Cookie Bakers",
+							"Miscellaneous Warehouse Support",
+							"Set up for Delivery",
+							"Delivery Day",
+							"Warehouse Inventory/Clean-Up"};
+		
+		int[] codes = {16,4,32,8,64,4,1,2,128};
+		
+		
+		int index = 0;
+		while(index < choices.length && !line.equals(choices[index]))
+			index++;
+		
+		if(index < choices.length)
+			activityCode = activityCode | codes[index];
+		
+		return activityCode;
+	}
+	
+	ONCVolunteer searchVolunteerListForMatch(String fn, String ln, List<ONCVolunteer> volList)
+	{
+		int index = 0;
+		while(index < volList.size() &&
+			  !(volList.get(index).getfName().equals(fn) && volList.get(index).getlName().equals(ln)))
+			index++;
+		
+		return index < volList.size() ? volList.get(index) : null;
 	}
 	
 	public void readDriverALObject(ObjectInputStream ois)
@@ -173,13 +242,6 @@ public class VolunteerDB extends ONCSearchableDatabase
 		driverAL.clear();
 	}
 	
-	int generateDriverID()
-	{
-		int id = driverAL.size() + 1;
-		
-		return id;
-	}
-
 	public int getDriverIndex(int driverID)
 	{
 		int index = 0;
@@ -217,30 +279,6 @@ public class VolunteerDB extends ONCSearchableDatabase
 			return -1;
 	}
 	
-/*	CHANGED WHEN DRIVER NOW HAS BOTH AN ID and a DRV NUM
-	String getDriverLNFI(String dID)
-	{
-		String result = dID;
-		
-		//If a numeric string (valid driver ID) search the data base. If a match is found
-		//return the last name, first initial. If the ID is valid and no match is found 
-		//it means the ID hasn't been entered in the data base yet. In that case, return it. 
-		//id. If the ID isn't valid, simply return it as well 
-		if(!dID.isEmpty() && dID.matches("-?\\d+(\\.\\d+)?"))
-		{
-			long driverID = Long.parseLong(dID);
-		
-			int index = 0;
-			while(index < driverAL.size() && driverAL.get(index).getID() != driverID )
-				index++;
-		
-			if(index < driverAL.size())	//Valid ID found in database
-				result = driverAL.get(index).getlName() + ", " + driverAL.get(index).getfName().charAt(0);
-		}
-		
-		return result;	
-	}
-*/	
 	String getDriverLNFN(String dNumber)
 	{
 		String result = dNumber;
