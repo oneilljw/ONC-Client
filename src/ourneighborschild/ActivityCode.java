@@ -11,7 +11,11 @@ public enum ActivityCode
 	Gift_Inventory (16, "Gift Inventory"),
 	Shopper (32, "Shopping"),
 	Cookie_Baker (64, "Cookie Baker"),
-	Warehouse_CleanUp (128, "Warehouse Clean-Up");
+	Warehouse_CleanUp (128, "Warehouse Clean-Up"),
+	Clothing (128, "Clothing"),
+	Corp_Team_Building (128, "Corp. Team Building"),
+	Bike_Assembly (128, "Bike Assembly"),
+	Post_Delivery (128, "Post-Delivery");
 	
 	private final int code;
 	private final String activity;
@@ -54,7 +58,9 @@ public enum ActivityCode
 									ActivityCode.Delivery, ActivityCode.Warehouse, 
 									ActivityCode.Packager, ActivityCode.Gift_Inventory,
 									ActivityCode.Shopper, ActivityCode.Cookie_Baker,
-									ActivityCode.Warehouse_CleanUp};
+									ActivityCode.Warehouse_CleanUp, ActivityCode.Clothing,
+									ActivityCode.Corp_Team_Building, ActivityCode.Bike_Assembly,
+									ActivityCode.Post_Delivery};
 							
 		return actSearch;
 	}

@@ -78,6 +78,7 @@ public class VolunteerDialog extends EntityDialog
         JPanel op4 = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JPanel op5 = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JPanel op6 = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel op7 = new JPanel(new FlowLayout(FlowLayout.LEFT));
         
         JPanel ckBoxPanel = new JPanel();
         ckBoxPanel.setLayout(new BoxLayout(ckBoxPanel, BoxLayout.Y_AXIS));
@@ -197,7 +198,7 @@ public class VolunteerDialog extends EntityDialog
        
         op4.add(commentTF);
         
-        ckBoxActivities = new JCheckBox[8];
+        ckBoxActivities = new JCheckBox[12];
         ckBoxActivities[0] = new JCheckBox("Delivery Set Up");
         ckBoxActivities[1] = new JCheckBox("Delivery");
         ckBoxActivities[2] = new JCheckBox("Warehouse Support");
@@ -206,6 +207,10 @@ public class VolunteerDialog extends EntityDialog
         ckBoxActivities[5] = new JCheckBox("Shopping");
         ckBoxActivities[6] = new JCheckBox("Cookie Baker");
         ckBoxActivities[7] = new JCheckBox("Warehouse Clean Up");
+        ckBoxActivities[8] = new JCheckBox("Clothing");
+        ckBoxActivities[9] = new JCheckBox("Corp Team Building");
+        ckBoxActivities[10] = new JCheckBox("Bike Assembly");
+        ckBoxActivities[11] = new JCheckBox("Post Delivery");
         
         int bn;
         for(bn=0; bn < 5; bn++ )
@@ -214,10 +219,15 @@ public class VolunteerDialog extends EntityDialog
         	op5.add(ckBoxActivities[bn]);
         }	
         
-        for(bn=5; bn < ckBoxActivities.length; bn++)
+        for(bn=5; bn < 9; bn++)
         {
         	ckBoxActivities[bn].addActionListener(dcListener);
         	op6.add(ckBoxActivities[bn]);
+        }
+        for(bn=9; bn < ckBoxActivities.length; bn++)
+        {
+        	ckBoxActivities[bn].addActionListener(dcListener);
+        	op7.add(ckBoxActivities[bn]);
         }
        
         ckBoxPanel.add(op5);

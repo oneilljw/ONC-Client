@@ -181,9 +181,18 @@ public class VolunteerDB extends ONCSearchableDatabase
 							"Miscellaneous Warehouse Support",
 							"Set up for Delivery",
 							"Delivery Day",
-							"Warehouse Inventory/Clean-Up"};
+							"Warehouse Inventory/Clean-Up",
+							"\"Adopt\" a child's clothing wishes",
+							"Coprorate \"Team Building\"",
+							"Warehouse Set-up",
+							"Warehouse \"Warriors\" (adults)",
+							"Bike Assembly Volunteers",
+							"Shoppers",
+							"Adult Volunteers for Warehouse Delivery Day Assignments",
+							"Post Delivery - Weekday Delivery Volunteers",
+							"Warehouse Inventory/Pack Up"};
 		
-		int[] codes = {16,4,32,8,64,4,1,2,128};
+		int[] codes = {16,4,32,8,64,4,1,2,128,256,512,4,4,1024,32,4,2048,128};
 		
 		
 		int index = 0;
