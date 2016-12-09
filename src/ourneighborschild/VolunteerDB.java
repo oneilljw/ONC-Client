@@ -31,12 +31,12 @@ public class VolunteerDB extends ONCSearchableDatabase
 	private static final int DRIVER_OBJECT_CSV_HEADER_LENGTH = 18;
 	private static final int DRIVER_CSVFILE_HEADER_LENGTH = 20;
 	private static VolunteerDB instance = null;
-	private List<ONCVolunteer> driverAL;
+	private List<ONCVolunteer> volunteerList;
 	
 	private VolunteerDB()
 	{
 		super(DB_TYPE);
-		driverAL = new ArrayList<ONCVolunteer>();
+		volunteerList = new ArrayList<ONCVolunteer>();
 	}
 	
 	public static VolunteerDB getInstance()
@@ -48,14 +48,14 @@ public class VolunteerDB extends ONCSearchableDatabase
 	}
 	
 	@Override
-	List<ONCVolunteer> getList() { return driverAL; }
+	List<ONCVolunteer> getList() { return volunteerList; }
 	
-	ONCVolunteer getDriver(int index) { return driverAL.get(index); }
+	ONCVolunteer getDriver(int index) { return volunteerList.get(index); }
 	
 	//implementation of abstract classes
-	ONCVolunteer getObjectAtIndex(int index) { return driverAL.get(index); }
+	ONCVolunteer getObjectAtIndex(int index) { return volunteerList.get(index); }
 	
-	public List<ONCVolunteer> getDriverDB() { return driverAL; }
+	public List<ONCVolunteer> getDriverDB() { return volunteerList; }
 	
 	String importDrivers(JFrame pFrame, Date today, String user, ImageIcon oncIcon)	
 	{	
@@ -182,21 +182,20 @@ public class VolunteerDB extends ONCSearchableDatabase
 							"Set up for Delivery",
 							"Delivery Day",
 							"Warehouse Inventory/Clean-Up",
-							"\"Adopt\" a child's clothing wishes",
-							"Coprorate \"Team Building\"",
-							"Warehouse Set-up",
-							"Warehouse \"Warriors\" (adults)",
+							"clothing wishes",
+							"Coprorate",
+							"Warehouse Set-Up",
+							"arriors",
 							"Bike Assembly Volunteers",
-							"Shoppers",
 							"Adult Volunteers for Warehouse Delivery Day Assignments",
-							"Post Delivery - Weekday Delivery Volunteers",
+							"Post Delivery",
 							"Warehouse Inventory/Pack Up"};
 		
-		int[] codes = {16,4,32,8,64,4,1,2,128,256,512,4,4,1024,32,4,2048,128};
+		int[] codes = {16,4,32,8,64,4,1,2,128,256,512,4096,4,1024,4,2048,128};
 		
 		
 		int index = 0;
-		while(index < choices.length && !line.equals(choices[index]))
+		while(index < choices.length && !line.contains(choices[index]))
 			index++;
 		
 		if(index < choices.length)
@@ -219,7 +218,7 @@ public class VolunteerDB extends ONCSearchableDatabase
 	{
 		try 
 		{
-			driverAL = (ArrayList<ONCVolunteer>) ois.readObject();		
+			volunteerList = (ArrayList<ONCVolunteer>) ois.readObject();		
 		} 
 		catch (IOException e)
 		{
@@ -237,7 +236,7 @@ public class VolunteerDB extends ONCSearchableDatabase
 	{
 		try
 		{
-			oos.writeObject(driverAL);
+			oos.writeObject(volunteerList);
 		}
 		catch (IOException e) 
 		{
@@ -248,16 +247,16 @@ public class VolunteerDB extends ONCSearchableDatabase
 	
 	void clearDriverData()
 	{
-		driverAL.clear();
+		volunteerList.clear();
 	}
 	
 	public int getDriverIndex(int driverID)
 	{
 		int index = 0;
-		while(index < driverAL.size() && driverAL.get(index).getID() != driverID )
+		while(index < volunteerList.size() && volunteerList.get(index).getID() != driverID )
 			index++;
 			
-		if(index < driverAL.size())
+		if(index < volunteerList.size())
 			return index;
 		else
 			return -1;
@@ -266,11 +265,11 @@ public class VolunteerDB extends ONCSearchableDatabase
 	String getDriverLNFI(int driverID)
 	{
 		int index = 0;
-		while(index < driverAL.size() && driverAL.get(index).getID() != driverID )
+		while(index < volunteerList.size() && volunteerList.get(index).getID() != driverID )
 			index++;
 			
-		if(index < driverAL.size())
-			return driverAL.get(index).getlName() + ", " + driverAL.get(index).getfName().charAt(0);
+		if(index < volunteerList.size())
+			return volunteerList.get(index).getlName() + ", " + volunteerList.get(index).getfName().charAt(0);
 		else
 			return Long.toString(driverID);
 	}
@@ -279,10 +278,10 @@ public class VolunteerDB extends ONCSearchableDatabase
 	int getDriverIndex(String dNumber)
 	{
 		int index = 0;
-		while(index < driverAL.size() && !driverAL.get(index).getDrvNum().equals(dNumber))
+		while(index < volunteerList.size() && !volunteerList.get(index).getDrvNum().equals(dNumber))
 			index++;
 		
-		if(index < driverAL.size())
+		if(index < volunteerList.size())
 			return index;
 		else
 			return -1;
@@ -300,11 +299,11 @@ public class VolunteerDB extends ONCSearchableDatabase
 		{
 		
 			int index = 0;
-			while(index < driverAL.size() && !driverAL.get(index).getDrvNum().equals(dNumber))
+			while(index < volunteerList.size() && !volunteerList.get(index).getDrvNum().equals(dNumber))
 				index++;
 		
-			if(index < driverAL.size())	//Valid ID found in database
-				result = driverAL.get(index).getlName() + ", " + driverAL.get(index).getfName();
+			if(index < volunteerList.size())	//Valid ID found in database
+				result = volunteerList.get(index).getlName() + ", " + volunteerList.get(index).getfName();
 		}
 		
 		return result;	
@@ -320,7 +319,7 @@ public class VolunteerDB extends ONCSearchableDatabase
 			Type listtype = new TypeToken<ArrayList<ONCVolunteer>>(){}.getType();
 			
 			response = serverIF.sendRequest("GET<drivers>");
-				driverAL = gson.fromJson(response, listtype);				
+				volunteerList = gson.fromJson(response, listtype);				
 
 			if(!response.startsWith("NO_DRIVERS"))
 			{
@@ -367,9 +366,9 @@ public class VolunteerDB extends ONCSearchableDatabase
 	    			//Read the ONC CSV File
 	    			if(header.length == DRIVER_OBJECT_CSV_HEADER_LENGTH)
 	    			{
-	    				driverAL.clear();
+	    				volunteerList.clear();
 	    				while ((nextLine = reader.readNext()) != null)	// nextLine[] is an array of values from the line
-	    					driverAL.add(new ONCVolunteer(nextLine));
+	    					volunteerList.add(new ONCVolunteer(nextLine));
 	    			}
 	    			else
 	    				JOptionPane.showMessageDialog(pf, "Driver database file corrupted, header length = " + Integer.toString(header.length), 
@@ -421,7 +420,7 @@ public class VolunteerDB extends ONCSearchableDatabase
 	    		CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
 	    	    writer.writeNext(header);
 	    	    
-	    	    for(ONCVolunteer d:driverAL)
+	    	    for(ONCVolunteer d:volunteerList)
 	    	    	writer.writeNext(d.getExportRow());	//Get family data
 	    	 
 	    	    writer.close();
@@ -474,7 +473,7 @@ public class VolunteerDB extends ONCSearchableDatabase
 		//Store added organization in local data base
 		Gson gson = new Gson();
 		ONCVolunteer addedDriver = gson.fromJson(json, ONCVolunteer.class);
-		driverAL.add(addedDriver);
+		volunteerList.add(addedDriver);
 //		System.out.println(String.format("DriverDB processAddedDriver: Driver Added ID: %d",
 //				addedDriver.getID()));
 		//Notify local user IFs that an organization/partner was added
@@ -492,7 +491,7 @@ public class VolunteerDB extends ONCSearchableDatabase
 		
 		if(response.startsWith("UPDATED_DRIVER"))
 		{
-			processUpdatedObject(source, response.substring(14), driverAL);
+			processUpdatedObject(source, response.substring(14), volunteerList);
 		}
 		
 		return response;
@@ -539,13 +538,13 @@ public class VolunteerDB extends ONCSearchableDatabase
 		ONCVolunteer deletedObj = gson.fromJson(json, ONCVolunteer.class);
 		
 		int index=0;
-		while(index < driverAL.size() && driverAL.get(index).getID() != deletedObj.getID())
+		while(index < volunteerList.size() && volunteerList.get(index).getID() != deletedObj.getID())
 			index++;
 		
 		//If deleted partner was found, remove it and notify ui's
-		if(index < driverAL.size())
+		if(index < volunteerList.size())
 		{
-			driverAL.remove(index);
+			volunteerList.remove(index);
 			fireDataChanged(source, "DELETED_DRIVER", deletedObj);
 		}
 	}
@@ -560,7 +559,7 @@ public class VolunteerDB extends ONCSearchableDatabase
 	void replaceObject(int index, ONCObject updatedObj)
 	{
 		ONCVolunteer updatedDriver = (ONCVolunteer) updatedObj;
-		driverAL.set(index,  updatedDriver);
+		volunteerList.set(index,  updatedDriver);
 //		System.out.println(String.format("DriverDB- replaceObject: first name: %s", updatedDriver.getfName()));
 	}
 		
@@ -570,7 +569,7 @@ public class VolunteerDB extends ONCSearchableDatabase
 		if(ue.getType().equals("UPDATED_DRIVER"))
 		{
 //			System.out.println(String.format("DriverDB- datachanged: json: %s", ue.getJson()));
-			processUpdatedObject(this, ue.getJson(), driverAL);
+			processUpdatedObject(this, ue.getJson(), volunteerList);
 		}
 		else if(ue.getType().equals("ADDED_DRIVER"))
 		{
@@ -597,18 +596,18 @@ public class VolunteerDB extends ONCSearchableDatabase
     		if(data.matches("-?\\d+(\\.\\d+)?"))
     		{
     			int index = 0;
-    			while(index < driverAL.size() && !driverAL.get(index).getDrvNum().equals(data))
+    			while(index < volunteerList.size() && !volunteerList.get(index).getDrvNum().equals(data))
     				index++;
     			
-    			if(index < driverAL.size())
-    				searchAL.add(driverAL.get(index).getID());
+    			if(index < volunteerList.size())
+    				searchAL.add(volunteerList.get(index).getID());
     		}
     	}
     	else	//Check for driver first name or last name
     	{
     		searchType = "Driver Name";
 //			for(int i=0; i<this.getNumberOfOrganizations(); i++)
-			for(ONCVolunteer d:driverAL)
+			for(ONCVolunteer d:volunteerList)
 			{
 				if(d.getfName().toLowerCase().contains(data.toLowerCase()) ||
 					d.getlName().toLowerCase().contains(data.toLowerCase()))
@@ -622,7 +621,7 @@ public class VolunteerDB extends ONCSearchableDatabase
 	}
 
 	@Override
-	int size() { return driverAL.size(); }
+	int size() { return volunteerList.size(); }
 	
 	boolean sortDB(ArrayList<ONCVolunteer> dAL, String dbField)
 	{

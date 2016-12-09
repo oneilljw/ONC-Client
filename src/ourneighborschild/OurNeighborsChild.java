@@ -18,9 +18,7 @@ import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.List;
@@ -277,7 +275,7 @@ public class OurNeighborsChild
 		catch (FileNotFoundException e) { return defaultServerAddress; }
     	catch (IOException e) { return defaultServerAddress; }
     }
-    
+/*    
     void writeServerIPAddressToFile(String ipAddress)
     {
     	PrintWriter outputStream = null;
@@ -302,7 +300,7 @@ public class OurNeighborsChild
 				outputStream.close();	
 		}
     }
-    
+*/    
     // General quit handler; fed to the OSXAdapter as the method to call when a system quit event occurs
     // A quit event is triggered by Cmd-Q, selecting Quit from the application or Dock menu, or logging out
     public boolean quit()

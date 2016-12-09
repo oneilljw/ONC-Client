@@ -12,10 +12,12 @@ public enum ActivityCode
 	Shopper (32, "Shopping"),
 	Cookie_Baker (64, "Cookie Baker"),
 	Warehouse_CleanUp (128, "Warehouse Clean-Up"),
-	Clothing (128, "Clothing"),
-	Corp_Team_Building (128, "Corp. Team Building"),
-	Bike_Assembly (128, "Bike Assembly"),
-	Post_Delivery (128, "Post-Delivery");
+//****** New for 2016 ****************//
+	Clothing (256, "Clothing"),							
+	Corp_Team_Building (512, "Corp. Team Building"),
+	Bike_Assembly (1024, "Bike Assembly"),
+	Post_Delivery (2048, "Post-Delivery"),
+	Warehouse_Setup (4096, "Warehouse Set-Up");
 	
 	private final int code;
 	private final String activity;
@@ -60,7 +62,7 @@ public enum ActivityCode
 									ActivityCode.Shopper, ActivityCode.Cookie_Baker,
 									ActivityCode.Warehouse_CleanUp, ActivityCode.Clothing,
 									ActivityCode.Corp_Team_Building, ActivityCode.Bike_Assembly,
-									ActivityCode.Post_Delivery};
+									ActivityCode.Post_Delivery, ActivityCode.Warehouse_Setup};
 							
 		return actSearch;
 	}
@@ -71,7 +73,9 @@ public enum ActivityCode
 									ActivityCode.Delivery, ActivityCode.Warehouse, 
 									ActivityCode.Packager, ActivityCode.Gift_Inventory,
 									ActivityCode.Shopper, ActivityCode.Cookie_Baker,
-									ActivityCode.Warehouse_CleanUp};
+									ActivityCode.Warehouse_CleanUp, ActivityCode.Clothing,
+									ActivityCode.Corp_Team_Building, ActivityCode.Bike_Assembly,
+									ActivityCode.Post_Delivery, ActivityCode.Warehouse_Setup};
 		
 		return actChange;
 	}
@@ -82,7 +86,9 @@ public enum ActivityCode
 									ActivityCode.Delivery, ActivityCode.Warehouse, 
 									ActivityCode.Packager, ActivityCode.Gift_Inventory,
 									ActivityCode.Shopper, ActivityCode.Cookie_Baker,
-									ActivityCode.Warehouse_CleanUp};
+									ActivityCode.Warehouse_CleanUp, ActivityCode.Clothing,
+									ActivityCode.Corp_Team_Building, ActivityCode.Bike_Assembly,
+									ActivityCode.Post_Delivery, ActivityCode.Warehouse_Setup};
 		
 		return actChange;
 	}

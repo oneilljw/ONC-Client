@@ -198,19 +198,20 @@ public class VolunteerDialog extends EntityDialog
        
         op4.add(commentTF);
         
-        ckBoxActivities = new JCheckBox[12];
-        ckBoxActivities[0] = new JCheckBox("Delivery Set Up");
+        ckBoxActivities = new JCheckBox[13];
+        ckBoxActivities[0] = new JCheckBox("Delivery Set-Up");
         ckBoxActivities[1] = new JCheckBox("Delivery");
         ckBoxActivities[2] = new JCheckBox("Warehouse Support");
         ckBoxActivities[3] = new JCheckBox("Packager");
         ckBoxActivities[4] = new JCheckBox("Gift Inventory");
         ckBoxActivities[5] = new JCheckBox("Shopping");
         ckBoxActivities[6] = new JCheckBox("Cookie Baker");
-        ckBoxActivities[7] = new JCheckBox("Warehouse Clean Up");
+        ckBoxActivities[7] = new JCheckBox("Warehouse Clean-Up");
         ckBoxActivities[8] = new JCheckBox("Clothing");
         ckBoxActivities[9] = new JCheckBox("Corp Team Building");
         ckBoxActivities[10] = new JCheckBox("Bike Assembly");
         ckBoxActivities[11] = new JCheckBox("Post Delivery");
+        ckBoxActivities[12] = new JCheckBox("Warehouse Set-Up");
         
         int bn;
         for(bn=0; bn < 5; bn++ )
@@ -232,6 +233,7 @@ public class VolunteerDialog extends EntityDialog
        
         ckBoxPanel.add(op5);
         ckBoxPanel.add(op6);
+        ckBoxPanel.add(op7);
             
         entityPanel.add(op1);
         entityPanel.add(op2);
@@ -296,6 +298,7 @@ public class VolunteerDialog extends EntityDialog
 		
 		if(bCD > 0)	//If an update to organization data (not stop light data) was detected
 		{
+//			System.out.println(String.format("VolDlg.update: bCD= %d, volLN= %s", bCD, updateVol.getlName()));
 			updateVol.setDateChanged(gvs.getTodaysDate());
 			
 			//request an update from the server
@@ -335,7 +338,7 @@ public class VolunteerDialog extends EntityDialog
 				currVolunteer = volDB.getObjectAtIndex(0);
 			else if(volunteer != null  && volunteer != currVolunteer)
 				currVolunteer = (ONCVolunteer) volunteer;
-				
+			
 			//display the current volunteer
 			bIgnoreEvents = true;
 			
@@ -549,7 +552,7 @@ public class VolunteerDialog extends EntityDialog
 		{
 			ONCVolunteer addedDriver = (ONCVolunteer) dbe.getObject();
 			//If no volunteer is being displayed, display the added one
-			if(currVolunteer == null && volDB.size() > 0 && !bAddingNewEntity)
+			if(this.isVisible() && currVolunteer == null && volDB.size() > 0 && !bAddingNewEntity)
 				display(addedDriver);
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("DELETED_DRIVER"))

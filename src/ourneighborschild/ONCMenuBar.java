@@ -27,12 +27,12 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 	
 	private DatabaseManager oncDB;
 	private JMenuItem newMI;
-	private JMenuItem importBritepathsMI, importWFCMMI, importRAFMI;
-	private JMenuItem importONCMI, importPYMI, importPYORGMI,importWishCatMI, manageCallResultMI;
+	private JMenuItem importBritepathsMI, importWFCMMI, importVolMI, importRAFMI;
+	private JMenuItem manageCallResultMI;
 	private JMenuItem exportMI, dbStatusMI, clearMI;
 	public JMenuItem exitMI;	//public since exit method is external to the menu bar
 	private JMenuItem findDupFamsMI, findDupChldrnMI, crosscheckMI;
-	private JMenuItem assignDelMI, editVolMI, manageDelMI, importVolMI, mapsMI, delstatusMI, distMI;
+	private JMenuItem assignDelMI, editVolMI, manageDelMI, mapsMI, delstatusMI, distMI;
 	private JMenuItem newFamMI, changeONCMI, changeRefMI, changeBatchMI, newChildMI, delChildMI, markAdultMI, connectChildMI;
 	private JMenu submenuImport, submenuFamilyDataChecks;
 	private JMenu submenuExport, submenuChangeFamilyNumbers, submenuDBYearList;
@@ -88,27 +88,7 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 	    
 	    submenuImport = new JMenu("Import");
 	    submenuImport.setEnabled(false);
-	       
-	    importONCMI = new JMenuItem("Curent year ONC .csv file");
-	    importONCMI.setVisible(false);
-	    importONCMI.addActionListener(this);
-	    submenuImport.add(importONCMI);
-	    
-	    importPYMI = new JMenuItem("Prior year ONC .csv file");
-	    importPYMI.setVisible(false);
-	    importPYMI.addActionListener(this);
-	    submenuImport.add(importPYMI);
-	    
-	    importPYORGMI = new JMenuItem("ONC Organizations .csv file");
-	    importPYORGMI.setVisible(false);
-	    importPYORGMI.addActionListener(this);
-	    submenuImport.add(importPYORGMI);
-	    
-	    importWishCatMI = new JMenuItem("Wish Catalog .csv file");
-	    importWishCatMI.setVisible(false);
-	    importWishCatMI.addActionListener(this);
-	    submenuImport.add(importWishCatMI);
-	  	    
+ 
 	    importBritepathsMI = new JMenuItem("From Britepaths...");
 	    importBritepathsMI.addActionListener(this);
 	    submenuImport.add(importBritepathsMI);
@@ -200,7 +180,7 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 	    menuFamilies.addSeparator();
 	    
 	    newFamMI = new JMenuItem("Add New Family");
-//	    newFamMI.setEnabled(false);
+	    newFamMI.setEnabled(false);
 	    newFamMI.addActionListener(this);
 	    menuFamilies.add(newFamMI);
 	    
@@ -331,6 +311,7 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 	    //Edit Volunteers
 	    editVolMI = new JMenuItem("Edit Volunteers");
 	    editVolMI.setActionCommand("Edit Volunteers");
+	    editVolMI.setEnabled(false);
 	    editVolMI.addActionListener(this);
 	    menuVolunteers.add(editVolMI);
 	 
@@ -514,8 +495,6 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 	
 	void setVisibleSpecialImports(boolean tf)	//Only Superuser can perform these functions
     {
-    	submenuImport.setEnabled(true);
-    	
     	showWebsiteStatusMI.setVisible(true);
     	stopPollingMI.setVisible(true);
     }
@@ -534,8 +513,12 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 	
 	void setEnabledYear(boolean tf) {submenuDBYearList.setEnabled(tf);}
 	void setEnabledNewMenuItem(boolean tf) { newMI.setEnabled(tf); }
-	void setEnabledPriorYearSpecialImport(boolean tf) { importPYMI.setEnabled(tf); }
-	void setEnabledImportMenuItems(boolean tf) { submenuImport.setEnabled(tf); }
+	void setEnabledAdminDataLoadedMenuItems(boolean tf) 
+	{ 
+		submenuImport.setEnabled(tf);
+		newFamMI.setEnabled(tf);
+	}
+	
 	void setEnabledMarkorDeleteChildMenuItem(boolean tf)
 	{ 
 		delChildMI.setEnabled(tf);
@@ -546,6 +529,7 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 		agentMI.setEnabled(tf);
 		manageDelMI.setEnabled(tf);
 		inventoryMI.setEnabled(tf);
+		editVolMI.setEnabled(tf);
 	}
 
 	@Override
@@ -594,7 +578,7 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
     		setEnabledWishCatalogAndOrgMenuItems(true);
     		
     		if(userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0) 
-				setEnabledImportMenuItems(true);
+				setEnabledAdminDataLoadedMenuItems(true);
     		
     		if(familyDB.size() > 0)
 			{
@@ -611,30 +595,6 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 	public void actionPerformed(ActionEvent e) 
 	{
 		if(e.getSource() == newMI) { dbManager.addONCSeason(); }
-//		else if(e.getSource() == importONCMI) {OnImportMenuItemClicked("ONC");}
-		else if(e.getSource() == importONCMI) { }
-		else if(e.getSource() == importWishCatMI)
-		{
-			ONCWishCatalog cat = ONCWishCatalog.getInstance();
-			cat.importWishCatalog(GlobalVariables.getFrame(), GlobalVariables.getONCLogo(), null);
-		}
-		else if(e.getSource() == importPYMI)
-		{
-			//A prior year child database will be read and then split into different databases that 
-			//correspond to prior year child birth years. This allows higher performance when trying
-		    //to match a child from one season with a child from another season. 
-			//This ArrayList holds each array lists of PriorYearChild objects by year of birth
-//			ReadPriorYearCSVFile(oncPYCDB.getPriorYearChildAL());
-//		    ArrayList<ArrayList<ONCPriorYearChild>> pycbyAgeAL = buildPriorYearByAgeArrayList();
-			    			
-			//Enable the family panel to use prior year child data bases
-//		    if(!pycbyAgeAL.isEmpty()) { oncFamilyPanel.setPriorYearChildArrayList(pycbyAgeAL); }
-		}
-		else if(e.getSource() == importPYORGMI)
-		{
-			PartnerDB partnerDB = PartnerDB.getInstance();
-			partnerDB.importOrgDB(GlobalVariables.getFrame(), GlobalVariables.getONCLogo(), null);
-		}
 		else if(e.getSource() == importBritepathsMI) {familyDB.importBPFile(GlobalVariables.getFrame()); }
 		else if(e.getSource() == importRAFMI) { dlgManager.onImportRAFMenuItemClicked(); }
 		else if(e.getSource() == manageCallResultMI) {dlgManager.showAngelCallDialog();}

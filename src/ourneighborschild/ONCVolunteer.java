@@ -71,6 +71,7 @@ public class ONCVolunteer extends ONCEntity implements Comparable<ONCVolunteer>
 			lName = "No Last Name";		
 		else
 			this.lName = nextLine[7];
+		
 		this.email = nextLine[8];
 		
 		if(nextLine[11].isEmpty())
@@ -80,11 +81,20 @@ public class ONCVolunteer extends ONCEntity implements Comparable<ONCVolunteer>
 		}
 		else
 		{
-			this.hNum = nextLine[11].split(" ", 2)[0];
-			this.street = nextLine[11].split(" ", 2)[1];;
+			String[] addressParts = nextLine[11].split(" ", 2);
+			if(addressParts.length == 1)
+			{
+				this.hNum = "";
+				this.street = addressParts[0];
+			}
+			else
+			{
+				this.hNum = addressParts[0];
+				this.street = addressParts[1];
+			}
 		}
 		
-		this.unit = "";
+		this.unit = nextLine[12];
 		this.city = nextLine[13];
 		this.zipcode = nextLine[15];
 		if(nextLine[18].contains("Home"))
