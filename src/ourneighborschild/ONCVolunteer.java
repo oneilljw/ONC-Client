@@ -219,6 +219,17 @@ public class ONCVolunteer extends ONCEntity implements Comparable<ONCVolunteer>
 			return "None";
 	}
 	
+	int getNumberOfActivities()
+	{
+		int nActivities = 0;
+		
+		for(int actMask = 1; actMask <= ActivityCode.lastCode(); actMask = actMask << 1)
+			if((activityCode & actMask) > 0)
+				nActivities++;
+		
+		return nActivities;
+	}
+	
 	//setters
 	public void setDrvNum(String drvNum) { this.drvNum = drvNum; }
 	public void setfName(String fName) { this.fName = fName; }

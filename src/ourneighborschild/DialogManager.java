@@ -32,6 +32,7 @@ public class DialogManager implements EntitySelectionListener
 	private WishCatalogDialog catDlg;
 	private ManageUsersDialog userDlg;
 	private WarehouseSignInDialog signInDlg;
+	private ManageVolDialog manageVolDlg;
 	private ViewONCDatabaseDialog dbDlg;
 	private PYChildConnectionDialog pyConnectionDlg;
 	private AngelAutoCallDialog angelDlg;
@@ -137,8 +138,12 @@ public class DialogManager implements EntitySelectionListener
     	//Set up the manage user dialog
     	userDlg = new ManageUsersDialog(GlobalVariables.getFrame());
     	
-    	//Set up the manage user dialog
+    	//Set up the sign-in dialog
     	signInDlg = new WarehouseSignInDialog(GlobalVariables.getFrame());
+    	
+    	//Set up the manage volunteer dialog
+    	manageVolDlg = new ManageVolDialog(GlobalVariables.getFrame());
+    	eeManager.registerEntitySelector(manageVolDlg);
     	
     	 //Set up the sort family dialog
         sortFamiliesDlg = new SortFamilyDialog(GlobalVariables.getFrame());
@@ -299,6 +304,15 @@ public class DialogManager implements EntitySelectionListener
 		{
 	        signInDlg.setLocationRelativeTo(GlobalVariables.getFrame());
 			signInDlg.setVisible(true);
+		}
+	}
+	
+	void showManageVolDialog()
+	{
+		if(!manageVolDlg.isVisible())
+		{
+	        manageVolDlg.setLocationRelativeTo(GlobalVariables.getFrame());
+			manageVolDlg.setVisible(true);
 		}
 	}
 		

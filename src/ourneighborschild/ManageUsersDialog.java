@@ -3,6 +3,7 @@ package ourneighborschild;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.print.PrinterException;
@@ -10,6 +11,7 @@ import java.sql.Date;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultCellEditor;
 import javax.swing.ImageIcon;
@@ -17,6 +19,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -48,6 +51,8 @@ public class ManageUsersDialog extends JDialog implements ActionListener, ListSe
 	private static final int LAST_LOGIN_COL = 6;
 	private static final int RESET_PW_COL = 7;
 	
+	protected JPanel sortCriteriaPanel;
+	
 	private JFrame owner;
 	private ONCTable dlgTable;
 	private AbstractTableModel dlgTableModel;
@@ -66,6 +71,22 @@ public class ManageUsersDialog extends JDialog implements ActionListener, ListSe
 		userDB = UserDB.getInstance();
 		if(userDB != null)
 			userDB.addDatabaseListener(this);
+		
+		//Set up the search criteria panel      
+		sortCriteriaPanel = new JPanel();
+		sortCriteriaPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+//		sortCriteriaPanel.setLayout(new BoxLayout(sortCriteriaPanel, BoxLayout.Y_AXIS));
+
+						
+		//Create the ONC Icon label and add it to the search criteria panel
+		JLabel lblONCicon = new JLabel(GlobalVariables.getONCLogo());
+		lblONCicon.setToolTipText("ONC Client v" + GlobalVariables.getVersion());
+		lblONCicon.setAlignmentX(Component.LEFT_ALIGNMENT );//0.0
+		sortCriteriaPanel.add(lblONCicon);
+						
+//		sortCriteriaPanel.add(sortCriteriaPanelTop);
+//		sortCriteriaPanel.add(sortCriteriaPanelBottom);	
+		sortCriteriaPanel.setBorder(BorderFactory.createTitledBorder("Search Filters"));
 		
 		
 		//Create the table model
@@ -160,6 +181,7 @@ public class ManageUsersDialog extends JDialog implements ActionListener, ListSe
         cntlPanel.add(btnPrint);
         
         getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
+        getContentPane().add(sortCriteriaPanel);
         getContentPane().add(dsScrollPane);
         getContentPane().add(cntlPanel);
         
