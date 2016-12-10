@@ -9,11 +9,13 @@ import java.awt.event.ActionListener;
 import java.awt.print.PrinterException;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.TimeZone;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -27,8 +29,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.UIManager;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
@@ -170,7 +170,7 @@ public class WarehouseSignInDialog extends JDialog implements ActionListener, Da
 			ONCVolunteer v = volDB.getVolunteer(whv.getVolunteerID());
 			if(v != null)
 				whList.add(new WarehouseSignIn(v.getfName(), v.getlName(), whv.getGroup(),
-												whv.getTimestamp()));
+												whv.getCalTimestamp()));
 		}
 		
 		Collections.sort(whList, new WHDateComparator());
@@ -236,14 +236,14 @@ public class WarehouseSignInDialog extends JDialog implements ActionListener, Da
 		private String firstName;
 		private String lastName;
 		private String group;
-		private Date time;
+		private long time;	//UTC time
 		
-		WarehouseSignIn(String fn, String ln, String group, Date time)
+		WarehouseSignIn(String fn, String ln, String group, Calendar time)
 		{
 			this.firstName = fn;
 			this.lastName = ln;
 			this.group = group;
-			this.time = time;
+			this.time = time.getTimeInMillis();
 		}
 		
 		WarehouseSignIn(ONCVolunteer v)
@@ -251,14 +251,25 @@ public class WarehouseSignInDialog extends JDialog implements ActionListener, Da
 			this.firstName = v.getfName();
 			this.lastName = v.getlName();
 			this.group = v.getGroup();
-			this.time = v.getDateChanged(); //last warehouse sign-in
+			this.time = v.getDateChanged().getTime(); //last warehouse sign-in
 		}
 		
 		//getters
 		String getFirstName() { return firstName; }
 		String getLastName() { return lastName; }
 		String getGroup() { return group; }
-		Date getTime() {  return time; }
+		Date getTime() //return local time
+		{  
+			TimeZone tz = TimeZone.getDefault();	//Local time zone
+			int offsetFromUTC = tz.getOffset(time);
+			 
+			//create a new calendar in local time zone, set to gmtDOB and add the offset
+			Calendar localCal = Calendar.getInstance();
+			localCal.setTimeInMillis(time);
+			localCal.add(Calendar.MILLISECOND, offsetFromUTC);
+
+			return localCal.getTime();
+		}
 	}
 	
 	class DialogTableModel extends AbstractTableModel

@@ -33,6 +33,7 @@ public class ONCWarehouseVolunteer extends ONCObject
 	//getters
 	public int getVolunteerID() { return volunteerID; }
 	public Date getTimestamp() { return timestamp.getTime(); }
+	public Calendar getCalTimestamp() { return timestamp; }
 	public String getGroup() { return group; }
 	public String getComment() { return comment; }
 
