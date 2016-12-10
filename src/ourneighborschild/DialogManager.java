@@ -1,6 +1,5 @@
 package ourneighborschild;
 
-import java.awt.Component;
 import java.awt.Point;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -32,6 +31,7 @@ public class DialogManager implements EntitySelectionListener
 	private DirectionsDialog dirDlg;
 	private WishCatalogDialog catDlg;
 	private ManageUsersDialog userDlg;
+	private WarehouseSignInDialog signInDlg;
 	private ViewONCDatabaseDialog dbDlg;
 	private PYChildConnectionDialog pyConnectionDlg;
 	private AngelAutoCallDialog angelDlg;
@@ -136,6 +136,9 @@ public class DialogManager implements EntitySelectionListener
     	
     	//Set up the manage user dialog
     	userDlg = new ManageUsersDialog(GlobalVariables.getFrame());
+    	
+    	//Set up the manage user dialog
+    	signInDlg = new WarehouseSignInDialog(GlobalVariables.getFrame());
     	
     	 //Set up the sort family dialog
         sortFamiliesDlg = new SortFamilyDialog(GlobalVariables.getFrame());
@@ -287,6 +290,15 @@ public class DialogManager implements EntitySelectionListener
 		{
 	        userDlg.setLocationRelativeTo(GlobalVariables.getFrame());
 			userDlg.setVisible(true);
+		}
+	}
+	
+	void showSignInDialog()
+	{
+		if(!signInDlg.isVisible())
+		{
+	        signInDlg.setLocationRelativeTo(GlobalVariables.getFrame());
+			signInDlg.setVisible(true);
 		}
 	}
 		

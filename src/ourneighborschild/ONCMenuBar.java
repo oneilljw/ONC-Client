@@ -32,7 +32,8 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 	private JMenuItem exportMI, dbStatusMI, clearMI;
 	public JMenuItem exitMI;	//public since exit method is external to the menu bar
 	private JMenuItem findDupFamsMI, findDupChldrnMI, crosscheckMI;
-	private JMenuItem assignDelMI, editVolMI, manageDelMI, mapsMI, delstatusMI, distMI;
+	private JMenuItem editVolMI, viewSignInLogMI;
+	private JMenuItem assignDelMI, manageDelMI, mapsMI, delstatusMI, distMI;
 	private JMenuItem newFamMI, changeONCMI, changeRefMI, changeBatchMI, newChildMI, delChildMI, markAdultMI, connectChildMI;
 	private JMenu submenuImport, submenuFamilyDataChecks;
 	private JMenu submenuExport, submenuChangeFamilyNumbers, submenuDBYearList;
@@ -314,6 +315,13 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 	    editVolMI.setEnabled(false);
 	    editVolMI.addActionListener(this);
 	    menuVolunteers.add(editVolMI);
+	    
+	    //View Sign-In log
+	    viewSignInLogMI = new JMenuItem("View Sign-In Log");
+	    viewSignInLogMI.setActionCommand("View Sign-In Log");
+	    viewSignInLogMI.setEnabled(false);
+	    viewSignInLogMI.addActionListener(this);
+	    menuVolunteers.add(viewSignInLogMI);
 	 
 	    //Build Delivery Menu
 	    menuDelivery = new JMenu("Deliveries");
@@ -530,6 +538,7 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 		manageDelMI.setEnabled(tf);
 		inventoryMI.setEnabled(tf);
 		editVolMI.setEnabled(tf);
+		viewSignInLogMI.setEnabled(tf);
 	}
 
 	@Override
@@ -671,6 +680,7 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 		else if(e.getSource() == markAdultMI) { dlgManager.onMarkChildAsAdult(); }
 		else if(e.getSource() == connectChildMI) { dlgManager.showConnectPYChildDialog(); }
 		else if(e.getSource() == userMI) { dlgManager.showUserDialog(); }
+		else if(e.getSource() == viewSignInLogMI) { dlgManager.showSignInDialog(); }
 		else if(e.getSource() == onlineMI) { dlgManager.showOnlineUsers(); }
 		else if(e.getSource() == chatMI) { dlgManager.onChat(); }
 		else if(e.getSource() == profileMI) { dlgManager.onEditProfile(); }

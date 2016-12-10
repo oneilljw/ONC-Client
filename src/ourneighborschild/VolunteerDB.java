@@ -262,6 +262,18 @@ public class VolunteerDB extends ONCSearchableDatabase
 			return -1;
 	}
 	
+	public ONCVolunteer getVolunteer(int volunteerID)
+	{
+		int index = 0;
+		while(index < volunteerList.size() && volunteerList.get(index).getID() != volunteerID )
+			index++;
+			
+		if(index < volunteerList.size())
+			return volunteerList.get(index);
+		else
+			return null;
+	}
+	
 	String getDriverLNFI(int driverID)
 	{
 		int index = 0;
