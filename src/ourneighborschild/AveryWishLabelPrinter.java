@@ -5,6 +5,7 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.print.PageFormat;
 import java.awt.print.Printable;
@@ -29,6 +30,7 @@ public class AveryWishLabelPrinter implements Printable
 	private ONCTable sortTable;
 	private List<SortWishObject> stAL; 
 	private int totalNumOfLabelsToPrint;
+	private Point position;
 	
 	//constructor used when drawing labels on a Swing component
 	public AveryWishLabelPrinter()
@@ -37,15 +39,17 @@ public class AveryWishLabelPrinter implements Printable
 		this.stAL = null;
 		this.sortTable = null;
 		this.totalNumOfLabelsToPrint = 0;
+		this.position = new Point(0,0);
 	}
 	
 	//constructor used when drawing labels on a sheet via the printable interface
-	public AveryWishLabelPrinter(List<SortWishObject> stAL, ONCTable sortTable, int numOfLabels)
+	public AveryWishLabelPrinter(List<SortWishObject> stAL, ONCTable sortTable, int numOfLabels, Point position)
 	{
 		gvs = GlobalVariables.getInstance();
 		this.stAL = stAL;
 		this.sortTable = sortTable;
 		this.totalNumOfLabelsToPrint = numOfLabels;
+		this.position = position;
 	}
 	
 	void drawLabel(int x, int y, String[] line, Font[] lFont, Image img, Graphics2D g2d)
@@ -171,6 +175,11 @@ public class AveryWishLabelPrinter implements Printable
 	    
 	    String line[];
 	    int row = 0, col = 0;
+	    if(totalNumOfLabelsToPrint == 1)
+	    {
+	    	row = position.y;
+	    	col = position.x;
+	    }
 	    
 	    while(row < AVERY_LABELS_PER_PAGE/AVERY_COLUMNS_PER_PAGE && index < endOfSelection)
 	    {

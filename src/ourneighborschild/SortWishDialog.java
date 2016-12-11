@@ -8,6 +8,7 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.awt.event.ActionEvent;
@@ -1174,11 +1175,15 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 	{
 		if(sortTable.getSelectedRowCount() > 0)	 //Print selected rows. If no rows selected, do nothing
 		{
-//			totalNumOfLabelsToPrint = sortTable.getSelectedRowCount();
+			Point labelPos = new Point(0,0);
+			if(sortTable.getSelectedRowCount() == 1)	//print 1 label, ask position
+			{
+				//get row and column input from dialog here
+			}
 			
 			PrinterJob pj = PrinterJob.getPrinterJob();
 
-			AveryWishLabelPrinter awlp = new AveryWishLabelPrinter(stAL, sortTable, sortTable.getSelectedRowCount());
+			AveryWishLabelPrinter awlp = new AveryWishLabelPrinter(stAL, sortTable, sortTable.getSelectedRowCount(), labelPos);
 			pj.setPrintable(awlp);
          
 			boolean ok = pj.printDialog();
