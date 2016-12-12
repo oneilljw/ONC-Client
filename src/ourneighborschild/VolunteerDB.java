@@ -89,7 +89,7 @@ public class VolunteerDB extends ONCSearchableDatabase
 	    					//don't process records that don't have at least a first or last name
 	    					if(nextLine.length > 8 && nextLine[6].length() + nextLine[7].length() > 2)
 	    					{
-	    						System.out.println(String.format("fn %s ln %s", nextLine[6], nextLine[7]));
+//	    						System.out.println(String.format("fn %s ln %s", nextLine[6], nextLine[7]));
 	    						ONCVolunteer currVol = searchVolunteerListForMatch(nextLine[6], nextLine[7], volList);
 	    					
 	    						if(currVol != null)

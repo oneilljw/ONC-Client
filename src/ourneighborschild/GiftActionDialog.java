@@ -38,13 +38,14 @@ public abstract class GiftActionDialog extends SortTableDialog
 	private static final int GIFT_STATUS_INVALID = -3;
 	private static final int GIFT_ACTION_REQUEST_SERVER_FAILURE = -4;
 	private static final int CHILD_NOT_IN_LOCAL_DB = -5;
-	
 
 	private JTextField oncnumTF, barcodeTF;
 	private JComboBox startAgeCB, genderCB;
 	private JButton btnUndo;
 	private JLabel lblResult;
 	private Color pBkColor; //Used to restore background after gift action successful
+	private Color[] successColor;
+	private int successColorIndex;
 	
 	private ChildDB cDB;
 	private ChildWishDB cwDB;
@@ -60,6 +61,12 @@ public abstract class GiftActionDialog extends SortTableDialog
 	GiftActionDialog(JFrame pf, WishStatus dialogType)
 	{
 		super(pf, 15);
+		
+		//create/initialize the success colors
+		successColor = new Color[2];
+		successColor[0] = new Color(0, 225, 0);
+		successColor[1] = new Color(0, 125, 0);
+		successColorIndex = 0;
 		
 		cDB = ChildDB.getInstance();
 		cwDB = ChildWishDB.getInstance();
@@ -209,17 +216,21 @@ public abstract class GiftActionDialog extends SortTableDialog
 	 * @param wn - wish number
 	 * @return error code 0 or 1 indicates success, a negative number indicates an error
 	 */
-	int actOnGiftFromBarcode(int cID, int wn)
+	GiftActionReturnCode actOnGiftFromBarcode(int cID, int wn)
 	{
-		int returnCode;
+//		int returnCode;
+		GiftActionReturnCode rc = null;
 		
 		ONCChildWish cw = cwDB.getWish(cID, wn);	//get latest wish for child
 		if(cw == null)
-			returnCode = CHILD_NOT_IN_LOCAL_DB;	//wish not in local child wish data base
+			rc = new GiftActionReturnCode(CHILD_NOT_IN_LOCAL_DB, null);
+//			returnCode = CHILD_NOT_IN_LOCAL_DB;	//wish not in local child wish data base
 		else if(cw.getChildWishStatus() == getGiftStatusAction())
-			returnCode = GIFT_ACTION_ALREADY_OCCURRED;	//double scan
+			rc = new GiftActionReturnCode(GIFT_ACTION_ALREADY_OCCURRED, new SortWishObject(-1, null, null, cw));
+//			returnCode = GIFT_ACTION_ALREADY_OCCURRED;	//double scan
 		else if(!doesChildWishStatusMatch(cw))
-			returnCode = GIFT_STATUS_INVALID;	//wish  not in valid state
+			rc = new GiftActionReturnCode(GIFT_STATUS_INVALID, null);
+//			returnCode = GIFT_STATUS_INVALID;	//wish  not in valid state
 		else
 		{
 			//attempt to act on the wish/gift,if it fails, server didn't accept update
@@ -227,16 +238,27 @@ public abstract class GiftActionDialog extends SortTableDialog
 			ONCFamily f = fDB.getFamily(c.getFamID());
 			SortWishObject swo = new SortWishObject(-1, f, c, cw);
 			
-			returnCode = actOnGift(swo) ? GIFT_ACTION_SUCCESSFUL : GIFT_ACTION_REQUEST_SERVER_FAILURE;
+			if(actOnGift(swo))
+				rc = new GiftActionReturnCode(GIFT_ACTION_SUCCESSFUL, swo);
+//				returnCode = GIFT_ACTION_SUCCESSFUL;
+			else
+				rc = new GiftActionReturnCode(GIFT_ACTION_REQUEST_SERVER_FAILURE, null);
+//				returnCode = GIFT_ACTION_REQUEST_SERVER_FAILURE;
 		}
 		
-		if(returnCode >= 0)
-			setSearchCriteriaBackgroundColor(Color.GREEN);
+		if(rc.getReturnCode() >= 0)
+		{	
+			setSearchCriteriaBackgroundColor(successColor[successColorIndex]);
+			successColorIndex = (successColorIndex + 1) % 2;
+		}
 		else
+		{
+			successColorIndex = 0;
 			setSearchCriteriaBackgroundColor(Color.RED);
+		}
 		
 		clearBarCode();
-		return returnCode;
+		return rc;
 	}
 
 	@Override
@@ -389,28 +411,46 @@ public abstract class GiftActionDialog extends SortTableDialog
 			
 				try
 				{
-					int rc = actOnGiftFromBarcode(cID, wn);
-					if(rc == GIFT_ACTION_SUCCESSFUL)
+					GiftActionReturnCode rc = actOnGiftFromBarcode(cID, wn);
+					if(rc.getReturnCode() == GIFT_ACTION_SUCCESSFUL)
 					{
-						lblResult.setText(String.format("Gift %d for child %d received", wn+1, cID));
+//						ONCChild child = cDB.getChild(cID);
+//						ONCFamily fam = fDB.getFamily(child.getFamID());
+//						ONCChildWish cw = cwDB.getWish(cID, wn);
+//						ONCWish catWish = cat.getWishByID(cw.getWishID());
+//						String wishName = catWish.getName();
+						
+						ONCFamily fam = rc.getSortWishObject().getFamily();
+						ONCChildWish cw = rc.getSortWishObject().getChildWish();
+						String wishName = cat.getWishByID(cw.getWishID()).getName();
+						
+						String mssg = String.format("Family# %s: %s- %s received", 
+								fam.getONCNum(), wishName, cw.getChildWishDetail());
+						
+						lblResult.setText(mssg);
+						
+//						lblResult.setText(String.format("Gift %d for child %d received", wn+1, cID));
 						SoundUtils.tone(SUCCESS_SOUND_FREQ, SOUND_DURATION);
 					}
-					else if(rc == GIFT_ACTION_ALREADY_OCCURRED)
+					else if(rc.getReturnCode() == GIFT_ACTION_ALREADY_OCCURRED)
 					{
-						lblResult.setText(String.format("Gift %d  for child %d already received", wn+1, cID));
+						ONCChildWish cw = rc.getSortWishObject().getChildWish();
+						String wishName = cat.getWishByID(cw.getWishID()).getName();
+						
+						lblResult.setText(String.format("Gift: %s- %s already received", wishName, cw.getChildWishDetail()));
 						SoundUtils.tone(SUCCESS_SOUND_FREQ, SOUND_DURATION);
 					}
-					else if(rc == CHILD_NOT_IN_LOCAL_DB)
+					else if(rc.getReturnCode() == CHILD_NOT_IN_LOCAL_DB)
 					{
 						lblResult.setText(String.format("Child %d not in local DB", cID));
 						SoundUtils.tone(FAILED_SOUND_FREQ, SOUND_DURATION);
 					}
-					else if(rc == GIFT_STATUS_INVALID)
+					else if(rc.getReturnCode() == GIFT_STATUS_INVALID)
 					{
 						lblResult.setText(String.format("Gift %d for child %d status invalid", wn+1, cID));
 						SoundUtils.tone(FAILED_SOUND_FREQ, SOUND_DURATION);
 					}
-					else if(rc == GIFT_ACTION_REQUEST_SERVER_FAILURE)
+					else if(rc.getReturnCode() == GIFT_ACTION_REQUEST_SERVER_FAILURE)
 					{
 						lblResult.setText(String.format("Gift %d for child %d receive server error", wn+1, cID));
 						SoundUtils.tone(FAILED_SOUND_FREQ, SOUND_DURATION);
@@ -542,5 +582,21 @@ public abstract class GiftActionDialog extends SortTableDialog
 	public EnumSet<EntityType> getEntityEventSelectorEntityTypes() 
 	{	
 		return EnumSet.of(EntityType.WISH);
+	}
+	
+	private class GiftActionReturnCode
+	{
+		private int rc;
+		private SortWishObject swo;
+		
+		GiftActionReturnCode(int rc, SortWishObject swo)
+		{
+			this.rc = rc;
+			this.swo = swo;
+		}
+		
+		//getters
+		int getReturnCode() { return rc; }
+		SortWishObject getSortWishObject() { return swo; }
 	}
 }

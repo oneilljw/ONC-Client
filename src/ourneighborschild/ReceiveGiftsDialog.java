@@ -55,7 +55,7 @@ public class ReceiveGiftsDialog extends GiftActionDialog
 	@Override
 	int[] getColumnWidths()
 	{
-		int[] colWidths = {40, 48, 72, 120, 248};
+		int[] colWidths = {40, 48, 72, 120, 344};
 		return colWidths;
 	}
 
