@@ -36,6 +36,7 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -1175,28 +1176,54 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 	{
 		if(sortTable.getSelectedRowCount() > 0)	 //Print selected rows. If no rows selected, do nothing
 		{
-			Point labelPos = new Point(0,0);
+			AveryWishLabelPrinter awlp;
+			PrinterJob pj = PrinterJob.getPrinterJob();
+			
 			if(sortTable.getSelectedRowCount() == 1)	//print 1 label, ask position
 			{
-				//get row and column input from dialog here
-			}
-			
-			PrinterJob pj = PrinterJob.getPrinterJob();
-
-			AveryWishLabelPrinter awlp = new AveryWishLabelPrinter(stAL, sortTable, sortTable.getSelectedRowCount(), labelPos);
-			pj.setPrintable(awlp);
-         
-			boolean ok = pj.printDialog();
-			if (ok)
-			{
-				try
-				{
-					pj.print();
+				AveryLabelPrintPosDialog posDlg = new AveryLabelPrintPosDialog(this);
+				Point labelPos = posDlg.showDialog(this);
+				if(labelPos.x > 1 && labelPos.y > 1)
+				{	
+					//adjust from user coordinates (row: 1 - 30, col: 1-3) to print coordinates)
+					labelPos.x--;
+					labelPos.y--;
+					
+					//create the label printer and print
+					awlp = new AveryWishLabelPrinter(stAL, sortTable, sortTable.getSelectedRowCount(), labelPos);
+					pj.setPrintable(awlp);
+		         
+					boolean ok = pj.printDialog();
+					if (ok)
+					{
+						try
+						{
+							pj.print();
+						}
+						catch (PrinterException ex)
+						{
+							/* The job did not successfully complete */
+						}       
+					}
 				}
-				catch (PrinterException ex)
+			}
+			else
+			{
+				awlp = new AveryWishLabelPrinter(stAL, sortTable, sortTable.getSelectedRowCount(), new Point(0,0));
+				pj.setPrintable(awlp);
+	         
+				boolean ok = pj.printDialog();
+				if (ok)
 				{
-					/* The job did not successfully complete */
-				}       
+					try
+					{
+						pj.print();
+					}
+					catch (PrinterException ex)
+					{
+						/* The job did not successfully complete */
+					}       
+				}
 			}
 		}
 		

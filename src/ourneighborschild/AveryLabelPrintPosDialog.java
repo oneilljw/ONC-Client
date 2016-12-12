@@ -30,7 +30,7 @@ public class AveryLabelPrintPosDialog extends JDialog implements  ActionListener
 		super(owner, true);	//Make the dialog modal
 		this.setTitle("Select Label Print Position");
 		
-		position = new Point(0,0);	//initialize to first position
+		position = new Point(-1,-1);	//initialize to invalid position
 		
 		averyRowPosSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 30, 1));
 		averyColPosSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 3, 1));
@@ -47,10 +47,10 @@ public class AveryLabelPrintPosDialog extends JDialog implements  ActionListener
 		
 		//Add the components to the frame pane
 		JPanel mainPanel = new JPanel();
-		mainPanel.add(new JLabel("Rown # For Label:"));
-		mainPanel.add(averyColPosSpinner);
-		mainPanel.add(new JLabel("Column # for Labe:"));
+		mainPanel.add(new JLabel("Choose Row # For Label:"));
 		mainPanel.add(averyRowPosSpinner);
+		mainPanel.add(new JLabel("Column # for Label:"));
+		mainPanel.add(averyColPosSpinner);
 		
 		JPanel cntlPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		cntlPanel.add(btnCancel);
@@ -82,7 +82,8 @@ public class AveryLabelPrintPosDialog extends JDialog implements  ActionListener
 		}
 		else if(e.getSource() == btnCancel)
 		{
-			position = null;
+			position.x = -1;
+			position.y = -1;
 			this.dispose();
 		}
 	}
