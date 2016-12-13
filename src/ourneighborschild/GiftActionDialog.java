@@ -38,6 +38,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 	private static final int GIFT_STATUS_INVALID = -3;
 	private static final int GIFT_ACTION_REQUEST_SERVER_FAILURE = -4;
 	private static final int CHILD_NOT_IN_LOCAL_DB = -5;
+	private static final int GIFT_ACTION_FAMILY_NOT_SERVED = -6;
 
 	private JTextField oncnumTF, barcodeTF;
 	private JComboBox startAgeCB, genderCB;
@@ -173,7 +174,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 		for(ONCFamily f:fDB.getList())
 		{
 			//ONC number is valid and matches criteria
-			if(isNumeric(f.getONCNum()) && doesONCNumMatch(f.getONCNum()))	
+			if(isNumeric(f.getONCNum()) && f.getDNSCode().isEmpty() && doesONCNumMatch(f.getONCNum()))	
 			{
 				for(ONCChild c:cDB.getChildren(f.getID()))
 				{
@@ -238,7 +239,10 @@ public abstract class GiftActionDialog extends SortTableDialog
 			ONCFamily f = fDB.getFamily(c.getFamID());
 			SortWishObject swo = new SortWishObject(-1, f, c, cw);
 			
-			if(actOnGift(swo))
+			//should only be if family is being served
+			if(!f.getDNSCode().isEmpty())
+				rc = new GiftActionReturnCode(GIFT_ACTION_FAMILY_NOT_SERVED, swo);
+			else if(actOnGift(swo))
 				rc = new GiftActionReturnCode(GIFT_ACTION_SUCCESSFUL, swo);
 //				returnCode = GIFT_ACTION_SUCCESSFUL;
 			else
@@ -430,6 +434,14 @@ public abstract class GiftActionDialog extends SortTableDialog
 						lblResult.setText(mssg);
 						
 //						lblResult.setText(String.format("Gift %d for child %d received", wn+1, cID));
+						SoundUtils.tone(SUCCESS_SOUND_FREQ, SOUND_DURATION);
+					}
+					else if(rc.getReturnCode() == GIFT_ACTION_FAMILY_NOT_SERVED)
+					{
+						//family was no longer being served
+						ONCFamily fam = rc.getSortWishObject().getFamily();
+						
+						lblResult.setText(String.format("Family #s is not being served", fam));
 						SoundUtils.tone(SUCCESS_SOUND_FREQ, SOUND_DURATION);
 					}
 					else if(rc.getReturnCode() == GIFT_ACTION_ALREADY_OCCURRED)

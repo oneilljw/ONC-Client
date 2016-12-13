@@ -32,7 +32,7 @@ public class AveryLabelPrintPosDialog extends JDialog implements  ActionListener
 		
 		position = new Point(-1,-1);	//initialize to invalid position
 		
-		averyRowPosSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 30, 1));
+		averyRowPosSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 10, 1));
 		averyColPosSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 3, 1));
 		
 		SpinnerChangeListener listener = new SpinnerChangeListener();
