@@ -1183,7 +1183,8 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 			{
 				AveryLabelPrintPosDialog posDlg = new AveryLabelPrintPosDialog(this);
 				Point labelPos = posDlg.showDialog(this);
-				if(labelPos.x > 1 && labelPos.y > 1)
+				
+				if(labelPos.x > 0 && labelPos.y > 0)
 				{	
 					//adjust from user coordinates (row: 1 - 30, col: 1-3) to print coordinates)
 					labelPos.x--;

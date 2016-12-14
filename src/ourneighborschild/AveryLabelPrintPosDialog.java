@@ -12,35 +12,35 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 public class AveryLabelPrintPosDialog extends JDialog implements  ActionListener
 {
 	/**
-	 * 
+	 * Queries the user for the row and column on the 5160/8160 Avery Label Sheet on
+	 * which to print the single label. Returns a Point with column (x) values from 1-3
+	 * and a row (y) values from 1-10. Returns (-1,-1) if the user does not close the
+	 * dialog via the "Print" button.  
 	 */
 	private static final long serialVersionUID = 1L;
 	private JSpinner averyRowPosSpinner, averyColPosSpinner;
-	private JButton btnOK, btnCancel;
+	private JButton btnPrint, btnCancel;
 	private Point position;
 	
-	AveryLabelPrintPosDialog(JDialog owner)
+	AveryLabelPrintPosDialog(JDialog owner) 
 	{		
-		super(owner, true);	//Make the dialog modal
+		super(owner, true);	//modal dialog
 		this.setTitle("Select Label Print Position");
 		
-		position = new Point(-1,-1);	//initialize to invalid position
+		//initialize return value to invalid position. This value is returned if the
+		//user cancels the dialog by the Cancel Button or the Window Close icon decoration
+		position = new Point(-1,-1);	
 		
+		//there are 10 rows and 3 columns on a 5160/8160 Avery Label Sheet
 		averyRowPosSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 10, 1));
 		averyColPosSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 3, 1));
-		
-		SpinnerChangeListener listener = new SpinnerChangeListener();
-		averyColPosSpinner.addChangeListener(listener);
-		averyRowPosSpinner.addChangeListener(listener);
 				
-		btnOK = new JButton("Print");
-		btnOK.addActionListener(this);
+		btnPrint = new JButton("Print");
+		btnPrint.addActionListener(this);
 		
 		btnCancel = new JButton("Cancel Print");
 		btnCancel.addActionListener(this);
@@ -54,7 +54,7 @@ public class AveryLabelPrintPosDialog extends JDialog implements  ActionListener
 		
 		JPanel cntlPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		cntlPanel.add(btnCancel);
-		cntlPanel.add(btnOK);
+		cntlPanel.add(btnPrint);
 		
     	this.getContentPane().setLayout(new BoxLayout(this.getContentPane(), BoxLayout.Y_AXIS));  	    	
     	this.getContentPane().add(mainPanel);
@@ -65,6 +65,11 @@ public class AveryLabelPrintPosDialog extends JDialog implements  ActionListener
     	setResizable(false);
 	}
 	
+	/***
+	 * shows the dialog relative to the owner
+	 * @param owner - owner of the dialog
+	 * @return - point  with the row & col selected by the user. 
+	 */
 	Point showDialog(JDialog owner)
 	{
 		this.setLocationRelativeTo(owner);
@@ -76,27 +81,14 @@ public class AveryLabelPrintPosDialog extends JDialog implements  ActionListener
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{
-		if(e.getSource() == btnOK)
+		if(e.getSource() == btnPrint)
 		{
+			//set the return value to the row and column #'s the user selected
+			position.x = (Integer) averyColPosSpinner.getValue(); 
+			position.y = (Integer) averyRowPosSpinner.getValue(); 
 			this.dispose();
 		}
 		else if(e.getSource() == btnCancel)
-		{
-			position.x = -1;
-			position.y = -1;
 			this.dispose();
-		}
-	}
-	
-	private class SpinnerChangeListener implements ChangeListener
-	{
-		@Override
-		public void stateChanged(ChangeEvent ce)
-		{
-			if(ce.getSource() == averyColPosSpinner)
-				position.x = (Integer) averyColPosSpinner.getValue(); 
-			else if(ce.getSource() == averyRowPosSpinner)
-				position.y = (Integer) averyRowPosSpinner.getValue(); 
-		}
 	}
 }
