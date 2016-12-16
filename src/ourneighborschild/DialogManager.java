@@ -687,7 +687,7 @@ public class DialogManager implements EntitySelectionListener
 				
 				ChangePasswordRequest cpwReq = new ChangePasswordRequest(currUser.getID(),
 						currUser.getFirstname(), currUser.getLastname(),
-						ONCEncryptor.encrypt(pwInfo[0]), ONCEncryptor.encrypt(pwInfo[1]));
+						EncryptionManager.encrypt(pwInfo[0]), EncryptionManager.encrypt(pwInfo[1]));
 				
 				if((result = UserDB.getInstance().changePassword(this, cpwReq)).contains("changed"))
 					bPasswordChanged = true;

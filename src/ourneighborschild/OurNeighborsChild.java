@@ -30,7 +30,7 @@ public class OurNeighborsChild
 	 */
 	//Static Final Variables
 	private static final int SERVER_CONNECT_RETRY_LIMIT = 3;
-	private static final String VERSION = "4.26";
+	private static final String VERSION = "4.27";
 	private static final String APPNAME = "Our Neighbor's Child";
 	private static final String ONC_SERVER_IP_ADDRESS_FILE = "serveraddress.txt";
 	private static final int MAIN_FRAME_WIDTH = 837;
@@ -106,7 +106,9 @@ public class OurNeighborsChild
         //if the file doesn't exist
         String serverIPAddress = readServerIPAddressFromFile();
         
-        //connect to server
+        //connect to server. First, initialize the encryption manager
+        EncryptionManager encryptionMgr = EncryptionManager.getInstance();
+        
         while(retrycount < SERVER_CONNECT_RETRY_LIMIT)
         {
         	try 
@@ -220,6 +222,9 @@ public class OurNeighborsChild
         	List<DBYear> dbYears = dbManager.getDBStatus();
         	if(dbYears != null)
         		oncMenuBar.processDBYears(dbYears);	
+        	
+        	//get encryption keys
+        	encryptionMgr.importKeyMapFromServer();
         	
         	//get user data base
         	UserDB.getInstance().importUserDatabase();

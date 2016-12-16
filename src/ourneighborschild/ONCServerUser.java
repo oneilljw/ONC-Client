@@ -70,7 +70,7 @@ public class ONCServerUser extends ONCUser
 	{
 		String[] row = {
 						Integer.toString(id), 
-						ONCEncryptor.encrypt(userid), ONCEncryptor.encrypt(password),
+						EncryptionManager.encrypt(userid), EncryptionManager.encrypt(password),
 						status.toString(), access.toString(), 
 						permission.toString(), firstname, lastname,
 						Long.toString(dateChanged.getTimeInMillis()), changedBy, Integer.toString(slPos), 

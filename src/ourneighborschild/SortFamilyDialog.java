@@ -675,7 +675,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	 * in the document. 
 	 * @throws JSONException
 	 ********************************************************************************************/
-	void onPrintDeliveryDirections() throws JSONException
+	void onPrintDeliveryDirections()
 	{	
 		//build the array list to print. For each row selected by the user, get the family object 
 		//referenced and build the delivery directions page array list. This array list is
@@ -702,40 +702,90 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			String destAddress = f.getGoogleMapAddress();
 				
 			//Get direction JSON, then trip route and steps
-			JSONObject dirJSONObject = ddir.getGoogleDirections(gvs.getWarehouseAddress(), destAddress);
-			JSONObject leg = ddir.getTripRoute(dirJSONObject);
-			JSONArray steps = ddir.getDrivingSteps(leg);
+			JSONObject dirJSONObject = null;
+			JSONObject leg = null;
+			JSONArray steps = null;
+			try
+			{
+				dirJSONObject = ddir.getGoogleDirections(gvs.getWarehouseAddress(), destAddress);
+				if(dirJSONObject != null)
+				{
+					leg = ddir.getTripRoute(dirJSONObject);
+					if(leg != null)
+						steps = ddir.getDrivingSteps(leg);
+				}
+			}
+			catch (JSONException e1) 
+			{
+				String mssg = String.format("Cant get Static Google Map for %s", destAddress);
+		  		JOptionPane.showMessageDialog(null, mssg, "Google Map - Static Map JSON Exception", 
+		  				JOptionPane.ERROR_MESSAGE);
+			}
+			
+			if(steps != null)
+			{	
+				//Determine the number of pages needed to print directions for family
+				int totalpagesforfamily = 1;
+				if(steps.length() > MAX_DIRECTION_STEPS_ON_FIRST_PAGE)
+					totalpagesforfamily++;
 				
-			//Determine the number of pages needed to print directions for family
-			int totalpagesforfamily = 1;
-			if(steps.length() > MAX_DIRECTION_STEPS_ON_FIRST_PAGE)
-				totalpagesforfamily++;
+				//Build the delivery directions page array list. If the delivery directions contain
+				//more than MAX_DIRECTION_STEPS_ON_FIRST_PAGE steps, a second page is needed
+				ArrayList<String[]> pagestepsAL = new ArrayList<String[]>();
+				int stepindex, familypage;
 				
-			//Build the delivery directions page array list. If the delivery directions contain
-			//more than MAX_DIRECTION_STEPS_ON_FIRST_PAGE steps, a second page is needed
-			ArrayList<String[]> pagestepsAL = new ArrayList<String[]>();
-			int stepindex, familypage;
+				//Build page 0
+				pagestepsAL.clear();
+				stepindex = 0;
+				familypage = 1;	//Used by the footer for page number, so index starts at 1
+				while(stepindex < MAX_DIRECTION_STEPS_ON_FIRST_PAGE && stepindex < steps.length())
+				{
+					String[] stepsStringArray = null;
+					try 
+					{
+						stepsStringArray = getDirectionsTableRow(steps, stepindex++);
+					} 
+					catch (JSONException e) 
+					{
+						String mssg = String.format("Cant get Static Google Map for %s", destAddress);
+						JOptionPane.showMessageDialog(null, mssg, "Google Map - Static Map JSON Exception", 
+								JOptionPane.ERROR_MESSAGE);
+						break;
+					}
 				
-			//Build page 0
-			pagestepsAL.clear();
-			stepindex = 0;
-			familypage = 1;	//Used by the footer for page number, so index starts at 1
-			while(stepindex < MAX_DIRECTION_STEPS_ON_FIRST_PAGE && stepindex < steps.length())
-					pagestepsAL.add(getDirectionsTableRow(steps, stepindex++));
+					if(stepsStringArray != null)
+						pagestepsAL.add(stepsStringArray);
+				}
 					
-			ddpAL.add(new DDPrintPage(destAddress, leg, fDB.getYellowCardData(f),
+				ddpAL.add(new DDPrintPage(destAddress, leg, fDB.getYellowCardData(f),
 								pagestepsAL, familypage, totalpagesforfamily));
 				
-			//Add other pages as necessary
-			while(stepindex < MAX_DIRECTION_STEPS_ON_NEXT_PAGES && stepindex < steps.length())	
-			{
-				familypage++;
-				pagestepsAL.clear();
-				while(stepindex < MAX_DIRECTION_STEPS_ON_NEXT_PAGES && stepindex < steps.length())
-					pagestepsAL.add(getDirectionsTableRow(steps, stepindex++));
+				//Add other pages as necessary
+				while(stepindex < MAX_DIRECTION_STEPS_ON_NEXT_PAGES && stepindex < steps.length())	
+				{
+					familypage++;
+					pagestepsAL.clear();
+					while(stepindex < MAX_DIRECTION_STEPS_ON_NEXT_PAGES && stepindex < steps.length())
+					{
+						String[] stepsStringArray = null;
+						try 
+						{
+							stepsStringArray = getDirectionsTableRow(steps, stepindex++);
+						} 
+						catch (JSONException e) 
+						{
+							String mssg = String.format("Cant get Static Google Map for %s", destAddress);
+							JOptionPane.showMessageDialog(null, mssg, "Google Map - Static Map JSON Exception", 
+									JOptionPane.ERROR_MESSAGE);
+							break;	
+						}
+						if(stepsStringArray != null)
+							pagestepsAL.add(stepsStringArray);
+					}
 						
-				ddpAL.add(new DDPrintPage(destAddress, leg, fDB.getYellowCardData(f),
-											pagestepsAL, familypage, totalpagesforfamily));
+					ddpAL.add(new DDPrintPage(destAddress, leg, fDB.getYellowCardData(f),
+							pagestepsAL, familypage, totalpagesforfamily));
+				}
 			}
 		}
 			
@@ -2056,15 +2106,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			else if(printCB.getSelectedItem().toString().equals(printChoices[7]) && sortTable.getSelectedRowCount() > 0)
 			{
 				//Only print selected rows)	//Print delivery directions 
-				try
-				{
-					onPrintDeliveryDirections();
-				}
-				catch (JSONException e1)
-				{
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				} 
+				onPrintDeliveryDirections();
 			}
 		}
 		else if(e.getSource() == callCB)

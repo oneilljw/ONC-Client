@@ -100,7 +100,7 @@ public class ServerIF
         	{
         		//should encrypt the login message
         		in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        		loginMssg = ONCEncryptor.decrypt(in.readLine());
+        		loginMssg = EncryptionManager.decrypt(in.readLine());
         		
 //        		long timeElapsed = System.currentTimeMillis() - timeCommandSent;
 //        		System.out.println(String.format("ServerIF: Took %d milliseconds to connect to Server", timeElapsed));

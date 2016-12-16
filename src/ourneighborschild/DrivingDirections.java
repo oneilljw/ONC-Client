@@ -7,8 +7,10 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+
 import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -18,6 +20,9 @@ import org.json.JSONObject;
  */
 public class DrivingDirections 
 {
+	
+	private static final String DIRECTIONS_DOMAIN = "https://maps.googleapis.com";
+
 	JSONObject getGoogleDirections(String startAddress, String destAddress) throws JSONException
 	{
 		//Make request to Google Maps API to get Driving Directions, returns JSON
@@ -25,13 +30,21 @@ public class DrivingDirections
 	    
 	    //Set the driving direction JSON request into a string - April 2015 - Google Maps
 	    //API no loner requires the sensor parameter
-	    String stringUrl = "http://maps.googleapis.com/maps/api/directions/json?origin=" +
-    		startAddress + "&destination=" + destAddress; // + "&sensor=false";
-	 
+	    String urlBody = "/maps/api/directions/json?origin=" + startAddress + "&destination=" + 
+	    					destAddress + "&key=" + EncryptionManager.getKey("key1");
+
+	    String stringUrl = DIRECTIONS_DOMAIN + urlBody;
+	    
 	    //Turn the string into a valid URL
 	    URL dirurl= null;
-		try {dirurl = new URL(stringUrl);} 
-		catch (MalformedURLException e2) {e2.printStackTrace();}
+		try 
+		{
+			dirurl = new URL(stringUrl);
+		} 
+		catch (MalformedURLException e2) 
+		{
+			e2.printStackTrace();
+		}
 		
 		//Attempt to open the URL via a network connection to the Internet
 	    HttpURLConnection httpconn= null;
@@ -47,8 +60,6 @@ public class DrivingDirections
 	    			while ((strLine = input.readLine()) != null)
 					    response.append(strLine);					
 	    			input.close();
-	    			
-//	    			System.out.println(response.toString());
 				}
 	    	}
 		catch (IOException e1)
@@ -70,30 +81,57 @@ public class DrivingDirections
 		//Get Map
 	  	URL mapURL = null;
 	    BufferedImage map = null;
-	    String url = "http://maps.googleapis.com/maps/api/staticmap?";
+//	    String url = "http://maps.googleapis.com/maps/api/staticmap?";
 	    String parms = "&size=600x350";
 	    String markers = "&markers=color:green%7Clabel:S%7C" + start_end[0] +"," + start_end[1] +
-	  						"&markers=color:red%7Clabel:D%7C" + start_end[2] +"," + start_end[3] +"&sensor=false";
+	  						"&markers=color:red%7Clabel:D%7C" + start_end[2] +"," + start_end[3];
+	    
+
+	    String urlBody = "/maps/api/staticmap?" + destAddress + parms + markers + "&key=" + EncryptionManager.getKey("key1");
+/*	    
+	    
+	    String digSignature = null;
+	    //get the signature
+	    try 
+	    {
+	    	digSignature= "&signature=" +generateHmacSHA256Signature(urlBody, SIGNATURE_KEY);
+	    } 
+	    catch (GeneralSecurityException e)
+	    {
+	    	// TODO Auto-generated catch block
+	    	e.printStackTrace();
+	    } 
+
+	    String stringUrl = null;
+		if(digSignature == null)
+			return null;
+		else
+//			stringUrl = DIRECTIONS_DOMAIN + urlBody + digSignature;
+ * 
+ */
+		String	stringUrl = DIRECTIONS_DOMAIN + urlBody;
 
 	    try
 	    {
-	    	mapURL = new URL(url+destAddress+parms+markers);
+	    	mapURL = new URL(stringUrl);
+//	    	mapURL = new URL(url+destAddress+parms+markers);
 	  	}
 	    catch (MalformedURLException e1) 
 	    {
-	        // TODO Auto-generated catch block
-	  		e1.printStackTrace();
-	  		 JOptionPane.showMessageDialog(null, "Can't get Static Google Map",
-	  				"Google Map - Static Map Access Issue", JOptionPane.ERROR_MESSAGE);
+	  		String mssg = String.format("Cant get Static Google Map for %s", destAddress);
+	  		JOptionPane.showMessageDialog(null, mssg, "Google Map - Static Map URL Exception", 
+	  				JOptionPane.ERROR_MESSAGE);
 	  	}
 	          
 	    try 
 	    {
 	    	map = ImageIO.read(mapURL);
 	  	} 
-	    catch (IOException e1) {
-	  		// TODO Auto-generated catch block
-	  		e1.printStackTrace();
+	    catch (IOException e1) 
+	    {
+	    	String mssg = String.format("Cant get Static Google Map for %s", destAddress);
+	  		JOptionPane.showMessageDialog(null, mssg, "Google Map - Static Map I/O Exception", 
+	  				JOptionPane.ERROR_MESSAGE);
 	  	}
 	    
 	    return map;
@@ -134,4 +172,24 @@ public class DrivingDirections
 	{		
 		return leg.getJSONObject("duration").getString("text");
 	}
+/*	
+	public static String generateHmacSHA256Signature(String data, String key)   throws GeneralSecurityException {
+	    byte[] hmacData = null;
+
+	    try 
+	    {
+	        SecretKeySpec secretKey = new SecretKeySpec(key.getBytes("UTF-8"), "HmacSHA256");
+	        Mac mac = Mac.getInstance("HmacSHA256");
+	        mac.init(secretKey);
+	        hmacData = mac.doFinal(data.getBytes("UTF-8"));
+	        String encryptedString = Base64.encodeBase64String(hmacData);
+	        return encryptedString;
+//	        return new BASE64Encoder().encode(hmacData);
+	    } catch (UnsupportedEncodingException e) 
+	    {
+	        // TODO: handle exception
+	        throw new GeneralSecurityException(e);
+	    }
+	}
+*/
 }
