@@ -15,6 +15,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.google.gson.Gson;
+
 /**
  * This class provides an interface to Google Maps to get driving directions and maps
  */
@@ -22,6 +24,7 @@ public class DrivingDirections
 {
 	
 	private static final String DIRECTIONS_DOMAIN = "https://maps.googleapis.com";
+	private static final String GEOCODE_URL = "https://maps.googleapis.com/maps/api/geocode/json?address=";
 
 	JSONObject getGoogleDirections(String startAddress, String destAddress) throws JSONException
 	{
@@ -203,6 +206,49 @@ public class DrivingDirections
 	String getTripDuration(JSONObject leg) throws JSONException
 	{		
 		return leg.getJSONObject("duration").getString("text");
+	}
+	
+	//Get a geocode location from Google Maps 
+	GoogleGeocode getGoogleGeocode(String address)
+	{
+		//Turn the string into a valid URL
+		URL dirurl= null;
+		try 
+		{
+			dirurl = new URL(GEOCODE_URL + address + "&key=" + EncryptionManager.getKey("key1"));
+		} 
+		catch (MalformedURLException e2) 
+		{
+			e2.printStackTrace();
+		}
+				
+		//Attempt to open the URL via a network connection to the Internet
+		HttpURLConnection httpconn= null;
+		try {httpconn = (HttpURLConnection)dirurl.openConnection();} 
+		catch (IOException e1) {e1.printStackTrace();}
+				
+		//It opened successfully, get the data
+		StringBuffer response = new StringBuffer();
+		try 
+		{
+			if(httpconn.getResponseCode() == HttpURLConnection.HTTP_OK)
+			{
+				BufferedReader input = new BufferedReader(new InputStreamReader(httpconn.getInputStream()),8192);
+			    String strLine = null;
+			    while ((strLine = input.readLine()) != null)
+				    response.append(strLine);					
+			    input.close();
+			}
+		}
+		catch (IOException e1)
+		{
+			JOptionPane.showMessageDialog(null, "Can't get Google Geocode Location",
+								"Google Geolocaton API Issue", JOptionPane.ERROR_MESSAGE);
+			e1.printStackTrace();
+		}
+		
+		Gson gson = new Gson();
+		return response != null ? gson.fromJson(response.toString(), GoogleGeocode.class) : null;
 	}
 /*	
 	public static String generateHmacSHA256Signature(String data, String key)   throws GeneralSecurityException {

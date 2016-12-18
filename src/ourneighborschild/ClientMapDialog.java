@@ -91,42 +91,43 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 	
 	void buildClientMap()
 	{
-		//Get the updated map from Google Maps if the map isn't stored
+/*		
+		String[] regionAddresses = {"Unassigned, no Address",	//PLACE HOLDER FOR UNASSIGNED FAMILIES
+				"Munsey+Pl,+Centreville,+VA",
+				"Knoughton+Way,+Centreville,+VA",
+				"Four+Chimney+Dr,+Centreville,+VA",
+				"Lynhodge+Ct,+Centreville,+VA",
+				"Gold+Post+Ct,+Dr+Centreville,+VA",
+				"Ormond+Stone+Cir,+Centreville,+VA",
+				"Rock+Landing+Ct,+Centrevile,+VA",
+				"Battalion+St,+Centrevile,+VA",
+				"Mossy+Bank+Ln,+Centreville,+VA",
+				"Emerald+Green+Ct,+Centreville,+VA",
+				"Rock+Hollow+Ln,+Clifton,+VA",
+				"Water+St,+Clifton,+VA",
+				"Sydney+Rd,+Fairfax+Station,+VA",
+				"Donegal+Church+Ct,+Chantilly,+VA",
+				"Northeast+Pl,+Chantilly,+VA",
+				"Canoe+Birch+Ct,+Fairfax,+VA",
+				"Holton+Pl,+Chantilly,+VA",
+				"Marble+Rock+Ct,+Chantilly,+VA",
+				"Ruben+Simpson+Ct,+Fairfax,+VA",
+				"Maple+Hill+Rd,+Fairfax,+VA",
+				"Field+Lark+Ln,+Fairfax,+VA",
+				"Maepine+Ct,+Fairfax,+VA",
+				"Fair+Valley+Ct,+Fairfax,+VA",
+				"Edman+Cir,+Centreville,+VA"
+				};
+*/				
+				
 		if(!bClientMapStored)
 		{
 			String url = "http://maps.googleapis.com/maps/api/staticmap?";
 			String parms = "&size=640x600&zoom=12&center=38.84765,-77.40215";
 			GlobalVariables gvs = GlobalVariables.getInstance();
 			String marker = "&markers=color:green%7C" + gvs.getWarehouseAddress();
-			StringBuffer markers = new StringBuffer(marker);
-/*					
-			String[] regionAddresses = {"Unassigned, no Address",	//PLACE HOLDER FOR UNASSIGNED FAMILIES
-					"Munsey+Pl+Centreville,VA",
-					"Knoughton+Way+Centreville,VA",
-					"Four+Chimney+Dr+Centreville,VA",
-					"Lynhodge+Ct+Centreville,VA",
-					"Gold+Post+Ct+Dr+Centreville,VA",
-					"Ormond+Stone+Cir+Centreville,VA",
-					"Rock+Landing+Ct+Centrevile,VA",
-					"Battalion+St+Centrevile,VA",
-					"Mossy+Bank+Ln+Centreville,VA",
-					"Emerald+Green+Ct+Centreville,VA",
-					"Rock+Hollow+Ln+Clifton,VA",
-					"Water+St+Clifton,VA",
-					"Sydney+Rd+Fairfax+Station,VA",
-					"Donegal+Church+Ct+Chantilly,VA",
-					"Northeast+Pl+Chantilly,VA",
-					"Canoe+Birch+Ct+Fairfax,VA",
-					"Holton+Pl+Chantilly,VA",
-					"Marble+Rock+Ct+Chantilly,VA",
-					"Ruben+Simpson+Ct+Fairfax,VA",
-					"Maple+Hill+Rd+Fairfax,VA",
-					"Field+Lark+Ln+Fairfax,VA",
-					"Maepine+Ct+Fairfax,VA",
-					"Fair+Valley+Ct+Fairfax,VA",
-					"Edman+Cir+Centreville,VA"
-					};
-*/					
+			StringBuffer markers = new StringBuffer(marker);		
+			
 			String[] regionLatLong = 
 					{
 					"Unassigned, no Address",	//PLACE HOLDER FOR UNASSIGNED FAMILIES
@@ -172,7 +173,7 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 			else
 				JOptionPane.showMessageDialog(null, "Can't get Map from Google, check your Internet Connection",
 				  		"Google Maps Access Issue", JOptionPane.ERROR_MESSAGE);
-		}	
+		}
 	}
 	
 	void updateRegionList()
