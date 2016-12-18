@@ -223,7 +223,7 @@ public class DirectionsDialog extends JDialog implements ActionListener, Databas
 		    
 		  //Get the updated map from Google Maps with start and end markers and path and add it to 
 		    //the map panel
-		    BufferedImage biMap = ddir.getGoogleMap(leg, destAddress);
+		    BufferedImage biMap = ddir.getDirectionsGoogleMap(leg, destAddress);
 		    
 		    if(biMap != null)
 		    	lblMap.setIcon(new ImageIcon(biMap));

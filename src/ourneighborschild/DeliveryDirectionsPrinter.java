@@ -134,7 +134,7 @@ public class DeliveryDirectionsPrinter implements Printable
 			BufferedImage map = null;
 			try 
 			{
-				map = ddir.getGoogleMap(ddpAL.get(page).getRoute(), ddpAL.get(page).getAddress());
+				map = ddir.getDirectionsGoogleMap(ddpAL.get(page).getRoute(), ddpAL.get(page).getAddress());
 			}
 			catch (JSONException e)
 			{

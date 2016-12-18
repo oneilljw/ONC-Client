@@ -2,13 +2,9 @@ package ourneighborschild;
 
 import java.awt.Point;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.imageio.ImageIO;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JDialog;
@@ -38,7 +34,7 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 	public ClientMapDialog(JFrame parent)
 	{
 		super(parent);
-		this.setTitle("Map of Served ONC Families by Region");
+		this.setTitle("Distribution of ONC Families Served Gifts by Region");
 		
 		GlobalVariables globalDB = GlobalVariables.getInstance();
 		if(globalDB != null)
@@ -76,7 +72,7 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
         getContentPane().add(distPanel);
        
         pack();
-        setSize(800,550);
+        setSize(800,640);
         Point pt = parent.getLocation();
         setLocation(pt.x + 50, pt.y + 50);
 	}
@@ -98,16 +94,12 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 		//Get the updated map from Google Maps if the map isn't stored
 		if(!bClientMapStored)
 		{
-			GlobalVariables gvs = GlobalVariables.getInstance();
-					
-			URL mapURL = null;
-			BufferedImage map = null;
 			String url = "http://maps.googleapis.com/maps/api/staticmap?";
-			String parms = "&size=640x525&zoom=12&center=38.84765,-77.40215";
+			String parms = "&size=640x600&zoom=12&center=38.84765,-77.40215";
+			GlobalVariables gvs = GlobalVariables.getInstance();
 			String marker = "&markers=color:green%7C" + gvs.getWarehouseAddress();
 			StringBuffer markers = new StringBuffer(marker);
-			String sensor = "&sensor=false";
-					
+/*					
 			String[] regionAddresses = {"Unassigned, no Address",	//PLACE HOLDER FOR UNASSIGNED FAMILIES
 					"Munsey+Pl+Centreville,VA",
 					"Knoughton+Way+Centreville,VA",
@@ -132,43 +124,55 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 					"Field+Lark+Ln+Fairfax,VA",
 					"Maepine+Ct+Fairfax,VA",
 					"Fair+Valley+Ct+Fairfax,VA",
-					"Edman+Cir+Centreville,VA"};
-					
-			for(int i=1; i<regionAddresses.length; i++)
-					markers.append("&markers=label:"+ regions.getRegionID(i)+"%7C" + regionAddresses[i]);
-					
-			try
+					"Edman+Cir+Centreville,VA"
+					};
+*/					
+			String[] regionLatLong = 
+					{
+					"Unassigned, no Address",	//PLACE HOLDER FOR UNASSIGNED FAMILIES
+					"38.8605972,-77.4596217",
+					"38.8592872,-77.4474546",
+					"38.8465375,-77.4492307",
+					"38.8451097,-77.4607807",
+					"38.8281786,-77.4673007",
+					"38.8438858,-77.4188626",
+					"38.8332837,-77.4274877",
+					"38.8298497,-77.4462841",
+					"38.8192277,-77.4528976",
+					"38.8323606,-77.4619244",
+					"38.8167603,-77.4226005",
+					"38.7797701,-77.384582",
+					"38.7817242,-77.3223597",
+					"38.8969661,-77.4755806",
+					"38.8978402,-77.4536521",
+					"38.8958435,-77.4164022",
+					"38.8830304,-77.4255473",
+					"38.8624991,-77.4148267",
+					"38.881464,-77.3812288",
+					"38.8699022,-77.3515107",
+					"38.8671858,-77.374384",
+					"38.8734542,-77.3969387",
+					"38.862498,-77.3935485",
+					"38.8323606,-77.4619244"
+					};
+			
+			for(int i=1; i<regionLatLong.length; i++)
+				markers.append("&markers=label:"+ regions.getRegionID(i)+"%7C" + regionLatLong[i]);
+			
+			DrivingDirections ddir = new DrivingDirections();
+			BufferedImage map = ddir.getGoogleMap((url+parms+markers.toString()+"&key=" + EncryptionManager.getKey("key1")));
+			
+			if(map != null)	
 			{
-				mapURL = new URL(url+parms+markers.toString()+sensor);
+				iiClientMap.setImage(map);
+				lblClientMap.setIcon(iiClientMap);
+				mapPanel.add(lblClientMap);
+				bClientMapStored = true;
 			}
-			catch (MalformedURLException e1) 
-			{
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-		        
-			try 
-			{
-				map = ImageIO.read(mapURL);
-				if(map != null)	
-				{
-					iiClientMap.setImage(map);
-					lblClientMap.setIcon(iiClientMap);
-					mapPanel.add(lblClientMap);
-					bClientMapStored = true;
-				}
-				else
-				{
-					JOptionPane.showMessageDialog(null, "Can't get Map from Google, check your Internet Connection",
-					  		"Google Maps Access Issue", JOptionPane.ERROR_MESSAGE);
-				}
-			} 
-			catch (IOException e2)
-			{
+			else
 				JOptionPane.showMessageDialog(null, "Can't get Map from Google, check your Internet Connection",
-			  		"Google Maps Access Issue", JOptionPane.ERROR_MESSAGE);
-			}
-		}	  	
+				  		"Google Maps Access Issue", JOptionPane.ERROR_MESSAGE);
+		}	
 	}
 	
 	void updateRegionList()
@@ -265,6 +269,10 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 			bClientMapStored = false;
 			buildClientMap();
 			this.getContentPane().repaint();
+		}
+		else if(dbe.getType().equals("LOADED_FAMILIES"))
+		{
+			this.setTitle(String.format("Distribution of %d ONC Families Served Gifts by Region", GlobalVariables.getCurrentSeason()));
 		}
 	}
 	

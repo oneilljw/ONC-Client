@@ -73,14 +73,14 @@ public class DrivingDirections
 	    return new JSONObject(response.toString());
 	}
 	
-	BufferedImage getGoogleMap(JSONObject route, String destAddress) throws JSONException
+	BufferedImage getDirectionsGoogleMap(JSONObject route, String destAddress) throws JSONException
 	{	
 		//Get start_end lat/lngs
 		String[] start_end = getStartEndLocations(route);
 		
 		//Get Map
-	  	URL mapURL = null;
-	    BufferedImage map = null;
+//	  	URL mapURL = null;
+//	    BufferedImage map = null;
 //	    String url = "http://maps.googleapis.com/maps/api/staticmap?";
 	    String parms = "&size=600x350";
 	    String markers = "&markers=color:green%7Clabel:S%7C" + start_end[0] +"," + start_end[1] +
@@ -88,6 +88,8 @@ public class DrivingDirections
 	    
 
 	    String urlBody = "/maps/api/staticmap?" + destAddress + parms + markers + "&key=" + EncryptionManager.getKey("key1");
+	    
+	    return getGoogleMap(DIRECTIONS_DOMAIN + urlBody);
 /*	    
 	    
 	    String digSignature = null;
@@ -107,8 +109,7 @@ public class DrivingDirections
 			return null;
 		else
 //			stringUrl = DIRECTIONS_DOMAIN + urlBody + digSignature;
- * 
- */
+
 		String	stringUrl = DIRECTIONS_DOMAIN + urlBody;
 
 	    try
@@ -135,6 +136,37 @@ public class DrivingDirections
 	  	}
 	    
 	    return map;
+*/	    
+	}
+	
+	BufferedImage getGoogleMap(String stringURL)
+	{
+		BufferedImage map = null;
+		URL mapURL = null;
+		
+		 try
+		 {
+		    mapURL = new URL(stringURL);
+		 }
+		 catch (MalformedURLException e1) 
+		 {
+		  	String mssg = String.format("Cant get Static Google Map for %s", stringURL);
+		  	JOptionPane.showMessageDialog(null, mssg, "Google Map - Static Map URL Exception", 
+		  				JOptionPane.ERROR_MESSAGE);
+		  }
+       
+		  try 
+		  {
+			  map = ImageIO.read(mapURL);
+		  } 
+		  catch (IOException e1) 
+		  {
+			  String mssg = String.format("Cant get Static Google Map for %s", stringURL);
+			  JOptionPane.showMessageDialog(null, mssg, "Google Map - Static Map I/O Exception", 
+		  				JOptionPane.ERROR_MESSAGE);
+		  }
+		    
+		  return map;
 	}
 	
 	JSONObject getTripRoute(JSONObject dirJSONObject) throws JSONException
