@@ -2165,12 +2165,12 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		}
 		else if(dbe.getType().equals("UPDATED_REGION_LIST"))
 		{
-			String[] regList = (String[]) dbe.getObject();
+			String[] regList = (String[]) dbe.getObject1();
 			updateRegionList(regList);
 		}
 		else if(dbe.getType().contains("ADDED_USER") || dbe.getType().contains("UPDATED_USER"))
 		{
-			ONCUser updatedUser = (ONCUser)dbe.getObject();
+			ONCUser updatedUser = (ONCUser)dbe.getObject1();
 			updateUserList();
 			
 			//check to see if the current user was updated to update preferences
@@ -2188,7 +2188,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		else if(dbe.getType().contains("CHANGED_USER"))
 		{
 			//new user logged in, update preferences used by this dialog
-			updateUserPreferences((ONCUser)dbe.getObject());
+			updateUserPreferences((ONCUser)dbe.getObject1());
 		}
 	}
 	

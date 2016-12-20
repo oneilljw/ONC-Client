@@ -255,7 +255,7 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 //			System.out.println(String.format("Client Map Dlg DB Event: Source: %s, Type: %s, Object: %s",
 //					dbe.getSource().toString(), dbe.getType(), dbe.getObject().toString()));
 			
-			DataChange regionChange = (DataChange) dbe.getObject();
+			DataChange regionChange = (DataChange) dbe.getObject1();
 			updateRegionCounts(regionChange);	
 		}
 		else if(dbe.getType().equals("UPDATED_REGION_LIST"))

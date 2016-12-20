@@ -280,7 +280,7 @@ public class AgentInfoDialog extends InfoDialog implements DatabaseListener, Ent
 	{
 		if(dbe.getSource() != this && dbe.getType().equals("UPDATED_AGENT"))
 		{
-			Agent updatedAgent = (Agent) dbe.getObject();
+			Agent updatedAgent = (Agent) dbe.getObject1();
 			
 			if(this.isVisible() && currAgent.getID() == updatedAgent.getID())
 				display(updatedAgent);
@@ -289,7 +289,7 @@ public class AgentInfoDialog extends InfoDialog implements DatabaseListener, Ent
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("DELETED_AGENT"))
 		{
-			Agent updatedAgent = (Agent) dbe.getObject();
+			Agent updatedAgent = (Agent) dbe.getObject1();
 			
 			updateAgentList();
 			

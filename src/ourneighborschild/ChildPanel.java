@@ -286,7 +286,7 @@ public class ChildPanel extends JPanel implements DatabaseListener, EntitySelect
 	{
 		if(dbe.getSource() != this && dbe.getType().equals("UPDATED_CHILD"))
 		{
-			ONCChild updatedChild = (ONCChild) dbe.getObject();
+			ONCChild updatedChild = (ONCChild) dbe.getObject1();
 			if(updatedChild != null && updatedChild.getID() == dispChild.getID())
 			{
 				String logEntry = String.format("ChildPanel Event: %s, Child: %s",
@@ -297,7 +297,7 @@ public class ChildPanel extends JPanel implements DatabaseListener, EntitySelect
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("DELETED_CHILD"))
 		{
-			ONCChild deletedChild = (ONCChild) dbe.getObject();
+			ONCChild deletedChild = (ONCChild) dbe.getObject1();
 			if(deletedChild != null && deletedChild.getID() == dispChild.getID())
 			{
 				String logEntry = String.format("ChildPanel Event: %s, Child: %s",

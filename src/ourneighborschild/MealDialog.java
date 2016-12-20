@@ -153,7 +153,7 @@ public class MealDialog extends HistoryDialog
 										dbe.getType().equals("DELETED_MEAL")))
 		{
 			//update the meal table if added meal was for this family
-			ONCMeal addedMeal = (ONCMeal) dbe.getObject();
+			ONCMeal addedMeal = (ONCMeal) dbe.getObject1();
 			if(currFam != null && addedMeal.getFamilyID() == currFam.getID())
 			{
 				mealList = getSortedMealList();
@@ -163,7 +163,7 @@ public class MealDialog extends HistoryDialog
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_FAMILY"))
 		{
-			ONCFamily updatedFamily = (ONCFamily) dbe.getObject();
+			ONCFamily updatedFamily = (ONCFamily) dbe.getObject1();
 			if(currFam != null && currFam.getID() == updatedFamily.getID())
 			{
 				if(updatedFamily.getMealID() == -1)

@@ -542,7 +542,7 @@ public class VolunteerDialog extends EntityDialog
 	{
 		if(dbe.getSource() != this && dbe.getType().equals("UPDATED_DRIVER"))
 		{
-			ONCVolunteer updatedVol = (ONCVolunteer) dbe.getObject();
+			ONCVolunteer updatedVol = (ONCVolunteer) dbe.getObject1();
 			
 			//If a current volunteer is being displayed has changed, re-display it
 			if(currVolunteer != null && currVolunteer.getID() == updatedVol.getID() && !bAddingNewEntity)
@@ -550,7 +550,7 @@ public class VolunteerDialog extends EntityDialog
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("ADDED_DRIVER"))
 		{
-			ONCVolunteer addedDriver = (ONCVolunteer) dbe.getObject();
+			ONCVolunteer addedDriver = (ONCVolunteer) dbe.getObject1();
 			//If no volunteer is being displayed, display the added one
 			if(this.isVisible() && currVolunteer == null && volDB.size() > 0 && !bAddingNewEntity)
 				display(addedDriver);
@@ -569,7 +569,7 @@ public class VolunteerDialog extends EntityDialog
 			}
 			else
 			{
-				ONCVolunteer deletedVol = (ONCVolunteer) dbe.getObject();
+				ONCVolunteer deletedVol = (ONCVolunteer) dbe.getObject1();
 				if(currVolunteer.getID() == deletedVol.getID())
 				{
 					if(nav.getIndex() == 0)
@@ -585,7 +585,7 @@ public class VolunteerDialog extends EntityDialog
 		{
 			//If the added delivery is associated with the current volunteer being displayed,
 			//update the display so the # of deliveries assigned field updates
-			ONCDelivery del = (ONCDelivery) dbe.getObject();
+			ONCDelivery del = (ONCDelivery) dbe.getObject1();
 			
 			if(!bAddingNewEntity && del != null && currVolunteer != null && 
 					del.getdDelBy().equals(currVolunteer.getDrvNum()))

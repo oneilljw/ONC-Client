@@ -23,6 +23,7 @@ public class ONCPartner extends ONCEntity
 	private String phone;
 	private int orn_req;
 	private int orn_assigned;
+	private int orn_delivered;
 	private int orn_rec;
 	private String other;
 	private String confirmed;
@@ -36,6 +37,7 @@ public class ONCPartner extends ONCEntity
 	private String contact2_phone;
 	private int pyRequested;
 	private int pyAssigned;
+	private int pyDelivered;
 	private int pyReceived;
 	
 	ONCPartner(int orgid, String createdBy)
@@ -56,6 +58,7 @@ public class ONCPartner extends ONCEntity
 		phone = "";
 		orn_req = 0;
 		orn_assigned = 0;
+		orn_delivered = 0;
 		orn_rec = 0;
 		other = "";
 		confirmed = "";
@@ -69,6 +72,7 @@ public class ONCPartner extends ONCEntity
 		contact2_phone = "";
 		pyRequested = 0;
 		pyAssigned = 0;
+		pyDelivered = 0;
 		pyReceived = 0;
 	}
 	
@@ -91,6 +95,7 @@ public class ONCPartner extends ONCEntity
 		phone = "";
 		orn_req = 0;
 		orn_assigned = 0;
+		orn_delivered = 0;
 		orn_rec = 0;
 		other = "";
 		confirmed = "";
@@ -104,6 +109,7 @@ public class ONCPartner extends ONCEntity
 		contact2_phone = "";
 		pyRequested = 0;
 		pyAssigned = 0;
+		pyDelivered = 0;
 		pyReceived = 0;
 	}
 	
@@ -129,6 +135,7 @@ public class ONCPartner extends ONCEntity
 		this.phone = phone;
 		this.orn_req = orn_req;
 		this.orn_assigned = 0;
+		this.orn_delivered = 0;
 		this.orn_rec = 0;
 		this.other = other;
 		this.confirmed = "";
@@ -142,6 +149,7 @@ public class ONCPartner extends ONCEntity
 		this.contact2_phone = contact2_phone;
 		this.pyRequested = 0;
 		this.pyAssigned = 0;
+		this.pyDelivered = 0;
 		this.pyReceived = 0;
 	}
 	
@@ -164,6 +172,7 @@ public class ONCPartner extends ONCEntity
 		this.phone = o.phone;
 		this.orn_req = o.orn_req;
 		this.orn_assigned = o.orn_assigned;
+		this.orn_delivered = o.orn_delivered;
 		this.orn_rec = o.orn_rec;
 		this.other = o.other;
 		this.confirmed = "";
@@ -177,14 +186,15 @@ public class ONCPartner extends ONCEntity
 		this.contact2_phone = o.contact2_phone;
 		this.pyRequested = o.pyRequested;
 		this.pyAssigned = o.pyAssigned;
+		this.pyDelivered = o.pyDelivered;
 		this.pyReceived = o.pyReceived;
 	}
 	
 	//Constructor for import from .csv
 	public ONCPartner(String[] nextLine)	
 	{
-		super(Integer.parseInt(nextLine[0]), Long.parseLong(nextLine[25]), nextLine[26],
-				Integer.parseInt(nextLine[27]), nextLine[28], nextLine[29]);
+		super(Integer.parseInt(nextLine[0]), Long.parseLong(nextLine[26]), nextLine[27],
+				Integer.parseInt(nextLine[28]), nextLine[29], nextLine[30]);
 		status = Integer.parseInt(nextLine[1]);
 		type = Integer.parseInt(nextLine[2]);
 		collection = nextLine[3].isEmpty() ? GiftCollection.Unknown : GiftCollection.valueOf(nextLine[3]);
@@ -199,19 +209,21 @@ public class ONCPartner extends ONCEntity
 		phone = getDBString(nextLine[12]);
 		orn_req = nextLine[13].isEmpty() ? 0 : Integer.parseInt(nextLine[13]);
 		orn_assigned = nextLine[14].isEmpty() ? 0 : Integer.parseInt(nextLine[14]);
-		orn_rec = nextLine[15].isEmpty() ? 0 : Integer.parseInt(nextLine[15]);
-		other = getDBString(nextLine[16]);
-		deliverTo = getDBString(nextLine[17]);
-		specialNotes = getDBString(nextLine[18]);
-		contact = getDBString(nextLine[19]);
-		contact_email = getDBString(nextLine[20]);
-		contact_phone = getDBString(nextLine[21]);
-		contact2 = getDBString(nextLine[22]);
-		contact2_email = getDBString(nextLine[23]);
-		contact2_phone = getDBString(nextLine[24]);
-		pyRequested = nextLine[30].isEmpty() ? 0 : Integer.parseInt(nextLine[30]);
-		pyAssigned = nextLine[31].isEmpty() ? 0 : Integer.parseInt(nextLine[31]);
-		pyReceived = nextLine[32].isEmpty() ? 0 : Integer.parseInt(nextLine[32]);
+		orn_delivered = nextLine[15].isEmpty() ? 0 : Integer.parseInt(nextLine[15]);
+		orn_rec = nextLine[16].isEmpty() ? 0 : Integer.parseInt(nextLine[16]);
+		other = getDBString(nextLine[17]);
+		deliverTo = getDBString(nextLine[18]);
+		specialNotes = getDBString(nextLine[19]);
+		contact = getDBString(nextLine[20]);
+		contact_email = getDBString(nextLine[21]);
+		contact_phone = getDBString(nextLine[22]);
+		contact2 = getDBString(nextLine[23]);
+		contact2_email = getDBString(nextLine[24]);
+		contact2_phone = getDBString(nextLine[25]);
+		pyRequested = nextLine[31].isEmpty() ? 0 : Integer.parseInt(nextLine[31]);
+		pyAssigned = nextLine[32].isEmpty() ? 0 : Integer.parseInt(nextLine[32]);
+		pyDelivered = nextLine[33].isEmpty() ? 0 : Integer.parseInt(nextLine[33]);
+		pyReceived = nextLine[34].isEmpty() ? 0 : Integer.parseInt(nextLine[34]);
 	}
 	
 	String getDBString(String s)
@@ -234,6 +246,7 @@ public class ONCPartner extends ONCEntity
 	String getPhone()	{ return phone; }
 	public int getNumberOfOrnamentsRequested()	{ return orn_req; }
 	public int getNumberOfOrnamentsAssigned() { return orn_assigned; }
+	public int getNumberOfOrnamentsDelivered() { return orn_delivered; }
 	public int getNumberOfOrnamentsReceived() { return orn_rec; }
 	String getOther()	{ return other; }
 	String getConfirmed() { return confirmed;}
@@ -247,6 +260,7 @@ public class ONCPartner extends ONCEntity
 	String getContact2_phone()	{ return contact2_phone; }
 	int getPriorYearRequested() { return pyRequested; }
 	int getPriorYearAssigned() { return pyAssigned; }
+	int getPriorYearDelivered() { return pyDelivered; }
 	int getPriorYearReceived() { return pyReceived; }
 	
 	//setters
@@ -264,6 +278,7 @@ public class ONCPartner extends ONCEntity
 	void setPhone(String p)	{ phone = p; }
 	public void setNumberOfOrnamentsRequested(int n)	{ orn_req = n; }
 	public void setNumberOfOrnamentsAssigned(int n)	{ orn_assigned = n; }
+	public void setNumberOfOrnamentsDelivered(int n)	{ orn_delivered = n; }
 	public void setNumberOfOrnamentsReceived(int n)	{ orn_rec = n; }
 	void setOther(String o)	{ other = o; }
 	void setConfirmed(String c) { confirmed = c;}
@@ -277,6 +292,7 @@ public class ONCPartner extends ONCEntity
 	void setContact2_phone(String p)	{ contact2_phone = p; }
 	public void setPriorYearRequested(int n) { pyRequested = n; }
 	void setPriorYearAssigned(int n) { pyAssigned = n; }
+	void setPriorYearDelivered(int n) { pyDelivered = n; }
 	void setPriorYearReceived(int n) { pyReceived = n; }	
 	
 	public int incrementOrnAssigned() { return ++orn_assigned; }
@@ -285,6 +301,14 @@ public class ONCPartner extends ONCEntity
 		if(orn_assigned > 0)
 			orn_assigned--;
 		return orn_assigned;
+	}
+	
+	public int incrementOrnDelivered() { return ++orn_delivered; }
+	public int decrementOrnDelivered()
+	{
+		if(orn_delivered > 0)
+			orn_delivered--;
+		return orn_delivered;
 	}
 	
 	public int incrementOrnReceived() { return ++orn_rec; }
@@ -296,6 +320,7 @@ public class ONCPartner extends ONCEntity
 	}
 	
 	public int incrementPYAssigned() { return ++pyAssigned; }
+	public int incrementPYDelivered() { return ++pyDelivered; }
 	public int incrementPYReceived() { return ++pyReceived; }
 	
 	String[] getOrgInfoTableRow()
@@ -311,12 +336,12 @@ public class ONCPartner extends ONCEntity
 		String[] row= {Integer.toString(id), Integer.toString(status), Integer.toString(type),
 						collection.toString(), name, ornamentDelivery, Integer.toString(streetnum),
 						streetname, unit, city, zipcode, Integer.toString(region), phone,
-						Integer.toString(orn_req),Integer.toString(orn_assigned),
+						Integer.toString(orn_req),Integer.toString(orn_assigned), Integer.toString(orn_delivered),
 						Integer.toString(orn_rec), other, deliverTo, specialNotes, contact,
 						contact_email, contact_phone, contact2, contact2_email, contact2_phone, 
 						Long.toString(dateChanged.getTimeInMillis()), changedBy, Integer.toString(slPos),
 						slMssg, slChangedBy, Integer.toString(pyRequested), Integer.toString(pyAssigned),
-						Integer.toString(pyReceived)};
+						Integer.toString(pyDelivered), Integer.toString(pyReceived)};
 		return row;
 	}
 	

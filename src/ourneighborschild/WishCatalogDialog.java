@@ -315,7 +315,7 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 		if(dbe.getSource() != this && dbe.getType().equals("WISH_BASE_CHANGED"))
 		{
 			//User changed a wish base, must update wish counts
-			WishBaseChange wbc = (WishBaseChange) dbe.getObject();
+			WishBaseChange wbc = (WishBaseChange) dbe.getObject1();
 			ONCChildWish replWish = (ONCChildWish) wbc.getReplacedWish();
 			ONCChildWish addedWish = (ONCChildWish) wbc.getAddedWish();
 			
@@ -333,7 +333,7 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("ADDED_CATALOG_WISH"))
 		{
-			ONCWish addedWish = (ONCWish) dbe.getObject();
+			ONCWish addedWish = (ONCWish) dbe.getObject1();
 			int tablerow = cat.findModelIndexFromID(addedWish.getID());
 			
 			if(tablerow > -1)
@@ -345,7 +345,7 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_CATALOG_WISH"))
 		{
 			//determine which row the updated wish is in
-			ONCWish updatedWish = (ONCWish) dbe.getObject();
+			ONCWish updatedWish = (ONCWish) dbe.getObject1();
 			int tablerow = cat.findModelIndexFromID(updatedWish.getID());
 			wcTableModel.fireTableRowsUpdated(tablerow, tablerow);
 		}

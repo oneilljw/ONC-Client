@@ -157,7 +157,7 @@ public class UserProfileDialog extends InfoDialog implements DatabaseListener
 	{
 		if(dbe.getSource() != this && dbe.getType().equals("UPDATED_USER"))
 		{
-			ONCUser updatedUser = (ONCUser) dbe.getObject();
+			ONCUser updatedUser = (ONCUser) dbe.getObject1();
 			if(updatedUser.getID() == user.getID())
 			{
 				this.user = updatedUser;

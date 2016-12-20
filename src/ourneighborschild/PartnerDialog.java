@@ -21,6 +21,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
+import javax.swing.border.Border;
+import javax.swing.border.TitledBorder;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 
@@ -42,15 +44,16 @@ public class PartnerDialog extends EntityDialog
 	
 	private ONCRegions regions;
 	
-	private JLabel lblCYAssigned, lblCYRec;
+	private JLabel lblCYAssigned, lblCYDel, lblCYRec;
 	private JLabel lblOrgID, lblRegion, lblDateChanged, lblChangedBy;
     private JComboBox typeCB, statusCB, collectionCB;
     private JTextPane otherTP, specialNotesTP, deliverToTP;
-    private JLabel lblPYReq, lblPYAssigned, lblPYRec;
+    private JLabel lblPYReq, lblPYAssigned, lblPYDel, lblPYRec;
     private JTextField nameTF, cyReqTF;
     private JTextField streetnumTF, streetnameTF, unitTF, cityTF, zipTF, phoneTF;
     private JTextField contact1TF, email1TF, phone1TF;
     private JTextField contact2TF, email2TF, phone2TF;
+    private JPanel pyPanel, cyPanel;
     private PartnerDB partnerDB;
     private int partnerCount = 0, wishCount = 0;	//Holds the navigation panel overall counts
     
@@ -93,7 +96,7 @@ public class PartnerDialog extends EntityDialog
         nav.setPreviousButtonText("Previous Partner");
 
         //set up the edit organization panel
-        entityPanel.setBorder(BorderFactory.createTitledBorder("Gift Partner Information"));
+//      entityPanel.setBorder(BorderFactory.createTitledBorder("Gift Partner Information"));
         JPanel op1 = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JPanel op2 = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JPanel op3 = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -101,6 +104,8 @@ public class PartnerDialog extends EntityDialog
         JPanel op5 = new JPanel(new FlowLayout(FlowLayout.LEFT));
 //      JPanel op5 = new JPanel(new GridBagLayout());
         JPanel op6 = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        pyPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        cyPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         
         //set up panel 1
         lblOrgID = new JLabel("No Orgs Yet");
@@ -303,50 +308,78 @@ public class PartnerDialog extends EntityDialog
         op5.add(deliverToTPSP);
         
         //set up panel 6
-        Dimension ornDimension = new Dimension(122,48);
+        Dimension ornDimension = new Dimension(88,48);
+        
+        Border loweredBevel = BorderFactory.createLoweredBevelBorder();
+        TitledBorder pyBorder = BorderFactory.createTitledBorder(loweredBevel, "Prior Year Performance");
+        pyBorder.setTitleJustification(TitledBorder.CENTER);
+        pyPanel.setBorder(pyBorder);
+        
         lblPYReq = new JLabel();
         lblPYReq.setPreferredSize(ornDimension);
         lblPYReq.setToolTipText("Number of prior year ornaments reqeusted by partner");
-        lblPYReq.setBorder(BorderFactory.createTitledBorder("Prior Yr Req"));
+        lblPYReq.setBorder(BorderFactory.createTitledBorder("Requested"));
         lblPYReq.setHorizontalAlignment(JLabel.RIGHT);
         
         lblPYAssigned = new JLabel();
         lblPYAssigned.setPreferredSize(ornDimension);
         lblPYAssigned.setToolTipText("Number of prior year ornaments assigned to partner");
-        lblPYAssigned.setBorder(BorderFactory.createTitledBorder("Prior Yr Assig"));
+        lblPYAssigned.setBorder(BorderFactory.createTitledBorder("Assigned"));
         lblPYAssigned.setHorizontalAlignment(JLabel.RIGHT);
+        
+        lblPYDel = new JLabel();
+        lblPYDel.setPreferredSize(ornDimension);
+        lblPYDel.setToolTipText("Number of prior year ornaments delivered to partner");
+        lblPYDel.setBorder(BorderFactory.createTitledBorder("Delivered"));
+        lblPYDel.setHorizontalAlignment(JLabel.RIGHT);
         
         lblPYRec = new JLabel();
         lblPYRec.setPreferredSize(ornDimension);
         lblPYRec.setToolTipText("Number of prior year gifts received from partner");
-        lblPYRec.setBorder(BorderFactory.createTitledBorder("Prior Yr Rec"));
+        lblPYRec.setBorder(BorderFactory.createTitledBorder("Received"));
         lblPYRec.setHorizontalAlignment(JLabel.RIGHT);
+        
+        TitledBorder cyBorder = BorderFactory.createTitledBorder(loweredBevel, "Current Year Performance");
+        cyBorder.setTitleJustification(TitledBorder.CENTER);
+        cyPanel.setBorder(cyBorder);
         
         cyReqTF = new JTextField();
         cyReqTF.setPreferredSize(ornDimension);
         cyReqTF.setToolTipText("Number of ornaments reqeusted by partner");
-        cyReqTF.setBorder(BorderFactory.createTitledBorder("Curr Yr Req"));
+        cyReqTF.setBorder(BorderFactory.createTitledBorder("Requested"));
         cyReqTF.setHorizontalAlignment(JTextField.RIGHT);
         cyReqTF.addActionListener(dcListener);
         
         lblCYAssigned = new JLabel();
         lblCYAssigned.setPreferredSize(ornDimension);
         lblCYAssigned.setToolTipText("Number of ornnaments assigned to this partner");
-        lblCYAssigned.setBorder(BorderFactory.createTitledBorder("Curr Yr Assig"));
+        lblCYAssigned.setBorder(BorderFactory.createTitledBorder("Assigned"));
         lblCYAssigned.setHorizontalAlignment(JLabel.RIGHT);
+        
+        lblCYDel = new JLabel();
+        lblCYDel.setPreferredSize(ornDimension);
+        lblCYDel.setToolTipText("Number of current year ornaments delivered to partner");
+        lblCYDel.setBorder(BorderFactory.createTitledBorder("Delivered"));
+        lblCYDel.setHorizontalAlignment(JLabel.RIGHT);
         
         lblCYRec = new JLabel();
         lblCYRec.setPreferredSize(ornDimension);
         lblCYRec.setToolTipText("Number of current year gifts received partner");
-        lblCYRec.setBorder(BorderFactory.createTitledBorder("Curr Yr Rec"));
+        lblCYRec.setBorder(BorderFactory.createTitledBorder("Received"));
         lblCYRec.setHorizontalAlignment(JLabel.RIGHT);
         
-        op6.add(lblPYReq);
-        op6.add(lblPYAssigned);
-        op6.add(lblPYRec);
-        op6.add(cyReqTF);
-        op6.add(lblCYAssigned);
-        op6.add(lblCYRec);
+        pyPanel.add(lblPYReq);
+        pyPanel.add(lblPYAssigned);
+        pyPanel.add(lblPYDel);
+        pyPanel.add(lblPYRec);
+        
+        cyPanel.add(cyReqTF);
+        cyPanel.add(lblCYAssigned);
+        cyPanel.add(lblCYDel);
+        cyPanel.add(lblCYRec);
+        
+        op6.add(pyPanel);
+        op6.add(cyPanel);
         
         entityPanel.add(op1);
         entityPanel.add(op2);
@@ -380,7 +413,7 @@ public class PartnerDialog extends EntityDialog
         setLocation(pt.x + 20, pt.y + 20);
 	}
 	
-	void updateComboBoxBorders()
+	void updatePartnerPerformanceBorders()
 	{
         //determine year
         GlobalVariables gvs = GlobalVariables.getInstance();
@@ -388,19 +421,16 @@ public class PartnerDialog extends EntityDialog
         seasonStartCal.setTime(gvs.getSeasonStartDate());
         
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy");
-        
         String currentYear = sdf.format(seasonStartCal.getTime());
         
         seasonStartCal.add(Calendar.YEAR, -1);
         String priorYear = sdf.format(seasonStartCal.getTime());
         
-        lblPYReq.setBorder(BorderFactory.createTitledBorder(priorYear + " Request"));
-        lblPYAssigned.setBorder(BorderFactory.createTitledBorder(priorYear + " Assigned"));
-        lblPYRec.setBorder(BorderFactory.createTitledBorder(priorYear + " Received"));
+        TitledBorder pyBorder = (TitledBorder) pyPanel.getBorder();
+        pyBorder.setTitle(priorYear + " Performance");
         
-        cyReqTF.setBorder(BorderFactory.createTitledBorder(currentYear + " Request"));
-        lblCYAssigned.setBorder(BorderFactory.createTitledBorder(currentYear + " Assigned"));
-        lblCYRec.setBorder(BorderFactory.createTitledBorder(currentYear + " Received"));
+        TitledBorder cyBorder = (TitledBorder) cyPanel.getBorder();
+        cyBorder.setTitle(currentYear + " Performance");
 	}
 	
 	void display(ONCEntity partner)	//displays currOrg
@@ -450,6 +480,7 @@ public class PartnerDialog extends EntityDialog
 			
 			cyReqTF.setText(Integer.toString(currPartner.getNumberOfOrnamentsRequested()));
 			lblCYAssigned.setText(Integer.toString(currPartner.getNumberOfOrnamentsAssigned()));
+			lblCYDel.setText(Integer.toString(currPartner.getNumberOfOrnamentsDelivered()));
 			lblCYRec.setText(Integer.toString(currPartner.getNumberOfOrnamentsReceived()));
 			otherTP.setText(currPartner.getOther());
 			otherTP.setCaretPosition(0);
@@ -482,6 +513,7 @@ public class PartnerDialog extends EntityDialog
 			phone1TF.setCaretPosition(0);
 			lblPYReq.setText(Integer.toString(currPartner.getPriorYearRequested()));
 			lblPYAssigned.setText(Integer.toString(currPartner.getPriorYearAssigned()));
+			lblPYDel.setText(Integer.toString(currPartner.getPriorYearDelivered()));
 			lblPYRec.setText(Integer.toString(currPartner.getPriorYearReceived()));
 		
 			int[] counts = partnerDB.getOrnamentAndWishCounts();
@@ -619,6 +651,8 @@ public class PartnerDialog extends EntityDialog
 		collectionCB.setEnabled(true);
 		cyReqTF.setText("");
 		lblCYAssigned.setText("0");
+		lblCYDel.setText("0");
+		lblCYRec.setText("0");
 		otherTP.setText("");
 		specialNotesTP.setText("");
 		streetnumTF.setText("");
@@ -637,6 +671,7 @@ public class PartnerDialog extends EntityDialog
 		phone2TF.setText("");
 		lblPYReq.setText("");
 		lblPYAssigned.setText("");
+		lblPYDel.setText("");
 		lblPYRec.setText("");
 		nav.clearStoplight();
 		
@@ -773,7 +808,7 @@ public class PartnerDialog extends EntityDialog
 	{
 		if(dbe.getSource() != this && dbe.getType().equals("UPDATED_PARTNER"))
 		{
-			ONCPartner updatedPartner = (ONCPartner) dbe.getObject();
+			ONCPartner updatedPartner = (ONCPartner) dbe.getObject1();
 			
 			//If current partner is being displayed has changed, reshow it
 			if(isNumeric(lblOrgID.getText()) && Integer.parseInt(lblOrgID.getText()) == updatedPartner.getID() && !bAddingNewEntity)
@@ -792,7 +827,7 @@ public class PartnerDialog extends EntityDialog
 			}
 			else
 			{
-				ONCPartner deletedPartner = (ONCPartner) dbe.getObject();
+				ONCPartner deletedPartner = (ONCPartner) dbe.getObject1();
 				if(Integer.parseInt(lblOrgID.getText()) == deletedPartner.getID())
 				{
 					if(nav.getIndex() == 0)
@@ -806,20 +841,31 @@ public class PartnerDialog extends EntityDialog
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_PARTNERS"))
 		{
-			updateComboBoxBorders();
+			updatePartnerPerformanceBorders();
 		}
-		else if(dbe.getSource() != this &&
-				(dbe.getType().equals("WISH_PARTNER_CHANGED") || dbe.getType().equals("WISH_RECEIVED")))
+		else if(!bAddingNewEntity && currPartner != null && dbe.getSource() != this &&
+				(dbe.getType().equals("WISH_PARTNER_CHANGED") || dbe.getType().equals("WISH_RECEIVED")) &&
+				 dbe.getObject1() instanceof ONCPartner && dbe.getObject2() instanceof ONCPartner)
 		{
-			DataChange change = (DataChange) dbe.getObject();
+			ONCPartner oldWishPartner = (ONCPartner) dbe.getObject1();
+			ONCPartner newWishPartner = (ONCPartner) dbe.getObject2();
 			
 //			System.out.println(String.format("OrgDlg DB Event: Source: %s, Type: %s, Object: %s",
 //					dbe.getSource().toString(), dbe.getType(), dbe.getObject().toString()));
 			
-			//if current partner being displayed gifts assigned or received have changed,
-			//refresh the displayed data
-			if(!bAddingNewEntity && currPartner != null && (currPartner.getID() == change.getOldData() ||
-															currPartner.getID() == change.getNewData()))
+			//if current partner being displayed has had their gifts assigned count changed, update
+			//the current year assignee label by redisplaying the partner
+			if(currPartner.getID() == oldWishPartner.getID())
+				display(oldWishPartner);
+			else if(currPartner.getID() == newWishPartner.getID())
+				display(newWishPartner);	
+		}
+		else if(dbe.getSource() != this && dbe.getType().equals("PARTNER_ORNAMENT_DELIVERED"))
+		{
+			ONCPartner updatedPartner = (ONCPartner) dbe.getObject1();
+			
+			//if current partner being displayed, refresh the displayed data
+			if(!bAddingNewEntity && currPartner != null && (currPartner.getID() == updatedPartner.getID()))
 				display(currPartner); 
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("DELETED_CHILD"))
@@ -834,7 +880,7 @@ public class PartnerDialog extends EntityDialog
 				dbe.getType().equals("CHANGED_USER")))
 		{
 			//determine if it's the currently logged in user
-			ONCUser updatedUser = (ONCUser)dbe.getObject();
+			ONCUser updatedUser = (ONCUser)dbe.getObject1();
 			if(userDB.getLoggedInUser().getID() == updatedUser.getID())
 				setTextPaneFontSize(updatedUser.getPreferences().getFontSize());
 		}

@@ -99,7 +99,7 @@ public class SignInHistoryDialog extends JDialog implements  EntitySelectionList
 	{
 		if(dbe.getSource() != this && this.isVisible() && dbe.getType().equals("UPDATED_DRIVER"))
 		{
-			ONCVolunteer updatedVolunteer = (ONCVolunteer) dbe.getObject();
+			ONCVolunteer updatedVolunteer = (ONCVolunteer) dbe.getObject1();
 			
 			//If updated delivery belongs to family delivery history being displayed,
 			//re-display it

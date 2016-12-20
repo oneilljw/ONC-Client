@@ -72,7 +72,7 @@ public class ChangeBatchNumberDialog extends InfoDialog implements DatabaseListe
 	{
 		if(dbe.getSource() != this && dbe.getType().equals("UPDATED_FAMILY"))
 		{
-			ONCFamily updatedFamily = (ONCFamily) dbe.getObject();
+			ONCFamily updatedFamily = (ONCFamily) dbe.getObject1();
 			
 			if(this.isVisible() && f.getID() == updatedFamily.getID())
 				display(updatedFamily);

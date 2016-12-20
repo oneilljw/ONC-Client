@@ -168,7 +168,7 @@ public class DatabaseStatusDialog extends JDialog implements ActionListener, Dat
 	{
 		if(dbe.getSource() != this && dbe.getType().equals("UPDATED_DBYEAR"))
 		{
-			DBYear updatedDBYear = (DBYear) dbe.getObject();
+			DBYear updatedDBYear = (DBYear) dbe.getObject1();
 			
 			//find the year and update the lock status
 			if(this.isVisible())

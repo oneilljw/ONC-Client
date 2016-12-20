@@ -682,25 +682,57 @@ public class PartnerDB extends ONCSearchableDatabase
 	 * @param decOrgID
 	 * @param incOrgID
 	 */
-	void processGiftAssignmentChange(DataChange wac)
+	void processGiftAssignmentChange(ONCChildWish replacedWish, ONCChildWish addedWish)
 	{
 		//Find the the current partner being decremented
-		int index = 0;
-		while(index < orgsAL.size() && orgsAL.get(index).getID() != wac.getOldData())
-			index++;
+		ONCPartner oldWishAssignee = null;
+		ONCPartner newWishAssignee = null;
 		
-		//Decrement the gift assigned count for the partner being replaced
-		if(index < orgsAL.size())
-			orgsAL.get(index).decrementOrnAssigned();
+		if(replacedWish != null)
+		{
+			oldWishAssignee = (ONCPartner) find(orgsAL, replacedWish.getChildWishAssigneeID());
+			if(oldWishAssignee != null)
+				oldWishAssignee.decrementOrnAssigned();
+		}
+			
+//		int index = 0;
+//		while(index < orgsAL.size() && orgsAL.get(index).getID() != wac.getOldData())
+//			index++;
+//		
+//		//Decrement the gift assigned count for the partner being replaced
+//		if(index < orgsAL.size())
+//			orgsAL.get(index).decrementOrnAssigned();
 		
-		//Find the the current partner being incremented
-		index = 0;
-		while(index < orgsAL.size() && orgsAL.get(index).getID() != wac.getNewData())
-			index++;
-				
-		//Increment the gift assigned count for the partner being replaced
-		if(index < orgsAL.size())
-			orgsAL.get(index).incrementOrnAssigned();
+		if(addedWish != null)
+		{
+			newWishAssignee = (ONCPartner) find(orgsAL, addedWish.getChildWishAssigneeID());
+			if(newWishAssignee != null)
+				newWishAssignee.incrementOrnAssigned();
+		}
+		
+		fireDataChanged(this, "WISH_PARTNER_CHANGED", oldWishAssignee, newWishAssignee);
+		
+//		//Find the the current partner being incremented
+//		index = 0;
+//		while(index < orgsAL.size() && orgsAL.get(index).getID() != wac.getNewData())
+//			index++;
+//				
+//		//Increment the gift assigned count for the partner being replaced
+//		if(index < orgsAL.size())
+//			orgsAL.get(index).incrementOrnAssigned();
+	}
+	
+	void processGiftDelivered(int partnerID)
+	{
+		ONCPartner partner = (ONCPartner) find(orgsAL, partnerID);
+		if(partner != null)
+		{
+			//increment the delivered count
+			partner.incrementOrnDelivered();
+			
+			//notify the gui's that the partners delivered count changed
+			fireDataChanged(this, "PARTNER_ORNAMENT_DELIVERED", partner);
+		}
 	}
 	
 	public void processGiftReceivedChange(DataChange wgr) 
@@ -899,32 +931,6 @@ public class PartnerDB extends ONCSearchableDatabase
 		{
 			processDeletedPartner(this, ue.getJson());
 		}
-		else if(ue.getType().equals("WISH_PARTNER_CHANGED"))
-		{
-			//Create a change object for the updated counts
-			Gson gson = new Gson();
-			DataChange change = gson.fromJson(ue.getJson(), DataChange.class);
-			
-			//Find the the current partner being decremented
-			int index = 0;
-			while(index < orgsAL.size() && orgsAL.get(index).getID() != change.getOldData())
-				index++;
-			
-			//Decrement the gift assigned count for the partner being replaced
-			if(index < orgsAL.size())
-				orgsAL.get(index).decrementOrnAssigned();
-			
-			//Find the the current partner being incremented
-			index = 0;
-			while(index < orgsAL.size() && orgsAL.get(index).getID() != change.getNewData())
-				index++;
-					
-			//Increment the gift assigned count for the partner being replaced
-			if(index < orgsAL.size())
-				orgsAL.get(index).incrementOrnAssigned();
-			
-			fireDataChanged(this, "WISH_PARTNER_CHANGED", change);
-		}	
 	}
 	
 	private class OrgNameComparator implements Comparator<ONCPartner>

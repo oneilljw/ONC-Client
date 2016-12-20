@@ -425,7 +425,7 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 		}
 		else if(dbe.getType().equals("UPDATED_REGION_LIST"))
 		{
-			String[] regList = (String[]) dbe.getObject();
+			String[] regList = (String[]) dbe.getObject1();
 			updateRegionList(regList);
 		}
 		else if(dbe.getType().equals("LOADED_DRIVERS"))

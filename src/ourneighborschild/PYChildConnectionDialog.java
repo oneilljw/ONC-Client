@@ -373,13 +373,13 @@ public class PYChildConnectionDialog extends JDialog implements ActionListener,
 	{
 		if(dbe.getSource() != this && dbe.getType().equals("UPDATED_CHILD"))
 		{
-			ONCChild updatedChild = (ONCChild) dbe.getObject();
+			ONCChild updatedChild = (ONCChild) dbe.getObject1();
 			if(updatedChild != null && updatedChild.getID() == currChild.getID())
 				display(currFamily, updatedChild);
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("DELETED_CHILD"))
 		{
-			ONCChild deletedChild = (ONCChild) dbe.getObject();
+			ONCChild deletedChild = (ONCChild) dbe.getObject1();
 			if(deletedChild != null && deletedChild.getID() == currChild.getID())
 				clearChildData();
 		}

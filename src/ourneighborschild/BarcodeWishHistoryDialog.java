@@ -205,7 +205,7 @@ public class BarcodeWishHistoryDialog extends BarcodeTableDialog
 		if(dbe.getSource() != this && dbe.getType().equals("ADDED_WISH"))
 		{
 			//update the wish history displayed if the added wish is from same child and wish #
-			ONCChildWish addedWish = (ONCChildWish) dbe.getObject();
+			ONCChildWish addedWish = (ONCChildWish) dbe.getObject1();
 			if(cw != null && addedWish.getChildID() == cw.getChildID() &&
 					addedWish.getWishNumber() == cw.getWishNumber())
 			{

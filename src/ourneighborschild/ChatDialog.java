@@ -378,7 +378,7 @@ public class ChatDialog extends JDialog implements ActionListener, DatabaseListe
 		if(dbe.getSource() != this && dbe.getType().equals("CHAT_MESSAGE"))		
 		{
 			//if the state is ACTIVE and the sender is the chat partner, display the name of the sender and the message
-			ChatMessage chatMssg = (ChatMessage) dbe.getObject();
+			ChatMessage chatMssg = (ChatMessage) dbe.getObject1();
 			if(chatState == ChatState.ACTIVE && chatMssg.getSenderClientID() == chatTargetClientID)
 			{
 				displayChatText(chatMssg.getMessage(), partnerAttribs);
@@ -394,7 +394,7 @@ public class ChatDialog extends JDialog implements ActionListener, DatabaseListe
 		{
 			//if the state is REQUESTED and the id matches the id of the requested chat target
 			//set the state to ACTIVE
-			ChatMessage chatAcceptMssg = (ChatMessage) dbe.getObject();
+			ChatMessage chatAcceptMssg = (ChatMessage) dbe.getObject1();
 			
 			if(chatState == ChatState.REQUESTED && chatAcceptMssg.getSenderClientID() == chatTargetClientID)
 			{
@@ -407,7 +407,7 @@ public class ChatDialog extends JDialog implements ActionListener, DatabaseListe
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("CHAT_ENDED"))		
 		{
-			ChatMessage chatMssg = (ChatMessage) dbe.getObject();
+			ChatMessage chatMssg = (ChatMessage) dbe.getObject1();
 			
 			//if the state is REQUESTED, then user has denied chat, reset to IDLE be able to request another chat
 			if(chatState == ChatState.REQUESTED && chatMssg.getSenderClientID() == chatTargetClientID)

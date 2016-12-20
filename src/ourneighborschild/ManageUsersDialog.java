@@ -278,7 +278,7 @@ public class ManageUsersDialog extends JDialog implements ActionListener, ListSe
 		if(dbe.getSource() != this && (dbe.getType().equals("ADDED_USER") ||
 				dbe.getType().equals("UPDATED_USER")))
 		{
-			ONCUser addedUser = (ONCUser) dbe.getObject();
+			ONCUser addedUser = (ONCUser) dbe.getObject1();
 			int tablerow = userDB.findModelIndexFromID(addedUser.getID());
 			
 			if(tablerow > -1)

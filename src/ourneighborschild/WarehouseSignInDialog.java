@@ -201,7 +201,7 @@ public class WarehouseSignInDialog extends JDialog implements ActionListener, Da
 				dbe.getType().equals("UPDATED_DRIVER")))
 		{
 			//add the new sign-in to the first item in the list
-			ONCVolunteer addedVol = (ONCVolunteer) dbe.getObject();
+			ONCVolunteer addedVol = (ONCVolunteer) dbe.getObject1();
 			whList.add(0, new WarehouseSignIn(addedVol));
 			
 			//update the sign-in table

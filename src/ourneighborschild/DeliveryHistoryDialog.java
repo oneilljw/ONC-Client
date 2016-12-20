@@ -118,7 +118,7 @@ public class DeliveryHistoryDialog extends HistoryDialog
 		if(dbe.getSource() != this && this.isVisible() && dbe.getType().equals("UPDATED_DELIVERY") ||
 			dbe.getType().equals("ADDED_DELIVERY"))
 		{
-			ONCDelivery updatedDelivery = (ONCDelivery) dbe.getObject();
+			ONCDelivery updatedDelivery = (ONCDelivery) dbe.getObject1();
 			
 			//If updated delivery belongs to family delivery history being displayed,
 			//re-display it

@@ -141,7 +141,7 @@ public class WebsiteStatusDialog extends InfoDialog implements DatabaseListener
 	{
 		if(dbe.getSource() != this && dbe.getType().equals("UPDATED_WEBSITE_STATUS"))
 		{
-			WebsiteStatus updatedWebsiteStatus= (WebsiteStatus) dbe.getObject();
+			WebsiteStatus updatedWebsiteStatus= (WebsiteStatus) dbe.getObject1();
 			
 			if(this.isVisible() && 
 					(updatedWebsiteStatus.getWebsiteStatus() != websiteStatus.getWebsiteStatus() ||

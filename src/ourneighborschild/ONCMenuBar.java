@@ -556,7 +556,7 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 		{
 //			System.out.println("ONCMenuBar.dataChanged: UPDATED_DBYEAR Received");
 			//find the menu item associated with the year and update the lock status
-			DBYear updatedDBYear = (DBYear) dbe.getObject();
+			DBYear updatedDBYear = (DBYear) dbe.getObject1();
 			
 			int index=0;
 			while(index<dbYearsMIList.size() &&
@@ -571,7 +571,7 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 		{
 			//returns a list of added years. Clear the menu item list of years and add new ones
 			@SuppressWarnings("unchecked")
-			List<DBYear> dbYears = (List<DBYear>) dbe.getObject();
+			List<DBYear> dbYears = (List<DBYear>) dbe.getObject1();
 			processDBYears(dbYears);
 			
 			//now that the year is added, disable adding another year

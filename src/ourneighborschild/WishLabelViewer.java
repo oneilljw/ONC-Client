@@ -64,7 +64,7 @@ public class WishLabelViewer extends JDialog implements DatabaseListener
 //					dbe.getSource().toString(), dbe.getType(), dbe.getObject().toString()));
 			
 			//Get the added wish to extract the child
-			ONCChildWish addedWish = (ONCChildWish) dbe.getObject();
+			ONCChildWish addedWish = (ONCChildWish) dbe.getObject1();
 		
 			//If the current child is being displayed has a wish added update the 
 			//wish label to show the added wish
@@ -75,7 +75,7 @@ public class WishLabelViewer extends JDialog implements DatabaseListener
 		{
 			//Get the updated wish to extract the ONCChildWish. For updates, the ONCChildWish
 			//id will remain the same
-			ONCChildWish updatedWish = (ONCChildWish) dbe.getObject();
+			ONCChildWish updatedWish = (ONCChildWish) dbe.getObject1();
 			
 			//If the current child is being displayed has a wish added update the 
 			//wish label to show the added wish
@@ -84,7 +84,7 @@ public class WishLabelViewer extends JDialog implements DatabaseListener
 		}
 		else if(dbe.getType().equals("UPDATED_CHILD"))
 		{
-			ONCChild updatedChild = (ONCChild) dbe.getObject();
+			ONCChild updatedChild = (ONCChild) dbe.getObject1();
 			if(child != null && child.getID() == updatedChild.getID())
 			{
 				//the age or gender of the child may have changed, update the label

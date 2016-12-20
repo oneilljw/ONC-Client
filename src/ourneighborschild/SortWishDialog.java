@@ -1317,7 +1317,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 			updateUserList();
 			
 			//check to see if the current user was updated to update preferences
-			ONCUser updatedUser = (ONCUser)dbe.getObject();
+			ONCUser updatedUser = (ONCUser)dbe.getObject1();
  			if(userDB.getLoggedInUser().getID() == updatedUser.getID())
 				updateUserPreferences(updatedUser);
 		}
@@ -1333,11 +1333,11 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		else if(dbe.getType().contains("CHANGED_USER"))
 		{
 			//new user logged in, update preferences used by this dialog
-			updateUserPreferences((ONCUser) dbe.getObject());
+			updateUserPreferences((ONCUser) dbe.getObject1());
 		}
 		else if(dbe.getType().equals("UPDATED_REGION_LIST"))
 		{
-			String[] regList = (String[]) dbe.getObject();
+			String[] regList = (String[]) dbe.getObject1();
 			updateRegionList(regList);
 		}
 	}

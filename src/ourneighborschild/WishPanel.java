@@ -496,7 +496,7 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 		if(dbe.getSource() != this && dbe.getType().equals("WISH_ADDED"))
 		{	
 			//Get the added wish to extract the child
-			ONCChildWish addedWish = (ONCChildWish) dbe.getObject();
+			ONCChildWish addedWish = (ONCChildWish) dbe.getObject1();
 			
 //			System.out.println(String.format("WishPanel %d DB Event: Type %s, addWishID: %d, addWish# %d, addWishchildID %d, childID: %d",
 //					wishNumber, dbe.getType(), addedWish.getWishID(), addedWish.getWishNumber(), addedWish.getChildID(), child.getID()));
@@ -517,7 +517,7 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 		{
 			//Get the updated wish to extract the ONCChildWish. For updates, the ONCChildWish
 			//id will remain the same
-			ONCChildWish updatedWish = (ONCChildWish) dbe.getObject();
+			ONCChildWish updatedWish = (ONCChildWish) dbe.getObject1();
 			
 			if(updatedWish.getWishNumber() == wishNumber && updatedWish.getID() == childWish.getID())
 			{
@@ -530,7 +530,7 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_FAMILY"))
 		{
-			ONCFamily updatedFam = (ONCFamily) dbe.getObject();
+			ONCFamily updatedFam = (ONCFamily) dbe.getObject1();
 //			System.out.println(String.format("WishPanel Event: %s, ONC# %s, status= %d",
 //					dbe.getType(), updatedFam.getONCNum(), updatedFam.getFamilyStatus()));
 			
@@ -549,7 +549,7 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("DELETED_CHILD"))
 		{
-			ONCChild delChild = (ONCChild) dbe.getObject();
+			ONCChild delChild = (ONCChild) dbe.getObject1();
 			
 			if(delChild != null && delChild.getID()  == child.getID())
 			{

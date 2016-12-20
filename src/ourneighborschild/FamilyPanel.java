@@ -1323,7 +1323,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	{ 
 		if(dbe.getSource() != this && dbe.getType().equals("UPDATED_FAMILY"))
 		{
-			ONCFamily updatedFam = (ONCFamily) dbe.getObject();
+			ONCFamily updatedFam = (ONCFamily) dbe.getObject1();
 			
 			//If current family being displayed has changed, reshow it
 			if(currFam.getID() == updatedFam.getID())
@@ -1339,7 +1339,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("ADDED_FAMILY"))
 		{
-			ONCFamily addedFam = (ONCFamily) dbe.getObject();
+			ONCFamily addedFam = (ONCFamily) dbe.getObject1();
 			
 			//If no current family being displayed (null) display the added family and fire
 			//entity selected event
@@ -1356,7 +1356,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		}
 		else if(dbe.getType().equals("UPDATED_CHILD"))
 		{
-			ONCChild updatedChild = (ONCChild) dbe.getObject();
+			ONCChild updatedChild = (ONCChild) dbe.getObject1();
 			
 			//If current family being displayed contains child, refresh the table
 			if(updatedChild.getFamID() == currFam.getID())	
@@ -1390,7 +1390,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		}
 		else if(dbe.getType().equals("ADDED_CHILD")) 
 		{
-			ONCChild changeChild = (ONCChild) dbe.getObject();
+			ONCChild changeChild = (ONCChild) dbe.getObject1();
 				
 			if(currFam != null && currFam.getID() == changeChild.getFamID())	//Child was added to the displayed family
 			{
@@ -1403,7 +1403,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		}
 		else if(dbe.getType().equals("DELETED_CHILD")) 
 		{
-			ONCChild changeChild = (ONCChild) dbe.getObject();
+			ONCChild changeChild = (ONCChild) dbe.getObject1();
 				
 			if(currFam.getID() == changeChild.getFamID())	//Child was added to the displayed family
 			{
@@ -1420,7 +1420,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("ADDED_DELIVERY"))
 		{
-			ONCDelivery updatedDelivery = (ONCDelivery) dbe.getObject();
+			ONCDelivery updatedDelivery = (ONCDelivery) dbe.getObject1();
 				
 			//If updated delivery belongs to family being displayed, re-display it
 			if(currFam.getID() == updatedDelivery.getFamID())
@@ -1438,14 +1438,14 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 //					dbe.getSource().toString(), dbe.getType(), dbe.getObject().toString()));
 			
 			LogDialog.add("FamilyPanel: UPDATED_SERVED_COUNTS", "M");
-			DataChange servedCountsChange = (DataChange) dbe.getObject();
+			DataChange servedCountsChange = (DataChange) dbe.getObject1();
 			int[] changes = {servedCountsChange.getOldData(), servedCountsChange.getNewData()};
 			updateDBStatus(changes);
 		}
 		else if(dbe.getType().equals("ADDED_ADULT") || dbe.getType().equals("DELETED_ADULT"))
 		{
 			//may have added or deleted from current family, if so need to redisplay
-			ONCAdult changedAdult = (ONCAdult) dbe.getObject();
+			ONCAdult changedAdult = (ONCAdult) dbe.getObject1();
 			if(currFam != null && currFam.getID() == changedAdult.getFamID())
 			{
 				//update the icon in the icon bar
@@ -1456,7 +1456,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		{
 			//set the family panel nav message
 			String mssg;
-			String year = (String) dbe.getObject();
+			String year = (String) dbe.getObject1();
 			
 			if(userDB.getLoggedInUser().getFirstname().equals(""))
 				mssg = year + " season data has been loaded";
@@ -1480,7 +1480,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 				dbe.getType().equals("CHANGED_USER")))
 		{
 			//determine if it's the currently logged in user
-			ONCUser updatedUser = (ONCUser)dbe.getObject();
+			ONCUser updatedUser = (ONCUser)dbe.getObject1();
 			if(userDB.getLoggedInUser().getID() == updatedUser.getID())
 				setTextPaneFontSize(updatedUser.getPreferences().getFontSize());
 		}

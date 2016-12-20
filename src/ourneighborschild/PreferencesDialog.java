@@ -481,7 +481,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 				dbe.getType().equals("CHANGED_USER")))	
 		{
 			//verify one of the user preferences has changed for the current user
-			ONCUser updatedUser = (ONCUser) dbe.getObject();
+			ONCUser updatedUser = (ONCUser) dbe.getObject1();
 			if(updatedUser != null && userDB.getLoggedInUser().getID() == updatedUser.getID() &&
 				(updatedUser.getPreferences().getWishAssigneeFilter() != wishAssigneeFilterDefaultCB.getSelectedIndex() ||
 				 updatedUser.getPreferences().getFamilyDNSFilter() != fdnsFilterDefaultCB.getSelectedIndex()) ||
