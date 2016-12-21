@@ -1,24 +1,20 @@
 package ourneighborschild;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import javax.swing.ImageIcon;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
+
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import au.com.bytecode.opencsv.CSVReader;
+
 import au.com.bytecode.opencsv.CSVWriter;
 
 public class PartnerDB extends ONCSearchableDatabase
@@ -31,25 +27,22 @@ public class PartnerDB extends ONCSearchableDatabase
 	 * object methods provide for persistent storage of the organization array list. 
 	 */
 	private static final EntityType DB_TYPE = EntityType.PARTNER;
-	private static final int ORGANIZATION_DB_HEADER_LENGTH = 27;
 	private static final int STATUS_NO_ACTION_YET = 0;
 	private static final int STATUS_CONFIRMED = 5;
 	private static final int ORG_TYPE_CLOTHING = 4;
-//	private static final int ORG_TYPE_COAT = 5;
 	private static final int MAX_ORGANIZATION_ID_LENGTH = 10;
 	
 	private static PartnerDB instance = null;
-	private ArrayList<ONCPartner> orgsAL;	//The list of Organizations
-//	private ArrayList<String> cOrgs;	//The list of confirmed Organizations
+	private ArrayList<ONCPartner> partnerList;	//The list of ONCPartner objects
 	private GlobalVariables orgGVs;
 	private UserDB userDB;
 	
 	private PartnerDB()
 	{
 		super(DB_TYPE);
-		//Instantiate the organization and confirmed organization lists
-		orgsAL = new ArrayList<ONCPartner>();
-//		cOrgs = new ArrayList<String>();
+		
+		//Instantiate the partner list
+		partnerList = new ArrayList<ONCPartner>();
 		orgGVs = GlobalVariables.getInstance();
 		userDB = UserDB.getInstance();
 	}
@@ -60,49 +53,6 @@ public class PartnerDB extends ONCSearchableDatabase
 			instance = new PartnerDB();
 		
 		return instance;
-	}
-
-	public void readOrgALObject(ObjectInputStream ois)
-	{
-		ArrayList<ONCPartner> orgDB = new ArrayList<ONCPartner>();
-	
-		//Read the ONC Family data base and ONC region ranges
-		try {
-			orgDB = (ArrayList<ONCPartner>) ois.readObject();
-			orgsAL.clear();
-			for(ONCPartner o: orgDB)
-			{
-				orgsAL.add(o);
-//				if(o.getStatus() == STATUS_CONFIRMED)			
-//					cOrgs.add(o.getName());
-			}
-			
-			orgDB.clear();
-		} 
-		
-		catch (IOException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		catch (ClassNotFoundException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	public void writeOrgALObject(ObjectOutputStream oos)
-	{
-		try
-		{
-			oos.writeObject(orgsAL);
-		}
-		catch (IOException e) 
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 	
 	/**********************************************************************************************************
@@ -122,7 +72,6 @@ public class PartnerDB extends ONCSearchableDatabase
 			o.setStatus(STATUS_CONFIRMED);
 			o.setDateChanged(orgGVs.getTodaysDate());
 			o.setStoplightChangedBy(userDB.getUserLNFI());
-//			addConfirmedOrganization(o.getName());
 		}
 		else if(o.getStatus() == STATUS_CONFIRMED && newstatus != STATUS_CONFIRMED)
 		{
@@ -134,7 +83,6 @@ public class PartnerDB extends ONCSearchableDatabase
 				o.setStatus(newstatus);
 				o.setDateChanged(orgGVs.getTodaysDate());
 				o.setStoplightChangedBy(userDB.getUserLNFI());
-//				deleteConfirmedOrganization(o.getName());
 			}		
 		}
 		else	//Status change does not involve to/from confirmed status
@@ -146,44 +94,40 @@ public class PartnerDB extends ONCSearchableDatabase
 			
 		return o.getStatus();
 	}
-	
-	void clear()
-	{
-		orgsAL.clear();
-//		cOrgs.clear();
-	}
-	
+
 	//implementation of abstract classes
-	List<ONCPartner> getList() {return orgsAL; }
+	List<ONCPartner> getList() {return partnerList; }
 	
-	ONCPartner getObjectAtIndex(int on) { return orgsAL.get(on); }
+	ONCPartner getObjectAtIndex(int on) { return partnerList.get(on); }
 	
-	ONCPartner getOrganizationByID(int id )
+	ONCPartner getPartnerByID(int id )
+	{
+//		int index = 0;
+//		while(index < partnerList.size() && partnerList.get(index).getID() != id)
+//			index++;
+//		
+//		if(index < partnerList.size())
+//			return partnerList.get(index);
+//		else
+//			return null;
+		
+		return (ONCPartner) find(partnerList, id);
+	}
+	
+	ONCPartner getPartnerByNameAndType(String name, int type )
 	{
 		int index = 0;
-		while(index < orgsAL.size() && orgsAL.get(index).getID() != id)
+		while(index < partnerList.size() && partnerList.get(index).getType() != type && 
+				!partnerList.get(index).getName().equals(name))
 			index++;
 		
-		if(index < orgsAL.size())
-			return orgsAL.get(index);
+		if(index < partnerList.size())
+			return partnerList.get(index);
 		else
 			return null;
 	}
 	
-	ONCPartner getOrganizationByNameAndType(String name, int type )
-	{
-		int index = 0;
-		while(index < orgsAL.size() && orgsAL.get(index).getType() != type && 
-				!orgsAL.get(index).getName().equals(name))
-			index++;
-		
-		if(index < orgsAL.size())
-			return orgsAL.get(index);
-		else
-			return null;
-	}
-	
-	int size() { return orgsAL.size(); }
+	int size() { return partnerList.size(); }
 	
 	String searchForListItem(ArrayList<Integer> searchAL, String data)
 	{
@@ -197,15 +141,14 @@ public class PartnerDB extends ONCSearchableDatabase
     		searchType = "Partner ID";
     		if(data.matches("-?\\d+(\\.\\d+)?"))	//Check for numeric string
     		{
-    			if((sn = getListIndexByID(orgsAL, Integer.parseInt(data))) > -1)
+    			if((sn = getListIndexByID(partnerList, Integer.parseInt(data))) > -1)
     				searchAL.add(getObjectAtIndex(sn).getID());
     		}	
     	}
     	else	//Check for partner name, email matches, 1st or 2nd contact matches
     	{
-//			for(int i=0; i<this.getNumberOfOrganizations(); i++)
     		searchType = "Partner Name, Email or Contacts";
-			for(ONCPartner o:orgsAL)
+			for(ONCPartner o:partnerList)
 			{
 				if(o.getName().toLowerCase().contains(data.toLowerCase()) ||
 					o.getContact_email().toLowerCase().contains(data.toLowerCase()) ||
@@ -232,7 +175,7 @@ public class PartnerDB extends ONCSearchableDatabase
 	int[] getOrnamentAndWishCounts()
 	{
 		int orgcount = 0, wishcount = 0;
-		for(ONCPartner org:orgsAL)
+		for(ONCPartner org:partnerList)
 		{		
 			if(org.getStatus() == STATUS_CONFIRMED) 
 			{ 
@@ -244,24 +187,6 @@ public class PartnerDB extends ONCSearchableDatabase
 		int[] oaw = {orgcount, wishcount};
 		return oaw;
 	}
-	
-	/**********************************************************************************
-	 * This method adds a organization to the CONFIRMED organization list. cOrgs is an
-	 * array list of strings, each list item is the name of a CONFIRMED organization
-	 * @param orgname. The method receives the organization name to be added as a string
-	 * passed in the method call. 
-	 **********************************************************************************/
-//	void addConfirmedOrganization(String orgname)
-//	{
-//		cOrgs.add(orgname);
-//		structureConfirmedOrgsList();	//Sort by org type and alphabetically
-//	}
-	
-//	void deleteConfirmedOrganization(String orgname) { cOrgs.remove(orgname); }
-	
-//	int getNumberOfConfirmedOrganizations() { return cOrgs.size(); }
-	
-//	ArrayList<String> getConfirmedOrgs() { return cOrgs; }
 	
 	/*****************************************************************************************
 	 * Creates a list of confirmed organizations that take ornaments, broken into two parts.
@@ -276,7 +201,7 @@ public class PartnerDB extends ONCSearchableDatabase
 		
 		//Add the confirmed business, church and schools to the returned list and add all other 
 		//confirmed organizations to the temporary list
-		for(ONCPartner o: orgsAL)
+		for(ONCPartner o: partnerList)
 		{
 			if(o.getStatus() == STATUS_CONFIRMED && o.getGiftCollectionType() == collectionType && 
 				o.getType() < ORG_TYPE_CLOTHING)
@@ -286,7 +211,7 @@ public class PartnerDB extends ONCSearchableDatabase
 		}
 		
 		//Sort the two lists alphabetically by organization name
-		OrgNameComparator nameComparator = new OrgNameComparator();
+		PartnerNameComparator nameComparator = new PartnerNameComparator();
 		Collections.sort(confOrgList, nameComparator);	//Sort alphabetically
 		Collections.sort(confOrgOtherList, nameComparator);	//Sort alphabetically
 		
@@ -298,164 +223,16 @@ public class PartnerDB extends ONCSearchableDatabase
 		return confOrgList;
 	}
 	
-	/******************************************************************************************
-	 * This method returns an list of the names of confirmed organizations. The top part of the
-	 * list will be organizations that are businesses, churches, or schools. The bottom part of the list
-	 * will be clothing or coat organizations. Each part is alphabetized. If the organization's 
-	 * type is clothing or coat, the name is inverted such that it appears as last name, first
-	 * name to make it easy to find alphabetically
-	 * @return
-	 *****************************************************************************************/
-/*	
-	void structureConfirmedOrgsList()
-	{
-		ArrayList<String> cOrgsGifts = new ArrayList<String>();
-		ArrayList<String> cOrgsClothesOrCoats = new ArrayList<String>();
-		
-		cOrgs.clear();
-		
-		for(Organization org: orgsAL)
-		{
-			//Sort the organizations by  type
-			if(org.getStatus() == STATUS_CONFIRMED)
-			{
-				//If clothing or coat donor, invert name and add to list
-				if(org.getType() == ORG_TYPE_CLOTHING || org.getType() == ORG_TYPE_COAT)
-					cOrgsClothesOrCoats.add(org.getName());
-				else	//must be a business, church or school
-					cOrgsGifts.add(org.getName());
-			}
-		}
-		
-		//Alphabetize each list and then merge clothes and coats into gifts and return
-		Collections.sort(cOrgsGifts, Collator.getInstance());	//Sort alphabetically
-		Collections.sort(cOrgsClothesOrCoats, Collator.getInstance());	//Sort alphabetically
-		
-		for(String org:cOrgsGifts)
-			cOrgs.add(org);
-		
-		for(String org:cOrgsClothesOrCoats)
-			cOrgs.add(org);		
-	}
-		
-	String invertOrgName(String orgName)
-	{
-		if(!orgName.isEmpty())
-		{
-			StringBuffer firstName = new StringBuffer("");
-			String[] orgNameParts = orgName.trim().split(" ");
-		
-			for(int i=0; i<orgNameParts.length - 1; i++)
-				firstName.append(orgNameParts[i] + " ");
-		
-			String lastName = orgNameParts[orgNameParts.length-1];
-		
-			return lastName + ", " + firstName.toString().trim();
-		}
-		else
-			return orgName;
-	}
-
-	String getConfirmedOrganizationName(int orgID)
-	{
-		String name = "None";
-		if(orgID > 0) 	//Org has been assigned 
-		{
-			int index = 0;			
-			while(index < orgsAL.size() && orgsAL.get(index).getID() != orgID )
-				index++;
-		
-			if(index==orgsAL.size())
-				name = "Org not Found";
-			else 
-				name = orgsAL.get(index).getName();
-		}
-		
-		return name;
-	}
-*/	
-	/***************************************************************************************************************
-	 * This method takes the selected index from a COrgs combo box and returns the ID of the selected organization.
-	 * The method compares the name of the selected organization to the name of the organizations in the data base.
-	 * It will invert the names of clothing and coat organizations to match how they appear in a selection list. 
-	 * @param selnum
-	 * @return
-	 *************************************************************************************************************/
-/*	
-	int getConfirmedOrganizationID(int selnum)
-	{
-		int id = 0;
-		
-		if(selnum > 0)	//If selected index == 0 user has reset the assignee to "None"
-		{
-			int index = 0;			
-			while(index < orgsAL.size() && !orgsAL.get(index).getName().equals(cOrgs.get(selnum-1)))
-				index++;
-			
-			//Check if org was found in the array list and status == confirmed;
-			if(index < orgsAL.size())
-				id=orgsAL.get(index).getID();	
-		}
-		return id;
-	}
-*/	
-/*	
-	@Override
-	Integer getListIndexByID(Integer orgID)	//returns position in array list or -1 if not found
-	{
-		int index = 0;
-		
-		while(index < orgsAL.size() && orgsAL.get(index).getID() != orgID )
-			index++;
-		
-		if(index < orgsAL.size())	//The org was found 
-			return index;
-		else
-			return -1;	
-	}
-	
-	int getConfirmedOrganizationIndex(int orgID)
-	{
-		int cbIndex = 0, i = 0;
-		
-		while(i < orgsAL.size() && orgsAL.get(i).getID() != orgID )
-			i++;
-		
-		if(i < orgsAL.size() && orgsAL.get(i).getStatus() == STATUS_CONFIRMED)
-		{
-			//The org was found and is confirmed, find the index of the org in the cOrgs array
-			int ci = 0;
-			while(ci < cOrgs.size() && !cOrgs.get(ci++).equals(orgsAL.get(i).getName()));				
-			cbIndex = ci;
-		}
-		
-		return cbIndex;	//Org isn't in the org array list or the org isn't confirmed currently
-	}
-*/	
-//	int incrementConfirmedOrgOrnAssigned(int orgID)
-//	{
-//		//find org by id
-//		int i = 0;
-//		while(i < orgsAL.size() && orgsAL.get(i).getID() != orgID )
-//			i++;
-//		
-//		//if found, increment
-//		if(i<orgsAL.size())
-//			return orgsAL.get(i).incrementOrnAssigned();
-//		else
-//			return 0;
-//	}
-	
 	int decrementConfirmedOrgOrnAssigned(int orgID)
 	{
 		//find org by id
 		int i = 0;
-		while(i < orgsAL.size() && orgsAL.get(i).getID() != orgID )
+		while(i < partnerList.size() && partnerList.get(i).getID() != orgID )
 			i++;
 		
 		//if found, decrement
-		if(i<orgsAL.size())
-			return orgsAL.get(i).decrementOrnAssigned();
+		if(i<partnerList.size())
+			return partnerList.get(i).decrementOrnAssigned();
 		else
 			return 0;
 		
@@ -474,59 +251,42 @@ public class PartnerDB extends ONCSearchableDatabase
 				decrementConfirmedOrgOrnAssigned(cw.getChildWishAssigneeID());
 		}
 	}
-/*	
-	void rebaselineWishesAssigned(ChildDB cDB)
-	{
-		//For each confirmed organization, examine each current wish and count the number
-		//assigned to the confirmed organization.
-		
-		for(Organization o:orgsAL)
-		{
-			int wishcount = 0;
-			if(o.getStatus() == STATUS_CONFIRMED)
-				for(ONCChild c:cDB.getChildDB())
-					wishcount += c.compareCurrentWishAssignees(o.getOrgID());	//0 to 3 in ONC
-			
-			o.setNumberOfOrnamentsAssigned(wishcount);
-		}
-	}
-*/
+
 	void resetAllOrgsStatus()
 	{
-		for(ONCPartner o:orgsAL)
-			o.setStatus(STATUS_NO_ACTION_YET);
-//		cOrgs.clear();	
+		for(ONCPartner o:partnerList)
+			o.setStatus(STATUS_NO_ACTION_YET);	
 	}
 	
 	//Overloaded sortDB methods allow user to specify a data base to be sorted
 	//or use the current data base
 	boolean sortDB(ArrayList<ONCPartner> oal, String dbField) { return sortList(oal, dbField); }
-	boolean sortDB(String dbField) { return sortList(orgsAL, dbField); }
+	boolean sortDB(String dbField) { return sortList(partnerList, dbField); }
 	
 	private boolean sortList(ArrayList<ONCPartner> oal, String dbField)
 	{
 		boolean bSortOccurred = true;
 		
 		if(dbField.equals("Partner")) {
-			Collections.sort(oal, new OrgNameComparator()); }
+			Collections.sort(oal, new PartnerNameComparator()); }
 		else if(dbField.equals("Status")) {
-			Collections.sort(oal, new OrgStatusComparator()); }
+			Collections.sort(oal, new PartnerStatusComparator()); }
 		else if(dbField.equals("Type")) {
-			Collections.sort(oal, new OrgTypeComparator()); }
+			Collections.sort(oal, new PartnerTypeComparator()); }
 		else if(dbField.equals("Collection")) {
-			Collections.sort(oal, new OrgCollectionComparator()); }
+			Collections.sort(oal, new PartnerCollectionComparator()); }
 		else if(dbField.equals("Req")) {
-			Collections.sort(oal, new OrgOrnReqComparator()); }
+			Collections.sort(oal, new PartnerOrnReqComparator()); }
 		else if(dbField.equals("Assigned")) {
-			Collections.sort(oal, new OrgOrnAssignedComparator()); }
+			Collections.sort(oal, new PartnerOrnAssignedComparator()); }
 		else if(dbField.equals("Delivery Information")) {
-			Collections.sort(oal, new OrgDeliveryInfoComparator()); }
+			Collections.sort(oal, new PartnerDeliveryInfoComparator()); }
 		else if(dbField.equals("Date Changed")) {
-			Collections.sort(oal, new OrgDateChangedComparator()); }
+			Collections.sort(oal, new PartnerDateChangedComparator()); }
 		else if(dbField.equals("Changed By")) {
-			Collections.sort(oal, new OrgChangedByComparator()); }
+			Collections.sort(oal, new PartnerChangedByComparator()); }
 		else if(dbField.equals("Reg")) {
-			Collections.sort(oal, new OrgRegionComparator()); }
+			Collections.sort(oal, new PartnerRegionComparator()); }
 		else if(dbField.equals("SL")) {
 			Collections.sort(oal, new OrgStoplightComparator()); }
 		else
@@ -546,7 +306,7 @@ public class PartnerDB extends ONCSearchableDatabase
 			Type listtype = new TypeToken<ArrayList<ONCPartner>>(){}.getType();
 			
 			response = serverIF.sendRequest("GET<partners>");
-			orgsAL = gson.fromJson(response, listtype);	
+			partnerList = gson.fromJson(response, listtype);	
 					
 			if(!response.startsWith("NO_PARTNERS"))
 			{
@@ -558,73 +318,6 @@ public class PartnerDB extends ONCSearchableDatabase
 		return response;
 	}
 	
-	String importOrgDB(JFrame pf, ImageIcon oncIcon, String path)	//Only used by superuser to import from .csv file
-	{
-		File pyfile;
-		JFileChooser chooser;
-		String filename = "";
-		int returnVal = JFileChooser.CANCEL_OPTION;
-		
-		if(path != null)
-		{
-			pyfile = new File(path + "OrgDB.csv");
-			returnVal = JFileChooser.APPROVE_OPTION;
-		}
-		else
-		{
-    		chooser = new JFileChooser();
-    		chooser.setDialogTitle("Select Organization DB .csv file to import");	
-    		chooser.setFileFilter(new FileNameExtensionFilter("CSV Files", "csv"));
-    		returnVal = chooser.showOpenDialog(pf);
-    		pyfile = chooser.getSelectedFile();
-		}
-		
-	    if(returnVal == JFileChooser.APPROVE_OPTION)
-	    {
-	    	filename = pyfile.getName();
-	    	try 
-	    	{
-	    		CSVReader reader = new CSVReader(new FileReader(pyfile.getAbsoluteFile()));
-	    		String[] nextLine, header;
-    		
-	    		if((header = reader.readNext()) != null)
-	    		{
-	    			//Read the ONC CSV File
-	    			if(header.length == ORGANIZATION_DB_HEADER_LENGTH)
-	    			{
-	    				orgsAL.clear();
-	    				while ((nextLine = reader.readNext()) != null)	// nextLine[] is an array of values from the line
-	    				{	
-	    					ONCPartner newOrg = new ONCPartner(nextLine);
-	    					orgsAL.add(newOrg);
-	    				
-//	    					if(newOrg.getStatus() == STATUS_CONFIRMED)
-//	    						cOrgs.add(orgsAL.get(orgsAL.size()-1).getName());	
-	    				}
-	    				
-//	    				structureConfirmedOrgsList();	//Sort by org type and alphabetically
-	    			}
-	    			else
-	    				JOptionPane.showMessageDialog(pf, "Organization DB file corrupted, header length = " + Integer.toString(header.length), 
-    						"Invalid Organizationl DB File", JOptionPane.ERROR_MESSAGE, oncIcon);   			
-	    		}
-	    		else
-	    			JOptionPane.showMessageDialog(pf, "Couldn't read header in Organization DB file: " + filename, 
-	    					"Invalid Organization DB File", JOptionPane.ERROR_MESSAGE, oncIcon);
-	    		
-	    		reader.close();
-	    		
-	    	} 
-	    	catch (IOException x)
-	    	{
-	    		JOptionPane.showMessageDialog(pf, "Unable to open Organization DB file: " + filename, 
-    				"Organization DB file not found", JOptionPane.ERROR_MESSAGE, oncIcon);
-	    	}
-	    }
-	    
-	    return filename;    
-	}
-	
 	String exportDBToCSV(String filename)
     {
 		File oncwritefile = null;
@@ -632,7 +325,7 @@ public class PartnerDB extends ONCSearchableDatabase
     	if(filename == null)
     	{
     		ONCFileChooser fc = new ONCFileChooser(GlobalVariables.getFrame());
-    		oncwritefile= fc.getFile("Select .csv file to save Org DB to",
+    		oncwritefile= fc.getFile("Select .csv file to save Partner DB to",
 										new FileNameExtensionFilter("CSV Files", "csv"), 1);
     	}
     	else
@@ -658,7 +351,7 @@ public class PartnerDB extends ONCSearchableDatabase
 	    		CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
 	    	    writer.writeNext(header);
 	    	    
-	    	    for(ONCPartner o: orgsAL)
+	    	    for(ONCPartner o: partnerList)
 	    	    	writer.writeNext(o.getExportRow());	//Get family data
 	    	 
 	    	    writer.close();
@@ -675,91 +368,92 @@ public class PartnerDB extends ONCSearchableDatabase
     	
 	    return filename;
     }
-	/**********************************************************************************
-	 * This method is called to change organization/partner assigned counts. It is 
-	 * called by another part of the client data base, usually the ChildWishDB component.
+	
+	/****************************************************************************************************
+	 * This method is called when a wish is added. It determines if the partner's wishes assigned,
+	 * delivered or received counts should be incremented or decremented. If any changes occur based on 
+	 * the wish added and the wish it's replacing, the GUI's are notified.
 	 * 
-	 * @param decOrgID
-	 * @param incOrgID
-	 */
-	void processGiftAssignmentChange(ONCChildWish replacedWish, ONCChildWish addedWish)
+	 * @param replWish - ONCChildWish that is being replaced, null if it's the first wish for the child
+	 * @param addedWish - ONCChildWish that is being added
+	 *********************************/
+	void processAddedWish(ONCChildWish replWish, ONCChildWish addedWish)
 	{
-		//Find the the current partner being decremented
-		ONCPartner oldWishAssignee = null;
-		ONCPartner newWishAssignee = null;
-		
-		if(replacedWish != null)
+		//process wish assignee changes
+		if(replWish == null && addedWish.getChildWishStatus() == WishStatus.Assigned)
 		{
-			oldWishAssignee = (ONCPartner) find(orgsAL, replacedWish.getChildWishAssigneeID());
-			if(oldWishAssignee != null)
-				oldWishAssignee.decrementOrnAssigned();
+			//This is the typical path in the wish life cycle. Find the new partner and increment their 
+			//assigned gift count
+			ONCPartner addedWishPartner = (ONCPartner) find(partnerList, addedWish.getChildWishAssigneeID());
+			if(addedWishPartner != null)
+			{
+				addedWishPartner.incrementOrnAssigned();
+				fireDataChanged(this, "PARTNER_WISH_ASSIGNED_CHANGED", null, addedWishPartner);
+			}
 		}
+		else if(replWish != null && replWish.getChildWishAssigneeID() != addedWish.getChildWishAssigneeID())
+		{
+			ONCPartner replWishPartner = null;
+			ONCPartner addedWishPartner = null;
 			
-//		int index = 0;
-//		while(index < orgsAL.size() && orgsAL.get(index).getID() != wac.getOldData())
-//			index++;
-//		
-//		//Decrement the gift assigned count for the partner being replaced
-//		if(index < orgsAL.size())
-//			orgsAL.get(index).decrementOrnAssigned();
-		
-		if(addedWish != null)
-		{
-			newWishAssignee = (ONCPartner) find(orgsAL, addedWish.getChildWishAssigneeID());
-			if(newWishAssignee != null)
-				newWishAssignee.incrementOrnAssigned();
-		}
-		
-		fireDataChanged(this, "WISH_PARTNER_CHANGED", oldWishAssignee, newWishAssignee);
-		
-//		//Find the the current partner being incremented
-//		index = 0;
-//		while(index < orgsAL.size() && orgsAL.get(index).getID() != wac.getNewData())
-//			index++;
-//				
-//		//Increment the gift assigned count for the partner being replaced
-//		if(index < orgsAL.size())
-//			orgsAL.get(index).incrementOrnAssigned();
-	}
-	
-	void processGiftDelivered(int partnerID)
-	{
-		ONCPartner partner = (ONCPartner) find(orgsAL, partnerID);
-		if(partner != null)
-		{
-			//increment the delivered count
-			partner.incrementOrnDelivered();
+			//decrement the old partner if they exist
+			if(replWish.getChildWishAssigneeID() > -1)
+			{
+				replWishPartner = (ONCPartner) find(partnerList, replWish.getChildWishAssigneeID());
+				if(replWishPartner != null)
+					replWishPartner.decrementOrnAssigned();
+			}
 			
-			//notify the gui's that the partners delivered count changed
-			fireDataChanged(this, "PARTNER_ORNAMENT_DELIVERED", partner);
-		}
-	}
-	
-	public void processGiftReceivedChange(DataChange wgr) 
-	{
-		int index;
-		//If there is a  current partner being decremented, find them
-		if(wgr.getOldData() > -1)
+			//increment the new partner if they exist
+			addedWishPartner = (ONCPartner) find(partnerList, addedWish.getChildWishAssigneeID());
+			if(addedWishPartner != null)
+				addedWishPartner.incrementOrnAssigned();
+			
+			//notify the gui's if at least one partner's wishes assigned count changed
+			if(replWishPartner != null || addedWishPartner != null)
+				fireDataChanged(this, "PARTNER_WISH_ASSIGNEE_CHANGED", replWishPartner, addedWishPartner);
+		}	
+			
+		//process ornaments that are delivered to partners
+		if(replWish != null && replWish.getChildWishAssigneeID() == addedWish.getChildWishAssigneeID() &&
+			replWish.getChildWishStatus() == WishStatus.Assigned && addedWish.getChildWishStatus() == WishStatus.Delivered)
 		{
-			index = 0;
-			while(index < orgsAL.size() && orgsAL.get(index).getID() != wgr.getOldData())
-				index++;
+			ONCPartner addedWishPartner = (ONCPartner) find(partnerList, addedWish.getChildWishAssigneeID());
+			if(addedWishPartner != null)
+			{
+				//increment the delivered count
+				addedWishPartner.incrementOrnDelivered();
 				
-			//Decrement the gift received count for the partner being replaced
-			if(index < orgsAL.size())
-				orgsAL.get(index).decrementOrnReceived();
+				//notify the gui's that the partners delivered count changed
+				fireDataChanged(this, "PARTNER_ORNAMENT_DELIVERED", addedWishPartner);
+			}
 		}
-				
-		//Find the the current partner the gift was received from, if any
-		if(wgr.getNewData() > -1)
+		
+		//process gifts received 
+		if(replWish != null && replWish.getChildWishAssigneeID() == addedWish.getChildWishAssigneeID() &&
+		   (replWish.getChildWishStatus() == WishStatus.Delivered || replWish.getChildWishStatus() == WishStatus.Shopping)  && 
+			addedWish.getChildWishStatus() == WishStatus.Received)
+		{	
+			//gift was received from partner it was assigned to or was received from shopping
+			ONCPartner addedWishAssignee = (ONCPartner) find(partnerList, addedWish.getChildWishAssigneeID());
+			if(addedWishAssignee != null)
+			{
+				addedWishAssignee.incrementOrnReceived();
+				fireDataChanged(this, "PARTNER_WISH_RECEIVED", addedWishAssignee);
+			}
+		}
+		else if(replWish != null && replWish.getChildWishStatus() == WishStatus.Received  && 
+				 addedWish.getChildWishStatus() == WishStatus.Delivered &&
+				  replWish.getChildWishAssigneeID() == addedWish.getChildWishAssigneeID())
 		{
-			index = 0;
-			while(index < orgsAL.size() && orgsAL.get(index).getID() != wgr.getNewData())
-				index++;
-						
-			//Increment the gift received count for the partner 
-			if(index < orgsAL.size())
-			orgsAL.get(index).incrementOrnReceived();
+			//gift was un-received from partner it was assigned to. This occurs when an undo
+			//action is performed by the user
+			ONCPartner replWishAssignee = (ONCPartner) find(partnerList, replWish.getChildWishAssigneeID());
+			if(replWishAssignee != null)
+			{
+				replWishAssignee.decrementOrnReceived();
+				fireDataChanged(this, "PARTNER_WISH_RECEIVE_UNDONE", replWishAssignee);
+			}
 		}
 	}
 	
@@ -779,23 +473,17 @@ public class PartnerDB extends ONCSearchableDatabase
 	
 	void processAddedPartner(Object source, String json)
 	{
-		//Store added organization in local data base
+		//Store added partner in local data base
 		Gson gson = new Gson();
-		ONCPartner addedOrg = gson.fromJson(json, ONCPartner.class);
-		orgsAL.add(addedOrg);
+		ONCPartner addedPartner = gson.fromJson(json, ONCPartner.class);
+		partnerList.add(addedPartner);
 		
-		//Notify local user IFs that an organization/partner was added
-		fireDataChanged(source, "ADDED_PARTNER", addedOrg);
+		//Notify GUI's that an partner was added
+		fireDataChanged(source, "ADDED_PARTNER", addedPartner);
 		
-		//determine if added organization is confirmed. If so, add to confirmed
-		//Organization list
-		if(addedOrg.getStatus() == STATUS_CONFIRMED)
-		{
-//			addConfirmedOrganization(addedOrg.getName());
-			
-			//Notify ui's that a confirmed organization is added
-			fireDataChanged(source, "ADDED_CONFIRMED_PARTNER", addedOrg);
-		}	
+		//determine if added partner is confirmed. If so, notify the gui's
+		if(addedPartner.getStatus() == STATUS_CONFIRMED)
+			fireDataChanged(source, "ADDED_CONFIRMED_PARTNER", addedPartner);
 	}
 	
 	String delete(Object source, ONCObject entity)
@@ -814,90 +502,61 @@ public class PartnerDB extends ONCSearchableDatabase
 	
 	void processDeletedPartner(Object source, String json)
 	{
-		//remove deleted organization in local data base
+		//remove deleted partner in local data base
 		Gson gson = new Gson();
-		ONCPartner deletedOrg = gson.fromJson(json, ONCPartner.class);
+		ONCPartner deletedPartner = gson.fromJson(json, ONCPartner.class);
 		
 		int index=0;
-		while(index < orgsAL.size() && orgsAL.get(index).getID() != deletedOrg.getID())
+		while(index < partnerList.size() && partnerList.get(index).getID() != deletedPartner.getID())
 			index++;
 		
 		//If deleted partner was found, remove it and notify ui's
-		if(index < orgsAL.size())
+		if(index < partnerList.size())
 		{
-			orgsAL.remove(index);
-			fireDataChanged(source, "DELETED_PARTNER", deletedOrg);
+			partnerList.remove(index);
+			fireDataChanged(source, "DELETED_PARTNER", deletedPartner);
 		}
 	
-		//determine if deleted organization is confirmed. If so, remove from confirmed
-		//organization list
-		if(deletedOrg.getStatus() == STATUS_CONFIRMED)
-		{
-//			deleteConfirmedOrganization(deletedOrg.getName());
-			
-			//Notify ui's that a confirmed organization is added
-			fireDataChanged(source, "DELETED_CONFIRMED_PARTNER", deletedOrg);
-		}	
+		//determine if deleted partner is confirmed. notify the GUI's
+		if(deletedPartner.getStatus() == STATUS_CONFIRMED)
+			fireDataChanged(source, "DELETED_CONFIRMED_PARTNER", deletedPartner);
 	}
 	
 	void processUpdatedPartner(Object source, String json)
 	{
 		Gson gson = new Gson();
-		ONCPartner updatedOrg = gson.fromJson(json, ONCPartner.class);
+		ONCPartner updatedPartner = gson.fromJson(json, ONCPartner.class);
 		
-		//store updated organization in the Organization data base
+		//store updated partner in the partner data base
 		int index = 0;
-		while(index < orgsAL.size() && orgsAL.get(index).getID() != updatedOrg.getID())
+		while(index < partnerList.size() && partnerList.get(index).getID() != updatedPartner.getID())
 			index++;
 		
-		if(index < orgsAL.size())
-		{
-			ONCPartner replacedOrg = orgsAL.get(index);	//use replaced org for change assessment
-			orgsAL.set(index,  updatedOrg);
+		if(index < partnerList.size())
+		{	
+			ONCPartner replacedPartner = partnerList.get(index);	//use replaced org for change assessment
+			partnerList.set(index,  updatedPartner);
 			
 			//Notify local user IFs that a change occurred
-			fireDataChanged(source, "UPDATED_PARTNER", updatedOrg);
+			fireDataChanged(source, "UPDATED_PARTNER", updatedPartner);
 			
-			//If status has changed to or from confirmed or if the organization is still confirmed
+			//If status has changed to or from confirmed or if the partner is still confirmed
 			//and the type has changed, or if the collection type has changed, update the wish assignee 
 			//lists by firing an UPDATED_CONFIRMED_PARTNER message
-			if(updatedOrg.getStatus() == STATUS_CONFIRMED && replacedOrg.getStatus() != STATUS_CONFIRMED ||
-			    updatedOrg.getStatus() != STATUS_CONFIRMED && replacedOrg.getStatus() == STATUS_CONFIRMED ||
-			     updatedOrg.getStatus() == STATUS_CONFIRMED && updatedOrg.getType() != replacedOrg.getType() ||
-			      updatedOrg.getStatus() == STATUS_CONFIRMED  && 
-			      !updatedOrg.getGiftCollectionType().equals(replacedOrg.getGiftCollectionType()))
+			if(updatedPartner.getStatus() == STATUS_CONFIRMED && replacedPartner.getStatus() != STATUS_CONFIRMED ||
+				updatedPartner.getStatus() != STATUS_CONFIRMED && replacedPartner.getStatus() == STATUS_CONFIRMED ||
+				 updatedPartner.getStatus() == STATUS_CONFIRMED && updatedPartner.getType() != replacedPartner.getType() ||
+				  updatedPartner.getStatus() == STATUS_CONFIRMED  && !updatedPartner.getGiftCollectionType().equals(replacedPartner.getGiftCollectionType()))
 			{
-				fireDataChanged(source, "UPDATED_CONFIRMED_PARTNER", updatedOrg);
+				fireDataChanged(source, "UPDATED_CONFIRMED_PARTNER", updatedPartner);
 			}
 			
 			//If status is still confirmed and the name has changed by firing an 
 			//UPDATED_CONFIRMED_PARTNER_NAME message
-			if(updatedOrg.getStatus() == STATUS_CONFIRMED && !updatedOrg.getName().equals(replacedOrg.getName()))
+			if(updatedPartner.getStatus() == STATUS_CONFIRMED && !updatedPartner.getName().equals(replacedPartner.getName()))
 			{
-				fireDataChanged(source, "UPDATED_CONFIRMED_PARTNER_NAME", updatedOrg);
+				fireDataChanged(source, "UPDATED_CONFIRMED_PARTNER_NAME", updatedPartner);
 			}
-			
-/*			
-			if(replacedOrg.getStatus() == STATUS_CONFIRMED && updatedOrg.getStatus() != STATUS_CONFIRMED)
-			{
-				deleteConfirmedOrganization(updatedOrg.getName());
-				structureConfirmedOrgsList();
-				fireDataChanged(source, "UPDATED_CONFIRMED_PARTNER", updatedOrg);
-			}
-			else if(replacedOrg.getStatus() != STATUS_CONFIRMED && updatedOrg.getStatus() == STATUS_CONFIRMED)
-			{
-				addConfirmedOrganization(updatedOrg.getName());
-				structureConfirmedOrgsList();
-				fireDataChanged(source, "UPDATED_CONFIRMED_PARTNER", updatedOrg);
-			}
-			else if(replacedOrg.getType() != updatedOrg.getType())
-			{
-				//may have been a change from business, church or school to coat or clothing
-				//or vice versa
-				structureConfirmedOrgsList();
-				fireDataChanged(source, "UPDATED_CONFIRMED_PARTNER", updatedOrg);
-			}
-*/			
 		}
 	}
 	
@@ -933,7 +592,7 @@ public class PartnerDB extends ONCSearchableDatabase
 		}
 	}
 	
-	private class OrgNameComparator implements Comparator<ONCPartner>
+	private class PartnerNameComparator implements Comparator<ONCPartner>
 	{
 		@Override
 		public int compare(ONCPartner o1, ONCPartner o2)
@@ -941,7 +600,7 @@ public class PartnerDB extends ONCSearchableDatabase
 			return o1.getName().compareTo(o2.getName());
 		}
 	}
-	private class OrgStatusComparator implements Comparator<ONCPartner>
+	private class PartnerStatusComparator implements Comparator<ONCPartner>
 	{
 		@Override
 		public int compare(ONCPartner o1, ONCPartner o2)
@@ -951,7 +610,7 @@ public class PartnerDB extends ONCSearchableDatabase
 			return s1.compareTo(s2);	
 		}
 	}
-	private class OrgTypeComparator implements Comparator<ONCPartner>
+	private class PartnerTypeComparator implements Comparator<ONCPartner>
 	{
 		@Override
 		public int compare(ONCPartner o1, ONCPartner o2)
@@ -961,7 +620,7 @@ public class PartnerDB extends ONCSearchableDatabase
 			return t1.compareTo(t2);
 		}
 	}
-	private class OrgCollectionComparator implements Comparator<ONCPartner>
+	private class PartnerCollectionComparator implements Comparator<ONCPartner>
 	{
 		@Override
 		public int compare(ONCPartner o1, ONCPartner o2)
@@ -969,7 +628,7 @@ public class PartnerDB extends ONCSearchableDatabase
 			return o1.getGiftCollectionType().compareTo(o2.getGiftCollectionType());
 		}
 	}
-	private class OrgOrnReqComparator implements Comparator<ONCPartner>
+	private class PartnerOrnReqComparator implements Comparator<ONCPartner>
 	{
 		@Override
 		public int compare(ONCPartner o1, ONCPartner o2)
@@ -979,7 +638,7 @@ public class PartnerDB extends ONCSearchableDatabase
 			return or1.compareTo(or2);
 		}
 	}
-	private class OrgOrnAssignedComparator implements Comparator<ONCPartner>
+	private class PartnerOrnAssignedComparator implements Comparator<ONCPartner>
 	{
 		@Override
 		public int compare(ONCPartner o1, ONCPartner o2)
@@ -989,7 +648,7 @@ public class PartnerDB extends ONCSearchableDatabase
 			return oa1.compareTo(oa2);
 		}
 	}
-	private class OrgDeliveryInfoComparator implements Comparator<ONCPartner>
+	private class PartnerDeliveryInfoComparator implements Comparator<ONCPartner>
 	{
 		@Override
 		public int compare(ONCPartner o1, ONCPartner o2)
@@ -1002,7 +661,7 @@ public class PartnerDB extends ONCSearchableDatabase
 				return  o1.getDeliverTo().compareTo(o2.getDeliverTo());
 		}
 	}
-	private class OrgDateChangedComparator implements Comparator<ONCPartner>
+	private class PartnerDateChangedComparator implements Comparator<ONCPartner>
 	{
 		@Override
 		public int compare(ONCPartner o1, ONCPartner o2)
@@ -1010,7 +669,7 @@ public class PartnerDB extends ONCSearchableDatabase
 			return o1.getDateChanged().compareTo(o2.getDateChanged());
 		}
 	}
-	private class OrgChangedByComparator implements Comparator<ONCPartner>
+	private class PartnerChangedByComparator implements Comparator<ONCPartner>
 	{
 		@Override
 		public int compare(ONCPartner o1, ONCPartner o2)
@@ -1018,7 +677,7 @@ public class PartnerDB extends ONCSearchableDatabase
 			return o1.getStoplightChangedBy().compareTo(o2.getStoplightChangedBy());
 		}
 	}
-	private class OrgRegionComparator implements Comparator<ONCPartner>
+	private class PartnerRegionComparator implements Comparator<ONCPartner>
 	{
 		@Override
 		public int compare(ONCPartner o1, ONCPartner o2)

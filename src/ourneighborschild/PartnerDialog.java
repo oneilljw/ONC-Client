@@ -806,6 +806,7 @@ public class PartnerDialog extends EntityDialog
 	@Override
 	public void dataChanged(DatabaseEvent dbe)
 	{
+//		System.out.println(dbe.getType());
 		if(dbe.getSource() != this && dbe.getType().equals("UPDATED_PARTNER"))
 		{
 			ONCPartner updatedPartner = (ONCPartner) dbe.getObject1();
@@ -844,20 +845,25 @@ public class PartnerDialog extends EntityDialog
 			updatePartnerPerformanceBorders();
 		}
 		else if(!bAddingNewEntity && currPartner != null && dbe.getSource() != this &&
-				(dbe.getType().equals("WISH_PARTNER_CHANGED") || dbe.getType().equals("WISH_RECEIVED")) &&
-				 dbe.getObject1() instanceof ONCPartner && dbe.getObject2() instanceof ONCPartner)
+				(dbe.getType().equals("PARTNER_WISH_RECEIVED") || dbe.getType().equals("PARTNER_WISH_RECEIVE_UNDONE")))
+		{
+			ONCPartner wishPartner = (ONCPartner) dbe.getObject1();
+			
+			//if current partner being displayed has had their gifts received count changed, redisplay
+			if(wishPartner != null && currPartner.getID() == wishPartner.getID())
+				display(wishPartner);
+		}
+		else if(!bAddingNewEntity && currPartner != null && dbe.getSource() != this &&
+				dbe.getType().equals("PARTNER_WISH_ASSIGNEE_CHANGED"))
 		{
 			ONCPartner oldWishPartner = (ONCPartner) dbe.getObject1();
 			ONCPartner newWishPartner = (ONCPartner) dbe.getObject2();
-			
-//			System.out.println(String.format("OrgDlg DB Event: Source: %s, Type: %s, Object: %s",
-//					dbe.getSource().toString(), dbe.getType(), dbe.getObject().toString()));
-			
+
 			//if current partner being displayed has had their gifts assigned count changed, update
 			//the current year assignee label by redisplaying the partner
-			if(currPartner.getID() == oldWishPartner.getID())
+			if(oldWishPartner != null && currPartner.getID() == oldWishPartner.getID())
 				display(oldWishPartner);
-			else if(currPartner.getID() == newWishPartner.getID())
+			else if(newWishPartner != null && currPartner.getID() == newWishPartner.getID())
 				display(newWishPartner);	
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("PARTNER_ORNAMENT_DELIVERED"))

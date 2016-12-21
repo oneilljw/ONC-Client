@@ -351,8 +351,8 @@ public class ONCWishCatalog extends ONCDatabase
 	
 	/***************************************************************************************************
 	 * This method takes changes the wish counts associated with an ONCWish held in catalog
-	 * A WishBaseChange object is passed containing ONCChildWish objects. The first object is 
-	 * the ONCChildWish that has been replaced, the second object is the ONCChildWIsh that is
+	 * The replaced wish and added wish are passed as parameters. The first object is 
+	 * the ONCChildWish that has been replaced, the second object is the ONCChildWish that is
 	 * it's replacement. 
 	 * 
 	 * The method locates the associated ONCWish in the catalog, decrementing the count for 
@@ -362,31 +362,35 @@ public class ONCWishCatalog extends ONCDatabase
 	 * If either ONCChildWish object is null, the decrement  or increment count is not performed.
 	 * @param WishBaseChange contains the replaced and added ONCChildWish objects
 	 **************************************************************************************************/
-	void changeWishCounts(WishBaseChange wbc)
+	void changeWishCounts(ONCChildWish replWish, ONCChildWish addedWish)
 	{
-		ONCChildWish replWish = wbc.getReplacedWish();
+		boolean bWishCountChanged = false;
+		
 		if(replWish != null && replWish.getWishID() > -1)	//Search for from wish if it's not "None"
 		{
 			//Decrement the count of the first wish and update the table
 			int row = findModelIndexFromID(replWish.getWishID());
 			if(row > -1)
+			{
 				wishCatalog.get(row).incrementWishCount(replWish.getWishNumber(), -1);
+				bWishCountChanged = true;
+			}
 		}
 		
-		ONCChildWish addedWish = wbc.getAddedWish();
 		if(addedWish != null && addedWish.getWishID() > -1)	//Search for second wish if it's not "None"
 		{
 			//Increment the count of the second wish and update the table
 			int row = findModelIndexFromID(addedWish.getWishID());
 			if(row > -1)
 			{
-//				System.out.println(String.format("ONCWishCatalog.changeWishCounts: wishCatSize= %d", wishCatalog.size()));
-//				WishCatalogItem wishItem = wishCatalog.get(row);
-//				int wishNum = replWish.getWishNumber();
-//				wishItem.incrementWishCount(wishNum, 1);
 				wishCatalog.get(row).incrementWishCount(addedWish.getWishNumber(), 1);
+				bWishCountChanged = true;
 			}
-		}		
+		}
+		
+		if(bWishCountChanged)
+			fireDataChanged(this, "WISH_BASE_CHANGED", replWish, addedWish); //notify the UI's
+		
 	}
 	
 	int getTotalWishCount(int row) { return wishCatalog.get(row).getTotalWishCount(); }

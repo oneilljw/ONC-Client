@@ -201,7 +201,7 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 		else
 			wishdetailTF.setBackground(Color.YELLOW);
 
-		ONCPartner org = partnerDB.getOrganizationByID(cw.getChildWishAssigneeID());
+		ONCPartner org = partnerDB.getPartnerByID(cw.getChildWishAssigneeID());
 		if(org != null)
 			wishassigneeCB.setSelectedItem(org);
 		else
@@ -267,7 +267,7 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 		
 		//Restore selection to prior selection, if they are still confirmed
 		if(childWish != null  && childWish.getChildWishAssigneeID() != -1)
-			wishassigneeCB.setSelectedItem(orgDB.getOrganizationByID(childWish.getChildWishAssigneeID()));
+			wishassigneeCB.setSelectedItem(orgDB.getPartnerByID(childWish.getChildWishAssigneeID()));
 		else
 			wishassigneeCB.setSelectedIndex(0);
 		
@@ -379,7 +379,7 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 			for(ONCChildWish cw:cwhList)
 			{
 				ONCWish wish = cat.getWishByID(cw.getWishID());
-				ONCPartner assignee = orgDB.getOrganizationByID(cw.getChildWishAssigneeID());
+				ONCPartner assignee = orgDB.getPartnerByID(cw.getChildWishAssigneeID());
 				
 				String[] whTR = new String[7];
 				whTR[0] = wish == null ? "None" : wish.getName();
@@ -792,7 +792,7 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 		ONCChildWish createWishFromInventoryTransfer(InventoryItem ii)
 		{
 			//create new wish with the wish status = WishStatus.ASSIGNED && assignee = ONC_CONTAINER
-			ONCPartner partner = partnerDB.getOrganizationByNameAndType("ONC Container", 6);
+			ONCPartner partner = partnerDB.getPartnerByNameAndType("ONC Container", 6);
 			ONCChildWish addWishReq = null;
 			if(partner != null && child != null)
 			{

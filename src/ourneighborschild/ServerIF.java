@@ -153,7 +153,8 @@ public class ServerIF
 	    		addServerLogItem("Request: " + request);
 	    		
 		} 
-    	catch (IOException e1) {
+    	catch (IOException e1) 
+    	{
     		GlobalVariables gvs = GlobalVariables.getInstance();
     		
 	    	String mssg = String.format("Error sending command<br>%s<br> to ONC Server,<br>netwok connection may be lost." +

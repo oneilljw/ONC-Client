@@ -14,7 +14,6 @@ public abstract class ONCDatabase implements ServerListener
 		serverIF.addServerListener(this);
 	}
 	
-	
 	ONCObject find(List<? extends ONCObject> list, int id)
 	{
 		int index = 0;
@@ -27,7 +26,6 @@ public abstract class ONCDatabase implements ServerListener
 			return list.get(index);		
 	}
 	
-
 	//All databases must implement an update class for notifications of changes
 	abstract String update(Object source, ONCObject entity);
 	

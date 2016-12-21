@@ -69,8 +69,8 @@ public class EncryptionManager
         byte[] encryptText = text.getBytes();
         Cipher cipher;
         try {
-//          raw = Base64.decodeBase64(secretKey);
-            raw = Base64.decodeBase64(keyMap.get("key0") == null ? defaultKey : keyMap.get("key0"));
+          raw = Base64.decodeBase64(defaultKey);
+//            raw = Base64.decodeBase64(getKey("key0") == null ? defaultKey : keyMap.get("key0"));
             skeySpec = new SecretKeySpec(raw, "AES");
             cipher = Cipher.getInstance("AES");
             cipher.init(Cipher.ENCRYPT_MODE, skeySpec);
@@ -91,7 +91,8 @@ public class EncryptionManager
         byte[] raw;
         SecretKeySpec skeySpec;
         try {
-            raw = Base64.decodeBase64(keyMap.get("key0") == null ? defaultKey : keyMap.get("key0"));
+        	raw = Base64.decodeBase64(defaultKey);
+//          raw = Base64.decodeBase64(getKey("key0") == null ? defaultKey : keyMap.get("key0"));
             skeySpec = new SecretKeySpec(raw, "AES");
             encryptText = Base64.decodeBase64(text);
             cipher = Cipher.getInstance("AES");

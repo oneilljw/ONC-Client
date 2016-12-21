@@ -433,7 +433,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 			WishStatus cws = cw.getChildWishStatus();
 			ONCPartner org = null;
 			if(cw.getChildWishAssigneeID() > -1)
-				org = orgs.getOrganizationByID(cw.getChildWishAssigneeID());
+				org = orgs.getPartnerByID(cw.getChildWishAssigneeID());
 			
 			//Determine if a change to wish restrictions, if so set new wish restriction for request
 			if(changeResCB.getSelectedIndex() > 0 && cwi != changeResCB.getSelectedIndex()-1)
@@ -586,7 +586,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		}
 		else if(currentAssigneeIndex > 1)
 		{
-			ONCPartner assigneeOrg = orgs.getOrganizationByID(currentAssigneeID);
+			ONCPartner assigneeOrg = orgs.getPartnerByID(currentAssigneeID);
 			if(assigneeOrg != null)
 			{
 				assignCB.setSelectedItem(assigneeOrg);
@@ -598,7 +598,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 			changeAssigneeCB.setSelectedIndex(1);
 		else
 		{
-			ONCPartner changeAssigneeOrg = orgs.getOrganizationByID(currentChangeAssigneeID);
+			ONCPartner changeAssigneeOrg = orgs.getPartnerByID(currentChangeAssigneeID);
 			if(changeAssigneeOrg != null)
 				changeAssigneeCB.setSelectedItem(changeAssigneeOrg);
 		}
@@ -1266,7 +1266,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 			int childWishAssigneeID = cw.getChildWishAssigneeID();
 			if(childWishAssigneeID > -1)
 			{
-				ONCPartner org = orgs.getOrganizationByID(childWishAssigneeID);
+				ONCPartner org = orgs.getPartnerByID(childWishAssigneeID);
 				fireEntitySelected(this, EntityType.PARTNER, org, null);
 			}
 			
@@ -1659,7 +1659,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 			if(wish1 == null)
 				return 10;
 			
-			ONCPartner partner1 =  partnerDB.getOrganizationByID(wish1.getChildWishAssigneeID());
+			ONCPartner partner1 =  partnerDB.getPartnerByID(wish1.getChildWishAssigneeID());
 			if(partner1 == null)
 				return 10;
 			
@@ -1667,7 +1667,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 			if(wish2 == null)
 				return -10;
 			
-			ONCPartner partner2 =  partnerDB.getOrganizationByID(wish2.getChildWishAssigneeID());
+			ONCPartner partner2 =  partnerDB.getPartnerByID(wish2.getChildWishAssigneeID());
 			if(partner2 == null)	
 				return -10;
 				
@@ -1703,7 +1703,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		String[] indicator = {"", "*", "#"};
 		ONCWish wish = cat.getWishByID(swo.getChildWish().getWishID());
 		String wishName = wish == null ? "None" : wish.getName();
-		ONCPartner partner = orgs.getOrganizationByID(swo.getChildWish().getChildWishAssigneeID());
+		ONCPartner partner = orgs.getPartnerByID(swo.getChildWish().getChildWishAssigneeID());
 		String partnerName = partner != null ? partner.getName() : "";
 		String ds = new SimpleDateFormat("MM/dd H:mm").format(swo.getChildWish().getChildWishDateChanged().getTime());
 		String[] tablerow = {

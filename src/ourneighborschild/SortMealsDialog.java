@@ -327,7 +327,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		}
 		else if(currentAssigneeIndex > 1)
 		{
-			ONCPartner assigneeOrg = orgs.getOrganizationByID(currentAssigneeID);
+			ONCPartner assigneeOrg = orgs.getPartnerByID(currentAssigneeID);
 			if(assigneeOrg != null)
 			{
 				assignCB.setSelectedItem(assigneeOrg);
@@ -339,7 +339,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 			changeAssigneeCB.setSelectedIndex(1);
 		else
 		{
-			ONCPartner changeAssigneeOrg = orgs.getOrganizationByID(currentChangeAssigneeID);
+			ONCPartner changeAssigneeOrg = orgs.getPartnerByID(currentChangeAssigneeID);
 			if(changeAssigneeOrg != null)
 				changeAssigneeCB.setSelectedItem(changeAssigneeOrg);
 		}
@@ -738,7 +738,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 			int partnerID = meal.getPartnerID();
 			if(partnerID > -1)
 			{
-				ONCPartner org = orgs.getOrganizationByID(partnerID);
+				ONCPartner org = orgs.getPartnerByID(partnerID);
 				fireEntitySelected(this, EntityType.PARTNER, org, null);
 				
 			}
@@ -793,7 +793,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 	{
 		SortMealObject smo = (SortMealObject) o;
 		
-		ONCPartner partner = orgs.getOrganizationByID(smo.getMeal().getPartnerID());
+		ONCPartner partner = orgs.getPartnerByID(smo.getMeal().getPartnerID());
 		String partnerName = partner != null ? partner.getName() : "None";
 		String ds = new SimpleDateFormat("MM/dd H:mm").format(smo.getMeal().getDateChanged().getTime());
 		String[] tablerow = {smo.getFamily().getONCNum(),
@@ -991,7 +991,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		public String[] getExportRow()
 		{
 			Agent agent = (Agent) agentDB.getONCObject(soFamily.getAgentID());
-			ONCPartner partner = partnerDB.getOrganizationByID(soMeal.getPartnerID());
+			ONCPartner partner = partnerDB.getPartnerByID(soMeal.getPartnerID());
 			
 			String delAddress, unit, city, zip;
 			if(soFamily.getSubstituteDeliveryAddress().isEmpty())
@@ -1216,12 +1216,12 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 			String part1, part2;
 			 
 			if(o1.getMeal().getPartnerID() > -1 )
-				part1 = partnerDB.getOrganizationByID(o1.getMeal().getPartnerID()).getName();
+				part1 = partnerDB.getPartnerByID(o1.getMeal().getPartnerID()).getName();
 			else
 				part1 = "";
 			
 			if(o2.getMeal().getPartnerID() > -1)
-				part2 = partnerDB.getOrganizationByID(o2.getMeal().getPartnerID()).getName();
+				part2 = partnerDB.getPartnerByID(o2.getMeal().getPartnerID()).getName();
 			else
 				part2 = "";
 			

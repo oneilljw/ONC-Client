@@ -149,94 +149,24 @@ public class ChildWishDB extends ONCDatabase
 		ChildDB childDB = ChildDB.getInstance();
 		childDB.setChildWishID(addedWish.getChildID(), addedWish.getID(), addedWish.getWishNumber());
 		
-		//determine if gift assignments have changed. If they have, notify the Partner DB
-		//to update partner assignment counts
+		//notify the partner data base to evaluate the new wish to see if partner wishes assigned, delivered
+		//or received counts have to change
 		PartnerDB partnerDB = PartnerDB.getInstance();
-//		DataChange  wac = null;
-		if(replacedWish != null && replacedWish.getChildWishAssigneeID() != 
-									addedWish.getChildWishAssigneeID())
-		{	
-			//assignee change -- need to notify to adjust partner gift assignment counts
-//			wac= new DataChange(replacedWish.getChildWishAssigneeID(), 
-//								 addedWish.getChildWishAssigneeID());
-			
-			partnerDB.processGiftAssignmentChange(replacedWish, addedWish);
-		}
-		
-		//determine if the ornament has been delivered to the partner. If so, ask the partner DB
-		//to increase the partner's delivered ornament count
-		if(replacedWish != null && 
-			replacedWish.getChildWishAssigneeID() == addedWish.getChildWishAssigneeID() &&
-			 replacedWish.getChildWishStatus() == WishStatus.Assigned && 
-			  addedWish.getChildWishStatus() == WishStatus.Delivered)
-		{
-			partnerDB.processGiftDelivered(addedWish.getChildWishAssigneeID());
-		}
-		
-		//determine if gift has been received. If it has, notify the Organization DB
-		//to update partner gift received counts
-		DataChange  wgr = null;
-		if(replacedWish != null && 
-			(replacedWish.getChildWishStatus() == WishStatus.Delivered || replacedWish.getChildWishStatus() == WishStatus.Shopping)  && 
-				addedWish.getChildWishStatus() == WishStatus.Received &&
-				replacedWish.getChildWishAssigneeID() == addedWish.getChildWishAssigneeID())
-		{	
-			//gift was received from partner it was assigned to or was received from shopping
-			wgr= new DataChange(-1, addedWish.getChildWishAssigneeID());	
-			partnerDB.processGiftReceivedChange(wgr);
-		}
-//		else if(replacedWish != null && replacedWish.getChildWishStatus() == WishStatus.Delivered  && 
-//				 addedWish.getChildWishStatus() == WishStatus.Returned &&
-//				 replacedWish.getChildWishAssigneeID() == addedWish.getChildWishAssigneeID())
-//		{
-//			//ornament was returned from partner it was assigned to. This occurs when a partner returns
-//			//ornaments they were unable to fulfill to ONC for ONC to fix
-//			wgr= new DataChange(addedWish.getChildWishAssigneeID(), -1);
-//			orgDB.processGiftReceivedChange(wgr);
-//		}
-		else if(replacedWish != null && replacedWish.getChildWishStatus() == WishStatus.Received  && 
-				 addedWish.getChildWishStatus() == WishStatus.Delivered &&
-				 replacedWish.getChildWishAssigneeID() == addedWish.getChildWishAssigneeID())
-		{
-			//gift was un-received from partner it was assigned to. This occurs when an undo
-			//action is performed by the user
-			wgr= new DataChange(addedWish.getChildWishAssigneeID(), -1);
-			partnerDB.processGiftReceivedChange(wgr);
-		}
-		else if(replacedWish != null && replacedWish.getChildWishStatus() == WishStatus.Received  && 
-				 addedWish.getChildWishStatus() == WishStatus.Received &&
-				 replacedWish.getChildWishAssigneeID() != addedWish.getChildWishAssigneeID())
-		{
-			//In theory, this should never occur. However, if a gift is received twice from two
-			//different partners, decrement the first and credit the receipt to the second
-			wgr= new DataChange(replacedWish.getChildWishAssigneeID(), addedWish.getChildWishAssigneeID());
-			partnerDB.processGiftReceivedChange(wgr);
-		}
+		partnerDB.processAddedWish(replacedWish, addedWish);
 			
 		//data bases have been updated, notify ui's of changes
 		fireDataChanged(source, "WISH_ADDED", addedWish);
 		
-		if(replacedWish != null && replacedWish.getWishID() != addedWish.getWishID() ||
-				replacedWish == null && addedWish.getChildWishStatus() == WishStatus.Selected)
+		//notify the catalog to update counts if the wish has changed
+		if(replacedWish == null && addedWish.getChildWishStatus() == WishStatus.Selected ||
+			replacedWish != null && replacedWish.getWishID() != addedWish.getWishID())
 		{
-			//base change - need to tell wish catalog dialog to adjust wish counts
-			WishBaseChange wbc= new WishBaseChange(replacedWish, addedWish);
-			
-			cat.changeWishCounts(wbc);	//notify the catalog to update counts
-			
-			fireDataChanged(source, "WISH_BASE_CHANGED", wbc); //notify the UI's			
+			cat.changeWishCounts(replacedWish, addedWish);				
 		}
 
-//		if(wac != null)
-//			fireDataChanged(source, "WISH_PARTNER_CHANGED", wac);
-		
-		if(wgr != null)
-			fireDataChanged(source, "WISH_RECEIVED", wgr);
-		
 		return addedWish;
 	}
 	
-
 	/*******************************************************************************************
 	 * This method implements a rules engine governing the relationship between a wish type and
 	 * wish status and wish assignment and wish status. It is called when a child's wish or
@@ -292,7 +222,7 @@ public class ChildWishDB extends ONCDatabase
 				else if(reqStatus == WishStatus.Delivered && reqOrg != null && 
 							reqOrg.getID() > -1 && reqOrg.getType() == PARTNER_TYPE_ONC_SHOPPER)
 					newStatus = WishStatus.Shopping;
-				else if(reqStatus == WishStatus.Assigned && reqOrg != null && reqOrg.getID() > -1)
+				else if(reqStatus == WishStatus.Delivered && reqOrg != null && reqOrg.getID() > -1)
 					newStatus = WishStatus.Assigned;
 				else if(reqStatus == WishStatus.Shopping)
 					newStatus = WishStatus.Shopping;

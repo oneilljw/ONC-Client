@@ -59,9 +59,9 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 		if(cat != null)
 			cat.addDatabaseListener(this);
 		
-		ChildWishDB cwDB = ChildWishDB.getInstance();
-		if(cwDB != null)
-			cwDB.addDatabaseListener(this);	//Listen for child wish base changes
+//		ChildWishDB cwDB = ChildWishDB.getInstance();
+//		if(cwDB != null)
+//			cwDB.addDatabaseListener(this);	//Listen for child wish base changes
 		
 		ChildDB childDB = ChildDB.getInstance();
 		if(childDB != null)
@@ -315,20 +315,11 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 		if(dbe.getSource() != this && dbe.getType().equals("WISH_BASE_CHANGED"))
 		{
 			//User changed a wish base, must update wish counts
-			WishBaseChange wbc = (WishBaseChange) dbe.getObject1();
-			ONCChildWish replWish = (ONCChildWish) wbc.getReplacedWish();
-			ONCChildWish addedWish = (ONCChildWish) wbc.getAddedWish();
-			
-			if(replWish != null && addedWish != null)
-			{
-				String logEntry = String.format("WishCatalog Event: %s, -- Wish ID: %d, ++ Wish ID: %d",
-						dbe.getType(), replWish.getWishID(), addedWish.getWishID());
-				LogDialog.add(logEntry, "M");
-			}
+			ONCChildWish replWish = (ONCChildWish) dbe.getObject1();
+			ONCChildWish addedWish = (ONCChildWish) dbe.getObject2();
 			
 			//update table
-			if(replWish != null &&  replWish.getWishID() > -1 || 
-					addedWish != null && addedWish.getWishID() > -1)
+			if(replWish != null &&  replWish.getWishID() > -1 || addedWish != null && addedWish.getWishID() > -1)
 					wcTableModel.fireTableDataChanged();
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("ADDED_CATALOG_WISH"))
