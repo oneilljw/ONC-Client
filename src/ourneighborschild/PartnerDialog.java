@@ -44,11 +44,11 @@ public class PartnerDialog extends EntityDialog
 	
 	private ONCRegions regions;
 	
-	private JLabel lblCYAssigned, lblCYDel, lblCYRec;
+	private JLabel lblCYAssigned, lblCYDel, lblCYRecBefore, lblCYRecAfter;
 	private JLabel lblOrgID, lblRegion, lblDateChanged, lblChangedBy;
     private JComboBox typeCB, statusCB, collectionCB;
     private JTextPane otherTP, specialNotesTP, deliverToTP;
-    private JLabel lblPYReq, lblPYAssigned, lblPYDel, lblPYRec;
+    private JLabel lblPYReq, lblPYAssigned, lblPYDel, lblPYRecBefore, lblPYRecAfter;
     private JTextField nameTF, cyReqTF;
     private JTextField streetnumTF, streetnameTF, unitTF, cityTF, zipTF, phoneTF;
     private JTextField contact1TF, email1TF, phone1TF;
@@ -120,7 +120,7 @@ public class PartnerDialog extends EntityDialog
         String[] types = {"?","Business","Church","School", "Clothing", "Coat", "ONC Shopper"};
         typeCB = new JComboBox(types);
         typeCB.setToolTipText("Type of organization e.g. Business");
-        typeCB.setPreferredSize(new Dimension (128, 48));
+        typeCB.setPreferredSize(new Dimension (136, 48));
         typeCB.setBorder(BorderFactory.createTitledBorder("Partner Type"));
         typeCB.addActionListener(dcListener);
         
@@ -132,7 +132,7 @@ public class PartnerDialog extends EntityDialog
                      
         String[] status = {"No Action Yet", "1st Email Sent", "Responded", "2nd Email Sent", "Called, Left Mssg", "Confirmed", "Not Participating"}; 
         statusCB = new JComboBox(status);
-        statusCB.setPreferredSize(new Dimension (136, 48));
+        statusCB.setPreferredSize(new Dimension (144, 48));
         statusCB.setBorder(BorderFactory.createTitledBorder("Status"));
         statusCB.addActionListener(dcListener);
         
@@ -192,7 +192,7 @@ public class PartnerDialog extends EntityDialog
         contact1TF.setBorder(BorderFactory.createTitledBorder("1st Contact"));
         contact1TF.addActionListener(dcListener);
         
-        email1TF = new JTextField(20);
+        email1TF = new JTextField(22);
         email1TF.setToolTipText("Primary Contact e-mail");
         email1TF.setBorder(BorderFactory.createTitledBorder("1st Contact Email"));
         email1TF.addActionListener(dcListener);
@@ -218,7 +218,7 @@ public class PartnerDialog extends EntityDialog
         contact2TF.setBorder(BorderFactory.createTitledBorder("2nd Contact"));
         contact2TF.addActionListener(dcListener);
         
-        email2TF = new JTextField(20);
+        email2TF = new JTextField(22);
         email2TF.setToolTipText("Secondary Contact e-mail");
         email2TF.setBorder(BorderFactory.createTitledBorder("2nd Contact Email"));
         email2TF.addActionListener(dcListener);
@@ -240,7 +240,7 @@ public class PartnerDialog extends EntityDialog
         
         //set up panel 5
         otherTP = new JTextPane();
-        otherTP.setPreferredSize(new Dimension (264, 100));
+        otherTP.setPreferredSize(new Dimension (280, 100));
         SimpleAttributeSet attribs = new SimpleAttributeSet(); 
         StyleConstants.setAlignment(attribs , StyleConstants.ALIGN_LEFT);
         StyleConstants.setFontSize(attribs, userDB.getUserPreferences().getFontSize());
@@ -253,7 +253,7 @@ public class PartnerDialog extends EntityDialog
         otherTPSP.setBorder(BorderFactory.createTitledBorder("General Partner Information"));
               
         specialNotesTP = new JTextPane();
-        specialNotesTP.setPreferredSize(new Dimension (264, 100));  
+        specialNotesTP.setPreferredSize(new Dimension (288, 100));  
         specialNotesTP.setParagraphAttributes(attribs,true);             
 	   	specialNotesTP.setEditable(true);
 	   	
@@ -308,7 +308,7 @@ public class PartnerDialog extends EntityDialog
         op5.add(deliverToTPSP);
         
         //set up panel 6
-        Dimension ornDimension = new Dimension(88,48);
+        Dimension ornDimension = new Dimension(72,48);
         
         Border loweredBevel = BorderFactory.createLoweredBevelBorder();
         TitledBorder pyBorder = BorderFactory.createTitledBorder(loweredBevel, "Prior Year Performance");
@@ -318,26 +318,32 @@ public class PartnerDialog extends EntityDialog
         lblPYReq = new JLabel();
         lblPYReq.setPreferredSize(ornDimension);
         lblPYReq.setToolTipText("Number of prior year ornaments reqeusted by partner");
-        lblPYReq.setBorder(BorderFactory.createTitledBorder("Requested"));
+        lblPYReq.setBorder(BorderFactory.createTitledBorder("Request"));
         lblPYReq.setHorizontalAlignment(JLabel.RIGHT);
         
         lblPYAssigned = new JLabel();
         lblPYAssigned.setPreferredSize(ornDimension);
         lblPYAssigned.setToolTipText("Number of prior year ornaments assigned to partner");
-        lblPYAssigned.setBorder(BorderFactory.createTitledBorder("Assigned"));
+        lblPYAssigned.setBorder(BorderFactory.createTitledBorder("Assign."));
         lblPYAssigned.setHorizontalAlignment(JLabel.RIGHT);
         
         lblPYDel = new JLabel();
         lblPYDel.setPreferredSize(ornDimension);
         lblPYDel.setToolTipText("Number of prior year ornaments delivered to partner");
-        lblPYDel.setBorder(BorderFactory.createTitledBorder("Delivered"));
+        lblPYDel.setBorder(BorderFactory.createTitledBorder("Deliv."));
         lblPYDel.setHorizontalAlignment(JLabel.RIGHT);
         
-        lblPYRec = new JLabel();
-        lblPYRec.setPreferredSize(ornDimension);
-        lblPYRec.setToolTipText("Number of prior year gifts received from partner");
-        lblPYRec.setBorder(BorderFactory.createTitledBorder("Received"));
-        lblPYRec.setHorizontalAlignment(JLabel.RIGHT);
+        lblPYRecBefore = new JLabel();
+        lblPYRecBefore.setPreferredSize(ornDimension);
+        lblPYRecBefore.setToolTipText("Number of prior year gifts received from partner before deadline");
+        lblPYRecBefore.setBorder(BorderFactory.createTitledBorder("On Time"));
+        lblPYRecBefore.setHorizontalAlignment(JLabel.RIGHT);
+        
+        lblPYRecAfter = new JLabel();
+        lblPYRecAfter.setPreferredSize(ornDimension);
+        lblPYRecAfter.setToolTipText("Number of prior year gifts received from partner after deadline");
+        lblPYRecAfter.setBorder(BorderFactory.createTitledBorder("Late"));
+        lblPYRecAfter.setHorizontalAlignment(JLabel.RIGHT);
         
         TitledBorder cyBorder = BorderFactory.createTitledBorder(loweredBevel, "Current Year Performance");
         cyBorder.setTitleJustification(TitledBorder.CENTER);
@@ -346,37 +352,45 @@ public class PartnerDialog extends EntityDialog
         cyReqTF = new JTextField();
         cyReqTF.setPreferredSize(ornDimension);
         cyReqTF.setToolTipText("Number of ornaments reqeusted by partner");
-        cyReqTF.setBorder(BorderFactory.createTitledBorder("Requested"));
+        cyReqTF.setBorder(BorderFactory.createTitledBorder("Request"));
         cyReqTF.setHorizontalAlignment(JTextField.RIGHT);
         cyReqTF.addActionListener(dcListener);
         
         lblCYAssigned = new JLabel();
         lblCYAssigned.setPreferredSize(ornDimension);
         lblCYAssigned.setToolTipText("Number of ornnaments assigned to this partner");
-        lblCYAssigned.setBorder(BorderFactory.createTitledBorder("Assigned"));
+        lblCYAssigned.setBorder(BorderFactory.createTitledBorder("Assign."));
         lblCYAssigned.setHorizontalAlignment(JLabel.RIGHT);
         
         lblCYDel = new JLabel();
         lblCYDel.setPreferredSize(ornDimension);
         lblCYDel.setToolTipText("Number of current year ornaments delivered to partner");
-        lblCYDel.setBorder(BorderFactory.createTitledBorder("Delivered"));
+        lblCYDel.setBorder(BorderFactory.createTitledBorder("Deliv."));
         lblCYDel.setHorizontalAlignment(JLabel.RIGHT);
         
-        lblCYRec = new JLabel();
-        lblCYRec.setPreferredSize(ornDimension);
-        lblCYRec.setToolTipText("Number of current year gifts received partner");
-        lblCYRec.setBorder(BorderFactory.createTitledBorder("Received"));
-        lblCYRec.setHorizontalAlignment(JLabel.RIGHT);
+        lblCYRecBefore = new JLabel();
+        lblCYRecBefore.setPreferredSize(ornDimension);
+        lblCYRecBefore.setToolTipText("Number of current year gifts received from partner before the deadline");
+        lblCYRecBefore.setBorder(BorderFactory.createTitledBorder("On Time"));
+        lblCYRecBefore.setHorizontalAlignment(JLabel.RIGHT);
+        
+        lblCYRecAfter = new JLabel();
+        lblCYRecAfter.setPreferredSize(ornDimension);
+        lblCYRecAfter.setToolTipText("Number of current year gifts received from partner after the deadline");
+        lblCYRecAfter.setBorder(BorderFactory.createTitledBorder("Late"));
+        lblCYRecAfter.setHorizontalAlignment(JLabel.RIGHT);
         
         pyPanel.add(lblPYReq);
         pyPanel.add(lblPYAssigned);
         pyPanel.add(lblPYDel);
-        pyPanel.add(lblPYRec);
+        pyPanel.add(lblPYRecBefore);
+        pyPanel.add(lblPYRecAfter);
         
         cyPanel.add(cyReqTF);
         cyPanel.add(lblCYAssigned);
         cyPanel.add(lblCYDel);
-        cyPanel.add(lblCYRec);
+        cyPanel.add(lblCYRecBefore);
+        cyPanel.add(lblCYRecAfter);
         
         op6.add(pyPanel);
         op6.add(cyPanel);
@@ -481,7 +495,8 @@ public class PartnerDialog extends EntityDialog
 			cyReqTF.setText(Integer.toString(currPartner.getNumberOfOrnamentsRequested()));
 			lblCYAssigned.setText(Integer.toString(currPartner.getNumberOfOrnamentsAssigned()));
 			lblCYDel.setText(Integer.toString(currPartner.getNumberOfOrnamentsDelivered()));
-			lblCYRec.setText(Integer.toString(currPartner.getNumberOfOrnamentsReceived()));
+			lblCYRecBefore.setText(Integer.toString(currPartner.getNumberOfOrnamentsReceivedBeforeDeadline()));
+			lblCYRecAfter.setText(Integer.toString(currPartner.getNumberOfOrnamentsReceivedAfterDeadline()));
 			otherTP.setText(currPartner.getOther());
 			otherTP.setCaretPosition(0);
 			specialNotesTP.setText(currPartner.getSpecialNotes());
@@ -514,7 +529,8 @@ public class PartnerDialog extends EntityDialog
 			lblPYReq.setText(Integer.toString(currPartner.getPriorYearRequested()));
 			lblPYAssigned.setText(Integer.toString(currPartner.getPriorYearAssigned()));
 			lblPYDel.setText(Integer.toString(currPartner.getPriorYearDelivered()));
-			lblPYRec.setText(Integer.toString(currPartner.getPriorYearReceived()));
+			lblPYRecBefore.setText(Integer.toString(currPartner.getPriorYearReceivedBeforeDeadline()));
+			lblPYRecAfter.setText(Integer.toString(currPartner.getPriorYearReceivedAfterDeadline()));
 		
 			int[] counts = partnerDB.getOrnamentAndWishCounts();
 			partnerCount = counts[0];
@@ -652,7 +668,8 @@ public class PartnerDialog extends EntityDialog
 		cyReqTF.setText("");
 		lblCYAssigned.setText("0");
 		lblCYDel.setText("0");
-		lblCYRec.setText("0");
+		lblCYRecBefore.setText("0");
+		lblCYRecAfter.setText("0");
 		otherTP.setText("");
 		specialNotesTP.setText("");
 		streetnumTF.setText("");
@@ -672,7 +689,8 @@ public class PartnerDialog extends EntityDialog
 		lblPYReq.setText("");
 		lblPYAssigned.setText("");
 		lblPYDel.setText("");
-		lblPYRec.setText("");
+		lblPYRecBefore.setText("");
+		lblPYRecAfter.setText("");
 		nav.clearStoplight();
 		
 		bIgnoreEvents = false;

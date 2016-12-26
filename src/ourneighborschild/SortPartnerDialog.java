@@ -72,8 +72,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 	private JComboBox changePStatusCB, changeOrnReqCB;
 	private DefaultComboBoxModel regionCBM;
 	private DefaultComboBoxModel changedByCBM;
-	private JButton btnExport;
-	private JComboBox printCB, emailCB;
+	private JComboBox printCB, emailCB, exportCB;
 	private JLabel lblOrnReq;
 	private ArrayList<ONCPartner> stAL;
 
@@ -216,9 +215,15 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		//Set up the control panel that goes in the bottom panel with border layout
         JPanel cntlPanel = new JPanel();
       	cntlPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
-		btnExport = new JButton("Export Data");
-	    btnExport.setEnabled(false);
-	    btnExport.addActionListener(this);
+      	
+      	String[] exportChoices = {
+				"Export Data", "2016 Partner Info",
+				"2016 Partner Performance",
+				};
+      	exportCB = new JComboBox(exportChoices);
+      	exportCB.setPreferredSize(new Dimension(136, 28));
+      	exportCB.setEnabled(false);
+      	exportCB.addActionListener(this);
 		
 		//Set up the email progress bar
 		progressBar = new JProgressBar(0, 100);
@@ -245,7 +250,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		printCB.addActionListener(this);
   
 		cntlPanel.add(progressBar);
-		cntlPanel.add(btnExport);
+		cntlPanel.add(exportCB);
 		cntlPanel.add(emailCB);
 		cntlPanel.add(printCB);
 		
@@ -362,13 +367,13 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 			printCB.setEnabled(true);
 			if(userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0)
 				emailCB.setEnabled(true);	//Only admins or higher can send email
-			btnExport.setEnabled(true);
+			exportCB.setEnabled(true);
 		}
 		else
 		{
 			printCB.setEnabled(false);
 			emailCB.setEnabled(false);
-			btnExport.setEnabled(false);
+			exportCB.setEnabled(false);
 		}
 	}
 	
@@ -1157,19 +1162,25 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 //		infoDlg.setVisible(true);
 	}
 	
-	void onExportRequested()
+	void onExportRequested(int exportRequest)
 	{
 		//Write the selected row data to a .csv file
-    	String[] header = {"Partner ID", "Name", " Partner Type", "Status", "Collection Type", "Other", "Special Notes",
-    						"Orn Req.", "Orn Assign.", "Del To",
+		String[] header1 = {"Partner ID", "Name", " Partner Type", "Status", "Collection Type", "Other", 
+							"Special Notes", "Orn Req.", "Orn Assign.", "Del To",
     						"Address", "Unit", "City", "Zip", "Phhone #", 
     						"1st Contact", "1st Contact Email", "1st Contact Phone",
     						"2nd Contact", "2nd Contact Email", "2nd Contact Phone",
     						"Date Changed"};
+		
+		String[] header2 = {"Partner ID", "Name", " Partner Type", "Status", "Collection Type", 
+					"Orn Request", "Orn Assigned", "Orn Delivered", "Gifts Received Before Deadline",
+					"Gifts Received After Deadline"};
     	
     	ONCFileChooser oncfc = new ONCFileChooser(parentFrame);
-       	File oncwritefile = oncfc.getFile("Select file for export of selected rows" ,
-       										new FileNameExtensionFilter("CSV Files", "csv"), 1);
+    	String fileDlgMssg = String.format("Select File For Export of Partner %sData", 
+    											exportRequest == 1 ? "" : "Performance ");
+    	
+       	File oncwritefile = oncfc.getFile(fileDlgMssg, new FileNameExtensionFilter("CSV Files", "csv"), 1);
        	if(oncwritefile!= null)
        	{
        		//If user types a new filename without extension.csv, add it
@@ -1180,16 +1191,21 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 	    	try 
 	    	{
 	    		CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
-	    	    writer.writeNext(header);
+	    	    writer.writeNext(exportRequest == 1 ? header1 : header2);
 	    	    
 	    	    int[] row_sel = sortTable.getSelectedRows();
 	    	    for(int i=0; i<sortTable.getSelectedRowCount(); i++)
-	    	    	writer.writeNext(getExportRow(row_sel[i]));
+	    	    {
+	    	    	if(exportRequest == 1)
+	    	    		writer.writeNext(getExportRow(row_sel[i]));
+	    	    	else
+	    	    		writer.writeNext(getExportPerformanceRow(row_sel[i]));
+	    	    }
 	    	    	   
 	    	    writer.close();
 	    	    
 	    	    JOptionPane.showMessageDialog(parentFrame, 
-						sortTable.getSelectedRowCount() + " partners sucessfully exported to " + oncwritefile.getName(), 
+						sortTable.getSelectedRowCount() + " partners info sucessfully exported to " + oncwritefile.getName(), 
 						"Export Successful", JOptionPane.INFORMATION_MESSAGE, gvs.getImageIcon(0));
 	    	} 
 	    	catch (IOException x)
@@ -1231,6 +1247,25 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 						o.getContact2_email(),
 						o.getContact2_phone(),
 						date.format(o.getDateChanged())};
+		return row;
+	}
+	
+	String[] getExportPerformanceRow(int index)
+	{
+		ONCPartner o = stAL.get(index);
+		
+		String[] row = {
+						Long.toString(o.getID()),
+						o.getName(),
+						types[o.getType()],
+						status[o.getStatus()+1],
+						o.getGiftCollectionType().toString(),
+						Integer.toString(o.getNumberOfOrnamentsRequested()),
+						Integer.toString(o.getNumberOfOrnamentsAssigned()),
+						Integer.toString(o.getNumberOfOrnamentsDelivered()),
+						Integer.toString(o.getNumberOfOrnamentsReceivedBeforeDeadline()),
+						Integer.toString(o.getNumberOfOrnamentsReceivedAfterDeadline()),
+						};
 		return row;
 	}
 	
@@ -1338,9 +1373,10 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 	
 			emailCB.setSelectedIndex(0);	//Reset the email combo choice
 		}
-		else if(e.getSource() == btnExport)
+		else if(e.getSource() == exportCB && exportCB.getSelectedIndex() > 0)
 		{
-			onExportRequested();	
+			onExportRequested(exportCB.getSelectedIndex());
+			exportCB.setSelectedIndex(0);
 		}
 		else if(e.getSource() == changePStatusCB)
 		{

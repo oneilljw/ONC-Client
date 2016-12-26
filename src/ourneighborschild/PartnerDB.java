@@ -429,7 +429,9 @@ public class PartnerDB extends ONCSearchableDatabase
 			}
 		}
 		
-		//process gifts received 
+		//process gifts received. Determine if the wish added time is before or after the deadline 
+		boolean bReceviedBeforeDeadline = addedWish.getChildWishDateChanged().before(orgGVs.getGiftsReceivedDate());
+		
 		if(replWish != null && replWish.getChildWishAssigneeID() == addedWish.getChildWishAssigneeID() &&
 		   (replWish.getChildWishStatus() == WishStatus.Delivered || replWish.getChildWishStatus() == WishStatus.Shopping)  && 
 			addedWish.getChildWishStatus() == WishStatus.Received)
@@ -438,7 +440,7 @@ public class PartnerDB extends ONCSearchableDatabase
 			ONCPartner addedWishAssignee = (ONCPartner) find(partnerList, addedWish.getChildWishAssigneeID());
 			if(addedWishAssignee != null)
 			{
-				addedWishAssignee.incrementOrnReceived();
+				addedWishAssignee.incrementOrnReceived(bReceviedBeforeDeadline);
 				fireDataChanged(this, "PARTNER_WISH_RECEIVED", addedWishAssignee);
 			}
 		}
@@ -451,7 +453,7 @@ public class PartnerDB extends ONCSearchableDatabase
 			ONCPartner replWishAssignee = (ONCPartner) find(partnerList, replWish.getChildWishAssigneeID());
 			if(replWishAssignee != null)
 			{
-				replWishAssignee.decrementOrnReceived();
+				replWishAssignee.decrementOrnReceived(bReceviedBeforeDeadline);
 				fireDataChanged(this, "PARTNER_WISH_RECEIVE_UNDONE", replWishAssignee);
 			}
 		}
