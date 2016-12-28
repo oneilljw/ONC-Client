@@ -19,15 +19,15 @@ public class ONCWebsiteFamily
 		String[] delstatus = {"Requested", "Contacted", "Confirmed", "Assigned", "Attempted", "Returned", "Delivered", "Counselor Pick-Up"};
 		this.id = f.id;
 		this.oncNum = f.getONCNum();
-		this.targetID = f.getODBFamilyNum();
+		this.targetID = f.getReferenceNum();
 		this.fstatus = famstatus[f.getFamilyStatus()];
 		
-		if(f.getDeliveryStatus() == 0 && f.getODBWishList().contains("assistance not requested"))
+		if(f.getGiftStatus() == 0 && f.getWishList().contains("assistance not requested"))
 				this.dstatus ="Not Requested";
-		else if(f.getDeliveryStatus() == 0 && f.getFamilyStatus() > 1)
+		else if(f.getGiftStatus() == 0 && f.getFamilyStatus() > 1)
 				this.dstatus = famstatus[f.getFamilyStatus()];
 		else
-			this.dstatus = delstatus[f.getDeliveryStatus()];
+			this.dstatus = delstatus[f.getGiftStatus()];
 		
 		this.DNSCode = f.getDNSCode();
 		this.HOHFirstName = f.getHOHFirstName();

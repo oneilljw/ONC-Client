@@ -155,7 +155,7 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 			if(f.getFamilyStatus() == FAMILY_STATUS_PACKAGED &&
 				isRegionInRange(f.getRegion()) &&
 				 doesONCNumMatch(f.getONCNum()) &&
-				  doesDStatusPass(f.getDeliveryStatus()))	
+				  doesDStatusPass(f.getGiftStatus()))	
 			{													
 				stAL.add(f); //Family is eligible for delivery and search criteria pass	
 			}
@@ -208,7 +208,7 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 		
 		String[] deliverytablerow = {si.getONCNum(),
 				 famstatus[si.getFamilyStatus() + 1], 
-				 delstatus[si.getDeliveryStatus() + 1],
+				 delstatus[si.getGiftStatus() + 1],
 				 Integer.toString(si.getNumOfBags()),
 				 Integer.toString(fDB.getNumberOfBikesSelectedForFamily(si)),
 				 Integer.toString(si.getNumOfLargeItems()),

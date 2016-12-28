@@ -76,11 +76,11 @@ public class ONCFamilyReportRowBuilder
 		row[index++] = 	Integer.toString(f.getID());
 		row[index++] =	f.getONCNum();		
 		row[index++] = 	Integer.toString(f.getRegion());
-		row[index++] = 	f.getODBFamilyNum();
+		row[index++] = 	f.getReferenceNum();
 		row[index++] = 	f.getBatchNum();	
 		row[index++] =  f.getDNSCode();
 		row[index++] = 	Integer.toString(f.getFamilyStatus());
-		row[index++] = 	Integer.toString(f.getDeliveryStatus());
+		row[index++] = 	Integer.toString(f.getGiftStatus());
 		row[index++] = 	f.getSpeakEnglish();
 		row[index++] = 	f.getLanguage();			
 		row[index++] = 	f.getChangedBy();
@@ -98,11 +98,11 @@ public class ONCFamilyReportRowBuilder
 		row[index++] = 	f.getAllPhoneNumbers();			
 		row[index++] = 	f.getHomePhone();
 		row[index++] = 	f.getOtherPhon();
-		row[index++] = 	f.getFamilyEmail();
+		row[index++] = 	f.getEmail();
 		row[index++] = 	f.getDetails();
 		row[index++] = 	f.getNamesOfChildren();
 		row[index++] = 	f.getSchools();
-		row[index] = 	f.getODBWishList();
+		row[index] = 	f.getWishList();
 
 		return row;		
 	}

@@ -512,7 +512,7 @@ public class AngelAutoCallDialog extends ONCTableDialog implements ActionListene
 			 
 				 //If status == confirmed is an upgrade to status, change the family status and
 				 //create a new ONCDelivery object
-				 if(f.getDeliveryStatus() < DELIVERY_STATUS_CONFIRMED && 
+				 if(f.getGiftStatus() < DELIVERY_STATUS_CONFIRMED && 
 						 stAL.get(i).getCallResult().equals(ANGEL_DELIVERY_CONFIRMED))
 				 {
 					 //add a new delivery to the delivery data base
@@ -537,7 +537,7 @@ public class AngelAutoCallDialog extends ONCTableDialog implements ActionListene
 //								JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
 // 					 }
 				 }			 
-				 else if(f.getDeliveryStatus() < DELIVERY_STATUS_CONTACTED)
+				 else if(f.getGiftStatus() < DELIVERY_STATUS_CONTACTED)
 				 {
 					//add a new delivery to the delivery data base
 					 ONCDelivery reqDelivery = new ONCDelivery(-1, f.getID(), DELIVERY_STATUS_CONTACTED,

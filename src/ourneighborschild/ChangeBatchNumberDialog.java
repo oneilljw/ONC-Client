@@ -85,7 +85,7 @@ public class ChangeBatchNumberDialog extends InfoDialog implements DatabaseListe
 	{
 		String reqBatchNum = (String) batchNumCB.getSelectedItem();
 		//was it really a change? 
-		if(!reqBatchNum.equals(f.getODBFamilyNum()))
+		if(!reqBatchNum.equals(f.getReferenceNum()))
 		{
 			//It was a change, first see if client user really wants a change. If they do, process it
 				

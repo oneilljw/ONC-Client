@@ -570,7 +570,7 @@ public class FamilyDB extends ONCSearchableDatabase
 	private void searchForODBNumber(String s, List<Integer> rAL)
     {
     	for(ONCFamily f: oncFamAL)
-    		if(s.equals(f.getODBFamilyNum()))
+    		if(s.equals(f.getReferenceNum()))
     			rAL.add(f.getID());   	
     }
 	
@@ -578,7 +578,7 @@ public class FamilyDB extends ONCSearchableDatabase
     {
     	int index = 0;
     	
-    	while(index < oncFamAL.size() && !odbnum.equals(oncFamAL.get(index).getODBFamilyNum()))
+    	while(index < oncFamAL.size() && !odbnum.equals(oncFamAL.get(index).getReferenceNum()))
     		index++;
     	
     	return index==oncFamAL.size() ? -1 : index;   		
@@ -1139,7 +1139,7 @@ public class FamilyDB extends ONCSearchableDatabase
 		public int compare(ONCFamily o1, ONCFamily o2)
 		{
 		
-			return o1.getODBFamilyNum().compareTo(o2.getODBFamilyNum());
+			return o1.getReferenceNum().compareTo(o2.getReferenceNum());
 		}
 	}
 	
@@ -1159,8 +1159,8 @@ public class FamilyDB extends ONCSearchableDatabase
 		@Override
 		public int compare(ONCFamily o1, ONCFamily o2)
 		{
-			Integer o1DS = (Integer) o1.getDeliveryStatus();
-			Integer o2DS = (Integer) o2.getDeliveryStatus();
+			Integer o1DS = (Integer) o1.getGiftStatus();
+			Integer o2DS = (Integer) o2.getGiftStatus();
 			return o1DS.compareTo(o2DS);
 		}
 	}

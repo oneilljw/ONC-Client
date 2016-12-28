@@ -14,35 +14,35 @@ public class ONCFamily extends ONCEntity
 		
 	private String		oncNum;
 	private int			region;
-	private int			fstatus;
-	private int 		dstatus;
+	private int			famStatus;
+	private int 		giftStatus;
 	private int 		nBags;
 	private int			nLargeItems;
-	private String		ODBFamilyNum;
-	private String		BatchNum;	
-	private String 		DNSCode;
-	private String		SpeakEnglish;	//Values are "Yes" or "No"	
-	private String		Language;		//Spanish, Arabic, Korean, etc	
-	private String		Notes;
-	private String 		DeliveryInstructions;
-	private String 		ClientFamily;
-	private String		HOHFirstName;
-	private String		HOHLastName;	
-	private String		HouseNum;
-	private String		Street;
-	private String		UnitNum;
-	private String		City;
-	private String		ZipCode;
+	private String		referenceNum;
+	private String		batchNum;	
+	private String 		dnsCode;
+	private String		speakEnglish;	//values are "Yes" or "No"	
+	private String		language;		//Spanish, Arabic, Korean, etc	
+	private String		notes;
+	private String 		deliveryInstructions;
+	private String 		clientFamily;
+	private String		hohFirstName;
+	private String		hohLastName;	
+	private String		houseNum;
+	private String		street;
+	private String		unitNum;
+	private String		city;
+	private String		xipCode;
 	private String		substituteDeliveryAddress;	//in Google Map Address format
-	private String		AllPhoneNumbers;			
-	private String		HomePhone;
-	private String		OtherPhone;
-	private String		FamilyEmail;
+	private String		allPhoneNumbers;			
+	private String		homePhone;
+	private String		otherPhone;
+	private String		email;
 	private String		details;
-	private String		ChildrenNames;	//Only used for .csv file export
-	private String		Schools;
-	private String		ODBWishList;	
-	private String		AdoptedFor;
+	private String		childrenNames;	//Only used for .csv file export
+	private String		schools;
+	private String		wishList;	
+	private String		adoptedFor;
 	private int			agentID;
 	private int			deliveryID;
 	private int 		mealID;
@@ -56,35 +56,35 @@ public class ONCFamily extends ONCEntity
 		super(f.getID(), f.getDateChanged(), f.getChangedBy(), f.getStoplightPos(), f.getStoplightMssg(), f.getStoplightChangedBy());
 		oncNum = f.oncNum;
 		region = f.region;
-		fstatus = f.fstatus;
-		dstatus = f.dstatus;
+		famStatus = f.famStatus;
+		giftStatus = f.giftStatus;
 		nBags = f.nBags;
 		nLargeItems = f.nLargeItems;
-		ODBFamilyNum = f.ODBFamilyNum;
-		BatchNum = f.BatchNum;	
-		DNSCode = f.DNSCode;
-		SpeakEnglish = f.SpeakEnglish;
-		Language = f.Language;
-		Notes = f.Notes;
-		DeliveryInstructions = f.DeliveryInstructions;
-		ClientFamily = f.ClientFamily;
-		HOHFirstName = f.HOHFirstName;
-		HOHLastName = f.HOHLastName;
-		HouseNum = f.HouseNum;
-		Street = f.Street;
-		UnitNum = f.UnitNum;
-		City = f.City;
-		ZipCode = f.ZipCode;
+		referenceNum = f.referenceNum;
+		batchNum = f.batchNum;	
+		dnsCode = f.dnsCode;
+		speakEnglish = f.speakEnglish;
+		language = f.language;
+		notes = f.notes;
+		deliveryInstructions = f.deliveryInstructions;
+		clientFamily = f.clientFamily;
+		hohFirstName = f.hohFirstName;
+		hohLastName = f.hohLastName;
+		houseNum = f.houseNum;
+		street = f.street;
+		unitNum = f.unitNum;
+		city = f.city;
+		xipCode = f.xipCode;
 		substituteDeliveryAddress = f.substituteDeliveryAddress;
-		AllPhoneNumbers = f.AllPhoneNumbers;
-		HomePhone = f.HomePhone;
-		OtherPhone = f.OtherPhone;
-		FamilyEmail = f.FamilyEmail;
+		allPhoneNumbers = f.allPhoneNumbers;
+		homePhone = f.homePhone;
+		otherPhone = f.otherPhone;
+		email = f.email;
 		details = f.details;
-		ChildrenNames = f.ChildrenNames;
-		Schools = f.Schools;
-		ODBWishList = f.ODBWishList;						
-		AdoptedFor = f.AdoptedFor;
+		childrenNames = f.childrenNames;
+		schools = f.schools;
+		wishList = f.wishList;						
+		adoptedFor = f.adoptedFor;
 		agentID = f.agentID;
 		deliveryID = f.deliveryID;
 		mealID = f.mealID;
@@ -103,29 +103,29 @@ public class ONCFamily extends ONCEntity
 		super(id, new Date(), cb, STOPLIGHT_OFF, "Family imported", cb);
 		oncNum = sONC;
 		this.region = region;
-		fstatus = 0;
-		dstatus = 0;
+		famStatus = 0;
+		giftStatus = 0;
 		nBags = 0;
 		nLargeItems = 0;
-		ODBFamilyNum = ID;
-		BatchNum = bn;
-		DNSCode = "";			
-		Notes = "";
-		DeliveryInstructions = "";
-		if(!ClientFam.isEmpty()) {ClientFamily = ClientFam.split("Household", 2)[0].trim();}
-		HouseNum = "";
-		Street = StreetAdd;
-		UnitNum = AddL2;
-		City = Cty;
-		ZipCode = Zip;
+		referenceNum = ID;
+		batchNum = bn;
+		dnsCode = "";			
+		notes = "";
+		deliveryInstructions = "";
+		if(!ClientFam.isEmpty()) {clientFamily = ClientFam.split("Household", 2)[0].trim();}
+		houseNum = "";
+		street = StreetAdd;
+		unitNum = AddL2;
+		city = Cty;
+		xipCode = Zip;
 		substituteDeliveryAddress = "";
-		AllPhoneNumbers = ClientFamPhone;			
-		FamilyEmail = ClientFamEmail;
+		allPhoneNumbers = ClientFamPhone;			
+		email = ClientFamEmail;
 		details = Details;
-		this.Schools = Schools;
-		ChildrenNames = "";
-		ODBWishList = Wishlist;
-		AdoptedFor = AdoptFor;
+		this.schools = Schools;
+		childrenNames = "";
+		wishList = Wishlist;
+		adoptedFor = AdoptFor;
 		agentID = agentid;
 		deliveryID = -1;
 		mealID = -1;
@@ -150,33 +150,33 @@ public class ONCFamily extends ONCEntity
 				Integer.parseInt(nextLine[37]), nextLine[38], nextLine[39]);
 		oncNum = getDBString(nextLine[1]);
 		region = Integer.parseInt(nextLine[2]);
-		ODBFamilyNum = getDBString(nextLine[3]);
-		BatchNum = getDBString(nextLine[4]);	
-		DNSCode = getDBString(nextLine[5]);
-		fstatus = Integer.parseInt(nextLine[6]);
-		dstatus = Integer.parseInt(nextLine[7]);
-		SpeakEnglish =getDBString(nextLine[8]);
-		Language = getDBString(nextLine[9]);
-		Notes = getDBString(nextLine[11]);
-		DeliveryInstructions = getDBString(nextLine[12]);	
-		ClientFamily = getDBString(nextLine[13]);
-		HOHFirstName = getDBString(nextLine[14]);
-		HOHLastName = getDBString(nextLine[15]);
-		HouseNum = getDBString(nextLine[16]);
-		Street = getDBString(nextLine[17]);
-		UnitNum = getDBString(nextLine[18]);
-		City = getDBString(nextLine[19]);
-		ZipCode = getDBString(nextLine[20]);
+		referenceNum = getDBString(nextLine[3]);
+		batchNum = getDBString(nextLine[4]);	
+		dnsCode = getDBString(nextLine[5]);
+		famStatus = Integer.parseInt(nextLine[6]);
+		giftStatus = Integer.parseInt(nextLine[7]);
+		speakEnglish =getDBString(nextLine[8]);
+		language = getDBString(nextLine[9]);
+		notes = getDBString(nextLine[11]);
+		deliveryInstructions = getDBString(nextLine[12]);	
+		clientFamily = getDBString(nextLine[13]);
+		hohFirstName = getDBString(nextLine[14]);
+		hohLastName = getDBString(nextLine[15]);
+		houseNum = getDBString(nextLine[16]);
+		street = getDBString(nextLine[17]);
+		unitNum = getDBString(nextLine[18]);
+		city = getDBString(nextLine[19]);
+		xipCode = getDBString(nextLine[20]);
 		substituteDeliveryAddress = getDBString(nextLine[21]);
-		AllPhoneNumbers = getDBString(nextLine[22]);
-		HomePhone = getDBString(nextLine[23]);
-		OtherPhone = getDBString(nextLine[24]);
-		FamilyEmail = getDBString(nextLine[25]);
+		allPhoneNumbers = getDBString(nextLine[22]);
+		homePhone = getDBString(nextLine[23]);
+		otherPhone = getDBString(nextLine[24]);
+		email = getDBString(nextLine[25]);
 		details = getDBString(nextLine[26]);
-		ChildrenNames = getDBString(nextLine[27]);
-		Schools = getDBString(nextLine[28]);
-		ODBWishList = getDBString(nextLine[29]);
-		AdoptedFor = getDBString(nextLine[30]);
+		childrenNames = getDBString(nextLine[27]);
+		schools = getDBString(nextLine[28]);
+		wishList = getDBString(nextLine[29]);
+		adoptedFor = getDBString(nextLine[30]);
 		agentID = Integer.parseInt(nextLine[31]);
 		deliveryID = Integer.parseInt(nextLine[32]);
 		mealID = Integer.parseInt(nextLine[33]);
@@ -197,25 +197,25 @@ public class ONCFamily extends ONCEntity
 		super(id, new Date(), cb, STOPLIGHT_OFF, "Family referred", cb);
 		this.oncNum = oncNum;
 		this.region = -1;
-		this.fstatus = 0;
-		this.dstatus = 0;
+		this.famStatus = 0;
+		this.giftStatus = 0;
 		this.nBags = 0;
 		this.nLargeItems = 0;
-		this.ODBFamilyNum = odbFamilyNum;
-		this.BatchNum = batchNum;	
-		this.DNSCode = "";
-		this.SpeakEnglish = speakEnglish;	//Values are "Yes" or "No"	
-		this.Language = language;		//Spanish, Arabic, Korean, etc	
-		this.Notes = "";
-		this.DeliveryInstructions = "";
-		this.ClientFamily = hohLastName;
-		this.HOHFirstName = hohFirstName;
-		this.HOHLastName = hohLastName;	
-		this.HouseNum = houseNum;
-		this.Street = street;
-		this.UnitNum = unitNum;
-		this.City = city;
-		this.ZipCode = zipCode;
+		this.referenceNum = odbFamilyNum;
+		this.batchNum = batchNum;	
+		this.dnsCode = "";
+		this.speakEnglish = speakEnglish;	//Values are "Yes" or "No"	
+		this.language = language;		//Spanish, Arabic, Korean, etc	
+		this.notes = "";
+		this.deliveryInstructions = "";
+		this.clientFamily = hohLastName;
+		this.hohFirstName = hohFirstName;
+		this.hohLastName = hohLastName;	
+		this.houseNum = houseNum;
+		this.street = street;
+		this.unitNum = unitNum;
+		this.city = city;
+		this.xipCode = zipCode;
 		if((altHouseNum.equals(houseNum) && altStreet.equals(street) && altUnitNum.equals(unitNum) &&
 				altCity.equals(city) && altZipCode.equals(zipCode)) || altHouseNum.isEmpty() ||
 				altStreet.isEmpty() || altCity.isEmpty())
@@ -224,26 +224,26 @@ public class ONCFamily extends ONCEntity
 			this.substituteDeliveryAddress = altHouseNum + "_" + altStreet +"_" + 
 										 altUnitNum +"_" + altCity + "_" + altZipCode ;
 		
-		this.HomePhone = formatPhoneNumber(homePhone);
+		this.homePhone = formatPhoneNumber(homePhone);
 		if(altPhone.length() < 10)
-			this.OtherPhone = formatPhoneNumber(otherPhone);
+			this.otherPhone = formatPhoneNumber(otherPhone);
 		else
-			this.OtherPhone = formatPhoneNumber(otherPhone) + "\n" + formatPhoneNumber(altPhone);
+			this.otherPhone = formatPhoneNumber(otherPhone) + "\n" + formatPhoneNumber(altPhone);
 		
 		//create the AllPhoneNumber field
-		StringBuilder buff = new StringBuilder("Home Phone: " + HomePhone);
+		StringBuilder buff = new StringBuilder("Home Phone: " + homePhone);
 		if(otherPhone.length() > 9)	//Ensure it's a valid 10 digit phone number at minimum
 			buff.append("\n" + "Other phone: " + formatPhoneNumber(otherPhone));
 		if(altPhone.length() > 9)
 			buff.append("\n" + "Other phone: " + formatPhoneNumber(altPhone));
-		this.AllPhoneNumbers = buff.toString();
+		this.allPhoneNumbers = buff.toString();
 
-		this.FamilyEmail = familyEmail;
+		this.email = familyEmail;
 		this.details = odbDetails;
-		this.ChildrenNames = "";	//Only used for .csv file export
-		this.Schools = schools;
-		this.ODBWishList = odbWishList;	
-		this.AdoptedFor = "";
+		this.childrenNames = "";	//Only used for .csv file export
+		this.schools = schools;
+		this.wishList = odbWishList;	
+		this.adoptedFor = "";
 		this.agentID = agentID;
 		this.deliveryID = -1;
 		this.mealID = mealID;
@@ -289,21 +289,21 @@ public class ONCFamily extends ONCEntity
 		
 		if(nameString.length() == 0)
 		{
-			HOHFirstName = "UNDETERMINED";
-			HOHLastName = "UNDETERMINED";
+			hohFirstName = "UNDETERMINED";
+			hohLastName = "UNDETERMINED";
 		}
 		else
 		{
 			String[] hohNames = nameString.split(" ", 2);
 			if(hohNames.length == 1)
 			{
-				HOHFirstName = "UNDETERMINED";
-				HOHLastName = hohNames[0].trim();
+				hohFirstName = "UNDETERMINED";
+				hohLastName = hohNames[0].trim();
 			}
 			else
 			{
-				HOHFirstName = hohNames[0].trim();
-				HOHLastName = hohNames[1].trim();
+				hohFirstName = hohNames[0].trim();
+				hohLastName = hohNames[1].trim();
 			}
 		}
 	}
@@ -316,14 +316,14 @@ public class ONCFamily extends ONCEntity
 		else		
 			address = snum.concat(" " + sname).trim();
 		
-		HouseNum = Street = "UNDETERMINED";
+		houseNum = street = "UNDETERMINED";
 		
     	if(address.length() > 0)
     	{
     		String[] addParts = address.split(" ", 2);
-    		HouseNum = addParts[0].trim();
+    		houseNum = addParts[0].trim();
     		if(addParts.length ==2)
-    			Street = addParts[1].trim();
+    			street = addParts[1].trim();
     	}
 	}
 
@@ -372,14 +372,14 @@ public class ONCFamily extends ONCEntity
 		}
 		
 		if(homeph.length() > 0)
-			HomePhone = formatPhoneNumber(homeph.toString().trim());
+			homePhone = formatPhoneNumber(homeph.toString().trim());
 		else
-			HomePhone = "None Found";
+			homePhone = "None Found";
 		
 		if(otherph.length() > 0)
-			OtherPhone = formatPhoneNumber(otherph.toString().trim());
+			otherPhone = formatPhoneNumber(otherph.toString().trim());
 		else
-			OtherPhone = "None Found";	
+			otherPhone = "None Found";	
 	}
 
 	void getChildrenNames(String fm)
@@ -394,8 +394,8 @@ public class ONCFamily extends ONCEntity
     			temp = fm.substring(startch, ch);
     			if(!temp.contains("Adult"))
     			{
-    				ChildrenNames += fm.substring(startch, ch);
-    				ChildrenNames += '\n';
+    				childrenNames += fm.substring(startch, ch);
+    				childrenNames += '\n';
     			}
     			startch=ch+1;   			
     		}
@@ -403,7 +403,7 @@ public class ONCFamily extends ONCEntity
     	temp = fm.substring(startch, ch);
     	if(!temp.contains("Adult"))
 		{
-    		ChildrenNames += fm.substring(startch, ch);
+    		childrenNames += fm.substring(startch, ch);
 		}
 	}
 
@@ -411,13 +411,13 @@ public class ONCFamily extends ONCEntity
 	{
 		if(speakEng.contains("Yes") || speakEng.contains("yes"))
 		{
-			SpeakEnglish = "Yes";
-			Language = "English";
+			speakEnglish = "Yes";
+			language = "English";
 		}
 		else
 		{
-			SpeakEnglish = "No";
-			Language = lang;
+			speakEnglish = "No";
+			language = lang;
 		}	
 	}
 	
@@ -445,35 +445,35 @@ public class ONCFamily extends ONCEntity
 	//Getters
 	public String	getONCNum() {return oncNum;}
 	public int		getRegion() {return region;}
-	public int		getFamilyStatus() {return fstatus; }
-	public int		getDeliveryStatus() { return dstatus; }
+	public int		getFamilyStatus() {return famStatus; }
+	public int		getGiftStatus() { return giftStatus; }
 	public int		getNumOfBags() { return nBags; }
 	public int		getNumOfLargeItems() { return nLargeItems; }
-	public String	getODBFamilyNum()	{return ODBFamilyNum;}
-	public String	getBatchNum() {return BatchNum;}	
-	public String 	getDNSCode() {return DNSCode;}
-	public String	getSpeakEnglish() {return SpeakEnglish;}
-	public String 	getLanguage() {return Language; }
-	public String	getNotes() {return Notes;}
-	public String	getDeliveryInstructions() {return DeliveryInstructions; }
-	public String 	getClientFamily() {return ClientFamily;}
-	public String	getHOHFirstName() {return HOHFirstName;}
-	public String	getHOHLastName() {return HOHLastName;}
-	public String	getHouseNum() {return HouseNum;}
-	public String	getStreet() {return Street;}
-	public String	getUnitNum() {return UnitNum;}
-	public String	getCity() {return City;}
-	public String	getZipCode() {return ZipCode;}
+	public String	getReferenceNum()	{return referenceNum;}
+	public String	getBatchNum() {return batchNum;}	
+	public String 	getDNSCode() {return dnsCode;}
+	public String	getSpeakEnglish() {return speakEnglish;}
+	public String 	getLanguage() {return language; }
+	public String	getNotes() {return notes;}
+	public String	getDeliveryInstructions() {return deliveryInstructions; }
+	public String 	getClientFamily() {return clientFamily;}
+	public String	getHOHFirstName() {return hohFirstName;}
+	public String	getHOHLastName() {return hohLastName;}
+	public String	getHouseNum() {return houseNum;}
+	public String	getStreet() {return street;}
+	public String	getUnitNum() {return unitNum;}
+	public String	getCity() {return city;}
+	public String	getZipCode() {return xipCode;}
 	public String	getSubstituteDeliveryAddress() {return substituteDeliveryAddress;}
-	public String	getAllPhoneNumbers() {return AllPhoneNumbers;}			
-	public String	getHomePhone() {return HomePhone;}
-	public String	getOtherPhon() {return OtherPhone;}
-	public String	getFamilyEmail() {return FamilyEmail;}
-	public String	getNamesOfChildren() { return ChildrenNames; }
+	public String	getAllPhoneNumbers() {return allPhoneNumbers;}			
+	public String	getHomePhone() {return homePhone;}
+	public String	getOtherPhon() {return otherPhone;}
+	public String	getEmail() {return email;}
+	public String	getNamesOfChildren() { return childrenNames; }
 	public String	getDetails() {return details;}
-	public String	getSchools() {return Schools;}
-	public String	getODBWishList() {return ODBWishList;}
-	public String	getAdoptedFor() {return AdoptedFor;}	
+	public String	getSchools() {return schools;}
+	public String	getWishList() {return wishList;}
+	public String	getAdoptedFor() {return adoptedFor;}	
 	public int		getAgentID() { return agentID; }
 	public int		getDeliveryID() { return deliveryID; }
 	public int		getMealID() { return mealID; }
@@ -484,34 +484,34 @@ public class ONCFamily extends ONCEntity
 	//Setters
 	public void setONCNum(String s) { oncNum = s;}
 	public void setRegion(int r) { region = r;}
-	public void setFamilyStatus(int s){ fstatus = s; }
-	public void setDeliveryStatus(int d) { dstatus = d; }
+	public void setFamilyStatus(int s){ famStatus = s; }
+	public void setGiftStatus(int d) { giftStatus = d; }
 	public void setNumOfBags(int b) { nBags = b; }
 	public void setNumOfLargeItems(int li) { nLargeItems = li; }
-	public void setODBFamilyNum(String s)	{ ODBFamilyNum = s;}
-	public void setBatchNum(String s) { BatchNum = s;}	
-	public void setDNSCode(String s) { DNSCode = s;}
-	public void setSpeakEnglish(String s) { SpeakEnglish = s;}	
-	public void setLanguage(String s) { SpeakEnglish = ((Language=s).equals("English")) ? "Yes":"No"; }
-	public void setNotes(String s) { Notes = s;}
-	public void setDeliveryInstructions(String s) { DeliveryInstructions = s; }
-	public void setClientFamily(String s) { ClientFamily = s;}
-	public void setHOHFirstName(String s) { HOHFirstName = s;}
-	public void setHOHLastName(String s) { HOHLastName = s;}
-	public void setHouseNum(String s) { HouseNum = s;}
-	public void setStreet(String s) { Street = s;}
-	public void setUnitNum(String s) { UnitNum = s;}
-	public void setCity(String s) { City = s;}
-	public void setZipCode(String s) { ZipCode = s;}
+	public void setReferenceNum(String s)	{ referenceNum = s;}
+	public void setBatchNum(String s) { batchNum = s;}	
+	public void setDNSCode(String s) { dnsCode = s;}
+	public void setSpeakEnglish(String s) { speakEnglish = s;}	
+	public void setLanguage(String s) { speakEnglish = ((language=s).equals("English")) ? "Yes":"No"; }
+	public void setNotes(String s) { notes = s;}
+	public void setDeliveryInstructions(String s) { deliveryInstructions = s; }
+	public void setClientFamily(String s) { clientFamily = s;}
+	public void setHOHFirstName(String s) { hohFirstName = s;}
+	public void setHOHLastName(String s) { hohLastName = s;}
+	public void setHouseNum(String s) { houseNum = s;}
+	public void setStreet(String s) { street = s;}
+	public void setUnitNum(String s) { unitNum = s;}
+	public void setCity(String s) { city = s;}
+	public void setZipCode(String s) { xipCode = s;}
 	public void setSubstituteDeliveryAddress(String s) { substituteDeliveryAddress = s;}
-	public void setAllPhoneNumbers(String s) { AllPhoneNumbers = s;}			
-	public void setHomePhone(String s) { HomePhone = s;}
-	public void setOtherPhon(String s) { OtherPhone = s;}
-	public void setFamilyEmail(String s) { FamilyEmail = s;}
+	public void setAllPhoneNumbers(String s) { allPhoneNumbers = s;}			
+	public void setHomePhone(String s) { homePhone = s;}
+	public void setOtherPhon(String s) { otherPhone = s;}
+	public void setFamilyEmail(String s) { email = s;}
 	public void setDetails(String s) { details = s;}
-	public void setSchools(String s) { Schools = s;}
-	public void setODBWishList(String s) { ODBWishList = s;}
-	public void setAdoptedFor(String s) { AdoptedFor = s;}
+	public void setSchools(String s) { schools = s;}
+	public void setWishList(String s) { wishList = s;}
+	public void setAdoptedFor(String s) { adoptedFor = s;}
 	public void setAgentID(int  aid) { agentID = aid; }
 	public void setDeliveryID(int did) { deliveryID = did; }
 	public void setMealID(int id) { mealID = id; }
@@ -530,7 +530,7 @@ public class ONCFamily extends ONCEntity
 			dbdestAddress = addPart[0] + "+" + addPart[1] + "+" + addPart[3] + ",VA" + "+" + addPart[4];
 		}
 		else	//Get actual family address and format it for the URL request to Google Maps
-			dbdestAddress = HouseNum.trim() + "+" + Street.trim() + "+" + City.trim() + ",VA" + "+" + ZipCode.trim();
+			dbdestAddress = houseNum.trim() + "+" + street.trim() + "+" + city.trim() + ",VA" + "+" + xipCode.trim();
 		
 		return dbdestAddress.replaceAll(" ", "+");
 	}
@@ -555,11 +555,11 @@ public class ONCFamily extends ONCEntity
 				    doesHOHLastNamePartiallyMatch(cf.getHOHLastName(), criteria[2]);		
 	}
 
-	boolean doesHouseNumMatch(String hn, boolean criteria) { return !criteria || (criteria && hn.equals(HouseNum)); }
-	boolean doesStreetMatch(String st, boolean criteria) { return !criteria || (criteria && Street.equalsIgnoreCase(st)); }
-	boolean doesHOHFirstNameMatch(String hohfn, boolean criteria) { return !criteria || (criteria && HOHFirstName.equalsIgnoreCase(hohfn)); }
-	boolean doesHOHLastNameMatch(String hohln, boolean criteria) { return !criteria || (criteria && HOHLastName.equalsIgnoreCase(hohln)); }
-	boolean doesHOHLastNamePartiallyMatch(String hohln, boolean criteria) { return !criteria || (criteria && HOHLastName.trim().toLowerCase().contains(hohln.trim().toLowerCase())); }
+	boolean doesHouseNumMatch(String hn, boolean criteria) { return !criteria || (criteria && hn.equals(houseNum)); }
+	boolean doesStreetMatch(String st, boolean criteria) { return !criteria || (criteria && street.equalsIgnoreCase(st)); }
+	boolean doesHOHFirstNameMatch(String hohfn, boolean criteria) { return !criteria || (criteria && hohFirstName.equalsIgnoreCase(hohfn)); }
+	boolean doesHOHLastNameMatch(String hohln, boolean criteria) { return !criteria || (criteria && hohLastName.equalsIgnoreCase(hohln)); }
+	boolean doesHOHLastNamePartiallyMatch(String hohln, boolean criteria) { return !criteria || (criteria && hohLastName.trim().toLowerCase().contains(hohln.trim().toLowerCase())); }
 	
 	
 	@Override
@@ -569,11 +569,11 @@ public class ONCFamily extends ONCEntity
 		rowList.add(Integer.toString(getID()));
 		rowList.add(getONCNum());		
 		rowList.add(Integer.toString(getRegion()));
-		rowList.add(getODBFamilyNum());
+		rowList.add(getReferenceNum());
 		rowList.add(getBatchNum());	
 		rowList.add(getDNSCode());
 		rowList.add(Integer.toString(getFamilyStatus()));
-		rowList.add(Integer.toString(getDeliveryStatus()));
+		rowList.add(Integer.toString(getGiftStatus()));
 		rowList.add(getSpeakEnglish());
 		rowList.add(getLanguage());			
 		rowList.add(getChangedBy());
@@ -591,11 +591,11 @@ public class ONCFamily extends ONCEntity
 		rowList.add(getAllPhoneNumbers());			
 		rowList.add(getHomePhone());
 		rowList.add(getOtherPhon());
-		rowList.add(getFamilyEmail());
+		rowList.add(getEmail());
 		rowList.add(getDetails());
 		rowList.add(getNamesOfChildren());
 		rowList.add(getSchools());
-		rowList.add(getODBWishList());
+		rowList.add(getWishList());
 		rowList.add(getAdoptedFor());
 		rowList.add(Integer.toString(getAgentID()));
 		rowList.add(Integer.toString(getDeliveryID()));

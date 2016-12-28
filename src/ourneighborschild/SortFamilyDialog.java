@@ -334,10 +334,10 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		
 		Object[] tablerow = {f.getONCNum(), 
 			f.getBatchNum(),
-			f.getODBFamilyNum(),
+			f.getReferenceNum(),
 			f.getDNSCode(),
 			famstatus[f.getFamilyStatus()+1],
-			delstatus[f.getDeliveryStatus()+1],
+			delstatus[f.getGiftStatus()+1],
 			f.getMealStatus().toString(),
 			f.getHOHFirstName(),
 			f.getHOHLastName(),
@@ -383,7 +383,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 				doesBatchNumMatch(f.getBatchNum()) &&
 				 doesDNSCodeMatch(f.getDNSCode()) &&
 				  doesFStatusMatch(f.getFamilyStatus()) &&
-				   doesDStatusMatch(f.getDeliveryStatus()) &&
+				   doesDStatusMatch(f.getGiftStatus()) &&
 				   doesMealStatusMatch(f.getMealStatus()) && 
 				    doesLastNameMatch(f.getHOHLastName()) &&
 				     doesStreetMatch(f.getStreet()) &&
@@ -453,7 +453,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			}
 			//If a change to Delivery Status, process it
 			if(changeDStatusCB.getSelectedIndex() > 0 && 
-					f.getDeliveryStatus() != changeDStatusCB.getSelectedIndex()-1)
+					f.getGiftStatus() != changeDStatusCB.getSelectedIndex()-1)
 			{
 				//Add a new delivery to the delivery history with the assigned driver
 				//and the status set to assigned.
@@ -1262,7 +1262,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			
 			//only families with valid email addresses will get an email. This allows selection of all families in the table
 			//and automatically filters out those without valid email addresses
-			if(fam.getFamilyEmail().length() > 4 && fam.getFamilyEmail().contains("@") && fam.getFamilyEmail().contains("."))
+			if(fam.getEmail().length() > 4 && fam.getEmail().contains("@") && fam.getEmail().contains("."))
 			{
 				//Create the email body, method call generates a new email body string
 				String emailBody = createEmailBody(fam, cid0, cid1);
@@ -1339,7 +1339,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
         
         String homephones = fam.getHomePhone();
         String otherphones = fam.getOtherPhon();
-        String emailaddress = fam.getFamilyEmail().length() > MIN_EMAIL_ADDRESS_LENGTH ? fam.getFamilyEmail() : "None Found";
+        String emailaddress = fam.getEmail().length() > MIN_EMAIL_ADDRESS_LENGTH ? fam.getEmail() : "None Found";
        
         //Create the text part of the email using html
         String msg = String.format(
@@ -1433,10 +1433,10 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			String famHOHFullName = fam.getHOHFirstName() + " " + fam.getHOHLastName();
 		
 			//verify the family has a valid email address and name. 
-			if(fam.getFamilyEmail().length() > MIN_EMAIL_ADDRESS_LENGTH &&
+			if(fam.getEmail().length() > MIN_EMAIL_ADDRESS_LENGTH &&
 				famHOHFullName.length() > MIN_EMAIL_NAME_LENGTH)
 			{
-				EmailAddress toAddress = new EmailAddress(fam.getFamilyEmail(), famHOHFullName);
+				EmailAddress toAddress = new EmailAddress(fam.getEmail(), famHOHFullName);
 //				EmailAddress toAddress = new EmailAddress("johnwoneill@cox.net", famHOHFullName);	//test
 				recipientAddressList.add(toAddress);
 			}

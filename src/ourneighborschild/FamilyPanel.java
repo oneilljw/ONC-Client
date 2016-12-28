@@ -706,7 +706,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		
 		lblONCNum.setText(currFam.getONCNum());
 		lblONCNum.setToolTipText("Family Database ID= " + Integer.toString(currFam.getID()));
-		lblRefNum.setText(currFam.getODBFamilyNum());
+		lblRefNum.setText(currFam.getReferenceNum());
 		lblBatchNum.setText(currFam.getBatchNum());
 		oncDNScode.setText(currFam.getDNSCode());
 		oncDNScode.setCaretPosition(0);
@@ -716,7 +716,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		statusCB.setSelectedIndex(currFam.getFamilyStatus());
 		lblNumBags.setText(Integer.toString(currFam.getNumOfBags()));
 		
-		lblDelStatus.setText(dStat[currFam.getDeliveryStatus()]);
+		lblDelStatus.setText(dStat[currFam.getGiftStatus()]);
 		Language.setSelectedItem((String)currFam.getLanguage());
 		lblChangedBy.setText(currFam.getChangedBy());
 		lblRegion.setText(regions.getRegionID(currFam.getRegion()));
@@ -766,7 +766,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			homePhonePane.setCaretPosition(0);
 			otherPhonePane.setText(currFam.getOtherPhon());
 			otherPhonePane.setCaretPosition(0);
-			EMail.setText(currFam.getFamilyEmail());
+			EMail.setText(currFam.getEmail());
 			EMail.setCaretPosition(0);
 			
 			housenumTF.setText(currFam.getHouseNum());
@@ -782,7 +782,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			else
 				rbAltAddress.setIcon(gvs.getImageIcon(19));
 			
-			wishlistPane.setText(currFam.getODBWishList());
+			wishlistPane.setText(currFam.getWishList());
 			
 			rbFamDetails.setEnabled(currFam.getDetails().length() > 1);
 			
@@ -800,7 +800,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			if(!ctAL.isEmpty())
 			{	
 				String[] replace = new String[ctAL.size() * 2 + 1];
-				replace[0] = currFam.getODBWishList();
+				replace[0] = currFam.getWishList();
 			
 				int cnum = 0, sn = 0;
 				while(cnum < ctAL.size())
@@ -1002,7 +1002,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		if(Integer.parseInt(lblNumBags.getText()) != fam.getNumOfBags()) {fam.setNumOfBags(Integer.parseInt(lblNumBags.getText())); cf = 20;}
 		if(!homePhonePane.getText().equals(fam.getHomePhone())) {fam.setHomePhone(homePhonePane.getText()); cf = 6;}
 		if(!otherPhonePane.getText().equals(fam.getOtherPhon())) {fam.setOtherPhon(otherPhonePane.getText()); cf = 7;}
-		if(!EMail.getText().equals(fam.getFamilyEmail())) {fam.setFamilyEmail(EMail.getText()); cf = 8;}
+		if(!EMail.getText().equals(fam.getEmail())) {fam.setFamilyEmail(EMail.getText()); cf = 8;}
 		if(!Language.getSelectedItem().toString().equals(fam.getLanguage())){fam.setLanguage(Language.getSelectedItem().toString());cf = 9;}
 		if(!housenumTF.getText().equals(fam.getHouseNum())) {fam.setHouseNum(housenumTF.getText()); cf = 10;}
 		if(!Street.getText().equals(fam.getStreet())) {fam.setStreet(Street.getText()); cf = 11;}
@@ -1010,7 +1010,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		if(!City.getText().equals(fam.getCity())) {fam.setCity(City.getText()); cf = 13;}
 		if(!ZipCode.getText().equals(fam.getZipCode())) {fam.setZipCode(ZipCode.getText()); cf = 14;}
 		if(statusCB.getSelectedIndex() != fam.getFamilyStatus()) {fam.setFamilyStatus(statusCB.getSelectedIndex()); cf = 15;}
-		if(!wishlistPane.getText().equals(fam.getODBWishList())) {fam.setODBWishList(wishlistPane.getText()); cf = 17;}
+		if(!wishlistPane.getText().equals(fam.getWishList())) {fam.setWishList(wishlistPane.getText()); cf = 17;}
 		if(!oncNotesPane.getText().equals(fam.getNotes())) {fam.setNotes(oncNotesPane.getText()); cf = 18;}
 		if(!oncDIPane.getText().equals(fam.getDeliveryInstructions())) {fam.setDeliveryInstructions(oncDIPane.getText()); cf = 19;}
 		

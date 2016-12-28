@@ -89,7 +89,7 @@ public class DeliveryDB extends ONCDatabase
 		//update the family status this delivery is associated with
 		FamilyDB familyDB = FamilyDB.getInstance();
 		ONCFamily fam = familyDB.getFamily(addedObject.getFamID());
-		fam.setDeliveryStatus(addedObject.getdStatus());
+		fam.setGiftStatus(addedObject.getdStatus());
 		fam.setDeliveryID(addedObject.getID());
 		
 		//Notify local user IFs that an organization/partner was added. This will

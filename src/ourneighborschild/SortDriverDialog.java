@@ -300,7 +300,7 @@ public class SortDriverDialog extends DependantTableDialog
 						f.getBatchNum(),
 						f.getDNSCode(),
 						famstatus[f.getFamilyStatus()+1],
-						delstatus[f.getDeliveryStatus()+1],
+						delstatus[f.getGiftStatus()+1],
 						f.getMealStatus().toString(),
 						f.getHOHFirstName(),
 						f.getHOHLastName(),

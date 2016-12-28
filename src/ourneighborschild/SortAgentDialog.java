@@ -318,7 +318,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 						f.getBatchNum(),
 						f.getDNSCode(),
 						famstatus[f.getFamilyStatus()+1],
-						delstatus[f.getDeliveryStatus()+1],
+						delstatus[f.getGiftStatus()+1],
 						f.getMealStatus().toString(),
 						f.getHOHFirstName(),
 						f.getHOHLastName(),
@@ -801,7 +801,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 			{
 				familyTableHTML.append("<tr><td>" + f.getHOHLastName() + "</td>");
 				familyTableHTML.append("<td>" + f.getHOHFirstName() + "</td>");
-				familyTableHTML.append("<td>" + f.getFamilyEmail() + "</td>");
+				familyTableHTML.append("<td>" + f.getEmail() + "</td>");
 				familyTableHTML.append("<td>" + f.getHouseNum() + " " + f.getStreet() + " " + f.getUnitNum() + "</td>");
 //				familyTableHTML.append("<td>" + f.getCity() + "</td></tr>");
 				familyTableHTML.append("<td>" + f.getDNSCode() + "</td></tr>");
@@ -830,7 +830,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 				familyTableHTML.append("<td>" + f.getHOHFirstName() + "</td>");
 				familyTableHTML.append("<td>" + f.getHouseNum() + " " + f.getStreet() + " " + f.getUnitNum() + "</td>");
 //				familyTableHTML.append("<td>" + famstatus[f.getFamilyStatus()] + "</td>");
-				familyTableHTML.append("<td>" + delstatus[f.getDeliveryStatus()+1] + "</td>");
+				familyTableHTML.append("<td>" + delstatus[f.getGiftStatus()+1] + "</td>");
 //				familyTableHTML.append("<td>" + f.getMealStatus().toString() + "</td></tr>");
 				familyTableHTML.append("<td>" + f.getDNSCode() + "</td></tr>");
 			}

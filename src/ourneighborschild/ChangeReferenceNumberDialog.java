@@ -48,7 +48,7 @@ public class ChangeReferenceNumberDialog extends InfoDialog implements DatabaseL
 	void display(ONCObject obj)
 	{
 		f = (ONCFamily) obj;
-		tf[0].setText(f.getODBFamilyNum());
+		tf[0].setText(f.getReferenceNum());
 		
 		btnAction.setEnabled(false);
 	}
@@ -71,7 +71,7 @@ public class ChangeReferenceNumberDialog extends InfoDialog implements DatabaseL
 	{
 		
 		//was it really a change? 
-		if(!tf[0].getText().equals(f.getODBFamilyNum()))
+		if(!tf[0].getText().equals(f.getReferenceNum()))
 		{
 			//It was a change, first see if client user really wants a change. If they do, process it
 				
@@ -80,7 +80,7 @@ public class ChangeReferenceNumberDialog extends InfoDialog implements DatabaseL
 		
 			//Confirm with the user that the deletion is really intended
 			String confirmMssg = String.format("<html>Are you sure you want to change<br> the Ref # from %s to %s?</html>",
-												f.getODBFamilyNum(), tf[0].getText()); 
+												f.getReferenceNum(), tf[0].getText()); 
 										
 			Object[] options= {"Cancel", "Change Ref #"};
 			JOptionPane confirmOP = new JOptionPane(confirmMssg, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION,
@@ -98,9 +98,9 @@ public class ChangeReferenceNumberDialog extends InfoDialog implements DatabaseL
 			{
 				ONCFamily reqFamily = new ONCFamily(f);	//make a copy of current family
 		
-				if(!tf[0].getText().equals(f.getODBFamilyNum()))
+				if(!tf[0].getText().equals(f.getReferenceNum()))
 				{
-					reqFamily.setODBFamilyNum(tf[0].getText());
+					reqFamily.setReferenceNum(tf[0].getText());
 				
 					String response = familyDB.update(this, reqFamily);
 					if(!response.startsWith("UPDATED_FAMILY"))
@@ -124,7 +124,7 @@ public class ChangeReferenceNumberDialog extends InfoDialog implements DatabaseL
 	@Override
 	boolean fieldUnchanged() 
 	{		
-		return tf[0].getText().equals(f.getODBFamilyNum());
+		return tf[0].getText().equals(f.getReferenceNum());
 	}
 	
 	@Override

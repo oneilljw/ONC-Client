@@ -35,7 +35,7 @@ public class ONCWebsiteFamilyExtended extends ONCWebsiteFamily
 		this.substituteDeliveryAddress = f.getSubstituteDeliveryAddress();	//in Google Map Address format		
 		this.HomePhone = f.getHomePhone();
 		this.OtherPhone = f.getOtherPhon();
-		this.FamilyEmail = f.getFamilyEmail();
+		this.FamilyEmail = f.getEmail();
 		this.details = f.getDetails();
 		this.transportation = f.getTransportation().toString();
 		this.mealID = f.getMealID();
