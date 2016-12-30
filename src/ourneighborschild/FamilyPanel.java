@@ -49,8 +49,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	 * GUI elements and a child sub panel
 	 */
 	private static final long serialVersionUID = 1L;
-	private static final int FAMILY_STATUS_PACKAGED = 5;
-	private static final int DELIVERY_STATUS_ASSIGNED = 3;
+//	private static final int DELIVERY_STATUS_ASSIGNED = 3;
 	private static final int NUMBER_OF_WISHES_PER_CHILD = 3;
 	
 	//Icon references for the icon bar
@@ -711,7 +710,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		
 		checkForDNSorGiftCardOnly();
 		
-		statusCB.setSelectedIndex(currFam.getFamilyStatus());
+		statusCB.setSelectedItem(currFam.getFamilyStatus());
 		lblNumBags.setText(Integer.toString(currFam.getNumOfBags()));
 		
 		lblGiftStatus.setText(currFam.getGiftStatus().toString());
@@ -1007,7 +1006,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		if(!Unit.getText().equals(fam.getUnitNum())) {fam.setUnitNum(Unit.getText()); cf = 12;}
 		if(!City.getText().equals(fam.getCity())) {fam.setCity(City.getText()); cf = 13;}
 		if(!ZipCode.getText().equals(fam.getZipCode())) {fam.setZipCode(ZipCode.getText()); cf = 14;}
-		if(statusCB.getSelectedIndex() != fam.getFamilyStatus()) {fam.setFamilyStatus(statusCB.getSelectedIndex()); cf = 15;}
+		if(statusCB.getSelectedItem() != fam.getFamilyStatus()) {fam.setFamilyStatus((FamilyStatus) statusCB.getSelectedItem()); cf = 15;}
 		if(!wishlistPane.getText().equals(fam.getWishList())) {fam.setWishList(wishlistPane.getText()); cf = 17;}
 		if(!oncNotesPane.getText().equals(fam.getNotes())) {fam.setNotes(oncNotesPane.getText()); cf = 18;}
 		if(!oncDIPane.getText().equals(fam.getDeliveryInstructions())) {fam.setDeliveryInstructions(oncDIPane.getText()); cf = 19;}
@@ -1145,7 +1144,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			return false;
 	}
 	
-	void setEnabledAssignedDeliveryStatus(boolean tf) { delStatus[DELIVERY_STATUS_ASSIGNED].setEnabled(tf); }
+//	void setEnabledAssignedDeliveryStatus(boolean tf) { delStatus[DELIVERY_STATUS_ASSIGNED].setEnabled(tf); }
 		
     /******************************************************************************************
      * This method automatically assigns an ONC number to a family that doesn't have one.The 
@@ -1269,11 +1268,11 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			checkAndUpdateFamilyData(currFam);
 		}
 		else if(e.getSource() == statusCB && !bFamilyDataChanging &&
-									statusCB.getSelectedIndex() != currFam.getFamilyStatus())
+									statusCB.getSelectedItem() != currFam.getFamilyStatus())
 		{
 			//If family status is changing to PACKAGED, solicit the number of bags. Else, the 
 			//number of bags must be zero
-			if(statusCB.getSelectedIndex() == FAMILY_STATUS_PACKAGED)
+			if(statusCB.getSelectedItem() == FamilyStatus.Packaged)
 			{
 				FamilyBagDialog fbDlg = new FamilyBagDialog(parentFrame);
 				fbDlg.setVisible(true);

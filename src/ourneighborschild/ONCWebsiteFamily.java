@@ -15,16 +15,15 @@ public class ONCWebsiteFamily
 	
 	public ONCWebsiteFamily(ONCFamily f)
 	{
-		String[] famstatus = {"Unverified", "Info Verified", "Gifts Selected", "Gifts Received", "Gifts Verified", "Packaged"};
 		this.id = f.id;
 		this.oncNum = f.getONCNum();
 		this.targetID = f.getReferenceNum();
-		this.fstatus = famstatus[f.getFamilyStatus()];
+		this.fstatus = f.getFamilyStatus().toString();
 		
 		if(f.getGiftStatus() == FamilyGiftStatus.Requested && f.getWishList().contains("assistance not requested"))
 				this.giftStatus ="Not Requested";
-		else if(f.getGiftStatus() == FamilyGiftStatus.Requested && f.getFamilyStatus() > 1)
-				this.giftStatus = famstatus[f.getFamilyStatus()];
+		else if(f.getGiftStatus() == FamilyGiftStatus.Requested && f.getFamilyStatus().compareTo(FamilyStatus.InfoVerified) > 1)
+				this.giftStatus = f.getFamilyStatus().toString();
 		else
 			this.giftStatus = f.getGiftStatus().toString();
 		

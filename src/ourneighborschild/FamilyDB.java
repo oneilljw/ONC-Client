@@ -794,7 +794,7 @@ public class FamilyDB extends ONCSearchableDatabase
 		ycData[11] = Integer.toString(f.getNumOfBags());
 		ycData[12] = Integer.toString(getNumberOfBikesSelectedForFamily(f));
 		ycData[13] = Integer.toString(f.getNumOfLargeItems());
-		ycData[14] = Integer.toString(f.getFamilyStatus());
+		ycData[14] = Integer.toString(f.getFamilyStatus().statusIndex());
 			
 		return ycData;
 	}
@@ -1148,9 +1148,7 @@ public class FamilyDB extends ONCSearchableDatabase
 		@Override
 		public int compare(ONCFamily o1, ONCFamily o2)
 		{
-			Integer o1FS = (Integer) o1.getFamilyStatus();
-			Integer o2FS = (Integer) o2.getFamilyStatus();
-			return o1FS.compareTo(o2FS);
+			return o1.getFamilyStatus().compareTo(o2.getFamilyStatus());
 		}
 	}
 	

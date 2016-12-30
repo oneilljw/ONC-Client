@@ -79,8 +79,8 @@ public class ONCFamilyReportRowBuilder
 		row[index++] = 	f.getReferenceNum();
 		row[index++] = 	f.getBatchNum();	
 		row[index++] =  f.getDNSCode();
-		row[index++] = 	Integer.toString(f.getFamilyStatus());
-		row[index++] = 	f.getGiftStatus().toString();
+		row[index++] = 	Integer.toString(f.getFamilyStatus().statusIndex());
+		row[index++] = 	Integer.toString(f.getGiftStatus().statusIndex());
 		row[index++] = 	f.getSpeakEnglish();
 		row[index++] = 	f.getLanguage();			
 		row[index++] = 	f.getChangedBy();

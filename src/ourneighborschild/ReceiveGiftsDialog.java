@@ -10,7 +10,6 @@ public class ReceiveGiftsDialog extends GiftActionDialog
 	 * instantiations running concurrently
 	 */
 	private static final long serialVersionUID = 1L;
-	private static final int FAMILY_STATUS_GIFTS_RECEIVED = 3;
 	
 	ReceiveGiftsDialog(JFrame pf, WishStatus dialogType) 
 	{
@@ -34,7 +33,7 @@ public class ReceiveGiftsDialog extends GiftActionDialog
 	@Override
 	boolean changeFamilyStatus() 
 	{
-		return lastWishChanged.getFamily().getFamilyStatus() == FAMILY_STATUS_GIFTS_RECEIVED;
+		return lastWishChanged.getFamily().getFamilyStatus() == FamilyStatus.GiftsReceived;
 	}
 	
 	@Override

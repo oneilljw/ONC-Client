@@ -151,7 +151,7 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 			//Determine if family meets search criteria to be added to the table. If a
 			//family's status isn't FAMILY_STATUS_PACKAGED, they aren't eligible to be
 			//assigned for delivery regardless of search criteria
-			if(f.getFamilyStatus() == FAMILY_STATUS_PACKAGED &&
+			if(f.getFamilyStatus() == FamilyStatus.Packaged &&
 				isRegionInRange(f.getRegion()) &&
 				 doesONCNumMatch(f.getONCNum()) &&
 				  doesDStatusPass(f.getGiftStatus()))	
@@ -206,7 +206,7 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 		ONCFamily si = (ONCFamily) o;
 		
 		String[] deliverytablerow = {si.getONCNum(),
-				 famstatus[si.getFamilyStatus() + 1], 
+				 si.getFamilyStatus().toString(),
 				 si.getGiftStatus().toString(),
 				 Integer.toString(si.getNumOfBags()),
 				 Integer.toString(fDB.getNumberOfBikesSelectedForFamily(si)),

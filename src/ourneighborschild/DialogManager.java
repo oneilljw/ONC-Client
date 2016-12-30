@@ -12,9 +12,7 @@ import javax.swing.JOptionPane;
 import org.json.JSONException;
 
 public class DialogManager implements EntitySelectionListener
-{
-	private static final int FAMILY_STATUS_SELECTION_LIST_PACKAGED_INDEX = 6;
-	
+{	
 	private static DialogManager instance;		//instance variable for this singleton class
 	
 	//reference to the EntityEventManager
@@ -743,7 +741,7 @@ public class DialogManager implements EntitySelectionListener
 	{
 //    	prefsDlg.setEnabledDateToday(true);
 		prefsDlg.setEnabledRestrictedPrefrences(tf);
-		sortFamiliesDlg.setFamilyStatusComboItemEnabled(FAMILY_STATUS_SELECTION_LIST_PACKAGED_INDEX, tf);
+//		sortFamiliesDlg.setFamilyStatusComboItemEnabled(FAMILY_STATUS_SELECTION_LIST_PACKAGED_INDEX, tf);
 	}
 	
 	boolean receiveGiftBarcodeRequestFocus()

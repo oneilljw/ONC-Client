@@ -14,7 +14,7 @@ public class ONCFamily extends ONCEntity
 		
 	private String		oncNum;
 	private int			region;
-	private int			famStatus;
+	private FamilyStatus		famStatus;
 	private FamilyGiftStatus 	giftStatus;
 	private int 		nBags;
 	private int			nLargeItems;
@@ -103,7 +103,7 @@ public class ONCFamily extends ONCEntity
 		super(id, new Date(), cb, STOPLIGHT_OFF, "Family imported", cb);
 		oncNum = sONC;
 		this.region = region;
-		famStatus = 0;
+		famStatus = FamilyStatus.Unverified;
 		giftStatus = FamilyGiftStatus.Requested;
 		nBags = 0;
 		nLargeItems = 0;
@@ -153,7 +153,7 @@ public class ONCFamily extends ONCEntity
 		referenceNum = getDBString(nextLine[3]);
 		batchNum = getDBString(nextLine[4]);	
 		dnsCode = getDBString(nextLine[5]);
-		famStatus = Integer.parseInt(nextLine[6]);
+		famStatus = FamilyStatus.getFamilyStatus(Integer.parseInt(nextLine[6]));
 		giftStatus = FamilyGiftStatus.getFamilyGiftStatus(Integer.parseInt(nextLine[7]));
 		speakEnglish =getDBString(nextLine[8]);
 		language = getDBString(nextLine[9]);
@@ -197,7 +197,7 @@ public class ONCFamily extends ONCEntity
 		super(id, new Date(), cb, STOPLIGHT_OFF, "Family referred", cb);
 		this.oncNum = oncNum;
 		this.region = -1;
-		this.famStatus = 0;
+		this.famStatus = FamilyStatus.Unverified;
 		this.giftStatus = FamilyGiftStatus.Requested;
 		this.nBags = 0;
 		this.nLargeItems = 0;
@@ -445,7 +445,7 @@ public class ONCFamily extends ONCEntity
 	//Getters
 	public String	getONCNum() {return oncNum;}
 	public int		getRegion() {return region;}
-	public int		getFamilyStatus() {return famStatus; }
+	public FamilyStatus		getFamilyStatus() {return famStatus; }
 	public FamilyGiftStatus	getGiftStatus() { return giftStatus; }
 	public int		getNumOfBags() { return nBags; }
 	public int		getNumOfLargeItems() { return nLargeItems; }
@@ -484,7 +484,7 @@ public class ONCFamily extends ONCEntity
 	//Setters
 	public void setONCNum(String s) { oncNum = s;}
 	public void setRegion(int r) { region = r;}
-	public void setFamilyStatus(int s){ famStatus = s; }
+	public void setFamilyStatus(FamilyStatus fs){ famStatus = fs; }
 	public void setGiftStatus(FamilyGiftStatus fgs) { giftStatus = fgs; }
 	public void setNumOfBags(int b) { nBags = b; }
 	public void setNumOfLargeItems(int li) { nLargeItems = li; }
@@ -572,7 +572,7 @@ public class ONCFamily extends ONCEntity
 		rowList.add(getReferenceNum());
 		rowList.add(getBatchNum());	
 		rowList.add(getDNSCode());
-		rowList.add(Integer.toString(getFamilyStatus()));
+		rowList.add(Integer.toString(famStatus.statusIndex()));
 		rowList.add(Integer.toString(giftStatus.statusIndex()));
 		rowList.add(getSpeakEnglish());
 		rowList.add(getLanguage());			

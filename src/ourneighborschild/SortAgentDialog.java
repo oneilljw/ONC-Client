@@ -317,7 +317,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 						f.getONCNum(),
 						f.getBatchNum(),
 						f.getDNSCode(),
-						famstatus[f.getFamilyStatus()+1],
+						f.getFamilyStatus().toString(),
 						f.getGiftStatus().toString(),
 						f.getMealStatus().toString(),
 						f.getHOHFirstName(),

@@ -71,8 +71,8 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 	protected boolean bChangingTable = false;	//Semaphore used to indicate the sort table is being changed
 	protected boolean bIgnoreCBEvents = false;
 	
-	protected String[] famstatus = {"Any", "Unverified", "Info Verified", "Gifts Selected", "Gifts Received", "Gifts Verified", "Packaged"};
-	protected static String[] delstatus = {"Any", "None", "Contacted", "Confirmed", "Assigned", "Attempted", "Returned", "Delivered", "Counselor Pick-Up"};
+//	protected String[] famstatus = {"Any", "Unverified", "Info Verified", "Gifts Selected", "Gifts Received", "Gifts Verified", "Packaged"};
+//	protected static String[] delstatus = {"Any", "None", "Contacted", "Confirmed", "Assigned", "Attempted", "Returned", "Delivered", "Counselor Pick-Up"};
 	protected static String[] stoplt = {"Any", "Green", "Yellow", "Red", "Off"};
 	
 	public SortTableDialog(JFrame pf, int nTableRows)
