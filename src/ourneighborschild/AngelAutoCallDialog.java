@@ -45,8 +45,6 @@ public class AngelAutoCallDialog extends ONCTableDialog implements ActionListene
 	 */
 	private static final long serialVersionUID = 1L;
 	private static final String ANGEL_DELIVERY_CONFIRMED = "Delivery Confirmed";
-	private static final int DELIVERY_STATUS_CONTACTED = 1;
-	private static final int DELIVERY_STATUS_CONFIRMED = 2;
 	
 	private static final int ONC_NUM_COL= 0;
 	private static final int PHONE_NUM_COL = 1;
@@ -512,11 +510,11 @@ public class AngelAutoCallDialog extends ONCTableDialog implements ActionListene
 			 
 				 //If status == confirmed is an upgrade to status, change the family status and
 				 //create a new ONCDelivery object
-				 if(f.getGiftStatus() < DELIVERY_STATUS_CONFIRMED && 
+				 if(f.getGiftStatus().compareTo(FamilyGiftStatus.Confirmed) < 0 && 
 						 stAL.get(i).getCallResult().equals(ANGEL_DELIVERY_CONFIRMED))
 				 {
 					 //add a new delivery to the delivery data base
-					 ONCDelivery reqDelivery = new ONCDelivery(-1, f.getID(), DELIVERY_STATUS_CONFIRMED,
+					 ONCDelivery reqDelivery = new ONCDelivery(-1, f.getID(), FamilyGiftStatus.Confirmed,
 							 					deliveryDB.getDeliveredBy(f.getDeliveryID()),
 							 					"Angel Call Result: Confirmed",
 							 					userDB.getUserLNFI(),
@@ -537,10 +535,10 @@ public class AngelAutoCallDialog extends ONCTableDialog implements ActionListene
 //								JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
 // 					 }
 				 }			 
-				 else if(f.getGiftStatus() < DELIVERY_STATUS_CONTACTED)
+				 else if(f.getGiftStatus().compareTo(FamilyGiftStatus.Contacted) < 0)
 				 {
 					//add a new delivery to the delivery data base
-					 ONCDelivery reqDelivery = new ONCDelivery(-1, f.getID(), DELIVERY_STATUS_CONTACTED,
+					 ONCDelivery reqDelivery = new ONCDelivery(-1, f.getID(), FamilyGiftStatus.Contacted,
 							 					deliveryDB.getDeliveredBy(f.getDeliveryID()),
 							 					"Angel Call Result: Contacted",
 							 					userDB.getUserLNFI(),

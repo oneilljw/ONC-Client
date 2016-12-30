@@ -31,9 +31,8 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	private static final int DELIVERY_STATUS_ASSIGNED = 3;
-
-	private int sortstartRegion, sortendRegion, sortDStatus;
+	private int sortstartRegion, sortendRegion;
+	private FamilyGiftStatus sortGiftStatus;
 	
 	private JComboBox sRegCB, eRegCB, dstatusCB;
 	private DefaultComboBoxModel eRegCBM;	//start region uses the inherited model
@@ -56,7 +55,7 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 		//Initialize member variables
 		sortstartRegion = 0;
 		sortendRegion = 0;
-		sortDStatus=0;
+		sortGiftStatus = FamilyGiftStatus.Any;
 				
 		//Set up unique sort criteria gui
     	oncnumTF = new JTextField(5);
@@ -83,9 +82,9 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 		eRegCB.setBorder(BorderFactory.createTitledBorder("Region End"));
 		eRegCB.addActionListener(this);
 		
-		dstatusCB = new JComboBox(delstatus);
+		dstatusCB = new JComboBox(FamilyGiftStatus.getSearchFilterList());
 		dstatusCB.setMaximumSize(new Dimension(192,56));
-		dstatusCB.setBorder(BorderFactory.createTitledBorder("Delivery Status Less Then"));
+		dstatusCB.setBorder(BorderFactory.createTitledBorder("Gift Status Less Then"));
 		dstatusCB.addActionListener(this);
 		
 		//Add all sort criteria gui to search criteria pane
@@ -208,7 +207,7 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 		
 		String[] deliverytablerow = {si.getONCNum(),
 				 famstatus[si.getFamilyStatus() + 1], 
-				 delstatus[si.getGiftStatus() + 1],
+				 si.getGiftStatus().toString(),
 				 Integer.toString(si.getNumOfBags()),
 				 Integer.toString(fDB.getNumberOfBikesSelectedForFamily(si)),
 				 Integer.toString(si.getNumOfLargeItems()),
@@ -233,7 +232,10 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 	}
 	
 	//Determines if family delivery status is less then search criteria
-	boolean doesDStatusPass(int dstat) {return sortDStatus == 0  || dstat < dstatusCB.getSelectedIndex()-1;}
+	boolean doesDStatusPass(FamilyGiftStatus fgs) 
+	{
+		return sortGiftStatus == FamilyGiftStatus.Any  || fgs.compareTo((FamilyGiftStatus) dstatusCB.getSelectedItem()) < 0;
+	}
 	
 	//Determines if family ONC number matches search criteria
 	boolean doesONCNumMatch(String s) { return sortONCNum.isEmpty() || sortONCNum.equals(s); }
@@ -261,7 +263,7 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 			{
 				//Add a new delivery to the delivery history with the assigned driver
 				//and the status set to assigned. Adding new delivery updates family changed by field
-				ONCDelivery reqDelivery = new ONCDelivery(-1, f.getID(), DELIVERY_STATUS_ASSIGNED,
+				ONCDelivery reqDelivery = new ONCDelivery(-1, f.getID(), FamilyGiftStatus.Assigned,
 															assignDriverTF.getText(),
 															"Delivery Driver Assigned",
 															userDB.getUserLNFI(),
@@ -338,7 +340,7 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 		
 		dstatusCB.removeActionListener(this);
 		dstatusCB.setSelectedIndex(0);
-		sortDStatus = 0;
+		sortGiftStatus = FamilyGiftStatus.Any;
 		dstatusCB.addActionListener(this);
 		
 		buildTableList(false);
@@ -401,9 +403,9 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 			sortendRegion = eRegCB.getSelectedIndex();
 			buildTableList(false);			
 		}		
-		else if(e.getSource() == dstatusCB && dstatusCB.getSelectedIndex() != sortDStatus)
+		else if(e.getSource() == dstatusCB && dstatusCB.getSelectedItem() != sortGiftStatus)
 		{						
-			sortDStatus = dstatusCB.getSelectedIndex();
+			sortGiftStatus = (FamilyGiftStatus) dstatusCB.getSelectedItem();
 			buildTableList(false);
 		}
 		else if(e.getSource() == btnPrintListing)
@@ -463,6 +465,4 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 		// TODO Auto-generated method stub
 		
 	}
-
-	
 }

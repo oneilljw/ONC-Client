@@ -223,7 +223,7 @@ public abstract class DependantTableDialog extends SortTableDialog
 		familytablerow[1] = f.getBatchNum();
 		familytablerow[2] = f.getDNSCode();
 		familytablerow[3] = famstatus[f.getFamilyStatus()+1];
-		familytablerow[4] = delstatus[f.getGiftStatus()+1];
+		familytablerow[4] = f.getGiftStatus().toString();
 		familytablerow[5] = f.getMealStatus().toString();
 		
 		UserDB userDB = UserDB.getInstance();

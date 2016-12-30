@@ -12,7 +12,7 @@ import javax.swing.table.AbstractTableModel;
 
 import com.google.gson.Gson;
 
-public class DeliveryHistoryDialog extends HistoryDialog 
+public class GiftStatusHistoryDialog extends HistoryDialog 
 {
 	/**
 	 * 
@@ -23,9 +23,7 @@ public class DeliveryHistoryDialog extends HistoryDialog
 	private static final int NOTES_COL = 2;
 	private static final int CHANGED_BY_COL = 3;
 	private static final int DATE_CHANGED_COL = 4;
-	private static final String[] dstat = {"Empty", "Contacted", "Confirmed", "Assigned", "Attempted",
-							  			   "Returned", "Delivered", "Counselor Pick-Up"};
-
+	
 	private AbstractTableModel dlgTableModel;
 	
 	private DeliveryDB deliveryDB;
@@ -33,7 +31,7 @@ public class DeliveryHistoryDialog extends HistoryDialog
 	
 	private List<ONCDelivery> delList;
 	
-	public DeliveryHistoryDialog(JFrame pf) 
+	public GiftStatusHistoryDialog(JFrame pf) 
 	{
 		super(pf, "Delivery");
 		// TODO Auto-generated constructor stub
@@ -181,7 +179,7 @@ public class DeliveryHistoryDialog extends HistoryDialog
         	ONCDelivery del = delList.get(row);
         	
         	if(col == STATUS_COL)
-        		value = dstat[del.getdStatus()];
+        		value = del.getdStatus().toString();
         	else if(col == DELIVERED_BY_COL)  
         		value = volunteerDB.getDriverLNFN(del.getdDelBy());
         	else if(col == NOTES_COL)

@@ -69,8 +69,6 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private static final int ADULT_ICON_INDEX = 42;
 	private static final int NO_ADULT_ICON_INDEX = 43;
 	
-	private static final String[] dStat = {"Empty", "Contacted", "Confirmed", "Assigned", "Attempted",
-											"Returned", "Delivered", "Counselor Pick-Up"};
 	//data base references
 	private DatabaseManager dbMgr;
     private FamilyDB fDB;
@@ -94,8 +92,8 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private JTextField oncDNScode;
 	private JTextField HOHFirstName, HOHLastName, EMail;
 	private JTextField housenumTF, Street, Unit, City, ZipCode;
-	private JLabel lblONCNum, lblRefNum, lblBatchNum, lblRegion, lblNumBags, lblChangedBy, lblDelStatus;
-	private JRadioButton rbDeliveryHistory, rbAltAddress, rbMeals, rbPriorHistory, rbAgentInfo;
+	private JLabel lblONCNum, lblRefNum, lblBatchNum, lblRegion, lblNumBags, lblChangedBy, lblGiftStatus;
+	private JRadioButton rbGiftStatusHistory, rbAltAddress, rbMeals, rbPriorHistory, rbAgentInfo;
 	private JRadioButton rbShowAllPhones, rbFamDetails, rbTransportation, rbDirections;
 	private JRadioButton rbNotGiftCardOnly, rbGiftCardOnly, rbAdults;
 	private JComboBox Language, statusCB;
@@ -257,9 +255,9 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         delStatus[6] = new ComboItem("Delivered");
         delStatus[7] = new ComboItem("Counselor Pick-Up");
         
-        lblDelStatus = new JLabel();
-        lblDelStatus.setBorder(BorderFactory.createTitledBorder("Delivery Status"));
-        lblDelStatus.setPreferredSize(new Dimension(132, 52));               
+        lblGiftStatus = new JLabel();
+        lblGiftStatus.setBorder(BorderFactory.createTitledBorder("Gift Status"));
+        lblGiftStatus.setPreferredSize(new Dimension(132, 52));               
 
         housenumTF = new JTextField();
         housenumTF.setPreferredSize(new Dimension(72, 44));
@@ -363,11 +361,11 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         rbAdults.setEnabled(false);
         rbAdults.addActionListener(this);
 
-        rbDeliveryHistory = new JRadioButton(gvs.getImageIcon(14));
-        rbDeliveryHistory.setActionCommand("Delivery History");
-        rbDeliveryHistory.setToolTipText("Click to see delivery history");
-        rbDeliveryHistory.setEnabled(false);
-        rbDeliveryHistory.addActionListener(this);
+        rbGiftStatusHistory = new JRadioButton(gvs.getImageIcon(14));
+        rbGiftStatusHistory.setActionCommand("Gift Status History");
+        rbGiftStatusHistory.setToolTipText("Click to see gift status history");
+        rbGiftStatusHistory.setEnabled(false);
+        rbGiftStatusHistory.addActionListener(this);
         
         //Set up the Child Table
         childTable = new JTable()
@@ -485,7 +483,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         p2.add(otherPhoneScrollPane);
         p2.add(EMail);
 		p2.add(Language);
-		p2.add(lblDelStatus);
+		p2.add(lblGiftStatus);
 		
         p3.add(housenumTF);
         p3.add(Street);
@@ -540,7 +538,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         iconBar.add(rbNotGiftCardOnly);
         iconBar.add(rbGiftCardOnly);
         iconBar.add(rbDirections);
-        iconBar.add(rbDeliveryHistory);
+        iconBar.add(rbGiftStatusHistory);
               
         this.add(nav);
         this.add(p1);
@@ -598,7 +596,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	void setEnabledButtons(boolean tf) 
 	{ 
 		rbAgentInfo.setEnabled(tf);
-		rbDeliveryHistory.setEnabled(tf); 
+		rbGiftStatusHistory.setEnabled(tf); 
 	}
 
 /*	
@@ -716,7 +714,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		statusCB.setSelectedIndex(currFam.getFamilyStatus());
 		lblNumBags.setText(Integer.toString(currFam.getNumOfBags()));
 		
-		lblDelStatus.setText(dStat[currFam.getGiftStatus()]);
+		lblGiftStatus.setText(currFam.getGiftStatus().toString());
 		Language.setSelectedItem((String)currFam.getLanguage());
 		lblChangedBy.setText(currFam.getChangedBy());
 		lblRegion.setText(regions.getRegionID(currFam.getRegion()));
@@ -1220,9 +1218,9 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		{
 			autoassignONCNum();
 		}
-		else if(e.getSource() == rbDeliveryHistory)
+		else if(e.getSource() == rbGiftStatusHistory)
 		{
-			DialogManager.getInstance().showHistoryDialog(rbDeliveryHistory.getActionCommand());
+			DialogManager.getInstance().showHistoryDialog(rbGiftStatusHistory.getActionCommand());
 		}
 		else if(e.getSource() == rbMeals)
 		{

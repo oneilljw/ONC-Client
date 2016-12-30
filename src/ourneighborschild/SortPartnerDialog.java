@@ -22,7 +22,6 @@ import java.util.List;
 import javax.mail.internet.MimeBodyPart;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;

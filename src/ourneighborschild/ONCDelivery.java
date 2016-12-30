@@ -15,14 +15,14 @@ public class ONCDelivery extends ONCObject implements Serializable
 	private static final long serialVersionUID = 5109480607565108347L;
 	
 	int famID;
-	int dStatus;
+	FamilyGiftStatus dStatus;
 	String dDelBy;
 	String dNotes;
 	String dChangedBy;
 	Calendar dDateChanged;
 
 	//Constructor used after separating ONC Deliveries from ONC Families
-	public ONCDelivery(int id, int famid, int dStat, String dBy, String notes, String cb, Calendar dateChanged)
+	public ONCDelivery(int id, int famid, FamilyGiftStatus dStat, String dBy, String notes, String cb, Calendar dateChanged)
 	{
 		super(id);
 		famID = famid;
@@ -51,7 +51,7 @@ public class ONCDelivery extends ONCObject implements Serializable
 	{
 		super(Integer.parseInt(del[0]));
 		famID = Integer.parseInt(del[1]);
-		dStatus = Integer.parseInt(del[2]);			
+		dStatus = FamilyGiftStatus.getFamilyGiftStatus(Integer.parseInt(del[2]));			
 		dDelBy = del[3].isEmpty() ? "" : del[3];
 		dNotes = del[4].isEmpty() ? "" : del[4];	
 		dChangedBy = del[5].isEmpty() ? "" : del[5];
@@ -61,7 +61,7 @@ public class ONCDelivery extends ONCObject implements Serializable
 
 	//Getters
 	public int getFamID() { return famID; }
-	public int getdStatus() {return dStatus;}	
+	public FamilyGiftStatus getdStatus() {return dStatus;}	
 	public String getdDelBy() {return dDelBy;}
 	String getdNotes() {return dNotes;}
 	String getdChangedBy() { return dChangedBy; }
@@ -76,7 +76,7 @@ public class ONCDelivery extends ONCObject implements Serializable
 	@Override
 	public String[] getExportRow()
 	{
-		String[] exportRow = {Integer.toString(id), Integer.toString(famID), Integer.toString(dStatus),
+		String[] exportRow = {Integer.toString(id), Integer.toString(famID), Integer.toString(dStatus.statusIndex()),
 							  dDelBy, dNotes, dChangedBy, Long.toString(dDateChanged.getTimeInMillis())};
 		
 		return exportRow;

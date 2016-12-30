@@ -440,6 +440,6 @@ public class CrosscheckDialog extends JDialog implements ActionListener, Databas
 			rowList.add(remarks);
 			
 			return rowList.toArray(new String[rowList.size()]);
-		}
+		}		
 	}
 }

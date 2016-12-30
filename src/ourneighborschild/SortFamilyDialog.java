@@ -74,20 +74,21 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	
 	//Unique gui elements for Sort Family Dialog
 	private JComboBox oncCB, batchCB, regionCB, dnsCB, zipCB, fstatusCB, streetCB, lastnameCB;
-	private JComboBox changedByCB, stoplightCB, dstatusCB, mealstatusCB, giftCardCB;
-	private ComboItem[] changeDelItem, changeFamItem;
+	private JComboBox changedByCB, stoplightCB, giftStatusCB, mealstatusCB, giftCardCB;
+	private ComboItem[] changeFamItem;
 	private JComboBox changeDNSCB;
-	private JComboBox changeFStatusCB, changeDStatusCB;
+	private JComboBox changeFStatusCB, changeGiftStatusCB;
 	private DefaultComboBoxModel changedByCBM, changeDNSCBM;
 	private JComboBox exportCB, printCB, emailCB, callCB;
 	
 	private JProgressBar progressBar;
 	private ONCEmailer oncEmailer;
 
-	private int sortBatchNum = 0, sortFStatus = 0, sortDStatus=0;
+	private int sortBatchNum = 0, sortFStatus = 0;
 	private int sortZip = 0, sortRegion = 0, sortChangedBy = 0, sortGCO = 0, sortStoplight = 0;
 	private String sortLN = "Any", sortStreet= "Any", sortDNSCode;
 	private MealStatus sortMealStatus;
+	private FamilyGiftStatus sortGiftStatus;
 
 	private static String[] giftCardFilter = {"Any", "True", "False"};
 	private static String[] dnsCodes = {"None", "Any", "DUP", "FO", "NC", "NISA", "OPT-OUT", "SA", "SBO", "WA"};
@@ -135,12 +136,13 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		fstatusCB.setBorder(BorderFactory.createTitledBorder("Family Status"));
 		fstatusCB.addActionListener(this);
 		
-		dstatusCB = new JComboBox(delstatus);
-		dstatusCB.setPreferredSize(new Dimension(160, 56));
-		dstatusCB.setBorder(BorderFactory.createTitledBorder("Delivery Status"));
-		dstatusCB.addActionListener(this);
+		giftStatusCB = new JComboBox(FamilyGiftStatus.getSearchFilterList());
+		sortGiftStatus = FamilyGiftStatus.Any;
+		giftStatusCB.setPreferredSize(new Dimension(160, 56));
+		giftStatusCB.setBorder(BorderFactory.createTitledBorder("Gift Status"));
+		giftStatusCB.addActionListener(this);
 		
-		mealstatusCB = new JComboBox(MealStatus.values());
+		mealstatusCB = new JComboBox(MealStatus.getSearchFilterList());
 		sortMealStatus = MealStatus.Any;
 		mealstatusCB.setBorder(BorderFactory.createTitledBorder("Meal Status"));
 		mealstatusCB.addActionListener(this);
@@ -199,7 +201,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		sortCriteriaPanelTop.add(batchCB);				
 		sortCriteriaPanelTop.add(dnsCB);
 		sortCriteriaPanelTop.add(fstatusCB);
-		sortCriteriaPanelTop.add(dstatusCB);
+		sortCriteriaPanelTop.add(giftStatusCB);
 		sortCriteriaPanelTop.add(mealstatusCB);
 		sortCriteriaPanelBottom.add(lastnameCB);
 		sortCriteriaPanelBottom.add(streetCB);
@@ -241,28 +243,29 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		changeFStatusCB.addActionListener(new ComboListener(changeFStatusCB)); //Prevents selection of disabled combo box items
 		changeFStatusCB.addActionListener(this); //Used to check for enabling the Apply Changes button
         
-		changeDelItem = new ComboItem[9];	//Delivery status combo box list objects can be enabled/disabled
-		changeDelItem[0] = new ComboItem(DEFAULT_NO_CHANGE_LIST_ITEM);
-		changeDelItem[1] = new ComboItem("Empty");
-		changeDelItem[2] = new ComboItem("Contacted");  
-		changeDelItem[3] = new ComboItem("Confirmed");
-		changeDelItem[4] = new ComboItem("Assigned", false);   
-		changeDelItem[5] = new ComboItem("Attempted");
-		changeDelItem[6] = new ComboItem("Returned");
-		changeDelItem[7] = new ComboItem("Delivered");
-		changeDelItem[8] = new ComboItem("Counselor Pick-Up");
+//		changeDelItem = new ComboItem[9];	//Delivery status combo box list objects can be enabled/disabled
+//		changeDelItem[0] = new ComboItem(DEFAULT_NO_CHANGE_LIST_ITEM);
+//		changeDelItem[1] = new ComboItem("Empty");
+//		changeDelItem[2] = new ComboItem("Contacted");  
+//		changeDelItem[3] = new ComboItem("Confirmed");
+//		changeDelItem[4] = new ComboItem("Assigned", false);   
+//		changeDelItem[5] = new ComboItem("Attempted");
+//		changeDelItem[6] = new ComboItem("Returned");
+//		changeDelItem[7] = new ComboItem("Delivered");
+//		changeDelItem[8] = new ComboItem("Counselor Pick-Up");
 		
-        changeDStatusCB = new JComboBox(changeDelItem);
-        changeDStatusCB.setRenderer(new ComboRenderer());
-        changeDStatusCB.setPreferredSize(new Dimension(172, 56));
-		changeDStatusCB.setBorder(BorderFactory.createTitledBorder("Change Delivery Status"));
-		changeDStatusCB.addActionListener(new ComboListener(changeDStatusCB));	//Prevents selection of disabled combo box items
-		changeDStatusCB.addActionListener(this);	//Used to check for enabling the Apply Changes button
+//        changeGiftStatusCB = new JComboBox(changeDelItem);
+        changeGiftStatusCB = new JComboBox(FamilyGiftStatus.getChangeList());
+//        changeGiftStatusCB.setRenderer(new ComboRenderer());
+        changeGiftStatusCB.setPreferredSize(new Dimension(172, 56));
+		changeGiftStatusCB.setBorder(BorderFactory.createTitledBorder("Change Gift Status"));
+//		changeGiftStatusCB.addActionListener(new ComboListener(changeGiftStatusCB));	//Prevents selection of disabled combo box items
+		changeGiftStatusCB.addActionListener(this);	//Used to check for enabling the Apply Changes button
 				
 		//Add the components to the change data panel			
 		changeDataPanel.add(changeDNSCB);
 		changeDataPanel.add(changeFStatusCB);
-		changeDataPanel.add(changeDStatusCB);
+		changeDataPanel.add(changeGiftStatusCB);
 		changeDataPanel.setBorder(BorderFactory.createTitledBorder("Change Select Family Data"));
         
         gbc.gridx = 1;
@@ -337,7 +340,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			f.getReferenceNum(),
 			f.getDNSCode(),
 			famstatus[f.getFamilyStatus()+1],
-			delstatus[f.getGiftStatus()+1],
+			f.getGiftStatus().toString(),
 			f.getMealStatus().toString(),
 			f.getHOHFirstName(),
 			f.getHOHLastName(),
@@ -401,7 +404,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		//family's are displayed, change the panel border to so indicate
 		lblNumOfTableItems.setText(Integer.toString(stAL.size()));
 		if(sortONCNum.equals("Any") && sortBatchNum == 0 && sortDNSCode.equals(dnsCodes[0])  &&
-			sortFStatus == 0 && sortDStatus == 0 && sortLN.equals("Any") && 
+			sortFStatus == 0 && sortGiftStatus == FamilyGiftStatus.Any && sortLN.equals("Any") && 
 			sortStreet.equals("Any") && sortZip == 0 && sortRegion == 0 && sortChangedBy == 0 &&
 			sortStoplight == 0)
 		{
@@ -452,13 +455,13 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 				bFamilyChangeDetected = true;
 			}
 			//If a change to Delivery Status, process it
-			if(changeDStatusCB.getSelectedIndex() > 0 && 
-					f.getGiftStatus() != changeDStatusCB.getSelectedIndex()-1)
+			if(changeGiftStatusCB.getSelectedIndex() > 0 && 
+					f.getGiftStatus() != changeGiftStatusCB.getSelectedItem())
 			{
 				//Add a new delivery to the delivery history with the assigned driver
 				//and the status set to assigned.
 				ONCDelivery reqDelivery = new ONCDelivery(-1, f.getID(),
-						changeDStatusCB.getSelectedIndex()-1,
+						(FamilyGiftStatus) changeGiftStatusCB.getSelectedItem(),
 						deliveryDB.getDeliveredBy(f.getDeliveryID()),
 						"Delivery Status Changed",
 						userDB.getUserLNFI(),
@@ -498,7 +501,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		//Reset the change combo boxes to DEFAULT_NO_CHANGE_LIST_ITEM
 		changeFStatusCB.setSelectedIndex(0);
 		changeDNSCB.setSelectedIndex(0);
-		changeDStatusCB.setSelectedIndex(0);
+		changeGiftStatusCB.setSelectedIndex(0);
 		
 		//Changes were applied, disable until user selects new table row(s) and values
 		btnApplyChanges.setEnabled(false);
@@ -1131,8 +1134,8 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		//combo boxes have valid values set 
 		if(sortTable.getSelectedRows().length > 0 &&
 				(changeFStatusCB.getSelectedIndex() != 0 ||					
-				     !(changeDStatusCB.getSelectedIndex() == 0 ||
-				        changeDStatusCB.getSelectedIndex() == CHANGE_DELIVERY_STATUS_ASSIGNED) ||
+				     !(changeGiftStatusCB.getSelectedIndex() == 0 ||
+				        changeGiftStatusCB.getSelectedIndex() == CHANGE_DELIVERY_STATUS_ASSIGNED) ||
 					     !changeDNSCB.getSelectedItem().toString().equals(DEFAULT_NO_CHANGE_LIST_ITEM)))
 			btnApplyChanges.setEnabled(true);
 		else
@@ -1185,10 +1188,10 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		sortFStatus = 0;
 		fstatusCB.addActionListener(this);
 		
-		dstatusCB.removeActionListener(this);
-		dstatusCB.setSelectedIndex(0);
-		sortDStatus = 0;
-		dstatusCB.addActionListener(this);
+		giftStatusCB.removeActionListener(this);
+		giftStatusCB.setSelectedIndex(0);
+		sortGiftStatus = FamilyGiftStatus.Any;
+		giftStatusCB.addActionListener(this);
 		
 		mealstatusCB.removeActionListener(this);
 		mealstatusCB.setSelectedIndex(0);
@@ -1498,7 +1501,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	
 	boolean doesMealStatusMatch(MealStatus mstat) {return sortMealStatus == MealStatus.Any  || mstat == (MealStatus) mealstatusCB.getSelectedItem();}
 	
-	boolean doesDStatusMatch(int dstat) {return sortDStatus == 0  || dstat == dstatusCB.getSelectedIndex()-1;}
+	boolean doesDStatusMatch(FamilyGiftStatus fgs) {return sortGiftStatus == FamilyGiftStatus.Any  || fgs == giftStatusCB.getSelectedItem();}
 	
 	boolean doesLastNameMatch(String ln) {return sortLN.equals("Any") || ln.toLowerCase().contains(lastnameCB.getSelectedItem().toString().toLowerCase());}
 	
@@ -1986,7 +1989,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	@Override
 	String[] getColumnNames() 
 	{
-		String[] columns = {"ONC", "Batch #", "Ref #", "DNS", "Fam Status", "Del Status", "Meal Status",
+		String[] columns = {"ONC", "Batch #", "Ref #", "DNS", "Fam Status", "Gift Status", "Meal Status",
 				"First", "Last", "House", "Street", "Unit", "Zip", "Reg", "Changed By", "GCO", "SL"};
 		return columns;
 	}
@@ -2027,9 +2030,9 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			sortFStatus = fstatusCB.getSelectedIndex();
 			buildTableList(false);
 		}
-		else if(e.getSource() == dstatusCB && dstatusCB.getSelectedIndex() != sortDStatus)
+		else if(e.getSource() == giftStatusCB && giftStatusCB.getSelectedItem() != sortGiftStatus)
 		{						
-			sortDStatus = dstatusCB.getSelectedIndex();
+			sortGiftStatus = (FamilyGiftStatus) giftStatusCB.getSelectedItem();
 			buildTableList(false);
 		}
 		else if(e.getSource() == mealstatusCB && mealstatusCB.getSelectedItem() != sortMealStatus)

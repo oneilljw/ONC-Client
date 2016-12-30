@@ -15,7 +15,7 @@ public class ONCFamily extends ONCEntity
 	private String		oncNum;
 	private int			region;
 	private int			famStatus;
-	private int 		giftStatus;
+	private FamilyGiftStatus 	giftStatus;
 	private int 		nBags;
 	private int			nLargeItems;
 	private String		referenceNum;
@@ -104,7 +104,7 @@ public class ONCFamily extends ONCEntity
 		oncNum = sONC;
 		this.region = region;
 		famStatus = 0;
-		giftStatus = 0;
+		giftStatus = FamilyGiftStatus.Requested;
 		nBags = 0;
 		nLargeItems = 0;
 		referenceNum = ID;
@@ -154,7 +154,7 @@ public class ONCFamily extends ONCEntity
 		batchNum = getDBString(nextLine[4]);	
 		dnsCode = getDBString(nextLine[5]);
 		famStatus = Integer.parseInt(nextLine[6]);
-		giftStatus = Integer.parseInt(nextLine[7]);
+		giftStatus = FamilyGiftStatus.getFamilyGiftStatus(Integer.parseInt(nextLine[7]));
 		speakEnglish =getDBString(nextLine[8]);
 		language = getDBString(nextLine[9]);
 		notes = getDBString(nextLine[11]);
@@ -198,7 +198,7 @@ public class ONCFamily extends ONCEntity
 		this.oncNum = oncNum;
 		this.region = -1;
 		this.famStatus = 0;
-		this.giftStatus = 0;
+		this.giftStatus = FamilyGiftStatus.Requested;
 		this.nBags = 0;
 		this.nLargeItems = 0;
 		this.referenceNum = odbFamilyNum;
@@ -446,7 +446,7 @@ public class ONCFamily extends ONCEntity
 	public String	getONCNum() {return oncNum;}
 	public int		getRegion() {return region;}
 	public int		getFamilyStatus() {return famStatus; }
-	public int		getGiftStatus() { return giftStatus; }
+	public FamilyGiftStatus	getGiftStatus() { return giftStatus; }
 	public int		getNumOfBags() { return nBags; }
 	public int		getNumOfLargeItems() { return nLargeItems; }
 	public String	getReferenceNum()	{return referenceNum;}
@@ -485,7 +485,7 @@ public class ONCFamily extends ONCEntity
 	public void setONCNum(String s) { oncNum = s;}
 	public void setRegion(int r) { region = r;}
 	public void setFamilyStatus(int s){ famStatus = s; }
-	public void setGiftStatus(int d) { giftStatus = d; }
+	public void setGiftStatus(FamilyGiftStatus fgs) { giftStatus = fgs; }
 	public void setNumOfBags(int b) { nBags = b; }
 	public void setNumOfLargeItems(int li) { nLargeItems = li; }
 	public void setReferenceNum(String s)	{ referenceNum = s;}
@@ -573,7 +573,7 @@ public class ONCFamily extends ONCEntity
 		rowList.add(getBatchNum());	
 		rowList.add(getDNSCode());
 		rowList.add(Integer.toString(getFamilyStatus()));
-		rowList.add(Integer.toString(getGiftStatus()));
+		rowList.add(Integer.toString(giftStatus.statusIndex()));
 		rowList.add(getSpeakEnglish());
 		rowList.add(getLanguage());			
 		rowList.add(getChangedBy());
