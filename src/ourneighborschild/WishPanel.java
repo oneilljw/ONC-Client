@@ -39,7 +39,6 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 	private static final int ONC_GIFT_ICON = 4;
 	private static final int ONC_LABEL_ICON = 44;
 	private static final int MAX_LABEL_LINE_LENGTH = 26;
-	private static final int FAMILY_STATUS_UNVERIFIED = 0;
 	
 	//database references
 	private GlobalVariables gvs;
@@ -103,8 +102,7 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 
         this.setBorder(BorderFactory.createTitledBorder("Wish " + Integer.toString(wishNumber+1)));
         
-        Dimension dwa = new Dimension(140, 24);
-//        Dimension dwi = new Dimension(44, 24);     
+        Dimension dwa = new Dimension(140, 24);  
           
         //Get a catalog for type=selection
         wishCBM = new DefaultComboBoxModel();
@@ -136,7 +134,6 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
         wishdetailTF.setToolTipText("Type wish details, then hit <Enter>");
         wishdetailTF.setEnabled(false);
         wishdetailTF.addActionListener(this);
-//      wishdetailTF.addMouseListener(new WishDetailMouseListener());
  
         assigneeCBM = new DefaultComboBoxModel();
         assigneeCBM.addElement(new ONCPartner(-1, "None", "None"));
@@ -153,7 +150,6 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
     	wsp2.add(wishdetailTF);
         wsp3.add(wishassigneeCB);
         wsp3.add(rbLabel);
-//      wsp3.add(rbWish);
         
         this.add(wsp1);
     	this.add(wsp2);
@@ -343,10 +339,10 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 		ONCWish catWish = cat.getWishByID(cw.getWishID());
 		String wishName = catWish == null ? "None" : catWish.getName();
 		
-		String[] indicator = {"", "*", "#"};
+//		String[] indicator = {"", "*", "#"};
 		
-		String wish = indicator[cw.getChildWishIndicator()] +
-				wishName + "- " + cw.getChildWishDetail();
+//		String wish = indicator[cw.getChildWishIndicator()] + wishName + "- " + cw.getChildWishDetail();
+		String wish = wishName + "- " + cw.getChildWishDetail();
 		
 		//does it fit on one line?
 		if(wish != null && wish.length() <= MAX_LABEL_LINE_LENGTH)
