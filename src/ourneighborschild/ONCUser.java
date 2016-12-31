@@ -1,7 +1,7 @@
 package ourneighborschild;
 
-import java.util.Calendar;
 import java.util.Date;
+
 
 public class ONCUser extends ONCEntity
 {
@@ -18,7 +18,7 @@ public class ONCUser extends ONCEntity
 	protected long clientID; 	//holds the server id of the client when the user is logged in
 	protected int clientYear;
 	protected long nSessions;
-	protected Calendar lastLogin;
+	protected long lastLogin;	//should always be UTC
 	protected String email;
 	protected String phone;
 	protected String title;
@@ -28,7 +28,7 @@ public class ONCUser extends ONCEntity
 	
 	public ONCUser(int id, Date today, String changedBy, int slpos, String slmssg, String slchgby, 
 			String fn, String ln, UserStatus stat, UserAccess acc, UserPermission perm, long nSessions,
-			Date last, String org, String title, String email, String phone, int agentID)
+			long last, String org, String title, String email, String phone, int agentID)
 	{
 		super(id, today, changedBy, slpos, slmssg, slchgby);
 		
@@ -40,8 +40,7 @@ public class ONCUser extends ONCEntity
 		clientID = -1;
 		clientYear = -1;
 		this.nSessions = nSessions;
-		lastLogin = Calendar.getInstance();
-		lastLogin.setTime(last);
+		lastLogin = last;
 		this.org = org;
 		this.title = title;
 		this.email = email;
@@ -53,7 +52,7 @@ public class ONCUser extends ONCEntity
 	//overloaded -- used when including UserPreferences in the construction
 	public ONCUser(int id, Date today, String changedBy, int slpos, String slmssg, String slchgby, 
 			String fn, String ln, UserStatus stat, UserAccess acc, UserPermission perm, long nSessions,
-			Date last, String org, String title,String email, String phone, int agentID,
+			long last, String org, String title,String email, String phone, int agentID,
 			int fontSize, int wafPos, int fdfPos)
 	{
 		super(id, today, changedBy, slpos, slmssg, slchgby);
@@ -66,8 +65,7 @@ public class ONCUser extends ONCEntity
 		clientID = -1;
 		clientYear = -1;
 		this.nSessions = nSessions;
-		lastLogin = Calendar.getInstance();
-		lastLogin.setTime(last);
+		lastLogin = last;
 		this.org = org;
 		this.title = title;
 		this.email = email;
@@ -79,7 +77,7 @@ public class ONCUser extends ONCEntity
 	//overloaded to allow conversion from ONCServerUser to ONCUser by creating a copy
 	public ONCUser(int id, Date today, String changedBy, int slpos, String slmssg, String slchgby, 
 			String fn, String ln,  UserStatus stat, UserAccess acc, UserPermission perm,
-			long clientID, int clientYear, long nSessions, Calendar lastLogin, 
+			long clientID, int clientYear, long nSessions, long lastLogin, 
 			String org, String title, String email, String phone, int agentID, UserPreferences prefs)
 	{
 		super(id, today, changedBy, slpos, slmssg, slchgby);
@@ -128,8 +126,8 @@ public class ONCUser extends ONCEntity
 	public void setClientYear(int year) { clientYear = year; }
 	public long getNSessions() { return nSessions; }
 	public void setNSessions(long nSessions) { this.nSessions = nSessions; }
-	public Date getLastLogin() { return lastLogin.getTime(); }
-	public void setLastLogin(Date last_login) { lastLogin.setTime(last_login); }
+	public long getLastLogin() { return lastLogin; }
+	public void setLastLogin(long last_login) { this.lastLogin = last_login; }
 	public long incrementSessions() { return ++nSessions; }
 	public boolean changePasswordRqrd() { return status.equals(UserStatus.Change_PW); }
 	public UserPreferences getPreferences() { return preferences; }

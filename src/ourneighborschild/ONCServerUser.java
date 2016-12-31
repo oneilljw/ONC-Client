@@ -14,7 +14,7 @@ public class ONCServerUser extends ONCUser
 	public ONCServerUser(int id, Date today, String chgby, int slpos, String slmssg,
 							String slchgby, String fn, String ln, 
 							UserStatus stat, UserAccess acc, UserPermission perm,
-							String uid, String pw, long nSessions, Date last_login,
+							String uid, String pw, long nSessions, long last_login,
 							boolean bResetPassword, 
 							String org, String title, String email, String phone, int agtID)
 	{
@@ -29,18 +29,18 @@ public class ONCServerUser extends ONCUser
 		
 		super(currUser.id, currUser.dateChanged.getTime(), currUser.changedBy, currUser.slPos, currUser.slMssg,
 				currUser.slChangedBy, currUser.firstname, currUser.lastname, currUser.status, 
-				currUser.access, currUser.permission, currUser.nSessions, currUser.lastLogin.getTime(), 
+				currUser.access, currUser.permission, currUser.nSessions, currUser.lastLogin, 
 				currUser.org, currUser.title, currUser.email, currUser.phone, currUser.agentID);
 		userid = currUser.userid;
 		password = currUser.password;
 	}
 	
-	public ONCServerUser(String[] nextLine, Date date_changed, Date last_login)
+	public ONCServerUser(String[] nextLine, Date date_changed)
 	{
 		super(Integer.parseInt(nextLine[0]), date_changed, nextLine[9], Integer.parseInt(nextLine[10]),
 				nextLine[11], nextLine[12], nextLine[6], nextLine[7], UserStatus.valueOf(nextLine[3]),
 				UserAccess.valueOf(nextLine[4]), UserPermission.valueOf(nextLine[5]),
-				Long.parseLong(nextLine[13]), last_login, 
+				Long.parseLong(nextLine[13]), Long.parseLong(nextLine[14]), 
 				nextLine[15], nextLine[16], nextLine[17], nextLine[18], Integer.parseInt(nextLine[19]),
 				Integer.parseInt(nextLine[20]), Integer.parseInt(nextLine[21]), Integer.parseInt(nextLine[22]));
 				
@@ -75,7 +75,7 @@ public class ONCServerUser extends ONCUser
 						permission.toString(), firstname, lastname,
 						Long.toString(dateChanged.getTimeInMillis()), changedBy, Integer.toString(slPos), 
 						slMssg,slChangedBy, Long.toString(nSessions), 
-						Long.toString(lastLogin.getTimeInMillis()),
+						Long.toString(lastLogin),
 						org, title, email, phone, Integer.toString(agentID),
 						Integer.toString(preferences.getFontSize()), 
 						Integer.toString(preferences.getWishAssigneeFilter()), 

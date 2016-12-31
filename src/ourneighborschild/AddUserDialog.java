@@ -1,7 +1,8 @@
 package ourneighborschild;
 
 import java.awt.Dimension;
-import java.util.Date;
+import java.util.Calendar;
+import java.util.TimeZone;
 
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -64,14 +65,14 @@ public class AddUserDialog extends InfoDialog
 	@Override
 	void update()
 	{
-		Date today = new Date();
+		Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 		UserAccess userAccess = (UserAccess) accessCB.getSelectedItem();
 		UserPermission userPermission = (UserPermission) permissionCB.getSelectedItem();
 		String pw = "********";
-		reqAddUser = new ONCServerUser(0, today, userDB.getUserLNFI(), 3, "New user added",
+		reqAddUser = new ONCServerUser(0, calendar.getTime(), userDB.getUserLNFI(), 3, "New user added",
 				userDB.getUserLNFI(), tf[FIRST_NAME_INDEX].getText(), tf[LAST_NAME_INDEX].getText(),
 				UserStatus.Change_PW, userAccess, userPermission, tf[USERID_INDEX].getText(), pw, 0,
-				today, true, tf[ORG_INDEX].getText(), tf[TITLE_INDEX].getText(), tf[EMAIL_INDEX].getText(), tf[PHONE_INDEX].getText(), -1);
+				calendar.getTimeInMillis(), true, tf[ORG_INDEX].getText(), tf[TITLE_INDEX].getText(), tf[EMAIL_INDEX].getText(), tf[PHONE_INDEX].getText(), -1);
 		
 		result = true;
 		dispose();

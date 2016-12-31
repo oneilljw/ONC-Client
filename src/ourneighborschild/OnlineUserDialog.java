@@ -4,7 +4,9 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
+import java.util.TimeZone;
 
 import javax.swing.BoxLayout;
 import javax.swing.JDialog;
@@ -94,7 +96,8 @@ public class OnlineUserDialog extends JDialog
 		
 		public DialogTableModel()
 		{
-			sdf = new SimpleDateFormat("M/d h:m a");
+			sdf = new SimpleDateFormat("M/d h:mm a");
+//			sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 		}
 		
 		private static final long serialVersionUID = 1L;
@@ -120,7 +123,12 @@ public class OnlineUserDialog extends JDialog
         		return user.getClientID() == -1 ? "2016" : 
         				user.getClientYear() == -1 ? "None" : Integer.toString(user.getClientYear());
         	else if (col == TIME_COL)
-        		return sdf.format(user.getLastLogin());
+        	{
+        		//convert UTC to local time zone
+        		Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        		calendar.setTimeInMillis(user.getLastLogin());
+        		return sdf.format(calendar.getTime());
+        	}
         	else
         		return "Error";
         }

@@ -10,6 +10,8 @@ import java.awt.print.PrinterException;
 import java.sql.Date;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.TimeZone;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -117,10 +119,10 @@ public class ManageUsersDialog extends JDialog implements ActionListener, ListSe
 			private static final long serialVersionUID = 1L;
 			SimpleDateFormat f = new SimpleDateFormat("M/dd/yy H:mm:ss");
 
-		    public Component getTableCellRendererComponent(JTable table,Object value,
+		    public Component getTableCellRendererComponent(JTable table, Object value,
 		            boolean isSelected, boolean hasFocus, int row, int column)
-		    {
-		        if( value instanceof Date)
+		    { 
+		        if(value instanceof java.util.Date)
 		            value = f.format(value);
 		        
 		        return super.getTableCellRendererComponent(table, value, isSelected,
@@ -360,7 +362,11 @@ public class ManageUsersDialog extends JDialog implements ActionListener, ListSe
         	else if (col == LOGINS_COL)
         		return user.getNSessions();
         	else if (col == LAST_LOGIN_COL)
-        		return user.getLastLogin();
+        	{
+        		Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        		calendar.setTimeInMillis(user.getLastLogin());
+        		return calendar.getTime();
+        	}
         	else if (col == RESET_PW_COL)
         	{
         		GlobalVariables gvs = GlobalVariables.getInstance();
