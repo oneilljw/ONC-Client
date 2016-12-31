@@ -188,17 +188,18 @@ public class ONCFamily extends ONCEntity
 	}
 	
 	//Overloaded Constructor - Direct Intake Processing
-	public ONCFamily(int id, String cb, String oncNum, String odbFamilyNum, String batchNum, String speakEnglish, String language,
-				String hohFirstName, String hohLastName, String houseNum, String street, String unitNum,
-				String city, String zipCode, String altHouseNum, String altStreet, String altUnitNum,
-				String altCity, String altZipCode, String homePhone, String otherPhone, String altPhone, String familyEmail,
-				String odbDetails, String schools, String odbWishList, int agentID, int mealID, MealStatus mStatus, Transportation transportation)
+	public ONCFamily(int id, String cb, String oncNum, String odbFamilyNum, String batchNum, String speakEnglish,
+				String language, String hohFirstName, String hohLastName, String houseNum, String street, 
+				String unitNum, String city, String zipCode, String altHouseNum, String altStreet,
+				String altUnitNum, String altCity, String altZipCode, String homePhone, String otherPhone, 
+				String altPhone, String familyEmail, String odbDetails, String schools, boolean bGiftsRequested, 
+				String odbWishList, int agentID, int mealID, MealStatus mStatus, Transportation transportation)
 	{
 		super(id, new Date(), cb, STOPLIGHT_OFF, "Family referred", cb);
 		this.oncNum = oncNum;
 		this.region = -1;
 		this.famStatus = FamilyStatus.Unverified;
-		this.giftStatus = FamilyGiftStatus.Requested;
+		this.giftStatus = bGiftsRequested ? FamilyGiftStatus.Requested : FamilyGiftStatus.Not_Requested;
 		this.nBags = 0;
 		this.nLargeItems = 0;
 		this.referenceNum = odbFamilyNum;

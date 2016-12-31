@@ -20,9 +20,7 @@ public class ONCWebsiteFamily
 		this.targetID = f.getReferenceNum();
 		this.fstatus = f.getFamilyStatus().toString();
 		
-		if(f.getGiftStatus() == FamilyGiftStatus.Requested && f.getWishList().contains("assistance not requested"))
-				this.giftStatus ="Not Requested";
-		else if(f.getGiftStatus() == FamilyGiftStatus.Requested && f.getFamilyStatus().compareTo(FamilyStatus.InfoVerified) > 1)
+		if(f.getGiftStatus() == FamilyGiftStatus.Requested && f.getFamilyStatus().compareTo(FamilyStatus.InfoVerified) > 1)
 				this.giftStatus = f.getFamilyStatus().toString();
 		else
 			this.giftStatus = f.getGiftStatus().toString();

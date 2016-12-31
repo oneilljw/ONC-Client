@@ -209,8 +209,8 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         HOHLastName.setEditable(false);
         HOHLastName.addActionListener(fdcListener);
   
-        String[] fstat = {"Unverified", "Info Verified", "Gifts Selected", "Gifts Received", "Gifts Verified", "Packaged"};
-        statusCB = new JComboBox(fstat);
+//        String[] fstat = {"Unverified", "Info Verified", "Gifts Selected", "Gifts Received", "Gifts Verified", "Packaged"};
+        statusCB = new JComboBox(FamilyStatus.getSearchList());
         statusCB.setPreferredSize(new Dimension(152, 52));
         statusCB.setBorder(BorderFactory.createTitledBorder("Family Status"));
         statusCB.setEnabled(false);

@@ -283,10 +283,10 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 			wpStatus = WishPanelStatus.Enabled;
 		
 		//now that we've updated the panel status, update the component status
-//		if(childWish != null)
-//			setEnabledWishPanelComponents(childWish.getChildWishStatus());
-//		else
-//			setEnabledWishPanelComponents(WishStatus.Not_Selected);
+		if(childWish != null)
+			setEnabledWishPanelComponents(childWish.getChildWishStatus());
+		else
+			setEnabledWishPanelComponents(WishStatus.Not_Selected);
 	}
 
 	void setEnabledWishPanelComponents(WishStatus ws)
@@ -541,9 +541,7 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 			if(child != null && updatedFam.getID() == child.getFamID())
 			{
 				//current child displayed is in family, check for wish panel status change
-				String logEntry = String.format("WishPanel Event: %s, ONC# %s, status = %d",
-						dbe.getType(), updatedFam.getONCNum(), updatedFam.getFamilyStatus());
-				LogDialog.add(logEntry, "M");
+			
 				setEnabledWish(updatedFam);
 			}
 		}
