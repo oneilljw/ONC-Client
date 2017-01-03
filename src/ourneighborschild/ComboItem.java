@@ -29,7 +29,12 @@ public class ComboItem implements CanEnable
     public String toString()
     {  
         return object.toString();  
-    }  
+    }
+    
+    public Object getComboItem()
+    {
+    	return object;
+    }
 }  
 
 interface CanEnable

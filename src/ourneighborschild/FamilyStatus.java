@@ -22,7 +22,7 @@ public enum FamilyStatus
 	
 	public String toString() { return this.english; }
 	
-	static FamilyStatus getFamilyStatus(int statusIndex)
+	public static FamilyStatus getFamilyStatus(int statusIndex)
 	{
 		FamilyStatus result = FamilyStatus.Unverified;
 		for(FamilyStatus fs : FamilyStatus.getSearchList())

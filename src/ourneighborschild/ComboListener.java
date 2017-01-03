@@ -23,7 +23,6 @@ public class ComboListener implements ActionListener
         if (!((CanEnable) tempItem).isEnabled())
         	jcombo.setSelectedItem(curItem);  
         else
-            curItem = tempItem;
-        
+            curItem = tempItem;   
 	}	
 }

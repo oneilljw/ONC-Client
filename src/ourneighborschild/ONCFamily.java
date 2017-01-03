@@ -51,7 +51,7 @@ public class ONCFamily extends ONCEntity
 	private boolean		bGiftCardOnly;
 	
 	//constructor used to make a copy for server update requests
-	ONCFamily(ONCFamily f)
+	public ONCFamily(ONCFamily f)
 	{
 		super(f.getID(), f.getDateChanged(), f.getChangedBy(), f.getStoplightPos(), f.getStoplightMssg(), f.getStoplightChangedBy());
 		oncNum = f.oncNum;

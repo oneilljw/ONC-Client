@@ -49,7 +49,6 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	 * GUI elements and a child sub panel
 	 */
 	private static final long serialVersionUID = 1L;
-//	private static final int DELIVERY_STATUS_ASSIGNED = 3;
 	private static final int NUMBER_OF_WISHES_PER_CHILD = 3;
 	
 	//Icon references for the icon bar
@@ -96,7 +95,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private JRadioButton rbShowAllPhones, rbFamDetails, rbTransportation, rbDirections;
 	private JRadioButton rbNotGiftCardOnly, rbGiftCardOnly, rbAdults;
 	private JComboBox Language, statusCB;
-	private ComboItem[] delStatus;
+//	private ComboItem[] famStatus;
 	public  JTable childTable;
 	private ChildTableModel childTableModel;
 	private ArrayList<ONCChild> ctAL; //List holds children object references being displayed in table
@@ -209,7 +208,6 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         HOHLastName.setEditable(false);
         HOHLastName.addActionListener(fdcListener);
   
-//        String[] fstat = {"Unverified", "Info Verified", "Gifts Selected", "Gifts Received", "Gifts Verified", "Packaged"};
         statusCB = new JComboBox(FamilyStatus.getSearchList());
         statusCB.setPreferredSize(new Dimension(152, 52));
         statusCB.setBorder(BorderFactory.createTitledBorder("Family Status"));
@@ -243,16 +241,6 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         Language.setPreferredSize(new Dimension(140, 48));
         Language.setBorder(BorderFactory.createTitledBorder("Language"));
         Language.setEnabled(false);
-        
-        delStatus = new ComboItem[8];	//Delivery status combo box list objects can be enabled/disabled
-        delStatus[0] = new ComboItem("Empty");
-        delStatus[1] = new ComboItem("Contacted");  
-        delStatus[2] = new ComboItem("Confirmed");
-        delStatus[3] = new ComboItem("Assigned", false);   
-        delStatus[4] = new ComboItem("Attempted");
-        delStatus[5] = new ComboItem("Returned");
-        delStatus[6] = new ComboItem("Delivered");
-        delStatus[7] = new ComboItem("Counselor Pick-Up");
         
         lblGiftStatus = new JLabel();
         lblGiftStatus.setBorder(BorderFactory.createTitledBorder("Gift Status"));
@@ -1006,7 +994,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		if(!Unit.getText().equals(fam.getUnitNum())) {fam.setUnitNum(Unit.getText()); cf = 12;}
 		if(!City.getText().equals(fam.getCity())) {fam.setCity(City.getText()); cf = 13;}
 		if(!ZipCode.getText().equals(fam.getZipCode())) {fam.setZipCode(ZipCode.getText()); cf = 14;}
-		if(statusCB.getSelectedItem() != fam.getFamilyStatus()) {fam.setFamilyStatus((FamilyStatus) statusCB.getSelectedItem()); cf = 15;}
+		if(statusCB.getSelectedItem() != fam.getFamilyStatus()) {fam.setFamilyStatus( (FamilyStatus) statusCB.getSelectedItem()); cf = 15;}
 		if(!wishlistPane.getText().equals(fam.getWishList())) {fam.setWishList(wishlistPane.getText()); cf = 17;}
 		if(!oncNotesPane.getText().equals(fam.getNotes())) {fam.setNotes(oncNotesPane.getText()); cf = 18;}
 		if(!oncDIPane.getText().equals(fam.getDeliveryInstructions())) {fam.setDeliveryInstructions(oncDIPane.getText()); cf = 19;}
