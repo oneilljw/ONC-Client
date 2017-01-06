@@ -151,7 +151,7 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 			//Determine if family meets search criteria to be added to the table. If a
 			//family's status isn't FAMILY_STATUS_PACKAGED, they aren't eligible to be
 			//assigned for delivery regardless of search criteria
-			if(f.getFamilyStatus() == FamilyStatus.Packaged &&
+			if(f.getGiftStatus() == FamilyGiftStatus.Packaged &&
 				isRegionInRange(f.getRegion()) &&
 				 doesONCNumMatch(f.getONCNum()) &&
 				  doesDStatusPass(f.getGiftStatus()))	
@@ -263,7 +263,7 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 			{
 				//Add a new delivery to the delivery history with the assigned driver
 				//and the status set to assigned. Adding new delivery updates family changed by field
-				ONCDelivery reqDelivery = new ONCDelivery(-1, f.getID(), FamilyGiftStatus.Assigned,
+				ONCFamilyHistory reqDelivery = new ONCFamilyHistory(-1, f.getID(), FamilyGiftStatus.Assigned,
 															assignDriverTF.getText(),
 															"Delivery Driver Assigned",
 															userDB.getUserLNFI(),

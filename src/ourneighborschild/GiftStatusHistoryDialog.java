@@ -29,7 +29,7 @@ public class GiftStatusHistoryDialog extends HistoryDialog
 	private DeliveryDB deliveryDB;
 	private VolunteerDB volunteerDB;
 	
-	private List<ONCDelivery> delList;
+	private List<ONCFamilyHistory> delList;
 	
 	public GiftStatusHistoryDialog(JFrame pf) 
 	{
@@ -45,7 +45,7 @@ public class GiftStatusHistoryDialog extends HistoryDialog
 		if(deliveryDB != null)
 			deliveryDB.addDatabaseListener(this);
 		
-		delList = new ArrayList<ONCDelivery>();
+		delList = new ArrayList<ONCFamilyHistory>();
 	}
 	
 	@Override
@@ -57,9 +57,9 @@ public class GiftStatusHistoryDialog extends HistoryDialog
 		dlgTableModel.fireTableDataChanged();
 	}
 	
-	List<ONCDelivery> getSortedList()
+	List<ONCFamilyHistory> getSortedList()
 	{
-		List<ONCDelivery> dList = deliveryDB.getDeliveryHistoryAL(currFam.getID());
+		List<ONCFamilyHistory> dList = deliveryDB.getDeliveryHistoryAL(currFam.getID());
 		Collections.sort(dList, new DeliveryDateChangedComparator());
 		
 		return dList;
@@ -85,7 +85,7 @@ public class GiftStatusHistoryDialog extends HistoryDialog
 	{
 		//If it exists, get the ONC Delivery object and compare it to the data in the cell that changed
 		//Store new data back into the sub database as necessary and indicate the data base changed				      
-		ONCDelivery updateDelReq = new ONCDelivery(delList.get(0));	//make a copy 
+		ONCFamilyHistory updateDelReq = new ONCFamilyHistory(delList.get(0));	//make a copy 
 			
 		//Update the notes and changed by fields in the request
 		updateDelReq.setdNotes(notes);
@@ -96,7 +96,7 @@ public class GiftStatusHistoryDialog extends HistoryDialog
 		if(response.startsWith("UPDATED_DELIVERY"))	//did local data base update?
 		{
 			Gson gson = new Gson();
-			ONCDelivery updatedDel = gson.fromJson(response.substring(16), ONCDelivery.class);
+			ONCFamilyHistory updatedDel = gson.fromJson(response.substring(16), ONCFamilyHistory.class);
 			delList.set(0, updatedDel);
 		}
 		else
@@ -116,7 +116,7 @@ public class GiftStatusHistoryDialog extends HistoryDialog
 		if(dbe.getSource() != this && this.isVisible() && dbe.getType().equals("UPDATED_DELIVERY") ||
 			dbe.getType().equals("ADDED_DELIVERY"))
 		{
-			ONCDelivery updatedDelivery = (ONCDelivery) dbe.getObject1();
+			ONCFamilyHistory updatedDelivery = (ONCFamilyHistory) dbe.getObject1();
 			
 			//If updated delivery belongs to family delivery history being displayed,
 			//re-display it
@@ -176,7 +176,7 @@ public class GiftStatusHistoryDialog extends HistoryDialog
         {
         	Object value;
         	
-        	ONCDelivery del = delList.get(row);
+        	ONCFamilyHistory del = delList.get(row);
         	
         	if(col == STATUS_COL)
         		value = del.getdStatus().toString();
@@ -220,10 +220,10 @@ public class GiftStatusHistoryDialog extends HistoryDialog
         }
     }
 	
-	private class DeliveryDateChangedComparator implements Comparator<ONCDelivery>
+	private class DeliveryDateChangedComparator implements Comparator<ONCFamilyHistory>
 	{
 		@Override
-		public int compare(ONCDelivery o1, ONCDelivery o2)
+		public int compare(ONCFamilyHistory o1, ONCFamilyHistory o2)
 		{
 			return o2.getdChanged().compareTo(o1.getdChanged());
 		}

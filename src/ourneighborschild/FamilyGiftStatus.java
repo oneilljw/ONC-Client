@@ -4,15 +4,17 @@ public enum FamilyGiftStatus
 {
 	Any (0, "Any"),
 	No_Change (0, "No Change"),
-	Requested (0, "Requested"),
-	Contacted (1,"Contacted"),
-	Confirmed (2,"Confirmed"),
-	Assigned (3, "Assigned"),
-	Attempted (4,"Attempted"),
-	Returned (5,"Returned"),
-	Delivered (6,"Delivered"),
-	Counselor_Pickup (7,"Counselor Pick-Up"),
-	Not_Requested (8,"Not Requested");
+	NotRequested (0, "Not Requested"),
+	Requested(1, "Requested"),
+	Selected (2,"Selected"),
+	Received (3,"Received"),
+	Verified (4, "Verified"),
+	Packaged (5, "Packaged"),
+	Assigned(6,"Assigned"),
+	Delivered (7, "Delivered"),
+	Attempted (8, "Attempted"),
+	Returned (9, "Returned"),
+	CounselorPickUp (10, "Counselor Pick-Up");
 	
 	private final int statusIndex;
 	private final String english;
@@ -27,7 +29,7 @@ public enum FamilyGiftStatus
 	
 	static FamilyGiftStatus getFamilyGiftStatus(int statusIndex)
 	{
-		FamilyGiftStatus result = FamilyGiftStatus.Requested;
+		FamilyGiftStatus result = FamilyGiftStatus.NotRequested;
 		for(FamilyGiftStatus fgs : FamilyGiftStatus.getSearchList())
 			if(fgs.statusIndex == statusIndex)
 			{
@@ -42,32 +44,32 @@ public enum FamilyGiftStatus
 	
 	static FamilyGiftStatus[] getSearchList()
 	{
-		FamilyGiftStatus[] fgsSearch = {FamilyGiftStatus.Requested, FamilyGiftStatus.Contacted,
-										FamilyGiftStatus.Confirmed, FamilyGiftStatus.Assigned, 
-										FamilyGiftStatus.Attempted, FamilyGiftStatus.Returned, 
-										FamilyGiftStatus.Delivered, FamilyGiftStatus.Counselor_Pickup,
-										FamilyGiftStatus.Not_Requested};
+		FamilyGiftStatus[] fgsSearch = {FamilyGiftStatus.NotRequested, FamilyGiftStatus.Requested, 
+										FamilyGiftStatus.Selected, FamilyGiftStatus.Received,
+										FamilyGiftStatus.Assigned, FamilyGiftStatus.Attempted,
+										FamilyGiftStatus.Returned, FamilyGiftStatus.Delivered,
+										FamilyGiftStatus.CounselorPickUp};
 		
 		return fgsSearch;
 	}
 	
 	static FamilyGiftStatus[] getSearchFilterList()
 	{
-		FamilyGiftStatus[] fgsSearch = {FamilyGiftStatus.Any, FamilyGiftStatus.Not_Requested,
-										FamilyGiftStatus.Requested, FamilyGiftStatus.Contacted,
-										FamilyGiftStatus.Confirmed, FamilyGiftStatus.Assigned, 
+		FamilyGiftStatus[] fgsSearch = {FamilyGiftStatus.Any, FamilyGiftStatus.NotRequested,
+										FamilyGiftStatus.Requested, FamilyGiftStatus.Selected,
+										FamilyGiftStatus.Received, FamilyGiftStatus.Assigned, 
 										FamilyGiftStatus.Attempted, FamilyGiftStatus.Returned, 
-										FamilyGiftStatus.Delivered, FamilyGiftStatus.Counselor_Pickup};
+										FamilyGiftStatus.Delivered, FamilyGiftStatus.CounselorPickUp};
 		
 		return fgsSearch;
 	}
 	
 	static FamilyGiftStatus[] getChangeList()
 	{
-		FamilyGiftStatus[] fgsChange = {FamilyGiftStatus.No_Change, FamilyGiftStatus.Not_Requested, FamilyGiftStatus.Requested,
-										FamilyGiftStatus.Contacted, FamilyGiftStatus.Confirmed, 
+		FamilyGiftStatus[] fgsChange = {FamilyGiftStatus.No_Change, FamilyGiftStatus.NotRequested, FamilyGiftStatus.Requested,
+										FamilyGiftStatus.Selected, FamilyGiftStatus.Received, 
 										FamilyGiftStatus.Attempted, FamilyGiftStatus.Returned, 
-										FamilyGiftStatus.Delivered, FamilyGiftStatus.Counselor_Pickup};
+										FamilyGiftStatus.Delivered, FamilyGiftStatus.CounselorPickUp};
 		
 		return fgsChange;
 	}	

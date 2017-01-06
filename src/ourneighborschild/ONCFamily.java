@@ -199,7 +199,7 @@ public class ONCFamily extends ONCEntity
 		this.oncNum = oncNum;
 		this.region = -1;
 		this.famStatus = FamilyStatus.Unverified;
-		this.giftStatus = bGiftsRequested ? FamilyGiftStatus.Requested : FamilyGiftStatus.Not_Requested;
+		this.giftStatus = bGiftsRequested ? FamilyGiftStatus.Requested : FamilyGiftStatus.NotRequested;
 		this.nBags = 0;
 		this.nLargeItems = 0;
 		this.referenceNum = odbFamilyNum;

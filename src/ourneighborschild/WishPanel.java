@@ -273,7 +273,7 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 	void setEnabledWish(ONCFamily fam)
 	{
 		//only enable wish panels if family has been verified and gifts have been requested
-		if(fam.getFamilyStatus() == FamilyStatus.Unverified || fam.getGiftStatus() == FamilyGiftStatus.Not_Requested)	
+		if(fam.getFamilyStatus() == FamilyStatus.Unverified || fam.getGiftStatus() == FamilyGiftStatus.NotRequested)	
 			wpStatus = WishPanelStatus.Disabled;
 		else 
 			wpStatus = WishPanelStatus.Enabled;

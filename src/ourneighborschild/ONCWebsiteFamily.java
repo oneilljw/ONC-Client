@@ -19,11 +19,12 @@ public class ONCWebsiteFamily
 		this.oncNum = f.getONCNum();
 		this.targetID = f.getReferenceNum();
 		this.fstatus = f.getFamilyStatus().toString();
+		this.giftStatus = f.getGiftStatus().toString();
 		
-		if(f.getGiftStatus() == FamilyGiftStatus.Requested && f.getFamilyStatus().compareTo(FamilyStatus.InfoVerified) > 1)
-				this.giftStatus = f.getFamilyStatus().toString();
-		else
-			this.giftStatus = f.getGiftStatus().toString();
+//		if(f.getGiftStatus() == FamilyGiftStatus.Requested && f.getFamilyStatus().compareTo(FamilyStatus.InfoVerified) > 1)
+//				this.giftStatus = f.getFamilyStatus().toString();
+//		else
+//			this.giftStatus = f.getGiftStatus().toString();
 		
 		this.DNSCode = f.getDNSCode();
 		this.HOHFirstName = f.getHOHFirstName();

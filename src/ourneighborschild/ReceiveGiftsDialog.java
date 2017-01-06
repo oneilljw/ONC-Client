@@ -33,7 +33,7 @@ public class ReceiveGiftsDialog extends GiftActionDialog
 	@Override
 	boolean changeFamilyStatus() 
 	{
-		return lastWishChanged.getFamily().getFamilyStatus() == FamilyStatus.GiftsReceived;
+		return lastWishChanged.getFamily().getGiftStatus() == FamilyGiftStatus.Received;
 	}
 	
 	@Override

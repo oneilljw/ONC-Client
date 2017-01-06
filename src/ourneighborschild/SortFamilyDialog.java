@@ -447,25 +447,32 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			if(changeFStatusCB.getSelectedIndex() > 0 && 
 					f.getFamilyStatus() != changeFStatusCB.getSelectedItem())
 			{
-				//If family status is changing from PACKAGED, number of family bags must be set to 0
-				if(f.getFamilyStatus() == FamilyStatus.Packaged)	//If changing away from PACKAGED, reset bags
-					f.setNumOfBags(0);
 				
 				f.setFamilyStatus( (FamilyStatus) changeFStatusCB.getSelectedItem());
 				f.setChangedBy(userDB.getUserLNFI());	//Set the changed by field to current user
 
 				bFamilyChangeDetected = true;
 			}
-			//If a change to Delivery Status, process it
+			//If a change to Gift Status, process it
 			if(changeGiftStatusCB.getSelectedIndex() > 0 && 
 					f.getGiftStatus() != changeGiftStatusCB.getSelectedItem())
 			{
-				//Add a new delivery to the delivery history with the assigned driver
+				//If gift status is changing from PACKAGED, number of family bags must be set to 0
+				if(f.getGiftStatus() == FamilyGiftStatus.Packaged)	//If changing away from PACKAGED, reset bags
+					f.setNumOfBags(0);
+				
+				f.setGiftStatus( (FamilyGiftStatus) changeGiftStatusCB.getSelectedItem());
+				f.setChangedBy(userDB.getUserLNFI());	//Set the changed by field to current user
+
+				bFamilyChangeDetected = true;
+				
+				
+				//Add a new gift status to the gift status history with the assigned driver
 				//and the status set to assigned.
-				ONCDelivery reqDelivery = new ONCDelivery(-1, f.getID(),
+				ONCFamilyHistory reqDelivery = new ONCFamilyHistory(-1, f.getID(),
 						(FamilyGiftStatus) changeGiftStatusCB.getSelectedItem(),
 						deliveryDB.getDeliveredBy(f.getDeliveryID()),
-						"Delivery Status Changed",
+						"Gift Status Changed",
 						userDB.getUserLNFI(),
 						Calendar.getInstance());
 

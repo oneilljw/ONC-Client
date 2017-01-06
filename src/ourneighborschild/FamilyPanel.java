@@ -90,11 +90,11 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private JTextField oncDNScode;
 	private JTextField HOHFirstName, HOHLastName, EMail;
 	private JTextField housenumTF, Street, Unit, City, ZipCode;
-	private JLabel lblONCNum, lblRefNum, lblBatchNum, lblRegion, lblNumBags, lblChangedBy, lblGiftStatus;
+	private JLabel lblONCNum, lblRefNum, lblBatchNum, lblRegion, lblNumBags, lblChangedBy;
 	private JRadioButton rbGiftStatusHistory, rbAltAddress, rbMeals, rbPriorHistory, rbAgentInfo;
 	private JRadioButton rbShowAllPhones, rbFamDetails, rbTransportation, rbDirections;
 	private JRadioButton rbNotGiftCardOnly, rbGiftCardOnly, rbAdults;
-	private JComboBox Language, statusCB;
+	private JComboBox Language, statusCB, giftStatusCB;
 //	private ComboItem[] famStatus;
 	public  JTable childTable;
 	private ChildTableModel childTableModel;
@@ -242,9 +242,11 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         Language.setBorder(BorderFactory.createTitledBorder("Language"));
         Language.setEnabled(false);
         
-        lblGiftStatus = new JLabel();
-        lblGiftStatus.setBorder(BorderFactory.createTitledBorder("Gift Status"));
-        lblGiftStatus.setPreferredSize(new Dimension(132, 52));               
+        giftStatusCB = new JComboBox(FamilyGiftStatus.getSearchList());
+        giftStatusCB.setBorder(BorderFactory.createTitledBorder("Gift Status"));
+        giftStatusCB.setPreferredSize(new Dimension(132, 52));
+        giftStatusCB.setEnabled(false);
+        giftStatusCB.addActionListener(this);
 
         housenumTF = new JTextField();
         housenumTF.setPreferredSize(new Dimension(72, 44));
@@ -470,7 +472,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         p2.add(otherPhoneScrollPane);
         p2.add(EMail);
 		p2.add(Language);
-		p2.add(lblGiftStatus);
+		p2.add(giftStatusCB);
 		
         p3.add(housenumTF);
         p3.add(Street);
@@ -701,7 +703,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		statusCB.setSelectedItem(currFam.getFamilyStatus());
 		lblNumBags.setText(Integer.toString(currFam.getNumOfBags()));
 		
-		lblGiftStatus.setText(currFam.getGiftStatus().toString());
+		giftStatusCB.setSelectedItem(currFam.getGiftStatus());
 		Language.setSelectedItem((String)currFam.getLanguage());
 		lblChangedBy.setText(currFam.getChangedBy());
 		lblRegion.setText(regions.getRegionID(currFam.getRegion()));
@@ -995,6 +997,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		if(!City.getText().equals(fam.getCity())) {fam.setCity(City.getText()); cf = 13;}
 		if(!ZipCode.getText().equals(fam.getZipCode())) {fam.setZipCode(ZipCode.getText()); cf = 14;}
 		if(statusCB.getSelectedItem() != fam.getFamilyStatus()) {fam.setFamilyStatus( (FamilyStatus) statusCB.getSelectedItem()); cf = 15;}
+		if(giftStatusCB.getSelectedItem() != fam.getGiftStatus()) {fam.setGiftStatus( (FamilyGiftStatus) giftStatusCB.getSelectedItem()); cf = 16;}
 		if(!wishlistPane.getText().equals(fam.getWishList())) {fam.setWishList(wishlistPane.getText()); cf = 17;}
 		if(!oncNotesPane.getText().equals(fam.getNotes())) {fam.setNotes(oncNotesPane.getText()); cf = 18;}
 		if(!oncDIPane.getText().equals(fam.getDeliveryInstructions())) {fam.setDeliveryInstructions(oncDIPane.getText()); cf = 19;}
@@ -1260,7 +1263,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		{
 			//If family status is changing to PACKAGED, solicit the number of bags. Else, the 
 			//number of bags must be zero
-			if(statusCB.getSelectedItem() == FamilyStatus.Packaged)
+			if(statusCB.getSelectedItem() == FamilyGiftStatus.Packaged)
 			{
 				FamilyBagDialog fbDlg = new FamilyBagDialog(parentFrame);
 				fbDlg.setVisible(true);
@@ -1405,7 +1408,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("ADDED_DELIVERY"))
 		{
-			ONCDelivery updatedDelivery = (ONCDelivery) dbe.getObject1();
+			ONCFamilyHistory updatedDelivery = (ONCFamilyHistory) dbe.getObject1();
 				
 			//If updated delivery belongs to family being displayed, re-display it
 			if(currFam.getID() == updatedDelivery.getFamID())

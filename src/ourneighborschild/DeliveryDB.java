@@ -26,12 +26,12 @@ public class DeliveryDB extends ONCDatabase
 {
 	private static final int DELIVERYDB_CSV_HEADER_LENGTH = 7;
 	private static DeliveryDB instance = null;
-	private ArrayList<ONCDelivery> dAL;
+	private ArrayList<ONCFamilyHistory> dAL;
 	
 	private DeliveryDB()
 	{
 		super();
-		dAL = new ArrayList<ONCDelivery>();
+		dAL = new ArrayList<ONCFamilyHistory>();
 	}
 	
 	public static DeliveryDB getInstance()
@@ -57,17 +57,17 @@ public class DeliveryDB extends ONCDatabase
 		String response = "";
 		
 		response = serverIF.sendRequest("POST<add_delivery>" + 
-											gson.toJson(entity, ONCDelivery.class));
+											gson.toJson(entity, ONCFamilyHistory.class));
 		if(response.startsWith("ADDED_DELIVERY"))
 			processAddedObject(source, response.substring(14));
 		
 		return response;	
 	}
 	
-	String addGroup(Object source, List<ONCDelivery> deliveryList)
+	String addGroup(Object source, List<ONCFamilyHistory> deliveryList)
 	{
 		Gson gson = new Gson();
-		Type listtype = new TypeToken<ArrayList<ONCDelivery>>(){}.getType();
+		Type listtype = new TypeToken<ArrayList<ONCFamilyHistory>>(){}.getType();
 			
 		String response = gson.toJson(deliveryList, listtype);
 		
@@ -80,7 +80,7 @@ public class DeliveryDB extends ONCDatabase
 	{
 		//Store added ONCDelivery object in local data base
 		Gson gson = new Gson();
-		ONCDelivery addedObject = gson.fromJson(json, ONCDelivery.class);
+		ONCFamilyHistory addedObject = gson.fromJson(json, ONCFamilyHistory.class);
 		
 		dAL.add(addedObject);
 //		System.out.println(String.format("DeliveryDB processAddedObject: Delivery Added ID: %d",
@@ -97,7 +97,7 @@ public class DeliveryDB extends ONCDatabase
 		fireDataChanged(source, "ADDED_DELIVERY", addedObject);
 	}
 	
-	ONCDelivery getDelivery(int id)
+	ONCFamilyHistory getDelivery(int id)
 	{
 		int index = 0;
 		while(index < dAL.size() && dAL.get(index).getID() != id)
@@ -109,10 +109,10 @@ public class DeliveryDB extends ONCDatabase
 			return dAL.get(index);
 	}
 	
-	ArrayList<ONCDelivery> getDeliveryHistoryAL(int famID)
+	ArrayList<ONCFamilyHistory> getDeliveryHistoryAL(int famID)
 	{
-		ArrayList<ONCDelivery> famDelAL = new ArrayList<ONCDelivery>();
-		for(ONCDelivery d:dAL)
+		ArrayList<ONCFamilyHistory> famDelAL = new ArrayList<ONCFamilyHistory>();
+		for(ONCFamilyHistory d:dAL)
 			if(d.getFamID() == famID)
 				famDelAL.add(d);
 		return famDelAL;
@@ -137,13 +137,13 @@ public class DeliveryDB extends ONCDatabase
 	
 	public void readDeliveryALObject(ObjectInputStream ois)
 	{
-		ArrayList<ONCDelivery> dal = new ArrayList<ONCDelivery>();
+		ArrayList<ONCFamilyHistory> dal = new ArrayList<ONCFamilyHistory>();
 		
 		try 
 		{
-			dal = (ArrayList<ONCDelivery>) ois.readObject();
+			dal = (ArrayList<ONCFamilyHistory>) ois.readObject();
 			
-			for(ONCDelivery d:dal)
+			for(ONCFamilyHistory d:dal)
 			{
 				dAL.add(d);
 			}
@@ -180,7 +180,7 @@ public class DeliveryDB extends ONCDatabase
 		if(serverIF != null && serverIF.isConnected())
 		{		
 			Gson gson = new Gson();
-			Type listtype = new TypeToken<ArrayList<ONCDelivery>>(){}.getType();
+			Type listtype = new TypeToken<ArrayList<ONCFamilyHistory>>(){}.getType();
 			
 			response = serverIF.sendRequest("GET<deliveries>");
 				dAL = gson.fromJson(response, listtype);
@@ -229,7 +229,7 @@ public class DeliveryDB extends ONCDatabase
 	    			{
 	    				dAL.clear();
 	    				while ((nextLine = reader.readNext()) != null)	// nextLine[] is an array of values from the line
-	    					dAL.add(new ONCDelivery(nextLine));
+	    					dAL.add(new ONCFamilyHistory(nextLine));
 	    			}
 	    			else
 	    				JOptionPane.showMessageDialog(pf, "Delivery DB file corrupted, header length = " + Integer.toString(header.length), 
@@ -280,7 +280,7 @@ public class DeliveryDB extends ONCDatabase
 	    		CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
 	    	    writer.writeNext(header);
 	    	    
-	    	    for(ONCDelivery d:dAL)
+	    	    for(ONCFamilyHistory d:dAL)
 	    	    	writer.writeNext(d.getExportRow());	//Get family data
 	    	 
 	    	    writer.close();
@@ -324,7 +324,7 @@ public class DeliveryDB extends ONCDatabase
 		String response = null;
 		
 		response = serverIF.sendRequest("POST<update_delivery>" + 
-												gson.toJson(updatedDelivery, ONCDelivery.class));
+												gson.toJson(updatedDelivery, ONCFamilyHistory.class));
 			 
 		
 		//check response. If response from server indicates a successful update,
@@ -340,7 +340,7 @@ public class DeliveryDB extends ONCDatabase
 	{
 		//Create a new object for the update
 		Gson gson = new Gson();
-		ONCDelivery updatedObj = gson.fromJson(json, ONCDelivery.class);
+		ONCFamilyHistory updatedObj = gson.fromJson(json, ONCFamilyHistory.class);
 		
 		//Find the position for the delivery being updated
 		int index = 0;
@@ -365,7 +365,7 @@ public class DeliveryDB extends ONCDatabase
 	public int getNumberOfDeliveries(String drvNum) 
 	{
 		int nDeliveries = 0;
-		for(ONCDelivery del: dAL)
+		for(ONCFamilyHistory del: dAL)
 			if(del.getdDelBy().equals(drvNum))
 				nDeliveries++;
 		

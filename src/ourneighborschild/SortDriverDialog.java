@@ -148,7 +148,7 @@ public class SortDriverDialog extends DependantTableDialog
 				//determine if the family has a driver based on the delivery. If the family
 				//has a driver, does the delivery driver's ID match the id of the driver selected
 				//in the selection table. If so, add to the defendant table list
-				ONCDelivery del = deliveryDB.getDelivery(f.getDeliveryID());
+				ONCFamilyHistory del = deliveryDB.getDelivery(f.getDeliveryID());
 			
 				if(del != null && !del.getdDelBy().isEmpty())
 				{

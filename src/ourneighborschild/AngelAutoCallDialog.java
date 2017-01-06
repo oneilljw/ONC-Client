@@ -489,10 +489,10 @@ public class AngelAutoCallDialog extends ONCTableDialog implements ActionListene
 		}
 		return filename;
 	 }
-	 
-	 void updateFamilyDeliveryStatus()
+/*	 
+	 void updateFamilyStatus()
 	 {
-		 List<ONCDelivery> deliveryList = new ArrayList<ONCDelivery>();
+		 List<ONCFamily> reqFamilyUupdateList = new ArrayList<ONCFamily>();
 		 
 //		 Families familyDB = Families.getInstance();
 //		 DriverDB driverDB = DriverDB.getInstance();
@@ -508,56 +508,36 @@ public class AngelAutoCallDialog extends ONCTableDialog implements ActionListene
 //				 ONCFamily f = stAL.get(i).getFamily();
 //				 ONCFamily reqFamUpdate = new ONCFamily(f); //make a copy of the family object
 			 
-				 //If status == confirmed is an upgrade to status, change the family status and
-				 //create a new ONCDelivery object
-				 if(f.getGiftStatus().compareTo(FamilyGiftStatus.Confirmed) < 0 && 
+				 //If status == confirmed is an upgrade to family status, change the family status and
+				 //create a new FamilyStatusHistory object
+				 if(f.getFamilyStatus().compareTo(FamilyStatus.Confirmed) < 0 && 
 						 stAL.get(i).getCallResult().equals(ANGEL_DELIVERY_CONFIRMED))
 				 {
-					 //add a new delivery to the delivery data base
-					 ONCDelivery reqDelivery = new ONCDelivery(-1, f.getID(), FamilyGiftStatus.Confirmed,
-							 					deliveryDB.getDeliveredBy(f.getDeliveryID()),
-							 					"Angel Call Result: Confirmed",
-							 					userDB.getUserLNFI(),
-							 					Calendar.getInstance());
+					 //add a family update to the list of families with status changing
+//					 ONCDelivery reqDelivery = new ONCDelivery(-1, f.getID(), FamilyStatus.Confirmed,
+//							 					deliveryDB.getDeliveredBy(f.getDeliveryID()),
+//							 					"Angel Call Result: Confirmed",
+//							 					userDB.getUserLNFI(),
+//							 					Calendar.getInstance());
 					 
-					 deliveryList.add(reqDelivery);
+					 ONCFamily reqUpdateFam = new ONCFamily(f);
+					 f.setFamilyStatus(FamilyStatus.Confirmed);
+					 f.setChangedBy(userDB.getUserLNFI()); 
 					 
-//					 String response = deliveryDB.add(this, reqDelivery);
-//					 if(response.startsWith("ADDED_DELIVERY"))
-//					 {
-//						bCallsProcessed = true;
-//					 }
-//					 else
-//					 {
-//						//display an error message that update request failed
-//						JOptionPane.showMessageDialog(this, "ONC Server denied Delivery Update," +
-//								"try again later","Driver Update Failed",  
-//								JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
-// 					 }
+					 requestFamilyUpdateList.add(reqDelivery);
+					 
+
 				 }			 
-				 else if(f.getGiftStatus().compareTo(FamilyGiftStatus.Contacted) < 0)
+				 else if(f.getFamilyStatus().compareTo(FamilyStatus.Contacted) < 0)
 				 {
 					//add a new delivery to the delivery data base
-					 ONCDelivery reqDelivery = new ONCDelivery(-1, f.getID(), FamilyGiftStatus.Contacted,
+					 ONCDelivery reqDelivery = new ONCDelivery(-1, f.getID(), FamilyStatus.Contacted,
 							 					deliveryDB.getDeliveredBy(f.getDeliveryID()),
 							 					"Angel Call Result: Contacted",
 							 					userDB.getUserLNFI(),
 							 					Calendar.getInstance());
 					 
 					 deliveryList.add(reqDelivery);
-//					 
-//					 String response = deliveryDB.add(this, reqDelivery);
-//					 if(response.startsWith("ADDED_DELIVERY"))
-//					 {
-//						bCallsProcessed = true;
-//					 }
-//					 else
-//					 {
-//						//display an error message that update request failed
-//						JOptionPane.showMessageDialog(this, "ONC Server denied Driver Update," +
-//								"try again later","Driver Update Failed",  
-//								JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
-// 					 }
 				 }
 			 }
 		 }
@@ -586,7 +566,7 @@ public class AngelAutoCallDialog extends ONCTableDialog implements ActionListene
 						JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
 		 }
 	 }
-	 
+*/	 
 	 void print(String name)
 	 {
 		 try
@@ -706,7 +686,7 @@ public class AngelAutoCallDialog extends ONCTableDialog implements ActionListene
 		
 			Object selectedValue = confirmOP.getValue();
 			if(selectedValue != null && selectedValue.toString().equals("Process Calls"))
-				updateFamilyDeliveryStatus();
+//				updateFamilyStatus();
 			
 			checkAndEnableControls();
 		}
