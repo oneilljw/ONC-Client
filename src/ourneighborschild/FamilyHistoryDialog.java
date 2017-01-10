@@ -12,40 +12,41 @@ import javax.swing.table.AbstractTableModel;
 
 import com.google.gson.Gson;
 
-public class GiftStatusHistoryDialog extends HistoryDialog 
+public class FamilyHistoryDialog extends HistoryDialog 
 {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private static final int STATUS_COL= 0;
-	private static final int DELIVERED_BY_COL = 1;
-	private static final int NOTES_COL = 2;
-	private static final int CHANGED_BY_COL = 3;
-	private static final int DATE_CHANGED_COL = 4;
+	private static final int FAMILY_STATUS_COL = 0;
+	private static final int GIFT_STATUS_COL = 1;
+	private static final int DELIVERED_BY_COL = 2;
+	private static final int NOTES_COL = 3;
+	private static final int CHANGED_BY_COL = 4;
+	private static final int DATE_CHANGED_COL = 5;
 	
 	private AbstractTableModel dlgTableModel;
 	
-	private DeliveryDB deliveryDB;
+	private FamilyHistoryDB familyHistoryDB;
 	private VolunteerDB volunteerDB;
 	
-	private List<ONCFamilyHistory> delList;
+	private List<ONCFamilyHistory> histList;
 	
-	public GiftStatusHistoryDialog(JFrame pf) 
+	public FamilyHistoryDialog(JFrame pf) 
 	{
-		super(pf, "Delivery");
+		super(pf, "Status");
 		// TODO Auto-generated constructor stub
 		
 		volunteerDB = VolunteerDB.getInstance();
-		deliveryDB = DeliveryDB.getInstance();
+		familyHistoryDB = FamilyHistoryDB.getInstance();
 		
 		if(volunteerDB != null)
 			volunteerDB.addDatabaseListener(this);
 		
-		if(deliveryDB != null)
-			deliveryDB.addDatabaseListener(this);
+		if(familyHistoryDB != null)
+			familyHistoryDB.addDatabaseListener(this);
 		
-		delList = new ArrayList<ONCFamilyHistory>();
+		histList = new ArrayList<ONCFamilyHistory>();
 	}
 	
 	@Override
@@ -53,16 +54,16 @@ public class GiftStatusHistoryDialog extends HistoryDialog
 	{
 		this.currFam = (ONCFamily) obj;
 		setDialogTitle();
-		delList = getSortedList();
+		histList = getSortedList();
 		dlgTableModel.fireTableDataChanged();
 	}
 	
 	List<ONCFamilyHistory> getSortedList()
 	{
-		List<ONCFamilyHistory> dList = deliveryDB.getDeliveryHistoryAL(currFam.getID());
-		Collections.sort(dList, new DeliveryDateChangedComparator());
+		List<ONCFamilyHistory> hList = familyHistoryDB.getDeliveryHistoryAL(currFam.getID());
+		Collections.sort(hList, new HistoryItemDateChangedComparator());
 		
-		return dList;
+		return hList;
 	}
 
 	@Override
@@ -85,19 +86,19 @@ public class GiftStatusHistoryDialog extends HistoryDialog
 	{
 		//If it exists, get the ONC Delivery object and compare it to the data in the cell that changed
 		//Store new data back into the sub database as necessary and indicate the data base changed				      
-		ONCFamilyHistory updateDelReq = new ONCFamilyHistory(delList.get(0));	//make a copy 
+		ONCFamilyHistory updateDelReq = new ONCFamilyHistory(histList.get(0));	//make a copy 
 			
 		//Update the notes and changed by fields in the request
 		updateDelReq.setdNotes(notes);
 		updateDelReq.setdChangedBy(userDB.getUserLNFI());
 			
 		//send the request to the local data base
-		String response = deliveryDB.update(this, updateDelReq);	
+		String response = familyHistoryDB.update(this, updateDelReq);	
 		if(response.startsWith("UPDATED_DELIVERY"))	//did local data base update?
 		{
 			Gson gson = new Gson();
 			ONCFamilyHistory updatedDel = gson.fromJson(response.substring(16), ONCFamilyHistory.class);
-			delList.set(0, updatedDel);
+			histList.set(0, updatedDel);
 		}
 		else
 		{
@@ -116,11 +117,11 @@ public class GiftStatusHistoryDialog extends HistoryDialog
 		if(dbe.getSource() != this && this.isVisible() && dbe.getType().equals("UPDATED_DELIVERY") ||
 			dbe.getType().equals("ADDED_DELIVERY"))
 		{
-			ONCFamilyHistory updatedDelivery = (ONCFamilyHistory) dbe.getObject1();
+			ONCFamilyHistory updatedHistoryObj = (ONCFamilyHistory) dbe.getObject1();
 			
 			//If updated delivery belongs to family delivery history being displayed,
 			//re-display it
-			if(currFam != null && currFam.getID() == updatedDelivery.getFamID())
+			if(currFam != null && currFam.getID() == updatedHistoryObj.getFamID())
 				display(currFam);
 		}
 		else if(dbe.getSource() != this && this.isVisible() && dbe.getType().equals("ADDED_DRIVER"))
@@ -141,14 +142,14 @@ public class GiftStatusHistoryDialog extends HistoryDialog
 	@Override
 	String[] getColumnToolTips() 
 	{
-		String[] colTT = {"Status", "Delivered By", "Notes", "Changed By", "Time Stamp"};
+		String[] colTT = {"Fam Status", "Gift Status", "Delivered By", "Notes", "Changed By", "Time Stamp"};
 		return colTT;
 	}
 
 	@Override
 	int[] getColumnWidths()
 	{
-		int[] colWidths = {128, 96, 208, 96, 128};
+		int[] colWidths = {88, 88, 96, 208, 96, 128};
 		return colWidths;
 	}
 	
@@ -158,7 +159,7 @@ public class GiftStatusHistoryDialog extends HistoryDialog
 		 * Implements the table model for the Delivery History Dialog
 		 */
 		private static final long serialVersionUID = 1L;
-		private String[] columnNames = {"Status", "Delivered By", "Notes", "Changed By", "Time Stamp"};
+		private String[] columnNames = {"Fam Status", "Gift Status", "Delivered By", "Notes", "Changed By", "Time Stamp"};
 		private SimpleDateFormat sdf;
 		
 		public DialogTableModel()
@@ -168,7 +169,7 @@ public class GiftStatusHistoryDialog extends HistoryDialog
 
         public int getColumnCount() { return columnNames.length; }
  
-        public int getRowCount() { return delList == null ? 0 : delList.size(); }
+        public int getRowCount() { return histList == null ? 0 : histList.size(); }
  
         public String getColumnName(int col) { return columnNames[col]; }
  
@@ -176,18 +177,20 @@ public class GiftStatusHistoryDialog extends HistoryDialog
         {
         	Object value;
         	
-        	ONCFamilyHistory del = delList.get(row);
+        	ONCFamilyHistory histObj = histList.get(row);
         	
-        	if(col == STATUS_COL)
-        		value = del.getdStatus().toString();
+        	if(col ==  FAMILY_STATUS_COL)
+        		value = histObj.getFamilyStatus().toString();
+        	else if(col == GIFT_STATUS_COL)
+        		value = histObj.getGiftStatus().toString();
         	else if(col == DELIVERED_BY_COL)  
-        		value = volunteerDB.getDriverLNFN(del.getdDelBy());
+        		value = volunteerDB.getDriverLNFN(histObj.getdDelBy());
         	else if(col == NOTES_COL)
-        		value = del.getdNotes();
+        		value = histObj.getdNotes();
         	else if(col == CHANGED_BY_COL)
-        		value = del.getdChangedBy();
+        		value = histObj.getdChangedBy();
         	else if(col == DATE_CHANGED_COL)
-        		value = sdf.format(del.getdChanged());
+        		value = sdf.format(histObj.getdChanged());
         	else
         		value = "Error";
         	
@@ -211,16 +214,16 @@ public class GiftStatusHistoryDialog extends HistoryDialog
         	//verify user changed the delivery not and if so,
         	//update the delivery and redisplay. Table row 0 always
         	//contains the most recent delivery
-        	if(!delList.isEmpty() && row == 0 && col == NOTES_COL)
+        	if(!histList.isEmpty() && row == 0 && col == NOTES_COL)
         	{
         		String notes = (String) value;
-        		if(!notes.equals(delList.get(0).getdNotes()))
+        		if(!notes.equals(histList.get(0).getdNotes()))
         			updateFamilyDeliveryData(notes);
         	}
         }
     }
 	
-	private class DeliveryDateChangedComparator implements Comparator<ONCFamilyHistory>
+	private class HistoryItemDateChangedComparator implements Comparator<ONCFamilyHistory>
 	{
 		@Override
 		public int compare(ONCFamilyHistory o1, ONCFamilyHistory o2)

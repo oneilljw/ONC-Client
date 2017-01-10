@@ -36,7 +36,7 @@ public class SortDriverDialog extends DependantTableDialog
 	private int sortChangedBy, sortStoplight;
 	private JComboBox drvCB, printCB;
 	
-	private DeliveryDB deliveryDB;
+	private FamilyHistoryDB familyHistoryDB;
 	private VolunteerDB volunteerDB;
 	private ArrayList<ONCVolunteer> atAL;	//Holds references to driver objects for driver table
 	
@@ -45,7 +45,7 @@ public class SortDriverDialog extends DependantTableDialog
 		super(pf, 10);
 		this.setTitle("Our Neighbor's Child - Delivery Volunteer Management");
 		
-		deliveryDB = DeliveryDB.getInstance();
+		familyHistoryDB = FamilyHistoryDB.getInstance();
 		
 		volunteerDB = VolunteerDB.getInstance();
 		if(volunteerDB != null)
@@ -148,7 +148,7 @@ public class SortDriverDialog extends DependantTableDialog
 				//determine if the family has a driver based on the delivery. If the family
 				//has a driver, does the delivery driver's ID match the id of the driver selected
 				//in the selection table. If so, add to the defendant table list
-				ONCFamilyHistory del = deliveryDB.getDelivery(f.getDeliveryID());
+				ONCFamilyHistory del = familyHistoryDB.getFamilyHistory(f.getDeliveryID());
 			
 				if(del != null && !del.getdDelBy().isEmpty())
 				{
@@ -295,7 +295,7 @@ public class SortDriverDialog extends DependantTableDialog
 		ONCFamily f = stAL.get(index);
 		
 		String[] row = {
-						volunteerDB.getDriverLNFN(deliveryDB.getDelivery(f.getDeliveryID()).getdDelBy()),
+						volunteerDB.getDriverLNFN(familyHistoryDB.getFamilyHistory(f.getDeliveryID()).getdDelBy()),
 						f.getONCNum(),
 						f.getBatchNum(),
 						f.getDNSCode(),

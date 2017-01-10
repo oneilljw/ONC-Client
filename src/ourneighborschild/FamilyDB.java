@@ -49,7 +49,7 @@ public class FamilyDB extends ONCSearchableDatabase
 	private ChildWishDB childwishDB;
 	private AgentDB agentDB;
 	private VolunteerDB volunteerDB;
-	private DeliveryDB deliveryDB;
+	private FamilyHistoryDB familyHistoryDB;
 	private GlobalVariables fGVs;
 	
 	private FamilyDB()
@@ -60,7 +60,7 @@ public class FamilyDB extends ONCSearchableDatabase
 		adultDB = AdultDB.getInstance();
 		childwishDB = ChildWishDB.getInstance();
 		volunteerDB = VolunteerDB.getInstance();
-		deliveryDB = DeliveryDB.getInstance();
+		familyHistoryDB = FamilyHistoryDB.getInstance();
 		agentDB = AgentDB.getInstance();;
 		
 		oncFamAL = new ArrayList<ONCFamily>();
@@ -267,6 +267,18 @@ public class FamilyDB extends ONCSearchableDatabase
 		}
 		
 		return addedFamily;
+	}
+	
+	String addHistoryGroup(Object source, List<ONCFamilyHistory> historyList)
+	{
+		Gson gson = new Gson();
+		Type listtype = new TypeToken<ArrayList<ONCFamilyHistory>>(){}.getType();
+			
+		String response = gson.toJson(historyList, listtype);
+		
+		response = serverIF.sendRequest("POST<delivery_group>" + gson.toJson(historyList, listtype));
+		
+		return response;
 	}
 
 	/**************************************************************************************************
@@ -1317,8 +1329,8 @@ public class FamilyDB extends ONCSearchableDatabase
 		@Override
 		public int compare(ONCFamily o1, ONCFamily o2)
 		{
-			return volunteerDB.getDriverLNFN(deliveryDB.getDeliveredBy(o1.getDeliveryID())).compareTo
-					(volunteerDB.getDriverLNFN(deliveryDB.getDeliveredBy(o2.getDeliveryID())));
+			return volunteerDB.getDriverLNFN(familyHistoryDB.getDeliveredBy(o1.getDeliveryID())).compareTo
+					(volunteerDB.getDriverLNFN(familyHistoryDB.getDeliveredBy(o2.getDeliveryID())));
 		}
 	}
 

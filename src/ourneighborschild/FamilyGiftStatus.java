@@ -46,6 +46,7 @@ public enum FamilyGiftStatus
 	{
 		FamilyGiftStatus[] fgsSearch = {FamilyGiftStatus.NotRequested, FamilyGiftStatus.Requested, 
 										FamilyGiftStatus.Selected, FamilyGiftStatus.Received,
+										FamilyGiftStatus.Verified, FamilyGiftStatus.Packaged,
 										FamilyGiftStatus.Assigned, FamilyGiftStatus.Attempted,
 										FamilyGiftStatus.Returned, FamilyGiftStatus.Delivered,
 										FamilyGiftStatus.CounselorPickUp};
@@ -57,7 +58,8 @@ public enum FamilyGiftStatus
 	{
 		FamilyGiftStatus[] fgsSearch = {FamilyGiftStatus.Any, FamilyGiftStatus.NotRequested,
 										FamilyGiftStatus.Requested, FamilyGiftStatus.Selected,
-										FamilyGiftStatus.Received, FamilyGiftStatus.Assigned, 
+										FamilyGiftStatus.Received, FamilyGiftStatus.Verified,
+										FamilyGiftStatus.Packaged, FamilyGiftStatus.Assigned, 
 										FamilyGiftStatus.Attempted, FamilyGiftStatus.Returned, 
 										FamilyGiftStatus.Delivered, FamilyGiftStatus.CounselorPickUp};
 		
@@ -66,10 +68,12 @@ public enum FamilyGiftStatus
 	
 	static FamilyGiftStatus[] getChangeList()
 	{
-		FamilyGiftStatus[] fgsChange = {FamilyGiftStatus.No_Change, FamilyGiftStatus.NotRequested, FamilyGiftStatus.Requested,
-										FamilyGiftStatus.Selected, FamilyGiftStatus.Received, 
-										FamilyGiftStatus.Attempted, FamilyGiftStatus.Returned, 
-										FamilyGiftStatus.Delivered, FamilyGiftStatus.CounselorPickUp};
+		FamilyGiftStatus[] fgsChange = {FamilyGiftStatus.No_Change, FamilyGiftStatus.NotRequested, 
+										FamilyGiftStatus.Requested, FamilyGiftStatus.Selected, 
+										FamilyGiftStatus.Received, FamilyGiftStatus.Verified, 
+										FamilyGiftStatus.Packaged, FamilyGiftStatus.Attempted, 
+										FamilyGiftStatus.Returned, FamilyGiftStatus.Delivered,
+										FamilyGiftStatus.CounselorPickUp};
 		
 		return fgsChange;
 	}	

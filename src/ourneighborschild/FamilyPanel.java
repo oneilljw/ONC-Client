@@ -72,7 +72,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
     private FamilyDB fDB;
 	private ChildDB cDB;
 	private AdultDB adultDB;
-	private DeliveryDB deliveryDB;
+	private FamilyHistoryDB familyHistoryDB;
 	private ONCRegions regions;
 	private UserDB userDB;
 	
@@ -121,7 +121,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		fDB = FamilyDB.getInstance();
 		cDB = ChildDB.getInstance();
 		adultDB = AdultDB.getInstance();
-		deliveryDB = DeliveryDB.getInstance();
+		familyHistoryDB = FamilyHistoryDB.getInstance();
 		regions = ONCRegions.getInstance();
 		userDB = UserDB.getInstance();
 		
@@ -135,8 +135,8 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			cDB.addDatabaseListener(this);
 		if(adultDB != null)
 			adultDB.addDatabaseListener(this);
-		if(deliveryDB != null)
-			deliveryDB.addDatabaseListener(this);
+		if(familyHistoryDB != null)
+			familyHistoryDB.addDatabaseListener(this);
 		if(userDB != null)
 			userDB.addDatabaseListener(this);	//font preference updates
 		
@@ -547,6 +547,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			HOHFirstName.setEditable(tf);
 			HOHLastName.setEditable(tf);;
 			statusCB.setEnabled(tf);
+			giftStatusCB.setEnabled(tf);
 			homePhonePane.setEditable(tf);
 			otherPhonePane.setEditable(tf);
 			EMail.setEditable(tf);
@@ -1261,13 +1262,18 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		else if(e.getSource() == statusCB && !bFamilyDataChanging &&
 									statusCB.getSelectedItem() != currFam.getFamilyStatus())
 		{
-			//If family status is changing to PACKAGED, solicit the number of bags. Else, the 
+			checkAndUpdateFamilyData(currFam);
+		}
+		else if(e.getSource() == giftStatusCB && !bFamilyDataChanging &&
+				giftStatusCB.getSelectedItem() != currFam.getGiftStatus())
+		{
+			//If family gift status is changing to PACKAGED, solicit the number of bags. Else, the 
 			//number of bags must be zero
-			if(statusCB.getSelectedItem() == FamilyGiftStatus.Packaged)
+			if(giftStatusCB.getSelectedItem() == FamilyGiftStatus.Packaged)
 			{
 				FamilyBagDialog fbDlg = new FamilyBagDialog(parentFrame);
 				fbDlg.setVisible(true);
-				
+
 				lblNumBags.setText(Integer.toString(fbDlg.getNumOfBags()));
 				currFam.setNumOfBags(fbDlg.getNumOfBags());
 				currFam.setNumOfLargeItems(fbDlg.getNumOfLargeItems());
@@ -1278,7 +1284,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 				currFam.setNumOfBags(0);
 				currFam.setNumOfLargeItems(0);
 			}
-			
+
 			checkAndUpdateFamilyData(currFam);
 		}
 		else if(e.getSource() == rbTransportation)

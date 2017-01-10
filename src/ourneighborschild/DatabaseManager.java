@@ -45,7 +45,7 @@ public class DatabaseManager extends ONCDatabase
 	private ONCWishCatalog oncWishCat;		//Holds ONC Wish Catalog
 	private WishDetailDB oncWishDetailDB;	//Holds ONC Wish Detail Data Base
 	private VolunteerDB oncDDB;				//Holds the ONC Driver Data Base
-	private DeliveryDB oncDelDB;			//Holds the ONC Delivery Data Base
+	private FamilyHistoryDB oncDelDB;			//Holds the ONC Delivery Data Base
 	private ONCRegions oncRegions;
 	private AdultDB oncAdultDB;				//Holds ONC Adult database
 	private MealDB oncMealDB;				//Holds ONC Meal database
@@ -64,7 +64,7 @@ public class DatabaseManager extends ONCDatabase
 		oncWishDetailDB = WishDetailDB.getInstance();
 		oncWishCat = ONCWishCatalog.getInstance();
 		oncDDB = VolunteerDB.getInstance();
-		oncDelDB = DeliveryDB.getInstance();
+		oncDelDB = FamilyHistoryDB.getInstance();
 		oncChildDB = ChildDB.getInstance();
 		oncChildWishDB = ChildWishDB.getInstance();
 		oncAdultDB = AdultDB.getInstance();
@@ -435,7 +435,7 @@ public class DatabaseManager extends ONCDatabase
 			this.setProgress(progress += increment);
 			
 			pb.updateHeaderText("Loading Deliveries");
-			oncDelDB.importDeliveryDatabase();
+			oncDelDB.importFamilyHistoryDatabase();
 			this.setProgress(progress += increment);
 			
 			pb.updateHeaderText("Loading Catalog");

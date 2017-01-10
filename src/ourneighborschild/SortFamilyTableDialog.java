@@ -18,7 +18,7 @@ public abstract class SortFamilyTableDialog extends ChangeDialog
 	protected static final int FAMILY_STATUS_PACKAGED = 5;
 	
 	protected ChildDB cDB;
-	protected DeliveryDB deliveryDB;
+	protected FamilyHistoryDB familyHistoryDB;
 	protected ONCRegions regions;
 	
 	protected ArrayList<ONCFamily> stAL = new ArrayList<ONCFamily>();
@@ -35,7 +35,7 @@ public abstract class SortFamilyTableDialog extends ChangeDialog
 		columns = getColumnNames();
 		
 		cDB = ChildDB.getInstance();
-		deliveryDB = DeliveryDB.getInstance();
+		familyHistoryDB = FamilyHistoryDB.getInstance();
 		regions = ONCRegions.getInstance();
 		
 		stAL = new ArrayList<ONCFamily>();

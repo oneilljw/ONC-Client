@@ -466,17 +466,16 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 
 				bFamilyChangeDetected = true;
 				
-				
 				//Add a new gift status to the gift status history with the assigned driver
 				//and the status set to assigned.
-				ONCFamilyHistory reqDelivery = new ONCFamilyHistory(-1, f.getID(),
+				ONCFamilyHistory reqDelivery = new ONCFamilyHistory(-1, f.getID(), f.getFamilyStatus(),
 						(FamilyGiftStatus) changeGiftStatusCB.getSelectedItem(),
-						deliveryDB.getDeliveredBy(f.getDeliveryID()),
+						familyHistoryDB.getDeliveredBy(f.getDeliveryID()),
 						"Gift Status Changed",
 						userDB.getUserLNFI(),
 						Calendar.getInstance());
 
-				String response = deliveryDB.add(this, reqDelivery);
+				String response = familyHistoryDB.add(this, reqDelivery);
 				if(response.startsWith("ADDED_DELIVERY"))
 					bDataChanged = true;
 				else

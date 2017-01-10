@@ -489,67 +489,56 @@ public class AngelAutoCallDialog extends ONCTableDialog implements ActionListene
 		}
 		return filename;
 	 }
-/*	 
+	 
 	 void updateFamilyStatus()
 	 {
-		 List<ONCFamily> reqFamilyUupdateList = new ArrayList<ONCFamily>();
+		 List<ONCFamilyHistory> reqFamilyUpdateList = new ArrayList<ONCFamilyHistory>();
 		 
-//		 Families familyDB = Families.getInstance();
-//		 DriverDB driverDB = DriverDB.getInstance();
-		 DeliveryDB deliveryDB = DeliveryDB.getInstance();
-//		 GlobalVariables gvs = GlobalVariables.getInstance();
+		 FamilyHistoryDB familyHistoryDB = FamilyHistoryDB.getInstance();
 				 
 		 for(int i=stAL.size()-1; i >=0; i--)
 		 {
 			 ONCFamily f = stAL.get(i).getFamily();
 			 if(f != null)
 			 {
-//				 ONCFamily f = familyDB.searchForFamilyByID(stAL.get(i).getONCID());
-//				 ONCFamily f = stAL.get(i).getFamily();
-//				 ONCFamily reqFamUpdate = new ONCFamily(f); //make a copy of the family object
-			 
 				 //If status == confirmed is an upgrade to family status, change the family status and
 				 //create a new FamilyStatusHistory object
 				 if(f.getFamilyStatus().compareTo(FamilyStatus.Confirmed) < 0 && 
 						 stAL.get(i).getCallResult().equals(ANGEL_DELIVERY_CONFIRMED))
 				 {
-					 //add a family update to the list of families with status changing
-//					 ONCDelivery reqDelivery = new ONCDelivery(-1, f.getID(), FamilyStatus.Confirmed,
-//							 					deliveryDB.getDeliveredBy(f.getDeliveryID()),
-//							 					"Angel Call Result: Confirmed",
-//							 					userDB.getUserLNFI(),
-//							 					Calendar.getInstance());
-					 
-					 ONCFamily reqUpdateFam = new ONCFamily(f);
-					 f.setFamilyStatus(FamilyStatus.Confirmed);
-					 f.setChangedBy(userDB.getUserLNFI()); 
-					 
-					 requestFamilyUpdateList.add(reqDelivery);
-					 
-
-				 }			 
-				 else if(f.getFamilyStatus().compareTo(FamilyStatus.Contacted) < 0)
-				 {
-					//add a new delivery to the delivery data base
-					 ONCDelivery reqDelivery = new ONCDelivery(-1, f.getID(), FamilyStatus.Contacted,
-							 					deliveryDB.getDeliveredBy(f.getDeliveryID()),
-							 					"Angel Call Result: Contacted",
+					 //add a family history update to the list of families with status changing to Confirmed
+					 ONCFamilyHistory reqHistory = new ONCFamilyHistory(-1, f.getID(), FamilyStatus.Confirmed,
+							 					f.getGiftStatus(),
+							 					familyHistoryDB.getDeliveredBy(f.getDeliveryID()),
+							 					"Automated Call Result: Confirmed",
 							 					userDB.getUserLNFI(),
 							 					Calendar.getInstance());
 					 
-					 deliveryList.add(reqDelivery);
+					 reqFamilyUpdateList.add(reqHistory);
+				 }			 
+				 else if(f.getFamilyStatus().compareTo(FamilyStatus.Contacted) < 0)
+				 {
+					//add a new family history to the history list
+					 ONCFamilyHistory reqHistory = new ONCFamilyHistory(-1, f.getID(), FamilyStatus.Contacted,
+							 					f.getGiftStatus(),
+							 					familyHistoryDB.getDeliveredBy(f.getDeliveryID()),
+							 					"Automated Call Result: Contacted",
+							 					userDB.getUserLNFI(),
+							 					Calendar.getInstance());
+					 
+					 reqFamilyUpdateList.add(reqHistory);
 				 }
 			 }
 		 }
 		 
-		 //now that we have a list of deliveries, if not empty, add them to the data base
-		 if(!deliveryList.isEmpty())
+		 //now that we have a list of families contacted or confirmed, if not empty, add them to the data base
+		 if(!reqFamilyUpdateList.isEmpty())
 		 {
-			 String response = deliveryDB.addGroup(this, deliveryList);
+			 String response = familyDB.addHistoryGroup(this, reqFamilyUpdateList);
 			 if(response.equals("ADDED_GROUP_DELIVERIES"))
 			 {
 				 bCallsProcessed = true;
-				 String mssg = String.format("%d calls processed successfully", deliveryList.size());
+				 String mssg = String.format("%d calls processed successfully", reqFamilyUpdateList.size());
 				 JOptionPane.showMessageDialog(this, mssg,"Call Results Processed",  
 							JOptionPane.INFORMATION_MESSAGE, gvs.getImageIcon(0));
 			 }
@@ -566,7 +555,7 @@ public class AngelAutoCallDialog extends ONCTableDialog implements ActionListene
 						JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
 		 }
 	 }
-*/	 
+	 
 	 void print(String name)
 	 {
 		 try

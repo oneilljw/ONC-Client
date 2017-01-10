@@ -494,8 +494,8 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 			//Get the added wish to extract the child
 			ONCChildWish addedWish = (ONCChildWish) dbe.getObject1();
 			
-//			System.out.println(String.format("WishPanel %d DB Event: Type %s, addWishID: %d, addWish# %d, addWishchildID %d, childID: %d",
-//					wishNumber, dbe.getType(), addedWish.getWishID(), addedWish.getWishNumber(), addedWish.getChildID(), child.getID()));
+			System.out.println(String.format("WishPanel %d DB Event: Type %s, addWishID: %d, addWish# %d, addWishchildID %d, childID: %d, partnerID: %d",
+					wishNumber, dbe.getType(), addedWish.getWishID(), addedWish.getWishNumber(), addedWish.getChildID(), child.getID(), addedWish.getChildWishAssigneeID()));
 
 			//If the added wish would be displayed by ths wish panel and the added wish belongs
 			//to the child this panel is currently displaying, display the added wish

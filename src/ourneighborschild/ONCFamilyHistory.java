@@ -13,6 +13,7 @@ public class ONCFamilyHistory extends ONCObject implements Serializable
 	private static final long serialVersionUID = 5109480607565108347L;
 	
 	int famID;
+	FamilyStatus familyStatus;
 	FamilyGiftStatus giftStatus;
 	String dDelBy;
 	String dNotes;
@@ -20,10 +21,12 @@ public class ONCFamilyHistory extends ONCObject implements Serializable
 	Calendar dDateChanged;
 
 	//Constructor used after separating ONC Deliveries from ONC Families
-	public ONCFamilyHistory(int id, int famid, FamilyGiftStatus dStat, String dBy, String notes, String cb, Calendar dateChanged)
+	public ONCFamilyHistory(int id, int famid, FamilyStatus fStat, FamilyGiftStatus dStat, String dBy, 
+							String notes, String cb, Calendar dateChanged)
 	{
 		super(id);
 		famID = famid;
+		familyStatus = fStat;
 		giftStatus = dStat;			
 		dDelBy = dBy;
 		dNotes = notes;		
@@ -37,6 +40,7 @@ public class ONCFamilyHistory extends ONCObject implements Serializable
 	{	
 		super(d.id);
 		famID = d.famID;
+		familyStatus = d.familyStatus;
 		giftStatus = d.giftStatus;			
 		dDelBy = d.dDelBy;
 		dNotes = d.dNotes;		
@@ -49,32 +53,37 @@ public class ONCFamilyHistory extends ONCObject implements Serializable
 	{
 		super(Integer.parseInt(del[0]));
 		famID = Integer.parseInt(del[1]);
-		giftStatus = FamilyGiftStatus.getFamilyGiftStatus(Integer.parseInt(del[2]));			
-		dDelBy = del[3].isEmpty() ? "" : del[3];
-		dNotes = del[4].isEmpty() ? "" : del[4];	
-		dChangedBy = del[5].isEmpty() ? "" : del[5];
+		familyStatus = FamilyStatus.getFamilyStatus(Integer.parseInt(del[2]));
+		giftStatus = FamilyGiftStatus.getFamilyGiftStatus(Integer.parseInt(del[3]));			
+		dDelBy = del[4].isEmpty() ? "" : del[4];
+		dNotes = del[5].isEmpty() ? "" : del[5];	
+		dChangedBy = del[6].isEmpty() ? "" : del[6];
 		dDateChanged = Calendar.getInstance();
-		dDateChanged.setTimeInMillis(Long.parseLong(del[6]));
+		dDateChanged.setTimeInMillis(Long.parseLong(del[7]));
 	}
 
 	//Getters
 	public int getFamID() { return famID; }
-	public FamilyGiftStatus getdStatus() {return giftStatus;}	
+	public FamilyStatus getFamilyStatus() {return familyStatus;}
+	public FamilyGiftStatus getGiftStatus() {return giftStatus;}	
 	public String getdDelBy() {return dDelBy;}
 	String getdNotes() {return dNotes;}
 	String getdChangedBy() { return dChangedBy; }
-	Date getdChanged() { return dDateChanged.getTime(); }
+	public Date getdChanged() { return dDateChanged.getTime(); }
 	
 	//Setters
-	void setdDelBy(String db) { dDelBy = db; }
+	public void setdDelBy(String db) { dDelBy = db; }
 	void setdNotes(String s) {dNotes = s; }
 	void setdChangedBy(String cb) { dChangedBy = cb; }	
 	void setDateChanged(Date d) { dDateChanged.setTime(d); }
+	public void setDateChanged(Calendar calDateChanged) { dDateChanged = calDateChanged; }
 	
 	@Override
 	public String[] getExportRow()
 	{
-		String[] exportRow = {Integer.toString(id), Integer.toString(famID), Integer.toString(giftStatus.statusIndex()),
+		String[] exportRow = {Integer.toString(id), Integer.toString(famID),
+							  Integer.toString(familyStatus.statusIndex()),
+							  Integer.toString(giftStatus.statusIndex()),
 							  dDelBy, dNotes, dChangedBy, Long.toString(dDateChanged.getTimeInMillis())};
 		
 		return exportRow;

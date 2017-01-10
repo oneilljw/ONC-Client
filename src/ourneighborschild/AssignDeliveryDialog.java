@@ -217,7 +217,7 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 				 regions.getRegionID(si.getRegion()),
 				 si.getChangedBy(),
 				 stoplt[si.getStoplightPos()+1].substring(0, 1), 
-				 volunteerDB.getDriverLNFN(deliveryDB.getDeliveredBy(si.getDeliveryID()))};
+				 volunteerDB.getDriverLNFN(familyHistoryDB.getDeliveredBy(si.getDeliveryID()))};
 		
 		return deliverytablerow;
 	}
@@ -259,17 +259,19 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 			
 			//If a change to the assigned delivery driver, process it
 			if(!assignDriverTF.getText().isEmpty() && 
-					!deliveryDB.getDeliveredBy(f.getDeliveryID()).equals(assignDriverTF.getText()))
+					!familyHistoryDB.getDeliveredBy(f.getDeliveryID()).equals(assignDriverTF.getText()))
 			{
 				//Add a new delivery to the delivery history with the assigned driver
 				//and the status set to assigned. Adding new delivery updates family changed by field
-				ONCFamilyHistory reqDelivery = new ONCFamilyHistory(-1, f.getID(), FamilyGiftStatus.Assigned,
+				ONCFamilyHistory reqDelivery = new ONCFamilyHistory(-1, f.getID(),
+															f.getFamilyStatus(),
+															FamilyGiftStatus.Assigned,
 															assignDriverTF.getText(),
 															"Delivery Driver Assigned",
 															userDB.getUserLNFI(),
 															Calendar.getInstance());
 				
-				String response = deliveryDB.add(this, reqDelivery);
+				String response = familyHistoryDB.add(this, reqDelivery);
 				if(response.startsWith("ADDED_DELIVERY"))
 				{
 					assignmentsMade++;	

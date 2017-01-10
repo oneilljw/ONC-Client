@@ -34,7 +34,7 @@ public class VolunteerDialog extends EntityDialog
 	
 	//database references
 	private VolunteerDB volDB;
-	private DeliveryDB deliveryDB;
+	private FamilyHistoryDB familyHistoryDB;
 
 	//ui components
 	private JLabel lblFamDel, lblSignIns, lblLastSignIn, lblQty;
@@ -56,9 +56,9 @@ public class VolunteerDialog extends EntityDialog
 		if(volDB != null)
 			volDB.addDatabaseListener(this);
 		
-		deliveryDB = DeliveryDB.getInstance();
-		if(deliveryDB != null)
-			deliveryDB.addDatabaseListener(this);
+		familyHistoryDB = FamilyHistoryDB.getInstance();
+		if(familyHistoryDB != null)
+			familyHistoryDB.addDatabaseListener(this);
 		
 		currVolunteer = null;
         
@@ -616,7 +616,7 @@ public class VolunteerDialog extends EntityDialog
 						tse.getType(), fam.getONCNum());
 				LogDialog.add(logEntry, "M");
 				
-				ONCFamilyHistory del = deliveryDB.getDelivery(fam.getDeliveryID());
+				ONCFamilyHistory del = familyHistoryDB.getFamilyHistory(fam.getDeliveryID());
 			
 				if(del != null && !del.getdDelBy().isEmpty())
 				{

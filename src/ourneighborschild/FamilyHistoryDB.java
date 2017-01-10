@@ -1,17 +1,12 @@
 package ourneighborschild;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.ImageIcon;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -19,38 +14,27 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
 
-public class DeliveryDB extends ONCDatabase
+public class FamilyHistoryDB extends ONCDatabase
 {
-	private static final int DELIVERYDB_CSV_HEADER_LENGTH = 7;
-	private static DeliveryDB instance = null;
-	private ArrayList<ONCFamilyHistory> dAL;
+	private static FamilyHistoryDB instance = null;
+	private ArrayList<ONCFamilyHistory> fhAL;
 	
-	private DeliveryDB()
+	private FamilyHistoryDB()
 	{
 		super();
-		dAL = new ArrayList<ONCFamilyHistory>();
+		fhAL = new ArrayList<ONCFamilyHistory>();
 	}
 	
-	public static DeliveryDB getInstance()
+	public static FamilyHistoryDB getInstance()
 	{
 		if(instance == null)
-			instance = new DeliveryDB();
+			instance = new FamilyHistoryDB();
 		
 		return instance;
 	}
-/*	
-	int addDelivery(int famid, int dStat, String dBy, String notes, String cb, Calendar dateChanged)
-	{
-		int did = dID++;
-		
-		dAL.add(new ONCDelivery(did, famid, dStat, dBy, notes, cb, dateChanged));
-		
-		return did;
-	}
-*/	
+
 	String add(Object source, ONCObject entity)
 	{
 		Gson gson = new Gson();
@@ -64,55 +48,43 @@ public class DeliveryDB extends ONCDatabase
 		return response;	
 	}
 	
-	String addGroup(Object source, List<ONCFamilyHistory> deliveryList)
-	{
-		Gson gson = new Gson();
-		Type listtype = new TypeToken<ArrayList<ONCFamilyHistory>>(){}.getType();
-			
-		String response = gson.toJson(deliveryList, listtype);
-		
-		response = serverIF.sendRequest("POST<delivery_group>" + gson.toJson(deliveryList, listtype));
-		
-		return response;
-	}
 	
 	void processAddedObject(Object source, String json)
 	{
-		//Store added ONCDelivery object in local data base
+		//Store added ONCFamilyHistory object in local data base
 		Gson gson = new Gson();
 		ONCFamilyHistory addedObject = gson.fromJson(json, ONCFamilyHistory.class);
 		
-		dAL.add(addedObject);
-//		System.out.println(String.format("DeliveryDB processAddedObject: Delivery Added ID: %d",
-//				addedObject.getID()));
-		
-		//update the family status this delivery is associated with
+		fhAL.add(addedObject);
+/*	
+		//update the family status this is a delivery is associated with
 		FamilyDB familyDB = FamilyDB.getInstance();
 		ONCFamily fam = familyDB.getFamily(addedObject.getFamID());
-		fam.setGiftStatus(addedObject.getdStatus());
+		fam.setFamilyStatus(addedObject.getFamilyStatus());
+		fam.setGiftStatus(addedObject.getGiftStatus());
 		fam.setDeliveryID(addedObject.getID());
-		
+*/		
 		//Notify local user IFs that an organization/partner was added. This will
 		//be all UI's that display or manage family delivery information
 		fireDataChanged(source, "ADDED_DELIVERY", addedObject);
 	}
 	
-	ONCFamilyHistory getDelivery(int id)
+	ONCFamilyHistory getFamilyHistory(int id)
 	{
 		int index = 0;
-		while(index < dAL.size() && dAL.get(index).getID() != id)
+		while(index < fhAL.size() && fhAL.get(index).getID() != id)
 			index++;
 		
-		if(index == dAL.size())
+		if(index == fhAL.size())
 			return null;
 		else
-			return dAL.get(index);
+			return fhAL.get(index);
 	}
 	
 	ArrayList<ONCFamilyHistory> getDeliveryHistoryAL(int famID)
 	{
 		ArrayList<ONCFamilyHistory> famDelAL = new ArrayList<ONCFamilyHistory>();
-		for(ONCFamilyHistory d:dAL)
+		for(ONCFamilyHistory d:fhAL)
 			if(d.getFamID() == famID)
 				famDelAL.add(d);
 		return famDelAL;
@@ -126,54 +98,16 @@ public class DeliveryDB extends ONCDatabase
 	String getDeliveredBy(int delID)
 	{
 		int index = 0;
-		while(index < dAL.size() && dAL.get(index).getID() != delID)
+		while(index < fhAL.size() && fhAL.get(index).getID() != delID)
 			index++;
 				
-		if(index==dAL.size())
+		if(index==fhAL.size())
 			return "";
 		else
-			return dAL.get(index).getdDelBy();
+			return fhAL.get(index).getdDelBy();
 	}
 	
-	public void readDeliveryALObject(ObjectInputStream ois)
-	{
-		ArrayList<ONCFamilyHistory> dal = new ArrayList<ONCFamilyHistory>();
-		
-		try 
-		{
-			dal = (ArrayList<ONCFamilyHistory>) ois.readObject();
-			
-			for(ONCFamilyHistory d:dal)
-			{
-				dAL.add(d);
-			}
-		} 
-		catch (IOException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		catch (ClassNotFoundException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	public void writeDeliveryALObject(ObjectOutputStream oos)
-	{
-		try
-		{
-			oos.writeObject(dAL);
-		}
-		catch (IOException e) 
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	String importDeliveryDatabase()
+	String importFamilyHistoryDatabase()
 	{
 		String response = "NO_DELIVERIES";
 		
@@ -183,73 +117,13 @@ public class DeliveryDB extends ONCDatabase
 			Type listtype = new TypeToken<ArrayList<ONCFamilyHistory>>(){}.getType();
 			
 			response = serverIF.sendRequest("GET<deliveries>");
-				dAL = gson.fromJson(response, listtype);
+				fhAL = gson.fromJson(response, listtype);
 				
 			if(!response.startsWith("NO_DELIVIERIES"))		
 				response =  "DELIVERIES_LOADED";
 		}
 		
 		return response;
-	}
-	
-	String importDeliveryDB(JFrame pf, ImageIcon oncIcon, String path)	//Only used by superuser to import from .csv file
-	{
-    		
-		File pyfile;
-		JFileChooser chooser;
-		String filename = "";
-		int returnVal = JFileChooser.CANCEL_OPTION;
-		
-		if(path != null)
-		{
-			pyfile = new File(path + "DeliveryDB.csv");
-			returnVal = JFileChooser.APPROVE_OPTION;
-		}
-		else
-		{
-    		chooser = new JFileChooser();
-    		chooser.setDialogTitle("Select Delivery DB .csv file to import");	
-    		chooser.setFileFilter(new FileNameExtensionFilter("CSV Files", "csv"));
-    		returnVal = chooser.showOpenDialog(pf);
-    		pyfile = chooser.getSelectedFile();
-		}
-		
-	    if(returnVal == JFileChooser.APPROVE_OPTION)
-	    {	    
-	    	filename = pyfile.getName();
-	    	try 
-	    	{
-	    		CSVReader reader = new CSVReader(new FileReader(pyfile.getAbsoluteFile()));
-	    		String[] nextLine, header;
-    		
-	    		if((header = reader.readNext()) != null)
-	    		{
-	    			//Read the ONC CSV File
-	    			if(header.length == DELIVERYDB_CSV_HEADER_LENGTH)
-	    			{
-	    				dAL.clear();
-	    				while ((nextLine = reader.readNext()) != null)	// nextLine[] is an array of values from the line
-	    					dAL.add(new ONCFamilyHistory(nextLine));
-	    			}
-	    			else
-	    				JOptionPane.showMessageDialog(pf, "Delivery DB file corrupted, header length = " + Integer.toString(header.length), 
-    						"Invalid Delivery DB File", JOptionPane.ERROR_MESSAGE, oncIcon);   			
-	    		}
-	    		else
-	    			JOptionPane.showMessageDialog(pf, "Couldn't read header in Delivery DB file: " + filename, 
-						"Invalid Delivery DB File", JOptionPane.ERROR_MESSAGE, oncIcon); 
-	    	
-	    		reader.close();
-	    	
-	    	} 
-	    	catch (IOException x)
-	    	{
-	    		JOptionPane.showMessageDialog(pf, "Unable to open Delivery DB file: " + filename, 
-    				"Delivery DB file not found", JOptionPane.ERROR_MESSAGE, oncIcon);
-	    	}
-	    }
-	    
-	    return filename;    
 	}
 	
 	String exportDBToCSV(JFrame pf, String filename)
@@ -280,7 +154,7 @@ public class DeliveryDB extends ONCDatabase
 	    		CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
 	    	    writer.writeNext(header);
 	    	    
-	    	    for(ONCFamilyHistory d:dAL)
+	    	    for(ONCFamilyHistory d:fhAL)
 	    	    	writer.writeNext(d.getExportRow());	//Get family data
 	    	 
 	    	    writer.close();
@@ -314,21 +188,21 @@ public class DeliveryDB extends ONCDatabase
 	@Override
 
 	/***************************************************************
-	 * This method is called when a child wish has been updated by 
-	 * the user. The request update child object is passed. 
+	 * This method is called when a family history object has been updated by 
+	 * the user. The request update object is passed. 
 	 *************************************************************/
-	String update(Object source, ONCObject updatedDelivery)
+	String update(Object source, ONCObject updatedHistory)
 	{
 		//notify the server
 		Gson gson = new Gson();
 		String response = null;
 		
 		response = serverIF.sendRequest("POST<update_delivery>" + 
-												gson.toJson(updatedDelivery, ONCFamilyHistory.class));
+												gson.toJson(updatedHistory, ONCFamilyHistory.class));
 			 
 		
 		//check response. If response from server indicates a successful update,
-		//create and store the updated child in the local data base and notify local
+		//create and store the updated object in the local data base and notify local
 		//ui listeners of a change. The server may have updated the prior year ID
 		if(response.startsWith("UPDATED_DELIVERY"))
 			processUpdatedObject(source, response.substring(16));
@@ -342,15 +216,15 @@ public class DeliveryDB extends ONCDatabase
 		Gson gson = new Gson();
 		ONCFamilyHistory updatedObj = gson.fromJson(json, ONCFamilyHistory.class);
 		
-		//Find the position for the delivery being updated
+		//Find the position for the history object being updated
 		int index = 0;
-		while(index < dAL.size() && dAL.get(index).getID() != updatedObj.getID())
+		while(index < fhAL.size() && fhAL.get(index).getID() != updatedObj.getID())
 			index++;
 		
-		//Replace the current delivery object with the update
-		if(index < dAL.size())
+		//Replace the current history object with the update
+		if(index < fhAL.size())
 		{
-			dAL.set(index, updatedObj);
+			fhAL.set(index, updatedObj);
 			fireDataChanged(source, "UPDATED_DELIVERY", updatedObj);
 		}
 		else
@@ -365,7 +239,7 @@ public class DeliveryDB extends ONCDatabase
 	public int getNumberOfDeliveries(String drvNum) 
 	{
 		int nDeliveries = 0;
-		for(ONCFamilyHistory del: dAL)
+		for(ONCFamilyHistory del: fhAL)
 			if(del.getdDelBy().equals(drvNum))
 				nDeliveries++;
 		
