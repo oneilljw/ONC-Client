@@ -20,7 +20,7 @@ public class MealDialog extends HistoryDialog
 	/**
 	 * This class implements a dialog which allows the user to see the history of meals
 	 * requested by a family. Only the most recent meal is editable. Meals cannot be edited
-	 * they have been referred to a partner. A meal can be deleted.
+	 * once they have been referred to a partner. A meal can be deleted.
 	 */
 	private static final long serialVersionUID = 1L;
 	private static final int HOLIDAY_COL= 0;
@@ -30,9 +30,7 @@ public class MealDialog extends HistoryDialog
 	private static final int CHANGED_BY_COL = 4;
 	private static final int DATE_CHANGED_COL = 5;
 	
-//	private ONCTable dlgTable;
 	private AbstractTableModel dlgTableModel;
-//	private JButton btnDelete, btnPrint;
 	
 	private FamilyDB familyDB;
 	private MealDB mealDB;
@@ -40,7 +38,6 @@ public class MealDialog extends HistoryDialog
 	
 	private List<ONCMeal> mealList;	//list of meals for current family
 	private Comparator<ONCMeal> mealDateChangedComparator;
-//	private ONCFamily currFam; 	//current family
 	
 	public MealDialog(JFrame pf)
 	{
