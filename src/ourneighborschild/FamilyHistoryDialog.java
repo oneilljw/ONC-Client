@@ -142,14 +142,14 @@ public class FamilyHistoryDialog extends HistoryDialog
 	@Override
 	String[] getColumnToolTips() 
 	{
-		String[] colTT = {"Fam Status", "Gift Status", "Delivered By", "Notes", "Changed By", "Time Stamp"};
+		String[] colTT = {"Family Status", "Gift Status", "Who delivered gifts to the family", "Notes", "Changed By", "Time Stamp"};
 		return colTT;
 	}
 
 	@Override
 	int[] getColumnWidths()
 	{
-		int[] colWidths = {88, 88, 96, 208, 96, 128};
+		int[] colWidths = {88, 88, 112, 208, 96, 128};
 		return colWidths;
 	}
 	
@@ -159,7 +159,7 @@ public class FamilyHistoryDialog extends HistoryDialog
 		 * Implements the table model for the Delivery History Dialog
 		 */
 		private static final long serialVersionUID = 1L;
-		private String[] columnNames = {"Fam Status", "Gift Status", "Delivered By", "Notes", "Changed By", "Time Stamp"};
+		private String[] columnNames = {"Fam Status", "Gift Status", "Gifts Delivered By", "Notes", "Changed By", "Time Stamp"};
 		private SimpleDateFormat sdf;
 		
 		public DialogTableModel()

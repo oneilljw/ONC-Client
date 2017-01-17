@@ -189,38 +189,38 @@ public class PartnerDB extends ONCSearchableDatabase
 	}
 	
 	/*****************************************************************************************
-	 * Creates a list of confirmed organizations that take ornaments, broken into two parts.
+	 * Creates a list of confirmed partners that take ornaments, broken into two parts.
 	 * The top half of the list are confirmed businesses, churches and schools, sorted alphabetically.
-	 * The bottom half of the list are all other confirmed organizations sorted alphabetically
+	 * The bottom half of the list are all other confirmed partners sorted alphabetically
 	 *****************************************************************************************/
-	List<ONCPartner> getConfirmedOrgList(GiftCollection collectionType)
+	List<ONCPartner> getConfirmedPartnerList(GiftCollection collectionType)
 	{
 		//Create two lists, the list to be returned and a temporary list
-		ArrayList<ONCPartner> confOrgList = new ArrayList<ONCPartner>();
-		ArrayList<ONCPartner> confOrgOtherList = new ArrayList<ONCPartner>();
+		ArrayList<ONCPartner> confirmedPartnerList = new ArrayList<ONCPartner>();
+		ArrayList<ONCPartner> confirmedPartnerOtherList = new ArrayList<ONCPartner>();
 		
 		//Add the confirmed business, church and schools to the returned list and add all other 
-		//confirmed organizations to the temporary list
+		//confirmed partners to the temporary list
 		for(ONCPartner o: partnerList)
 		{
 			if(o.getStatus() == STATUS_CONFIRMED && o.getGiftCollectionType() == collectionType && 
 				o.getType() < ORG_TYPE_CLOTHING)
-				confOrgList.add(o);
+				confirmedPartnerList.add(o);
 			else if(o.getStatus() == STATUS_CONFIRMED && o.getGiftCollectionType() == collectionType)
-				confOrgOtherList.add(o);		
+				confirmedPartnerOtherList.add(o);		
 		}
 		
-		//Sort the two lists alphabetically by organization name
+		//Sort the two lists alphabetically by partner name
 		PartnerNameComparator nameComparator = new PartnerNameComparator();
-		Collections.sort(confOrgList, nameComparator);	//Sort alphabetically
-		Collections.sort(confOrgOtherList, nameComparator);	//Sort alphabetically
+		Collections.sort(confirmedPartnerList, nameComparator);	//Sort alphabetically
+		Collections.sort(confirmedPartnerOtherList, nameComparator);	//Sort alphabetically
 		
 		//Append the all other temporary confirmed list to the bottom of the confirmed list
-		for(ONCPartner otherOrg:confOrgOtherList)
-			confOrgList.add(otherOrg);
+		for(ONCPartner otherOrg:confirmedPartnerOtherList)
+			confirmedPartnerList.add(otherOrg);
 		
 		//return the integrated list
-		return confOrgList;
+		return confirmedPartnerList;
 	}
 	
 	int decrementConfirmedOrgOrnAssigned(int orgID)
@@ -430,7 +430,7 @@ public class PartnerDB extends ONCSearchableDatabase
 		}
 		
 		//process gifts received. Determine if the wish added time is before or after the deadline 
-		boolean bReceviedBeforeDeadline = addedWish.getChildWishDateChanged().before(orgGVs.getGiftsReceivedDate());
+//		boolean bReceviedBeforeDeadline = addedWish.getChildWishDateChanged().before(orgGVs.getGiftsReceivedDate());
 		
 		if(replWish != null && replWish.getChildWishAssigneeID() == addedWish.getChildWishAssigneeID() &&
 		   (replWish.getChildWishStatus() == WishStatus.Delivered || replWish.getChildWishStatus() == WishStatus.Shopping)  && 
@@ -440,7 +440,8 @@ public class PartnerDB extends ONCSearchableDatabase
 			ONCPartner addedWishAssignee = (ONCPartner) find(partnerList, addedWish.getChildWishAssigneeID());
 			if(addedWishAssignee != null)
 			{
-				addedWishAssignee.incrementOrnReceived(bReceviedBeforeDeadline);
+				boolean bBeforeDeadline = addedWish.getChildWishDateChanged().before(orgGVs.getGiftsReceivedCalendar());
+				addedWishAssignee.incrementOrnReceived(bBeforeDeadline);
 				fireDataChanged(this, "PARTNER_WISH_RECEIVED", addedWishAssignee);
 			}
 		}
@@ -453,7 +454,8 @@ public class PartnerDB extends ONCSearchableDatabase
 			ONCPartner replWishAssignee = (ONCPartner) find(partnerList, replWish.getChildWishAssigneeID());
 			if(replWishAssignee != null)
 			{
-				replWishAssignee.decrementOrnReceived(bReceviedBeforeDeadline);
+				boolean bBeforeDeadline = addedWish.getChildWishDateChanged().before(orgGVs.getGiftsReceivedCalendar());
+				replWishAssignee.decrementOrnReceived(bBeforeDeadline);
 				fireDataChanged(this, "PARTNER_WISH_RECEIVE_UNDONE", replWishAssignee);
 			}
 		}

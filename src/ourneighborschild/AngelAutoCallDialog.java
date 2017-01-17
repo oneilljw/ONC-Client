@@ -675,7 +675,7 @@ public class AngelAutoCallDialog extends ONCTableDialog implements ActionListene
 		
 			Object selectedValue = confirmOP.getValue();
 			if(selectedValue != null && selectedValue.toString().equals("Process Calls"))
-//				updateFamilyStatus();
+				updateFamilyStatus();
 			
 			checkAndEnableControls();
 		}

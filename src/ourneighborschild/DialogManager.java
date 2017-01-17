@@ -37,7 +37,7 @@ public class DialogManager implements EntitySelectionListener
 		
 	//dialogs that inherit from HistoryDialog
 	private Map<String, HistoryDialog> historyDlgMap;
-	private FamilyHistoryDialog giftStatusHistoryDlg;
+	private FamilyHistoryDialog famStatusHistoryDlg;
 	private MealDialog mealDlg;
 		
 	//dialogs that inherit from InfoDialog
@@ -102,9 +102,9 @@ public class DialogManager implements EntitySelectionListener
         historyDlgMap = new HashMap<String, HistoryDialog>();
         
         //Set up delivery history dialog box 
-        giftStatusHistoryDlg = new FamilyHistoryDialog(GlobalVariables.getFrame());
-        historyDlgMap.put("Gift Status History", giftStatusHistoryDlg);
-        eeManager.registerEntitySelectionListener(giftStatusHistoryDlg);
+        famStatusHistoryDlg = new FamilyHistoryDialog(GlobalVariables.getFrame());
+        historyDlgMap.put("Family Status History", famStatusHistoryDlg);
+        eeManager.registerEntitySelectionListener(famStatusHistoryDlg);
         
         //Set up meal history dialog box 
         mealDlg = new MealDialog(GlobalVariables.getFrame());

@@ -311,7 +311,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		changeAssigneeCBM.addElement(new ONCPartner(-1, "No_Change", "No_Change"));
 		changeAssigneeCBM.addElement(new ONCPartner(-1, "None", "None"));
 		
-		for(ONCPartner confOrg :orgs.getConfirmedOrgList(GiftCollection.Meals))
+		for(ONCPartner confOrg :orgs.getConfirmedPartnerList(GiftCollection.Meals))
 		{
 			assignCBM.addElement(confOrg);
 			changeAssigneeCBM.addElement(confOrg);

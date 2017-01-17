@@ -336,8 +336,8 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 	    this.add(menuDelivery);
 	    
 	    //Delivery Status check
-	    delstatusMI = new JMenuItem("Delivery Status");
-	    delstatusMI.setActionCommand("Delivery History");
+	    delstatusMI = new JMenuItem("Family Status History");
+	    delstatusMI.setActionCommand("Family Status History");
 	    delstatusMI.setEnabled(false);
 	    delstatusMI.addActionListener(this);
 	    menuDelivery.add(delstatusMI);

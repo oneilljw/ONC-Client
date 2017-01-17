@@ -374,12 +374,12 @@ public class OurNeighborsChild
         oncFamilyPanel = new FamilyPanel(oncFrame);
         oncContentPane.add(oncFamilyPanel);
         
-        oncFrame.addWindowFocusListener(new WindowAdapter() {
-		    public void windowGainedFocus(WindowEvent e) {
+//      oncFrame.addWindowFocusListener(new WindowAdapter() {
+//		    public void windowGainedFocus(WindowEvent e) {
 //		    	System.out.println("Main frame gained focus");
 //		        oncFamilyPanel.gainedFocus();
-		    }
-		});
+//		    }
+//		});
         
       //Create the menu bar and set action listener for exit menu item
         oncMenuBar = ONCMenuBar.getInstance(); 

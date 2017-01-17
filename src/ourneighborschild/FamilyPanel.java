@@ -351,8 +351,8 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         rbAdults.addActionListener(this);
 
         rbGiftStatusHistory = new JRadioButton(gvs.getImageIcon(14));
-        rbGiftStatusHistory.setActionCommand("Gift Status History");
-        rbGiftStatusHistory.setToolTipText("Click to see gift status history");
+        rbGiftStatusHistory.setActionCommand("Family Status History");
+        rbGiftStatusHistory.setToolTipText("Click to see family & gift status history");
         rbGiftStatusHistory.setEnabled(false);
         rbGiftStatusHistory.addActionListener(this);
         
@@ -1417,13 +1417,10 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			ONCFamilyHistory updatedDelivery = (ONCFamilyHistory) dbe.getObject1();
 				
 			//If updated delivery belongs to family being displayed, re-display it
-			if(currFam.getID() == updatedDelivery.getFamID())
+			if(currFam != null && currFam.getID() == updatedDelivery.getFamID())
 			{
-				if(currFam != null)
-				{
-					LogDialog.add("FamilyPanel: ADDED_DELIVERY ONC# " + currFam.getONCNum() + ", Delivery Note: " + updatedDelivery.getdNotes(), "M");
-					display(currFam, null);
-				}
+				LogDialog.add("FamilyPanel: ADDED_DELIVERY ONC# " + currFam.getONCNum() + ", Delivery Note: " + updatedDelivery.getdNotes(), "M");
+				display(currFam, null);
 			}
 		}
 		else if(dbe.getType().equals("UPDATED_SERVED_COUNTS"))

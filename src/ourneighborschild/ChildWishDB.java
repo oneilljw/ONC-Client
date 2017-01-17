@@ -65,14 +65,14 @@ public class ChildWishDB extends ONCDatabase
 		//Get the old wish being replaced. getWish method returns null if wish not found
 		ONCChildWish replacedWish = getWish(childid, wn);
 		
-		//determine if we need to change the org id
-		int orgID = -1;
+		//determine if we need to change the partner id
+		int newPartnerID = -1;
 		if(replacedWish != null && replacedWish.getWishID() != wishid)
-			orgID = -1;
+			newPartnerID = -1;
 		else if(currPartner == null && replacedWish != null)
-			orgID = replacedWish.getChildWishAssigneeID(); 	//Staying the same
+			newPartnerID = replacedWish.getChildWishAssigneeID(); 	//Staying the same
 		else if(currPartner != null)
-			orgID = currPartner.getID();
+			newPartnerID = currPartner.getID();
 		
 		//create the new wish, with childwishID = -1, meaning no wish selected
 		//the server will add the childwishID and return it
@@ -81,7 +81,7 @@ public class ChildWishDB extends ONCDatabase
 											   checkForDetailChange(wi, wd, currPartner, replacedWish), 
 											   wn, wi,
 											   checkForStatusChange(replacedWish, wishid, ws, currPartner), 
-											   orgID, cb, dc);		
+											   newPartnerID, cb, dc);		
 		Gson gson = new Gson();
 		String response = null, helmetResponse = null;
 		
@@ -141,7 +141,7 @@ public class ChildWishDB extends ONCDatabase
 //		if(replacedWish != null)
 //		System.out.println(String.format("ChildWishDB_processAddedWish_replacedWish: Child ID: %d, Wish: %s", replacedWish.getChildID(), replacedWish.getChildWishAll()));
 		
-		//add the new wish to the data base
+		//add the new wish to the local data base
 		childwishAL.add(addedWish);
 			
 		//Set the new wish ID in the child object that has been assigned this wish

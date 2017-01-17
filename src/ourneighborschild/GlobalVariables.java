@@ -187,6 +187,7 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 	int getCurrentYear() { return oncDateToday.get(Calendar.YEAR); }
 	public Date getDeliveryDate() { return oncDeliveryDate.getTime(); }
 	public Date getGiftsReceivedDate() { return oncGiftsReceivedDate.getTime(); }
+	public Calendar getGiftsReceivedCalendar() { return oncGiftsReceivedDate; }
 	public Date getThanksgivingDeadline() { return thanksgivingDeadline.getTime(); }
 	public Date getDecemberDeadline() { return decemberDeadline.getTime(); }
 	public Date getFamilyEditDeadline() { return familyEditDeadline.getTime(); }

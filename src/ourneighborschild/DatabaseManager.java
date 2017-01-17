@@ -152,7 +152,7 @@ public class DatabaseManager extends ONCDatabase
 		if(selectedValue != null && selectedValue.toString().startsWith("Add"))
 		{
 			//set up user notification of result
-			String mssg;
+			String mssg = null;
 	    	String title = "Add Year Failed";
 	    	int mssgType = JOptionPane.ERROR_MESSAGE;
 	    	
@@ -164,30 +164,23 @@ public class DatabaseManager extends ONCDatabase
 			if(response != null && response.startsWith("ADDED_DBYEAR"))
 			{
 				processAddedDBYear(response.substring(12));
-				
-				mssg = String.format("New season ucessfully added to ONC Server");
-				title = "Add Year Successful";
-				mssgType = JOptionPane.INFORMATION_MESSAGE;
+//				mssg = String.format("New season ucessfully added to ONC Server");
+//				title = "Add Year Successful";
+//				mssgType = JOptionPane.INFORMATION_MESSAGE;
 			}
 			else if(response != null && response.startsWith("ADD_DBYEAR_FAILED"))
-				mssg = response.substring(17);	 //alert the user the add failed				
+			{
+				mssg = response.substring(17);	 //alert the user the add failed
+				JOptionPane.showMessageDialog(GlobalVariables.getFrame(), mssg, title, mssgType, oncGVs.getImageIcon(0));
+			}
 			else 
+			{
 				mssg = "Error: ONC Server failed to respond";	//general server error - didn't respond
-			
-			JOptionPane.showMessageDialog(GlobalVariables.getFrame(), mssg, title, mssgType, oncGVs.getImageIcon(0));
+				JOptionPane.showMessageDialog(GlobalVariables.getFrame(), mssg, title, mssgType, oncGVs.getImageIcon(0));
+			}
 		}
     }
-/* 
-	String add(Object source)
-	{
-		String response = serverIF.sendRequest("POST<add_newseason>");
-		
-		if(response != null && response.startsWith("ADDED_DBYEAR"))
-			processAddedDBYear(response.substring(12));
-				
-		return response;
-	}
-*/	
+
 	void processAddedDBYear(String json)
 	{
 		//create the dbYear list object returned by the server
@@ -199,7 +192,8 @@ public class DatabaseManager extends ONCDatabase
 		//notify database listeners of the modified dbYear list
 		fireDataChanged(this, "ADDED_DBYEAR", dbYearList);
 		
-		int addedYear = dbYearList.get(dbYearList.size()-1).getYear();
+		//latest year is always the first object in the dbYearList
+		int addedYear = dbYearList.get(0).getYear();
 		
 		String mssg = String.format("%d database added, now available", addedYear);
 		ONCPopupMessage popup = new ONCPopupMessage( oncGVs.getImageIcon(0));

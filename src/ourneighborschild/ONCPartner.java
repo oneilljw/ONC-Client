@@ -329,7 +329,7 @@ public class ONCPartner extends ONCEntity
 	
 	public int incrementOrnReceived(boolean bBeforeDeadline)
 	{ 
-		return  bBeforeDeadline ? ++orn_rec_before : ++ orn_rec_after; 
+		return  bBeforeDeadline ? ++orn_rec_before : ++orn_rec_after; 
 	}
 	
 	public int decrementOrnReceived(boolean bBeforeDeadline)
