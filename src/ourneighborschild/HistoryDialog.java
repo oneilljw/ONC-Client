@@ -75,7 +75,7 @@ public abstract class HistoryDialog extends JDialog implements ActionListener, E
         
         //Create the scroll pane and add the table to it.
         JScrollPane dsScrollPane = new JScrollPane(dlgTable);
-        dsScrollPane.setPreferredSize(new Dimension(tablewidth, 96));
+        dsScrollPane.setPreferredSize(new Dimension(tablewidth, 192));
         dsScrollPane.setBorder(UIManager.getBorder("Table.scrollPaneBorder"));
         
         JPanel cntlPanel = new JPanel();

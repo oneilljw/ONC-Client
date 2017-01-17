@@ -35,7 +35,7 @@ public class FamilyHistoryDialog extends HistoryDialog
 	public FamilyHistoryDialog(JFrame pf) 
 	{
 		super(pf, "Status");
-		// TODO Auto-generated constructor stub
+		btnDelete.setVisible(false); //can't delete a family history object
 		
 		volunteerDB = VolunteerDB.getInstance();
 		familyHistoryDB = FamilyHistoryDB.getInstance();

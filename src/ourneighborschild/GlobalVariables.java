@@ -129,7 +129,7 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 		imageIcons[12] = createImageIcon("Santa-icon.gif", "Santa Icon");
 		imageIcons[13] = createImageIcon("Stocking-icon.gif", "Stocking Icon");
 		
-		imageIcons[14] = createImageIcon("Sleigh-icon.gif", "Sleigh Icon");	//Delivery history icon
+		imageIcons[14] = createImageIcon("family-history-icon.png", "Family History Icon");
 		imageIcons[15] = createImageIcon("oncsplash.gif", "ONC Full Screen Logo");
 		imageIcons[16] = createImageIcon("undo.gif", "ONC Undo Icon");
 		imageIcons[17] = createImageIcon("lock_open.gif", "Open Lock");
