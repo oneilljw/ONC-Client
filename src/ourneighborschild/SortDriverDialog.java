@@ -143,18 +143,19 @@ public class SortDriverDialog extends DependantTableDialog
 		clearFamilyTable();
 		
 		for(int i=0; i< row_sel.length; i++)
-			for(ONCFamily f:fDB.getList())
+//			for(ONCFamily f:fDB.getList())
+			for(ONCFamily f:fDB.getListOfFamiliesWithDeliveries())
 			{
 				//determine if the family has a driver based on the delivery. If the family
 				//has a driver, does the delivery driver's ID match the id of the driver selected
-				//in the selection table. If so, add to the defendant table list
-				ONCFamilyHistory del = familyHistoryDB.getFamilyHistory(f.getDeliveryID());
+				//in the selection table. If so, add to the dependent table list
+				ONCFamilyHistory lastFHObj = familyHistoryDB.getFamilyHistory(f.getDeliveryID());
 			
-				if(del != null && !del.getdDelBy().isEmpty())
+				if(lastFHObj != null && !lastFHObj.getdDelBy().isEmpty())
 				{
 					//There is s driver assigned. Determine who it is from the driver number
 					//and check to see if it matches the selected driver(s) in the selection table
-					int index = volunteerDB.getDriverIndex(del.getdDelBy());
+					int index = volunteerDB.getDriverIndex(lastFHObj.getdDelBy());
 					if(index > -1 && volunteerDB.getDriver(index).getDrvNum().equals(atAL.get(row_sel[i]).getDrvNum()))
 						stAL.add(f);
 				}	
@@ -456,7 +457,7 @@ public class SortDriverDialog extends DependantTableDialog
 				stAL.clear();
 				clearFamilyTable();
 			}
-			else	//Agent selected, build new family table associated with the agent
+			else	//delivery volunteer selected, build new family table associated with the volunteer
 			{
 //				System.out.println("SortAgtDlg.valueChanged: lse event occurred, agent selected");
 				buildFamilyTableListAndDisplay();

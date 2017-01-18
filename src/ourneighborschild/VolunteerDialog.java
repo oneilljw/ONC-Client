@@ -370,7 +370,7 @@ public class VolunteerDialog extends EntityDialog
 			cityTF.setText(currVolunteer.getCity());
 			zipTF.setText(currVolunteer.getZipcode());
 			
-			groupTF.setText(currVolunteer.getGroup().isEmpty() ? "None" : currVolunteer.getGroup());
+			groupTF.setText(currVolunteer.getGroup());
 			commentTF.setText(currVolunteer.getComment());
 			
 			SimpleDateFormat sdf = new SimpleDateFormat("M/dd h:mm");

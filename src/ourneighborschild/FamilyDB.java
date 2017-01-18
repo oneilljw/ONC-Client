@@ -83,6 +83,17 @@ public class FamilyDB extends ONCSearchableDatabase
 	void clear() { oncFamAL.clear(); }
 	ArrayList<ONCFamily> getList() { return oncFamAL; }
 	
+	//returns a list of families that have gift status of at least Assigned
+	List<ONCFamily> getListOfFamiliesWithDeliveries()
+	{
+		List<ONCFamily> famDelList = new ArrayList<ONCFamily>();
+		for(ONCFamily f : oncFamAL)
+			if(f.getGiftStatus().compareTo(FamilyGiftStatus.Assigned) >= 0)
+				famDelList.add(f);
+		
+		return famDelList; 
+	}
+	
 	//get family by ID
 	ONCFamily getFamily(int famid)
 	{

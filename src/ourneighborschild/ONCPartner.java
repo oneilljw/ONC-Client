@@ -13,7 +13,7 @@ public class ONCPartner extends ONCEntity
 	private int type;
 	private GiftCollection collection;
 	private String name;
-	private String ornamentDelivery;
+//	private String ornamentDelivery;
 	private int streetnum;
 	private String streetname;
 	private String unit;
@@ -50,7 +50,7 @@ public class ONCPartner extends ONCEntity
 		type = 0;
 		collection = GiftCollection.Unknown;
 		name = "";
-		ornamentDelivery = "";
+//		ornamentDelivery = "";
 		streetnum = 0;
 		streetname = "";
 		unit = "";
@@ -89,7 +89,7 @@ public class ONCPartner extends ONCEntity
 		type = 0;
 		collection = GiftCollection.Unknown;
 		this.name = name;
-		ornamentDelivery = "";
+//		ornamentDelivery = "";
 		streetnum = 0;
 		streetname = "";
 		unit = "";
@@ -120,7 +120,7 @@ public class ONCPartner extends ONCEntity
 	}
 	
 	ONCPartner(int orgid, Date date, String changedBy, int slPos, String slMssg, String slChangedBy,
-			int status, int type, GiftCollection collection, String name, String ornDelivery, int streetnum, String streetname,
+			int status, int type, GiftCollection collection, String name, int streetnum, String streetname,
 			String unit, String city, String zipcode, String phone, int orn_req, String other, 
 			String deliverTo, String specialNotes, String contact, String contact_email,
 			String contact_phone, String contact2, String contact2_email, String contact2_phone)
@@ -131,7 +131,7 @@ public class ONCPartner extends ONCEntity
 		this.type = type;
 		this.collection = collection;
 		this.name = name;
-		this.ornamentDelivery = ornDelivery;
+//		this.ornamentDelivery = ornDelivery;
 		this.streetnum = streetnum;
 		this.streetname = streetname;
 		this.unit = unit;
@@ -170,7 +170,7 @@ public class ONCPartner extends ONCEntity
 		this.type = o.type;
 		this.collection = o.collection;
 		this.name = o.name;
-		this.ornamentDelivery = o.ornamentDelivery;
+//		this.ornamentDelivery = o.ornamentDelivery;
 		this.streetnum = o.streetnum;
 		this.streetname = o.streetname;
 		this.unit = o.unit;
@@ -203,39 +203,39 @@ public class ONCPartner extends ONCEntity
 	//Constructor for import from .csv
 	public ONCPartner(String[] nextLine)	
 	{
-		super(Integer.parseInt(nextLine[0]), Long.parseLong(nextLine[27]), nextLine[28],
-				Integer.parseInt(nextLine[29]), nextLine[30], nextLine[31]);
+		super(Integer.parseInt(nextLine[0]), Long.parseLong(nextLine[26]), nextLine[27],
+				Integer.parseInt(nextLine[28]), nextLine[29], nextLine[30]);
 		status = Integer.parseInt(nextLine[1]);
 		type = Integer.parseInt(nextLine[2]);
 		collection = nextLine[3].isEmpty() ? GiftCollection.Unknown : GiftCollection.valueOf(nextLine[3]);
 		name = getDBString(nextLine[4]);
-		ornamentDelivery = getDBString(nextLine[5]);
-		streetnum = nextLine[6].isEmpty() ? 0 : Integer.parseInt(nextLine[6]);
-		streetname = getDBString(nextLine[7]);
-		unit = getDBString(nextLine[8]);
-		city =getDBString(nextLine[9]);
-		zipcode = getDBString(nextLine[10]);
-		region = nextLine[11].isEmpty() ? 0 : Integer.parseInt(nextLine[11]);
-		phone = getDBString(nextLine[12]);
-		orn_req = nextLine[13].isEmpty() ? 0 : Integer.parseInt(nextLine[13]);
-		orn_assigned = nextLine[14].isEmpty() ? 0 : Integer.parseInt(nextLine[14]);
-		orn_delivered = nextLine[15].isEmpty() ? 0 : Integer.parseInt(nextLine[15]);
-		orn_rec_before = nextLine[16].isEmpty() ? 0 : Integer.parseInt(nextLine[16]);
-		orn_rec_after = nextLine[17].isEmpty() ? 0 : Integer.parseInt(nextLine[17]);
-		other = getDBString(nextLine[18]);
-		deliverTo = getDBString(nextLine[19]);
-		specialNotes = getDBString(nextLine[20]);
-		contact = getDBString(nextLine[21]);
-		contact_email = getDBString(nextLine[22]);
-		contact_phone = getDBString(nextLine[23]);
-		contact2 = getDBString(nextLine[24]);
-		contact2_email = getDBString(nextLine[25]);
-		contact2_phone = getDBString(nextLine[26]);
-		pyRequested = nextLine[32].isEmpty() ? 0 : Integer.parseInt(nextLine[32]);
-		pyAssigned = nextLine[33].isEmpty() ? 0 : Integer.parseInt(nextLine[33]);
-		pyDelivered = nextLine[34].isEmpty() ? 0 : Integer.parseInt(nextLine[34]);
-		pyReceivedBeforeDeadline = nextLine[35].isEmpty() ? 0 : Integer.parseInt(nextLine[35]);
-		pyReceivedAfterDeadline = nextLine[36].isEmpty() ? 0 : Integer.parseInt(nextLine[36]);
+//		ornamentDelivery = getDBString(nextLine[5]);
+		streetnum = nextLine[5].isEmpty() ? 0 : Integer.parseInt(nextLine[5]);
+		streetname = getDBString(nextLine[6]);
+		unit = getDBString(nextLine[7]);
+		city =getDBString(nextLine[8]);
+		zipcode = getDBString(nextLine[9]);
+		region = nextLine[10].isEmpty() ? 0 : Integer.parseInt(nextLine[10]);
+		phone = getDBString(nextLine[11]);
+		orn_req = nextLine[12].isEmpty() ? 0 : Integer.parseInt(nextLine[12]);
+		orn_assigned = nextLine[13].isEmpty() ? 0 : Integer.parseInt(nextLine[13]);
+		orn_delivered = nextLine[14].isEmpty() ? 0 : Integer.parseInt(nextLine[14]);
+		orn_rec_before = nextLine[15].isEmpty() ? 0 : Integer.parseInt(nextLine[15]);
+		orn_rec_after = nextLine[16].isEmpty() ? 0 : Integer.parseInt(nextLine[16]);
+		other = getDBString(nextLine[17]);
+		deliverTo = getDBString(nextLine[18]);
+		specialNotes = getDBString(nextLine[19]);
+		contact = getDBString(nextLine[20]);
+		contact_email = getDBString(nextLine[21]);
+		contact_phone = getDBString(nextLine[22]);
+		contact2 = getDBString(nextLine[23]);
+		contact2_email = getDBString(nextLine[24]);
+		contact2_phone = getDBString(nextLine[25]);
+		pyRequested = nextLine[31].isEmpty() ? 0 : Integer.parseInt(nextLine[31]);
+		pyAssigned = nextLine[32].isEmpty() ? 0 : Integer.parseInt(nextLine[32]);
+		pyDelivered = nextLine[33].isEmpty() ? 0 : Integer.parseInt(nextLine[33]);
+		pyReceivedBeforeDeadline = nextLine[34].isEmpty() ? 0 : Integer.parseInt(nextLine[34]);
+		pyReceivedAfterDeadline = nextLine[35].isEmpty() ? 0 : Integer.parseInt(nextLine[35]);
 	}
 	
 	String getDBString(String s)
@@ -248,7 +248,7 @@ public class ONCPartner extends ONCEntity
 	int getType()		{ return type; }
 	GiftCollection getGiftCollectionType() {return collection; }
 	public String getName()	{ return name; }
-	String getOrnamentDelivery()	{ return ornamentDelivery; }
+//	String getOrnamentDelivery()	{ return ornamentDelivery; }
 	public int getStreetnum()	{ return streetnum; }
 	public String getStreetname()	{return streetname; }
 	String getUnit() { return unit; }
@@ -282,7 +282,7 @@ public class ONCPartner extends ONCEntity
 	void setType(int t)		{ type = t; }
 	void setGiftCollectionType(GiftCollection gc)	{ collection = gc; }
 	void setName(String n)	{ name = n; }
-	void setOrnamentDelivery(String od)	{ ornamentDelivery = od; }
+//	void setOrnamentDelivery(String od)	{ ornamentDelivery = od; }
 	void setStreetnum(int sn)	{ streetnum = sn; }
 	void setStreetname(String sn)	{ streetname = sn; }
 	void setUnit(String sn) { unit = sn; }
@@ -360,7 +360,9 @@ public class ONCPartner extends ONCEntity
 	public String[] getExportRow()
 	{
 		String[] row= {Integer.toString(id), Integer.toString(status), Integer.toString(type),
-						collection.toString(), name, ornamentDelivery, Integer.toString(streetnum),
+						collection.toString(), name, 
+//						ornamentDelivery, 
+						Integer.toString(streetnum),
 						streetname, unit, city, zipcode, Integer.toString(region), phone,
 						Integer.toString(orn_req),Integer.toString(orn_assigned), Integer.toString(orn_delivered),
 						Integer.toString(orn_rec_before), Integer.toString(orn_rec_after), 

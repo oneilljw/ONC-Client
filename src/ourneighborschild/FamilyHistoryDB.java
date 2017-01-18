@@ -19,7 +19,7 @@ import au.com.bytecode.opencsv.CSVWriter;
 public class FamilyHistoryDB extends ONCDatabase
 {
 	private static FamilyHistoryDB instance = null;
-	private ArrayList<ONCFamilyHistory> fhAL;
+	private List<ONCFamilyHistory> fhAL;
 	
 	private FamilyHistoryDB()
 	{

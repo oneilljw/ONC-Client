@@ -149,7 +149,7 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 		for(ONCFamily f:fDB.getList())
 		{
 			//Determine if family meets search criteria to be added to the table. If a
-			//family's status isn't FAMILY_STATUS_PACKAGED, they aren't eligible to be
+			//family's status isn't FamilyGiftStatus.Packaged, they aren't eligible to be
 			//assigned for delivery regardless of search criteria
 			if(f.getGiftStatus() == FamilyGiftStatus.Packaged &&
 				isRegionInRange(f.getRegion()) &&

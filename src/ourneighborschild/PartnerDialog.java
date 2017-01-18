@@ -773,7 +773,7 @@ public class PartnerDialog extends EntityDialog
 		ONCPartner newPartner = new ONCPartner(-1, new Date(), userDB.getUserLNFI(),
 				3, "Partner Created", userDB.getUserLNFI(),
 				statusCB.getSelectedIndex(), typeCB.getSelectedIndex(),
-				(GiftCollection) collectionCB.getSelectedItem(), nameTF.getText(), "", 
+				(GiftCollection) collectionCB.getSelectedItem(), nameTF.getText(), 
 				streetnumTF.getText().isEmpty() ? 0 : Integer.parseInt(streetnumTF.getText()),
 				streetnameTF.getText(), unitTF.getText(), cityTF.getText(), zipTF.getText(), 
 				phoneTF.getText(), cyReqTF.getText().isEmpty() ? 0 : Integer.parseInt(cyReqTF.getText()),
