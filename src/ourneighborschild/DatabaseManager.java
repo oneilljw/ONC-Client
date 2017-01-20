@@ -40,7 +40,8 @@ public class DatabaseManager extends ONCDatabase
 	private FamilyDB oncFamDB;				//Holds ONC Family Database
 	private ChildDB oncChildDB;				//Holds ONC Child database
 	private ChildWishDB oncChildWishDB; 	//Holds ONC Child Wish database
-	private AgentDB oncAgentDB;			//Holds ONC Agents
+	private AgentDB oncAgentDB;				//Holds ONC Grops
+	private GroupDB groupDB;				//Holds ONC Agents
 	private PartnerDB oncOrgDB;				//Holds ONC Partner Organizations
 	private ONCWishCatalog oncWishCat;		//Holds ONC Wish Catalog
 	private WishDetailDB oncWishDetailDB;	//Holds ONC Wish Detail Data Base
@@ -60,6 +61,7 @@ public class DatabaseManager extends ONCDatabase
 		oncRegions = ONCRegions.getInstance();
 		UserDB.getInstance();
 		oncAgentDB = AgentDB.getInstance();
+		groupDB = GroupDB.getInstance();
 		oncOrgDB = PartnerDB.getInstance();
 		oncWishDetailDB = WishDetailDB.getInstance();
 		oncWishCat = ONCWishCatalog.getInstance();
@@ -236,6 +238,7 @@ public class DatabaseManager extends ONCDatabase
     	
     		oncAdultDB.exportDBToCSV(GlobalVariables.getFrame(), path + "/AdultDB.csv");
     		oncAgentDB.exportDBToCSV(GlobalVariables.getFrame(), path + "/AgentDB.csv");
+    		groupDB.exportDBToCSV(GlobalVariables.getFrame(), path + "/GroupDB.csv");
     		oncChildDB.exportDBToCSV(GlobalVariables.getFrame(), path + "/ChildDB.csv");
     		oncChildWishDB.exportDBToCSV(GlobalVariables.getFrame(), path + "/ChildWishDB.csv");
     		oncDelDB.exportDBToCSV(GlobalVariables.getFrame(), path + "/DeliveryDB.csv");
@@ -418,6 +421,10 @@ public class DatabaseManager extends ONCDatabase
 			
 			pb.updateHeaderText("Loading Agents");
 			oncAgentDB.importAgentDatabase();
+			this.setProgress(progress += increment);
+			
+			pb.updateHeaderText("Loading Groups");
+			groupDB.importGroupDBFromServer();
 			this.setProgress(progress += increment);
 			
 			pb.updateHeaderText("Loading Partners");

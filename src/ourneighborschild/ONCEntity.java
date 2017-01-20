@@ -3,6 +3,7 @@ package ourneighborschild;
 import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 public abstract class ONCEntity extends ONCObject implements Serializable
 {
@@ -23,7 +24,7 @@ public abstract class ONCEntity extends ONCObject implements Serializable
 	public ONCEntity(int id, Date today, String changedBy, int slpos, String slmssg, String slchgby)
 	{
 		super(id);
-		dateChanged = Calendar.getInstance();
+		dateChanged = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 		dateChanged.setTime(today);
 		this.changedBy = changedBy;
 		slPos = slpos;
@@ -46,7 +47,7 @@ public abstract class ONCEntity extends ONCObject implements Serializable
 	public ONCEntity(int id, long timeInMillis, String changedBy, int slpos, String slmssg, String slchgby)
 	{
 		super(id);
-		dateChanged = Calendar.getInstance();
+		dateChanged = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 		dateChanged.setTimeInMillis(timeInMillis);
 		this.changedBy = changedBy;
 		slPos = slpos;
