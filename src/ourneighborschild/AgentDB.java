@@ -83,7 +83,9 @@ public class AgentDB extends ONCDatabase
 			response = serverIF.sendRequest("GET<agents>");
 			oncObjectList = gson.fromJson(response, listtype);
 			Collections.sort(oncObjectList, new ONCAgentNameComparator());
-
+			
+			System.out.println(String.format("AgentDB.importAgentDB: # agents= %d", oncObjectList.size()));
+								
 			if(!response.startsWith("NO_AGENTS"))
 			{
 				response = "AGENTS_LOADED";

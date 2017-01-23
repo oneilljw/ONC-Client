@@ -191,7 +191,7 @@ public class WishDetailDB extends ONCDatabase
 			Type listtype = new TypeToken<ArrayList<WishDetail>>(){}.getType();
 			
 			response = serverIF.sendRequest("GET<wishdetail>");
-				wdAL = gson.fromJson(response, listtype);				
+				wdAL = gson.fromJson(response, listtype);
 			
 			if(!response.startsWith("NO_DETAIL"))		
 				response =  "DETAIL_LOADED";

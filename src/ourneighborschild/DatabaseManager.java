@@ -308,36 +308,16 @@ public class DatabaseManager extends ONCDatabase
     {
     	if(bServerDataLoaded)
     	{
-    		//Now that we have season data loaded
-        	//let the user know that data has been loaded
+    		//Now that we have season data loaded let the user know that data has been loaded
     		GlobalVariables.getFrame().setTitle("Our Neighbor's Child - " + year + " Season Data");
-//			if(GlobalVariables.isUserAdmin()) 
-//				oncMenuBar.setEnabledImportMenuItems(true);
-			
-//			String mssg;
-//			if(oncGVs.getUser().getFirstname().equals(""))
-//				mssg = year + " season data has been loaded";
-//			else
-//				mssg = oncGVs.getUser().getFirstname() + ", " + year + " season data has been loaded";
-//			
-//   		oncFamilyPanel.setMssg(mssg, true);
-    		
-//    		oncMenuBar.setEnabledYear(false);
-//    		oncMenuBar.setEnabledNewMenuItem(false);
-//    		oncMenuBar.setEnabledWishCatalogAndOrgMenuItems(true);
-		
-			//Families may not have been imported from ODB yet, however, agents exist from prior
-			//year and users can import drivers or add them if they wish
-//			oncMenuBar.setEnabledDataLoadedMenuItems(true);
-			
+
 			oncWishCat.initializeWishCounts();
 			
 			//check to see if family data is present and enable controls
-//			checkFamilyDataLoaded();
 			this.fireDataChanged(this, "LOADED_DATABASE", year);
     	}
 
-    	//tell the server if to pass on server data base changes to local data bases
+    	//tell the server interface to pass on server data base changes to local data bases
     	if(serverIF != null)
     		serverIF.setDatabaseLoaded(true);	
     }
@@ -364,7 +344,7 @@ public class DatabaseManager extends ONCDatabase
      **************************************************************************************************/
     public class ONCServerDBImporter extends SwingWorker<Void, Void>
     {
-    	private static final int NUM_OF_DBs = 14;
+    	private static final int NUM_OF_DBs = 15;
     	String year;
     	ONCProgressBar pb;
     	boolean bServerDataLoaded;
@@ -445,6 +425,7 @@ public class DatabaseManager extends ONCDatabase
 			
 			pb.updateHeaderText("Loading Detail");
 			oncWishDetailDB.importWishDetailDatabase();
+			
 			this.setProgress(progress += increment);
 			
 			bServerDataLoaded = true;
