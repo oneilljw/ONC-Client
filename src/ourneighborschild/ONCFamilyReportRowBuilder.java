@@ -20,14 +20,14 @@ public class ONCFamilyReportRowBuilder
 	
 	private ChildDB cDB;
 	private ChildWishDB cwDB;
-	private AgentDB agentDB;
+	private UserDB userDB;
 	private ONCWishCatalog cat;
 	
 	ONCFamilyReportRowBuilder()
 	{
 		cDB = ChildDB.getInstance();
 		cwDB = ChildWishDB.getInstance();
-		agentDB = AgentDB.getInstance();
+		userDB = UserDB.getInstance();
 		cat = ONCWishCatalog.getInstance();
 	}
 	
@@ -179,13 +179,13 @@ public class ONCFamilyReportRowBuilder
 		String[] row = new String[getFamilyReportAgentColumns().length];
 		int index = 0;
 		 
-		Agent  famAgent = (Agent) agentDB.getONCObject(f.getAgentID());
+		ONCUser  famAgent = (ONCUser) userDB.getUser(f.getAgentID());
 		row[index++] = 	f.getAdoptedFor();
-		row[index++] = 	famAgent.getAgentName();
-		row[index++] = 	famAgent.getAgentOrg();
-		row[index++] = 	famAgent.getAgentTitle();
-		row[index++] = 	famAgent.getAgentEmail();
-		row[index] = 	famAgent.getAgentPhone();
+		row[index++] = 	famAgent.getLastname();
+		row[index++] = 	famAgent.getOrg();
+		row[index++] = 	famAgent.getTitle();
+		row[index++] = 	famAgent.getEmail();
+		row[index] = 	famAgent.getPhone();
 				
 		return row;		
 	}

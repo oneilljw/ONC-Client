@@ -68,10 +68,10 @@ public class BritepathFamily
 	}
 	
 	//getters
-	public Agent getReferringAgent()
-	{
-		return new Agent(-1, referringAgentName, referringAgentOrg, referringAgentTitle, referringAgentEmail, referringAgentPhone);
-	}
-	
+	public String getReferringAgentName() { return referringAgentName; }
+	public String getReferringAgentOrg() { return referringAgentOrg; }
+	public String getReferringAgentTitle() { return referringAgentTitle; }
+	public String getReferringAgentEmail() { return referringAgentEmail; }
+	public String getReferringAgentPhone() { return referringAgentPhone; }
 	public String getFamilyMembers() { return familyMembers; }
 }

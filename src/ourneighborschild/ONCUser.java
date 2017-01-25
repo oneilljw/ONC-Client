@@ -120,6 +120,27 @@ public class ONCUser extends ONCEntity
 		this.preferences = u.preferences;
 	}
 	
+	public ONCUser()
+	{
+		super(-1, new Date(), "", 3, "Dummy User Agent", "");
+		
+		firstname = "Dummy";
+		lastname = "User/Agent";
+		status = UserStatus.Inactive;
+		access = UserAccess.App;
+		permission = UserPermission.General;
+		this.clientID = -1;
+		this.clientYear = -1;
+		this.nSessions = 0;
+		this.lastLogin = System.currentTimeMillis();
+		this.org = "None";
+		this.title = "None";
+		this.email = "None";
+		this.phone = "None";
+		this.agentID = -1;
+		this.preferences = new UserPreferences(13, 1, 1);
+	}
+	
 	public long getClientID() { return clientID; }
 	public void setClientID(long clientID) { this.clientID = clientID; }
 	public int getClientYear() { return clientYear; }
@@ -165,12 +186,22 @@ public class ONCUser extends ONCEntity
 	}
 	
 	public ONCUser getUser() { return this; }
-
+	
 	@Override
 	public String[] getExportRow()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		String[] row = {
+						Integer.toString(id), firstname, lastname,
+						status.toString(), access.toString(), permission.toString(), 
+						Long.toString(dateChanged.getTimeInMillis()), changedBy, Integer.toString(slPos), 
+						slMssg,slChangedBy, Long.toString(nSessions), 
+						Long.toString(lastLogin),
+						org, title, email, phone, Integer.toString(agentID),
+						Integer.toString(preferences.getFontSize()), 
+						Integer.toString(preferences.getWishAssigneeFilter()), 
+						Integer.toString(preferences.getFamilyDNSFilter())
+						};
+		return row;
 	}
 	
 	@Override

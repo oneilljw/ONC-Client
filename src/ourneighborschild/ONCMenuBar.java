@@ -27,7 +27,7 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 	
 	private DatabaseManager oncDB;
 	private JMenuItem newMI;
-	private JMenuItem importBritepathsMI, importWFCMMI, importVolMI, importRAFMI;
+	private JMenuItem importBritepathsMI, importWFCMMI, importVolMI;
 	private JMenuItem manageCallResultMI;
 	private JMenuItem exportMI, dbStatusMI, clearMI;
 	public JMenuItem exitMI;	//public since exit method is external to the menu bar
@@ -102,11 +102,6 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 	    importVolMI = new JMenuItem("Volunteers");
 	    importVolMI.addActionListener(this);
 	    submenuImport.add(importVolMI);
-	    
-	    //Import Referring Agent Families
-	    importRAFMI = new JMenuItem("RA Families...");	
-	    importRAFMI.addActionListener(this);
-	    submenuImport.add(importRAFMI);
     
 	    menuDatabase.add(submenuImport);
 	    
@@ -613,7 +608,6 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 	{
 		if(e.getSource() == newMI) { dbManager.addONCSeason(); }
 		else if(e.getSource() == importBritepathsMI) {familyDB.importBPFile(GlobalVariables.getFrame()); }
-		else if(e.getSource() == importRAFMI) { dlgManager.onImportRAFMenuItemClicked(); }
 		else if(e.getSource() == manageCallResultMI) {dlgManager.showAngelCallDialog();}
 		else if(e.getSource() == exportMI){ dbManager.exportObjectDBToCSV(); }
 		else if(e.getSource() == dbStatusMI) {dlgManager.onDBStatusClicked();}

@@ -1,5 +1,6 @@
 package ourneighborschild;
 
+/*
 import java.io.File;
 //import java.io.FileReader;
 import java.io.FileWriter;
@@ -21,30 +22,31 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import au.com.bytecode.opencsv.CSVWriter;
+*/
 
-public class AgentDB extends ONCDatabase
+public class AgentDB
 {
 	/****************************************************************************************
 	 * This singleton class implements a data base for ONC Agents. Agent objects are contained
 	 * in a list. The class provides methods for adding and retrieving agent objects to/from 
 	 * the data base.
 	 **************************************************************************************/
-	private static AgentDB instance = null;
-	private ArrayList<Agent> oncObjectList;	//The agent object array list data base
+//	private static AgentDB instance = null;
+//	private ArrayList<Agent> oncObjectList;	//The agent object array list data base
 	
-	private AgentDB()
-	{
-		super();
-		oncObjectList = new ArrayList<Agent>();
-	}
+//	private AgentDB()
+//	{
+//		super();
+//		oncObjectList = new ArrayList<Agent>();
+//	}
 	
-	public static AgentDB getInstance()
-	{
-		if(instance == null)
-			instance = new AgentDB();
-		
-		return instance;
-	}	
+//	public static AgentDB getInstance()
+//	{
+//		if(instance == null)
+//			instance = new AgentDB();
+//		
+//		return instance;
+//	}	
 	
 	/***********************************************************************************
 	 * This method retrieves an Agent object from the agent list. An id is 
@@ -54,6 +56,7 @@ public class AgentDB extends ONCDatabase
 	 * @param id
 	 * @return
 	 ***********************************************************************************/
+/*	
 	ONCObject getONCObject(int id)
 	{
 		int index = 0;
@@ -67,9 +70,6 @@ public class AgentDB extends ONCDatabase
 	}
 	
 	ArrayList<Agent> getList() { return oncObjectList; }
-	ONCAgentNameComparator getAgentNameComparator() { return  new ONCAgentNameComparator(); }
-	ONCAgentOrgComparator getAgentOrgComparator() { return new ONCAgentOrgComparator(); }
-	ONCAgentTitleComparator getAgentTitleComparator() { return new ONCAgentTitleComparator(); }
 	
 	String importAgentDatabase()
 	{
@@ -83,9 +83,7 @@ public class AgentDB extends ONCDatabase
 			response = serverIF.sendRequest("GET<agents>");
 			oncObjectList = gson.fromJson(response, listtype);
 			Collections.sort(oncObjectList, new ONCAgentNameComparator());
-			
-			System.out.println(String.format("AgentDB.importAgentDB: # agents= %d", oncObjectList.size()));
-								
+							
 			if(!response.startsWith("NO_AGENTS"))
 			{
 				response = "AGENTS_LOADED";
@@ -158,6 +156,7 @@ public class AgentDB extends ONCDatabase
 		}
 		
 	}
+	
 	@Override
 	String update(Object source, ONCObject entity)
 	{
@@ -196,7 +195,7 @@ public class AgentDB extends ONCDatabase
 		
 		return updatedAgt;
 	}
-
+*/
 	/************************************************************************************
 	 * This method takes agent info, searches the agent array list for a name match.
 	 * If a match name match is found, the agent org, title, email and phone are overwritten.
@@ -204,6 +203,7 @@ public class AgentDB extends ONCDatabase
 	 * and the agent object is returned. If a name match isn't found, it creates a new Agent
 	 * object and adds the object to the array list and returns the new agent object 
 	 **********************************************************************************/
+/*	
 	ONCObject add(Object source, ONCObject reqAddAgt)
 	{
 		Gson gson = new Gson();
@@ -238,7 +238,7 @@ public class AgentDB extends ONCDatabase
 		
 		return addedAgt;
 	}
-/*	
+	
 	//Delete an object from database.
 	ONCObject delete(Object source, ONCObject entity) 
 	{
@@ -254,7 +254,7 @@ public class AgentDB extends ONCDatabase
 		
 		return delAgent;	
 	}
-*/	
+	
 	ONCObject processDeletedObject(Object source, String json)
 	{
 		Gson gson = new Gson();
@@ -271,7 +271,7 @@ public class AgentDB extends ONCDatabase
 		
 		return deletedAgt;
 	}
-	
+ 	
 	boolean sortDB(ArrayList<Agent> aAL, String dbField)
 	{
 		boolean bSortOccurred = true;
@@ -293,7 +293,7 @@ public class AgentDB extends ONCDatabase
 		@Override
 		public int compare(Agent o1, Agent o2)
 		{
-			return o1.getAgentName().compareTo(o2.getAgentName());
+			return o1.getAgentLastName().compareTo(o2.getAgentLastName());
 		}
 	}
 	
@@ -314,4 +314,5 @@ public class AgentDB extends ONCDatabase
 			return o1.getAgentTitle().compareTo(o2.getAgentTitle());
 		}
 	}
+*/
 }

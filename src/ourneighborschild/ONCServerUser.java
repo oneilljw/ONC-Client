@@ -65,6 +65,13 @@ public class ONCServerUser extends ONCUser
 				lastLogin, org, title, email, phone, agentID, preferences);	
 	}
 	
+	public boolean doesUserMatch(ONCServerUser compUser)
+	{
+		return firstname.equalsIgnoreCase(compUser.firstname) && 
+				lastname.equalsIgnoreCase(compUser.lastname);
+	}
+	
+	
 	@Override
 	public String[] getExportRow()
 	{

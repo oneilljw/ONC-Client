@@ -14,6 +14,7 @@ import java.awt.event.MouseEvent;
 import java.awt.print.PrinterException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -226,7 +227,7 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 	
 //	abstract void archiveTableSelections(ArrayList<? extends ONCObject> stAL);
 	
-	void archiveTableSelections(ArrayList<? extends ONCObject> stAL)
+	void archiveTableSelections(List<? extends ONCObject> stAL)
 	{
 		tableRowSelectedObjectList.clear();
 		
@@ -240,8 +241,8 @@ public abstract class SortTableDialog extends ONCTableDialog implements ActionLi
 	 * @param stAL	- List of table rows to be displayed
 	 * @param bSortReq - true: don't resort the table
 	 ****************************************************************************************/
-	void displaySortTable(ArrayList<? extends ONCObject> stAL, boolean bResort,
-							ArrayList<? extends ONCObject> tableRowSelectedObjectList)
+	void displaySortTable(List<? extends ONCObject> stAL, boolean bResort,
+							List<? extends ONCObject> tableRowSelectedObjectList)
 	{
 		bChangingTable = true;	//don't process table messages while being changed
 		

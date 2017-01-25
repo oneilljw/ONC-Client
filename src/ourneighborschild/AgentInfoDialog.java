@@ -3,6 +3,8 @@ package ourneighborschild;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -22,26 +24,24 @@ public class AgentInfoDialog extends InfoDialog implements DatabaseListener, Ent
 {
 	/**
 	 *  This class implements a dialog allowing application client users to edit 
-	 *  information about an agent. It subclasses InfoDialog and registers with
-	 *  the local agent data base to make and listen for agent changes.
+	 *  information about a user who is an agent. It subclasses InfoDialog and registers with
+	 *  the local user data base to make and listen for user_agent changes.
 	 */
 	private static final long serialVersionUID = 1L;
-	private JFrame owner;
 	private JPanel changeAgtPanel;
 	private JComboBox agtSelectCB;
 	private DefaultComboBoxModel agtSelectCBM;
+	private ChangeAgentCBListener agtSelectCBListener;
 	private boolean bChangeAgtVisible;
 	
-	private Agent currAgent, dummyAgent;
+	private ONCUser currUserAgent;
 	private ONCFamily currFamily;
-//	private FamilyDB familyDB;
-	private AgentDB agentDB;
+	private UserDB userDB;
 	private boolean bAgentSelectedEnabled;
 	
 	AgentInfoDialog(JFrame owner, boolean bAgentSelectedEnabled)
 	{
 		super(owner, false);
-		this.owner = owner;
 		this.bAgentSelectedEnabled = bAgentSelectedEnabled;
 
 		//Set dialog title and add type label info
@@ -51,18 +51,15 @@ public class AgentInfoDialog extends InfoDialog implements DatabaseListener, Ent
 		//set dialog to always be on top of owner
 		this.setAlwaysOnTop(true);
 		
-		//connect to local Agent DB
-		agentDB = AgentDB.getInstance();
-		if(agentDB != null)
-			agentDB.addDatabaseListener(this);
-		
-		//get a reference to Family Db
-//		familyDB = FamilyDB.getInstance();
+		//connect to local User DB
+		userDB = UserDB.getInstance();
+		if(userDB != null)
+			userDB.addDatabaseListener(this);
 		
 		//Set up the main panel, loop to set up components associated with names
 		for(int pn=0; pn < getDialogFieldNames().length; pn++)
 		{
-			tf[pn] = new JTextField(12);
+			tf[pn] = new JTextField(13);
 			tf[pn].addActionListener(dcl);
 			tf[pn].addKeyListener(tfkl);
 			infopanel[pn].add(tf[pn]);
@@ -77,25 +74,15 @@ public class AgentInfoDialog extends InfoDialog implements DatabaseListener, Ent
 		
 		JPanel agtSelectPanel = new JPanel();
 		
-		//create a dummy agent for use if there are no agents in the system
-		dummyAgent = new Agent(-1, "No Agents", "None", "None", "None", "None");
-				
 		agtSelectCB = new JComboBox();
 		agtSelectCBM = new DefaultComboBoxModel();
-		agtSelectCBM.addElement(dummyAgent);
+		agtSelectCBM.addElement(new ONCUser()); //create a dummy user_agent for use if there are no agents in the system
 		agtSelectCB.setModel(agtSelectCBM);
 		agtSelectCB.setPreferredSize(new Dimension(240, 56));
 		agtSelectCB.setBorder(BorderFactory.createTitledBorder("Select New Family Agent"));
 		agtSelectCB.setEditable(false);
-		agtSelectCB.addActionListener( new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				if(currAgent != null && !agtSelectCB.getSelectedItem().equals(currAgent))
-					changeFamilyAgent();
-			}
-		
-		});
+		agtSelectCBListener = new ChangeAgentCBListener();
+		agtSelectCB.addActionListener(agtSelectCBListener);
 		
 //		AutoCompletion.enable(agtSelectCB);
 		
@@ -114,31 +101,34 @@ public class AgentInfoDialog extends InfoDialog implements DatabaseListener, Ent
 		if (obj instanceof ONCFamily)
 		{
 			currFamily = (ONCFamily) obj;
-			currAgent = (Agent) agentDB.getONCObject(currFamily.getAgentID());
+			currUserAgent = (ONCUser) userDB.getUser(currFamily.getAgentID());
 		}
 		else
-			currAgent = (Agent) obj;
+			currUserAgent = (ONCUser) obj;
 		
-		tf[0].setText(currAgent.getAgentName());
+		tf[0].setText(currUserAgent.getFirstname());
 		tf[0].setCaretPosition(0);
 		
-		tf[1].setText(currAgent.getAgentOrg());
+		tf[1].setText(currUserAgent.getLastname());
 		tf[1].setCaretPosition(0);
 		
-		tf[2].setText(currAgent.getAgentTitle());
+		tf[2].setText(currUserAgent.getOrg());
 		tf[2].setCaretPosition(0);
 		
-		tf[3].setText(currAgent.getAgentEmail());
+		tf[3].setText(currUserAgent.getTitle());
 		tf[3].setCaretPosition(0);
 		
-		tf[4].setText(currAgent.getAgentPhone());
+		tf[4].setText(currUserAgent.getEmail());
 		tf[4].setCaretPosition(0);
+		
+		tf[5].setText(currUserAgent.getPhone());
+		tf[5].setCaretPosition(0);
 		
 		btnAction.setEnabled(false);
 		
 		//can only change an agent if there is a family identified, the user is Admin or higher
 		//and the dialog source is not a sort dialog
-		agtSelectCB.setSelectedItem(currAgent);
+		agtSelectCB.setSelectedItem(currUserAgent);
 		boolean bUserCanChangeAgent = userDB.getLoggedInUser() != null &&
 				userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0;
 				
@@ -150,29 +140,28 @@ public class AgentInfoDialog extends InfoDialog implements DatabaseListener, Ent
 	
 	void updateAgentList()
 	{	
-		AgentDB agentDB = AgentDB.getInstance();
-		
-		agtSelectCB.removeActionListener(this);
+		agtSelectCB.removeActionListener(agtSelectCBListener);
 		
 		agtSelectCBM.removeAllElements();
+		@SuppressWarnings("unchecked")
+		List<ONCUser> userList = (List<ONCUser>) userDB.getList();
+		Collections.sort(userList, new ONCUserLastNameComparator());
 		
-		List<Agent> agentList = (List<Agent>) agentDB.getList();
-		
-		for(Agent agt : agentList)
-		{
-			agtSelectCBM.addElement(agt);
-		}
+		for(ONCUser u : userList)
+			if(u.getPermission().compareTo(UserPermission.Agent) >= 0)
+				agtSelectCBM.addElement(u);
 
-		agtSelectCB.addActionListener(this);
+		agtSelectCB.addActionListener(agtSelectCBListener);
 	}
 	
 	void changeFamilyAgent()
 	{
-		Agent changeToAgentReq = (Agent) agtSelectCB.getSelectedItem();
+		ONCUser changeToAgentReq = (ONCUser) agtSelectCB.getSelectedItem();
+		
 		//verify user really wants to change the family's agent.
 		//Confirm with the user that the deletion is really intended
 		String confirmMssg =String.format("Please confirm changing the %s family's agent from %s to %s?", 
-					currFamily.getHOHLastName(), currAgent.getAgentName(), changeToAgentReq.getAgentName());
+					currFamily.getHOHLastName(), currUserAgent.getLastname(), changeToAgentReq.getLastname());
 	
 		Object[] options= {"Cancel", "Confirm Agent Change"};
 		JOptionPane confirmOP = new JOptionPane(confirmMssg, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION,
@@ -184,31 +173,31 @@ public class AgentInfoDialog extends InfoDialog implements DatabaseListener, Ent
 		if(selectedValue != null && selectedValue.toString().equals("Change"))
 		{
 			System.out.println(String.format("AgtInfoDlg.changeFamilyAgent: Changing from %s to %s",
-					currAgent.getAgentName(), changeToAgentReq.getAgentName()));
+					currUserAgent.getLastname(), changeToAgentReq.getLastname()));
 		}
 	}
 	
 	@Override
 	void update()
 	{
-		Agent reqAgt = new Agent(currAgent);	//make a copy of current agent
+		ONCUser reqUser = new ONCUser(currUserAgent);	//make a copy of current user
 		
 		byte cf = 0;
-		if(!tf[0].getText().equals(currAgent.getAgentName())) { reqAgt.setAgentName(tf[0].getText());  cf |= 1; }
-		if(!tf[1].getText().equals(currAgent.getAgentOrg())) { reqAgt.setAgentOrg(tf[1].getText());  cf |= 2; }
-		if(!tf[2].getText().equals(currAgent.getAgentTitle())) { reqAgt.setAgentTitle(tf[2].getText()); cf |= 4; }
-		if(!tf[3].getText().equals(currAgent.getAgentEmail())) { reqAgt.setAgentEmail(tf[3].getText()); cf |= 8; }
-		if(!tf[4].getText().equals(currAgent.getAgentPhone())) { reqAgt.setAgentPhone(tf[4].getText()); cf |= 16; }
+		if(!tf[0].getText().equals(currUserAgent.getFirstname())) { reqUser.setFirstname(tf[0].getText());  cf |= 1; }
+		if(!tf[1].getText().equals(currUserAgent.getLastname())) { reqUser.setLastname(tf[1].getText());  cf |= 2; }
+		if(!tf[2].getText().equals(currUserAgent.getOrg())) { reqUser.setOrg(tf[2].getText());  cf |= 4; }
+		if(!tf[3].getText().equals(currUserAgent.getTitle())) { reqUser.setTitle(tf[3].getText()); cf |= 8; }
+		if(!tf[4].getText().equals(currUserAgent.getEmail())) { reqUser.setEmail(tf[4].getText()); cf |= 16; }
+		if(!tf[5].getText().equals(currUserAgent.getPhone())) { reqUser.setPhone(tf[5].getText()); cf |= 32; }
 		
 		if(cf > 0)
 		{
-			AgentDB agentDB = AgentDB.getInstance();
-			String response = agentDB.update(this, reqAgt);
-			if(response.startsWith("UPDATED_AGENT"))
+			String response = userDB.update(this, reqUser);
+			if(response.startsWith("UPDATED_USER"))
 			{
-				//agent id will not change from update request, get updated agent
+				//user id will not change from update request, get updated user
 				//from the data base and display
-				display((Agent) agentDB.getONCObject(reqAgt.getID()));
+				display((ONCUser) userDB.getUser(reqUser.getID()));
 			}
 			else
 			{
@@ -268,35 +257,36 @@ public class AgentInfoDialog extends InfoDialog implements DatabaseListener, Ent
 	@Override
 	boolean fieldUnchanged()
 	{
-		return tf[0].getText().equals(currAgent.getAgentName()) &&
-				tf[1].getText().equals(currAgent.getAgentOrg()) &&
-				 tf[2].getText().equals(currAgent.getAgentTitle()) &&
-				  tf[3].getText().equals(currAgent.getAgentEmail()) &&
-				   tf[4].getText().equals(currAgent.getAgentPhone());
+		return tf[0].getText().equals(currUserAgent.getFirstname()) &&
+				tf[1].getText().equals(currUserAgent.getLastname()) &&
+				tf[2].getText().equals(currUserAgent.getOrg()) &&
+				 tf[3].getText().equals(currUserAgent.getTitle()) &&
+				  tf[4].getText().equals(currUserAgent.getEmail()) &&
+				   tf[5].getText().equals(currUserAgent.getPhone());
 	}
 
 	@Override
 	public void dataChanged(DatabaseEvent dbe) 
 	{
-		if(dbe.getSource() != this && dbe.getType().equals("UPDATED_AGENT"))
+		if(dbe.getSource() != this && dbe.getType().equals("UPDATED_USER"))
 		{
-			Agent updatedAgent = (Agent) dbe.getObject1();
+			ONCUser updatedUser = (ONCUser) dbe.getObject1();
 			
-			if(this.isVisible() && currAgent.getID() == updatedAgent.getID())
-				display(updatedAgent);
+			if(this.isVisible() && currUserAgent.getID() == updatedUser.getID())
+				display(updatedUser);
 			
 			updateAgentList();
 		}
-		else if(dbe.getSource() != this && dbe.getType().equals("DELETED_AGENT"))
+		else if(dbe.getSource() != this && dbe.getType().equals("DELETED_USER"))
 		{
-			Agent updatedAgent = (Agent) dbe.getObject1();
+			ONCUser deletedUser = (ONCUser) dbe.getObject1();
 			
 			updateAgentList();
 			
-			if(this.isVisible() && currAgent.getID() == updatedAgent.getID())
+			if(this.isVisible() && currUserAgent.getID() == deletedUser.getID())
 				this.dispose();
 		}
-		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_AGENTS"))
+		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_USERS"))
 		{
 			updateAgentList();
 		}
@@ -309,9 +299,9 @@ public class AgentInfoDialog extends InfoDialog implements DatabaseListener, Ent
 		{
 			if(this.isShowing())	//If Agent Info dialog visible, notify agent selection change
 			{
-				Agent selAgent = (Agent) tse.getObject1();
+				ONCUser selUserAgent = (ONCUser) tse.getObject1();
 				this.update();	//Save current info first, if changed
-				this.display(selAgent);	//Display newly selected agent
+				this.display(selUserAgent);	//Display newly selected agent
 			}
 		}
 		else if(tse.getType() == EntityType.FAMILY)
@@ -334,6 +324,25 @@ public class AgentInfoDialog extends InfoDialog implements DatabaseListener, Ent
 	@Override
 	String[] getDialogFieldNames()
 	{
-		return new String[] {"Name", "Organization", "Title", "Email", "Phone"};
+		return new String[] {"First Name", "Last Name", "Organization", "Title", "Email", "Phone"};
+	}
+	
+	private class ChangeAgentCBListener implements ActionListener
+	{
+		@Override
+		public void actionPerformed(ActionEvent e) 
+		{
+			// TODO Auto-generated method stub
+			
+		}	
+	}
+	
+	private class ONCUserLastNameComparator implements Comparator<ONCUser>
+	{
+		@Override
+		public int compare(ONCUser o1, ONCUser o2)
+		{
+			return o1.getLastname().compareTo(o2.getLastname());
+		}
 	}
 }

@@ -1,11 +1,20 @@
 package ourneighborschild;
 
 import java.awt.Point;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileNameExtensionFilter;
+
+import au.com.bytecode.opencsv.CSVWriter;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -118,22 +127,6 @@ public class UserDB extends ONCSearchableDatabase
 		
 	}
 
-	/*
-	void processAddedObject(Object source, String json)
-	{
-		//Store added ONCUser object in local data base
-		Gson gson = new Gson();
-		ONCUser addedObject = gson.fromJson(json, ONCUser.class);
-		
-		//save added user in local data base and sort by last name, first initial
-		uAL.add(addedObject);
-		Collections.sort(uAL, new UserLNFIComparator());
-		
-		//Notify local user IFs that a user was added. This will
-		//be all UI's that sort on user information
-		fireDataChanged(source, "ADDED_USER", addedObject);
-	}
-*/	
 	int processAddedObject(Object source, String json)
 	{
 		//Store added catalog wish in local wish catalog
@@ -394,4 +387,53 @@ public class UserDB extends ONCSearchableDatabase
 
 	@Override
 	ONCEntity getObjectAtIndex(int index) {  return uAL.get(index); }
+	
+	String exportDBToCSV(JFrame pf, String filename)
+    {
+		File oncwritefile = null;
+		
+    	if(filename == null)
+    	{
+    		ONCFileChooser fc = new ONCFileChooser(pf);
+    		oncwritefile= fc.getFile("Select .csv file to save Agent DB to",
+										new FileNameExtensionFilter("CSV Files", "csv"), 1);
+    	}
+    	else
+    		oncwritefile = new File(filename);
+    	
+    	if(oncwritefile!= null)
+    	{
+    		//If user types a new filename and doesn't include the .csv, add it
+	    	String filePath = oncwritefile.getPath();		
+	    	if(!filePath.toLowerCase().endsWith(".csv")) 
+	    		oncwritefile = new File(filePath + ".csv");
+	    	
+	    	try 
+	    	{
+	    		String[] header =  {"ID", "First Name", "Last Name", "Status", "Access", "Permission",
+	    				"Date Changed", "Changed By", "SL Position", "SL Message", 
+	    				"SL Changed By", "Sessions", "Last Login", "Orginization", "Title",
+	    				"Email", "Phone", "Agent ID", "Font Size", "Wish Assignee Filter",
+	    				"Family DNS Filter"};
+	    		
+	    		CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
+	    	    writer.writeNext(header);
+	    	    
+	    	    for(ONCUser u:uAL)
+	    	    	writer.writeNext(u.getExportRow());	//Get family data
+	    	 
+	    	    writer.close();
+	    	    filename = oncwritefile.getName();
+	    	       	    
+	    	} 
+	    	catch (IOException x)
+	    	{
+	    		System.err.format("IO Exception: %s%n", x);
+	    		JOptionPane.showMessageDialog(pf, oncwritefile.getName() + " could not be saved", 
+						"ONC File Save Error", JOptionPane.ERROR_MESSAGE);
+	    	}
+	    }
+    	
+	    return filename;
+    }
 }

@@ -971,7 +971,6 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		private ONCFamily	soFamily;
 		private ONCMeal	 	soMeal;
 		
-		AgentDB agentDB;
 		PartnerDB partnerDB;
 		
 		public SortMealObject(int itemID, ONCFamily fam, ONCMeal meal) 
@@ -980,7 +979,6 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 			soFamily = fam;
 			soMeal = meal;
 			
-			agentDB = AgentDB.getInstance();
 			partnerDB = PartnerDB.getInstance();
 		}
 		
@@ -990,7 +988,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		
 		public String[] getExportRow()
 		{
-			Agent agent = (Agent) agentDB.getONCObject(soFamily.getAgentID());
+			ONCUser user = userDB.getUser(soFamily.getAgentID());
 			ONCPartner partner = partnerDB.getPartnerByID(soMeal.getPartnerID());
 			
 			String delAddress, unit, city, zip;
@@ -1037,14 +1035,14 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 				famMembers = members.toString();
 			}
 			
-			String[] exportRow = { agent.getAgentName(), agent.getAgentOrg(), agent.getAgentTitle(),
+			String[] exportRow = { user.getLastname(), user.getOrg(), user.getTitle(),
 									partner != null ? partner.getName() : "",
 									soFamily.getHOHLastName() + " Household",
 									soFamily.getHOHFirstName() + " " + soFamily.getHOHLastName(),
 									famMembers,
-									agent.getAgentEmail(), soFamily.getEmail(),
+									user.getEmail(), soFamily.getEmail(),
 									soFamily.getAllPhoneNumbers().replaceAll("\n","\r"),
-									agent.getAgentPhone(), soMeal.getRestricitons(), soFamily.getSchools(),
+									user.getPhone(), soMeal.getRestricitons(), soFamily.getSchools(),
 									soFamily.getDetails(), soFamily.getReferenceNum(),
 									delAddress, unit, "", city, zip, "Virginia", "CBO",
 									soMeal.getType().toString(),
@@ -1059,7 +1057,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		
 		public String[] get2016ExportRow(int choice)
 		{
-			Agent agent = (Agent) agentDB.getONCObject(soFamily.getAgentID());
+			ONCUser user = userDB.getUser(soFamily.getAgentID());
 			
 			String delStreetNum, delStreet, unit, city, zip;
 			if(soFamily.getSubstituteDeliveryAddress().isEmpty())
@@ -1110,7 +1108,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 			exportRowList.add(unit);
 			exportRowList.add(city);
 			exportRowList.add(zip);
-			exportRowList.add(agent.getAgentOrg());
+			exportRowList.add(user.getOrg());
 			exportRowList.add(soFamily.getLanguage());
 			exportRowList.add(soFamily.getTransportation().toString());
 			exportRowList.add(Integer.toString(nAdults));

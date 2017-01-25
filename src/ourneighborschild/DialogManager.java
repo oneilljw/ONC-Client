@@ -586,25 +586,6 @@ public class DialogManager implements EntitySelectionListener
 				childDB.delete(this, delChild);
 		}
 	}
-
-	 /*********************************************************************************************
-    * This method imports a .csv file that contains a ONC Family Referral Worksheet. It creates
-    * a RAFamilyImporter object and registers the family panel to receive family selection 
-    * events from the importer. Then it executes the importer which will interface with 
-    * the user to select and import a sequence of ONC Family Referral Worksheets
-    *********************************************************************************************/
-   void onImportRAFMenuItemClicked()
-   {
-   	//get a reference to the EntityEventManager
-       EntityEventManager eeManager = EntityEventManager.getInstance();
-       
-   		RAFamilyImporter importer = new RAFamilyImporter(GlobalVariables.getFrame());
-   		eeManager.registerEntitySelector(importer);
- //  	importer.addEntitySelectionListener(familyChildSelectionListener);
-   		importer.onImportRAFMenuItemClicked();
-   		eeManager.removeEntitySelector(importer);
- //  	importer.removeEntitySelectionListener(familyChildSelectionListener);
-   }
 /*   
    void onWhoIsOnline()
    {

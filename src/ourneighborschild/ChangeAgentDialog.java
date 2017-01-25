@@ -10,8 +10,8 @@ public class ChangeAgentDialog extends InfoDialog implements DatabaseListener
 	 */
 	private static final long serialVersionUID = 1L;
 	ONCFamily currFamily;
-	Agent newAgent;
-	AgentDB agentDB;
+	ONCUser newUser;
+	UserDB userDB;
 	FamilyDB familyDB;
 	
 	ChangeAgentDialog(JFrame pf, boolean bModal)
@@ -20,10 +20,10 @@ public class ChangeAgentDialog extends InfoDialog implements DatabaseListener
 		this.setTitle("Change Agent");
 		lblONCIcon.setText("<html><font color=blue>Change Family's Agent</font></html>");
 		
-		//connect to local Agent DB
-		agentDB = AgentDB.getInstance();
-		if(agentDB != null)
-			agentDB.addDatabaseListener(this);
+		//connect to local User DB
+		userDB = UserDB.getInstance();
+		if(userDB != null)
+			userDB.addDatabaseListener(this);
 				
 		//get a reference to Family Db
 		familyDB = FamilyDB.getInstance();
@@ -54,9 +54,9 @@ public class ChangeAgentDialog extends InfoDialog implements DatabaseListener
 		if (obj instanceof ONCFamily)
 		{
 			currFamily = (ONCFamily) obj;
-			Agent currAgent = (Agent) agentDB.getONCObject(currFamily.getAgentID());
+			ONCUser currUser = (ONCUser) userDB.getUser(currFamily.getAgentID());
 		
-			tf[0].setText(currAgent.getAgentName());
+			tf[0].setText(currUser.getLastname());
 			tf[0].setCaretPosition(0);
 		
 			tf[1].setCaretPosition(0);

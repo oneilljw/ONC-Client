@@ -37,6 +37,7 @@ public class DatabaseManager extends ONCDatabase
 	
 	//Local Data Base Structures
 	private GlobalVariables oncGVs;			//Holds the Global Variables
+	private UserDB oncUserDB;				//Holds the ONC User, many of which are Agents
 	private FamilyDB oncFamDB;				//Holds ONC Family Database
 	private ChildDB oncChildDB;				//Holds ONC Child database
 	private ChildWishDB oncChildWishDB; 	//Holds ONC Child Wish database
@@ -59,8 +60,8 @@ public class DatabaseManager extends ONCDatabase
 		//initialize the component data bases
 		oncGVs = GlobalVariables.getInstance();
 		oncRegions = ONCRegions.getInstance();
-		UserDB.getInstance();
-		oncAgentDB = AgentDB.getInstance();
+		oncUserDB = UserDB.getInstance();
+//		oncAgentDB = AgentDB.getInstance();
 		groupDB = GroupDB.getInstance();
 		oncOrgDB = PartnerDB.getInstance();
 		oncWishDetailDB = WishDetailDB.getInstance();
@@ -237,7 +238,7 @@ public class DatabaseManager extends ONCDatabase
     		String path = folder.toString();
     	
     		oncAdultDB.exportDBToCSV(GlobalVariables.getFrame(), path + "/AdultDB.csv");
-    		oncAgentDB.exportDBToCSV(GlobalVariables.getFrame(), path + "/AgentDB.csv");
+    		oncUserDB.exportDBToCSV(GlobalVariables.getFrame(), path + "/UserDB.csv");
     		groupDB.exportDBToCSV(GlobalVariables.getFrame(), path + "/GroupDB.csv");
     		oncChildDB.exportDBToCSV(GlobalVariables.getFrame(), path + "/ChildDB.csv");
     		oncChildWishDB.exportDBToCSV(GlobalVariables.getFrame(), path + "/ChildWishDB.csv");
@@ -344,7 +345,7 @@ public class DatabaseManager extends ONCDatabase
      **************************************************************************************************/
     public class ONCServerDBImporter extends SwingWorker<Void, Void>
     {
-    	private static final int NUM_OF_DBs = 15;
+    	private static final int NUM_OF_DBs = 14;
     	String year;
     	ONCProgressBar pb;
     	boolean bServerDataLoaded;
@@ -399,9 +400,9 @@ public class DatabaseManager extends ONCDatabase
 			oncInvDB.importInventoryDatabase();
 			this.setProgress(progress += increment);
 			
-			pb.updateHeaderText("Loading Agents");
-			oncAgentDB.importAgentDatabase();
-			this.setProgress(progress += increment);
+//			pb.updateHeaderText("Loading Agents");
+//			oncAgentDB.importAgentDatabase();
+//			this.setProgress(progress += increment);
 			
 			pb.updateHeaderText("Loading Groups");
 			groupDB.importGroupDBFromServer();

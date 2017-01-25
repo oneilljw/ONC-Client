@@ -47,7 +47,7 @@ public class FamilyDB extends ONCSearchableDatabase
 	private ChildDB childDB;
 	private AdultDB adultDB;
 	private ChildWishDB childwishDB;
-	private AgentDB agentDB;
+	private UserDB userDB;
 	private VolunteerDB volunteerDB;
 	private FamilyHistoryDB familyHistoryDB;
 	private GlobalVariables fGVs;
@@ -61,7 +61,7 @@ public class FamilyDB extends ONCSearchableDatabase
 		childwishDB = ChildWishDB.getInstance();
 		volunteerDB = VolunteerDB.getInstance();
 		familyHistoryDB = FamilyHistoryDB.getInstance();
-		agentDB = AgentDB.getInstance();;
+		userDB = UserDB.getInstance();;
 		
 		oncFamAL = new ArrayList<ONCFamily>();
 		fGVs = GlobalVariables.getInstance();
@@ -357,10 +357,10 @@ public class FamilyDB extends ONCSearchableDatabase
 	    		    	int familiesImportedCount = 0;
 	    		    	for(String change: changeList)
 	    		    	{
-	    		    		if(change.startsWith("ADDED_AGENT"))
-	    		    			agentDB.processAddedObject(this, change.substring("ADDED_AGENT".length()));
-	    		    		else if(change.startsWith("UPDATED_AGENT"))
-	    		    			agentDB.processUpdatedObject(this, change.substring("UPDATED_AGENT".length()));
+	    		    		if(change.startsWith("ADDED_USER"))
+	    		    			userDB.processAddedObject(this, change.substring("ADDED_USER".length()));
+	    		    		else if(change.startsWith("UPDATED_USER"))
+	    		    			userDB.processUpdatedObject(this, change.substring("UPDATED_USER".length()));
 	    		    		else if(change.startsWith("ADDED_FAMILY"))
 	    		    		{
 	    		    			this.processAddedObject(this, change.substring("ADDED_FAMILY".length()));
