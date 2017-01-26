@@ -1,6 +1,8 @@
 package ourneighborschild;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 
 public class ONCUser extends ONCEntity
@@ -23,12 +25,12 @@ public class ONCUser extends ONCEntity
 	protected String phone;
 	protected String title;
 	protected String org;
-	protected int agentID;
+	protected List<Integer> groupList;
 	protected UserPreferences preferences;
 	
 	public ONCUser(int id, Date today, String changedBy, int slpos, String slmssg, String slchgby, 
 			String fn, String ln, UserStatus stat, UserAccess acc, UserPermission perm, long nSessions,
-			long last, String org, String title, String email, String phone, int agentID)
+			long last, String org, String title, String email, String phone, List<Integer> groupList)
 	{
 		super(id, today, changedBy, slpos, slmssg, slchgby);
 		
@@ -45,14 +47,14 @@ public class ONCUser extends ONCEntity
 		this.title = title;
 		this.email = email;
 		this.phone = phone;
-		this.agentID = agentID;
+		this.groupList = groupList;
 		this.preferences = new UserPreferences();
 	}
 	
 	//overloaded -- used when including UserPreferences in the construction
 	public ONCUser(int id, Date today, String changedBy, int slpos, String slmssg, String slchgby, 
 			String fn, String ln, UserStatus stat, UserAccess acc, UserPermission perm, long nSessions,
-			long last, String org, String title,String email, String phone, int agentID,
+			long last, String org, String title,String email, String phone, List<Integer> groupList,
 			int fontSize, int wafPos, int fdfPos)
 	{
 		super(id, today, changedBy, slpos, slmssg, slchgby);
@@ -70,15 +72,15 @@ public class ONCUser extends ONCEntity
 		this.title = title;
 		this.email = email;
 		this.phone = phone;
-		this.agentID = agentID;
+		this.groupList = groupList;
 		this.preferences = new UserPreferences(fontSize, wafPos, fdfPos);
 	}
 	
-	//overloaded to allow conversion from ONCServerUser to ONCUser by creating a copy
+	//overloaded to allow conversion from ONCServerUser to ONCUser by creating a deep copy
 	public ONCUser(int id, Date today, String changedBy, int slpos, String slmssg, String slchgby, 
 			String fn, String ln,  UserStatus stat, UserAccess acc, UserPermission perm,
 			long clientID, int clientYear, long nSessions, long lastLogin, 
-			String org, String title, String email, String phone, int agentID, UserPreferences prefs)
+			String org, String title, String email, String phone, List<Integer> groupList, UserPreferences prefs)
 	{
 		super(id, today, changedBy, slpos, slmssg, slchgby);
 		
@@ -95,7 +97,11 @@ public class ONCUser extends ONCEntity
 		this.title = title;
 		this.email = email;
 		this.phone = phone;
-		this.agentID = agentID;
+		
+		this.groupList = new ArrayList<Integer>();
+		for(Integer groupID : groupList)
+			this.groupList.add(groupID);
+		
 		this.preferences = prefs;
 	}
 	
@@ -116,7 +122,11 @@ public class ONCUser extends ONCEntity
 		this.title = u.title;
 		this.email = u.email;
 		this.phone = u.phone;
-		this.agentID = u.agentID;
+		
+		this.groupList = new ArrayList<Integer>();
+		for(Integer groupID : groupList)
+			this.groupList.add(groupID);
+		
 		this.preferences = u.preferences;
 	}
 	
@@ -137,7 +147,7 @@ public class ONCUser extends ONCEntity
 		this.title = "None";
 		this.email = "None";
 		this.phone = "None";
-		this.agentID = -1;
+		groupList = new ArrayList<Integer>();
 		this.preferences = new UserPreferences(13, 1, 1);
 	}
 	
@@ -163,8 +173,8 @@ public class ONCUser extends ONCEntity
 	public void setStatus(UserStatus status) { this.status = status; }
 	public UserAccess getAccess() { return access; }
 	public void setAccess(UserAccess access) { this.access = access; }
-	public int getAgentID() { return agentID; }
-	public void setAgentID(int agtID) { this.agentID = agtID; }
+	public List<Integer> getGroupList() { return groupList; }
+	public void setGroupList(List<Integer> groupList) { this.groupList = groupList; }
 	public void setPreferences(UserPreferences prefs) { this.preferences = prefs; }
 	
 	public String getOrg() { return org; }
@@ -196,12 +206,26 @@ public class ONCUser extends ONCEntity
 						Long.toString(dateChanged.getTimeInMillis()), changedBy, Integer.toString(slPos), 
 						slMssg,slChangedBy, Long.toString(nSessions), 
 						Long.toString(lastLogin),
-						org, title, email, phone, Integer.toString(agentID),
+						org, title, email, phone, getGroupListAsDelimitedString(),
 						Integer.toString(preferences.getFontSize()), 
 						Integer.toString(preferences.getWishAssigneeFilter()), 
 						Integer.toString(preferences.getFamilyDNSFilter())
 						};
 		return row;
+	}
+	
+	String getGroupListAsDelimitedString()
+	{
+		if(groupList.isEmpty())
+			return "";
+		else
+		{
+			String list = Integer.toString(groupList.get(0));
+			for(int index=1; index < groupList.size(); index++)
+				list.concat("_" + Integer.toString(groupList.get(index)));
+			
+			return list;
+		}	
 	}
 	
 	@Override

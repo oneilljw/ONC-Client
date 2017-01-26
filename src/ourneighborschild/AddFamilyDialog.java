@@ -620,8 +620,6 @@ public class AddFamilyDialog extends JDialog implements ActionListener, ListSele
 	{
 		//get the user
 		ONCUser user = UserDB.getInstance().getLoggedInUser();
-		if(user.getAgentID() == -1)
-			return;
 		
 		//create a meal request, if meal was requested
 		ONCMeal mealReq = null, addedMeal = null;
@@ -646,7 +644,7 @@ public class AddFamilyDialog extends JDialog implements ActionListener, ListSele
 					altUnit.getText(), altCity.getText(), altZipCode.getText(),
 					HomePhone.getText(), OtherPhone.getText(), AltPhone.getText(),
 					email.getText(), detailsPane.getText(), createFamilySchoolList(),
-					true, createWishList(), user.getAgentID(), addedMeal != null ? addedMeal.getID() : -1,
+					true, createWishList(), user.getID(), addedMeal != null ? addedMeal.getID() : -1,
 					addedMeal != null ? MealStatus.Requested : MealStatus.None,
 					ownTransportCxBox.isSelected() ? Transportation.Yes : Transportation.No);
 			

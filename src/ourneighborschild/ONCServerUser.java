@@ -1,6 +1,8 @@
 package ourneighborschild;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class ONCServerUser extends ONCUser 
 {
@@ -16,10 +18,11 @@ public class ONCServerUser extends ONCUser
 							UserStatus stat, UserAccess acc, UserPermission perm,
 							String uid, String pw, long nSessions, long last_login,
 							boolean bResetPassword, 
-							String org, String title, String email, String phone, int agtID)
+							String org, String title, String email, String phone, 
+							List<Integer> groupList)
 	{
 		super(id, today, chgby, slpos, slmssg, slchgby, fn, ln, stat, acc, perm, nSessions, last_login, 
-				 org, title, email, phone, agtID);
+				 org, title, email, phone, groupList);
 		userid = uid;
 		password = pw;
 	}
@@ -30,7 +33,7 @@ public class ONCServerUser extends ONCUser
 		super(currUser.id, currUser.dateChanged.getTime(), currUser.changedBy, currUser.slPos, currUser.slMssg,
 				currUser.slChangedBy, currUser.firstname, currUser.lastname, currUser.status, 
 				currUser.access, currUser.permission, currUser.nSessions, currUser.lastLogin, 
-				currUser.org, currUser.title, currUser.email, currUser.phone, currUser.agentID);
+				currUser.org, currUser.title, currUser.email, currUser.phone, currUser.groupList);
 		userid = currUser.userid;
 		password = currUser.password;
 	}
@@ -41,11 +44,21 @@ public class ONCServerUser extends ONCUser
 				nextLine[11], nextLine[12], nextLine[6], nextLine[7], UserStatus.valueOf(nextLine[3]),
 				UserAccess.valueOf(nextLine[4]), UserPermission.valueOf(nextLine[5]),
 				Long.parseLong(nextLine[13]), Long.parseLong(nextLine[14]), 
-				nextLine[15], nextLine[16], nextLine[17], nextLine[18], Integer.parseInt(nextLine[19]),
+				nextLine[15], nextLine[16], nextLine[17], nextLine[18], createGroupList(nextLine[19]),
 				Integer.parseInt(nextLine[20]), Integer.parseInt(nextLine[21]), Integer.parseInt(nextLine[22]));
 				
 		userid = nextLine[1];
 		password = nextLine[2];
+	}
+	
+	static List<Integer> createGroupList(String delimitedGroups)
+	{
+		List<Integer> groupList = new ArrayList<Integer>();
+		String[] groups = delimitedGroups.trim().split("_");
+		for(String group: groups)
+			groupList.add(Integer.parseInt(group));
+		
+		return groupList;	
 	}
 	
 	public boolean idMatch(String uid) { return userid.equals(uid); }
@@ -62,7 +75,7 @@ public class ONCServerUser extends ONCUser
 	{
 		return new ONCUser(id, dateChanged.getTime(), changedBy, slPos, slMssg, slChangedBy, 
 				firstname, lastname, status, access, permission, clientID, clientYear, nSessions, 
-				lastLogin, org, title, email, phone, agentID, preferences);	
+				lastLogin, org, title, email, phone, groupList, preferences);	
 	}
 	
 	public boolean doesUserMatch(ONCServerUser compUser)
@@ -83,11 +96,25 @@ public class ONCServerUser extends ONCUser
 						Long.toString(dateChanged.getTimeInMillis()), changedBy, Integer.toString(slPos), 
 						slMssg,slChangedBy, Long.toString(nSessions), 
 						Long.toString(lastLogin),
-						org, title, email, phone, Integer.toString(agentID),
+						org, title, email, phone, getGroupListAsDelimitedString(),
 						Integer.toString(preferences.getFontSize()), 
 						Integer.toString(preferences.getWishAssigneeFilter()), 
 						Integer.toString(preferences.getFamilyDNSFilter())
 						};
 		return row;
+	}
+	
+	String getGroupListAsDelimitedString()
+	{
+		if(groupList.isEmpty())
+			return "";
+		else
+		{
+			String list = Integer.toString(groupList.get(0));
+			for(int index=1; index < groupList.size(); index++)
+				list.concat("_" + Integer.toString(groupList.get(index)));
+			
+			return list;
+		}	
 	}
 }

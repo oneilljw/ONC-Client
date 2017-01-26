@@ -211,7 +211,7 @@ public class UserDB extends ONCSearchableDatabase
 				loggedInUser.setTitle(updatedUser.getTitle());
 				loggedInUser.setOrg(updatedUser.getOrg());
 				loggedInUser.setPhone(updatedUser.getPhone());
-				loggedInUser.setAgentID(updatedUser.getAgentID());
+				loggedInUser.setGroupList(updatedUser.getGroupList());
 				loggedInUser.setPreferences(updatedUser.getPreferences());
 			}
 			
