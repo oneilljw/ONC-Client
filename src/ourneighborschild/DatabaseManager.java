@@ -41,8 +41,7 @@ public class DatabaseManager extends ONCDatabase
 	private FamilyDB oncFamDB;				//Holds ONC Family Database
 	private ChildDB oncChildDB;				//Holds ONC Child database
 	private ChildWishDB oncChildWishDB; 	//Holds ONC Child Wish database
-	private AgentDB oncAgentDB;				//Holds ONC Grops
-	private GroupDB groupDB;				//Holds ONC Agents
+	private GroupDB oncGroupDB;				//Holds ONC Groups
 	private PartnerDB oncOrgDB;				//Holds ONC Partner Organizations
 	private ONCWishCatalog oncWishCat;		//Holds ONC Wish Catalog
 	private WishDetailDB oncWishDetailDB;	//Holds ONC Wish Detail Data Base
@@ -61,8 +60,7 @@ public class DatabaseManager extends ONCDatabase
 		oncGVs = GlobalVariables.getInstance();
 		oncRegions = ONCRegions.getInstance();
 		oncUserDB = UserDB.getInstance();
-//		oncAgentDB = AgentDB.getInstance();
-		groupDB = GroupDB.getInstance();
+		oncGroupDB = GroupDB.getInstance();
 		oncOrgDB = PartnerDB.getInstance();
 		oncWishDetailDB = WishDetailDB.getInstance();
 		oncWishCat = ONCWishCatalog.getInstance();
@@ -239,7 +237,7 @@ public class DatabaseManager extends ONCDatabase
     	
     		oncAdultDB.exportDBToCSV(GlobalVariables.getFrame(), path + "/AdultDB.csv");
     		oncUserDB.exportDBToCSV(GlobalVariables.getFrame(), path + "/UserDB.csv");
-    		groupDB.exportDBToCSV(GlobalVariables.getFrame(), path + "/GroupDB.csv");
+    		oncGroupDB.exportDBToCSV(GlobalVariables.getFrame(), path + "/GroupDB.csv");
     		oncChildDB.exportDBToCSV(GlobalVariables.getFrame(), path + "/ChildDB.csv");
     		oncChildWishDB.exportDBToCSV(GlobalVariables.getFrame(), path + "/ChildWishDB.csv");
     		oncDelDB.exportDBToCSV(GlobalVariables.getFrame(), path + "/DeliveryDB.csv");
@@ -405,7 +403,7 @@ public class DatabaseManager extends ONCDatabase
 //			this.setProgress(progress += increment);
 			
 			pb.updateHeaderText("Loading Groups");
-			groupDB.importGroupDBFromServer();
+			oncGroupDB.importGroupDBFromServer();
 			this.setProgress(progress += increment);
 			
 			pb.updateHeaderText("Loading Partners");
