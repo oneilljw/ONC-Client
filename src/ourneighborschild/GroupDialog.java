@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -47,7 +49,7 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
     private JComboBox groupTypeCB, canTypeCB;
     private JButton btnAddMember, btnRemoveMember;
     private JCheckBox ckBoxShared;
-    private int groupCount = 0, seasonCount = 0;	//Holds the navigation panel overall counts
+    private int seasonCount = 0;	//Holds the navigation panel overall counts
     
     private ONCGroup currGroup;	//reference to ONCGroup object being displayed
     private List<ONCUser> memberList; //holds ONCUser's in the member table
@@ -173,14 +175,18 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
         //set up the button panel
         btnPanel.setLayout(new BoxLayout(btnPanel, BoxLayout.Y_AXIS));
         
+        GroupButtonListener gbListener = new GroupButtonListener();
+        
         btnAddMember = new JButton("<- Add");
         btnAddMember.setToolTipText("Click to add highlighted candidate to member table");
         btnAddMember.setEnabled(false);
+        btnAddMember.addActionListener(gbListener);
         btnPanel.add(btnAddMember);
         
         btnRemoveMember = new JButton("Remove");
         btnRemoveMember.setToolTipText("Click to stop tracking highlighted Stock in Quote table");
         btnRemoveMember.setEnabled(false);
+        btnRemoveMember.addActionListener(gbListener);
         btnPanel.add(btnRemoveMember);
         
         //set up the candidate Panel
@@ -577,7 +583,6 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
 		
 		@Override
 		public String getColumnName(int col) { return columnNames[col]; }
-	
 		
 		@Override
 		public int getColumnCount() { return columnNames.length; }
@@ -597,5 +602,22 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
 			else
 				return "Error";
 		}		
+	}
+	
+	private class GroupButtonListener implements ActionListener
+	{
+
+		@Override
+		public void actionPerformed(ActionEvent e) 
+		{
+			if(e.getSource() == btnAddMember)
+			{
+				
+			}
+			else if(e.getSource() == btnRemoveMember)
+			{
+				
+			}
+		}
 	}
 }
