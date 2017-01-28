@@ -38,7 +38,7 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 	private JMenu submenuImport, submenuFamilyDataChecks;
 	private JMenu submenuExport, submenuChangeFamilyNumbers, submenuDBYearList;
 	private JMenuItem viewDBMI, sortWishesMI, sortFamiliesMI, sortOrgsMI, recGiftsMI, sortMealsMI;
-	private JMenuItem agentMI, orgMI, catMI, barcodeWishHistoryMI, inventoryMI;
+	private JMenuItem agentMI, groupMI, orgMI, catMI, barcodeWishHistoryMI, inventoryMI;
 	private JMenuItem aboutONCMI, oncPrefrencesMI, profileMI, userMI, onlineMI, chatMI, changePWMI, stopPollingMI;
 	private JMenuItem showServerLogMI, showServerClientIDMI, showCurrDirMI, showWebsiteStatusMI;
 	private List<JMenuItem> dbYearsMIList;
@@ -133,6 +133,12 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 	    agentMI.setEnabled(false);	
 	    agentMI.addActionListener(this);
 	    menuAgents.add(agentMI);
+	    
+	    groupMI = new JMenuItem("Edit Groups");
+	    groupMI.setActionCommand("Edit Groups");
+	    groupMI.setEnabled(false);	
+	    groupMI.addActionListener(this);
+	    menuAgents.add(groupMI);
 	    
 	    this.add(menuAgents);
 
@@ -537,6 +543,7 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 	void setEnabledDataLoadedMenuItems(boolean tf)
 	{ 
 		agentMI.setEnabled(tf);
+		groupMI.setEnabled(tf);
 		manageDelMI.setEnabled(tf);
 		inventoryMI.setEnabled(tf);
 		editVolMI.setEnabled(tf);
@@ -668,6 +675,8 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 			dlgManager.showSortDialog(sortFamiliesMI.getActionCommand(), SORT_DIALOG_OFFSET);
 		else if(e.getSource() == agentMI)
 			dlgManager.showSortDialog(agentMI.getActionCommand(), SORT_DIALOG_OFFSET);
+		else if(e.getSource() == groupMI)
+			dlgManager.showEntityDialog(groupMI.getActionCommand(), SORT_DIALOG_OFFSET);
 		else if(e.getSource() == aboutONCMI)
 			dlgManager.showAboutONCDialog();
 		else if(e.getSource() == oncPrefrencesMI)

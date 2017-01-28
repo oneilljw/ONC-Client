@@ -29,6 +29,24 @@ public class ONCGroup extends ONCEntity
 		this.permission = Integer.parseInt(nextLine[8]);
 	}
 	
+	public ONCGroup(ONCGroup g)
+	{
+		super(g.id, g.dateChanged.getTime(), g.changedBy, g.slPos, g.slMssg, g.slChangedBy);
+		this.name = g.name;
+		this.type = g.type;
+		this.permission = g.permission;
+	}
+	
+	//getters
+	String getName() { return name; }
+	GroupType getType() { return type; }
+	int getPermission() { return permission; }
+	
+	//setters
+	void setName(String name) { this.name = name; }
+	void setType(GroupType type) { this.type = type; }
+	void setPermission(int permission) { this.permission = permission; }
+	
 	@Override
 	public String[] getExportRow()
 	{

@@ -16,7 +16,7 @@ import au.com.bytecode.opencsv.CSVWriter;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-public class GroupDB extends ONCDatabase 
+public class GroupDB extends ONCSearchableDatabase 
 {
 
 	/********
@@ -25,13 +25,15 @@ public class GroupDB extends ONCDatabase
 	 * are associated with a particular school. The school would be a group and each agent that
 	 * serves that school would be a member of the group.
 	 */
+	private static final EntityType DB_TYPE = EntityType.GROUP;
+	private static final int MAX_GROUP_ID_LENGTH = 4;
 	
 	private static GroupDB instance = null;
 	private List<ONCGroup> groupList;
 	
 	private GroupDB()
 	{
-		super();
+		super(DB_TYPE);
 		groupList= new ArrayList<ONCGroup>();
 	}
 	
@@ -244,4 +246,42 @@ public class GroupDB extends ONCDatabase
 			processDeletedGroup(this, ue.getJson());
 		}
 	}
+
+	@Override
+	String searchForListItem(ArrayList<Integer> searchAL, String data)
+	{
+		String searchType = "";
+		searchAL.clear();
+		
+    	int sn; 	//-1 indicates family number not found
+    	
+    	if(isNumeric(data) && data.length() < MAX_GROUP_ID_LENGTH)
+    	{
+    		searchType = "Group ID";
+    		if(data.matches("-?\\d+(\\.\\d+)?"))	//Check for numeric string
+    		{
+    			if((sn = getListIndexByID(groupList, Integer.parseInt(data))) > -1)
+    				searchAL.add(getObjectAtIndex(sn).getID());
+    		}	
+    	}
+    	else	//Check for partner name, email matches, 1st or 2nd contact matches
+    	{
+    		searchType = "Group Name";
+			for(ONCGroup g:groupList)
+			{
+				if(g.getName().toLowerCase().contains(data.toLowerCase()))
+				{
+					searchAL.add(g.getID());
+				}
+			}
+    	}
+    	
+    	return searchType;
+	}
+
+	@Override
+	int size() { return groupList.size(); }
+		
+	@Override
+	ONCEntity getObjectAtIndex(int index) { return groupList.isEmpty() ? null : groupList.get(index); }
 }

@@ -68,6 +68,7 @@ public class DialogManager implements EntitySelectionListener
 	//dialogs that inherit from Entity Dialog
 	private Map<String, EntityDialog> entityDlgMap;
 	private PartnerDialog orgDlg;
+	private GroupDialog groupDlg;
 	private VolunteerDialog volunteerDlg;
 		
 	private PreferencesDialog prefsDlg;
@@ -207,6 +208,11 @@ public class DialogManager implements EntitySelectionListener
         orgDlg = new PartnerDialog(GlobalVariables.getFrame());
         entityDlgMap.put("Edit Partners", orgDlg);
         eeManager.registerEntitySelectionListener(orgDlg);
+        
+        //Set up the edit group dialog
+        groupDlg = new GroupDialog(GlobalVariables.getFrame());
+        entityDlgMap.put("Edit Groups", groupDlg);
+        eeManager.registerEntitySelectionListener(groupDlg);
         
         //Set up the Angel auto-call dialog
         angelDlg = new AngelAutoCallDialog(GlobalVariables.getFrame());

@@ -6,6 +6,7 @@ public enum GroupType
 	Church,
 	Community,
 	Government,
+	Mixed,
 	School,
-	Self;
+	Volunteer;
 }

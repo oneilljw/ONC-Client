@@ -326,6 +326,29 @@ public class UserDB extends ONCSearchableDatabase
 		return response;
 	}
 	
+	List<ONCUser> getGroupMembers(int groupID)
+	{
+		List<ONCUser> memberList = new ArrayList<ONCUser>();
+		
+		for(ONCUser u : uAL)
+			for(Integer gID : u.getGroupList())
+				if(gID == groupID)
+					memberList.add(u);
+				
+		return memberList;
+	}
+	
+	List<ONCUser> getCandidateGroupMembers()
+	{
+		List<ONCUser> memberList = new ArrayList<ONCUser>();
+		
+		for(ONCUser u : uAL)
+			if(u.getPermission().compareTo(UserPermission.Agent) >= 0)
+				memberList.add(u);
+				
+		return memberList;
+	}
+	
 	void loginMessagePopup(ONCUser u, String status)
 	{
 		GlobalVariables gvs = GlobalVariables.getInstance();
