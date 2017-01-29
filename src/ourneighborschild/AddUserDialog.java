@@ -1,8 +1,8 @@
 package ourneighborschild;
 
 import java.awt.Dimension;
-import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.LinkedList;
 import java.util.TimeZone;
 
 import javax.swing.JComboBox;
@@ -74,7 +74,7 @@ public class AddUserDialog extends InfoDialog
 				userDB.getUserLNFI(), tf[FIRST_NAME_INDEX].getText(), tf[LAST_NAME_INDEX].getText(),
 				UserStatus.Change_PW, userAccess, userPermission, tf[USERID_INDEX].getText(), pw, 0,
 				calendar.getTimeInMillis(), true, tf[ORG_INDEX].getText(), tf[TITLE_INDEX].getText(),
-				tf[EMAIL_INDEX].getText(), tf[PHONE_INDEX].getText(), new ArrayList<Integer>());
+				tf[EMAIL_INDEX].getText(), tf[PHONE_INDEX].getText(), new LinkedList<Integer>());
 		
 		result = true;
 		dispose();

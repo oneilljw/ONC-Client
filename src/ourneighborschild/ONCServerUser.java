@@ -1,7 +1,7 @@
 package ourneighborschild;
 
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 public class ONCServerUser extends ONCUser 
@@ -53,7 +53,7 @@ public class ONCServerUser extends ONCUser
 	
 	static List<Integer> createGroupList(String delimitedGroups)
 	{
-		List<Integer> groupList = new ArrayList<Integer>();
+		List<Integer> groupList = new LinkedList<Integer>();
 		String[] groups = delimitedGroups.trim().split("_");
 		for(String group: groups)
 			groupList.add(Integer.parseInt(group));

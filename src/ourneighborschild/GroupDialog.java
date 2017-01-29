@@ -8,7 +8,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.EnumSet;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -36,7 +38,7 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private static final int PREFERRED_NUMBER_OF_TABLE_ROWS = 15;
+	private static final int PREFERRED_NUMBER_OF_TABLE_ROWS = 12;
 
 	private GroupDB groupDB;
 	
@@ -46,7 +48,7 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
 	private JTextField nameTF;
 	private JLabel lblLastChangedBy, lblDateChanged;
 	private SimpleDateFormat sdf;
-    private JComboBox groupTypeCB, canTypeCB;
+    private JComboBox groupTypeCB;
     private JButton btnAddMember, btnRemoveMember;
     private JCheckBox ckBoxShared;
     private int seasonCount = 0;	//Holds the navigation panel overall counts
@@ -71,7 +73,7 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
 			userDB.addDatabaseListener(this);
 		
 		//initialize the table lists
-		memberList = new ArrayList<ONCUser>();
+		memberList = new LinkedList<ONCUser>();
 		candidateList = new ArrayList<ONCUser>();
 		
 		//Create a content panel for the dialog and add panel components to it.
@@ -138,7 +140,7 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
 		memberTM = new MemberTableModel();
 		
 		//set up the member table
-		String[] memberTblTT = {"First Name", "Lat Name"};
+		String[] memberTblTT = {"First Name", "Lat Name", "User status of member", "User permission of member"};
 		memberTbl = new ONCTable(memberTM, memberTblTT, new Color(240,248,255)); 
 
 		memberTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -262,8 +264,9 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
         
         this.setContentPane(contentPane);
 
-        pack();
-        setResizable(true);
+        this.pack();
+        this.setMinimumSize(new Dimension(768, 400));
+        this.setResizable(true);
         Point pt = pf.getLocation();
         setLocation(pt.x + 20, pt.y + 20);
 	}
@@ -312,34 +315,21 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
 			{
 				candidateList = userDB.getCandidateGroupMembers();
 				candidateTM.fireTableDataChanged();
+				
+				setEnabledEditGroupMembers(true);
 			}
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_USER"))
 		{
-			ONCUser updatedUser = (ONCUser) dbe.getObject1();
-			
-			//check to see if we need to refresh the candidate table
-			if(updatedUser.getPermission().compareTo(UserPermission.Agent) >= 0)
-			{
-				candidateList = userDB.getCandidateGroupMembers();
-				candidateTM.fireTableDataChanged();
-			}
-			
-			//check to see if we need to refresh the member table
-			int index = 0;
-			while(index < memberList.size() && memberList.get(index).getID() != updatedUser.getID())
-				index++;
-			
-			if(index < memberList.size() && bAddingNewEntity)
-			{
-				memberList.set(index, updatedUser);
-				memberTM.fireTableRowsUpdated(index, index);
-			}
-			else if(index < memberList.size() && !bAddingNewEntity)
-			{
-				memberList = userDB.getGroupMembers(currGroup.getID());
-				memberTM.fireTableDataChanged();
-			}		
+			//refresh the candidate table
+			candidateList = userDB.getCandidateGroupMembers();
+			candidateTM.fireTableDataChanged();
+				
+			//refresh the member table
+			memberList = userDB.getGroupMembers(currGroup.getID());
+			memberTM.fireTableDataChanged();
+				
+			setEnabledEditGroupMembers(true);		
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_GROUPS"))
 		{
@@ -347,6 +337,8 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
 			
 			candidateList = userDB.getCandidateGroupMembers();
 			candidateTM.fireTableDataChanged();
+			
+			setEnabledEditGroupMembers(true);
 		}
 	}
 
@@ -372,6 +364,8 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
 				update();
 				display(groupDB.getObjectAtIndex(nav.getIndex()));
 			}
+			
+			setEnabledEditGroupMembers(true);
 		}
 	}
 
@@ -398,15 +392,13 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
 			return;	//If no current group, should never have gotten an update request
 		}
 		
-		int n;
-		boolean bCD = false; //used to indicate a change has been detected
-		
-		if(!nameTF.getText().equals(reqGroup.getName())) { reqGroup.setName(nameTF.getText()); bCD = true; }
-		if(groupTypeCB.getSelectedItem() !=reqGroup.getType()) { reqGroup.setType((GroupType)groupTypeCB.getSelectedItem()); bCD= true; }
-		if(ckBoxShared.isSelected() && reqGroup.getPermission() == 0) { reqGroup.setPermission(1); bCD = true; }
-		if(!ckBoxShared.isSelected() && reqGroup.getPermission() == 1) { reqGroup.setPermission(0); bCD = true; }
+		int bCD = 0; //used to indicate a change has been detected	
+		if(!nameTF.getText().equals(reqGroup.getName())) { reqGroup.setName(nameTF.getText()); bCD = bCD | 1; }
+		if(groupTypeCB.getSelectedItem() !=reqGroup.getType()) { reqGroup.setType((GroupType)groupTypeCB.getSelectedItem()); bCD = bCD | 2; }
+		if(ckBoxShared.isSelected() && reqGroup.getPermission() == 0) { reqGroup.setPermission(1);  bCD = bCD | 4; }
+		if(!ckBoxShared.isSelected() && reqGroup.getPermission() == 1) { reqGroup.setPermission(0);  bCD = bCD | 8; }
 			
-		if(bCD)	//If an update to partner data (not stop light data) was detected
+		if(bCD > 0)	//If an update to partner data (not stop light data) was detected
 		{
 			reqGroup.setChangedBy(userDB.getUserLNFI());
 			
@@ -427,8 +419,6 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
 						JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
 				display(currGroup);
 			}
-					
-			bCD = false;
 		}
 	}
 
@@ -477,27 +467,92 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
 	}
 
 	@Override
-	void clear() {
-		// TODO Auto-generated method stub
+	void clear() 
+	{
+		bIgnoreEvents = true;
 		
+		nameTF.setText("");		
+		groupTypeCB.setSelectedIndex(0);
+		lblDateChanged.setText(sdf.format(new Date()));
+		lblLastChangedBy.setText(userDB.getLoggedInUser().getLNFI());
+		ckBoxShared.setSelected(false);
+		
+		memberList.clear();
+		memberTM.fireTableDataChanged();
+		
+		bIgnoreEvents = false;
+	}
+	
+	void setEnabledEditGroupMembers(boolean bEditMembersEnabled)
+	{
+		btnAddMember.setEnabled(false);
+		btnRemoveMember.setEnabled(false);
+		memberTbl.clearSelection();
+		candidateTbl.clearSelection();
+		memberTbl.setRowSelectionAllowed(bEditMembersEnabled);
+		candidateTbl.setRowSelectionAllowed(bEditMembersEnabled);
 	}
 
 	@Override
-	void onNew() {
-		// TODO Auto-generated method stub
+	void onNew() 
+	{
+		bAddingNewEntity = true;
 		
+		nav.navSetEnabled(false);
+		entityPanel.setBorder(BorderFactory.createTitledBorder("Enter New Group's Information"));
+		clear();
+		setEnabledEditGroupMembers(false);
+		entityPanel.setBackground(Color.CYAN);	//Use color to indicate add org mode vs. review mode
+		setControlState();
 	}
 
 	@Override
-	void onCancelNew() {
-		// TODO Auto-generated method stub
-		
+	void onCancelNew() 
+	{
+		nav.navSetEnabled(true);
+		entityPanel.setBorder(BorderFactory.createTitledBorder("Group Information"));
+		display(currGroup);
+		setEnabledEditGroupMembers(true);
+		entityPanel.setBackground(pBkColor);
+		bAddingNewEntity = false;
+		setControlState();
 	}
 
 	@Override
-	void onSaveNew() {
-		// TODO Auto-generated method stub
+	void onSaveNew() 
+	{
+		//construct a new group from user input	
+		ONCGroup newGroup = new ONCGroup(-1, new Date(), userDB.getUserLNFI(),
+										  3, "Group Created", userDB.getUserLNFI(),
+										  nameTF.getText(), (GroupType) groupTypeCB.getSelectedItem(),
+										  ckBoxShared.isSelected() ? 1 : 0);
+				
+		//send request to add new group to the local data base
+		ONCGroup addedGroup = (ONCGroup) groupDB.add(this, newGroup);
+				
+		if(addedGroup != null)
+		{
+			//set the display index to the newly  added group and display the group
+			nav.setIndex(groupDB.getListIndexByID(groupDB.getList(), addedGroup.getID()));
+			display(addedGroup);
+		}
+		else
+		{
+			String err_mssg = "ONC Server denied add group request, try again later";
+			JOptionPane.showMessageDialog(this, err_mssg, "Add Group Request Failure",
+										JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
+			display(currGroup);
+		}
+				
+		//reset to review mode and display the proper partner
+		nav.navSetEnabled(true);
+		entityPanel.setBorder(BorderFactory.createTitledBorder("Partner Information"));
+		entityPanel.setBackground(pBkColor);
 		
+		setEnabledEditGroupMembers(true);
+
+		bAddingNewEntity = false;
+		setControlState();
 	}
 
 	@Override
@@ -509,7 +564,7 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
 	@Override
 	public void valueChanged(ListSelectionEvent lse) 
 	{
-		if(lse.getSource() == memberTbl.getSelectionModel())
+		if(lse.getSource() == memberTbl.getSelectionModel() && !bAddingNewEntity)
 		{
 			//a row in the StockSymbol table was selected or de-selected by the user
 			if(memberTbl.getSelectedRow() > -1)	//if a row was selected, enable add of member
@@ -519,7 +574,7 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
 				candidateTbl.clearSelection();
 			}
 		}
-		else if(lse.getSource() == candidateTbl.getSelectionModel())
+		else if(lse.getSource() == candidateTbl.getSelectionModel() && !bAddingNewEntity)
 		{
 			//a row in the StockQuote table was selected or de-selected by the user
 			if(candidateTbl.getSelectedRow() > -1)	//if a row was selected, enable removal of member
@@ -586,8 +641,7 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
 		
 		@Override
 		public int getColumnCount() { return columnNames.length; }
-			// TODO Auto-generated method stub
-
+	
 		@Override
 		public int getRowCount() { return candidateList.size(); }
 
@@ -610,13 +664,41 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
 		@Override
 		public void actionPerformed(ActionEvent e) 
 		{
-			if(e.getSource() == btnAddMember)
+			ONCUser reqUpdatedUser = null;
+			if(e.getSource() == btnAddMember && candidateTbl.getSelectedRow() > -1)
 			{
+				reqUpdatedUser = candidateList.get(candidateTbl.getSelectedRow());
 				
+				//check to see if user is already in the group. If they are, don't add them
+				//a second time
+				int index = 0;
+				while(index < memberList.size() && memberList.get(index).getID() != reqUpdatedUser.getID())
+					index++;
+				
+				if(index == memberList.size())
+					reqUpdatedUser.addGroup(currGroup.getID());
+				else
+				{
+					//user is already in group. Clear the selection and disable the button
+					reqUpdatedUser = null;
+					candidateTbl.clearSelection();
+					btnAddMember.setEnabled(false);
+				}
 			}
-			else if(e.getSource() == btnRemoveMember)
+			else if(e.getSource() == btnRemoveMember && memberTbl.getSelectedRow() > -1)
 			{
-				
+				reqUpdatedUser = memberList.get(memberTbl.getSelectedRow());
+				reqUpdatedUser.removeGroup(currGroup.getID());
+			}
+			
+			if(reqUpdatedUser != null)
+			{
+				String response = userDB.update(this, reqUpdatedUser);
+				if(response != null && response.startsWith("UPDATED_USER"))
+				{
+					memberList = userDB.getGroupMembers(currGroup.getID());
+					memberTM.fireTableDataChanged();
+				}	
 			}
 		}
 	}

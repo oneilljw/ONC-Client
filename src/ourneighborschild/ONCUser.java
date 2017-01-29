@@ -2,6 +2,7 @@ package ourneighborschild;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 
@@ -98,7 +99,7 @@ public class ONCUser extends ONCEntity
 		this.email = email;
 		this.phone = phone;
 		
-		this.groupList = new ArrayList<Integer>();
+		this.groupList = new LinkedList<Integer>();
 		for(Integer groupID : groupList)
 			this.groupList.add(groupID);
 		
@@ -123,7 +124,7 @@ public class ONCUser extends ONCEntity
 		this.email = u.email;
 		this.phone = u.phone;
 		
-		this.groupList = new ArrayList<Integer>();
+		this.groupList = new LinkedList<Integer>();
 		for(Integer groupID : groupList)
 			this.groupList.add(groupID);
 		
@@ -147,7 +148,7 @@ public class ONCUser extends ONCEntity
 		this.title = "None";
 		this.email = "None";
 		this.phone = "None";
-		groupList = new ArrayList<Integer>();
+		groupList = new LinkedList<Integer>();
 		this.preferences = new UserPreferences(13, 1, 1);
 	}
 	
@@ -186,6 +187,10 @@ public class ONCUser extends ONCEntity
 	public void setTitle(String s) { this.title = s; }
 	public void setEmail(String s) { this.email = s; }
 	public void setPhone(String s) { this.phone = s; }
+	
+	public void addGroup(Integer groupID) { groupList.add(groupID); }
+	public void removeGroup(Integer groupID) {groupList.remove(groupID); }
+	
 
 	public String getLNFI()
 	{
