@@ -106,7 +106,7 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
         groupTypeCB.addActionListener(dcListener);
         
         lblLastChangedBy = new JLabel("No one");
-        lblLastChangedBy.setToolTipText("User that last change group info");
+        lblLastChangedBy.setToolTipText("User that last changed group info");
         lblLastChangedBy.setPreferredSize(new Dimension (124, 48));
         lblLastChangedBy.setBorder(BorderFactory.createTitledBorder("Last Changed By"));
         
