@@ -56,7 +56,8 @@ public class ONCServerUser extends ONCUser
 		List<Integer> groupList = new LinkedList<Integer>();
 		String[] groups = delimitedGroups.trim().split("_");
 		for(String group: groups)
-			groupList.add(Integer.parseInt(group));
+			if(!group.isEmpty() && isNumeric(group))
+				groupList.add(Integer.parseInt(group));
 		
 		return groupList;	
 	}

@@ -38,7 +38,7 @@ public class ONCGroup extends ONCEntity
 	}
 	
 	//getters
-	String getName() { return name; }
+	public String getName() { return name; }
 	GroupType getType() { return type; }
 	int getPermission() { return permission; }
 	

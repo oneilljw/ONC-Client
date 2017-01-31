@@ -16,5 +16,5 @@ public abstract class ONCObject
 	
 	public boolean matches(ONCObject other) { return other != null && other.id == id; }
 	
-	public boolean isNumeric(String s){ return s.matches("-?\\d+(\\.\\d+)?"); }
+	public static boolean isNumeric(String s){ return s.matches("-?\\d+(\\.\\d+)?"); }
 }
