@@ -109,13 +109,15 @@ public class ONCServerUser extends ONCUser
 	{
 		if(groupList.isEmpty())
 			return "";
+		else if(groupList.size() == 1)
+			return Integer.toString(groupList.get(0));
 		else
 		{
-			String list = Integer.toString(groupList.get(0));
-			for(int index=1; index < groupList.size(); index++)
-				list.concat("_" + Integer.toString(groupList.get(index)));
+			StringBuffer buff  = new StringBuffer(Integer.toString(groupList.get(0)));
+			for(int index = 1; index < groupList.size(); index++)
+				buff.append("_" + Integer.toString(groupList.get(index)));
 			
-			return list;
+			return buff.toString();
 		}	
 	}
 }
