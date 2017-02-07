@@ -141,7 +141,7 @@ public class ServerIF
     synchronized String sendRequest(String request)
     {
     	timeCommandSent = System.currentTimeMillis();
-    	
+
     	try {
 			out.write(request);
 			out.newLine();

@@ -397,7 +397,7 @@ public class DatabaseManager extends ONCDatabase
 			pb.updateHeaderText("Loading Inventory");
 			oncInvDB.importInventoryDatabase();
 			this.setProgress(progress += increment);
-			
+						
 //			pb.updateHeaderText("Loading Agents");
 //			oncAgentDB.importAgentDatabase();
 //			this.setProgress(progress += increment);
