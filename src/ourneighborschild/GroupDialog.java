@@ -140,7 +140,7 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
 		memberTM = new MemberTableModel();
 		
 		//set up the member table
-		String[] memberTblTT = {"First Name", "Lat Name", "User status of member", "User permission of member"};
+		String[] memberTblTT = {"First Name", "Lat Name", "User status of member", "User authority of member"};
 		memberTbl = new ONCTable(memberTM, memberTblTT, new Color(240,248,255)); 
 
 		memberTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -597,7 +597,7 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
 		private static final int STATUS_COL = 2;
 		private static final int PERMISSION_COL = 3;
 		
-		public String[] columnNames = {"First Name", "Last Name", "Status", "Permission" };
+		public String[] columnNames = {"First Name", "Last Name", "Status", "Authority" };
 		
 		@Override
 		public String getColumnName(int col) { return columnNames[col]; }
