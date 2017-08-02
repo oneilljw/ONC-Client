@@ -45,8 +45,9 @@ public class DatabaseManager extends ONCDatabase
 	private PartnerDB oncOrgDB;				//Holds ONC Partner Organizations
 	private ONCWishCatalog oncWishCat;		//Holds ONC Wish Catalog
 	private WishDetailDB oncWishDetailDB;	//Holds ONC Wish Detail Data Base
-	private VolunteerDB oncDDB;				//Holds the ONC Driver Data Base
-	private FamilyHistoryDB oncDelDB;			//Holds the ONC Delivery Data Base
+	private ActivityDB oncActDB;			//Holds the Volunteer Activity Data Base
+	private VolunteerDB oncVolDB;			//Holds the Volunteer Data Base
+	private FamilyHistoryDB oncDelDB;		//Holds the ONC Delivery Data Base
 	private ONCRegions oncRegions;
 	private AdultDB oncAdultDB;				//Holds ONC Adult database
 	private MealDB oncMealDB;				//Holds ONC Meal database
@@ -64,7 +65,8 @@ public class DatabaseManager extends ONCDatabase
 		oncOrgDB = PartnerDB.getInstance();
 		oncWishDetailDB = WishDetailDB.getInstance();
 		oncWishCat = ONCWishCatalog.getInstance();
-		oncDDB = VolunteerDB.getInstance();
+		oncActDB = ActivityDB.getInstance();
+		oncVolDB = VolunteerDB.getInstance();
 		oncDelDB = FamilyHistoryDB.getInstance();
 		oncChildDB = ChildDB.getInstance();
 		oncChildWishDB = ChildWishDB.getInstance();
@@ -241,7 +243,8 @@ public class DatabaseManager extends ONCDatabase
     		oncChildDB.exportDBToCSV(GlobalVariables.getFrame(), path + "/ChildDB.csv");
     		oncChildWishDB.exportDBToCSV(GlobalVariables.getFrame(), path + "/ChildWishDB.csv");
     		oncDelDB.exportDBToCSV(GlobalVariables.getFrame(), path + "/DeliveryDB.csv");
-    		oncDDB.exportDBToCSV(GlobalVariables.getFrame(), path + "/DriverDB.csv");
+    		oncActDB.exportDBToCSV(GlobalVariables.getFrame(), path + "/ActivityDB.csv");
+    		oncVolDB.exportDBToCSV(GlobalVariables.getFrame(), path + "/DriverDB.csv");
     		oncFamDB.exportDBToCSV(GlobalVariables.getFrame(), path + "/FamilyDB.csv");
     		oncGVs.exportDBToCSV(GlobalVariables.getFrame(), path + "/GlobalVariables.csv");
     		oncInvDB.exportDBToCSV(GlobalVariables.getFrame(), path + "/Inventory.csv");
@@ -343,7 +346,7 @@ public class DatabaseManager extends ONCDatabase
      **************************************************************************************************/
     public class ONCServerDBImporter extends SwingWorker<Void, Void>
     {
-    	private static final int NUM_OF_DBs = 14;
+    	private static final int NUM_OF_DBs = 15;
     	String year;
     	ONCProgressBar pb;
     	boolean bServerDataLoaded;
@@ -410,8 +413,12 @@ public class DatabaseManager extends ONCDatabase
 			oncOrgDB.importDB();
 			this.setProgress(progress += increment);
 			
-			pb.updateHeaderText("Loading Drivers");
-			oncDDB.importDriverDatabase();
+			pb.updateHeaderText("Loading Activities");
+			oncActDB.importDatabase();
+			this.setProgress(progress += increment);
+			
+			pb.updateHeaderText("Loading Volunteers");
+			oncVolDB.importDriverDatabase();
 			this.setProgress(progress += increment);
 			
 			pb.updateHeaderText("Loading Deliveries");

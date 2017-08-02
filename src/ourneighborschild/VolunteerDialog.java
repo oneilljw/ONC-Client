@@ -1,6 +1,7 @@
 package ourneighborschild;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Point;
@@ -9,6 +10,7 @@ import java.awt.event.ActionListener;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.EnumSet;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -19,7 +21,14 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.JTableHeader;
+import javax.swing.table.TableCellRenderer;
 
 import com.google.gson.Gson;
 
@@ -32,9 +41,16 @@ public class VolunteerDialog extends EntityDialog
 	private static final String NO_VOLUNTEER_MSSG = "No Volunteers";
 	private static final int HISTORY_ICON_INDEX = 32;
 	
+	private static final int CHECKBOX_COL= 0;
+	private static final int ACT_NAME_COL= 1;
+	private static final int ACT_START_COL = 2;
+	private static final int ACT_END_COL = 3;
+	private static final int NUM_ACT_TABLE_ROWS = 9;
+	
 	//database references
 	private VolunteerDB volDB;
 	private FamilyHistoryDB familyHistoryDB;
+	private ActivityDB activityDB;
 
 	//ui components
 	private JLabel lblFamDel, lblSignIns, lblLastSignIn, lblQty;
@@ -42,6 +58,9 @@ public class VolunteerDialog extends EntityDialog
     private JTextField streetnumTF, streetnameTF, unitTF, cityTF, zipTF, hPhoneTF, cPhoneTF;
     private JTextField emailTF;
     private JRadioButton btnSignInHistory;
+    
+    private ONCTable actTable;
+	private AbstractTableModel actTableModel;
     private JCheckBox[] ckBoxActivities;
     
     private ONCVolunteer currVolunteer;	//reference to the current object displayed
@@ -60,6 +79,8 @@ public class VolunteerDialog extends EntityDialog
 		if(familyHistoryDB != null)
 			familyHistoryDB.addDatabaseListener(this);
 		
+		activityDB = activityDB.getInstance();
+		
 		currVolunteer = null;
         
         //set up the navigation panel at the top of dialog
@@ -76,9 +97,6 @@ public class VolunteerDialog extends EntityDialog
         JPanel op2 = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JPanel op3 = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JPanel op4 = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JPanel op5 = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JPanel op6 = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JPanel op7 = new JPanel(new FlowLayout(FlowLayout.LEFT));
         
         JPanel ckBoxPanel = new JPanel();
         ckBoxPanel.setLayout(new BoxLayout(ckBoxPanel, BoxLayout.Y_AXIS));
@@ -198,47 +216,68 @@ public class VolunteerDialog extends EntityDialog
        
         op4.add(commentTF);
         
-        ckBoxActivities = new JCheckBox[13];
-        ckBoxActivities[0] = new JCheckBox("Delivery Set-Up");
-        ckBoxActivities[1] = new JCheckBox("Delivery");
-        ckBoxActivities[2] = new JCheckBox("Warehouse Support");
-        ckBoxActivities[3] = new JCheckBox("Packager");
-        ckBoxActivities[4] = new JCheckBox("Gift Inventory");
-        ckBoxActivities[5] = new JCheckBox("Shopping");
-        ckBoxActivities[6] = new JCheckBox("Cookie Baker");
-        ckBoxActivities[7] = new JCheckBox("Warehouse Clean-Up");
-        ckBoxActivities[8] = new JCheckBox("Clothing");
-        ckBoxActivities[9] = new JCheckBox("Corp Team Building");
-        ckBoxActivities[10] = new JCheckBox("Bike Assembly");
-        ckBoxActivities[11] = new JCheckBox("Post Delivery");
-        ckBoxActivities[12] = new JCheckBox("Warehouse Set-Up");
+        //create the activity table
+      	actTableModel = new ActivityTableModel();
+      		
+      	//create the table
+      	String[] actToolTips = {"A check indicates volunteer will participate in this activity",
+      							"Activity Name", "Start Time", "End Time"};
+      		
+      	actTable = new ONCTable(actTableModel, actToolTips, new Color(240,248,255));
+
+      	actTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+      		
+      	//set up a cell renderer for the LAST_LOGINS column to display the date 
+      	TableCellRenderer tableCellRenderer = new DefaultTableCellRenderer()
+		{
+			private static final long serialVersionUID = 1L;
+			SimpleDateFormat f = new SimpleDateFormat("M/dd/yy H:mm:ss");
+
+		    public Component getTableCellRendererComponent(JTable table,Object value,
+		            boolean isSelected, boolean hasFocus, int row, int column)
+		    {
+		        if( value instanceof Date)
+		            value = f.format(value);
+		        
+		        return super.getTableCellRendererComponent(table, value, isSelected,
+		                hasFocus, row, column);
+		    }
+		};
+      	actTable.getColumnModel().getColumn(ACT_START_COL).setCellRenderer(tableCellRenderer);
+      	actTable.getColumnModel().getColumn(ACT_END_COL).setCellRenderer(tableCellRenderer);
+      		
+      	//Set table column widths
+      	int tablewidth = 0;
+      	int[] act_colWidths = {48, 192, 104, 104};
+      	for(int col=0; col < act_colWidths.length; col++)
+      	{
+      		actTable.getColumnModel().getColumn(col).setPreferredWidth(act_colWidths[col]);
+      		tablewidth += act_colWidths[col];
+      	}
+      	tablewidth += 24; 	//count for vertical scroll bar
+      		
+      	JTableHeader anHeader = actTable.getTableHeader();
+        anHeader.setForeground( Color.black);
+        anHeader.setBackground( new Color(161,202,241));
+              
+        //Center justify wish count column
+//      DefaultTableCellRenderer dtcr = new DefaultTableCellRenderer();
+//      dtcr.setHorizontalAlignment(SwingConstants.CENTER);
+//      volTable.getColumnModel().getColumn(NUM_ACT_COL).setCellRenderer(dtcr);
+//      volTable.getColumnModel().getColumn(NUM_SIGNIN_COL).setCellRenderer(dtcr);
+              
+        //Create the scroll pane and add the table to it.
+        JScrollPane actScrollPane = new JScrollPane(actTable, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
+      													JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         
-        int bn;
-        for(bn=0; bn < 5; bn++ )
-        {
-        	ckBoxActivities[bn].addActionListener(dcListener);
-        	op5.add(ckBoxActivities[bn]);
-        }	
+        actScrollPane.setPreferredSize(new Dimension(tablewidth, actTable.getRowHeight()*NUM_ACT_TABLE_ROWS));
+        actScrollPane.setBorder(BorderFactory.createTitledBorder("Activites"));
         
-        for(bn=5; bn < 9; bn++)
-        {
-        	ckBoxActivities[bn].addActionListener(dcListener);
-        	op6.add(ckBoxActivities[bn]);
-        }
-        for(bn=9; bn < ckBoxActivities.length; bn++)
-        {
-        	ckBoxActivities[bn].addActionListener(dcListener);
-        	op7.add(ckBoxActivities[bn]);
-        }
-       
-        ckBoxPanel.add(op5);
-        ckBoxPanel.add(op6);
-        ckBoxPanel.add(op7);
-            
         entityPanel.add(op1);
         entityPanel.add(op2);
         entityPanel.add(op3);
         entityPanel.add(op4);
+        entityPanel.add(actScrollPane);
         entityPanel.add(ckBoxPanel);
         
         //Set up control panel
@@ -294,7 +333,7 @@ public class VolunteerDialog extends EntityDialog
 		if(!cityTF.getText().equals(updateVol.getCity())) { updateVol.setCity(cityTF.getText()); bCD = bCD | 1024; }
 		if(!zipTF.getText().equals(updateVol.getZipcode())) { updateVol.setZipcode(zipTF.getText()); bCD = bCD | 2048; }
 		if(!commentTF.getText().equals(updateVol.getComment())) { updateVol.setComment(commentTF.getText()); bCD = bCD | 4096; }
-		if(generateActivityCode() != updateVol.getActivityCode()) { updateVol.setActivityCode(generateActivityCode()); bCD = bCD | 8192; }
+//		if(generateActivityCode() != updateVol.getActivityCode()) { updateVol.setActivityCode(generateActivityCode()); bCD = bCD | 8192; }
 		
 		if(bCD > 0)	//If an update to organization data (not stop light data) was detected
 		{
@@ -376,9 +415,9 @@ public class VolunteerDialog extends EntityDialog
 			SimpleDateFormat sdf = new SimpleDateFormat("M/dd h:mm");
 			lblLastSignIn.setText(currVolunteer.getSignIns() == 0 ? "Never" : sdf.format(currVolunteer.getDateChanged()));
 			
-			setActivities(currVolunteer.getActivityCode());
-			
 			btnSignInHistory.setEnabled(currVolunteer.getSignIns() > 0);
+			
+			actTableModel.fireTableDataChanged();
 
 			nav.setStoplightEntity(currVolunteer);
 			nav.btnNextSetEnabled(true);
@@ -386,29 +425,6 @@ public class VolunteerDialog extends EntityDialog
 			
 			bIgnoreEvents = false;
 		}
-	}
-	
-	void setActivities(int activityCode)
-	{
-		if(activityCode > 0)
-		{
-			int cbIndex = 0;
-			for(int mask = 1; mask <= ActivityCode.lastCode(); mask = mask << 1)
-				ckBoxActivities[cbIndex++].setSelected((mask & activityCode) > 0);
-		}		
-		else
-			clearActivities();
-	}
-	
-	int generateActivityCode()
-	{
-		int activitycode = 0;
-		int cbIndex = 0;
-		for(int mask = 1; mask <= ActivityCode.lastCode(); mask = mask << 1)
-			if(ckBoxActivities[cbIndex++].isSelected())
-				activitycode = activitycode | mask;
-			
-		return activitycode;
 	}
 	
 	void clearActivities()
@@ -494,8 +510,7 @@ public class VolunteerDialog extends EntityDialog
 		ONCVolunteer newVol = new ONCVolunteer(-1, "N/A", firstnameTF.getText(), lastnameTF.getText(),
 					emailTF.getText(), streetnumTF.getText(), streetnameTF.getText(), 
 					unitTF.getText(), cityTF.getText(), zipTF.getText(), 
-					hPhoneTF.getText(), cPhoneTF.getText(), "1", 
-					Integer.toHexString(generateActivityCode()), "", "",
+					hPhoneTF.getText(), cPhoneTF.getText(), "1", "", "",
 					new Date(), userDB.getUserLNFI());
 						
 		//send add request to the local data base
@@ -634,9 +649,9 @@ public class VolunteerDialog extends EntityDialog
 			}
 			else if(tse.getType() == EntityType.VOLUNTEER)
 			{
-				ONCVolunteer driver = (ONCVolunteer) tse.getObject1();
+				ONCVolunteer volunteer = (ONCVolunteer) tse.getObject1();
 				update();
-				display(driver);
+				display(volunteer);
 			}
 		}
 	}
@@ -674,5 +689,57 @@ public class VolunteerDialog extends EntityDialog
 	    	
 //	    	EntityEventManager.getInstance().removeEntitySelectionListener(siHistoryDlg);
 		}
+	}
+	
+	class ActivityTableModel extends AbstractTableModel
+	{
+        /**
+		 * Implements the table model for the activity table
+		 */
+		private static final long serialVersionUID = 1L;
+		
+		private String[] columnNames = {"Participating?", "Activity Name", "Start Date/Time", "End Date/Time"};
+ 
+        public int getColumnCount() { return columnNames.length; }
+ 
+        public int getRowCount() { return activityDB.size(); }
+ 
+        public String getColumnName(int col) { return columnNames[col]; }
+ 
+        public Object getValueAt(int row, int col)
+        {
+        	@SuppressWarnings("unchecked")
+			List<VolunteerActivity> activityList = (List<VolunteerActivity>) activityDB.getList();
+        	VolunteerActivity act = activityList.get(row);
+        	
+        	if(col == CHECKBOX_COL)
+        		return currVolunteer.isVolunteeringFor(row);
+        	else if(col == ACT_NAME_COL)  
+        		return act.getName();
+        	else if(col == ACT_START_COL)
+        		return act.getStartTime().getTime();
+        	else if (col == ACT_END_COL)
+        		return act.getEndTime().getTime();
+        	else
+        		return "Error";
+        }
+        
+        //JTable uses this method to determine the default renderer/editor for each cell.
+        @Override
+        public Class<?> getColumnClass(int column)
+        {
+        	if(column == CHECKBOX_COL)
+        		return Boolean.class;
+        	else if(column == ACT_START_COL || column == ACT_END_COL)
+        		return Date.class;
+        	else
+        		return String.class;
+        }
+ 
+        public boolean isCellEditable(int row, int col)
+        {
+        	//Name, Status, Access and Permission are editable
+        	return false;
+        }
 	}
 }

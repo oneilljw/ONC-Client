@@ -1,7 +1,10 @@
 package ourneighborschild;
 
 //import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 public class ONCVolunteer extends ONCEntity implements Comparable<ONCVolunteer>
 {
@@ -9,7 +12,6 @@ public class ONCVolunteer extends ONCEntity implements Comparable<ONCVolunteer>
 	 * 
 	 */
 	private static final long serialVersionUID = -5277718159822649083L;
-	private static final int HEXADECIMAL = 16;
 	
 	private String drvNum;
 	private String fName;
@@ -22,7 +24,7 @@ public class ONCVolunteer extends ONCEntity implements Comparable<ONCVolunteer>
 	private String email;
 	private String homePhone;
 	private String cellPhone;
-	private int	   activityCode;
+	private List<VolunteerActivity>  activityList;
 	private String group;
 	private String comment;
 	private int qty;
@@ -31,7 +33,7 @@ public class ONCVolunteer extends ONCEntity implements Comparable<ONCVolunteer>
 	
 	public ONCVolunteer(int driverid, String drvNum, String fName, String lName, String email, String hNum, 
 						String street, String unit, String city, String zipcode, 
-						String homePhone, String cellPhone, String qty, String zActivityCode, String group,
+						String homePhone, String cellPhone, String qty, String group,
 						String comment, Date today, String changedBy)
 	{
 		super(driverid, new Date(), changedBy, STOPLIGHT_OFF, "Volunteer added", changedBy);
@@ -46,7 +48,7 @@ public class ONCVolunteer extends ONCEntity implements Comparable<ONCVolunteer>
 		this.zipcode = zipcode;
 		this.homePhone = homePhone;
 		this.cellPhone = cellPhone;
-		this.activityCode = convertActivityCode(zActivityCode, HEXADECIMAL);
+		this.activityList = new LinkedList<VolunteerActivity>();
 		this.group = group;
 		this.comment = comment;
 		this.qty = qty.isEmpty() ? 0 : Integer.parseInt(qty);
@@ -54,8 +56,32 @@ public class ONCVolunteer extends ONCEntity implements Comparable<ONCVolunteer>
 		this.signIns = 0;
 	}
 	
-	//used when importing volunteers from Sign-Up Genius .csv export
-	public ONCVolunteer(String[] nextLine, Date today, String changedBy, int activityCode)
+	public ONCVolunteer(int driverid, String drvNum, String fName, String lName, String email, String hNum, 
+			String street, String unit, String city, String zipcode, 
+			String homePhone, String cellPhone, String qty, List<VolunteerActivity> actList, String group,
+			String comment, Date today, String changedBy)
+	{
+		super(driverid, new Date(), changedBy, STOPLIGHT_OFF, "Volunteer added", changedBy);
+		this.drvNum = drvNum;
+		this.fName = fName;
+		this.lName = lName;
+		this.hNum = hNum;
+		this.email = email;
+		this.street = street;
+		this.unit = unit;
+		this.city = city;
+		this.zipcode = zipcode;
+		this.homePhone = homePhone;
+		this.cellPhone = cellPhone;
+		this.activityList = actList;
+		this.group = group;
+		this.comment = comment;
+		this.qty = qty.isEmpty() ? 0 : Integer.parseInt(qty);
+		this.delAssigned = 0;
+		this.signIns = 0;
+	}
+	
+	public ONCVolunteer(String[] nextLine, Date today, String changedBy, List<Integer> activityList)
 	{
 		super(-1, new Date(), changedBy, STOPLIGHT_OFF, "Volunteer added", changedBy);
 		
@@ -112,7 +138,7 @@ public class ONCVolunteer extends ONCEntity implements Comparable<ONCVolunteer>
 			this.homePhone = "";
 			this.cellPhone = "";
 		}
-		this.activityCode = activityCode;
+		this.activityList = new LinkedList<VolunteerActivity>();
 		this.group = "Self";
 		this.comment = nextLine[9];
 		this.delAssigned = 0;
@@ -128,7 +154,7 @@ public class ONCVolunteer extends ONCEntity implements Comparable<ONCVolunteer>
 		signIns = 0;
 	}
 	
-	public ONCVolunteer(String[] nextLine)
+	public ONCVolunteer(String[] nextLine, List<VolunteerActivity> volActList)
 	{
 		super(Integer.parseInt(nextLine[0]), Long.parseLong(nextLine[18]), nextLine[19],
 				Integer.parseInt(nextLine[20]), nextLine[21], nextLine[22]);
@@ -143,7 +169,7 @@ public class ONCVolunteer extends ONCEntity implements Comparable<ONCVolunteer>
 		email = getDBString(nextLine[9]);
 		homePhone = getDBString(nextLine[10]);
 		cellPhone = getDBString(nextLine[11]);
-		activityCode = nextLine[12].isEmpty() ? 0 : Integer.parseInt(nextLine[12]);
+		activityList = volActList;
 		group = getDBString(nextLine[13]);
 		comment = getDBString(nextLine[14]);
 		qty = nextLine[15].isEmpty() ? 0 : Integer.parseInt(nextLine[15]);;
@@ -166,7 +192,11 @@ public class ONCVolunteer extends ONCEntity implements Comparable<ONCVolunteer>
 		email = d.email;
 		homePhone = d.homePhone;
 		cellPhone = d.cellPhone;
-		activityCode = d.activityCode;
+		
+		this.activityList = new ArrayList<VolunteerActivity>();
+		for(VolunteerActivity activity : d.activityList)
+			this.activityList.add(activity);
+		
 		group = d.group;
 		comment = d.comment;
 		qty = d.qty;
@@ -196,39 +226,8 @@ public class ONCVolunteer extends ONCEntity implements Comparable<ONCVolunteer>
 	public int getQty() { return qty; }
 	public int getDelAssigned() { return delAssigned; }
 	public int getSignIns() { return signIns; }
-	public int getActivityCode() { return activityCode; }
+	public List<VolunteerActivity> getActivityList() { return activityList; }
 	public String getChangedBy() { return changedBy; }
-	
-	String getActivities()
-	{
-		if(activityCode > 0)
-		{
-			StringBuffer sb = new StringBuffer();
-			
-			for(int mask = 1; mask <= ActivityCode.lastCode(); mask = mask << 1)
-			{
-				if((mask & activityCode) > 0)
-					sb.append(ActivityCode.getActivity(mask).activity() + "\n");
-			}
-			
-			//remove the last newline
-			String result = sb.toString();
-			return result.substring(0, result.length()-1);
-		}
-		else
-			return "None";
-	}
-	
-	int getNumberOfActivities()
-	{
-		int nActivities = 0;
-		
-		for(int actMask = 1; actMask <= ActivityCode.lastCode(); actMask = actMask << 1)
-			if((activityCode & actMask) > 0)
-				nActivities++;
-		
-		return nActivities;
-	}
 	
 	//setters
 	public void setDrvNum(String drvNum) { this.drvNum = drvNum; }
@@ -242,7 +241,7 @@ public class ONCVolunteer extends ONCEntity implements Comparable<ONCVolunteer>
 	public void setEmail(String em) { this.email = em; }
 	public void setHomePhone(String homePhone) { this.homePhone = homePhone; }
 	public void setCellPhone(String cellPhone) { this.cellPhone = cellPhone; }	
-	public void setActivityCode(int activityCode) { this.activityCode = activityCode; }
+//	public void setActivityCode(int activityCode) { this.activityCode = activityCode; }
 	public void setGroup(String drl) { this.group = drl; }
 	public void setComment(String c) { this.comment = c; }
 	public void setQtyd(int qty) { this.qty = qty; }
@@ -250,21 +249,86 @@ public class ONCVolunteer extends ONCEntity implements Comparable<ONCVolunteer>
 	public void setSignIns(int si) { signIns = si; }
 	public void setChangedBy(String cb) { changedBy = cb; }
 	
+	
+	//activity list methods
+	void addActivity(VolunteerActivity activity)
+	{
+		//check to see if it's already in the list, otherwise, add it
+		int index = 0;
+		while(index < activityList.size() && activityList.get(index).getID() != activity.getID())
+			index++;
+			
+		if(index == activityList.size())
+			activityList.add(activity);
+	}
+	
+	void removeActivity(VolunteerActivity activity)
+	{
+		//check to see if it's in the list, if so, remove it
+		int index = 0;
+		while(index < activityList.size() && activityList.get(index).getID() != activity.getID())
+			index++;
+					
+		if(index < activityList.size())
+			activityList.remove(index);
+	}
+	
+	boolean isVolunteeringFor(String category)
+	{
+		int index = 0;
+		while(index < this.activityList.size() && !activityList.get(index).getCategory().equals(category))
+			index++;
+		
+		return index < activityList.size();
+	}
+	
+	boolean isVolunteeringFor(int activityID)
+	{
+		int index = 0;
+		while(index < this.activityList.size() && activityList.get(index).getID() != activityID)
+			index++;
+		
+		return index < activityList.size();
+	}
+	
 	public void incrementDeliveryCount(int count) { delAssigned += count; }
 	
-	/***
-	 * takes a binary string parameter, verifies it only contains digits returns the corresponding integer, else return 0
-	****/
-	int convertActivityCode(String zActivityCode, int radix)
+//	List<VolunteerActivity> convertActivityStringToList(String zActivities, List<VolunteerActivity> allActList)
+//	{
+//		String[] activities = zActivities.split("_");
+//		for(String zActivityID : activities)
+//		{
+//			int index = 0;
+//			while(index < allActList.size() && allActList.get(index).getID() != Integer.parseInt(zActivityID))
+//				index++;
+//			
+//			if(index < allActList.size())
+//				activityList.add(allActList.get(index));
+//		}
+//		
+//		return activityList;
+//	}
+	
+	String convertActivityListToString()
 	{
-		return isNumeric(zActivityCode) ? Integer.parseInt(zActivityCode, radix) : 0;
+		if(activityList.isEmpty())
+			return "";
+		else
+		{
+			StringBuffer activityBuffer = new StringBuffer(Integer.toString(activityList.get(0).getID()));
+			for(int i=1; i < activityList.size(); i++)
+				activityBuffer.append("_" + Integer.toString(activityList.get(i).getID()));
+			
+			return activityBuffer.toString();
+		}
 	}
 	
 	@Override
 	public String[] getExportRow()
 	{
 		String[] row = {Integer.toString(id), drvNum, fName, lName, hNum, street, unit, city, zipcode,
-						email, homePhone, cellPhone, Integer.toString(activityCode), group, comment, 
+						email, homePhone, cellPhone, 
+						convertActivityListToString(), group, comment, 
 						Integer.toString(qty), Integer.toString(delAssigned), Integer.toString(signIns),
 						Long.toString(dateChanged.getTimeInMillis()), changedBy,  Integer.toString(slPos),
 						slMssg, slChangedBy};

@@ -182,11 +182,11 @@ public class SortDriverDialog extends DependantTableDialog
 		clearFamilyTable();
 		familyTable.clearSelection();
 		
-		for(ONCVolunteer d:volunteerDB.getDriverDB())
-			if((d.getActivityCode() & ActivityCode.Delivery.code()) > 0 && 
-			    doesDrvNumMatch(d.getDrvNum()) && doesLNameMatch(d.getlName()) && 
-				 doesChangedByMatch(d.getChangedBy()) && doesStoplightMatch(d.getStoplightPos()))
-				atAL.add(d);
+		for(ONCVolunteer v : volunteerDB.getDriverDB())
+			if(v.isVolunteeringFor("Delivery Volunteer") && 
+			     doesDrvNumMatch(v.getDrvNum()) && doesLNameMatch(v.getlName()) && 
+				  doesChangedByMatch(v.getChangedBy()) && doesStoplightMatch(v.getStoplightPos()))
+				atAL.add(v);
 			
 		lblNumOfObjects.setText(Integer.toString(atAL.size()));
 		displaySortTable(atAL, true, tableRowSelectedObjectList);

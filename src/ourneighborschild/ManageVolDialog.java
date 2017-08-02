@@ -16,6 +16,7 @@ import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -26,7 +27,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
-import javax.swing.UIManager;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
@@ -47,17 +47,30 @@ public class ManageVolDialog extends ONCTableDialog implements ActionListener, L
 	private static final int NUM_ACT_COL = 3;
 	private static final int NUM_SIGNIN_COL = 4;
 	private static final int TIME_COL = 5;
-	private static final int NUM_TABLE_ROWS = 15;
+	
+	private static final int ACT_NAME_COL= 0;
+	private static final int ACT_START_COL = 1;
+	private static final int ACT_END_COL = 2;
+	
+	private static final int NUM_VOL_TABLE_ROWS = 12;
+	private static final int NUM_ACT_TABLE_ROWS = 9;
 	
 	protected JPanel sortCriteriaPanel;
-	private JComboBox activityCB;
+	private JComboBox activityCB, groupCB;
+	private DefaultComboBoxModel activityCBM, groupCBM;
+	private boolean bIgnoreCBEvents;
+	private String sortActivityCategory, sortGroup;
 	
-	private ONCTable dlgTable;
-	private AbstractTableModel dlgTableModel;
+	private ONCTable volTable, actTable;
+	private AbstractTableModel volTableModel, actTableModel;
 	private JButton btnResetFilters, btnPrint, btnExport;
-	private VolunteerDB volDB;
+	private JLabel lblVolCount;
 	
-	private List<ONCVolunteer> tableList;
+	private VolunteerDB volDB;
+	private ActivityDB activityDB;
+	
+	private List<ONCVolunteer> volTableList;
+	private ONCVolunteer selectedVol;
 		
 	public ManageVolDialog(JFrame pf)
 	{
@@ -71,8 +84,14 @@ public class ManageVolDialog extends ONCTableDialog implements ActionListener, L
 		if(volDB != null)
 			volDB.addDatabaseListener(this);
 		
+		activityDB = ActivityDB.getInstance();
+		if(activityDB != null)
+			activityDB.addDatabaseListener(this);
+		
 		//set up the table list
-		tableList = new ArrayList<ONCVolunteer>();
+		volTableList = new ArrayList<ONCVolunteer>();
+		
+		bIgnoreCBEvents = false;
 		
 		//Set up the search criteria panel      
 		sortCriteriaPanel = new JPanel();
@@ -85,24 +104,36 @@ public class ManageVolDialog extends ONCTableDialog implements ActionListener, L
 		lblONCicon.setAlignmentX(Component.LEFT_ALIGNMENT );//0.0
 		sortCriteriaPanel.add(lblONCicon);
 		
-		//create search fiters
-		activityCB = new JComboBox(ActivityCode.getSearchFilterList());
+		//create search filters
+		activityCBM = new DefaultComboBoxModel();
+	    activityCBM.addElement("Any");
+		activityCB = new JComboBox(activityCBM);
 		activityCB.setBorder(BorderFactory.createTitledBorder("Activitiy"));
 		activityCB.setPreferredSize(new Dimension(200,56));
 		activityCB.addActionListener(this);
 		sortCriteriaPanel.add(activityCB);
+		sortActivityCategory = "Any";
 		
-		//Create the table model
-		dlgTableModel = new DialogTableModel();
+		groupCBM = new DefaultComboBoxModel();
+	    groupCBM.addElement("Any");
+		groupCB = new JComboBox(groupCBM);
+		groupCB.setBorder(BorderFactory.createTitledBorder("Group"));
+		groupCB.setPreferredSize(new Dimension(200,56));
+		groupCB.addActionListener(this);
+		sortCriteriaPanel.add(groupCB);
+		sortGroup = "Any";
+		
+		//Create the volunteer table model
+		volTableModel = new VolunteerTableModel();
 		
 		//create the table
 		String[] colToolTips = {"First Name", "Last Name", "Group", "# of Actvities", 
 								"# of Warehouse Sign-Ins", "Last Sign-In Time"};
 		
-		dlgTable = new ONCTable(dlgTableModel, colToolTips, new Color(240,248,255));
+		volTable = new ONCTable(volTableModel, colToolTips, new Color(240,248,255));
 
-		dlgTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		dlgTable.getSelectionModel().addListSelectionListener(this);
+		volTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		volTable.getSelectionModel().addListSelectionListener(this);
 		
 		//set up a cell renderer for the LAST_LOGINS column to display the date 
 		TableCellRenderer tableCellRenderer = new DefaultTableCellRenderer()
@@ -120,35 +151,84 @@ public class ManageVolDialog extends ONCTableDialog implements ActionListener, L
 		                hasFocus, row, column);
 		    }
 		};
-		dlgTable.getColumnModel().getColumn(TIME_COL).setCellRenderer(tableCellRenderer);
+		volTable.getColumnModel().getColumn(TIME_COL).setCellRenderer(tableCellRenderer);
 		
 		//Set table column widths
 		int tablewidth = 0;
-		int[] colWidths = {96, 96, 192, 64, 56, 128};
+		int[] colWidths = {96, 96, 192, 80, 64, 128};
 		for(int col=0; col < colWidths.length; col++)
 		{
-			dlgTable.getColumnModel().getColumn(col).setPreferredWidth(colWidths[col]);
+			volTable.getColumnModel().getColumn(col).setPreferredWidth(colWidths[col]);
 			tablewidth += colWidths[col];
 		}
 		tablewidth += 24; 	//count for vertical scroll bar
 		
-		dlgTable.setAutoCreateRowSorter(true);	//add a sorter
+		volTable.setAutoCreateRowSorter(true);	//add a sorter
         
-        JTableHeader anHeader = dlgTable.getTableHeader();
+        JTableHeader anHeader = volTable.getTableHeader();
         anHeader.setForeground( Color.black);
         anHeader.setBackground( new Color(161,202,241));
         
         //Center justify wish count column
         DefaultTableCellRenderer dtcr = new DefaultTableCellRenderer();
         dtcr.setHorizontalAlignment(SwingConstants.CENTER);
-        dlgTable.getColumnModel().getColumn(NUM_ACT_COL).setCellRenderer(dtcr);
-        dlgTable.getColumnModel().getColumn(NUM_SIGNIN_COL).setCellRenderer(dtcr);
+        volTable.getColumnModel().getColumn(NUM_ACT_COL).setCellRenderer(dtcr);
+        volTable.getColumnModel().getColumn(NUM_SIGNIN_COL).setCellRenderer(dtcr);
         
         //Create the scroll pane and add the table to it.
-        JScrollPane dsScrollPane = new JScrollPane(dlgTable, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
+        JScrollPane dsScrollPane = new JScrollPane(volTable, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
 													JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        dsScrollPane.setPreferredSize(new Dimension(tablewidth, dlgTable.getRowHeight()*NUM_TABLE_ROWS));
-        dsScrollPane.setBorder(UIManager.getBorder("Table.scrollPaneBorder"));
+        dsScrollPane.setPreferredSize(new Dimension(tablewidth, volTable.getRowHeight()*NUM_VOL_TABLE_ROWS));
+//      dsScrollPane.setBorder(UIManager.getBorder("Table.scrollPaneBorder"));
+        dsScrollPane.setBorder(BorderFactory.createTitledBorder("Volunteers"));
+        
+        //create the volunteer table control panel
+        JPanel volCntlPanel = new JPanel();
+        volCntlPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+        
+        lblVolCount = new JLabel("Volunteers Meeting Criteria: 0");
+        volCntlPanel.add(lblVolCount);
+        
+        //create the activity table
+      	actTableModel = new ActivityTableModel();
+      		
+      	//create the table
+      	String[] actToolTips = {"Name", "Start Time", "End Time"};
+      		
+      	actTable = new ONCTable(actTableModel, actToolTips, new Color(240,248,255));
+
+      	actTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+      		
+      	//set up a cell renderer for the LAST_LOGINS column to display the date 
+      	actTable.getColumnModel().getColumn(ACT_START_COL).setCellRenderer(tableCellRenderer);
+      	actTable.getColumnModel().getColumn(ACT_END_COL).setCellRenderer(tableCellRenderer);
+      		
+      	//Set table column widths
+      	tablewidth = 0;
+      	int[] act_colWidths = {320, 120, 120};
+      	for(int col=0; col < act_colWidths.length; col++)
+      	{
+      		actTable.getColumnModel().getColumn(col).setPreferredWidth(act_colWidths[col]);
+      		tablewidth += act_colWidths[col];
+      	}
+      	tablewidth += 24; 	//count for vertical scroll bar
+      		
+        anHeader = actTable.getTableHeader();
+        anHeader.setForeground( Color.black);
+        anHeader.setBackground( new Color(161,202,241));
+              
+        //Center justify wish count column
+//      DefaultTableCellRenderer dtcr = new DefaultTableCellRenderer();
+//      dtcr.setHorizontalAlignment(SwingConstants.CENTER);
+//      volTable.getColumnModel().getColumn(NUM_ACT_COL).setCellRenderer(dtcr);
+//      volTable.getColumnModel().getColumn(NUM_SIGNIN_COL).setCellRenderer(dtcr);
+              
+        //Create the scroll pane and add the table to it.
+        JScrollPane actScrollPane = new JScrollPane(actTable, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
+      													JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        actScrollPane.setPreferredSize(new Dimension(tablewidth, actTable.getRowHeight()*NUM_ACT_TABLE_ROWS));
+        actScrollPane.setBorder(BorderFactory.createTitledBorder("Selected Volunteer's Activites"));
+//        actScrollPane.setBorder(UIManager.getBorder("Table.scrollPaneBorder"));
     
         JPanel cntlPanel = new JPanel();
         
@@ -172,6 +252,8 @@ public class ManageVolDialog extends ONCTableDialog implements ActionListener, L
         getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
         getContentPane().add(sortCriteriaPanel);
         getContentPane().add(dsScrollPane);
+        getContentPane().add(volCntlPanel);
+        getContentPane().add(actScrollPane);
         getContentPane().add(cntlPanel);
         
         pack();
@@ -179,12 +261,14 @@ public class ManageVolDialog extends ONCTableDialog implements ActionListener, L
 	
 	void createTableList()
 	{
-		tableList.clear();
+		volTableList.clear();
 		for(ONCVolunteer v : volDB.getList())
-			if(volunteerMeetsSearchCriteria(v))
-				tableList.add(v);
+			if(doesActivityMatch(v) && doesGroupMatch(v))
+				volTableList.add(v);
 		
-		dlgTableModel.fireTableDataChanged();
+		lblVolCount.setText(String.format("Volunteer's Meeting Criteria: %d", volTableList.size()));
+		
+		volTableModel.fireTableDataChanged();
 	}
 	
 	void resetFilters()
@@ -192,20 +276,95 @@ public class ManageVolDialog extends ONCTableDialog implements ActionListener, L
 		activityCB.removeActionListener(this);
 		activityCB.setSelectedIndex(0);
 		activityCB.addActionListener(this);
+		sortActivityCategory = "Any";
+		
+		groupCB.removeActionListener(this);
+		groupCB.setSelectedIndex(0);
+		groupCB.addActionListener(this);
+		sortGroup = "Any";
+		
+		selectedVol = null;
+		actTableModel.fireTableDataChanged();
 		
 		createTableList();
 	}
 	
-	boolean volunteerMeetsSearchCriteria(ONCVolunteer v)
+	boolean doesActivityMatch(ONCVolunteer v)
 	{
-		//test for ActitvityCode match
-		ActivityCode cbCode = (ActivityCode) activityCB.getSelectedItem();
-		int volCode = v.getActivityCode();
+		//test for activity category match
+		 return sortActivityCategory.equals("Any") || v.isVolunteeringFor(sortActivityCategory);
+	}
+	
+	boolean doesGroupMatch(ONCVolunteer v)
+	{
+		//test for activity category match
+		 return sortGroup.equals("Any") || v.getGroup().equals(sortGroup);
+	}
+	
+	void updateActivityList()
+	{	
+		bIgnoreCBEvents = true;
+		activityCB.setEnabled(false);
+		String curr_sel = activityCB.getSelectedItem().toString();
 		
-		if(cbCode == ActivityCode.Any || (volCode & cbCode.code()) > 0)
-			return true;
+		activityCBM.removeAllElements();
+		
+		activityCBM.addElement("Any");
+		
+		boolean currSelFound = false;
+		for(String category : activityDB.getActivityCategoryList())
+		{
+			activityCBM.addElement(category);
+			if(curr_sel.equals(category))
+				currSelFound = true;		
+		}
+		
+		//reset selection to previous selection. If previous selection is no longer
+		//available, reset to index and rebuild
+		if(currSelFound = true)
+			activityCB.setSelectedItem(currSelFound);
 		else
-			return false;
+		{
+			activityCB.setSelectedItem("Any");
+			sortActivityCategory = "Any";
+			createTableList();
+		}
+			
+		activityCB.setEnabled(true);
+		bIgnoreCBEvents = false;
+	}
+	
+	void updateGroupList()
+	{	
+		bIgnoreCBEvents = true;
+		groupCB.setEnabled(false);
+		String curr_sel = groupCB.getSelectedItem().toString();
+		
+		groupCBM.removeAllElements();
+		
+		groupCBM.addElement("Any");
+		
+		boolean currSelFound = false;
+		for(String group : volDB.getGroupList())
+		{
+			groupCBM.addElement(group);
+			if(curr_sel.equals(group))
+				currSelFound = true;		
+		}
+		
+		//reset selection to previous selection. If previous selection is no longer
+		//available, reset to index and rebuild
+		if(currSelFound = true)
+			groupCB.setSelectedItem(currSelFound);
+		else
+		{
+			groupCB.setSelectedItem("Any");
+			sortGroup = "Any";
+			createTableList();
+		}
+			
+		groupCB.setEnabled(true);
+		bIgnoreCBEvents = false;
 	}
 	
 	void print(String name)
@@ -214,7 +373,7 @@ public class ManageVolDialog extends ONCTableDialog implements ActionListener, L
 		{
 			 MessageFormat headerFormat = new MessageFormat(name);
              MessageFormat footerFormat = new MessageFormat("- {0} -");
-             dlgTable.print(JTable.PrintMode.FIT_WIDTH, headerFormat, footerFormat);           
+             volTable.print(JTable.PrintMode.FIT_WIDTH, headerFormat, footerFormat);           
 		} 
 		catch (PrinterException e) 
 		{
@@ -234,10 +393,15 @@ public class ManageVolDialog extends ONCTableDialog implements ActionListener, L
 			//update the table
 			createTableList();
 		}
+		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_ACTIVITIES"))
+		{
+			updateActivityList();
+		}
 		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_DRIVERS"))
 		{
 			//get the initial data and display
 			this.setTitle(String.format("Our Neighbor's Child - %d Volunteer Management", GlobalVariables.getCurrentSeason()));
+			updateGroupList();
 			createTableList();
 		}
 	}
@@ -245,13 +409,14 @@ public class ManageVolDialog extends ONCTableDialog implements ActionListener, L
 	@Override
 	public void valueChanged(ListSelectionEvent lse)
 	{
-		int modelRow = dlgTable.getSelectedRow() == -1 ? -1 : 
-						dlgTable.convertRowIndexToModel(dlgTable.getSelectedRow());
+		int modelRow = volTable.getSelectedRow() == -1 ? -1 : 
+						volTable.convertRowIndexToModel(volTable.getSelectedRow());
 		
 		if(modelRow > -1)
 		{
-			ONCVolunteer selectedVol = tableList.get(modelRow);
+			selectedVol = volTableList.get(modelRow);
 			fireEntitySelected(this, EntityType.VOLUNTEER, selectedVol, null, null);
+			actTableModel.fireTableDataChanged();
 		}
 	}
 
@@ -259,8 +424,14 @@ public class ManageVolDialog extends ONCTableDialog implements ActionListener, L
 	public void actionPerformed(ActionEvent e)
 	{
 		
-		if(e.getSource() == activityCB)
+		if(e.getSource() == activityCB && !bIgnoreCBEvents)
 		{
+			sortActivityCategory = (String) activityCB.getSelectedItem();
+			createTableList();
+		}
+		if(e.getSource() == groupCB && !bIgnoreCBEvents)
+		{
+			sortGroup = (String) groupCB.getSelectedItem();
 			createTableList();
 		}
 		else if(e.getSource() == btnPrint)
@@ -279,7 +450,7 @@ public class ManageVolDialog extends ONCTableDialog implements ActionListener, L
 		return EnumSet.of(EntityType.VOLUNTEER);
 	}
 	
-	class DialogTableModel extends AbstractTableModel
+	class VolunteerTableModel extends AbstractTableModel
 	{
         /**
 		 * Implements the table model for the Wish Catalog Dialog
@@ -290,13 +461,13 @@ public class ManageVolDialog extends ONCTableDialog implements ActionListener, L
  
         public int getColumnCount() { return columnNames.length; }
  
-        public int getRowCount() { return tableList.size(); }
+        public int getRowCount() { return volTableList.size(); }
  
         public String getColumnName(int col) { return columnNames[col]; }
  
         public Object getValueAt(int row, int col)
         {
-        	ONCVolunteer v = tableList.get(row);
+        	ONCVolunteer v = volTableList.get(row);
         	
         	if(col == FIRST_NAME_COL)  
         		return v.getfName();
@@ -305,7 +476,7 @@ public class ManageVolDialog extends ONCTableDialog implements ActionListener, L
         	else if (col == GROUP_COL)
         		return v.getGroup();
         	else if (col == NUM_ACT_COL)
-        		return v.getNumberOfActivities();
+        		return v.getActivityList().size();
         	else if (col == NUM_SIGNIN_COL)
         		return v.getSignIns();
         	else if (col == TIME_COL)
@@ -322,6 +493,52 @@ public class ManageVolDialog extends ONCTableDialog implements ActionListener, L
         		return Date.class;
         	else if(column == NUM_ACT_COL || column == NUM_SIGNIN_COL)
         		return Integer.class;
+        	else
+        		return String.class;
+        }
+ 
+        public boolean isCellEditable(int row, int col)
+        {
+        	//Name, Status, Access and Permission are editable
+        	return false;
+        }
+	}
+	
+	class ActivityTableModel extends AbstractTableModel
+	{
+        /**
+		 * Implements the table model for the activity table
+		 */
+		private static final long serialVersionUID = 1L;
+		
+		private String[] columnNames = {"Activity Name", "Start Date/Time", "End Date/Time"};
+ 
+        public int getColumnCount() { return columnNames.length; }
+ 
+        public int getRowCount() { return selectedVol == null ? 0 : selectedVol.getActivityList().size(); }
+ 
+        public String getColumnName(int col) { return columnNames[col]; }
+ 
+        public Object getValueAt(int row, int col)
+        {
+        	VolunteerActivity act = selectedVol.getActivityList().get(row);
+        	
+        	if(col == ACT_NAME_COL)  
+        		return act.getName();
+        	else if(col == ACT_START_COL)
+        		return act.getStartTime().getTime();
+        	else if (col == ACT_END_COL)
+        		return act.getEndTime().getTime();
+        	else
+        		return "Error";
+        }
+        
+        //JTable uses this method to determine the default renderer/editor for each cell.
+        @Override
+        public Class<?> getColumnClass(int column)
+        {
+        	if(column == ACT_START_COL || column == ACT_END_COL)
+        		return Date.class;
         	else
         		return String.class;
         }

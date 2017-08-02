@@ -27,7 +27,8 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 	
 	private DatabaseManager oncDB;
 	private JMenuItem newMI;
-	private JMenuItem importBritepathsMI, importWFCMMI, importVolMI;
+	private JMenuItem importBritepathsMI, importWFCMMI;
+//	private JMenuItem importVolMI;
 	private JMenuItem manageCallResultMI;
 	private JMenuItem exportMI, dbStatusMI, clearMI;
 	public JMenuItem exitMI;	//public since exit method is external to the menu bar
@@ -99,9 +100,9 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 	    submenuImport.add(importWFCMMI);
 
 	    //Import Delivery Partners
-	    importVolMI = new JMenuItem("Volunteers");
-	    importVolMI.addActionListener(this);
-	    submenuImport.add(importVolMI);
+//	    importVolMI = new JMenuItem("Volunteers");
+//	    importVolMI.addActionListener(this);
+//	    submenuImport.add(importVolMI);
     
 	    menuDatabase.add(submenuImport);
 	    
@@ -632,19 +633,17 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 			dlgManager.showEntityDialog(editVolMI.getActionCommand(), SORT_DIALOG_OFFSET);
 		else if(e.getSource() == manageDelMI)
 			dlgManager.showSortDialog(manageDelMI.getActionCommand(), SORT_DIALOG_OFFSET);
-		else if(e.getSource() == importVolMI)
-		{
-			VolunteerDB volunteerDB = VolunteerDB.getInstance();
-			String mssg = volunteerDB.importDrivers(GlobalVariables.getFrame(), 
-									GlobalVariables.getInstance().getTodaysDate(),
-									userDB.getUserLNFI(), GlobalVariables.getONCLogo());
-			
-//			oncFamilyPanel.refreshDriverDisplays();	//Update dialog based on imported info
-			
-			//Information message that the drivr import completed successfully
-		    JOptionPane.showMessageDialog(GlobalVariables.getFrame(), mssg,
-					"Import Result", JOptionPane.INFORMATION_MESSAGE, GlobalVariables.getONCLogo());
-		}
+//		else if(e.getSource() == importVolMI)
+//		{
+//			VolunteerDB volunteerDB = VolunteerDB.getInstance();
+//			String mssg = volunteerDB.importSignUpGeniusVolunteers(GlobalVariables.getFrame(), 
+//									GlobalVariables.getInstance().getTodaysDate(),
+//									userDB.getUserLNFI(), GlobalVariables.getONCLogo());
+//			
+//			//Information message that the drivr import completed successfully
+//		    JOptionPane.showMessageDialog(GlobalVariables.getFrame(), mssg,
+//					"Import Result", JOptionPane.INFORMATION_MESSAGE, GlobalVariables.getONCLogo());
+//		}
 		else if(e.getSource() == mapsMI) {dlgManager.showDrivingDirections();}
 		else if(e.getSource() == distMI) {dlgManager.showClientMap();}
 		else if(e.getSource() == changeONCMI)

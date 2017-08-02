@@ -10,7 +10,6 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 
 import javax.swing.ImageIcon;
@@ -29,14 +28,19 @@ public class VolunteerDB extends ONCSearchableDatabase
 {
 	private static final EntityType DB_TYPE = EntityType.VOLUNTEER;
 	private static final int DRIVER_OBJECT_CSV_HEADER_LENGTH = 18;
-	private static final int DRIVER_CSVFILE_HEADER_LENGTH = 20;
+	private static final int ACTIVITY_STRING_COL = 12;
+//	private static final int DRIVER_CSVFILE_HEADER_LENGTH = 20;
 	private static VolunteerDB instance = null;
+	private ActivityDB activityDB;
+	
 	private List<ONCVolunteer> volunteerList;
 	
 	private VolunteerDB()
 	{
 		super(DB_TYPE);
 		volunteerList = new ArrayList<ONCVolunteer>();
+		
+		activityDB = ActivityDB.getInstance();
 	}
 	
 	public static VolunteerDB getInstance()
@@ -56,8 +60,8 @@ public class VolunteerDB extends ONCSearchableDatabase
 	ONCVolunteer getObjectAtIndex(int index) { return volunteerList.get(index); }
 	
 	public List<ONCVolunteer> getDriverDB() { return volunteerList; }
-	
-	String importDrivers(JFrame pFrame, Date today, String user, ImageIcon oncIcon)	
+/*	
+	String importSignUpGeniusVolunteers(JFrame pFrame, Date today, String user, ImageIcon oncIcon)	
 	{	
     	JFileChooser chooser = new JFileChooser();
     	chooser.setDialogTitle("Select Volunteer .csv file to import");	
@@ -171,7 +175,7 @@ public class VolunteerDB extends ONCSearchableDatabase
 	    	return String.format("%d Delivery Drivers imported from %s", volunteersAddedCount, volFile.getName());
 	    
 	}
-	
+*/	
 	int updateActivityCode(String line, int activityCode)
 	{
 		String[] choices = {"Gift Inventory and Set up",
@@ -381,7 +385,7 @@ public class VolunteerDB extends ONCSearchableDatabase
 	    			{
 	    				volunteerList.clear();
 	    				while ((nextLine = reader.readNext()) != null)	// nextLine[] is an array of values from the line
-	    					volunteerList.add(new ONCVolunteer(nextLine));
+	    					volunteerList.add(new ONCVolunteer(nextLine, activityDB.createActivityList(nextLine[ACTIVITY_STRING_COL])));
 	    			}
 	    			else
 	    				JOptionPane.showMessageDialog(pf, "Driver database file corrupted, header length = " + Integer.toString(header.length), 
@@ -403,6 +407,7 @@ public class VolunteerDB extends ONCSearchableDatabase
 	    
 	    return filename;    
 	}
+	
 	String exportDBToCSV(JFrame pf, String filename)
     {
 		File oncwritefile = null;
@@ -410,7 +415,7 @@ public class VolunteerDB extends ONCSearchableDatabase
     	if(filename == null)
     	{
     		ONCFileChooser fc = new ONCFileChooser(pf);
-    		oncwritefile= fc.getFile("Select .csv file to save Driver DB to",
+    		oncwritefile= fc.getFile("Select .csv file to save Volunteer DB to",
 										new FileNameExtensionFilter("CSV Files", "csv"), 1);
     	}
     	else
@@ -425,7 +430,7 @@ public class VolunteerDB extends ONCSearchableDatabase
 	    	
 	    	try 
 	    	{
-	    		 String[] header = {"Driver ID", "First Name", "Last Name", "House Number", "Street",
+	    		 String[] header = {"Vol ID", "First Name", "Last Name", "House Number", "Street",
 	    				 			"Unit", "City", "Zip", "Email", "Home Phone", "Cell Phone", 
 	    				 			"Driver License", "Car", "# Del. Assigned", "Time Stamp",
 	    				 			"Stoplight Pos", "Stoplight Mssg", "Changed By"};
@@ -450,6 +455,23 @@ public class VolunteerDB extends ONCSearchableDatabase
     	
 	    return filename;
     }
+	
+	List<String> getGroupList()
+	{
+		List<String> groupList = new ArrayList<String>();
+		
+		for(ONCVolunteer v : volunteerList)
+		{
+			int index = 0;
+			while(index < groupList.size() && !groupList.get(index).equals(v.getGroup()))
+				index++;
+		
+			if(index == groupList.size())
+				groupList.add(v.getGroup());
+		}
+		
+		return groupList;
+	}
 	
 	List<ONCWarehouseVolunteer> getWarehouseHistory(int volID)
 	{
