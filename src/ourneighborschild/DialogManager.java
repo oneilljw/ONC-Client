@@ -70,6 +70,7 @@ public class DialogManager implements EntitySelectionListener
 	private PartnerDialog orgDlg;
 	private GroupDialog groupDlg;
 	private VolunteerDialog volunteerDlg;
+	private ActivityDialog activityDlg;
 		
 	private PreferencesDialog prefsDlg;
 	private BarcodeWishHistoryDialog barcodeWHDlg;
@@ -200,6 +201,12 @@ public class DialogManager implements EntitySelectionListener
         volunteerDlg = new VolunteerDialog(GlobalVariables.getFrame());
         entityDlgMap.put("Edit Volunteers", volunteerDlg);
         eeManager.registerEntitySelectionListener(volunteerDlg);
+        
+        //Set up the edit activities dialog and register it to listen for activity 
+    	//selection events from particular ui's that have activities associated
+        activityDlg = new ActivityDialog(GlobalVariables.getFrame());
+        entityDlgMap.put("Edit Activities", activityDlg);
+        eeManager.registerEntitySelectionListener(activityDlg);
         
         //Set up the view family database dialog
         dbDlg = new ViewONCDatabaseDialog(GlobalVariables.getFrame());

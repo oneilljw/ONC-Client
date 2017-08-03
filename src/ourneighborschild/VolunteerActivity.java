@@ -15,13 +15,13 @@ public class VolunteerActivity extends ONCEntity
 	private static final long serialVersionUID = 1L;
 	private String category;
 	private String name;
-	private Calendar startTime;
-	private Calendar endTime;
+	private long startTime;
+	private long endTime;
 	private String location;
 	private String description;
 	
-	public VolunteerActivity(int id, String category, String name, Calendar startTime,
-								Calendar endTime, String location, String description, String username) 
+	public VolunteerActivity(int id, String category, String name, long startTime,
+								long endTime, String location, String description, String username) 
 	{
 		super(id, new Date(), username, 3, "New Activity", username);
 		this.category = category;
@@ -50,30 +50,39 @@ public class VolunteerActivity extends ONCEntity
 		
 		this.category = line[1];
 		this.name = line[2];
-		
-		this.startTime = Calendar.getInstance();
-		startTime.setTimeInMillis(Long.parseLong(line[3]));
-		
-		this.endTime = Calendar.getInstance();
-		endTime.setTimeInMillis(Long.parseLong(line[4]));
-		
+		this.startTime = Long.parseLong(line[3]);
+		this.endTime = Long.parseLong(line[4]);
 		this.location = line[5];
 		this.description = line[6];
+		
+//		System.out.println(String.format("VolAct: id %d, end %d", id, endTime));
 	}
 	
 	//getters
 	String getCategory() { return category; }
 	public String getName() { return name; }
-	public Calendar getStartTime() { return startTime; }
-	public Calendar getEndTime() { return endTime; }
+	public long getStartTimeInMillis() { return startTime; }
+ 	public Calendar getStartTime()
+	{ 
+		Calendar cal = Calendar.getInstance();
+		cal.setTimeInMillis(startTime);
+		return cal;
+	}
+ 	public long getEndTimeInMillis() { return endTime; }
+	public Calendar getEndTime()
+	{ 
+		Calendar cal = Calendar.getInstance();
+		cal.setTimeInMillis(endTime);
+		return cal;
+	}
 	String getLocation() { return location; }
 	String getDescription() { return description; }
 	
 	//setters
 	void setCategory(String category) { this.category = category; }
 	void setName(String name) { this.name = name; }
-	public void setStartTime(Calendar startTime) { this.startTime = startTime; }
-	public void setEndTime(Calendar endTime) { this.endTime = endTime; }
+	public void setStartTime(long startTime) { this.startTime = startTime; }
+	public void setEndTime(long endTime) { this.endTime = endTime; }
 	void setLocation(String location) { this.location = location; }
 	void setDescription(String description) { this.description = description; }
 
@@ -85,8 +94,8 @@ public class VolunteerActivity extends ONCEntity
 		row[0] = Integer.toString(id);
 		row[1] = category;
 		row[2] = name;
-		row[3] = Long.toString(startTime.getTimeInMillis());
-		row[4] = Long.toString(endTime.getTimeInMillis());
+		row[3] = Long.toString(startTime);
+		row[4] = Long.toString(endTime);
 		row[5] = location;
 		row[6] = description;
 		

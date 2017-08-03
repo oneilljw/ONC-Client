@@ -13,8 +13,6 @@ import java.util.EnumSet;
 import java.util.List;
 
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -41,7 +39,7 @@ public class VolunteerDialog extends EntityDialog
 	private static final String NO_VOLUNTEER_MSSG = "No Volunteers";
 	private static final int HISTORY_ICON_INDEX = 32;
 	
-	private static final int CHECKBOX_COL= 0;
+	private static final int PARTICIPATION_COL= 0;
 	private static final int ACT_NAME_COL= 1;
 	private static final int ACT_START_COL = 2;
 	private static final int ACT_END_COL = 3;
@@ -61,7 +59,6 @@ public class VolunteerDialog extends EntityDialog
     
     private ONCTable actTable;
 	private AbstractTableModel actTableModel;
-    private JCheckBox[] ckBoxActivities;
     
     private ONCVolunteer currVolunteer;	//reference to the current object displayed
     
@@ -79,7 +76,9 @@ public class VolunteerDialog extends EntityDialog
 		if(familyHistoryDB != null)
 			familyHistoryDB.addDatabaseListener(this);
 		
-		activityDB = activityDB.getInstance();
+		activityDB = ActivityDB.getInstance();
+		if(activityDB != null)
+			activityDB.addDatabaseListener(this);
 		
 		currVolunteer = null;
         
@@ -97,10 +96,6 @@ public class VolunteerDialog extends EntityDialog
         JPanel op2 = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JPanel op3 = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JPanel op4 = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        
-        JPanel ckBoxPanel = new JPanel();
-        ckBoxPanel.setLayout(new BoxLayout(ckBoxPanel, BoxLayout.Y_AXIS));
-        ckBoxPanel.setBorder(BorderFactory.createTitledBorder("Volunteer Activities"));
         
         drvNumTF = new JTextField(NO_VOLUNTEER_MSSG);
         drvNumTF.setPreferredSize(new Dimension (72, 48));
@@ -278,7 +273,6 @@ public class VolunteerDialog extends EntityDialog
         entityPanel.add(op3);
         entityPanel.add(op4);
         entityPanel.add(actScrollPane);
-        entityPanel.add(ckBoxPanel);
         
         //Set up control panel
         btnNew.setText("Add New Volunteer");
@@ -417,7 +411,7 @@ public class VolunteerDialog extends EntityDialog
 			
 			btnSignInHistory.setEnabled(currVolunteer.getSignIns() > 0);
 			
-			actTableModel.fireTableDataChanged();
+			actTableModel.fireTableDataChanged();	//update the activity table
 
 			nav.setStoplightEntity(currVolunteer);
 			nav.btnNextSetEnabled(true);
@@ -425,12 +419,6 @@ public class VolunteerDialog extends EntityDialog
 			
 			bIgnoreEvents = false;
 		}
-	}
-	
-	void clearActivities()
-	{
-		for(int bn=0; bn < ckBoxActivities.length; bn++)
-			ckBoxActivities[bn].setSelected(false);
 	}
 	
 	void clear()
@@ -453,7 +441,9 @@ public class VolunteerDialog extends EntityDialog
 		zipTF.setText("");
 		nav.clearStoplight();
 		
-		clearActivities();
+		currVolunteer = null;
+		actTableModel.fireTableDataChanged();
+		
 		btnSignInHistory.setEnabled(false);
 	}
 
@@ -555,61 +545,68 @@ public class VolunteerDialog extends EntityDialog
 	
 	public void dataChanged(DatabaseEvent dbe)
 	{
-		if(dbe.getSource() != this && dbe.getType().equals("UPDATED_DRIVER"))
+		if(this.isVisible() && !bAddingNewEntity)
 		{
-			ONCVolunteer updatedVol = (ONCVolunteer) dbe.getObject1();
+			if(dbe.getSource() != this && dbe.getType().equals("UPDATED_DRIVER"))
+			{
+				ONCVolunteer updatedVol = (ONCVolunteer) dbe.getObject1();
 			
-			//If a current volunteer is being displayed has changed, re-display it
-			if(currVolunteer != null && currVolunteer.getID() == updatedVol.getID() && !bAddingNewEntity)
-				display(updatedVol);
-		}
-		else if(dbe.getSource() != this && dbe.getType().equals("ADDED_DRIVER"))
-		{
-			ONCVolunteer addedDriver = (ONCVolunteer) dbe.getObject1();
-			//If no volunteer is being displayed, display the added one
-			if(this.isVisible() && currVolunteer == null && volDB.size() > 0 && !bAddingNewEntity)
-				display(addedDriver);
-		}
-		else if(dbe.getSource() != this && dbe.getType().equals("DELETED_DRIVER"))
-		{
-			//if the deleted volunteer was the only volunteer in data base, clear the display
-			//otherwise, if the deleted volunteer is currently being displayed, change the
-			//index to the previous volunteer in the database and display.
-			if(volDB.size() == 0)
-			{
-				currVolunteer = null;
-				nav.setIndex(0);
-				clear();
-				btnDelete.setEnabled(false);
+				//If a current volunteer is being displayed has changed, re-display it
+				if(currVolunteer != null && currVolunteer.getID() == updatedVol.getID() && !bAddingNewEntity)
+					display(updatedVol);
 			}
-			else
+			else if(dbe.getSource() != this && dbe.getType().equals("ADDED_DRIVER"))
 			{
-				ONCVolunteer deletedVol = (ONCVolunteer) dbe.getObject1();
-				if(currVolunteer.getID() == deletedVol.getID())
+				ONCVolunteer addedDriver = (ONCVolunteer) dbe.getObject1();
+				//If no volunteer is being displayed, display the added one
+				if(this.isVisible() && currVolunteer == null && volDB.size() > 0 && !bAddingNewEntity)
+					display(addedDriver);
+			}
+			else if(dbe.getSource() != this && dbe.getType().equals("DELETED_DRIVER"))
+			{
+				//if the deleted volunteer was the only volunteer in data base, clear the display
+				//otherwise, if the deleted volunteer is currently being displayed, change the
+				//index to the previous volunteer in the database and display.
+				if(volDB.size() == 0)
 				{
-					if(nav.getIndex() == 0)
-						nav.setIndex(volDB.size() - 1);
-					else
-						nav.setIndex(nav.getIndex() - 1);
+					currVolunteer = null;
+					nav.setIndex(0);
+					clear();
+					btnDelete.setEnabled(false);
+				}
+				else
+				{
+					ONCVolunteer deletedVol = (ONCVolunteer) dbe.getObject1();
+					if(currVolunteer.getID() == deletedVol.getID())
+					{
+						if(nav.getIndex() == 0)
+							nav.setIndex(volDB.size() - 1);
+						else
+							nav.setIndex(nav.getIndex() - 1);
 					
-					display(volDB.getDriver(nav.getIndex()));
+						display(volDB.getDriver(nav.getIndex()));
+					}
 				}
 			}
-		}
-		else if(dbe.getSource() != this && dbe.getType().equals("ADDED_DELIVERY"))
-		{
-			//If the added delivery is associated with the current volunteer being displayed,
-			//update the display so the # of deliveries assigned field updates
-			ONCFamilyHistory del = (ONCFamilyHistory) dbe.getObject1();
+			else if(dbe.getSource() != this && dbe.getType().equals("ADDED_DELIVERY"))
+			{
+				//If the added delivery is associated with the current volunteer being displayed,
+				//update the display so the # of deliveries assigned field updates
+				ONCFamilyHistory del = (ONCFamilyHistory) dbe.getObject1();
 			
-			if(!bAddingNewEntity && del != null && currVolunteer != null && 
+				if(!bAddingNewEntity && del != null && currVolunteer != null && 
 					del.getdDelBy().equals(currVolunteer.getDrvNum()))
 				
-				display(currVolunteer);
-		}
-		else if(dbe.getType().equals("LOADED_DRIVERS"))
-		{
-			this.setTitle(String.format("Our Neighbor's Child - %d Volunteer Information", GlobalVariables.getCurrentSeason()));
+					display(currVolunteer);
+			}
+			else if(dbe.getType().equals("LOADED_DRIVERS"))
+			{
+				this.setTitle(String.format("Our Neighbor's Child - %d Volunteer Information", GlobalVariables.getCurrentSeason()));
+			}
+			else if(dbe.getSource() != this && dbe.getType().contains("_ACTIVITY"))
+			{
+				actTableModel.fireTableDataChanged();
+			}
 		}
 	}
 
@@ -712,8 +709,8 @@ public class VolunteerDialog extends EntityDialog
 			List<VolunteerActivity> activityList = (List<VolunteerActivity>) activityDB.getList();
         	VolunteerActivity act = activityList.get(row);
         	
-        	if(col == CHECKBOX_COL)
-        		return currVolunteer.isVolunteeringFor(row);
+        	if(col == PARTICIPATION_COL)
+        		return currVolunteer != null && currVolunteer.isVolunteeringFor(row);
         	else if(col == ACT_NAME_COL)  
         		return act.getName();
         	else if(col == ACT_START_COL)
@@ -728,7 +725,7 @@ public class VolunteerDialog extends EntityDialog
         @Override
         public Class<?> getColumnClass(int column)
         {
-        	if(column == CHECKBOX_COL)
+        	if(column == PARTICIPATION_COL)
         		return Boolean.class;
         	else if(column == ACT_START_COL || column == ACT_END_COL)
         		return Date.class;
@@ -738,8 +735,57 @@ public class VolunteerDialog extends EntityDialog
  
         public boolean isCellEditable(int row, int col)
         {
-        	//Name, Status, Access and Permission are editable
-        	return false;
+        	//participation is editable
+        	return col == PARTICIPATION_COL;
         }
+        
+        public void setValueAt(Object value, int row, int col)
+        { 
+        	@SuppressWarnings("unchecked")
+			List<VolunteerActivity> activityList = (List<VolunteerActivity>) activityDB.getList();
+        	VolunteerActivity act = activityList.get(row);
+        	ONCVolunteer reqUpdateVol = null;
+        	
+        	//determine if the user made a change to a user object
+        	if(col == PARTICIPATION_COL && currVolunteer.isVolunteeringFor(row) != (Boolean) value)
+        	{
+        		reqUpdateVol = new ONCVolunteer(currVolunteer);	//make a copy
+        		
+        		//update all other fields
+        		reqUpdateVol.setDrvNum(drvNumTF.getText());
+        		reqUpdateVol.setfName(firstnameTF.getText());
+        		reqUpdateVol.setlName(lastnameTF.getText());
+        		reqUpdateVol.setGroup(groupTF.getText());
+        		reqUpdateVol.setHomePhone(hPhoneTF.getText());
+        		reqUpdateVol.setCellPhone(cPhoneTF.getText());
+        		reqUpdateVol.setEmail(emailTF.getText());
+        		reqUpdateVol.sethNum(streetnumTF.getText());
+        		reqUpdateVol.setStreet(streetnameTF.getText());	
+        		reqUpdateVol.setUnit(unitTF.getText());
+        		reqUpdateVol.setCity(cityTF.getText());
+        		reqUpdateVol.setZipcode(zipTF.getText());
+        		reqUpdateVol.setComment(commentTF.getText());
+        		if((Boolean) value)
+        			reqUpdateVol.addActivity(act);
+        		else
+        			reqUpdateVol.removeActivity(act);
+        	}
+        	
+        	//if the user made a change in the table, attempt to update the volunteer object in
+        	//the local user data base
+        	if(reqUpdateVol != null)
+        	{
+        		String response = volDB.update(this, reqUpdateVol);        		
+        		if(response != null || (response !=null && response.startsWith("UPDATED_DRIVER")))
+        			display(reqUpdateVol);
+        		else
+        		{
+        			//request failed
+        			String err_mssg = "ONC Server denied update user request, try again later";
+        			JOptionPane.showMessageDialog(GlobalVariables.getFrame(), err_mssg, "Update Volunteer Request Failure",
+													JOptionPane.ERROR_MESSAGE, GlobalVariables.getONCLogo());
+        		}
+        	}
+        }  
 	}
 }

@@ -826,7 +826,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	
 	void addChildrenToTable(int cn)
 	{
-		ONCMenuBar menuBar = ONCMenuBar.getInstance();
+		MenuBar menuBar = MenuBar.getInstance();
 		bChildTableDataChanging = true;		
 
 		if(ctAL.size() > 0)

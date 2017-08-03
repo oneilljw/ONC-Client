@@ -92,12 +92,8 @@ public class ActivityDB extends ONCSearchableDatabase
 	@Override
 	List<? extends ONCEntity> getList() { return activityList; }
 	
-	@Override
-	ONCEntity getObjectAtIndex(int index) 
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
+	//implementation of abstract classes
+	VolunteerActivity getObjectAtIndex(int index) { return activityList.get(index); }
 
 	@Override
 	String update(Object source, ONCObject entity)

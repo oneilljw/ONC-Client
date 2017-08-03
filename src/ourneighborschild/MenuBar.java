@@ -10,9 +10,8 @@ import java.util.List;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 
-public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseListener
+public class MenuBar extends JMenuBar implements ActionListener, DatabaseListener
 {
 	/**
 	 * This singleton class provides the blueprint for the menu bar in the ONC application
@@ -23,7 +22,7 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 	private static final int DB_UNLOCKED_IMAGE_INDEX = 17;
 	private static final int DB_LOCKED_IMAGE_INDEX = 18;
 	
-	private static ONCMenuBar instance;
+	private static MenuBar instance;
 	
 	private DatabaseManager oncDB;
 	private JMenuItem newMI;
@@ -33,7 +32,7 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 	private JMenuItem exportMI, dbStatusMI, clearMI;
 	public JMenuItem exitMI;	//public since exit method is external to the menu bar
 	private JMenuItem findDupFamsMI, findDupChldrnMI, crosscheckMI;
-	private JMenuItem editVolMI, viewSignInLogMI, manageVolMI;
+	private JMenuItem editVolMI, editActMI, viewSignInLogMI, manageVolMI;
 	private JMenuItem assignDelMI, manageDelMI, mapsMI, delstatusMI, distMI;
 	private JMenuItem newFamMI, changeONCMI, changeRefMI, changeBatchMI, newChildMI, delChildMI, markAdultMI, connectChildMI;
 	private JMenu submenuImport, submenuFamilyDataChecks;
@@ -50,7 +49,7 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 	private FamilyDB familyDB;
 	private UserDB userDB;
 	
-	private ONCMenuBar()
+	private MenuBar()
 	{
 		//get reference to onc data base
 		oncDB = DatabaseManager.getInstance();
@@ -331,6 +330,15 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 	    manageVolMI .setEnabled(false);
 	    manageVolMI .addActionListener(this);
 	    menuVolunteers.add(manageVolMI );
+	    
+	    menuVolunteers.addSeparator();
+	    
+	    //Edit Activities
+	    editActMI = new JMenuItem("Edit Activities");
+	    editActMI.setActionCommand("Edit Activities");
+	    editActMI.setEnabled(false);
+	    editActMI.addActionListener(this);
+	    menuVolunteers.add(editActMI);
 	 
 	    //Build Delivery Menu
 	    menuDelivery = new JMenu("Deliveries");
@@ -429,10 +437,10 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 	    dbManager = DatabaseManager.getInstance();
 	}
 	
-	public static ONCMenuBar getInstance()
+	public static MenuBar getInstance()
 	{
 		if(instance == null)
-			instance = new ONCMenuBar();
+			instance = new MenuBar();
 		
 		return instance;
 	}
@@ -547,6 +555,7 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 		groupMI.setEnabled(tf);
 		manageDelMI.setEnabled(tf);
 		inventoryMI.setEnabled(tf);
+		editActMI.setEnabled(tf);
 		editVolMI.setEnabled(tf);
 		viewSignInLogMI.setEnabled(tf);
 		manageVolMI.setEnabled(tf);
@@ -631,6 +640,8 @@ public class  ONCMenuBar extends JMenuBar implements ActionListener, DatabaseLis
 			dlgManager.showSortDialog(assignDelMI.getActionCommand(), SORT_DIALOG_OFFSET);
 		else if(e.getSource() == editVolMI)
 			dlgManager.showEntityDialog(editVolMI.getActionCommand(), SORT_DIALOG_OFFSET);
+		else if(e.getSource() == editActMI)
+			dlgManager.showEntityDialog(editActMI.getActionCommand(), SORT_DIALOG_OFFSET);
 		else if(e.getSource() == manageDelMI)
 			dlgManager.showSortDialog(manageDelMI.getActionCommand(), SORT_DIALOG_OFFSET);
 //		else if(e.getSource() == importVolMI)

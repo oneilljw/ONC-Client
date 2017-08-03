@@ -260,15 +260,29 @@ public class ManageVolDialog extends ONCTableDialog implements ActionListener, L
 	}
 	
 	void createTableList()
-	{
+	{	
 		volTableList.clear();
+		int index = 0, selectedVolIndex = -1;
+		
 		for(ONCVolunteer v : volDB.getList())
+		{
 			if(doesActivityMatch(v) && doesGroupMatch(v))
+			{
 				volTableList.add(v);
+				if(selectedVol != null && selectedVol.equals(v))
+					selectedVolIndex = index;
+			}
+			
+			index++;
+		}
 		
 		lblVolCount.setText(String.format("Volunteer's Meeting Criteria: %d", volTableList.size()));
 		
 		volTableModel.fireTableDataChanged();
+		
+		//determine if selected volunteer is still in table list
+		if(selectedVolIndex > -1)
+			volTable.setRowSelectionInterval(selectedVolIndex, selectedVolIndex);
 	}
 	
 	void resetFilters()
@@ -393,7 +407,7 @@ public class ManageVolDialog extends ONCTableDialog implements ActionListener, L
 			//update the table
 			createTableList();
 		}
-		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_ACTIVITIES"))
+		else if(dbe.getSource() != this && dbe.getType().contains("_ACTIVIT"))
 		{
 			updateActivityList();
 		}

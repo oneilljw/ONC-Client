@@ -41,7 +41,7 @@ public class OurNeighborsChild
 	private JPanel oncContentPane, oncSplashPanel;	
 	private GlobalVariables oncGVs;
 	private FamilyPanel oncFamilyPanel;
-	private ONCMenuBar oncMenuBar;
+	private MenuBar oncMenuBar;
 	
 	private DatabaseManager dbManager;	//manages the local data base
 	private DialogManager dlgManager;	//manages all dialogs in client
@@ -382,7 +382,7 @@ public class OurNeighborsChild
 //		});
         
       //Create the menu bar and set action listener for exit menu item
-        oncMenuBar = ONCMenuBar.getInstance(); 
+        oncMenuBar = MenuBar.getInstance(); 
         oncMenuBar.exitMI.addActionListener(new ActionListener()
         {		
         	@Override
