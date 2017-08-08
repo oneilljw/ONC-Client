@@ -22,11 +22,13 @@ public class ActivityDB extends ONCSearchableDatabase
 	private static final EntityType DB_TYPE = EntityType.ACTIVITY;
 	private static ActivityDB instance = null;
 	private List<VolunteerActivity> activityList;
+	private List<String> categoryList;
 	
 	private ActivityDB()
 	{
 		super(DB_TYPE);
 		activityList = new ArrayList<VolunteerActivity>();
+		categoryList = new ArrayList<String>();
 	}
 	
 	public static ActivityDB getInstance()
@@ -40,8 +42,18 @@ public class ActivityDB extends ONCSearchableDatabase
 	@Override
 	public void dataChanged(ServerEvent ue) 
 	{
-		// TODO Auto-generated method stub
-		
+		if(ue.getType().equals("UPDATED_ACTIVITY"))
+		{
+			processUpdatedObject(this, ue.getJson());
+		}
+		else if(ue.getType().equals("ADDED_DRIVER"))
+		{
+			processAddedObject(this, ue.getJson());
+		}
+//		else if(ue.getType().equals("DELETED_DRIVER"))
+//		{
+//			processDeletedObject(this, ue.getJson());
+//		}	
 	}
 	
 	VolunteerActivity getActivity(int id)
@@ -99,35 +111,40 @@ public class ActivityDB extends ONCSearchableDatabase
 	String update(Object source, ONCObject entity)
 	{
 		Gson gson = new Gson();
-		String response = "";
+		String response = "UPDATE_FAILED";
 		
 		response = serverIF.sendRequest("POST<update_activity>" + 
 											gson.toJson(entity, VolunteerActivity.class));
 		
-		if(response.startsWith("UPDATED_ACTIVITY"))
-		{
-			processUpdatedObject(source, response.substring(16), activityList);
-		}
+		if(response != null && response.startsWith("UPDATED_ACTIVITY"))
+			processUpdatedObject(source, response.substring(16));
 		
 		return response;
 	}
 	
-	void processUpdatedObject(Object source, String json, List<? extends ONCObject> objList)
+	void processUpdatedObject(Object source, String json)
 	{
 		Gson gson = new Gson();
 		VolunteerActivity updatedObj = gson.fromJson(json, VolunteerActivity.class);
 		
 		//store updated object in local data base
 		int index = 0;
-		while(index < objList.size() && objList.get(index).getID() != updatedObj.getID())
+		while(index < activityList.size() && activityList.get(index).getID() != updatedObj.getID())
 			index++;
 		
-		if(index < objList.size())
+		if(index < activityList.size())
 		{
 			activityList.set(index, updatedObj);
 			
 			//Notify local user IFs that a change occurred
 			fireDataChanged(source, "UPDATED_ACTIVITY", updatedObj);
+			
+			//check to see if added activity category is in category list. If not, add it and notify
+			if(!isCategoryInList(updatedObj.getCategory()))
+			{
+				categoryList.add(updatedObj.getCategory());
+				fireDataChanged(this, "UPDATED_CATEGORIES", null);
+			}
 		}
 	}
 	
@@ -147,6 +164,14 @@ public class ActivityDB extends ONCSearchableDatabase
 			{
 				response =  "ACTIVITIES_LOADED";
 				fireDataChanged(this, "LOADED_ACTIVITIES", null);
+				
+				for(VolunteerActivity va : activityList)
+				{
+					if(!isCategoryInList(va.getCategory()))
+						categoryList.add(va.getCategory());
+					
+					fireDataChanged(this, "UPDATED_CATEGORIES", null);
+				}
 			}
 		}
 		
@@ -177,24 +202,30 @@ public class ActivityDB extends ONCSearchableDatabase
 //				addedDriver.getID()));
 		//Notify local user IFs that an organization/partner was added
 		fireDataChanged(source, "ADDED_ACTIVITY", addedActivity);
+		
+		//check to see if added activity category is in category list. If not, add it and notify
+		if(!isCategoryInList(addedActivity.getCategory()))
+		{
+			categoryList.add(addedActivity.getCategory());
+			fireDataChanged(this, "UPDATED_CATEGORIES", null);
+		}
 	}
 	
 	String[] getActivityCategoryList()
 	{
-		List<String> catList = new ArrayList<String>();
-		for(VolunteerActivity activity : activityList)
-		{
-			int index = 0;
-			while(index < catList.size() && !catList.get(index).equals(activity.getCategory()))
-				index++;
-				
-			if(index == catList.size())
-				catList.add(activity.getCategory());
-		}
-		
-		String[] catArr = new String[catList.size()];
-		return catList.toArray(catArr);
+		String[] catArr = new String[categoryList.size()];
+		return categoryList.toArray(catArr);
 	}
+	
+	boolean isCategoryInList(String category)
+	{
+		int index = 0;
+		while(index < categoryList.size() && !categoryList.get(index).equals(category))
+			index++;
+			
+		return index < categoryList.size();
+	}
+	
 	
 	String exportDBToCSV(JFrame pf, String filename)
     {

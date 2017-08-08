@@ -4,15 +4,21 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.EnumSet;
+import java.util.Locale;
 import java.util.TimeZone;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -20,6 +26,8 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SpinnerDateModel;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import com.google.gson.Gson;
 import com.toedter.calendar.JDateChooser;
@@ -40,6 +48,9 @@ public class ActivityDialog extends EntityDialog
     private JTextField categoryTF,nameTF, locationTF, descriptionTF;
     private JDateChooser startDC, endDC;
     private JSpinner startTimeSpinner, endTimeSpinner;
+    private JButton btnSaveTimeChanges;
+    private JTextField startTimeTF, endTimeTF;
+    private SimpleDateFormat dateFormatter;
     
     private VolunteerActivity currActivity;	 //reference to the current object displayed
     
@@ -54,6 +65,7 @@ public class ActivityDialog extends EntityDialog
 			activityDB.addDatabaseListener(this);
 		
 		currActivity = null;
+		dateFormatter = new SimpleDateFormat("M/d/yy");
         
         //set up the navigation panel at the top of dialog
         nav = new ONCNavPanel(pf, activityDB);
@@ -96,6 +108,8 @@ public class ActivityDialog extends EntityDialog
         op2.add(descriptionTF); 
         
         DateChangeListener dateListener = new DateChangeListener();
+        TimeChangeListener timeListener = new TimeChangeListener();
+        DateTimeActionListener timeActionListner = new DateTimeActionListener();
     
         JPanel startTimePanel = new JPanel();
         startTimePanel.setLayout(new BoxLayout(startTimePanel, BoxLayout.X_AXIS));
@@ -104,9 +118,12 @@ public class ActivityDialog extends EntityDialog
         startDC.setEnabled(false);
         startDC.getDateEditor().addPropertyChangeListener(dateListener);
         
-        startTimeSpinner = new JSpinner( new SpinnerDateModel() );
-        JSpinner.DateEditor startTimeEditor = new JSpinner.DateEditor(startTimeSpinner, "hh:mm a");
+        startTimeSpinner = new JSpinner( new SpinnerDateModel());
+        startTimeSpinner.setMinimumSize(new Dimension(96, 48));
+        JSpinner.DateEditor startTimeEditor = new JSpinner.DateEditor(startTimeSpinner, "h:mm a");
         startTimeSpinner.setEditor(startTimeEditor);
+        startTimeTF = startTimeEditor.getTextField();
+        startTimeTF.getDocument().addDocumentListener(timeListener);
         
         startTimePanel.setBorder(BorderFactory.createTitledBorder("Activity Start"));
         startTimePanel.add(startDC);
@@ -120,8 +137,11 @@ public class ActivityDialog extends EntityDialog
         endDC.getDateEditor().addPropertyChangeListener(dateListener);
         
         endTimeSpinner = new JSpinner( new SpinnerDateModel());
-        JSpinner.DateEditor endTimeEditor = new JSpinner.DateEditor(endTimeSpinner, "hh:mm a");
+        endTimeSpinner.setMinimumSize(new Dimension(96, 48));
+        JSpinner.DateEditor endTimeEditor = new JSpinner.DateEditor(endTimeSpinner, "h:mm a");
         endTimeSpinner.setEditor(endTimeEditor);
+        endTimeTF = endTimeEditor.getTextField();
+        endTimeTF.getDocument().addDocumentListener(timeListener);
         
         endTimePanel.setBorder(BorderFactory.createTitledBorder("Activity End"));
         endTimePanel.add(endDC);
@@ -158,6 +178,12 @@ public class ActivityDialog extends EntityDialog
         
         btnCancel.setText("Cancel Add New Activity");
     	btnCancel.setToolTipText("Click to cancel adding a new activity");
+    	
+    	btnSaveTimeChanges = new JButton("Save Time Changes");
+    	btnSaveTimeChanges.setToolTipText("Click to save changes made to activity start or end times");
+    	btnSaveTimeChanges.setEnabled(false);
+    	btnSaveTimeChanges.addActionListener(timeActionListner);
+    	cntlPanel.add(btnSaveTimeChanges);
 
     	//add the panels to the content pane
         contentPane.add(nav);
@@ -182,15 +208,14 @@ public class ActivityDialog extends EntityDialog
 		if(!nameTF.getText().equals(currActivity.getName())) { reqUpdateAct.setName(nameTF.getText()); bCD = bCD | 2; }
 		if(!locationTF.getText().equals(currActivity.getLocation())) { reqUpdateAct.setLocation(locationTF.getText()); bCD = bCD | 4; }
 		if(!descriptionTF.getText().equals(currActivity.getDescription())) { reqUpdateAct.setDescription(descriptionTF.getText()); bCD = bCD | 8; }
-		if(hasDateChanged())
-		{ 
-			reqUpdateAct.setStartTime(convertLocalCalendarToGMT(startDC.getCalendar()));
-			reqUpdateAct.setEndTime(convertLocalCalendarToGMT(endDC.getCalendar()));
-			bCD = bCD | 16;
-		}
+		if(!dateFormatter.format(startDC.getDate()).equals(currActivity.getStartDate())) { reqUpdateAct.setStartDate(dateFormatter.format(startDC.getDate())); bCD = 16; }
+		if(!startTimeTF.getText().equals(currActivity.getStartTime())) { reqUpdateAct.setStartTime(startTimeTF.getText()); bCD = bCD | 32; }
+		if(!dateFormatter.format(endDC.getDate()).equals(currActivity.getEndDate())) { reqUpdateAct.setEndDate(dateFormatter.format(startDC.getDate())); bCD = 16; }
+		if(!endTimeTF.getText().equals(currActivity.getEndTime())) { reqUpdateAct.setEndTime(endTimeTF.getText()); bCD = bCD | 128; }
 		
 		if(bCD > 0)	//If an update to organization data (not stop light data) was detected
 		{
+//			System.out.println(String.format("ActDlg.update: bCD= %d", bCD));
 			reqUpdateAct.setDateChanged(gvs.getTodaysDate());
 			
 			//request an update from the server
@@ -238,14 +263,32 @@ public class ActivityDialog extends EntityDialog
 			nameTF.setText(currActivity.getName());
 			nameTF.setCaretPosition(0);
 			
-			startDC.setCalendar(convertDOBFromGMT(currActivity.getStartTimeInMillis()));
-			startTimeSpinner.setValue(currActivity.getStartTime().getTime());
+			SimpleDateFormat combinedSDF = new SimpleDateFormat("M/d/yy h:mm a", Locale.US);
+			Calendar startCal = Calendar.getInstance();
+			Calendar endCal = Calendar.getInstance();
 			
-			endDC.setCalendar(convertDOBFromGMT(currActivity.getEndTimeInMillis()));
-			endTimeSpinner.setValue(currActivity.getEndTime().getTime());
+			try 
+			{
+				startCal.setTime(dateFormatter.parse(currActivity.getStartDate()));
+				startDC.setCalendar(startCal);
+				String startCombined = String.format("%s %s",currActivity.getStartDate(), currActivity.getStartTime());
+				startTimeSpinner.setValue(combinedSDF.parse(startCombined));
 			
-			SimpleDateFormat sdf = new SimpleDateFormat("MMM d h:mm a");
-			lblTimestamp.setText(sdf.format(currActivity.getDateChanged()));
+				endCal.setTime(dateFormatter.parse(currActivity.getEndDate()));	
+				endDC.setCalendar(endCal);
+				String endCombined = String.format("%s %s",currActivity.getEndDate(), currActivity.getEndTime());
+				endTimeSpinner.setValue(combinedSDF.parse(endCombined));
+			}
+			catch (ParseException e)
+			{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+			}		
+			
+			SimpleDateFormat sdf = new SimpleDateFormat("MMM d h:mm a", Locale.US);
+			Calendar localTimeStamp = createLocalCalendarFromGMT(currActivity.getTimeInMillis());
+			lblTimestamp.setText(sdf.format(localTimeStamp.getTime()));
+			
 			lblChangedBy.setText(currActivity.getChangedBy());
 			
 			//Can only delete activity if there are no volunteers
@@ -335,9 +378,8 @@ public class ActivityDialog extends EntityDialog
 	{
 		//construct a new volunteer activity from user input	
 		VolunteerActivity newAct = new VolunteerActivity(-1, categoryTF.getText(), nameTF.getText(),
-					convertLocalCalendarToGMT(startDC.getCalendar()), 
-					convertLocalCalendarToGMT(endDC.getCalendar()),
-					locationTF.getText(), descriptionTF.getText(), userDB.getUserLNFI()); 
+					"1/1/00", "12:00 AM", "1/1/00", "12:00 AM",
+					locationTF.getText(), descriptionTF.getText(), true, userDB.getUserLNFI()); 
 						
 		//send add request to the local data base
 		String response = activityDB.add(this, newAct);
@@ -386,7 +428,7 @@ public class ActivityDialog extends EntityDialog
 			if(dbe.getSource() != this && dbe.getType().equals("UPDATED_ACTIVITY"))
 			{
 				VolunteerActivity updatedAct = (VolunteerActivity) dbe.getObject1();
-			
+				
 				//If a current activity is being displayed has changed, re-display it
 				if(currActivity != null && currActivity.getID() == updatedAct.getID())
 					display(updatedAct);
@@ -394,6 +436,7 @@ public class ActivityDialog extends EntityDialog
 			else if(dbe.getSource() != this && dbe.getType().equals("ADDED_ACTIVITY"))
 			{
 				VolunteerActivity addedActivity = (VolunteerActivity) dbe.getObject1();
+				
 				//If no activity is being displayed, display the added one
 				if(currActivity == null && activityDB.size() > 0)
 					display(addedActivity);
@@ -489,28 +532,40 @@ public class ActivityDialog extends EntityDialog
 		return EnumSet.of(EntityType.ACTIVITY);
 	}
 	
-	boolean hasDateChanged()
+	boolean hasDateOrTimeChanged()
 	{
-		return convertLocalCalendarToGMT(startDC.getCalendar()) != currActivity.getStartTimeInMillis() ||
-				convertLocalCalendarToGMT(endDC.getCalendar()) != currActivity.getEndTimeInMillis();
+		return currActivity != null && !bIgnoreEvents && !bAddingNewEntity && 
+				(!dateFormatter.format(startDC.getDate()).equals(currActivity.getStartDate()) ||
+				 !dateFormatter.format(endDC.getDate()).equals(currActivity.getEndDate()) ||
+				 !startTimeTF.getText().equals(currActivity.getStartTime()) ||
+				 !endTimeTF.getText().equals(currActivity.getEndTime()));
 	}
-	
-	/****************************************************************************************
-	 * Takes a local time zone Calendar date of birth and returns the date of birth 
-	 * in milliseconds (GMT)
-	 * Calendar object of the date of birth
-	 * @param gmtDOB
-	 * @return
-	 ***************************************************************************************/
-	long convertLocalCalendarToGMT(Calendar localCal)
+
+	//takes the relevant ui components and creates a long that is time in millis UTC
+	long createActivityTime(JDateChooser dc, JSpinner spin)
 	{
-		//gives you the current offset in ms from GMT at the current date
-		localCal.set(Calendar.SECOND, 0);
-		localCal.set(Calendar.MILLISECOND, 0);
+		//get year, month and day from date chooser
+		Calendar newTime = (Calendar) dc.getCalendar().clone();
 		
-		TimeZone tz = localCal.getTimeZone();
-		int offsetFromUTC = tz.getOffset(localCal.getTimeInMillis());
-		return localCal.getTimeInMillis() + offsetFromUTC;
+		//get hour and minute Calendar from spinner
+		Date d = (Date) spin.getValue();
+//		System.out.println(d);
+		
+		Calendar spinCal = Calendar.getInstance();
+		spinCal.setTime(d);
+		
+		//combine the two
+		newTime.set(Calendar.HOUR, spinCal.get(Calendar.HOUR));
+		newTime.set(Calendar.MINUTE, spinCal.get(Calendar.MINUTE));
+		newTime.set(Calendar.SECOND, 0);
+		newTime.set(Calendar.MILLISECOND, 0);
+		
+//		long newTimeInMillisLocal = newTime.getTimeInMillis();
+//		long newTimeInMillisGMT = convertLocalCalendarToGMT(newTime);
+//		System.out.println(String.format("ActDlg.createActTime: local: %d, gmt: %d",
+//				newTimeInMillisLocal, newTimeInMillisGMT));
+		   
+		return newTime.getTimeInMillis();
 	}
 	
 	/****************************************************************************************
@@ -519,7 +574,7 @@ public class ActivityDialog extends EntityDialog
 	 * @param gmt
 	 * @return
 	 ***************************************************************************************/
-	Calendar convertDOBFromGMT(long gmt)
+	Calendar createLocalCalendarFromGMT(long gmt)
 	{
 		//gives you the current offset in ms from GMT at the current date
 		TimeZone tz = TimeZone.getDefault();	//Local time zone
@@ -529,7 +584,9 @@ public class ActivityDialog extends EntityDialog
 		Calendar localCal = Calendar.getInstance();
 		localCal.setTimeInMillis(gmt);
 		localCal.add(Calendar.MILLISECOND, (offsetFromUTC * -1));
-
+		
+//		System.out.println(String.format("ActDlg.createLocalCal: gmt: %d, local %d", gmt, localCal.getTimeInMillis()) + "Cal: " + localCal );
+		
 		return localCal;
 	}
 	
@@ -539,11 +596,47 @@ public class ActivityDialog extends EntityDialog
 		public void propertyChange(PropertyChangeEvent pce)
 		{
 			if(currActivity != null && !bIgnoreEvents && !bAddingNewEntity && 
-			   (pce.getSource() == startDC.getDateEditor() || pce.getSource() == endDC.getDateEditor()) && 
-				"date".equals(pce.getPropertyName()))				  
+				"date".equals(pce.getPropertyName()))
 			{
-				update();
-			}		
+				btnSaveTimeChanges.setEnabled(hasDateOrTimeChanged());
+			}
+		}
+	}
+	
+	private class TimeChangeListener implements DocumentListener
+	{
+		@Override
+		public void changedUpdate(DocumentEvent arg0) 
+		{
+			
+		}
+
+		@Override
+		public void insertUpdate(DocumentEvent arg0) 
+		{
+			//check for time change, if change enable save time change button
+			if(currActivity != null && !bIgnoreEvents && !bAddingNewEntity && 
+				(!startTimeTF.getText().equals(currActivity.getStartTime()) ||
+				 !endTimeTF.getText().equals(currActivity.getEndTime())))
+			{
+				btnSaveTimeChanges.setEnabled(hasDateOrTimeChanged());
+			}
+		}
+
+		@Override
+		public void removeUpdate(DocumentEvent arg0)
+		{
+			
+		}
+	}
+	
+	private class DateTimeActionListener implements ActionListener
+	{
+		@Override
+		public void actionPerformed(ActionEvent ae)
+		{
+			update();
+			btnSaveTimeChanges.setEnabled(false);
 		}
 	}
 }

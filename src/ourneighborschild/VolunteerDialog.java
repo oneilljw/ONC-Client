@@ -714,9 +714,9 @@ public class VolunteerDialog extends EntityDialog
         	else if(col == ACT_NAME_COL)  
         		return act.getName();
         	else if(col == ACT_START_COL)
-        		return act.getStartTime().getTime();
+        		return act.getStartTime();
         	else if (col == ACT_END_COL)
-        		return act.getEndTime().getTime();
+        		return act.getEndTime();
         	else
         		return "Error";
         }
@@ -727,8 +727,6 @@ public class VolunteerDialog extends EntityDialog
         {
         	if(column == PARTICIPATION_COL)
         		return Boolean.class;
-        	else if(column == ACT_START_COL || column == ACT_END_COL)
-        		return Date.class;
         	else
         		return String.class;
         }

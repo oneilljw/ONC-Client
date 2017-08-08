@@ -49,8 +49,10 @@ public class ManageVolDialog extends ONCTableDialog implements ActionListener, L
 	private static final int TIME_COL = 5;
 	
 	private static final int ACT_NAME_COL= 0;
-	private static final int ACT_START_COL = 1;
-	private static final int ACT_END_COL = 2;
+	private static final int ACT_START_DATE_COL = 1;
+	private static final int ACT_START_TIME_COL = 2;
+	private static final int ACT_END_DATE_COL = 3;
+	private static final int ACT_END_TIME_COL = 4;
 	
 	private static final int NUM_VOL_TABLE_ROWS = 12;
 	private static final int NUM_ACT_TABLE_ROWS = 9;
@@ -193,22 +195,18 @@ public class ManageVolDialog extends ONCTableDialog implements ActionListener, L
       	actTableModel = new ActivityTableModel();
       		
       	//create the table
-      	String[] actToolTips = {"Name", "Start Time", "End Time"};
+      	String[] actToolTips = {"Name", "Start Date", "Start Time", "End Date", "End Time"};
       		
       	actTable = new ONCTable(actTableModel, actToolTips, new Color(240,248,255));
 
       	actTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
       		
-      	//set up a cell renderer for the LAST_LOGINS column to display the date 
-      	actTable.getColumnModel().getColumn(ACT_START_COL).setCellRenderer(tableCellRenderer);
-      	actTable.getColumnModel().getColumn(ACT_END_COL).setCellRenderer(tableCellRenderer);
-      		
       	//Set table column widths
       	tablewidth = 0;
-      	int[] act_colWidths = {320, 120, 120};
+      	int[] act_colWidths = {320, 64, 64, 64, 64};
       	for(int col=0; col < act_colWidths.length; col++)
       	{
-      		actTable.getColumnModel().getColumn(col).setPreferredWidth(act_colWidths[col]);
+//      		actTable.getColumnModel().getColumn(col).setPreferredWidth(act_colWidths[col]);
       		tablewidth += act_colWidths[col];
       	}
       	tablewidth += 24; 	//count for vertical scroll bar
@@ -407,7 +405,7 @@ public class ManageVolDialog extends ONCTableDialog implements ActionListener, L
 			//update the table
 			createTableList();
 		}
-		else if(dbe.getSource() != this && dbe.getType().contains("_ACTIVIT"))
+		else if(dbe.getSource() != this && dbe.getType().contains("CATEGOR"))
 		{
 			updateActivityList();
 		}
@@ -525,7 +523,7 @@ public class ManageVolDialog extends ONCTableDialog implements ActionListener, L
 		 */
 		private static final long serialVersionUID = 1L;
 		
-		private String[] columnNames = {"Activity Name", "Start Date/Time", "End Date/Time"};
+		private String[] columnNames = {"Activity Name", "Start Date, StartTime", "End Date, End Time"};
  
         public int getColumnCount() { return columnNames.length; }
  
@@ -539,10 +537,14 @@ public class ManageVolDialog extends ONCTableDialog implements ActionListener, L
         	
         	if(col == ACT_NAME_COL)  
         		return act.getName();
-        	else if(col == ACT_START_COL)
-        		return act.getStartTime().getTime();
-        	else if (col == ACT_END_COL)
-        		return act.getEndTime().getTime();
+        	else if(col == ACT_START_DATE_COL)
+        		return act.getStartDate();
+        	else if(col == ACT_START_TIME_COL)
+        		return act.getStartTime();
+        	else if (col == ACT_END_DATE_COL)
+        		return act.getEndDate();
+        	else if (col == ACT_END_TIME_COL)
+        		return act.getEndTime();
         	else
         		return "Error";
         }
@@ -551,10 +553,7 @@ public class ManageVolDialog extends ONCTableDialog implements ActionListener, L
         @Override
         public Class<?> getColumnClass(int column)
         {
-        	if(column == ACT_START_COL || column == ACT_END_COL)
-        		return Date.class;
-        	else
-        		return String.class;
+        	return String.class;
         }
  
         public boolean isCellEditable(int row, int col)

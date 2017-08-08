@@ -57,6 +57,7 @@ public abstract class ONCEntity extends ONCObject implements Serializable
 	
 	//getters
 	public Date getDateChanged()	{ return dateChanged.getTime(); }
+	public long getTimeInMillis()	{ return dateChanged.getTimeInMillis(); }
 	public String getChangedBy() { return changedBy; }
 	public int getStoplightPos() { return slPos; }
 	public String getStoplightMssg() { return slMssg; }
