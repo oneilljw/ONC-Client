@@ -65,7 +65,7 @@ public class VolunteerActivity extends ONCEntity
 		this.startDate = line[3];
 		this.startTime = line[4];
 		this.endDate = line[5];
-		this.endTime =line[6];
+		this.endTime = line[6];
 		this.location = line[7];
 		this.description = line[8];
 		this.bOpen = !line[9].isEmpty() && line[9].charAt(0) == 'T' ? true : false;
@@ -91,7 +91,7 @@ public class VolunteerActivity extends ONCEntity
 	void setName(String name) { this.name = name; }
 	public void setStartDate(String startDate) { this.startDate = startDate; }
 	public void setStartTime(String startTime) { this.startTime = startTime; }
-	public void setEndDate(String endTime) { this.endTime = endTime; }
+	public void setEndDate(String endDate) { this.endDate = endDate; }
 	public void setEndTime(String endTime) { this.endTime = endTime; }
 	void setLocation(String location) { this.location = location; }
 	void setDescription(String description) { this.description = description; }
@@ -101,7 +101,7 @@ public class VolunteerActivity extends ONCEntity
 	@Override
 	public String[] getExportRow() 
 	{
-		String[] row = new String[15];
+		String[] row = new String[16];
 		
 		row[0] = Integer.toString(id);
 		row[1] = category;
