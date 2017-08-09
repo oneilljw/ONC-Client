@@ -87,8 +87,6 @@ public class VolunteerDialog extends EntityDialog
         nav.setDefaultMssg("Our Neighbor's Child Volunteers");
         nav.setCount1("Attempted: " + Integer.toString(0));
         nav.setCount2("Delivered: " + Integer.toString(0));
-        nav.setNextButtonText("Next Volunteer");
-        nav.setPreviousButtonText("Previous Volunteer");
 
         //Set up driver panel
         entityPanel.setBorder(BorderFactory.createTitledBorder("Volunteer Information"));

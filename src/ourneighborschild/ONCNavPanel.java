@@ -78,14 +78,16 @@ public class ONCNavPanel extends ONCPanel implements ActionListener
 	           	           	
 	    btnNext = new JButton(gvs.getImageIcon(2));
 	    btnNext.setHorizontalTextPosition(JButton.LEFT);
-	    btnNext.setToolTipText("Click to see next ONC Partner");
+	    btnNext.setText(String.format("Next %s", searchableDB.getDBType().toString()));
+	    btnNext.setToolTipText(String.format("Click to see next %s", searchableDB.getDBType().toString()));
 	    btnNext.setEnabled(false);
 	    btnNext.requestFocus();
 	    btnNext.addActionListener(this);
 	               
 	    btnPrevious = new JButton(gvs.getImageIcon(3));
+	    btnPrevious.setText(String.format("Previous %s", searchableDB.getDBType().toString()));
 	    btnPrevious.setHorizontalTextPosition(JButton.RIGHT);
-	    btnPrevious.setToolTipText("Click to see previous ONC Partner");
+	    btnPrevious.setToolTipText(String.format("Click to see previous %s", searchableDB.getDBType().toString()));
 	    btnPrevious.setEnabled(false);
 	    btnPrevious.addActionListener(this);
 	        
@@ -155,8 +157,8 @@ public class ONCNavPanel extends ONCPanel implements ActionListener
 		
 		this.index = index; 
 	}
-	void setNextButtonText(String text) {btnNext.setText(text); }
-	void setPreviousButtonText(String text) {btnPrevious.setText(text); }
+//	void setNextButtonText(String text) {btnNext.setText(text); }
+//	void setPreviousButtonText(String text) {btnPrevious.setText(text); }
 	void btnNextSetEnabled(boolean tf) { btnNext.setEnabled(tf); }
 	void btnPreviousSetEnabled(boolean tf) { btnPrevious.setEnabled(tf); }
 	void setMssg(String mssg) { lblMssg.setText(mssg); }

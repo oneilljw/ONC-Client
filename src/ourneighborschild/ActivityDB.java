@@ -46,14 +46,14 @@ public class ActivityDB extends ONCSearchableDatabase
 		{
 			processUpdatedObject(this, ue.getJson());
 		}
-		else if(ue.getType().equals("ADDED_DRIVER"))
+		else if(ue.getType().equals("ADDED_ACTIVITY"))
 		{
 			processAddedObject(this, ue.getJson());
 		}
-//		else if(ue.getType().equals("DELETED_DRIVER"))
-//		{
-//			processDeletedObject(this, ue.getJson());
-//		}	
+		else if(ue.getType().equals("DELETED_ACTIVITY"))
+		{
+			processDeletedObject(this, ue.getJson());
+		}	
 	}
 	
 	VolunteerActivity getActivity(int id)
@@ -91,8 +91,38 @@ public class ActivityDB extends ONCSearchableDatabase
 	@Override
 	String searchForListItem(ArrayList<Integer> searchAL, String data) 
 	{
-		// TODO Auto-generated method stub
-		return null;
+		searchAL.clear();
+		String searchType = "";
+
+    	if(!data.isEmpty() && isNumeric(data))
+    	{
+    		//If a numeric string, then search for Driver Number match, else search for last name match
+    		searchType = "Activity #";
+    		if(data.matches("-?\\d+(\\.\\d+)?"))
+    		{
+    			int index = 0;
+    			while(index < activityList.size() && activityList.get(index).getID() != Integer.parseInt(data))
+    				index++;
+    			
+    			if(index < activityList.size())
+    				searchAL.add(activityList.get(index).getID());
+    		}
+    	}
+    	else	//search for activity name
+    	{
+    		searchType = "Activities containing";
+			for(VolunteerActivity va:activityList)
+			{
+				if(va.getName().toLowerCase().contains(data.toLowerCase()) ||
+					va.getDescription().toLowerCase().contains(data.toLowerCase()) ||
+					 va.getLocation().toLowerCase().contains(data.toLowerCase()))
+				{
+					searchAL.add(va.getID());
+				}
+			}
+    	}
+    	
+		return searchType;
 	}
 
 	@Override
@@ -208,6 +238,39 @@ public class ActivityDB extends ONCSearchableDatabase
 		{
 			categoryList.add(addedActivity.getCategory());
 			fireDataChanged(this, "UPDATED_CATEGORIES", null);
+		}
+	}
+	
+	String delete(Object source, ONCObject entity)
+	{
+		Gson gson = new Gson();
+		String response = "";
+		
+		response = serverIF.sendRequest("POST<delete_activity>" + 
+											gson.toJson(entity, VolunteerActivity.class));
+		
+		
+		if(response.startsWith("DELETED_ACTIVITY"))
+			processDeletedObject(source, response.substring(16));
+		
+		return response;
+	}
+	
+	void processDeletedObject(Object source, String json)
+	{
+		//remove deleted activity in local data base
+		Gson gson = new Gson();
+		VolunteerActivity deletedAct = gson.fromJson(json, VolunteerActivity.class);
+		
+		int index=0;
+		while(index < activityList.size() && activityList.get(index).getID() != deletedAct.getID())
+			index++;
+		
+		//If deleted activity was found, remove it and notify ui's
+		if(index < activityList.size())
+		{
+			activityList.remove(index);
+			fireDataChanged(source, "DELETED_ACTIVITY", deletedAct);
 		}
 	}
 	

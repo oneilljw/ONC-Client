@@ -85,8 +85,6 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
         nav.setDefaultMssg("Our Neighbor's Child Groups");
         nav.setCount1("Total: " + Integer.toString(0));
         nav.setCount2("Season: " + Integer.toString(0));
-        nav.setNextButtonText("Next Group");
-        nav.setPreviousButtonText("Previous Group");
 
         //set up the edit organization panel
 //      entityPanel.setBorder(BorderFactory.createTitledBorder("Gift Partner Information"));

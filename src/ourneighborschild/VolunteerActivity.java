@@ -21,10 +21,11 @@ public class VolunteerActivity extends ONCEntity
 	private String location;
 	private String description;
 	private boolean bOpen;
+	private boolean bEmailReminder;
 	
 	public VolunteerActivity(int id, String category, String name, String startDate, String startTime,
 								String endDate, String endTime, String location, String description,
-								boolean bOpen, String username) 
+								boolean bOpen, boolean bEmailReminder, String username) 
 	{
 		super(id, new Date(), username, 3, "New Activity", username);
 		this.category = category;
@@ -36,6 +37,7 @@ public class VolunteerActivity extends ONCEntity
 		this.location = location;
 		this.description = description;
 		this.bOpen = bOpen;
+		this.bEmailReminder = bEmailReminder;
 	}
 	
 	public VolunteerActivity(VolunteerActivity activity)
@@ -50,12 +52,13 @@ public class VolunteerActivity extends ONCEntity
 		this.location = activity.location;
 		this.description = activity.description;
 		this.bOpen = activity.bOpen;
+		this.bEmailReminder = activity.bEmailReminder;
 	}
 	
 	public VolunteerActivity(String[] line)
 	{
-		super(Integer.parseInt(line[0]), Long.parseLong(line[10]), line[11],
-				Integer.parseInt(line[12]), line[13], line[14]);
+		super(Integer.parseInt(line[0]), Long.parseLong(line[11]), line[12],
+				Integer.parseInt(line[13]), line[14], line[15]);
 		
 		this.category = line[1];
 		this.name = line[2];
@@ -66,6 +69,7 @@ public class VolunteerActivity extends ONCEntity
 		this.location = line[7];
 		this.description = line[8];
 		this.bOpen = !line[9].isEmpty() && line[9].charAt(0) == 'T' ? true : false;
+		this.bEmailReminder = !line[10].isEmpty() && line[10].charAt(0) == 'T' ? true : false;
 		
 //		System.out.println(String.format("VolAct: id %d, start time %s end time %s", id, startTime, endTime));
 	}
@@ -79,7 +83,8 @@ public class VolunteerActivity extends ONCEntity
 	String getEndTime() { return endTime; }
 	String getLocation() { return location; }
 	String getDescription() { return description; }
-	boolean getOpen() { return bOpen; }
+	boolean isOpen() { return bOpen; }
+	boolean sendReminder() { return bEmailReminder; }
 	
 	//setters
 	void setCategory(String category) { this.category = category; }
@@ -91,6 +96,7 @@ public class VolunteerActivity extends ONCEntity
 	void setLocation(String location) { this.location = location; }
 	void setDescription(String description) { this.description = description; }
 	void setOpen (boolean bOpen) { this.bOpen = bOpen; }
+	void setReminder (boolean bRemind) { this.bEmailReminder = bRemind; }
 
 	@Override
 	public String[] getExportRow() 
@@ -107,11 +113,12 @@ public class VolunteerActivity extends ONCEntity
 		row[7] = location;
 		row[8] = description;
 		row[9] = bOpen ? "T" : "F";
-		row[10] = Long.toString(dateChanged.getTimeInMillis());
-		row[11] = changedBy;
-		row[12] = Integer.toString(slPos);
-		row[13] = slMssg;
-		row[14] = slChangedBy;
+		row[10] = bEmailReminder ? "T" : "F";
+		row[11] = Long.toString(dateChanged.getTimeInMillis());
+		row[12] = changedBy;
+		row[13] = Integer.toString(slPos);
+		row[14] = slMssg;
+		row[15] = slChangedBy;
 		
 		return row;
 	}

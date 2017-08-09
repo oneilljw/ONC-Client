@@ -250,6 +250,23 @@ public class VolunteerDB extends ONCSearchableDatabase
 		}
 	}
 	
+	int getVolunteerCountForActivity(VolunteerActivity va)
+	{
+		int volunteerCount = 0;
+		for(ONCVolunteer v : volunteerList)
+		{
+			List<VolunteerActivity> actList = v.getActivityList();
+			int index = 0;
+			while(index < actList.size() && actList.get(index).getID() != va.getID())
+				index++;
+			
+			if(index < actList.size())
+				volunteerCount++;
+		}
+		
+		return volunteerCount;
+	}
+	
 	void clearDriverData()
 	{
 		volunteerList.clear();

@@ -92,8 +92,6 @@ public class PartnerDialog extends EntityDialog
         nav.setDefaultMssg("Our Neighbor's Child Gift Partners");
         nav.setCount1("Confirmed: " + Integer.toString(0));
         nav.setCount2("Assigned: " + Integer.toString(0));
-        nav.setNextButtonText("Next Partner");
-        nav.setPreviousButtonText("Previous Partner");
 
         //set up the edit organization panel
 //      entityPanel.setBorder(BorderFactory.createTitledBorder("Gift Partner Information"));

@@ -2,7 +2,6 @@ package ourneighborschild;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -11,7 +10,6 @@ import java.beans.PropertyChangeListener;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.EnumSet;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -19,6 +17,8 @@ import java.util.TimeZone;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -26,6 +26,7 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SpinnerDateModel;
+import javax.swing.SwingConstants;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -42,9 +43,11 @@ public class ActivityDialog extends EntityDialog
 	
 	//database references
 	private ActivityDB activityDB;
+	private VolunteerDB volunteerDB;
 
 	//ui components
-	private JLabel lblTimestamp, lblChangedBy;
+	private JLabel lblActID, lblTimestamp, lblChangedBy, lblVolCount;
+	private JCheckBox openCkBox, reminderCkBox;
     private JTextField categoryTF,nameTF, locationTF, descriptionTF;
     private JDateChooser startDC, endDC;
     private JSpinner startTimeSpinner, endTimeSpinner;
@@ -64,6 +67,8 @@ public class ActivityDialog extends EntityDialog
 		if(activityDB != null)
 			activityDB.addDatabaseListener(this);
 		
+		volunteerDB = VolunteerDB.getInstance();
+		
 		currActivity = null;
 		dateFormatter = new SimpleDateFormat("M/d/yy");
         
@@ -71,34 +76,43 @@ public class ActivityDialog extends EntityDialog
         nav = new ONCNavPanel(pf, activityDB);
         nav.setDefaultMssg("Our Neighbor's Child Volunteer Activities");
         nav.setCount1("Activities: " + Integer.toString(0));
-        nav.setCount2("");
-        nav.setNextButtonText("Next Activity");
-        nav.setPreviousButtonText("Previous Activity");
+        nav.setCount2("Volunteers: " + Integer.toString(0));
 
         //Set up driver panel
         entityPanel.setBorder(BorderFactory.createTitledBorder("Activity Description"));
-        JPanel op1 = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JPanel op2 = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel op1 = new JPanel();
+        op1.setLayout(new BoxLayout(op1, BoxLayout.X_AXIS));
+        JPanel op2 = new JPanel();
+        op2.setLayout(new BoxLayout(op2, BoxLayout.X_AXIS));
         JPanel op3 = new JPanel();
         op3.setLayout(new BoxLayout(op3, BoxLayout.X_AXIS));
+        JPanel op4 = new JPanel();
+        op4.setLayout(new BoxLayout(op4, BoxLayout.X_AXIS));
+
+        lblActID = new JLabel("None", SwingConstants.CENTER);
+        lblActID.setBorder(BorderFactory.createTitledBorder("ID"));
+        lblActID.setPreferredSize(new Dimension(48, 48));
        
-        nameTF = new JTextField(32);
+        nameTF = new JTextField();
         nameTF.setBorder(BorderFactory.createTitledBorder("Name"));
+        nameTF.setPreferredSize(new Dimension(304, 48));
         nameTF.addActionListener(dcListener);
         
-        categoryTF = new JTextField(12);
+        categoryTF = new JTextField();
         categoryTF.setText(NO_DATA_MSSG);
         categoryTF.setBorder(BorderFactory.createTitledBorder("Category"));
+        categoryTF.setPreferredSize(new Dimension(96, 48));
         categoryTF.addActionListener(dcListener);
         
-        locationTF = new JTextField(14);
-        locationTF.setToolTipText("Location activity is performed");
-        locationTF.setBorder(BorderFactory.createTitledBorder("Location"));
-        locationTF.addActionListener(dcListener);
-       
+        lblVolCount = new JLabel("None", SwingConstants.CENTER);
+        lblVolCount.setBorder(BorderFactory.createTitledBorder("# Volunteers"));
+        lblVolCount.setToolTipText("Number of volunteers who have signed up for this activity");
+        lblVolCount.setPreferredSize(new Dimension(96, 48));
+        
+        op1.add(lblActID);
         op1.add(nameTF);
         op1.add(categoryTF);
-        op1.add(locationTF);
+        op1.add(lblVolCount);
        
         descriptionTF = new JTextField(62);
         descriptionTF.setToolTipText("Detailed description of activity");
@@ -109,8 +123,8 @@ public class ActivityDialog extends EntityDialog
         
         DateChangeListener dateListener = new DateChangeListener();
         TimeChangeListener timeListener = new TimeChangeListener();
-        DateTimeActionListener timeActionListner = new DateTimeActionListener();
-    
+        ActivityActionListener actActionListener = new ActivityActionListener();
+       
         JPanel startTimePanel = new JPanel();
         startTimePanel.setLayout(new BoxLayout(startTimePanel, BoxLayout.X_AXIS));
         startDC = new JDateChooser(gvs.getTodaysDate());
@@ -125,7 +139,7 @@ public class ActivityDialog extends EntityDialog
         startTimeTF = startTimeEditor.getTextField();
         startTimeTF.getDocument().addDocumentListener(timeListener);
         
-        startTimePanel.setBorder(BorderFactory.createTitledBorder("Activity Start"));
+        startTimePanel.setBorder(BorderFactory.createTitledBorder("Start"));
         startTimePanel.add(startDC);
         startTimePanel.add(startTimeSpinner);
         
@@ -143,10 +157,38 @@ public class ActivityDialog extends EntityDialog
         endTimeTF = endTimeEditor.getTextField();
         endTimeTF.getDocument().addDocumentListener(timeListener);
         
-        endTimePanel.setBorder(BorderFactory.createTitledBorder("Activity End"));
+        endTimePanel.setBorder(BorderFactory.createTitledBorder("End"));
         endTimePanel.add(endDC);
         endTimePanel.add(endTimeSpinner);
+        
+        btnSaveTimeChanges = new JButton("Save Time Changes");
+    	btnSaveTimeChanges.setToolTipText("Click to save changes made to activity start or end times");
+    	btnSaveTimeChanges.setEnabled(false);
+    	btnSaveTimeChanges.addActionListener(actActionListener);
 
+        op3.add(startTimePanel);
+        op3.setBorder(BorderFactory.createTitledBorder("Activity Start & End Dates/Times"));
+        op3.add(endTimePanel);
+        op3.add(btnSaveTimeChanges);
+       
+        locationTF = new JTextField(14);
+        locationTF.setToolTipText("Location activity is performed");
+        locationTF.setBorder(BorderFactory.createTitledBorder("Location"));
+        locationTF.addActionListener(dcListener);
+        
+        JPanel ckBoxPanel = new JPanel();
+        ckBoxPanel.setLayout(new BoxLayout(ckBoxPanel, BoxLayout.Y_AXIS));
+        
+        openCkBox = new JCheckBox("Open to volunteers?");
+        openCkBox.setToolTipText("Check to enable volunteers to sign-up via website");
+        openCkBox.addActionListener(actActionListener);
+        ckBoxPanel.add(openCkBox);
+
+        reminderCkBox = new JCheckBox("Send volunteers a reminder?");
+        reminderCkBox.setToolTipText("Check to automatically generate reminder email 24 hours before start");
+        reminderCkBox.addActionListener(actActionListener);
+        ckBoxPanel.add(reminderCkBox);
+        
         lblTimestamp = new JLabel("0", JLabel.RIGHT);
         lblTimestamp.setPreferredSize(new Dimension (128, 48));
         lblTimestamp.setToolTipText("Date activity last changed");
@@ -156,15 +198,16 @@ public class ActivityDialog extends EntityDialog
         lblChangedBy.setPreferredSize(new Dimension (128, 48));
         lblChangedBy.setToolTipText("ONC Elf who last changed the activity");
         lblChangedBy.setBorder(BorderFactory.createTitledBorder("Last Changed By"));
-
-        op3.add(startTimePanel);
-        op3.add(endTimePanel);
-        op3.add(lblTimestamp);
-        op3.add(lblChangedBy);
+       
+        op4.add(locationTF);
+        op4.add(ckBoxPanel);
+        op4.add(lblTimestamp);
+        op4.add(lblChangedBy);
         
         entityPanel.add(op1);
         entityPanel.add(op2);
         entityPanel.add(op3);
+        entityPanel.add(op4);
         
         //Set up control panel
         btnNew.setText("Add New Activity");
@@ -178,12 +221,6 @@ public class ActivityDialog extends EntityDialog
         
         btnCancel.setText("Cancel Add New Activity");
     	btnCancel.setToolTipText("Click to cancel adding a new activity");
-    	
-    	btnSaveTimeChanges = new JButton("Save Time Changes");
-    	btnSaveTimeChanges.setToolTipText("Click to save changes made to activity start or end times");
-    	btnSaveTimeChanges.setEnabled(false);
-    	btnSaveTimeChanges.addActionListener(timeActionListner);
-    	cntlPanel.add(btnSaveTimeChanges);
 
     	//add the panels to the content pane
         contentPane.add(nav);
@@ -212,6 +249,8 @@ public class ActivityDialog extends EntityDialog
 		if(!startTimeTF.getText().equals(currActivity.getStartTime())) { reqUpdateAct.setStartTime(startTimeTF.getText()); bCD = bCD | 32; }
 		if(!dateFormatter.format(endDC.getDate()).equals(currActivity.getEndDate())) { reqUpdateAct.setEndDate(dateFormatter.format(startDC.getDate())); bCD = 16; }
 		if(!endTimeTF.getText().equals(currActivity.getEndTime())) { reqUpdateAct.setEndTime(endTimeTF.getText()); bCD = bCD | 128; }
+		if(openCkBox.isSelected() != currActivity.isOpen()) { reqUpdateAct.setOpen(openCkBox.isSelected()); bCD = bCD | 256; }
+		if(reminderCkBox.isSelected() != currActivity.sendReminder()) { reqUpdateAct.setReminder(reminderCkBox.isSelected()); bCD = bCD | 512; }
 		
 		if(bCD > 0)	//If an update to organization data (not stop light data) was detected
 		{
@@ -224,6 +263,7 @@ public class ActivityDialog extends EntityDialog
 			if(response.startsWith("UPDATED_ACTIVITY"))
 			{
 				display(reqUpdateAct);
+				btnSaveTimeChanges.setEnabled(false);
 			}
 			else
 			{
@@ -251,17 +291,25 @@ public class ActivityDialog extends EntityDialog
 				currActivity = (VolunteerActivity) activityDB.getObjectAtIndex(0);	
 			else
 				currActivity = (VolunteerActivity) activity;
+			
 			//enable the date choosers
 			startDC.setEnabled(true);
 			endDC.setEnabled(true);
+			
+			//check if activity can be deleted
+			int nVolunteers = volunteerDB.getVolunteerCountForActivity(currActivity);
+			btnDelete.setEnabled(nVolunteers == 0);
 			 
 			//display the current volunteer
 			bIgnoreEvents = true;
 			
+			lblActID.setText(Integer.toString(currActivity.getID()));
 			categoryTF.setText(currActivity.getCategory());
 			categoryTF.setCaretPosition(0);
 			nameTF.setText(currActivity.getName());
 			nameTF.setCaretPosition(0);
+			openCkBox.setSelected(currActivity.isOpen());
+			lblVolCount.setText(Integer.toString(nVolunteers));
 			
 			SimpleDateFormat combinedSDF = new SimpleDateFormat("M/d/yy h:mm a", Locale.US);
 			Calendar startCal = Calendar.getInstance();
@@ -285,17 +333,13 @@ public class ActivityDialog extends EntityDialog
 					e.printStackTrace();
 			}		
 			
+			reminderCkBox.setSelected(currActivity.sendReminder());
+			
 			SimpleDateFormat sdf = new SimpleDateFormat("MMM d h:mm a", Locale.US);
 			Calendar localTimeStamp = createLocalCalendarFromGMT(currActivity.getTimeInMillis());
 			lblTimestamp.setText(sdf.format(localTimeStamp.getTime()));
 			
 			lblChangedBy.setText(currActivity.getChangedBy());
-			
-			//Can only delete activity if there are no volunteers
-//			if(currActivity.getSignIns() == 0 && currActivity.getDelAssigned() == 0)
-//				btnDelete.setEnabled(true);
-//			else
-				btnDelete.setEnabled(false);
 			
 			descriptionTF.setText(currActivity.getDescription());
 			descriptionTF.setCaretPosition(0);
@@ -308,23 +352,30 @@ public class ActivityDialog extends EntityDialog
 			
 			bIgnoreEvents = false;
 		}
+		
+		//update the counts in the nav bar
+		nav.setCount1("Activities: " + Integer.toString(activityDB.size()));
+        nav.setCount2("Volunteers: " + Integer.toString(volunteerDB.size()));
 	}
 	
 	void clear()
 	{
-		categoryTF.setText("");
+		lblActID.setText("");
 		nameTF.setText("");
-		locationTF.setText("");
+		categoryTF.setText("");
+		openCkBox.setSelected(false);
+		descriptionTF.setText("");
 		startDC.setCalendar(Calendar.getInstance());
 		endDC.setCalendar(Calendar.getInstance());
+		locationTF.setText("");
+		reminderCkBox.setSelected(false);
 		lblTimestamp.setText("");
-		lblChangedBy.setText("");	
-		descriptionTF.setText("");
+		lblChangedBy.setText("");
 		nav.clearStoplight();
 		
 		currActivity = null;
 	}
-
+	
 	void onNew()
 	{
 		bAddingNewEntity = true;
@@ -332,54 +383,55 @@ public class ActivityDialog extends EntityDialog
 		nav.navSetEnabled(false);
 		entityPanel.setBorder(BorderFactory.createTitledBorder("Enter New Activities Information"));
 		clear();
+		lblActID.setText("New");
 		entityPanel.setBackground(Color.CYAN);	//Use color to indicate add org mode vs. review mode
 		setControlState();
-		
 	}
 
 	@Override
 	void onDelete()
-	{
-/*	
-		ONCVolunteer delVol = volDB.getObjectAtIndex(nav.getIndex());
+	{	
+		VolunteerActivity delAct = activityDB.getObjectAtIndex(nav.getIndex());
 		
 		//Confirm with the user that the deletion is really intended
-		String confirmMssg = String.format("Are you sure you want to delete %s from the data base?", 
-											delVol.getfName() + " " + delVol.getlName());
+		String confirmMssg = String.format("<html>Are you sure you want to delete<br>%s<br>from the data base?</html>", 
+											delAct.getName());
 	
 		Object[] options= {"Cancel", "Delete"};
 		JOptionPane confirmOP = new JOptionPane(confirmMssg, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION,
 							gvs.getImageIcon(0), options, "Cancel");
-		JDialog confirmDlg = confirmOP.createDialog(this, "*** Confirm Volunteer Database Deletion ***");
+		JDialog confirmDlg = confirmOP.createDialog(this, "*** Confirm Volunteer Activity Deletion ***");
 		confirmDlg.setVisible(true);
 	
 		Object selectedValue = confirmOP.getValue();
 		if(selectedValue != null && selectedValue.toString().equals("Delete"))
 		{
 			//send request to data base
-			String response = volDB.delete(this, delVol);
+			String response = activityDB.delete(this, delAct);
 			
-			if(response.startsWith("DELETED_DRIVER"))
+			if(response.startsWith("DELETED_ACTIVITY"))
 			{
-				processDeletedEntity(volDB);
+				processDeletedEntity(activityDB);
 			}
 			else
 			{
-				String err_mssg = "ONC Server denied volunteer deletion request, try again later";
-				JOptionPane.showMessageDialog(this, err_mssg, "Delete Volunteer Request Failure",
+				String err_mssg = "ONC Server denied activity deletion request, try again later";
+				JOptionPane.showMessageDialog(this, err_mssg, "Delete ActivityRequest Failure",
 												JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
 				display(currActivity);
 			}
-		}
-*/		
+		}		
 	}
 	
 	void onSaveNew()
 	{
 		//construct a new volunteer activity from user input	
 		VolunteerActivity newAct = new VolunteerActivity(-1, categoryTF.getText(), nameTF.getText(),
-					"1/1/00", "12:00 AM", "1/1/00", "12:00 AM",
-					locationTF.getText(), descriptionTF.getText(), true, userDB.getUserLNFI()); 
+					dateFormatter.format(startDC.getDate()), startTimeTF.getText(),
+					dateFormatter.format(endDC.getDate()), endTimeTF.getText(),
+					locationTF.getText(), descriptionTF.getText(), 
+					openCkBox.isSelected(), reminderCkBox.isSelected(),
+					userDB.getUserLNFI()); 
 						
 		//send add request to the local data base
 		String response = activityDB.add(this, newAct);
@@ -440,6 +492,12 @@ public class ActivityDialog extends EntityDialog
 				//If no activity is being displayed, display the added one
 				if(currActivity == null && activityDB.size() > 0)
 					display(addedActivity);
+				else
+				{
+					//update the counts in the nav bar
+					nav.setCount1("Activities: " + Integer.toString(activityDB.size()));
+			        nav.setCount2("Volunteers: " + Integer.toString(volunteerDB.size()));
+				}
 			}
 			else if(dbe.getSource() != this && dbe.getType().equals("DELETED_ACTIVITY"))
 			{
@@ -452,6 +510,10 @@ public class ActivityDialog extends EntityDialog
 					nav.setIndex(0);
 					clear();
 					btnDelete.setEnabled(false);
+					
+					//update the counts in the nav bar
+					nav.setCount1("Activities: " + Integer.toString(activityDB.size()));
+			        nav.setCount2("Volunteers: " + Integer.toString(volunteerDB.size()));
 				}
 				else
 				{
@@ -464,6 +526,12 @@ public class ActivityDialog extends EntityDialog
 							nav.setIndex(nav.getIndex() - 1);
 					
 						display(activityDB.getActivity(nav.getIndex()));
+					}
+					else
+					{
+						//update the counts in the nav bar
+						nav.setCount1("Activities: " + Integer.toString(activityDB.size()));
+				        nav.setCount2("Volunteers: " + Integer.toString(volunteerDB.size()));
 					}
 				}
 			}
@@ -541,33 +609,6 @@ public class ActivityDialog extends EntityDialog
 				 !endTimeTF.getText().equals(currActivity.getEndTime()));
 	}
 
-	//takes the relevant ui components and creates a long that is time in millis UTC
-	long createActivityTime(JDateChooser dc, JSpinner spin)
-	{
-		//get year, month and day from date chooser
-		Calendar newTime = (Calendar) dc.getCalendar().clone();
-		
-		//get hour and minute Calendar from spinner
-		Date d = (Date) spin.getValue();
-//		System.out.println(d);
-		
-		Calendar spinCal = Calendar.getInstance();
-		spinCal.setTime(d);
-		
-		//combine the two
-		newTime.set(Calendar.HOUR, spinCal.get(Calendar.HOUR));
-		newTime.set(Calendar.MINUTE, spinCal.get(Calendar.MINUTE));
-		newTime.set(Calendar.SECOND, 0);
-		newTime.set(Calendar.MILLISECOND, 0);
-		
-//		long newTimeInMillisLocal = newTime.getTimeInMillis();
-//		long newTimeInMillisGMT = convertLocalCalendarToGMT(newTime);
-//		System.out.println(String.format("ActDlg.createActTime: local: %d, gmt: %d",
-//				newTimeInMillisLocal, newTimeInMillisGMT));
-		   
-		return newTime.getTimeInMillis();
-	}
-	
 	/****************************************************************************************
 	 * Takes the time milliseconds (GMT) and returns a local time zone 
 	 * Calendar object of the date
@@ -584,9 +625,7 @@ public class ActivityDialog extends EntityDialog
 		Calendar localCal = Calendar.getInstance();
 		localCal.setTimeInMillis(gmt);
 		localCal.add(Calendar.MILLISECOND, (offsetFromUTC * -1));
-		
-//		System.out.println(String.format("ActDlg.createLocalCal: gmt: %d, local %d", gmt, localCal.getTimeInMillis()) + "Cal: " + localCal );
-		
+	
 		return localCal;
 	}
 	
@@ -630,13 +669,13 @@ public class ActivityDialog extends EntityDialog
 		}
 	}
 	
-	private class DateTimeActionListener implements ActionListener
+	private class ActivityActionListener implements ActionListener
 	{
 		@Override
 		public void actionPerformed(ActionEvent ae)
-		{
-			update();
-			btnSaveTimeChanges.setEnabled(false);
-		}
+		{	
+			if(currActivity != null && !bIgnoreEvents && !bAddingNewEntity)
+				update();
+		}	
 	}
 }
