@@ -26,7 +26,6 @@ public class ONCVolunteer extends ONCEntity implements Comparable<ONCVolunteer>
 	private String cellPhone;
 	private List<VolunteerActivity>  activityList;
 	private String group;
-	private String comment;
 	private int qty;
 	private int delAssigned;
 	private int signIns;
@@ -50,7 +49,6 @@ public class ONCVolunteer extends ONCEntity implements Comparable<ONCVolunteer>
 		this.cellPhone = cellPhone;
 		this.activityList = new LinkedList<VolunteerActivity>();
 		this.group = group;
-		this.comment = comment;
 		this.qty = qty.isEmpty() ? 0 : Integer.parseInt(qty);
 		this.delAssigned = 0;
 		this.signIns = 0;
@@ -75,7 +73,6 @@ public class ONCVolunteer extends ONCEntity implements Comparable<ONCVolunteer>
 		this.cellPhone = cellPhone;
 		this.activityList = actList;
 		this.group = group;
-		this.comment = comment;
 		this.qty = qty.isEmpty() ? 0 : Integer.parseInt(qty);
 		this.delAssigned = 0;
 		this.signIns = 0;
@@ -140,7 +137,7 @@ public class ONCVolunteer extends ONCEntity implements Comparable<ONCVolunteer>
 		}
 		this.activityList = new LinkedList<VolunteerActivity>();
 		this.group = "Self";
-		this.comment = nextLine[9];
+//		this.comment = nextLine[9];
 		this.delAssigned = 0;
 		this.signIns = 0;
 	}
@@ -171,7 +168,7 @@ public class ONCVolunteer extends ONCEntity implements Comparable<ONCVolunteer>
 		cellPhone = getDBString(nextLine[11]);
 		activityList = volActList;
 		group = getDBString(nextLine[13]);
-		comment = getDBString(nextLine[14]);
+//		comment = getDBString(nextLine[14]);
 		qty = nextLine[15].isEmpty() ? 0 : Integer.parseInt(nextLine[15]);;
 		delAssigned = nextLine[16].isEmpty() ? 0 : Integer.parseInt(nextLine[16]);;
 		signIns = nextLine[17].isEmpty() ? 0 : Integer.parseInt(nextLine[17]);
@@ -198,7 +195,6 @@ public class ONCVolunteer extends ONCEntity implements Comparable<ONCVolunteer>
 			this.activityList.add(activity);
 		
 		group = d.group;
-		comment = d.comment;
 		qty = d.qty;
 		delAssigned = d.delAssigned; 
 		signIns = d.signIns;
@@ -222,7 +218,6 @@ public class ONCVolunteer extends ONCEntity implements Comparable<ONCVolunteer>
 	public String getEmail() { return email; }
 	public String getHomePhone() { return homePhone; }
 	public String getGroup() { return group; }
-	public String getComment() { return comment; }
 	public int getQty() { return qty; }
 	public int getDelAssigned() { return delAssigned; }
 	public int getSignIns() { return signIns; }
@@ -243,7 +238,6 @@ public class ONCVolunteer extends ONCEntity implements Comparable<ONCVolunteer>
 	public void setCellPhone(String cellPhone) { this.cellPhone = cellPhone; }	
 //	public void setActivityCode(int activityCode) { this.activityCode = activityCode; }
 	public void setGroup(String drl) { this.group = drl; }
-	public void setComment(String c) { this.comment = c; }
 	public void setQtyd(int qty) { this.qty = qty; }
 	public void setDelAssigned(int da) { delAssigned = da; }
 	public void setSignIns(int si) { signIns = si; }
@@ -291,6 +285,15 @@ public class ONCVolunteer extends ONCEntity implements Comparable<ONCVolunteer>
 		return index < activityList.size();
 	}
 	
+	VolunteerActivity getVolunteerActivity(int activityID)
+	{
+		int index = 0;
+		while(index < this.activityList.size() && activityList.get(index).getID() != activityID)
+			index++;
+		
+		return index < activityList.size() ? activityList.get(index) : null;
+	}
+	
 	public void incrementDeliveryCount(int count) { delAssigned += count; }
 	
 //	List<VolunteerActivity> convertActivityStringToList(String zActivities, List<VolunteerActivity> allActList)
@@ -309,7 +312,7 @@ public class ONCVolunteer extends ONCEntity implements Comparable<ONCVolunteer>
 //		return activityList;
 //	}
 	
-	String convertActivityListToString()
+	String convertActivityIDListToString()
 	{
 		if(activityList.isEmpty())
 			return "";
@@ -323,12 +326,34 @@ public class ONCVolunteer extends ONCEntity implements Comparable<ONCVolunteer>
 		}
 	}
 	
+	String convertActivityCommentsToString()
+	{
+		if(activityList.isEmpty())
+			return "";
+		else
+		{
+			StringBuffer activityBuffer = new StringBuffer(getEncodedActivityComment(activityList.get(0)));
+			for(int i=1; i < activityList.size(); i++)
+				activityBuffer.append("_" + getEncodedActivityComment(activityList.get(i)));
+			
+			return activityBuffer.toString();
+		}
+	}
+	
+	String getEncodedActivityComment(VolunteerActivity va)
+	{
+		if(va.getID() < 10) { return "000" + Integer.toString(va.getID()) + va.getComment(); }
+		else if(va.getID() < 100) { return "00" + Integer.toString(va.getID()) + va.getComment(); }
+		else if(va.getID() < 1000) { return "0" + Integer.toString(va.getID()) + va.getComment(); }
+		else { return Integer.toString(va.getID()) + va.getComment(); }
+	}
+	
 	@Override
 	public String[] getExportRow()
 	{
 		String[] row = {Integer.toString(id), drvNum, fName, lName, hNum, street, unit, city, zipcode,
 						email, homePhone, cellPhone, 
-						convertActivityListToString(), group, comment, 
+						convertActivityIDListToString(), group, "", 
 						Integer.toString(qty), Integer.toString(delAssigned), Integer.toString(signIns),
 						Long.toString(dateChanged.getTimeInMillis()), changedBy,  Integer.toString(slPos),
 						slMssg, slChangedBy};

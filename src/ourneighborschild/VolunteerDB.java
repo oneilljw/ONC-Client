@@ -29,7 +29,6 @@ public class VolunteerDB extends ONCSearchableDatabase
 	private static final EntityType DB_TYPE = EntityType.VOLUNTEER;
 	private static final int DRIVER_OBJECT_CSV_HEADER_LENGTH = 18;
 	private static final int ACTIVITY_STRING_COL = 12;
-//	private static final int DRIVER_CSVFILE_HEADER_LENGTH = 20;
 	private static VolunteerDB instance = null;
 	private ActivityDB activityDB;
 	
@@ -357,6 +356,12 @@ public class VolunteerDB extends ONCSearchableDatabase
 
 			if(!response.startsWith("NO_DRIVERS"))
 			{
+//				//debug comment issue
+//				for(ONCVolunteer v : volunteerList)
+//					for(VolunteerActivity va : v.getActivityList())
+//						System.out.println(String.format("VolDB.import: v name: %s, v act: %s, act comment %s",
+//								v.getfName(), va.getName(), va.getComment()));
+				
 				response =  "DRIVERS_LOADED";
 				fireDataChanged(this, "LOADED_DRIVERS", null);
 			}

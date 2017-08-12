@@ -20,11 +20,13 @@ public class VolunteerActivity extends ONCEntity
 	private String endTime;
 	private String location;
 	private String description;
+	private String volComment;	//personalized by each volunteer for each of their activities
 	private boolean bOpen;
 	private boolean bEmailReminder;
 	
 	public VolunteerActivity(int id, String category, String name, String startDate, String startTime,
 								String endDate, String endTime, String location, String description,
+								String volComment,
 								boolean bOpen, boolean bEmailReminder, String username) 
 	{
 		super(id, new Date(), username, 3, "New Activity", username);
@@ -36,6 +38,7 @@ public class VolunteerActivity extends ONCEntity
 		this.endTime = endTime;
 		this.location = location;
 		this.description = description;
+		this.volComment = volComment;
 		this.bOpen = bOpen;
 		this.bEmailReminder = bEmailReminder;
 	}
@@ -51,6 +54,7 @@ public class VolunteerActivity extends ONCEntity
 		this.endTime = activity.endTime;
 		this.location = activity.location;
 		this.description = activity.description;
+		this.volComment = activity.volComment;
 		this.bOpen = activity.bOpen;
 		this.bEmailReminder = activity.bEmailReminder;
 	}
@@ -68,6 +72,7 @@ public class VolunteerActivity extends ONCEntity
 		this.endTime = line[6];
 		this.location = line[7];
 		this.description = line[8];
+		this.volComment = "";
 		this.bOpen = !line[9].isEmpty() && line[9].charAt(0) == 'T' ? true : false;
 		this.bEmailReminder = !line[10].isEmpty() && line[10].charAt(0) == 'T' ? true : false;
 		
@@ -83,6 +88,7 @@ public class VolunteerActivity extends ONCEntity
 	String getEndTime() { return endTime; }
 	String getLocation() { return location; }
 	String getDescription() { return description; }
+	public String getComment() { return volComment; }
 	boolean isOpen() { return bOpen; }
 	boolean sendReminder() { return bEmailReminder; }
 	
@@ -94,6 +100,7 @@ public class VolunteerActivity extends ONCEntity
 	public void setEndDate(String endDate) { this.endDate = endDate; }
 	public void setEndTime(String endTime) { this.endTime = endTime; }
 	void setLocation(String location) { this.location = location; }
+	public void setComment(String volComment) { this.volComment = volComment; }
 	void setDescription(String description) { this.description = description; }
 	void setOpen (boolean bOpen) { this.bOpen = bOpen; }
 	void setReminder (boolean bRemind) { this.bEmailReminder = bRemind; }

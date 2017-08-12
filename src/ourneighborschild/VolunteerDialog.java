@@ -43,6 +43,7 @@ public class VolunteerDialog extends EntityDialog
 	private static final int ACT_NAME_COL= 1;
 	private static final int ACT_START_COL = 2;
 	private static final int ACT_END_COL = 3;
+	private static final int ACT_COMMENT_COL = 4;
 	private static final int NUM_ACT_TABLE_ROWS = 9;
 	
 	//database references
@@ -52,7 +53,7 @@ public class VolunteerDialog extends EntityDialog
 
 	//ui components
 	private JLabel lblFamDel, lblSignIns, lblLastSignIn, lblQty;
-    private JTextField drvNumTF, firstnameTF,lastnameTF, groupTF, commentTF;
+    private JTextField drvNumTF, firstnameTF,lastnameTF, groupTF;
     private JTextField streetnumTF, streetnameTF, unitTF, cityTF, zipTF, hPhoneTF, cPhoneTF;
     private JTextField emailTF;
     private JRadioButton btnSignInHistory;
@@ -200,21 +201,14 @@ public class VolunteerDialog extends EntityDialog
         op3.add(zipTF);
         op3.add(lblFamDel);
         op3.add(btnSignInHistory);
-                
-        commentTF = new JTextField(50);
-//      commentTF.setPreferredSize(new Dimension (600, 48));
-        commentTF.setToolTipText("Last comment from volunteer");
-        commentTF.setBorder(BorderFactory.createTitledBorder("Last Volunteer Comment"));
-        commentTF.addActionListener(dcListener);
-       
-        op4.add(commentTF);
-        
+
         //create the activity table
       	actTableModel = new ActivityTableModel();
       		
       	//create the table
       	String[] actToolTips = {"A check indicates volunteer will participate in this activity",
-      							"Activity Name", "Start Time", "End Time"};
+      							"Activity Name", "Start Time", "End Time",
+      							"Comment from volunteer"};
       		
       	actTable = new ONCTable(actTableModel, actToolTips, new Color(240,248,255));
 
@@ -241,13 +235,13 @@ public class VolunteerDialog extends EntityDialog
       		
       	//Set table column widths
       	int tablewidth = 0;
-      	int[] act_colWidths = {48, 192, 104, 104};
+      	int[] act_colWidths = {56, 240, 128, 128, 240};
       	for(int col=0; col < act_colWidths.length; col++)
       	{
       		actTable.getColumnModel().getColumn(col).setPreferredWidth(act_colWidths[col]);
       		tablewidth += act_colWidths[col];
       	}
-      	tablewidth += 24; 	//count for vertical scroll bar
+      	tablewidth += 28; 	//count for vertical scroll bar
       		
       	JTableHeader anHeader = actTable.getTableHeader();
         anHeader.setForeground( Color.black);
@@ -293,7 +287,7 @@ public class VolunteerDialog extends EntityDialog
         //add the content pane to the dialog and arrange
         this.setContentPane(contentPane);
         pack();
-        setResizable(true);
+//      setResizable(true);
         Point pt = pf.getLocation();
         setLocation(pt.x + 20, pt.y + 20);
 	}
@@ -324,7 +318,6 @@ public class VolunteerDialog extends EntityDialog
 		if(!unitTF.getText().equals(updateVol.getUnit())) { updateVol.setUnit(unitTF.getText()); bCD = bCD | 512; }
 		if(!cityTF.getText().equals(updateVol.getCity())) { updateVol.setCity(cityTF.getText()); bCD = bCD | 1024; }
 		if(!zipTF.getText().equals(updateVol.getZipcode())) { updateVol.setZipcode(zipTF.getText()); bCD = bCD | 2048; }
-		if(!commentTF.getText().equals(updateVol.getComment())) { updateVol.setComment(commentTF.getText()); bCD = bCD | 4096; }
 //		if(generateActivityCode() != updateVol.getActivityCode()) { updateVol.setActivityCode(generateActivityCode()); bCD = bCD | 8192; }
 		
 		if(bCD > 0)	//If an update to organization data (not stop light data) was detected
@@ -402,7 +395,6 @@ public class VolunteerDialog extends EntityDialog
 			zipTF.setText(currVolunteer.getZipcode());
 			
 			groupTF.setText(currVolunteer.getGroup());
-			commentTF.setText(currVolunteer.getComment());
 			
 			SimpleDateFormat sdf = new SimpleDateFormat("M/dd h:mm");
 			lblLastSignIn.setText(currVolunteer.getSignIns() == 0 ? "Never" : sdf.format(currVolunteer.getDateChanged()));
@@ -427,7 +419,6 @@ public class VolunteerDialog extends EntityDialog
 		lblQty.setText("0");
 		lblFamDel.setText("0");
 		lblSignIns.setText("0");
-		commentTF.setText("");
 		groupTF.setText("");
 		hPhoneTF.setText("");
 		cPhoneTF.setText("");
@@ -693,7 +684,7 @@ public class VolunteerDialog extends EntityDialog
 		 */
 		private static final long serialVersionUID = 1L;
 		
-		private String[] columnNames = {"Participating?", "Activity Name", "Start Date/Time", "End Date/Time"};
+		private String[] columnNames = {"Vol For?", "Activity Name", "Start Date/Time", "End Date/Time", "Comment"};
  
         public int getColumnCount() { return columnNames.length; }
  
@@ -703,18 +694,19 @@ public class VolunteerDialog extends EntityDialog
  
         public Object getValueAt(int row, int col)
         {
-        	@SuppressWarnings("unchecked")
-			List<VolunteerActivity> activityList = (List<VolunteerActivity>) activityDB.getList();
-        	VolunteerActivity act = activityList.get(row);
+        	VolunteerActivity act = (VolunteerActivity) activityDB.getList().get(row);
+        	VolunteerActivity volAct = currVolunteer != null ? currVolunteer.getVolunteerActivity(row) : null;
         	
         	if(col == PARTICIPATION_COL)
-        		return currVolunteer != null && currVolunteer.isVolunteeringFor(row);
+        		return volAct != null;
         	else if(col == ACT_NAME_COL)  
         		return act.getName();
         	else if(col == ACT_START_COL)
-        		return act.getStartTime();
+        		return act.getStartDate() + " " + act.getStartTime();
         	else if (col == ACT_END_COL)
-        		return act.getEndTime();
+        		return act.getEndDate() + " " + act.getEndTime();
+        	else if (col == ACT_COMMENT_COL)
+        		return volAct != null ? volAct.getComment() : "";
         	else
         		return "Error";
         }
@@ -760,7 +752,6 @@ public class VolunteerDialog extends EntityDialog
         		reqUpdateVol.setUnit(unitTF.getText());
         		reqUpdateVol.setCity(cityTF.getText());
         		reqUpdateVol.setZipcode(zipTF.getText());
-        		reqUpdateVol.setComment(commentTF.getText());
         		if((Boolean) value)
         			reqUpdateVol.addActivity(act);
         		else
