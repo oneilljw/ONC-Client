@@ -8,6 +8,7 @@ import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
@@ -55,7 +56,7 @@ public class VolunteerDialog extends EntityDialog
 	private JLabel lblFamDel, lblSignIns, lblLastSignIn, lblQty;
     private JTextField drvNumTF, firstnameTF,lastnameTF, groupTF;
     private JTextField streetnumTF, streetnameTF, unitTF, cityTF, zipTF, hPhoneTF, cPhoneTF;
-    private JTextField emailTF;
+    private JTextField emailTF, commentTF;
     private JRadioButton btnSignInHistory;
     
     private ONCTable actTable;
@@ -121,11 +122,23 @@ public class VolunteerDialog extends EntityDialog
         lblQty.setToolTipText("# in group");
         lblQty.setBorder(BorderFactory.createTitledBorder("Qty"));
         
+        lblSignIns = new JLabel("0", JLabel.RIGHT);
+        lblSignIns.setPreferredSize(new Dimension (72, 48));
+        lblSignIns.setToolTipText("# Warehouse Sign-Ins");
+        lblSignIns.setBorder(BorderFactory.createTitledBorder("Sign-Ins"));
+        
+        lblLastSignIn = new JLabel("Never");
+        lblLastSignIn.setPreferredSize(new Dimension (104, 48));
+        lblLastSignIn.setToolTipText("Last time volunteer signed into the warehouse");
+        lblLastSignIn.setBorder(BorderFactory.createTitledBorder("Last Sign In"));
+        
         op1.add(drvNumTF);
         op1.add(firstnameTF);
         op1.add(lastnameTF);
         op1.add(groupTF);
         op1.add(lblQty);
+        op1.add(lblSignIns);
+        op1.add(lblLastSignIn);
         
         hPhoneTF = new JTextField(8);
         hPhoneTF.setToolTipText("Volunteer home phone #");
@@ -143,22 +156,17 @@ public class VolunteerDialog extends EntityDialog
         emailTF.setHorizontalAlignment(JTextField.LEFT);
         emailTF.addActionListener(dcListener);
         
-        lblSignIns = new JLabel("0", JLabel.RIGHT);
-        lblSignIns.setPreferredSize(new Dimension (72, 48));
-        lblSignIns.setToolTipText("# Warehouse Sign-Ins");
-        lblSignIns.setBorder(BorderFactory.createTitledBorder("Sign-Ins"));
-        
-        lblLastSignIn = new JLabel("Never");
-        lblLastSignIn.setPreferredSize(new Dimension (104, 48));
-        lblLastSignIn.setToolTipText("Last time volunteer signed into the warehouse");
-        lblLastSignIn.setBorder(BorderFactory.createTitledBorder("Last Sign In"));
+        commentTF = new JTextField(30);
+        commentTF.setToolTipText("Volunteer comment");
+        commentTF.setBorder(BorderFactory.createTitledBorder("Volunteer Comment"));
+        commentTF.setHorizontalAlignment(JTextField.LEFT);
+        commentTF.addActionListener(dcListener);
       
         op2.add(hPhoneTF);
         op2.add(cPhoneTF);
         op2.add(emailTF);
-        op2.add(lblSignIns);
-        op2.add(lblLastSignIn);
- 
+        op2.add(commentTF);
+       
         streetnumTF = new JTextField(4);
         streetnumTF.setToolTipText("Address of Volunteer");
         streetnumTF.setBorder(BorderFactory.createTitledBorder("St. #"));
@@ -313,11 +321,12 @@ public class VolunteerDialog extends EntityDialog
 		if(!hPhoneTF.getText().equals(updateVol.getHomePhone())) { updateVol.setHomePhone(hPhoneTF.getText()); bCD = bCD | 16; }
 		if(!cPhoneTF.getText().equals(updateVol.getCellPhone())) { updateVol.setCellPhone(cPhoneTF.getText()); bCD = bCD | 32; }
 		if(!emailTF.getText().equals(updateVol.getEmail())) { updateVol.setEmail(emailTF.getText()); bCD = bCD | 64; }
-		if(!streetnumTF.getText().equals(updateVol.gethNum())) { updateVol.sethNum(streetnumTF.getText()); bCD = bCD | 128; }
-		if(!streetnameTF.getText().equals(updateVol.getStreet())) { updateVol.setStreet(streetnameTF.getText()); bCD = bCD | 256; }		
-		if(!unitTF.getText().equals(updateVol.getUnit())) { updateVol.setUnit(unitTF.getText()); bCD = bCD | 512; }
-		if(!cityTF.getText().equals(updateVol.getCity())) { updateVol.setCity(cityTF.getText()); bCD = bCD | 1024; }
-		if(!zipTF.getText().equals(updateVol.getZipcode())) { updateVol.setZipcode(zipTF.getText()); bCD = bCD | 2048; }
+		if(!commentTF.getText().equals(updateVol.getComment())) { updateVol.setComment(commentTF.getText()); bCD = bCD | 128; }
+		if(!streetnumTF.getText().equals(updateVol.gethNum())) { updateVol.sethNum(streetnumTF.getText()); bCD = bCD | 512; }
+		if(!streetnameTF.getText().equals(updateVol.getStreet())) { updateVol.setStreet(streetnameTF.getText()); bCD = bCD | 1024; }		
+		if(!unitTF.getText().equals(updateVol.getUnit())) { updateVol.setUnit(unitTF.getText()); bCD = bCD | 2048; }
+		if(!cityTF.getText().equals(updateVol.getCity())) { updateVol.setCity(cityTF.getText()); bCD = bCD | 4096; }
+		if(!zipTF.getText().equals(updateVol.getZipcode())) { updateVol.setZipcode(zipTF.getText()); bCD = bCD | 8192; }
 //		if(generateActivityCode() != updateVol.getActivityCode()) { updateVol.setActivityCode(generateActivityCode()); bCD = bCD | 8192; }
 		
 		if(bCD > 0)	//If an update to organization data (not stop light data) was detected
@@ -373,6 +382,8 @@ public class VolunteerDialog extends EntityDialog
 			lastnameTF.setCaretPosition(0);
 			emailTF.setText(currVolunteer.getEmail());
 			emailTF.setCaretPosition(0);
+			commentTF.setText(currVolunteer.getComment());
+			commentTF.setCaretPosition(0);
 			hPhoneTF.setText(currVolunteer.getHomePhone());
 			hPhoneTF.setCaretPosition(0);
 			cPhoneTF.setText(currVolunteer.getCellPhone());
@@ -422,7 +433,8 @@ public class VolunteerDialog extends EntityDialog
 		groupTF.setText("");
 		hPhoneTF.setText("");
 		cPhoneTF.setText("");
-		emailTF.setText("");		
+		emailTF.setText("");
+		commentTF.setText("");
 		streetnumTF.setText("");
 		streetnameTF.setText("");
 		unitTF.setText("");
@@ -489,8 +501,8 @@ public class VolunteerDialog extends EntityDialog
 		ONCVolunteer newVol = new ONCVolunteer(-1, "N/A", firstnameTF.getText(), lastnameTF.getText(),
 					emailTF.getText(), streetnumTF.getText(), streetnameTF.getText(), 
 					unitTF.getText(), cityTF.getText(), zipTF.getText(), 
-					hPhoneTF.getText(), cPhoneTF.getText(), "1", "", "",
-					new Date(), userDB.getUserLNFI());
+					hPhoneTF.getText(), cPhoneTF.getText(), "1", "", commentTF.getText(),
+					new ArrayList<VolunteerActivity>(), new Date(), userDB.getUserLNFI());
 						
 		//send add request to the local data base
 		String response = volDB.add(this, newVol);
@@ -747,6 +759,7 @@ public class VolunteerDialog extends EntityDialog
         		reqUpdateVol.setHomePhone(hPhoneTF.getText());
         		reqUpdateVol.setCellPhone(cPhoneTF.getText());
         		reqUpdateVol.setEmail(emailTF.getText());
+        		reqUpdateVol.setComment(commentTF.getText());
         		reqUpdateVol.sethNum(streetnumTF.getText());
         		reqUpdateVol.setStreet(streetnameTF.getText());	
         		reqUpdateVol.setUnit(unitTF.getText());

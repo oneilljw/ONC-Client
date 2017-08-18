@@ -89,8 +89,8 @@ public class VolunteerActivity extends ONCEntity
 	String getLocation() { return location; }
 	String getDescription() { return description; }
 	public String getComment() { return volComment; }
-	boolean isOpen() { return bOpen; }
-	boolean sendReminder() { return bEmailReminder; }
+	public boolean isOpen() { return bOpen; }
+	public boolean sendReminder() { return bEmailReminder; }
 	
 	//setters
 	void setCategory(String category) { this.category = category; }

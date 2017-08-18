@@ -24,6 +24,7 @@ public class ONCVolunteer extends ONCEntity implements Comparable<ONCVolunteer>
 	private String email;
 	private String homePhone;
 	private String cellPhone;
+	private String comment;
 	private List<VolunteerActivity>  activityList;
 	private String group;
 	private int qty;
@@ -32,8 +33,9 @@ public class ONCVolunteer extends ONCEntity implements Comparable<ONCVolunteer>
 	
 	public ONCVolunteer(int driverid, String drvNum, String fName, String lName, String email, String hNum, 
 						String street, String unit, String city, String zipcode, 
-						String homePhone, String cellPhone, String qty, String group,
-						String comment, Date today, String changedBy)
+						String homePhone, String cellPhone,
+						String qty, String group, String comment, 
+						List<VolunteerActivity> actList, Date today, String changedBy)
 	{
 		super(driverid, new Date(), changedBy, STOPLIGHT_OFF, "Volunteer added", changedBy);
 		this.drvNum = drvNum;
@@ -47,7 +49,8 @@ public class ONCVolunteer extends ONCEntity implements Comparable<ONCVolunteer>
 		this.zipcode = zipcode;
 		this.homePhone = homePhone;
 		this.cellPhone = cellPhone;
-		this.activityList = new LinkedList<VolunteerActivity>();
+		this.comment = comment;
+		this.activityList = actList;
 		this.group = group;
 		this.qty = qty.isEmpty() ? 0 : Integer.parseInt(qty);
 		this.delAssigned = 0;
@@ -71,6 +74,7 @@ public class ONCVolunteer extends ONCEntity implements Comparable<ONCVolunteer>
 		this.zipcode = zipcode;
 		this.homePhone = homePhone;
 		this.cellPhone = cellPhone;
+		this.comment = comment;
 		this.activityList = actList;
 		this.group = group;
 		this.qty = qty.isEmpty() ? 0 : Integer.parseInt(qty);
@@ -153,8 +157,8 @@ public class ONCVolunteer extends ONCEntity implements Comparable<ONCVolunteer>
 	
 	public ONCVolunteer(String[] nextLine, List<VolunteerActivity> volActList)
 	{
-		super(Integer.parseInt(nextLine[0]), Long.parseLong(nextLine[18]), nextLine[19],
-				Integer.parseInt(nextLine[20]), nextLine[21], nextLine[22]);
+		super(Integer.parseInt(nextLine[0]), Long.parseLong(nextLine[19]), nextLine[20],
+				Integer.parseInt(nextLine[21]), nextLine[22], nextLine[23]);
 		drvNum = getDBString(nextLine[1]);
 		fName = getDBString(nextLine[2]);
 		lName = getDBString(nextLine[3]);
@@ -166,38 +170,39 @@ public class ONCVolunteer extends ONCEntity implements Comparable<ONCVolunteer>
 		email = getDBString(nextLine[9]);
 		homePhone = getDBString(nextLine[10]);
 		cellPhone = getDBString(nextLine[11]);
+		comment = getDBString(nextLine[12]);
 		activityList = volActList;
-		group = getDBString(nextLine[13]);
-//		comment = getDBString(nextLine[14]);
-		qty = nextLine[15].isEmpty() ? 0 : Integer.parseInt(nextLine[15]);;
-		delAssigned = nextLine[16].isEmpty() ? 0 : Integer.parseInt(nextLine[16]);;
-		signIns = nextLine[17].isEmpty() ? 0 : Integer.parseInt(nextLine[17]);
+		group = getDBString(nextLine[14]);
+		qty = nextLine[15].isEmpty() ? 0 : Integer.parseInt(nextLine[16]);;
+		delAssigned = nextLine[17].isEmpty() ? 0 : Integer.parseInt(nextLine[17]);;
+		signIns = nextLine[18].isEmpty() ? 0 : Integer.parseInt(nextLine[18]);
 	}
 	
-	public ONCVolunteer(ONCVolunteer d)	//copy constructor
+	public ONCVolunteer(ONCVolunteer v)	//copy constructor
 	{
-		super(d.getID(), d.getDateChanged(), d.getChangedBy(), d.getStoplightPos(),
-				d.getStoplightMssg(), d.getStoplightChangedBy());
-		drvNum = d.drvNum;
-		fName = d.fName;
-		lName = d.lName;
-		hNum = d.hNum;
-		street = d.street;
-		unit = d.unit;
-		city = d.city;
-		zipcode = d.zipcode;
-		email = d.email;
-		homePhone = d.homePhone;
-		cellPhone = d.cellPhone;
+		super(v.getID(), v.getDateChanged(), v.getChangedBy(), v.getStoplightPos(),
+				v.getStoplightMssg(), v.getStoplightChangedBy());
+		drvNum = v.drvNum;
+		fName = v.fName;
+		lName = v.lName;
+		hNum = v.hNum;
+		street = v.street;
+		unit = v.unit;
+		city = v.city;
+		zipcode = v.zipcode;
+		email = v.email;
+		homePhone = v.homePhone;
+		cellPhone = v.cellPhone;
+		comment = v.comment;
 		
 		this.activityList = new ArrayList<VolunteerActivity>();
-		for(VolunteerActivity activity : d.activityList)
+		for(VolunteerActivity activity : v.activityList)
 			this.activityList.add(activity);
 		
-		group = d.group;
-		qty = d.qty;
-		delAssigned = d.delAssigned; 
-		signIns = d.signIns;
+		group = v.group;
+		qty = v.qty;
+		delAssigned = v.delAssigned; 
+		signIns = v.signIns;
 	}
 	
 	String getDBString(String s)
@@ -217,6 +222,7 @@ public class ONCVolunteer extends ONCEntity implements Comparable<ONCVolunteer>
 	public String getZipcode() { return zipcode; }
 	public String getEmail() { return email; }
 	public String getHomePhone() { return homePhone; }
+	public String getComment() { return comment; }
 	public String getGroup() { return group; }
 	public int getQty() { return qty; }
 	public int getDelAssigned() { return delAssigned; }
@@ -235,8 +241,9 @@ public class ONCVolunteer extends ONCEntity implements Comparable<ONCVolunteer>
 	public void setZipcode(String zipcode) {this.zipcode = zipcode; }
 	public void setEmail(String em) { this.email = em; }
 	public void setHomePhone(String homePhone) { this.homePhone = homePhone; }
-	public void setCellPhone(String cellPhone) { this.cellPhone = cellPhone; }	
-//	public void setActivityCode(int activityCode) { this.activityCode = activityCode; }
+	public void setCellPhone(String cellPhone) { this.cellPhone = cellPhone; }
+	public void setComment(String comment) { this.comment = comment; }
+	public void setActivityList(List<VolunteerActivity> list) { this.activityList = list; }
 	public void setGroup(String drl) { this.group = drl; }
 	public void setQtyd(int qty) { this.qty = qty; }
 	public void setDelAssigned(int da) { delAssigned = da; }
@@ -265,6 +272,12 @@ public class ONCVolunteer extends ONCEntity implements Comparable<ONCVolunteer>
 					
 		if(index < activityList.size())
 			activityList.remove(index);
+	}
+	
+	public boolean doesCellPhoneMatch(String cell)
+	{
+		//first, remove any non digit characters
+		return cell.replaceAll("[\\D]", "").equals(cellPhone.replaceAll("[\\D]", ""));
 	}
 	
 	boolean isVolunteeringFor(String category)
@@ -352,7 +365,7 @@ public class ONCVolunteer extends ONCEntity implements Comparable<ONCVolunteer>
 	public String[] getExportRow()
 	{
 		String[] row = {Integer.toString(id), drvNum, fName, lName, hNum, street, unit, city, zipcode,
-						email, homePhone, cellPhone, 
+						email, homePhone, cellPhone, comment,
 						convertActivityIDListToString(), group, "", 
 						Integer.toString(qty), Integer.toString(delAssigned), Integer.toString(signIns),
 						Long.toString(dateChanged.getTimeInMillis()), changedBy,  Integer.toString(slPos),
