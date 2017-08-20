@@ -31,6 +31,7 @@ public class DialogManager implements EntitySelectionListener
 	private ManageUsersDialog userDlg;
 	private WarehouseSignInDialog signInDlg;
 	private ManageVolDialog manageVolDlg;
+	private ManageActivitiesDialog manageActDlg;
 	private ViewONCDatabaseDialog dbDlg;
 	private PYChildConnectionDialog pyConnectionDlg;
 	private AngelAutoCallDialog angelDlg;
@@ -144,6 +145,10 @@ public class DialogManager implements EntitySelectionListener
     	//Set up the manage volunteer dialog
     	manageVolDlg = new ManageVolDialog(GlobalVariables.getFrame());
     	eeManager.registerEntitySelector(manageVolDlg);
+    	
+    	//Set up the manage activities dialog
+    	manageActDlg = new ManageActivitiesDialog(GlobalVariables.getFrame());
+    	eeManager.registerEntitySelector(manageActDlg);
     	
     	 //Set up the sort family dialog
         sortFamiliesDlg = new SortFamilyDialog(GlobalVariables.getFrame());
@@ -324,6 +329,15 @@ public class DialogManager implements EntitySelectionListener
 		{
 	        manageVolDlg.setLocationRelativeTo(GlobalVariables.getFrame());
 			manageVolDlg.setVisible(true);
+		}
+	}
+	
+	void showManageActDialog()
+	{
+		if(!manageActDlg.isVisible())
+		{
+	        manageActDlg.setLocationRelativeTo(GlobalVariables.getFrame());
+			manageActDlg.setVisible(true);
 		}
 	}
 		

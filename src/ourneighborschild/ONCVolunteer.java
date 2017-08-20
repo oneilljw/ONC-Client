@@ -252,7 +252,7 @@ public class ONCVolunteer extends ONCEntity implements Comparable<ONCVolunteer>
 	
 	
 	//activity list methods
-	void addActivity(VolunteerActivity activity)
+	public void addActivity(VolunteerActivity activity)
 	{
 		//check to see if it's already in the list, otherwise, add it
 		int index = 0;
@@ -366,7 +366,7 @@ public class ONCVolunteer extends ONCEntity implements Comparable<ONCVolunteer>
 	{
 		String[] row = {Integer.toString(id), drvNum, fName, lName, hNum, street, unit, city, zipcode,
 						email, homePhone, cellPhone, comment,
-						convertActivityIDListToString(), group, "", 
+						convertActivityIDListToString(), group, convertActivityCommentsToString(), 
 						Integer.toString(qty), Integer.toString(delAssigned), Integer.toString(signIns),
 						Long.toString(dateChanged.getTimeInMillis()), changedBy,  Integer.toString(slPos),
 						slMssg, slChangedBy};

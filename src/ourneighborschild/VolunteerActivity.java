@@ -83,10 +83,10 @@ public class VolunteerActivity extends ONCEntity
 	String getCategory() { return category; }
 	public String getName() { return name; }
 	public String getStartDate() { return startDate; }
-	String getStartTime() { return startTime; }
+	public String getStartTime() { return startTime; }
 	public String getEndDate() { return endDate; }
 	String getEndTime() { return endTime; }
-	String getLocation() { return location; }
+	public String getLocation() { return location; }
 	String getDescription() { return description; }
 	public String getComment() { return volComment; }
 	public boolean isOpen() { return bOpen; }

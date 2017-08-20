@@ -707,7 +707,7 @@ public class VolunteerDialog extends EntityDialog
         public Object getValueAt(int row, int col)
         {
         	VolunteerActivity act = (VolunteerActivity) activityDB.getList().get(row);
-        	VolunteerActivity volAct = currVolunteer != null ? currVolunteer.getVolunteerActivity(row) : null;
+        	VolunteerActivity volAct = currVolunteer != null ? currVolunteer.getVolunteerActivity(act.getID()) : null;
         	
         	if(col == PARTICIPATION_COL)
         		return volAct != null;
@@ -747,7 +747,7 @@ public class VolunteerDialog extends EntityDialog
         	ONCVolunteer reqUpdateVol = null;
         	
         	//determine if the user made a change to a user object
-        	if(col == PARTICIPATION_COL && currVolunteer.isVolunteeringFor(row) != (Boolean) value)
+        	if(col == PARTICIPATION_COL && currVolunteer.isVolunteeringFor(act.getID()) != (Boolean) value)
         	{
         		reqUpdateVol = new ONCVolunteer(currVolunteer);	//make a copy
         		

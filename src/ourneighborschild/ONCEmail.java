@@ -8,7 +8,7 @@ public class ONCEmail
 	private String body;
 	private ArrayList<EmailAddress> toAddresses;
 	
-	ONCEmail(String subject, String body, ArrayList<EmailAddress> toAdds)
+	public ONCEmail(String subject, String body, ArrayList<EmailAddress> toAdds)
 	{
 		this.subject = subject;
 		this.body = body;
@@ -16,7 +16,7 @@ public class ONCEmail
 	}
 	
 	//getters
-	String getEmailSubject() { return subject; }
-	String getEmailBody() { return body; }
-	ArrayList<EmailAddress> getToAddressees() { return toAddresses; }
+	public String getEmailSubject() { return subject; }
+	public String getEmailBody() { return body; }
+	public ArrayList<EmailAddress> getToAddressees() { return toAddresses; }
 }

@@ -32,7 +32,7 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 	private JMenuItem exportMI, dbStatusMI, clearMI;
 	public JMenuItem exitMI;	//public since exit method is external to the menu bar
 	private JMenuItem findDupFamsMI, findDupChldrnMI, crosscheckMI;
-	private JMenuItem editVolMI, editActMI, viewSignInLogMI, manageVolMI;
+	private JMenuItem editVolMI, editActMI, viewSignInLogMI, manageVolMI, manageActMI;
 	private JMenuItem assignDelMI, manageDelMI, mapsMI, delstatusMI, distMI;
 	private JMenuItem newFamMI, changeONCMI, changeRefMI, changeBatchMI, newChildMI, delChildMI, markAdultMI, connectChildMI;
 	private JMenu submenuImport, submenuFamilyDataChecks;
@@ -324,7 +324,7 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 	    viewSignInLogMI.addActionListener(this);
 	    menuVolunteers.add(viewSignInLogMI);
 	    
-	    //View Sign-In log
+	    //Manage Volunteers Dialog
 	    manageVolMI = new JMenuItem("Manage Volunteers");
 	    manageVolMI .setActionCommand("Manage Volunteers");
 	    manageVolMI .setEnabled(false);
@@ -339,6 +339,13 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 	    editActMI.setEnabled(false);
 	    editActMI.addActionListener(this);
 	    menuVolunteers.add(editActMI);
+	    
+	    //Manage Activities
+	    manageActMI = new JMenuItem("Manage Activities");
+	    manageActMI .setActionCommand("Manage Activities");
+	    manageActMI .setEnabled(false);
+	    manageActMI .addActionListener(this);
+	    menuVolunteers.add(manageActMI );
 	 
 	    //Build Delivery Menu
 	    menuDelivery = new JMenu("Deliveries");
@@ -559,6 +566,7 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 		editVolMI.setEnabled(tf);
 		viewSignInLogMI.setEnabled(tf);
 		manageVolMI.setEnabled(tf);
+		manageActMI.setEnabled(tf);
 	}
 
 	@Override
@@ -703,6 +711,7 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 		else if(e.getSource() == userMI) { dlgManager.showUserDialog(); }
 		else if(e.getSource() == viewSignInLogMI) { dlgManager.showSignInDialog(); }
 		else if(e.getSource() == manageVolMI) { dlgManager.showManageVolDialog(); }
+		else if(e.getSource() == manageActMI) { dlgManager.showManageActDialog(); }
 		else if(e.getSource() == onlineMI) { dlgManager.showOnlineUsers(); }
 		else if(e.getSource() == chatMI) { dlgManager.onChat(); }
 		else if(e.getSource() == profileMI) { dlgManager.onEditProfile(); }

@@ -6,22 +6,22 @@ public class ServerCredentials
 	private String userID;
 	private String password;
 	
-	ServerCredentials(String serverName, String userID, String password)
+	public ServerCredentials(String serverName, String userID, String password)
 	{
 		this.serverName = serverName;
 		this.userID = userID;
 		this.password = password;	
 	}
 
-	String getServerName() {
+	public String getServerName() {
 		return serverName;
 	}
 
-	String getUserID() {
+	public String getUserID() {
 		return userID;
 	}
 
-	String getPassword() {
+	public String getPassword() {
 		return password;
 	}
 

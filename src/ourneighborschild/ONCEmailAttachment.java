@@ -14,8 +14,8 @@ public class ONCEmailAttachment
 	}
 	
 	//getters
-	String getFilename() { return filename; }
-	String getCID() { return cid; }
-	String getDisposition() { return disposition; }
+	public String getFilename() { return filename; }
+	public String getCID() { return cid; }
+	public String getDisposition() { return disposition; }
 	
 }

@@ -249,6 +249,16 @@ public class VolunteerDB extends ONCSearchableDatabase
 		}
 	}
 	
+	List<ONCVolunteer> getVolunteersForActivity(VolunteerActivity va)
+	{
+		List<ONCVolunteer> volList = new ArrayList<ONCVolunteer>();
+		for(ONCVolunteer v : volunteerList)
+			if(v.isVolunteeringFor(va.getID()))
+				volList.add(v);
+		
+		return volList;
+	}
+	
 	int getVolunteerCountForActivity(VolunteerActivity va)
 	{
 		int volunteerCount = 0;
