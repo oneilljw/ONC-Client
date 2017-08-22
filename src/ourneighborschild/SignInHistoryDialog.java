@@ -88,7 +88,7 @@ public class SignInHistoryDialog extends JDialog implements  EntitySelectionList
 	void display(ONCObject obj) 
 	{
 		this.currVol = (ONCVolunteer) obj;
-		this.setTitle(String.format("%s %s's Sign-In History", currVol.getfName(), currVol.getlName()));
+		this.setTitle(String.format("%s %s's Sign-In History", currVol.getFirstName(), currVol.getLastName()));
 		
 		signInList = volunteerDB.getWarehouseHistory(currVol.getID());
 		dlgTableModel.fireTableDataChanged();

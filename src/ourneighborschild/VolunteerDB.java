@@ -212,7 +212,7 @@ public class VolunteerDB extends ONCSearchableDatabase
 	{
 		int index = 0;
 		while(index < volList.size() &&
-			  !(volList.get(index).getfName().equals(fn) && volList.get(index).getlName().equals(ln)))
+			  !(volList.get(index).getFirstName().equals(fn) && volList.get(index).getLastName().equals(ln)))
 			index++;
 		
 		return index < volList.size() ? volList.get(index) : null;
@@ -312,7 +312,7 @@ public class VolunteerDB extends ONCSearchableDatabase
 			index++;
 			
 		if(index < volunteerList.size())
-			return volunteerList.get(index).getlName() + ", " + volunteerList.get(index).getfName().charAt(0);
+			return volunteerList.get(index).getLastName() + ", " + volunteerList.get(index).getFirstName().charAt(0);
 		else
 			return Long.toString(driverID);
 	}
@@ -346,7 +346,7 @@ public class VolunteerDB extends ONCSearchableDatabase
 				index++;
 		
 			if(index < volunteerList.size())	//Valid ID found in database
-				result = volunteerList.get(index).getlName() + ", " + volunteerList.get(index).getfName();
+				result = volunteerList.get(index).getLastName() + ", " + volunteerList.get(index).getFirstName();
 		}
 		
 		return result;	
@@ -495,11 +495,11 @@ public class VolunteerDB extends ONCSearchableDatabase
 		for(ONCVolunteer v : volunteerList)
 		{
 			int index = 0;
-			while(index < groupList.size() && !groupList.get(index).equals(v.getGroup()))
+			while(index < groupList.size() && !groupList.get(index).equals(v.getOrganization()))
 				index++;
 		
 			if(index == groupList.size())
-				groupList.add(v.getGroup());
+				groupList.add(v.getOrganization());
 		}
 		
 		return groupList;
@@ -676,8 +676,8 @@ public class VolunteerDB extends ONCSearchableDatabase
 //			for(int i=0; i<this.getNumberOfOrganizations(); i++)
 			for(ONCVolunteer d:volunteerList)
 			{
-				if(d.getfName().toLowerCase().contains(data.toLowerCase()) ||
-					d.getlName().toLowerCase().contains(data.toLowerCase()))
+				if(d.getFirstName().toLowerCase().contains(data.toLowerCase()) ||
+					d.getLastName().toLowerCase().contains(data.toLowerCase()))
 				{
 					searchAL.add(d.getID());
 				}
@@ -735,7 +735,7 @@ public class VolunteerDB extends ONCSearchableDatabase
 		@Override
 		public int compare(ONCVolunteer o1, ONCVolunteer o2)
 		{
-			return o1.getlName().compareTo(o2.getlName());
+			return o1.getLastName().compareTo(o2.getLastName());
 		}
 	}
 	

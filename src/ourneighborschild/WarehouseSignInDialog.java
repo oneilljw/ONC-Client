@@ -169,7 +169,7 @@ public class WarehouseSignInDialog extends JDialog implements ActionListener, Da
 		{
 			ONCVolunteer v = volDB.getVolunteer(whv.getVolunteerID());
 			if(v != null)
-				whList.add(new WarehouseSignIn(v.getfName(), v.getlName(), whv.getGroup(),
+				whList.add(new WarehouseSignIn(v.getFirstName(), v.getLastName(), whv.getGroup(),
 												whv.getCalTimestamp()));
 		}
 		
@@ -248,9 +248,9 @@ public class WarehouseSignInDialog extends JDialog implements ActionListener, Da
 		
 		WarehouseSignIn(ONCVolunteer v)
 		{
-			this.firstName = v.getfName();
-			this.lastName = v.getlName();
-			this.group = v.getGroup();
+			this.firstName = v.getFirstName();
+			this.lastName = v.getLastName();
+			this.group = v.getOrganization();
 			this.time = v.getDateChanged().getTime(); //last warehouse sign-in
 		}
 		

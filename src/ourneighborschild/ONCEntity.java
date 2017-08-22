@@ -47,17 +47,27 @@ public abstract class ONCEntity extends ONCObject implements Serializable
 	public ONCEntity(int id, long timeInMillis, String changedBy, int slpos, String slmssg, String slchgby)
 	{
 		super(id);
-		dateChanged = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-		dateChanged.setTimeInMillis(timeInMillis);
+		this.dateChanged = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+		this.dateChanged.setTimeInMillis(timeInMillis);
 		this.changedBy = changedBy;
-		slPos = slpos;
-		slMssg = slmssg;
-		slChangedBy = slchgby;		
+		this.slPos = slpos;
+		this.slMssg = slmssg;
+		this.slChangedBy = slchgby;		
+	}
+	
+	public ONCEntity(int id, Calendar dateChanged, String changedBy, int slpos, String slmssg, String slchgby)
+	{
+		super(id);
+		this.dateChanged = dateChanged;
+		this.changedBy = changedBy;
+		this.slPos = slpos;
+		this.slMssg = slmssg;
+		this.slChangedBy = slchgby;		
 	}
 	
 	//getters
-	public Date getDateChanged()	{ return dateChanged.getTime(); }
-	public long getTimeInMillis()	{ return dateChanged.getTimeInMillis(); }
+	public Date getDateChanged()  { return dateChanged.getTime(); }
+	public long getTimeInMillis() { return dateChanged.getTimeInMillis(); }
 	public String getChangedBy() { return changedBy; }
 	public int getStoplightPos() { return slPos; }
 	public String getStoplightMssg() { return slMssg; }

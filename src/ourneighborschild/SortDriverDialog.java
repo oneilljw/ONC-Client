@@ -184,7 +184,7 @@ public class SortDriverDialog extends DependantTableDialog
 		
 		for(ONCVolunteer v : volunteerDB.getDriverDB())
 			if(v.isVolunteeringFor("Delivery Volunteer") && 
-			     doesDrvNumMatch(v.getDrvNum()) && doesLNameMatch(v.getlName()) && 
+			     doesDrvNumMatch(v.getDrvNum()) && doesLNameMatch(v.getLastName()) && 
 				  doesChangedByMatch(v.getChangedBy()) && doesStoplightMatch(v.getStoplightPos()))
 				atAL.add(v);
 			
@@ -204,11 +204,11 @@ public class SortDriverDialog extends DependantTableDialog
 		for(ONCVolunteer d:volunteerDB.getDriverDB())
 		{
 			int index = 0;
-			while(index < lNameAL.size() && !d.getlName().equals(lNameAL.get(index)))
+			while(index < lNameAL.size() && !d.getLastName().equals(lNameAL.get(index)))
 				index++;
 			
 			if(index == lNameAL.size())
-				lNameAL.add(d.getlName());	
+				lNameAL.add(d.getLastName());	
 		}
 		
 		Collections.sort(lNameAL);
@@ -500,7 +500,7 @@ public class SortDriverDialog extends DependantTableDialog
 	Object[] getTableRow(ONCObject o) 
 	{
 		ONCVolunteer d = (ONCVolunteer) o;
-		Object[] di = {d.getDrvNum(), d.getfName(), d.getlName(),
+		Object[] di = {d.getDrvNum(), d.getFirstName(), d.getLastName(),
 						Integer.toString(d.getDelAssigned()),
 						d.getCellPhone(), d.getHomePhone(), d.getEmail(), d.getChangedBy(),
 //						stoplt[d.getStoplightPos()+1].substring(0,1)};

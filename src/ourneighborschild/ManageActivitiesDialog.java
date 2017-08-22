@@ -7,6 +7,9 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.print.PrinterException;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -29,10 +32,13 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
+
+import au.com.bytecode.opencsv.CSVWriter;
 
 public class ManageActivitiesDialog extends ONCTableDialog implements ActionListener, ListSelectionListener,
 																		DatabaseListener
@@ -58,15 +64,15 @@ public class ManageActivitiesDialog extends ONCTableDialog implements ActionList
 	private static final int NUM_ACT_TABLE_ROWS = 15;
 
 	protected JPanel sortCriteriaPanel;
-	private JComboBox activityCB;
+	private JComboBox activityCB, volExportCB;
 	private DefaultComboBoxModel activityCBM;
 	private boolean bIgnoreCBEvents;
 	private String sortActivityCategory;
 
 	private ONCTable volTable, actTable;
 	private AbstractTableModel volTableModel, actTableModel;
-	private JButton btnResetFilters, btnPrint, btnExport;
-	private JLabel lblActCount;
+	private JButton btnResetFilters, btnPrint;
+	private JLabel lblActCount, lblVolCount;
 
 	private VolunteerDB volDB;
 	private ActivityDB activityDB;
@@ -165,7 +171,8 @@ public class ManageActivitiesDialog extends ONCTableDialog implements ActionList
 								"# of Warehouse Sign-Ins", "Last Sign-In Time"};
 		
 		volTable = new ONCTable(volTableModel, colToolTips, new Color(240,248,255));
-		volTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		volTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+		volTable.getSelectionModel().addListSelectionListener(this);
 		
 		//set up a cell renderer for the LAST_LOGINS column to display the date 
 		TableCellRenderer tableCellRenderer = new DefaultTableCellRenderer()
@@ -215,11 +222,22 @@ public class ManageActivitiesDialog extends ONCTableDialog implements ActionList
         
         //create the control panel
         JPanel cntlPanel = new JPanel();
+        cntlPanel.setLayout(new BoxLayout(cntlPanel, BoxLayout.X_AXIS));
         
-        btnExport = new JButton("Export");
-        btnExport.setToolTipText("Export Activity Table to .csv file");
-        btnExport.setEnabled(false);
-        btnExport.addActionListener(this);
+        JPanel infoPanel = new JPanel();
+        infoPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+        
+        JPanel btnPanel = new JPanel();
+        btnPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
+        
+        lblVolCount = new JLabel("Volunteers for selected activity:");
+        infoPanel.add(lblVolCount);
+        
+        String[] exportChoices = {"Export", "Volunteer Contact Group"};
+        volExportCB = new JComboBox(exportChoices);
+        volExportCB.setToolTipText("Export Volunteer Info to .csv file");
+        volExportCB.setEnabled(false);
+        volExportCB.addActionListener(this);
         
         btnPrint = new JButton("Print");
         btnPrint.setToolTipText("Print the activity table list");
@@ -228,10 +246,13 @@ public class ManageActivitiesDialog extends ONCTableDialog implements ActionList
         btnResetFilters = new JButton("Reset Filters");
         btnResetFilters.setToolTipText("Restore Filters to Defalut State");
         btnResetFilters.addActionListener(this);
-       
-        cntlPanel.add(btnExport);
-        cntlPanel.add(btnPrint);
-        cntlPanel.add(btnResetFilters);
+        
+        btnPanel.add(volExportCB);
+        btnPanel.add(btnPrint);
+        btnPanel.add(btnResetFilters);
+        
+        cntlPanel.add(infoPanel);
+        cntlPanel.add(btnPanel);
         
         getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
         getContentPane().add(sortCriteriaPanel);
@@ -247,6 +268,10 @@ public class ManageActivitiesDialog extends ONCTableDialog implements ActionList
 	void createTableList()
 	{	
 		actTableList.clear();
+		volTableList.clear();
+		volExportCB.setEnabled(false);
+		
+		lblVolCount.setText("Volunteers for selected activity: " + Integer.toString(volTableList.size()));
 		
 		for(VolunteerActivity va : (List<VolunteerActivity>) activityDB.getList())
 			if(doesActivityMatch(va))
@@ -255,6 +280,7 @@ public class ManageActivitiesDialog extends ONCTableDialog implements ActionList
 		lblActCount.setText(String.format("Activities Meeting Criteria: %d", actTableList.size()));
 		
 		actTableModel.fireTableDataChanged();
+		volTableModel.fireTableDataChanged();
 	}
 	
 	void resetFilters()
@@ -323,7 +349,54 @@ public class ManageActivitiesDialog extends ONCTableDialog implements ActionList
 			JOptionPane.showMessageDialog(this, err_mssg, "Print Activity Table Error",
 										JOptionPane.ERROR_MESSAGE, GlobalVariables.getONCLogo());
 		}
-	}	
+	}
+	
+	void onExportVolunteerContactGroup()
+	{
+		//get group name input from user. If null exit
+		String groupName = (String) JOptionPane.showInputDialog(this, "Please enter Contact Group Name:",  
+				"Contact Group Name", JOptionPane.QUESTION_MESSAGE, gvs.getImageIcon(0),
+				null, "");
+		
+		if(groupName != null)
+		{
+			ONCFileChooser oncfc = new ONCFileChooser(this);
+			File oncwritefile = oncfc.getFile("Select file for export of Volunteer Gmail Contact Group" ,
+       										new FileNameExtensionFilter("CSV Files", "csv"), 1, groupName);
+			if(oncwritefile!= null)
+			{
+				//If user types a new filename without extension.csv, add it
+				String filePath = oncwritefile.getPath();
+				if(!filePath.toLowerCase().endsWith(".csv")) 
+					oncwritefile = new File(filePath + ".csv");
+	    	
+				try 
+				{
+					CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
+					writer.writeNext(ONCGmailContactEntity.getGmailContactCSVHeader());
+	    	    
+					int[] row_sel = volTable.getSelectedRows();
+					for(int i=0; i<volTable.getSelectedRowCount(); i++)
+					{
+						int index = volTable.convertRowIndexToModel(row_sel[i]);
+						writer.writeNext(volTableList.get(index).getGoogleContactExportRow(groupName));
+					}
+	    	   
+					writer.close();
+	    	    
+					JOptionPane.showMessageDialog(this, 
+							volTable.getSelectedRowCount() + " volunteer contacts sucessfully exported to " + oncwritefile.getName(), 
+							"Export Successful", JOptionPane.INFORMATION_MESSAGE, gvs.getImageIcon(0));
+				} 
+				catch (IOException x)
+				{
+					JOptionPane.showMessageDialog(this, "Export Failed, I/O Error: "  + x.getMessage(),  
+							"Export Failed", JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
+					System.err.format("IOException: %s%n", x);
+				}
+			}
+		}
+	}
 	@Override
 	public void dataChanged(DatabaseEvent dbe)
 	{
@@ -348,15 +421,26 @@ public class ManageActivitiesDialog extends ONCTableDialog implements ActionList
 	@Override
 	public void valueChanged(ListSelectionEvent lse)
 	{
-		int modelRow = actTable.getSelectedRow() == -1 ? -1 : 
+		if(lse.getSource() == actTable.getSelectionModel())
+		{
+			int modelRow = actTable.getSelectedRow() == -1 ? -1 : 
 						actTable.convertRowIndexToModel(actTable.getSelectedRow());
 		
-		if(modelRow > -1)
+			if(modelRow > -1)
+			{
+				selectedAct = actTableList.get(modelRow);
+				volTableList = volDB.getVolunteersForActivity(selectedAct);
+				lblVolCount.setText("Volunteers for selected activity: " + Integer.toString(volTableList.size()));
+				fireEntitySelected(this, EntityType.ACTIVITY, selectedAct, null, null);
+				volTableModel.fireTableDataChanged();
+			}
+		}
+		else if(lse.getSource() == volTable.getSelectionModel())
 		{
-			selectedAct = actTableList.get(modelRow);
-			volTableList = volDB.getVolunteersForActivity(selectedAct);
-			fireEntitySelected(this, EntityType.ACTIVITY, selectedAct, null, null);
-			volTableModel.fireTableDataChanged();
+			int modelRow = volTable.getSelectedRow() == -1 ? -1 : 
+				volTable.convertRowIndexToModel(volTable.getSelectedRow());
+
+			volExportCB.setEnabled(modelRow > -1);
 		}
 	}
 
@@ -376,6 +460,16 @@ public class ManageActivitiesDialog extends ONCTableDialog implements ActionList
 		else if(e.getSource() == btnResetFilters)
 		{
 			resetFilters();
+		}
+		else if(e.getSource() == volExportCB)
+		{
+			if(volExportCB.getSelectedItem().toString().equals("Volunteer Contact Group") &&
+					volTable.getSelectedRowCount() > 0)
+			{ 
+				onExportVolunteerContactGroup();
+			}
+			
+			volExportCB.setSelectedIndex(0);
 		}
 	}	
 	@Override
@@ -404,11 +498,11 @@ public class ManageActivitiesDialog extends ONCTableDialog implements ActionList
         	ONCVolunteer v = volTableList.get(row);
         	
         	if(col == FIRST_NAME_COL)  
-        		return v.getfName();
+        		return v.getFirstName();
         	else if(col == LAST_NAME_COL)
-        		return v.getlName();
+        		return v.getLastName();
         	else if (col == GROUP_COL)
-        		return v.getGroup();
+        		return v.getOrganization();
         	else if (col == NUM_ACT_COL)
         		return v.getActivityList().size();
         	else if (col == NUM_SIGNIN_COL)

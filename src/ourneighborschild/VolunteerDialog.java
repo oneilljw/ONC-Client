@@ -311,22 +311,22 @@ public class VolunteerDialog extends EntityDialog
 			updateVol.setDrvNum(drvNumTF.getText());
 			bCD = bCD | 1;
 		}
-		if(!firstnameTF.getText().equals(updateVol.getfName()))
+		if(!firstnameTF.getText().equals(updateVol.getFirstName()))
 		{
-			updateVol.setfName(firstnameTF.getText());
+			updateVol.setFirstName(firstnameTF.getText());
 			bCD = bCD | 2;
 		}
-		if(!lastnameTF.getText().equals(updateVol.getlName())) { updateVol.setlName(lastnameTF.getText()); bCD = bCD | 4; }
-		if(!groupTF.getText().equals(updateVol.getGroup())) { updateVol.setGroup(groupTF.getText()); bCD = bCD | 8; }
+		if(!lastnameTF.getText().equals(updateVol.getLastName())) { updateVol.setLastName(lastnameTF.getText()); bCD = bCD | 4; }
+		if(!groupTF.getText().equals(updateVol.getOrganization())) { updateVol.setOrganization(groupTF.getText()); bCD = bCD | 8; }
 		if(!hPhoneTF.getText().equals(updateVol.getHomePhone())) { updateVol.setHomePhone(hPhoneTF.getText()); bCD = bCD | 16; }
 		if(!cPhoneTF.getText().equals(updateVol.getCellPhone())) { updateVol.setCellPhone(cPhoneTF.getText()); bCD = bCD | 32; }
 		if(!emailTF.getText().equals(updateVol.getEmail())) { updateVol.setEmail(emailTF.getText()); bCD = bCD | 64; }
 		if(!commentTF.getText().equals(updateVol.getComment())) { updateVol.setComment(commentTF.getText()); bCD = bCD | 128; }
-		if(!streetnumTF.getText().equals(updateVol.gethNum())) { updateVol.sethNum(streetnumTF.getText()); bCD = bCD | 512; }
+		if(!streetnumTF.getText().equals(updateVol.getHouseNum())) { updateVol.setHouseNum(streetnumTF.getText()); bCD = bCD | 512; }
 		if(!streetnameTF.getText().equals(updateVol.getStreet())) { updateVol.setStreet(streetnameTF.getText()); bCD = bCD | 1024; }		
 		if(!unitTF.getText().equals(updateVol.getUnit())) { updateVol.setUnit(unitTF.getText()); bCD = bCD | 2048; }
 		if(!cityTF.getText().equals(updateVol.getCity())) { updateVol.setCity(cityTF.getText()); bCD = bCD | 4096; }
-		if(!zipTF.getText().equals(updateVol.getZipcode())) { updateVol.setZipcode(zipTF.getText()); bCD = bCD | 8192; }
+		if(!zipTF.getText().equals(updateVol.getZipCode())) { updateVol.setZipCode(zipTF.getText()); bCD = bCD | 8192; }
 //		if(generateActivityCode() != updateVol.getActivityCode()) { updateVol.setActivityCode(generateActivityCode()); bCD = bCD | 8192; }
 		
 		if(bCD > 0)	//If an update to organization data (not stop light data) was detected
@@ -376,9 +376,9 @@ public class VolunteerDialog extends EntityDialog
 			bIgnoreEvents = true;
 			
 			drvNumTF.setText(currVolunteer.getDrvNum());
-			firstnameTF.setText(currVolunteer.getfName());
+			firstnameTF.setText(currVolunteer.getFirstName());
 			firstnameTF.setCaretPosition(0);
-			lastnameTF.setText(currVolunteer.getlName());
+			lastnameTF.setText(currVolunteer.getLastName());
 			lastnameTF.setCaretPosition(0);
 			emailTF.setText(currVolunteer.getEmail());
 			emailTF.setCaretPosition(0);
@@ -399,13 +399,13 @@ public class VolunteerDialog extends EntityDialog
 			else
 				btnDelete.setEnabled(false);
 			
-			streetnumTF.setText(currVolunteer.gethNum());
+			streetnumTF.setText(currVolunteer.getHouseNum());
 			streetnameTF.setText(currVolunteer.getStreet());
 			unitTF.setText(currVolunteer.getUnit());
 			cityTF.setText(currVolunteer.getCity());
-			zipTF.setText(currVolunteer.getZipcode());
+			zipTF.setText(currVolunteer.getZipCode());
 			
-			groupTF.setText(currVolunteer.getGroup());
+			groupTF.setText(currVolunteer.getOrganization());
 			
 			SimpleDateFormat sdf = new SimpleDateFormat("M/dd h:mm");
 			lblLastSignIn.setText(currVolunteer.getSignIns() == 0 ? "Never" : sdf.format(currVolunteer.getDateChanged()));
@@ -467,7 +467,7 @@ public class VolunteerDialog extends EntityDialog
 		
 		//Confirm with the user that the deletion is really intended
 		String confirmMssg = String.format("Are you sure you want to delete %s from the data base?", 
-											delVol.getfName() + " " + delVol.getlName());
+											delVol.getFirstName() + " " + delVol.getLastName());
 	
 		Object[] options= {"Cancel", "Delete"};
 		JOptionPane confirmOP = new JOptionPane(confirmMssg, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION,
@@ -753,18 +753,18 @@ public class VolunteerDialog extends EntityDialog
         		
         		//update all other fields
         		reqUpdateVol.setDrvNum(drvNumTF.getText());
-        		reqUpdateVol.setfName(firstnameTF.getText());
-        		reqUpdateVol.setlName(lastnameTF.getText());
-        		reqUpdateVol.setGroup(groupTF.getText());
+        		reqUpdateVol.setFirstName(firstnameTF.getText());
+        		reqUpdateVol.setLastName(lastnameTF.getText());
+        		reqUpdateVol.setOrganization(groupTF.getText());
         		reqUpdateVol.setHomePhone(hPhoneTF.getText());
         		reqUpdateVol.setCellPhone(cPhoneTF.getText());
         		reqUpdateVol.setEmail(emailTF.getText());
         		reqUpdateVol.setComment(commentTF.getText());
-        		reqUpdateVol.sethNum(streetnumTF.getText());
+        		reqUpdateVol.setHouseNum(streetnumTF.getText());
         		reqUpdateVol.setStreet(streetnameTF.getText());	
         		reqUpdateVol.setUnit(unitTF.getText());
         		reqUpdateVol.setCity(cityTF.getText());
-        		reqUpdateVol.setZipcode(zipTF.getText());
+        		reqUpdateVol.setZipCode(zipTF.getText());
         		if((Boolean) value)
         			reqUpdateVol.addActivity(act);
         		else

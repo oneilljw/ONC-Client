@@ -229,6 +229,13 @@ public class ManageVolDialog extends ONCTableDialog implements ActionListener, L
 //        actScrollPane.setBorder(UIManager.getBorder("Table.scrollPaneBorder"));
     
         JPanel cntlPanel = new JPanel();
+        cntlPanel.setLayout(new BoxLayout(cntlPanel, BoxLayout.X_AXIS));
+        
+        JPanel infoPanel = new JPanel();
+        infoPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+        
+        JPanel btnPanel = new JPanel();
+        btnPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
         
         btnExport = new JButton("Export");
         btnExport.setToolTipText("Restore Table to .csv file");
@@ -243,9 +250,12 @@ public class ManageVolDialog extends ONCTableDialog implements ActionListener, L
         btnResetFilters.setToolTipText("Restore Filters to Defalut State");
         btnResetFilters.addActionListener(this);
        
-        cntlPanel.add(btnExport);
-        cntlPanel.add(btnPrint);
-        cntlPanel.add(btnResetFilters);
+        btnPanel.add(btnExport);
+        btnPanel.add(btnPrint);
+        btnPanel.add(btnResetFilters);
+        
+        cntlPanel.add(infoPanel);
+        cntlPanel.add(btnPanel);
         
         getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
         getContentPane().add(sortCriteriaPanel);
@@ -297,7 +307,7 @@ public class ManageVolDialog extends ONCTableDialog implements ActionListener, L
 	boolean doesGroupMatch(ONCVolunteer v)
 	{
 		//test for activity category match
-		 return sortGroup.equals("Any") || v.getGroup().equals(sortGroup);
+		 return sortGroup.equals("Any") || v.getOrganization().equals(sortGroup);
 	}
 	
 	void updateActivityList()
@@ -415,6 +425,7 @@ public class ManageVolDialog extends ONCTableDialog implements ActionListener, L
 		{
 			selectedVol = volTableList.get(modelRow);
 			fireEntitySelected(this, EntityType.VOLUNTEER, selectedVol, null, null);
+			
 			actTableModel.fireTableDataChanged();
 		}
 	}
@@ -469,11 +480,11 @@ public class ManageVolDialog extends ONCTableDialog implements ActionListener, L
         	ONCVolunteer v = volTableList.get(row);
         	
         	if(col == FIRST_NAME_COL)  
-        		return v.getfName();
+        		return v.getFirstName();
         	else if(col == LAST_NAME_COL)
-        		return v.getlName();
+        		return v.getLastName();
         	else if (col == GROUP_COL)
-        		return v.getGroup();
+        		return v.getOrganization();
         	else if (col == NUM_ACT_COL)
         		return v.getActivityList().size();
         	else if (col == NUM_SIGNIN_COL)
