@@ -253,7 +253,8 @@ public class ONCFamilyReportRowBuilder
 	 
 	private String[] getFamilyReportChildColumns()
 	{
-		String[] header = {
+		return new String[]
+				{
 				"Child 1 FN", "Child 1 LN", "Child 1 School", "Child 1 Gender", "Child 1 DOB", "Child 1 Age",
 				"Child 1 Wish 1", "Child 1 Wish 2", "Child 1 Wish 3",
 				"Child 2 FN", "Child 2 LN", "Child 2 School", "Child 2 Gender", "Child 2 DOB", "Child 2 Age",
@@ -271,8 +272,9 @@ public class ONCFamilyReportRowBuilder
 				"Child 8 FN", "Child 8 LN", "Child 8 School", "Child 8 Gender", "Child 8 DOB", "Child 8 Age",
 				"Child 8 Wish 1", "Child 8 Wish 2", "Child 8 Wish 3",
 				"Child 9 FN", "Child 9 LN", "Child 9 School", "Child 9 Gender", "Child 9 DOB", "Child 9 Age",
-				"Child 9 Wish 1", "Child 9 Wish 2", "Child 9 Wish 3"};
-		 return header;
+				"Child 9 Wish 1", "Child 9 Wish 2", "Child 9 Wish 3"
+				};
+		 
 	}
 	 
 	private String[] getFamilyReportAgentColumns()
@@ -287,6 +289,38 @@ public class ONCFamilyReportRowBuilder
 		String[] header = {"Adopted For", "Agent ID", "Delivery ID", "# of Bags", "# of Large Items", 
 							"Stoplight Pos", "Stoplight Mssg", "Stopligh C/B"};	 
 		return header;
+	}
+	
+	String[] getFamilyDataExportColumns()
+	{
+		return new String[] 
+				{
+				"ONC ID", "ONCNum", "Region", "ODB Family #", "Batch #", "DNS Code", "Family Status", "Delivery Status",
+				"Speak English?","Language if No", "Caller", "Notes", "Delivery Instructions",
+				"Client Family", "First Name", "Last Name", "House #", "Street", "Unit #", "City", "Zip Code",
+				"Substitute Delivery Address", "All Phone #'s", "Home Phone", "Other Phone", "Family Email", 
+				"ODB Details", "Children Names", "Schools", "ODB WishList",
+				"Child 1 FN", "Child 1 LN", "Child 1 School", "Child 1 Gender", "Child 1 DOB", "Child 1 Age",
+				"Child 1 Wish 1", "Child 1 Wish 2", "Child 1 Wish 3",
+				"Child 2 FN", "Child 2 LN", "Child 2 School", "Child 2 Gender", "Child 2 DOB", "Child 2 Age",
+				"Child 2 Wish 1", "Child 2 Wish 2", "Child 2 Wish 3",
+				"Child 3 FN", "Child 3 LN", "Child 3 School", "Child 3 Gender", "Child 3 DOB", "Child 3 Age",
+				"Child 3 Wish 3", "Child 3 Wish 2", "Child 3 Wish 3",
+				"Child 4 FN", "Child 4 LN", "Child 4 School", "Child 4 Gender", "Child 4 DOB", "Child 4 Age",
+				"Child 4 Wish 1", "Child 4 Wish 2", "Child 4 Wish 3",
+				"Child 5 FN", "Child 5 LN", "Child 5 School", "Child 5 Gender", "Child 5 DOB", "Child 5 Age",
+				"Child 5 Wish 1", "Child 5 Wish 2", "Child 5 Wish 3",
+				"Child 6 FN", "Child 6 LN", "Child 6 School", "Child 6 Gender", "Child 6 DOB", "Child 6 Age",
+				"Child 6 Wish 1", "Child 6 Wish 2", "Child 6 Wish 3",
+				"Child 7 FN", "Child 7 LN", "Child 7 School", "Child 7 Gender", "Child 7 DOB", "Child 7 Age",
+				"Child 7 Wish 3", "Child 7 Wish 2", "Child 7 Wish 3",
+				"Child 8 FN", "Child 8 LN", "Child 8 School", "Child 8 Gender", "Child 8 DOB", "Child 8 Age",
+				"Child 8 Wish 1", "Child 8 Wish 2", "Child 8 Wish 3",
+				"Child 9 FN", "Child 9 LN", "Child 9 School", "Child 9 Gender", "Child 9 DOB", "Child 9 Age",
+				"Child 9 Wish 1", "Child 9 Wish 2", "Child 9 Wish 3",
+				"Adopted For", "Referring Agent Name", "Referring Agent Organizatoin",
+				"Referring Agent Title", "Referring Agent Email", "Referring Agent Phone"
+				};
 	}
 	
 	int getFamilyObjectRowLength() { return getCommonFamilyHeader().length + getFamilyObjectEndingHeader().length; }

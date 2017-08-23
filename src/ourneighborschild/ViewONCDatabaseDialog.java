@@ -2,22 +2,38 @@ package ourneighborschild;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.FontMetrics;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.UIManager;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
-public class ViewONCDatabaseDialog extends JDialog 
+import au.com.bytecode.opencsv.CSVWriter;
+
+public class ViewONCDatabaseDialog extends JDialog implements ActionListener, ListSelectionListener
 {
 	/**
 	 * This class implements a static view of the ONC Family data base. The view
@@ -25,9 +41,11 @@ public class ViewONCDatabaseDialog extends JDialog
 	 * the menu bar. It is not updated when family data changes. 
 	 */
 	private static final long serialVersionUID = 1L;
+	private static final int NUM_ACT_TABLE_ROWS = 32;
 	JTable dbTable;
 	DefaultTableModel dbTableModel;
 	ONCFamilyReportRowBuilder rb;
+	JButton btnExport, btnClearSelection;
 	boolean bChangingTable = false;
 	
 	ViewONCDatabaseDialog(JFrame parentFrame)
@@ -40,27 +58,7 @@ public class ViewONCDatabaseDialog extends JDialog
 		dbTable = new JTable()
 		{
 			private static final long serialVersionUID = 1L;
-/*
-			//Implement table header tool tips.
-			protected String[] columnToolTips = {"Sortable", "Not Sortable", "Sortable", 
-												"Sortable", "Sortable", "Sortable", "Sortable"};
-		
-			protected JTableHeader createDefaultTableHeader()
-			{
-				return new JTableHeader(columnModel)
-				{
-					private static final long serialVersionUID = 1L;
 
-					public String getToolTipText(MouseEvent e)
-					{
-						java.awt.Point p = e.getPoint();
-						int index = columnModel.getColumnIndexAtX(p.x);
-						int realIndex = columnModel.getColumn(index).getModelIndex();
-						return columnToolTips[realIndex];
-					}
-				};
-			}
-*/	    
 			public Component prepareRenderer(TableCellRenderer renderer,int Index_row, int Index_col)
 			{
 				Component comp = super.prepareRenderer(renderer, Index_row, Index_col);
@@ -87,7 +85,8 @@ public class ViewONCDatabaseDialog extends JDialog
 		}; 
     
 		dbTable.setModel(dbTableModel);
-		dbTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		dbTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+		dbTable.getSelectionModel().addListSelectionListener(this);
 		dbTable.setAutoCreateRowSorter(true);
 		dbTable.setAutoResizeMode( JTable.AUTO_RESIZE_OFF );
     
@@ -105,13 +104,32 @@ public class ViewONCDatabaseDialog extends JDialog
     
     	//Create the scroll pane and add the table to it.
     	JScrollPane dbTScrollPane = new JScrollPane(dbTable, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
-    												JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);           
+    												JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+    	dbTScrollPane.setPreferredSize(new Dimension(774, dbTable.getRowHeight()*NUM_ACT_TABLE_ROWS));
+    	
+    	//create an export button in a control panel
+    	JPanel cntlPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+    	
+    	btnClearSelection = new JButton("Clear Selection");
+    	btnClearSelection.setEnabled(false);
+//    	btnClearSelection.setPreferredSize(new Dimension(96,28));
+    	btnClearSelection.addActionListener(this);
+    	
+    	btnExport = new JButton("Export");
+    	btnExport.setEnabled(false);
+//    	btnExport.setPreferredSize(new Dimension(96,28));
+    	btnExport.addActionListener(this);
+    	
+    	cntlPanel.add(btnClearSelection);
+    	cntlPanel.add(btnExport);
+    	
     	//Add the components to the frame pane
     	this.getContentPane().setLayout(new BoxLayout(this.getContentPane(), BoxLayout.Y_AXIS));
     	this.getContentPane().add(dbTScrollPane);
+    	this.getContentPane().add(cntlPanel);
     	  
     	pack();
-    	setSize(800, 600);
+//    	setSize(800, 600);
     	setResizable(true);
     	Point pt = parentFrame.getLocation();
     	setLocation(pt.x + 10, pt.y + 10);
@@ -126,10 +144,11 @@ public class ViewONCDatabaseDialog extends JDialog
 		while (dbTableModel.getRowCount() > 0)	//Clear the Sort Table
 			dbTableModel.removeRow(0);
 		
-		//Add wishes in history to table
+		//Add rows to table
     	for(ONCFamily f:fDB.getList())
     		dbTableModel.addRow(rb.getFamilyReportCSVRowData(f));
     	
+    	btnExport.setEnabled(dbTable.getRowCount() > 0);
     	bChangingTable = false;
     	
     	ColumnsAutoSizer dbTAS = new ColumnsAutoSizer();   	
@@ -247,5 +266,87 @@ public class ViewONCDatabaseDialog extends JDialog
 
 	        return sum;
 	    }
+	}
+	
+	void onExportTableContents()
+	{
+		ONCFileChooser oncfc = new ONCFileChooser(this);
+		File oncwritefile = oncfc.getFile("Select file for export of Family data" ,
+       										new FileNameExtensionFilter("CSV Files", "csv"), 1);
+		if(oncwritefile!= null)
+		{
+			//If user types a new filename without extension.csv, add it
+			String filePath = oncwritefile.getPath();
+			if(!filePath.toLowerCase().endsWith(".csv")) 
+				oncwritefile = new File(filePath + ".csv");
+	    	
+			try 
+			{
+				CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
+				writer.writeNext(rb.getFamilyDataExportColumns());
+				int exportCount = 0;
+				
+				String[] rowContent = new String[dbTable.getColumnCount()];
+				if(dbTable.getRowCount() > 0 && dbTable.getSelectedRowCount() == 0)
+				{
+					//export all rows
+					for(int row=0; row < dbTable.getRowCount(); row++)
+					{	
+						int modelRow = dbTable.convertRowIndexToModel(row);
+						for(int col=0; col < dbTable.getColumnCount(); col++)
+							rowContent[col] = (String) dbTableModel.getValueAt(modelRow,  col);
+					
+						writer.writeNext(rowContent);
+						exportCount++;
+					}
+				}
+				else if(dbTable.getSelectedRowCount() > 0)
+				{
+					//export selected rows
+					int[] row_sel = dbTable.getSelectedRows();
+					while(exportCount < row_sel.length)
+					{
+						int modelRow = dbTable.convertRowIndexToModel(row_sel[exportCount]);
+						for(int col=0; col < dbTable.getColumnCount(); col++)
+							rowContent[col] = (String) dbTableModel.getValueAt(modelRow, col);
+						
+						writer.writeNext(rowContent);
+						exportCount++;
+					}
+				}
+				
+	    	   	writer.close();
+	    	    
+				JOptionPane.showMessageDialog(this, 
+							Integer.toString(exportCount) + " records ucessfully exported to " + oncwritefile.getName(), 
+							"Export Successful", JOptionPane.INFORMATION_MESSAGE, 
+							GlobalVariables.getONCLogo());
+			} 
+			catch (IOException x)
+			{
+				JOptionPane.showMessageDialog(this, "Export Failed, I/O Error: "  + x.getMessage(),  
+							"Export Failed", JOptionPane.ERROR_MESSAGE, GlobalVariables.getONCLogo());
+				System.err.format("IOException: %s%n", x);
+			}
+		}
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) 
+	{
+		if(e.getSource() == btnExport)
+		{
+			onExportTableContents();
+		}
+		else if(e.getSource() == btnClearSelection)
+		{
+			dbTable.clearSelection();
+		}
+	}
+
+	@Override
+	public void valueChanged(ListSelectionEvent lse) 
+	{
+		btnClearSelection.setEnabled(dbTable.getSelectedRowCount() > 0);
 	}
 }
