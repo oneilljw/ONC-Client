@@ -101,8 +101,8 @@ public class ManageVolDialog extends ONCTableDialog implements ActionListener, L
 		sortCriteriaPanel.setBorder(BorderFactory.createTitledBorder("Search Filters"));
 	
 		//Create the ONC Icon label and add it to the search criteria panel
-		JLabel lblONCicon = new JLabel(GlobalVariables.getONCLogo());
-		lblONCicon.setToolTipText("ONC Client v" + GlobalVariables.getVersion());
+		JLabel lblONCicon = new JLabel(GlobalVariablesDB.getONCLogo());
+		lblONCicon.setToolTipText("ONC Client v" + GlobalVariablesDB.getVersion());
 		lblONCicon.setAlignmentX(Component.LEFT_ALIGNMENT );//0.0
 		sortCriteriaPanel.add(lblONCicon);
 		
@@ -388,7 +388,7 @@ public class ManageVolDialog extends ONCTableDialog implements ActionListener, L
 		{
 			String err_mssg = "Unable to print Volunteer table: " + e.getMessage();
 			JOptionPane.showMessageDialog(this, err_mssg, "Print Volunteer Table Error",
-										JOptionPane.ERROR_MESSAGE, GlobalVariables.getONCLogo());
+										JOptionPane.ERROR_MESSAGE, GlobalVariablesDB.getONCLogo());
 		}
 	}
 
@@ -409,7 +409,7 @@ public class ManageVolDialog extends ONCTableDialog implements ActionListener, L
 		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_DRIVERS"))
 		{
 			//get the initial data and display
-			this.setTitle(String.format("Our Neighbor's Child - %d Volunteer Management", GlobalVariables.getCurrentSeason()));
+			this.setTitle(String.format("Our Neighbor's Child - %d Volunteer Management", GlobalVariablesDB.getCurrentSeason()));
 			updateGroupList();
 			createTableList();
 		}

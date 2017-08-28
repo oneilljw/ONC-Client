@@ -109,8 +109,8 @@ public class ManageActivitiesDialog extends ONCTableDialog implements ActionList
 		sortCriteriaPanel.setBorder(BorderFactory.createTitledBorder("Search Filters"));
 	
 		//Create the ONC Icon label and add it to the search criteria panel
-		JLabel lblONCicon = new JLabel(GlobalVariables.getONCLogo());
-		lblONCicon.setToolTipText("ONC Client v" + GlobalVariables.getVersion());
+		JLabel lblONCicon = new JLabel(GlobalVariablesDB.getONCLogo());
+		lblONCicon.setToolTipText("ONC Client v" + GlobalVariablesDB.getVersion());
 		lblONCicon.setAlignmentX(Component.LEFT_ALIGNMENT );//0.0
 		sortCriteriaPanel.add(lblONCicon);
 		
@@ -347,7 +347,7 @@ public class ManageActivitiesDialog extends ONCTableDialog implements ActionList
 		{
 			String err_mssg = "Unable to print Activities table: " + e.getMessage();
 			JOptionPane.showMessageDialog(this, err_mssg, "Print Activity Table Error",
-										JOptionPane.ERROR_MESSAGE, GlobalVariables.getONCLogo());
+										JOptionPane.ERROR_MESSAGE, GlobalVariablesDB.getONCLogo());
 		}
 	}
 	
@@ -413,7 +413,7 @@ public class ManageActivitiesDialog extends ONCTableDialog implements ActionList
 		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_ACTIVITIES"))
 		{
 			//get the initial data and display
-			this.setTitle(String.format("Our Neighbor's Child - %d Activity Management", GlobalVariables.getCurrentSeason()));
+			this.setTitle(String.format("Our Neighbor's Child - %d Activity Management", GlobalVariablesDB.getCurrentSeason()));
 			createTableList();
 		}
 	}

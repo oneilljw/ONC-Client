@@ -32,7 +32,7 @@ public class ChildPanel extends JPanel implements DatabaseListener, EntitySelect
 	private ONCChild dispChild = null;	//The panel needs to know which child is being displayed for listeners
 	
 	//databases
-	private GlobalVariables gvs;
+	private GlobalVariablesDB gvs;
     private FamilyDB fDB;
 	private ChildDB cDB;
 	private UserDB userDB;
@@ -50,7 +50,7 @@ public class ChildPanel extends JPanel implements DatabaseListener, EntitySelect
 	public ChildPanel()
 	{	
 		//register database listeners for updates
-		gvs = GlobalVariables.getInstance();
+		gvs = GlobalVariablesDB.getInstance();
     	fDB = FamilyDB.getInstance();
 		if(fDB != null)
 			fDB.addDatabaseListener(this);
@@ -255,7 +255,7 @@ public class ChildPanel extends JPanel implements DatabaseListener, EntitySelect
 			reqUpdateChild.updateChildData(firstnameTF.getText(), lastnameTF.getText(),
 											schoolTF.getText(), genderTF.getText(),
 											 convertCalendarDOBToGMT(dobDC.getCalendar()),
-											 GlobalVariables.getCurrentSeason());
+											 GlobalVariablesDB.getCurrentSeason());
 			
 			String response = cDB.update(this, reqUpdateChild);	//notify child has changed
 			if(response.startsWith("UPDATED_CHILD"))
@@ -267,7 +267,7 @@ public class ChildPanel extends JPanel implements DatabaseListener, EntitySelect
 			{
 				//display an error message that update request failed
 				Thread.currentThread().getStackTrace();
-				JOptionPane.showMessageDialog(GlobalVariables.getFrame(), "ONC Server denied Child Update," +
+				JOptionPane.showMessageDialog(GlobalVariablesDB.getFrame(), "ONC Server denied Child Update," +
 						"try again later","Child Update Failed",  
 						JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
 				

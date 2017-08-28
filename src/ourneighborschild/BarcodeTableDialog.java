@@ -169,7 +169,7 @@ public abstract class BarcodeTableDialog extends ONCTableDialog implements Actio
 		{
 			String err_mssg = "Unable to print wish history: " + e.getMessage();
 			JOptionPane.showMessageDialog(this, err_mssg, "Print Wish History",
-										JOptionPane.ERROR_MESSAGE, GlobalVariables.getONCLogo());
+										JOptionPane.ERROR_MESSAGE, GlobalVariablesDB.getONCLogo());
 		}
 	}
 	

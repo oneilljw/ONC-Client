@@ -149,7 +149,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		changedByCB.addActionListener(this);
 				
 //		stoplightCB = new JComboBox(stoplt);
-		stoplightCB = new JComboBox(GlobalVariables.getLights());
+		stoplightCB = new JComboBox(GlobalVariablesDB.getLights());
 		stoplightCB.setPreferredSize(new Dimension(80, 56));
 		stoplightCB.setBorder(BorderFactory.createTitledBorder("Stoplight"));
 		stoplightCB.addActionListener(this);
@@ -289,7 +289,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 	{
 		ONCPartner o = (ONCPartner) obj;
 		SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yy");
-		Object[] sorttablerow = {o.getName(), status[o.getStatus()+1], types[o.getType()],
+		Object[] sorttablerow = {o.getLastName(), status[o.getStatus()+1], types[o.getType()],
 								 o.getGiftCollectionType().toString(),
 								 Integer.toString(o.getNumberOfOrnamentsRequested()),
 								 Integer.toString(o.getNumberOfOrnamentsAssigned()),
@@ -507,7 +507,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 	        else if(emailType == 2)
 	        {
 	        	//get the clothing donor's first name
-	        	String[] names = o.getName().split(",");
+	        	String[] names = o.getLastName().split(",");
 	        	if(names.length == 2)
 	        		emailBody = create2016ClothingDonorEmailBody(names[1].trim(), cid0);
 	        	else
@@ -531,7 +531,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 	        else if(emailType == 5)
 	        {
 	        	//get the clothing donor's first name
-	        	String[] names = o.getName().split(",");
+	        	String[] names = o.getLastName().split(",");
 	        	if(names.length == 2)
 	        		emailBody = create2016ClothingDropOffEmailBody(names[1].trim());
 	        	else
@@ -932,7 +932,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 	String create2016SeasonOrganizationEmailBody(ONCPartner o, String cid0, String cid1)
 	{
 		 //Create the variables for the body of the email     
-        String name = o.getName();
+        String name = o.getLastName();
         
         //The next section of code is a temporary fix until the ONCPartner object is updated
         //to split the contact and contact2 name fields into contact fn, contact ln
@@ -963,17 +963,17 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
         	fn = fn.concat(" & " + fn2);        
         //End of temporary code to handle contact name splitting
    
-        String address = o.getStreetnum() + " " + o.getStreetname() + " " + o.getUnit() + " " +
-        				 o.getCity() + ", VA " + o.getZipcode();
+        String address = o.getHouseNum() + " " + o.getStreet() + " " + o.getUnit() + " " +
+        				 o.getCity() + ", VA " + o.getZipCode();
         String contact = o.getContact();
-        String busphone = o.getPhone();
+        String busphone = o.getHomePhone();
        
         //Pick the 1st contact phone if it is valid, else try the organization phone number
         String contactphone = "";
         if(o.getContact_phone().length() >= MIN_PHONE_NUMBER_LENGTH)
         	contactphone = o.getContact_phone();
-        else if(o.getPhone().length() >= MIN_PHONE_NUMBER_LENGTH)
-        	contactphone = o.getPhone();	
+        else if(o.getHomePhone().length() >= MIN_PHONE_NUMBER_LENGTH)
+        	contactphone = o.getHomePhone();	
         String contactemail = o.getContact_email();
         
         //Pick the 2nd contact phone if it is valid, else try the organization phone number
@@ -981,8 +981,8 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
         String contact2phone = "";
         if(o.getContact2_phone().length() >= MIN_PHONE_NUMBER_LENGTH)
         	contact2phone = o.getContact2_phone();
-        else if(o.getPhone().length() >= MIN_PHONE_NUMBER_LENGTH)
-        	contact2phone = o.getPhone();	
+        else if(o.getHomePhone().length() >= MIN_PHONE_NUMBER_LENGTH)
+        	contact2phone = o.getHomePhone();	
         String contact2email = o.getContact2_email();
         
         String giftCollectionType = o.getGiftCollectionType().toString();
@@ -1225,7 +1225,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		
 		String[] row = {
 						Long.toString(o.getID()),
-						o.getName(),
+						o.getLastName(),
 						types[o.getType()],
 						status[o.getStatus()+1],
 						o.getGiftCollectionType().toString(),
@@ -1234,11 +1234,11 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 						Integer.toString(o.getNumberOfOrnamentsRequested()),
 						Integer.toString(o.getNumberOfOrnamentsAssigned()),
 						o.getDeliverTo(),
-						Integer.toString(o.getStreetnum()) + " " + o.getStreetname(),
+						o.getHouseNum() + " " + o.getStreet(),
 						o.getUnit(),
 						o.getCity(),
-						o.getZipcode(),
-						o.getPhone(),
+						o.getZipCode(),
+						o.getHomePhone(),
 						o.getContact(),
 						o.getContact_email(),
 						o.getContact_phone(),
@@ -1255,7 +1255,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		
 		String[] row = {
 						Long.toString(o.getID()),
-						o.getName(),
+						o.getLastName(),
 						types[o.getType()],
 						status[o.getStatus()+1],
 						o.getGiftCollectionType().toString(),
@@ -1481,7 +1481,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		}
 		else if(dbe.getType().equals("LOADED_PARTNERS"))
 		{
-			this.setTitle(String.format("Our Neighbor's Child - %d Partner Management", GlobalVariables.getCurrentSeason()));
+			this.setTitle(String.format("Our Neighbor's Child - %d Partner Management", GlobalVariablesDB.getCurrentSeason()));
 		}
 	}
 	

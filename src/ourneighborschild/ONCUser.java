@@ -5,15 +5,15 @@ import java.util.LinkedList;
 import java.util.List;
 
 
-public class ONCUser extends ONCEntity
+public class ONCUser extends ONCGmailContactEntity
 {
 	/*****
 	 * This class implements a user pojo consisting of a first name, last name and
 	 * permission fields
 	 */
 	private static final long serialVersionUID = 1L;
-	protected String firstname;
-	protected String lastname;
+//	protected String firstName;
+//	protected String lastName;
 	protected UserStatus status;
 	protected UserAccess access;
 	protected UserPermission permission; 	
@@ -21,10 +21,10 @@ public class ONCUser extends ONCEntity
 	protected int clientYear;
 	protected long nSessions;
 	protected long lastLogin;	//should always be UTC
-	protected String email;
-	protected String phone;
+//	protected String email;
+//	protected String cellPhone;
 	protected String title;
-	protected String org;
+//	protected String organization;
 	protected List<Integer> groupList;
 	protected UserPreferences preferences;
 	
@@ -32,10 +32,11 @@ public class ONCUser extends ONCEntity
 			String fn, String ln, UserStatus stat, UserAccess acc, UserPermission perm, long nSessions,
 			long last, String org, String title, String email, String phone, List<Integer> groupList)
 	{
-		super(id, today, changedBy, slpos, slmssg, slchgby);
+		super(id, fn, ln, email, phone, phone, "","","","","","New User", org, today, changedBy, 
+				slpos, slmssg, slchgby);
 		
-		firstname = fn;
-		lastname = ln;
+//		firstName = fn;
+//		lastName = ln;
 		status = stat;
 		access = acc;
 		permission = perm;
@@ -43,10 +44,10 @@ public class ONCUser extends ONCEntity
 		clientYear = -1;
 		this.nSessions = nSessions;
 		lastLogin = last;
-		this.org = org;
+//		this.organization = org;
 		this.title = title;
-		this.email = email;
-		this.phone = phone;
+//		this.email = email;
+//		this.cellPhone = phone;
 		this.groupList = groupList;
 		this.preferences = new UserPreferences();
 	}
@@ -57,10 +58,12 @@ public class ONCUser extends ONCEntity
 			long last, String org, String title,String email, String phone, List<Integer> groupList,
 			int fontSize, int wafPos, int fdfPos)
 	{
-		super(id, today, changedBy, slpos, slmssg, slchgby);
+//		super(id, today, changedBy, slpos, slmssg, slchgby);
+		super(id, fn, ln, email, phone, phone, "","","","","","New User", org, today, changedBy, 
+				slpos, slmssg, slchgby);
 		
-		firstname = fn;
-		lastname = ln;
+//		firstName = fn;
+//		lastName = ln;
 		status = stat;
 		access = acc;
 		permission = perm;
@@ -68,10 +71,10 @@ public class ONCUser extends ONCEntity
 		clientYear = -1;
 		this.nSessions = nSessions;
 		lastLogin = last;
-		this.org = org;
+//		this.organization = org;
 		this.title = title;
-		this.email = email;
-		this.phone = phone;
+//		this.email = email;
+//		this.cellPhone = phone;
 		this.groupList = groupList;
 		this.preferences = new UserPreferences(fontSize, wafPos, fdfPos);
 	}
@@ -82,10 +85,12 @@ public class ONCUser extends ONCEntity
 			long clientID, int clientYear, long nSessions, long lastLogin, 
 			String org, String title, String email, String phone, List<Integer> groupList, UserPreferences prefs)
 	{
-		super(id, today, changedBy, slpos, slmssg, slchgby);
+//		super(id, today, changedBy, slpos, slmssg, slchgby);
+		super(id, fn, ln, email, phone, phone, "","","","","","New User", org, today, changedBy, 
+				slpos, slmssg, slchgby);
 		
-		firstname = fn;
-		lastname = ln;
+//		firstName = fn;
+//		lastName = ln;
 		status = stat;
 		access = acc;
 		permission = perm;
@@ -93,10 +98,10 @@ public class ONCUser extends ONCEntity
 		this.clientYear = clientYear;
 		this.nSessions = nSessions;
 		this.lastLogin = lastLogin;
-		this.org = org;
+//		this.organization = org;
 		this.title = title;
-		this.email = email;
-		this.phone = phone;
+//		this.email = email;
+//		this.cellPhone = phone;
 		
 		this.groupList = new LinkedList<Integer>();
 		for(Integer groupID : groupList)
@@ -107,10 +112,12 @@ public class ONCUser extends ONCEntity
 	
 	public ONCUser(ONCUser u)
 	{
-		super(u.id, u.dateChanged.getTime(), u.changedBy, u.slPos, u.slMssg, u.slChangedBy);
+//		super(u.id, u.dateChanged.getTime(), u.changedBy, u.slPos, u.slMssg, u.slChangedBy);
+		super(u.id, u.firstName, u.lastName, u.email, u.homePhone, u.cellPhone, u.houseNum,u.street,u.unit,u.city,u.zipCode, u.comment, u.organization, u.dateChanged, u.changedBy, 
+				u.slPos, u.slMssg, u.slChangedBy);
 		
-		firstname = u.firstname;
-		lastname = u.lastname;
+//		firstName = u.firstName;
+//		lastName = u.lastName;
 		status = u.status;
 		access = u.access;
 		permission = u.permission;
@@ -118,10 +125,10 @@ public class ONCUser extends ONCEntity
 		this.clientYear = u.clientYear;
 		this.nSessions = u.nSessions;
 		this.lastLogin = u.lastLogin;
-		this.org = u.org;
+//		this.organization = u.organization;
 		this.title = u.title;
-		this.email = u.email;
-		this.phone = u.phone;
+//		this.email = u.email;
+//		this.cellPhone = u.cellPhone;
 		
 		this.groupList = new LinkedList<Integer>();
 		for(Integer groupID : groupList)
@@ -132,10 +139,12 @@ public class ONCUser extends ONCEntity
 	
 	public ONCUser()
 	{
-		super(-1, new Date(), "", 3, "Dummy User Agent", "");
+//		super(-1, new Date(), "", 3, "Dummy User Agent", "");
+		super(-1, "Dummy", "User/Agent", "None", "None", "None", "","","","","","Dummy User Agent", "None",  new Date(), "", 3, "Dummy User Agent", "");
+
 		
-		firstname = "Dummy";
-		lastname = "User/Agent";
+//		firstName = "Dummy";
+//		lastName = "User/Agent";
 		status = UserStatus.Inactive;
 		access = UserAccess.App;
 		permission = UserPermission.General;
@@ -143,10 +152,10 @@ public class ONCUser extends ONCEntity
 		this.clientYear = -1;
 		this.nSessions = 0;
 		this.lastLogin = System.currentTimeMillis();
-		this.org = "None";
+//		this.organization = "None";
 		this.title = "None";
-		this.email = "None";
-		this.phone = "None";
+//		this.email = "None";
+//		this.cellPhone = "None";
 		groupList = new LinkedList<Integer>();
 		this.preferences = new UserPreferences(13, 1, 1);
 	}
@@ -163,8 +172,12 @@ public class ONCUser extends ONCEntity
 	public long incrementSessions() { return ++nSessions; }
 	public boolean changePasswordRqrd() { return status.equals(UserStatus.Change_PW); }
 	public UserPreferences getPreferences() { return preferences; }
-	public String getFirstname() { return firstname; }
-	public String getLastname() { return lastname; }
+//	public String getFirstName() { return firstName; }
+//	public String getLastName() { return lastName; }
+//	public String getOrganization() { return organization; }
+	public String getTitle() { return title; }
+//	public String getEmail() { return email; }
+//	public String getCellPhone() { return cellPhone; }
 	public UserPermission getPermission() { return permission; }
 	public void setPermission(UserPermission permission) { this.permission = permission; }
 	public UserStatus getStatus() { return status; }
@@ -172,18 +185,14 @@ public class ONCUser extends ONCEntity
 	public List<Integer> getGroupList() { return groupList; }
 	
 	//setters
-	public void setFirstname(String firstname) { this.firstname = firstname; }
-	public void setLastname(String lastname) { this.lastname = lastname; }
+//	public void setFirstName(String firstname) { this.firstName = firstname; }
+//	public void setLastName(String lastname) { this.lastName = lastname; }
 	public void setStatus(UserStatus status) { this.status = status; }
 	public void setAccess(UserAccess access) { this.access = access; }
-	public String getOrg() { return org; }
-	public String getTitle() { return title; }
-	public String getEmail() { return email; }
-	public String getPhone() { return phone; }
-	public void setOrg(String s) { this.org = s; }
+//	public void setOrganization(String s) { this.organization = s; }
 	public void setTitle(String s) { this.title = s; }
-	public void setEmail(String s) { this.email = s; }
-	public void setPhone(String s) { this.phone = s; }
+//	public void setEmail(String s) { this.email = s; }
+//	public void setCellPhone(String s) { this.cellPhone = s; }
 	public void setGroupList(List<Integer> groupList) { this.groupList = groupList; }
 	public void setPreferences(UserPreferences prefs) { this.preferences = prefs; }
 	
@@ -199,13 +208,13 @@ public class ONCUser extends ONCEntity
 	public void removeGroup(Integer groupID) {groupList.remove(groupID); }
 	
 
-	public String getLNFI()
-	{
-		if(firstname.isEmpty())
-    		return lastname;
-    	else
-    		return lastname + ", " + firstname.charAt(0);
-	}
+//	public String getLNFI()
+//	{
+//		if(firstName.isEmpty())
+//    		return lastName;
+//    	else
+//    		return lastName + ", " + firstName.charAt(0);
+//	}
 	
 	public ONCUser getUser() { return this; }
 	
@@ -213,12 +222,12 @@ public class ONCUser extends ONCEntity
 	public String[] getExportRow()
 	{
 		String[] row = {
-						Integer.toString(id), firstname, lastname,
+						Integer.toString(id), firstName, lastName,
 						status.toString(), access.toString(), permission.toString(), 
 						Long.toString(dateChanged.getTimeInMillis()), changedBy, Integer.toString(slPos), 
 						slMssg,slChangedBy, Long.toString(nSessions), 
 						Long.toString(lastLogin),
-						org, title, email, phone, getGroupListAsDelimitedString(),
+						organization, title, email, cellPhone, getGroupListAsDelimitedString(),
 						Integer.toString(preferences.getFontSize()), 
 						Integer.toString(preferences.getWishAssigneeFilter()), 
 						Integer.toString(preferences.getFamilyDNSFilter())
@@ -245,6 +254,6 @@ public class ONCUser extends ONCEntity
 	@Override
 	public String toString()
 	{
-		return firstname + " " + lastname;	
+		return firstName + " " + lastName;	
 	}
 }

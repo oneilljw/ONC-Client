@@ -39,7 +39,7 @@ public class OurNeighborsChild
 	//GUI Objects
 	private JFrame oncFrame;
 	private JPanel oncContentPane, oncSplashPanel;	
-	private GlobalVariables oncGVs;
+	private GlobalVariablesDB oncGVs;
 	private FamilyPanel oncFamilyPanel;
 	private MenuBar oncMenuBar;
 	
@@ -155,7 +155,7 @@ public class OurNeighborsChild
         
         //since we didn't exit, server is connected, proceed with initialization
         //create global variables, set the main frame and the version number
-        oncGVs = GlobalVariables.getInstance();
+        oncGVs = GlobalVariablesDB.getInstance();
         oncGVs.setFrame(oncFrame);
         oncGVs.setVersion(VERSION);
         
@@ -191,10 +191,10 @@ public class OurNeighborsChild
 			upDlg.showDialog();
 		}
 		
-		if(user.getFirstname().isEmpty())
+		if(user.getFirstName().isEmpty())
     		oncFamilyPanel.setMssg("Welcome to Our Neighbor's Child!", true);
     	else
-    		oncFamilyPanel.setMssg(user.getFirstname() + ", welcome to " +
+    		oncFamilyPanel.setMssg(user.getFirstName() + ", welcome to " +
     								"Our Neighbor's Child!", true);
 		
 		//Connected & logged in to server

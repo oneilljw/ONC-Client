@@ -63,7 +63,7 @@ public class TransportationDialog extends InfoDialog implements DatabaseListener
 		f = (ONCFamily) obj;
 		
 		tf[0].setText(f.getONCNum());
-		tf[1].setText(userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0 ? f.getHOHLastName() : "");
+		tf[1].setText(userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0 ? f.getLastName() : "");
 		transportationCB.setSelectedItem(f.getTransportation());
 		
 		btnAction.setEnabled(false);		

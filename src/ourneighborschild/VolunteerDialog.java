@@ -602,7 +602,7 @@ public class VolunteerDialog extends EntityDialog
 			}
 			else if(dbe.getType().equals("LOADED_DRIVERS"))
 			{
-				this.setTitle(String.format("Our Neighbor's Child - %d Volunteer Information", GlobalVariables.getCurrentSeason()));
+				this.setTitle(String.format("Our Neighbor's Child - %d Volunteer Information", GlobalVariablesDB.getCurrentSeason()));
 			}
 			else if(dbe.getSource() != this && dbe.getType().contains("_ACTIVITY"))
 			{
@@ -782,8 +782,8 @@ public class VolunteerDialog extends EntityDialog
         		{
         			//request failed
         			String err_mssg = "ONC Server denied update user request, try again later";
-        			JOptionPane.showMessageDialog(GlobalVariables.getFrame(), err_mssg, "Update Volunteer Request Failure",
-													JOptionPane.ERROR_MESSAGE, GlobalVariables.getONCLogo());
+        			JOptionPane.showMessageDialog(GlobalVariablesDB.getFrame(), err_mssg, "Update Volunteer Request Failure",
+													JOptionPane.ERROR_MESSAGE, GlobalVariablesDB.getONCLogo());
         		}
         	}
         }  

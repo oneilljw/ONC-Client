@@ -34,7 +34,7 @@ public class PartnerDB extends ONCSearchableDatabase
 	
 	private static PartnerDB instance = null;
 	private ArrayList<ONCPartner> partnerList;	//The list of ONCPartner objects
-	private GlobalVariables orgGVs;
+	private GlobalVariablesDB orgGVs;
 	private UserDB userDB;
 	
 	private PartnerDB()
@@ -43,7 +43,7 @@ public class PartnerDB extends ONCSearchableDatabase
 		
 		//Instantiate the partner list
 		partnerList = new ArrayList<ONCPartner>();
-		orgGVs = GlobalVariables.getInstance();
+		orgGVs = GlobalVariablesDB.getInstance();
 		userDB = UserDB.getInstance();
 	}
 	
@@ -118,7 +118,7 @@ public class PartnerDB extends ONCSearchableDatabase
 	{
 		int index = 0;
 		while(index < partnerList.size() && partnerList.get(index).getType() != type && 
-				!partnerList.get(index).getName().equals(name))
+				!partnerList.get(index).getLastName().equals(name))
 			index++;
 		
 		if(index < partnerList.size())
@@ -150,7 +150,7 @@ public class PartnerDB extends ONCSearchableDatabase
     		searchType = "Partner Name, Email or Contacts";
 			for(ONCPartner o:partnerList)
 			{
-				if(o.getName().toLowerCase().contains(data.toLowerCase()) ||
+				if(o.getLastName().toLowerCase().contains(data.toLowerCase()) ||
 					o.getContact_email().toLowerCase().contains(data.toLowerCase()) ||
 					o.getContact2_email().toLowerCase().contains(data.toLowerCase()) ||
 					o.getContact().toLowerCase().contains(data.toLowerCase()) ||
@@ -324,7 +324,7 @@ public class PartnerDB extends ONCSearchableDatabase
 		
     	if(filename == null)
     	{
-    		ONCFileChooser fc = new ONCFileChooser(GlobalVariables.getFrame());
+    		ONCFileChooser fc = new ONCFileChooser(GlobalVariablesDB.getFrame());
     		oncwritefile= fc.getFile("Select .csv file to save Partner DB to",
 										new FileNameExtensionFilter("CSV Files", "csv"), 1);
     	}
@@ -361,7 +361,7 @@ public class PartnerDB extends ONCSearchableDatabase
 	    	catch (IOException x)
 	    	{
 	    		System.err.format("IO Exception: %s%n", x);
-	    		JOptionPane.showMessageDialog(GlobalVariables.getFrame(), oncwritefile.getName() + " could not be saved", 
+	    		JOptionPane.showMessageDialog(GlobalVariablesDB.getFrame(), oncwritefile.getName() + " could not be saved", 
 						"ONC File Save Error", JOptionPane.ERROR_MESSAGE);
 	    	}
 	    }
@@ -557,7 +557,7 @@ public class PartnerDB extends ONCSearchableDatabase
 			
 			//If status is still confirmed and the name has changed by firing an 
 			//UPDATED_CONFIRMED_PARTNER_NAME message
-			if(updatedPartner.getStatus() == STATUS_CONFIRMED && !updatedPartner.getName().equals(replacedPartner.getName()))
+			if(updatedPartner.getStatus() == STATUS_CONFIRMED && !updatedPartner.getLastName().equals(replacedPartner.getLastName()))
 			{
 				fireDataChanged(source, "UPDATED_CONFIRMED_PARTNER_NAME", updatedPartner);
 			}
@@ -601,7 +601,7 @@ public class PartnerDB extends ONCSearchableDatabase
 		@Override
 		public int compare(ONCPartner o1, ONCPartner o2)
 		{			
-			return o1.getName().compareTo(o2.getName());
+			return o1.getLastName().compareTo(o2.getLastName());
 		}
 	}
 	private class PartnerStatusComparator implements Comparator<ONCPartner>

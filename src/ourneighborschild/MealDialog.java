@@ -112,7 +112,7 @@ public class MealDialog extends HistoryDialog
 									
 		Object[] options= {"Cancel", "Delete Meal"};
 		JOptionPane confirmOP = new JOptionPane(confirmMssg, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION,
-													GlobalVariables.getInstance().getImageIcon(0),
+													GlobalVariablesDB.getInstance().getImageIcon(0),
 													options, "Cancel");
 		JDialog confirmDlg = confirmOP.createDialog(this, "*** Confirm Delete Meal ***");
 		confirmDlg.setLocationRelativeTo(this);
@@ -134,9 +134,9 @@ public class MealDialog extends HistoryDialog
 			if(!response.startsWith("UPDATED_FAMILY"))
 			{
 				//display an error message that update request failed
-				JOptionPane.showMessageDialog(GlobalVariables.getFrame(), 
+				JOptionPane.showMessageDialog(GlobalVariablesDB.getFrame(), 
 					"ONC Server denied add meal request, try again later","Add Meal Failed",  
-					JOptionPane.ERROR_MESSAGE, GlobalVariables.getInstance().getImageIcon(0));
+					JOptionPane.ERROR_MESSAGE, GlobalVariablesDB.getInstance().getImageIcon(0));
 			}
 			else
 				this.dispose();
@@ -239,7 +239,7 @@ public class MealDialog extends HistoryDialog
         		if(meal.getPartnerID() > -1)
         		{
         			ONCPartner partner = partnerDB.getPartnerByID(meal.getPartnerID());
-        			value = partner.getName();
+        			value = partner.getLastName();
         		}
         		else
         			value = "";

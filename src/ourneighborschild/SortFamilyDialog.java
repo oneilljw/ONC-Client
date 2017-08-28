@@ -193,7 +193,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		giftCardCB.addActionListener(this);
 		
 //		stoplightCB = new JComboBox(stoplt);
-		stoplightCB = new JComboBox(GlobalVariables.getLights());
+		stoplightCB = new JComboBox(GlobalVariablesDB.getLights());
 		stoplightCB.setPreferredSize(new Dimension(80, 56));
 		stoplightCB.setBorder(BorderFactory.createTitledBorder("Stoplight"));
 		stoplightCB.addActionListener(this);
@@ -344,11 +344,11 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			f.getFamilyStatus().toString(),
 			f.getGiftStatus().toString(),
 			f.getMealStatus().toString(),
-			f.getHOHFirstName(),
-			f.getHOHLastName(),
+			f.getFirstName(),
+			f.getLastName(),
 			f.getHouseNum(),
 			f.getStreet(),
-			f.getUnitNum(),
+			f.getUnit(),
 			f.getZipCode(),
 			regions.getRegionID(f.getRegion()),
 			f.getChangedBy(),
@@ -390,7 +390,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 				  doesFStatusMatch(f.getFamilyStatus()) &&
 				   doesDStatusMatch(f.getGiftStatus()) &&
 				   doesMealStatusMatch(f.getMealStatus()) && 
-				    doesLastNameMatch(f.getHOHLastName()) &&
+				    doesLastNameMatch(f.getLastName()) &&
 				     doesStreetMatch(f.getStreet()) &&
 				      doesZipMatch(f.getZipCode()) &&
 				       doesRegionMatch(f.getRegion()) &&
@@ -481,7 +481,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 				else
 				{
 					//display an error message that update request failed
-					GlobalVariables gvs = GlobalVariables.getInstance();
+					GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
 					JOptionPane.showMessageDialog(this, "ONC Server denied Delivery Update," +
 							"try again later","Delivery Update Failed",  
 							JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
@@ -495,7 +495,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 					bDataChanged = true;
 				else
 				{	//display an error message that update request failed
-					GlobalVariables gvs = GlobalVariables.getInstance();
+					GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
 					JOptionPane.showMessageDialog(this, "ONC Server denied Family Update," +
 						"try again later","Family Update Failed",  
 						JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
@@ -645,7 +645,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			SimpleDateFormat twodigitYear = new SimpleDateFormat("yy");
 			int idx = Integer.parseInt(twodigitYear.format(gvs.getSeasonStartDate())) % NUM_OF_XMAS_ICONS;
 			final Image img = gvs.getImageIcon(idx + XMAS_ICON_OFFSET).getImage();				
-			String oncSeason = "ONC " + Integer.toString(GlobalVariables.getCurrentSeason());			
+			String oncSeason = "ONC " + Integer.toString(GlobalVariablesDB.getCurrentSeason());			
 			
 			
 			//Create the print job
@@ -805,7 +805,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		SimpleDateFormat twodigitYear = new SimpleDateFormat("yy");
 		int idx = Integer.parseInt(twodigitYear.format(gvs.getSeasonStartDate())) % NUM_OF_XMAS_ICONS;
 		final Image img = gvs.getImageIcon(idx + XMAS_ICON_OFFSET).getImage();				
-		String oncSeason = "ONC " + Integer.toString(GlobalVariables.getCurrentSeason());
+		String oncSeason = "ONC " + Integer.toString(GlobalVariablesDB.getCurrentSeason());
 			
 		DeliveryDirectionsPrinter ddp = new DeliveryDirectionsPrinter(ddpAL, img, oncSeason);
 			
@@ -960,15 +960,15 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
     					//Build the phone number to call. Replace all dashes so that the resultant
     					//phone number is a 10 digit number
     					String phonenum = "None Found";
-    					if(f.getHomePhone().equals("None Found") && f.getOtherPhon().equals("None Found"))
+    					if(f.getHomePhone().equals("None Found") && f.getCellPhone().equals("None Found"))
     						phonenum = "None Found";
     					else if(phonereq.equals("Home Phone") && !f.getHomePhone().equals("None Found"))
     						phonenum = f.getHomePhone().split("\n",2)[0];
     					else if(phonereq.equals("Home Phone") && f.getHomePhone().equals("None Found"))
-    						phonenum = f.getOtherPhon().split("\n",2)[0];
-    					else if(phonereq.equals("Other Phone") && !f.getOtherPhon().equals("None Found"))
-    						phonenum = f.getOtherPhon().split("\n",2)[0];
-    					else if(phonereq.equals("Other Phone") && f.getOtherPhon().equals("None Found"))
+    						phonenum = f.getCellPhone().split("\n",2)[0];
+    					else if(phonereq.equals("Other Phone") && !f.getCellPhone().equals("None Found"))
+    						phonenum = f.getCellPhone().split("\n",2)[0];
+    					else if(phonereq.equals("Other Phone") && f.getCellPhone().equals("None Found"))
     						phonenum = f.getHomePhone().split("\n",2)[0];
     					phonenum = phonenum.replaceAll("-", "");
 			
@@ -994,7 +994,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
     			        {
     			        	houseNum = f.getHouseNum();
     			        	streetName = f.getStreet();
-    			        	unit = f.getUnitNum();
+    			        	unit = f.getUnit();
     			        }
     			        
     			        //process the address
@@ -1319,7 +1319,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		String emailBody = null;
 		
 		//verify the family has a valid name. If not, return a null body
-		if(fam != null && fam.getHOHFirstName() != null && fam.getHOHFirstName().length() >= MIN_EMAIL_NAME_LENGTH) 
+		if(fam != null && fam.getFirstName() != null && fam.getFirstName().length() >= MIN_EMAIL_NAME_LENGTH) 
 		{
 			emailBody = create2016FamilyEmailText(fam);
 		}
@@ -1330,9 +1330,9 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	String create2016FamilyEmailText(ONCFamily fam)
 	{
 		//Create the variables for the body of the email 
-		String hohFirstName = fam.getHOHFirstName();
+		String hohFirstName = fam.getFirstName();
         String familyname = fam.getClientFamily();
-        String streetaddress = fam.getHouseNum() + " " + fam.getStreet() + " " + fam.getUnitNum();
+        String streetaddress = fam.getHouseNum() + " " + fam.getStreet() + " " + fam.getUnit();
         String citystatezip = fam.getCity() + ", VA " + fam.getZipCode();
         
         String altstreetaddress = "";
@@ -1349,7 +1349,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
       	}
         
         String homephones = fam.getHomePhone();
-        String otherphones = fam.getOtherPhon();
+        String otherphones = fam.getCellPhone();
         String emailaddress = fam.getEmail().length() > MIN_EMAIL_ADDRESS_LENGTH ? fam.getEmail() : "None Found";
        
         //Create the text part of the email using html
@@ -1441,7 +1441,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		if(fam != null)
 		{
 			//get the family head of house hold name
-			String famHOHFullName = fam.getHOHFirstName() + " " + fam.getHOHLastName();
+			String famHOHFullName = fam.getFirstName() + " " + fam.getLastName();
 		
 			//verify the family has a valid email address and name. 
 			if(fam.getEmail().length() > MIN_EMAIL_ADDRESS_LENGTH &&
@@ -1592,7 +1592,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		if(f.getSubstituteDeliveryAddress().isEmpty())
 		{
 			delAddress = f.getHouseNum() + " " + f.getStreet();
-			unit = isNumeric(f.getUnitNum()) ? "#" + f.getUnitNum() : f.getUnitNum();
+			unit = isNumeric(f.getUnit()) ? "#" + f.getUnit() : f.getUnit();
 			city = f.getCity();
 			zip = f.getZipCode();
 		}
@@ -1625,8 +1625,8 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		Calendar today = Calendar.getInstance();
 		SimpleDateFormat sdf = new SimpleDateFormat("M/d/yyyy");
 		
-		String[] exportRow = { sdf.format(today.getTime()), f.getONCNum(), "ONC", f.getHOHFirstName(), 
-								f.getHOHLastName(), formatPhoneNumber(f.getHomePhone().trim()),
+		String[] exportRow = { sdf.format(today.getTime()), f.getONCNum(), "ONC", f.getFirstName(), 
+								f.getLastName(), formatPhoneNumber(f.getHomePhone().trim()),
 								delAddress, unit, city, zip,
 								zThanksgivingMeal, zDecemberMeal, "Y", 
 								Integer.toString(numAdults), Integer.toString(numChildren),
@@ -1734,7 +1734,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		if(f.getSubstituteDeliveryAddress().isEmpty())
 		{
 			delAddress = f.getHouseNum() + " " + f.getStreet();
-			unit = isNumeric(f.getUnitNum()) ? "#" + f.getUnitNum() : f.getUnitNum();
+			unit = isNumeric(f.getUnit()) ? "#" + f.getUnit() : f.getUnit();
 			city = f.getCity();
 			zip = f.getZipCode();
 		}
@@ -1747,7 +1747,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			zip = parts[4];
 		}
 		
-		String[] exportRow = {f.getONCNum(), f.getHOHFirstName(), f.getHOHLastName(),
+		String[] exportRow = {f.getONCNum(), f.getFirstName(), f.getLastName(),
 								delAddress, unit, city, zip, f.getDeliveryInstructions()};
 
 		return exportRow;
@@ -2194,7 +2194,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		}
 		else if(dbe.getType().equals("LOADED_FAMILIES"))
 		{
-			this.setTitle(String.format("Our Neighbor's Child - %d Family Management", GlobalVariables.getCurrentSeason()));
+			this.setTitle(String.format("Our Neighbor's Child - %d Family Management", GlobalVariablesDB.getCurrentSeason()));
 		}
 		else if(dbe.getType().contains("CHANGED_USER"))
 		{
@@ -2290,7 +2290,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			int idx = Integer.parseInt(twodigitYear.format(gvs.getSeasonStartDate())) % NUM_OF_XMAS_ICONS;
 			final Image img = gvs.getImageIcon(idx + XMAS_ICON_OFFSET).getImage();
 			
-			String oncSeason = "ONC " + Integer.toString(GlobalVariables.getCurrentSeason());
+			String oncSeason = "ONC " + Integer.toString(GlobalVariablesDB.getCurrentSeason());
 			
 			String carddata[];	//Holds all string data for a card
 		     

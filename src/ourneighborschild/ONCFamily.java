@@ -26,17 +26,17 @@ public class ONCFamily extends ONCEntity
 	private String		notes;
 	private String 		deliveryInstructions;
 	private String 		clientFamily;
-	private String		hohFirstName;
-	private String		hohLastName;	
+	private String		firstName;	//Head of household first name
+	private String		lastName;	//Head of household last name	
 	private String		houseNum;
 	private String		street;
-	private String		unitNum;
+	private String		unit;
 	private String		city;
-	private String		xipCode;
+	private String		zipCode;
 	private String		substituteDeliveryAddress;	//in Google Map Address format
 	private String		allPhoneNumbers;			
 	private String		homePhone;
-	private String		otherPhone;
+	private String		cellPhone;
 	private String		email;
 	private String		details;
 	private String		childrenNames;	//Only used for .csv file export
@@ -68,17 +68,17 @@ public class ONCFamily extends ONCEntity
 		notes = f.notes;
 		deliveryInstructions = f.deliveryInstructions;
 		clientFamily = f.clientFamily;
-		hohFirstName = f.hohFirstName;
-		hohLastName = f.hohLastName;
+		firstName = f.firstName;
+		lastName = f.lastName;
 		houseNum = f.houseNum;
 		street = f.street;
-		unitNum = f.unitNum;
+		unit = f.unit;
 		city = f.city;
-		xipCode = f.xipCode;
+		zipCode = f.zipCode;
 		substituteDeliveryAddress = f.substituteDeliveryAddress;
 		allPhoneNumbers = f.allPhoneNumbers;
 		homePhone = f.homePhone;
-		otherPhone = f.otherPhone;
+		cellPhone = f.cellPhone;
 		email = f.email;
 		details = f.details;
 		childrenNames = f.childrenNames;
@@ -115,9 +115,9 @@ public class ONCFamily extends ONCEntity
 		if(!ClientFam.isEmpty()) {clientFamily = ClientFam.split("Household", 2)[0].trim();}
 		houseNum = "";
 		street = StreetAdd;
-		unitNum = AddL2;
+		unit = AddL2;
 		city = Cty;
-		xipCode = Zip;
+		zipCode = Zip;
 		substituteDeliveryAddress = "";
 		allPhoneNumbers = ClientFamPhone;			
 		email = ClientFamEmail;
@@ -160,17 +160,17 @@ public class ONCFamily extends ONCEntity
 		notes = getDBString(nextLine[11]);
 		deliveryInstructions = getDBString(nextLine[12]);	
 		clientFamily = getDBString(nextLine[13]);
-		hohFirstName = getDBString(nextLine[14]);
-		hohLastName = getDBString(nextLine[15]);
+		firstName = getDBString(nextLine[14]);
+		lastName = getDBString(nextLine[15]);
 		houseNum = getDBString(nextLine[16]);
 		street = getDBString(nextLine[17]);
-		unitNum = getDBString(nextLine[18]);
+		unit = getDBString(nextLine[18]);
 		city = getDBString(nextLine[19]);
-		xipCode = getDBString(nextLine[20]);
+		zipCode = getDBString(nextLine[20]);
 		substituteDeliveryAddress = getDBString(nextLine[21]);
 		allPhoneNumbers = getDBString(nextLine[22]);
 		homePhone = getDBString(nextLine[23]);
-		otherPhone = getDBString(nextLine[24]);
+		cellPhone = getDBString(nextLine[24]);
 		email = getDBString(nextLine[25]);
 		details = getDBString(nextLine[26]);
 		childrenNames = getDBString(nextLine[27]);
@@ -210,13 +210,13 @@ public class ONCFamily extends ONCEntity
 		this.notes = "";
 		this.deliveryInstructions = "";
 		this.clientFamily = hohLastName;
-		this.hohFirstName = hohFirstName;
-		this.hohLastName = hohLastName;	
+		this.firstName = hohFirstName;
+		this.lastName = hohLastName;	
 		this.houseNum = houseNum;
 		this.street = street;
-		this.unitNum = unitNum;
+		this.unit = unitNum;
 		this.city = city;
-		this.xipCode = zipCode;
+		this.zipCode = zipCode;
 		if((altHouseNum.equals(houseNum) && altStreet.equals(street) && altUnitNum.equals(unitNum) &&
 				altCity.equals(city) && altZipCode.equals(zipCode)) || altHouseNum.isEmpty() ||
 				altStreet.isEmpty() || altCity.isEmpty())
@@ -227,9 +227,9 @@ public class ONCFamily extends ONCEntity
 		
 		this.homePhone = formatPhoneNumber(homePhone);
 		if(altPhone.length() < 10)
-			this.otherPhone = formatPhoneNumber(otherPhone);
+			this.cellPhone = formatPhoneNumber(otherPhone);
 		else
-			this.otherPhone = formatPhoneNumber(otherPhone) + "\n" + formatPhoneNumber(altPhone);
+			this.cellPhone = formatPhoneNumber(otherPhone) + "\n" + formatPhoneNumber(altPhone);
 		
 		//create the AllPhoneNumber field
 		StringBuilder buff = new StringBuilder("Home Phone: " + homePhone);
@@ -290,21 +290,21 @@ public class ONCFamily extends ONCEntity
 		
 		if(nameString.length() == 0)
 		{
-			hohFirstName = "UNDETERMINED";
-			hohLastName = "UNDETERMINED";
+			firstName = "UNDETERMINED";
+			lastName = "UNDETERMINED";
 		}
 		else
 		{
 			String[] hohNames = nameString.split(" ", 2);
 			if(hohNames.length == 1)
 			{
-				hohFirstName = "UNDETERMINED";
-				hohLastName = hohNames[0].trim();
+				firstName = "UNDETERMINED";
+				lastName = hohNames[0].trim();
 			}
 			else
 			{
-				hohFirstName = hohNames[0].trim();
-				hohLastName = hohNames[1].trim();
+				firstName = hohNames[0].trim();
+				lastName = hohNames[1].trim();
 			}
 		}
 	}
@@ -378,9 +378,9 @@ public class ONCFamily extends ONCEntity
 			homePhone = "None Found";
 		
 		if(otherph.length() > 0)
-			otherPhone = formatPhoneNumber(otherph.toString().trim());
+			cellPhone = formatPhoneNumber(otherph.toString().trim());
 		else
-			otherPhone = "None Found";	
+			cellPhone = "None Found";	
 	}
 
 	void getChildrenNames(String fm)
@@ -458,17 +458,17 @@ public class ONCFamily extends ONCEntity
 	public String	getNotes() {return notes;}
 	public String	getDeliveryInstructions() {return deliveryInstructions; }
 	public String 	getClientFamily() {return clientFamily;}
-	public String	getHOHFirstName() {return hohFirstName;}
-	public String	getHOHLastName() {return hohLastName;}
+	public String	getFirstName() {return firstName;}
+	public String	getLastName() {return lastName;}
 	public String	getHouseNum() {return houseNum;}
 	public String	getStreet() {return street;}
-	public String	getUnitNum() {return unitNum;}
+	public String	getUnit() {return unit;}
 	public String	getCity() {return city;}
-	public String	getZipCode() {return xipCode;}
+	public String	getZipCode() {return zipCode;}
 	public String	getSubstituteDeliveryAddress() {return substituteDeliveryAddress;}
 	public String	getAllPhoneNumbers() {return allPhoneNumbers;}			
 	public String	getHomePhone() {return homePhone;}
-	public String	getOtherPhon() {return otherPhone;}
+	public String	getCellPhone() {return cellPhone;}
 	public String	getEmail() {return email;}
 	public String	getNamesOfChildren() { return childrenNames; }
 	public String	getDetails() {return details;}
@@ -497,17 +497,17 @@ public class ONCFamily extends ONCEntity
 	public void setNotes(String s) { notes = s;}
 	public void setDeliveryInstructions(String s) { deliveryInstructions = s; }
 	public void setClientFamily(String s) { clientFamily = s;}
-	public void setHOHFirstName(String s) { hohFirstName = s;}
-	public void setHOHLastName(String s) { hohLastName = s;}
+	public void setHOHFirstName(String s) { firstName = s;}
+	public void setHOHLastName(String s) { lastName = s;}
 	public void setHouseNum(String s) { houseNum = s;}
 	public void setStreet(String s) { street = s;}
-	public void setUnitNum(String s) { unitNum = s;}
+	public void setUnitNum(String s) { unit = s;}
 	public void setCity(String s) { city = s;}
-	public void setZipCode(String s) { xipCode = s;}
+	public void setZipCode(String s) { zipCode = s;}
 	public void setSubstituteDeliveryAddress(String s) { substituteDeliveryAddress = s;}
 	public void setAllPhoneNumbers(String s) { allPhoneNumbers = s;}			
 	public void setHomePhone(String s) { homePhone = s;}
-	public void setOtherPhon(String s) { otherPhone = s;}
+	public void setOtherPhon(String s) { cellPhone = s;}
 	public void setFamilyEmail(String s) { email = s;}
 	public void setDetails(String s) { details = s;}
 	public void setSchools(String s) { schools = s;}
@@ -531,7 +531,7 @@ public class ONCFamily extends ONCEntity
 			dbdestAddress = addPart[0] + "+" + addPart[1] + "+" + addPart[3] + ",VA" + "+" + addPart[4];
 		}
 		else	//Get actual family address and format it for the URL request to Google Maps
-			dbdestAddress = houseNum.trim() + "+" + street.trim() + "+" + city.trim() + ",VA" + "+" + xipCode.trim();
+			dbdestAddress = houseNum.trim() + "+" + street.trim() + "+" + city.trim() + ",VA" + "+" + zipCode.trim();
 		
 		return dbdestAddress.replaceAll(" ", "+");
 	}
@@ -551,16 +551,16 @@ public class ONCFamily extends ONCEntity
 	{
 		return doesHouseNumMatch(cf.getHouseNum(), criteria[3]) &&
 				 doesStreetMatch(cf.getStreet(), criteria[4]) &&
-				  doesHOHFirstNameMatch(cf.getHOHFirstName(), criteria[0]) &&
-				   doesHOHLastNameMatch(cf.getHOHLastName(), criteria[1]) &&
-				    doesHOHLastNamePartiallyMatch(cf.getHOHLastName(), criteria[2]);		
+				  doesHOHFirstNameMatch(cf.getFirstName(), criteria[0]) &&
+				   doesHOHLastNameMatch(cf.getLastName(), criteria[1]) &&
+				    doesHOHLastNamePartiallyMatch(cf.getLastName(), criteria[2]);		
 	}
 
 	boolean doesHouseNumMatch(String hn, boolean criteria) { return !criteria || (criteria && hn.equals(houseNum)); }
 	boolean doesStreetMatch(String st, boolean criteria) { return !criteria || (criteria && street.equalsIgnoreCase(st)); }
-	boolean doesHOHFirstNameMatch(String hohfn, boolean criteria) { return !criteria || (criteria && hohFirstName.equalsIgnoreCase(hohfn)); }
-	boolean doesHOHLastNameMatch(String hohln, boolean criteria) { return !criteria || (criteria && hohLastName.equalsIgnoreCase(hohln)); }
-	boolean doesHOHLastNamePartiallyMatch(String hohln, boolean criteria) { return !criteria || (criteria && hohLastName.trim().toLowerCase().contains(hohln.trim().toLowerCase())); }
+	boolean doesHOHFirstNameMatch(String hohfn, boolean criteria) { return !criteria || (criteria && firstName.equalsIgnoreCase(hohfn)); }
+	boolean doesHOHLastNameMatch(String hohln, boolean criteria) { return !criteria || (criteria && lastName.equalsIgnoreCase(hohln)); }
+	boolean doesHOHLastNamePartiallyMatch(String hohln, boolean criteria) { return !criteria || (criteria && lastName.trim().toLowerCase().contains(hohln.trim().toLowerCase())); }
 	
 	
 	@Override
@@ -581,17 +581,17 @@ public class ONCFamily extends ONCEntity
 		rowList.add(getNotes());
 		rowList.add(getDeliveryInstructions());
 		rowList.add(getClientFamily());
-		rowList.add(getHOHFirstName());
-		rowList.add(getHOHLastName());
+		rowList.add(getFirstName());
+		rowList.add(getLastName());
 		rowList.add(getHouseNum());
 		rowList.add(getStreet());
-		rowList.add(getUnitNum());
+		rowList.add(getUnit());
 		rowList.add(getCity());
 		rowList.add(getZipCode());
 		rowList.add(getSubstituteDeliveryAddress());
 		rowList.add(getAllPhoneNumbers());			
 		rowList.add(getHomePhone());
-		rowList.add(getOtherPhon());
+		rowList.add(getCellPhone());
 		rowList.add(getEmail());
 		rowList.add(getDetails());
 		rowList.add(getNamesOfChildren());

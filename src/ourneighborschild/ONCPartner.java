@@ -12,15 +12,14 @@ public class ONCPartner extends ONCEntity
 	private int status;
 	private int type;
 	private GiftCollection collection;
-	private String name;
-//	private String ornamentDelivery;
-	private int streetnum;
-	private String streetname;
+	private String lastName;
+	private String houseNum;
+	private String street;
 	private String unit;
 	private String city;
-	private String zipcode;
+	private String zipCode;
 	private int region;
-	private String phone;
+	private String homePhone;
 	private int orn_req;
 	private int orn_assigned;
 	private int orn_delivered;
@@ -49,15 +48,14 @@ public class ONCPartner extends ONCEntity
 		status = 0;
 		type = 0;
 		collection = GiftCollection.Unknown;
-		name = "";
-//		ornamentDelivery = "";
-		streetnum = 0;
-		streetname = "";
+		lastName = "";
+		houseNum = "";
+		street = "";
 		unit = "";
 		city = "";
-		zipcode = "";
+		zipCode = "";
 		region = 0;
-		phone = "";
+		homePhone = "";
 		orn_req = 0;
 		orn_assigned = 0;
 		orn_delivered = 0;
@@ -88,15 +86,14 @@ public class ONCPartner extends ONCEntity
 		status = 0;
 		type = 0;
 		collection = GiftCollection.Unknown;
-		this.name = name;
-//		ornamentDelivery = "";
-		streetnum = 0;
-		streetname = "";
+		this.lastName = name;
+		houseNum = "";
+		street = "";
 		unit = "";
 		city = "";
-		zipcode = "";
+		zipCode = "";
 		region = 0;
-		phone = "";
+		homePhone = "";
 		orn_req = 0;
 		orn_assigned = 0;
 		orn_delivered = 0;
@@ -120,7 +117,7 @@ public class ONCPartner extends ONCEntity
 	}
 	
 	ONCPartner(int orgid, Date date, String changedBy, int slPos, String slMssg, String slChangedBy,
-			int status, int type, GiftCollection collection, String name, int streetnum, String streetname,
+			int status, int type, GiftCollection collection, String name, String streetnum, String streetname,
 			String unit, String city, String zipcode, String phone, int orn_req, String other, 
 			String deliverTo, String specialNotes, String contact, String contact_email,
 			String contact_phone, String contact2, String contact2_email, String contact2_phone)
@@ -130,15 +127,14 @@ public class ONCPartner extends ONCEntity
 		this.status = status;
 		this.type = type;
 		this.collection = collection;
-		this.name = name;
-//		this.ornamentDelivery = ornDelivery;
-		this.streetnum = streetnum;
-		this.streetname = streetname;
+		this.lastName = name;
+		this.houseNum = streetnum;
+		this.street = streetname;
 		this.unit = unit;
 		this.city = city;
-		this.zipcode = zipcode;
+		this.zipCode = zipcode;
 		this.region = 0;
-		this.phone = phone;
+		this.homePhone = phone;
 		this.orn_req = orn_req;
 		this.orn_assigned = 0;
 		this.orn_delivered = 0;
@@ -169,15 +165,14 @@ public class ONCPartner extends ONCEntity
 		this.status = o.status;
 		this.type = o.type;
 		this.collection = o.collection;
-		this.name = o.name;
-//		this.ornamentDelivery = o.ornamentDelivery;
-		this.streetnum = o.streetnum;
-		this.streetname = o.streetname;
+		this.lastName = o.lastName;
+		this.houseNum = o.houseNum;
+		this.street = o.street;
 		this.unit = o.unit;
 		this.city = o.city;
-		this.zipcode = o.zipcode;
+		this.zipCode = o.zipCode;
 		this.region = o.region;
-		this.phone = o.phone;
+		this.homePhone = o.homePhone;
 		this.orn_req = o.orn_req;
 		this.orn_assigned = o.orn_assigned;
 		this.orn_delivered = o.orn_delivered;
@@ -208,15 +203,14 @@ public class ONCPartner extends ONCEntity
 		status = Integer.parseInt(nextLine[1]);
 		type = Integer.parseInt(nextLine[2]);
 		collection = nextLine[3].isEmpty() ? GiftCollection.Unknown : GiftCollection.valueOf(nextLine[3]);
-		name = getDBString(nextLine[4]);
-//		ornamentDelivery = getDBString(nextLine[5]);
-		streetnum = nextLine[5].isEmpty() ? 0 : Integer.parseInt(nextLine[5]);
-		streetname = getDBString(nextLine[6]);
+		lastName = getDBString(nextLine[4]);
+		houseNum = getDBString(nextLine[5]);
+		street = getDBString(nextLine[6]);
 		unit = getDBString(nextLine[7]);
 		city =getDBString(nextLine[8]);
-		zipcode = getDBString(nextLine[9]);
+		zipCode = getDBString(nextLine[9]);
 		region = nextLine[10].isEmpty() ? 0 : Integer.parseInt(nextLine[10]);
-		phone = getDBString(nextLine[11]);
+		homePhone = getDBString(nextLine[11]);
 		orn_req = nextLine[12].isEmpty() ? 0 : Integer.parseInt(nextLine[12]);
 		orn_assigned = nextLine[13].isEmpty() ? 0 : Integer.parseInt(nextLine[13]);
 		orn_delivered = nextLine[14].isEmpty() ? 0 : Integer.parseInt(nextLine[14]);
@@ -247,15 +241,14 @@ public class ONCPartner extends ONCEntity
 	public int getStatus()	{ return status; }
 	int getType()		{ return type; }
 	GiftCollection getGiftCollectionType() {return collection; }
-	public String getName()	{ return name; }
-//	String getOrnamentDelivery()	{ return ornamentDelivery; }
-	public int getStreetnum()	{ return streetnum; }
-	public String getStreetname()	{return streetname; }
+	public String getLastName()	{ return lastName; }
+	public String getHouseNum()	{ return houseNum; }
+	public String getStreet()	{return street; }
 	String getUnit() { return unit; }
 	public String getCity()	{return city; }
-	public String getZipcode()	{ return zipcode; }
+	public String getZipCode()	{ return zipCode; }
 	int getRegion()	{ return region; }
-	String getPhone()	{ return phone; }
+	String getHomePhone()	{ return homePhone; }
 	public int getNumberOfOrnamentsRequested()	{ return orn_req; }
 	public int getNumberOfOrnamentsAssigned() { return orn_assigned; }
 	public int getNumberOfOrnamentsDelivered() { return orn_delivered; }
@@ -281,15 +274,14 @@ public class ONCPartner extends ONCEntity
 	public void setStatus(int s)	{ status = s; }
 	void setType(int t)		{ type = t; }
 	void setGiftCollectionType(GiftCollection gc)	{ collection = gc; }
-	void setName(String n)	{ name = n; }
-//	void setOrnamentDelivery(String od)	{ ornamentDelivery = od; }
-	void setStreetnum(int sn)	{ streetnum = sn; }
-	void setStreetname(String sn)	{ streetname = sn; }
+	void setLastName(String n)	{ lastName = n; }
+	void setHouseNum(String sn)	{ houseNum = sn; }
+	void setStreet(String sn)	{ street = sn; }
 	void setUnit(String sn) { unit = sn; }
 	void setCity(String c)	{ city = c; }
-	void setZipcode(String z)	{ zipcode = z; }
+	void setZipCode(String z)	{ zipCode = z; }
 	public void setRegion(int r)	{ region = r; }
-	void setPhone(String p)	{ phone = p; }
+	void setHomePhone(String p)	{ homePhone = p; }
 	public void setNumberOfOrnamentsRequested(int n)	{ orn_req = n; }
 	public void setNumberOfOrnamentsAssigned(int n)	{ orn_assigned = n; }
 	public void setNumberOfOrnamentsDelivered(int n)	{ orn_delivered = n; }
@@ -351,7 +343,7 @@ public class ONCPartner extends ONCEntity
 	
 	String[] getOrgInfoTableRow()
 	{
-		String[] sorttablerow = {name, phone,
+		String[] sorttablerow = {lastName, homePhone,
 								contact, contact_email, contact_phone,
 								contact2, contact2_email, contact2_phone};						 
 		return sorttablerow;
@@ -360,10 +352,10 @@ public class ONCPartner extends ONCEntity
 	public String[] getExportRow()
 	{
 		String[] row= {Integer.toString(id), Integer.toString(status), Integer.toString(type),
-						collection.toString(), name, 
+						collection.toString(), lastName, 
 //						ornamentDelivery, 
-						Integer.toString(streetnum),
-						streetname, unit, city, zipcode, Integer.toString(region), phone,
+						houseNum,
+						street, unit, city, zipCode, Integer.toString(region), homePhone,
 						Integer.toString(orn_req),Integer.toString(orn_assigned), Integer.toString(orn_delivered),
 						Integer.toString(orn_rec_before), Integer.toString(orn_rec_after), 
 						other, deliverTo, specialNotes, contact,
@@ -378,6 +370,6 @@ public class ONCPartner extends ONCEntity
 	 @Override
 	 public String toString()
 	 {
-	     return name;
+	     return lastName;
 	 }
 }

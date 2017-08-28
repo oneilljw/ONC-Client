@@ -19,7 +19,7 @@ public abstract class EntityDialog extends JDialog implements ActionListener, Da
 	private static final long serialVersionUID = 1L;
 	
 	//database references
-	protected GlobalVariables gvs;
+	protected GlobalVariablesDB gvs;
 	protected UserDB userDB;
 	
 	//listeners
@@ -42,7 +42,7 @@ public abstract class EntityDialog extends JDialog implements ActionListener, Da
     	super(pf);
 		this.setTitle("Our Neighbor's Child - ONC Entity Management");
 		
-		gvs = GlobalVariables.getInstance();	//Reference to the one global variable object
+		gvs = GlobalVariablesDB.getInstance();	//Reference to the one global variable object
 		userDB = UserDB.getInstance();
 		
 		dcListener = new FieldChangeListener();

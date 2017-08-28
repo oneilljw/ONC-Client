@@ -167,7 +167,7 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 					String err_mssg = "ONC Server denied add catalog wish request, try again later";
 					JOptionPane.showMessageDialog(this, err_mssg, "Add Catalog Wish Request Failure",
 												JOptionPane.ERROR_MESSAGE,
-												GlobalVariables.getONCLogo());
+												GlobalVariablesDB.getONCLogo());
 				}
 			}
 		}
@@ -201,7 +201,7 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 			{
 				String err_mssg = "Add catalog wish request failed, try again later";
 				JOptionPane.showMessageDialog(this, err_mssg, "Add Catalog Wish Request Failure",
-											JOptionPane.ERROR_MESSAGE, GlobalVariables.getONCLogo());
+											JOptionPane.ERROR_MESSAGE, GlobalVariablesDB.getONCLogo());
 			}
 		}
 	}
@@ -213,7 +213,7 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 		
 		if(modelRow > -1 && cat.getTotalWishCount(modelRow) == 0)
 		{
-			GlobalVariables gvs = GlobalVariables.getInstance();
+			GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
 			
 			//create the delete wish request object
 			ONCWish delreqWish = cat.getWish(modelRow);
@@ -243,7 +243,7 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 				{
 					String err_mssg = "ONC Server denied delete catalog wish request, try again later";
 					JOptionPane.showMessageDialog(this, err_mssg, "Delete Catalog Wish Request Failure",
-											JOptionPane.ERROR_MESSAGE, GlobalVariables.getONCLogo());
+											JOptionPane.ERROR_MESSAGE, GlobalVariablesDB.getONCLogo());
 				}
 			}
 		}
@@ -261,7 +261,7 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 		{
 			String err_mssg = "Unable to print wish catalog: " + e.getMessage();
 			JOptionPane.showMessageDialog(this, err_mssg, "Print Wish Catalog Error",
-										JOptionPane.ERROR_MESSAGE, GlobalVariables.getONCLogo());
+										JOptionPane.ERROR_MESSAGE, GlobalVariablesDB.getONCLogo());
 		}
 	}
 	
@@ -282,7 +282,7 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 		}
 		else if(e.getSource() == btnPrint)
 		{
-			print(Integer.toString(GlobalVariables.getCurrentSeason()) +
+			print(Integer.toString(GlobalVariablesDB.getCurrentSeason()) +
 						" ONC Wish Catalog");
 		}		
 	}
@@ -352,7 +352,7 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 		 * Implements the table model for the Wish Catalog Dialog
 		 */
 		private static final long serialVersionUID = 1L;
-		private GlobalVariables gvs = GlobalVariables.getInstance();
+		private GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
 		private String[] columnNames = {"Wish Name", "Count", "Wish 1", "Wish 2",
                                         "Wish 3", "Addl. Detail?"};
  
@@ -418,9 +418,9 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
         		if(response == null || (response !=null && !response.startsWith("UPDATED_CATALOG_WISH")))
         		{
         			//request failed
-        			GlobalVariables gvs = GlobalVariables.getInstance();
+        			GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
 					String err_mssg = "ONC Server denied update catalog wish  request, try again later";
-					JOptionPane.showMessageDialog(GlobalVariables.getFrame(), err_mssg, "Update Catalog Request Failure",
+					JOptionPane.showMessageDialog(GlobalVariablesDB.getFrame(), err_mssg, "Update Catalog Request Failure",
 													JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
         		}
         	}                      

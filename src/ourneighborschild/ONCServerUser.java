@@ -31,9 +31,9 @@ public class ONCServerUser extends ONCUser
 	{
 		
 		super(currUser.id, currUser.dateChanged.getTime(), currUser.changedBy, currUser.slPos, currUser.slMssg,
-				currUser.slChangedBy, currUser.firstname, currUser.lastname, currUser.status, 
+				currUser.slChangedBy, currUser.firstName, currUser.lastName, currUser.status, 
 				currUser.access, currUser.permission, currUser.nSessions, currUser.lastLogin, 
-				currUser.org, currUser.title, currUser.email, currUser.phone, currUser.groupList);
+				currUser.organization, currUser.title, currUser.email, currUser.cellPhone, currUser.groupList);
 		userid = currUser.userid;
 		password = currUser.password;
 	}
@@ -75,14 +75,14 @@ public class ONCServerUser extends ONCUser
 	public ONCUser getUserFromServerUser()
 	{
 		return new ONCUser(id, dateChanged.getTime(), changedBy, slPos, slMssg, slChangedBy, 
-				firstname, lastname, status, access, permission, clientID, clientYear, nSessions, 
-				lastLogin, org, title, email, phone, groupList, preferences);	
+				firstName, lastName, status, access, permission, clientID, clientYear, nSessions, 
+				lastLogin, organization, title, email, cellPhone, groupList, preferences);	
 	}
 	
 	public boolean doesUserMatch(ONCServerUser compUser)
 	{
-		return firstname.equalsIgnoreCase(compUser.firstname) && 
-				lastname.equalsIgnoreCase(compUser.lastname);
+		return firstName.equalsIgnoreCase(compUser.firstName) && 
+				lastName.equalsIgnoreCase(compUser.lastName);
 	}
 	
 	
@@ -93,11 +93,11 @@ public class ONCServerUser extends ONCUser
 						Integer.toString(id), 
 						EncryptionManager.encrypt(userid), EncryptionManager.encrypt(password),
 						status.toString(), access.toString(), 
-						permission.toString(), firstname, lastname,
+						permission.toString(), firstName, lastName,
 						Long.toString(dateChanged.getTimeInMillis()), changedBy, Integer.toString(slPos), 
 						slMssg,slChangedBy, Long.toString(nSessions), 
 						Long.toString(lastLogin),
-						org, title, email, phone, getGroupListAsDelimitedString(),
+						organization, title, email, cellPhone, getGroupListAsDelimitedString(),
 						Integer.toString(preferences.getFontSize()), 
 						Integer.toString(preferences.getWishAssigneeFilter()), 
 						Integer.toString(preferences.getFamilyDNSFilter())

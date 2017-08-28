@@ -47,7 +47,7 @@ public class WishLabelViewer extends JDialog implements DatabaseListener
 			childWishDB.addDatabaseListener(this);
 
 		labelPanel = new WishLabelPanel();
-		img = GlobalVariables.getSeasonIcon().getImage();
+		img = GlobalVariablesDB.getSeasonIcon().getImage();
 		
 		this.setContentPane(labelPanel);
 		

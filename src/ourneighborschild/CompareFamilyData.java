@@ -33,10 +33,10 @@ public class CompareFamilyData
 	ArrayList<String[]> sourceAL;
 	ArrayList<String[]> outputAL;
 	ArrayList<ONCFamily> fAL;
-	GlobalVariables cfdGVs;
+	GlobalVariablesDB cfdGVs;
 	JFrame parentFrame;
 	
-	CompareFamilyData(JFrame pFrame, GlobalVariables gvs, ArrayList<ONCFamily> fal)
+	CompareFamilyData(JFrame pFrame, GlobalVariablesDB gvs, ArrayList<ONCFamily> fal)
 	{
 		parentFrame = pFrame;
 		cfdGVs = gvs;
@@ -165,7 +165,7 @@ public class CompareFamilyData
 		while(index < fAL.size() && nTrue < 2)
 		{
 			nTrue = 0;
-			if(fAL.get(index).getHOHFirstName().equalsIgnoreCase(wfcmLine[3]))
+			if(fAL.get(index).getFirstName().equalsIgnoreCase(wfcmLine[3]))
 			{
 				result[0] = "Yes";
 				nTrue++;
@@ -173,7 +173,7 @@ public class CompareFamilyData
 			else
 				result[0] = "No";
 
-			if(fAL.get(index).getHOHLastName().equalsIgnoreCase(wfcmLine[2]))
+			if(fAL.get(index).getLastName().equalsIgnoreCase(wfcmLine[2]))
 			{
 				result[1] = "Yes";
 				nTrue++;

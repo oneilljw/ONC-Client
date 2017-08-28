@@ -54,7 +54,7 @@ public class DatabaseStatusDialog extends JDialog implements ActionListener, Dat
 //		bottomPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS));
 		
 		//add the logo icon to the left panel
-		JLabel lblONCIcon = new JLabel(GlobalVariables.getONCLogo(), JLabel.LEFT);
+		JLabel lblONCIcon = new JLabel(GlobalVariablesDB.getONCLogo(), JLabel.LEFT);
 		topPanel.add(lblONCIcon);
 		
 		String mssg ="<html><b><FONT COLOR=BLUE>To allow/prevent changes to a database,"
@@ -90,7 +90,7 @@ public class DatabaseStatusDialog extends JDialog implements ActionListener, Dat
     		//Couldn't get online users so can't modify database locks
     		String errMsg = "Unable to dertermine database usage, please try again later";
     		JOptionPane.showMessageDialog(this, errMsg, "Database Error", JOptionPane.ERROR_MESSAGE,
-    										GlobalVariables.getONCLogo());
+    										GlobalVariablesDB.getONCLogo());
     		
     		dispose();
     	}
@@ -145,9 +145,9 @@ public class DatabaseStatusDialog extends JDialog implements ActionListener, Dat
 			dbYearButtonList.get(index).setLock(updatedDBYear.isLocked());	//update the dbYear
 			
 			if(updatedDBYear.isLocked())
-				dbYearButtonList.get(index).setRBLockIcon(GlobalVariables.getLockedIcon());
+				dbYearButtonList.get(index).setRBLockIcon(GlobalVariablesDB.getLockedIcon());
 			else
-				dbYearButtonList.get(index).setRBLockIcon(GlobalVariables.getUnLockedIcon());
+				dbYearButtonList.get(index).setRBLockIcon(GlobalVariablesDB.getUnLockedIcon());
 		}
 	}
 	
@@ -187,9 +187,9 @@ public class DatabaseStatusDialog extends JDialog implements ActionListener, Dat
 			rbLock.setActionCommand(dbYear.toString());
 			
 			if(dbYear.isLocked())
-				rbLock.setIcon(GlobalVariables.getLockedIcon());
+				rbLock.setIcon(GlobalVariablesDB.getLockedIcon());
 			else
-				rbLock.setIcon(GlobalVariables.getUnLockedIcon());
+				rbLock.setIcon(GlobalVariablesDB.getUnLockedIcon());
 		}
 		
 		JRadioButton getrbLock() { return rbLock; }

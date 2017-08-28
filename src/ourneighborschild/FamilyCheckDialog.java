@@ -100,7 +100,7 @@ public class FamilyCheckDialog extends CheckDialog
 		@Override
 		public int compare(DupItem d1, DupItem d2)
 		{
-			return d1.getFamily1().getHOHFirstName().compareTo(d2.getFamily1().getHOHFirstName());
+			return d1.getFamily1().getFirstName().compareTo(d2.getFamily1().getFirstName());
 		}
 	}
 	
@@ -109,7 +109,7 @@ public class FamilyCheckDialog extends CheckDialog
 		@Override
 		public int compare(DupItem d1, DupItem d2)
 		{
-			return d1.getFamily1().getHOHLastName().compareTo(d2.getFamily1().getHOHLastName());
+			return d1.getFamily1().getLastName().compareTo(d2.getFamily1().getLastName());
 		}
 	}
 	private class DupItemFamily1HouseNumComparator implements Comparator<DupItem>

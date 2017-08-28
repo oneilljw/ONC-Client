@@ -155,13 +155,13 @@ public class ServerIF
 		} 
     	catch (IOException e1) 
     	{
-    		GlobalVariables gvs = GlobalVariables.getInstance();
+    		GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
     		
 	    	String mssg = String.format("Error sending command<br>%s<br> to ONC Server,<br>netwok connection may be lost." +
 	    			"<br>Server errors detected: %d", request, nServerErrorsDetected); 			   		
 	    	
 	    	ONCPopupMessage clientIDPU = new ONCPopupMessage(gvs.getImageIcon(0));
-			clientIDPU.setLocationRelativeTo(GlobalVariables.getFrame());
+			clientIDPU.setLocationRelativeTo(GlobalVariablesDB.getFrame());
 			clientIDPU.show("ONC Server I/F Exception", mssg);
 	    	
 			e1.printStackTrace();
@@ -182,22 +182,22 @@ public class ServerIF
     	
 		if(elapsedTime > NETWORK_TIME_LIMIT && bDatabaseLoaded)	//Don't show pop-up until local data loaded
 		{
-	    	GlobalVariables gvs = GlobalVariables.getInstance();
+	    	GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
 	    	String mssg = String.format("Server I/F is slow,<br>last transaction took %d seconds", 
 	    									elapsedTime/1000);
 	    	
 	    	ONCPopupMessage clientIDPU = new ONCPopupMessage(gvs.getImageIcon(0));
-			clientIDPU.setLocationRelativeTo(GlobalVariables.getFrame());
+			clientIDPU.setLocationRelativeTo(GlobalVariablesDB.getFrame());
 			clientIDPU.show("ONC Server I/F Notification", mssg);
 		}
 		
     	if(response == null)
 		{
-			GlobalVariables gvs = GlobalVariables.getInstance();
+			GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
 	    	String mssg = "Server did not respond,<br>netwok connection may be lost"; 			   		
 	    	
 	    	ONCPopupMessage clientIDPU = new ONCPopupMessage(gvs.getImageIcon(0));
-			clientIDPU.setLocationRelativeTo(GlobalVariables.getFrame());
+			clientIDPU.setLocationRelativeTo(GlobalVariablesDB.getFrame());
 			clientIDPU.show("ONC Server I/F Exception", mssg);
 			
 	    	response ="ERROR_SERVER_DID_NOT_RESPOND";
@@ -216,11 +216,11 @@ public class ServerIF
     void serverConnectionIssue()
     {
     	//if the server if is not connected, notify the user and exit
-    	GlobalVariables gvs = GlobalVariables.getInstance();
+    	GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
     	String mssg = "<html>Server I/F: Connection with ONC Server lost<br>" +
     				"all changes have been saved</html>";
         		
-    	JOptionPane.showMessageDialog(GlobalVariables.getFrame(), mssg, "ONC Server Connecton Error", 
+    	JOptionPane.showMessageDialog(GlobalVariablesDB.getFrame(), mssg, "ONC Server Connecton Error", 
     									JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
     	
     	//need to write server log to disk prior to exit
@@ -322,8 +322,8 @@ public class ServerIF
     	{
     		if(change.startsWith("GLOBAL_MESSAGE"))
     		{
-    			ONCPopupMessage popup = new ONCPopupMessage(GlobalVariables.getONCLogo());
-    			Point loc = GlobalVariables.getFrame().getLocationOnScreen();
+    			ONCPopupMessage popup = new ONCPopupMessage(GlobalVariablesDB.getONCLogo());
+    			Point loc = GlobalVariablesDB.getFrame().getLocationOnScreen();
     			popup.setLocation(loc.x+450, loc.y+70);
     			popup.show("Message from ONC Server", change.substring(14));
     		}

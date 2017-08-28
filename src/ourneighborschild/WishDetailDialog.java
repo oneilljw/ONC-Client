@@ -182,7 +182,7 @@ public class WishDetailDialog extends JDialog implements ActionListener
 				}
 				else
 				{
-					GlobalVariables gvs = GlobalVariables.getInstance();
+					GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
 					String err_mssg = "ONC Server denied add wish detail request, try again later";
 					JOptionPane.showMessageDialog(this, err_mssg, "Add Wish Detail Request Failure",
 													JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
@@ -218,7 +218,7 @@ public class WishDetailDialog extends JDialog implements ActionListener
 				}
 				else
 				{
-					GlobalVariables gvs = GlobalVariables.getInstance();
+					GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
 					String err_mssg = "ONC Server denied delete wish detail request, try again later";
 					JOptionPane.showMessageDialog(this, err_mssg, "Delete Wish Detail Request Failure",
 							JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
@@ -247,7 +247,7 @@ public class WishDetailDialog extends JDialog implements ActionListener
 				}
 				else
 				{
-					GlobalVariables gvs = GlobalVariables.getInstance();
+					GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
 					String err_mssg = "ONC Server denied update wish detail request, try again later";
 					JOptionPane.showMessageDialog(this, err_mssg, "Update Wish Detail Request Failure",
 							JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));

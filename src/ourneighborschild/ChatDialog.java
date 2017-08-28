@@ -292,7 +292,7 @@ public class ChatDialog extends JDialog implements ActionListener, DatabaseListe
 		if(response.equals("CHAT_ACCEPTED_SENT"))
 		{
 			ONCUser user = getChatPartnerUser(chatTargetClientID);
-			this.setTitle("Chatting with " + user.getFirstname());
+			this.setTitle("Chatting with " + user.getFirstName());
 			
 			lblChatters.setText("Chatting with:");
 			displayChatText("You're now chatting with " + user.toString(), systemAttribs);
@@ -399,7 +399,7 @@ public class ChatDialog extends JDialog implements ActionListener, DatabaseListe
 			if(chatState == ChatState.REQUESTED && chatAcceptMssg.getSenderClientID() == chatTargetClientID)
 			{
 				chatState = ChatState.ACTIVE;
-				this.setTitle("Chatting with " + getChatPartnerUser(chatTargetClientID).getFirstname());
+				this.setTitle("Chatting with " + getChatPartnerUser(chatTargetClientID).getFirstName());
 				lblChatters.setText("Chatting with:");
 				displayChatText("Chat request accepted", systemAttribs);
 				dataTF.setEditable(true);

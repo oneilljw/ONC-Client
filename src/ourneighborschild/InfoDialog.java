@@ -32,7 +32,7 @@ public abstract class InfoDialog extends JDialog implements ActionListener
 	protected DataChangeListener dcl;
 	protected TFKeyListener tfkl;
 	protected boolean result;
-	protected GlobalVariables gvs;
+	protected GlobalVariablesDB gvs;
 	protected UserDB userDB;
 	
 	InfoDialog(JFrame pf, boolean bModal)
@@ -46,13 +46,13 @@ public abstract class InfoDialog extends JDialog implements ActionListener
 		contentPanel = new JPanel();
 		contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
 		
-		gvs = GlobalVariables.getInstance();
+		gvs = GlobalVariablesDB.getInstance();
 		userDB = UserDB.getInstance();
 		
 		JPanel toppanel = new JPanel();
 		toppanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 		lblONCIcon = new JLabel(gvs.getImageIcon(0), JLabel.LEFT);
-		lblONCIcon.setToolTipText("ONC Client v" + GlobalVariables.getVersion());
+		lblONCIcon.setToolTipText("ONC Client v" + GlobalVariablesDB.getVersion());
 		toppanel.add(lblONCIcon);
 		
 		String[] tfNames = getDialogFieldNames();

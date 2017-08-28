@@ -69,8 +69,8 @@ public class ONCNavPanel extends ONCPanel implements ActionListener
 //	    JPanel tp4 = new JPanel();
 //	    tp4.setLayout(new BoxLayout(tp4, BoxLayout.Y_AXIS));
 	    	
-	    JLabel lblONCicon = new JLabel(GlobalVariables.getONCLogo());
-	    lblONCicon.setToolTipText("ONC Client v" + GlobalVariables.getVersion());
+	    JLabel lblONCicon = new JLabel(GlobalVariablesDB.getONCLogo());
+	    lblONCicon.setToolTipText("ONC Client v" + GlobalVariablesDB.getVersion());
 	    tp1.add(lblONCicon);
 	    	   	
 	    lblCount1 = new JLabel();

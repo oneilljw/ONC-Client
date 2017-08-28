@@ -25,7 +25,7 @@ public class UserProfileDialog extends InfoDialog implements DatabaseListener
 	{
 		super(owner, true);
 		this.user = user;
-		this.setTitle(String.format("User Profile for %s", user.getLastname()));
+		this.setTitle(String.format("User Profile for %s", user.getLastName()));
 		
 		bProfileUpdated = false;	//set to true if profile is updated
 		
@@ -36,10 +36,10 @@ public class UserProfileDialog extends InfoDialog implements DatabaseListener
 
 		if(message == null)
 			lblONCIcon.setText(String.format("<html><font color=blue>User Profile Information for<br>%s %s</font></html>", 
-							user.getFirstname(), user.getLastname()));
+							user.getFirstName(), user.getLastName()));
 		else
 			lblONCIcon.setText(String.format("<html><font color=blue>%s<br>%s %s</font></html>", 
-					message, user.getFirstname(), user.getLastname()));
+					message, user.getFirstName(), user.getLastName()));
 
 		//Set up the main panel, loop to set up components associated with names
 		for(int pn=0; pn < getDialogFieldNames().length; pn++)
@@ -71,12 +71,12 @@ public class UserProfileDialog extends InfoDialog implements DatabaseListener
 	
 	void display()
 	{
-		tf[FIRST_NAME_INDEX].setText(user.getFirstname());
-		tf[LAST_NAME_INDEX].setText(user.getLastname());
-		tf[ORG_INDEX].setText(user.getOrg());
+		tf[FIRST_NAME_INDEX].setText(user.getFirstName());
+		tf[LAST_NAME_INDEX].setText(user.getLastName());
+		tf[ORG_INDEX].setText(user.getOrganization());
 		tf[TITLE_INDEX].setText(user.getTitle());
 		tf[EMAIL_INDEX].setText(user.getEmail());
-		tf[PHONE_INDEX].setText(user.getPhone());
+		tf[PHONE_INDEX].setText(user.getCellPhone());
 	}
 
 	@Override
@@ -84,12 +84,12 @@ public class UserProfileDialog extends InfoDialog implements DatabaseListener
 	{
 		//update user profile request
 		ONCUser reqUpdateUser = new ONCUser(user);
-		reqUpdateUser.setFirstname(tf[FIRST_NAME_INDEX].getText());
-		reqUpdateUser.setLastname(tf[LAST_NAME_INDEX].getText());
-		reqUpdateUser.setOrg(tf[ORG_INDEX].getText());
+		reqUpdateUser.setFirstName(tf[FIRST_NAME_INDEX].getText());
+		reqUpdateUser.setLastName(tf[LAST_NAME_INDEX].getText());
+		reqUpdateUser.setOrganization(tf[ORG_INDEX].getText());
 		reqUpdateUser.setTitle(tf[TITLE_INDEX].getText());
 		reqUpdateUser.setEmail(tf[EMAIL_INDEX].getText());
-		reqUpdateUser.setPhone(tf[PHONE_INDEX].getText());
+		reqUpdateUser.setCellPhone(tf[PHONE_INDEX].getText());
 		
 		//if the user was prompted to update their profile (status = UserStatus.Update_Profile)
 		//change the status in the update request to UserStatus.Active
@@ -101,12 +101,12 @@ public class UserProfileDialog extends InfoDialog implements DatabaseListener
 		if(response != null && response.startsWith("UPDATED_USER"))
 		{
 			//update the user
-			user.setFirstname(reqUpdateUser.getFirstname());
-			user.setLastname(reqUpdateUser.getLastname());
-			user.setOrg(reqUpdateUser.getOrg());
+			user.setFirstName(reqUpdateUser.getFirstName());
+			user.setLastName(reqUpdateUser.getLastName());
+			user.setOrganization(reqUpdateUser.getOrganization());
 			user.setTitle(reqUpdateUser.getTitle());
 			user.setEmail(reqUpdateUser.getEmail());
-			user.setPhone(reqUpdateUser.getPhone());
+			user.setCellPhone(reqUpdateUser.getCellPhone());
 			
 			bProfileUpdated = true;
 			this.dispose();
@@ -144,12 +144,12 @@ public class UserProfileDialog extends InfoDialog implements DatabaseListener
 	@Override
 	boolean fieldUnchanged() 
 	{
-		return user.getFirstname().equals(tf[FIRST_NAME_INDEX].getText()) && 
-				user.getLastname().equals(tf[LAST_NAME_INDEX].getText()) &&
-				 user.getOrg().equals(tf[ORG_INDEX].getText()) && 
+		return user.getFirstName().equals(tf[FIRST_NAME_INDEX].getText()) && 
+				user.getLastName().equals(tf[LAST_NAME_INDEX].getText()) &&
+				 user.getOrganization().equals(tf[ORG_INDEX].getText()) && 
 				  user.getTitle().equals(tf[TITLE_INDEX].getText()) &&
 				   user.getEmail().equals(tf[EMAIL_INDEX].getText()) && 
-				    user.getPhone().equals(tf[PHONE_INDEX].getText());
+				    user.getCellPhone().equals(tf[PHONE_INDEX].getText());
 	}
 
 	@Override

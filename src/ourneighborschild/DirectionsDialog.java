@@ -47,7 +47,7 @@ public class DirectionsDialog extends JDialog implements ActionListener, Databas
 	private static final int MAX_DIRECTION_STEPS_ON_FIRST_PAGE = 16;
 	private static final int MAX_DIRECTION_STEPS_ON_NEXT_PAGES = 30;
 	
-	private GlobalVariables ddGVs;
+	private GlobalVariablesDB ddGVs;
 	private JLabel lblMap, lblHeader;
 	private JPanel mapPanel;
 	private JTable dirTable;
@@ -63,7 +63,7 @@ public class DirectionsDialog extends JDialog implements ActionListener, Databas
 	{
 		super(parent);
 		fDB = FamilyDB.getInstance();
-		ddGVs = GlobalVariables.getInstance();
+		ddGVs = GlobalVariablesDB.getInstance();
 		if(ddGVs != null)
 			ddGVs.addDatabaseListener(this);
 		
@@ -187,7 +187,7 @@ public class DirectionsDialog extends JDialog implements ActionListener, Databas
 		}
 		else	//no alternate delivery address
 			lblHeader.setText("ONC Family #"+ f.getONCNum() +" address: " + f.getHouseNum().trim() + " " + 
-								f.getStreet().trim() + " " + f.getCity().trim() + ", VA " + f.getUnitNum());
+								f.getStreet().trim() + " " + f.getCity().trim() + ", VA " + f.getUnit());
 						
 		//Get family address and format it for the URL request to Google Maps
 //		String dbdestAddress = f.getHouseNum().trim() + "+" + f.getStreet().trim() + 
@@ -317,7 +317,7 @@ public class DirectionsDialog extends JDialog implements ActionListener, Databas
 		SimpleDateFormat twodigitYear = new SimpleDateFormat("yy");
 		int idx = Integer.parseInt(twodigitYear.format(ddGVs.getSeasonStartDate())) % NUM_OF_XMAS_ICONS;
 		final Image img = ddGVs.getImageIcon(idx + XMAS_ICON_OFFSET).getImage();				
-		String oncSeason = "ONC " + Integer.toString(GlobalVariables.getCurrentSeason());
+		String oncSeason = "ONC " + Integer.toString(GlobalVariablesDB.getCurrentSeason());
 			
 		DeliveryDirectionsPrinter ddp = new DeliveryDirectionsPrinter(ddpAL, img, oncSeason);
 			

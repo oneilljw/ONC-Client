@@ -75,8 +75,8 @@ public class WarehouseSignInDialog extends JDialog implements ActionListener, Da
 
 				
 		//Create the ONC Icon label and add it to the search criteria panel
-		JLabel lblONCicon = new JLabel(GlobalVariables.getONCLogo());
-		lblONCicon.setToolTipText("ONC Client v" + GlobalVariables.getVersion());
+		JLabel lblONCicon = new JLabel(GlobalVariablesDB.getONCLogo());
+		lblONCicon.setToolTipText("ONC Client v" + GlobalVariablesDB.getVersion());
 		lblONCicon.setAlignmentX(Component.LEFT_ALIGNMENT );//0.0
 		sortCriteriaPanel.add(lblONCicon);
 				
@@ -189,7 +189,7 @@ public class WarehouseSignInDialog extends JDialog implements ActionListener, Da
 		{
 			String err_mssg = "Unable to print sign-in log: " + e.getMessage();
 			JOptionPane.showMessageDialog(this, err_mssg, "Print Sign-In Log Error",
-										JOptionPane.ERROR_MESSAGE, GlobalVariables.getONCLogo());
+										JOptionPane.ERROR_MESSAGE, GlobalVariablesDB.getONCLogo());
 		}
 	}
 

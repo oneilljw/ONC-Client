@@ -114,9 +114,9 @@ public class OnlineUserDialog extends JDialog
         {
         	ONCUser user = tableList.get(row);
         	if(col == FIRST_NAME_COL)  
-        		return user.getFirstname();
+        		return user.getFirstName();
         	else if(col == LAST_NAME_COL)
-        		return user.getLastname();
+        		return user.getLastName();
         	else if (col == VER_COL)
         		return user.getClientID() == -1 ? "Website" : "App";
         	else if (col == YEAR_COL)

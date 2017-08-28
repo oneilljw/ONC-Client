@@ -279,7 +279,7 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 				else
 				{
 					//display an error message that update request failed
-					GlobalVariables gvs = GlobalVariables.getInstance();
+					GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
 					JOptionPane.showMessageDialog(this, "ONC Server denied Driver Update," +
 							"try again later","Driver Update Failed",  
 							JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
@@ -434,7 +434,7 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 		}
 		else if(dbe.getType().equals("LOADED_DRIVERS"))
 		{
-			this.setTitle(String.format("Our Neighbor's Child - %d Delivery Assignment", GlobalVariables.getCurrentSeason()));
+			this.setTitle(String.format("Our Neighbor's Child - %d Delivery Assignment", GlobalVariablesDB.getCurrentSeason()));
 		}
 	}
 

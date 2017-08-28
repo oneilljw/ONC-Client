@@ -16,7 +16,7 @@ public abstract class ONCTableDialog extends JDialog implements EntitySelector
 	 */
 	private static final long serialVersionUID = 1L;
 	protected JFrame parentFrame;
-	protected GlobalVariables gvs;
+	protected GlobalVariablesDB gvs;
 	
 	//Map of registered listeners for table selection events
 	private Map<EntityType, ArrayList<EntitySelectionListener>> listenerMap;
@@ -25,7 +25,7 @@ public abstract class ONCTableDialog extends JDialog implements EntitySelector
     {
     	super(parentFrame);
     	this.parentFrame = parentFrame;
-    	gvs = GlobalVariables.getInstance();
+    	gvs = GlobalVariablesDB.getInstance();
     	
     	listenerMap = new HashMap<EntityType, ArrayList<EntitySelectionListener>>();
     	for(EntityType entityType : getEntityEventSelectorEntityTypes())

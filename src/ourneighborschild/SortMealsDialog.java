@@ -703,7 +703,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		}
 		else if(dbe.getType().equals("LOADED_MEALS"))
 		{
-			this.setTitle(String.format("Our Neighbor's Child - %d Meal Management", GlobalVariables.getCurrentSeason()));
+			this.setTitle(String.format("Our Neighbor's Child - %d Meal Management", GlobalVariablesDB.getCurrentSeason()));
 		}
 	}
 	
@@ -794,11 +794,11 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		SortMealObject smo = (SortMealObject) o;
 		
 		ONCPartner partner = orgs.getPartnerByID(smo.getMeal().getPartnerID());
-		String partnerName = partner != null ? partner.getName() : "None";
+		String partnerName = partner != null ? partner.getLastName() : "None";
 		String ds = new SimpleDateFormat("MM/dd H:mm").format(smo.getMeal().getDateChanged().getTime());
 		String[] tablerow = {smo.getFamily().getONCNum(),
 							smo.getFamily().getBatchNum(),
-							smo.getFamily().getHOHLastName(),
+							smo.getFamily().getLastName(),
 							regions.getRegionID(smo.getFamily().getRegion()),
 							smo.getMeal().getType().toString(),
 							smo.getMeal().getStatus().toString(),
@@ -995,7 +995,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 			if(soFamily.getSubstituteDeliveryAddress().isEmpty())
 			{
 				delAddress = soFamily.getHouseNum() + " " + soFamily.getStreet();
-				unit = soFamily.getUnitNum();
+				unit = soFamily.getUnit();
 				city = soFamily.getCity();
 				zip = soFamily.getZipCode();
 			}
@@ -1035,14 +1035,14 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 				famMembers = members.toString();
 			}
 			
-			String[] exportRow = { user.getLastname(), user.getOrg(), user.getTitle(),
-									partner != null ? partner.getName() : "",
-									soFamily.getHOHLastName() + " Household",
-									soFamily.getHOHFirstName() + " " + soFamily.getHOHLastName(),
+			String[] exportRow = { user.getLastName(), user.getOrganization(), user.getTitle(),
+									partner != null ? partner.getLastName() : "",
+									soFamily.getLastName() + " Household",
+									soFamily.getFirstName() + " " + soFamily.getLastName(),
 									famMembers,
 									user.getEmail(), soFamily.getEmail(),
 									soFamily.getAllPhoneNumbers().replaceAll("\n","\r"),
-									user.getPhone(), soMeal.getRestricitons(), soFamily.getSchools(),
+									user.getCellPhone(), soMeal.getRestricitons(), soFamily.getSchools(),
 									soFamily.getDetails(), soFamily.getReferenceNum(),
 									delAddress, unit, "", city, zip, "Virginia", "CBO",
 									soMeal.getType().toString(),
@@ -1064,7 +1064,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 			{
 				delStreetNum = soFamily.getHouseNum();
 				delStreet = soFamily.getStreet();
-				unit = soFamily.getUnitNum();
+				unit = soFamily.getUnit();
 				city = soFamily.getCity();
 				zip = soFamily.getZipCode();
 			}
@@ -1085,9 +1085,9 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 				String[] firstPhoneParts = soFamily.getHomePhone().split("\n");
 				firstPhone = firstPhoneParts[0];
 			}			
-			if(soFamily.getOtherPhon() != null && soFamily.getOtherPhon().length() >= 10)
+			if(soFamily.getCellPhone() != null && soFamily.getCellPhone().length() >= 10)
 			{
-				String[] secondPhoneParts = soFamily.getOtherPhon().split("\n");
+				String[] secondPhoneParts = soFamily.getCellPhone().split("\n");
 				secondPhone = secondPhoneParts[0];
 			}
 			
@@ -1099,8 +1099,8 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 			List<String> exportRowList = new ArrayList<String>();
 			
 			exportRowList.add("");
-			exportRowList.add(soFamily.getHOHFirstName());
-			exportRowList.add(soFamily.getHOHLastName());
+			exportRowList.add(soFamily.getFirstName());
+			exportRowList.add(soFamily.getLastName());
 			exportRowList.add(firstPhone);
 			exportRowList.add(secondPhone);
 			exportRowList.add(delStreetNum);
@@ -1108,7 +1108,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 			exportRowList.add(unit);
 			exportRowList.add(city);
 			exportRowList.add(zip);
-			exportRowList.add(user.getOrg());
+			exportRowList.add(user.getOrganization());
 			exportRowList.add(soFamily.getLanguage());
 			exportRowList.add(soFamily.getTransportation().toString());
 			exportRowList.add(Integer.toString(nAdults));
@@ -1172,7 +1172,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		@Override
 		public int compare(SortMealObject o1, SortMealObject o2)
 		{
-			return o1.getFamily().getHOHLastName().compareTo(o2.getFamily().getHOHLastName());
+			return o1.getFamily().getLastName().compareTo(o2.getFamily().getLastName());
 		}
 	}
 	
@@ -1214,12 +1214,12 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 			String part1, part2;
 			 
 			if(o1.getMeal().getPartnerID() > -1 )
-				part1 = partnerDB.getPartnerByID(o1.getMeal().getPartnerID()).getName();
+				part1 = partnerDB.getPartnerByID(o1.getMeal().getPartnerID()).getLastName();
 			else
 				part1 = "";
 			
 			if(o2.getMeal().getPartnerID() > -1)
-				part2 = partnerDB.getPartnerByID(o2.getMeal().getPartnerID()).getName();
+				part2 = partnerDB.getPartnerByID(o2.getMeal().getPartnerID()).getLastName();
 			else
 				part2 = "";
 			

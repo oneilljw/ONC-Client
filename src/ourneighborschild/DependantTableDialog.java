@@ -229,11 +229,11 @@ public abstract class DependantTableDialog extends SortTableDialog
 		UserDB userDB = UserDB.getInstance();
 		if(userDB.getLoggedInUser().getPermission().compareTo(UserPermission.General) > 0)
 		{
-			familytablerow[6] = f.getHOHFirstName();
-			familytablerow[7] = f.getHOHLastName();
+			familytablerow[6] = f.getFirstName();
+			familytablerow[7] = f.getLastName();
 			familytablerow[8] = f.getHouseNum();
 			familytablerow[9] = f.getStreet();
-			familytablerow[10] = f.getUnitNum();
+			familytablerow[10] = f.getUnit();
 			familytablerow[11] = f.getZipCode();
 		}
 		else

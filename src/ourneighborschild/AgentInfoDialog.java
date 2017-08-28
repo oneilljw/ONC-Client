@@ -106,13 +106,13 @@ public class AgentInfoDialog extends InfoDialog implements DatabaseListener, Ent
 		else
 			currUserAgent = (ONCUser) obj;
 		
-		tf[0].setText(currUserAgent.getFirstname());
+		tf[0].setText(currUserAgent.getFirstName());
 		tf[0].setCaretPosition(0);
 		
-		tf[1].setText(currUserAgent.getLastname());
+		tf[1].setText(currUserAgent.getLastName());
 		tf[1].setCaretPosition(0);
 		
-		tf[2].setText(currUserAgent.getOrg());
+		tf[2].setText(currUserAgent.getOrganization());
 		tf[2].setCaretPosition(0);
 		
 		tf[3].setText(currUserAgent.getTitle());
@@ -121,7 +121,7 @@ public class AgentInfoDialog extends InfoDialog implements DatabaseListener, Ent
 		tf[4].setText(currUserAgent.getEmail());
 		tf[4].setCaretPosition(0);
 		
-		tf[5].setText(currUserAgent.getPhone());
+		tf[5].setText(currUserAgent.getCellPhone());
 		tf[5].setCaretPosition(0);
 		
 		btnAction.setEnabled(false);
@@ -161,11 +161,11 @@ public class AgentInfoDialog extends InfoDialog implements DatabaseListener, Ent
 		//verify user really wants to change the family's agent.
 		//Confirm with the user that the deletion is really intended
 		String confirmMssg =String.format("Please confirm changing the %s family's agent from %s to %s?", 
-					currFamily.getHOHLastName(), currUserAgent.getLastname(), changeToAgentReq.getLastname());
+					currFamily.getLastName(), currUserAgent.getLastName(), changeToAgentReq.getLastName());
 	
 		Object[] options= {"Cancel", "Confirm Agent Change"};
 		JOptionPane confirmOP = new JOptionPane(confirmMssg, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION,
-							GlobalVariables.getONCLogo(), options, "Cancel");
+							GlobalVariablesDB.getONCLogo(), options, "Cancel");
 		JDialog confirmDlg = confirmOP.createDialog(this, "*** Confirm Referring Agent Change ***");
 		confirmDlg.setVisible(true);
 	
@@ -173,7 +173,7 @@ public class AgentInfoDialog extends InfoDialog implements DatabaseListener, Ent
 		if(selectedValue != null && selectedValue.toString().equals("Change"))
 		{
 			System.out.println(String.format("AgtInfoDlg.changeFamilyAgent: Changing from %s to %s",
-					currUserAgent.getLastname(), changeToAgentReq.getLastname()));
+					currUserAgent.getLastName(), changeToAgentReq.getLastName()));
 		}
 	}
 	
@@ -183,12 +183,12 @@ public class AgentInfoDialog extends InfoDialog implements DatabaseListener, Ent
 		ONCUser reqUser = new ONCUser(currUserAgent);	//make a copy of current user
 		
 		byte cf = 0;
-		if(!tf[0].getText().equals(currUserAgent.getFirstname())) { reqUser.setFirstname(tf[0].getText());  cf |= 1; }
-		if(!tf[1].getText().equals(currUserAgent.getLastname())) { reqUser.setLastname(tf[1].getText());  cf |= 2; }
-		if(!tf[2].getText().equals(currUserAgent.getOrg())) { reqUser.setOrg(tf[2].getText());  cf |= 4; }
+		if(!tf[0].getText().equals(currUserAgent.getFirstName())) { reqUser.setFirstName(tf[0].getText());  cf |= 1; }
+		if(!tf[1].getText().equals(currUserAgent.getLastName())) { reqUser.setLastName(tf[1].getText());  cf |= 2; }
+		if(!tf[2].getText().equals(currUserAgent.getOrganization())) { reqUser.setOrganization(tf[2].getText());  cf |= 4; }
 		if(!tf[3].getText().equals(currUserAgent.getTitle())) { reqUser.setTitle(tf[3].getText()); cf |= 8; }
 		if(!tf[4].getText().equals(currUserAgent.getEmail())) { reqUser.setEmail(tf[4].getText()); cf |= 16; }
-		if(!tf[5].getText().equals(currUserAgent.getPhone())) { reqUser.setPhone(tf[5].getText()); cf |= 32; }
+		if(!tf[5].getText().equals(currUserAgent.getCellPhone())) { reqUser.setCellPhone(tf[5].getText()); cf |= 32; }
 		
 		if(cf > 0)
 		{
@@ -202,7 +202,7 @@ public class AgentInfoDialog extends InfoDialog implements DatabaseListener, Ent
 			else
 			{
 				//display an error message that update request failed
-				GlobalVariables gvs = GlobalVariables.getInstance();
+				GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
 				
 				JOptionPane.showMessageDialog(this, "ONC Server denied agent update," +
 						"try again later","Agent Update Failed",  
@@ -257,12 +257,12 @@ public class AgentInfoDialog extends InfoDialog implements DatabaseListener, Ent
 	@Override
 	boolean fieldUnchanged()
 	{
-		return tf[0].getText().equals(currUserAgent.getFirstname()) &&
-				tf[1].getText().equals(currUserAgent.getLastname()) &&
-				tf[2].getText().equals(currUserAgent.getOrg()) &&
+		return tf[0].getText().equals(currUserAgent.getFirstName()) &&
+				tf[1].getText().equals(currUserAgent.getLastName()) &&
+				tf[2].getText().equals(currUserAgent.getOrganization()) &&
 				 tf[3].getText().equals(currUserAgent.getTitle()) &&
 				  tf[4].getText().equals(currUserAgent.getEmail()) &&
-				   tf[5].getText().equals(currUserAgent.getPhone());
+				   tf[5].getText().equals(currUserAgent.getCellPhone());
 	}
 
 	@Override
@@ -342,7 +342,7 @@ public class AgentInfoDialog extends InfoDialog implements DatabaseListener, Ent
 		@Override
 		public int compare(ONCUser o1, ONCUser o2)
 		{
-			return o1.getLastname().compareTo(o2.getLastname());
+			return o1.getLastName().compareTo(o2.getLastName());
 		}
 	}
 }

@@ -81,8 +81,8 @@ public class ManageUsersDialog extends JDialog implements ActionListener, ListSe
 
 						
 		//Create the ONC Icon label and add it to the search criteria panel
-		JLabel lblONCicon = new JLabel(GlobalVariables.getONCLogo());
-		lblONCicon.setToolTipText("ONC Client v" + GlobalVariables.getVersion());
+		JLabel lblONCicon = new JLabel(GlobalVariablesDB.getONCLogo());
+		lblONCicon.setToolTipText("ONC Client v" + GlobalVariablesDB.getVersion());
 		lblONCicon.setAlignmentX(Component.LEFT_ALIGNMENT );//0.0
 		sortCriteriaPanel.add(lblONCicon);
 						
@@ -193,7 +193,7 @@ public class ManageUsersDialog extends JDialog implements ActionListener, ListSe
 	
 	void add()
 	{
-    	AddUserDialog auDlg = new AddUserDialog(GlobalVariables.getFrame());
+    	AddUserDialog auDlg = new AddUserDialog(GlobalVariablesDB.getFrame());
     	auDlg.setLocationRelativeTo(this);
     	if(userDB != null && auDlg.showDialog())
     	{
@@ -209,7 +209,7 @@ public class ManageUsersDialog extends JDialog implements ActionListener, ListSe
 			{
 				String err_mssg = "Add user request failed, try again later";
 				JOptionPane.showMessageDialog(this, err_mssg, "Add User Request Failure",
-											JOptionPane.ERROR_MESSAGE, GlobalVariables.getONCLogo());
+											JOptionPane.ERROR_MESSAGE, GlobalVariablesDB.getONCLogo());
 			}
     	}		
 	}
@@ -243,16 +243,16 @@ public class ManageUsersDialog extends JDialog implements ActionListener, ListSe
 			if(response != null && response.startsWith("UPDATED_USER"))
 			{
 				String mssg = String.format("Password reset for %s %s",
-						reqUpdateUser.getFirstname(), reqUpdateUser.getLastname()); 
-    			JOptionPane.showMessageDialog(GlobalVariables.getFrame(), mssg, "Paswword Reset",
-								JOptionPane.INFORMATION_MESSAGE, GlobalVariables.getONCLogo());
+						reqUpdateUser.getFirstName(), reqUpdateUser.getLastName()); 
+    			JOptionPane.showMessageDialog(GlobalVariablesDB.getFrame(), mssg, "Paswword Reset",
+								JOptionPane.INFORMATION_MESSAGE, GlobalVariablesDB.getONCLogo());
 			}
 			else
     		{
     			//request failed
     			String err_mssg = "ONC Server denied reset password request, try again later";
-    			JOptionPane.showMessageDialog(GlobalVariables.getFrame(), err_mssg, "Reset Password Request Failure",
-								JOptionPane.ERROR_MESSAGE, GlobalVariables.getONCLogo());
+    			JOptionPane.showMessageDialog(GlobalVariablesDB.getFrame(), err_mssg, "Reset Password Request Failure",
+								JOptionPane.ERROR_MESSAGE, GlobalVariablesDB.getONCLogo());
     		}
 		}
 	}
@@ -269,7 +269,7 @@ public class ManageUsersDialog extends JDialog implements ActionListener, ListSe
 		{
 			String err_mssg = "Unable to print wish catalog: " + e.getMessage();
 			JOptionPane.showMessageDialog(this, err_mssg, "Print Wish Catalog Error",
-										JOptionPane.ERROR_MESSAGE, GlobalVariables.getONCLogo());
+										JOptionPane.ERROR_MESSAGE, GlobalVariablesDB.getONCLogo());
 		}
 	}
 
@@ -350,9 +350,9 @@ public class ManageUsersDialog extends JDialog implements ActionListener, ListSe
         {
         	ONCUser user = userDB.getUserFromIndex(row);
         	if(col == FIRST_NAME_COL)  
-        		return user.getFirstname();
+        		return user.getFirstName();
         	else if(col == LAST_NAME_COL)
-        		return user.getLastname();
+        		return user.getLastName();
         	else if (col == STATUS_COL)
         		return user.getStatus();
         	else if (col == ACCESS_COL)
@@ -369,7 +369,7 @@ public class ManageUsersDialog extends JDialog implements ActionListener, ListSe
         	}
         	else if (col == RESET_PW_COL)
         	{
-        		GlobalVariables gvs = GlobalVariables.getInstance();
+        		GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
         		return user.changePasswordRqrd() ? gvs.getImageIcon(22) : gvs.getImageIcon(21);
         	}
         	else
@@ -411,15 +411,15 @@ public class ManageUsersDialog extends JDialog implements ActionListener, ListSe
         	ONCUser reqUpdateUser = null;
         	
         	//determine if the user made a change to a user object
-        	if(col == LAST_NAME_COL && !currUser.getLastname().equals((String)value))
+        	if(col == LAST_NAME_COL && !currUser.getLastName().equals((String)value))
         	{
         		reqUpdateUser = new ONCUser(currUser);	//make a copy
-        		reqUpdateUser.setLastname((String) value);
+        		reqUpdateUser.setLastName((String) value);
         	}
-        	else if(col == FIRST_NAME_COL && !currUser.getFirstname().equals((String) value))
+        	else if(col == FIRST_NAME_COL && !currUser.getFirstName().equals((String) value))
         	{
         		reqUpdateUser = new ONCUser(currUser);	//make a copy
-        		reqUpdateUser.setFirstname((String) value);
+        		reqUpdateUser.setFirstName((String) value);
         	}
         	else if(col == STATUS_COL && currUser.getStatus() != (UserStatus) value)
         	{
@@ -446,8 +446,8 @@ public class ManageUsersDialog extends JDialog implements ActionListener, ListSe
         		{
         			//request failed
         			String err_mssg = "ONC Server denied update user request, try again later";
-        			JOptionPane.showMessageDialog(GlobalVariables.getFrame(), err_mssg, "Update User Request Failure",
-													JOptionPane.ERROR_MESSAGE, GlobalVariables.getONCLogo());
+        			JOptionPane.showMessageDialog(GlobalVariablesDB.getFrame(), err_mssg, "Update User Request Failure",
+													JOptionPane.ERROR_MESSAGE, GlobalVariablesDB.getONCLogo());
         		}
         	}
         }  

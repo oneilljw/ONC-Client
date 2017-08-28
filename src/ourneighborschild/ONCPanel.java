@@ -19,14 +19,14 @@ public abstract class ONCPanel extends JPanel implements EntitySelector
 	
 	private Map<EntityType, ArrayList<EntitySelectionListener>> listenerMap;
     protected JFrame parentFrame;
-    protected GlobalVariables gvs;
+    protected GlobalVariablesDB gvs;
     
     //constructor used when multiple Entity Types are selected by a panel
     public ONCPanel(JFrame parentFrame)
     {
     	super();
     	this.parentFrame = parentFrame;
-    	gvs = GlobalVariables.getInstance();
+    	gvs = GlobalVariablesDB.getInstance();
     	listenerMap = new HashMap<EntityType, ArrayList<EntitySelectionListener>>();
     	for(EntityType entityType : getEntityEventSelectorEntityTypes())
 			listenerMap.put(entityType, new ArrayList<EntitySelectionListener>());
@@ -37,7 +37,7 @@ public abstract class ONCPanel extends JPanel implements EntitySelector
     {
     	super();
     	this.parentFrame = parentFrame;
-    	gvs = GlobalVariables.getInstance();
+    	gvs = GlobalVariablesDB.getInstance();
     	listenerMap = new HashMap<EntityType, ArrayList<EntitySelectionListener>>();
     	listenerMap.put(entityType, new ArrayList<EntitySelectionListener>());
 //    	listeners = new ArrayList<EntitySelectionListener>();

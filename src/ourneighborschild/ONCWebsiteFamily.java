@@ -27,8 +27,8 @@ public class ONCWebsiteFamily
 //			this.giftStatus = f.getGiftStatus().toString();
 		
 		this.DNSCode = f.getDNSCode();
-		this.HOHFirstName = f.getHOHFirstName();
-		this.HOHLastName = f.getHOHLastName();
+		this.HOHFirstName = f.getFirstName();
+		this.HOHLastName = f.getLastName();
 		this.mealStatus = f.getMealStatus().toString();
 		this.agentID = f.getAgentID();
 	}

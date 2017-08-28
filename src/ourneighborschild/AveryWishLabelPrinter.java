@@ -26,7 +26,7 @@ public class AveryWishLabelPrinter implements Printable
 	private static final int AVERY_LABEL_X_BARCODE_OFFSET = 0;
 	private static final int AVERY_LABEL_Y_BARCODE_OFFSET = 4;
 	
-	private GlobalVariables gvs;
+	private GlobalVariablesDB gvs;
 	private ONCTable sortTable;
 	private List<SortWishObject> stAL; 
 	private int totalNumOfLabelsToPrint;
@@ -35,7 +35,7 @@ public class AveryWishLabelPrinter implements Printable
 	//constructor used when drawing labels on a Swing component
 	public AveryWishLabelPrinter()
 	{
-		gvs = GlobalVariables.getInstance();
+		gvs = GlobalVariablesDB.getInstance();
 		this.stAL = null;
 		this.sortTable = null;
 		this.totalNumOfLabelsToPrint = 0;
@@ -45,7 +45,7 @@ public class AveryWishLabelPrinter implements Printable
 	//constructor used when drawing labels on a sheet via the printable interface
 	public AveryWishLabelPrinter(List<SortWishObject> stAL, ONCTable sortTable, int numOfLabels, Point position)
 	{
-		gvs = GlobalVariables.getInstance();
+		gvs = GlobalVariablesDB.getInstance();
 		this.stAL = stAL;
 		this.sortTable = sortTable;
 		this.totalNumOfLabelsToPrint = numOfLabels;
@@ -55,7 +55,7 @@ public class AveryWishLabelPrinter implements Printable
 	void drawLabel(int x, int y, String[] line, Font[] lFont, Image img, Graphics2D g2d)
 	{
 		//draw either the season Icon or a bar code
-		if(GlobalVariables.getInstance().includeBarcodeOnLabels())
+		if(GlobalVariablesDB.getInstance().includeBarcodeOnLabels())
 			drawBarCode(line[4], x, y, g2d);	//draw the bar code on label
 		else
 			drawHolidayIcon(x, y, img, g2d);	//draw this seasons ONC icon on label
@@ -132,7 +132,7 @@ public class AveryWishLabelPrinter implements Printable
 		tempg2d.dispose();
 		
 		//draw the corner hat
-		final Image img = GlobalVariables.getInstance().getImage(45);
+		final Image img = GlobalVariablesDB.getInstance().getImage(45);
 		
 		double scaleFactor = (72d / 300d) * 2;
 	     
@@ -153,7 +153,7 @@ public class AveryWishLabelPrinter implements Printable
 			return NO_SUCH_PAGE;
 	    }
 		
-		final Image img = GlobalVariables.getSeasonIcon().getImage();
+		final Image img = GlobalVariablesDB.getSeasonIcon().getImage();
 
 		Font[] lFont = new Font[3];
 	    lFont[0] = new Font("Calibri", Font.ITALIC, 11);

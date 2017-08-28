@@ -112,7 +112,7 @@ public abstract class HistoryDialog extends JDialog implements ActionListener, E
 	void setDialogTitle()
 	{
 		if(UserDB.getInstance().getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0)
-			this.setTitle(String.format("%s Family %s History", currFam.getHOHLastName(), type)); 
+			this.setTitle(String.format("%s Family %s History", currFam.getLastName(), type)); 
 		else
 			this.setTitle(String.format("ONC# %s Family %s History", currFam.getONCNum(), type));
 	}
@@ -128,7 +128,7 @@ public abstract class HistoryDialog extends JDialog implements ActionListener, E
 		catch (PrinterException e) 
 		{
 			JOptionPane.showMessageDialog(this, "Print Error: " + e.getMessage(), "Print Failed",
-					JOptionPane.ERROR_MESSAGE, GlobalVariables.getInstance().getImageIcon(0));
+					JOptionPane.ERROR_MESSAGE, GlobalVariablesDB.getInstance().getImageIcon(0));
 				e.printStackTrace();
 		}
 	}

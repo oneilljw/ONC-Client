@@ -68,18 +68,18 @@ public class UserDB extends ONCSearchableDatabase
 	
 	String getUserFNLI()
 	{
-		if(loggedInUser.getFirstname().isEmpty())
-			return loggedInUser.getLastname();
+		if(loggedInUser.getFirstName().isEmpty())
+			return loggedInUser.getLastName();
 		else
-			return loggedInUser.getFirstname() + " " + loggedInUser.getLastname().charAt(0);
+			return loggedInUser.getFirstName() + " " + loggedInUser.getLastName().charAt(0);
 	}
 	
 	String getUserLNFI()
 	{
-		if(loggedInUser.getFirstname().isEmpty())
-			return loggedInUser.getLastname();
+		if(loggedInUser.getFirstName().isEmpty())
+			return loggedInUser.getLastName();
 		else
-			return loggedInUser.getLastname() + ", " + loggedInUser.getFirstname().charAt(0);
+			return loggedInUser.getLastName() + ", " + loggedInUser.getFirstName().charAt(0);
 	}
 	
 	UserPreferences getUserPreferences()
@@ -136,7 +136,7 @@ public class UserDB extends ONCSearchableDatabase
 		//add the wish in the proper spot alphabetically
 		int index = 0;
 		while(index < uAL.size() &&
-				(uAL.get(index).getLastname().compareTo(addedUser.getFirstname())) < 0)
+				(uAL.get(index).getLastName().compareTo(addedUser.getFirstName())) < 0)
 			index++;
 		
 		if(index < uAL.size())
@@ -186,11 +186,11 @@ public class UserDB extends ONCSearchableDatabase
 			if(oldUser.getNSessions() != updatedUser.getNSessions())
 			{
 				//we have a user who logged in, notify this user
-				ONCPopupMessage popup = new ONCPopupMessage(GlobalVariables.getONCLogo());
-    			Point loc = GlobalVariables.getFrame().getLocationOnScreen();
+				ONCPopupMessage popup = new ONCPopupMessage(GlobalVariablesDB.getONCLogo());
+    			Point loc = GlobalVariablesDB.getFrame().getLocationOnScreen();
     			popup.setLocation(loc.x+450, loc.y+70);
-    			String mssg = String.format("%s %s is now online", updatedUser.getFirstname(),
-    											updatedUser.getLastname());
+    			String mssg = String.format("%s %s is now online", updatedUser.getFirstName(),
+    											updatedUser.getLastName());
     			popup.show("Message from ONC Server", mssg);
 			}
 		
@@ -200,8 +200,8 @@ public class UserDB extends ONCSearchableDatabase
 			//a user may be logged in more than once
 			if(updatedUser.getID() == loggedInUser.getID())
 			{
-				loggedInUser.setFirstname(updatedUser.getFirstname());
-				loggedInUser.setLastname(updatedUser.getLastname());
+				loggedInUser.setFirstName(updatedUser.getFirstName());
+				loggedInUser.setLastName(updatedUser.getLastName());
 				loggedInUser.setStatus(updatedUser.getStatus());
 				loggedInUser.setAccess(updatedUser.getAccess());
 				loggedInUser.setPermission(updatedUser.getPermission());
@@ -209,8 +209,8 @@ public class UserDB extends ONCSearchableDatabase
 				loggedInUser.setLastLogin(updatedUser.getLastLogin());
 				loggedInUser.setEmail(updatedUser.getEmail());
 				loggedInUser.setTitle(updatedUser.getTitle());
-				loggedInUser.setOrg(updatedUser.getOrg());
-				loggedInUser.setPhone(updatedUser.getPhone());
+				loggedInUser.setOrganization(updatedUser.getOrganization());
+				loggedInUser.setCellPhone(updatedUser.getCellPhone());
 				loggedInUser.setGroupList(updatedUser.getGroupList());
 				loggedInUser.setPreferences(updatedUser.getPreferences());
 			}
@@ -261,7 +261,7 @@ public class UserDB extends ONCSearchableDatabase
 	{
 		int index = 0;
 		while(index < uAL.size() && 
-				!(name.contains(uAL.get(index).getFirstname()) && name.contains(uAL.get(index).getLastname())))
+				!(name.contains(uAL.get(index).getFirstName()) && name.contains(uAL.get(index).getLastName())))
 			index++;
 		
 		if(index < uAL.size())
@@ -278,7 +278,7 @@ public class UserDB extends ONCSearchableDatabase
 			index++;
 		
 		if(index < uAL.size())
-			username = uAL.get(index).getFirstname() + " " + uAL.get(index).getLastname();
+			username = uAL.get(index).getFirstName() + " " + uAL.get(index).getLastName();
 		
 		return username;
 	}
@@ -351,12 +351,12 @@ public class UserDB extends ONCSearchableDatabase
 	
 	void loginMessagePopup(ONCUser u, String status)
 	{
-		GlobalVariables gvs = GlobalVariables.getInstance();
+		GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
 		
 		ONCPopupMessage popup = new ONCPopupMessage(gvs.getImageIcon(0));
-		Point loc = GlobalVariables.getFrame().getLocationOnScreen();
+		Point loc = GlobalVariablesDB.getFrame().getLocationOnScreen();
 		popup.setLocation(loc.x+450, loc.y+70);
-		popup.show("ONC Elf Status Change", u.getFirstname() + " " + u.getLastname() + " is  now " + status);
+		popup.show("ONC Elf Status Change", u.getFirstName() + " " + u.getLastName() + " is  now " + status);
 	}
 	
 	@Override
@@ -391,8 +391,8 @@ public class UserDB extends ONCSearchableDatabase
     		searchType = "User Name";
 			for(ONCUser u:uAL)
 			{
-				if(u.getFirstname().toLowerCase().contains(data.toLowerCase()) ||
-					u.getLastname().toLowerCase().contains(data.toLowerCase()))
+				if(u.getFirstName().toLowerCase().contains(data.toLowerCase()) ||
+					u.getLastName().toLowerCase().contains(data.toLowerCase()))
 				{
 					searchAL.add(u.getID());
 				}

@@ -194,7 +194,7 @@ public class CrosscheckDialog extends JDialog implements ActionListener, Databas
 	    			else
 	    				JOptionPane.showMessageDialog(owner, 
 	    						ccfile.getName() + " is not in correct format, cannot be imported", 
-	    						"Invalid Crosscheck Format", JOptionPane.ERROR_MESSAGE, GlobalVariables.getONCLogo()); 			    			
+	    						"Invalid Crosscheck Format", JOptionPane.ERROR_MESSAGE, GlobalVariablesDB.getONCLogo()); 			    			
 	    		}
 	    		
 	    		reader.close();
@@ -402,11 +402,11 @@ public class CrosscheckDialog extends JDialog implements ActionListener, Databas
 			String matchAddress = f.getHouseNum() + " " + f.getStreet();
 			
 			//DEBUG *************************************************
-			if(f.getHOHLastName().equalsIgnoreCase("Abdelshayed") && hohLN.equals("Abdelshayed Household"))
-				System.out.println(String.format("Crosscheck Dlg: ONC LN: %s, hohLN: %s, modified LN: %s", f.getHOHLastName(), hohLN, lastname));
+			if(f.getLastName().equalsIgnoreCase("Abdelshayed") && hohLN.equals("Abdelshayed Household"))
+				System.out.println(String.format("Crosscheck Dlg: ONC LN: %s, hohLN: %s, modified LN: %s", f.getLastName(), hohLN, lastname));
 			
 			
-			if(f.getHOHLastName().equalsIgnoreCase(lastname) && matchAddress.equalsIgnoreCase(delAddress) ||
+			if(f.getLastName().equalsIgnoreCase(lastname) && matchAddress.equalsIgnoreCase(delAddress) ||
 					!phone.isEmpty() && f.getHomePhone().contains(phone))
 			{
 				System.out.println(String.format("CrosscheckDlg.getMatch.match: FN: %s,  LN: %s", hohFN, lastname));

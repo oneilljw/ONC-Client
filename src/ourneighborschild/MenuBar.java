@@ -459,7 +459,7 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
     {	
     	String zYear = Integer.toString(dbYear.getYear());
 		
-		JMenuItem mi = new JMenuItem(zYear, GlobalVariables.getInstance().getImageIcon(dbYear.isLocked() ? 
+		JMenuItem mi = new JMenuItem(zYear, GlobalVariablesDB.getInstance().getImageIcon(dbYear.isLocked() ? 
 				DB_LOCKED_IMAGE_INDEX : DB_UNLOCKED_IMAGE_INDEX));
 		mi.setActionCommand(zYear);
 			
@@ -481,7 +481,7 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 		//season if the current date is in the year to be added, the year hasn't already
 		//been added, the user has administrative privileges and a data base has not been loaded
 		Calendar today = Calendar.getInstance();
-		today.setTime(GlobalVariables.getInstance().getTodaysDate());
+		today.setTime(GlobalVariablesDB.getInstance().getTodaysDate());
 		int currYear = today.get(Calendar.YEAR);
 		
 		if(currYear != dbYears.get(dbYears.size()-1).getYear() && 
@@ -585,7 +585,7 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 			
 			if(index < dbYearsMIList.size())
 				dbYearsMIList.get(index).setIcon(updatedDBYear.isLocked() ? 
-						GlobalVariables.getLockedIcon() : GlobalVariables.getUnLockedIcon());
+						GlobalVariablesDB.getLockedIcon() : GlobalVariablesDB.getUnLockedIcon());
 		}
 		else if(dbe.getType().equals("ADDED_DBYEAR"))
 		{
@@ -632,7 +632,7 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 	public void actionPerformed(ActionEvent e) 
 	{
 		if(e.getSource() == newMI) { dbManager.addONCSeason(); }
-		else if(e.getSource() == importBritepathsMI) {familyDB.importBPFile(GlobalVariables.getFrame()); }
+		else if(e.getSource() == importBritepathsMI) {familyDB.importBPFile(GlobalVariablesDB.getFrame()); }
 		else if(e.getSource() == manageCallResultMI) {dlgManager.showAngelCallDialog();}
 		else if(e.getSource() == exportMI){ dbManager.exportObjectDBToCSV(); }
 		else if(e.getSource() == dbStatusMI) {dlgManager.onDBStatusClicked();}
@@ -701,7 +701,7 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 			dlgManager.showPreferencesDialog();
 		else if(e.getSource() == newFamMI)
 		{
-			AddFamilyDialog afDlg = new AddFamilyDialog(GlobalVariables.getFrame());
+			AddFamilyDialog afDlg = new AddFamilyDialog(GlobalVariablesDB.getFrame());
 			afDlg.setVisible(true);
 		}
 		else if(e.getSource() == delChildMI) { dlgManager.onDeleteChild(); }
@@ -728,22 +728,22 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 			if(serverIF != null)
 			{
 				LogDialog logDlg = new LogDialog();
-				logDlg.setLocationRelativeTo(GlobalVariables.getFrame());
+				logDlg.setLocationRelativeTo(GlobalVariablesDB.getFrame());
 				logDlg.setVisible(true);
 			}
 		}
 		else if(e.getSource() == showServerClientIDMI)
 		{
-			ONCPopupMessage clientIDPU = new ONCPopupMessage(GlobalVariables.getONCLogo());
-			clientIDPU.setLocationRelativeTo(GlobalVariables.getFrame());
+			ONCPopupMessage clientIDPU = new ONCPopupMessage(GlobalVariablesDB.getONCLogo());
+			clientIDPU.setLocationRelativeTo(GlobalVariablesDB.getFrame());
 			String mssg = String.format("Your ONC Server Client ID is: %d", 
 								userDB.getLoggedInUser().getClientID());
 			clientIDPU.show("ONC Server Client ID", mssg);
 		}    		
 		else if(e.getSource() == showCurrDirMI)
 		{
-			ONCPopupMessage clientIDPU = new ONCPopupMessage(GlobalVariables.getONCLogo());
-			clientIDPU.setLocationRelativeTo(GlobalVariables.getFrame());
+			ONCPopupMessage clientIDPU = new ONCPopupMessage(GlobalVariablesDB.getONCLogo());
+			clientIDPU.setLocationRelativeTo(GlobalVariablesDB.getFrame());
 			String mssg = String.format("Current folder is: %s", System.getProperty("user.dir"));
 			clientIDPU.show("ONC Client Current Folder", mssg);
 		}

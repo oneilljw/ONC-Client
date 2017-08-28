@@ -41,9 +41,9 @@ public class DupItem
 		}
 		else
 		{
-			String[] duptablerow = {f1.getONCNum(), f1.getHOHFirstName(), f1.getHOHLastName(), 
+			String[] duptablerow = {f1.getONCNum(), f1.getFirstName(), f1.getLastName(), 
 									f1.getHouseNum(), f1.getStreet(), result,
-									f2.getONCNum(), f2.getHOHFirstName(), f2.getHOHLastName(),
+									f2.getONCNum(), f2.getFirstName(), f2.getLastName(),
 									f2.getHouseNum(), f2.getStreet()};
 			return duptablerow;
 		}

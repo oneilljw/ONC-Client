@@ -641,7 +641,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		if(fam == null)
 		{
 			//error has occurred, display an error message that update request failed
-			JOptionPane.showMessageDialog(GlobalVariables.getFrame(),
+			JOptionPane.showMessageDialog(GlobalVariablesDB.getFrame(),
 					"ERROR - NULL Family, can't display, contact the ONC IT Director",
 					"ERROR - NULL Family",  
 					JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
@@ -745,12 +745,12 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		if(userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0)
 		{	
 			//show personal information for family since user is Administrator or higher
-			HOHFirstName.setText(currFam.getHOHFirstName());
-			HOHLastName.setText(currFam.getHOHLastName());
+			HOHFirstName.setText(currFam.getFirstName());
+			HOHLastName.setText(currFam.getLastName());
 			
 			homePhonePane.setText(currFam.getHomePhone());
 			homePhonePane.setCaretPosition(0);
-			otherPhonePane.setText(currFam.getOtherPhon());
+			otherPhonePane.setText(currFam.getCellPhone());
 			otherPhonePane.setCaretPosition(0);
 			EMail.setText(currFam.getEmail());
 			EMail.setCaretPosition(0);
@@ -758,7 +758,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			housenumTF.setText(currFam.getHouseNum());
 			Street.setText(currFam.getStreet());
 			Street.setCaretPosition(0);
-			Unit.setText(currFam.getUnitNum());
+			Unit.setText(currFam.getUnit());
 			Unit.setCaretPosition(0);
 			City.setText(currFam.getCity());
 			ZipCode.setText(currFam.getZipCode());
@@ -983,16 +983,16 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			fam.setDNSCode(oncDNScode.getText());
 			cf = 3;
 		}
-		if(!HOHFirstName.getText().equals(fam.getHOHFirstName())) {fam.setHOHFirstName(HOHFirstName.getText()); cf = 4;}
-		if(!HOHLastName.getText().equals(fam.getHOHLastName())) {fam.setHOHLastName(HOHLastName.getText()); cf = 5;}
+		if(!HOHFirstName.getText().equals(fam.getFirstName())) {fam.setHOHFirstName(HOHFirstName.getText()); cf = 4;}
+		if(!HOHLastName.getText().equals(fam.getLastName())) {fam.setHOHLastName(HOHLastName.getText()); cf = 5;}
 		if(Integer.parseInt(lblNumBags.getText()) != fam.getNumOfBags()) {fam.setNumOfBags(Integer.parseInt(lblNumBags.getText())); cf = 20;}
 		if(!homePhonePane.getText().equals(fam.getHomePhone())) {fam.setHomePhone(homePhonePane.getText()); cf = 6;}
-		if(!otherPhonePane.getText().equals(fam.getOtherPhon())) {fam.setOtherPhon(otherPhonePane.getText()); cf = 7;}
+		if(!otherPhonePane.getText().equals(fam.getCellPhone())) {fam.setOtherPhon(otherPhonePane.getText()); cf = 7;}
 		if(!EMail.getText().equals(fam.getEmail())) {fam.setFamilyEmail(EMail.getText()); cf = 8;}
 		if(!Language.getSelectedItem().toString().equals(fam.getLanguage())){fam.setLanguage(Language.getSelectedItem().toString());cf = 9;}
 		if(!housenumTF.getText().equals(fam.getHouseNum())) {fam.setHouseNum(housenumTF.getText()); cf = 10;}
 		if(!Street.getText().equals(fam.getStreet())) {fam.setStreet(Street.getText()); cf = 11;}
-		if(!Unit.getText().equals(fam.getUnitNum())) {fam.setUnitNum(Unit.getText()); cf = 12;}
+		if(!Unit.getText().equals(fam.getUnit())) {fam.setUnitNum(Unit.getText()); cf = 12;}
 		if(!City.getText().equals(fam.getCity())) {fam.setCity(City.getText()); cf = 13;}
 		if(!ZipCode.getText().equals(fam.getZipCode())) {fam.setZipCode(ZipCode.getText()); cf = 14;}
 		if(statusCB.getSelectedItem() != fam.getFamilyStatus()) {fam.setFamilyStatus( (FamilyStatus) statusCB.getSelectedItem()); cf = 15;}
@@ -1021,7 +1021,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			else
 			{
 				//display an error message that update request failed
-				JOptionPane.showMessageDialog(GlobalVariables.getFrame(), "ONC Server Error: " + response +
+				JOptionPane.showMessageDialog(GlobalVariablesDB.getFrame(), "ONC Server Error: " + response +
 						", try again later","Family Update Failed",  
 						JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
 			}
@@ -1076,8 +1076,8 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	 **************/
 	boolean onShowPriorHistory()
 	{
-		String ly = Integer.toString(GlobalVariables.getCurrentSeason()-1);
-		String py = Integer.toString(GlobalVariables.getCurrentSeason()-2);
+		String ly = Integer.toString(GlobalVariablesDB.getCurrentSeason()-1);
+		String py = Integer.toString(GlobalVariablesDB.getCurrentSeason()-2);
 		
 		//Get prior year child
 		ONCPriorYearChild pyc = cDB.getPriorYearChild(currChild.getPriorYearChildID());
@@ -1158,7 +1158,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		else
 		{
 			//display an error message that update request failed
-			JOptionPane.showMessageDialog(GlobalVariables.getFrame(), "ONC Server denied family auto ONC Number asssingment," +
+			JOptionPane.showMessageDialog(GlobalVariablesDB.getFrame(), "ONC Server denied family auto ONC Number asssingment," +
 					"try again later","Family Auto Assign ONC # Failed",  
 					JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
 		}
@@ -1447,10 +1447,10 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			String mssg;
 			String year = (String) dbe.getObject1();
 			
-			if(userDB.getLoggedInUser().getFirstname().equals(""))
+			if(userDB.getLoggedInUser().getFirstName().equals(""))
 				mssg = year + " season data has been loaded";
 			else
-				mssg = userDB.getLoggedInUser().getFirstname() + ", " + year + " season data has been loaded";
+				mssg = userDB.getLoggedInUser().getFirstName() + ", " + year + " season data has been loaded";
 			
     		setMssg(mssg, true);
     		

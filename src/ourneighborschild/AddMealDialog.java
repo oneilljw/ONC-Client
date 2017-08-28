@@ -56,7 +56,7 @@ public class AddMealDialog extends InfoDialog implements EntitySelectionListener
 		f = (ONCFamily) obj;
 		
 		tf[0].setText(f.getONCNum());
-		tf[1].setText(f.getHOHLastName());
+		tf[1].setText(f.getLastName());
 		mealRequestCB.setSelectedItem(0);
 		tf[3].setText("");
 	}
@@ -73,7 +73,7 @@ public class AddMealDialog extends InfoDialog implements EntitySelectionListener
 		if(updatedMeal == null)
 		{
 			//display an error message that update request failed
-			JOptionPane.showMessageDialog(GlobalVariables.getFrame(), 
+			JOptionPane.showMessageDialog(GlobalVariablesDB.getFrame(), 
 					"ONC Server denied add meal request, try again later","Add Meal Failed",  
 					JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
 		}

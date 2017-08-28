@@ -41,7 +41,7 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 	private static final int MAX_LABEL_LINE_LENGTH = 26;
 	
 	//database references
-	private GlobalVariables gvs;
+	private GlobalVariablesDB gvs;
     private FamilyDB fDB;
 	private ChildDB cDB;
 	private ChildWishDB cwDB;
@@ -65,7 +65,7 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 		this.wishNumber = wishNumber;
 		this.setTransferHandler(new InventoryTransferhandler());
 		
-		gvs = GlobalVariables.getInstance();
+		gvs = GlobalVariablesDB.getInstance();
     	fDB = FamilyDB.getInstance();
 		if(fDB != null)
 			fDB.addDatabaseListener(this);
@@ -411,7 +411,7 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 				whTR[1] = cw.getChildWishDetail();
 				whTR[2] = indicators[cw.getChildWishIndicator()];
 				whTR[3] = cw.getChildWishStatus().toString();
-				whTR[4] = assignee == null ? "None" : assignee.getName();
+				whTR[4] = assignee == null ? "None" : assignee.getLastName();
 				whTR[5] = cw.getChildWishChangedBy();
 				whTR[6] = new SimpleDateFormat("MM/dd H:mm:ss").format(cw.getChildWishDateChanged().getTime());
 				
@@ -423,14 +423,14 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 				firstname = child.getChildFirstName();
 			else
 				firstname = "Child " + cDB.getChildNumber(child);
-			WishHistoryDialog whDlg = new WishHistoryDialog(GlobalVariables.getFrame(), wishHistoryTable,
+			WishHistoryDialog whDlg = new WishHistoryDialog(GlobalVariablesDB.getFrame(), wishHistoryTable,
 											wishNumber, firstname);
 			whDlg.setLocationRelativeTo(rbWish);
 			whDlg.setVisible(true);
 		}
 		else
 		{
-			JOptionPane.showMessageDialog(GlobalVariables.getFrame(), 
+			JOptionPane.showMessageDialog(GlobalVariablesDB.getFrame(), 
 					"Child Wish History Not Available", 
 					"No History Available", JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
 		}
@@ -455,8 +455,8 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 			{
 				//Construct and show the wish detail required dialog
 				String newWishName = wishCB.getSelectedItem().toString();
-				DetailDialog dDlg = new DetailDialog(GlobalVariables.getFrame(), newWishName, drDlgData);
-				Point pt = GlobalVariables.getFrame().getLocation();	//Used to set dialog location
+				DetailDialog dDlg = new DetailDialog(GlobalVariablesDB.getFrame(), newWishName, drDlgData);
+				Point pt = GlobalVariablesDB.getFrame().getLocation();	//Used to set dialog location
 				dDlg.setLocation(pt.x + (wishNumber*200) + 20, pt.y + 400);
 				dDlg.setVisible(true);
 				
@@ -495,7 +495,7 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 		else if(e.getSource() == rbLabel)
 		{
 			//construct and show label viewer for selected label
-			WishLabelViewer viewer = new WishLabelViewer(GlobalVariables.getFrame(), child, wishNumber);
+			WishLabelViewer viewer = new WishLabelViewer(GlobalVariablesDB.getFrame(), child, wishNumber);
 			viewer.setLocationRelativeTo(this);
 			viewer.setVisible(true);
 		}

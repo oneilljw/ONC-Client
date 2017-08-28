@@ -27,7 +27,7 @@ public class ChoiceDialog extends JDialog
 		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
 		
 		//create the icon and question panel
-		GlobalVariables gvs = GlobalVariables.getInstance();
+		GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
 		JPanel toppanel = new JPanel();
 		toppanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 		JLabel lblONCIcon = new JLabel(gvs.getImageIcon(0), JLabel.LEFT);

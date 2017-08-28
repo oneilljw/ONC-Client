@@ -40,7 +40,7 @@ public class SortWishObject extends ONCObject
 		String wishName = wish == null ? "None" : wish.getName();
 		
 		ONCPartner partner = partnerDB.getPartnerByID(soChildWish.getChildWishAssigneeID());
-		String partnerName = partner == null ? "" : partner.getName();
+		String partnerName = partner == null ? "" : partner.getLastName();
 		
 		String[] exportRow = {soFamily.getONCNum(), soChild.getChildGender(),
 								soChild.getChildAge(),
@@ -74,7 +74,7 @@ public class SortWishObject extends ONCObject
 	
 	String[] getWishLabel()
 	{	
-		GlobalVariables gvs = GlobalVariables.getInstance();
+		GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
 		ONCWishCatalog cat = ONCWishCatalog.getInstance();
 		
 		String[] line = new String[5];

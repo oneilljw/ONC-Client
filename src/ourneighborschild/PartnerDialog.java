@@ -428,7 +428,7 @@ public class PartnerDialog extends EntityDialog
 	void updatePartnerPerformanceBorders()
 	{
         //determine year
-        GlobalVariables gvs = GlobalVariables.getInstance();
+        GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
         Calendar seasonStartCal = Calendar.getInstance();
         seasonStartCal.setTime(gvs.getSeasonStartDate());
         
@@ -466,7 +466,7 @@ public class PartnerDialog extends EntityDialog
 			bIgnoreEvents = true;
 			
 			lblOrgID.setText(Long.toString(currPartner.getID()));
-			nameTF.setText(currPartner.getName());
+			nameTF.setText(currPartner.getLastName());
 			nameTF.setCaretPosition(0);
 			statusCB.setSelectedIndex(currPartner.getStatus());
 			typeCB.setSelectedIndex(currPartner.getType());
@@ -499,12 +499,12 @@ public class PartnerDialog extends EntityDialog
 			otherTP.setCaretPosition(0);
 			specialNotesTP.setText(currPartner.getSpecialNotes());
 			specialNotesTP.setCaretPosition(0);
-			streetnumTF.setText(Integer.toString(currPartner.getStreetnum()));
-			streetnameTF.setText(currPartner.getStreetname());
+			streetnumTF.setText(currPartner.getHouseNum());
+			streetnameTF.setText(currPartner.getStreet());
 			unitTF.setText(currPartner.getUnit());
 			cityTF.setText(currPartner.getCity());
-			zipTF.setText(currPartner.getZipcode());
-			phoneTF.setText(currPartner.getPhone());
+			zipTF.setText(currPartner.getZipCode());
+			phoneTF.setText(currPartner.getHomePhone());
 			phoneTF.setCaretPosition(0);
 			lblRegion.setText(regions.getRegionID(currPartner.getRegion()));
 			deliverToTP.setText(currPartner.getDeliverTo());
@@ -563,7 +563,7 @@ public class PartnerDialog extends EntityDialog
 		int n;
 		boolean bCD = false; //used to indicate a change has been detected
 		
-		if(!nameTF.getText().equals(reqPartner.getName())) { reqPartner.setName(nameTF.getText()); bCD = true; }
+		if(!nameTF.getText().equals(reqPartner.getLastName())) { reqPartner.setLastName(nameTF.getText()); bCD = true; }
 		if(statusCB.getSelectedIndex() !=reqPartner.getStatus())
 		{
 			//Can only change status if not confirmed or if confirmed and no ornaments assigned
@@ -600,26 +600,12 @@ public class PartnerDialog extends EntityDialog
 		}
 		if(!otherTP.getText().equals(reqPartner.getOther())) {reqPartner.setOther(otherTP.getText()); bCD = true; }
 		if(!specialNotesTP.getText().equals(reqPartner.getSpecialNotes())) { reqPartner.setSpecialNotes(specialNotesTP.getText()); bCD = true; }
-		if(streetnumTF.getText().isEmpty())
-		{
-			reqPartner.setStreetnum(0);
-			bCD = true;
-		}
-		else if((n=Integer.parseInt(streetnumTF.getText().trim())) != reqPartner.getStreetnum())
-		{
-			reqPartner.setStreetnum(n);
-			bCD = true;
-		}
-		
-		if(!streetnameTF.getText().equals(reqPartner.getStreetname()))
-		{
-			reqPartner.setStreetname(streetnameTF.getText());
-			bCD = true;
-		}
+		if(!streetnumTF.getText().equals(reqPartner.getHouseNum())) { reqPartner.setHouseNum(streetnumTF.getText()); bCD = true; }
+		if(!streetnameTF.getText().equals(reqPartner.getStreet())) {reqPartner.setStreet(streetnameTF.getText());bCD = true;}
 		if(!unitTF.getText().equals(reqPartner.getUnit())) { reqPartner.setUnit(unitTF.getText()); bCD = true; }
 		if(!cityTF.getText().equals(reqPartner.getCity())) { reqPartner.setCity(cityTF.getText()); bCD = true; }
-		if(!zipTF.getText().equals(reqPartner.getZipcode())) { reqPartner.setZipcode(zipTF.getText()); bCD = true; }
-		if(!phoneTF.getText().equals(reqPartner.getPhone())) { reqPartner.setPhone(phoneTF.getText()); bCD = true; }
+		if(!zipTF.getText().equals(reqPartner.getZipCode())) { reqPartner.setZipCode(zipTF.getText()); bCD = true; }
+		if(!phoneTF.getText().equals(reqPartner.getHomePhone())) { reqPartner.setHomePhone(phoneTF.getText()); bCD = true; }
 		if(!deliverToTP.getText().equals(reqPartner.getDeliverTo())) { reqPartner.setDeliverTo(deliverToTP.getText()); bCD = true; }
 		if(!contact1TF.getText().equals(reqPartner.getContact())) { reqPartner.setContact(contact1TF.getText()); bCD = true; }
 		if(!email1TF.getText().equals(reqPartner.getContact_email())) { reqPartner.setContact_email(email1TF.getText()); bCD = true; }
@@ -737,7 +723,7 @@ public class PartnerDialog extends EntityDialog
 		
 		//Confirm with the user that the deletion is really intended
 		String confirmMssg = String.format("Are you sure you want to delete %s from the data base?", 
-											delPartner.getName());
+											delPartner.getLastName());
 	
 		Object[] options= {"Cancel", "Delete"};
 		JOptionPane confirmOP = new JOptionPane(confirmMssg, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION,
@@ -772,7 +758,7 @@ public class PartnerDialog extends EntityDialog
 				3, "Partner Created", userDB.getUserLNFI(),
 				statusCB.getSelectedIndex(), typeCB.getSelectedIndex(),
 				(GiftCollection) collectionCB.getSelectedItem(), nameTF.getText(), 
-				streetnumTF.getText().isEmpty() ? 0 : Integer.parseInt(streetnumTF.getText()),
+				streetnumTF.getText(),
 				streetnameTF.getText(), unitTF.getText(), cityTF.getText(), zipTF.getText(), 
 				phoneTF.getText(), cyReqTF.getText().isEmpty() ? 0 : Integer.parseInt(cyReqTF.getText()),
 				otherTP.getText(), deliverToTP.getText(), specialNotesTP.getText(), 

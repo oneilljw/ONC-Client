@@ -16,6 +16,7 @@ import java.util.EnumSet;
 import java.util.List;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -44,18 +45,20 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 	private static final int MIN_EMAIL_ADDRESS_LENGTH = 2;
 	private static final int MIN_EMAIL_NAME_LENGTH = 1;
 	
-	private JComboBox orgCB, titleCB;
-	private DefaultComboBoxModel orgCBM, titleCBM;
-	private String sortOrg, sortTitle;
+	private JComboBox orgCB, titleCB, batchCB, printCB, emailCB;
+	private DefaultComboBoxModel orgCBM, titleCBM, emailCBM;
+	private String sortOrg, sortTitle, sortBatch;
 	private JCheckBox allAgentsCxBox;
 
 	private JButton btnEditAgentInfo;
-	private JComboBox printCB, emailCB;
+	
+	private String[] emailChoices;	//choices that populate the email combo box
 	
 	private JProgressBar progressBar;
 	private ONCEmailer oncEmailer;
 
 	private UserDB userDB;
+	private GlobalVariablesDB gvDB;
 	private List<ONCUser> atAL;	//Holds references to agent objects for agent table
 	
 	private AgentInfoDialog aiDlg;
@@ -69,19 +72,32 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		if(userDB != null)
 			userDB.addDatabaseListener(this);
 		
+		gvDB = GlobalVariablesDB.getInstance();
+		if(gvDB != null)
+			gvDB.addDatabaseListener(this);
+		
 		//Set up the agent table content array list
 		atAL = new ArrayList<ONCUser>();
 		
 		//Initialize the sort criteria variables
 		sortOrg = "Any";
 		sortTitle = "Any";
+		sortBatch = "Any";
 		
-		//Set up the search criteria panel      
+		//Set up the search criteria panel 
+		String[] batchNums = {"Any","B-01","B-02","B-03","B-04","B-05","B-06","B-07","B-08",
+				"B-09","B-10", "B-CR", "B-DI"};
+		batchCB = new JComboBox(batchNums);
+		batchCB.setPreferredSize(new Dimension(56, 56));
+		batchCB.setBorder(BorderFactory.createTitledBorder("Batch #"));
+		batchCB.setToolTipText("Filters table to contain agents who referrred in selected Batch");
+		batchCB.addActionListener(this);
+		
 		orgCB = new JComboBox();
 		orgCBM = new DefaultComboBoxModel();
 	    orgCBM.addElement("Any");
 	    orgCB.setModel(orgCBM);
-		orgCB.setPreferredSize(new Dimension(144, 56));
+		orgCB.setPreferredSize(new Dimension(192, 56));
 		orgCB.setBorder(BorderFactory.createTitledBorder("Organization"));
 		orgCB.addActionListener(this);
 		
@@ -89,14 +105,15 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		titleCBM = new DefaultComboBoxModel();
 	    titleCBM.addElement("Any");
 	    titleCB.setModel(titleCBM);
-		titleCB.setPreferredSize(new Dimension(144, 56));
+		titleCB.setPreferredSize(new Dimension(192, 56));
 		titleCB.setBorder(BorderFactory.createTitledBorder("Title"));
 		titleCB.addActionListener(this);
 		
 		//Add all sort criteria components to dialog pane
+		sortCriteriaPanelTop.add(batchCB);
         sortCriteriaPanelTop.add(orgCB);
 		sortCriteriaPanelTop.add(titleCB);
-		sortCriteriaPanelTop.add(new JPanel());
+		sortCriteriaPanelTop.add(Box.createHorizontalGlue());
 		
 		//Set the text for the agent count label
 		lblObjectMssg.setText("# of Agents:");
@@ -120,8 +137,14 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
         progressBar.setStringPainted(true);
         progressBar.setVisible(false);
         
-        String[] emailChoices = {"Email", "2016 Season Gift Confirmation Email"};
-        emailCB = new JComboBox(emailChoices);
+        emailChoices = new String[3];
+        emailChoices[0] = "Export/Email";
+        emailChoices[1] = "Export Gmail Contact List";
+        emailChoices[2] = "Email 2017 Season Gift Confirmation";
+        emailCBM = new DefaultComboBoxModel();
+        emailCBM.addElement(emailChoices[0]);
+        emailCBM.addElement(emailChoices[1]);
+        emailCB = new JComboBox(emailCBM);
         emailCB.setPreferredSize(new Dimension(136, 28));
         emailCB.setEnabled(false);
         emailCB.addActionListener(this);
@@ -151,7 +174,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
         //set up the Agent Info Dialog and register it for just Entity Selection Events from this
         //dialog, not from any other. To do that, don't use the Entity Event Manager registration for
         //global entity selection event registration
-    	aiDlg = new AgentInfoDialog(GlobalVariables.getFrame(), true);
+    	aiDlg = new AgentInfoDialog(GlobalVariablesDB.getFrame(), true);
     	this.addEntitySelectionListener(EntityType.AGENT, aiDlg);
         
     	bottomPanel.add(infoPanel, BorderLayout.LINE_START);
@@ -201,15 +224,16 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		List<ONCUser> userList = (List<ONCUser>) userDB.getList();
 		for(ONCUser u : userList)
 			if(u.getPermission().compareTo(UserPermission.Agent) >= 0 && 
-			    doesOrgMatch(u.getOrg()) &&
+			    doesOrgMatch(u.getOrganization()) &&
 				 doesTitleMatch(u.getTitle()) &&
-				  didAgentRefer(u))
+				  didAgentRefer(u) &&
+				   didAgentReferInBatch(u))
 				atAL.add(u);
 		
 		if(allAgentsCxBox.isSelected())
 			lblObjectMssg.setText("Referring Agents in DB:");
 		else
-			lblObjectMssg.setText(String.format("%d Referring Agents: ", GlobalVariables.getCurrentSeason()));
+			lblObjectMssg.setText(String.format("%d Referring Agents: ", GlobalVariablesDB.getCurrentSeason()));
 		
 		lblNumOfObjects.setText(Integer.toString(atAL.size()));
 		displaySortTable(atAL, true, tableRowSelectedObjectList);
@@ -226,14 +250,14 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		@SuppressWarnings("unchecked")
 		List<ONCUser> userList = (List<ONCUser>) userDB.getList();
 		for(ONCUser u : userList)
-			if(u.getPermission().compareTo(UserPermission.Agent) >= 0 && !u.getOrg().trim().isEmpty())
+			if(u.getPermission().compareTo(UserPermission.Agent) >= 0 && !u.getOrganization().trim().isEmpty())
 			{
 				int index = 0;
-				while(index < orgItemAL.size() && !u.getOrg().equals(orgItemAL.get(index)))
+				while(index < orgItemAL.size() && !u.getOrganization().equals(orgItemAL.get(index)))
 					index++;
 				
 				if(index == orgItemAL.size())
-					orgItemAL.add(u.getOrg());	
+					orgItemAL.add(u.getOrganization());	
 			}
 		
 		Collections.sort(orgItemAL);
@@ -271,6 +295,23 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		titleCBM.addElement("Any");
 		for(String s:titleItemAL)
 			titleCBM.addElement(s);
+		
+		bIgnoreCBEvents = false;
+	}
+	
+	void updateEmailCBList()
+	{
+		bIgnoreCBEvents = true;
+		emailCBM.removeAllElements();
+		
+		ONCUser currUser = userDB.getLoggedInUser();
+		
+		//if user has email privileges, add them, other wise they can only create a contact list
+		emailCBM.addElement(emailChoices[0]);
+		emailCBM.addElement(emailChoices[1]);
+		if(currUser != null && currUser.getPermission().compareTo(UserPermission.Admin) >= 0)
+			for(int i=2; i < emailChoices.length; i++)
+				emailCBM.addElement(emailChoices[i]);
 		
 		bIgnoreCBEvents = false;
 	}
@@ -323,18 +364,18 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		ONCUser u = userDB.getUser(f.getAgentID());
 		
 		String[] row = {
-						u.getFirstname() + " " + u.getLastname(),
+						u.getFirstName() + " " + u.getLastName(),
 						f.getONCNum(),
 						f.getBatchNum(),
 						f.getDNSCode(),
 						f.getFamilyStatus().toString(),
 						f.getGiftStatus().toString(),
 						f.getMealStatus().toString(),
-						f.getHOHFirstName(),
-						f.getHOHLastName(),
+						f.getFirstName(),
+						f.getLastName(),
 						f.getHouseNum(),
 						f.getStreet(),
-						f.getUnitNum(),
+						f.getUnit(),
 						f.getZipCode(),
 						regions.getRegionID(f.getRegion()),
 						f.getChangedBy()
@@ -360,13 +401,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		else
 			printCB.setEnabled(false);
 		
-		if(sortTable.getSelectedRowCount() > 0 &&
-			userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0 )
-		{
-			emailCB.setEnabled(true);
-		}
-		else
-			emailCB.setEnabled(false);				
+		emailCB.setEnabled(sortTable.getSelectedRowCount() > 0);			
 	}
 	
 	void createAndSendAgentEmail(int emailType)
@@ -463,7 +498,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		String emailBody = null;
 		
 		//verify the agent has a valid name. If not, return an empty list
-		if(user != null && user.getFirstname() != null && user.getFirstname().length() > MIN_EMAIL_NAME_LENGTH)
+		if(user != null && user.getFirstName() != null && user.getFirstName().length() > MIN_EMAIL_NAME_LENGTH)
 //			emailBody = createAgentEmailText(agent, cid0, cid1); 	//2013 Email Body
 //			if(emailType == 1)
 //				emailBody = create2015AgentEmailText(agent.getAgentFirstName());	//2015 email body
@@ -472,7 +507,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 //			else if(emailType == 3)
 //				emailBody = create2014AgentIntakeEmail(agent.getAgentFirstName(), cid0);
 			if(emailType == 1)
-				emailBody = create2016AgentDecemberGiftConfirmationEmail(user);
+				emailBody = createAgentDecemberGiftConfirmationEmail(user);
 //			else if(emailType == 3)
 //				emailBody = create2015AgentDeliveryStatusEmail(agent);
 		return emailBody;
@@ -490,10 +525,10 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		
 		//verify the agent has a valid email address and name. If not, return an empty list
 		if(user != null && user.getEmail() != null && user.getEmail().length() > MIN_EMAIL_ADDRESS_LENGTH &&
-				user.getLastname() != null && user.getLastname().trim().length() > MIN_EMAIL_NAME_LENGTH)
+				user.getLastName() != null && user.getLastName().trim().length() > MIN_EMAIL_NAME_LENGTH)
         {
 			//LIVE EMAIL ADDRESS
-			EmailAddress toAddress = new EmailAddress(user.getEmail(), user.getLastname());	//live
+			EmailAddress toAddress = new EmailAddress(user.getEmail(), user.getLastName());	//live
 			recipientAddressList.add(toAddress);
 
 			//TEST EMAIL ADDRESS
@@ -721,11 +756,11 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
         return msg;
 	}
 	
-	String create2016AgentDecemberGiftConfirmationEmail(ONCUser user)
+	String createAgentDecemberGiftConfirmationEmail(ONCUser user)
 	{
         //Create the text part of the email using html
 		String msg = "<html><body><div>" +
-				"<p>Dear " + user.getFirstname() + ",</p>"
+				"<p>Dear " + user.getFirstName() + ",</p>"
 				+"<p>We realize you and the families you've referred are anxious to receive confirmation about " 
 				+"December gift assistance from Our Neighbor's Child.</p>"
 				+"<p>If you included an e-mail address for any family you referred, the family will "
@@ -745,7 +780,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 				+"pick up their gifts with the Salvation Army or follow the instructions provided by their serving agency.</p>"
 				+"<p>We will still use our automated calling system (after Thanksgiving) to notify all families who have not "
 				+"acknowledged our email nor confirmed that they will be home on "
-				+"Sunday, December 18th from 1 to 4PM to receive their children's gifts.</p>"
+				+"Sunday, December 17th from 1 to 4PM to receive their children's gifts.</p>"
 				+"<p>Our all-volunteer team at Our Neighbor's Child is actively working to collect their gifts and organize all the community "
 				+"volunteers who help make this day possible.</p>"
 		        +"<p>As always, thanks so much for your support!</p>"
@@ -756,7 +791,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		        +"P.O. Box 276<br>"
 		        +"Centreville, VA 20120<br>"
 		        +"<a href=\"http://www.ourneighborschild.org\">www.ourneighborschild.org</a></p></div>"
-		        +"<p><b>" + user.getLastname() + " referrals scheduled for ONC gift delivery:</b></p>"
+		        +"<p><b>" + user.getLastName() + " referrals scheduled for ONC gift delivery:</b></p>"
 		        +createServedFamiliesRepresentedTableHTML(user)
 		        +"<p><b>Sample family confirmation email (English):</b></p>"
 		        +createSampleFamilyConfirmationEmail()
@@ -768,7 +803,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 	{
         //Create the text part of the email using html
 		String msg = "<html><body><div>" +
-				"<p>Dear " + user.getFirstname() + ",</p>"
+				"<p>Dear " + user.getFirstName() + ",</p>"
 				+"<p>We are sending this email to help you respond to famiies you referred that were scheduled for " 
 				+"December gift assistance delivery from Our Neighbor's Child. "
 				+"<p>Below is a list of families you referred and the status of their delivery. We made or attempted "
@@ -790,7 +825,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		        +"P.O. Box 276<br>"
 		        +"Centreville, VA 20120<br>"
 		        +"<a href=\"http://www.ourneighborschild.org\">www.ourneighborschild.org</a></p></div>"
-		        +"<p><b>" + user.getLastname() + " ONC referrals gift delivery status:</b></p>"
+		        +"<p><b>" + user.getLastName() + " ONC referrals gift delivery status:</b></p>"
 		        +createFamiliesDeliveryStatusTableHTML(user)
 		        +"</body></html>";
         return msg;
@@ -809,10 +844,10 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		for(ONCFamily f:fDB.getList())
 			if(user != null && f.getAgentID() == user.getID())	//family is represented by agent and is being served
 			{
-				familyTableHTML.append("<tr><td>" + f.getHOHLastName() + "</td>");
-				familyTableHTML.append("<td>" + f.getHOHFirstName() + "</td>");
+				familyTableHTML.append("<tr><td>" + f.getLastName() + "</td>");
+				familyTableHTML.append("<td>" + f.getFirstName() + "</td>");
 				familyTableHTML.append("<td>" + f.getEmail() + "</td>");
-				familyTableHTML.append("<td>" + f.getHouseNum() + " " + f.getStreet() + " " + f.getUnitNum() + "</td>");
+				familyTableHTML.append("<td>" + f.getHouseNum() + " " + f.getStreet() + " " + f.getUnit() + "</td>");
 //				familyTableHTML.append("<td>" + f.getCity() + "</td></tr>");
 				familyTableHTML.append("<td>" + f.getDNSCode() + "</td></tr>");
 			}
@@ -836,9 +871,9 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		for(ONCFamily f:fDB.getList())
 			if(user != null && f.getAgentID() == user.getID())	//family is represented by agent and is being served
 			{
-				familyTableHTML.append("<tr><td>" + f.getHOHLastName() + "</td>");
-				familyTableHTML.append("<td>" + f.getHOHFirstName() + "</td>");
-				familyTableHTML.append("<td>" + f.getHouseNum() + " " + f.getStreet() + " " + f.getUnitNum() + "</td>");
+				familyTableHTML.append("<tr><td>" + f.getLastName() + "</td>");
+				familyTableHTML.append("<td>" + f.getFirstName() + "</td>");
+				familyTableHTML.append("<td>" + f.getHouseNum() + " " + f.getStreet() + " " + f.getUnit() + "</td>");
 //				familyTableHTML.append("<td>" + famstatus[f.getFamilyStatus()] + "</td>");
 				familyTableHTML.append("<td>" + f.getGiftStatus().toString() + "</td>");
 //				familyTableHTML.append("<td>" + f.getMealStatus().toString() + "</td></tr>");
@@ -871,7 +906,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
     		"&emsp;<b>Alternate Delivery Address:</b>  <br>" +
     		"&emsp;<b>Alternate Delivery Address:</b>  <br>" + 
         	"<p>An Our Neighbor's Child volunteer will deliver your children's gifts to the address listed above " +
-        	"on <b>Sunday, December 18th between 1 and 4PM.</b>  "
+        	"on <b>Sunday, December 17th between 1 and 4PM.</b>  "
         	+"Please reply to this email (in English or Spanish) to confirm that an adult will be home that "
         	+"day to receive your children's gifts. We may also attempt to contact you with an automated phone call.</p>" +
         	"<p><b>Important:  Families will only be served by one organization.</b> If your child/children's name " +
@@ -879,7 +914,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
         	"unable to deliver gifts to your home.</p>" +
         	"<p>If your address or telephone number should change, PLEASE include those changes in your REPLY to this e-mail. "
         	+ "We are unable to accept any gift requests or changes to gift requests.</p>" +
-        	"<p>If an emergency arises and you are unable to have an adult home on Sunday, December 18th between 1 " +
+        	"<p>If an emergency arises and you are unable to have an adult home on Sunday, December 17th between 1 " +
         	"and 4PM - PLEASE REPLY to this e-mail with an alternate local address (Centreville, Chantilly, Clifton or Fairfax) where " +
         	"someone will be home to receive the gifts on that day between 1 and 4PM.</p>"+
         	"<p>Thank you for your assistance and Happy Holidays!</p>" +
@@ -891,7 +926,74 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 	boolean doesOrgMatch(String org) {return sortOrg.equals("Any") || sortOrg.equals(org);}
 	boolean doesTitleMatch(String title) {return sortTitle.equals("Any") || sortTitle.equals(title); }
 	boolean didAgentRefer(ONCUser u){ return allAgentsCxBox.isSelected() || fDB.didAgentRefer(u.getID()); }
+	boolean didAgentReferInBatch(ONCUser u)
+	{
+		if(sortBatch.equals("Any"))
+			return true;
+		else
+		{
+			//build a list of families referred by the agent
+			List<ONCFamily> searchList = new ArrayList<ONCFamily>();
+			for(ONCFamily f : fDB.getList())
+				if(f.getAgentID() == u.getID())
+					searchList.add(f);
+			
+			//see if the any of the families referred by the agent are in the batch. When the first one
+			//stop the search and return true;
+			int index = 0;
+			while(index < searchList.size() && !searchList.get(index).getBatchNum().equals(sortBatch))
+				index++;
+		
+			return index < searchList.size();
+		}
+	}
 	
+	void onExportContactGroup()
+	{
+		//get group name input from user. If null exit
+		String groupName = (String) JOptionPane.showInputDialog(this, "Please enter Contact Group Name:",  
+				"Contact Group Name", JOptionPane.QUESTION_MESSAGE, gvs.getImageIcon(0),
+				null, "");
+		
+		if(groupName != null)
+		{
+			ONCFileChooser oncfc = new ONCFileChooser(this);
+			File oncwritefile = oncfc.getFile("Select file for export of Agent Gmail Contact Group" ,
+       										new FileNameExtensionFilter("CSV Files", "csv"), 1, groupName);
+			if(oncwritefile!= null)
+			{
+				//If user types a new filename without extension.csv, add it
+				String filePath = oncwritefile.getPath();
+				if(!filePath.toLowerCase().endsWith(".csv")) 
+					oncwritefile = new File(filePath + ".csv");
+	    	
+				try 
+				{
+					CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
+					writer.writeNext(ONCGmailContactEntity.getGmailContactCSVHeader());
+	    	    
+					int[] row_sel = sortTable.getSelectedRows();
+					for(int i=0; i< sortTable.getSelectedRowCount(); i++)
+					{
+						int index = sortTable.convertRowIndexToModel(row_sel[i]);
+						writer.writeNext(atAL.get(index).getGoogleContactExportRow(groupName));
+					}
+	    	   
+					writer.close();
+	    	    
+					JOptionPane.showMessageDialog(this, 
+							sortTable.getSelectedRowCount() + " agent contacts sucessfully exported to " + oncwritefile.getName(), 
+							"Export Successful", JOptionPane.INFORMATION_MESSAGE, gvs.getImageIcon(0));
+				} 
+				catch (IOException x)
+				{
+					JOptionPane.showMessageDialog(this, "Export Failed, I/O Error: "  + x.getMessage(),  
+							"Export Failed", JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
+					System.err.format("IOException: %s%n", x);
+				}
+			}
+		}
+	}
 	@Override
 	String[] getColumnToolTips() 
 	{
@@ -938,6 +1040,14 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 			sortTitle = titleCB.getSelectedItem().toString();
 			buildTableList(false);			
 		}
+		else if(e.getSource() == batchCB && !bIgnoreCBEvents && !batchCB.getSelectedItem().toString().equals(sortBatch))
+		{
+			sortTable.clearSelection();
+			familyTable.clearSelection();
+			
+			sortBatch = batchCB.getSelectedItem().toString();
+			buildTableList(false);			
+		}
 		else if(e.getSource() == allAgentsCxBox )
 		{
 			buildTableList(true);
@@ -962,7 +1072,16 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		{
 			onExportDependantTableRequested();	
 		}
-		else if(e.getSource() == emailCB && emailCB.getSelectedIndex() > 0 )
+		else if(e.getSource() == emailCB && !bIgnoreCBEvents && 
+				emailCB.getSelectedItem().equals(emailChoices[1]) && 
+				 sortTable.getSelectedRowCount() > 0)
+		{
+			//create gmail distribution list
+			onExportContactGroup();
+		}
+		else if(e.getSource() == emailCB &&  !bIgnoreCBEvents && 
+				emailCB.getSelectedItem().equals(emailChoices[2]) && 
+				 sortTable.getSelectedRowCount() > 0)
 		{
 			//Confirm with the user that the deletion is really intended
 			String confirmMssg = "Are you sure you want to send " + emailCB.getSelectedItem() + "?"; 
@@ -1020,9 +1139,14 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		}
 		else if(dbe.getType().equals("LOADED_USERS"))
 		{
-			this.setTitle(String.format("Our Neighbor's Child - %d Agent Management", GlobalVariables.getCurrentSeason()));
+//			this.setTitle(String.format("Our Neighbor's Child - %d Agent Management", GlobalVariablesDB.getCurrentSeason()));
 			updateOrgCBList();
 			updateTitleCBList();
+			updateEmailCBList();
+		}
+		else if(dbe.getType().equals("UPDATED_GLOBALS"))
+		{
+			this.setTitle(String.format("Our Neighbor's Child - %d Agent Management", GlobalVariablesDB.getCurrentSeason()));
 		}
 		else if(dbe.getType().equals("ADDED_USER") ||
 				dbe.getType().equals("UPDATED_USER") ||
@@ -1111,8 +1235,8 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 	Object[] getTableRow(ONCObject o) 
 	{
 		ONCUser u = (ONCUser) o;
-		Object[] ai = {u.getFirstname(), u.getLastname(), u.getOrg(), u.getTitle(), 
-						u.getEmail(), u.getPhone()};
+		Object[] ai = {u.getFirstName(), u.getLastName(), u.getOrganization(), u.getTitle(), 
+						u.getEmail(), u.getCellPhone()};
 		return ai;
 	}
 	
@@ -1133,6 +1257,11 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		titleCB.setSelectedIndex(0);	//Will trigger the CB event handler which
 		sortTitle = "Any";
 		titleCB.addActionListener(this);
+		
+		batchCB.removeActionListener(this);
+		batchCB.setSelectedIndex(0);	//Will trigger the CB event handler which
+		sortBatch = "Any";
+		batchCB.addActionListener(this);
 		
 		allAgentsCxBox.removeActionListener(this);
 		allAgentsCxBox.setSelected(false);
@@ -1158,7 +1287,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		@Override
 		public int compare(ONCUser o1, ONCUser o2)
 		{
-			return o1.getFirstname().compareTo(o2.getFirstname());
+			return o1.getFirstName().compareTo(o2.getFirstName());
 		}
 	}
 	
@@ -1167,7 +1296,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		@Override
 		public int compare(ONCUser o1, ONCUser o2)
 		{
-			return o1.getLastname().compareTo(o2.getLastname());
+			return o1.getLastName().compareTo(o2.getLastName());
 		}
 	}
 	
@@ -1176,7 +1305,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		@Override
 		public int compare(ONCUser o1, ONCUser o2)
 		{			
-			return o1.getOrg().compareTo(o2.getOrg());
+			return o1.getOrganization().compareTo(o2.getOrganization());
 		}
 	}
 	

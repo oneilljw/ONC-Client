@@ -568,7 +568,7 @@ public class AngelAutoCallDialog extends ONCTableDialog implements ActionListene
 		{
 			String err_mssg = "Unable to print calls: " + e.getMessage();
 			JOptionPane.showMessageDialog(this, err_mssg, "Print Calls Error",
-										JOptionPane.ERROR_MESSAGE, GlobalVariables.getONCLogo());
+										JOptionPane.ERROR_MESSAGE, GlobalVariablesDB.getONCLogo());
 		}
 	}
 

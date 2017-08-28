@@ -58,7 +58,7 @@ public class ChildWishDB extends ONCDatabase
 	ONCChildWish add(Object source, int childid, int wishid, String wd, int wn, int wi,
 						WishStatus ws, ONCPartner currPartner)
 	{		
-		GlobalVariables gvs = GlobalVariables.getInstance();
+		GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
 		String cb = UserDB.getInstance().getUserLNFI();
 		Date dc = gvs.getTodaysDate();
 		

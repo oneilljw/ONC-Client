@@ -186,6 +186,14 @@ public abstract class ONCGmailContactEntity extends ONCEntity
 	public String getComment() { return comment; }
 	public String getOrganization() { return organization; }
 	
+	public String getLNFI()
+	{
+		if(firstName.isEmpty())
+    		return lastName;
+    	else
+    		return lastName + ", " + firstName.charAt(0);
+	}
+	
 	//setters
 	public void setFirstName(String fn) { this.firstName = fn; }
 	public void setLastName(String ln) { this.lastName = ln; }

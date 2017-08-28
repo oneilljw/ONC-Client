@@ -687,7 +687,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 			{
 				int countonpage = sortTable.getSelectedRowCount() - i*RS_ITEMS_PER_PAGE;
 				int count = countonpage > RS_ITEMS_PER_PAGE ? RS_ITEMS_PER_PAGE : countonpage;
-				rsAL.add(new ONCReceivingSheet(((ONCPartner) assignCB.getSelectedItem()).getName(), 
+				rsAL.add(new ONCReceivingSheet(((ONCPartner) assignCB.getSelectedItem()).getLastName(), 
 											   i*RS_ITEMS_PER_PAGE, count, i+1, totalpages));
 			}
 			
@@ -695,7 +695,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 			SimpleDateFormat twodigitYear = new SimpleDateFormat("yy");
 			int idx = Integer.parseInt(twodigitYear.format(gvs.getSeasonStartDate())) % NUM_OF_XMAS_ICONS;
 			final Image img = gvs.getImageIcon(idx + XMAS_ICON_OFFSET).getImage();				
-			String oncSeason = "ONC " + Integer.toString(GlobalVariables.getCurrentSeason());			
+			String oncSeason = "ONC " + Integer.toString(GlobalVariablesDB.getCurrentSeason());			
 			
 			//Create the print job
 			PrinterJob pj = PrinterJob.getPrinterJob();
@@ -1327,7 +1327,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		else if(dbe.getType().contains("LOADED_CHILDREN"))
 		{
 			updateSchoolFilterList();
-			this.setTitle(String.format("Our Neighbor's Child - %d Wish Management", GlobalVariables.getCurrentSeason()));
+			this.setTitle(String.format("Our Neighbor's Child - %d Wish Management", GlobalVariablesDB.getCurrentSeason()));
 		}
 		else if(dbe.getType().contains("CHANGED_USER"))
 		{
@@ -1670,7 +1670,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 			if(partner2 == null)	
 				return -10;
 				
-			return partner1.getName().compareTo(partner2.getName());
+			return partner1.getLastName().compareTo(partner2.getLastName());
 		}
 	}
 	
@@ -1703,7 +1703,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		ONCWish wish = wishCat.getWishByID(swo.getChildWish().getWishID());
 		String wishName = wish == null ? "None" : wish.getName();
 		ONCPartner partner = partnerDB.getPartnerByID(swo.getChildWish().getChildWishAssigneeID());
-		String partnerName = partner != null ? partner.getName() : "";
+		String partnerName = partner != null ? partner.getLastName() : "";
 		String ds = new SimpleDateFormat("MM/dd H:mm").format(swo.getChildWish().getChildWishDateChanged().getTime());
 		String[] tablerow = {
 							swo.getFamily().getONCNum(),

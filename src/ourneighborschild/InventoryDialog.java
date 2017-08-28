@@ -288,8 +288,8 @@ public class InventoryDialog extends BarcodeTableDialog implements ActionListene
 			
 			Object[] options= {"Cancel", "Delete"};
 			JOptionPane confirmOP = new JOptionPane(confirmMssg, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION,
-								GlobalVariables.getONCLogo(), options, "Cancel");
-			JDialog confirmDlg = confirmOP.createDialog(GlobalVariables.getFrame(), "*** Confirm Item Deletion ***");
+								GlobalVariablesDB.getONCLogo(), options, "Cancel");
+			JDialog confirmDlg = confirmOP.createDialog(GlobalVariablesDB.getFrame(), "*** Confirm Item Deletion ***");
 			confirmDlg.setVisible(true);
 		
 			Object selectedValue = confirmOP.getValue();
@@ -437,8 +437,8 @@ public class InventoryDialog extends BarcodeTableDialog implements ActionListene
         		{
         			//request failed
         			String err_mssg = "ONC Server denied update item request, try again later";
-        			JOptionPane.showMessageDialog(GlobalVariables.getFrame(), err_mssg, "Update Inventory Item Failure",
-													JOptionPane.ERROR_MESSAGE, GlobalVariables.getONCLogo());
+        			JOptionPane.showMessageDialog(GlobalVariablesDB.getFrame(), err_mssg, "Update Inventory Item Failure",
+													JOptionPane.ERROR_MESSAGE, GlobalVariablesDB.getONCLogo());
         		}
         		else
         		{

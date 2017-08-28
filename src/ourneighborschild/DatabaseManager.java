@@ -36,7 +36,7 @@ public class DatabaseManager extends ONCDatabase
 	private static DatabaseManager instance = null;
 	
 	//Local Data Base Structures
-	private GlobalVariables oncGVs;			//Holds the Global Variables
+	private GlobalVariablesDB oncGVs;			//Holds the Global Variables
 	private UserDB oncUserDB;				//Holds the ONC User, many of which are Agents
 	private FamilyDB oncFamDB;				//Holds ONC Family Database
 	private ChildDB oncChildDB;				//Holds ONC Child database
@@ -58,7 +58,7 @@ public class DatabaseManager extends ONCDatabase
 		super();
 		
 		//initialize the component data bases
-		oncGVs = GlobalVariables.getInstance();
+		oncGVs = GlobalVariablesDB.getInstance();
 		oncRegions = ONCRegions.getInstance();
 		oncUserDB = UserDB.getInstance();
 		oncGroupDB = GroupDB.getInstance();
@@ -88,7 +88,7 @@ public class DatabaseManager extends ONCDatabase
 	{
 		//create the progress bar frame
 	    ONCProgressBar pb = new ONCProgressBar(oncGVs.getImageIcon(0), 100);
-	    Point loc = GlobalVariables.getFrame().getLocationOnScreen();
+	    Point loc = GlobalVariablesDB.getFrame().getLocationOnScreen();
 		pb.setLocation(loc.x+450, loc.y+70);
 	    	
 		//create the swing worker background task to get the data from the server
@@ -141,12 +141,12 @@ public class DatabaseManager extends ONCDatabase
 		//ask the user to confirm the add of the new year
 		UserDB userDB = UserDB.getInstance();
     	String confirmMssg = String.format("<html>%s, please confirm you want to add<br>the %d year to the ONC Server</html>", 
-    			userDB.getLoggedInUser().getFirstname(), today.get(Calendar.YEAR));
+    			userDB.getLoggedInUser().getFirstName(), today.get(Calendar.YEAR));
     	
     	Object[] options= {"Cancel", "Add " + today.get(Calendar.YEAR) };
 		JOptionPane confirmOP = new JOptionPane(confirmMssg, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION,
 							oncGVs.getImageIcon(0), options, "Cancel");
-		JDialog confirmDlg = confirmOP.createDialog(GlobalVariables.getFrame(), "*** Confirm Add New Year ***");
+		JDialog confirmDlg = confirmOP.createDialog(GlobalVariablesDB.getFrame(), "*** Confirm Add New Year ***");
 		confirmDlg.setVisible(true);
 	
 		Object selectedValue = confirmOP.getValue();
@@ -174,12 +174,12 @@ public class DatabaseManager extends ONCDatabase
 			else if(response != null && response.startsWith("ADD_DBYEAR_FAILED"))
 			{
 				mssg = response.substring(17);	 //alert the user the add failed
-				JOptionPane.showMessageDialog(GlobalVariables.getFrame(), mssg, title, mssgType, oncGVs.getImageIcon(0));
+				JOptionPane.showMessageDialog(GlobalVariablesDB.getFrame(), mssg, title, mssgType, oncGVs.getImageIcon(0));
 			}
 			else 
 			{
 				mssg = "Error: ONC Server failed to respond";	//general server error - didn't respond
-				JOptionPane.showMessageDialog(GlobalVariables.getFrame(), mssg, title, mssgType, oncGVs.getImageIcon(0));
+				JOptionPane.showMessageDialog(GlobalVariablesDB.getFrame(), mssg, title, mssgType, oncGVs.getImageIcon(0));
 			}
 		}
     }
@@ -200,7 +200,7 @@ public class DatabaseManager extends ONCDatabase
 		
 		String mssg = String.format("%d database added, now available", addedYear);
 		ONCPopupMessage popup = new ONCPopupMessage( oncGVs.getImageIcon(0));
-		Point loc = GlobalVariables.getFrame().getLocationOnScreen();
+		Point loc = GlobalVariablesDB.getFrame().getLocationOnScreen();
 		popup.setLocation(loc.x+450, loc.y+70);
 		popup.show("Message from ONC Server", mssg);
 	}
@@ -225,7 +225,7 @@ public class DatabaseManager extends ONCDatabase
 	
 	void exportObjectDBToCSV()
     {
-    	ONCFileChooser fc = new ONCFileChooser(GlobalVariables.getFrame());
+    	ONCFileChooser fc = new ONCFileChooser(GlobalVariablesDB.getFrame());
     	File folder = fc.getDirectory("Select folder to save DB .csv files to");
     	
     	String mssg;
@@ -237,27 +237,27 @@ public class DatabaseManager extends ONCDatabase
     	{	
     		String path = folder.toString();
     	
-    		oncAdultDB.exportDBToCSV(GlobalVariables.getFrame(), path + "/AdultDB.csv");
-    		oncUserDB.exportDBToCSV(GlobalVariables.getFrame(), path + "/UserDB.csv");
-    		oncGroupDB.exportDBToCSV(GlobalVariables.getFrame(), path + "/GroupDB.csv");
-    		oncChildDB.exportDBToCSV(GlobalVariables.getFrame(), path + "/ChildDB.csv");
-    		oncChildWishDB.exportDBToCSV(GlobalVariables.getFrame(), path + "/ChildWishDB.csv");
-    		oncDelDB.exportDBToCSV(GlobalVariables.getFrame(), path + "/DeliveryDB.csv");
-    		oncActDB.exportDBToCSV(GlobalVariables.getFrame(), path + "/ActivityDB.csv");
-    		oncVolDB.exportDBToCSV(GlobalVariables.getFrame(), path + "/DriverDB.csv");
-    		oncFamDB.exportDBToCSV(GlobalVariables.getFrame(), path + "/FamilyDB.csv");
-    		oncGVs.exportDBToCSV(GlobalVariables.getFrame(), path + "/GlobalVariables.csv");
-    		oncInvDB.exportDBToCSV(GlobalVariables.getFrame(), path + "/Inventory.csv");
-    		oncMealDB.exportDBToCSV(GlobalVariables.getFrame(), path + "/MealDB.csv");
+    		oncAdultDB.exportDBToCSV(GlobalVariablesDB.getFrame(), path + "/AdultDB.csv");
+    		oncUserDB.exportDBToCSV(GlobalVariablesDB.getFrame(), path + "/UserDB.csv");
+    		oncGroupDB.exportDBToCSV(GlobalVariablesDB.getFrame(), path + "/GroupDB.csv");
+    		oncChildDB.exportDBToCSV(GlobalVariablesDB.getFrame(), path + "/ChildDB.csv");
+    		oncChildWishDB.exportDBToCSV(GlobalVariablesDB.getFrame(), path + "/ChildWishDB.csv");
+    		oncDelDB.exportDBToCSV(GlobalVariablesDB.getFrame(), path + "/DeliveryDB.csv");
+    		oncActDB.exportDBToCSV(GlobalVariablesDB.getFrame(), path + "/ActivityDB.csv");
+    		oncVolDB.exportDBToCSV(GlobalVariablesDB.getFrame(), path + "/DriverDB.csv");
+    		oncFamDB.exportDBToCSV(GlobalVariablesDB.getFrame(), path + "/FamilyDB.csv");
+    		oncGVs.exportDBToCSV(GlobalVariablesDB.getFrame(), path + "/GlobalVariables.csv");
+    		oncInvDB.exportDBToCSV(GlobalVariablesDB.getFrame(), path + "/Inventory.csv");
+    		oncMealDB.exportDBToCSV(GlobalVariablesDB.getFrame(), path + "/MealDB.csv");
     		oncOrgDB.exportDBToCSV(path + "/OrgDB.csv");
-    		oncWishCat.exportToCSV(GlobalVariables.getFrame(), path + "/WishCatalog.csv");
-    		oncWishDetailDB.exportDBToCSV(GlobalVariables.getFrame(), path + "/WishDetailDB.csv");
+    		oncWishCat.exportToCSV(GlobalVariablesDB.getFrame(), path + "/WishCatalog.csv");
+    		oncWishDetailDB.exportDBToCSV(GlobalVariablesDB.getFrame(), path + "/WishDetailDB.csv");
     		
     		mssg = String.format("Database sucessfully saved to:<br>%s", path); 			
     	}
     	
     	ONCPopupMessage savedbPU = new ONCPopupMessage(oncGVs.getImageIcon(0));
-		savedbPU.setLocationRelativeTo(GlobalVariables.getFrame());
+		savedbPU.setLocationRelativeTo(GlobalVariablesDB.getFrame());
 		savedbPU.show("Database Export Result", mssg);		
     }
 	
@@ -266,7 +266,7 @@ public class DatabaseManager extends ONCDatabase
     {
     	String filename = null;
     	
-    	ONCFileChooser fc = new ONCFileChooser(GlobalVariables.getFrame());
+    	ONCFileChooser fc = new ONCFileChooser(GlobalVariablesDB.getFrame());
     	File oncwritefile= fc.getFile("Select .csv file to save to",
 										new FileNameExtensionFilter("CSV Files", "csv"), 1);
     	if(oncwritefile!= null)
@@ -293,7 +293,7 @@ public class DatabaseManager extends ONCDatabase
 	    	catch (IOException x)
 	    	{
 	    		System.err.format("IO Exception: %s%n", x);
-	    		JOptionPane.showMessageDialog(GlobalVariables.getFrame(), oncwritefile.getName() + " could not be saved", 
+	    		JOptionPane.showMessageDialog(GlobalVariablesDB.getFrame(), oncwritefile.getName() + " could not be saved", 
 						"ONC File Save Error", JOptionPane.ERROR_MESSAGE);
 	    	}
 	    }
@@ -311,7 +311,7 @@ public class DatabaseManager extends ONCDatabase
     	if(bServerDataLoaded)
     	{
     		//Now that we have season data loaded let the user know that data has been loaded
-    		GlobalVariables.getFrame().setTitle("Our Neighbor's Child - " + year + " Season Data");
+    		GlobalVariablesDB.getFrame().setTitle("Our Neighbor's Child - " + year + " Season Data");
 
 			oncWishCat.initializeWishCounts();
 			

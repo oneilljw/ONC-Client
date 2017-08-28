@@ -611,9 +611,9 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
 		{
 			ONCUser u = memberList.get(row);
 			if(col == FIRST_NAME_COL)
-				return u.getFirstname();
+				return u.getFirstName();
 			else if(col == LAST_NAME_COL)
-				return u.getLastname();
+				return u.getLastName();
 			else if(col == STATUS_COL)
 				return u.getStatus().toString();
 			else if(col == PERMISSION_COL)
@@ -648,9 +648,9 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
 		{
 			ONCUser u = candidateList.get(row);
 			if(col == FIRST_NAME_COL)
-				return u.getFirstname();
+				return u.getFirstName();
 			else if(col == LAST_NAME_COL)
-				return u.getLastname();
+				return u.getLastName();
 			else
 				return "Error";
 		}		

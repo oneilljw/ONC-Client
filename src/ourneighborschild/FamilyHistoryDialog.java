@@ -103,7 +103,7 @@ public class FamilyHistoryDialog extends HistoryDialog
 		else
 		{
 			//display an error message that update request failed
-			GlobalVariables gvs = GlobalVariables.getInstance();
+			GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
 			JOptionPane.showMessageDialog(this, "ONC Server denied Delivery Update," +
 					"try again later","Delivery Update Failed", JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
 		}

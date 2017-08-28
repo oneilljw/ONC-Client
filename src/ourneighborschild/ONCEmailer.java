@@ -230,7 +230,7 @@ public class ONCEmailer extends SwingWorker<Void, Void> implements TransportList
         this.setProgress(0);
         
         //show a pop-up message regarding how many e-mails successfully sent
-        GlobalVariables gvs = GlobalVariables.getInstance();
+        GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
 		
     	String mssg = String.format("%d e-mail(s) sucessfully delivered by:<br>%s",
     									nSuccessful, credentials.getUserID()); 			   		

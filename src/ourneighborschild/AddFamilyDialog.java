@@ -55,7 +55,7 @@ public class AddFamilyDialog extends JDialog implements ActionListener, ListSele
 	private static final long DAYS_TO_MILLIS = 1000 * 60 * 60 * 24; 
 	private static final Color OLD_LACE = new Color(253, 245, 230);
 	
-	private GlobalVariables gvs;
+	private GlobalVariablesDB gvs;
 	private FamilyDB fDB;
 	private ChildDB cDB;
 	private AdultDB adultDB;
@@ -86,7 +86,7 @@ public class AddFamilyDialog extends JDialog implements ActionListener, ListSele
 		super(parentFrame, true);
 		this.setTitle("Add New Family");
 		
-		gvs = GlobalVariables.getInstance();
+		gvs = GlobalVariablesDB.getInstance();
 		fDB = FamilyDB.getInstance();
 		cDB = ChildDB.getInstance();
 		adultDB = AdultDB.getInstance();
@@ -1105,7 +1105,7 @@ public class AddFamilyDialog extends JDialog implements ActionListener, ListSele
 		String getGender() { return gender; }
 		long getGMTDoB() { return gmtDoB; }
 		Date getLocalDoB() { return convertDOBFromGMTToLocalTime(gmtDoB).getTime(); }
-		String getAge_Gender() { return getAgeAndGender(GlobalVariables.getCurrentSeason()); }
+		String getAge_Gender() { return getAgeAndGender(GlobalVariablesDB.getCurrentSeason()); }
 		String getWish(int wn) { return wn >= 0 && wn < wishList.size() ? wishList.get(wn) : "Error"; }
 		
 		void setFirstName(String firstName) { this.firstName = firstName; }

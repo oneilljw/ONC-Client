@@ -28,13 +28,13 @@ public class ONCWebsiteFamilyExtended extends ONCWebsiteFamily
 		this.Language = f.getLanguage();
 		this.HouseNum = f.getHouseNum();
 		this.Street = f.getStreet();
-		this.UnitNum = f.getUnitNum();
+		this.UnitNum = f.getUnit();
 		this.City = f.getCity();
 		this.ZipCode = f.getZipCode();
 		this.Region = region;
 		this.substituteDeliveryAddress = f.getSubstituteDeliveryAddress();	//in Google Map Address format		
 		this.HomePhone = f.getHomePhone();
-		this.OtherPhone = f.getOtherPhon();
+		this.OtherPhone = f.getCellPhone();
 		this.FamilyEmail = f.getEmail();
 		this.details = f.getDetails();
 		this.transportation = f.getTransportation().toString();

@@ -90,7 +90,7 @@ public class ChangeBatchNumberDialog extends InfoDialog implements DatabaseListe
 			//It was a change, first see if client user really wants a change. If they do, process it
 				
 			//get reference to Global Variables
-			GlobalVariables gvs = GlobalVariables.getInstance();
+			GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
 		
 			//Confirm with the user that the deletion is really intended
 			String confirmMssg = String.format("<html>Are you sure you want to change<br>the Batch # from %s to %s?</html>",

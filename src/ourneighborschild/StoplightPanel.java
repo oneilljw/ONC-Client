@@ -19,7 +19,7 @@ public class StoplightPanel extends JPanel implements ActionListener, DatabaseLi
 	private JRadioButton rb;
 	private ONCDatabase db;
 	private ONCEntity e;
-	private GlobalVariables gvs;
+	private GlobalVariablesDB gvs;
 	private JFrame frame;
 	
 	StoplightPanel(JFrame frame, ONCDatabase db)
@@ -28,7 +28,7 @@ public class StoplightPanel extends JPanel implements ActionListener, DatabaseLi
 		this.db = db;
 		e = null;
 		
-		gvs = GlobalVariables.getInstance();
+		gvs = GlobalVariablesDB.getInstance();
 		rb = new JRadioButton(gvs.getImageIcon(8));
 		rb.setEnabled(false);
 		rb.addActionListener(this);

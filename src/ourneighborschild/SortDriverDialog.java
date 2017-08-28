@@ -91,7 +91,7 @@ public class SortDriverDialog extends DependantTableDialog
 		changedByCB.addActionListener(this);
 		
 //		stoplightCB = new JComboBox(stoplt);
-		stoplightCB = new JComboBox(GlobalVariables.getLights());
+		stoplightCB = new JComboBox(GlobalVariablesDB.getLights());
 		stoplightCB.setMaximumSize(new Dimension(80, 56));
 		stoplightCB.setBorder(BorderFactory.createTitledBorder("Stoplight"));
 		stoplightCB.addActionListener(this);
@@ -303,11 +303,11 @@ public class SortDriverDialog extends DependantTableDialog
 						f.getFamilyStatus().toString(),
 						f.getGiftStatus().toString(),
 						f.getMealStatus().toString(),
-						f.getHOHFirstName(),
-						f.getHOHLastName(),
+						f.getFirstName(),
+						f.getLastName(),
 						f.getHouseNum(),
 						f.getStreet(),
-						f.getUnitNum(),
+						f.getUnit(),
 						f.getZipCode(),
 						regions.getRegionID(f.getRegion()),
 						f.getChangedBy()
@@ -430,7 +430,7 @@ public class SortDriverDialog extends DependantTableDialog
 		}
 		else if(dbe.getType().equals("LOADED_DRIVERS"))
 		{
-			this.setTitle(String.format("Our Neighbor's Child - %d Delivery Volunteer Management", GlobalVariables.getCurrentSeason()));
+			this.setTitle(String.format("Our Neighbor's Child - %d Delivery Volunteer Management", GlobalVariablesDB.getCurrentSeason()));
 		}
 		else if(dbe.getType().contains("_DRIVER"))	//build on add, update or delete event
 		{

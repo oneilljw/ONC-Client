@@ -36,7 +36,7 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 		super(parent);
 		this.setTitle("Distribution of ONC Families Served Gifts by Region");
 		
-		GlobalVariables globalDB = GlobalVariables.getInstance();
+		GlobalVariablesDB globalDB = GlobalVariablesDB.getInstance();
 		if(globalDB != null)
 			globalDB.addDatabaseListener(this);	//listen for warehouse address change
 			
@@ -124,7 +124,7 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 		{
 			String url = "http://maps.googleapis.com/maps/api/staticmap?";
 			String parms = "&size=640x600&zoom=12&center=38.84765,-77.40215";
-			GlobalVariables gvs = GlobalVariables.getInstance();
+			GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
 			String marker = "&markers=color:green%7C" + gvs.getWarehouseAddress();
 			StringBuffer markers = new StringBuffer(marker);		
 			
@@ -273,7 +273,7 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 		}
 		else if(dbe.getType().equals("LOADED_FAMILIES"))
 		{
-			this.setTitle(String.format("Distribution of %d ONC Families Served Gifts by Region", GlobalVariables.getCurrentSeason()));
+			this.setTitle(String.format("Distribution of %d ONC Families Served Gifts by Region", GlobalVariablesDB.getCurrentSeason()));
 		}
 	}
 	

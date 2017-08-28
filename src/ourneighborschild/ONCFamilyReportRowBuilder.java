@@ -87,17 +87,17 @@ public class ONCFamilyReportRowBuilder
 		row[index++] = 	f.getNotes();
 		row[index++] = 	f.getDeliveryInstructions();
 		row[index++] =  f.getClientFamily();
-		row[index++] = 	f.getHOHFirstName();
-		row[index++] = 	f.getHOHLastName();
+		row[index++] = 	f.getFirstName();
+		row[index++] = 	f.getLastName();
 		row[index++] = 	f.getHouseNum();
 		row[index++] = 	f.getStreet();
-		row[index++] = 	f.getUnitNum();
+		row[index++] = 	f.getUnit();
 		row[index++] = 	f.getCity();
 		row[index++] = 	f.getZipCode();
 		row[index++] = 	f.getSubstituteDeliveryAddress();
 		row[index++] = 	f.getAllPhoneNumbers();			
 		row[index++] = 	f.getHomePhone();
-		row[index++] = 	f.getOtherPhon();
+		row[index++] = 	f.getCellPhone();
 		row[index++] = 	f.getEmail();
 		row[index++] = 	f.getDetails();
 		row[index++] = 	f.getNamesOfChildren();
@@ -181,11 +181,11 @@ public class ONCFamilyReportRowBuilder
 		 
 		ONCUser  famAgent = (ONCUser) userDB.getUser(f.getAgentID());
 		row[index++] = 	f.getAdoptedFor();
-		row[index++] = 	famAgent.getLastname();
-		row[index++] = 	famAgent.getOrg();
+		row[index++] = 	famAgent.getLastName();
+		row[index++] = 	famAgent.getOrganization();
 		row[index++] = 	famAgent.getTitle();
 		row[index++] = 	famAgent.getEmail();
-		row[index] = 	famAgent.getPhone();
+		row[index] = 	famAgent.getCellPhone();
 				
 		return row;		
 	}

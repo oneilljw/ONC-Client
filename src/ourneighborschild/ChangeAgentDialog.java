@@ -56,7 +56,7 @@ public class ChangeAgentDialog extends InfoDialog implements DatabaseListener
 			currFamily = (ONCFamily) obj;
 			ONCUser currUser = (ONCUser) userDB.getUser(currFamily.getAgentID());
 		
-			tf[0].setText(currUser.getLastname());
+			tf[0].setText(currUser.getLastName());
 			tf[0].setCaretPosition(0);
 		
 			tf[1].setCaretPosition(0);

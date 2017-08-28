@@ -91,7 +91,7 @@ public class AltAddressDialog extends InfoDialog
 		if(!response.startsWith("UPDATED_FAMILY"))
 		{
 			//display an error message that update request failed
-			GlobalVariables gvs = GlobalVariables.getInstance();
+			GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
 			JOptionPane.showMessageDialog(this, "ONC Family Update Error: " + response +
 							", try again later","Family Update Failed",  
 							JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
@@ -114,7 +114,7 @@ public class AltAddressDialog extends InfoDialog
 		if(!response.startsWith("UPDATED_FAMILY"))
 		{
 			//display an error message that update request failed
-			GlobalVariables gvs = GlobalVariables.getInstance();
+			GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
 			JOptionPane.showMessageDialog(this, "ONC Family Update Error: " + response +
 									", try again later","Family Update Failed",  
 									JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));

@@ -21,7 +21,7 @@ import com.google.gson.Gson;
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
 
-public class GlobalVariables extends ONCDatabase implements Serializable
+public class GlobalVariablesDB extends ONCDatabase implements Serializable
 {
 	/**
 	 * This class holds global variables common to all classes in the ONC program
@@ -34,7 +34,7 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 	private static final int AVERY_LABEL_DEFAULT_X_OFFSET = 24;
 	private static final int AVERY_LABEL_DEFAULT_Y_OFFSET = 50;
 	
-	private static GlobalVariables instance = null;
+	private static GlobalVariablesDB instance = null;
 	
 	private static JFrame oncFrame;
 	private transient Calendar oncDateToday;
@@ -56,15 +56,15 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 	private Barcode barcode;
 	private Point averyLabelOffsetPoint;
 	
-	public static GlobalVariables getInstance()
+	public static GlobalVariablesDB getInstance()
 	{
 		if(instance == null)
-			instance = new GlobalVariables();
+			instance = new GlobalVariablesDB();
 		
 		return instance;
 	}
 	
-	private GlobalVariables()
+	private GlobalVariablesDB()
 	{	
 		//call superclass constructor
 		super();
@@ -253,7 +253,7 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 	void setImageIcons(ImageIcon[] ii) {imageIcons = ii; }
 	void setYTYGrowthIndex(int index) { ytyGrwthIndex = index; }
 	void setStartONCNum(int startoncnum) { startONCNum = startoncnum; }
-	void setVersion(String version) { GlobalVariables.version = version; }
+	void setVersion(String version) { GlobalVariablesDB.version = version; }
 	
 	 /** Returns an ImageIcon, or null if the path was invalid. */
 	ImageIcon createImageIcon(String path, String description)
@@ -303,91 +303,12 @@ public class GlobalVariables extends ONCDatabase implements Serializable
 			String response = serverIF.sendRequest("GET<website_status>");
 			if(response.startsWith("WEBSITE_STATUS"))
 			{
-				GlobalVariables.websiteStatus = gson.fromJson(response.substring(14), WebsiteStatus.class);
+				GlobalVariablesDB.websiteStatus = gson.fromJson(response.substring(14), WebsiteStatus.class);
 				return "WEBSITE_STATUS_RECEIVED";
 			}
 		}
 		
 		return "WEBISTE_STATUS_FAILED";
-	}
-	
-	String[] importGlobalVariables(JFrame pf, ImageIcon oncIcon, String path)	//Only used by superuser to import from .csv file
-	{
-		String[] nextLine = null;	
-		File pyfile;
-		JFileChooser chooser;
-		String filename = "";
-		int returnVal = JFileChooser.CANCEL_OPTION;
-		
-		if(path != null)
-		{
-			pyfile = new File(path + "GlobalVariables.csv");
-			returnVal = JFileChooser.APPROVE_OPTION;
-		}
-		else
-		{
-    		chooser = new JFileChooser();
-    		chooser.setDialogTitle("Select Delivery DB .csv file to import");	
-    		chooser.setFileFilter(new FileNameExtensionFilter("CSV Files", "csv"));
-    		returnVal = chooser.showOpenDialog(pf);
-    		pyfile = chooser.getSelectedFile();
-		}
-		
-	    if(returnVal == JFileChooser.APPROVE_OPTION)
-	    {	    
-	    	filename = pyfile.getName();
-	    	try 
-	    	{
-	    		CSVReader reader = new CSVReader(new FileReader(pyfile.getAbsoluteFile()));
-	    		String[] header;
-    		
-	    		if((header = reader.readNext()) != null)
-	    		{
-	    			//Read the ONC CSV File
-	    			if(header.length == GV_CSV_HEADER_LENGTH || header.length == 24)
-	    			{
-	    				if((nextLine = reader.readNext()) != null)
-	    				{
-	    					//Read first line, it's the gv's
-	    					oncDeliveryDate.setTimeInMillis(Long.parseLong(nextLine[0]));
-	    					oncSeasonStartDate.setTimeInMillis(Long.parseLong(nextLine[1]));
-	    					warehouseAddress = nextLine[2].isEmpty() ? "6476+Trillium+House+Lane+Centreville,VA" : nextLine[2];
-	    					oncGiftsReceivedDate.setTimeInMillis(Long.parseLong(nextLine[3]));
-	    					thanksgivingDeadline.setTimeInMillis(Long.parseLong(nextLine[4]));
-	    					decemberDeadline.setTimeInMillis(Long.parseLong(nextLine[5]));
-	    					familyEditDeadline.setTimeInMillis(Long.parseLong(nextLine[6]));
-	    					
-	    					//Read the second line, it's the oncnumRegionRanges
-	    					nextLine = reader.readNext();	
-	    				}
-	    				else
-	    					JOptionPane.showMessageDialog(pf, "Global Variable file corrupted, no data", 
-	        						"Invalid Global Variable File", JOptionPane.ERROR_MESSAGE, oncIcon); 	
-	    			}
-	    			else
-	    			{
-	    				for(int i=0; i<header.length; i++)
-	    					System.out.print(header[i] + ", ");
-	    				
-	    				JOptionPane.showMessageDialog(pf, "Global Variable file corrupted, header length = " + Integer.toString(header.length), 
-    						"Invalid Global Variable File", JOptionPane.ERROR_MESSAGE, oncIcon);
-	    			}
-	    		}
-	    		else
-	    			JOptionPane.showMessageDialog(pf, "Couldn't read header in Global Variable file: " + filename, 
-						"Invalid Global Variable File", JOptionPane.ERROR_MESSAGE, oncIcon);
-	    		
-	    		reader.close();
-	    		
-	    	} 
-	    	catch (IOException x)
-	    	{
-	    		JOptionPane.showMessageDialog(pf, "Unable to open Global Variable file: " + filename, 
-    				"Global Variable file not found", JOptionPane.ERROR_MESSAGE, oncIcon);
-	    	}
-	    }
-	    
-	    return nextLine;    
 	}
 	
 	String exportDBToCSV(JFrame pf, String filename)

@@ -320,12 +320,12 @@ public class ViewONCDatabaseDialog extends JDialog implements ActionListener, Li
 				JOptionPane.showMessageDialog(this, 
 							Integer.toString(exportCount) + " records ucessfully exported to " + oncwritefile.getName(), 
 							"Export Successful", JOptionPane.INFORMATION_MESSAGE, 
-							GlobalVariables.getONCLogo());
+							GlobalVariablesDB.getONCLogo());
 			} 
 			catch (IOException x)
 			{
 				JOptionPane.showMessageDialog(this, "Export Failed, I/O Error: "  + x.getMessage(),  
-							"Export Failed", JOptionPane.ERROR_MESSAGE, GlobalVariables.getONCLogo());
+							"Export Failed", JOptionPane.ERROR_MESSAGE, GlobalVariablesDB.getONCLogo());
 				System.err.format("IOException: %s%n", x);
 			}
 		}

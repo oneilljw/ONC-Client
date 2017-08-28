@@ -135,7 +135,7 @@ public class AdultDialog extends JDialog implements ActionListener, EntitySelect
 		if(userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0)	//can't add is not administrator or higher permission
 		{
 			btnAdd.setEnabled(true);
-			this.setTitle(String.format("%s Family Other Adults", currFam.getHOHLastName()));
+			this.setTitle(String.format("%s Family Other Adults", currFam.getLastName()));
 		}
 		else
 			this.setTitle(String.format("ONC #%s Family Other Adults", currFam.getONCNum()));
@@ -164,7 +164,7 @@ public class AdultDialog extends JDialog implements ActionListener, EntitySelect
 			{
 				String err_mssg = "Add adult request failed, try again later";
 				JOptionPane.showMessageDialog(this, err_mssg, "Add Adult Request Failure",
-											JOptionPane.ERROR_MESSAGE, GlobalVariables.getONCLogo());
+											JOptionPane.ERROR_MESSAGE, GlobalVariablesDB.getONCLogo());
 			}
     	}		
 	}
@@ -185,7 +185,7 @@ public class AdultDialog extends JDialog implements ActionListener, EntitySelect
 			Object[] options= {"Cancel", "Delete"};
 			JOptionPane confirmOP = new JOptionPane(confirmMssg, JOptionPane.QUESTION_MESSAGE,
 													JOptionPane.YES_NO_OPTION,
-													GlobalVariables.getONCLogo(), options, "Cancel");
+													GlobalVariablesDB.getONCLogo(), options, "Cancel");
 			JDialog confirmDlg = confirmOP.createDialog(owner, "*** Confirm Adult Database Deletion ***");
 			confirmDlg.setVisible(true);
 		
@@ -204,8 +204,8 @@ public class AdultDialog extends JDialog implements ActionListener, EntitySelect
 				{
 					//request failed
 					String err_mssg = "ONC Server denied delete request, try again later";
-					JOptionPane.showMessageDialog(GlobalVariables.getFrame(), err_mssg, "Delete Adult Failure",
-								JOptionPane.ERROR_MESSAGE, GlobalVariables.getONCLogo());
+					JOptionPane.showMessageDialog(GlobalVariablesDB.getFrame(), err_mssg, "Delete Adult Failure",
+								JOptionPane.ERROR_MESSAGE, GlobalVariablesDB.getONCLogo());
 				}
 			}
 		}
@@ -223,7 +223,7 @@ public class AdultDialog extends JDialog implements ActionListener, EntitySelect
 		{
 			String err_mssg = "Unable to print adult listing: " + e.getMessage();
 			JOptionPane.showMessageDialog(this, err_mssg, "Print Adults Error",
-										JOptionPane.ERROR_MESSAGE, GlobalVariables.getONCLogo());
+										JOptionPane.ERROR_MESSAGE, GlobalVariablesDB.getONCLogo());
 		}
 	}
 
@@ -365,8 +365,8 @@ public class AdultDialog extends JDialog implements ActionListener, EntitySelect
         		{
         			//request failed
         			String err_mssg = "ONC Server denied update adult request, try again later";
-        			JOptionPane.showMessageDialog(GlobalVariables.getFrame(), err_mssg, "Update Adult Request Failure",
-													JOptionPane.ERROR_MESSAGE, GlobalVariables.getONCLogo());
+        			JOptionPane.showMessageDialog(GlobalVariablesDB.getFrame(), err_mssg, "Update Adult Request Failure",
+													JOptionPane.ERROR_MESSAGE, GlobalVariablesDB.getONCLogo());
         		}
         	}
         }  

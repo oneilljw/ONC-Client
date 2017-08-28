@@ -219,7 +219,7 @@ public class PYChildConnectionDialog extends JDialog implements ActionListener,
 		if(pyChild != null)
 		{
 			String[] pyWishes = pyChild.getPriorYearWishes();
-			int year = GlobalVariables.getCurrentSeason() - 1;
+			int year = GlobalVariablesDB.getCurrentSeason() - 1;
 			int wishnum = 0;
 			
 			int index = 0;
@@ -254,7 +254,7 @@ public class PYChildConnectionDialog extends JDialog implements ActionListener,
 		{
 			long pyChildDOB = convertCalendarDOBToGMT(searchDobDC.getCalendar());
 			ONCChild searchPYChild = new ONCChild(-1, currFamily.getID(), "", searchLastnameTF.getText().trim(),
-				(String)searchGenderCB.getSelectedItem(),  pyChildDOB, "", GlobalVariables.getCurrentSeason());
+				(String)searchGenderCB.getSelectedItem(),  pyChildDOB, "", GlobalVariablesDB.getCurrentSeason());
 			ONCPriorYearChild pyChildReq = new ONCPriorYearChild(-1, searchPYChild);
 		
 			ONCPriorYearChild resultPYChild = null;
@@ -312,14 +312,14 @@ public class PYChildConnectionDialog extends JDialog implements ActionListener,
 			
 			JOptionPane.showMessageDialog(this, mssg, 
 					"Children Connected", JOptionPane.INFORMATION_MESSAGE,
-					GlobalVariables.getInstance().getImageIcon(0));
+					GlobalVariablesDB.getInstance().getImageIcon(0));
 		}
 		else
 		{
 			//display an error message that update request failed
 			JOptionPane.showMessageDialog(this, "ONC Server denied connection," +
 						"try again later","Child Connection Failed", JOptionPane.ERROR_MESSAGE,
-						GlobalVariables.getInstance().getImageIcon(0));
+						GlobalVariablesDB.getInstance().getImageIcon(0));
 		}
 		
 		btnConnect.setEnabled(false);

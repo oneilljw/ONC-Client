@@ -37,7 +37,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 	private static final long serialVersionUID = 1L;
 	private static final Integer DEFAULT_FONT_SIZE = 13;
 	
-	private GlobalVariables pdGVs;
+	private GlobalVariablesDB pdGVs;
 	private UserDB userDB;
 	
 	private UserPreferences uPrefs;
@@ -59,7 +59,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		super(parentFrame, false);
 		this.setTitle("Our Neighbor's Child Elf & Season Settings");
 		
-		pdGVs = GlobalVariables.getInstance();
+		pdGVs = GlobalVariablesDB.getInstance();
 		if(pdGVs != null)
 			pdGVs.addDatabaseListener(this);
 		

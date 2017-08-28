@@ -50,7 +50,7 @@ public class FamilyDB extends ONCSearchableDatabase
 	private UserDB userDB;
 	private VolunteerDB volunteerDB;
 	private FamilyHistoryDB familyHistoryDB;
-	private GlobalVariables fGVs;
+	private GlobalVariablesDB fGVs;
 	
 	private FamilyDB()
 	{
@@ -64,7 +64,7 @@ public class FamilyDB extends ONCSearchableDatabase
 		userDB = UserDB.getInstance();;
 		
 		oncFamAL = new ArrayList<ONCFamily>();
-		fGVs = GlobalVariables.getInstance();
+		fGVs = GlobalVariablesDB.getInstance();
 //		serverIF.addServerListener(this);
 		
 //		initializeONCNumberRegionRanges();
@@ -503,7 +503,7 @@ public class FamilyDB extends ONCSearchableDatabase
 			{
 				//crate the add child request object
 				ONCChild reqAddChild = new ONCChild(-1, famid, members[i],
-													GlobalVariables.getCurrentSeason());
+													GlobalVariablesDB.getCurrentSeason());
 				
 				//interact with the server to add the child
 				childDB.add(this, reqAddChild);
@@ -648,7 +648,7 @@ public class FamilyDB extends ONCSearchableDatabase
     	{
     		//Ensure just 10 digits, no dashes in numbers
     		String hp = f.getHomePhone().replaceAll("-", "");
-    		String op = f.getOtherPhon().replaceAll("-", "");
+    		String op = f.getCellPhone().replaceAll("-", "");
     		String target = s.replaceAll("-", "");
     		
     		if(hp.contains(target) || op.contains(target))
@@ -772,7 +772,7 @@ public class FamilyDB extends ONCSearchableDatabase
 	{
 		String[] ycData = new String[15];
 		ycData[0] = f.getONCNum();
-		ycData[1] = f.getHOHFirstName() + " " + f.getHOHLastName();
+		ycData[1] = f.getFirstName() + " " + f.getLastName();
 		
 		//determine whether using alternate delivery address
 		if(f.getSubstituteDeliveryAddress()!= null && !f.getSubstituteDeliveryAddress().isEmpty() &&
@@ -794,7 +794,7 @@ public class FamilyDB extends ONCSearchableDatabase
 		}
 		else	//no alternate delivery address
 		{
-			String unit = isNumeric(f.getUnitNum()) ? "#" + f.getUnitNum() : f.getUnitNum();
+			String unit = isNumeric(f.getUnit()) ? "#" + f.getUnit() : f.getUnit();
 			ycData[2] =	f.getHouseNum() + " " + f.getStreet() + " " + unit ;
 			ycData[3] = f.getCity() + ", VA " + f.getZipCode();
 			ycData[4] = ONCRegions.getInstance().getRegionID(f.getRegion());
@@ -808,7 +808,7 @@ public class FamilyDB extends ONCSearchableDatabase
 		ycData[5] = fmtPh[0];
 		ycData[6] = fmtPh[1];
 			
-		fmtPh = formatPhoneNumbers(f.getOtherPhon());
+		fmtPh = formatPhoneNumbers(f.getCellPhone());
 		ycData[7] = fmtPh[0];
 		ycData[8] = fmtPh[1];
 		
@@ -1199,7 +1199,7 @@ public class FamilyDB extends ONCSearchableDatabase
 		@Override
 		public int compare(ONCFamily o1, ONCFamily o2)
 		{
-			return o1.getHOHFirstName().compareTo(o2.getHOHFirstName());
+			return o1.getFirstName().compareTo(o2.getFirstName());
 		}
 	}
 		
@@ -1207,7 +1207,7 @@ public class FamilyDB extends ONCSearchableDatabase
 	{
 		@Override
 		public int compare(ONCFamily o1, ONCFamily o2)			{
-			return o1.getHOHLastName().compareTo(o2.getHOHLastName());
+			return o1.getLastName().compareTo(o2.getLastName());
 		}
 	}
 	
