@@ -3,7 +3,6 @@ package ourneighborschild;
 import java.awt.Image;
 import java.awt.Point;
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Serializable;
@@ -11,14 +10,12 @@ import java.util.Calendar;
 import java.util.Date;
 
 import javax.swing.ImageIcon;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import com.google.gson.Gson;
 
-import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
 
 public class GlobalVariablesDB extends ONCDatabase implements Serializable
@@ -28,7 +25,6 @@ public class GlobalVariablesDB extends ONCDatabase implements Serializable
 	 */
 	private static final long serialVersionUID = -7710761545913066682L;
 	private static final int NUMBER_OF_WISHES_PER_CHILD = 3;
-	private static final int GV_CSV_HEADER_LENGTH = 3;
 	private static final int NUM_OF_XMAS_ICONS = 5;
 	private static final int XMAS_ICON_OFFSET = 9;
 	private static final int AVERY_LABEL_DEFAULT_X_OFFSET = 24;
@@ -122,7 +118,6 @@ public class GlobalVariablesDB extends ONCDatabase implements Serializable
 		imageIcons[8] = createImageIcon("traffic-lights-off-icon.gif", "Off Light Icon");
 		
 		//Icons used on a 5-year cycle to visually indicate which year
-//		imageIcons[9] = createImageIcon("Xmas-Tree-icon.png", "Christmas Tree Icon");
 		imageIcons[9] = createImageIcon("Gift-icon.png", "Gift Icon");
 		imageIcons[10] = createImageIcon("Christmas-Mistletoe-icon.gif", "Mistletoe Icon");
 		imageIcons[11] = createImageIcon("ONCLabelIcon2012.gif", "Snowman Icon");
@@ -171,7 +166,6 @@ public class GlobalVariablesDB extends ONCDatabase implements Serializable
 		warehouseAddress = "6476+Trillium+House+Lane+Centreville,VA";
 		startONCNum = 100;
 		ytyGrwthIndex = 2;
-//		user_permission = UserPermission.General;
 		version = "N/A";
 		bBarcodeOnOrnmament = true;
 		barcode = Barcode.UPCE;
@@ -233,9 +227,7 @@ public class GlobalVariablesDB extends ONCDatabase implements Serializable
 	boolean includeBarcodeOnLabels() { return bBarcodeOnOrnmament; }
 	Barcode getBarcodeCode() { return barcode; }
 	Point getAveryLabelOffset() { return averyLabelOffsetPoint; }
-//	int getFamilyDNSFilterDefaultIndex() { return user != null ? user.getPreferences().getFamilyDNSFilter() : 0; }
-//	int getWishAssigneeFilterDefaultIndex() { return user != null ? user.getPreferences().getWishAssigneeFilter() : 0; }
-	
+
 	//setters globally used - need to update at the server and broadcast
 	public void setDeliveryDate(Date dd) { oncDeliveryDate.setTime(dd); }
 	public void setGiftsReceivedDate(Date grd) { oncGiftsReceivedDate.setTime(grd); }
@@ -372,26 +364,11 @@ public class GlobalVariablesDB extends ONCDatabase implements Serializable
 		{
 			processUpdatedObject(this, ue.getJson());
 		}
-//		else if(ue.getType().equals("UPDATED_USER"))
-//		{
-//			processUpdatedUser(this, ue.getJson());
-//		}
 		else if(ue.getType().equals("UPDATED_WEBSITE_STATUS"))
 		{
 			processUpdatedWebsiteStatus(this, ue.getJson());
 		}
 	}
-	
-//	void processUpdatedUser(Object source, String updatedUserJson)
-//	{
-//		//since this database holds the currently signed in user, if the user is updated, need to 
-//		//update here
-//		Gson gson = new Gson();
-//		ONCUser updatedUser = gson.fromJson(updatedUserJson, ONCUser.class);
-//		
-//		if(updatedUser != null && updatedUser.getID() == user.getID())
-//			user = updatedUser;
-//	}
 
 	@Override
 	String update(Object source, ONCObject entity)
@@ -453,5 +430,4 @@ public class GlobalVariablesDB extends ONCDatabase implements Serializable
 		//Notify local user IFs that a change occurred
 		fireDataChanged(source, "UPDATED_WEBSITE_STATUS", updatedWebsiteStatus);
 	}
-	
 }
