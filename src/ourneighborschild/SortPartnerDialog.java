@@ -60,6 +60,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 	private static final String PHOTO_ATTACHMENT_1_FILE = "2016 Partner 1.jpg";
 	private static final String PHOTO_ATTACHMENT_2_FILE = "2016 Partner 2.jpg";
 	private static final String ONCLOGO_ATTACHMENT_FILE = "onclogosmall.jpg";
+	private static final int GOOGLE_CONTACT_CSV_RECORD_LENGTH = 58;
 	
 	private ONCRegions regions;
 	private PartnerDB orgs;
@@ -216,9 +217,11 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
       	cntlPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
       	
       	String[] exportChoices = {
-				"Export Data", "2016 Partner Info",
-				"2016 Partner Performance",
-				};
+      							"Export Data",
+      							"Gmail Contact List",
+      							"2016 Partner Info",
+      							"2016 Partner Performance",
+								};
       	exportCB = new JComboBox(exportChoices);
       	exportCB.setPreferredSize(new Dimension(136, 28));
       	exportCB.setEnabled(false);
@@ -1161,24 +1164,70 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 //		infoDlg.setVisible(true);
 	}
 	
-	void onExportRequested(int exportRequest)
+	void onExportContactGroup()
+	{
+		//get group name input from user. If null exit
+		String groupName = (String) JOptionPane.showInputDialog(this, "Please enter Contact Group Name:",  
+				"Contact Group Name", JOptionPane.QUESTION_MESSAGE, gvs.getImageIcon(0),
+				null, "");
+		
+		if(groupName != null)
+		{
+			ONCFileChooser oncfc = new ONCFileChooser(this);
+			File oncwritefile = oncfc.getFile("Select file for export of Agent Gmail Contact Group" ,
+       										new FileNameExtensionFilter("CSV Files", "csv"), 1, groupName);
+			if(oncwritefile!= null)
+			{
+				//If user types a new filename without extension.csv, add it
+				String filePath = oncwritefile.getPath();
+				if(!filePath.toLowerCase().endsWith(".csv")) 
+					oncwritefile = new File(filePath + ".csv");
+	    	
+				try 
+				{
+					CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
+					writer.writeNext(ONCGmailContactEntity.getGmailContactCSVHeader());
+	    	    
+					int[] row_sel = sortTable.getSelectedRows();
+					for(int i=0; i< sortTable.getSelectedRowCount(); i++)
+					{
+						int index = sortTable.convertRowIndexToModel(row_sel[i]);
+						ONCPartner selPartner = stAL.get(index);
+						if(selPartner.getContact_email().length() > 6)
+							writer.writeNext(stAL.get(index).getGmailContactExportRow(1, groupName));
+						if(selPartner.getContact2_email().length() > 6)
+							writer.writeNext(stAL.get(index).getGmailContactExportRow(2, groupName));
+					}
+	    	   
+					writer.close();
+	    	    
+					JOptionPane.showMessageDialog(this, 
+							sortTable.getSelectedRowCount() + " partner contacts sucessfully exported to " + oncwritefile.getName(), 
+							"Export Successful", JOptionPane.INFORMATION_MESSAGE, gvs.getImageIcon(0));
+				} 
+				catch (IOException x)
+				{
+					JOptionPane.showMessageDialog(this, "Export Failed, I/O Error: "  + x.getMessage(),  
+							"Export Failed", JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
+					System.err.format("IOException: %s%n", x);
+				}
+			}
+		}
+	}
+	
+	void onExportRequested()
 	{
 		//Write the selected row data to a .csv file
-		String[] header1 = {"Partner ID", "Name", " Partner Type", "Status", "Collection Type", "Other", 
+		String[] header = {"Partner ID", "Name", " Partner Type", "Status", "Collection Type", "Other", 
 							"Special Notes", "Orn Req.", "Orn Assign.", "Del To",
     						"Address", "Unit", "City", "Zip", "Phhone #", 
     						"1st Contact", "1st Contact Email", "1st Contact Phone",
     						"2nd Contact", "2nd Contact Email", "2nd Contact Phone",
     						"Date Changed"};
 		
-		String[] header2 = {"Partner ID", "Name", " Partner Type", "Status", "Collection Type", 
-					"Orn Request", "Orn Assigned", "Orn Delivered", "Gifts Received Before Deadline",
-					"Gifts Received After Deadline"};
-    	
     	ONCFileChooser oncfc = new ONCFileChooser(parentFrame);
-    	String fileDlgMssg = String.format("Select File For Export of Partner %sData", 
-    											exportRequest == 1 ? "" : "Performance ");
-    	
+    	String fileDlgMssg = "Select File For Export of Partner Data"; 
+    											
        	File oncwritefile = oncfc.getFile(fileDlgMssg, new FileNameExtensionFilter("CSV Files", "csv"), 1);
        	if(oncwritefile!= null)
        	{
@@ -1190,16 +1239,55 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 	    	try 
 	    	{
 	    		CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
-	    	    writer.writeNext(exportRequest == 1 ? header1 : header2);
+	    		writer.writeNext(header);
+	    		
+	    	    int[] row_sel = sortTable.getSelectedRows();
+	    	    for(int i=0; i<sortTable.getSelectedRowCount(); i++)
+	    	    	writer.writeNext(getExportRow(row_sel[i]));
+	    	    	   
+	    	    writer.close();
+	    	    
+	    	    JOptionPane.showMessageDialog(parentFrame, 
+						sortTable.getSelectedRowCount() + " partners info sucessfully exported to " + oncwritefile.getName(), 
+						"Export Successful", JOptionPane.INFORMATION_MESSAGE, gvs.getImageIcon(0));
+	    	} 
+	    	catch (IOException x)
+	    	{
+	    		JOptionPane.showMessageDialog(parentFrame, 
+						"Export Failed, I/O Error: "  + x.getMessage(),  
+						"Export Failed", JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
+	    		System.err.format("IOException: %s%n", x);
+	    	}
+	    }
+	}
+	
+	void onExportPerformanceRequested()
+	{
+		String[] header = {"Partner ID", "Name", " Partner Type", "Status", "Collection Type", 
+					"Orn Request", "Orn Assigned", "Orn Delivered", "Gifts Received Before Deadline",
+					"Gifts Received After Deadline"};
+		
+		
+    	
+    	ONCFileChooser oncfc = new ONCFileChooser(parentFrame);
+    	String fileDlgMssg = "Select File For Export of Partner Performance Data"; 
+    											
+       	File oncwritefile = oncfc.getFile(fileDlgMssg, new FileNameExtensionFilter("CSV Files", "csv"), 1);
+       	if(oncwritefile!= null)
+       	{
+       		//If user types a new filename without extension.csv, add it
+	    	String filePath = oncwritefile.getPath();
+	    	if(!filePath.toLowerCase().endsWith(".csv")) 
+	    		oncwritefile = new File(filePath + ".csv");
+	    	
+	    	try 
+	    	{
+	    		CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
+	    			writer.writeNext(header);
 	    	    
 	    	    int[] row_sel = sortTable.getSelectedRows();
 	    	    for(int i=0; i<sortTable.getSelectedRowCount(); i++)
-	    	    {
-	    	    	if(exportRequest == 1)
-	    	    		writer.writeNext(getExportRow(row_sel[i]));
-	    	    	else
-	    	    		writer.writeNext(getExportPerformanceRow(row_sel[i]));
-	    	    }
+	    	    	writer.writeNext(getExportPerformanceRow(row_sel[i]));
 	    	    	   
 	    	    writer.close();
 	    	    
@@ -1374,7 +1462,19 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		}
 		else if(e.getSource() == exportCB && exportCB.getSelectedIndex() > 0)
 		{
-			onExportRequested(exportCB.getSelectedIndex());
+			if(exportCB.getSelectedIndex() == 1)
+			{
+				onExportContactGroup();
+			}
+			else if(exportCB.getSelectedIndex() == 2)
+			{
+				onExportRequested();
+			}
+			else if(exportCB.getSelectedIndex() == 3)
+			{
+				onExportPerformanceRequested();
+			}
+			
 			exportCB.setSelectedIndex(0);
 		}
 		else if(e.getSource() == changePStatusCB)

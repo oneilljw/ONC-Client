@@ -367,6 +367,74 @@ public class ONCPartner extends ONCEntity
 		return row;
 	}
 	
+	public String[] getGmailContactExportRow(int contactNum, String groupName)
+	{
+		//create a row of all empty strings
+		String[] gmailContactRow = new String[58];
+		for(int i=0; i< gmailContactRow.length; i++)
+			gmailContactRow[i] = "";
+		
+		if(contactNum == 1)
+		{
+			//populate the correct cells with volunteer info
+			gmailContactRow[0] = contact;
+		
+			String[] contactParts = contact.split(" ", 2);
+			if(contactParts.length == 1)
+			{
+				gmailContactRow[3] = contact;
+			}
+			else if(contactParts.length == 2)
+			{
+				gmailContactRow[1] = contactParts[0];
+				gmailContactRow[3] = contactParts[1];
+			}
+		
+			gmailContactRow[25] = "Contact 1";
+			gmailContactRow[26] = groupName;
+			gmailContactRow[27] = "Work";
+			gmailContactRow[28] = contact_email;
+			gmailContactRow[31] = "Work";
+			gmailContactRow[32] = contact_phone;
+			gmailContactRow[39] = "Work";
+			gmailContactRow[41] = houseNum + " " + street + " " + unit;
+			gmailContactRow[42] = city;
+			gmailContactRow[45] = zipCode;
+			gmailContactRow[49] = lastName;
+		
+		}
+		else if(contactNum == 2)
+		{
+			//populate the correct cells with volunteer info
+			gmailContactRow[0] = contact2;
+		
+			String[] contactParts = contact2.split(" ", 2);
+			if(contactParts.length == 1)
+			{
+				gmailContactRow[3] = contact2;
+			}
+			else if(contactParts.length == 2)
+			{
+				gmailContactRow[1] = contactParts[0];
+				gmailContactRow[3] = contactParts[1];
+			}
+		
+			gmailContactRow[25] = "Contact 2";
+			gmailContactRow[26] = groupName;
+			gmailContactRow[27] = "Work";
+			gmailContactRow[28] = contact2_email;
+			gmailContactRow[31] = "Work";
+			gmailContactRow[32] = contact2_phone;
+			gmailContactRow[39] = "Work";
+			gmailContactRow[41] = houseNum + " " + street + " " + unit;
+			gmailContactRow[42] = city;
+			gmailContactRow[45] = zipCode;
+			gmailContactRow[49] = lastName;
+		}
+		
+		return gmailContactRow;
+	}
+	
 	 @Override
 	 public String toString()
 	 {

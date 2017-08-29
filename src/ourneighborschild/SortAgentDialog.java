@@ -86,7 +86,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		
 		//Set up the search criteria panel 
 		String[] batchNums = {"Any","B-01","B-02","B-03","B-04","B-05","B-06","B-07","B-08",
-				"B-09","B-10", "B-CR", "B-DI"};
+				"B-09","B-10", "B-CR", "B-DI", "B-01 to B-10"};
 		batchCB = new JComboBox(batchNums);
 		batchCB.setPreferredSize(new Dimension(56, 56));
 		batchCB.setBorder(BorderFactory.createTitledBorder("Batch #"));
@@ -930,6 +930,23 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 	{
 		if(sortBatch.equals("Any"))
 			return true;
+		else if(sortBatch.equals("B-01 to B-10"))
+		{
+			//build a list of families referred by the agent
+			List<ONCFamily> searchList = new ArrayList<ONCFamily>();
+			for(ONCFamily f : fDB.getList())
+				if(f.getAgentID() == u.getID())
+					searchList.add(f);
+			
+			//see if the any of the families referred by the agent are in B-00 thru B-10. When the first one
+			//stop the search and return true;
+			int index = 0;
+			while(index < searchList.size() && 
+					!isNumeric(searchList.get(index).getBatchNum().substring(2)))
+				index++;
+			
+			return index < searchList.size();
+		}
 		else
 		{
 			//build a list of families referred by the agent
