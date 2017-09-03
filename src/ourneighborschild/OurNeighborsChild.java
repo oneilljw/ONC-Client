@@ -30,7 +30,7 @@ public class OurNeighborsChild
 	 */
 	//Static Final Variables
 	private static final int SERVER_CONNECT_RETRY_LIMIT = 3;
-	private static final String VERSION = "5.03";
+	private static final String VERSION = "5.04";
 	private static final String APPNAME = "Our Neighbor's Child";
 	private static final String ONC_SERVER_IP_ADDRESS_FILE = "serveraddress.txt";
 	private static final int MAIN_FRAME_WIDTH = 837;
@@ -51,7 +51,8 @@ public class OurNeighborsChild
 //	private static final String defaultServerAddress = "72.209.233.207";	//Cox based server
 //	private static final String defaultServerAddress = "localhost";
 //	private static final String defaultServerAddress = "96.127.35.251";	//IDT-Amazon cloud based server
-	private static final String defaultServerAddress = "onc.idtus.com";	//IDT-Amazon cloud based server
+//	private static final String defaultServerAddress = "onc.idtus.com";	//IDT-Amazon cloud based server
+	private static final String defaultServerAddress = "34.224.169.163";// 2017 Amazon cloud based server
 	private static final int PORT = 8901;
 
     public OurNeighborsChild()
