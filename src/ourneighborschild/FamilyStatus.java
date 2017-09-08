@@ -5,7 +5,7 @@ public enum FamilyStatus
 	Any (0, "Any"),
 	No_Change (0, "No Change"),
 	Unverified (0, "Unverified"),
-	InfoVerified(1, "Info Verified"),
+	Verified(1, "Verified"),
 	Contacted (2,"Contacted"),
 	Confirmed (3, "Confirmed");
 
@@ -37,7 +37,7 @@ public enum FamilyStatus
 	
 	static FamilyStatus[] getSearchList()
 	{
-		FamilyStatus[] fgsSearch = {FamilyStatus.Unverified, FamilyStatus.InfoVerified,
+		FamilyStatus[] fgsSearch = {FamilyStatus.Unverified, FamilyStatus.Verified,
 									FamilyStatus.Contacted, FamilyStatus.Confirmed};
 		
 		return fgsSearch;
@@ -45,7 +45,7 @@ public enum FamilyStatus
 	
 	static FamilyStatus[] getSearchFilterList()
 	{
-		FamilyStatus[] fgsSearch = {FamilyStatus.Any, FamilyStatus.Unverified, FamilyStatus.InfoVerified,
+		FamilyStatus[] fgsSearch = {FamilyStatus.Any, FamilyStatus.Unverified, FamilyStatus.Verified,
 									FamilyStatus.Contacted, FamilyStatus.Confirmed};
 		
 		return fgsSearch;
@@ -53,7 +53,7 @@ public enum FamilyStatus
 	
 	static FamilyStatus[] getChangeList()
 	{
-		FamilyStatus[] fgsSearch = {FamilyStatus.No_Change, FamilyStatus.Unverified, FamilyStatus.InfoVerified,
+		FamilyStatus[] fgsSearch = {FamilyStatus.No_Change, FamilyStatus.Unverified, FamilyStatus.Verified,
 									FamilyStatus.Contacted, FamilyStatus.Confirmed};
 		
 		return fgsSearch;

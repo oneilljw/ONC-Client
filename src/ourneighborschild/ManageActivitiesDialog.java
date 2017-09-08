@@ -441,6 +441,10 @@ public class ManageActivitiesDialog extends ONCTableDialog implements ActionList
 				volTable.convertRowIndexToModel(volTable.getSelectedRow());
 
 			volExportCB.setEnabled(modelRow > -1);
+			
+			ONCVolunteer selVolunteer = modelRow > -1 ? volTableList.get(modelRow) : null;
+			if(selVolunteer != null)
+				fireEntitySelected(this, EntityType.VOLUNTEER, selVolunteer, null, null);
 		}
 	}
 
@@ -475,7 +479,7 @@ public class ManageActivitiesDialog extends ONCTableDialog implements ActionList
 	@Override
 	public EnumSet<EntityType> getEntityEventSelectorEntityTypes() 
 	{	
-		return EnumSet.of(EntityType.ACTIVITY);
+		return EnumSet.of(EntityType.ACTIVITY, EntityType.VOLUNTEER);
 	}
 	
 	class VolunteerTableModel extends AbstractTableModel

@@ -14,7 +14,8 @@ public enum FamilyGiftStatus
 	Delivered (7, "Delivered"),
 	Attempted (8, "Attempted"),
 	Returned (9, "Returned"),
-	CounselorPickUp (10, "Counselor Pick-Up");
+	CounselorPickUp (10, "Counselor Pick-Up"),
+	Referred (11, "Referred");
 	
 	private final int statusIndex;
 	private final String english;
@@ -49,7 +50,7 @@ public enum FamilyGiftStatus
 										FamilyGiftStatus.Verified, FamilyGiftStatus.Packaged,
 										FamilyGiftStatus.Assigned, FamilyGiftStatus.Attempted,
 										FamilyGiftStatus.Returned, FamilyGiftStatus.Delivered,
-										FamilyGiftStatus.CounselorPickUp};
+										FamilyGiftStatus.CounselorPickUp, FamilyGiftStatus.Referred};
 		
 		return fgsSearch;
 	}
@@ -61,7 +62,8 @@ public enum FamilyGiftStatus
 										FamilyGiftStatus.Received, FamilyGiftStatus.Verified,
 										FamilyGiftStatus.Packaged, FamilyGiftStatus.Assigned, 
 										FamilyGiftStatus.Attempted, FamilyGiftStatus.Returned, 
-										FamilyGiftStatus.Delivered, FamilyGiftStatus.CounselorPickUp};
+										FamilyGiftStatus.Delivered, FamilyGiftStatus.CounselorPickUp,
+										FamilyGiftStatus.Referred};
 		
 		return fgsSearch;
 	}
@@ -73,7 +75,7 @@ public enum FamilyGiftStatus
 										FamilyGiftStatus.Received, FamilyGiftStatus.Verified, 
 										FamilyGiftStatus.Packaged, FamilyGiftStatus.Attempted, 
 										FamilyGiftStatus.Returned, FamilyGiftStatus.Delivered,
-										FamilyGiftStatus.CounselorPickUp};
+										FamilyGiftStatus.CounselorPickUp, FamilyGiftStatus.Referred};
 		
 		return fgsChange;
 	}	

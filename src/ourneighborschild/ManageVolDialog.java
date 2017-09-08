@@ -200,6 +200,7 @@ public class ManageVolDialog extends ONCTableDialog implements ActionListener, L
       	actTable = new ONCTable(actTableModel, actToolTips, new Color(240,248,255));
 
       	actTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+      	actTable.getSelectionModel().addListSelectionListener(this);
       		
       	//Set table column widths
       	tablewidth = 0;
@@ -418,15 +419,27 @@ public class ManageVolDialog extends ONCTableDialog implements ActionListener, L
 	@Override
 	public void valueChanged(ListSelectionEvent lse)
 	{
-		int modelRow = volTable.getSelectedRow() == -1 ? -1 : 
+		if(lse.getSource() == volTable.getSelectionModel())
+		{
+			int modelRow = volTable.getSelectedRow() == -1 ? -1 : 
 						volTable.convertRowIndexToModel(volTable.getSelectedRow());
 		
-		if(modelRow > -1)
-		{
-			selectedVol = volTableList.get(modelRow);
-			fireEntitySelected(this, EntityType.VOLUNTEER, selectedVol, null, null);
+			if(modelRow > -1)
+			{
+				selectedVol = volTableList.get(modelRow);
+				fireEntitySelected(this, EntityType.VOLUNTEER, selectedVol, null, null);
 			
-			actTableModel.fireTableDataChanged();
+				actTableModel.fireTableDataChanged();
+			}
+		}
+		else if(lse.getSource() == actTable.getSelectionModel())
+		{
+			int modelRow = actTable.getSelectedRow() == -1 ? -1 : 
+				actTable.convertRowIndexToModel(actTable.getSelectedRow());
+			
+			VolunteerActivity selActivity = modelRow > -1 ? selectedVol.getActivityList().get(modelRow) : null;
+			if(selActivity != null)
+				fireEntitySelected(this, EntityType.ACTIVITY, selActivity, null, null);
 		}
 	}
 
@@ -457,7 +470,7 @@ public class ManageVolDialog extends ONCTableDialog implements ActionListener, L
 	@Override
 	public EnumSet<EntityType> getEntityEventSelectorEntityTypes() 
 	{	
-		return EnumSet.of(EntityType.VOLUNTEER);
+		return EnumSet.of(EntityType.VOLUNTEER, EntityType.ACTIVITY);
 	}
 	
 	class VolunteerTableModel extends AbstractTableModel
