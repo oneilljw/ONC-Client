@@ -135,7 +135,7 @@ public class ONCUser extends ONCGmailContactEntity
 //			groupList.add(groupID);
 		
 		List<Integer> newGroupList = new LinkedList<Integer>();
-		for(Integer groupID : groupList)
+		for(Integer groupID : u.getGroupList())
 			newGroupList.add(groupID);
 		
 		this.groupList = newGroupList;
