@@ -1958,58 +1958,36 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		headerList.add("Referring Organization");
 		headerList.add("Referring Agent Title ");
 		headerList.add("Sponsor Contact Name");
-		headerList.add("Client Celluar Phone #");
-		headerList.add("Number");
-		headerList.add("Street");
-		headerList.add("Apt");
-		headerList.add("City");
-		headerList.add("ZipCode");
-		headerList.add("Referring School Name");
-		headerList.add("Language");
-		headerList.add("Trans");
-		headerList.add("Count of Adults");
-		headerList.add("Count of Children");
-		headerList.add("CTotal");
-		headerList.add("Requested For");
+		headerList.add("Client Family");
+		headerList.add("Head of Household");
+		headerList.add("Family Members");
+		headerList.add("Referring Agent Email");
+		headerList.add("Client Family Email");
+		headerList.add("Client Family Phone");
+		headerList.add("Referring Agent Phone");
 		headerList.add("Dietary Restrictions");
-		headerList.add("Family Details");
-		headerList.add("Referring Agent Name");
-/*		
-		headerList.add("Referring Organization
-		headerList.add("Referring Agent Title
-		headerList.add("Sponsor Contact Name
-		headerList.add("Client Family
-		headerList.add("Head of Household
-		Family Members
-		Referring Agent Email
-		Client Family Email
-		Client Family Phone
-		Referring Agent Phone
-		Dietary Restrictions
-		School(s) Attended
-		Activity Date
-		Details
-		Assignee Contact ID
-		Delivery Street Address
-		Delivery Address Line 2
-		Delivery Address Line 3
-		Delivery City
-		Delivery Zip Code
-		Delivery State/Province
-		Donor Type
-		Adopted for:
-		Number of Adults in Household
-		Number of Children in Household
-		Wishlist
-		Does the family speak English?
-		If No. Language spoken
-		Client has transportation to pick up holiday assistance if necessary
-*/		
+		headerList.add("School(s) Attended");
+		headerList.add("Details");
+		headerList.add("Assignee Contact ID");
+		headerList.add("Delivery Street Address");
+		headerList.add("Delivery Address Line 2");
+		headerList.add("Delivery Address Line 3");
+		headerList.add("Delivery City");
+		headerList.add("Delivery Zip Code");
+		headerList.add("Delivery State/Province");
+		headerList.add("Donor Type");
+		headerList.add("Adopted for:");
+		headerList.add("Number of Adults in Household");
+		headerList.add("Number of Children in Household");
+		headerList.add("Wishlist");
+		headerList.add("Does the family speak English?");
+		headerList.add("If No. Language spoken");
+		headerList.add("Client has transportation to pick up holiday assistance if necessary");		
 		
 		String[] header = headerList.toArray(new String[0]);
 			
     	ONCFileChooser oncfc = new ONCFileChooser(this);
-       	File oncwritefile = oncfc.getFile("Select file for export of selected meals" ,
+       	File oncwritefile = oncfc.getFile("Select file for export of selected families" ,
        										new FileNameExtensionFilter("CSV Files", "csv"), 1);
        	if(oncwritefile!= null)
        	{
@@ -2027,13 +2005,13 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	    	    for(int i=0; i<sortTable.getSelectedRowCount(); i++)
 	    	    {
 	    	    	int index = row_sel[i];
-//	    	    	writer.writeNext(stAL.get(index).get2016ExportRow(choice));
+	    	    	writer.writeNext(getReferralExportRow(stAL.get(index)));
 	    	    }
 	    	   
 	    	    writer.close();
 	    	    
 	    	    JOptionPane.showMessageDialog(this, 
-						sortTable.getSelectedRowCount() + " meals sucessfully exported to " + oncwritefile.getName(), 
+						sortTable.getSelectedRowCount() + " referrals sucessfully exported to " + oncwritefile.getName(), 
 						"Export Successful", JOptionPane.INFORMATION_MESSAGE, gvs.getImageIcon(0));
 	    	} 
 	    	catch (IOException x)
@@ -2045,6 +2023,103 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	    }
        	
        	exportCB.setSelectedIndex(0);
+	}
+	
+	public String[] getReferralExportRow(ONCFamily soFamily)
+	{
+		ONCUser user = userDB.getUser(soFamily.getAgentID());
+		
+		String delAddress, unit, city, zip;
+		if(soFamily.getSubstituteDeliveryAddress().isEmpty())
+		{
+			delAddress = soFamily.getHouseNum() + " " + soFamily.getStreet();
+			unit = soFamily.getUnit();
+			city = soFamily.getCity();
+			zip = soFamily.getZipCode();
+		}
+		else
+		{
+			String[] parts = soFamily.getSubstituteDeliveryAddress().split("_");
+			delAddress = parts[0] + " " + parts[1];
+			unit = parts[2].equals("None")  ? "" : parts[2];
+			city = parts[3];
+			zip = parts[4];
+		}
+		
+		AdultDB adultDB = AdultDB.getInstance();
+		ChildDB childDB = ChildDB.getInstance();
+		MealDB mealDB = MealDB.getInstance();
+		
+		ONCMeal soMeal = mealDB.getMeal(soFamily.getMealID());
+		
+		String famMembers = "";
+		List<ONCChild> famChildren = childDB.getChildren(soFamily.getID());
+		List<ONCAdult> famAdults = adultDB.getAdultsInFamily(soFamily.getID());
+		
+		if(!famChildren.isEmpty())
+		{
+			StringBuilder members = new StringBuilder(buildChildString(famChildren.get(0)));
+			for(int cn=1; cn<famChildren.size(); cn++)
+				members.append("\r" + buildChildString(famChildren.get(cn)));
+			
+			for(int an=0; an<famAdults.size(); an++)
+				members.append("\r" + buildAdultString(famAdults.get(an)));
+			
+			famMembers = members.toString();
+		}
+		else if(!famAdults.isEmpty())
+		{
+			StringBuilder members = new StringBuilder(buildAdultString(famAdults.get(0)));
+			for(int an=0; an<famAdults.size(); an++)
+				members.append("\r" + buildAdultString(famAdults.get(an)));
+			
+			famMembers = members.toString();
+		}
+		
+		String adoptedFor = "";
+		if(soFamily.getGiftStatus() == FamilyGiftStatus.NotRequested && soFamily.getMealStatus() != MealStatus.None)
+			adoptedFor = soMeal.getType().toString() + " Meal";
+		else if(soFamily.getGiftStatus() != FamilyGiftStatus.NotRequested && soFamily.getMealStatus() != MealStatus.None)
+			adoptedFor = "December Gifts & " + soMeal.getType().toString() + " Meal";
+		else
+			adoptedFor = "December Gifts";
+		
+		String[] exportRow = { user.getFirstName() + " " + user.getLastName(),
+							   user.getOrganization(), 
+							   user.getTitle(),
+							   "Our Neighbor's Child",
+							   soFamily.getLastName() + " Household",
+							   soFamily.getFirstName() + " " + soFamily.getLastName(),
+							   famMembers,
+							   user.getEmail(), 
+							   soFamily.getEmail(),
+							   soFamily.getAllPhoneNumbers().replaceAll("\n","\r"),
+							   user.getCellPhone(),
+							   soMeal == null ? "" : soMeal.getRestricitons(),
+							   soFamily.getSchools(),
+							   soFamily.getDetails(),
+							   soFamily.getReferenceNum(),
+							   delAddress, unit, "", city, zip, "Virginia", "CBO",
+							   adoptedFor,
+							   Integer.toString(adultDB.getNumberOfOtherAdultsInFamily(soFamily.getID())+1),
+							   Integer.toString(childDB.getNumberOfChildrenInFamily(soFamily.getID())),
+							   soFamily.getWishList(),
+							   soFamily.getLanguage().equalsIgnoreCase("english") ? "Yes" : "No",
+							   soFamily.getLanguage().equalsIgnoreCase("english") ? "" : soFamily.getLanguage(),
+							   soFamily.getTransportation().toString()};
+
+		return exportRow;
+	}
+	
+	String buildChildString(ONCChild c)
+	{
+		return c.getChildFirstName() + " " + c.getChildLastName() + " - " +
+						c.getChildGender() + " - " + c.getChildDOBString("yyyy-MM-dd");
+	}
+	
+	String buildAdultString(ONCAdult a)
+	{
+		return a.getName() + " - " + a.getGender() + " - Adult";			
 	}
 	
 	ArrayList<ONCChild> getListOfChildrenByAgeAndGender(List<ONCFamily> famList, int startAge, int endAge, String gender)

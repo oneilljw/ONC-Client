@@ -264,16 +264,27 @@ public class GroupDB extends ONCSearchableDatabase
     				searchAL.add(getObjectAtIndex(sn).getID());
     		}	
     	}
-    	else	//Check for partner name, email matches, 1st or 2nd contact matches
+    	else	//Check for group name, email matches, 1st or 2nd contact matches
     	{
-    		searchType = "Group Name";
+    		UserDB userDB = UserDB.getInstance();
 			for(ONCGroup g:groupList)
 			{
+				//search for group name match
 				if(g.getName().toLowerCase().contains(data.toLowerCase()))
-				{
 					searchAL.add(g.getID());
-				}
+				
+				//search for group member last name match
+				for(ONCUser u : userDB.getGroupMembers(g.getID()))
+					if(u.getLastName().toLowerCase().contains(data.toLowerCase()))
+						searchAL.add(g.getID());
 			}
+			
+			if(searchAL.isEmpty())
+				searchType = "Group";
+			else if(searchAL.size() == 1)
+				searchType = "Group Name/Member";
+			else
+				searchType = "Group Name's/Member's";
     	}
     	
     	return searchType;
