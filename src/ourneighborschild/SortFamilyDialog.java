@@ -93,7 +93,9 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 
 	private static String[] giftCardFilter = {"Any", "True", "False"};
 	private static String[] dnsCodes = {"None", "Any", "DUP", "FO", "NC", "NISA", "OPT-OUT", "SA", "SBO", "WA"};
-	private static String[] exportChoices = {"Export", "Britepath Crosscheck", "Family Floor List", "Delivery Instructions", "Toys for Tots Application"};
+	private static String[] exportChoices = {"Export", "Britepath Crosscheck", "Family Floor List", 
+											 "Delivery Instructions", "Toys for Tots Application",
+											 "Family Referral"};
 	private static String[] printChoices = {"Print", "Print Listing", "Print Book Labels", 
 											"Print Family Receiving Sheets",
 											"Print Gift Inventory Sheets", "Print Packaging Sheets",
@@ -1948,6 +1950,103 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		}
 	}
 	
+	void onExportFamilyReferral()
+	{
+		//Write the selected row data to a .csv file
+		List<String> headerList = new ArrayList<String>();
+		headerList.add("Referring Agent Name");
+		headerList.add("Referring Organization");
+		headerList.add("Referring Agent Title ");
+		headerList.add("Sponsor Contact Name");
+		headerList.add("Client Celluar Phone #");
+		headerList.add("Number");
+		headerList.add("Street");
+		headerList.add("Apt");
+		headerList.add("City");
+		headerList.add("ZipCode");
+		headerList.add("Referring School Name");
+		headerList.add("Language");
+		headerList.add("Trans");
+		headerList.add("Count of Adults");
+		headerList.add("Count of Children");
+		headerList.add("CTotal");
+		headerList.add("Requested For");
+		headerList.add("Dietary Restrictions");
+		headerList.add("Family Details");
+		headerList.add("Referring Agent Name");
+/*		
+		headerList.add("Referring Organization
+		headerList.add("Referring Agent Title
+		headerList.add("Sponsor Contact Name
+		headerList.add("Client Family
+		headerList.add("Head of Household
+		Family Members
+		Referring Agent Email
+		Client Family Email
+		Client Family Phone
+		Referring Agent Phone
+		Dietary Restrictions
+		School(s) Attended
+		Activity Date
+		Details
+		Assignee Contact ID
+		Delivery Street Address
+		Delivery Address Line 2
+		Delivery Address Line 3
+		Delivery City
+		Delivery Zip Code
+		Delivery State/Province
+		Donor Type
+		Adopted for:
+		Number of Adults in Household
+		Number of Children in Household
+		Wishlist
+		Does the family speak English?
+		If No. Language spoken
+		Client has transportation to pick up holiday assistance if necessary
+*/		
+		
+		String[] header = headerList.toArray(new String[0]);
+			
+    	ONCFileChooser oncfc = new ONCFileChooser(this);
+       	File oncwritefile = oncfc.getFile("Select file for export of selected meals" ,
+       										new FileNameExtensionFilter("CSV Files", "csv"), 1);
+       	if(oncwritefile!= null)
+       	{
+       		//If user types a new filename without extension.csv, add it
+	    	String filePath = oncwritefile.getPath();
+	    	if(!filePath.toLowerCase().endsWith(".csv")) 
+	    		oncwritefile = new File(filePath + ".csv");
+	    	
+	    	try 
+	    	{
+	    		CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
+	    	    writer.writeNext(header);
+	    	    
+	    	    int[] row_sel = sortTable.getSelectedRows();
+	    	    for(int i=0; i<sortTable.getSelectedRowCount(); i++)
+	    	    {
+	    	    	int index = row_sel[i];
+//	    	    	writer.writeNext(stAL.get(index).get2016ExportRow(choice));
+	    	    }
+	    	   
+	    	    writer.close();
+	    	    
+	    	    JOptionPane.showMessageDialog(this, 
+						sortTable.getSelectedRowCount() + " meals sucessfully exported to " + oncwritefile.getName(), 
+						"Export Successful", JOptionPane.INFORMATION_MESSAGE, gvs.getImageIcon(0));
+	    	} 
+	    	catch (IOException x)
+	    	{
+	    		JOptionPane.showMessageDialog(this, "Export Failed, I/O Error: "  + x.getMessage(),  
+						"Export Failed", JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
+	    		System.err.format("IOException: %s%n", x);
+	    	}
+	    }
+       	
+       	exportCB.setSelectedIndex(0);
+	}
+	
 	ArrayList<ONCChild> getListOfChildrenByAgeAndGender(List<ONCFamily> famList, int startAge, int endAge, String gender)
 	{
 		ArrayList<ONCChild> matchingChildList = new ArrayList<ONCChild>();
@@ -2103,6 +2202,11 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			else if(exportCB.getSelectedItem().toString().equals(exportChoices[4]))
 			{ 
 				onExportToysForTotsApplication();
+				exportCB.setSelectedIndex(0);
+			}
+			else if(exportCB.getSelectedItem().toString().equals(exportChoices[5]))
+			{ 
+				onExportFamilyReferral();
 				exportCB.setSelectedIndex(0);
 			}
 		}

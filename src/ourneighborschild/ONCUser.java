@@ -83,7 +83,7 @@ public class ONCUser extends ONCGmailContactEntity
 	public ONCUser(int id, Date today, String changedBy, int slpos, String slmssg, String slchgby, 
 			String fn, String ln,  UserStatus stat, UserAccess acc, UserPermission perm,
 			long clientID, int clientYear, long nSessions, long lastLogin, 
-			String org, String title, String email, String phone, List<Integer> groupList, UserPreferences prefs)
+			String org, String title, String email, String phone, List<Integer> oldGroupList, UserPreferences prefs)
 	{
 //		super(id, today, changedBy, slpos, slmssg, slchgby);
 		super(id, fn, ln, email, phone, phone, "","","","","","New User", org, today, changedBy, 
@@ -104,7 +104,7 @@ public class ONCUser extends ONCGmailContactEntity
 //		this.cellPhone = phone;
 		
 		this.groupList = new LinkedList<Integer>();
-		for(Integer groupID : groupList)
+		for(Integer groupID : oldGroupList)
 			this.groupList.add(groupID);
 		
 		this.preferences = prefs;
@@ -130,9 +130,15 @@ public class ONCUser extends ONCGmailContactEntity
 //		this.email = u.email;
 //		this.cellPhone = u.cellPhone;
 		
-		this.groupList = new LinkedList<Integer>();
+//		this.groupList = new LinkedList<Integer>();
+//		for(Integer groupID : groupList)
+//			groupList.add(groupID);
+		
+		List<Integer> newGroupList = new LinkedList<Integer>();
 		for(Integer groupID : groupList)
-			this.groupList.add(groupID);
+			newGroupList.add(groupID);
+		
+		this.groupList = newGroupList;
 		
 		this.preferences = u.preferences;
 	}

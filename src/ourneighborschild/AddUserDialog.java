@@ -3,6 +3,7 @@ package ourneighborschild;
 import java.awt.Dimension;
 import java.util.Calendar;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.TimeZone;
 
 import javax.swing.JComboBox;
@@ -15,6 +16,8 @@ public class AddUserDialog extends InfoDialog
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	
+	private static final int SELF_GROUP_ID = 62;
 	
 	private static final int FIRST_NAME_INDEX = 0;
 	private static final int LAST_NAME_INDEX = 1;
@@ -70,11 +73,17 @@ public class AddUserDialog extends InfoDialog
 		UserAccess userAccess = (UserAccess) accessCB.getSelectedItem();
 		UserPermission userPermission = (UserPermission) permissionCB.getSelectedItem();
 		String pw = "********";
+		
+		//each new user must be in a group, so add them to the Self group. This restriction
+		//will need to be fixed at some point in time.
+		List<Integer> newGroupList = new LinkedList<Integer>();
+		newGroupList.add(SELF_GROUP_ID);
+		
 		reqAddUser = new ONCServerUser(0, calendar.getTime(), userDB.getUserLNFI(), 3, "New user added",
 				userDB.getUserLNFI(), tf[FIRST_NAME_INDEX].getText(), tf[LAST_NAME_INDEX].getText(),
 				UserStatus.Change_PW, userAccess, userPermission, tf[USERID_INDEX].getText(), pw, 0,
 				calendar.getTimeInMillis(), true, tf[ORG_INDEX].getText(), tf[TITLE_INDEX].getText(),
-				tf[EMAIL_INDEX].getText(), tf[PHONE_INDEX].getText(), new LinkedList<Integer>());
+				tf[EMAIL_INDEX].getText(), tf[PHONE_INDEX].getText(), newGroupList);
 		
 		result = true;
 		dispose();
