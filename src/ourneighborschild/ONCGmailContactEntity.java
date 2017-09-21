@@ -261,7 +261,7 @@ public abstract class ONCGmailContactEntity extends ONCEntity
 		
 		return gmailContactRow;
 	}
-	
+/*	
     public boolean equals(Object o)
     {
         if (!(o instanceof ONCVolunteer))
@@ -281,10 +281,10 @@ public abstract class ONCGmailContactEntity extends ONCEntity
         hash = hash * 13 + (email == null ? 0 : email.hashCode());
         return hash;
     }
-	
+*/	
 	public int compareTo(ONCVolunteer v) 
 	{
-        int lastCmp = lastName.compareTo(v.lastName);
+       int lastCmp = lastName.compareTo(v.lastName);
         return (lastCmp != 0 ? lastCmp : firstName.compareTo(v.firstName));
-    }	
+	}	
 }

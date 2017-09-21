@@ -65,7 +65,7 @@ public class ManageUsersDialog extends JDialog implements ActionListener, ListSe
 	{
 		super(pf);
 		this.owner = pf;
-		this.setTitle("ONC App & Website Elves");
+		this.setTitle("ONC App & Website Users");
 		
 		//Save the reference to the one wish catalog object in the app. It is created in the 
 		//top level object and passed to all objects that require the wish catalog, including
@@ -163,16 +163,16 @@ public class ManageUsersDialog extends JDialog implements ActionListener, ListSe
         btnPrint.setToolTipText("Print the user list");
         btnPrint.addActionListener(this);
         
-        btnAdd = new JButton("Add Elf");
-        btnAdd.setToolTipText("Add a new user");
+        btnAdd = new JButton("Add User");
+        btnAdd.setToolTipText("Add a new user to the data management system");
         btnAdd.addActionListener(this);
         
-        btnEdit = new JButton("Elf Profile");
-        btnEdit.setToolTipText("Edit users contact info");
+        btnEdit = new JButton("User Profile");
+        btnEdit.setToolTipText("Edit user's contact info");
         btnEdit.setEnabled(false);
         btnEdit.addActionListener(this);
         
-        btnResetPW = new JButton("Reset Elf's Password");
+        btnResetPW = new JButton("Reset User's Password");
         btnResetPW.setToolTipText("Reset the selected user's password");
         btnResetPW.setEnabled(false);
         btnResetPW.addActionListener(this);

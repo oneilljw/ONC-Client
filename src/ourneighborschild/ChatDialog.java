@@ -7,7 +7,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.ArrayList;
+
 import javax.sound.sampled.LineUnavailableException;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -32,12 +32,12 @@ public class ChatDialog extends JDialog implements ActionListener, DatabaseListe
 	 * This dialog implements the user interface for conducting private chats between two ONC elves online.
 	 * The dialog works with the ChatManager singleton instance to send and receive CHAT_ commands with the ONC server.
 	 * A chat has three states: IDLE, REQUESTED and ACTIVE. In the IDLE state, the user can select another online
-	 * elf and request a chat. A combo box list of online elves is provided at the top of dialog. Once the user
-	 * selects an elf to chat with, a chat request is sent to that elf via the ONC server and the chat state becomes
-	 * requested. If the requested elf accepts the chat, the user is notified and the chat state becomes active.
-	 * In this state, the combo box holding the selected elf is disabled and the text field for creating chat text
-	 * becomes editable. Once a chat is active, it remains active until one of the two chatting elves closes
-	 * their chat dialog. When this occurs, a message is sent to the other elf, closing the notified elf's dialog.
+	 * user and request a chat. A combo box list of online users is provided at the top of dialog. Once the user
+	 * selects an user to chat with, a chat request is sent to that user via the ONC server and the chat state becomes
+	 * requested. If the requested user accepts the chat, the user is notified and the chat state becomes active.
+	 * In this state, the combo box holding the selected user is disabled and the text field for creating chat text
+	 * becomes editable. Once a chat is active, it remains active until one of the two chatting user's closes
+	 * their chat dialog. When this occurs, a message is sent to the other user, closing the notified user's dialog.
 	 */
 	private static final long serialVersionUID = 1L;
 	private static final int CHAT_TEXT_FONT_SIZE = 13;
@@ -49,7 +49,7 @@ public class ChatDialog extends JDialog implements ActionListener, DatabaseListe
 	//class variables
 	private ChatState chatState;	//idle, requested, active enumeration
 	private long chatTargetClientID;	//Client ID, as assigned by ONC Server, of chat partner
-	private ArrayList<ONCUser> onlineUserList;
+//	private ArrayList<ONCUser> onlineUserList;
 	
 	//user interface
 	private JPanel contentPane, entrypanel, requestpanel;
@@ -102,27 +102,28 @@ public class ChatDialog extends JDialog implements ActionListener, DatabaseListe
 		//create a combo box that holds possible chat partners
 		JPanel chatterspanel = new JPanel();
 		
-		lblChatters = new JLabel("Select Elf:");
+		lblChatters = new JLabel("Select User:");
 		
 		chattersCBM = new DefaultComboBoxModel();
-    	chattersCBM.addElement("- Online Elves List -");
 		
-    	//create a list of online users and create the elf selection combo box list
-    	onlineUserList = new ArrayList<ONCUser>();
+	    
+    	//create a list of online users and create the user selection combo box list
+//    	onlineUserList = new ArrayList<ONCUser>();
+		chattersCBM.addElement(new ONCUser("- Online User","List -"));
 		for(ONCUser onlineuser:oncUserDB.getOnlineUsers())
 		{
 			//test to see if a user can be a chat partner. Cannot chat with a web user or yourself
 			if(onlineuser.getClientID() > -1 && 
 				onlineuser.getClientID() != oncUserDB.getLoggedInUser().getClientID())
 			{
-				onlineUserList.add(onlineuser);
+//				onlineUserList.add(onlineuser);
 				chattersCBM.addElement(onlineuser);
 			}
 		}
 		
 		chattersCB = new JComboBox(chattersCBM);
 		chattersCB.addActionListener(this);
-		
+			
 		chatterspanel.add(lblChatters);
 		chatterspanel.add(chattersCB);
 		
@@ -216,7 +217,7 @@ public class ChatDialog extends JDialog implements ActionListener, DatabaseListe
 		}
 		else
 		{
-			displayChatText("Select an elf to chat with using the above list", systemAttribs);
+			displayChatText("Select a user to chat with using the above list", systemAttribs);
 			contentPane.add(entrypanel);
 		}
 		
@@ -237,7 +238,7 @@ public class ChatDialog extends JDialog implements ActionListener, DatabaseListe
 	{
 		//form the chat request ChatMessage Object
 //		chatTargetClientID = onlineUserList.get(chattersCB.getSelectedIndex()-1).getClientID();
-		chatTargetClientID = ((ONCUser) chattersCBM.getSelectedItem()).getClientID();
+		chatTargetClientID = ((ONCUser) chattersCB.getSelectedItem()).getClientID();
 		
 		ChatMessage reqMssg = new ChatMessage(oncUserDB.getLoggedInUser().getClientID(), chatTargetClientID);
 		
@@ -337,7 +338,8 @@ public class ChatDialog extends JDialog implements ActionListener, DatabaseListe
 	{
 		//find the target client ID in the list of onlineUsers
 		int index = 1;
-		while(index < chattersCBM.getSize() && ((ONCUser) chattersCBM.getElementAt(index)).getClientID() != chatTargetClientID)
+		while(index < chattersCBM.getSize() &&
+				((ONCUser)chattersCBM.getElementAt(index)).getClientID() != chatTargetClientID)
 			index++;
 		
 		if(index < chattersCBM.getSize())
@@ -349,10 +351,9 @@ public class ChatDialog extends JDialog implements ActionListener, DatabaseListe
 	@Override
 	public void actionPerformed(ActionEvent e) 
 	{
-		if(e.getSource() == chattersCB && !bIgnoreChatCBRequests)
+		if(e.getSource() == chattersCB && !bIgnoreChatCBRequests && chattersCB.getSelectedIndex() > 0)
 		{
-			if(chattersCB.getSelectedIndex() > 0)	//user has requested a chat
-				sendChatRequest();
+			sendChatRequest();	//user has requested a chat
 		}
 		else if(e.getSource() == dataTF)
 		{
@@ -421,7 +422,7 @@ public class ChatDialog extends JDialog implements ActionListener, DatabaseListe
 				
 				String username = getChatPartnerUser(chatTargetClientID).toString();
 				displayChatText("Chat request not accepted by " + username +
-						", Select another elf to chat with using the above list", systemAttribs);
+						", Select another user to chat with using the above list", systemAttribs);
 			}
 			//if the state is active and the id matches the id of the requested chat target, close the dialog
 			else if(chatState == ChatState.ACTIVE && chatMssg.getSenderClientID() == chatTargetClientID)

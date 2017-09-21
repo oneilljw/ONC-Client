@@ -166,6 +166,22 @@ public class ONCUser extends ONCGmailContactEntity
 		this.preferences = new UserPreferences(13, 1, 1);
 	}
 	
+	public ONCUser(String fn, String ln)
+	{
+		super(-1, fn, ln, "None", "None", "None", "","","","","","Dummy Chat User", "None",  new Date(), "", 3, "Dummy Chat User", "");
+
+		status = UserStatus.Inactive;
+		access = UserAccess.App;
+		permission = UserPermission.General;
+		this.clientID = -1;
+		this.clientYear = -1;
+		this.nSessions = 0;
+		this.lastLogin = System.currentTimeMillis();
+		this.title = "None";
+		groupList = new LinkedList<Integer>();
+		this.preferences = new UserPreferences(13, 1, 1);
+	}
+	
 	//getters
 	public long getClientID() { return clientID; }
 	public void setClientID(long clientID) { this.clientID = clientID; }

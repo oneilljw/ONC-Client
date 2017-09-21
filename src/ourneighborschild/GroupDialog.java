@@ -98,7 +98,7 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
         nameTF.addActionListener(dcListener);
                 
         groupTypeCB = new JComboBox(GroupType.values());
-        groupTypeCB.setToolTipText("Type of organization e.g. Business");
+        groupTypeCB.setToolTipText("Type of group, e.g. Business");
         groupTypeCB.setPreferredSize(new Dimension (144, 48));
         groupTypeCB.setBorder(BorderFactory.createTitledBorder("Group Type"));
         groupTypeCB.addActionListener(dcListener);
@@ -109,7 +109,7 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
         lblLastChangedBy.setBorder(BorderFactory.createTitledBorder("Last Changed By"));
         
         lblDateChanged = new JLabel("Never");
-        lblDateChanged.setToolTipText("Timestamp group info last changed");
+        lblDateChanged.setToolTipText("Timestamp when group info last changed");
         lblDateChanged.setPreferredSize(new Dimension (120, 48));
         lblDateChanged.setBorder(BorderFactory.createTitledBorder("Date Changed"));
         sdf = new SimpleDateFormat("MM/d/yyyy");
@@ -120,7 +120,8 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
         op1.add(lblDateChanged);
 
         //set up panel 2
-        ckBoxShared = new JCheckBox("Info shared among members");
+        ckBoxShared = new JCheckBox("Info shared among members?");
+        ckBoxShared.setToolTipText("Check to allow Group Memebers to view/edit each other's referrals");
         ckBoxShared.addActionListener(dcListener);
         
         op2.add(ckBoxShared);
@@ -167,7 +168,7 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
         memberTbl.setPreferredScrollableViewportSize(tablesize);
         JScrollPane memberScrollPane = new JScrollPane(memberTbl,
         	JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        memberScrollPane.setToolTipText("Table of stocks that can be added to tracker");
+        memberScrollPane.setToolTipText("Agents who are members of the group");
  
         //add the table scroll pane to the symbol panel
         memberPanel.add(memberScrollPane);
@@ -178,13 +179,13 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
         GroupButtonListener gbListener = new GroupButtonListener();
         
         btnAddMember = new JButton("<- Add");
-        btnAddMember.setToolTipText("Click to add highlighted candidate to member table");
+        btnAddMember.setToolTipText("Click to add highlighted candidate to the group");
         btnAddMember.setEnabled(false);
         btnAddMember.addActionListener(gbListener);
         btnPanel.add(btnAddMember);
         
         btnRemoveMember = new JButton("Remove");
-        btnRemoveMember.setToolTipText("Click to stop tracking highlighted Stock in Quote table");
+        btnRemoveMember.setToolTipText("Click to remove highlighted member from the group");
         btnRemoveMember.setEnabled(false);
         btnRemoveMember.addActionListener(gbListener);
         btnPanel.add(btnRemoveMember);
@@ -230,7 +231,7 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
         candidateTbl.setPreferredScrollableViewportSize(candidatetablesize);
         JScrollPane candidateScrollPane = new JScrollPane(candidateTbl,
         	JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        candidateScrollPane.setToolTipText("Table of candidates for groups");
+        candidateScrollPane.setToolTipText("Table of agents that can be added to groups");
         
         //add the table scroll pane to the candidate panel
         candidatePanel.add(candidateScrollPane);
