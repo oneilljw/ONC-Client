@@ -95,7 +95,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	private static String[] dnsCodes = {"None", "Any", "DUP", "FO", "NC", "NISA", "OPT-OUT", "SA", "SBO", "WA"};
 	private static String[] exportChoices = {"Export", "Britepath Crosscheck", "Family Floor List", 
 											 "Delivery Instructions", "Toys for Tots Application",
-											 "Family Referral"};
+											 "Family Referral", "Agent/Children/School Report"};
 	private static String[] printChoices = {"Print", "Print Listing", "Print Book Labels", 
 											"Print Family Receiving Sheets",
 											"Print Gift Inventory Sheets", "Print Packaging Sheets",
@@ -1153,11 +1153,10 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	
 		if(sortTable.getSelectedRowCount() > 0)
 		{
-			printCB.setEnabled(true);
-			
 			if(userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0 )
 			{
 				exportCB.setEnabled(true);
+				printCB.setEnabled(true);
 				emailCB.setEnabled(true);
 				callCB.setEnabled(true);
 			}
@@ -2025,6 +2024,68 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
        	exportCB.setSelectedIndex(0);
 	}
 	
+	void onExportAgentSchoolReport()
+	{
+		ChildDB childDB = ChildDB.getInstance();
+		
+		//Write the selected row data to a .csv file
+		List<String> headerList = new ArrayList<String>();
+		headerList.add("ONC #");
+		headerList.add("Agent FN");
+		headerList.add("Agent LN");
+		headerList.add("Agent Org");
+		headerList.add("Batch");
+		headerList.add("Family HoH FN");
+		headerList.add("Family HoH LN");
+		headerList.add("Region");
+		headerList.add("Child FN");
+		headerList.add("Child LN");
+		headerList.add("Child Age");
+		headerList.add("Child DoB");
+		headerList.add("School Attended");	
+		
+		String[] header = headerList.toArray(new String[0]);
+			
+    	ONCFileChooser oncfc = new ONCFileChooser(this);
+       	File oncwritefile = oncfc.getFile("Select file for export of selected families" ,
+       										new FileNameExtensionFilter("CSV Files", "csv"), 1);
+       	if(oncwritefile!= null)
+       	{
+       		//If user types a new filename without extension.csv, add it
+	    	String filePath = oncwritefile.getPath();
+	    	if(!filePath.toLowerCase().endsWith(".csv")) 
+	    		oncwritefile = new File(filePath + ".csv");
+	    	
+	    	try 
+	    	{
+	    		CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
+	    	    writer.writeNext(header);
+	    	    
+	    	    int[] row_sel = sortTable.getSelectedRows();
+	    	    for(int i=0; i<sortTable.getSelectedRowCount(); i++)
+	    	    {
+	    	    	int index = row_sel[i];
+	    	    	for(ONCChild child : childDB.getChildren(stAL.get(index).getID()))
+	    	    		writer.writeNext(getSchoolExportRow(stAL.get(index), child));
+	    	    }
+	    	   
+	    	    writer.close();
+	    	    
+	    	    JOptionPane.showMessageDialog(this, 
+						sortTable.getSelectedRowCount() + " families sucessfully exported to " + oncwritefile.getName(), 
+						"Export Successful", JOptionPane.INFORMATION_MESSAGE, gvs.getImageIcon(0));
+	    	} 
+	    	catch (IOException x)
+	    	{
+	    		JOptionPane.showMessageDialog(this, "Export Failed, I/O Error: "  + x.getMessage(),  
+						"Export Failed", JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
+	    		System.err.format("IOException: %s%n", x);
+	    	}
+	    }
+       	
+       	exportCB.setSelectedIndex(0);
+	}
+	
 	public String[] getReferralExportRow(ONCFamily soFamily)
 	{
 		ONCUser user = userDB.getUser(soFamily.getAgentID());
@@ -2107,6 +2168,29 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 							   soFamily.getLanguage().equalsIgnoreCase("english") ? "Yes" : "No",
 							   soFamily.getLanguage().equalsIgnoreCase("english") ? "" : soFamily.getLanguage(),
 							   soFamily.getTransportation().toString()};
+
+		return exportRow;
+	}
+	
+	public String[] getSchoolExportRow(ONCFamily soFamily, ONCChild soChild)
+	{
+		ONCUser user = userDB.getUser(soFamily.getAgentID());
+		
+		String[] exportRow = { 
+								soFamily.getONCNum(),
+								user.getFirstName(),
+								user.getLastName(),
+								user.getOrganization(),
+								soFamily.getBatchNum(),
+								soFamily.getFirstName(),
+								soFamily.getLastName(),
+								regions.getRegionID(soFamily.getRegion()),
+								soChild.getChildFirstName(),
+								soChild.getChildLastName(),
+								soChild.getChildAge(),
+								soChild.getChildDOBString("MM/dd/yyyy"),
+								soChild.getChildSchool()
+							};
 
 		return exportRow;
 	}
@@ -2260,30 +2344,19 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		else if(e.getSource() == exportCB)
 		{
 			if(exportCB.getSelectedItem().toString().equals(exportChoices[1]))
-			{ 
 				onExportODBCrosscheck();
-				exportCB.setSelectedIndex(0);
-			}
 			else if(exportCB.getSelectedItem().toString().equals(exportChoices[2]))
-			{ 
 				onExportFamilyFloorList();
-				exportCB.setSelectedIndex(0);
-			}
 			else if(exportCB.getSelectedItem().toString().equals(exportChoices[3]))
-			{ 
 				onExportDeliveryNotes();
-				exportCB.setSelectedIndex(0);
-			}
-			else if(exportCB.getSelectedItem().toString().equals(exportChoices[4]))
-			{ 
+			else if(exportCB.getSelectedItem().toString().equals(exportChoices[4])) 
 				onExportToysForTotsApplication();
-				exportCB.setSelectedIndex(0);
-			}
 			else if(exportCB.getSelectedItem().toString().equals(exportChoices[5]))
-			{ 
-				onExportFamilyReferral();
-				exportCB.setSelectedIndex(0);
-			}
+				onExportFamilyReferral();	
+			else if(exportCB.getSelectedItem().toString().equals(exportChoices[6])) 
+				onExportAgentSchoolReport();
+
+			exportCB.setSelectedIndex(0);
 		}
 		else if(e.getSource() == printCB)
 		{
