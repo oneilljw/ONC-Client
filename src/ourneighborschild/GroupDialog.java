@@ -97,7 +97,7 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
         nameTF.setBorder(BorderFactory.createTitledBorder("Group Name"));
         nameTF.addActionListener(dcListener);
                 
-        groupTypeCB = new JComboBox(GroupType.values());
+        groupTypeCB = new JComboBox(GroupType.getGroupTypeList());
         groupTypeCB.setToolTipText("Type of group, e.g. Business");
         groupTypeCB.setPreferredSize(new Dimension (144, 48));
         groupTypeCB.setBorder(BorderFactory.createTitledBorder("Group Type"));

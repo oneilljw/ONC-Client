@@ -38,7 +38,7 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 	private JMenu submenuImport, submenuFamilyDataChecks;
 	private JMenu submenuExport, submenuChangeFamilyNumbers, submenuDBYearList;
 	private JMenuItem viewDBMI, sortWishesMI, sortFamiliesMI, sortOrgsMI, recGiftsMI, sortMealsMI;
-	private JMenuItem agentMI, groupMI, orgMI, catMI, barcodeWishHistoryMI, inventoryMI;
+	private JMenuItem agentMI, groupMI, manageGroupsMI, orgMI, catMI, barcodeWishHistoryMI, inventoryMI;
 	private JMenuItem aboutONCMI, oncPrefrencesMI, profileMI, userMI, onlineMI, chatMI, changePWMI, stopPollingMI;
 	private JMenuItem showServerLogMI, showServerClientIDMI, showCurrDirMI, showWebsiteStatusMI;
 	private List<JMenuItem> dbYearsMIList;
@@ -134,11 +134,19 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 	    agentMI.addActionListener(this);
 	    menuAgents.add(agentMI);
 	    
+	    menuAgents.addSeparator();
+	    
 	    groupMI = new JMenuItem("Edit Groups");
 	    groupMI.setActionCommand("Edit Groups");
 	    groupMI.setEnabled(false);	
 	    groupMI.addActionListener(this);
 	    menuAgents.add(groupMI);
+	    
+	    manageGroupsMI = new JMenuItem("Manage Groups");
+	    manageGroupsMI.setActionCommand("Manage Groups");
+	    manageGroupsMI.setEnabled(false);
+	    manageGroupsMI.addActionListener(this);
+	    menuAgents.add(manageGroupsMI);
 	    
 	    this.add(menuAgents);
 
@@ -560,6 +568,7 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 	{ 
 		agentMI.setEnabled(tf);
 		groupMI.setEnabled(tf);
+		manageGroupsMI.setEnabled(tf);
 		manageDelMI.setEnabled(tf);
 		inventoryMI.setEnabled(tf);
 		editActMI.setEnabled(tf);
@@ -695,6 +704,8 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 			dlgManager.showSortDialog(agentMI.getActionCommand(), SORT_DIALOG_OFFSET);
 		else if(e.getSource() == groupMI)
 			dlgManager.showEntityDialog(groupMI.getActionCommand(), SORT_DIALOG_OFFSET);
+		else if(e.getSource() == manageGroupsMI)
+			dlgManager.showManageGroupsDialog();
 		else if(e.getSource() == aboutONCMI)
 			dlgManager.showAboutONCDialog();
 		else if(e.getSource() == oncPrefrencesMI)

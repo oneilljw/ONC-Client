@@ -143,7 +143,6 @@ public class ManageUsersDialog extends JDialog implements ActionListener, ListSe
 		
         dlgTable.setAutoCreateRowSorter(true);	//add a sorter
         
-        
         JTableHeader anHeader = dlgTable.getTableHeader();
         anHeader.setForeground( Color.black);
         anHeader.setBackground( new Color(161,202,241));

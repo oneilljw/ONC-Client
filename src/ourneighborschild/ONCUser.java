@@ -220,8 +220,9 @@ public class ONCUser extends ONCGmailContactEntity
 	
 	public boolean isInGroup(Integer groupID)
 	{
+		//check to see if the group id is in the users list of groups
 		int index = 0;
-		while(index < groupList.size())
+		while(index < groupList.size() && groupList.get(index) != groupID)
 			index++;
 		
 		return index < groupList.size();
