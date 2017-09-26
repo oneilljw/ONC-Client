@@ -2126,15 +2126,25 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			for(int an=0; an<famAdults.size(); an++)
 				members.append("\r" + buildAdultString(famAdults.get(an)));
 			
-			famMembers = members.toString();
+			famMembers = famMembers + members.toString();
 		}
-		else if(!famAdults.isEmpty())
+		if(!famAdults.isEmpty())
 		{
 			StringBuilder members = new StringBuilder(buildAdultString(famAdults.get(0)));
 			for(int an=0; an<famAdults.size(); an++)
 				members.append("\r" + buildAdultString(famAdults.get(an)));
 			
-			famMembers = members.toString();
+			famMembers = famMembers + members.toString();
+		}
+		
+		String famSchools = "";
+		if(!famChildren.isEmpty())
+		{
+			StringBuilder schools = new StringBuilder(buildChildSchoolString(famChildren.get(0)));
+			for(int cn=1; cn<famChildren.size(); cn++)
+				schools.append("\r" + buildChildSchoolString(famChildren.get(cn)));
+			
+			famSchools = schools.toString();
 		}
 		
 		String adoptedFor = "";
@@ -2157,14 +2167,14 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 							   soFamily.getAllPhoneNumbers().replaceAll("\n","\r"),
 							   user.getCellPhone(),
 							   soMeal == null ? "" : soMeal.getRestricitons(),
-							   soFamily.getSchools(),
+							   famSchools,
 							   soFamily.getDetails(),
 							   soFamily.getReferenceNum(),
 							   delAddress, unit, "", city, zip, "Virginia", "CBO",
 							   adoptedFor,
 							   Integer.toString(adultDB.getNumberOfOtherAdultsInFamily(soFamily.getID())+1),
 							   Integer.toString(childDB.getNumberOfChildrenInFamily(soFamily.getID())),
-							   soFamily.getWishList(),
+							   soFamily.getWishList().replaceAll("\n","\r"),
 							   soFamily.getLanguage().equalsIgnoreCase("english") ? "Yes" : "No",
 							   soFamily.getLanguage().equalsIgnoreCase("english") ? "" : soFamily.getLanguage(),
 							   soFamily.getTransportation().toString()};
@@ -2204,6 +2214,11 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	String buildAdultString(ONCAdult a)
 	{
 		return a.getName() + " - " + a.getGender() + " - Adult";			
+	}
+	
+	String buildChildSchoolString(ONCChild c)
+	{
+		return c.getChildFirstName() + ": " + c.getChildSchool();
 	}
 	
 	ArrayList<ONCChild> getListOfChildrenByAgeAndGender(List<ONCFamily> famList, int startAge, int endAge, String gender)
