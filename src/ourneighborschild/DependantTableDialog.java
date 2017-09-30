@@ -110,7 +110,7 @@ public abstract class DependantTableDialog extends SortTableDialog
               
       	//Set table column widths
       	int familytablewidth = 0;
-      	int[] familycolWidths = {32, 48, 48, 72, 72, 72, 72, 72, 48, 128, 56, 48, 28, 72, 24};
+      	int[] familycolWidths = {40, 48, 48, 72, 72, 72, 72, 72, 48, 128, 56, 48, 28, 72, 24};
       	for(int i=0; i < familycolWidths.length; i++)
       	{
       	  	familyTable.getColumnModel().getColumn(i).setPreferredWidth(familycolWidths[i]);
