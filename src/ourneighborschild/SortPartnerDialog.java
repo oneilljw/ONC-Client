@@ -46,320 +46,280 @@ import au.com.bytecode.opencsv.CSVWriter;
 public class SortPartnerDialog extends ChangeDialog implements ActionListener, ListSelectionListener, 
 															PropertyChangeListener, DatabaseListener															
 {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	private static final int NUM_ROWS_TO_DISPLAY = 15;
-	private static final String DEFAULT_NO_CHANGE_LIST_ITEM = "No Change";
-	private static final int MIN_PHONE_NUMBER_LENGTH = 10;
-	private static final int MIN_NAME_LENGTH = 2;
-	private static final int MIN_EMAIL_ADDRESS_LENGTH = 2;
-	private static final String GIFT_PARTNER_EMAIL_SENDER_ADDRESS = "partnercontact@ourneighborschild.org";
-	private static final String CLOTHING_PARTNER_EMAIL_SENDER_ADDRESS = "Clothing@ourneighborschild.org";
-	private static final String PHOTO_ATTACHMENT_1_FILE = "2016 Partner 1.jpg";
-	private static final String PHOTO_ATTACHMENT_2_FILE = "2016 Partner 2.jpg";
-	private static final String ONCLOGO_ATTACHMENT_FILE = "onclogosmall.jpg";
-	private static final int GOOGLE_CONTACT_CSV_RECORD_LENGTH = 58;
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+    private static final int NUM_ROWS_TO_DISPLAY = 15;
+    private static final String DEFAULT_NO_CHANGE_LIST_ITEM = "No Change";
+    private static final int MIN_PHONE_NUMBER_LENGTH = 10;
+    private static final int MIN_NAME_LENGTH = 2;
+    private static final int MIN_EMAIL_ADDRESS_LENGTH = 2;
+    private static final String GIFT__BUS_SCHOOL_PARTNER_EMAIL_SENDER_ADDRESS = "partnercontact@ourneighborschild.org";
+    private static final String GIFT_CHURCH_EMAIL_SENDER_ADDRESS = "partnercontact@ourneighborschild.org";;
+//	private static final String CLOTHING_PARTNER_EMAIL_SENDER_ADDRESS = "Clothing@ourneighborschild.org";
+    private static final String PHOTO_ATTACHMENT_1_FILE = "2016 Partner 1.jpg";
+    private static final String PHOTO_ATTACHMENT_2_FILE = "2016 Partner 2.jpg";
+//	private static final String ONCLOGO_ATTACHMENT_FILE = "onclogosmall.jpg";
 	
-	private ONCRegions regions;
-	private PartnerDB orgs;
-	private ChildDB childDB;
+    private ONCRegions regions;
+    private PartnerDB orgs;
+    private ChildDB childDB;
 	
-	private JComboBox regionCB, statusCB, typeCB, collectionCB;
-	private JComboBox changedByCB, stoplightCB;
-	private ComboItem[] changePartItem;
-	private JComboBox changePStatusCB, changeOrnReqCB;
-	private DefaultComboBoxModel regionCBM;
-	private DefaultComboBoxModel changedByCBM;
-	private JComboBox printCB, emailCB, exportCB;
-	private JLabel lblOrnReq;
-	private ArrayList<ONCPartner> stAL;
+    private JComboBox regionCB, statusCB, typeCB, collectionCB;
+    private JComboBox changedByCB, stoplightCB;
+    private ComboItem[] changePartItem;
+    private JComboBox changePStatusCB, changeOrnReqCB;
+    private DefaultComboBoxModel regionCBM;
+    private DefaultComboBoxModel changedByCBM;
+    private JComboBox printCB, emailCB, exportCB;
+    private JLabel lblOrnReq;
+    private ArrayList<ONCPartner> stAL;
 
-	private int sortStatus = 0, sortType = 0, sortRegion = 0, sortChangedBy = 0, sortStoplight = 0;
-	private GiftCollection sortCollection = GiftCollection.Any;
+    private int sortStatus = 0, sortType = 0, sortRegion = 0, sortChangedBy = 0, sortStoplight = 0;
+    private GiftCollection sortCollection = GiftCollection.Any;
 	
-	private String[] status = {"Any","No Action Yet", "1st Email Sent", "Responded", "2nd Email Sent", "Called, Left Mssg",
+    private String[] status = {"Any","No Action Yet", "1st Email Sent", "Responded", "2nd Email Sent", "Called, Left Mssg",
 							   "Confirmed", "Not Participating"};
 	
-	private String[] types = {"Any","Business","Church","School", "Clothing", "Coat", "ONC Shopper"};
+    private String[] types = {"Any","Business","Church","School", "Clothing", "Coat", "ONC Shopper"};
 	
-	private String[] columns;
+    private String[] columns;
 
-	private JProgressBar progressBar;
-	private ONCEmailer oncEmailer;
+    private JProgressBar progressBar;
+    private ONCEmailer oncEmailer;
 	
-	SortPartnerDialog(JFrame pf)
-	{
-		super(pf);
-		this.columns = getColumnNames();
-		this.setTitle("Our Neighbor's Child - Partner Management");
+    SortPartnerDialog(JFrame pf)
+    {
+    	super(pf);
+    	this.columns = getColumnNames();
+    	this.setTitle("Our Neighbor's Child - Partner Management");
 		
-		regions = ONCRegions.getInstance();
-		orgs = PartnerDB.getInstance();
-		childDB = ChildDB.getInstance();
+    	regions = ONCRegions.getInstance();
+    	orgs = PartnerDB.getInstance();
+    	childDB = ChildDB.getInstance();
 		
-		//Get reference for data base listeners
-		UserDB userDB = UserDB.getInstance();
-		if(userDB != null)
-			userDB.addDatabaseListener(this);
+    	//Get reference for data base listeners
+    	UserDB userDB = UserDB.getInstance();
+    	if(userDB != null)
+    		userDB.addDatabaseListener(this);
 				
-		if(orgs != null)
-			orgs.addDatabaseListener(this);
+    	if(orgs != null)
+    		orgs.addDatabaseListener(this);
 		
-		if(regions != null)
-			regions.addDatabaseListener(this);
+    	if(regions != null)
+    		regions.addDatabaseListener(this);
 		
-		if(childDB != null)
-			childDB.addDatabaseListener(this);
+    	if(childDB != null)
+    		childDB.addDatabaseListener(this);
 		
-		ChildWishDB childwishDB = ChildWishDB.getInstance();
-		if(childwishDB != null)
-			childwishDB.addDatabaseListener(this);	//listen for partner gift assignment changes
+    	ChildWishDB childwishDB = ChildWishDB.getInstance();
+    	if(childwishDB != null)
+    		childwishDB.addDatabaseListener(this);	//listen for partner gift assignment changes
 		
-		//Set up the array lists
-		stAL = new ArrayList<ONCPartner>();
-//		tableRowSelectedObjectList = new ArrayList<Organization>();
+    		//Set up the array lists
+    	stAL = new ArrayList<ONCPartner>();
 				
-		//Set up the search criteria panel      
-		statusCB = new JComboBox(status);
-		statusCB.setBorder(BorderFactory.createTitledBorder("Partner Status"));
-		statusCB.addActionListener(this);
+    	//Set up the search criteria panel      
+    	statusCB = new JComboBox(status);
+    	statusCB.setBorder(BorderFactory.createTitledBorder("Partner Status"));
+    	statusCB.addActionListener(this);
 				
-		typeCB = new JComboBox(types);
-		typeCB.setBorder(BorderFactory.createTitledBorder("Partner Type"));
-		typeCB.addActionListener(this);
+    	typeCB = new JComboBox(types);
+    	typeCB.setBorder(BorderFactory.createTitledBorder("Partner Type"));
+    	typeCB.addActionListener(this);
 		
-		collectionCB = new JComboBox(GiftCollection.values());
-		collectionCB.setBorder(BorderFactory.createTitledBorder("Collection Type"));
-		collectionCB.addActionListener(this);
+    	collectionCB = new JComboBox(GiftCollection.values());
+    	collectionCB.setBorder(BorderFactory.createTitledBorder("Collection Type"));
+    	collectionCB.addActionListener(this);
 				
-		regionCBM = new DefaultComboBoxModel();
+    	regionCBM = new DefaultComboBoxModel();
     	regionCBM.addElement("Any");
-		regionCB = new JComboBox();
-		regionCB.setModel(regionCBM);
-		regionCB.setBorder(BorderFactory.createTitledBorder("Region"));
-		regionCB.addActionListener(this);
+    	regionCB = new JComboBox();
+    	regionCB.setModel(regionCBM);
+    	regionCB.setBorder(BorderFactory.createTitledBorder("Region"));
+    	regionCB.addActionListener(this);
 				
-		changedByCB = new JComboBox();
-		changedByCBM = new DefaultComboBoxModel();
-		changedByCBM.addElement("Anyone");
-		changedByCB.setModel(changedByCBM);
-		changedByCB.setPreferredSize(new Dimension(144, 56));
-		changedByCB.setBorder(BorderFactory.createTitledBorder("Changed By"));
-		changedByCB.addActionListener(this);
+    	changedByCB = new JComboBox();
+    	changedByCBM = new DefaultComboBoxModel();
+    	changedByCBM.addElement("Anyone");
+    	changedByCB.setModel(changedByCBM);
+    	changedByCB.setPreferredSize(new Dimension(144, 56));
+    	changedByCB.setBorder(BorderFactory.createTitledBorder("Changed By"));
+    	changedByCB.addActionListener(this);
 				
-//		stoplightCB = new JComboBox(stoplt);
-		stoplightCB = new JComboBox(GlobalVariablesDB.getLights());
-		stoplightCB.setPreferredSize(new Dimension(80, 56));
-		stoplightCB.setBorder(BorderFactory.createTitledBorder("Stoplight"));
-		stoplightCB.addActionListener(this);
+    	stoplightCB = new JComboBox(GlobalVariablesDB.getLights());
+    	stoplightCB.setPreferredSize(new Dimension(80, 56));
+    	stoplightCB.setBorder(BorderFactory.createTitledBorder("Stoplight"));
+    	stoplightCB.addActionListener(this);
 				
-		//Add all sort criteria components to dialog pane
-		sortCriteriaPanelTop.add(statusCB);
-		sortCriteriaPanelTop.add(typeCB);
-		sortCriteriaPanelTop.add(collectionCB);
-		sortCriteriaPanelTop.add(changedByCB);
-		sortCriteriaPanelTop.add(regionCB);
-		sortCriteriaPanelTop.add(stoplightCB);
+    	//Add all sort criteria components to dialog pane
+    	sortCriteriaPanelTop.add(statusCB);
+    	sortCriteriaPanelTop.add(typeCB);
+    	sortCriteriaPanelTop.add(collectionCB);
+    	sortCriteriaPanelTop.add(changedByCB);
+    	sortCriteriaPanelTop.add(regionCB);
+    	sortCriteriaPanelTop.add(stoplightCB);
 		        
-		//Set up the change panel holding count panel, orn assigned panel and change panel
-		itemCountPanel.setBorder(BorderFactory.createTitledBorder("Partners Meeting Criteria"));
+    	//Set up the change panel holding count panel, orn assigned panel and change panel
+    	itemCountPanel.setBorder(BorderFactory.createTitledBorder("Partners Meeting Criteria"));
 
-		JPanel ornReqPanel = new JPanel();       
-        lblOrnReq = new JLabel("0");
-        ornReqPanel.setBorder(BorderFactory.createTitledBorder("# Orn Requested"));
-        ornReqPanel.setPreferredSize(new Dimension(125, 80));
-        ornReqPanel.add(lblOrnReq);
+    	JPanel ornReqPanel = new JPanel();       
+    	lblOrnReq = new JLabel("0");
+    	ornReqPanel.setBorder(BorderFactory.createTitledBorder("# Orn Requested"));
+    	ornReqPanel.setPreferredSize(new Dimension(125, 80));
+    	ornReqPanel.add(lblOrnReq);
         
-        gbc.gridx = 1;
-        gbc.ipadx = 0;
-        gbc.weightx = 0.8;
-        changePanel.add(ornReqPanel, gbc);
+    	gbc.gridx = 1;
+    	gbc.ipadx = 0;
+    	gbc.weightx = 0.8;
+    	changePanel.add(ornReqPanel, gbc);
 
-		changePartItem = new ComboItem[8];	//Delivery status combo box list objects can be enabled/disabled
-		changePartItem[0] = new ComboItem(DEFAULT_NO_CHANGE_LIST_ITEM);
-		changePartItem[1] = new ComboItem("No Action Yet");
-		changePartItem[2] = new ComboItem("1st Email Sent");
-		changePartItem[3] = new ComboItem("Responded");  
-		changePartItem[4] = new ComboItem("2nd Email Sent");
-		changePartItem[5] = new ComboItem("Called, Left Mssg");  
-		changePartItem[6] = new ComboItem("Confirmed");
-		changePartItem[7] = new ComboItem("Not Participating");   
+    	changePartItem = new ComboItem[8];	//Delivery status combo box list objects can be enabled/disabled
+    	changePartItem[0] = new ComboItem(DEFAULT_NO_CHANGE_LIST_ITEM);
+    	changePartItem[1] = new ComboItem("No Action Yet");
+    	changePartItem[2] = new ComboItem("1st Email Sent");
+    	changePartItem[3] = new ComboItem("Responded");  
+    	changePartItem[4] = new ComboItem("2nd Email Sent");
+    	changePartItem[5] = new ComboItem("Called, Left Mssg");  
+    	changePartItem[6] = new ComboItem("Confirmed");
+    	changePartItem[7] = new ComboItem("Not Participating");   
 				
-		changePStatusCB = new JComboBox(changePartItem);
-		changePStatusCB.setRenderer(new ComboRenderer());
-		changePStatusCB.setPreferredSize(new Dimension(172, 56));
-		changePStatusCB.setBorder(BorderFactory.createTitledBorder("Change Partner Status"));
-		changePStatusCB.addActionListener(new ComboListener(changePStatusCB));	//Prevents selection of disabled combo box items
-		changePStatusCB.addActionListener(this);	//Used to check for enabling the Apply Changes button
+    	changePStatusCB = new JComboBox(changePartItem);
+    	changePStatusCB.setRenderer(new ComboRenderer());
+    	changePStatusCB.setPreferredSize(new Dimension(172, 56));
+    	changePStatusCB.setBorder(BorderFactory.createTitledBorder("Change Partner Status"));
+    	changePStatusCB.addActionListener(new ComboListener(changePStatusCB));	//Prevents selection of disabled combo box items
+    	changePStatusCB.addActionListener(this);	//Used to check for enabling the Apply Changes button
 				
-		String[] choices = {DEFAULT_NO_CHANGE_LIST_ITEM, "25", "50", "75", "100",
+    	String[] choices = {DEFAULT_NO_CHANGE_LIST_ITEM, "25", "50", "75", "100",
 									"125", "150", "175", "200", "250", "300", "400", "500"};
-		changeOrnReqCB = new JComboBox(choices);
-		changeOrnReqCB.setEditable(true);
-		changeOrnReqCB.setPreferredSize(new Dimension(192, 56));
-		changeOrnReqCB.setBorder(BorderFactory.createTitledBorder("Change # Ornaments Req"));
-		changeOrnReqCB.addActionListener(this);
+    	changeOrnReqCB = new JComboBox(choices);
+    	changeOrnReqCB.setEditable(true);
+    	changeOrnReqCB.setPreferredSize(new Dimension(192, 56));
+    	changeOrnReqCB.setBorder(BorderFactory.createTitledBorder("Change # Ornaments Req"));
+    	changeOrnReqCB.addActionListener(this);
 
-		//Add the components to the change data panel			
-		changeDataPanel.add(changePStatusCB);
-		changeDataPanel.add(changeOrnReqCB);
-		changeDataPanel.setBorder(BorderFactory.createTitledBorder("Change Select Partner Data"));
+    	//Add the components to the change data panel			
+    	changeDataPanel.add(changePStatusCB);
+    	changeDataPanel.add(changeOrnReqCB);
+    	changeDataPanel.setBorder(BorderFactory.createTitledBorder("Change Select Partner Data"));
 		
-		gbc.gridx = 2;
-        gbc.ipadx = 0;
-        gbc.weightx = 1.0;
-        changePanel.add(changeDataPanel, gbc);
+    	gbc.gridx = 2;
+    	gbc.ipadx = 0;
+    	gbc.weightx = 1.0;
+    	changePanel.add(changeDataPanel, gbc);
         
-		//Set up the control panel that goes in the bottom panel with border layout
+    	//Set up the control panel that goes in the bottom panel with border layout
         JPanel cntlPanel = new JPanel();
       	cntlPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
       	
       	String[] exportChoices = {
-      							"Export Data",
-      							"Gmail Contact List",
-      							"2016 Partner Info",
-      							"2016 Partner Performance",
-								};
+      				"Export Data",
+      				"Gmail Contact List",
+      				"2016 Partner Info",
+      				"2016 Partner Performance",
+				};
       	exportCB = new JComboBox(exportChoices);
       	exportCB.setPreferredSize(new Dimension(136, 28));
       	exportCB.setEnabled(false);
       	exportCB.addActionListener(this);
 		
-		//Set up the email progress bar
-		progressBar = new JProgressBar(0, 100);
+      	//Set up the email progress bar
+      	progressBar = new JProgressBar(0, 100);
         progressBar.setValue(0);
         progressBar.setStringPainted(true);
         progressBar.setVisible(false);
 				
-		String[] emailChoices = {
-								"Email", "2016 Season Start Email",
-								"2016 Clothing Donor Email",
-								"2016 Clothing Not Too Late Email",
-								"2016 Gift Drop Off Email",
-								"2016 Clothing Drop Off Email"
-								};
-		emailCB = new JComboBox(emailChoices);
-		emailCB.setPreferredSize(new Dimension(136, 28));
-		emailCB.setEnabled(false);
-		emailCB.addActionListener(this);
+        String[] emailChoices = {
+				"Email", "2017 Church Season Email",
+				"2017 Bus/Schoool Season Email",
+				};
+        emailCB = new JComboBox(emailChoices);
+        emailCB.setPreferredSize(new Dimension(136, 28));
+        emailCB.setEnabled(false);
+        emailCB.addActionListener(this);
 			    
-		String[] printChoices = {"Print", "Print Listing", "Print Partner Info"};
-		printCB = new JComboBox(printChoices);
-		printCB.setPreferredSize(new Dimension(136, 28));
-		printCB.setEnabled(false);
-		printCB.addActionListener(this);
+        String[] printChoices = {"Print", "Print Listing", "Print Partner Info"};
+        printCB = new JComboBox(printChoices);
+        printCB.setPreferredSize(new Dimension(136, 28));
+        printCB.setEnabled(false);
+        printCB.addActionListener(this);
   
-		cntlPanel.add(progressBar);
-		cntlPanel.add(exportCB);
-		cntlPanel.add(emailCB);
-		cntlPanel.add(printCB);
+        cntlPanel.add(progressBar);
+        cntlPanel.add(exportCB);
+        cntlPanel.add(emailCB);
+        cntlPanel.add(printCB);
 		
-		bottomPanel.add(cntlPanel, BorderLayout.CENTER);
+        bottomPanel.add(cntlPanel, BorderLayout.CENTER);
 
-		//Add the change and bottom panels to the dialog pane
-		this.add(changePanel);
-	    this.add(bottomPanel);
+        //Add the change and bottom panels to the dialog pane
+        this.add(changePanel);
+        this.add(bottomPanel);
 	        
-		pack();
-	}
-/*	
-	void displaySortTable()
-	{
-		bChangingTable = true;	//don't process table messages while being changed
-		
-		while (sortTableModel.getRowCount() > 0)	//Clear the current table
-			sortTableModel.removeRow(0);
-		
-		//Sort table empty, disable print
-		printCB.setEnabled(false);
-		emailCB.setEnabled(false);
-		btnExport.setEnabled(false);
-		
-		for(Organization o:stAL)	//Build the new table
-			sortTableModel.addRow(getTableRow(o));
-		
-		//If the sort table has data, enable printing listing info
-		if(!stAL.isEmpty())
-			printCB.setEnabled(true);
-				
-		bChangingTable = false;	
-	}
-*/	
-	@Override
-	public Object[] getTableRow(ONCObject obj)
-	{
-		ONCPartner o = (ONCPartner) obj;
-		SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yy");
-		Object[] sorttablerow = {o.getLastName(), status[o.getStatus()+1], types[o.getType()],
-								 o.getGiftCollectionType().toString(),
-								 Integer.toString(o.getNumberOfOrnamentsRequested()),
-								 Integer.toString(o.getNumberOfOrnamentsAssigned()),
-								 o.getDeliverTo(),
-								 sdf.format(o.getDateChanged().getTime()),
-								 o.getChangedBy(),
-								 regions.getRegionID(o.getRegion()),
-//								 stoplt[o.getStoplightPos()+1].substring(0,1)};
-		 						 gvs.getImageIcon(23 + o.getStoplightPos())};
-		return sorttablerow;
-	}
+        pack();
+    }
+
+    @Override
+    public Object[] getTableRow(ONCObject obj)
+    {
+    	ONCPartner o = (ONCPartner) obj;
+    	SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yy");
+    	Object[] sorttablerow = {o.getLastName(), status[o.getStatus()+1], types[o.getType()],
+				o.getGiftCollectionType().toString(),
+				Integer.toString(o.getNumberOfOrnamentsRequested()),
+				Integer.toString(o.getNumberOfOrnamentsAssigned()),
+				o.getDeliverTo(),
+				sdf.format(o.getDateChanged().getTime()),
+				o.getChangedBy(),
+				regions.getRegionID(o.getRegion()),
+		 		gvs.getImageIcon(23 + o.getStoplightPos())};
+    	return sorttablerow;
+    }
 	
-	public void buildTableList(boolean bPreserveSelections)
-	{
-		tableRowSelectedObjectList.clear();
-		if(bPreserveSelections)
-			archiveTableSelections(stAL);
-		else
-			tableSortCol = -1;
+    public void buildTableList(boolean bPreserveSelections)
+    {
+    	tableRowSelectedObjectList.clear();
+    	if(bPreserveSelections)
+    		archiveTableSelections(stAL);
+    	else
+    		tableSortCol = -1;
 		
-		stAL.clear();	//Clear the prior table data array list
-		int totalornreq = 0;	//total number of orn requested in table
+    	stAL.clear();	//Clear the prior table data array list
+    	int totalornreq = 0;	//total number of orn requested in table
 		
-		for(ONCPartner o : orgs.getList())
-		{
-			if(doesStatusMatch(o.getStatus()) &&
-				doesTypeMatch(o.getType()) &&
-				 doesCollectionMatch(o.getGiftCollectionType()) && 
-				  doesRegionMatch(o.getRegion()) &&
-				   doesChangedByMatch(o.getStoplightChangedBy()) &&
-				    doesStoplightMatch(o.getStoplightPos()))	//Search criteria pass
-				{
-					stAL.add(o);
-					totalornreq += o.getNumberOfOrnamentsRequested();
-				}
-		}
+    	for(ONCPartner o : orgs.getList())
+    	{
+    		if(doesStatusMatch(o.getStatus()) &&
+    			doesTypeMatch(o.getType()) &&
+    			 doesCollectionMatch(o.getGiftCollectionType()) && 
+    			  doesRegionMatch(o.getRegion()) &&
+    			   doesChangedByMatch(o.getStoplightChangedBy()) &&
+    				doesStoplightMatch(o.getStoplightPos()))	//Search criteria pass
+    		{
+    			stAL.add(o);
+    			totalornreq += o.getNumberOfOrnamentsRequested();
+    		}
+    	}
 		
-		lblNumOfTableItems.setText(Integer.toString(stAL.size()));
-		lblOrnReq.setText(Integer.toString(totalornreq));
-		displaySortTable(stAL, true, tableRowSelectedObjectList);		//Display the table after table array list is built						
-	}
-/*	
-	void archiveTableSelections(ArrayList<? extends ONCObject> stAL)
-	{
-		tableRowSelectedObjectList.clear();
+    	lblNumOfTableItems.setText(Integer.toString(stAL.size()));
+    	lblOrnReq.setText(Integer.toString(totalornreq));
+    	displaySortTable(stAL, true, tableRowSelectedObjectList);		//Display the table after table array list is built						
+    }
+
+    @Override
+    int sortTableList(int col)
+    {
+    	archiveTableSelections(stAL);
 		
-		int[] row_sel = sortTable.getSelectedRows();
-		for(int i=0; i<row_sel.length; i++)
-		{
-			Organization o = (Organization) stAL.get(row_sel[i]);
-			tableRowSelectedObjectList.add(o);
-		}
-	}
-*/	
-	@Override
-	int sortTableList(int col)
-	{
-		archiveTableSelections(stAL);
-		
-		if(orgs.sortDB(stAL, columns[col]))
-		{
-			displaySortTable(stAL, false, tableRowSelectedObjectList);
-			return col;
-		}
-		else
-			return -1;
-	}
+    	if(orgs.sortDB(stAL, columns[col]))
+    	{
+    		displaySortTable(stAL, false, tableRowSelectedObjectList);
+    		return col;
+    	}
+    	else
+    		return -1;
+    }
 	
 	@Override
 	void setEnabledControls(boolean tf)
@@ -471,31 +431,39 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 			attachmentAL.add(new ONCEmailAttachment(PHOTO_ATTACHMENT_1_FILE, cid0, MimeBodyPart.INLINE));
 			attachmentAL.add(new ONCEmailAttachment(PHOTO_ATTACHMENT_2_FILE, cid1, MimeBodyPart.INLINE));
 		}
-		else if(emailType == 2)	//2016 Clothing Donor Email
+		if(emailType == 2)
 		{
-			subject = "Greetings from Our Neighbors Child";
+			subject = "Greetings From Our Neighbor's Child";
 			cid0 = ContentIDGenerator.getContentId();
-			attachmentAL.add(new ONCEmailAttachment(ONCLOGO_ATTACHMENT_FILE, cid0, MimeBodyPart.INLINE));
-		}		
+			cid1 = ContentIDGenerator.getContentId();
+			attachmentAL.add(new ONCEmailAttachment(PHOTO_ATTACHMENT_1_FILE, cid0, MimeBodyPart.INLINE));
+			attachmentAL.add(new ONCEmailAttachment(PHOTO_ATTACHMENT_2_FILE, cid1, MimeBodyPart.INLINE));
+		}
+//		else if(emailType == 2)	//2016 Clothing Donor Email
+//		{
+//			subject = "Greetings from Our Neighbors Child";
+//			cid0 = ContentIDGenerator.getContentId();
+//			attachmentAL.add(new ONCEmailAttachment(ONCLOGO_ATTACHMENT_FILE, cid0, MimeBodyPart.INLINE));
+//		}		
 //		else if(emailType == 3)	//2016 Clothing Donor Email
 //		{
 //			cid0 = ContentIDGenerator.getContentId();
 //			attachmentAL.add(new ONCEmailAttachment(ONCLOGO_ATTACHMENT_FILE, cid0, MimeBodyPart.INLINE));
 //		}
-		else if(emailType == 3)	//Clothing Donor Not Too Late Email
-		{
-			subject = "ONC - children's wishes still available!";
+//		else if(emailType == 3)	//Clothing Donor Not Too Late Email
+//		{
+//			subject = "ONC - children's wishes still available!";
 //			cid0 = ContentIDGenerator.getContentId();
 //			attachmentAL.add(new ONCEmailAttachment(ONCLOGO_ATTACHMENT_FILE, cid0, MimeBodyPart.INLINE));
-		}		
-		else if(emailType == 4)	//Business, Church & School Drop Off Reminder Email
-		{
-			subject = "ONC Gift Drop Off Times and Location";
-		}
-		else if(emailType == 5)	//Coat & Clothing Drop Off Reminder Email
-		{
-			subject = "ONC Clothing Drop Off Times and Location";
-		}		
+//		}		
+//		else if(emailType == 4)	//Business, Church & School Drop Off Reminder Email
+//		{
+//			subject = "ONC Gift Drop Off Times and Location";
+//		}
+//		else if(emailType == 5)	//Coat & Clothing Drop Off Reminder Email
+//		{
+//			subject = "ONC Clothing Drop Off Times and Location";
+//		}		
 		//For each organization selected, create the email body and recipient information in an
 		//ONCEMail object and add it to the emailAL
 		int[] row_sel = sortTable.getSelectedRows();
@@ -505,17 +473,19 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 			ONCPartner o = stAL.get(row_sel[row]);
 			
 			//Create the email body and potentially subject
-	        if(emailType == 1)
-	        	emailBody = create2016SeasonOrganizationEmailBody(o, cid0, cid1);
-	        else if(emailType == 2)
-	        {
-	        	//get the clothing donor's first name
-	        	String[] names = o.getLastName().split(",");
-	        	if(names.length == 2)
-	        		emailBody = create2016ClothingDonorEmailBody(names[1].trim(), cid0);
-	        	else
-	        		emailBody = create2016ClothingDonorEmailBody("ONC Donor", cid0);
-	        }
+	        if(emailType == 1)	//Church Email
+	        	emailBody = create2017SeasonChurchEmailBody(o, cid0, cid1);
+	        if(emailType == 2)	//Business and School Email
+	        	emailBody = create2017SeasonBusSchoolEmailBody(o, cid0, cid1);
+//	        else if(emailType == 2)
+//	        {
+//	        	//get the clothing donor's first name
+//	        	String[] names = o.getLastName().split(",");
+//	        	if(names.length == 2)
+//	        		emailBody = create2016ClothingDonorEmailBody(names[1].trim(), cid0);
+//	        	else
+//	        		emailBody = create2016ClothingDonorEmailBody("ONC Donor", cid0);
+//	        }
 //	        else if(emailType == 3)
 //	        {	
 //	        	//get the clothing donor's first name
@@ -527,19 +497,19 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 //	        	
 //	        	emailBody = create2015ClothingDonorEmailBody(cid0);
 //	        }
-	        else if(emailType == 3)
-	        	emailBody = create2016ClothingDonorNotTooLateEmailBody();
-	        else if(emailType == 4)
-	        	emailBody = create2016GiftDropOffEmailBody();
-	        else if(emailType == 5)
-	        {
-	        	//get the clothing donor's first name
-	        	String[] names = o.getLastName().split(",");
-	        	if(names.length == 2)
-	        		emailBody = create2016ClothingDropOffEmailBody(names[1].trim());
-	        	else
-	        		emailBody = create2016ClothingDropOffEmailBody("ONC Gift Partner");
-	        }
+//	        else if(emailType == 3)
+//	        	emailBody = create2016ClothingDonorNotTooLateEmailBody();
+//	        else if(emailType == 4)
+//	        	emailBody = create2016GiftDropOffEmailBody();
+//	        else if(emailType == 5)
+//	        {
+//	        	//get the clothing donor's first name
+//	        	String[] names = o.getLastName().split(",");
+//	        	if(names.length == 2)
+//	        		emailBody = create2016ClothingDropOffEmailBody(names[1].trim());
+//	        	else
+//	        		emailBody = create2016ClothingDropOffEmailBody("ONC Gift Partner");
+//	        }
 	        
 	        //Create To: recipients. If the partner has a second contact with a valid email address, the
 	        //To: field will contain both email contacts. If there isn't a valid second contact email
@@ -549,38 +519,42 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
       
 	        //*********** THIS BLOCK OF CODE IS FOR REAL EMAILS *************************	         
 	        if(o != null && o.getContact_email()!= null && o.getContact_email().length() > MIN_EMAIL_ADDRESS_LENGTH)
-	        	toAddressList.add(new EmailAddress(o.getContact_email(), o.getContact()));
+	            toAddressList.add(new EmailAddress(o.getContact_email(), o.getContact()));
 	        
 	        if(o != null && o.getContact2_email()!= null && o.getContact2_email().length() > MIN_EMAIL_ADDRESS_LENGTH)
-	        	toAddressList.add(new EmailAddress(o.getContact2_email(), o.getContact2()));	  	        	
+	            toAddressList.add(new EmailAddress(o.getContact2_email(), o.getContact2()));	  	        	
      
 	        emailAL.add(new ONCEmail(subject, emailBody, toAddressList));     
 		}
 		
 		//Create the from address string array
-		EmailAddress fromAddress;
-		if(emailType == 2 || emailType == 3 || emailType == 5)
-			fromAddress = new EmailAddress(CLOTHING_PARTNER_EMAIL_SENDER_ADDRESS, "Our Neighbor's Child - Stephanie Somers");
-		else
-			fromAddress = new EmailAddress(GIFT_PARTNER_EMAIL_SENDER_ADDRESS, "Our Neighbor's Child");
+		EmailAddress fromAddress = null;
+		if(emailType == 1)
+		    fromAddress = new EmailAddress(GIFT_CHURCH_EMAIL_SENDER_ADDRESS, "Our Neighbor's Child");
+		else if(emailType == 2)
+		    fromAddress = new EmailAddress(GIFT__BUS_SCHOOL_PARTNER_EMAIL_SENDER_ADDRESS , "Our Neighbor's Child");
 		
 		//Create the blind carbon copy list of EmailAddress objects
 		ArrayList<EmailAddress> bccList = new ArrayList<EmailAddress>();
-		if(emailType == 2 || emailType == 3 || emailType == 5)
-			bccList.add(new EmailAddress(CLOTHING_PARTNER_EMAIL_SENDER_ADDRESS, "Our Neighbor's Child - Stephanie Somers"));
-		else
-			bccList.add(new EmailAddress(GIFT_PARTNER_EMAIL_SENDER_ADDRESS, "Partner Contact"));
+		if(emailType == 1)
+		    bccList.add(new EmailAddress(GIFT_CHURCH_EMAIL_SENDER_ADDRESS, "Partner Contact"));
+		else if(emailType == 2)
+		    bccList.add(new EmailAddress(GIFT__BUS_SCHOOL_PARTNER_EMAIL_SENDER_ADDRESS , "Partner Contact"));
 		
 		//Create mail server credentials, then the mailer background task and execute it
-		ServerCredentials creds;
-		if(emailType == 2 || emailType == 3 || emailType == 5)
-			creds = new ServerCredentials("smtp.gmail.com", "clothing@ourneighborschild.org", "crazyelf");
-		else
-			creds = new ServerCredentials("smtp.gmail.com", "partnercontact@ourneighborschild.org", "crazyelf");
+		ServerCredentials creds = null;
+		if(emailType == 1)
+		    creds = new ServerCredentials("smtp.gmail.com", "partnercontact@ourneighborschild.org", "crazyelf");
+		else if(emailType == 2)
+		    creds = new ServerCredentials("smtp.gmail.com", "partnercontact@ourneighborschild.org", "crazyelf");
 	
-	    oncEmailer = new ONCEmailer(this, progressBar, fromAddress, bccList, emailAL, attachmentAL, creds);
-	    oncEmailer.addPropertyChangeListener(this);
-	    oncEmailer.execute();
+	    if(fromAddress != null && creds != null)
+	    {
+	    	oncEmailer = new ONCEmailer(this, progressBar, fromAddress, bccList, emailAL, attachmentAL, creds);
+	    	oncEmailer.addPropertyChangeListener(this);
+	    	oncEmailer.execute();
+	    }
+	    
 	    emailCB.setEnabled(false);		
 	}
 /*	
@@ -653,7 +627,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		
 		return msg;
 	}
-*/	
+	
 	String create2016ClothingDonorEmailBody(String donorFN, String cid0)
 	{	
 		String msg = String.format("<html><body><div>" +
@@ -725,6 +699,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		
 		return msg;
 	}
+	
 	String create2016ClothingDropOffEmailBody(String partnerName)
 	{
 		String msg = String.format("<html><body><div>"
@@ -759,7 +734,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		return msg;
 	}
 	
-/*	
+	
 	String createDropOffReminderEmailBody(String cid0)
 	{
 		String msg = String.format("<html><body>" +
@@ -822,7 +797,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		
 		return msg;
 	}
-*/	
+	
 	String create2016ClothingDonorNotTooLateEmailBody()
 	{
 		String msg = String.format("<html><body><div>" +
@@ -846,7 +821,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		
 		return msg;
 	}
-/*	
+	
 	String create2015GivingTreeEmailBody()
 	{
 		String msg = String.format("<html><body>" +
@@ -932,7 +907,147 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		return msg;
 	}
 */
-	String create2016SeasonOrganizationEmailBody(ONCPartner o, String cid0, String cid1)
+	String create2017SeasonChurchEmailBody(ONCPartner o, String cid0, String cid1)
+	{
+		 //Create the variables for the body of the email     
+        String name = o.getLastName();
+        
+        //The next section of code is a temporary fix until the ONCPartner object is updated
+        //to split the contact and contact2 name fields into contact fn, contact ln
+        //contact2 fn and contact2 ln fields.
+        String fn = "";
+        if(o.getContact().length() > 1)
+        {
+        	 String[] names1 = o.getContact().split(" ");
+        	if(names1.length == 1 || names1.length == 2)
+        		fn = names1[0];
+        	else
+        		fn = names1[0] + " " + names1[1];
+		}
+        
+        String fn2 = "";
+        if(o.getContact2().length() > 1)
+        {
+        	String[] names2 = o.getContact2().split(" ");
+        	if(names2.length == 1 || names2.length == 2)
+        		fn2 = names2[0];
+        	else
+        		fn2 = names2[0] + " " + names2[1];
+        }
+        
+        if(fn.length() <= 1 && fn2.length() > 1)	//contact 1 empty, contact2 exists
+        	fn = fn2;
+        else if(fn.length() > 1 && fn2.length() > 1)	//both contacts exist
+        	fn = fn.concat(" & " + fn2);        
+        //End of temporary code to handle contact name splitting
+   
+        String address = o.getHouseNum() + " " + o.getStreet() + " " + o.getUnit() + " " +
+        				 o.getCity() + ", VA " + o.getZipCode();
+        String contact = o.getContact();
+        String busphone = o.getHomePhone();
+       
+        //Pick the 1st contact phone if it is valid, else try the organization phone number
+        String contactphone = "";
+        if(o.getContact_phone().length() >= MIN_PHONE_NUMBER_LENGTH)
+        	contactphone = o.getContact_phone();
+        else if(o.getHomePhone().length() >= MIN_PHONE_NUMBER_LENGTH)
+        	contactphone = o.getHomePhone();	
+        String contactemail = o.getContact_email();
+        
+        //Pick the 2nd contact phone if it is valid, else try the organization phone number
+        String contact2 = o.getContact2().trim();
+        String contact2phone = "";
+        if(o.getContact2_phone().length() >= MIN_PHONE_NUMBER_LENGTH)
+        	contact2phone = o.getContact2_phone();
+        else if(o.getHomePhone().length() >= MIN_PHONE_NUMBER_LENGTH)
+        	contact2phone = o.getHomePhone();	
+        String contact2email = o.getContact2_email();
+        
+        String giftCollectionType = o.getGiftCollectionType().toString();
+        int orn_requested = o.getPriorYearRequested();
+//      String specNotes = o.getSpecialNotes();
+//      int orn_receivedByDeadline = o.getPriorYearReceived();
+        
+//        String notes = "None";
+//        if(o.getSpecialNotes().length() > 1)
+//        	notes = o.getSpecialNotes();
+        
+        String msgtop = String.format("<html><body><div>"
+        		+ "<p>Dear %s,</p>"
+        		+ "<p>It's hard to believe a quarter of a century has passed since we first "
+        		+ "gathered gifts for a handful of local families in need.</p>"
+        		+ "<p>With your continued and valued support, your <b>all-volunteer</b> team at "
+        		+ "<b>Our Neighbor's Child</b> is gearing up to coordinate "
+        		+ "a 25<sup>th</sup> year of holiday assistance for our less fortunate neighbors.</p>"
+        		+ "<p>This effort is only possible when our community "
+        		+ "comes together and through the consistent, generous support of ONC partners like %s.</p>"
+        		+ "<p>Hundreds of families in our area still struggle to meet their most basic needs. "
+        		+ "When we help out with children's gifts at the holidays, it allows many of these "
+        		+ "families to direct their stretched financial resources toward essential housing costs, "
+        		+ "utilities and critically important food needs.</p>"
+        		+ "<p>We also hope participating makes a difference in your life, and the lives of "
+        		+ "others fortunate and generous enough to give.</p>"
+        		+ "<p><b>Would you mind taking a moment to review our notes from last year? "
+        		+ "Accurate information is KEY to our successful partnership:</b></p>"
+        		+ "<font color=\"red\">"
+        		+ "&emsp;ONC Gift Partner:  %s<br>"
+        		+ "&emsp;Address:  %s<br>" 
+        		+ "&emsp;Phone #:  %s<br>" 
+        		+ "&emsp;Contact:  %s<br>" 
+        		+ "&emsp;Phone #:  %s<br>" 
+        		+ "&emsp;Email:  %s</font><br>", fn, name, name, address, busphone, contact, contactphone, contactemail);
+        
+        //Create the middle part of the message if 2nd contact exists
+        String msgmid = "";
+        if(contact2.length() > MIN_NAME_LENGTH)
+        {
+        	msgmid = String.format(
+        		"<font color=\"red\">" +
+        		"&emsp;Contact:  %s<br>" +
+        		"&emsp;Phone #:  %s<br>" +
+        		"&emsp;Email:  %s</font><br>", contact2, contact2phone, contact2email);
+        }
+        
+        //Create the bottom part of the text part of the email using html
+        String msgbot = String.format(
+        		"<font color=\"red\">"
+        		+ "&emsp;Gift Collection Type: %s<br>"
+        		+ "&emsp;Ornaments Requested in 2015:  %d<br>"
+//        		+ "&emsp;Gifts Received By Deadline in 2014:  %d<br>"
+        		+ "&emsp;Special Notes or Instructions:</font><br>"
+        		+ "<p><b>Please reply at your earliest convenience with any corrections, updates or "
+        		+ "questions.</b></p>"
+        		+ "<p>This is my third year as ONC's Gift Partner Coordinator and I hope you'll feel "
+        		+ "free to contact me with questions at any time.</p>"
+        		+ "<p>Here are a few important dates: Gift wish \"ornaments\" will be delivered "
+        		+ "on Wednesday, November 16th.</p>"
+        		+ "<p>Gift drop-off dates will be Sunday, Monday and Tuesday, December 11, 12, and 13. "
+        		+ "Delivery to families' homes will be Sunday, December 18. Churches with space or "
+        		+ "storage concerns may make arrangements for early drop-off by appointment.</p>"
+        		+ "<p>I've included a few photos from prior seasons and hope you'll visit our website for more photos "
+        		+ "and information on Our Neighbor's Child: <a href=\"http://www.ourneighborschild.org\">www.ourneighborschild.org</a>. "
+        		+ "We welcome you and anyone associated with your organization to join us in other "
+        		+ "volunteer activities as well.</p>"
+        		+ "<p>Though the number of families needing holiday assistance in our community has "
+        		+ "grown exponentially in 25 years, ONC has continued as an ALL volunteer "
+        		+ "organization with EVERY donation dollar used to provide a gift for a child in need.</p>"
+        		+ "<p>We are deeply grateful for your support and look forward to working with you "
+        		+ "again this holiday season!</p>"
+        		+ "<p>Fondly,<br><br>"
+        		+ "Denise McInerney<br>"
+        		+ "Gift Partner Coordinator<br>"
+        		+ "Our Neighbor's Child<br>"
+        		+ "P.O. Box 276<br>"
+        		+ "Centreville, VA  20120<br>" 
+        		+ "<a href=\"http://www.ourneighborschild.org\">www.ourneighborschild.org</a><br><br></div></p>"
+        		+ "<p><div><img src=\"cid:" + cid0 + "\" /></div></p>"
+        		+ "<p><div><img src=\"cid:" + cid1 + "\" /></div></p>"
+        		+ "</body></html>", giftCollectionType, orn_requested);
+        
+        return msgtop + msgmid + msgbot;
+	}
+	
+	String create2017SeasonBusSchoolEmailBody(ONCPartner o, String cid0, String cid1)
 	{
 		 //Create the variables for the body of the email     
         String name = o.getLastName();
@@ -1440,7 +1555,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 				onPrintPartnerInfo();
 			}
 		}
-		else if(e.getSource() == emailCB && emailCB.getSelectedIndex() > 0 && emailCB.getSelectedIndex() < 10)
+		else if(e.getSource() == emailCB && emailCB.getSelectedIndex() > 0 && emailCB.getSelectedIndex() < 3)
 		{
 			//Confirm with the user that the deletion is really intended
 			String confirmMssg = "Are you sure you want to send " + 
@@ -1687,6 +1802,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 	
 	@Override
 	boolean isONCNumContainerEmpty() { return false; }
+	
 	@Override
 	void initializeFilters() {
 		// TODO Auto-generated method stub

@@ -11,7 +11,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 public abstract class EntityDialog extends JDialog implements ActionListener, DatabaseListener,
-																EntitySelectionListener
+								EntitySelectionListener
 {
 	/**
 	 * Implements an abstract class for the editor dialogs
