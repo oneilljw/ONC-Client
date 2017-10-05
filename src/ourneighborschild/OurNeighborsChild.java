@@ -149,7 +149,7 @@ public class OurNeighborsChild
         {
         	String mssg = "<html>Server connection could not established,<br>"
         					+ "please contact the ONC IT director</html>";
-        	JOptionPane.showMessageDialog(oncFrame, mssg, "ONC Server Connecton Failure", JOptionPane.ERROR_MESSAGE);
+        	JOptionPane.showMessageDialog(oncFrame, mssg, "ONC Server Connection Failure", JOptionPane.ERROR_MESSAGE);
         	System.exit(0);
         }
 //      else
@@ -182,7 +182,7 @@ public class OurNeighborsChild
 		
 		//if we get here, the server has authenticated this client's userID and password
 		//must check to see if the password needs to be changed, if so, force the change.
-		//if password change isnt required, check to see if user should review their profile.
+		//if password change isn't required, check to see if user should review their profile.
 		ONCUser user = UserDB.getInstance().setLoggedInUser(authDlg.getUser());
 		if(user.changePasswordRqrd() && !dlgManager.onChangePassword())
 			System.exit(0);
