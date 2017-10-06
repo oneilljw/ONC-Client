@@ -83,11 +83,11 @@ public class ONCEmailer extends SwingWorker<Void, Void> implements TransportList
         }
         catch (AuthenticationFailedException aex) 
         {
-        	String errMsg = String.format("Mail Server Login Failed: server = %s, usderID = %s, pw = %s", 
+        	String errMsg = String.format("Mail Server Login Failed: server= %s, username= %s, pw= %s", 
         					credentials.getServerName(), credentials.getUserID(), credentials.getPassword());
-        	JOptionPane.showMessageDialog(parent, errMsg, "Mail Server Authtication Exception", 
+        	JOptionPane.showMessageDialog(parent, errMsg, "Mail Server Authentication Exception", 
         									JOptionPane.ERROR_MESSAGE);
-			aex.printStackTrace();
+			return;
         }
 		
         //for each email in the email list, create a MimeMessage and send the email
