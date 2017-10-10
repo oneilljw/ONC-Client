@@ -233,8 +233,8 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 				
         String[] emailChoices = {
 								"Email",
-								"2017 Season: Church Email",
-								"2017 Season: Bus/Schoool Email"
+								"2017 Season: Church/School Email",
+								"2017 Season: Business Email"
 								};
         emailCB = new JComboBox(emailChoices);
         emailCB.setPreferredSize(new Dimension(136, 28));
@@ -424,7 +424,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		String emailBody = null, subject = null;
 		
 		//Create the subject and attachment array list
-		if(emailType == 1)	//church email
+		if(emailType == 1)	//church & school email
 		{
 			subject = "Greetings From Our Neighbor's Child";
 			cid0 = ContentIDGenerator.getContentId();
@@ -432,7 +432,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 			attachmentAL.add(new ONCEmailAttachment(PHOTO_ATTACHMENT_1_FILE, cid0, MimeBodyPart.INLINE));
 			attachmentAL.add(new ONCEmailAttachment(PHOTO_ATTACHMENT_2_FILE, cid1, MimeBodyPart.INLINE));
 		}
-		if(emailType == 2)
+		else if(emailType == 2) //business email
 		{
 			subject = "Greetings From Our Neighbor's Child";
 			cid0 = ContentIDGenerator.getContentId();
@@ -1037,7 +1037,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
         		+ "grown exponentially in 26 years, ONC has continued as an ALL volunteer "
         		+ "organization with EVERY donation dollar going directly to gifts delivered to a child in need.</p>"
         		+ "<p>We are deeply grateful for your support and look forward to working with you "
-        		+ "again this holiday season! Please feel free to contact me with any quetions at 703-615-1934.</p>"
+        		+ "again this holiday season! Please feel free to contact me with any questions at 703-615-1934.</p>"
         		+ "<p>Sincerely,<br><br>"
         		+ "Diane Church<br>"
         		+ "Gift Partner Coordinator<br>"

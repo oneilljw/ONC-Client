@@ -239,8 +239,8 @@ public class ONCPartner extends ONCEntity
 
 	//getters
 	public int getStatus()	{ return status; }
-	int getType()		{ return type; }
-	GiftCollection getGiftCollectionType() {return collection; }
+	public int getType()	{ return type; }
+	public GiftCollection getGiftCollectionType() {return collection; }
 	public String getLastName()	{ return lastName; }
 	public String getHouseNum()	{ return houseNum; }
 	public String getStreet()	{return street; }
