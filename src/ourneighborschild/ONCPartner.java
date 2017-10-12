@@ -116,7 +116,7 @@ public class ONCPartner extends ONCEntity
 		pyReceivedAfterDeadline = 0;
 	}
 	
-	ONCPartner(int orgid, Date date, String changedBy, int slPos, String slMssg, String slChangedBy,
+	public ONCPartner(int orgid, Date date, String changedBy, int slPos, String slMssg, String slChangedBy,
 			int status, int type, GiftCollection collection, String name, String streetnum, String streetname,
 			String unit, String city, String zipcode, String phone, int orn_req, String other, 
 			String deliverTo, String specialNotes, String contact, String contact_email,
