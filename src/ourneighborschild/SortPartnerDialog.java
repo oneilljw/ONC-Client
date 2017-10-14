@@ -55,8 +55,8 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
     private static final int MIN_PHONE_NUMBER_LENGTH = 10;
     private static final int MIN_NAME_LENGTH = 2;
     private static final int MIN_EMAIL_ADDRESS_LENGTH = 2;
-    private static final String GIFT__BUS_SCHOOL_PARTNER_EMAIL_SENDER_ADDRESS = "partnercontact@ourneighborschild.org";
-    private static final String GIFT_CHURCH_EMAIL_SENDER_ADDRESS = "GiftCoordinator@ourneighborschild.org";;
+    private static final String GIFT__BUSINESS_PARTNER_EMAIL_SENDER_ADDRESS = "partnercontact@ourneighborschild.org";
+    private static final String GIFT_CHURCH_SCHOOL_EMAIL_SENDER_ADDRESS = "GiftCoordinator@ourneighborschild.org";;
 //	private static final String CLOTHING_PARTNER_EMAIL_SENDER_ADDRESS = "Clothing@ourneighborschild.org";
     private static final String PHOTO_ATTACHMENT_1_FILE = "2017 Partner 1.jpg";
     private static final String PHOTO_ATTACHMENT_2_FILE = "2017 Partner 2.jpg";
@@ -474,44 +474,11 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 			ONCPartner o = stAL.get(row_sel[row]);
 			
 			//Create the email body and potentially subject
-	        if(emailType == 1)	//Church Email
-	        	emailBody = create2017SeasonChurchEmailBody(o, cid0, cid1);
-	        if(emailType == 2)	//Business and School Email
-	        	emailBody = create2017SeasonChurchEmailBody(o, cid0, cid1);
-//	        	emailBody = create2017SeasonBusSchoolEmailBody(o, cid0, cid1);
-//	        else if(emailType == 2)
-//	        {
-//	        	//get the clothing donor's first name
-//	        	String[] names = o.getLastName().split(",");
-//	        	if(names.length == 2)
-//	        		emailBody = create2016ClothingDonorEmailBody(names[1].trim(), cid0);
-//	        	else
-//	        		emailBody = create2016ClothingDonorEmailBody("ONC Donor", cid0);
-//	        }
-//	        else if(emailType == 3)
-//	        {	
-//	        	//get the clothing donor's first name
-//	        	String[] names = o.getName().split(",");
-//	        	if(names.length == 2)
-//	        		subject = String.format("Hi %s from Our Neighbor's Child", names[1].trim());
-//	        	else
-//	        		subject = "Hi from Our Neighbor's Child";
-//	        	
-//	        	emailBody = create2015ClothingDonorEmailBody(cid0);
-//	        }
-//	        else if(emailType == 3)
-//	        	emailBody = create2016ClothingDonorNotTooLateEmailBody();
-//	        else if(emailType == 4)
-//	        	emailBody = create2016GiftDropOffEmailBody();
-//	        else if(emailType == 5)
-//	        {
-//	        	//get the clothing donor's first name
-//	        	String[] names = o.getLastName().split(",");
-//	        	if(names.length == 2)
-//	        		emailBody = create2016ClothingDropOffEmailBody(names[1].trim());
-//	        	else
-//	        		emailBody = create2016ClothingDropOffEmailBody("ONC Gift Partner");
-//	        }
+	        if(emailType == 1)	//Church and School Email
+	        	emailBody = create2017SeasonChurchSchoolEmailBody(o, cid0, cid1);
+	        if(emailType == 2)	//Business Email
+	        	emailBody = create2017SeasonBusinessEmailBody(o, cid0, cid1);
+
 	        
 	        //Create To: recipients. If the partner has a second contact with a valid email address, the
 	        //To: field will contain both email contacts. If there isn't a valid second contact email
@@ -532,26 +499,23 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		//Create the from address string array
 		EmailAddress fromAddress = null;
 		if(emailType == 1)
-		    fromAddress = new EmailAddress(GIFT_CHURCH_EMAIL_SENDER_ADDRESS, "Our Neighbor's Child - Diane Church");
+		    fromAddress = new EmailAddress(GIFT_CHURCH_SCHOOL_EMAIL_SENDER_ADDRESS, "Our Neighbor's Child - Diane Church");
 		else if(emailType == 2)
-	//	    fromAddress = new EmailAddress(GIFT__BUS_SCHOOL_PARTNER_EMAIL_SENDER_ADDRESS , "Our Neighbor's Child");
-			fromAddress = new EmailAddress(GIFT_CHURCH_EMAIL_SENDER_ADDRESS, "Our Neighbor's Child - Diane Church");
+		    fromAddress = new EmailAddress(GIFT__BUSINESS_PARTNER_EMAIL_SENDER_ADDRESS , "Our Neighbor's Child - Kathleen McDonald");
 		
 		//Create the blind carbon copy list of EmailAddress objects
 		ArrayList<EmailAddress> bccList = new ArrayList<EmailAddress>();
 		if(emailType == 1)
-		    bccList.add(new EmailAddress(GIFT_CHURCH_EMAIL_SENDER_ADDRESS, "Gift Partner Coordinator"));
+		    bccList.add(new EmailAddress(GIFT_CHURCH_SCHOOL_EMAIL_SENDER_ADDRESS, "Gift Partner Coordinator"));
 		else if(emailType == 2)
-	//	    bccList.add(new EmailAddress(GIFT__BUS_SCHOOL_PARTNER_EMAIL_SENDER_ADDRESS , "Partner Contact"));
-			bccList.add(new EmailAddress(GIFT_CHURCH_EMAIL_SENDER_ADDRESS, "Gift Partner Coordinator"));
+		    bccList.add(new EmailAddress(GIFT__BUSINESS_PARTNER_EMAIL_SENDER_ADDRESS , "Partner Contact"));
 		
 		//Create mail server credentials, then the mailer background task and execute it
 		ServerCredentials creds = null;
 		if(emailType == 1)
-		    creds = new ServerCredentials("smtp.gmail.com", GIFT_CHURCH_EMAIL_SENDER_ADDRESS, "crazyelfdiane");
+		    creds = new ServerCredentials("smtp.gmail.com", GIFT_CHURCH_SCHOOL_EMAIL_SENDER_ADDRESS, "crazyelfdiane");
 		else if(emailType == 2)
-			creds = new ServerCredentials("smtp.gmail.com", GIFT_CHURCH_EMAIL_SENDER_ADDRESS, "crazyelfdiane");
-	//	    creds = new ServerCredentials("smtp.gmail.com", "partnercontact@ourneighborschild.org", "crazyelf");
+		    creds = new ServerCredentials("smtp.gmail.com", GIFT__BUSINESS_PARTNER_EMAIL_SENDER_ADDRESS, "crazyelf");
 	
 	    if(fromAddress != null && creds != null)
 	    {
@@ -912,7 +876,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		return msg;
 	}
 */
-	String create2017SeasonChurchEmailBody(ONCPartner o, String cid0, String cid1)
+	String create2017SeasonChurchSchoolEmailBody(ONCPartner o, String cid0, String cid1)
 	{
 		 //Create the variables for the body of the email     
         String name = o.getLastName();
@@ -1052,7 +1016,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
         return msgtop + msgmid + msgbot;
 	}
 	
-	String create2017SeasonBusSchoolEmailBody(ONCPartner o, String cid0, String cid1)
+	String create2017SeasonBusinessEmailBody(ONCPartner o, String cid0, String cid1)
 	{
 		 //Create the variables for the body of the email     
         String name = o.getLastName();
@@ -1119,65 +1083,66 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
         
         String msgtop = String.format("<html><body><div>"
         		+ "<p>Dear %s,</p>"
-        		+ "<p>It's hard to believe a quarter of a century has passed since we first "
-        		+ "gathered gifts for a handful of local families in need.</p>"
         		+ "<p>With your continued and valued support, your <b>all-volunteer</b> team at "
         		+ "<b>Our Neighbor's Child</b> is gearing up to coordinate "
-        		+ "a 25<sup>th</sup> year of holiday assistance for our less fortunate neighbors.</p>"
-        		+ "<p>This effort is only possible when our community "
+        		+ "holiday assistance for children from low income families in western Fairfax county.</p>"
+        		+ "<p>My name is Kathleen McDonald and I'm a long time ONC volunteer in my first season "
+        		+ "as ONC's Gift Partner Coordinator. Denise McInerney will be serving in another ONC "
+        		+ "role and hopes to see many of you during gift drop off days! We both look forward to "
+        		+ "joining you in support of our local children in need.</p>"
+        		+ "<p>This neighbor-to-neighbor effort is only possible when our community "
         		+ "comes together and through the consistent, generous support of ONC partners like %s.</p>"
         		+ "<p>Hundreds of families in our area still struggle to meet their most basic needs. "
         		+ "When we help out with children's gifts at the holidays, it allows many of these "
         		+ "families to direct their stretched financial resources toward essential housing costs, "
-        		+ "utilities and critically important food needs.</p>"
-        		+ "<p>We also hope participating makes a difference in your life, and the lives of "
+        		+ "utilities and critically important food essentials.</p>"
+        		+ "<p>We sincerely hope participating makes a difference in your life, and the lives of "
         		+ "others fortunate and generous enough to give.</p>"
         		+ "<p><b>Would you mind taking a moment to review our notes from last year? "
         		+ "Accurate information is KEY to our successful partnership:</b></p>"
-        		+ "<font color=\"red\">"
-        		+ "&emsp;ONC Gift Partner:  %s<br>"
-        		+ "&emsp;Address:  %s<br>" 
-        		+ "&emsp;Phone #:  %s<br>" 
-        		+ "&emsp;Contact:  %s<br>" 
-        		+ "&emsp;Phone #:  %s<br>" 
-        		+ "&emsp;Email:  %s</font><br>", fn, name, name, address, busphone, contact, contactphone, contactemail);
+        		+ "&emsp;<font color=\"red\">ONC Gift Partner:</font>  <b>%s</b><br>"
+        		+ "&emsp;<font color=\"red\">Address:</font>   <b>%s</b><br>" 
+        		+ "&emsp;<font color=\"red\">Phone #:</font>   <b>%s</b><br>" 
+        		+ "&emsp;<font color=\"red\">Contact:</font>   <b>%s</b><br>" 
+        		+ "&emsp;<font color=\"red\">Phone #:</font>   <b>%s</b><br>" 
+        		+ "&emsp;<font color=\"red\">Email:</font>   <b>%s</b><br>", fn, name, name, address, busphone, contact, contactphone, contactemail);
         
         //Create the middle part of the message if 2nd contact exists
         String msgmid = "";
         if(contact2.length() > MIN_NAME_LENGTH)
         {
         	msgmid = String.format(
-        		"<font color=\"red\">" +
-        		"&emsp;Contact:  %s<br>" +
-        		"&emsp;Phone #:  %s<br>" +
-        		"&emsp;Email:  %s</font><br>", contact2, contact2phone, contact2email);
+        		"&emsp;<font color=\"red\">Contact:</font>   <b>%s</b><br>" +
+        		"&emsp;<font color=\"red\">Phone #:</font>   <b>%s</b><br>" +
+        		"&emsp;<font color=\"red\">Email:</font>   <b>%s</b><br>", contact2, contact2phone, contact2email);
         }
         
         //Create the bottom part of the text part of the email using html
         String msgbot = String.format(
-        		"<font color=\"red\">"
-        		+ "&emsp;Gift Collection Type: %s<br>"
-        		+ "&emsp;Ornaments Requested in 2016:  %d<br>"
+        		" &emsp;<font color=\"red\">Gift Collection Type:</font>  <b>%s</b><br>"
+        		+ "&emsp;<font color=\"red\">Ornaments Requested in 2016:</font>   <b>%d</b><br>"
         		+ "<p><b>Please reply at your earliest convenience with any corrections, updates or "
         		+ "questions.</b></p>"
-        		+ "<p>This is my third year as ONC's Gift Partner Coordinator and I hope you'll feel "
-        		+ "free to contact me with questions at any time.</p>"
         		+ "<p>Here are a few important dates: Gift wish \"ornaments\" will be delivered "
-        		+ "on Wednesday, November 16th.</p>"
-        		+ "<p>Gift drop-off dates will be Sunday, Monday and Tuesday, December 11, 12, and 13. "
-        		+ "Delivery to families' homes will be Sunday, December 18. Churches with space or "
-        		+ "storage concerns may make arrangements for early drop-off by appointment.</p>"
+        		+ "on Wednesday, November 15th.</p>"
+        		+ "<p>Gift drop-off dates will be:<br>"
+        		+ "<b>Sunday, December 10, Noon to 2pm<br>"
+        		+ "Monday, December 11, 3:30 - 6:30pm<br>"
+        		+ "Tuesday, December 12, 3:30pm - 6:30pm</b>"
+        		+ "<p>Delivery to families' homes will be Sunday, December 17.</p>"
+        		+"<p>We rely on donated warehouse space each year and will forward the (Chantilly area) "
+        		+ "address as soon as it's confirmed.</p>"
         		+ "<p>I've included a few photos from prior seasons and hope you'll visit our website for more photos "
-        		+ "and information on Our Neighbor's Child: <a href=\"http://www.ourneighborschild.org\">www.ourneighborschild.org</a>. "
+        		+ "and information about Our Neighbor's Child: <a href=\"http://www.ourneighborschild.org\">www.ourneighborschild.org</a>. "
         		+ "We welcome you and anyone associated with your organization to join us in other "
         		+ "volunteer activities as well.</p>"
         		+ "<p>Though the number of families needing holiday assistance in our community has "
-        		+ "grown exponentially in 25 years, ONC has continued as an ALL volunteer "
-        		+ "organization with EVERY donation dollar used to provide a gift for a child in need.</p>"
+        		+ "grown exponentially in 26 years, ONC has continued as an ALL volunteer "
+        		+ "organization with EVERY donation dollar going directly to gifts delivered to a child in need.</p>"
         		+ "<p>We are deeply grateful for your support and look forward to working with you "
-        		+ "again this holiday season!</p>"
-        		+ "<p>Fondly,<br><br>"
-        		+ "Denise McInerney<br>"
+        		+ "again this holiday season! Please feel free to email me with any questions or call 703-785-8048.</p>"
+        		+ "<p>Sincerely,<br><br>"
+        		+ "Kathleen McDonald<br>"
         		+ "Gift Partner Coordinator<br>"
         		+ "Our Neighbor's Child<br>"
         		+ "P.O. Box 276<br>"
