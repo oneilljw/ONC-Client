@@ -26,7 +26,6 @@ public class ONCPartner extends ONCEntity
 	private int orn_rec_before;
 	private int orn_rec_after;
 	private String other;
-	private String confirmed;
 	private String deliverTo;
 	private String specialNotes;
 	private String contact;
@@ -62,7 +61,6 @@ public class ONCPartner extends ONCEntity
 		orn_rec_before = 0;
 		orn_rec_after = 0;
 		other = "";
-		confirmed = "";
 		deliverTo = "";
 		specialNotes = "";
 		contact = "";
@@ -100,7 +98,6 @@ public class ONCPartner extends ONCEntity
 		orn_rec_before = 0;
 		orn_rec_after = 0;
 		other = "";
-		confirmed = "";
 		deliverTo = "";
 		specialNotes = "";
 		contact = "";
@@ -141,7 +138,6 @@ public class ONCPartner extends ONCEntity
 		this.orn_rec_before = 0;
 		this.orn_rec_after = 0;
 		this.other = other;
-		this.confirmed = "";
 		this.deliverTo = deliverTo;
 		this.specialNotes = specialNotes;
 		this.contact = contact;
@@ -179,7 +175,6 @@ public class ONCPartner extends ONCEntity
 		this.orn_rec_before = o.orn_rec_before;
 		this.orn_rec_after = o.orn_rec_after;
 		this.other = o.other;
-		this.confirmed = "";
 		this.deliverTo = o.deliverTo;
 		this.specialNotes = o.specialNotes;
 		this.contact = o.contact;
@@ -255,7 +250,7 @@ public class ONCPartner extends ONCEntity
 	public int getNumberOfOrnamentsReceivedBeforeDeadline() { return orn_rec_before; }
 	public int getNumberOfOrnamentsReceivedAfterDeadline() { return orn_rec_after; }
 	public String getOther()	{ return other; }
-	public String getConfirmed() { return confirmed;}
+//	public String getConfirmed() { return confirmed;}
 	public String getDeliverTo() { return deliverTo; }
 	public String getSpecialNotes()	{ return specialNotes; }
 	public String getContact()	{ return contact; }
@@ -272,31 +267,30 @@ public class ONCPartner extends ONCEntity
 	
 	//setters
 	public void setStatus(int s)	{ status = s; }
-	void setType(int t)		{ type = t; }
-	void setGiftCollectionType(GiftCollection gc)	{ collection = gc; }
-	void setLastName(String n)	{ lastName = n; }
-	void setHouseNum(String sn)	{ houseNum = sn; }
-	void setStreet(String sn)	{ street = sn; }
-	void setUnit(String sn) { unit = sn; }
-	void setCity(String c)	{ city = c; }
-	void setZipCode(String z)	{ zipCode = z; }
+	public void setType(int t)		{ type = t; }
+	public void setGiftCollectionType(GiftCollection gc)	{ collection = gc; }
+	public void setLastName(String n)	{ lastName = n; }
+	public void setHouseNum(String sn)	{ houseNum = sn; }
+	public void setStreet(String sn)	{ street = sn; }
+	public void setUnit(String sn) { unit = sn; }
+	public void setCity(String c)	{ city = c; }
+	public void setZipCode(String z)	{ zipCode = z; }
 	public void setRegion(int r)	{ region = r; }
-	void setHomePhone(String p)	{ homePhone = p; }
+	public void setHomePhone(String p)	{ homePhone = p; }
 	public void setNumberOfOrnamentsRequested(int n)	{ orn_req = n; }
 	public void setNumberOfOrnamentsAssigned(int n)	{ orn_assigned = n; }
 	public void setNumberOfOrnamentsDelivered(int n)	{ orn_delivered = n; }
 	public void setNumberOfOrnamentsReceivedBeforeDeadline(int n)	{ orn_rec_before = n; }
 	public void setNumberOfOrnamentsReceivedAfterDeadline(int n)	{ orn_rec_after = n; }
-	void setOther(String o)	{ other = o; }
-	void setConfirmed(String c) { confirmed = c;}
-	void setDeliverTo(String dt) { deliverTo = dt; }
-	void setSpecialNotes(String sn)	{ specialNotes = sn; }
-	void setContact(String c)	{ contact = c; }
-	void setContact_email(String e)	{ contact_email = e; }
-	void setContact_phone(String p)	{ contact_phone = p; }
-	void setContact2(String c)	{ contact2 = c; }
-	void setContact2_email(String e)	{ contact2_email = e; }
-	void setContact2_phone(String p)	{ contact2_phone = p; }
+	public void setOther(String o)	{ other = o; }
+	public void setDeliverTo(String dt) { deliverTo = dt; }
+	public void setSpecialNotes(String sn)	{ specialNotes = sn; }
+	public void setContact(String c)	{ contact = c; }
+	public void setContact_email(String e)	{ contact_email = e; }
+	public void setContact_phone(String p)	{ contact_phone = p; }
+	public void setContact2(String c)	{ contact2 = c; }
+	public void setContact2_email(String e)	{ contact2_email = e; }
+	public void setContact2_phone(String p)	{ contact2_phone = p; }
 	public void setPriorYearRequested(int n) { pyRequested = n; }
 	public void setPriorYearAssigned(int n) { pyAssigned = n; }
 	public void setPriorYearDelivered(int n) { pyDelivered = n; }
