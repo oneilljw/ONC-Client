@@ -1,18 +1,15 @@
 package ourneighborschild;
 
-import java.io.Serializable;
-
-public class Region implements Serializable
+public class Region extends ONCObject
 {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1523174258125581706L;
 	private String streetName;
-//	private String streetType;
+	private String streetType;
 	private String region;
 	private String streetDir;
-//	private String postDir;
+	private String postDir;
 	private int addressNumLow;
 	private int addressNumHi;
 //	private String odd_even;
@@ -25,20 +22,21 @@ public class Region implements Serializable
 	
 	public Region(String[] file_line)
 	{
-		streetName = file_line[0];
-//		streetType = file_line[1];
-		region = file_line[2];
-		streetDir = file_line[3];
-//		postDir = file_line[4];
-		addressNumLow = Integer.parseInt(file_line[5]);
-		addressNumHi = Integer.parseInt(file_line[6]);
-//		odd_even = file_line[7];
-		zipCode = file_line[8];
-//		precinct = file_line[9];
-//		townPrecinct = file_line[10];
-//		congDistrict = file_line[11];
-//		stateSenateDistrict = file_line[12];
-//		stateHouseDistrict = file_line[13];
+		super((Integer.parseInt(file_line[0])));
+		streetName = file_line[1];
+		streetType = file_line[2];
+		region = file_line[3];
+		streetDir = file_line[4];
+		postDir = file_line[5];
+		addressNumLow = Integer.parseInt(file_line[6]);
+		addressNumHi = Integer.parseInt(file_line[7]);
+//		odd_even = file_line[8];
+		zipCode = file_line[9];
+//		precinct = file_line[10];
+//		townPrecinct = file_line[11];
+//		congDistrict = file_line[12];
+//		stateSenateDistrict = file_line[13];
+//		stateHouseDistrict = file_line[14];
 	}
 	
 	/*******************************************************************************************
@@ -75,11 +73,36 @@ public class Region implements Serializable
 			return false;
 	}
 	
-	public String getRegion() { return region; }
+	//getters
 	public String getStreetName() { return streetName; }
+	public String getStreetType() { return streetType; }
+	public String getStreetDir() { return streetDir; }
+	public String getRegion() { return region; }
+	public String getPostDir() { return postDir; }
+	public int getAddressNumLow() { return addressNumLow; }
+	public int getAddressNumHi() { return addressNumHi; }
+	public String getZipCode() { return zipCode; }
 	
 	public static boolean isNumeric(String str)
     {
       return str.matches("-?\\d+(\\.\\d+)?");  //match a number with optional '-' and decimal.
     }
+
+	@Override
+	public String[] getExportRow()
+	{
+		String[] row = new String[10];
+		row[0] = Integer.toString(id);
+		row[1] = streetName;
+		row[2] = streetType;
+		row[3] = region;
+		row[4] = streetDir;
+		row[5] = postDir;
+		row[6] = Integer.toString(addressNumLow);
+		row[7] = Integer.toString(addressNumHi);
+		row[8] = "B";
+		row[9] = "zipCode";
+		
+		return row;
+	}
 }
