@@ -22,14 +22,14 @@ public class Region extends ONCObject
 	
 	public Region(String[] file_line)
 	{
-		super((Integer.parseInt(file_line[0])));
+		super(isNumeric(file_line[0]) ? Integer.parseInt(file_line[0]) : -1);
 		streetName = file_line[1];
 		streetType = file_line[2];
 		region = file_line[3];
 		streetDir = file_line[4];
 		postDir = file_line[5];
-		addressNumLow = Integer.parseInt(file_line[6]);
-		addressNumHi = Integer.parseInt(file_line[7]);
+		addressNumLow = isNumeric(file_line[6]) ? Integer.parseInt(file_line[6]) : 0;
+		addressNumHi = isNumeric(file_line[7]) ? Integer.parseInt(file_line[7]) : 0;;
 //		odd_even = file_line[8];
 		zipCode = file_line[9];
 //		precinct = file_line[10];
@@ -73,6 +73,14 @@ public class Region extends ONCObject
 			return false;
 	}
 	
+	public boolean isRegionMatch(Region r)
+	{
+		return r != null && this.id == r.id && this.streetName.toLowerCase().equals(r.streetName.toLowerCase()) &&
+				this.streetDir.equals(r.streetDir) && this.postDir.equals(r.postDir) &&
+				this.zipCode.equals(r.zipCode) && this.addressNumLow == r.addressNumLow &&
+				this.addressNumHi == r.addressNumHi && this.region.equals(r.region);
+	}
+	
 	//getters
 	public String getStreetName() { return streetName; }
 	public String getStreetType() { return streetType; }
@@ -101,7 +109,7 @@ public class Region extends ONCObject
 		row[6] = Integer.toString(addressNumLow);
 		row[7] = Integer.toString(addressNumHi);
 		row[8] = "B";
-		row[9] = "zipCode";
+		row[9] = zipCode;
 		
 		return row;
 	}
