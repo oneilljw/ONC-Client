@@ -304,7 +304,7 @@ public class AgentInfoDialog extends InfoDialog implements DatabaseListener, Ent
 				this.display(selUserAgent);	//Display newly selected agent
 			}
 		}
-		else if(tse.getType() == EntityType.FAMILY)
+		else if(tse.getType() == EntityType.FAMILY || tse.getType() == EntityType.WISH)
 		{
 			if(this.isShowing())	//If Agent Info dialog visible, notify agent selection change
 			{
@@ -318,7 +318,7 @@ public class AgentInfoDialog extends InfoDialog implements DatabaseListener, Ent
 	@Override
 	public EnumSet<EntityType> getEntityEventListenerEntityTypes() 
 	{
-		return EnumSet.of(EntityType.AGENT, EntityType.FAMILY);
+		return EnumSet.of(EntityType.AGENT, EntityType.FAMILY, EntityType.WISH);
 	}
 
 	@Override

@@ -295,7 +295,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
     			doesTypeMatch(o.getType()) &&
     			 doesCollectionMatch(o.getGiftCollectionType()) && 
     			  doesRegionMatch(o.getRegion()) &&
-    			   doesChangedByMatch(o.getStoplightChangedBy()) &&
+    			   doesChangedByMatch(o.getChangedBy()) &&
     				doesStoplightMatch(o.getStoplightPos()))	//Search criteria pass
     		{
     			stAL.add(o);
