@@ -1,5 +1,7 @@
 package ourneighborschild;
 
+import java.util.List;
+
 public class ONCWebsiteFamilyExtended extends ONCWebsiteFamily 
 {
 	private String	BatchNum;
@@ -20,8 +22,10 @@ public class ONCWebsiteFamilyExtended extends ONCWebsiteFamily
 	private String 	notes;
 	private String  delInstr;
 	private boolean bGiftCardOnly;
+	private List<ONCChild> childList;
+	private List<ONCAdult> adultList;
 	
-	public ONCWebsiteFamilyExtended(ONCFamily f, String region)
+	public ONCWebsiteFamilyExtended(ONCFamily f, String region, List<ONCChild> childList, List<ONCAdult> adultList)
 	{
 		super(f);
 		this.BatchNum = f.getBatchNum();
@@ -42,6 +46,8 @@ public class ONCWebsiteFamilyExtended extends ONCWebsiteFamily
 		this.notes = f.getNotes();
 		this.delInstr = f.getDeliveryInstructions();
 		this.bGiftCardOnly = f.isGiftCardOnly();
+		this.childList = childList;
+		this.adultList = adultList;
 	}
 	
 	//getters
@@ -63,6 +69,8 @@ public class ONCWebsiteFamilyExtended extends ONCWebsiteFamily
 	String getNotes() { return notes; }
 	String getDeliveryInstructions() { return delInstr; }
 	boolean isGiftCardOnly() { return bGiftCardOnly; }
+	List<ONCChild> getChildList() { return childList; }
+	List<ONCAdult> getAdultList() { return adultList; }
 
 	//setters
 	void setBatchNum(String bn) {BatchNum = bn;}
