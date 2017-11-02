@@ -22,10 +22,10 @@ public class ONCWebsiteFamilyExtended extends ONCWebsiteFamily
 	private String 	notes;
 	private String  delInstr;
 	private boolean bGiftCardOnly;
-	private List<ONCChild> childList;
+	private List<ONCWebChild> childList;
 	private List<ONCAdult> adultList;
 	
-	public ONCWebsiteFamilyExtended(ONCFamily f, String region, List<ONCChild> childList, List<ONCAdult> adultList)
+	public ONCWebsiteFamilyExtended(ONCFamily f, String region, List<ONCWebChild> childList, List<ONCAdult> adultList)
 	{
 		super(f);
 		this.BatchNum = f.getBatchNum();
@@ -69,7 +69,7 @@ public class ONCWebsiteFamilyExtended extends ONCWebsiteFamily
 	String getNotes() { return notes; }
 	String getDeliveryInstructions() { return delInstr; }
 	boolean isGiftCardOnly() { return bGiftCardOnly; }
-	List<ONCChild> getChildList() { return childList; }
+	List<ONCWebChild> getChildList() { return childList; }
 	List<ONCAdult> getAdultList() { return adultList; }
 
 	//setters
