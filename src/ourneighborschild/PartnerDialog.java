@@ -420,6 +420,7 @@ public class PartnerDialog extends EntityDialog
         this.setContentPane(contentPane);
 
         pack();
+        setSize(new Dimension(840,620));
         setResizable(true);
         Point pt = parentFrame.getLocation();
         setLocation(pt.x + 20, pt.y + 20);
