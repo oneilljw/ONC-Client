@@ -1,5 +1,6 @@
 package ourneighborschild;
 
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -25,7 +26,7 @@ public class WebsiteStatusDialog extends InfoDialog implements DatabaseListener
 	{
 		super(owner, bModal);
 		
-		lblONCIcon.setText("<html><font color=blue>Review/Change ONC Referrral<br>Website Status Below</font></html>");
+		lblONCIcon.setText("<html><font color=blue>Review/Change/Reload<br>ONC DMS Website Status</font></html>");
 		
 		if(gvs != null)
 		{
@@ -58,8 +59,10 @@ public class WebsiteStatusDialog extends InfoDialog implements DatabaseListener
 		rbOnline.addActionListener(wsListener);
 		rbOffline.addActionListener(wsListener);
 				
-		//add text to action button
+		//add text to action and delete buttons
 		btnAction.setText("Change Online Status");
+		btnDelete.setText("Reload Webpages");
+		btnDelete.setVisible(true);
 						
 		pack();
 	}
@@ -116,11 +119,36 @@ public class WebsiteStatusDialog extends InfoDialog implements DatabaseListener
 		
 		btnAction.setEnabled(false);
 	}
+	
+	void reloadWebpages()
+	{
+		String response = gvs.reloadWebpages(this);
+		ONCPopupMessage popup = new ONCPopupMessage(gvs.getImageIcon(0));
+		Point loc = GlobalVariablesDB.getFrame().getLocationOnScreen();
+		popup.setLocation(loc.x+450, loc.y+70);
+		popup.show("Message from ONC Server", response);
+	}
 
 	@Override
 	void delete()
 	{
-		// TODO Auto-generated method stub
+		//Confirm with the user that they really want to take the web-site off-line
+		String confirmMssg = "<html>Are you sure you want to reload ONC<br>"
+							+ "Data Management System Webpages?</html>"; 
+								
+		Object[] options= {"Cancel", "Reload"};
+		JOptionPane confirmOP = new JOptionPane(confirmMssg, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION,
+												gvs.getImageIcon(0), options, "Cancel");
+		JDialog confirmDlg = confirmOP.createDialog(this, "*** Confirm Reload Webpages ***");
+		confirmDlg.setLocationRelativeTo(this);
+		this.setAlwaysOnTop(false);
+		confirmDlg.setVisible(true);
+
+		Object selectedValue = confirmOP.getValue();
+
+		//if the client user confirmed, take the website offline
+		if(selectedValue != null && selectedValue.toString().equals(options[1]))
+			reloadWebpages();
 	}
 
 	@Override

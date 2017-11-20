@@ -2148,10 +2148,11 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		}
 		
 		String adoptedFor = "";
+		String soMealType = soMeal != null ? soMeal.getType().toString() + " Meal" : "";
 		if(soFamily.getGiftStatus() == FamilyGiftStatus.NotRequested && soFamily.getMealStatus() != MealStatus.None)
-			adoptedFor = soMeal.getType().toString() + " Meal";
+			adoptedFor = soMealType;
 		else if(soFamily.getGiftStatus() != FamilyGiftStatus.NotRequested && soFamily.getMealStatus() != MealStatus.None)
-			adoptedFor = "December Gifts & " + soMeal.getType().toString() + " Meal";
+			adoptedFor = "December Gifts & " + soMealType;
 		else
 			adoptedFor = "December Gifts";
 		

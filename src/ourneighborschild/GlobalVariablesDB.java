@@ -419,6 +419,19 @@ public class GlobalVariablesDB extends ONCDatabase implements Serializable
 		return response;
 	}
 	
+	String reloadWebpages(Object source)
+	{
+		String response = "";
+		
+		response = serverIF.sendRequest("POST<update_webpages>");
+		if(response.startsWith("UPDATED_WEBPAGES"))
+		{
+			processUpdatedWebpages(source);
+		}
+		
+		return response;
+	}
+	
 	void processUpdatedWebsiteStatus(Object source, String websiteStatusJson)
 	{
 		Gson gson = new Gson();
@@ -429,5 +442,11 @@ public class GlobalVariablesDB extends ONCDatabase implements Serializable
 		
 		//Notify local user IFs that a change occurred
 		fireDataChanged(source, "UPDATED_WEBSITE_STATUS", updatedWebsiteStatus);
+	}
+	
+	void processUpdatedWebpages(Object source)
+	{	
+		//Notify local user IFs that a change occurred
+		fireDataChanged(source, "UPDATED_WEBPAGES", null);
 	}
 }
