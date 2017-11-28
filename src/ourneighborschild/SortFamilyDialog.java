@@ -67,7 +67,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	private static final int MIN_EMAIL_ADDRESS_LENGTH = 2;
 	private static final int MIN_EMAIL_NAME_LENGTH = 2;
 	private static final String FAMILY_EMAIL_SENDER_ADDRESS = "clientinformation@ourneighborschild.org";
-//	private static final String TEST_FAMILY_EMAIL_SENDER_ADDRESS = "johnwoneill1@gmail.com";
+	private static final int MAX_CHILD_AGE_FOR_BOOKS = 12;
 	
 //	public enum FamilyStatus {Empty, InfoVerified, GiftsSelected, GiftsReveived, GiftsVerified, Packaged}
 	
@@ -96,7 +96,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	private static String[] exportChoices = {"Export", "Britepath Crosscheck", "Family Floor List", 
 											 "Delivery Instructions", "Toys for Tots Application",
 											 "Family Referral", "Agent/Children/School Report"};
-	private static String[] printChoices = {"Print", "Print Listing", "Print Book Labels", 
+	private static String[] printChoices = {"Print", "Print Listing", "Print 12U Book Labels", 
 											"Print Family Receiving Sheets",
 											"Print Gift Inventory Sheets", "Print Packaging Sheets",
 											"Print Delivery Cards", "Print Delivery Directions"};
@@ -2971,7 +2971,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		private static final int AVERY_LABEL_IMAGE_Y_OFFSET = -18;
 		private static final int AVERY_LABEL_CHILD_ROW_HEIGHT = 20;
 		
-		void printLabel(int x, int y, String[] line, Font[] lFont, String season, Image img, Graphics2D g2d)
+		void printLabel(int x, int y, List<String> line, Font[] lFont, String season, Image img, Graphics2D g2d)
 		{			     
 		    double scaleFactor = (72d / 300d) * 2;
 		     	     
@@ -2991,12 +2991,12 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		    
 		    //Draw ONC number
 		    g2d.setFont(lFont[3]);
-			g2d.drawString("Family # " + line[0], x, y+AVERY_LABEL_Y_OFFSET); 	//ONC Number
+			g2d.drawString("Family # " + line.get(0), x, y+AVERY_LABEL_Y_OFFSET); 	//ONC Number
 		    
 		    //For each child, draw the child line
 		    g2d.setFont(lFont[0]);
-		    for(int i=1; i<line.length; i++)
-		    	g2d.drawString(line[i], x+12, i*AVERY_LABEL_CHILD_ROW_HEIGHT + y+AVERY_LABEL_Y_OFFSET);
+		    for(int i=1; i<line.size(); i++)
+		    	g2d.drawString(line.get(i), x+12, i*AVERY_LABEL_CHILD_ROW_HEIGHT + y+AVERY_LABEL_Y_OFFSET);
 		}
 
 		@Override
@@ -3040,23 +3040,18 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		    	ONCFamily f = stAL.get(row_sel[index]);
 		    	
 		    	//Create a string array, one element for each child in the family
-//				int nChildren = f.getNumberOfChildren();
-				int nChildren = cDB.getNumberOfChildrenInFamily(f.getID());
-				String[] line = new String[nChildren+1];
+				List<String> line = new ArrayList<String>();
 				
-				//Add ONC Number to line 0
-				int linenum = 0;
-				line[linenum++] = f.getONCNum();
+				line.add(f.getONCNum());	//Add ONC Number
 				
-				//Create a line for each child
-//				ArrayList<ONCChild> cAL = f.getChildArrayList();
+				//Add a line for each child under the age limit
 				ArrayList<ONCChild> cAL = cDB.getChildren(f.getID());
-//				for(ONCChild c:cAL)
 				for(int i=0; i< cAL.size(); i++)
-					line[linenum++] = "Child " + Integer.toString(i+1) + ": " +
-										cAL.get(i).getChildAge() +" " + 
-											cAL.get(i).getChildGender().toLowerCase();
-				
+					if(cAL.get(i).getChildIntegerAge() <= MAX_CHILD_AGE_FOR_BOOKS)
+						line.add("Child " + Integer.toString(i+1) + ": " +
+								cAL.get(i).getChildAge() +" " + 
+								cAL.get(i).getChildGender().toLowerCase());
+					
 		    	printLabel(col * AVERY_LABEL_WIDTH + AVERY_SHEET_X_OFFSET,
 		    				row * AVERY_LABEL_HEIGHT + AVERY_SHEET_Y_OFFSET,
 		    				line, lFont, sSeason.format(gvs.getSeasonStartDate()), img, g2d);	

@@ -337,7 +337,7 @@ public class ONCChild extends ONCObject implements Serializable
 			int december = christmasDayCal.get(Calendar.MONTH);
 			int dobMonth = dobCal.get(Calendar.MONTH);
 			if (dobMonth > december)	//can't really happen now that we calculate to 12/25
-			{
+			{							//unless child's birthday is in the last week of December
 				nChildAge--;
 			} 
 			else if (december == dobMonth)
