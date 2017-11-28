@@ -3051,14 +3051,18 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 						line.add("Child " + Integer.toString(i+1) + ": " +
 								cAL.get(i).getChildAge() +" " + 
 								cAL.get(i).getChildGender().toLowerCase());
-					
-		    	printLabel(col * AVERY_LABEL_WIDTH + AVERY_SHEET_X_OFFSET,
+				
+				//only print a label if there are qualifying children
+				if(line.size() > 1)	//more than just the onc number
+				{	
+					printLabel(col * AVERY_LABEL_WIDTH + AVERY_SHEET_X_OFFSET,
 		    				row * AVERY_LABEL_HEIGHT + AVERY_SHEET_Y_OFFSET,
 		    				line, lFont, sSeason.format(gvs.getSeasonStartDate()), img, g2d);	
 		    	
-		    	if(++col == AVERY_COLUMNS_PER_PAGE) { row++; col = 0; }
+					if(++col == AVERY_COLUMNS_PER_PAGE) { row++; col = 0; }
+				}
 		    	
-		    	index++; //Increment the total number of book labels printed
+				index++; //Increment the total number of family book labels processed
 		    }
 		    	    
 		     /* tell the caller that this page is part of the printed document */
