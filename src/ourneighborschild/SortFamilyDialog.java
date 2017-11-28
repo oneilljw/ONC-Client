@@ -3048,9 +3048,8 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 				ArrayList<ONCChild> cAL = cDB.getChildren(f.getID());
 				for(int i=0; i< cAL.size(); i++)
 					if(cAL.get(i).getChildIntegerAge() <= MAX_CHILD_AGE_FOR_BOOKS)
-						line.add("Child " + Integer.toString(i+1) + ": " +
-								cAL.get(i).getChildAge() +" " + 
-								cAL.get(i).getChildGender().toLowerCase());
+//						line.add("Child " + Integer.toString(i+1) + ": " +
+						line.add(cAL.get(i).getChildAge() + " " + cAL.get(i).getChildGender().toLowerCase());
 				
 				//only print a label if there are qualifying children
 				if(line.size() > 1)	//more than just the onc number
