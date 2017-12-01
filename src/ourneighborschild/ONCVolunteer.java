@@ -48,17 +48,45 @@ public class ONCVolunteer extends ONCGmailContactEntity implements Comparable<ON
 		this.signIns = 0;
 	}
 	
-	public ONCVolunteer(String[] nextLine, Date today, String changedBy, List<Integer> activityList)
+	public ONCVolunteer(String[] line, String changedBy, List<VolunteerActivity> activityList)
 	{
-		super(nextLine, today, "Volunteer Added", changedBy );
+		super(-1, line[6], line[7], line[8], getPhone("Home", line[17], line[18]), 
+				getPhone("Mobile", line[17], line[18]), parseAddress(line[11])[0], 
+				parseAddress(line[11])[1], line[13], line[14], line[15],
+				"", "Self",  new Date(), changedBy, STOPLIGHT_OFF, "New Volunteer", changedBy); 
 		
 		drvNum = "N/A";
-		qty = nextLine[3].isEmpty() ? 1: Integer.parseInt(nextLine[3]);
-		
-		this.activityList = new LinkedList<VolunteerActivity>();
+		qty = activityList.size();
+		this.activityList = activityList;
 		this.delAssigned = 0;
 		this.signIns = 0;
 	}
+	
+	static String getPhone(String field, String phone, String type)
+	{
+		return field.equals(type) ? phone : "";
+	}
+	
+	static String[] parseAddress(String address)
+	{
+		String[] splitAddress = new String[2];
+		splitAddress[0] = "";
+		splitAddress[1] = "";
+		
+		String[] parts = address.split(" ", 2);
+		
+		if(parts.length == 2)
+		{
+			splitAddress[0] = parts[0];
+			splitAddress[1] = parts[1];
+		}
+		else
+			splitAddress[0] = parts[0];
+		
+		return splitAddress;
+		
+	}
+	
 	
 	ONCVolunteer(int id, String changedBy)
 	{
@@ -156,6 +184,15 @@ public class ONCVolunteer extends ONCGmailContactEntity implements Comparable<ON
 	{
 		int index = 0;
 		while(index < this.activityList.size() && activityList.get(index).getID() != activityID)
+			index++;
+		
+		return index < activityList.size();
+	}
+	
+	boolean isVolunteeringFor(VolunteerActivity va)
+	{
+		int index = 0;
+		while(index < this.activityList.size() && activityList.get(index).getID() != va.getID())
 			index++;
 		
 		return index < activityList.size();

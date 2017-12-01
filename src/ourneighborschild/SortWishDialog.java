@@ -69,7 +69,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 
 	private ArrayList<SortWishObject> stAL;
 	
-	private JComboBox startAgeCB, endAgeCB, genderCB, wishnumCB, wishCB, resCB, assignCB, statusCB, changedByCB;
+	private JComboBox startAgeCB, endAgeCB, dnsCB, genderCB, wishnumCB, wishCB, resCB, assignCB, statusCB, changedByCB;
 	private JComboBox changeResCB, changeStatusCB, changeAssigneeCB, printCB, regionCB, schoolCB;
 	private DefaultComboBoxModel wishCBM, assignCBM, changeAssigneeCBM, changedByCBM, regionCBM, schoolCBM;
 	private JTextField oncnumTF;
@@ -81,7 +81,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 	private int sortStartAge = 0, sortEndAge = ONC_AGE_LIMIT, sortGender = 0, sortChangedBy = 0;
 	private int sortWishNum = 0, sortRes = 0, sortAssigneeID, sortRegion = 0;
 	private WishStatus sortStatus = WishStatus.Any;
-	private String sortSchool = "Any";
+	private String sortSchool = "Any", sortDNSCode = "Any";
 	private int sortWishID = -2;
 	private boolean bOversizeWishes = false;
 	
@@ -89,6 +89,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 	private static String[] res = {"Any", "Blank", "*", "#"};
 	private static String [] status = {"Any", "Empty", "Selected", "Assigned", "Received",
 										"Distributed", "Verified"};
+	String[] dnsCodes = {"None", "Any", "All", "DUP", "FO", "NC", "NISA", "OPT-OUT", "SA", "SBO", "WA"};
 	
 	SortWishDialog(JFrame pf)
 	{
@@ -127,6 +128,12 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		oncnumTF.setToolTipText("Type ONC Family # and press <enter>");
 		oncnumTF.addActionListener(this);
 		oncnumTF.addKeyListener(new ONCNumberKeyListener());
+		
+		dnsCB = new JComboBox(dnsCodes);
+		dnsCB.setEditable(true);
+		dnsCB.setPreferredSize(new Dimension(120, 56));
+		dnsCB.setBorder(BorderFactory.createTitledBorder("DNS Code"));
+		dnsCB.addActionListener(this);
 		
 		regionCBM = new DefaultComboBoxModel();
 		regionCBM.addElement("Any");
@@ -230,6 +237,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		assignCB.addActionListener(this);
 
 		sortCriteriaPanelTop.add(oncnumTF);
+		sortCriteriaPanelTop.add(dnsCB);
 		sortCriteriaPanelTop.add(regionCB);
 		sortCriteriaPanelTop.add(startAgeCB);
 		sortCriteriaPanelTop.add(endAgeCB);
@@ -323,29 +331,31 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		
 		if(col == 0)	//Sort on ONC Family Number
     		Collections.sort(stAL, new ONCSortItemFamNumComparator());
-		else if(col == 1)	// Sort on Child's Age
+		else if(col == 1)	// Sort on DNS Code
+    		Collections.sort(stAL, new ONCSortItemFamilyDNSComparator());
+		else if(col == 2)	// Sort on Child's Age
     		Collections.sort(stAL, new ONCSortItemFamilyRegionComparator());
-    	else if(col == 2)	// Sort on Child's Age
+    	else if(col == 3)	// Sort on Child's Age
     		Collections.sort(stAL, new ONCSortItemAgeComparator());
-    	else if(col == 3)	//Sort on Child's Gender
+    	else if(col == 4)	//Sort on Child's Gender
     		Collections.sort(stAL, new ONCSortItemGenderComparator());
-    	else if(col == 4)	//Sort on Child's School
+    	else if(col == 5)	//Sort on Child's School
     		Collections.sort(stAL, new ONCSortItemSchoolComparator());
-    	else if(col == 5)	//Sort on Child's Wish #
+    	else if(col == 6)	//Sort on Child's Wish #
     		Collections.sort(stAL, new ONCSortItemWishNumComparator());
-    	else if(col == 6)	//Sort on Child's Base Wish
+    	else if(col == 7)	//Sort on Child's Base Wish
     		Collections.sort(stAL, new ONCSortItemWishBaseComparator());
-    	else if(col == 7)	//Sort on Child's Wish Detail
+    	else if(col == 8)	//Sort on Child's Wish Detail
     		Collections.sort(stAL, new ONCSortItemWishDetailComparator());
-    	else if(col == 8)	//Sort on Child's Wish Indicator
+    	else if(col == 9)	//Sort on Child's Wish Indicator
     		Collections.sort(stAL, new ONCSortItemWishIndicatorComparator());
-    	else if(col == 9)	//Sort on Child's Wish Status
+    	else if(col == 10)	//Sort on Child's Wish Status
     		Collections.sort(stAL, new ONCSortItemWishStatusComparator());
-    	else if(col == 10)	//Sort on Child's Wish Assignee
+    	else if(col == 11)	//Sort on Child's Wish Assignee
     		Collections.sort(stAL, new ONCSortItemWishAssigneeComparator());
-    	else if(col ==  11)	//Sort on Child's Wish Changed By
+    	else if(col ==  12)	//Sort on Child's Wish Changed By
     		Collections.sort(stAL, new ONCSortItemWishChangedByComparator());
-    	else if(col == 12)	//Sort on Child's Wish Date Changed
+    	else if(col == 13)	//Sort on Child's Wish Date Changed
     		Collections.sort(stAL, new ONCSortItemWishDateChangedComparator());
     	else
     		col = -1;
@@ -377,7 +387,8 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		int itemID = 0;
 		for(ONCFamily f:fDB.getList())
 		{
-			if(isNumeric(f.getONCNum()) && doesONCNumMatch(f.getONCNum()) && doesRegionMatch(f.getRegion()))	//Must be a valid family	
+			if(isNumeric(f.getONCNum()) && doesONCNumMatch(f.getONCNum()) &&
+				doesDNSCodeMatch(f.getDNSCode()) && doesRegionMatch(f.getRegion()))	//Must be a valid family	
 			{
 				for(ONCChild c:cDB.getChildren(f.getID()))
 				{
@@ -668,6 +679,17 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 			
 			buildTableList(false);
 		}
+		
+		if(dnsCB.getSelectedIndex() < 2 &&
+			dnsCB.getSelectedIndex() != u.getPreferences().getFamilyDNSFilter())
+		{
+			dnsCB.removeActionListener(this);
+			dnsCB.setSelectedIndex(u.getPreferences().getFamilyDNSFilter());
+			sortDNSCode = dnsCodes[u.getPreferences().getFamilyDNSFilter()];
+			dnsCB.addActionListener(this);
+				
+			buildTableList(false);
+		}
 	}
 	
 	void onPrintReceivingCheckSheets()
@@ -807,6 +829,37 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 
 	private boolean doesONCNumMatch(String s) { return sortONCNum.isEmpty() || sortONCNum.equals(s); }
 	
+	/******
+	 * compares the families Do Not Serve Code to the filter for matches.
+	 * DNS codes are strings of one or more DNS code. If more
+	 * than one DNS code is given to a family, the codes are separated by commas
+	 * @param dnsc - DNS code for a family
+	 * @return - true if DNS Code string contains a match with the filter
+	 */
+	boolean doesDNSCodeMatch(String dnsc)
+	{
+		boolean bDNSMatch = false;
+		if(sortDNSCode.equals("Any"))
+			bDNSMatch = true;
+		else if(sortDNSCode.equals("None") && dnsc.isEmpty())
+			bDNSMatch = true;
+		else if(sortDNSCode.equals("All"))
+			bDNSMatch = !dnsc.isEmpty();
+		else
+		{
+			String[] dnsParts = dnsc.split(",");
+			int index = 0;
+			while(index < dnsParts.length && 
+					!dnsParts[index].trim().equalsIgnoreCase(dnsCB.getSelectedItem().toString()))
+				index++;
+		
+			if(index < dnsParts.length)
+				bDNSMatch = true;
+		}
+		
+		return bDNSMatch;
+	}
+	
 	private boolean isAgeInRange(ONCChild c)
 	{
 		return c.getChildIntegerAge() >= startAgeCB.getSelectedIndex() && c.getChildIntegerAge() <= endAgeCB.getSelectedIndex();		
@@ -939,6 +992,11 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 			sortONCNum = oncnumTF.getText();
 			buildTableList(false);
 		}
+		else if(e.getSource() == dnsCB && !sortDNSCode.equals((String) dnsCB.getSelectedItem()))
+		{
+			sortDNSCode = (String) dnsCB.getSelectedItem();
+			buildTableList(false);
+		}
 		else if(e.getSource() == startAgeCB && startAgeCB.getSelectedIndex() != sortStartAge)
 		{
 			sortStartAge = startAgeCB.getSelectedIndex();
@@ -1043,7 +1101,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 	@Override
 	String[] getColumnToolTips()
 	{
-		String[] colToolTips = {"ONC Family Number", "Child's Age", 
+		String[] colToolTips = {"ONC Family Number", "Family DNS Code", "Child's Age", 
 				"Child's Gender", "School Child Attends", "Wish Number - 1, 2 or 3", "Wish Assigned", "Wish Detail",
 				"# - Selected by ONC or * - Don't asssign", "Wish Status", "Who is fulfilling?",
 				"User who last changed wish", "Date & Time Wish Last Changed"};
@@ -1053,7 +1111,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 	@Override
 	String[] getColumnNames()
 	{
-		String[] columns = {"ONC", "Reg","Age", "Gend", "School", "Wish", "Wish Type", "Details", " Res ",
+		String[] columns = {"ONC", "DNS", "Reg","Age", "Gend", "School", "Wish", "Wish Type", "Details", " Res ",
 				"Status", "Assignee", "Changed By", "Time Stamp"};
 		
 		return columns;
@@ -1062,14 +1120,14 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 	@Override
 	int[] getColumnWidths()
 	{
-		int[] colWidths = {40, 32, 48, 36, 96, 36, 84, 180, 32, 80, 160, 88, 92};
+		int[] colWidths = {40, 40, 32, 48, 36, 96, 36, 84, 180, 32, 80, 160, 88, 92};
 		return colWidths;
 	}
 	
 	@Override
 	int[] getCenteredColumns()
 	{
-		int[] center_cols = {1,5,8};
+		int[] center_cols = {1,2,6,9};
 		return center_cols;
 	}
 	
@@ -1078,6 +1136,12 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 	{
 		oncnumTF.setText("");	//its a text field, not a cb, so need to clear sortONCNum also
 		sortONCNum = "";
+		
+		dnsCB.removeActionListener(this);
+		UserPreferences uPrefs = userDB.getUserPreferences();
+		dnsCB.setSelectedIndex(uPrefs.getFamilyDNSFilter());
+		sortDNSCode = dnsCodes[uPrefs.getFamilyDNSFilter()];
+		dnsCB.addActionListener(this);
 		
 		startAgeCB.removeActionListener(this);
 		startAgeCB.setSelectedIndex(0);	//Will trigger the CB event handler which
@@ -1131,7 +1195,6 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		
 		assignCB.removeActionListener(this);
 		//set the user preference for assignee filter default setting
-		UserPreferences uPrefs = userDB.getUserPreferences();
 		assignCB.setSelectedIndex(uPrefs.getWishAssigneeFilter());
 		sortAssigneeID = assignCB.getSelectedIndex() == 0 ? 0 : -1;
 		assignCB.addActionListener(this);
@@ -1548,6 +1611,15 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		}
 	}
 	
+	private class ONCSortItemFamilyDNSComparator implements Comparator<SortWishObject>
+	{
+		@Override
+		public int compare(SortWishObject o1, SortWishObject o2)
+		{			
+			return o1.getFamily().getDNSCode().compareTo(o2.getFamily().getDNSCode());
+		}
+	}
+	
 	private class ONCSortItemFamilyRegionComparator implements Comparator<SortWishObject>
 	{
 		@Override
@@ -1707,6 +1779,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		String ds = new SimpleDateFormat("MM/dd H:mm").format(swo.getChildWish().getChildWishDateChanged().getTime());
 		String[] tablerow = {
 							swo.getFamily().getONCNum(),
+							swo.getFamily().getDNSCode(),
 							regions.getRegionID(swo.getFamily().getRegion()),
 							swo.getChild().getChildAge().split("old", 2)[0].trim(), //Take the word "old" out of string
 							swo.getChild().getChildGender(),

@@ -7,12 +7,14 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.Type;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
-import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -27,8 +29,7 @@ import au.com.bytecode.opencsv.CSVWriter;
 public class VolunteerDB extends ONCSearchableDatabase
 {
 	private static final EntityType DB_TYPE = EntityType.VOLUNTEER;
-	private static final int DRIVER_OBJECT_CSV_HEADER_LENGTH = 18;
-	private static final int ACTIVITY_STRING_COL = 12;
+	private static final int SIGNUPGENIUS_FILE_HEADER_LENGTH = 19;
 	private static VolunteerDB instance = null;
 	private ActivityDB activityDB;
 	
@@ -59,11 +60,11 @@ public class VolunteerDB extends ONCSearchableDatabase
 	ONCVolunteer getObjectAtIndex(int index) { return volunteerList.get(index); }
 	
 	public List<ONCVolunteer> getDriverDB() { return volunteerList; }
-/*	
-	String importSignUpGeniusVolunteers(JFrame pFrame, Date today, String user, ImageIcon oncIcon)	
+	
+	String importSignUpGeniusVolunteers(JFrame pFrame, String user )	
 	{	
     	JFileChooser chooser = new JFileChooser();
-    	chooser.setDialogTitle("Select Volunteer .csv file to import");	
+    	chooser.setDialogTitle("Select SignUpGenius .csv file to import");	
  	    chooser.setFileFilter(new FileNameExtensionFilter("CSV Files", "csv"));
  	       
 	    int volunteersAddedCount = 0;
@@ -82,79 +83,137 @@ public class VolunteerDB extends ONCSearchableDatabase
 	    		if((header = reader.readNext()) != null)
 	    		{
 	    			//Read the ONC CSV File
-	    			if(header.length == DRIVER_CSVFILE_HEADER_LENGTH)
+	    			if(header.length == SIGNUPGENIUS_FILE_HEADER_LENGTH)
 	    			{
-	    				//build a list of ONCVolunteers from the file.
-	    				List<ONCVolunteer> volList = new ArrayList<ONCVolunteer>();
+	    				SimpleDateFormat sdf = new SimpleDateFormat("M/d/yy H:mm");
+	    				//get the logged in user LNFI
+	    				String userLNFI = UserDB.getInstance().getLoggedInUser().getLNFI();
 	    				
+	    				//clone the local volunteer list
+	    				List<ONCVolunteer> cloneVolList = new ArrayList<ONCVolunteer>();
+	    				for(ONCVolunteer v : volunteerList)
+	    					cloneVolList.add(new ONCVolunteer(v));
+	    				
+	    				//build a list of ONCVolunteers from the file.
+	    				List<ONCVolunteer> changeVolList = new ArrayList<ONCVolunteer>();
+	    			
 	    				while ((nextLine = reader.readNext()) != null)	// nextLine[] is an array of values from the line
 	    				{
 	    					//don't process records that don't have at least a first or last name
-	    					if(nextLine.length > 8 && nextLine[6].length() + nextLine[7].length() > 2)
+	    					if(nextLine.length > 8 && (nextLine[6].length() + nextLine[7].length() > 1))
 	    					{
 //	    						System.out.println(String.format("fn %s ln %s", nextLine[6], nextLine[7]));
-	    						ONCVolunteer currVol = searchVolunteerListForMatch(nextLine[6], nextLine[7], volList);
+	    						ONCVolunteer currVol = searchVolunteerListForMatch(nextLine[6], nextLine[7], cloneVolList);
 	    					
 	    						if(currVol != null)
 	    						{
-	    							//update the volunteer with the activity from this line
-	    							currVol.setActivityCode(updateActivityCode(nextLine[4], currVol.getActivityCode()));
+	    							//volunteer found. If this is a new activity for the volunteer, make a update opject,
+	    							//update the activity list with the added activity
+	    							
+	    							ONCVolunteer updatedVolunteer = new ONCVolunteer(currVol);
+	    							VolunteerActivity genericActivity = activityDB.getActivity(nextLine[4],  nextLine[0], nextLine[1]);
+	    							if(genericActivity != null && !updatedVolunteer.isVolunteeringFor(genericActivity))
+	    							{
+	    								//It is a new activity for this existing volunteer. Personalize it and add
+	    								//it to their activity list. Add the volunteer to the changed list
+	    								VolunteerActivity newAct = new VolunteerActivity(genericActivity);
+		    							newAct.setComment(nextLine[9]);	//add comment
+		    							try
+										{
+											newAct.setDateChanged(sdf.parse(nextLine[10]));
+										}
+										catch (ParseException e)
+										{
+											newAct.setDateChanged(new Date());
+										}
+		    							
+		    							updatedVolunteer.addActivity(newAct);
+		    							changeVolList.add(updatedVolunteer);
+	    							}
 	    						}
 	    						else
 	    						{
-	    							//create a new volunteer and add it
-	    							int newActivityCode = updateActivityCode(nextLine[4], 0);
-	    							ONCVolunteer newVol = new ONCVolunteer(nextLine, today, user, newActivityCode);
-	    						
-	    							volList.add(newVol);
+	    							//new volunteer, create them and add to change list
+	    							List<VolunteerActivity> actList = new ArrayList<VolunteerActivity>();
+	    							
+	    							//find the generic activity, copy it, and then personalize it by adding any comment and
+	    							//the time the volunteer signed up in SignUpGenius
+	    							System.out.println(String.format("VolDB.import: col4: %s, col0: %s, col1 %s", nextLine[4], nextLine[0], nextLine[1]));
+	    							VolunteerActivity genericAct = activityDB.getActivity(nextLine[4],  nextLine[0], nextLine[1]);
+	    							if(genericAct != null)
+	    							{
+	    								VolunteerActivity newAct = new VolunteerActivity(genericAct);
+	    								newAct.setComment(nextLine[9]);	//add comment
+	    								try
+	    								{
+	    									newAct.setDateChanged(sdf.parse(nextLine[10]));
+	    								}
+	    								catch (ParseException e)
+	    								{
+	    									newAct.setDateChanged(new Date());
+	    								}
+	    								actList.add(newAct);
+	    								ONCVolunteer newVol = new ONCVolunteer(nextLine, userLNFI, actList);
+	    								changeVolList.add(newVol);
+	    							}
 	    						}
 	    					}
 	    				}
 	    				
-	    				Collections.sort(volList);
+	    				//DEBUG Diagnostic
+	    				for(ONCVolunteer v : changeVolList)
+	    				{
+	    					System.out.println(String.format("id=%d, fn=%s, ln=%s, Activities",
+	    							v.getID(), v.getFirstName(), v.getLastName()));
+	    					
+	    					for(VolunteerActivity va : v.getActivityList())
+	    						System.out.println(String.format("Activity: %s", va.getName()));
+	    				}
 	    				
-	    				//now that we have a list of volunteers from the file, send the to the
+	    				//now that we have a list of new and updated volunteers from the file, send the to the
 	    				//server to add to the existing database
-	    				//create the request to the server to import the families
-		    			Gson gson = new Gson();
-		    			Type listtype = new TypeToken<ArrayList<ONCVolunteer>>(){}.getType();
+	    				//create the request to the server and process the return
+	    				
+//		    			Gson gson = new Gson();
+//		    			Type listtype = new TypeToken<ArrayList<ONCVolunteer>>(){}.getType();
+//		    			
+//		    			String response = serverIF.sendRequest("POST<volunteer_group>" + gson.toJson(changeVolList, listtype));
+//		    			
+//		    			if(response != null && response.startsWith("ADDED_VOLUNTEER_GROUP"))
+//		    			{
+//		    				//process the list of jsons returned, adding agent, families, adults
+//		    				//and children to the local databases
+//		    		    	Type jsonlisttype = new TypeToken<ArrayList<String>>(){}.getType();
+//		    		    	ArrayList<String> changeList = gson.fromJson(response.substring(21), jsonlisttype);
+//		    		    	
+//		    		    	//loop thru list of changes, processing each one
+//		    		    	for(String change: changeList)
+//		    		    		if(change.startsWith("ADDED_DRIVER"))
+//		    		    		{
+//		    		    			this.processAddedObject(this, change.substring("ADDED_DRIVER".length()));
+//		    		    			volunteersAddedCount++;
+//		    		    		}
+//		    			}
+//		    			else
+//		    			{
+//		    				JOptionPane.showMessageDialog(pFrame, "An error occured, " +
+//		    	    			 volFile.getName() + " cannot be imported by the server", 
+//		    	    			"ONC Server Britepath Import Error", JOptionPane.ERROR_MESSAGE, GlobalVariablesDB.getONCLogo());
+//		    			}
 		    			
-		    			String response = serverIF.sendRequest("POST<volunteer_group>" + gson.toJson(volList, listtype));
-		    			
-		    			if(response != null && response.startsWith("ADDED_VOLUNTEER_GROUP"))
-		    			{
-		    				//process the list of jsons returned, adding agent, families, adults
-		    				//and children to the local databases
-		    		    	Type jsonlisttype = new TypeToken<ArrayList<String>>(){}.getType();
-		    		    	ArrayList<String> changeList = gson.fromJson(response.substring(21), jsonlisttype);
-		    		    	
-		    		    	//loop thru list of changes, processing each one
-		    		    	for(String change: changeList)
-		    		    		if(change.startsWith("ADDED_DRIVER"))
-		    		    		{
-		    		    			this.processAddedObject(this, change.substring("ADDED_DRIVER".length()));
-		    		    			volunteersAddedCount++;
-		    		    		}
-		    			}
-		    			else
-		    			{
-		    				JOptionPane.showMessageDialog(pFrame, "An error occured, " +
-		    	    			 volFile.getName() + " cannot be imported by the server", 
-		    	    			"ONC Server Britepath Import Error", JOptionPane.ERROR_MESSAGE, GlobalVariables.getONCLogo());
-		    			}
 	    			}
 	    			else
 	    				JOptionPane.showMessageDialog(pFrame, "Volunteer file corrupted, header length = " + Integer.toString(header.length), 
-    						"Invalid Volunteer File", JOptionPane.ERROR_MESSAGE, oncIcon);   			
+    						"Invalid Volunteer File", JOptionPane.ERROR_MESSAGE, GlobalVariablesDB.getONCLogo());   			
 	    		}
 	    		else
 	    			JOptionPane.showMessageDialog(pFrame, "Couldn't read header in file: " + volFile.getName(), 
-						"Invalid Volunteer File", JOptionPane.ERROR_MESSAGE, oncIcon); 
+						"Invalid Volunteer File", JOptionPane.ERROR_MESSAGE,GlobalVariablesDB.getONCLogo()); 
 	    	} 
 	    	catch (IOException x)
 	    	{
 	    		JOptionPane.showMessageDialog(pFrame, "Unable to open Volunteer file: " + volFile.getName(), 
-    				"Volunteer file not found", JOptionPane.ERROR_MESSAGE, oncIcon);
+    				"Volunteer file not found", JOptionPane.ERROR_MESSAGE, GlobalVariablesDB.getONCLogo());
 	    	}
 	    	finally
 	    	{
@@ -167,14 +226,14 @@ public class VolunteerDB extends ONCSearchableDatabase
 	    	}
 	    }
 	    
-	    //If no drivers were in the file
+	    //If no new volunteers were in the file
 	    if(volFile == null || volunteersAddedCount == 0)
-	    	return "No Delivery Drivers were imported";
+	    	return "No Volunteers were imported";
 	    else
-	    	return String.format("%d Delivery Drivers imported from %s", volunteersAddedCount, volFile.getName());
+	    	return String.format("%d Volunteers imported from %s", volunteersAddedCount, volFile.getName());
 	    
 	}
-*/	
+	
 	int updateActivityCode(String line, int activityCode)
 	{
 		String[] choices = {"Gift Inventory and Set up",
@@ -378,66 +437,6 @@ public class VolunteerDB extends ONCSearchableDatabase
 		}
 		
 		return response;
-	}
-	
-	String importDriverDB(JFrame pf, ImageIcon oncIcon, String path)	//Only used by superuser to import from .csv file
-	{
-    		
-		File pyfile;
-		JFileChooser chooser;
-		String filename = "";
-		int returnVal = JFileChooser.CANCEL_OPTION;
-		
-		if(path != null)
-		{
-			pyfile = new File(path + "DriverDB.csv");
-			returnVal = JFileChooser.APPROVE_OPTION;
-		}
-		else
-		{
-    		chooser = new JFileChooser();
-    		chooser.setDialogTitle("Select Driver DB .csv file to import");	
-    		chooser.setFileFilter(new FileNameExtensionFilter("CSV Files", "csv"));
-    		returnVal = chooser.showOpenDialog(pf);
-    		pyfile = chooser.getSelectedFile();
-		}
-		
-	    if(returnVal == JFileChooser.APPROVE_OPTION)
-	    {	    
-	    	filename = pyfile.getName();
-	    	try 
-	    	{
-	    		CSVReader reader = new CSVReader(new FileReader(pyfile.getAbsoluteFile()));
-	    		String[] nextLine, header;
-    		
-	    		if((header = reader.readNext()) != null)
-	    		{
-	    			//Read the ONC CSV File
-	    			if(header.length == DRIVER_OBJECT_CSV_HEADER_LENGTH)
-	    			{
-	    				volunteerList.clear();
-	    				while ((nextLine = reader.readNext()) != null)	// nextLine[] is an array of values from the line
-	    					volunteerList.add(new ONCVolunteer(nextLine, activityDB.createActivityList(nextLine[ACTIVITY_STRING_COL])));
-	    			}
-	    			else
-	    				JOptionPane.showMessageDialog(pf, "Driver database file corrupted, header length = " + Integer.toString(header.length), 
-    						"Invalid Driver Database File", JOptionPane.ERROR_MESSAGE, oncIcon);   			
-	    		}
-	    		else
-	    			JOptionPane.showMessageDialog(pf, "Couldn't read header in driver database file: " + filename, 
-						"Invalid Driver Database File", JOptionPane.ERROR_MESSAGE, oncIcon); 
-	    		
-	    		reader.close();
-	    		
-	    	} 
-	    	catch (IOException x)
-	    	{
-	    		JOptionPane.showMessageDialog(pf, "Unable to open driver database file: " + filename, 
-    				"Driver database file not found", JOptionPane.ERROR_MESSAGE, oncIcon);
-	    	}
-	    }
-	    
-	    return filename;    
 	}
 	
 	String exportDBToCSV(JFrame pf, String filename)

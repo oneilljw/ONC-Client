@@ -92,7 +92,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	private FamilyStatus sortFamilyStatus;
 
 	private static String[] giftCardFilter = {"Any", "True", "False"};
-	private static String[] dnsCodes = {"None", "Any", "DUP", "FO", "NC", "NISA", "OPT-OUT", "SA", "SBO", "WA"};
+	private static String[] dnsCodes = {"None", "Any", "All", "DUP", "FO", "NC", "NISA", "OPT-OUT", "SA", "SBO", "WA"};
 	private static String[] exportChoices = {"Export", "Britepath Crosscheck", "Family Floor List", 
 											 "Delivery Instructions", "Toys for Tots Application",
 											 "Family Referral", "Agent/Children/School Report"};
@@ -1491,6 +1491,8 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			bDNSMatch = true;
 		else if(sortDNSCode.equals("None") && dnsc.isEmpty())
 			bDNSMatch = true;
+		else if(sortDNSCode.equals("All"))
+			bDNSMatch = !dnsc.isEmpty();
 		else
 		{
 			String[] dnsParts = dnsc.split(",");

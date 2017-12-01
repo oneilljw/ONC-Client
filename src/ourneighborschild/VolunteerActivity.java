@@ -1,5 +1,8 @@
 package ourneighborschild;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 /***
@@ -104,6 +107,44 @@ public class VolunteerActivity extends ONCEntity
 	void setDescription(String description) { this.description = description; }
 	void setOpen (boolean bOpen) { this.bOpen = bOpen; }
 	void setReminder (boolean bRemind) { this.bEmailReminder = bRemind; }
+	
+	Calendar getStartCal()
+	{
+		SimpleDateFormat sdf = new SimpleDateFormat("M/dd/yy H:MM a");
+		Calendar cal = Calendar.getInstance();
+		
+		try
+		{
+			
+			cal.setTime(sdf.parse(startDate + " " + startTime));
+			cal.set(Calendar.MILLISECOND, 0);
+			System.out.println("VolAct.getStartCal: " + startDate + " " + startTime +" cal= " + cal);
+		}
+		catch (ParseException e)
+		{
+			return cal;
+		}
+		
+		return cal;
+	}
+	
+	Calendar getEndCal()
+	{
+		SimpleDateFormat sdf = new SimpleDateFormat("M/dd/yy H:MM a");
+		Calendar cal = Calendar.getInstance();
+		
+		try
+		{
+			cal.setTime(sdf.parse(endDate + " " + endTime));
+			cal.set(Calendar.MILLISECOND, 0);
+		}
+		catch (ParseException e)
+		{
+			return cal;
+		}
+		
+		return cal;
+	}
 
 	@Override
 	public String[] getExportRow() 

@@ -250,7 +250,7 @@ public class UserDB extends ONCSearchableDatabase
 		}
 		
 		if(response != null & !response.startsWith("NO_USERS"))
-			fireDataChanged(this, "LOADED_USERS", null);
+			fireDataChanged(this, "LOADED_USERS", loggedInUser);
 		
 		return response;
 	}

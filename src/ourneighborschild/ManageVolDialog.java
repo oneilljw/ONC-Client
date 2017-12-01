@@ -65,7 +65,7 @@ public class ManageVolDialog extends ONCTableDialog implements ActionListener, L
 	
 	private ONCTable volTable, actTable;
 	private AbstractTableModel volTableModel, actTableModel;
-	private JButton btnResetFilters, btnPrint, btnExport;
+	private JButton btnResetFilters, btnPrint, btnExport, btnImport;
 	private JLabel lblVolCount;
 	
 	private VolunteerDB volDB;
@@ -238,8 +238,12 @@ public class ManageVolDialog extends ONCTableDialog implements ActionListener, L
         JPanel btnPanel = new JPanel();
         btnPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
         
+        btnImport = new JButton("Import");
+        btnImport.setToolTipText("Import Volunteers from .csv file");
+        btnImport.addActionListener(this);
+        
         btnExport = new JButton("Export");
-        btnExport.setToolTipText("Restore Table to .csv file");
+        btnExport.setToolTipText("Export Table to .csv file");
         btnExport.setEnabled(false);
         btnExport.addActionListener(this);
         
@@ -251,6 +255,7 @@ public class ManageVolDialog extends ONCTableDialog implements ActionListener, L
         btnResetFilters.setToolTipText("Restore Filters to Defalut State");
         btnResetFilters.addActionListener(this);
        
+        btnPanel.add(btnImport);
         btnPanel.add(btnExport);
         btnPanel.add(btnPrint);
         btnPanel.add(btnResetFilters);
@@ -464,6 +469,11 @@ public class ManageVolDialog extends ONCTableDialog implements ActionListener, L
 		else if(e.getSource() == btnResetFilters)
 		{
 			resetFilters();
+		}
+		else if(e.getSource() == btnImport)
+		{
+			String loggedInLNFI = UserDB.getInstance().getLoggedInUser().getLNFI();
+			volDB.importSignUpGeniusVolunteers(GlobalVariablesDB.getFrame(), loggedInLNFI);
 		}
 	}
 	

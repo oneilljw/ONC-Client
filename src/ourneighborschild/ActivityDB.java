@@ -4,7 +4,10 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -66,6 +69,49 @@ public class ActivityDB extends ONCSearchableDatabase
 			return activityList.get(index);
 		else
 			return null;
+	}
+	
+	/***
+	 * Searches activity list for a match. 
+	 * @param activity
+	 * @param startDate
+	 * @param endDate
+	 * @param endTime
+	 * @return
+	 */
+	VolunteerActivity getActivity(String activity, String startDate,  String endDate)
+	{
+		//convert the startDate and endDate strings to calendar objects
+		SimpleDateFormat sdf = new SimpleDateFormat("M/dd/yy H:mm");
+		Calendar startCal = Calendar.getInstance();
+		Calendar endCal = Calendar.getInstance();
+		
+		try
+		{
+			startCal.setTime(sdf.parse(startDate));
+			startCal.set(Calendar.MILLISECOND, 0);
+			
+			endCal.setTime(sdf.parse(endDate));
+			endCal.set(Calendar.MILLISECOND, 0);
+		}
+		catch (ParseException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		System.out.println("Input Cal: " + startCal);
+		//search for matching activity
+		int index = 0;
+		while(index < activityList.size() && 
+				!(activityList.get(index).getCategory().equals(activity) &&
+				  activityList.get(index).getStartCal().equals(startCal) &&
+				  activityList.get(index).getEndCal().equals(endCal)))
+		{
+			index++;
+		}
+		
+		return index < activityList.size() ? activityList.get(index) : null;
 	}
 	
 	//creates a list of volunteer activities based on stored string of activity ID's 
