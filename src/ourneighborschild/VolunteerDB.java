@@ -93,26 +93,23 @@ public class VolunteerDB extends ONCSearchableDatabase
 	    				List<ONCVolunteer> cloneVolList = new ArrayList<ONCVolunteer>();
 	    				for(ONCVolunteer v : volunteerList)
 	    					cloneVolList.add(new ONCVolunteer(v));
-	    				
-	    				//build a list of ONCVolunteers from the file.
-	    				List<ONCVolunteer> changeVolList = new ArrayList<ONCVolunteer>();
 	    			
 	    				while ((nextLine = reader.readNext()) != null)	// nextLine[] is an array of values from the line
 	    				{
 	    					//don't process records that don't have at least a first or last name
 	    					if(nextLine.length > 8 && (nextLine[6].length() + nextLine[7].length() > 1))
 	    					{
-//	    						System.out.println(String.format("fn %s ln %s", nextLine[6], nextLine[7]));
+//	    						System.out.println(String.format("Checking vol: %s %s", nextLine[6], nextLine[7]));
 	    						ONCVolunteer currVol = searchVolunteerListForMatch(nextLine[6], nextLine[7], cloneVolList);
 	    					
 	    						if(currVol != null)
 	    						{
+//	    							System.out.println(String.format("Curr vol: %s %s", nextLine[6], nextLine[7]));
 	    							//volunteer found. If this is a new activity for the volunteer, make a update opject,
 	    							//update the activity list with the added activity
 	    							
-	    							ONCVolunteer updatedVolunteer = new ONCVolunteer(currVol);
 	    							VolunteerActivity genericActivity = activityDB.getActivity(nextLine[4],  nextLine[0], nextLine[1]);
-	    							if(genericActivity != null && !updatedVolunteer.isVolunteeringFor(genericActivity))
+	    							if(genericActivity != null && !currVol.isVolunteeringFor(genericActivity))
 	    							{
 	    								//It is a new activity for this existing volunteer. Personalize it and add
 	    								//it to their activity list. Add the volunteer to the changed list
@@ -127,18 +124,21 @@ public class VolunteerDB extends ONCSearchableDatabase
 											newAct.setDateChanged(new Date());
 										}
 		    							
-		    							updatedVolunteer.addActivity(newAct);
-		    							changeVolList.add(updatedVolunteer);
+		    							currVol.addActivity(newAct);
+		    							
+//   										System.out.println(String.format("Updating vol: %s %s,  added act= %s", 
+//	    										currVol.getFirstName(), currVol.getLastName(), newAct.getName()));
 	    							}
 	    						}
 	    						else
 	    						{
+//	    							System.out.println(String.format("New vol: %s %s", nextLine[6], nextLine[7]));
 	    							//new volunteer, create them and add to change list
 	    							List<VolunteerActivity> actList = new ArrayList<VolunteerActivity>();
 	    							
 	    							//find the generic activity, copy it, and then personalize it by adding any comment and
 	    							//the time the volunteer signed up in SignUpGenius
-	    							System.out.println(String.format("VolDB.import: col4: %s, col0: %s, col1 %s", nextLine[4], nextLine[0], nextLine[1]));
+//	    							System.out.println(String.format("VolDB.import: col4: %s, col0: %s, col1 %s", nextLine[4], nextLine[0], nextLine[1]));
 	    							VolunteerActivity genericAct = activityDB.getActivity(nextLine[4],  nextLine[0], nextLine[1]);
 	    							if(genericAct != null)
 	    							{
@@ -154,52 +154,123 @@ public class VolunteerDB extends ONCSearchableDatabase
 	    								}
 	    								actList.add(newAct);
 	    								ONCVolunteer newVol = new ONCVolunteer(nextLine, userLNFI, actList);
-	    								changeVolList.add(newVol);
+	    								cloneVolList.add(newVol);
+	    								
+//	    								System.out.println(String.format("Added new vol: %s %s,  act= %s", 
+//	    										newVol.getFirstName(), newVol.getLastName(), newAct.getName()));
 	    							}
 	    						}
 	    					}
 	    				}
 	    				
-	    				//DEBUG Diagnostic
-	    				for(ONCVolunteer v : changeVolList)
+	    				//create a list of new volunteers or volunteers who's activities have changed
+	    				//to do so, compare each clone list volunteer to the original volunteer. If the
+	    				//clone list volunteer is new, then them to the new list, eose if they are updated
+	    				//add them to the update list;
+	    				List<ONCVolunteer> newVolList = new ArrayList<ONCVolunteer>();
+	    				List<ONCVolunteer> updateVolList = new ArrayList<ONCVolunteer>();
+	    				
+	    				for(ONCVolunteer cv: cloneVolList)
 	    				{
-	    					System.out.println(String.format("id=%d, fn=%s, ln=%s, Activities",
+	    					int index = 0;
+	    					while(index < volunteerList.size() &&
+	    							!(cv.getFirstName().equals(volunteerList.get(index).getFirstName()) &&
+	    							 cv.getLastName().equals(volunteerList.get(index).getLastName())))
+	    					{
+	    						index++;
+	    					}
+	    					
+	    					if(index < volunteerList.size())
+	    					{
+	    						//found clone volunteer, see if activity list is changed. If so, add to update list
+	    						if(cv.getActivityList().size() != volunteerList.get(index).getActivityList().size())
+	    							updateVolList.add(cv);
+	    					}
+	    					else
+	    					{
+	    						//clone volunteer not found, they are new
+	    						newVolList.add(cv);
+	    					}
+	    					
+	    				}
+/*	    				
+	    				//DEBUG Diagnostic
+	    				for(ONCVolunteer v : newVolList)
+	    				{
+	    					System.out.println(String.format("New vol: id=%d, fn=%s, ln=%s",
 	    							v.getID(), v.getFirstName(), v.getLastName()));
 	    					
 	    					for(VolunteerActivity va : v.getActivityList())
 	    						System.out.println(String.format("Activity: %s", va.getName()));
 	    				}
 	    				
+	    				for(ONCVolunteer v : updateVolList)
+	    				{
+	    					System.out.println(String.format("Update vol: id=%d, fn=%s, ln=%s",
+	    							v.getID(), v.getFirstName(), v.getLastName()));
+	    					
+	    					for(VolunteerActivity va : v.getActivityList())
+	    						System.out.println(String.format("Activity: %s", va.getName()));
+	    				}
+*/	    				
 	    				//now that we have a list of new and updated volunteers from the file, send the to the
 	    				//server to add to the existing database
 	    				//create the request to the server and process the return
-	    				
-//		    			Gson gson = new Gson();
-//		    			Type listtype = new TypeToken<ArrayList<ONCVolunteer>>(){}.getType();
-//		    			
-//		    			String response = serverIF.sendRequest("POST<volunteer_group>" + gson.toJson(changeVolList, listtype));
-//		    			
-//		    			if(response != null && response.startsWith("ADDED_VOLUNTEER_GROUP"))
-//		    			{
-//		    				//process the list of jsons returned, adding agent, families, adults
-//		    				//and children to the local databases
-//		    		    	Type jsonlisttype = new TypeToken<ArrayList<String>>(){}.getType();
-//		    		    	ArrayList<String> changeList = gson.fromJson(response.substring(21), jsonlisttype);
-//		    		    	
-//		    		    	//loop thru list of changes, processing each one
-//		    		    	for(String change: changeList)
-//		    		    		if(change.startsWith("ADDED_DRIVER"))
-//		    		    		{
-//		    		    			this.processAddedObject(this, change.substring("ADDED_DRIVER".length()));
-//		    		    			volunteersAddedCount++;
-//		    		    		}
-//		    			}
-//		    			else
-//		    			{
-//		    				JOptionPane.showMessageDialog(pFrame, "An error occured, " +
-//		    	    			 volFile.getName() + " cannot be imported by the server", 
-//		    	    			"ONC Server Britepath Import Error", JOptionPane.ERROR_MESSAGE, GlobalVariablesDB.getONCLogo());
-//		    			}
+		    			Gson gson = new Gson();
+		    			Type listtype = new TypeToken<ArrayList<ONCVolunteer>>(){}.getType();
+		    			
+		    			if(!newVolList.isEmpty())
+		    			{
+		    				String response = serverIF.sendRequest("POST<new_volunteer_group>" + gson.toJson(newVolList, listtype));
+		    			
+		    				if(response != null && response.startsWith("ADDED_VOLUNTEER_GROUP"))
+		    				{
+		    					//process the list of jsons returned, adding agent, families, adults
+		    					//and children to the local databases
+		    					Type jsonlisttype = new TypeToken<ArrayList<String>>(){}.getType();
+		    					ArrayList<String> changeList = gson.fromJson(response.substring(21), jsonlisttype);
+		    		    	
+		    					//loop thru list of changes, processing each one
+		    					for(String change: changeList)
+		    						if(change.startsWith("ADDED_DRIVER"))
+		    						{
+		    							this.processAddedObject(this, change.substring("ADDED_DRIVER".length()));
+		    							volunteersAddedCount++;
+		    						}
+		    				}
+		    				else
+		    				{
+		    					JOptionPane.showMessageDialog(pFrame, "An error occured, " +
+		    							volFile.getName() + " cannot be imported by the server", 
+		    							"ONC Server SignUpGenius Import Error", JOptionPane.ERROR_MESSAGE, GlobalVariablesDB.getONCLogo());
+		    				}
+		    			}
+		    			if(!updateVolList.isEmpty())
+		    			{
+		    				String response = serverIF.sendRequest("POST<update_volunteer_group>" + gson.toJson(newVolList, listtype));
+		    			
+		    				if(response != null && response.startsWith("UPDATED_VOLUNTEER_GROUP"))
+		    				{
+		    					//process the list of jsons returned, adding agent, families, adults
+		    					//and children to the local databases
+		    					Type jsonlisttype = new TypeToken<ArrayList<String>>(){}.getType();
+		    					ArrayList<String> changeList = gson.fromJson(response.substring(21), jsonlisttype);
+		    		    	
+		    					//loop thru list of changes, processing each one
+		    					for(String change: changeList)
+		    						if(change.startsWith("UPDATED_DRIVER"))
+		    						{
+		    							this.processUpdatedObject(this, change.substring("UPDATED_DRIVER".length()), volunteerList);
+		    							volunteersAddedCount++;
+		    						}
+		    				}
+		    				else
+		    				{
+		    					JOptionPane.showMessageDialog(pFrame, "An error occured, " +
+		    							volFile.getName() + " cannot be imported by the server", 
+		    							"ONC Server SignUpGenius Import Error", JOptionPane.ERROR_MESSAGE, GlobalVariablesDB.getONCLogo());
+		    				}
+		    			}
 		    			
 	    			}
 	    			else
@@ -644,6 +715,13 @@ public class VolunteerDB extends ONCSearchableDatabase
 		else if(ue.getType().equals("DELETED_DRIVER"))
 		{
 			processDeletedObject(this, ue.getJson());
+		}
+		else if(ue.getType().equals("ADDED_VOLUNTEER"))
+		{
+			Gson gson = new Gson();
+			ONCVolunteer addedVol = gson.fromJson(ue.getJson(), ONCVolunteer.class);
+
+			fireDataChanged(this, "UPDATED_DRIVER", addedVol);
 		}
 	}
 

@@ -89,6 +89,8 @@ public class VolunteerActivity extends ONCEntity
 	public String getStartTime() { return startTime; }
 	public String getEndDate() { return endDate; }
 	String getEndTime() { return endTime; }
+	Calendar getStartCal() { return createCal(startDate, startTime); }
+	Calendar getEndCal() { return createCal(endDate, endTime); }
 	public String getLocation() { return location; }
 	String getDescription() { return description; }
 	public String getComment() { return volComment; }
@@ -108,42 +110,27 @@ public class VolunteerActivity extends ONCEntity
 	void setOpen (boolean bOpen) { this.bOpen = bOpen; }
 	void setReminder (boolean bRemind) { this.bEmailReminder = bRemind; }
 	
-	Calendar getStartCal()
+	/***
+	 * Convert Volunteer Activity date and time class variables to a Calendar object.
+	 * Note: Start and End times are strings formatted with AM or PM designators at the end
+	 * @param date
+	 * @param time
+	 * @return
+	 */
+	Calendar createCal(String date, String time)
 	{
-		SimpleDateFormat sdf = new SimpleDateFormat("M/dd/yy H:MM a");
 		Calendar cal = Calendar.getInstance();
+		SimpleDateFormat sdf = new SimpleDateFormat("M/d/yy h:mm a");
 		
 		try
 		{
-			
-			cal.setTime(sdf.parse(startDate + " " + startTime));
-			cal.set(Calendar.MILLISECOND, 0);
-			System.out.println("VolAct.getStartCal: " + startDate + " " + startTime +" cal= " + cal);
+			cal.setTime(sdf.parse(String.format("%s %s", date, time)));
+			return cal;
 		}
 		catch (ParseException e)
 		{
 			return cal;
 		}
-		
-		return cal;
-	}
-	
-	Calendar getEndCal()
-	{
-		SimpleDateFormat sdf = new SimpleDateFormat("M/dd/yy H:MM a");
-		Calendar cal = Calendar.getInstance();
-		
-		try
-		{
-			cal.setTime(sdf.parse(endDate + " " + endTime));
-			cal.set(Calendar.MILLISECOND, 0);
-		}
-		catch (ParseException e)
-		{
-			return cal;
-		}
-		
-		return cal;
 	}
 
 	@Override

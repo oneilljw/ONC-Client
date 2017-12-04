@@ -197,19 +197,17 @@ public class WarehouseSignInDialog extends JDialog implements ActionListener, Da
 	@Override
 	public void dataChanged(DatabaseEvent dbe)
 	{
-		if(dbe.getSource() != this && (dbe.getType().equals("ADDED_DRIVER") ||
-				dbe.getType().equals("UPDATED_DRIVER")))
+		if(dbe.getSource() != this && (dbe.getType().equals("ADDED_VOLUNTEER")))
 		{
 			//add the new sign-in to the first item in the list
 			ONCVolunteer addedVol = (ONCVolunteer) dbe.getObject1();
 			whList.add(0, new WarehouseSignIn(addedVol));
 			
 			//update the sign-in table
-				dlgTableModel.fireTableRowsInserted(0, 0);;
+			dlgTableModel.fireTableRowsInserted(0, 0);;
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_DRIVERS"))
 		{
-			
 			//get the initial data and display
 	        createWarehouseSignInList();
 	        dlgTableModel.fireTableDataChanged();

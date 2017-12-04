@@ -86,6 +86,7 @@ public class ActivityDB extends ONCSearchableDatabase
 		Calendar startCal = Calendar.getInstance();
 		Calendar endCal = Calendar.getInstance();
 		
+		//convert the parameter start and end date/time strings and create Calendar objects
 		try
 		{
 			startCal.setTime(sdf.parse(startDate));
@@ -96,17 +97,16 @@ public class ActivityDB extends ONCSearchableDatabase
 		}
 		catch (ParseException e)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			return null;	//couldn't parse the input compare parameters so return null activity
 		}
 		
-		System.out.println("Input Cal: " + startCal);
-		//search for matching activity
+		//search for matching activity. A match requires the activity name, start date/time and
+		//end date/time to all be equal
 		int index = 0;
 		while(index < activityList.size() && 
-				!(activityList.get(index).getCategory().equals(activity) &&
-				  activityList.get(index).getStartCal().equals(startCal) &&
-				  activityList.get(index).getEndCal().equals(endCal)))
+				!(activityList.get(index).getName().equals(activity) &&
+				   activityList.get(index).getStartCal().equals(startCal) &&
+				    activityList.get(index).getEndCal().equals(endCal)))
 		{
 			index++;
 		}
@@ -234,7 +234,7 @@ public class ActivityDB extends ONCSearchableDatabase
 			Type listtype = new TypeToken<ArrayList<VolunteerActivity>>(){}.getType();
 			
 			response = serverIF.sendRequest("GET<activities>");
-				activityList = gson.fromJson(response, listtype);				
+				activityList = gson.fromJson(response, listtype);
 
 			if(!response.startsWith("NO_ACTIVITIES"))
 			{

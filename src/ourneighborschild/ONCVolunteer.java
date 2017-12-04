@@ -3,7 +3,6 @@ package ourneighborschild;
 //import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
 
 public class ONCVolunteer extends ONCGmailContactEntity implements Comparable<ONCVolunteer>
