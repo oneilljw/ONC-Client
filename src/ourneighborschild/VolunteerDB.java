@@ -721,7 +721,7 @@ public class VolunteerDB extends ONCSearchableDatabase
 			Gson gson = new Gson();
 			ONCVolunteer addedVol = gson.fromJson(ue.getJson(), ONCVolunteer.class);
 
-			fireDataChanged(this, "UPDATED_DRIVER", addedVol);
+			fireDataChanged(this, "ADDED_VOLUNTEER", addedVol);
 		}
 	}
 
