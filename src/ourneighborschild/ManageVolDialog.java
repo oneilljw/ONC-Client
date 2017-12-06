@@ -473,7 +473,10 @@ public class ManageVolDialog extends ONCTableDialog implements ActionListener, L
 		else if(e.getSource() == btnImport)
 		{
 			String loggedInLNFI = UserDB.getInstance().getLoggedInUser().getLNFI();
-			volDB.importSignUpGeniusVolunteers(GlobalVariablesDB.getFrame(), loggedInLNFI);
+			String resultMssg = volDB.importSignUpGeniusVolunteers(GlobalVariablesDB.getFrame(), loggedInLNFI);
+			
+			JOptionPane.showMessageDialog(this, resultMssg, "Sign-Up Genius Import Result", 
+					JOptionPane.INFORMATION_MESSAGE, GlobalVariablesDB.getONCLogo());
 		}
 	}
 	

@@ -51,8 +51,8 @@ public class ONCVolunteer extends ONCGmailContactEntity implements Comparable<ON
 	{
 		super(-1, line[6], line[7], line[8], getPhone("Home", line[17], line[18]), 
 				getPhone("Mobile", line[17], line[18]), parseAddress(line[11])[0], 
-				parseAddress(line[11])[1], line[13], line[14], line[15],
-				"", "Self",  new Date(), changedBy, STOPLIGHT_OFF, "New Volunteer", changedBy); 
+				parseAddress(line[11])[1], line[12], line[13], line[15],
+				"", "Self",  new Date(), changedBy, STOPLIGHT_OFF, "Sign-Up Genius Volunteer", changedBy); 
 		
 		drvNum = "N/A";
 		qty = activityList.size();

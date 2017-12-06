@@ -5,7 +5,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.lang.reflect.Type;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -29,7 +28,7 @@ import au.com.bytecode.opencsv.CSVWriter;
 public class VolunteerDB extends ONCSearchableDatabase
 {
 	private static final EntityType DB_TYPE = EntityType.VOLUNTEER;
-	private static final int SIGNUPGENIUS_FILE_HEADER_LENGTH = 19;
+	private static final int SIGN_UP_GENIUS_FILE_HEADER_LENGTH = 19;
 	private static VolunteerDB instance = null;
 	private ActivityDB activityDB;
 	
@@ -67,7 +66,7 @@ public class VolunteerDB extends ONCSearchableDatabase
     	chooser.setDialogTitle("Select SignUpGenius .csv file to import");	
  	    chooser.setFileFilter(new FileNameExtensionFilter("CSV Files", "csv"));
  	       
-	    int volunteersAddedCount = 0;
+	    int volunteersModifiedCount = 0, volunteersAddedCount = 0;
 	    File volFile = null;
 	    
 	    int returnVal = chooser.showOpenDialog(pFrame);
@@ -83,8 +82,12 @@ public class VolunteerDB extends ONCSearchableDatabase
 	    		if((header = reader.readNext()) != null)
 	    		{
 	    			//Read the ONC CSV File
-	    			if(header.length == SIGNUPGENIUS_FILE_HEADER_LENGTH)
+	    			if(header.length == SIGN_UP_GENIUS_FILE_HEADER_LENGTH ||
+	    				header.length == SIGN_UP_GENIUS_FILE_HEADER_LENGTH + 1)
 	    			{
+	    				//create a date format to parse date/time columns in sigh-up genius
+	    				//.csv file
+	    				
 	    				SimpleDateFormat sdf = new SimpleDateFormat("M/d/yy H:mm");
 	    				//get the logged in user LNFI
 	    				String userLNFI = UserDB.getInstance().getLoggedInUser().getLNFI();
@@ -94,6 +97,12 @@ public class VolunteerDB extends ONCSearchableDatabase
 	    				for(ONCVolunteer v : volunteerList)
 	    					cloneVolList.add(new ONCVolunteer(v));
 	    			
+	    				//read each line of the .csv. Determine if the line is a valid volunteer
+	    				//record. Determine if the volunteer is already in the database. If they are,
+	    				//get the activity associated with the record and determine if it's a new
+	    				//activity for the volunteer. If so add it.
+	    				//If the volunteer is new to the database, add a new record with a new activity
+	    				//list that contsinas the activity assocaited with the record.
 	    				while ((nextLine = reader.readNext()) != null)	// nextLine[] is an array of values from the line
 	    				{
 	    					//don't process records that don't have at least a first or last name
@@ -105,13 +114,13 @@ public class VolunteerDB extends ONCSearchableDatabase
 	    						if(currVol != null)
 	    						{
 //	    							System.out.println(String.format("Curr vol: %s %s", nextLine[6], nextLine[7]));
-	    							//volunteer found. If this is a new activity for the volunteer, make a update opject,
-	    							//update the activity list with the added activity
 	    							
+	    							//the volunteer is already in the database, determine if the 
+	    							//associated activity is new for the volunteer
 	    							VolunteerActivity genericActivity = activityDB.getActivity(nextLine[4],  nextLine[0], nextLine[1]);
 	    							if(genericActivity != null && !currVol.isVolunteeringFor(genericActivity))
 	    							{
-	    								//It is a new activity for this existing volunteer. Personalize it and add
+	    								//it is a new activity for this existing volunteer. Personalize it and add
 	    								//it to their activity list. Add the volunteer to the changed list
 	    								VolunteerActivity newAct = new VolunteerActivity(genericActivity);
 		    							newAct.setComment(nextLine[9]);	//add comment
@@ -126,14 +135,14 @@ public class VolunteerDB extends ONCSearchableDatabase
 		    							
 		    							currVol.addActivity(newAct);
 		    							
-//   										System.out.println(String.format("Updating vol: %s %s,  added act= %s", 
+//   									System.out.println(String.format("Updating vol: %s %s,  added act= %s", 
 //	    										currVol.getFirstName(), currVol.getLastName(), newAct.getName()));
 	    							}
 	    						}
 	    						else
 	    						{
-//	    							System.out.println(String.format("New vol: %s %s", nextLine[6], nextLine[7]));
-	    							//new volunteer, create them and add to change list
+	    							//new volunteer for the database, create an object and add to 
+	    							//change list
 	    							List<VolunteerActivity> actList = new ArrayList<VolunteerActivity>();
 	    							
 	    							//find the generic activity, copy it, and then personalize it by adding any comment and
@@ -261,7 +270,7 @@ public class VolunteerDB extends ONCSearchableDatabase
 		    						if(change.startsWith("UPDATED_DRIVER"))
 		    						{
 		    							this.processUpdatedObject(this, change.substring("UPDATED_DRIVER".length()), volunteerList);
-		    							volunteersAddedCount++;
+		    							volunteersModifiedCount++;
 		    						}
 		    				}
 		    				else
@@ -271,7 +280,6 @@ public class VolunteerDB extends ONCSearchableDatabase
 		    							"ONC Server SignUpGenius Import Error", JOptionPane.ERROR_MESSAGE, GlobalVariablesDB.getONCLogo());
 		    				}
 		    			}
-		    			
 	    			}
 	    			else
 	    				JOptionPane.showMessageDialog(pFrame, "Volunteer file corrupted, header length = " + Integer.toString(header.length), 
@@ -288,54 +296,24 @@ public class VolunteerDB extends ONCSearchableDatabase
 	    	}
 	    	finally
 	    	{
-	    		try {
+	    		try 
+	    		{
 					reader.close();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+				} catch (IOException e) 
+				{
+					JOptionPane.showMessageDialog(pFrame, "Unable to close Volunteer file: " + volFile.getName(), 
+		    			"Volunteer File Error", JOptionPane.ERROR_MESSAGE, GlobalVariablesDB.getONCLogo());
 				}
 	    	}
 	    }
 	    
-	    //If no new volunteers were in the file
-	    if(volFile == null || volunteersAddedCount == 0)
-	    	return "No Volunteers were imported";
+	    //create a message describing the result of processing the sign-up genius file
+	    if(volFile == null || (volunteersAddedCount + volunteersModifiedCount) == 0)
+	    	return "No new or modified volunteer records were found";
 	    else
-	    	return String.format("%d Volunteers imported from %s", volunteersAddedCount, volFile.getName());
+	    	return String.format("%d volunteers added and %d volunteers modified from %s", 
+	    			volunteersAddedCount, volunteersModifiedCount, volFile.getName());
 	    
-	}
-	
-	int updateActivityCode(String line, int activityCode)
-	{
-		String[] choices = {"Gift Inventory and Set up",
-							"Adult Warehouse Volunteers",
-							"Shopper",
-							"Packaging",
-							"Cookie Bakers",
-							"Miscellaneous Warehouse Support",
-							"Set up for Delivery",
-							"Delivery Day",
-							"Warehouse Inventory/Clean-Up",
-							"clothing wishes",
-							"Coprorate",
-							"Warehouse Set-Up",
-							"arriors",
-							"Bike Assembly Volunteers",
-							"Adult Volunteers for Warehouse Delivery Day Assignments",
-							"Post Delivery",
-							"Warehouse Inventory/Pack Up"};
-		
-		int[] codes = {16,4,32,8,64,4,1,2,128,256,512,4096,4,1024,4,2048,128};
-		
-		
-		int index = 0;
-		while(index < choices.length && !line.contains(choices[index]))
-			index++;
-		
-		if(index < choices.length)
-			activityCode = activityCode | codes[index];
-		
-		return activityCode;
 	}
 	
 	ONCVolunteer searchVolunteerListForMatch(String fn, String ln, List<ONCVolunteer> volList)
@@ -348,6 +326,7 @@ public class VolunteerDB extends ONCSearchableDatabase
 		return index < volList.size() ? volList.get(index) : null;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public void readDriverALObject(ObjectInputStream ois)
 	{
 		try 
@@ -360,19 +339,6 @@ public class VolunteerDB extends ONCSearchableDatabase
 			e.printStackTrace();
 		}
 		catch (ClassNotFoundException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	public void writeDriverALObject(ObjectOutputStream oos)
-	{
-		try
-		{
-			oos.writeObject(volunteerList);
-		}
-		catch (IOException e) 
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -404,11 +370,6 @@ public class VolunteerDB extends ONCSearchableDatabase
 		}
 		
 		return volunteerCount;
-	}
-	
-	void clearDriverData()
-	{
-		volunteerList.clear();
 	}
 	
 	public int getDriverIndex(int driverID)

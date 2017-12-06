@@ -68,6 +68,8 @@ public class ActivityDialog extends EntityDialog
 			activityDB.addDatabaseListener(this);
 		
 		volunteerDB = VolunteerDB.getInstance();
+		if(volunteerDB != null)
+			volunteerDB.addDatabaseListener(this);
 		
 		currActivity = null;
 		dateFormatter = new SimpleDateFormat("M/d/yy");
@@ -535,15 +537,10 @@ public class ActivityDialog extends EntityDialog
 					}
 				}
 			}
-//			else if(dbe.getSource() != this && dbe.getType().equals("LOADED_ACTIVITIES"))
-//			{
-//				if(activityDB.size() > 0)
-//				{
-//					VolunteerActivity firstActivity = (VolunteerActivity) activityDB.getObjectAtIndex(0);
-//					nav.setIndex(0);
-//					display(firstActivity);
-//				}
-//			}
+			else if(dbe.getSource() != this && dbe.getType().equals("ADDED_DRIVER"))
+			{
+				nav.setCount2("Volunteers: " + Integer.toString(volunteerDB.size()));
+			}
 		}
 	}
 
