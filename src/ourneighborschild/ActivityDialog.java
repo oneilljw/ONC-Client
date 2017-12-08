@@ -290,9 +290,18 @@ public class ActivityDialog extends EntityDialog
 		{
 			//Determine what to display based on currActivity and activity
 			if(currActivity == null)
-				currActivity = (VolunteerActivity) activityDB.getObjectAtIndex(0);	
+			{
+				currActivity = (VolunteerActivity) activityDB.getObjectAtIndex(0);
+			}
 			else
+			{
+//				if(activity == null)
+//					System.out.println("ActDlg.display: currAct activity");
+//				else
+//					System.out.println("ActDlg.display: currAct activity");
+					
 				currActivity = (VolunteerActivity) activity;
+			}
 			
 			//enable the date choosers
 			startDC.setEnabled(true);

@@ -82,7 +82,7 @@ public class ActivityDB extends ONCSearchableDatabase
 	VolunteerActivity getActivity(String activity, String startDate,  String endDate)
 	{
 		//convert the startDate and endDate strings to calendar objects
-		SimpleDateFormat sdf = new SimpleDateFormat("M/dd/yy H:mm");
+		SimpleDateFormat sdf = new SimpleDateFormat("M/dd/yy hh:mm a");
 		Calendar startCal = Calendar.getInstance();
 		Calendar endCal = Calendar.getInstance();
 		
@@ -90,10 +90,7 @@ public class ActivityDB extends ONCSearchableDatabase
 		try
 		{
 			startCal.setTime(sdf.parse(startDate));
-			startCal.set(Calendar.MILLISECOND, 0);
-			
 			endCal.setTime(sdf.parse(endDate));
-			endCal.set(Calendar.MILLISECOND, 0);
 		}
 		catch (ParseException e)
 		{
@@ -112,6 +109,17 @@ public class ActivityDB extends ONCSearchableDatabase
 		}
 		
 		return index < activityList.size() ? activityList.get(index) : null;
+		
+//		if(index < activityList.size())
+//		{
+//			System.out.println(String.format("ActDB.getAct: found act id %d", activityList.get(index).getID()));
+//			return activityList.get(index);
+//		}
+//		else
+//		{
+//			System.out.println(String.format("ActDB.getAct: didn't find act"));
+//			return null;
+//		}
 	}
 	
 	//creates a list of volunteer activities based on stored string of activity ID's 

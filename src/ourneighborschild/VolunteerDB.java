@@ -143,14 +143,17 @@ public class VolunteerDB extends ONCSearchableDatabase
 	    						{
 	    							//new volunteer for the database, create an object and add to 
 	    							//change list
+	    							
+//	    							System.out.println(String.format("New vol: %s %s", nextLine[6], nextLine[7]));
 	    							List<VolunteerActivity> actList = new ArrayList<VolunteerActivity>();
 	    							
 	    							//find the generic activity, copy it, and then personalize it by adding any comment and
 	    							//the time the volunteer signed up in SignUpGenius
-//	    							System.out.println(String.format("VolDB.import: col4: %s, col0: %s, col1 %s", nextLine[4], nextLine[0], nextLine[1]));
+//	    							System.out.println(String.format("Search for Activity: col4: %s, col0: %s, col1 %s", nextLine[4], nextLine[0], nextLine[1]));
 	    							VolunteerActivity genericAct = activityDB.getActivity(nextLine[4],  nextLine[0], nextLine[1]);
 	    							if(genericAct != null)
 	    							{
+//	    								System.out.println(String.format("New vol activity: %d: %s", genericAct.getID(), genericAct.getName()));
 	    								VolunteerActivity newAct = new VolunteerActivity(genericAct);
 	    								newAct.setComment(nextLine[9]);	//add comment
 	    								try
@@ -263,7 +266,7 @@ public class VolunteerDB extends ONCSearchableDatabase
 		    					//process the list of jsons returned, adding agent, families, adults
 		    					//and children to the local databases
 		    					Type jsonlisttype = new TypeToken<ArrayList<String>>(){}.getType();
-		    					ArrayList<String> changeList = gson.fromJson(response.substring(21), jsonlisttype);
+		    					ArrayList<String> changeList = gson.fromJson(response.substring(23), jsonlisttype);
 		    		    	
 		    					//loop thru list of changes, processing each one
 		    					for(String change: changeList)
@@ -361,6 +364,7 @@ public class VolunteerDB extends ONCSearchableDatabase
 		for(ONCVolunteer v : volunteerList)
 		{
 			List<VolunteerActivity> actList = v.getActivityList();
+			
 			int index = 0;
 			while(index < actList.size() && actList.get(index).getID() != va.getID())
 				index++;
