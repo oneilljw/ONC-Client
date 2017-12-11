@@ -205,8 +205,8 @@ public class VolunteerDB extends ONCSearchableDatabase
 	    					}
 	    					
 	    				}
-/*	    				
-	    				//DEBUG Diagnostic
+	    				
+/*	    				//DEBUG Diagnostic
 	    				for(ONCVolunteer v : newVolList)
 	    				{
 	    					System.out.println(String.format("New vol: id=%d, fn=%s, ln=%s",
@@ -259,7 +259,7 @@ public class VolunteerDB extends ONCSearchableDatabase
 		    			}
 		    			if(!updateVolList.isEmpty())
 		    			{
-		    				String response = serverIF.sendRequest("POST<update_volunteer_group>" + gson.toJson(newVolList, listtype));
+		    				String response = serverIF.sendRequest("POST<update_volunteer_group>" + gson.toJson(updateVolList, listtype));
 		    			
 		    				if(response != null && response.startsWith("UPDATED_VOLUNTEER_GROUP"))
 		    				{

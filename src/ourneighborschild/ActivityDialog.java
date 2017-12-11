@@ -288,20 +288,13 @@ public class ActivityDialog extends EntityDialog
 		}
 		else 
 		{
-			//Determine what to display based on currActivity and activity
+			//Determine what to display based on currActivity and activity. If currActivity is
+			//null, the set it to the first activity in the database. If currActviity is not null
+			//and activity isn't null, then set currActivity = activity;
 			if(currActivity == null)
-			{
 				currActivity = (VolunteerActivity) activityDB.getObjectAtIndex(0);
-			}
-			else
-			{
-//				if(activity == null)
-//					System.out.println("ActDlg.display: currAct activity");
-//				else
-//					System.out.println("ActDlg.display: currAct activity");
-					
-				currActivity = (VolunteerActivity) activity;
-			}
+			else if(activity != null)
+				currActivity =  (VolunteerActivity) activity;
 			
 			//enable the date choosers
 			startDC.setEnabled(true);

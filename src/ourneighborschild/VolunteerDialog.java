@@ -453,8 +453,11 @@ public class VolunteerDialog extends EntityDialog
 		bAddingNewEntity = true;
 		
 		nav.navSetEnabled(false);
-		entityPanel.setBorder(BorderFactory.createTitledBorder("Enter New Volunteer's Information"));
+		String mssg = "Enter New Volunteer's Information. Create the volunteer first, save, "
+						+ "then add their activities";
+		entityPanel.setBorder(BorderFactory.createTitledBorder(mssg));
 		clear();
+		actTable.setRowSelectionAllowed(false);
 		entityPanel.setBackground(Color.CYAN);	//Use color to indicate add org mode vs. review mode
 		setControlState();
 		
@@ -503,6 +506,8 @@ public class VolunteerDialog extends EntityDialog
 					unitTF.getText(), cityTF.getText(), zipTF.getText(), 
 					hPhoneTF.getText(), cPhoneTF.getText(), "1", "", commentTF.getText(),
 					new ArrayList<VolunteerActivity>(), new Date(), userDB.getUserLNFI());
+		
+		//need to loop thur the activities table and see what's been clicked in "New" mode
 						
 		//send add request to the local data base
 		String response = volDB.add(this, newVol);
@@ -531,6 +536,7 @@ public class VolunteerDialog extends EntityDialog
 		entityPanel.setBackground(pBkColor);
 
 		bAddingNewEntity = false;
+		actTable.setRowSelectionAllowed(true);
 		setControlState();
 	}
 	
@@ -541,6 +547,7 @@ public class VolunteerDialog extends EntityDialog
 		display(currVolunteer);
 		entityPanel.setBackground(pBkColor);
 		bAddingNewEntity = false;
+		actTable.setRowSelectionAllowed(true);
 		setControlState();
 	}
 	
@@ -736,7 +743,7 @@ public class VolunteerDialog extends EntityDialog
         public boolean isCellEditable(int row, int col)
         {
         	//participation is editable
-        	return col == PARTICIPATION_COL;
+        	return col == PARTICIPATION_COL & !bAddingNewEntity;
         }
         
         public void setValueAt(Object value, int row, int col)

@@ -11,9 +11,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -29,14 +27,11 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
-import javax.swing.SwingConstants;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
-import javax.swing.table.TableCellRenderer;
 
 import au.com.bytecode.opencsv.CSVWriter;
 
@@ -50,9 +45,7 @@ public class ManageActivitiesDialog extends ONCTableDialog implements ActionList
 	private static final int FIRST_NAME_COL= 0;
 	private static final int LAST_NAME_COL = 1;
 	private static final int GROUP_COL = 2;
-	private static final int NUM_ACT_COL = 3;
-	private static final int NUM_SIGNIN_COL = 4;
-	private static final int TIME_COL = 5;
+	private static final int COMMENT_COL = 3;
 
 	private static final int ACT_NAME_COL= 0;
 	private static final int ACT_START_DATE_COL = 1;
@@ -173,7 +166,7 @@ public class ManageActivitiesDialog extends ONCTableDialog implements ActionList
 		volTable = new ONCTable(volTableModel, colToolTips, new Color(240,248,255));
 		volTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		volTable.getSelectionModel().addListSelectionListener(this);
-		
+/*		
 		//set up a cell renderer for the LAST_LOGINS column to display the date 
 		TableCellRenderer tableCellRenderer = new DefaultTableCellRenderer()
 		{
@@ -191,10 +184,10 @@ public class ManageActivitiesDialog extends ONCTableDialog implements ActionList
 		    }
 		};
 		volTable.getColumnModel().getColumn(TIME_COL).setCellRenderer(tableCellRenderer);
-		
+*/		
 		//Set table column widths
 		tablewidth = 0;
-		int[] colWidths = {96, 96, 192, 80, 64, 128};
+		int[] colWidths = {96, 96, 192, 272};
 		for(int col=0; col < colWidths.length; col++)
 		{
 			volTable.getColumnModel().getColumn(col).setPreferredWidth(colWidths[col]);
@@ -209,10 +202,10 @@ public class ManageActivitiesDialog extends ONCTableDialog implements ActionList
         anHeader.setBackground( new Color(161,202,241));
         
         //Center justify columns
-        DefaultTableCellRenderer dtcr = new DefaultTableCellRenderer();
-        dtcr.setHorizontalAlignment(SwingConstants.CENTER);
-        volTable.getColumnModel().getColumn(NUM_ACT_COL).setCellRenderer(dtcr);
-        volTable.getColumnModel().getColumn(NUM_SIGNIN_COL).setCellRenderer(dtcr);
+//        DefaultTableCellRenderer dtcr = new DefaultTableCellRenderer();
+//        dtcr.setHorizontalAlignment(SwingConstants.CENTER);
+//        volTable.getColumnModel().getColumn(COMMENT_COL).setCellRenderer(dtcr);
+//        volTable.getColumnModel().getColumn(NUM_SIGNIN_COL).setCellRenderer(dtcr);
         
         //Create the scroll pane and add the table to it.
         JScrollPane volScrollPane = new JScrollPane(volTable, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
@@ -489,7 +482,7 @@ public class ManageActivitiesDialog extends ONCTableDialog implements ActionList
 		 */
 		private static final long serialVersionUID = 1L;
 		
-		private String[] columnNames = {"First Name", "Last Name", "Group", "# Activities", "# Sign-Ins", "Last Changed"};
+		private String[] columnNames = {"First Name", "Last Name", "Group", "Comment for Activity"};
  
         public int getColumnCount() { return columnNames.length; }
  
@@ -499,7 +492,20 @@ public class ManageActivitiesDialog extends ONCTableDialog implements ActionList
  
         public Object getValueAt(int row, int col)
         {
+        	//get the volunteer for the row
         	ONCVolunteer v = volTableList.get(row);
+        	
+        	//get the detailed activity for the volunteer. Get the generic activity first
+        	//then get the detailed activity
+        	int actModelRow = actTable.getSelectedRow() == -1 ? -1 : 
+				actTable.convertRowIndexToModel(actTable.getSelectedRow());
+
+        	VolunteerActivity detailedAct = null;
+        	if(actModelRow > -1)
+        	{
+        		VolunteerActivity genericAct = actTableList.get(actModelRow);
+        		detailedAct = v.getVolunteerActivity(genericAct.getID());
+        	}
         	
         	if(col == FIRST_NAME_COL)  
         		return v.getFirstName();
@@ -507,12 +513,8 @@ public class ManageActivitiesDialog extends ONCTableDialog implements ActionList
         		return v.getLastName();
         	else if (col == GROUP_COL)
         		return v.getOrganization();
-        	else if (col == NUM_ACT_COL)
-        		return v.getActivityList().size();
-        	else if (col == NUM_SIGNIN_COL)
-        		return v.getSignIns();
-        	else if (col == TIME_COL)
-        		return v.getDateChanged();
+        	else if (col == COMMENT_COL)
+        		return detailedAct != null ? detailedAct.getComment() : "";
         	else
         		return "Error";
         }
@@ -521,12 +523,7 @@ public class ManageActivitiesDialog extends ONCTableDialog implements ActionList
         @Override
         public Class<?> getColumnClass(int column)
         {
-        	if(column == TIME_COL)
-        		return Date.class;
-        	else if(column == NUM_ACT_COL || column == NUM_SIGNIN_COL)
-        		return Integer.class;
-        	else
-        		return String.class;
+        	return String.class;
         }
  
         public boolean isCellEditable(int row, int col)
