@@ -453,8 +453,8 @@ public class VolunteerDialog extends EntityDialog
 		bAddingNewEntity = true;
 		
 		nav.navSetEnabled(false);
-		String mssg = "Enter New Volunteer's Information. Create the volunteer first, save, "
-						+ "then add their activities";
+		String mssg = "Enter new volunteer's name and contact information first, save new volunteer, "
+				+ "then add new volunteer's activities in the table";
 		entityPanel.setBorder(BorderFactory.createTitledBorder(mssg));
 		clear();
 		actTable.setRowSelectionAllowed(false);
