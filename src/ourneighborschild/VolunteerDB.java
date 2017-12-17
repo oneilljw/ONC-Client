@@ -9,10 +9,12 @@ import java.lang.reflect.Type;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -685,7 +687,7 @@ public class VolunteerDB extends ONCSearchableDatabase
 		{
 			Gson gson = new Gson();
 			ONCVolunteer addedVol = gson.fromJson(ue.getJson(), ONCVolunteer.class);
-
+			
 			fireDataChanged(this, "ADDED_VOLUNTEER", addedVol);
 		}
 	}

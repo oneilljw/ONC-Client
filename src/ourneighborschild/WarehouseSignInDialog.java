@@ -13,6 +13,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.TimeZone;
@@ -20,7 +21,6 @@ import java.util.TimeZone;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -29,12 +29,14 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.UIManager;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 
-public class WarehouseSignInDialog extends JDialog implements ActionListener, DatabaseListener
+public class WarehouseSignInDialog extends ONCTableDialog implements ActionListener, DatabaseListener, ListSelectionListener
 {
 	/**
 	 * This class implements a dialog which allows the user to manage users
@@ -44,6 +46,7 @@ public class WarehouseSignInDialog extends JDialog implements ActionListener, Da
 	private static final int LAST_NAME_COL = 1;
 	private static final int GROUP_COL = 2;
 	private static final int TIME_COL = 3;
+	private static final int DRIVER_NUM_COL = 4;
 	
 	protected JPanel sortCriteriaPanel;
 	
@@ -52,6 +55,7 @@ public class WarehouseSignInDialog extends JDialog implements ActionListener, Da
 	private JButton btnPrint, btnClear;
 	private VolunteerDB volDB;
 	private List<WarehouseSignIn> whList;
+	
 		
 	public WarehouseSignInDialog(JFrame pf)
 	{
@@ -88,11 +92,12 @@ public class WarehouseSignInDialog extends JDialog implements ActionListener, Da
 		dlgTableModel = new DialogTableModel();
 		
 		//create the table
-		String[] colToolTips = {"First Name", "Last Name", "Group", "Time"};
+		String[] colToolTips = {"First Name", "Last Name", "Group", "Time", "Delivery Driver #"};
 		
 		dlgTable = new ONCTable(dlgTableModel, colToolTips, new Color(240,248,255));
 
 		dlgTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		dlgTable.getSelectionModel().addListSelectionListener(this);
 		
 		//set up a cell renderer for the LAST_LOGINS column to display the date 
 		TableCellRenderer tableCellRenderer = new DefaultTableCellRenderer()
@@ -114,7 +119,7 @@ public class WarehouseSignInDialog extends JDialog implements ActionListener, Da
 		
 		//Set table column widths
 		int tablewidth = 0;
-		int[] colWidths = {96, 96, 160, 128};
+		int[] colWidths = {96, 96, 160, 128, 48};
 		for(int col=0; col < colWidths.length; col++)
 		{
 			dlgTable.getColumnModel().getColumn(col).setPreferredWidth(colWidths[col]);
@@ -169,8 +174,7 @@ public class WarehouseSignInDialog extends JDialog implements ActionListener, Da
 		{
 			ONCVolunteer v = volDB.getVolunteer(whv.getVolunteerID());
 			if(v != null)
-				whList.add(new WarehouseSignIn(v.getFirstName(), v.getLastName(), whv.getGroup(),
-												whv.getCalTimestamp()));
+				whList.add(new WarehouseSignIn(v, whv.getCalTimestamp()));
 		}
 		
 		Collections.sort(whList, new WHDateComparator());
@@ -206,6 +210,25 @@ public class WarehouseSignInDialog extends JDialog implements ActionListener, Da
 			//update the sign-in table
 			dlgTableModel.fireTableRowsInserted(0, 0);;
 		}
+		if(dbe.getSource() != this && (dbe.getType().equals("UPDATED_DRIVER")))
+		{
+			//see if the volunteer is in the list, if they are then update the table. 
+			ONCVolunteer updatedVol = (ONCVolunteer) dbe.getObject1();
+
+			int index = 0;
+			while(index < whList.size() && updatedVol.getID() != whList.get(index).getVolunteer().getID())
+				index++;
+					
+			if(index < whList.size())
+			{
+				//found the volunteer who changed, update the warehouse sign in
+				System.out.println(String.format("WareSignInDlg.dataChg: updatedDriverFound: %d, %s", updatedVol.getID(), updatedVol.getLastName()));
+				whList.get(index).setUpdatedVolunteer(updatedVol);
+				
+				int tableRow = dlgTable.convertRowIndexToView(index);
+				dlgTableModel.fireTableRowsUpdated(tableRow, tableRow);
+			}	
+		}
 		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_DRIVERS"))
 		{
 			//get the initial data and display
@@ -231,31 +254,32 @@ public class WarehouseSignInDialog extends JDialog implements ActionListener, Da
 	
 	private class WarehouseSignIn
 	{
-		private String firstName;
-		private String lastName;
-		private String group;
+		private ONCVolunteer vol;
+//		private String firstName;
+//		private String lastName;
+//		private String group;
 		private long time;	//UTC time
 		
-		WarehouseSignIn(String fn, String ln, String group, Calendar time)
+		WarehouseSignIn(ONCVolunteer vol, Calendar time)
 		{
-			this.firstName = fn;
-			this.lastName = ln;
-			this.group = group;
+			this.vol = vol;
+//			this.firstName = fn;
+//			this.lastName = ln;
+//			this.group = group;
 			this.time = time.getTimeInMillis();
 		}
 		
 		WarehouseSignIn(ONCVolunteer v)
 		{
-			this.firstName = v.getFirstName();
-			this.lastName = v.getLastName();
-			this.group = v.getOrganization();
+			this.vol = v;
+//			this.firstName = v.getFirstName();
+//			this.lastName = v.getLastName();
+//			this.group = v.getOrganization();
 			this.time = v.getDateChanged().getTime(); //last warehouse sign-in
 		}
 		
 		//getters
-		String getFirstName() { return firstName; }
-		String getLastName() { return lastName; }
-		String getGroup() { return group; }
+		ONCVolunteer getVolunteer() { return vol; }
 		Date getTime() //return local time
 		{  
 			TimeZone tz = TimeZone.getDefault();	//Local time zone
@@ -268,6 +292,10 @@ public class WarehouseSignInDialog extends JDialog implements ActionListener, Da
 
 			return localCal.getTime();
 		}
+		String getDriverNum() { return vol.getDrvNum(); }
+		
+		//setters
+		void setUpdatedVolunteer(ONCVolunteer updatedVolunteer) { this.vol = updatedVolunteer; }
 	}
 	
 	class DialogTableModel extends AbstractTableModel
@@ -277,7 +305,7 @@ public class WarehouseSignInDialog extends JDialog implements ActionListener, Da
 		 */
 		private static final long serialVersionUID = 1L;
 		
-		private String[] columnNames = {"First Name", "Last Name", "Group", "Log-In Time"};
+		private String[] columnNames = {"First Name", "Last Name", "Group", "Log-In Time", "Drv. #"};
  
         public int getColumnCount() { return columnNames.length; }
  
@@ -289,13 +317,15 @@ public class WarehouseSignInDialog extends JDialog implements ActionListener, Da
         {
         	WarehouseSignIn whSignIn = whList.get(row);
         	if(col == FIRST_NAME_COL)  
-        		return whSignIn.getFirstName();
+        		return whSignIn.getVolunteer().getFirstName();
         	else if(col == LAST_NAME_COL)
-        		return whSignIn.getLastName();
+        		return whSignIn.getVolunteer().getLastName();
         	else if (col == GROUP_COL)
-        		return whSignIn.getGroup();
+        		return whSignIn.getVolunteer().getOrganization();
         	else if (col == TIME_COL)
         		return whSignIn.getTime();
+        	else if (col == DRIVER_NUM_COL)
+        		return whSignIn.getDriverNum();
         	else
         		return "Error";
         }
@@ -328,5 +358,27 @@ public class WarehouseSignInDialog extends JDialog implements ActionListener, Da
 			else 
 				return 0;
 		}
+	}
+
+	@Override
+	public void valueChanged(ListSelectionEvent lse)
+	{
+		if(lse.getSource() == dlgTable.getSelectionModel())
+		{
+			int modelRow = dlgTable.getSelectedRow() == -1 ? -1 : 
+			dlgTable.convertRowIndexToModel(dlgTable.getSelectedRow());
+		
+			if(modelRow > -1)
+			{
+				WarehouseSignIn si = whList.get(modelRow);
+				fireEntitySelected(this, EntityType.VOLUNTEER, si.getVolunteer(), null, null);
+			}
+		}		
+	}
+
+	@Override
+	public EnumSet<EntityType> getEntityEventSelectorEntityTypes() 
+	{	
+		return EnumSet.of(EntityType.VOLUNTEER);
 	}
 }

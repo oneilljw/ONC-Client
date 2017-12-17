@@ -142,6 +142,7 @@ public class DialogManager implements EntitySelectionListener
     	
     	//Set up the sign-in dialog
     	signInDlg = new WarehouseSignInDialog(GlobalVariablesDB.getFrame());
+    	eeManager.registerEntitySelector(signInDlg);
     	
     	//Set up the manage volunteer dialog
     	manageVolDlg = new ManageVolDialog(GlobalVariablesDB.getFrame());
