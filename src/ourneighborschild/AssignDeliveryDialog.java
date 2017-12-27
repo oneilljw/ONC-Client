@@ -34,8 +34,10 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 	private int sortstartRegion, sortendRegion;
 	private FamilyGiftStatus sortGiftStatus;
 	
-	private JComboBox sRegCB, eRegCB, dstatusCB;
-	private DefaultComboBoxModel eRegCBM;	//start region uses the inherited model
+	private JComboBox<String> sRegCB;
+	private JComboBox<String> eRegCB;
+	private JComboBox<FamilyGiftStatus> dstatusCB;
+	private DefaultComboBoxModel<String> eRegCBM;	//start region uses the inherited model
 	private JTextField oncnumTF, assignDriverTF;
 	private JButton btnPrintListing;
 	
@@ -58,31 +60,31 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 		sortGiftStatus = FamilyGiftStatus.Any;
 				
 		//Set up unique sort criteria gui
-    	oncnumTF = new JTextField(5);
-    	oncnumTF.setEditable(true);
-    	oncnumTF.setMaximumSize(new Dimension(64,56));
+    		oncnumTF = new JTextField(5);
+    		oncnumTF.setEditable(true);
+    		oncnumTF.setMaximumSize(new Dimension(64,56));
 //    	oncnumTF.setPreferredSize(new Dimension(88,56));
 		oncnumTF.setBorder(BorderFactory.createTitledBorder("ONC #"));
 		oncnumTF.setToolTipText("Type ONC Family # and press <enter>");
 		oncnumTF.addActionListener(this);
 		oncnumTF.addKeyListener(new ONCNumberKeyListener());
     	
-    	regionCBM.addElement("Any");	//superclass has regionCBM
-    	sRegCB = new JComboBox();
-    	sRegCB.setModel(regionCBM);
-    	sRegCB.setMaximumSize(new Dimension(48,56));
+		regionCBM.addElement("Any");	//superclass has regionCBM
+    		sRegCB = new JComboBox<String>();
+    		sRegCB.setModel(regionCBM);
+    		sRegCB.setMaximumSize(new Dimension(48,56));
 		sRegCB.setBorder(BorderFactory.createTitledBorder("Region Start"));
 		sRegCB.addActionListener(this);
 		
-		eRegCBM = new DefaultComboBoxModel();
+		eRegCBM = new DefaultComboBoxModel<String>();
 		eRegCBM.addElement("Any");
-		eRegCB = new JComboBox();
+		eRegCB = new JComboBox<String>();
 		eRegCB.setModel(eRegCBM);
-    	eRegCB.setMaximumSize(new Dimension(48,56));
+    		eRegCB.setMaximumSize(new Dimension(48,56));
 		eRegCB.setBorder(BorderFactory.createTitledBorder("Region End"));
 		eRegCB.addActionListener(this);
 		
-		dstatusCB = new JComboBox(FamilyGiftStatus.getSearchFilterList());
+		dstatusCB = new JComboBox<FamilyGiftStatus>(FamilyGiftStatus.getSearchFilterList());
 		dstatusCB.setMaximumSize(new Dimension(192,56));
 		dstatusCB.setBorder(BorderFactory.createTitledBorder("Gift Status Less Then"));
 		dstatusCB.addActionListener(this);

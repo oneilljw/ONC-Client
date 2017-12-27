@@ -45,8 +45,8 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 	private static final int MIN_EMAIL_ADDRESS_LENGTH = 2;
 	private static final int MIN_EMAIL_NAME_LENGTH = 1;
 	
-	private JComboBox orgCB, titleCB, batchCB, printCB, emailCB;
-	private DefaultComboBoxModel orgCBM, titleCBM, emailCBM;
+	private JComboBox<String> orgCB, titleCB, batchCB, printCB, emailCB;
+	private DefaultComboBoxModel<String> orgCBM, titleCBM, emailCBM;
 	private String sortOrg, sortTitle, sortBatch;
 	private JCheckBox allAgentsCxBox;
 
@@ -87,22 +87,22 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		//Set up the search criteria panel 
 		String[] batchNums = {"Any","B-01","B-02","B-03","B-04","B-05","B-06","B-07","B-08",
 				"B-09","B-10", "B-CR", "B-DI", "B-01 to B-10"};
-		batchCB = new JComboBox(batchNums);
+		batchCB = new JComboBox<String>(batchNums);
 		batchCB.setPreferredSize(new Dimension(56, 56));
 		batchCB.setBorder(BorderFactory.createTitledBorder("Batch #"));
 		batchCB.setToolTipText("Filters table to contain agents who referrred in selected Batch");
 		batchCB.addActionListener(this);
 		
-		orgCB = new JComboBox();
-		orgCBM = new DefaultComboBoxModel();
+		orgCB = new JComboBox<String>();
+		orgCBM = new DefaultComboBoxModel<String>();
 	    orgCBM.addElement("Any");
 	    orgCB.setModel(orgCBM);
 		orgCB.setPreferredSize(new Dimension(192, 56));
 		orgCB.setBorder(BorderFactory.createTitledBorder("Organization"));
 		orgCB.addActionListener(this);
 		
-		titleCB = new JComboBox();
-		titleCBM = new DefaultComboBoxModel();
+		titleCB = new JComboBox<String>();
+		titleCBM = new DefaultComboBoxModel<String>();
 	    titleCBM.addElement("Any");
 	    titleCB.setModel(titleCBM);
 		titleCB.setPreferredSize(new Dimension(192, 56));
@@ -141,17 +141,17 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
         emailChoices[0] = "Export/Email";
         emailChoices[1] = "Export Gmail Contact List";
         emailChoices[2] = "Email 2017 Season Gift Confirmation";
-        emailCBM = new DefaultComboBoxModel();
+        emailCBM = new DefaultComboBoxModel<String>();
         emailCBM.addElement(emailChoices[0]);
         emailCBM.addElement(emailChoices[1]);
-        emailCB = new JComboBox(emailCBM);
+        emailCB = new JComboBox<String>(emailCBM);
         emailCB.setPreferredSize(new Dimension(136, 28));
         emailCB.setEnabled(false);
         emailCB.addActionListener(this);
               
       	//Create a print button for agent information
       	String[] agentPrintChoices = {"Print", "Print Agent Listing"};
-        printCB = new JComboBox(agentPrintChoices);
+        printCB = new JComboBox<String>(agentPrintChoices);
         printCB.setPreferredSize(new Dimension(136, 28));
         printCB.setEnabled(false);
         printCB.addActionListener(this);

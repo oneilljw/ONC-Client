@@ -18,7 +18,7 @@ public class BatchNumDialog extends JDialog implements ActionListener
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private JComboBox batchCB;
+	private JComboBox<String> batchCB;
 	private JButton btnOK, btnCancel;
 	private String batchNum;
 	
@@ -33,7 +33,7 @@ public class BatchNumDialog extends JDialog implements ActionListener
 									
 		String[] batchnums = {"B-01","B-02","B-03","B-04","B-05","B-06","B-07","B-08","B-09","B-10",
 								"B-CR"};
-		batchCB = new JComboBox(batchnums);
+		batchCB = new JComboBox<String>(batchnums);
 //		batchCB.setEditable(true);
 		batchCB.setMaximumSize(new Dimension(96, 56));
 		batchCB.setSelectedItem(recBN);

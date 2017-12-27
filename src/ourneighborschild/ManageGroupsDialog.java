@@ -65,8 +65,13 @@ public class ManageGroupsDialog extends ONCTableDialog implements ActionListener
 	private static final int NUM_AGENT_TABLE_ROWS = 8;
 	
 	private JPanel sortCriteriaPanel;
-	private JComboBox typeCB, sharingCB, userCB, volExportCB;
-	private DefaultComboBoxModel userCBM;
+	private JComboBox<GroupType> typeCB;
+	private JComboBox<String> sharingCB;
+	private JComboBox<ONCUser> userCB;
+	private JComboBox<String> volExportCB;
+	
+	private DefaultComboBoxModel<ONCUser> userCBM;
+	
 	private boolean bIgnoreCBEvents;
 	private GroupType sortGroupType;
 	private String sortSharing;
@@ -119,7 +124,7 @@ public class ManageGroupsDialog extends ONCTableDialog implements ActionListener
 		sortCriteriaPanel.add(lblONCicon);
 		
 		//create search filter
-		typeCB = new JComboBox(GroupType.getSearchFilterList());
+		typeCB = new JComboBox<GroupType>(GroupType.getSearchFilterList());
 		typeCB.setBorder(BorderFactory.createTitledBorder("Group Type"));
 		typeCB.setPreferredSize(new Dimension(200,56));
 		typeCB.addActionListener(this);
@@ -127,15 +132,15 @@ public class ManageGroupsDialog extends ONCTableDialog implements ActionListener
 		sortGroupType = GroupType.Any;
 		
 		String[] sharingChoices = {"Any", "Yes", "No"};
-		sharingCB = new JComboBox(sharingChoices);
+		sharingCB = new JComboBox<String>(sharingChoices);
 		sharingCB.setBorder(BorderFactory.createTitledBorder("Sharing?"));
 		sharingCB.setPreferredSize(new Dimension(88,56));
 		sharingCB.addActionListener(this);
 		sortCriteriaPanel.add(sharingCB);
 		sortSharing ="Any";
 		
-		userCB = new JComboBox();
-		userCBM = new DefaultComboBoxModel();
+		userCB = new JComboBox<ONCUser>();
+		userCBM = new DefaultComboBoxModel<ONCUser>();
 		sortUser = new ONCUser("", "Any");
 	    userCBM.addElement(sortUser);
 	    userCB.setModel(userCBM);
@@ -258,7 +263,7 @@ public class ManageGroupsDialog extends ONCTableDialog implements ActionListener
         infoPanel.add(lblAgentCount);
         
         String[] exportChoices = {"Export", "Agent Gmail Contact Group"};
-        volExportCB = new JComboBox(exportChoices);
+        volExportCB = new JComboBox<String>(exportChoices);
         volExportCB.setToolTipText("Export Agent Info to .csv file");
         volExportCB.setEnabled(false);
         volExportCB.addActionListener(this);
@@ -655,7 +660,7 @@ public class ManageGroupsDialog extends ONCTableDialog implements ActionListener
         }
 	}
 	
-	public class UserComboBoxRenderer extends JLabel implements ListCellRenderer 
+	public class UserComboBoxRenderer extends JLabel implements ListCellRenderer<ONCUser> 
 	{
 	    /**
 		 * 
@@ -663,12 +668,12 @@ public class ManageGroupsDialog extends ONCTableDialog implements ActionListener
 		private static final long serialVersionUID = 1L;
 
 		@Override
-	    public Component getListCellRendererComponent(JList list, Object value,
+	    public Component getListCellRendererComponent(JList list, ONCUser value,
 	            int index, boolean isSelected, boolean cellHasFocus) 
 		{
 	        ONCUser selUser = (ONCUser) value;
 	        setText(selUser.getLNFI());
 	        return this;
-	    }
+		}
 	}
 }

@@ -69,9 +69,16 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 
 	private ArrayList<SortWishObject> stAL;
 	
-	private JComboBox startAgeCB, endAgeCB, dnsCB, genderCB, wishnumCB, wishCB, resCB, assignCB, statusCB, changedByCB;
-	private JComboBox changeResCB, changeStatusCB, changeAssigneeCB, printCB, regionCB, schoolCB;
-	private DefaultComboBoxModel wishCBM, assignCBM, changeAssigneeCBM, changedByCBM, regionCBM, schoolCBM;
+	private JComboBox<String> startAgeCB, endAgeCB, dnsCB, wishnumCB, genderCB, resCB, changedByCB;
+	private JComboBox<String> changeResCB, printCB, regionCB, schoolCB;
+	private JComboBox<ONCWish> wishCB;
+	private JComboBox<WishStatus>  statusCB, changeStatusCB;
+	private JComboBox<ONCPartner> assignCB, changeAssigneeCB;
+	
+	private DefaultComboBoxModel<String> changedByCBM, regionCBM, schoolCBM;
+	private DefaultComboBoxModel<ONCWish> wishCBM;
+	private DefaultComboBoxModel<ONCPartner> assignCBM, changeAssigneeCBM;
+	
 	private JTextField oncnumTF;
 	private JButton btnExport;
 	private JDateChooser ds, de;
@@ -122,22 +129,22 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 
 		//Set up the search criteria panel
 		oncnumTF = new JTextField(4);
-    	oncnumTF.setEditable(true);
-    	oncnumTF.setMaximumSize(new Dimension(64,56));
+		oncnumTF.setEditable(true);
+		oncnumTF.setMaximumSize(new Dimension(64,56));
 		oncnumTF.setBorder(BorderFactory.createTitledBorder("ONC #"));
 		oncnumTF.setToolTipText("Type ONC Family # and press <enter>");
 		oncnumTF.addActionListener(this);
 		oncnumTF.addKeyListener(new ONCNumberKeyListener());
 		
-		dnsCB = new JComboBox(dnsCodes);
+		dnsCB = new JComboBox<String>(dnsCodes);
 		dnsCB.setEditable(true);
 		dnsCB.setPreferredSize(new Dimension(120, 56));
 		dnsCB.setBorder(BorderFactory.createTitledBorder("DNS Code"));
 		dnsCB.addActionListener(this);
 		
-		regionCBM = new DefaultComboBoxModel();
+		regionCBM = new DefaultComboBoxModel<String>();
 		regionCBM.addElement("Any");
-		regionCB = new JComboBox();
+		regionCB = new JComboBox<String>();
 		regionCB.setModel(regionCBM);
 		regionCB.setBorder(BorderFactory.createTitledBorder("Region"));
 		regionCB.setPreferredSize(new Dimension(64,56));
@@ -146,46 +153,46 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		String[] ages = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10",
 				"11","12", "13", "14", "15", "16", "17", "18", "19", "20", "21"};
 
-		startAgeCB = new JComboBox(ages);
+		startAgeCB = new JComboBox<String>(ages);
 		startAgeCB.setBorder(BorderFactory.createTitledBorder("Start Age"));
 		startAgeCB.setPreferredSize(new Dimension(64,56));
 		startAgeCB.addActionListener(this);
 		
-		endAgeCB = new JComboBox(ages);
+		endAgeCB = new JComboBox<String>(ages);
 		endAgeCB.setBorder(BorderFactory.createTitledBorder("End Age"));
 		endAgeCB.setPreferredSize(new Dimension(64,56));
 		endAgeCB.setSelectedIndex(ages.length-1);
 		endAgeCB.addActionListener(this);
 		
-		genderCB = new JComboBox(genders);
+		genderCB = new JComboBox<String>(genders);
 		genderCB.setBorder(BorderFactory.createTitledBorder("Gender"));
 		genderCB.setSize(new Dimension(72,56));
 		genderCB.addActionListener(this);
 		
 		String[] wishnums = {"Any", "1", "2", "3"};
-		wishnumCB = new JComboBox(wishnums);
+		wishnumCB = new JComboBox<String>(wishnums);
 		wishnumCB.setBorder(BorderFactory.createTitledBorder("Wish #"));
 		startAgeCB.setPreferredSize(new Dimension(72,56));
 		wishnumCB.addActionListener(this);
 		
-		schoolCBM = new DefaultComboBoxModel();
+		schoolCBM = new DefaultComboBoxModel<String>();
 	    schoolCBM.addElement("Any");
-		schoolCB = new JComboBox();		
+		schoolCB = new JComboBox<String>();		
         schoolCB.setModel(schoolCBM);
 		schoolCB.setPreferredSize(new Dimension(180, 56));
 		schoolCB.setBorder(BorderFactory.createTitledBorder("School Attended"));
 		schoolCB.addActionListener(this);
 		
-		wishCBM = new DefaultComboBoxModel();
+		wishCBM = new DefaultComboBoxModel<ONCWish>();
 	    wishCBM.addElement(new ONCWish(-2, "Any", 7));
-		wishCB = new JComboBox();		
+		wishCB = new JComboBox<ONCWish>();		
         wishCB.setModel(wishCBM);
 		wishCB.setPreferredSize(new Dimension(180, 56));
 		wishCB.setBorder(BorderFactory.createTitledBorder("Wish Type"));
 		wishCB.addActionListener(this);
 		
-		changedByCB = new JComboBox();
-		changedByCBM = new DefaultComboBoxModel();
+		changedByCB = new JComboBox<String>();
+		changedByCBM = new DefaultComboBoxModel<String>();
 	    changedByCBM.addElement("Anyone");
 	    changedByCB.setModel(changedByCBM);
 		changedByCB.setBorder(BorderFactory.createTitledBorder("Changed By"));
@@ -209,20 +216,20 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		de.setBorder(BorderFactory.createTitledBorder("Changed Before"));
 		de.getDateEditor().addPropertyChangeListener(this);
 		
-		resCB = new JComboBox(res);
+		resCB = new JComboBox<String>(res);
 		resCB.setPreferredSize(new Dimension(104, 56));
 		resCB.setBorder(BorderFactory.createTitledBorder("Restrictions"));
 		resCB.addActionListener(this);
 		res[0] = "No Change";	//Change "Any" to none after sort criteria list created
 		
-		statusCB = new JComboBox(WishStatus.getSearchFilterList());
+		statusCB = new JComboBox<WishStatus>(WishStatus.getSearchFilterList());
 		statusCB.setPreferredSize(new Dimension(136, 56));
 		statusCB.setBorder(BorderFactory.createTitledBorder("Status"));
 		statusCB.addActionListener(this);
 		status[0] = "No Change"; //Change "Any" to none after sort criteria list created
 		
-		assignCB = new JComboBox();
-		assignCBM = new DefaultComboBoxModel();
+		assignCB = new JComboBox<ONCPartner>();
+		assignCBM = new DefaultComboBoxModel<ONCPartner>();
 		
 		//take advantage of the fact that partner id's are 7 digits and start with the calendar year
 	    assignCBM.addElement(new ONCPartner(0, "Any", "Any"));
@@ -258,18 +265,18 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		
 		changeDataPanel.setBorder(BorderFactory.createTitledBorder("Change Wish Restrictions/Status/Assignee"));
         
-		changeResCB = new JComboBox(res);
+		changeResCB = new JComboBox<String>(res);
         changeResCB.setPreferredSize(new Dimension(192, 56));
 		changeResCB.setBorder(BorderFactory.createTitledBorder("Change Restrictions To:"));
 		changeResCB.addActionListener(this);
         
-        changeStatusCB = new JComboBox(WishStatus.getChangeList());
+        changeStatusCB = new JComboBox<WishStatus>(WishStatus.getChangeList());
         changeStatusCB.setPreferredSize(new Dimension(192, 56));
 		changeStatusCB.setBorder(BorderFactory.createTitledBorder("Change Status To:"));
 		changeStatusCB.addActionListener(this);
         
-        changeAssigneeCB = new JComboBox();
-        changeAssigneeCBM = new DefaultComboBoxModel();
+        changeAssigneeCB = new JComboBox<ONCPartner>();
+        changeAssigneeCBM = new DefaultComboBoxModel<ONCPartner>();
 	    changeAssigneeCBM.addElement(new ONCPartner(0, "No Change", "No Change"));
 	    changeAssigneeCBM.addElement(new ONCPartner(-1, "None", "None"));
         changeAssigneeCB.setModel(changeAssigneeCBM);
@@ -300,7 +307,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
         btnExport.addActionListener(this);
         
         String[] printChoices = {"Print", "Print Listing", "Print Labels", "Print Partner Receiving Check Sheets"};
-        printCB = new JComboBox(printChoices);
+        printCB = new JComboBox<String>(printChoices);
         printCB.setPreferredSize(new Dimension(136, 28));
         printCB.setEnabled(true);
         printCB.addActionListener(this);
@@ -309,7 +316,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
       	cntlPanel.add(printCB);
       	
       	bottomPanel.add(infoPanel, BorderLayout.LINE_START);
-    	bottomPanel.add(cntlPanel, BorderLayout.CENTER);
+      	bottomPanel.add(cntlPanel, BorderLayout.CENTER);
  
         //add the bottom two panels to the dialog and pack
         this.add(changePanel);
@@ -330,40 +337,40 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		archiveTableSelections(stAL);
 		
 		if(col == 0)	//Sort on ONC Family Number
-    		Collections.sort(stAL, new ONCSortItemFamNumComparator());
+    			Collections.sort(stAL, new ONCSortItemFamNumComparator());
 		else if(col == 1)	// Sort on DNS Code
-    		Collections.sort(stAL, new ONCSortItemFamilyDNSComparator());
+    			Collections.sort(stAL, new ONCSortItemFamilyDNSComparator());
 		else if(col == 2)	// Sort on Child's Age
-    		Collections.sort(stAL, new ONCSortItemFamilyRegionComparator());
-    	else if(col == 3)	// Sort on Child's Age
-    		Collections.sort(stAL, new ONCSortItemAgeComparator());
-    	else if(col == 4)	//Sort on Child's Gender
-    		Collections.sort(stAL, new ONCSortItemGenderComparator());
-    	else if(col == 5)	//Sort on Child's School
-    		Collections.sort(stAL, new ONCSortItemSchoolComparator());
-    	else if(col == 6)	//Sort on Child's Wish #
-    		Collections.sort(stAL, new ONCSortItemWishNumComparator());
-    	else if(col == 7)	//Sort on Child's Base Wish
-    		Collections.sort(stAL, new ONCSortItemWishBaseComparator());
-    	else if(col == 8)	//Sort on Child's Wish Detail
-    		Collections.sort(stAL, new ONCSortItemWishDetailComparator());
-    	else if(col == 9)	//Sort on Child's Wish Indicator
-    		Collections.sort(stAL, new ONCSortItemWishIndicatorComparator());
-    	else if(col == 10)	//Sort on Child's Wish Status
-    		Collections.sort(stAL, new ONCSortItemWishStatusComparator());
-    	else if(col == 11)	//Sort on Child's Wish Assignee
-    		Collections.sort(stAL, new ONCSortItemWishAssigneeComparator());
-    	else if(col ==  12)	//Sort on Child's Wish Changed By
-    		Collections.sort(stAL, new ONCSortItemWishChangedByComparator());
-    	else if(col == 13)	//Sort on Child's Wish Date Changed
-    		Collections.sort(stAL, new ONCSortItemWishDateChangedComparator());
-    	else
-    		col = -1;
+    			Collections.sort(stAL, new ONCSortItemFamilyRegionComparator());
+		else if(col == 3)	// Sort on Child's Age
+    			Collections.sort(stAL, new ONCSortItemAgeComparator());
+    		else if(col == 4)	//Sort on Child's Gender
+    			Collections.sort(stAL, new ONCSortItemGenderComparator());
+    		else if(col == 5)	//Sort on Child's School
+    			Collections.sort(stAL, new ONCSortItemSchoolComparator());
+    		else if(col == 6)	//Sort on Child's Wish #
+    			Collections.sort(stAL, new ONCSortItemWishNumComparator());
+    		else if(col == 7)	//Sort on Child's Base Wish
+    			Collections.sort(stAL, new ONCSortItemWishBaseComparator());
+    		else if(col == 8)	//Sort on Child's Wish Detail
+    			Collections.sort(stAL, new ONCSortItemWishDetailComparator());
+    		else if(col == 9)	//Sort on Child's Wish Indicator
+    			Collections.sort(stAL, new ONCSortItemWishIndicatorComparator());
+    		else if(col == 10)	//Sort on Child's Wish Status
+    			Collections.sort(stAL, new ONCSortItemWishStatusComparator());
+    		else if(col == 11)	//Sort on Child's Wish Assignee
+    			Collections.sort(stAL, new ONCSortItemWishAssigneeComparator());
+    		else if(col ==  12)	//Sort on Child's Wish Changed By
+    			Collections.sort(stAL, new ONCSortItemWishChangedByComparator());
+    		else if(col == 13)	//Sort on Child's Wish Date Changed
+    			Collections.sort(stAL, new ONCSortItemWishDateChangedComparator());
+    		else
+    			col = -1;
 		
 		if(col > -1)
 			displaySortTable(stAL, false, tableRowSelectedObjectList);
     		
-    	return col;
+		return col;
 	}
 
 	@Override

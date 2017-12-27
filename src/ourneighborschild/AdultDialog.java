@@ -77,7 +77,7 @@ public class AdultDialog extends JDialog implements ActionListener, EntitySelect
 		
 		//set up the gender column with a combo box
 		TableColumn genderColumn = dlgTable.getColumnModel().getColumn(GENDER_COL);
-		genderColumn.setCellEditor(new DefaultCellEditor(new JComboBox(AdultGender.values())));
+		genderColumn.setCellEditor(new DefaultCellEditor(new JComboBox<AdultGender>(AdultGender.values())));
 		
 		//Set table column widths
 		int tablewidth = 0;
@@ -382,7 +382,7 @@ public class AdultDialog extends JDialog implements ActionListener, EntitySelect
 		private static final int NAME_INDEX = 0;
 		private static final int GENDER_INDEX = 1;
 		
-		private JComboBox genderCB;
+		private JComboBox<AdultGender> genderCB;
 		private ONCAdult reqAddAdult;	
 		
 		AddAdultDialog(JFrame pf)
@@ -401,7 +401,7 @@ public class AdultDialog extends JDialog implements ActionListener, EntitySelect
 			}
 			
 			//set up the transformation panel
-			genderCB = new JComboBox(AdultGender.values());
+			genderCB = new JComboBox<AdultGender>(AdultGender.values());
 			genderCB.setPreferredSize(new Dimension(158,36));
 			infopanel[GENDER_INDEX].remove(tf[GENDER_INDEX]);
 			infopanel[GENDER_INDEX].add(genderCB);

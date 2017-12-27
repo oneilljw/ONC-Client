@@ -23,7 +23,7 @@ public abstract class SortFamilyTableDialog extends ChangeDialog
 	
 	protected ArrayList<ONCFamily> stAL = new ArrayList<ONCFamily>();
 	protected ArrayList<ONCFamily> tableRowSelectedObjectList;
-	protected DefaultComboBoxModel regionCBM;
+	protected DefaultComboBoxModel<String> regionCBM;
 	
 //	protected SortTableModel fdTableModel;
 	
@@ -40,7 +40,7 @@ public abstract class SortFamilyTableDialog extends ChangeDialog
 		
 		stAL = new ArrayList<ONCFamily>();
 		tableRowSelectedObjectList = new ArrayList<ONCFamily>();
-		regionCBM = new DefaultComboBoxModel();
+		regionCBM = new DefaultComboBoxModel<String>();
 		
 //		fdTableModel = new SortTableModel(stAL, cols);
 //		sortTable.setModel(fdTableModel);

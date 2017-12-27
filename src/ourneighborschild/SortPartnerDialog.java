@@ -22,6 +22,7 @@ import java.util.List;
 import javax.mail.internet.MimeBodyPart;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -66,13 +67,13 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
     private PartnerDB orgs;
     private ChildDB childDB;
 	
-    private JComboBox regionCB, statusCB, typeCB, collectionCB;
-    private JComboBox changedByCB, stoplightCB;
+    private JComboBox<String> regionCB, statusCB, typeCB, changedByCB, changeOrnReqCB;
+    private JComboBox<GiftCollection> collectionCB;
+    private JComboBox<ImageIcon> stoplightCB;
     private ComboItem[] changePartItem;
-    private JComboBox changePStatusCB, changeOrnReqCB;
-    private DefaultComboBoxModel regionCBM;
-    private DefaultComboBoxModel changedByCBM;
-    private JComboBox printCB, emailCB, exportCB;
+    private JComboBox<ComboItem> changePStatusCB;
+    private DefaultComboBoxModel<String> regionCBM, changedByCBM;
+    private JComboBox<String> printCB, emailCB, exportCB;
     private JLabel lblOrnReq;
     private ArrayList<ONCPartner> stAL;
 
@@ -121,34 +122,34 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
     	stAL = new ArrayList<ONCPartner>();
 				
     	//Set up the search criteria panel      
-    	statusCB = new JComboBox(status);
+    	statusCB = new JComboBox<String>(status);
     	statusCB.setBorder(BorderFactory.createTitledBorder("Partner Status"));
     	statusCB.addActionListener(this);
 				
-    	typeCB = new JComboBox(types);
+    	typeCB = new JComboBox<String>(types);
     	typeCB.setBorder(BorderFactory.createTitledBorder("Partner Type"));
     	typeCB.addActionListener(this);
 		
-    	collectionCB = new JComboBox(GiftCollection.values());
+    	collectionCB = new JComboBox<GiftCollection>(GiftCollection.values());
     	collectionCB.setBorder(BorderFactory.createTitledBorder("Collection Type"));
     	collectionCB.addActionListener(this);
 				
-    	regionCBM = new DefaultComboBoxModel();
+    	regionCBM = new DefaultComboBoxModel<String>();
     	regionCBM.addElement("Any");
-    	regionCB = new JComboBox();
+    	regionCB = new JComboBox<String>();
     	regionCB.setModel(regionCBM);
     	regionCB.setBorder(BorderFactory.createTitledBorder("Region"));
     	regionCB.addActionListener(this);
 				
-    	changedByCB = new JComboBox();
-    	changedByCBM = new DefaultComboBoxModel();
+    	changedByCB = new JComboBox<String>();
+    	changedByCBM = new DefaultComboBoxModel<String>();
     	changedByCBM.addElement("Anyone");
     	changedByCB.setModel(changedByCBM);
     	changedByCB.setPreferredSize(new Dimension(144, 56));
     	changedByCB.setBorder(BorderFactory.createTitledBorder("Changed By"));
     	changedByCB.addActionListener(this);
 				
-    	stoplightCB = new JComboBox(GlobalVariablesDB.getLights());
+    	stoplightCB = new JComboBox<ImageIcon>(GlobalVariablesDB.getLights());
     	stoplightCB.setPreferredSize(new Dimension(80, 56));
     	stoplightCB.setBorder(BorderFactory.createTitledBorder("Stoplight"));
     	stoplightCB.addActionListener(this);
@@ -185,7 +186,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
     	changePartItem[6] = new ComboItem("Confirmed");
     	changePartItem[7] = new ComboItem("Not Participating");   
 				
-    	changePStatusCB = new JComboBox(changePartItem);
+    	changePStatusCB = new JComboBox<ComboItem>(changePartItem);
     	changePStatusCB.setRenderer(new ComboRenderer());
     	changePStatusCB.setPreferredSize(new Dimension(172, 56));
     	changePStatusCB.setBorder(BorderFactory.createTitledBorder("Change Partner Status"));
@@ -194,7 +195,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 				
     	String[] choices = {DEFAULT_NO_CHANGE_LIST_ITEM, "25", "50", "75", "100",
 									"125", "150", "175", "200", "250", "300", "400", "500"};
-    	changeOrnReqCB = new JComboBox(choices);
+    	changeOrnReqCB = new JComboBox<String>(choices);
     	changeOrnReqCB.setEditable(true);
     	changeOrnReqCB.setPreferredSize(new Dimension(192, 56));
     	changeOrnReqCB.setBorder(BorderFactory.createTitledBorder("Change # Ornaments Req"));
@@ -220,7 +221,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
       				"2016 Partner Info",
       				"2016 Partner Performance",
 				};
-      	exportCB = new JComboBox(exportChoices);
+      	exportCB = new JComboBox<String>(exportChoices);
       	exportCB.setPreferredSize(new Dimension(136, 28));
       	exportCB.setEnabled(false);
       	exportCB.addActionListener(this);
@@ -238,13 +239,13 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 								"2017 Season: Church Gift Drop Off Email",
 								"2017 Season: McDonald Gift Drop Off Email",
 								};
-        emailCB = new JComboBox(emailChoices);
+        emailCB = new JComboBox<String>(emailChoices);
         emailCB.setPreferredSize(new Dimension(136, 28));
         emailCB.setEnabled(false);
         emailCB.addActionListener(this);
 			    
         String[] printChoices = {"Print", "Print Listing", "Print Partner Info"};
-        printCB = new JComboBox(printChoices);
+        printCB = new JComboBox<String>(printChoices);
         printCB.setPreferredSize(new Dimension(136, 28));
         printCB.setEnabled(false);
         printCB.addActionListener(this);

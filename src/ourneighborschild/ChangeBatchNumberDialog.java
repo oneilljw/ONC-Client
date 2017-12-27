@@ -17,7 +17,7 @@ public class ChangeBatchNumberDialog extends InfoDialog implements DatabaseListe
 	 * This dialog allows the user to change a family's Batch Number.
 	 */
 	private static final long serialVersionUID = 1L;
-	private JComboBox batchNumCB;
+	private JComboBox<String> batchNumCB;
 	private ONCFamily f;
 
 	ChangeBatchNumberDialog(JFrame owner)
@@ -48,7 +48,7 @@ public class ChangeBatchNumberDialog extends InfoDialog implements DatabaseListe
 		//set up the transformation panel
 		String[] batchnums = {"B-01","B-02","B-03","B-04","B-05","B-06","B-07","B-08","B-09","B-10",
 		"B-CR", "B-DI"};
-		batchNumCB = new JComboBox(batchnums);
+		batchNumCB = new JComboBox<String>(batchnums);
 		batchNumCB.setPreferredSize(new Dimension(158,36));
 		batchNumCB.addActionListener(new BatchNumberActionListener());
 		infopanel[0].remove(tf[0]);

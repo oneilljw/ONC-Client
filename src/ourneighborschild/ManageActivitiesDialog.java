@@ -57,8 +57,9 @@ public class ManageActivitiesDialog extends ONCTableDialog implements ActionList
 	private static final int NUM_ACT_TABLE_ROWS = 15;
 
 	protected JPanel sortCriteriaPanel;
-	private JComboBox activityCB, volExportCB;
-	private DefaultComboBoxModel activityCBM;
+	private JComboBox<String> activityCB;
+	private JComboBox<String> volExportCB;
+	private DefaultComboBoxModel<String> activityCBM;
 	private boolean bIgnoreCBEvents;
 	private String sortActivityCategory;
 
@@ -108,9 +109,9 @@ public class ManageActivitiesDialog extends ONCTableDialog implements ActionList
 		sortCriteriaPanel.add(lblONCicon);
 		
 		//create search filters
-		activityCBM = new DefaultComboBoxModel();
+		activityCBM = new DefaultComboBoxModel<String>();
 	    activityCBM.addElement("Any");
-		activityCB = new JComboBox(activityCBM);
+		activityCB = new JComboBox<String>(activityCBM);
 		activityCB.setBorder(BorderFactory.createTitledBorder("Activitiy"));
 		activityCB.setPreferredSize(new Dimension(200,56));
 		activityCB.addActionListener(this);
@@ -227,7 +228,7 @@ public class ManageActivitiesDialog extends ONCTableDialog implements ActionList
         infoPanel.add(lblVolCount);
         
         String[] exportChoices = {"Export", "Volunteer Contact Group"};
-        volExportCB = new JComboBox(exportChoices);
+        volExportCB = new JComboBox<String>(exportChoices);
         volExportCB.setToolTipText("Export Volunteer Info to .csv file");
         volExportCB.setEnabled(false);
         volExportCB.addActionListener(this);

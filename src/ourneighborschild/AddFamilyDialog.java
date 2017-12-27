@@ -73,7 +73,8 @@ public class AddFamilyDialog extends JDialog implements ActionListener, ListSele
 	private JCheckBox sameAddressCkBox, ownTransportCxBox, giftsRequestedCkBox, foodAssistanceCkBox;
 	private JLabel lblErrorMssg;
 	
-	private JComboBox languageCB, mealsCB;
+	private JComboBox<String> languageCB;
+	private JComboBox<MealType> mealsCB;
 	private ONCTable childTable, childWishTable, adultTable;
 	private ChildTableModel childTableModel;
 	private AdultTableModel adultTableModel;
@@ -127,7 +128,7 @@ public class AddFamilyDialog extends JDialog implements ActionListener, ListSele
         AltPhone.setBorder(BorderFactory.createTitledBorder("2nd Alt. Phone"));
       
         String[] languages = {"?", "English", "Spanish", "Arabic", "Korean", "Vietnamese", "Other"};
-        languageCB = new JComboBox(languages);
+        languageCB = new JComboBox<String>(languages);
         languageCB.setToolTipText("Select the primary language spoken by the family");
         languageCB.setPreferredSize(new Dimension(140, 48));
         languageCB.setBorder(BorderFactory.createTitledBorder("Language"));
@@ -238,7 +239,7 @@ public class AddFamilyDialog extends JDialog implements ActionListener, ListSele
         adultTable.getSelectionModel().addListSelectionListener(this);
         
         TableColumn adultGenderColumn = adultTable.getColumnModel().getColumn(1);
-		JComboBox adultGenderCB = new JComboBox(AdultGender.values());
+		JComboBox<AdultGender> adultGenderCB = new JComboBox<AdultGender>(AdultGender.values());
 		adultGenderColumn.setCellEditor(new DefaultCellEditor(adultGenderCB));
 
       	//Set table column widths
@@ -300,7 +301,7 @@ public class AddFamilyDialog extends JDialog implements ActionListener, ListSele
 		
 		TableColumn childGenderColumn = childTable.getColumnModel().getColumn(3);
 		String[] childGenders = {"Boy", "Girl", "Unknown"};
-		JComboBox childGenderCB = new JComboBox(childGenders);
+		JComboBox<String> childGenderCB = new JComboBox<String>(childGenders);
 		childGenderColumn.setCellEditor(new DefaultCellEditor(childGenderCB));
 		
 		TableColumn childDOBColumn = childTable.getColumnModel().getColumn(2);
@@ -432,7 +433,7 @@ public class AddFamilyDialog extends JDialog implements ActionListener, ListSele
       	c2.weighty=0.5;
         mealsPanel.add(foodAssistanceCkBox, c2);
         
-        mealsCB = new JComboBox(MealType.getSelectionList());
+        mealsCB = new JComboBox<MealType>(MealType.getSelectionList());
         mealsCB.setBorder(BorderFactory.createTitledBorder("Requested For:"));
         mealsCB.setEnabled(false);
         c2.gridx=1;
@@ -838,7 +839,7 @@ public class AddFamilyDialog extends JDialog implements ActionListener, ListSele
 		}
 		catch (ParseException e)
 		{
-			String errMssg = "Couldn't determine DOB from input: " + dob;
+//			String errMssg = "Couldn't determine DOB from input: " + dob;
 		}
 
     	//then convert the Calendar to a Date in Millis and return it

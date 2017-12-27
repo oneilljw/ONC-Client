@@ -53,8 +53,8 @@ public class ChatDialog extends JDialog implements ActionListener, DatabaseListe
 	
 	//user interface
 	private JPanel contentPane, entrypanel, requestpanel;
-	private JComboBox chattersCB;	//holds  a list of online users that can chat with this user
-	private DefaultComboBoxModel chattersCBM;
+	private JComboBox<ONCUser> chattersCB;	//holds  a list of online users that can chat with this user
+	private DefaultComboBoxModel<ONCUser> chattersCBM;
 	private JLabel lblChatters;
 	private JTextField dataTF;	//user types chat text to be sent in this text field
 	private JTextPane chatTP;	//chat text and state information is displayed in this text pane
@@ -104,7 +104,7 @@ public class ChatDialog extends JDialog implements ActionListener, DatabaseListe
 		
 		lblChatters = new JLabel("Select User:");
 		
-		chattersCBM = new DefaultComboBoxModel();
+		chattersCBM = new DefaultComboBoxModel<ONCUser>();
 		
 	    
     	//create a list of online users and create the user selection combo box list
@@ -121,7 +121,7 @@ public class ChatDialog extends JDialog implements ActionListener, DatabaseListe
 			}
 		}
 		
-		chattersCB = new JComboBox(chattersCBM);
+		chattersCB = new JComboBox<ONCUser>(chattersCBM);
 		chattersCB.addActionListener(this);
 			
 		chatterspanel.add(lblChatters);

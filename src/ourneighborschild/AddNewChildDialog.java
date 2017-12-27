@@ -16,7 +16,7 @@ public class AddNewChildDialog extends InfoDialog
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private JComboBox genderCB;
+	private JComboBox<String> genderCB;
 	private JDateChooser dobDC;
 	private ONCChild newchild;
 	private ONCFamily fam;
@@ -41,7 +41,7 @@ public class AddNewChildDialog extends InfoDialog
 		}
 		
 		String[] genders = {"Boy", "Girl"};
-		genderCB = new JComboBox(genders);
+		genderCB = new JComboBox<String>(genders);
 		genderCB.setPreferredSize(new Dimension(158,36));
 		infopanel[3].add(genderCB);
 		

@@ -54,8 +54,11 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 	private int wishNumber; 		//wish# being displayed on panel
 	
 	private boolean bWishChanging; 		//semaphore indicating changing ComboBoxes
-	private JComboBox wishCB, wishindCB, wishassigneeCB;
-	private DefaultComboBoxModel wishCBM, assigneeCBM;
+	private JComboBox<ONCWish> wishCB;
+	private JComboBox<String> wishindCB;
+	private JComboBox<ONCPartner> wishassigneeCB;
+	private DefaultComboBoxModel<ONCWish> wishCBM;
+	private DefaultComboBoxModel<ONCPartner> assigneeCBM;
 	private JTextField wishdetailTF;
 	private JRadioButton rbWish, rbLabel;
 	private WishPanelStatus wpStatus;
@@ -66,7 +69,7 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 		this.setTransferHandler(new InventoryTransferhandler());
 		
 		gvs = GlobalVariablesDB.getInstance();
-    	fDB = FamilyDB.getInstance();
+    		fDB = FamilyDB.getInstance();
 		if(fDB != null)
 			fDB.addDatabaseListener(this);
 		
@@ -105,16 +108,16 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
         Dimension dwa = new Dimension(140, 24);  
           
         //Get a catalog for type=selection
-        wishCBM = new DefaultComboBoxModel();
+        wishCBM = new DefaultComboBoxModel<ONCWish>();
         wishCBM.addElement(new ONCWish(-1, "None", 7));
-        wishCB = new JComboBox();
+        wishCB = new JComboBox<ONCWish>();
         wishCB.setModel(wishCBM);
         wishCB.setPreferredSize(new Dimension(177, 24));
         wishCB.setToolTipText("Select wish from ONC gift catalog");
         wishCB.setEnabled(false);
         wishCB.addActionListener(this);
             
-        wishindCB = new JComboBox(indications);
+        wishindCB = new JComboBox<String>(indications);
         wishindCB.setPreferredSize(new Dimension(52, 24));           
         wishindCB.setToolTipText("Set Wish Restrictions: #- Not from Child Wish List, *- Don't assign to partner");
         wishindCB.setEnabled(false);
@@ -135,9 +138,9 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
         wishdetailTF.setEnabled(false);
         wishdetailTF.addActionListener(this);
  
-        assigneeCBM = new DefaultComboBoxModel();
+        assigneeCBM = new DefaultComboBoxModel<ONCPartner>();
         assigneeCBM.addElement(new ONCPartner(-1, "None", "None"));
-        wishassigneeCB = new JComboBox();
+        wishassigneeCB = new JComboBox<ONCPartner>();
         wishassigneeCB.setModel(assigneeCBM);
         wishassigneeCB.setPreferredSize(dwa);
         wishassigneeCB.setToolTipText("Select the organization for wish fulfillment");
@@ -146,15 +149,15 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
         wishassigneeCB.addActionListener(this);
         
         wsp1.add(wishCB);
-    	wsp1.add(wishindCB);
-    	wsp1.add(rbWish);
-    	wsp2.add(wishdetailTF);
+    		wsp1.add(wishindCB);
+    		wsp1.add(rbWish);
+    		wsp2.add(wishdetailTF);
         wsp3.add(wishassigneeCB);
         wsp3.add(rbLabel);
         
         this.add(wsp1);
-    	this.add(wsp2);
-    	this.add(wsp3);
+    		this.add(wsp2);
+    		this.add(wsp3);
     }
 	
 	/********************************************************************************************
@@ -661,7 +664,7 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 		 * @params - ArrayList<WishDetail> wdAL - Array list containing additional detail objects
 		 ******************************************************************************************/
 		private static final long serialVersionUID = 1L;
-		JComboBox[] cbox;
+		JComboBox<String>[] cbox;
 		String[] titles;	
 		JTextField detailTF;
 		JButton btnOK;
@@ -680,7 +683,7 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 			for(int i=0; i<cbox.length; i++)
 			{
 				titles[i] = wdAL.get(i).getWishDetailName();
-				cbox[i] = new JComboBox(wdAL.get(i).getWishDetailChoices());
+				cbox[i] = new JComboBox<String>(wdAL.get(i).getWishDetailChoices());
 				cbox[i].setBorder(BorderFactory.createTitledBorder(titles[i]));
 				infopanel.add(cbox[i]);
 			}

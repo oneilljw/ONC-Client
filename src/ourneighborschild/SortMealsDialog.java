@@ -51,9 +51,22 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 	private ArrayList<SortMealObject> stAL;
 
 	
-	private JComboBox typeCB, assignCB, batchCB, statusCB, changedByCB, regionCB, changeStatusCB;
-	private JComboBox changeAssigneeCB, printCB, exportCB;
-	private DefaultComboBoxModel assignCBM, changeAssigneeCBM, changedByCBM, regionCBM;
+	private JComboBox<MealType> typeCB;
+	private JComboBox<ONCPartner> assignCB;
+	private JComboBox<String> batchCB;
+	private JComboBox<MealStatus> statusCB;
+	private JComboBox<String> changedByCB;
+	private JComboBox<String> regionCB;
+	private JComboBox<MealStatus> changeStatusCB;
+	private JComboBox<ONCPartner> changeAssigneeCB;
+	private JComboBox<String> printCB;
+	private JComboBox<String> exportCB;
+	
+	private DefaultComboBoxModel<ONCPartner> assignCBM;
+	private DefaultComboBoxModel<ONCPartner> changeAssigneeCBM;
+	private DefaultComboBoxModel<String> changedByCBM;
+	private DefaultComboBoxModel<String> regionCBM;
+	
 	private JTextField oncnumTF;
 	private JDateChooser ds, de;
 	private Calendar sortStartCal = null, sortEndCal = null;
@@ -92,8 +105,8 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 
 		//Set up the search criteria panel
 		oncnumTF = new JTextField();
-    	oncnumTF.setEditable(true);
-    	oncnumTF.setPreferredSize(new Dimension(72,56));
+		oncnumTF.setEditable(true);
+		oncnumTF.setPreferredSize(new Dimension(72,56));
 		oncnumTF.setBorder(BorderFactory.createTitledBorder("ONC #"));
 		oncnumTF.setToolTipText("Type ONC Family # and press <enter>");
 		oncnumTF.addActionListener(this);
@@ -101,29 +114,29 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		
 		String[] batchNums = {"Any","B-01","B-02","B-03","B-04","B-05","B-06","B-07","B-08",
 				"B-09","B-10", "B-CR", "B-DI"};
-		batchCB = new JComboBox(batchNums);
+		batchCB = new JComboBox<String>(batchNums);
 		batchCB.setBorder(BorderFactory.createTitledBorder("Batch #"));
 		batchCB.addActionListener(this);
 		
-		typeCB = new JComboBox(MealType.getSearchFilterList());
+		typeCB = new JComboBox<MealType>(MealType.getSearchFilterList());
 		typeCB.setPreferredSize(new Dimension(156, 56));
 		typeCB.setBorder(BorderFactory.createTitledBorder("Holiday Requested"));
 		typeCB.addActionListener(this);
 		
-		statusCB = new JComboBox(MealStatus.getSearchFilterList());
+		statusCB = new JComboBox<MealStatus>(MealStatus.getSearchFilterList());
 		statusCB.setPreferredSize(new Dimension(220, 56));
 		statusCB.setBorder(BorderFactory.createTitledBorder("Meal Status"));
 		statusCB.addActionListener(this);
 		
-		regionCBM = new DefaultComboBoxModel();
+		regionCBM = new DefaultComboBoxModel<String>();
 		regionCBM.addElement("Any");
-		regionCB = new JComboBox();
+		regionCB = new JComboBox<String>();
 		regionCB.setModel(regionCBM);
 		regionCB.setBorder(BorderFactory.createTitledBorder("Region"));
 		regionCB.addActionListener(this);
 		
-		assignCB = new JComboBox();
-		assignCBM = new DefaultComboBoxModel();
+		assignCB = new JComboBox<ONCPartner>();
+		assignCBM = new DefaultComboBoxModel<ONCPartner>();
 	    assignCBM.addElement(new ONCPartner(0, "Any", "Any"));
 	    assignCBM.addElement(new ONCPartner(-1, "None", "None"));
 	    assignCB.setModel(assignCBM);
@@ -131,8 +144,8 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		assignCB.setBorder(BorderFactory.createTitledBorder("Meal Assigned To"));
 		assignCB.addActionListener(this);
 
-		changedByCB = new JComboBox();
-		changedByCBM = new DefaultComboBoxModel();
+		changedByCB = new JComboBox<String>();
+		changedByCBM = new DefaultComboBoxModel<String>();
 	    changedByCBM.addElement("Anyone");
 	    changedByCB.setModel(changedByCBM);
 		changedByCB.setBorder(BorderFactory.createTitledBorder("Last Changed By"));
@@ -172,13 +185,13 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		
 		changeDataPanel.setBorder(BorderFactory.createTitledBorder("Change Meal Status or Meal Assignee"));
         
-		changeStatusCB = new JComboBox(MealStatus.getChangeList());
+		changeStatusCB = new JComboBox<MealStatus>(MealStatus.getChangeList());
         changeStatusCB.setPreferredSize(new Dimension(224, 56));
 		changeStatusCB.setBorder(BorderFactory.createTitledBorder("Change Status To:"));
 		changeStatusCB.addActionListener(this);
 		
-        changeAssigneeCB = new JComboBox();
-        changeAssigneeCBM = new DefaultComboBoxModel();
+        changeAssigneeCB = new JComboBox<ONCPartner>();
+        changeAssigneeCBM = new DefaultComboBoxModel<ONCPartner>();
 	    changeAssigneeCBM.addElement(new ONCPartner(0, "No Change", "No Change"));
 	    changeAssigneeCBM.addElement(new ONCPartner(-1, "None", "None"));
         changeAssigneeCB.setModel(changeAssigneeCBM);
@@ -198,12 +211,12 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 	    //panel which uses Border Layout
 	    JPanel cntlPanel = new JPanel();
       	cntlPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
-        exportCB = new JComboBox(exportChoices);
+        exportCB = new JComboBox<String>(exportChoices);
         exportCB.setEnabled(false);
         exportCB.addActionListener(this);
         
         String[] printChoices = {"Print", "Print Listing"};
-        printCB = new JComboBox(printChoices);
+        printCB = new JComboBox<String>(printChoices);
         printCB.setPreferredSize(new Dimension(136, 28));
         printCB.setEnabled(true);
         printCB.addActionListener(this);

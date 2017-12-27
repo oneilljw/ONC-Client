@@ -17,7 +17,7 @@ public class AddMealDialog extends InfoDialog implements EntitySelectionListener
 	private static final long serialVersionUID = 1L;
 	private ONCFamily f;
 	private MealDB mealDB;
-	private JComboBox mealRequestCB;
+	private JComboBox<MealType> mealRequestCB;
 
 	AddMealDialog(JFrame owner, boolean bModal) 
 	{
@@ -39,7 +39,7 @@ public class AddMealDialog extends InfoDialog implements EntitySelectionListener
 		}
 		
 		//set up the transformation panel
-		mealRequestCB = new JComboBox(MealType.getSelectionList());
+		mealRequestCB = new JComboBox<MealType>(MealType.getSelectionList());
 		mealRequestCB.setPreferredSize(new Dimension(158,36));
 		infopanel[2].remove(tf[2]);
 		infopanel[2].add(mealRequestCB);

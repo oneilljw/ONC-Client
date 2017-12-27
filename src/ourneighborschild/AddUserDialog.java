@@ -29,7 +29,8 @@ public class AddUserDialog extends InfoDialog
 	private static final int EMAIL_INDEX = 7;
 	private static final int PHONE_INDEX = 8;
 	
-	private JComboBox accessCB, permissionCB;
+	private JComboBox<UserAccess> accessCB;
+	private JComboBox<UserPermission> permissionCB;
 	private ONCServerUser reqAddUser;	
 	
 	AddUserDialog(JFrame pf)
@@ -48,12 +49,12 @@ public class AddUserDialog extends InfoDialog
 		}
 		
 		//set up the transformation panel
-		accessCB = new JComboBox(UserAccess.values());
+		accessCB = new JComboBox<UserAccess>(UserAccess.values());
 		accessCB.setPreferredSize(new Dimension(158,36));
 		infopanel[ACCESS_INDEX].remove(tf[ACCESS_INDEX]);
 		infopanel[ACCESS_INDEX].add(accessCB);
 		
-		permissionCB = new JComboBox(UserPermission.values());
+		permissionCB = new JComboBox<UserPermission>(UserPermission.values());
 		permissionCB.setPreferredSize(new Dimension(158,36));
 		infopanel[PERMISSION_INDEX].remove(tf[PERMISSION_INDEX]);
 		infopanel[PERMISSION_INDEX].add(permissionCB);

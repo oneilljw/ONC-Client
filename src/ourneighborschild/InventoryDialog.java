@@ -51,8 +51,8 @@ public class InventoryDialog extends BarcodeTableDialog implements ActionListene
 	private InventoryDB inventoryDB;
 	private ONCWishCatalog cat;
 	private JRadioButton rbEdit, rbAdd, rbRemove;
-	private JComboBox wishCB;
-	private DefaultComboBoxModel wishCBM;
+	private JComboBox<ONCWish> wishCB;
+	private DefaultComboBoxModel<ONCWish> wishCBM;
 
 	public InventoryDialog(JFrame parentFrame) 
 	{
@@ -92,10 +92,10 @@ public class InventoryDialog extends BarcodeTableDialog implements ActionListene
 		//set up the columns that use combo box editors for the status, access and permission enums
 		TableColumn typeColumn = dlgTable.getColumnModel().getColumn(TYPE_COL);
 		//set up the catalog wish type panel
-        wishCBM = new DefaultComboBoxModel();
+        wishCBM = new DefaultComboBoxModel<ONCWish>();
         for(ONCWish w: cat.getWishList(WishListPurpose.Selection))	//Add new list elements
 			wishCBM.addElement(w);
-        wishCB = new JComboBox();
+        wishCB = new JComboBox<ONCWish>();
         wishCB.setModel(wishCBM);
 		typeColumn.setCellEditor(new DefaultCellEditor(wishCB));
 		
@@ -511,8 +511,8 @@ public class InventoryDialog extends BarcodeTableDialog implements ActionListene
 		private static final int BARCODE_FIELD_LENGTH = 12;
 		
 		private InventoryItem addItemReq;
-		private JComboBox wishCB;
-		private DefaultComboBoxModel wishCBM;
+		private JComboBox<ONCWish> wishCB;
+		private DefaultComboBoxModel<ONCWish> wishCBM;
 
 		AddInventoryItemDialog(JFrame pf, boolean bModal)
 		{
@@ -535,10 +535,10 @@ public class InventoryDialog extends BarcodeTableDialog implements ActionListene
 			}
 			
 			//set up the catalog wish type panel
-	        wishCBM = new DefaultComboBoxModel();
+	        wishCBM = new DefaultComboBoxModel<ONCWish>();
 	        for(ONCWish w: cat.getWishList(WishListPurpose.Selection))	//Add new list elements
 				wishCBM.addElement(w);
-	        wishCB = new JComboBox();
+	        wishCB = new JComboBox<ONCWish>();
 	        wishCB.setModel(wishCBM);
 	        wishCB.setPreferredSize(new Dimension(256, 32));
 	        wishCB.setToolTipText("Select wish type from ONC Wish Catalog");
