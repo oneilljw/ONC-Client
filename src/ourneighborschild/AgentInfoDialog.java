@@ -29,8 +29,8 @@ public class AgentInfoDialog extends InfoDialog implements DatabaseListener, Ent
 	 */
 	private static final long serialVersionUID = 1L;
 	private JPanel changeAgtPanel;
-	private JComboBox agtSelectCB;
-	private DefaultComboBoxModel agtSelectCBM;
+	private JComboBox<ONCUser> agtSelectCB;
+	private DefaultComboBoxModel<ONCUser> agtSelectCBM;
 	private ChangeAgentCBListener agtSelectCBListener;
 	private boolean bChangeAgtVisible;
 	
@@ -74,8 +74,8 @@ public class AgentInfoDialog extends InfoDialog implements DatabaseListener, Ent
 		
 		JPanel agtSelectPanel = new JPanel();
 		
-		agtSelectCB = new JComboBox();
-		agtSelectCBM = new DefaultComboBoxModel();
+		agtSelectCB = new JComboBox<ONCUser>();
+		agtSelectCBM = new DefaultComboBoxModel<ONCUser>();
 		agtSelectCBM.addElement(new ONCUser()); //create a dummy user_agent for use if there are no agents in the system
 		agtSelectCB.setModel(agtSelectCBM);
 		agtSelectCB.setPreferredSize(new Dimension(240, 56));
