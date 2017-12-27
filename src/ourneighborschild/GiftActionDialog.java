@@ -43,7 +43,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 	private static final String WISH_ANTICIPATION_DNS_CODE = "WA";
 
 	private JTextField oncnumTF, barcodeTF;
-	private JComboBox startAgeCB, genderCB;
+	private JComboBox<String> startAgeCB, genderCB;
 	private JButton btnUndo;
 	private JLabel lblResult;
 	private Color pBkColor; //Used to restore background after gift action successful
@@ -91,31 +91,31 @@ public abstract class GiftActionDialog extends SortTableDialog
 		pBkColor = sortCriteriaPanel.getBackground();
 		
 		//Set up the search criteria panel      
-    	oncnumTF = new JTextField(5);
-    	oncnumTF.setEditable(true);
-    	oncnumTF.setMaximumSize(new Dimension(64,56));
+		oncnumTF = new JTextField(5);
+    		oncnumTF.setEditable(true);
+    		oncnumTF.setMaximumSize(new Dimension(64,56));
 		oncnumTF.setBorder(BorderFactory.createTitledBorder("ONC #"));
 		oncnumTF.setToolTipText("Type ONC Family # and press <enter>");
 		oncnumTF.addActionListener(this);
 		oncnumTF.addKeyListener(new ONCNumberKeyListener());
     	
-    	String[] ages = {"Any", "<1", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10",
-				"11","12", "13", "14", "15", "16", "17", "18", "19", "20", "21"};
-		startAgeCB = new JComboBox(ages);
+    		String[] ages = {"Any", "<1", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10",
+    						"11","12", "13", "14", "15", "16", "17", "18", "19", "20", "21"};
+		startAgeCB = new JComboBox<String>(ages);
 		startAgeCB.setBorder(BorderFactory.createTitledBorder("Child Age"));
 		startAgeCB.setToolTipText("Select or Type Child's Age and press <enter>");
 		startAgeCB.setMaximumSize(new Dimension(88,56));
 		startAgeCB.setEditable(true);
 		startAgeCB.addActionListener(this);
 		
-		genderCB = new JComboBox(genders);
+		genderCB = new JComboBox<String>(genders);
 		genderCB.setBorder(BorderFactory.createTitledBorder("Gender"));
 		genderCB.setToolTipText("Select Child's Gender");
 		genderCB.setMaximumSize(new Dimension(96,56));
 		genderCB.addActionListener(this);
 		
 		barcodeTF = new JTextField(6);
-    	barcodeTF.setMaximumSize(new Dimension(96,56));
+		barcodeTF.setMaximumSize(new Dimension(96,56));
 		barcodeTF.setBorder(BorderFactory.createTitledBorder("Barcode"));
 		barcodeTF.setToolTipText("Type Barcode and press <enter>");
 		barcodeTF.addActionListener(this);

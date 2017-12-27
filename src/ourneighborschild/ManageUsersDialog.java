@@ -105,13 +105,13 @@ public class ManageUsersDialog extends JDialog implements ActionListener, ListSe
 		
 		//set up the columns that use combo box editors for the status, access and permission enums
 		TableColumn statusColumn = dlgTable.getColumnModel().getColumn(STATUS_COL);
-		statusColumn.setCellEditor(new DefaultCellEditor(new JComboBox(UserStatus.values())));
+		statusColumn.setCellEditor(new DefaultCellEditor(new JComboBox<UserStatus>(UserStatus.values())));
 		
 		TableColumn accessColumn = dlgTable.getColumnModel().getColumn(ACCESS_COL);
-		accessColumn.setCellEditor(new DefaultCellEditor(new JComboBox(UserAccess.values())));
+		accessColumn.setCellEditor(new DefaultCellEditor(new JComboBox<UserAccess>(UserAccess.values())));
 		
 		TableColumn permColumn = dlgTable.getColumnModel().getColumn(PERMISSION_COL);
-		permColumn.setCellEditor(new DefaultCellEditor(new JComboBox(UserPermission.values())));
+		permColumn.setCellEditor(new DefaultCellEditor(new JComboBox<UserPermission>(UserPermission.values())));
 		
 		//set up a cell renderer for the LAST_LOGINS column to display the date 
 		TableCellRenderer tableCellRenderer = new DefaultTableCellRenderer()

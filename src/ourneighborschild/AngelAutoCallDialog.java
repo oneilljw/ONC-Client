@@ -600,7 +600,7 @@ public class AngelAutoCallDialog extends ONCTableDialog implements ActionListene
 	{
 //		private int callItemNum;
 		private ONCFamily family; //reference to ONC Family this call is associated with
-		private int oncID;
+//		private int oncID;
 		private String oncNum;
 		private String phoneNum;
 		private String date;
@@ -616,7 +616,7 @@ public class AngelAutoCallDialog extends ONCTableDialog implements ActionListene
 		{
 //			callItemNum = cin;
 			family = fam;
-			oncID = oncid;
+//			oncID = oncid;
 			oncNum = oncnum;
 			phoneNum = phone;
 			date = d;

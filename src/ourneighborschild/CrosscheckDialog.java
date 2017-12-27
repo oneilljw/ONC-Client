@@ -333,17 +333,17 @@ public class CrosscheckDialog extends JDialog implements ActionListener, Databas
 		private String unit;
 		private String city;
 		private String zip;
-		private String state;
-		private String email;
-		private boolean bThanksgiving;
-		private boolean bDecember;
-		private boolean bGifts;
-		private int nAdults;
-		private int nChildren;
-		private int nTotalMembers;
-		private boolean bSpeaksEnglish;
-		private String language;
-		private String remarks;
+//		private String state;
+//		private String email;
+//		private boolean bThanksgiving;
+//		private boolean bDecember;
+//		private boolean bGifts;
+//		private int nAdults;
+//		private int nChildren;
+//		private int nTotalMembers;
+//		private boolean bSpeaksEnglish;
+//		private String language;
+//		private String remarks;
 	
 		CrosscheckFamily(String[] line)
 		{
@@ -355,17 +355,17 @@ public class CrosscheckDialog extends JDialog implements ActionListener, Databas
 			this.unit = line[5].trim();
 			this.city = line[6].trim();
 			this.zip = line[7].trim();
-			this.state = line[8].trim();
-			this.email = line[9].trim();
-			this.bThanksgiving = line[10].equalsIgnoreCase("Y");
-			this.bDecember = line[11].equalsIgnoreCase("Y");
-			this.bGifts = line[12].equalsIgnoreCase("Y");
-			this.nAdults = line[13].isEmpty() ? 0 : Integer.parseInt(line[13]);
-			this.nChildren = line[14].isEmpty() ? 0 : Integer.parseInt(line[14]);
-			this.nTotalMembers = line[15].isEmpty() ? 0 : Integer.parseInt(line[15]);
-			this.bSpeaksEnglish = line[16].equalsIgnoreCase("Y");
-			this.language = line[17].trim();
-			this.remarks = line[18].trim();
+//			this.state = line[8].trim();
+//			this.email = line[9].trim();
+//			this.bThanksgiving = line[10].equalsIgnoreCase("Y");
+//			this.bDecember = line[11].equalsIgnoreCase("Y");
+//			this.bGifts = line[12].equalsIgnoreCase("Y");
+//			this.nAdults = line[13].isEmpty() ? 0 : Integer.parseInt(line[13]);
+//			this.nChildren = line[14].isEmpty() ? 0 : Integer.parseInt(line[14]);
+//			this.nTotalMembers = line[15].isEmpty() ? 0 : Integer.parseInt(line[15]);
+//			this.bSpeaksEnglish = line[16].equalsIgnoreCase("Y");
+//			this.language = line[17].trim();
+//			this.remarks = line[18].trim();
 			
 			oncNum = "None";
 		}
@@ -415,7 +415,7 @@ public class CrosscheckDialog extends JDialog implements ActionListener, Databas
 			else
 				return "None";
 		}
-		
+/*		
 		String[] getExportRow()
 		{
 			List<String> rowList = new ArrayList<String>();
@@ -440,6 +440,7 @@ public class CrosscheckDialog extends JDialog implements ActionListener, Databas
 			rowList.add(remarks);
 			
 			return rowList.toArray(new String[rowList.size()]);
-		}		
+		}
+*/				
 	}
 }

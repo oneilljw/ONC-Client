@@ -384,7 +384,8 @@ public class ServerIF
     }
     
     /** Fire a Data ChangedEvent to all registered listeners */
-    protected void fireDataChanged(String event_type, String json)
+    @SuppressWarnings("unchecked")
+	protected void fireDataChanged(String event_type, String json)
     {
     	// if we have no listeners, do nothing...
     	if (listeners != null && !listeners.isEmpty())

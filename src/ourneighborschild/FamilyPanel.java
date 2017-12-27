@@ -94,7 +94,9 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private JRadioButton rbGiftStatusHistory, rbAltAddress, rbMeals, rbPriorHistory, rbAgentInfo;
 	private JRadioButton rbShowAllPhones, rbFamDetails, rbTransportation, rbDirections;
 	private JRadioButton rbNotGiftCardOnly, rbGiftCardOnly, rbAdults;
-	private JComboBox Language, statusCB, giftStatusCB;
+	private JComboBox<String> languageCB;
+	private JComboBox<FamilyStatus> statusCB;
+	private JComboBox<FamilyGiftStatus> giftStatusCB;
 //	private ComboItem[] famStatus;
 	public  JTable childTable;
 	private ChildTableModel childTableModel;
@@ -206,7 +208,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         HOHLastName.setEditable(false);
         HOHLastName.addActionListener(fdcListener);
   
-        statusCB = new JComboBox(FamilyStatus.getSearchList());
+        statusCB = new JComboBox<FamilyStatus>(FamilyStatus.getSearchList());
         statusCB.setPreferredSize(new Dimension(152, 52));
         statusCB.setBorder(BorderFactory.createTitledBorder("Family Status"));
         statusCB.setEnabled(false);
@@ -234,13 +236,13 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         EMail.addActionListener(fdcListener);
         
         String[] languages = {"?", "English", "Spanish", "Arabic", "Korean", "Vietnamese", "Other"};
-        Language = new JComboBox(languages);
-        Language.setToolTipText("Select the primary language spoken by the family");
-        Language.setPreferredSize(new Dimension(140, 48));
-        Language.setBorder(BorderFactory.createTitledBorder("Language"));
-        Language.setEnabled(false);
+        languageCB = new JComboBox<String>(languages);
+        languageCB.setToolTipText("Select the primary language spoken by the family");
+        languageCB.setPreferredSize(new Dimension(140, 48));
+        languageCB.setBorder(BorderFactory.createTitledBorder("Language"));
+        languageCB.setEnabled(false);
         
-        giftStatusCB = new JComboBox(FamilyGiftStatus.getSearchList());
+        giftStatusCB = new JComboBox<FamilyGiftStatus>(FamilyGiftStatus.getSearchList());
         giftStatusCB.setBorder(BorderFactory.createTitledBorder("Gift Status"));
         giftStatusCB.setPreferredSize(new Dimension(132, 52));
         giftStatusCB.setEnabled(false);
@@ -469,7 +471,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         p2.add(homePhoneScrollPane);
         p2.add(otherPhoneScrollPane);
         p2.add(EMail);
-		p2.add(Language);
+		p2.add(languageCB);
 		p2.add(giftStatusCB);
 		
         p3.add(housenumTF);
@@ -549,7 +551,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			homePhonePane.setEditable(tf);
 			otherPhonePane.setEditable(tf);
 			EMail.setEditable(tf);
-			Language.setEnabled(tf);
+			languageCB.setEnabled(tf);
 			housenumTF.setEditable(tf);
 			Street.setEditable(tf);
 			Unit.setEditable(tf);
@@ -703,7 +705,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		lblNumBags.setText(Integer.toString(currFam.getNumOfBags()));
 		
 		giftStatusCB.setSelectedItem(currFam.getGiftStatus());
-		Language.setSelectedItem((String)currFam.getLanguage());
+		languageCB.setSelectedItem((String)currFam.getLanguage());
 		lblChangedBy.setText(currFam.getChangedBy());
 		lblRegion.setText(regions.getRegionID(currFam.getRegion()));
 		
@@ -989,7 +991,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		if(!homePhonePane.getText().equals(fam.getHomePhone())) {fam.setHomePhone(homePhonePane.getText()); cf = 6;}
 		if(!otherPhonePane.getText().equals(fam.getCellPhone())) {fam.setOtherPhon(otherPhonePane.getText()); cf = 7;}
 		if(!EMail.getText().equals(fam.getEmail())) {fam.setFamilyEmail(EMail.getText()); cf = 8;}
-		if(!Language.getSelectedItem().toString().equals(fam.getLanguage())){fam.setLanguage(Language.getSelectedItem().toString());cf = 9;}
+		if(!languageCB.getSelectedItem().toString().equals(fam.getLanguage())){fam.setLanguage(languageCB.getSelectedItem().toString());cf = 9;}
 		if(!housenumTF.getText().equals(fam.getHouseNum())) {fam.setHouseNum(housenumTF.getText()); cf = 10;}
 		if(!Street.getText().equals(fam.getStreet())) {fam.setStreet(Street.getText()); cf = 11;}
 		if(!Unit.getText().equals(fam.getUnit())) {fam.setUnitNum(Unit.getText()); cf = 12;}
@@ -1537,7 +1539,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	class FamilyBagDialog extends JDialog implements ActionListener
 	{
 		private static final long serialVersionUID = 1L;
-		private JComboBox bagsPackagedCB, largeItemCB;
+		private JComboBox<String> bagsPackagedCB, largeItemCB;
 		private JButton btnOK;
 		
 		FamilyBagDialog(JFrame pf)
@@ -1549,13 +1551,13 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			
 			JPanel bagPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 			JLabel lblBagMssg = new JLabel("Select the number of bags used");
-			bagsPackagedCB = new JComboBox(selections);
+			bagsPackagedCB = new JComboBox<String>(selections);
 			bagPanel.add(lblBagMssg);
 			bagPanel.add(bagsPackagedCB);
 			
 			JPanel liPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 			JLabel lblLIMssg = new JLabel("Select the number of large items");
-			largeItemCB = new JComboBox(selections);
+			largeItemCB = new JComboBox<String>(selections);
 			liPanel.add(lblLIMssg);
 			liPanel.add(largeItemCB);
 					

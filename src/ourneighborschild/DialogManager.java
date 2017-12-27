@@ -93,7 +93,7 @@ public class DialogManager implements EntitySelectionListener
 		eeManager.registerEntitySelectionListener(this);
 		
 		//create the log dialog
-        LogDialog logDlg = new LogDialog();	//create the static log dialog
+//      LogDialog logDlg = new LogDialog();	//create the static log dialog
         
         // set up the preferences dialog
         prefsDlg = new PreferencesDialog(GlobalVariablesDB.getFrame());

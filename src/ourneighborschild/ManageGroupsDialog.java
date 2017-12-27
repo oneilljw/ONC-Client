@@ -667,6 +667,7 @@ public class ManageGroupsDialog extends ONCTableDialog implements ActionListener
 		 */
 		private static final long serialVersionUID = 1L;
 
+		@SuppressWarnings("rawtypes")
 		@Override
 	    public Component getListCellRendererComponent(JList list, ONCUser value,
 	            int index, boolean isSelected, boolean cellHasFocus) 

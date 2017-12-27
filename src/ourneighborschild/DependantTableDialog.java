@@ -40,7 +40,7 @@ public abstract class DependantTableDialog extends SortTableDialog
 	protected ONCRegions regions;
 	protected ONCTable familyTable;
 	private DefaultTableModel familyTableModel;
-	protected JComboBox famPrintCB;
+	protected JComboBox<String> famPrintCB;
 	protected JButton btnDependantTableExport;
 	protected JLabel lblNumOfObjects, lblObjectMssg, lblNumOfFamilies;
 	protected JPanel objectCountPanel, lowercntlpanel;
@@ -171,7 +171,7 @@ public abstract class DependantTableDialog extends SortTableDialog
 		btnDependantTableExport.addActionListener(this);
         
         String[] printChoices = {"Print", "Print Family Table"};
-        famPrintCB = new JComboBox(printChoices);
+        famPrintCB = new JComboBox<String>(printChoices);
         famPrintCB.setPreferredSize(new Dimension(136, 28));
         famPrintCB.setEnabled(false);
         famPrintCB.addActionListener(this);

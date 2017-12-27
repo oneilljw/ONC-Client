@@ -19,7 +19,7 @@ public class TransportationDialog extends InfoDialog implements DatabaseListener
 	private ONCFamily f;
 	private FamilyDB familyDB;
 	private UserDB userDB;
-	private JComboBox transportationCB;
+	private JComboBox<Transportation> transportationCB;
 
 	TransportationDialog(JFrame owner, boolean bModal) 
 	{
@@ -45,7 +45,7 @@ public class TransportationDialog extends InfoDialog implements DatabaseListener
 		}
 
 		//set up the transformation panel
-		transportationCB = new JComboBox(Transportation.getEditChoicesList());
+		transportationCB = new JComboBox<Transportation>(Transportation.getEditChoicesList());
 		transportationCB.setPreferredSize(new Dimension(96,36));
 		transportationCB.addActionListener(new TransportationListener());
 		

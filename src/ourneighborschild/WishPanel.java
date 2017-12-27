@@ -664,7 +664,7 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 		 * @params - ArrayList<WishDetail> wdAL - Array list containing additional detail objects
 		 ******************************************************************************************/
 		private static final long serialVersionUID = 1L;
-		JComboBox<String>[] cbox;
+		List<JComboBox<String>> cbox;
 		String[] titles;	
 		JTextField detailTF;
 		JButton btnOK;
@@ -676,16 +676,17 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 			
 			//Create the combo boxes
 			titles = new String[wdAL.size()];
-			cbox = new JComboBox[wdAL.size()];
+			cbox = new ArrayList<JComboBox<String>>();
 			
 			JPanel infopanel = new JPanel();			
 			
-			for(int i=0; i<cbox.length; i++)
+			for(int i=0; i<wdAL.size(); i++)
 			{
 				titles[i] = wdAL.get(i).getWishDetailName();
-				cbox[i] = new JComboBox<String>(wdAL.get(i).getWishDetailChoices());
-				cbox[i].setBorder(BorderFactory.createTitledBorder(titles[i]));
-				infopanel.add(cbox[i]);
+				JComboBox<String> addDetailChoice = new JComboBox<String>(wdAL.get(i).getWishDetailChoices());
+				addDetailChoice.setBorder(BorderFactory.createTitledBorder(titles[i]));
+				cbox.add(addDetailChoice);
+				infopanel.add(addDetailChoice);
 			}
 			
 			JPanel detailpanel = new JPanel();
@@ -710,19 +711,19 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 		
 		String getDetail()
 		{
-			StringBuffer detail = new StringBuffer(cbox[0].getSelectedItem().toString());
+			StringBuffer detail = new StringBuffer(cbox.get(0).getSelectedItem().toString());
 			for(int i=1; i<titles.length; i++)
 			{
 				if(titles[i].toLowerCase().contains("size"))
-					detail.append(", " + "Sz: " + cbox[i].getSelectedItem().toString());
+					detail.append(", " + "Sz: " + cbox.get(i).getSelectedItem().toString());
 				else if(titles[i].toLowerCase().contains("color"))
 				{
-					if(!cbox[i].getSelectedItem().toString().equals("Any") &&
-						!cbox[i].getSelectedItem().toString().equals("?"))
-							detail.append(", " + cbox[i].getSelectedItem().toString());
+					if(!cbox.get(i).getSelectedItem().toString().equals("Any") &&
+						!cbox.get(i).getSelectedItem().toString().equals("?"))
+							detail.append(", " + cbox.get(i).getSelectedItem().toString());
 				}
 				else
-					detail.append(", " + titles[i] + ": "+ cbox[i].getSelectedItem().toString());
+					detail.append(", " + titles[i] + ": "+ cbox.get(i).getSelectedItem().toString());
 			}
 					
 			if(detailTF.getText().isEmpty())
@@ -733,8 +734,8 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 		
 		void clearDetail()
 		{
-			for(int i = 0; i<cbox.length; i++)	//Clear combo boxes
-				cbox[i].setSelectedIndex(0);
+			for(int i = 0; i<cbox.size(); i++)	//Clear combo boxes
+				cbox.get(i).setSelectedIndex(0);
 			
 			detailTF.setText("");			
 		}

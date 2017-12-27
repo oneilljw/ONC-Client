@@ -60,7 +60,8 @@ public abstract class ONCPanel extends JPanel implements EntitySelector
     }
     
     /** Fire an Entity Selection event to all registered listeners */
-    public void fireEntitySelected(Object source, EntityType entityType, Object obj1, Object obj2)
+    @SuppressWarnings("unchecked")
+	public void fireEntitySelected(Object source, EntityType entityType, Object obj1, Object obj2)
     {
     	// if we have no listeners, do nothing...
     	ArrayList<EntitySelectionListener> listeners = listenerMap.get(entityType);
@@ -79,7 +80,8 @@ public abstract class ONCPanel extends JPanel implements EntitySelector
     	}
     }
     
-    public void fireEntitySelected(Object source, EntityType entityType, Object obj1, Object obj2, Object obj3)
+    @SuppressWarnings("unchecked")
+	public void fireEntitySelected(Object source, EntityType entityType, Object obj1, Object obj2, Object obj3)
     {
     	ArrayList<EntitySelectionListener> listeners = listenerMap.get(entityType);
     	

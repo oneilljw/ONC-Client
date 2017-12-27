@@ -58,8 +58,8 @@ public class ManageVolDialog extends ONCTableDialog implements ActionListener, L
 	private static final int NUM_ACT_TABLE_ROWS = 9;
 	
 	protected JPanel sortCriteriaPanel;
-	private JComboBox activityCB, groupCB;
-	private DefaultComboBoxModel activityCBM, groupCBM;
+	private JComboBox<String> activityCB, groupCB;
+	private DefaultComboBoxModel<String> activityCBM, groupCBM;
 	private boolean bIgnoreCBEvents;
 	private String sortActivityCategory, sortGroup;
 	
@@ -107,18 +107,18 @@ public class ManageVolDialog extends ONCTableDialog implements ActionListener, L
 		sortCriteriaPanel.add(lblONCicon);
 		
 		//create search filters
-		activityCBM = new DefaultComboBoxModel();
+		activityCBM = new DefaultComboBoxModel<String>();
 	    activityCBM.addElement("Any");
-		activityCB = new JComboBox(activityCBM);
+		activityCB = new JComboBox<String>(activityCBM);
 		activityCB.setBorder(BorderFactory.createTitledBorder("Activitiy"));
 		activityCB.setPreferredSize(new Dimension(200,56));
 		activityCB.addActionListener(this);
 		sortCriteriaPanel.add(activityCB);
 		sortActivityCategory = "Any";
 		
-		groupCBM = new DefaultComboBoxModel();
+		groupCBM = new DefaultComboBoxModel<String>();
 	    groupCBM.addElement("Any");
-		groupCB = new JComboBox(groupCBM);
+		groupCB = new JComboBox<String>(groupCBM);
 		groupCB.setBorder(BorderFactory.createTitledBorder("Group"));
 		groupCB.setPreferredSize(new Dimension(200,56));
 		groupCB.addActionListener(this);

@@ -61,7 +61,7 @@ public class MealDialog extends HistoryDialog
 		mealDateChangedComparator = new MealDateChangedComparator();
 
 		TableColumn holidayColumn = dlgTable.getColumnModel().getColumn(HOLIDAY_COL);
-		JComboBox comboBox = new JComboBox(MealType.getSelectionList());
+		JComboBox<MealType> comboBox = new JComboBox<MealType>(MealType.getSelectionList());
 		holidayColumn.setCellEditor(new DefaultCellEditor(comboBox));
 	}
 	

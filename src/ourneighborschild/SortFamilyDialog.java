@@ -25,6 +25,7 @@ import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -73,13 +74,15 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	
 	
 	//Unique gui elements for Sort Family Dialog
-	private JComboBox oncCB, batchCB, regionCB, dnsCB, zipCB, fstatusCB, streetCB, lastnameCB;
-	private JComboBox changedByCB, stoplightCB, giftStatusCB, mealstatusCB, giftCardCB;
-//	private ComboItem[] changeFamItem;
-	private JComboBox changeDNSCB;
-	private JComboBox changeFStatusCB, changeGiftStatusCB;
-	private DefaultComboBoxModel changedByCBM, changeDNSCBM;
-	private JComboBox exportCB, printCB, emailCB, callCB;
+	private JComboBox<String> oncCB, batchCB, regionCB, dnsCB, streetCB, lastnameCB, zipCB;
+	private JComboBox<FamilyStatus> fstatusCB, changeFStatusCB;
+	private JComboBox<FamilyGiftStatus> giftStatusCB, changeGiftStatusCB;
+	private JComboBox<String> changedByCB, giftCardCB, changeDNSCB; 
+	private JComboBox<ImageIcon> stoplightCB;
+	private JComboBox<MealStatus> mealstatusCB;
+	private JComboBox<String> exportCB, printCB, emailCB, callCB;
+	
+	private DefaultComboBoxModel<String> changedByCBM, changeDNSCBM;
 	
 	private JProgressBar progressBar;
 	private ONCEmailer oncEmailer;
@@ -122,80 +125,80 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		sortDNSCode = dnsCodes[0];
 		
 		//Set up unique search criteria GUI
-    	String[] oncStrings = {"Any", "NNA", "OOR", "RNV", "DEL"};
-    	oncCB = new JComboBox(oncStrings);
-    	oncCB.setEditable(true);
-    	oncCB.setPreferredSize(new Dimension(88,56));
+		String[] oncStrings = {"Any", "NNA", "OOR", "RNV", "DEL"};
+    		oncCB = new JComboBox<String>(oncStrings);
+    		oncCB.setEditable(true);
+    		oncCB.setPreferredSize(new Dimension(88,56));
 		oncCB.setBorder(BorderFactory.createTitledBorder("ONC #"));
 		oncCB.addActionListener(this);
     	
 		String[] batchNums = {"Any","B-01","B-02","B-03","B-04","B-05","B-06","B-07","B-08",
 								"B-09","B-10", "B-CR", "B-DI"};
-		batchCB = new JComboBox(batchNums);
+		batchCB = new JComboBox<String>(batchNums);
 		batchCB.setBorder(BorderFactory.createTitledBorder("Batch #"));
 		batchCB.addActionListener(this);
 		
-		fstatusCB = new JComboBox(FamilyStatus.getSearchFilterList());
+		fstatusCB = new JComboBox<FamilyStatus>(FamilyStatus.getSearchFilterList());
 		sortFamilyStatus = FamilyStatus.Any;
 		fstatusCB.setBorder(BorderFactory.createTitledBorder("Family Status"));
 		fstatusCB.addActionListener(this);
 		
-		giftStatusCB = new JComboBox(FamilyGiftStatus.getSearchFilterList());
+		giftStatusCB = new JComboBox<FamilyGiftStatus>(FamilyGiftStatus.getSearchFilterList());
 		sortGiftStatus = FamilyGiftStatus.Any;
 		giftStatusCB.setPreferredSize(new Dimension(160, 56));
 		giftStatusCB.setBorder(BorderFactory.createTitledBorder("Gift Status"));
 		giftStatusCB.addActionListener(this);
 		
-		mealstatusCB = new JComboBox(MealStatus.getSearchFilterList());
+		mealstatusCB = new JComboBox<MealStatus>(MealStatus.getSearchFilterList());
 		sortMealStatus = MealStatus.Any;
 		mealstatusCB.setBorder(BorderFactory.createTitledBorder("Meal Status"));
 		mealstatusCB.addActionListener(this);
 		
-    	regionCBM.addElement("Any");
-		regionCB = new JComboBox();
+		regionCBM.addElement("Any");
+		regionCB = new JComboBox<String>();
 		regionCB.setModel(regionCBM);
 		regionCB.setBorder(BorderFactory.createTitledBorder("Region"));
 		regionCB.addActionListener(this);
 		
-		dnsCB = new JComboBox(dnsCodes);
+		dnsCB = new JComboBox<String>(dnsCodes);
 		dnsCB.setEditable(true);
 		dnsCB.setPreferredSize(new Dimension(120, 56));
 		dnsCB.setBorder(BorderFactory.createTitledBorder("DNS Code"));
 		dnsCB.addActionListener(this);
 		
 		String[] any = {"Any", "UNDETERMINED"};
-		lastnameCB = new JComboBox(any);
+		lastnameCB = new JComboBox<String>(any);
 		lastnameCB.setEditable(true);
 		lastnameCB.setPreferredSize(new Dimension(152, 56));
 		lastnameCB.setBorder(BorderFactory.createTitledBorder("Last Name"));
 		lastnameCB.addActionListener(this);
 				
-		streetCB = new JComboBox(any);
+		streetCB = new JComboBox<String>(any);
 		streetCB.setEditable(true);
 		streetCB.setPreferredSize(new Dimension(160, 56));
 		streetCB.setBorder(BorderFactory.createTitledBorder("Street"));
 		streetCB.addActionListener(this);
 		
 		String[] onczipCodes = {"Any", "20120", "20121", "20124", "20151", "22033", "22039", "Out Of Area"};
-		zipCB = new JComboBox(onczipCodes);
+		zipCB = new JComboBox<String>(onczipCodes);
 		zipCB.setBorder(BorderFactory.createTitledBorder("Zip Code"));
 		zipCB.addActionListener(this);
 		
-		changedByCB = new JComboBox();
-		changedByCBM = new DefaultComboBoxModel();
+		changedByCB = new JComboBox<String>();
+		changedByCBM = new DefaultComboBoxModel<String>();
 	    changedByCBM.addElement("Anyone");
 	    changedByCB.setModel(changedByCBM);
 		changedByCB.setPreferredSize(new Dimension(144, 56));
 		changedByCB.setBorder(BorderFactory.createTitledBorder("Changed By"));
 		changedByCB.addActionListener(this);
 		
-		giftCardCB = new JComboBox(giftCardFilter);
+		giftCardCB = new JComboBox<String>(giftCardFilter);
 		giftCardCB.setPreferredSize(new Dimension(120, 56));
 		giftCardCB.setBorder(BorderFactory.createTitledBorder("Gift Card Only ?"));
 		giftCardCB.addActionListener(this);
 		
 //		stoplightCB = new JComboBox(stoplt);
-		stoplightCB = new JComboBox(GlobalVariablesDB.getLights());
+		stoplightCB = new JComboBox<ImageIcon>(GlobalVariablesDB.getLights());
 		stoplightCB.setPreferredSize(new Dimension(80, 56));
 		stoplightCB.setBorder(BorderFactory.createTitledBorder("Stoplight"));
 		stoplightCB.addActionListener(this);
@@ -220,9 +223,9 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		sortCriteriaPanelBottom.setPreferredSize(new Dimension(sortTable.getWidth(), 64));
 		
         //Set up change data panel gui
-        changeDNSCB = new JComboBox();
+        changeDNSCB = new JComboBox<String>();
 		changeDNSCB.setEditable(true);
-		changeDNSCBM = new DefaultComboBoxModel();
+		changeDNSCBM = new DefaultComboBoxModel<String>();
 	    changeDNSCBM.addElement(DEFAULT_NO_CHANGE_LIST_ITEM);
 	    for(int index=1; index < dnsCodes.length; index++)
 	    	changeDNSCBM.addElement(dnsCodes[index]);
@@ -240,7 +243,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 //		changeFamItem[5] = new ComboItem("Gifts Verified");
 //		changeFamItem[6] = new ComboItem("Packaged", false);
 				
-        changeFStatusCB = new JComboBox(FamilyStatus.getChangeList());
+        changeFStatusCB = new JComboBox<FamilyStatus>(FamilyStatus.getChangeList());
 //      changeFStatusCB.setRenderer(new ComboRenderer());
         changeFStatusCB.setPreferredSize(new Dimension(200, 56));
 		changeFStatusCB.setBorder(BorderFactory.createTitledBorder("Change Family Status"));
@@ -259,7 +262,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 //		changeDelItem[8] = new ComboItem("Counselor Pick-Up");
 		
 //        changeGiftStatusCB = new JComboBox(changeDelItem);
-        changeGiftStatusCB = new JComboBox(FamilyGiftStatus.getChangeList());
+        changeGiftStatusCB = new JComboBox<FamilyGiftStatus>(FamilyGiftStatus.getChangeList());
 //        changeGiftStatusCB.setRenderer(new ComboRenderer());
         changeGiftStatusCB.setPreferredSize(new Dimension(172, 56));
 		changeGiftStatusCB.setBorder(BorderFactory.createTitledBorder("Change Gift Status"));
@@ -280,18 +283,18 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		//set up the unique control gui for this dialog
         JPanel cntlPanel = new JPanel();
       	cntlPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
-        exportCB = new JComboBox(exportChoices);
+        exportCB = new JComboBox<String>(exportChoices);
         exportCB.setPreferredSize(new Dimension(136, 28));
         exportCB.setEnabled(false);
         exportCB.addActionListener(this);
         
-        printCB = new JComboBox(printChoices);
+        printCB = new JComboBox<String>(printChoices);
         printCB.setPreferredSize(new Dimension(136, 28));
         printCB.setEnabled(false);
         printCB.addActionListener(this);
         
         String[] emailChoices = {"Email", "2017 Family Confirmation Email"};
-        emailCB = new JComboBox(emailChoices);
+        emailCB = new JComboBox<String>(emailChoices);
         emailCB.setPreferredSize(new Dimension(136, 28));
         emailCB.setEnabled(false);
         emailCB.addActionListener(this);
@@ -303,7 +306,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
         progressBar.setVisible(false);
         
         String[] callChoices = {"Auto Call", "Call: Delivery Confirmation", "Export Call File"};
-        callCB = new JComboBox(callChoices);
+        callCB = new JComboBox<String>(callChoices);
         callCB.setPreferredSize(new Dimension(136, 28));
         callCB.setEnabled(false);
         callCB.addActionListener(this);
@@ -1409,14 +1412,14 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
     		"&emsp;<b>Direcci&#243;n alternativo:</b>  %s<br>" +
         	"<p>Un voluntario de Our Neighbor's Child entregar&#225; los regalos para su hijo/hijos a la direcci&#243;n de " +
         	"arriba el domingo, 17 de diciembre entre la 1 y la 4 de la tarde. "
-        	+ "<b>Por favor, responda a este correo electr—nico (en InglŽs o Espa–ol) para confirmar que un adulto estar‡ "
-        	+ "en casa ese d’a para recibir regalos de sus hijos</b>. TambiŽn vamos a contactar a usted con una "
-        	+ "llamada telef—nica automatizada."
+        	+ "<b>Por favor, responda a este correo electrï¿½nico (en Inglï¿½s o Espaï¿½ol) para confirmar que un adulto estarï¿½ "
+        	+ "en casa ese dï¿½a para recibir regalos de sus hijos</b>. Tambiï¿½n vamos a contactar a usted con una "
+        	+ "llamada telefï¿½nica automatizada."
         	+ "<p><b>Importante: Sol&#243; una organizaci&#243;n puede servir cada familia</b>. Si su nombre o el nombre de " +
         	"su hijo aparezca en cualquier otra lista (como The Salvation Army), Our Neighbor's Child le quitar&#225; " +
         	"de nuestra lista y no podr&#225; entregar los regalos a su hogar</p>"
         	+"<p>Si su direcci&#243;n o numero de tel&#233;fono cambia, <b>Por favor, incluya los cambios en la respuesta a este "
-        	+ "correo electr—nico.</b> Sin embargo, no podemos aceptar peticiones de regalos o cambios de peticiones.</p>" +
+        	+ "correo electrï¿½nico.</b> Sin embargo, no podemos aceptar peticiones de regalos o cambios de peticiones.</p>" +
         	"<p>Si hay una emergencia y un adulto no puede estar en su casa el domingo, 17 de diciembre, entre " +
         	"la 1 y las 4 de la tarde <b>Por favor, responda a este mensaje con una direcci&#243;n local alternativa </b>" +
         	"(en Centreville, Clifton, o Fairfax) en que un adulto estar&#225; durante el d&#237;a de entrega entre la 1 y " +

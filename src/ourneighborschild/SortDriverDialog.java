@@ -14,6 +14,7 @@ import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -30,11 +31,12 @@ public class SortDriverDialog extends DependantTableDialog
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	private JComboBox lNameCB, changedByCB, stoplightCB;
-	private DefaultComboBoxModel lNameCBM, changedByCBM;
+	private JComboBox<String> lNameCB, changedByCB;
+	private JComboBox<ImageIcon> stoplightCB;
+	private DefaultComboBoxModel<String> lNameCBM, changedByCBM;
 	private String sortLName;
 	private int sortChangedBy, sortStoplight;
-	private JComboBox drvCB, printCB;
+	private JComboBox<String> drvCB, printCB;
 	
 	private FamilyHistoryDB familyHistoryDB;
 	private VolunteerDB volunteerDB;
@@ -66,15 +68,15 @@ public class SortDriverDialog extends DependantTableDialog
 		
 		//Set up the search criteria panel
 		//Set up unique serach criteria gui
-    	String[] oncStrings = {"Any", "N/A"};
-    	drvCB = new JComboBox(oncStrings);
-    	drvCB.setEditable(true);
-    	drvCB.setPreferredSize(new Dimension(88,56));
+		String[] oncStrings = {"Any", "N/A"};
+    		drvCB = new JComboBox<String>(oncStrings);
+    		drvCB.setEditable(true);
+    		drvCB.setPreferredSize(new Dimension(88,56));
 		drvCB.setBorder(BorderFactory.createTitledBorder("Driver #"));
 		drvCB.addActionListener(this);
 		
-		lNameCB = new JComboBox();
-		lNameCBM = new DefaultComboBoxModel();
+		lNameCB = new JComboBox<String>();
+		lNameCBM = new DefaultComboBoxModel<String>();
 	    lNameCBM.addElement("Any");
 	    lNameCB.setModel(lNameCBM);
 	    lNameCB.setEditable(true);
@@ -82,8 +84,8 @@ public class SortDriverDialog extends DependantTableDialog
 		lNameCB.setBorder(BorderFactory.createTitledBorder("Last Name"));
 		lNameCB.addActionListener(this);
 		
-		changedByCB = new JComboBox();
-		changedByCBM = new DefaultComboBoxModel();
+		changedByCB = new JComboBox<String>();
+		changedByCBM = new DefaultComboBoxModel<String>();
 	    changedByCBM.addElement("Anyone");
 	    changedByCB.setModel(changedByCBM);
 		changedByCB.setPreferredSize(new Dimension(144, 56));
@@ -91,7 +93,7 @@ public class SortDriverDialog extends DependantTableDialog
 		changedByCB.addActionListener(this);
 		
 //		stoplightCB = new JComboBox(stoplt);
-		stoplightCB = new JComboBox(GlobalVariablesDB.getLights());
+		stoplightCB = new JComboBox<ImageIcon>(GlobalVariablesDB.getLights());
 		stoplightCB.setMaximumSize(new Dimension(80, 56));
 		stoplightCB.setBorder(BorderFactory.createTitledBorder("Stoplight"));
 		stoplightCB.addActionListener(this);
@@ -114,7 +116,7 @@ public class SortDriverDialog extends DependantTableDialog
       	
       	//Create a print button for agent information
       	String[] agentPrintChoices = {"Print", "Print Driver Listing"};
-        printCB = new JComboBox(agentPrintChoices);
+        printCB = new JComboBox<String>(agentPrintChoices);
         printCB.setPreferredSize(new Dimension(136, 28));
         printCB.setEnabled(false);
         printCB.addActionListener(this);
@@ -123,10 +125,10 @@ public class SortDriverDialog extends DependantTableDialog
         
         //set the border title for the family table 
         familyTableScrollPane.setBorder(BorderFactory.createTitledBorder(
-				BorderFactory.createLoweredBevelBorder(), "Family Deliveries Made/Attempted By Selected Delivery Partner(s)"));
+		BorderFactory.createLoweredBevelBorder(), "Family Deliveries Made/Attempted By Selected Delivery Partner(s)"));
 
         bottomPanel.add(infoPanel, BorderLayout.LINE_START);
-    	bottomPanel.add(cntlPanel, BorderLayout.CENTER);
+        bottomPanel.add(cntlPanel, BorderLayout.CENTER);
         
         this.add(bottomPanel);
         this.add(familyTableScrollPane);

@@ -143,6 +143,7 @@ public class WishDetailDB extends ONCDatabase
 			return wdAL.get(index);
 	}
 	
+	@SuppressWarnings("unchecked")
 	public void readWishDetailALObject(ObjectInputStream ois)
 	{
 		ArrayList<WishDetail> wdal = new ArrayList<WishDetail>();

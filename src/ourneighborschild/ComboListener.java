@@ -6,10 +6,10 @@ import javax.swing.JComboBox;
 
 public class ComboListener implements ActionListener
 {
-	JComboBox jcombo;  
+	JComboBox<?> jcombo;  
     Object curItem; 
 	
-	ComboListener(JComboBox combobox)
+	ComboListener(JComboBox<?> combobox)
     {  
         this.jcombo = combobox;  
         combobox.setSelectedIndex(0);  

@@ -46,7 +46,8 @@ public class PartnerDialog extends EntityDialog
 	
 	private JLabel lblCYAssigned, lblCYDel, lblCYRecBefore, lblCYRecAfter;
 	private JLabel lblOrgID, lblRegion, lblDateChanged, lblChangedBy;
-    private JComboBox typeCB, statusCB, collectionCB;
+    private JComboBox<String> typeCB, statusCB;
+    private JComboBox<GiftCollection> collectionCB;
     private JTextPane otherTP, specialNotesTP, deliverToTP;
     private JLabel lblPYReq, lblPYAssigned, lblPYDel, lblPYRecBefore, lblPYRecAfter;
     private JTextField nameTF, cyReqTF;
@@ -116,20 +117,20 @@ public class PartnerDialog extends EntityDialog
         nameTF.addActionListener(dcListener);
                 
         String[] types = {"?","Business","Church","School", "Clothing", "Coat", "ONC Shopper"};
-        typeCB = new JComboBox(types);
+        typeCB = new JComboBox<String>(types);
         typeCB.setToolTipText("Type of organization e.g. Business");
         typeCB.setPreferredSize(new Dimension (136, 48));
         typeCB.setBorder(BorderFactory.createTitledBorder("Partner Type"));
         typeCB.addActionListener(dcListener);
         
-        collectionCB = new JComboBox();
-        collectionCB.setModel(new DefaultComboBoxModel(GiftCollection.selectionValues()));
+        collectionCB = new JComboBox<GiftCollection>();
+        collectionCB.setModel(new DefaultComboBoxModel<GiftCollection>(GiftCollection.selectionValues()));
         collectionCB.setPreferredSize(new Dimension (128, 48));
         collectionCB.setBorder(BorderFactory.createTitledBorder("Collection Type"));
         collectionCB.addActionListener(dcListener);
                      
         String[] status = {"No Action Yet", "1st Email Sent", "Responded", "2nd Email Sent", "Called, Left Mssg", "Confirmed", "Not Participating"}; 
-        statusCB = new JComboBox(status);
+        statusCB = new JComboBox<String>(status);
         statusCB.setPreferredSize(new Dimension (144, 48));
         statusCB.setBorder(BorderFactory.createTitledBorder("Status"));
         statusCB.addActionListener(dcListener);

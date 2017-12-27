@@ -57,7 +57,8 @@ public abstract class ONCDatabase implements ServerListener
     }
     
     /** Fire a Data ChangedEvent to all registered listeners */
-    protected void fireDataChanged(Object source, String eventType, Object eventObject)
+    @SuppressWarnings("unchecked")
+	protected void fireDataChanged(Object source, String eventType, Object eventObject)
     {
     	// if we have no listeners, do nothing...
     	if (listeners != null && !listeners.isEmpty())
@@ -75,7 +76,8 @@ public abstract class ONCDatabase implements ServerListener
     	}
     }
     
-    protected void fireDataChanged(Object source, String eventType, Object eventObject1, Object eventObject2)
+    @SuppressWarnings("unchecked")
+	protected void fireDataChanged(Object source, String eventType, Object eventObject1, Object eventObject2)
     {
     	// if we have no listeners, do nothing...
     	if (listeners != null && !listeners.isEmpty())

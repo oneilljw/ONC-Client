@@ -63,7 +63,7 @@ public class ONCTable extends JTable
 		return comp;
 	}
 	
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public Class getColumnClass(int column)
 	{

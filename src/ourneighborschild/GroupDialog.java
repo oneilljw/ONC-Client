@@ -48,7 +48,7 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
 	private JTextField nameTF;
 	private JLabel lblLastChangedBy, lblDateChanged;
 	private SimpleDateFormat sdf;
-    private JComboBox groupTypeCB;
+    private JComboBox<GroupType> groupTypeCB;
     private JButton btnAddMember, btnRemoveMember;
     private JCheckBox ckBoxShared;
     private int seasonCount = 0;	//Holds the navigation panel overall counts
@@ -97,7 +97,7 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
         nameTF.setBorder(BorderFactory.createTitledBorder("Group Name"));
         nameTF.addActionListener(dcListener);
                 
-        groupTypeCB = new JComboBox(GroupType.getGroupTypeList());
+        groupTypeCB = new JComboBox<GroupType>(GroupType.getGroupTypeList());
         groupTypeCB.setToolTipText("Type of group, e.g. Business");
         groupTypeCB.setPreferredSize(new Dimension (144, 48));
         groupTypeCB.setBorder(BorderFactory.createTitledBorder("Group Type"));

@@ -22,7 +22,7 @@ public class StoplightDialog extends JDialog
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	private JComboBox stoplightCB;
+	private JComboBox<String> stoplightCB;
 	private JTextField stoplightTF;
 	private JLabel lblChangedBy;
 
@@ -35,7 +35,7 @@ public class StoplightDialog extends JDialog
 			this.setTitle(title);
 		
 		String[] lightPos = {"Green", "Yellow", "Red", "Off"};
-		stoplightCB = new JComboBox(lightPos);
+		stoplightCB = new JComboBox<String>(lightPos);
 		stoplightCB.setBorder(BorderFactory.createTitledBorder("Choose Color"));
 		stoplightCB.setSelectedIndex(3);
 		

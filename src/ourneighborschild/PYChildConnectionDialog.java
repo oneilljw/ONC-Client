@@ -41,7 +41,7 @@ public class PYChildConnectionDialog extends JDialog implements ActionListener,
 	private static final int NUMBER_OF_PRIOR_YEARS = 2;
 	
 	private JTextField firstnameTF, lastnameTF, dobTF, genderTF, searchLastnameTF;
-	private JComboBox searchGenderCB;
+	private JComboBox<String> searchGenderCB;
 	private JDateChooser searchDobDC;
 	private ONCTable resultTable;
 	private DefaultTableModel resultDefaultTableModel;
@@ -111,7 +111,7 @@ public class PYChildConnectionDialog extends JDialog implements ActionListener,
         searchDobDC.setBorder(BorderFactory.createTitledBorder("PY Date of Birth"));
         
         String[] genders = {"Boy", "Girl"};
-        searchGenderCB = new JComboBox(genders);
+        searchGenderCB = new JComboBox<String>(genders);
         searchGenderCB.setPreferredSize(new Dimension(96, 48));
         searchGenderCB.setBorder(BorderFactory.createTitledBorder("PY Gender"));
    

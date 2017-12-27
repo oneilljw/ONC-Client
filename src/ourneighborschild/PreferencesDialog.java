@@ -46,11 +46,12 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 	private JDateChooser dc_DecemberCutoff, dc_InfoEditCutoff, dc_ThanksgivingCutoff;
 	private JTextField whStreetNumTF, whStreetTF, whCityTF, whStateTF;
 	private String whStreetNum, whStreet,whCity, whState;
-	public JComboBox oncFontSizeCB;
+	public JComboBox<Integer> oncFontSizeCB;
 	private JButton btnApplyDateChanges, btnApplyAddressChanges;
 	private boolean bIgnoreDialogEvents;
 	private JCheckBox barcodeCkBox;
-	private JComboBox barcodeCB, wishAssigneeFilterDefaultCB, fdnsFilterDefaultCB;
+	private JComboBox<String> wishAssigneeFilterDefaultCB, fdnsFilterDefaultCB;
+	private JComboBox<Barcode> barcodeCB;
 	private JSpinner averyXOffsetSpinner, averyYOffsetSpinner;
 	private Integer[] fontSizes = {8, 10, 12, 13, 14, 16, 18};
 	
@@ -77,7 +78,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		
 		JPanel fontPanel = new JPanel();
 		JLabel lblFont = new JLabel("Font Size:");
-		oncFontSizeCB = new JComboBox(fontSizes);
+		oncFontSizeCB = new JComboBox<Integer>(fontSizes);
 		oncFontSizeCB.setSelectedItem(DEFAULT_FONT_SIZE);
 		oncFontSizeCB.setEnabled(false);
 		oncFontSizeCB.addActionListener(this);
@@ -87,7 +88,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		JPanel wafdPanel = new JPanel();
 		JLabel lblWAFD = new JLabel("Wish Assignee Filter Default:");
 		String[] choices = {"Any", "Unassigned"};
-		wishAssigneeFilterDefaultCB = new JComboBox(choices);
+		wishAssigneeFilterDefaultCB = new JComboBox<String>(choices);
 		wishAssigneeFilterDefaultCB.setSelectedIndex(0);
 		wishAssigneeFilterDefaultCB.setEnabled(false);
 		wishAssigneeFilterDefaultCB.addActionListener(this);
@@ -97,7 +98,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		JPanel fdfPanel = new JPanel();
 		JLabel lblFDF = new JLabel("Family Do Not Serve Filter Default:");
 		String[] options = {"None", "Any"};
-		fdnsFilterDefaultCB = new JComboBox(options);
+		fdnsFilterDefaultCB = new JComboBox<String>(options);
 		fdnsFilterDefaultCB.setSelectedIndex(0);
 		fdnsFilterDefaultCB.setEnabled(false);
 		fdnsFilterDefaultCB.addActionListener(this);
@@ -229,7 +230,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		barcodeCkBox.addActionListener(this);
 		wishlabelPanelTop.add(barcodeCkBox);
 		
-		barcodeCB = new JComboBox(Barcode.values());
+		barcodeCB = new JComboBox<Barcode>(Barcode.values());
 		barcodeCB.setSelectedItem(pdGVs.getBarcodeCode());
 		barcodeCB.addActionListener(this);;
 		wishlabelPanelTop.add(barcodeCB);

@@ -3,6 +3,7 @@ package ourneighborschild;
 public class GoogleGeocode 
 {
 	private Result[] results;
+	@SuppressWarnings("unused")
 	private String status;
 	
 	//getter
@@ -11,10 +12,13 @@ public class GoogleGeocode
 
 	private class Result
 	{
+		@SuppressWarnings("unused")
 		private Address_Component[] address_components;
 		private String formatted_address;
 		private Geometry geometry;
+		@SuppressWarnings("unused")
 		private String place_id;
+		@SuppressWarnings("unused")
 		private String[] types;
 		
 		//getters
@@ -24,8 +28,11 @@ public class GoogleGeocode
 	
 	private class Address_Component
 	{
+		@SuppressWarnings("unused")
 		private String long_name;
+		@SuppressWarnings("unused")
 		private String short_name;
+		@SuppressWarnings("unused")
 		private String[] types;
 	}
 	
@@ -33,7 +40,9 @@ public class GoogleGeocode
 	private class Geometry
 	{
 		private Location location;
+		@SuppressWarnings("unused")
 		private String location_type;
+		@SuppressWarnings("unused")
 		private Viewport viewport;
 		
 		String getLocation() { return String.format("%.7f, %.7f", location.getLat(), location.getLng()); }
@@ -51,7 +60,9 @@ public class GoogleGeocode
 	
 	private class Viewport
 	{
+		@SuppressWarnings("unused")
 		private Location northeast;
+		@SuppressWarnings("unused")
 		private Location southwest;
 	}
 }
