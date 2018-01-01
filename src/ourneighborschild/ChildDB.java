@@ -308,6 +308,7 @@ public class ChildDB extends ONCDatabase
 			Type listtype = new TypeToken<ArrayList<ONCChild>>(){}.getType();
 			
 			response = serverIF.sendRequest("GET<children>");
+			
 			childAL = gson.fromJson(response, listtype);
 			
 			if(!response.startsWith("NO_CHILDREN"))
