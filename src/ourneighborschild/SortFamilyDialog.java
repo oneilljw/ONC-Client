@@ -38,6 +38,10 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.krysalis.barcode4j.impl.AbstractBarcodeBean;
+import org.krysalis.barcode4j.impl.code128.Code128Bean;
+import org.krysalis.barcode4j.impl.upcean.UPCEBean;
+import org.krysalis.barcode4j.output.java2d.Java2DCanvasProvider;
 
 import au.com.bytecode.opencsv.CSVWriter;
 
@@ -69,6 +73,8 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	private static final int MIN_EMAIL_NAME_LENGTH = 2;
 	private static final String FAMILY_EMAIL_SENDER_ADDRESS = "clientinformation@ourneighborschild.org";
 	private static final int MAX_CHILD_AGE_FOR_BOOKS = 12;
+	private static final int AVERY_LABEL_X_BARCODE_OFFSET = 0;
+	private static final int AVERY_LABEL_Y_BARCODE_OFFSET = 4;
 	
 //	public enum FamilyStatus {Empty, InfoVerified, GiftsSelected, GiftsReveived, GiftsVerified, Packaged}
 	
@@ -2549,6 +2555,48 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		    	g2d.drawString(line[11], x+88, y+296);	//Draw # of bags used to package family
 		    	g2d.drawString(line[13], x+394, y+296);	//Draw # of large items assigned to family
 		    }
+		}
+		
+		private void drawBarCode(String code, int x, int y, Graphics2D g2d)
+		{
+			//create the bar code
+			
+			AbstractBarcodeBean bean;
+			if(gvs.getBarcodeCode() == Barcode.CODE128)
+				 bean = new Code128Bean();
+			else
+				bean = new UPCEBean();
+			
+			//get a temporary graphics context
+			Graphics2D tempg2d = (Graphics2D) g2d.create();
+			
+			//create the canvass
+			Java2DCanvasProvider cc = new Java2DCanvasProvider(tempg2d, 0);
+			tempg2d.translate(x + AVERY_LABEL_X_BARCODE_OFFSET, y + AVERY_LABEL_Y_BARCODE_OFFSET);
+//			tempg2d.translate(x, y);
+			
+			tempg2d.setRenderingHint( RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
+//			tempg2d.scale(2.835, 2.835);	//scale from millimeters to points
+			tempg2d.scale(2.4, 2.4);	//scale from millimeters to points
+
+			//set the bean content
+			bean.generateBarcode(cc, code);
+			
+			//release the graphics context
+			tempg2d.dispose();
+			
+			//draw the corner hat
+			final Image img = GlobalVariablesDB.getInstance().getImage(45);
+			
+			double scaleFactor = (72d / 300d) * 2;
+		     
+		    // Now we perform our rendering 	       	    
+		    int destX1 = (int) (img.getWidth(null) * scaleFactor);
+		    int destY1 = (int) (img.getHeight(null) * scaleFactor);
+		    
+		    //Draw image scaled to fit image clip region on the label
+		    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		    g2d.drawImage(img, x-7, y-7, x+destX1-7, y+destY1-7, 0,0, img.getWidth(null),img.getHeight(null),null); 
 		}
 		
 		@Override
