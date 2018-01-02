@@ -8,11 +8,12 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.Calendar;
 
+import javax.sound.sampled.LineUnavailableException;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -30,6 +31,9 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 	 * listing button to the control panel
 	 */
 	private static final long serialVersionUID = 1L;
+	private static final int SOUND_DURATION = 250;
+	private static final int SUCCESS_SOUND_FREQ = 500;
+	private static final int FAILED_SOUND_FREQ = 150;
 	
 	private int sortstartRegion, sortendRegion;
 	private FamilyGiftStatus sortGiftStatus;
@@ -38,8 +42,8 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 	private JComboBox<String> eRegCB;
 	private JComboBox<FamilyGiftStatus> dstatusCB;
 	private DefaultComboBoxModel<String> eRegCBM;	//start region uses the inherited model
-	private JTextField oncnumTF, assignDriverTF;
-	private JButton btnPrintListing;
+	private JTextField oncnumTF, barcodeTF, assignDriverTF;
+	private JLabel lblResult;
 	
 	public AssignDeliveryDialog(JFrame pf)
 	{
@@ -89,12 +93,19 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 		dstatusCB.setBorder(BorderFactory.createTitledBorder("Gift Status Less Then"));
 		dstatusCB.addActionListener(this);
 		
+		barcodeTF = new JTextField(6);
+		barcodeTF.setMaximumSize(new Dimension(96,56));
+		barcodeTF.setBorder(BorderFactory.createTitledBorder("Barcode"));
+		barcodeTF.setToolTipText("Type or scan barcode for delivery card. If typed, press <Enter>");
+		barcodeTF.addActionListener(this);
+		
 		//Add all sort criteria gui to search criteria pane
         sortCriteriaPanelTop.add(oncnumTF);
         sortCriteriaPanelTop.add(sRegCB);
 		sortCriteriaPanelTop.add(eRegCB);				
 		sortCriteriaPanelTop.add(dstatusCB);
 		sortCriteriaPanelTop.add(new JPanel());
+		sortCriteriaPanelTop.add(barcodeTF);
 		 
 		//Set up change data panel gui
         assignDriverTF = new JTextField(12);
@@ -114,20 +125,20 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
         //Change the text of the ApplyChanges button
         btnApplyChanges.setText("Assign Delivery");
         
-        //Add Print Listing button to a control panel
-        JPanel cntlPanel = new JPanel();
-        cntlPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
+        //Add result and print listing button to the bottom panel
+        JPanel resultPanel = new JPanel();
+        resultPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+        lblResult = new JLabel("Barcode result:");
+        resultPanel.add(lblResult);
         
-        btnPrintListing = new JButton("Print Listing");
-        btnPrintListing.addActionListener(this);
-        
-        cntlPanel.add(btnPrintListing);
-        bottomPanel.add(cntlPanel, BorderLayout.CENTER);
+        bottomPanel.add(resultPanel, BorderLayout.CENTER);
         
         this.add(changePanel);
         this.add(bottomPanel);
         
         pack();
+        
+        barcodeTF.requestFocusInWindow();	//we want scans to process immediately
 	}
 	
 	/**********************************************************************************
@@ -302,9 +313,11 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 		if(assignmentsMade > 0)
 			buildTableList(false);
 		
+		barcodeTF.requestFocus();
+		
 //		bChangingTable = false;
 		
-		return (assignmentsMade > 0 ? true:false);
+		return (assignmentsMade > 0 ? true : false);
 	}
 	
 	//Checks to see if the Apply Changes button should be enabled. It is enabled whenever
@@ -330,8 +343,10 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 	void onResetCriteriaClicked()
 	{
 		oncnumTF.setText("");
+		barcodeTF.setText("");
 		sortONCNum = "";
-	
+		lblResult.setText("");
+		
 		sRegCB.removeActionListener(this);
 		sRegCB.setSelectedIndex(0);
 		sortstartRegion = 0;
@@ -348,6 +363,8 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 		dstatusCB.addActionListener(this);
 		
 		buildTableList(false);
+		
+		barcodeTF.requestFocus();
 	}
 	
 	@Override
@@ -396,27 +413,77 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 		{
 			sortONCNum = oncnumTF.getText();
 			buildTableList(false);
+			oncnumTF.setText("");
+			lblResult.setText("");
+			lblResult.setText("");
+			if(sortTable.getRowCount() == 1)
+			{
+				lblResult.setText("Found family # " + sortONCNum);
+				sortTable.setRowSelectionInterval(0, 0);
+			}
+			else
+				lblResult.setText("Family " + sortONCNum + " not found");
+			sortONCNum = "";
+		}
+		else if(e.getSource() == barcodeTF)
+		{
+			if(gvs.getBarcodeCode().length() != barcodeTF.getText().length())
+			{
+				lblResult.setText(String.format("Barcode %s is not a valid length", barcodeTF.getText()));
+				try 
+				{
+					SoundUtils.tone(FAILED_SOUND_FREQ, SOUND_DURATION);
+				} 
+				catch (LineUnavailableException e1) 
+				{
+					
+				}
+			}
+			else
+			{
+				//if using UPC-E, eliminate check digits before converting to ONC Number
+				String oncNum = barcodeTF.getText().replaceFirst("^0+(?!$)", "");
+				sortONCNum = gvs.getBarcodeCode() == Barcode.UPCE  ?  oncNum.substring(0, oncNum.length()-1) : oncNum;
+				buildTableList(false);
+				barcodeTF.setText("");
+				if(sortTable.getRowCount() == 1)
+				{	
+					lblResult.setText("Found family # " + sortONCNum);
+					sortTable.setRowSelectionInterval(0, 0);
+				}
+				else
+					lblResult.setText("Family " + sortONCNum + " not found");
+				
+				sortONCNum = "";
+				try 
+				{
+					SoundUtils.tone(SUCCESS_SOUND_FREQ, SOUND_DURATION);
+				} 
+				catch (LineUnavailableException e1) 
+				{
+					
+				}
+			}
 		}
 		else if(e.getSource() == sRegCB && sRegCB.getSelectedIndex() != sortstartRegion)
 		{
+			lblResult.setText("");
 			sortstartRegion = sRegCB.getSelectedIndex();
 			buildTableList(false);		
 		}				
 		else if(e.getSource() == eRegCB && eRegCB.getSelectedIndex() != sortendRegion)
 		{
+			lblResult.setText("");
 			sortendRegion = eRegCB.getSelectedIndex();
 			buildTableList(false);			
 		}		
 		else if(e.getSource() == dstatusCB && dstatusCB.getSelectedItem() != sortGiftStatus)
-		{						
+		{	
+			lblResult.setText("");
 			sortGiftStatus = (FamilyGiftStatus) dstatusCB.getSelectedItem();
 			buildTableList(false);
 		}
-		else if(e.getSource() == btnPrintListing)
-		{
-			onPrintListing("ONC Deliverers");
-		}
-
+	
 		checkApplyChangesEnabled();	//Check to see if user postured to change status or assignee. 
 	}
 	

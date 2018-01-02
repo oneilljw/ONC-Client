@@ -222,7 +222,7 @@ public class WarehouseSignInDialog extends ONCTableDialog implements ActionListe
 			if(index < whList.size())
 			{
 				//found the volunteer who changed, update the warehouse sign in
-				System.out.println(String.format("WareSignInDlg.dataChg: updatedDriverFound: %d, %s", updatedVol.getID(), updatedVol.getLastName()));
+//				System.out.println(String.format("WareSignInDlg.dataChg: updatedDriverFound: %d, %s", updatedVol.getID(), updatedVol.getLastName()));
 				whList.get(index).setUpdatedVolunteer(updatedVol);
 				
 				int tableRow = dlgTable.convertRowIndexToView(index);

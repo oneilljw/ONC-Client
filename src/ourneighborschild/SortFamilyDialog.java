@@ -2526,10 +2526,13 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		    g2d.setFont(ycFont[2]);
 			g2d.drawString(line[0], x, y+27); 	//ONC Number
 			
+			//draw ONC number bar code
+			drawBarCode( String.format("%07d", Integer.parseInt(line[0])), x+64, y, g2d, false);
+			
 			g2d.setFont(ycFont[3]);
-			g2d.drawString(line[1], x, y+64);		//First and Last Name
-			g2d.drawString(line[2], x, y+76);		//Street Address
-			g2d.drawString(line[3], x, y+88);		//City, State, Zip
+			g2d.drawString(line[1], x, y+68);		//First and Last Name
+			g2d.drawString(line[2], x, y+80);		//Street Address
+			g2d.drawString(line[3], x, y+92);		//City, State, Zip
 			g2d.drawString(line[4], x+52, y+124); 	//Region	    
 			g2d.drawString(line[5], x+66, y+150);	//Home Phone 1
 			if(!line[6].isEmpty())
@@ -2552,15 +2555,14 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		    
 		    if(line[14].equals(Integer.toString(FAMILY_STATUS_PACKAGED)))
 		    {
-		    	g2d.drawString(line[11], x+88, y+296);	//Draw # of bags used to package family
-		    	g2d.drawString(line[13], x+394, y+296);	//Draw # of large items assigned to family
+		    		g2d.drawString(line[11], x+88, y+296);	//Draw # of bags used to package family
+		    		g2d.drawString(line[13], x+394, y+296);	//Draw # of large items assigned to family
 		    }
 		}
 		
-		private void drawBarCode(String code, int x, int y, Graphics2D g2d)
+		private void drawBarCode(String code, int x, int y, Graphics2D g2d, boolean bDrawIcon)
 		{
 			//create the bar code
-			
 			AbstractBarcodeBean bean;
 			if(gvs.getBarcodeCode() == Barcode.CODE128)
 				 bean = new Code128Bean();
@@ -2586,17 +2588,20 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			tempg2d.dispose();
 			
 			//draw the corner hat
-			final Image img = GlobalVariablesDB.getInstance().getImage(45);
+			if(bDrawIcon)
+			{
+				final Image img = GlobalVariablesDB.getInstance().getImage(45);
 			
-			double scaleFactor = (72d / 300d) * 2;
+				double scaleFactor = (72d / 300d) * 2;
 		     
-		    // Now we perform our rendering 	       	    
-		    int destX1 = (int) (img.getWidth(null) * scaleFactor);
-		    int destY1 = (int) (img.getHeight(null) * scaleFactor);
+				// Now we perform our rendering 	       	    
+				int destX1 = (int) (img.getWidth(null) * scaleFactor);
+				int destY1 = (int) (img.getHeight(null) * scaleFactor);
 		    
-		    //Draw image scaled to fit image clip region on the label
-		    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		    g2d.drawImage(img, x-7, y-7, x+destX1-7, y+destY1-7, 0,0, img.getWidth(null),img.getHeight(null),null); 
+				//Draw image scaled to fit image clip region on the label
+				g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+				g2d.drawImage(img, x-7, y-7, x+destX1-7, y+destY1-7, 0,0, img.getWidth(null),img.getHeight(null),null);
+			}
 		}
 		
 		@Override

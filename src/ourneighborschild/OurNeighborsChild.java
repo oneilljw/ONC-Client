@@ -30,7 +30,7 @@ public class OurNeighborsChild
 	 */
 	//Static Final Variables
 	private static final int SERVER_CONNECT_RETRY_LIMIT = 3;
-	private static final String VERSION = "5.24";
+	private static final String VERSION = "5.25";
 	private static final String APPNAME = "Our Neighbor's Child";
 	private static final String ONC_SERVER_IP_ADDRESS_FILE = "serveraddress.txt";
 	private static final int MAIN_FRAME_WIDTH = 837;
@@ -113,44 +113,44 @@ public class OurNeighborsChild
         
         while(retrycount < SERVER_CONNECT_RETRY_LIMIT)
         {
-        	try 
-        	{
-        		serverIF = new ServerIF(serverIPAddress, PORT);
-        		break;
-        	} 
-        	catch (SocketTimeoutException e2) 
-        	{
-        		serverIPAddress = getServerIPAddress(serverIPAddress);
-        		if(serverIPAddress == null)
+        		try 
+        		{
+        			serverIF = new ServerIF(serverIPAddress, PORT);
         			break;
-        		else
-        			retrycount++;
-        	} 
-        	catch (UnknownHostException e2) 
-        	{
-        		serverIPAddress = getServerIPAddress(serverIPAddress);
-        		if(serverIPAddress == null)
-        			break;
-        		else
-        			retrycount++;
-        	} 
-        	catch (IOException e2) 
-        	{
-        		serverIPAddress = getServerIPAddress(serverIPAddress);
-        		if(serverIPAddress == null)
-        			break;
-        		else
-        			retrycount++;
-        	}
+        		} 
+        		catch (SocketTimeoutException e2) 
+        		{
+        			serverIPAddress = getServerIPAddress(serverIPAddress);
+        			if(serverIPAddress == null)
+        				break;
+        			else
+        				retrycount++;
+        		} 
+        		catch (UnknownHostException e2) 
+        		{
+        			serverIPAddress = getServerIPAddress(serverIPAddress);
+        			if(serverIPAddress == null)
+        				break;
+        			else
+        				retrycount++;
+        		} 
+        		catch (IOException e2) 
+        		{
+        			serverIPAddress = getServerIPAddress(serverIPAddress);
+        			if(serverIPAddress == null)
+        				break;
+        			else
+        				retrycount++;
+        		}
 		}
         
         //if the server if is not connected, notify and exit
         if(serverIF == null)
         {
-        	String mssg = "<html>Server connection could not established,<br>"
+        		String mssg = "<html>Server connection could not established,<br>"
         					+ "please contact the ONC IT director</html>";
-        	JOptionPane.showMessageDialog(oncFrame, mssg, "ONC Server Connection Failure", JOptionPane.ERROR_MESSAGE);
-        	System.exit(0);
+        		JOptionPane.showMessageDialog(oncFrame, mssg, "ONC Server Connection Failure", JOptionPane.ERROR_MESSAGE);
+        		System.exit(0);
         }
 //      else
 //       	writeServerIPAddressToFile(serverIPAddress);	//write the server address successfully used
@@ -205,31 +205,31 @@ public class OurNeighborsChild
 		
         if(user.getPermission() == UserPermission.Sys_Admin)	//Superuser privileges
         {
-        	dlgManager.setEnabledAdminPrivileges(true);
-        	oncMenuBar.setVisibleAdminFunctions(true);
-        	oncMenuBar.setVisibleSpecialImports(true);
-        	dlgManager.setEnabledSuperuserPrivileges(true);
+        		dlgManager.setEnabledAdminPrivileges(true);
+        		oncMenuBar.setVisibleAdminFunctions(true);
+        		oncMenuBar.setVisibleSpecialImports(true);
+        		dlgManager.setEnabledSuperuserPrivileges(true);
         }
         else if(user.getPermission() == UserPermission.Admin)
         {
-        	oncMenuBar.setVisibleAdminFunctions(true);
-        	dlgManager.setEnabledAdminPrivileges(true);
+        		oncMenuBar.setVisibleAdminFunctions(true);
+        		dlgManager.setEnabledAdminPrivileges(true);
         }
      
         //get database years from server to set the data menu item for user to select and get user db so 
         //a chat can start
         if(serverIF != null)
         {
-        	//get the list of data bases on the server
-        	List<DBYear> dbYears = dbManager.getDBStatus();
-        	if(dbYears != null)
-        		oncMenuBar.processDBYears(dbYears);	
+        		//get the list of data bases on the server
+        		List<DBYear> dbYears = dbManager.getDBStatus();
+        		if(dbYears != null)
+        			oncMenuBar.processDBYears(dbYears);	
         	
-        	//get encryption keys
-        	encryptionMgr.importKeyMapFromServer();
+        		//get encryption keys
+        		encryptionMgr.importKeyMapFromServer();
         	
-        	//get user data base
-        	UserDB.getInstance().importUserDatabase();
+        		//get user data base
+        		UserDB.getInstance().importUserDatabase();
         }
         
         //remove splash panel after authentication
@@ -241,32 +241,27 @@ public class OurNeighborsChild
        
         //everything is initialized, start polling server for changes
         if(serverIF != null && serverIF.isConnected())
-        	serverIF.setEnabledServerPolling(true);
-        
-        //diagnostic for who is a registered listener for FamilyDB data changed events
-//        FamilyDB fDB = FamilyDB.getInstance();
-//        for(DatabaseListener dbl : fDB.getListenerList())
-//        	System.out.println(dbl.toString());
+        		serverIF.setEnabledServerPolling(true);
     }
     
     String getServerIPAddress(String serverIPAddress)
     {
-    	ServerIPDialog sipDlg = null;
+    		ServerIPDialog sipDlg = null;
     	
-    	sipDlg = new ServerIPDialog(oncFrame, serverIPAddress);
-    	sipDlg.setVisible(true);
+    		sipDlg = new ServerIPDialog(oncFrame, serverIPAddress);
+    		sipDlg.setVisible(true);
     	
-    	return sipDlg.getNewAddress();
+    		return sipDlg.getNewAddress();
     }
     
     String readServerIPAddressFromFile()
     {
-    	String serverIPAddress;
-    	String line;
+    		String serverIPAddress;
+    		String line;
     	
-    	//Construct FileReader and BufferedReader from FileReader
-    	FileReader reader = null;
-    	BufferedReader br = null;
+    		//Construct FileReader and BufferedReader from FileReader
+    		FileReader reader = null;
+    		BufferedReader br = null;
     	
 		try
 		{
@@ -280,7 +275,7 @@ public class OurNeighborsChild
 			return serverIPAddress;
 		}
 		catch (FileNotFoundException e) { return defaultServerAddress; }
-    	catch (IOException e) { return defaultServerAddress; }
+    		catch (IOException e) { return defaultServerAddress; }
     }
 /*    
     void writeServerIPAddressToFile(String ipAddress)
@@ -312,32 +307,32 @@ public class OurNeighborsChild
     // A quit event is triggered by Cmd-Q, selecting Quit from the application or Dock menu, or logging out
     public boolean quit()
     {
-    	String response = "";
+    		String response = "";
 		response = serverIF.sendRequest("QUIT");
 		
-    	if(response.equals("GOODBYE"))
-    		serverIF.close();
+		if(response.equals("GOODBYE"))
+    			serverIF.close();
     			
-    	return true;
+		return true;
     }
     
     // General info dialog; fed to the OSXAdapter as the method to call when 
     // "About OSXAdapter" is selected from the application menu   
     public void about()
     {
-    	dlgManager.showAboutONCDialog();
+    		dlgManager.showAboutONCDialog();
     }
 
     // General preferences dialog; fed to the OSXAdapter as the method to call when
     // "Preferences..." is selected from the application menu
     public void preferences()
     {
-    	dlgManager.showPreferencesDialog(); 	
+    		dlgManager.showPreferencesDialog(); 	
     }
     
     private void createMainFrame()
     {
-    	oncFrame = new JFrame(APPNAME);
+    		oncFrame = new JFrame(APPNAME);
 		oncFrame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent we)
 			 {
@@ -387,21 +382,21 @@ public class OurNeighborsChild
         oncMenuBar = MenuBar.getInstance(); 
         oncMenuBar.exitMI.addActionListener(new ActionListener()
         {		
-        	@Override
-        	public void actionPerformed(ActionEvent e) { exit("LOGOUT"); }
+        		@Override
+        		public void actionPerformed(ActionEvent e) { exit("LOGOUT"); }
         });
         oncFrame.setJMenuBar(oncMenuBar);
 	}
       
     void exit(String command)
     {
-    	if(serverIF != null && serverIF.isConnected())
-    	{
+    		if(serverIF != null && serverIF.isConnected())
+    		{
 			serverIF.sendRequest("LOGOUT");
-    		serverIF.close();
-    	}
+    			serverIF.close();
+    		}
     	
-    	System.exit(0);
+    		System.exit(0);
     }
     
     public static void main(String args[])
