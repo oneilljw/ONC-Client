@@ -266,8 +266,8 @@ public class ManageUsersDialog extends JDialog implements ActionListener, ListSe
 		} 
 		catch (PrinterException e) 
 		{
-			String err_mssg = "Unable to print wish catalog: " + e.getMessage();
-			JOptionPane.showMessageDialog(this, err_mssg, "Print Wish Catalog Error",
+			String err_mssg = "Unable to print " + name + ": " + e.getMessage();
+			JOptionPane.showMessageDialog(this, err_mssg, "Print " + name + " Error",
 										JOptionPane.ERROR_MESSAGE, GlobalVariablesDB.getONCLogo());
 		}
 	}
