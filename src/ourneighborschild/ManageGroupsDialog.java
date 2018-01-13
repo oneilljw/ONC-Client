@@ -45,7 +45,7 @@ import javax.swing.table.TableCellRenderer;
 
 import au.com.bytecode.opencsv.CSVWriter;
 
-public class ManageGroupsDialog extends ONCTableDialog implements ActionListener, ListSelectionListener, 
+public class ManageGroupsDialog extends ONCEntityTableDialog implements ActionListener, ListSelectionListener, 
 																	DatabaseListener 
 {
 	private static final long serialVersionUID = 1L;

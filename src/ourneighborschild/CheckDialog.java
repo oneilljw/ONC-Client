@@ -30,7 +30,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 
-public abstract class CheckDialog extends ONCTableDialog implements ActionListener, ListSelectionListener,
+public abstract class CheckDialog extends ONCEntityTableDialog implements ActionListener, ListSelectionListener,
 																		DatabaseListener
 {
 	/**
@@ -91,7 +91,7 @@ public abstract class CheckDialog extends ONCTableDialog implements ActionListen
 
         dupTableModel = new DefaultTableModel(columns, 0)
         {
-        	private static final long serialVersionUID = 1L;
+        		private static final long serialVersionUID = 1L;
             @Override
             //All cells are locked from being changed by user
             public boolean isCellEditable(int row, int column) {return false;}
@@ -107,8 +107,8 @@ public abstract class CheckDialog extends ONCTableDialog implements ActionListen
 	    int tablewidth = 0;
 	    for(int i=0; i < colWidths.length; i++)
 	    {
-	    	dupTable.getColumnModel().getColumn(i).setPreferredWidth(colWidths[i]);
-	    	tablewidth += colWidths[i];
+	    		dupTable.getColumnModel().getColumn(i).setPreferredWidth(colWidths[i]);
+	    		tablewidth += colWidths[i];
 	    }
 	  
 	    tablewidth += 24; 	//Account for vertical scroll bar
@@ -132,9 +132,9 @@ public abstract class CheckDialog extends ONCTableDialog implements ActionListen
         
         //Center cell entries for Batch # and Region
         DefaultTableCellRenderer dtcr = new DefaultTableCellRenderer();    
-    	dtcr.setHorizontalAlignment(SwingConstants.CENTER);
-    	for(int i=0; i<colsCentered.length; i++)
-    		dupTable.getColumnModel().getColumn(colsCentered[i]).setCellRenderer(dtcr);
+        dtcr.setHorizontalAlignment(SwingConstants.CENTER);
+        for(int i=0; i<colsCentered.length; i++)
+    			dupTable.getColumnModel().getColumn(colsCentered[i]).setCellRenderer(dtcr);
     	        
         dupTable.setBorder(UIManager.getBorder("Table.scrollPaneBorder"));
         dupTable.setFillsViewportHeight(true);
@@ -187,18 +187,18 @@ public abstract class CheckDialog extends ONCTableDialog implements ActionListen
 		for(int i=0; i< criteria.length; i++)
 			criteria[i] = cbArray[i].isSelected();
     	
-    	//If child comparison returns a match, sort by child 1 last name, 
+    		//If child comparison returns a match, sort by child 1 last name, 
 		//allow table row selections and user print
-    	if(performDupCheck(criteria))
-    	{
-    		lblCount.setText(type + " Count: " + dupAL.size());
-    		dupTable.setRowSelectionAllowed(true);
-    		btnPrint.setEnabled(true);
-    	}
-    	else
-    		lblCount.setText(type + " Count: 0");
+		if(performDupCheck(criteria))
+		{
+    			lblCount.setText(type + " Count: " + dupAL.size());
+    			dupTable.setRowSelectionAllowed(true);
+    			btnPrint.setEnabled(true);
+		}
+		else
+    			lblCount.setText(type + " Count: 0");
     	  	
-    	displayDupTable();
+		displayDupTable();
 	}
 	
 	protected void displayDupTable()
@@ -231,7 +231,7 @@ public abstract class CheckDialog extends ONCTableDialog implements ActionListen
 
 	public static boolean isNumeric(String str)
     {
-      return str.matches("-?\\d+(\\.\\d+)?");  //match a number with optional '-' and decimal.
+		return str.matches("-?\\d+(\\.\\d+)?");  //match a number with optional '-' and decimal.
     }
 	
 	@Override

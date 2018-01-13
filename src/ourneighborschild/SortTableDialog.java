@@ -32,7 +32,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 
-public abstract class SortTableDialog extends ONCTableDialog implements ActionListener, DatabaseListener,
+public abstract class SortTableDialog extends ONCEntityTableDialog implements ActionListener, DatabaseListener,
 																				ListSelectionListener
 {
 	/**

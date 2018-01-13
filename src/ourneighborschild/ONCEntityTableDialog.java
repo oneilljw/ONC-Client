@@ -7,7 +7,7 @@ import java.util.Map;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 
-public abstract class ONCTableDialog extends JDialog implements EntitySelector
+public abstract class ONCEntityTableDialog extends JDialog implements EntitySelector
 {
 	/**
 	 * Implements an abstract class for all dialogs that contain tables that display ONC Entities. This
@@ -21,7 +21,7 @@ public abstract class ONCTableDialog extends JDialog implements EntitySelector
 	//Map of registered listeners for table selection events
 	private Map<EntityType, ArrayList<EntitySelectionListener>> listenerMap;
     
-    public ONCTableDialog(JFrame parentFrame)
+    public ONCEntityTableDialog(JFrame parentFrame)
     {
     		super(parentFrame);
     		this.parentFrame = parentFrame;

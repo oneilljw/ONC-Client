@@ -34,7 +34,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 
-public class ManageVolDialog extends ONCTableDialog implements ActionListener, ListSelectionListener,
+public class ManageVolDialog extends ONCEntityTableDialog implements ActionListener, ListSelectionListener,
 														DatabaseListener
 {
 	/**

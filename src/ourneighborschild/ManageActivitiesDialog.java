@@ -35,7 +35,7 @@ import javax.swing.table.JTableHeader;
 
 import au.com.bytecode.opencsv.CSVWriter;
 
-public class ManageActivitiesDialog extends ONCTableDialog implements ActionListener, ListSelectionListener,
+public class ManageActivitiesDialog extends ONCEntityTableDialog implements ActionListener, ListSelectionListener,
 																		DatabaseListener
 {
 	/**

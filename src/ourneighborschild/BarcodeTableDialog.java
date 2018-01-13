@@ -27,7 +27,7 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 
-public abstract class BarcodeTableDialog extends ONCTableDialog implements ActionListener, DatabaseListener
+public abstract class BarcodeTableDialog extends ONCEntityTableDialog implements ActionListener, DatabaseListener
 {
 	/**
 	 * 

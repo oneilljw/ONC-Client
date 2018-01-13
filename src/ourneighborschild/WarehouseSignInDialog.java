@@ -36,7 +36,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 
-public class WarehouseSignInDialog extends ONCTableDialog implements ActionListener, DatabaseListener, ListSelectionListener
+public class WarehouseSignInDialog extends ONCEntityTableDialog implements ActionListener, DatabaseListener, ListSelectionListener
 {
 	/**
 	 * This class implements a dialog which allows the user to manage users

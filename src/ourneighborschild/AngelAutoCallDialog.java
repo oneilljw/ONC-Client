@@ -37,7 +37,7 @@ import javax.swing.table.JTableHeader;
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
 
-public class AngelAutoCallDialog extends ONCTableDialog implements ActionListener, ListSelectionListener
+public class AngelAutoCallDialog extends ONCEntityTableDialog implements ActionListener, ListSelectionListener
 {
 	/**
 	 * This class implements a dialog that allows a user to view the results of importing Angel
