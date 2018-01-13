@@ -19,12 +19,12 @@ import au.com.bytecode.opencsv.CSVWriter;
 public class FamilyHistoryDB extends ONCDatabase
 {
 	private static FamilyHistoryDB instance = null;
-	private List<ONCFamilyHistory> fhAL;
+	private List<ONCFamilyHistory> fhList;
 	
 	private FamilyHistoryDB()
 	{
 		super();
-		fhAL = new ArrayList<ONCFamilyHistory>();
+		fhList = new ArrayList<ONCFamilyHistory>();
 	}
 	
 	public static FamilyHistoryDB getInstance()
@@ -34,6 +34,10 @@ public class FamilyHistoryDB extends ONCDatabase
 		
 		return instance;
 	}
+	
+	List<ONCFamilyHistory> getList() { return fhList; }
+	
+	int size() { return fhList.size(); }
 
 	String add(Object source, ONCObject entity)
 	{
@@ -48,14 +52,13 @@ public class FamilyHistoryDB extends ONCDatabase
 		return response;	
 	}
 	
-	
 	void processAddedObject(Object source, String json)
 	{
 		//Store added ONCFamilyHistory object in local data base
 		Gson gson = new Gson();
 		ONCFamilyHistory addedObject = gson.fromJson(json, ONCFamilyHistory.class);
 		
-		fhAL.add(addedObject);
+		fhList.add(addedObject);
 /*	
 		//update the family status this is a delivery is associated with
 		FamilyDB familyDB = FamilyDB.getInstance();
@@ -72,19 +75,19 @@ public class FamilyHistoryDB extends ONCDatabase
 	ONCFamilyHistory getFamilyHistory(int id)
 	{
 		int index = 0;
-		while(index < fhAL.size() && fhAL.get(index).getID() != id)
+		while(index < fhList.size() && fhList.get(index).getID() != id)
 			index++;
 		
-		if(index == fhAL.size())
+		if(index == fhList.size())
 			return null;
 		else
-			return fhAL.get(index);
+			return fhList.get(index);
 	}
 	
 	ArrayList<ONCFamilyHistory> getDeliveryHistoryAL(int famID)
 	{
 		ArrayList<ONCFamilyHistory> famDelAL = new ArrayList<ONCFamilyHistory>();
-		for(ONCFamilyHistory d:fhAL)
+		for(ONCFamilyHistory d:fhList)
 			if(d.getFamID() == famID)
 				famDelAL.add(d);
 		return famDelAL;
@@ -98,13 +101,13 @@ public class FamilyHistoryDB extends ONCDatabase
 	String getDeliveredBy(int delID)
 	{
 		int index = 0;
-		while(index < fhAL.size() && fhAL.get(index).getID() != delID)
+		while(index < fhList.size() && fhList.get(index).getID() != delID)
 			index++;
 				
-		if(index==fhAL.size())
+		if(index==fhList.size())
 			return "";
 		else
-			return fhAL.get(index).getdDelBy();
+			return fhList.get(index).getdDelBy();
 	}
 	
 	String importFamilyHistoryDatabase()
@@ -117,7 +120,7 @@ public class FamilyHistoryDB extends ONCDatabase
 			Type listtype = new TypeToken<ArrayList<ONCFamilyHistory>>(){}.getType();
 			
 			response = serverIF.sendRequest("GET<deliveries>");
-				fhAL = gson.fromJson(response, listtype);
+				fhList = gson.fromJson(response, listtype);
 				
 			if(!response.startsWith("NO_DELIVIERIES"))		
 				response =  "DELIVERIES_LOADED";
@@ -154,7 +157,7 @@ public class FamilyHistoryDB extends ONCDatabase
 	    		CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
 	    	    writer.writeNext(header);
 	    	    
-	    	    for(ONCFamilyHistory d:fhAL)
+	    	    for(ONCFamilyHistory d:fhList)
 	    	    	writer.writeNext(d.getExportRow());	//Get family data
 	    	 
 	    	    writer.close();
@@ -218,13 +221,13 @@ public class FamilyHistoryDB extends ONCDatabase
 		
 		//Find the position for the history object being updated
 		int index = 0;
-		while(index < fhAL.size() && fhAL.get(index).getID() != updatedObj.getID())
+		while(index < fhList.size() && fhList.get(index).getID() != updatedObj.getID())
 			index++;
 		
 		//Replace the current history object with the update
-		if(index < fhAL.size())
+		if(index < fhList.size())
 		{
-			fhAL.set(index, updatedObj);
+			fhList.set(index, updatedObj);
 			fireDataChanged(source, "UPDATED_DELIVERY", updatedObj);
 		}
 		else
@@ -239,7 +242,7 @@ public class FamilyHistoryDB extends ONCDatabase
 	public int getNumberOfDeliveries(String drvNum) 
 	{
 		int nDeliveries = 0;
-		for(ONCFamilyHistory del: fhAL)
+		for(ONCFamilyHistory del: fhList)
 			if(del.getdDelBy().equals(drvNum))
 				nDeliveries++;
 		

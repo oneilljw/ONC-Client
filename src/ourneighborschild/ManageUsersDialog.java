@@ -347,108 +347,108 @@ public class ManageUsersDialog extends JDialog implements ActionListener, ListSe
  
         public Object getValueAt(int row, int col)
         {
-        	ONCUser user = userDB.getUserFromIndex(row);
-        	if(col == FIRST_NAME_COL)  
-        		return user.getFirstName();
-        	else if(col == LAST_NAME_COL)
-        		return user.getLastName();
-        	else if (col == STATUS_COL)
-        		return user.getStatus();
-        	else if (col == ACCESS_COL)
-        		return user.getAccess();
-        	else if (col == PERMISSION_COL)
-        		return user.getPermission();
-        	else if (col == LOGINS_COL)
-        		return user.getNSessions();
-        	else if (col == LAST_LOGIN_COL)
-        	{
-        		Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-        		calendar.setTimeInMillis(user.getLastLogin());
-        		return calendar.getTime();
-        	}
-        	else if (col == RESET_PW_COL)
-        	{
-        		GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
-        		return user.changePasswordRqrd() ? gvs.getImageIcon(22) : gvs.getImageIcon(21);
-        	}
-        	else
-        		return "Error";
+        		ONCUser user = userDB.getUserFromIndex(row);
+        		if(col == FIRST_NAME_COL)  
+        			return user.getFirstName();
+        		else if(col == LAST_NAME_COL)
+        			return user.getLastName();
+        		else if (col == STATUS_COL)
+        			return user.getStatus();
+        		else if (col == ACCESS_COL)
+        			return user.getAccess();
+        		else if (col == PERMISSION_COL)
+        			return user.getPermission();
+        		else if (col == LOGINS_COL)
+        			return user.getNSessions();
+        		else if (col == LAST_LOGIN_COL)
+        		{
+        			Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        			calendar.setTimeInMillis(user.getLastLogin());
+        			return calendar.getTime();
+        		}
+        		else if (col == RESET_PW_COL)
+        		{
+        			GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
+        			return user.changePasswordRqrd() ? gvs.getImageIcon(22) : gvs.getImageIcon(21);
+        		}
+        		else
+        			return "Error";
         }
         
         //JTable uses this method to determine the default renderer/editor for each cell.
         @Override
         public Class<?> getColumnClass(int column)
         {
-        	if(column == STATUS_COL)
-        		return UserStatus.class;
-        	if(column == ACCESS_COL)
-        		return UserAccess.class;
-        	if(column == PERMISSION_COL)
-        		return UserPermission.class;
-        	else if(column == LOGINS_COL)
-        		return Long.class;
-        	else if(column == RESET_PW_COL)
-        		return ImageIcon.class;
-        	else if(column == LAST_LOGIN_COL)
-        		return Date.class;
-        	else
-        		return String.class;
+        		if(column == STATUS_COL)
+        			return UserStatus.class;
+        		if(column == ACCESS_COL)
+        			return UserAccess.class;
+        		if(column == PERMISSION_COL)
+        			return UserPermission.class;
+        		else if(column == LOGINS_COL)
+        			return Long.class;
+        		else if(column == RESET_PW_COL)
+        			return ImageIcon.class;
+        		else if(column == LAST_LOGIN_COL)
+        			return Date.class;
+        		else
+        			return String.class;
         }
  
         public boolean isCellEditable(int row, int col)
         {
-        	//Name, Status, Access and Permission are editable
-        	if(col <= PERMISSION_COL)
-        		return true;
-        	else
-        		return false;
+        		//Name, Status, Access and Permission are editable
+        		if(col <= PERMISSION_COL)
+        			return true;
+        		else
+        			return false;
         }
 
         public void setValueAt(Object value, int row, int col)
         { 
-        	ONCUser currUser = userDB.getUserFromIndex(row);
-        	ONCUser reqUpdateUser = null;
+        		ONCUser currUser = userDB.getUserFromIndex(row);
+        		ONCUser reqUpdateUser = null;
         	
-        	//determine if the user made a change to a user object
-        	if(col == LAST_NAME_COL && !currUser.getLastName().equals((String)value))
-        	{
-        		reqUpdateUser = new ONCUser(currUser);	//make a copy
-        		reqUpdateUser.setLastName((String) value);
-        	}
-        	else if(col == FIRST_NAME_COL && !currUser.getFirstName().equals((String) value))
-        	{
-        		reqUpdateUser = new ONCUser(currUser);	//make a copy
-        		reqUpdateUser.setFirstName((String) value);
-        	}
-        	else if(col == STATUS_COL && currUser.getStatus() != (UserStatus) value)
-        	{
-        		reqUpdateUser = new ONCUser(currUser);	//make a copy
-        		reqUpdateUser.setStatus((UserStatus) value);
-        	}
-        	else if(col == ACCESS_COL && currUser.getAccess() != (UserAccess) value)
-        	{
-        		reqUpdateUser = new ONCUser(currUser);	//make a copy
-        		reqUpdateUser.setAccess((UserAccess) value);
-        	}
-        	else if(col == PERMISSION_COL && currUser.getPermission() != (UserPermission) value)
-        	{
-        		reqUpdateUser = new ONCUser(currUser);	//make a copy
-        		reqUpdateUser.setPermission((UserPermission) value);
-        	}
-        	
-        	//if the user made a change in the table, attempt to update the user object in
-        	//the local user data base
-        	if(reqUpdateUser != null)
-        	{
-        		String response = userDB.update(this, reqUpdateUser);        		
-        		if(response == null || (response !=null && !response.startsWith("UPDATED_USER")))
+        		//determine if the user made a change to a user object
+        		if(col == LAST_NAME_COL && !currUser.getLastName().equals((String)value))
         		{
-        			//request failed
-        			String err_mssg = "ONC Server denied update user request, try again later";
-        			JOptionPane.showMessageDialog(GlobalVariablesDB.getFrame(), err_mssg, "Update User Request Failure",
-													JOptionPane.ERROR_MESSAGE, GlobalVariablesDB.getONCLogo());
+        			reqUpdateUser = new ONCUser(currUser);	//make a copy
+        			reqUpdateUser.setLastName((String) value);
         		}
-        	}
+        		else if(col == FIRST_NAME_COL && !currUser.getFirstName().equals((String) value))
+        		{
+        			reqUpdateUser = new ONCUser(currUser);	//make a copy
+        			reqUpdateUser.setFirstName((String) value);
+        		}
+        		else if(col == STATUS_COL && currUser.getStatus() != (UserStatus) value)
+        		{
+        			reqUpdateUser = new ONCUser(currUser);	//make a copy
+        			reqUpdateUser.setStatus((UserStatus) value);
+        		}
+        		else if(col == ACCESS_COL && currUser.getAccess() != (UserAccess) value)
+        		{
+        			reqUpdateUser = new ONCUser(currUser);	//make a copy
+        			reqUpdateUser.setAccess((UserAccess) value);
+        		}
+        		else if(col == PERMISSION_COL && currUser.getPermission() != (UserPermission) value)
+        		{
+        			reqUpdateUser = new ONCUser(currUser);	//make a copy
+        			reqUpdateUser.setPermission((UserPermission) value);
+        		}
+        	
+        		//if the user made a change in the table, attempt to update the user object in
+        		//the local user data base
+        		if(reqUpdateUser != null)
+        		{
+        			String response = userDB.update(this, reqUpdateUser);        		
+        			if(response == null || (response !=null && !response.startsWith("UPDATED_USER")))
+        			{
+        				//request failed
+        				String err_mssg = "ONC Server denied update user request, try again later";
+        				JOptionPane.showMessageDialog(GlobalVariablesDB.getFrame(), err_mssg, "Update User Request Failure",
+													JOptionPane.ERROR_MESSAGE, GlobalVariablesDB.getONCLogo());
+        			}
+        		}
         }  
     }
 }

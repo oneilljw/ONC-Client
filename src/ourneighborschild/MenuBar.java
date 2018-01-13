@@ -34,7 +34,8 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 	private JMenuItem findDupFamsMI, findDupChldrnMI, crosscheckMI;
 	private JMenuItem editVolMI, editActMI, viewSignInLogMI, manageVolMI, manageActMI;
 	private JMenuItem assignDelMI, manageDelMI, mapsMI, delstatusMI, distMI;
-	private JMenuItem newFamMI, changeONCMI, changeRefMI, changeBatchMI, newChildMI, delChildMI, markAdultMI, connectChildMI;
+	private JMenuItem newFamMI, changeONCMI, changeRefMI, changeBatchMI, newChildMI;
+	private JMenuItem delChildMI, markAdultMI, connectChildMI, famHistMI;
 	private JMenu submenuImport, submenuFamilyDataChecks;
 	private JMenu submenuExport, submenuChangeFamilyNumbers, submenuDBYearList;
 	private JMenuItem viewDBMI, sortWishesMI, sortFamiliesMI, sortOrgsMI, recGiftsMI, sortMealsMI;
@@ -242,6 +243,11 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 	    menuFamilies.add(submenuFamilyDataChecks);
 	    
 	    menuFamilies.addSeparator();
+	    
+	    famHistMI = new JMenuItem("Family Histories");
+	    famHistMI.setEnabled(false);
+	    famHistMI.addActionListener(this);
+	    menuFamilies.add(famHistMI);
 	    
 	    viewDBMI = new JMenuItem("View All Family Data");
 	    viewDBMI.setEnabled(false);
@@ -576,6 +582,7 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 		viewSignInLogMI.setEnabled(tf);
 		manageVolMI.setEnabled(tf);
 		manageActMI.setEnabled(tf);
+		famHistMI.setEnabled(tf);
 	}
 
 	@Override
@@ -710,6 +717,8 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 			dlgManager.showAboutONCDialog();
 		else if(e.getSource() == oncPrefrencesMI)
 			dlgManager.showPreferencesDialog();
+		else if(e.getSource() == famHistMI)
+			dlgManager.showFamilyHistoriesDialog();
 		else if(e.getSource() == newFamMI)
 		{
 			AddFamilyDialog afDlg = new AddFamilyDialog(GlobalVariablesDB.getFrame());

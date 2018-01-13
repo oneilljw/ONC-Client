@@ -36,6 +36,7 @@ public class DialogManager implements EntitySelectionListener
 	private ViewONCDatabaseDialog dbDlg;
 	private PYChildConnectionDialog pyConnectionDlg;
 	private AngelAutoCallDialog angelDlg;
+	private FamilyHistoryChangesDialog famHistChgDlg;
 		
 	//dialogs that inherit from HistoryDialog
 	private Map<String, HistoryDialog> historyDlgMap;
@@ -134,87 +135,91 @@ public class DialogManager implements EntitySelectionListener
         eeManager.registerEntitySelector(sortWishesDlg);
         stDlgMap.put("Wishes", sortWishesDlg);
 
-    	//Set up the manage catalog dialog
-    	catDlg = new WishCatalogDialog(GlobalVariablesDB.getFrame());
+        	//Set up the manage catalog dialog
+    		catDlg = new WishCatalogDialog(GlobalVariablesDB.getFrame());
     	
-    	//Set up the manage user dialog
-    	userDlg = new ManageUsersDialog(GlobalVariablesDB.getFrame());
+    		//Set up the manage user dialog
+    		userDlg = new ManageUsersDialog(GlobalVariablesDB.getFrame());
     	
-    	//Set up the sign-in dialog
-    	signInDlg = new WarehouseSignInDialog(GlobalVariablesDB.getFrame());
-    	eeManager.registerEntitySelector(signInDlg);
+    		//Set up the sign-in dialog
+    		signInDlg = new WarehouseSignInDialog(GlobalVariablesDB.getFrame());
+    		eeManager.registerEntitySelector(signInDlg);
     	
-    	//Set up the manage volunteer dialog
-    	manageVolDlg = new ManageVolDialog(GlobalVariablesDB.getFrame());
-    	eeManager.registerEntitySelector(manageVolDlg);
+    		//Set up the manage volunteer dialog
+    		manageVolDlg = new ManageVolDialog(GlobalVariablesDB.getFrame());
+    		eeManager.registerEntitySelector(manageVolDlg);
     	
-    	//Set up the manage activities dialog
-    	manageActDlg = new ManageActivitiesDialog(GlobalVariablesDB.getFrame());
-    	eeManager.registerEntitySelector(manageActDlg);
+    		//Set up the manage activities dialog
+    		manageActDlg = new ManageActivitiesDialog(GlobalVariablesDB.getFrame());
+    		eeManager.registerEntitySelector(manageActDlg);
     	
-    	//set up the manage groups dialog
-    	manageGroupsDlg = new ManageGroupsDialog(GlobalVariablesDB.getFrame());
-    	eeManager.registerEntitySelector(manageGroupsDlg);
+    		//set up the manage groups dialog
+    		manageGroupsDlg = new ManageGroupsDialog(GlobalVariablesDB.getFrame());
+    		eeManager.registerEntitySelector(manageGroupsDlg);
+    		
+    		//set up the manage groups dialog
+    		famHistChgDlg = new FamilyHistoryChangesDialog(GlobalVariablesDB.getFrame());
+    		eeManager.registerEntitySelector(famHistChgDlg);
     	
-    	 //Set up the sort family dialog
-        sortFamiliesDlg = new SortFamilyDialog(GlobalVariablesDB.getFrame());
-        stDlgMap.put("Families", sortFamiliesDlg);
-        eeManager.registerEntitySelector(sortFamiliesDlg);
+    		//Set up the sort family dialog
+    		sortFamiliesDlg = new SortFamilyDialog(GlobalVariablesDB.getFrame());
+    		stDlgMap.put("Families", sortFamiliesDlg);
+    		eeManager.registerEntitySelector(sortFamiliesDlg);
         
         //Set up the sort meals dialog
         sortMealsDlg = new SortMealsDialog(GlobalVariablesDB.getFrame());
         stDlgMap.put("Meals", sortMealsDlg);
         eeManager.registerEntitySelector(sortMealsDlg);
     	
-    	//Set up the dialog to edit agent info
-    	agentInfoDlg = new AgentInfoDialog(GlobalVariablesDB.getFrame(), false);
-    	familyInfoDlgMap.put("Agent", agentInfoDlg);
-    	eeManager.registerEntitySelectionListener(agentInfoDlg);
+    		//Set up the dialog to edit agent info
+    		agentInfoDlg = new AgentInfoDialog(GlobalVariablesDB.getFrame(), false);
+    		familyInfoDlgMap.put("Agent", agentInfoDlg);
+    		eeManager.registerEntitySelectionListener(agentInfoDlg);
     	
-    	//Set up the dialog to edit family transportation info
-    	transportationDlg = new TransportationDialog(GlobalVariablesDB.getFrame(), false);
-    	familyInfoDlgMap.put("Transportation", transportationDlg);
-    	eeManager.registerEntitySelectionListener(transportationDlg);
+    		//Set up the dialog to edit family transportation info
+    		transportationDlg = new TransportationDialog(GlobalVariablesDB.getFrame(), false);
+    		familyInfoDlgMap.put("Transportation", transportationDlg);
+    		eeManager.registerEntitySelectionListener(transportationDlg);
     	
-    	//Set up the dialog to add a meal to family
-    	addMealDlg = new AddMealDialog(GlobalVariablesDB.getFrame(), true);
-    	familyInfoDlgMap.put("Add Meal", addMealDlg);
+    		//Set up the dialog to add a meal to family
+    		addMealDlg = new AddMealDialog(GlobalVariablesDB.getFrame(), true);
+    		familyInfoDlgMap.put("Add Meal", addMealDlg);
     	
-    	//Set up the dialog to change family ONC Number
-    	changeONCNumberDlg = new ChangeONCNumberDialog(GlobalVariablesDB.getFrame());
-    	familyInfoDlgMap.put("Change ONC #", changeONCNumberDlg);
+    		//Set up the dialog to change family ONC Number
+    		changeONCNumberDlg = new ChangeONCNumberDialog(GlobalVariablesDB.getFrame());
+    		familyInfoDlgMap.put("Change ONC #", changeONCNumberDlg);
     	
-    	//Set up the dialog to change family ODB Number
-    	changeReferenceNumberDlg = new ChangeReferenceNumberDialog(GlobalVariablesDB.getFrame());
-    	familyInfoDlgMap.put("Change Ref #", changeReferenceNumberDlg);
+    		//Set up the dialog to change family ODB Number
+    		changeReferenceNumberDlg = new ChangeReferenceNumberDialog(GlobalVariablesDB.getFrame());
+    		familyInfoDlgMap.put("Change Ref #", changeReferenceNumberDlg);
     	
-    	//Set up the dialog to change family batch number
-    	changeBatchNumberDlg = new ChangeBatchNumberDialog(GlobalVariablesDB.getFrame());
-    	familyInfoDlgMap.put("Change Batch #", changeBatchNumberDlg);
+    		//Set up the dialog to change family batch number
+    		changeBatchNumberDlg = new ChangeBatchNumberDialog(GlobalVariablesDB.getFrame());
+    		familyInfoDlgMap.put("Change Batch #", changeBatchNumberDlg);
 
-    	//Set up the sort agent dialog
-    	sortAgentDlg = new SortAgentDialog(GlobalVariablesDB.getFrame());
-    	stDlgMap.put("Agents", sortAgentDlg);
-    	eeManager.registerEntitySelector(sortAgentDlg);
+    		//Set up the sort agent dialog
+    		sortAgentDlg = new SortAgentDialog(GlobalVariablesDB.getFrame());
+    		stDlgMap.put("Agents", sortAgentDlg);
+    		eeManager.registerEntitySelector(sortAgentDlg);
     	
-    	//set up the assign delivery dialog
-    	assignDeliveryDlg = new AssignDeliveryDialog(GlobalVariablesDB.getFrame());
-    	stDlgMap.put("Deliveries", assignDeliveryDlg);
-    	eeManager.registerEntitySelector(sortAgentDlg);
+    		//set up the assign delivery dialog
+    		assignDeliveryDlg = new AssignDeliveryDialog(GlobalVariablesDB.getFrame());
+    		stDlgMap.put("Deliveries", assignDeliveryDlg);
+    		eeManager.registerEntitySelector(sortAgentDlg);
     	
-    	//set up the sort driver dialog
-    	sortDriverDlg = new SortDriverDialog(GlobalVariablesDB.getFrame());
-    	stDlgMap.put("Drivers", sortDriverDlg);
-    	eeManager.registerEntitySelector(sortDriverDlg);
+    		//set up the sort driver dialog
+    		sortDriverDlg = new SortDriverDialog(GlobalVariablesDB.getFrame());
+    		stDlgMap.put("Drivers", sortDriverDlg);
+    		eeManager.registerEntitySelector(sortDriverDlg);
     	
-    	//Set up the edit volunteer dialog and register it to listen for Family 
-    	//Selection events from particular ui's that have driver's associated
+    		//Set up the edit volunteer dialog and register it to listen for Family 
+    		//Selection events from particular ui's that have driver's associated
         volunteerDlg = new VolunteerDialog(GlobalVariablesDB.getFrame());
         entityDlgMap.put("Edit Volunteers", volunteerDlg);
         eeManager.registerEntitySelectionListener(volunteerDlg);
         
         //Set up the edit activities dialog and register it to listen for activity 
-    	//selection events from particular ui's that have activities associated
+        //selection events from particular ui's that have activities associated
         activityDlg = new ActivityDialog(GlobalVariablesDB.getFrame());
         entityDlgMap.put("Edit Activities", activityDlg);
         eeManager.registerEntitySelectionListener(activityDlg);
@@ -251,16 +256,16 @@ public class DialogManager implements EntitySelectionListener
         checkDlgMap.put("Duplicate Family Check", dfDlg);
         eeManager.registerEntitySelector(dfDlg);
     	
-    	//set up a dialog to search for wish history from bar code scan
-    	barcodeWHDlg = new BarcodeWishHistoryDialog(GlobalVariablesDB.getFrame());
-    	eeManager.registerEntitySelector(barcodeWHDlg);
+        //set up a dialog to search for wish history from bar code scan
+        barcodeWHDlg = new BarcodeWishHistoryDialog(GlobalVariablesDB.getFrame());
+        eeManager.registerEntitySelector(barcodeWHDlg);
     	
-    	//set up a dialog to search for wish history from bar code scan
-    	inventoryDlg = new InventoryDialog(GlobalVariablesDB.getFrame());
-    	eeManager.registerEntitySelector(inventoryDlg);
+        //set up a dialog to search for wish history from bar code scan
+    		inventoryDlg = new InventoryDialog(GlobalVariablesDB.getFrame());
+    		eeManager.registerEntitySelector(inventoryDlg);
         
         //set up a dialog to connect prior year children
-    	pyConnectionDlg = new PYChildConnectionDialog(GlobalVariablesDB.getFrame());
+    		pyConnectionDlg = new PYChildConnectionDialog(GlobalVariablesDB.getFrame());
         eeManager.registerEntitySelectionListener(pyConnectionDlg);
         
         //set up a dialog to receive gifts. This is last so it's the last called when a 
@@ -353,6 +358,15 @@ public class DialogManager implements EntitySelectionListener
 		{
 	        manageGroupsDlg.setLocationRelativeTo(GlobalVariablesDB.getFrame());
 			manageGroupsDlg.setVisible(true);
+		}
+	}
+	
+	void showFamilyHistoriesDialog()
+	{
+		if(!famHistChgDlg.isVisible())
+		{
+			famHistChgDlg.setLocationRelativeTo(GlobalVariablesDB.getFrame());
+			famHistChgDlg.setVisible(true);
 		}
 	}
 		

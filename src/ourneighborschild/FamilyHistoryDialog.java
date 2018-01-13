@@ -175,24 +175,24 @@ public class FamilyHistoryDialog extends HistoryDialog
  
         public Object getValueAt(int row, int col)
         {
-        	Object value;
+        		Object value;
         	
-        	ONCFamilyHistory histObj = histList.get(row);
+        		ONCFamilyHistory histObj = histList.get(row);
         	
-        	if(col ==  FAMILY_STATUS_COL)
-        		value = histObj.getFamilyStatus().toString();
-        	else if(col == GIFT_STATUS_COL)
-        		value = histObj.getGiftStatus().toString();
-        	else if(col == DELIVERED_BY_COL)  
-        		value = volunteerDB.getDriverLNFN(histObj.getdDelBy());
-        	else if(col == NOTES_COL)
-        		value = histObj.getdNotes();
-        	else if(col == CHANGED_BY_COL)
-        		value = histObj.getdChangedBy();
-        	else if(col == DATE_CHANGED_COL)
-        		value = sdf.format(histObj.getdChanged());
-        	else
-        		value = "Error";
+        		if(col ==  FAMILY_STATUS_COL)
+        			value = histObj.getFamilyStatus().toString();
+        		else if(col == GIFT_STATUS_COL)
+        			value = histObj.getGiftStatus().toString();
+        		else if(col == DELIVERED_BY_COL)  
+        			value = volunteerDB.getDriverLNFN(histObj.getdDelBy());
+        		else if(col == NOTES_COL)
+        			value = histObj.getdNotes();
+        		else if(col == CHANGED_BY_COL)
+        			value = histObj.getdChangedBy();
+        		else if(col == DATE_CHANGED_COL)
+        			value = sdf.format(histObj.getdChanged());
+        		else
+        			value = "Error";
         	
          	return value;
         }
@@ -206,20 +206,19 @@ public class FamilyHistoryDialog extends HistoryDialog
  
         public boolean isCellEditable(int row, int col)
         {
-        	return row == 0 && col == NOTES_COL;
+        		return row == 0 && col == NOTES_COL;
         }
 
         public void setValueAt(Object value, int row, int col)
         { 
-        	//verify user changed the delivery not and if so,
-        	//update the delivery and redisplay. Table row 0 always
-        	//contains the most recent delivery
-        	if(!histList.isEmpty() && row == 0 && col == NOTES_COL)
-        	{
-        		String notes = (String) value;
-        		if(!notes.equals(histList.get(0).getdNotes()))
-        			updateFamilyDeliveryData(notes);
-        	}
+        		//verify user changed the delivery not and if not, update the delivery and redisplay. 
+        		//Table row 0 alwaysvcontains the most recent delivery
+        		if(!histList.isEmpty() && row == 0 && col == NOTES_COL)
+        		{
+        			String notes = (String) value;
+        			if(!notes.equals(histList.get(0).getdNotes()))
+        				updateFamilyDeliveryData(notes);
+        		}
         }
     }
 	
