@@ -4,13 +4,17 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -37,6 +41,8 @@ public abstract class ONCTableDialog extends JDialog implements ActionListener, 
 	protected JPanel sortCriteriaPanel, cntlPanel;
 	protected ONCTable dlgTable;
 	protected AbstractTableModel dlgTableModel;
+	private JButton btnResetFilters;
+	private JLabel lblCount;
 	
 	//Map of registered listeners for table selection events
 	private Map<EntityType, ArrayList<EntitySelectionListener>> listenerMap;
@@ -100,24 +106,59 @@ public abstract class ONCTableDialog extends JDialog implements ActionListener, 
         //Create the scroll pane and add the table to it.
         JScrollPane dsScrollPane = new JScrollPane(dlgTable);
         dsScrollPane.setBorder(UIManager.getBorder("Table.scrollPaneBorder"));
-            
+        
+        JPanel bottomPanel = new JPanel();
+        bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.X_AXIS));
+        
+        JPanel countPanel = new JPanel();
+        countPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+        lblCount = new JLabel("# of History Items: 0");
+        countPanel.add(lblCount);
+        
         cntlPanel = new JPanel();
+        cntlPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
+        
+        btnResetFilters = new JButton("Reset Filters");
+        btnResetFilters.addActionListener(new ResetFilterListener());
+        cntlPanel.add(btnResetFilters);
+        
+        bottomPanel.add(countPanel);
+        bottomPanel.add(cntlPanel);
             
         getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
         getContentPane().add(sortCriteriaPanel);
         getContentPane().add(dsScrollPane);
-        getContentPane().add(cntlPanel);
+        getContentPane().add(bottomPanel);
             
         pack();
         this.setMinimumSize(new Dimension(tablewidth, 240));   		
     }
     
+    abstract void resetFilters();
     abstract String[] columnToolTips();
     abstract int[] columnWidths();
     abstract int[] leftColumns();
     abstract int[] centeredColumns();
     abstract int listSelectionModel();
     abstract AbstractTableModel createTableModel();
+    abstract void buildTableList();
+    
+    void setCount(int count)
+    {
+    		lblCount.setText(String.format("# of History Items: %d", count));
+    }
+    
+    Date getTomorrowsDate()
+	{
+		Calendar tomorrow = Calendar.getInstance();
+		
+		tomorrow.add(Calendar.DATE, 1);
+		tomorrow.set(Calendar.HOUR_OF_DAY, 0);
+	    tomorrow.set(Calendar.MINUTE, 0);
+	    tomorrow.set(Calendar.SECOND, 0);
+	   	tomorrow.set(Calendar.MILLISECOND, 0);
+		return tomorrow.getTime();
+	}
     
     /** Register a listener for Entity Selection events */
     synchronized public void addEntitySelectionListener(EntityType type, EntitySelectionListener l)
@@ -170,5 +211,14 @@ public abstract class ONCTableDialog extends JDialog implements ActionListener, 
     			for(EntitySelectionListener l:targets)
     				l.entitySelected(event);
     		}
+    }
+    
+    private class ResetFilterListener implements ActionListener
+    {
+		@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			resetFilters();
+		}
     }
 }

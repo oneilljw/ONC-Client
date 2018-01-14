@@ -70,6 +70,7 @@ public class ONCFamilyHistory extends ONCObject implements Serializable
 	String getdNotes() {return dNotes;}
 	String getdChangedBy() { return dChangedBy; }
 	public Date getdChanged() { return dDateChanged.getTime(); }
+	Calendar getDateChangedCal() { return dDateChanged; }
 	
 	//Setters
 	public void setdDelBy(String db) { dDelBy = db; }

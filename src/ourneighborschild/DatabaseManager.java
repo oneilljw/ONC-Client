@@ -421,7 +421,7 @@ public class DatabaseManager extends ONCDatabase
 			oncVolDB.importDriverDatabase();
 			this.setProgress(progress += increment);
 			
-			pb.updateHeaderText("Loading Deliveries");
+			pb.updateHeaderText("Loading History");
 			oncDelDB.importFamilyHistoryDatabase();
 			this.setProgress(progress += increment);
 			

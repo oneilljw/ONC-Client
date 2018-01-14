@@ -112,7 +112,7 @@ public class FamilyHistoryDB extends ONCDatabase
 	
 	String importFamilyHistoryDatabase()
 	{
-		String response = "NO_DELIVERIES";
+		String response = "NO_FAMILY_HISTORY";
 		
 		if(serverIF != null && serverIF.isConnected())
 		{		
@@ -122,8 +122,11 @@ public class FamilyHistoryDB extends ONCDatabase
 			response = serverIF.sendRequest("GET<deliveries>");
 				fhList = gson.fromJson(response, listtype);
 				
-			if(!response.startsWith("NO_DELIVIERIES"))		
-				response =  "DELIVERIES_LOADED";
+			if(!response.startsWith("NO_FAMILY_HISTORY"))
+			{
+				response =  "FAMILY_HISTORY_LOADED";
+				this.fireDataChanged(this, "LOADED_FAMILY_HISTORY",  null);
+			}
 		}
 		
 		return response;
