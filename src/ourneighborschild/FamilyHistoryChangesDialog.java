@@ -54,7 +54,7 @@ public class FamilyHistoryChangesDialog extends ONCTableDialog implements Proper
 	private JTextField oncnumTF;
 	private JComboBox<FamilyStatus> fstatusCB;
 	private JComboBox<FamilyGiftStatus> giftStatusCB;
-	private JComboBox<String> changedByCB;
+	private JComboBox<String> notesCB, changedByCB;
 	private DefaultComboBoxModel<String> changedByCBM;
 	private JDateChooser ds, de;
 	
@@ -62,7 +62,12 @@ public class FamilyHistoryChangesDialog extends ONCTableDialog implements Proper
 	private FamilyGiftStatus sortGiftStatus;
 	private FamilyStatus sortFamilyStatus;
 	private int sortChangedBy;
+	private String sortNotes;
 	private Calendar sortStartCal = null, sortEndCal = null;
+	
+	private String[] notes = {"Any", "Status Changed", "Family Referred", "Goft Status Change",
+			"Automated Call Result: Contacted", "Automated Call Result: Confirmed",
+			"Delivery Driver Assigned", "Agent updated family info"};
 	
 	public FamilyHistoryChangesDialog(JFrame parentFrame)
 	{
@@ -92,14 +97,13 @@ public class FamilyHistoryChangesDialog extends ONCTableDialog implements Proper
 		
 		//Set up the search criteria panel      
 		oncnumTF = new JTextField(5);
+		sortONCNum = "";
 		oncnumTF.setEditable(true);
 		oncnumTF.setMaximumSize(new Dimension(64,56));
 		oncnumTF.setBorder(BorderFactory.createTitledBorder("ONC #"));
 		oncnumTF.setToolTipText("Type ONC Family # and press <enter>");
 		oncnumTF.addActionListener(this);
 		oncnumTF.addKeyListener(new ONCNumberKeyListener());
-		
-		sortONCNum = "";
 		
 		fstatusCB = new JComboBox<FamilyStatus>(FamilyStatus.getSearchFilterList());
 		sortFamilyStatus = FamilyStatus.Any;
@@ -113,12 +117,20 @@ public class FamilyHistoryChangesDialog extends ONCTableDialog implements Proper
 		giftStatusCB.addActionListener(this);
 		
 		changedByCB = new JComboBox<String>();
+		sortChangedBy = 0;
 		changedByCBM = new DefaultComboBoxModel<String>();
 	    changedByCBM.addElement("Anyone");
 	    changedByCB.setModel(changedByCBM);
 		changedByCB.setPreferredSize(new Dimension(144, 56));
 		changedByCB.setBorder(BorderFactory.createTitledBorder("Changed By"));
 		changedByCB.addActionListener(this);
+		
+		notesCB = new JComboBox<String>(notes);
+		sortNotes = "Any";
+		notesCB.setEditable(true);
+	    notesCB.setPreferredSize(new Dimension(240, 56));
+	    notesCB.setBorder(BorderFactory.createTitledBorder("Notes"));
+	    notesCB.addActionListener(this);
 		
 		sortStartCal = Calendar.getInstance();
 		sortStartCal.setTime(gvs.getSeasonStartDate());
@@ -137,12 +149,13 @@ public class FamilyHistoryChangesDialog extends ONCTableDialog implements Proper
 		de.setBorder(BorderFactory.createTitledBorder("Created Before"));
 		de.getDateEditor().addPropertyChangeListener(this);
 		
-		sortCriteriaPanel.add(oncnumTF);
-		sortCriteriaPanel.add(fstatusCB);
-		sortCriteriaPanel.add(giftStatusCB);
-		sortCriteriaPanel.add(changedByCB);
-		sortCriteriaPanel.add(ds);
-		sortCriteriaPanel.add(de);
+		searchCriteriaPanelTop.add(oncnumTF);
+		searchCriteriaPanelTop.add(fstatusCB);
+		searchCriteriaPanelTop.add(giftStatusCB);
+		searchCriteriaPanelTop.add(notesCB);
+		searchCriteriaPanelBottom.add(changedByCB);
+		searchCriteriaPanelBottom.add(ds);
+		searchCriteriaPanelBottom.add(de);
 		
 		//set up a cell renderer for the time stamp column to display the date 
 		TableCellRenderer tableCellRenderer = new DefaultTableCellRenderer()
@@ -173,7 +186,8 @@ public class FamilyHistoryChangesDialog extends ONCTableDialog implements Proper
 				doesFStatusMatch(fh.getFamilyStatus()) &&
 				 doesDStatusMatch(fh.getGiftStatus()) &&
 				  doesChangedByMatch(fh.getdChangedBy()) &&
-				   isChangeDateBetween(fh.getDateChangedCal()))
+				   doesNotesMatch(fh.getdNotes()) &&
+				    isChangeDateBetween(fh.getDateChangedCal()))
 			{
 				histList.add(fh);
 			}
@@ -187,6 +201,7 @@ public class FamilyHistoryChangesDialog extends ONCTableDialog implements Proper
 	boolean doesFStatusMatch(FamilyStatus fstat) {return sortFamilyStatus == FamilyStatus.Any  || fstat == (FamilyStatus) fstatusCB.getSelectedItem();}
 	boolean doesDStatusMatch(FamilyGiftStatus fgs) {return sortGiftStatus == FamilyGiftStatus.Any  || fgs == giftStatusCB.getSelectedItem();}
 	boolean doesChangedByMatch(String cb) { return sortChangedBy == 0 || cb.equals(changedByCB.getSelectedItem()); }
+	boolean doesNotesMatch(String notes) { return sortNotes.equals("Any") || notes.equals(notesCB.getSelectedItem()); }
 	boolean isChangeDateBetween(Calendar wcd)
 	{
 		return !wcd.getTime().after(sortEndCal.getTime()) && !wcd.getTime().before(sortStartCal.getTime());
@@ -278,6 +293,11 @@ public class FamilyHistoryChangesDialog extends ONCTableDialog implements Proper
 		sortChangedBy = 0;
 		changedByCB.addActionListener(this);
 		
+		notesCB.removeActionListener(this);
+		notesCB.setSelectedIndex(0);
+		sortNotes = "Any";
+		notesCB.addActionListener(this);
+		
 		//Check to see if date sort criteria has changed. Since the setDate() method
 		//will not trigger an event, must check for a sort criteria date change here
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
@@ -348,6 +368,11 @@ public class FamilyHistoryChangesDialog extends ONCTableDialog implements Proper
 		else if(e.getSource() == changedByCB && changedByCB.getSelectedIndex() != sortChangedBy)
 		{
 			sortChangedBy = changedByCB.getSelectedIndex();
+			buildTableList();
+		}
+		else if(e.getSource() == notesCB && !notesCB.getSelectedItem().equals(sortNotes))
+		{
+			sortNotes = (String) notesCB.getSelectedItem();
 			buildTableList();
 		}
 	}

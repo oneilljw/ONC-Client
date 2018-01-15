@@ -38,7 +38,7 @@ public abstract class ONCTableDialog extends JDialog implements ActionListener, 
 	private static final long serialVersionUID = 1L;
 	protected JFrame parentFrame;
 	protected GlobalVariablesDB gvs;
-	protected JPanel sortCriteriaPanel, cntlPanel;
+	protected JPanel searchCriteriaPanelTop, searchCriteriaPanelBottom, cntlPanel;
 	protected ONCTable dlgTable;
 	protected AbstractTableModel dlgTableModel;
 	private JButton btnResetFilters;
@@ -57,17 +57,27 @@ public abstract class ONCTableDialog extends JDialog implements ActionListener, 
     		for(EntityType entityType : getEntityEventSelectorEntityTypes())
 			listenerMap.put(entityType, new ArrayList<EntitySelectionListener>());
     		
-    		//Set up the search criteria panel      
-    		sortCriteriaPanel = new JPanel();
-    		sortCriteriaPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+    		//set up the top panel
+    		JPanel searchPanel = new JPanel();
+    		searchPanel.setLayout(new BoxLayout(searchPanel, BoxLayout.Y_AXIS));
+    		
+    		//Set up the upeer search criteria panel      
+    		searchCriteriaPanelTop = new JPanel();
+    		searchCriteriaPanelTop.setLayout(new FlowLayout(FlowLayout.LEFT));
 				
     		//Create the ONC Icon label and add it to the search criteria panel
     		JLabel lblONCicon = new JLabel(GlobalVariablesDB.getONCLogo());
     		lblONCicon.setToolTipText("ONC Client v" + GlobalVariablesDB.getVersion());
     		lblONCicon.setAlignmentX(Component.LEFT_ALIGNMENT );//0.0
-    		sortCriteriaPanel.add(lblONCicon);
+    		searchCriteriaPanelTop.add(lblONCicon);
+    		
+    		//Set up the lower search criteria panel      
+    		searchCriteriaPanelBottom = new JPanel();
+    		searchCriteriaPanelBottom.setLayout(new FlowLayout(FlowLayout.CENTER));
     							
-    		sortCriteriaPanel.setBorder(BorderFactory.createTitledBorder("Search Filters"));
+    		searchPanel.setBorder(BorderFactory.createTitledBorder("Search Filters"));
+    		searchPanel.add(searchCriteriaPanelTop);
+    		searchPanel.add(searchCriteriaPanelBottom);
     		
     		//Create the table model
     		dlgTableModel = createTableModel();
@@ -126,7 +136,7 @@ public abstract class ONCTableDialog extends JDialog implements ActionListener, 
         bottomPanel.add(cntlPanel);
             
         getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
-        getContentPane().add(sortCriteriaPanel);
+        getContentPane().add(searchPanel);
         getContentPane().add(dsScrollPane);
         getContentPane().add(bottomPanel);
             
