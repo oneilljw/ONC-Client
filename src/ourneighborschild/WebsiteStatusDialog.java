@@ -19,8 +19,8 @@ public class WebsiteStatusDialog extends InfoDialog implements DatabaseListener
 	private static final long serialVersionUID = 1L;
 	
 	private WebsiteStatus websiteStatus;
-	private ButtonGroup onlineBG;
-	private JRadioButton rbOnline, rbOffline;
+	private ButtonGroup onlineBG, loggingBG;
+	private JRadioButton rbOnline, rbOffline, rbLoggingOn, rbLoggingOff;
 
 	WebsiteStatusDialog(JFrame owner, boolean bModal)
 	{
@@ -53,14 +53,27 @@ public class WebsiteStatusDialog extends InfoDialog implements DatabaseListener
 		infopanel[1].add(rbOnline);
 		infopanel[1].add(rbOffline);
 		
+		//set up the web site status panel
+		rbLoggingOn = new JRadioButton("On");
+		rbLoggingOff= new JRadioButton("Off");
+		loggingBG = new ButtonGroup();
+		loggingBG.add(rbLoggingOn);
+		loggingBG.add(rbLoggingOff);
+		
+		infopanel[2].remove(tf[2]);
+		infopanel[2].add(rbLoggingOn);
+		infopanel[2].add(rbLoggingOff);
+		
 		//add an action listeners to the time back up text field and radio buttons
 		WebsiteStatusActionListener wsListener = new WebsiteStatusActionListener();
 		tf[0].addActionListener(wsListener);
 		rbOnline.addActionListener(wsListener);
 		rbOffline.addActionListener(wsListener);
+		rbLoggingOn.addActionListener(wsListener);
+		rbLoggingOff.addActionListener(wsListener);
 				
 		//add text to action and delete buttons
-		btnAction.setText("Change Online Status");
+		btnAction.setText("Change Website Status");
 		btnDelete.setText("Reload Webpages");
 		btnDelete.setVisible(true);
 						
@@ -71,7 +84,7 @@ public class WebsiteStatusDialog extends InfoDialog implements DatabaseListener
 	{
 		
 		tf[0].setText(websiteStatus.getTimeBackUp());
-		if(websiteStatus.getWebsiteStatus())
+		if(websiteStatus.isWebsiteOnline())
 			rbOnline.setSelected(true);
 		else
 			rbOffline.setSelected(true);
@@ -102,19 +115,19 @@ public class WebsiteStatusDialog extends InfoDialog implements DatabaseListener
 			if(selectedValue != null && selectedValue.toString().equals(options[1]))
 				changeWebsiteOnlineStatus();
 		}
-		else	//taking it online doesn't require a verification
+		else		//taking it online doesn't require a verification
 			changeWebsiteOnlineStatus();
 	}
 		
 	void changeWebsiteOnlineStatus()
 	{
-		WebsiteStatus updateWSReq = new WebsiteStatus(rbOnline.isSelected(), tf[0].getText());
+		WebsiteStatus updateWSReq = new WebsiteStatus(websiteStatus);
+		updateWSReq.setWebsiteStatus(rbOnline.isSelected());
+		updateWSReq.setTimeBackUp(tf[0].getText());
 		
 		String response = gvs.updateWebsiteStatus(this, updateWSReq);
 		
-		if(!response.startsWith("UPDATED_WEBSITE_STATUS"))
-			rbOnline.setSelected(websiteStatus.getWebsiteStatus());
-		else
+		if(response.startsWith("UPDATED_WEBSITE_STATUS"))
 			websiteStatus = updateWSReq;
 		
 		btnAction.setEnabled(false);
@@ -154,8 +167,8 @@ public class WebsiteStatusDialog extends InfoDialog implements DatabaseListener
 	@Override
 	boolean fieldUnchanged()
 	{
-		if(rbOnline.isSelected() && !websiteStatus.getWebsiteStatus() && tf[0].equals("Online") || 
-		    rbOffline.isSelected() && websiteStatus.getWebsiteStatus() && !tf[0].getText().isEmpty() && !tf[0].getText().equals("Online"))
+		if(rbOnline.isSelected() && !websiteStatus.isWebsiteOnline() && tf[0].equals("Online") || 
+		    rbOffline.isSelected() && websiteStatus.isWebsiteOnline() && !tf[0].getText().isEmpty() && !tf[0].getText().equals("Online"))
 		{
 			return false;
 		}
@@ -172,7 +185,7 @@ public class WebsiteStatusDialog extends InfoDialog implements DatabaseListener
 			WebsiteStatus updatedWebsiteStatus= (WebsiteStatus) dbe.getObject1();
 			
 			if(this.isVisible() && 
-					(updatedWebsiteStatus.getWebsiteStatus() != websiteStatus.getWebsiteStatus() ||
+					(updatedWebsiteStatus.isWebsiteOnline() != websiteStatus.isWebsiteOnline() ||
 					 !updatedWebsiteStatus.getTimeBackUp().equals(websiteStatus.getTimeBackUp())))
 			{
 				websiteStatus = updatedWebsiteStatus;
@@ -184,7 +197,7 @@ public class WebsiteStatusDialog extends InfoDialog implements DatabaseListener
 	void checkApplyChangesEnabled()
 	{
 		
-		if(rbOnline.isSelected() == websiteStatus.getWebsiteStatus())
+		if(rbOnline.isSelected() == websiteStatus.isWebsiteOnline())
 			btnAction.setEnabled(false);
 		else if(rbOnline.isSelected() && tf[0].getText().equals("Online"))
 			btnAction.setEnabled(true);
@@ -210,6 +223,6 @@ public class WebsiteStatusDialog extends InfoDialog implements DatabaseListener
 	String[] getDialogFieldNames() 
 	{
 		// TODO Auto-generated method stub
-		return new String[] {"Time Back Online", "Website Status"};
+		return new String[] {"Time Back Online", "Website Status", "Website Logging"};
 	}
 }

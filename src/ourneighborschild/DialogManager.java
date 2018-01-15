@@ -684,10 +684,10 @@ public class DialogManager implements EntitySelectionListener
    
    void onWebsiteStatus()
    { 
-   	WebsiteStatusDialog wsDlg = new WebsiteStatusDialog(GlobalVariablesDB.getFrame(), false);
-   	wsDlg.setLocationRelativeTo(GlobalVariablesDB.getFrame());
-   	wsDlg.display(null);	//deosn't require a display parameter
-   	wsDlg.setVisible(true);
+   		WebsiteStatusDialog wsDlg = new WebsiteStatusDialog(GlobalVariablesDB.getFrame(), false);
+   		wsDlg.setLocationRelativeTo(GlobalVariablesDB.getFrame());
+   		wsDlg.display(null);	//deosn't require a display parameter
+   		wsDlg.setVisible(true);
    }
    
    void onDBStatusClicked()
