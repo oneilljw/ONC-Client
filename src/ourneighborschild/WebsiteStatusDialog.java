@@ -54,8 +54,8 @@ public class WebsiteStatusDialog extends InfoDialog implements DatabaseListener
 		infopanel[1].add(rbOffline);
 		
 		//set up the web site status panel
-		rbLoggingOn = new JRadioButton("On");
-		rbLoggingOff= new JRadioButton("Off");
+		rbLoggingOn = new JRadioButton("Enabled");
+		rbLoggingOff= new JRadioButton("Disabled");
 		loggingBG = new ButtonGroup();
 		loggingBG.add(rbLoggingOn);
 		loggingBG.add(rbLoggingOff);
@@ -84,10 +84,16 @@ public class WebsiteStatusDialog extends InfoDialog implements DatabaseListener
 	{
 		
 		tf[0].setText(websiteStatus.getTimeBackUp());
+		
 		if(websiteStatus.isWebsiteOnline())
 			rbOnline.setSelected(true);
 		else
 			rbOffline.setSelected(true);
+		
+		if(websiteStatus.isWebsiteLoggingEnabled())
+			rbLoggingOn.setSelected(true);
+		else
+			rbLoggingOff.setSelected(true);
 		
 		btnAction.setEnabled(false);		
 	}
@@ -95,11 +101,13 @@ public class WebsiteStatusDialog extends InfoDialog implements DatabaseListener
 	@Override
 	void update() 
 	{	
+		boolean bUpdateWebsiteStatus = true;
+		
 		if(rbOffline.isSelected())
 		{
 			//Confirm with the user that they really want to take the web-site off-line
 			String confirmMssg = "<html>Are you sure you want to take the<br>"
-								+ "ONC Family Referral website offline?</html>"; 
+								+ "ONC Data Management website offline?</html>"; 
 									
 			Object[] options= {"Cancel", "Take Offline"};
 			JOptionPane confirmOP = new JOptionPane(confirmMssg, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION,
@@ -112,27 +120,48 @@ public class WebsiteStatusDialog extends InfoDialog implements DatabaseListener
 			Object selectedValue = confirmOP.getValue();
 	
 			//if the client user confirmed, take the website offline
-			if(selectedValue != null && selectedValue.toString().equals(options[1]))
-				changeWebsiteOnlineStatus();
+			if(selectedValue == null || selectedValue.toString().equals(options[0]))
+				bUpdateWebsiteStatus = false;
 		}
-		else		//taking it online doesn't require a verification
-			changeWebsiteOnlineStatus();
-	}
 		
-	void changeWebsiteOnlineStatus()
-	{
-		WebsiteStatus updateWSReq = new WebsiteStatus(websiteStatus);
-		updateWSReq.setWebsiteStatus(rbOnline.isSelected());
-		updateWSReq.setTimeBackUp(tf[0].getText());
-		
-		String response = gvs.updateWebsiteStatus(this, updateWSReq);
-		
-		if(response.startsWith("UPDATED_WEBSITE_STATUS"))
-			websiteStatus = updateWSReq;
-		
-		btnAction.setEnabled(false);
-	}
+		if(rbLoggingOff.isSelected())
+		{
+			//Confirm with the user that they really want to take the web-site off-line
+			String confirmMssg = "<html>Are you sure you want to disable logging<br>"
+								+ "for the ONC Data Management website?</html>"; 
+									
+			Object[] options= {"Cancel", "Turn Off Logging"};
+			JOptionPane confirmOP = new JOptionPane(confirmMssg, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION,
+													gvs.getImageIcon(0), options, "Cancel");
+			JDialog confirmDlg = confirmOP.createDialog(this, "*** Confirm Disable Logging ***");
+			confirmDlg.setLocationRelativeTo(this);
+			this.setAlwaysOnTop(false);
+			confirmDlg.setVisible(true);
+
+			Object selectedValue = confirmOP.getValue();
 	
+			//if the client user confirmed, take the web site offline
+			if(selectedValue == null || selectedValue.toString().equals(options[0]))
+				bUpdateWebsiteStatus = false;
+		}
+		
+		if(bUpdateWebsiteStatus)
+		{
+
+			WebsiteStatus updateWSReq = new WebsiteStatus(websiteStatus);
+			updateWSReq.setWebsiteStatus(rbOnline.isSelected());
+			updateWSReq.setTimeBackUp(tf[0].getText());
+			updateWSReq.setWebsiteLogginEnabled(rbLoggingOn.isSelected());
+			
+			String response = gvs.updateWebsiteStatus(this, updateWSReq);
+			
+			if(response.startsWith("UPDATED_WEBSITE_STATUS"))
+				websiteStatus = updateWSReq;
+			
+			btnAction.setEnabled(false);
+		}
+	}
+		
 	void reloadWebpages()
 	{
 		String response = gvs.reloadWebpages(this);
@@ -184,9 +213,13 @@ public class WebsiteStatusDialog extends InfoDialog implements DatabaseListener
 		{
 			WebsiteStatus updatedWebsiteStatus= (WebsiteStatus) dbe.getObject1();
 			
+			//verify we need to update the dialog. It's a modal dialog and it initializes every time it's
+			//instantiated, so if it's not visible, no need to update. If visible, only update if there's a
+			//change.
 			if(this.isVisible() && 
 					(updatedWebsiteStatus.isWebsiteOnline() != websiteStatus.isWebsiteOnline() ||
-					 !updatedWebsiteStatus.getTimeBackUp().equals(websiteStatus.getTimeBackUp())))
+					 !updatedWebsiteStatus.getTimeBackUp().equals(websiteStatus.getTimeBackUp()) ||
+					  updatedWebsiteStatus.isWebsiteLoggingEnabled() != websiteStatus.isWebsiteLoggingEnabled()))
 			{
 				websiteStatus = updatedWebsiteStatus;
 				display(null);
@@ -196,12 +229,14 @@ public class WebsiteStatusDialog extends InfoDialog implements DatabaseListener
 	
 	void checkApplyChangesEnabled()
 	{
-		
-		if(rbOnline.isSelected() == websiteStatus.isWebsiteOnline())
-			btnAction.setEnabled(false);
-		else if(rbOnline.isSelected() && tf[0].getText().equals("Online"))
+		//check enabling for online/offline
+		if(rbOnline.isSelected() && tf[0].getText().equals("Online"))
 			btnAction.setEnabled(true);
 		else if(rbOffline.isSelected() && !tf[0].getText().isEmpty() && !tf[0].getText().equals("Online"))
+			btnAction.setEnabled(true);
+		else if(rbLoggingOn.isSelected() && !websiteStatus.isWebsiteLoggingEnabled())
+			btnAction.setEnabled(true);
+		else if(rbLoggingOn.isSelected() && websiteStatus.isWebsiteLoggingEnabled())
 			btnAction.setEnabled(true);
 		else
 			btnAction.setEnabled(false);
