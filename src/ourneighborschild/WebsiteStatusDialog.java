@@ -20,7 +20,7 @@ public class WebsiteStatusDialog extends InfoDialog implements DatabaseListener
 	
 	private WebsiteStatus websiteStatus;
 	private ButtonGroup onlineBG, loggingBG;
-	private JRadioButton rbOnline, rbOffline, rbLoggingOn, rbLoggingOff;
+	private JRadioButton rbOnline, rbOffline, rbLoggingEnabled, rbLoggingDisabled;
 
 	WebsiteStatusDialog(JFrame owner, boolean bModal)
 	{
@@ -54,23 +54,23 @@ public class WebsiteStatusDialog extends InfoDialog implements DatabaseListener
 		infopanel[1].add(rbOffline);
 		
 		//set up the web site status panel
-		rbLoggingOn = new JRadioButton("Enabled");
-		rbLoggingOff= new JRadioButton("Disabled");
+		rbLoggingEnabled = new JRadioButton("Enabled");
+		rbLoggingDisabled= new JRadioButton("Disabled");
 		loggingBG = new ButtonGroup();
-		loggingBG.add(rbLoggingOn);
-		loggingBG.add(rbLoggingOff);
+		loggingBG.add(rbLoggingEnabled);
+		loggingBG.add(rbLoggingDisabled);
 		
 		infopanel[2].remove(tf[2]);
-		infopanel[2].add(rbLoggingOn);
-		infopanel[2].add(rbLoggingOff);
+		infopanel[2].add(rbLoggingEnabled);
+		infopanel[2].add(rbLoggingDisabled);
 		
 		//add an action listeners to the time back up text field and radio buttons
 		WebsiteStatusActionListener wsListener = new WebsiteStatusActionListener();
 		tf[0].addActionListener(wsListener);
 		rbOnline.addActionListener(wsListener);
 		rbOffline.addActionListener(wsListener);
-		rbLoggingOn.addActionListener(wsListener);
-		rbLoggingOff.addActionListener(wsListener);
+		rbLoggingEnabled.addActionListener(wsListener);
+		rbLoggingDisabled.addActionListener(wsListener);
 				
 		//add text to action and delete buttons
 		btnAction.setText("Change Website Status");
@@ -91,9 +91,9 @@ public class WebsiteStatusDialog extends InfoDialog implements DatabaseListener
 			rbOffline.setSelected(true);
 		
 		if(websiteStatus.isWebsiteLoggingEnabled())
-			rbLoggingOn.setSelected(true);
+			rbLoggingEnabled.setSelected(true);
 		else
-			rbLoggingOff.setSelected(true);
+			rbLoggingDisabled.setSelected(true);
 		
 		btnAction.setEnabled(false);		
 	}
@@ -124,7 +124,7 @@ public class WebsiteStatusDialog extends InfoDialog implements DatabaseListener
 				bUpdateWebsiteStatus = false;
 		}
 		
-		if(rbLoggingOff.isSelected())
+		if(rbLoggingDisabled.isSelected())
 		{
 			//Confirm with the user that they really want to take the web-site off-line
 			String confirmMssg = "<html>Are you sure you want to disable logging<br>"
@@ -151,7 +151,7 @@ public class WebsiteStatusDialog extends InfoDialog implements DatabaseListener
 			WebsiteStatus updateWSReq = new WebsiteStatus(websiteStatus);
 			updateWSReq.setWebsiteStatus(rbOnline.isSelected());
 			updateWSReq.setTimeBackUp(tf[0].getText());
-			updateWSReq.setWebsiteLogginEnabled(rbLoggingOn.isSelected());
+			updateWSReq.setWebsiteLogginEnabled(rbLoggingEnabled.isSelected());
 			
 			String response = gvs.updateWebsiteStatus(this, updateWSReq);
 			
@@ -229,14 +229,14 @@ public class WebsiteStatusDialog extends InfoDialog implements DatabaseListener
 	
 	void checkApplyChangesEnabled()
 	{
-		//check enabling for online/offline
+		//check enabling for online/offline and logging enabled/disabled
 		if(rbOnline.isSelected() && tf[0].getText().equals("Online"))
 			btnAction.setEnabled(true);
 		else if(rbOffline.isSelected() && !tf[0].getText().isEmpty() && !tf[0].getText().equals("Online"))
 			btnAction.setEnabled(true);
-		else if(rbLoggingOn.isSelected() && !websiteStatus.isWebsiteLoggingEnabled())
+		else if(rbLoggingEnabled.isSelected() && !websiteStatus.isWebsiteLoggingEnabled())
 			btnAction.setEnabled(true);
-		else if(rbLoggingOn.isSelected() && websiteStatus.isWebsiteLoggingEnabled())
+		else if(rbLoggingEnabled.isSelected() && websiteStatus.isWebsiteLoggingEnabled())
 			btnAction.setEnabled(true);
 		else
 			btnAction.setEnabled(false);
