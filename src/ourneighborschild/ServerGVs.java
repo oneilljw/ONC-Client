@@ -64,6 +64,7 @@ public class ServerGVs extends ONCObject
 	//getters
 	Date getDeliveryDate() { return oncDeliveryDate.getTime(); }
 	public Date getSeasonStartDate() { return oncSeasonStartDate.getTime(); }
+	public Calendar getSeasonStartCal() { return oncSeasonStartDate; }
 	String getWarehouseAddress() { return warehouseAddress; }
 	public Date getGiftsReceivedDate() { return oncGiftsReceivedDate.getTime(); }
 	public Calendar getGiftsReceivedDeadline() { return oncGiftsReceivedDate; }
@@ -74,14 +75,15 @@ public class ServerGVs extends ONCObject
 	@Override
 	public String[] getExportRow()
 	{	
-		 String[] row = {Long.toString(oncDeliveryDate.getTimeInMillis()),
- 						 Long.toString(oncSeasonStartDate.getTimeInMillis()),
- 						 warehouseAddress,
+		 String[] row = {
+				 		Long.toString(oncDeliveryDate.getTimeInMillis()),
+ 						Long.toString(oncSeasonStartDate.getTimeInMillis()),
+ 						warehouseAddress,
  						Long.toString(oncGiftsReceivedDate.getTimeInMillis()),
  						Long.toString(thanksgivingDeadline.getTimeInMillis()),
  						Long.toString(decemberDeadline.getTimeInMillis()),
- 						Long.toString(familyEditDeadline.getTimeInMillis())
- 						 };		
+ 						Long.toString(familyEditDeadline.getTimeInMillis()),
+ 						};		
 		return row;
 	}
 }
