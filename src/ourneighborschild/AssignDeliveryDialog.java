@@ -284,8 +284,8 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 															userDB.getUserLNFI(),
 															Calendar.getInstance());
 				
-				String response = familyHistoryDB.add(this, reqDelivery);
-				if(response.startsWith("ADDED_DELIVERY"))
+				ONCFamilyHistory response = familyHistoryDB.add(this, reqDelivery);
+				if(response != null && response instanceof ONCFamilyHistory)
 				{
 					assignmentsMade++;	
 				}

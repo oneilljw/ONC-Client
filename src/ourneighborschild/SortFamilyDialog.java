@@ -486,8 +486,10 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 						userDB.getUserLNFI(),
 						Calendar.getInstance());
 
-				String response = familyHistoryDB.add(this, reqDelivery);
-				if(response.startsWith("ADDED_DELIVERY"))
+//				String response = familyHistoryDB.add(this, reqDelivery);
+				ONCFamilyHistory response = familyHistoryDB.add(this, reqDelivery);
+				if(response != null && response instanceof ONCFamilyHistory)
+//				if(response.startsWith("ADDED_DELIVERY"))
 					bDataChanged = true;
 				else
 				{

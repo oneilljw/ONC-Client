@@ -23,6 +23,7 @@ import javax.swing.AbstractCellEditor;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultCellEditor;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -60,6 +61,8 @@ public class AddFamilyDialog extends JDialog implements ActionListener, ListSele
 	private ChildDB cDB;
 	private AdultDB adultDB;
 	private MealDB mealDB;
+	private FamilyHistoryDB famHistDB;
+	private GroupDB groupDB;
 	
 	private List<AddChild> childList;
 	private List<ONCAdult> adultList;
@@ -75,6 +78,8 @@ public class AddFamilyDialog extends JDialog implements ActionListener, ListSele
 	
 	private JComboBox<String> languageCB;
 	private JComboBox<MealType> mealsCB;
+	private JComboBox<ONCGroup> groupCB;
+	private DefaultComboBoxModel<ONCGroup> groupCBM;
 	private ONCTable childTable, childWishTable, adultTable;
 	private ChildTableModel childTableModel;
 	private AdultTableModel adultTableModel;
@@ -92,6 +97,8 @@ public class AddFamilyDialog extends JDialog implements ActionListener, ListSele
 		cDB = ChildDB.getInstance();
 		adultDB = AdultDB.getInstance();
 		mealDB = MealDB.getInstance();
+		famHistDB = FamilyHistoryDB.getInstance();
+		groupDB = GroupDB.getInstance();
 		
 		//set up the adult t child list for the tables
 		adultList = new ArrayList<ONCAdult>();
@@ -458,13 +465,21 @@ public class AddFamilyDialog extends JDialog implements ActionListener, ListSele
         
       	//set up family details panel
       	JPanel detailsPanel = new JPanel();
-      	detailsPanel.setBorder(BorderFactory.createTitledBorder("Family Details"));
+      	detailsPanel.setBorder(BorderFactory.createTitledBorder("Family Details & Group"));
       	detailsPanel.setBackground(OLD_LACE);
       	detailsPane = new JTextPane();
-      	detailsPane.setPreferredSize(new Dimension(800, 52));
+      	detailsPane.setPreferredSize(new Dimension(500, 52));
       	detailsPane.setBorder(BorderFactory.createTitledBorder("Details about family ONC should know:"));
         JScrollPane detailsScrollPane = new JScrollPane(detailsPane);
         detailsPanel.add(detailsScrollPane);
+        
+        //set up group select panel
+        groupCBM = new DefaultComboBoxModel<ONCGroup>();
+		groupCB = new JComboBox<ONCGroup>();
+		groupCB.setModel(groupCBM);
+		groupCB.setBorder(BorderFactory.createTitledBorder("Family Group"));
+		createGroupList();
+		detailsPanel.add(groupCB);
       	
         //set up the bottom panel which consists of the message panel and the control panel
         JPanel bottomPanel = new JPanel();
@@ -492,7 +507,7 @@ public class AddFamilyDialog extends JDialog implements ActionListener, ListSele
         contentPane.add(bottomPanel);
         
         pack();
-        this.setPreferredSize(new Dimension(864, 660));
+        this.setPreferredSize(new Dimension(864, 600));
 	}
 	
 	void clearWishTableWishes()
@@ -645,7 +660,8 @@ public class AddFamilyDialog extends JDialog implements ActionListener, ListSele
 					altUnit.getText(), altCity.getText(), altZipCode.getText(),
 					HomePhone.getText(), OtherPhone.getText(), AltPhone.getText(),
 					email.getText(), detailsPane.getText(), createFamilySchoolList(),
-					true, createWishList(), user.getID(), addedMeal != null ? addedMeal.getID() : -1,
+					true, createWishList(), user.getID(), ((ONCGroup) groupCB.getSelectedItem()).getID(),
+					addedMeal != null ? addedMeal.getID() : -1,
 					addedMeal != null ? MealStatus.Requested : MealStatus.None,
 					ownTransportCxBox.isSelected() ? Transportation.Yes : Transportation.No);
 			
@@ -653,6 +669,25 @@ public class AddFamilyDialog extends JDialog implements ActionListener, ListSele
 		
 		if(addedFamily != null)
 		{
+			//add a family history item
+			//add the family history object and update the family history object id
+			
+			ONCFamilyHistory famHistory = new ONCFamilyHistory(-1, addedFamily.getID(), 
+															addedFamily.getFamilyStatus(),
+															addedFamily.getGiftStatus(),
+															"", "Family Referred", 
+															addedFamily.getChangedBy(), 
+															Calendar.getInstance(TimeZone.getTimeZone("UTC")));
+		
+			ONCFamilyHistory addedFamHistory = famHistDB.add(this, famHistory);
+			
+			//update the family with the history object reference
+			if(addedFamHistory != null)
+			{
+				addedFamily.setDeliveryID(addedFamHistory.getID());
+				fDB.update(this, addedFamily);
+			}
+			
 			//update the family id for the meal, if a meal was requested
 			if(addedMeal != null)
 			{
@@ -672,109 +707,12 @@ public class AddFamilyDialog extends JDialog implements ActionListener, ListSele
 					cDB.add(this, addChildReq);
 				}
 			}
-/*			
-			//now that we have added children, we can check for duplicate family in this year.
-			ONCFamily dupFamily = familyDB.getDuplicateFamily(year, addedFamily, addedChildList);
-			
-//			if(dupFamily != null)
-//				System.out.println(String.format("HttpHandler.processFamilyReferral: "
-//						+ "dupFamily HOHLastName= %s, dupRef#= %s, addedFamily HOHLastName = %s, addedFamily Ref#= %s", 
-//						dupFamily.getHOHLastName(), dupFamily.getODBFamilyNum(), 
-//						addedFamily.getHOHLastName(), addedFamily.getODBFamilyNum()));
-//			
-			if(dupFamily == null)	//if not a dup, then for new families, check for prior year
-			{
-				//added family not in current year, check if in prior years
-				//only check new families for prior year existence. If a re-referral,
-				//we already know the reference id was from prior year
-				ONCFamily pyFamily = null;
-				if(bNewFamily)	
-				{
-					pyFamily = familyDB.isPriorYearFamily(year, addedFamily, addedChildList);
-					if(pyFamily != null)
-					{				
-						//added new family was in prior year, keep the prior year reference # 
-						//and reset the newly assigned target id index
-						addedFamily.setODBFamilyNum(pyFamily.getODBFamilyNum());
-						familyDB.decrementReferenceNumber();
-					}
-				}
-			}
-			//else if family was a dup, determine which family has the best reference number to
-			//use. The family with the best reference number is retained and the family with 
-			//the worst reference number is marked as duplicate
-			else if(!dupFamily.getODBFamilyNum().startsWith("C") && 
-						addedFamily.getODBFamilyNum().startsWith("C"))
-			{
-//				System.out.println(String.format("HttpHandler.processFamilyReferral, dupFamily no C: "
-//						+ "dupFamily HOHLastName= %s, dupRef#= %s, addedFamily HOHLastName = %s, addedFamily Ref#= %s", 
-//						dupFamily.getHOHLastName(), dupFamily.getODBFamilyNum(), 
-//						addedFamily.getHOHLastName(), addedFamily.getODBFamilyNum()));
-				
-				//family is in current year already with an ODB referred target ID
-				addedFamily.setONCNum("DEL");
-				addedFamily.setDNSCode("DUP");
-				addedFamily.setStoplightPos(FAMILY_STOPLIGHT_RED);
-				addedFamily.setStoplightMssg("DUP of " + dupFamily.getODBFamilyNum());
-				addedFamily.setODBFamilyNum(dupFamily.getODBFamilyNum());
-				familyDB.decrementReferenceNumber();
-			}	
-			else if(dupFamily.getODBFamilyNum().startsWith("C") && 
-					!addedFamily.getODBFamilyNum().startsWith("C"))
-			{
-//				System.out.println(String.format("HttpHandler.processFamilyReferral: dupFamily with C "
-//						+ "dupFamily HOHLastName= %s, dupRef#= %s, addedFamily HOHLastName = %s, addedFamily Ref#= %s", 
-//						dupFamily.getHOHLastName(), dupFamily.getODBFamilyNum(), 
-//						addedFamily.getHOHLastName(), addedFamily.getODBFamilyNum()));
-				
-				//family is already in current year with an ONC referred target ID and added family 
-				//does not have an ONC target id. In this situation, we can't decrement the assigned
-				//ONC based target id and will just have to burn one.
-				dupFamily.setONCNum("DEL");
-				dupFamily.setDNSCode("DUP");
-				dupFamily.setStoplightPos(FAMILY_STOPLIGHT_RED);
-				dupFamily.setStoplightMssg("DUP of " + addedFamily.getODBFamilyNum());
-				dupFamily.setStoplightChangedBy(wc.getWebUser().getLNFI());
-				dupFamily.setODBFamilyNum(addedFamily.getODBFamilyNum());
-			}
-			else if(dupFamily.getODBFamilyNum().startsWith("C") && 
-					addedFamily.getODBFamilyNum().startsWith("C"))
-			{
-				//which one was first?
-				int dupNumber = Integer.parseInt(dupFamily.getODBFamilyNum().substring(1));
-				int addedNumber = Integer.parseInt(addedFamily.getODBFamilyNum().substring(1));
-				
-				if(dupNumber < addedNumber)
-				{
-					//dup family has the correct ref #, so added family is duplicate
-					addedFamily.setONCNum("DEL");
-					addedFamily.setDNSCode("DUP");
-					addedFamily.setStoplightPos(FAMILY_STOPLIGHT_RED);
-					addedFamily.setStoplightMssg("DUP of " + dupFamily.getODBFamilyNum());
-					addedFamily.setStoplightChangedBy(wc.getWebUser().getLNFI());
-					addedFamily.setODBFamilyNum(dupFamily.getODBFamilyNum());
-					familyDB.decrementReferenceNumber();
-				}
-				else
-				{
-					//added family has the correct ref #, so dup family is the duplicate
-					dupFamily.setONCNum("DEL");
-					dupFamily.setDNSCode("DUP");
-					dupFamily.setStoplightPos(FAMILY_STOPLIGHT_RED);
-					dupFamily.setStoplightMssg("DUP of " + addedFamily.getODBFamilyNum());
-					dupFamily.setStoplightChangedBy(wc.getWebUser().getLNFI());
-					dupFamily.setODBFamilyNum(addedFamily.getODBFamilyNum());
-				}
-			}
-*/			
+
 			//add adults in the family
 			for(ONCAdult a:adultList)
 				if(!a.getName().isEmpty())
 					adultDB.add(this, new ONCAdult(-1, addedFamily.getID(), a.getName(), a.getGender()));
-		}
-		
-//		return new FamilyResponseCode(0, addedFamily.getHOHLastName() + " Family Referral Accepted",
-//										addedFamily.getODBFamilyNum());
+		}		
 	}
 	
 	String ensureUpperCaseStreetName(String street)
@@ -901,6 +839,12 @@ public class AddFamilyDialog extends JDialog implements ActionListener, ListSele
 		}
 		else
 			return "Gift assistance not requested";
+	}
+	
+	void createGroupList()
+	{	
+		for(ONCGroup group : groupDB.getList())
+			groupCBM.addElement(group);	
 	}
 	
 	/*******
@@ -1057,25 +1001,22 @@ public class AddFamilyDialog extends JDialog implements ActionListener, ListSele
         @Override
         public Class<?> getColumnClass(int column)
         {
-        	return String.class;
+        		return String.class;
         }
  
         public boolean isCellEditable(int row, int col)
         {
-        	if(col >= WISH_1_COL && giftsRequestedCkBox.isSelected())
-        		return true;
-        	else
-        		return false;
+        		return col >= WISH_1_COL && giftsRequestedCkBox.isSelected();
         }
  
         //Don't need to implement this method unless your table's data can change. 
         public void setValueAt(Object value, int row, int col)
         { 	
-        	if(col >= WISH_1_COL && col <= ALT_WISH_COL)
-        	{
-        		AddChild child = childList.get(row);
-            	child.setWish(col-WISH_COL_OFFSET, (String) value); 
-        	}
+        		if(col >= WISH_1_COL && col <= ALT_WISH_COL)
+        		{
+        			AddChild child = childList.get(row);
+        			child.setWish(col-WISH_COL_OFFSET, (String) value); 
+        		}
         }  
     }
 	

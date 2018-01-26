@@ -44,6 +44,7 @@ public class ONCFamily extends ONCEntity
 	private String		wishList;	
 	private String		adoptedFor;
 	private int			agentID;
+	private int			groupID;
 	private int			deliveryID;
 	private int 		mealID;
 	private MealStatus  mealStatus;
@@ -86,6 +87,7 @@ public class ONCFamily extends ONCEntity
 		wishList = f.wishList;						
 		adoptedFor = f.adoptedFor;
 		agentID = f.agentID;
+		groupID = f.groupID;
 		deliveryID = f.deliveryID;
 		mealID = f.mealID;
 		mealStatus = f.mealStatus;
@@ -98,7 +100,8 @@ public class ONCFamily extends ONCEntity
 				String ClientFamEmail, String ClientFamPhone, String RAPhone, String DeitaryRestrictions, String Schools,
 				String Details, String ID, String StreetAdd, String AddL2,  String Cty, String Zip,
 				String State,String AdoptFor, String nAdults, String nChldren, String Wishlist, String SpeakEng,
-				String Lang, String transportation, String bn, Date today, int region, String sONC, int id, String cb, int agentid)
+				String Lang, String transportation, String bn, Date today, int region, String sONC, int id,
+				String cb, int agentid, int groupid)
 	{
 		super(id, new Date(), cb, STOPLIGHT_OFF, "Family imported", cb);
 		oncNum = sONC;
@@ -127,6 +130,7 @@ public class ONCFamily extends ONCEntity
 		wishList = Wishlist;
 		adoptedFor = AdoptFor;
 		agentID = agentid;
+		groupID = groupid;
 		deliveryID = -1;
 		mealID = -1;
 		mealStatus = MealStatus.None;
@@ -147,7 +151,7 @@ public class ONCFamily extends ONCEntity
 	public ONCFamily(String[] nextLine)
 	{
 		super(Integer.parseInt(nextLine[0]), new Date(), nextLine[10], 
-				Integer.parseInt(nextLine[37]), nextLine[38], nextLine[39]);
+				Integer.parseInt(nextLine[38]), nextLine[39], nextLine[40]);
 		oncNum = getDBString(nextLine[1]);
 		region = Integer.parseInt(nextLine[2]);
 		referenceNum = getDBString(nextLine[3]);
@@ -178,13 +182,14 @@ public class ONCFamily extends ONCEntity
 		wishList = getDBString(nextLine[29]);
 		adoptedFor = getDBString(nextLine[30]);
 		agentID = Integer.parseInt(nextLine[31]);
-		deliveryID = Integer.parseInt(nextLine[32]);
-		mealID = Integer.parseInt(nextLine[33]);
-		mealStatus = MealStatus.valueOf(nextLine[34]);
-		nBags = Integer.parseInt(nextLine[35]);
-		nLargeItems = Integer.parseInt(nextLine[36]);
-		transportation = Transportation.valueOf(nextLine[40]);
-		bGiftCardOnly = nextLine[41].equals("TRUE") ? true : false;
+		groupID = Integer.parseInt(nextLine[32]);
+		deliveryID = Integer.parseInt(nextLine[33]);
+		mealID = Integer.parseInt(nextLine[34]);
+		mealStatus = MealStatus.valueOf(nextLine[35]);
+		nBags = Integer.parseInt(nextLine[36]);
+		nLargeItems = Integer.parseInt(nextLine[37]);
+		transportation = Transportation.valueOf(nextLine[41]);
+		bGiftCardOnly = nextLine[42].equals("TRUE") ? true : false;
 	}
 	
 	//Overloaded Constructor - Direct Intake Processing
@@ -193,7 +198,7 @@ public class ONCFamily extends ONCEntity
 				String unitNum, String city, String zipCode, String altHouseNum, String altStreet,
 				String altUnitNum, String altCity, String altZipCode, String homePhone, String otherPhone, 
 				String altPhone, String familyEmail, String odbDetails, String schools, boolean bGiftsRequested, 
-				String odbWishList, int agentID, int mealID, MealStatus mStatus, Transportation transportation)
+				String odbWishList, int agentID, int groupID, int mealID, MealStatus mStatus, Transportation transportation)
 	{
 		super(id, new Date(), cb, STOPLIGHT_OFF, "Family referred", cb);
 		this.oncNum = oncNum;
@@ -246,6 +251,7 @@ public class ONCFamily extends ONCEntity
 		this.wishList = odbWishList;	
 		this.adoptedFor = "";
 		this.agentID = agentID;
+		this.groupID = groupID;
 		this.deliveryID = -1;
 		this.mealID = mealID;
 		mealStatus = mStatus;
@@ -476,6 +482,7 @@ public class ONCFamily extends ONCEntity
 	public String	getWishList() {return wishList;}
 	public String	getAdoptedFor() {return adoptedFor;}	
 	public int		getAgentID() { return agentID; }
+	public int		getGroupID() { return groupID; }
 	public int		getDeliveryID() { return deliveryID; }
 	public int		getMealID() { return mealID; }
 	public MealStatus getMealStatus() { return mealStatus; }
@@ -514,6 +521,7 @@ public class ONCFamily extends ONCEntity
 	public void setWishList(String s) { wishList = s;}
 	public void setAdoptedFor(String s) { adoptedFor = s;}
 	public void setAgentID(int  aid) { agentID = aid; }
+	public void setGroupID(int  gid) { groupID = gid; }
 	public void setDeliveryID(int did) { deliveryID = did; }
 	public void setMealID(int id) { mealID = id; }
 	public void setMealStatus(MealStatus ms) { mealStatus = ms; }
@@ -599,6 +607,7 @@ public class ONCFamily extends ONCEntity
 		rowList.add(getWishList());
 		rowList.add(getAdoptedFor());
 		rowList.add(Integer.toString(getAgentID()));
+		rowList.add(Integer.toString(getGroupID()));
 		rowList.add(Integer.toString(getDeliveryID()));
 		rowList.add(Integer.toString(getMealID()));
 		rowList.add(getMealStatus().toString());

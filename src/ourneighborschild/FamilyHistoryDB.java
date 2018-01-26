@@ -39,20 +39,21 @@ public class FamilyHistoryDB extends ONCDatabase
 	
 	int size() { return fhList.size(); }
 
-	String add(Object source, ONCObject entity)
+	ONCFamilyHistory add(Object source, ONCObject entity)
 	{
 		Gson gson = new Gson();
 		String response = "";
+		ONCFamilyHistory addedHistObj = null;
 		
 		response = serverIF.sendRequest("POST<add_delivery>" + 
 											gson.toJson(entity, ONCFamilyHistory.class));
 		if(response.startsWith("ADDED_DELIVERY"))
-			processAddedObject(source, response.substring(14));
+			addedHistObj = processAddedObject(source, response.substring(14));
 		
-		return response;	
+		return addedHistObj;	
 	}
 	
-	void processAddedObject(Object source, String json)
+	ONCFamilyHistory processAddedObject(Object source, String json)
 	{
 		//Store added ONCFamilyHistory object in local data base
 		Gson gson = new Gson();
@@ -70,6 +71,8 @@ public class FamilyHistoryDB extends ONCDatabase
 		//Notify local user IFs that an organization/partner was added. This will
 		//be all UI's that display or manage family delivery information
 		fireDataChanged(source, "ADDED_DELIVERY", addedObject);
+		
+		return addedObject;
 	}
 	
 	ONCFamilyHistory getFamilyHistory(int id)

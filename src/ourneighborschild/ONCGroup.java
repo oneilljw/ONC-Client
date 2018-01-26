@@ -55,4 +55,7 @@ public class ONCGroup extends ONCEntity
 					   name, type.toString(), Integer.toString(permission)};
 		return row;
 	}
+	
+	@Override
+	public String toString() { return this.name; }
 }
