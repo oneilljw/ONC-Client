@@ -5,6 +5,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.JFrame;
@@ -49,6 +50,15 @@ public class GroupDB extends ONCSearchableDatabase
 	ONCGroup getGroup(int index) { return groupList.get(index); }
 
 	List<ONCGroup> getList() { return groupList; }
+	
+	List<ONCGroup> getGroupList(List<Integer> intList)
+	{
+		List<ONCGroup> groupList = new LinkedList<ONCGroup>();
+		for(Integer id : intList)
+			groupList.add(getGroupByID(id));
+		
+		return groupList;
+	}
 	
 	public ONCGroup getGroupByID(int id)
 	{

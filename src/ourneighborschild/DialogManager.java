@@ -45,7 +45,6 @@ public class DialogManager implements EntitySelectionListener
 		
 	//dialogs that inherit from InfoDialog
 	private Map<String, InfoDialog> familyInfoDlgMap;
-	private AgentInfoDialog agentInfoDlg;
 	private TransportationDialog transportationDlg;
 	private AddMealDialog addMealDlg;
 	private ChangeONCNumberDialog changeONCNumberDlg;
@@ -74,6 +73,7 @@ public class DialogManager implements EntitySelectionListener
 	private GroupDialog groupDlg;
 	private VolunteerDialog volunteerDlg;
 	private ActivityDialog activityDlg;
+	private EditUserDialog editUserDlg;
 		
 	private PreferencesDialog prefsDlg;
 	private BarcodeWishHistoryDialog barcodeWHDlg;
@@ -140,6 +140,7 @@ public class DialogManager implements EntitySelectionListener
     	
     		//Set up the manage user dialog
     		userDlg = new ManageUsersDialog(GlobalVariablesDB.getFrame());
+    		eeManager.registerEntitySelector(userDlg);
     	
     		//Set up the sign-in dialog
     		signInDlg = new WarehouseSignInDialog(GlobalVariablesDB.getFrame());
@@ -170,12 +171,7 @@ public class DialogManager implements EntitySelectionListener
         sortMealsDlg = new SortMealsDialog(GlobalVariablesDB.getFrame());
         stDlgMap.put("Meals", sortMealsDlg);
         eeManager.registerEntitySelector(sortMealsDlg);
-    	
-    		//Set up the dialog to edit agent info
-    		agentInfoDlg = new AgentInfoDialog(GlobalVariablesDB.getFrame(), false);
-    		familyInfoDlgMap.put("Agent", agentInfoDlg);
-    		eeManager.registerEntitySelectionListener(agentInfoDlg);
-    	
+
     		//Set up the dialog to edit family transportation info
     		transportationDlg = new TransportationDialog(GlobalVariablesDB.getFrame(), false);
     		familyInfoDlgMap.put("Transportation", transportationDlg);
@@ -223,6 +219,12 @@ public class DialogManager implements EntitySelectionListener
         activityDlg = new ActivityDialog(GlobalVariablesDB.getFrame());
         entityDlgMap.put("Edit Activities", activityDlg);
         eeManager.registerEntitySelectionListener(activityDlg);
+        
+        //Set up the edit users dialog and register it to listen for user 
+        //selection events from particular ui's that have users associated
+        editUserDlg = new EditUserDialog(GlobalVariablesDB.getFrame());
+        entityDlgMap.put("Edit Users", editUserDlg);
+        eeManager.registerEntitySelectionListener(editUserDlg);
         
         //Set up the view family database dialog
         dbDlg = new ViewONCDatabaseDialog(GlobalVariablesDB.getFrame());

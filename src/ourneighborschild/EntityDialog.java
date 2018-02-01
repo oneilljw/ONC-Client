@@ -11,7 +11,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 public abstract class EntityDialog extends JDialog implements ActionListener, DatabaseListener,
-								EntitySelectionListener
+															EntitySelectionListener
 {
 	/**
 	 * Implements an abstract class for the editor dialogs
@@ -39,7 +39,7 @@ public abstract class EntityDialog extends JDialog implements ActionListener, Da
     
     EntityDialog(JFrame pf)
     {
-    	super(pf);
+    		super(pf);
 		this.setTitle("Our Neighbor's Child - ONC Entity Management");
 		
 		gvs = GlobalVariablesDB.getInstance();	//Reference to the one global variable object
@@ -64,16 +64,16 @@ public abstract class EntityDialog extends JDialog implements ActionListener, Da
         btnNew.addActionListener(this);
         
         btnDelete = new JButton();
-    	btnDelete.setEnabled(false);
-    	btnDelete.setVisible(true);
+        btnDelete.setEnabled(false);
+        btnDelete.setVisible(true);
         btnDelete.addActionListener(this);
         
         btnSave = new JButton();
-    	btnSave.setVisible(false);
+        btnSave.setVisible(false);
         btnSave.addActionListener(this);
         
         btnCancel = new JButton();
-    	btnCancel.setVisible(false);
+    		btnCancel.setVisible(false);
         btnCancel.addActionListener(this);
         
         cntlPanel.add(btnNew);

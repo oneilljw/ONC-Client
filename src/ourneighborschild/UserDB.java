@@ -112,7 +112,7 @@ public class UserDB extends ONCSearchableDatabase
 			return -1;
 	}
 	
-	int add(Object source, ONCObject entity)
+	ONCUser add(Object source, ONCObject entity)
 	{
 		Gson gson = new Gson();
 		String response = "";
@@ -123,17 +123,15 @@ public class UserDB extends ONCSearchableDatabase
 		if(response != null && response.startsWith("ADDED_USER"))
 			return processAddedObject(source, response.substring(10));
 		else
-			return -1;
-		
+			return null;
 	}
 
-	int processAddedObject(Object source, String json)
+	ONCUser processAddedObject(Object source, String json)
 	{
-		//Store added catalog wish in local wish catalog
 		Gson gson = new Gson();
 		ONCUser addedUser = gson.fromJson(json, ONCUser.class);
 		
-		//add the wish in the proper spot alphabetically
+		//add the user in the proper spot alphabetically
 		int index = 0;
 		while(index < uAL.size() &&
 				(uAL.get(index).getLastName().compareTo(addedUser.getFirstName())) < 0)
@@ -144,11 +142,10 @@ public class UserDB extends ONCSearchableDatabase
 		else
 			uAL.add(addedUser);
 		
-		//Notify local user IFs that a user was added. This will
-		//be all UI's that sort on user information
+		//Notify local user IFs that a user was added. This will be all UI's that sort on user information
 		fireDataChanged(source, "ADDED_USER", addedUser);
 		
-		return index;
+		return addedUser;
 	}
 	
 	String update(Object source, ONCObject entity)
@@ -302,6 +299,16 @@ public class UserDB extends ONCSearchableDatabase
 		}
 		
 		return userList;
+	}
+	
+	int getActiveUserCount()
+	{
+		int count = 0;
+		for(ONCUser u : uAL)
+			if(u.getStatus() != UserStatus.Inactive)
+				count++;
+		
+		return count;
 	}
 	
 	String changePassword(Object source, ChangePasswordRequest cpwReq)

@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.print.PrinterException;
@@ -11,6 +12,7 @@ import java.sql.Date;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.EnumSet;
 import java.util.TimeZone;
 
 import javax.swing.BorderFactory;
@@ -37,7 +39,7 @@ import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
-public class ManageUsersDialog extends JDialog implements ActionListener, ListSelectionListener,
+public class ManageUsersDialog extends ONCEntityTableDialog implements ActionListener, ListSelectionListener,
 														DatabaseListener
 {
 	/**
@@ -167,7 +169,7 @@ public class ManageUsersDialog extends JDialog implements ActionListener, ListSe
         btnAdd.addActionListener(this);
         
         btnEdit = new JButton("User Profile");
-        btnEdit.setToolTipText("Edit user's contact info");
+        btnEdit.setToolTipText("Edit users info");
         btnEdit.setEnabled(false);
         btnEdit.addActionListener(this);
         
@@ -189,20 +191,19 @@ public class ManageUsersDialog extends JDialog implements ActionListener, ListSe
         pack();
         this.setMinimumSize(new Dimension(tablewidth, 240));
 	}
-	
+/*	
 	void add()
 	{
-    	AddUserDialog auDlg = new AddUserDialog(GlobalVariablesDB.getFrame());
-    	auDlg.setLocationRelativeTo(this);
-    	if(userDB != null && auDlg.showDialog())
-    	{
-    		int tableRow = userDB.add(this, auDlg.getAddUserReq());
-			if(tableRow > -1)
+		AddUserDialog auDlg = new AddUserDialog(GlobalVariablesDB.getFrame());
+		auDlg.setLocationRelativeTo(this);
+		if(userDB != null && auDlg.showDialog())
+		{
+//  			int tableRow = userDB.add(this, auDlg.getAddUserReq());
+    			ONCUser addedUser =  userDB.add(this, auDlg.getAddUserReq());
+			if(addedUser != null)
 			{
 				dlgTable.clearSelection();
 				dlgTableModel.fireTableDataChanged();
-				dlgTable.scrollRectToVisible(dlgTable.getCellRect(tableRow, 0, true));
-				dlgTable.setRowSelectionInterval(tableRow, tableRow);
 			}
 			else
 			{
@@ -210,7 +211,7 @@ public class ManageUsersDialog extends JDialog implements ActionListener, ListSe
 				JOptionPane.showMessageDialog(this, err_mssg, "Add User Request Failure",
 											JOptionPane.ERROR_MESSAGE, GlobalVariablesDB.getONCLogo());
 			}
-    	}		
+    		}		
 	}
 	
 	void edit()
@@ -225,7 +226,7 @@ public class ManageUsersDialog extends JDialog implements ActionListener, ListSe
 		upDlg.setLocationRelativeTo(this);
 		upDlg.showDialog();
 	}
-
+*/
 	void delete()	//is really reset password 
 	{
 		int viewrow = dlgTable.getSelectedRow();
@@ -234,7 +235,7 @@ public class ManageUsersDialog extends JDialog implements ActionListener, ListSe
 		if(modelrow > -1)
 		{
 			ONCUser reqUpdateUser = new ONCUser(userDB.getUserFromIndex(modelrow));
-			reqUpdateUser.setStatus(UserStatus.Change_PW);
+			reqUpdateUser.setStatus(UserStatus.Reset_PW);
 			
 			//notify the server of the update. When the server sees the reset password
 			//flag set, it will reset the password to a pre-selected password
@@ -243,16 +244,16 @@ public class ManageUsersDialog extends JDialog implements ActionListener, ListSe
 			{
 				String mssg = String.format("Password reset for %s %s",
 						reqUpdateUser.getFirstName(), reqUpdateUser.getLastName()); 
-    			JOptionPane.showMessageDialog(GlobalVariablesDB.getFrame(), mssg, "Paswword Reset",
+    				JOptionPane.showMessageDialog(GlobalVariablesDB.getFrame(), mssg, "Paswword Reset",
 								JOptionPane.INFORMATION_MESSAGE, GlobalVariablesDB.getONCLogo());
 			}
 			else
-    		{
-    			//request failed
-    			String err_mssg = "ONC Server denied reset password request, try again later";
-    			JOptionPane.showMessageDialog(GlobalVariablesDB.getFrame(), err_mssg, "Reset Password Request Failure",
+    			{
+    				//request failed
+    				String err_mssg = "ONC Server denied reset password request, try again later";
+    				JOptionPane.showMessageDialog(GlobalVariablesDB.getFrame(), err_mssg, "Reset Password Request Failure",
 								JOptionPane.ERROR_MESSAGE, GlobalVariablesDB.getONCLogo());
-    		}
+    			}
 		}
 	}
 	
@@ -293,18 +294,19 @@ public class ManageUsersDialog extends JDialog implements ActionListener, ListSe
 	@Override
 	public void valueChanged(ListSelectionEvent lse)
 	{
-		int modelRow = dlgTable.getSelectedRow() == -1 ? -1 : 
-						dlgTable.convertRowIndexToModel(dlgTable.getSelectedRow());
-		
-		if(modelRow > -1)
+		if(!lse.getValueIsAdjusting())
 		{
-			btnEdit.setEnabled(true);	//not implemented yet
-			btnResetPW.setEnabled(true);
-		}
-		else
-		{
-			btnEdit.setEnabled(false);
-			btnResetPW.setEnabled(false);
+			int modelRow = dlgTable.getSelectedRow() == -1 ? -1 : 
+				dlgTable.convertRowIndexToModel(dlgTable.getSelectedRow());
+			
+			btnEdit.setEnabled(modelRow > -1);
+			btnResetPW.setEnabled(modelRow > -1);
+			
+			if(modelRow > -1)
+			{
+				ONCUser user = userDB.getUserFromIndex(modelRow);
+				this.fireEntitySelected(this, EntityType.USER, user, null);
+			}
 		}
 	}
 
@@ -313,11 +315,17 @@ public class ManageUsersDialog extends JDialog implements ActionListener, ListSe
 	{
 		if(e.getSource() == btnAdd)
 		{
-			add();
+			Point location = this.getLocationOnScreen();
+			location.x = location.x + 10;
+			location.y = location.y + 10;
+			DialogManager.getInstance().showEntityDialog("Edit Users",location);
 		}
 		else if(e.getSource() == btnEdit)
 		{
-			edit();
+			Point location = this.getLocationOnScreen();
+			location.x = location.x + 10;
+			location.y = location.y + 10;
+			DialogManager.getInstance().showEntityDialog("Edit Users",location);
 		}
 		else if(e.getSource() == btnResetPW)
 		{
@@ -327,6 +335,12 @@ public class ManageUsersDialog extends JDialog implements ActionListener, ListSe
 		{
 			print("ONC User List");
 		}		
+	}
+	
+	@Override
+	public EnumSet<EntityType> getEntityEventSelectorEntityTypes()
+	{
+		return EnumSet.of(EntityType.USER);
 	}
 	
 	class DialogTableModel extends AbstractTableModel

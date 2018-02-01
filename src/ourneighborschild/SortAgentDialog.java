@@ -3,6 +3,7 @@ package ourneighborschild;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -61,7 +62,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 	private GlobalVariablesDB gvDB;
 	private List<ONCUser> atAL;	//Holds references to agent objects for agent table
 	
-	private AgentInfoDialog aiDlg;
+//	private AgentInfoDialog aiDlg;
 	
 	SortAgentDialog(JFrame pf)
 	{
@@ -174,11 +175,11 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
         //set up the Agent Info Dialog and register it for just Entity Selection Events from this
         //dialog, not from any other. To do that, don't use the Entity Event Manager registration for
         //global entity selection event registration
-    	aiDlg = new AgentInfoDialog(GlobalVariablesDB.getFrame(), true);
-    	this.addEntitySelectionListener(EntityType.AGENT, aiDlg);
+//      aiDlg = new AgentInfoDialog(GlobalVariablesDB.getFrame(), true);
+//    	this.addEntitySelectionListener(EntityType.AGENT, aiDlg);
         
-    	bottomPanel.add(infoPanel, BorderLayout.LINE_START);
-    	bottomPanel.add(cntlPanel, BorderLayout.CENTER);
+    		bottomPanel.add(infoPanel, BorderLayout.LINE_START);
+    		bottomPanel.add(cntlPanel, BorderLayout.CENTER);
     	
         this.add(bottomPanel);
         this.add(familyTableScrollPane);
@@ -1118,12 +1119,18 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		}
 		else if(e.getSource() == btnEditAgentInfo)
 		{
-	    	if(!aiDlg.isVisible())
-	    	{
-	    		aiDlg.display(atAL.get(sortTable.getSelectedRow()));
-	    		aiDlg.setLocationRelativeTo(btnEditAgentInfo);
-	    		aiDlg.showDialog();
-	    	}
+			Point location = this.getLocationOnScreen();
+			location.x = location.x + 10;
+			location.y = location.y + 10;
+			DialogManager.getInstance().showEntityDialog("Edit Users",location);
+/*			
+			if(!aiDlg.isVisible())
+			{
+	    			aiDlg.display(atAL.get(sortTable.getSelectedRow()));
+	    			aiDlg.setLocationRelativeTo(btnEditAgentInfo);
+	    			aiDlg.showDialog();
+	    		}
+*/	    		
 		}
 	}
 
@@ -1192,7 +1199,6 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 			}
 			else	//Agent selected, build new family table associated with the agent
 			{
-//				System.out.println("SortAgtDlg.valueChanged: lse event occurred, agent selected");
 				buildFamilyTableListAndDisplay();
 				btnEditAgentInfo.setEnabled(true);
 			
@@ -1229,13 +1235,13 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		boolean bSortOccurred = true;
 		
 		if(dbField.equals("First Name"))	//Sort on Agent Name
-    		Collections.sort(aAL, new ONCUserFirstNameComparator());
+    			Collections.sort(aAL, new ONCUserFirstNameComparator());
 		else if(dbField.equals("Last Name"))	//Sort on Agent Name
-    		Collections.sort(aAL, new ONCUserLastNameComparator());
-    	else if(dbField.contains("Org"))	// Sort on Agent Organization
-    		Collections.sort(aAL, new ONCUserOrgComparator());
-    	else if (dbField.equals("Title"))	//Sort on Agent Title
-    		Collections.sort(aAL, new ONCUserTitleComparator());
+    			Collections.sort(aAL, new ONCUserLastNameComparator());
+		else if(dbField.contains("Org"))	// Sort on Agent Organization
+    			Collections.sort(aAL, new ONCUserOrgComparator());
+		else if (dbField.equals("Title"))	//Sort on Agent Title
+    			Collections.sort(aAL, new ONCUserTitleComparator());
 		else
 			bSortOccurred = false;
 		

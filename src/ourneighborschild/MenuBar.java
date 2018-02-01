@@ -40,7 +40,7 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 	private JMenu submenuExport, submenuChangeFamilyNumbers, submenuDBYearList;
 	private JMenuItem viewDBMI, sortWishesMI, sortFamiliesMI, sortOrgsMI, recGiftsMI, sortMealsMI;
 	private JMenuItem agentMI, groupMI, manageGroupsMI, orgMI, catMI, barcodeWishHistoryMI, inventoryMI;
-	private JMenuItem aboutONCMI, oncPrefrencesMI, profileMI, userMI, onlineMI, chatMI, changePWMI, stopPollingMI;
+	private JMenuItem aboutONCMI, oncPrefrencesMI, profileMI, editUsersMI, manageUsersMI, onlineMI, chatMI, changePWMI, stopPollingMI;
 	private JMenuItem showServerLogMI, showServerClientIDMI, showCurrDirMI, showWebsiteStatusMI;
 	private List<JMenuItem> dbYearsMIList;
 	
@@ -398,7 +398,7 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 	    distMI.addActionListener(this);
 	    menuDelivery.add(distMI);
 	    	    
-	    //Build About Menu
+	    //Build Tools/Settings Menu
 	    menuSettings = new JMenu("Tools/Settings");
 	    this.add(menuSettings);
 	    
@@ -418,10 +418,17 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 	    oncPrefrencesMI.addActionListener(this);
 	    menuSettings.add(oncPrefrencesMI);
 	    
-	    userMI = new JMenuItem("Manage Users");
-	    userMI.setVisible(false);
-	    userMI.addActionListener(this);
-	    menuSettings.add(userMI);
+	    //Edit Users
+	    editUsersMI = new JMenuItem("Edit Users");
+	    editUsersMI.setActionCommand("Edit Users");
+	    editUsersMI.setEnabled(true);
+	    editUsersMI.addActionListener(this);
+	    menuSettings.add(editUsersMI);
+	    
+	    manageUsersMI = new JMenuItem("Manage Users");
+	    manageUsersMI.setVisible(false);
+	    manageUsersMI.addActionListener(this);
+	    menuSettings.add(manageUsersMI);
 	    
 	    onlineMI = new JMenuItem("Who's Online?");
 	    onlineMI.addActionListener(this);
@@ -549,7 +556,8 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 	{
 		newMI.setVisible(tf);
 		dbStatusMI.setVisible(tf);
-		userMI.setVisible(tf);
+		editUsersMI.setVisible(tf);
+		manageUsersMI.setVisible(tf);
 	}
 	
 	void setEnabledServerConnected(boolean tf)
@@ -666,6 +674,8 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 			dlgManager.showEntityDialog(editVolMI.getActionCommand(), SORT_DIALOG_OFFSET);
 		else if(e.getSource() == editActMI)
 			dlgManager.showEntityDialog(editActMI.getActionCommand(), SORT_DIALOG_OFFSET);
+		else if(e.getSource() == editUsersMI)
+			dlgManager.showEntityDialog(editUsersMI.getActionCommand(), SORT_DIALOG_OFFSET);
 		else if(e.getSource() == manageDelMI)
 			dlgManager.showSortDialog(manageDelMI.getActionCommand(), SORT_DIALOG_OFFSET);
 //		else if(e.getSource() == importVolMI)
@@ -728,7 +738,7 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 		else if(e.getSource() == newChildMI) { dlgManager.onAddNewChildClicked(); }
 		else if(e.getSource() == markAdultMI) { dlgManager.onMarkChildAsAdult(); }
 		else if(e.getSource() == connectChildMI) { dlgManager.showConnectPYChildDialog(); }
-		else if(e.getSource() == userMI) { dlgManager.showUserDialog(); }
+		else if(e.getSource() == manageUsersMI) { dlgManager.showUserDialog(); }
 		else if(e.getSource() == viewSignInLogMI) { dlgManager.showSignInDialog(); }
 		else if(e.getSource() == manageVolMI) { dlgManager.showManageVolDialog(); }
 		else if(e.getSource() == manageActMI) { dlgManager.showManageActDialog(); }

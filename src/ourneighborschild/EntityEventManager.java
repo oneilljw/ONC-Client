@@ -34,7 +34,6 @@ public class EntityEventManager
 		listenerMap = new HashMap<EntityType, List<EntitySelectionListener>>();
 		for(EntityType entityType : EntityType.values())
 			listenerMap.put(entityType, new ArrayList<EntitySelectionListener>());
-		
 	}
 	
 	public static EntityEventManager getInstance()	
@@ -58,7 +57,7 @@ public class EntityEventManager
 		Iterator<EntityType> it = es.getEntityEventSelectorEntityTypes().iterator();
         while(it.hasNext())
         {
-        	EntityType selectorEntityType = it.next();
+        		EntityType selectorEntityType = it.next();
             selectorMap.get(selectorEntityType).add(es);
 		
             //add all currently registered listeners for that entityType to the selector		
@@ -80,10 +79,10 @@ public class EntityEventManager
 		Iterator<EntityType> it = es.getEntityEventSelectorEntityTypes().iterator();
         while(it.hasNext())
         {
-        	EntityType selectorEntityType = it.next();
-        	//remove all currently registered listeners for that entityType to the selector		
+        		EntityType selectorEntityType = it.next();
+        		//remove all currently registered listeners for that entityType to the selector		
             for(EntitySelectionListener esl : listenerMap.get(selectorEntityType))
-            	es.removeEntitySelectionListener(selectorEntityType, esl);
+            		es.removeEntitySelectionListener(selectorEntityType, esl);
         	
             selectorMap.get(selectorEntityType).remove(es);    
         }
@@ -99,12 +98,12 @@ public class EntityEventManager
 		Iterator<EntityType> it = esl.getEntityEventListenerEntityTypes().iterator();
         while(it.hasNext())
         {
-        	EntityType listenerEntityType = it.next();
-        	listenerMap.get(listenerEntityType).add(esl);	//add the listener to the list for that listenerEntityType
+        		EntityType listenerEntityType = it.next();
+        		listenerMap.get(listenerEntityType).add(esl);	//add the listener to the list for that listenerEntityType
 	
-        	//add the listener to all selectors for the entity type
-        	for(EntitySelector es: selectorMap.get(listenerEntityType))
-        		es.addEntitySelectionListener(listenerEntityType, esl);
+        		//add the listener to all selectors for the entity type
+        		for(EntitySelector es: selectorMap.get(listenerEntityType))
+        			es.addEntitySelectionListener(listenerEntityType, esl);
 		}  
 	}
 	
@@ -118,13 +117,13 @@ public class EntityEventManager
 		Iterator<EntityType> it = esl.getEntityEventListenerEntityTypes().iterator();
         while(it.hasNext())
         {
-        	EntityType listenerEntityType = it.next();
-        	//remove the listener to all selectors for the entity type
-        	for(EntitySelector es: selectorMap.get(listenerEntityType))
-        		es.removeEntitySelectionListener(listenerEntityType, esl);
+        		EntityType listenerEntityType = it.next();
+        		//remove the listener to all selectors for the entity type
+        		for(EntitySelector es: selectorMap.get(listenerEntityType))
+        			es.removeEntitySelectionListener(listenerEntityType, esl);
         	
-        	//add the listener to the list for that listenerEntityType
-        	listenerMap.get(listenerEntityType).remove(esl);	
+        		//add the listener to the list for that listenerEntityType
+        		listenerMap.get(listenerEntityType).remove(esl);	
 		}
 	}
 }

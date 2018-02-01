@@ -8,6 +8,10 @@ public class ONCGroup extends ONCEntity
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	
+	public static final int NOT_SHARING = 0;
+	public static final int SHARING = 1;
+	
 	private String name;
 	private GroupType type;
 	private int permission;
