@@ -21,7 +21,6 @@ import javax.swing.DefaultCellEditor;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -57,16 +56,14 @@ public class ManageUsersDialog extends ONCEntityTableDialog implements ActionLis
 	
 	protected JPanel sortCriteriaPanel;
 	
-	private JFrame owner;
 	private ONCTable dlgTable;
 	private AbstractTableModel dlgTableModel;
-	private JButton btnAdd, btnEdit, btnResetPW, btnPrint;
+	private JButton btnEdit, btnResetPW, btnPrint;
 	private UserDB userDB;
 		
 	public ManageUsersDialog(JFrame pf)
 	{
 		super(pf);
-		this.owner = pf;
 		this.setTitle("ONC App & Website Users");
 		
 		//Save the reference to the one wish catalog object in the app. It is created in the 
@@ -164,10 +161,6 @@ public class ManageUsersDialog extends ONCEntityTableDialog implements ActionLis
         btnPrint.setToolTipText("Print the user list");
         btnPrint.addActionListener(this);
         
-        btnAdd = new JButton("Add User");
-        btnAdd.setToolTipText("Add a new user to the data management system");
-        btnAdd.addActionListener(this);
-        
         btnEdit = new JButton("User Profile");
         btnEdit.setToolTipText("Edit users info");
         btnEdit.setEnabled(false);
@@ -178,7 +171,6 @@ public class ManageUsersDialog extends ONCEntityTableDialog implements ActionLis
         btnResetPW.setEnabled(false);
         btnResetPW.addActionListener(this);
           
-        cntlPanel.add(btnAdd);
         cntlPanel.add(btnEdit);
         cntlPanel.add(btnResetPW);
         cntlPanel.add(btnPrint);
@@ -191,42 +183,7 @@ public class ManageUsersDialog extends ONCEntityTableDialog implements ActionLis
         pack();
         this.setMinimumSize(new Dimension(tablewidth, 240));
 	}
-/*	
-	void add()
-	{
-		AddUserDialog auDlg = new AddUserDialog(GlobalVariablesDB.getFrame());
-		auDlg.setLocationRelativeTo(this);
-		if(userDB != null && auDlg.showDialog())
-		{
-//  			int tableRow = userDB.add(this, auDlg.getAddUserReq());
-    			ONCUser addedUser =  userDB.add(this, auDlg.getAddUserReq());
-			if(addedUser != null)
-			{
-				dlgTable.clearSelection();
-				dlgTableModel.fireTableDataChanged();
-			}
-			else
-			{
-				String err_mssg = "Add user request failed, try again later";
-				JOptionPane.showMessageDialog(this, err_mssg, "Add User Request Failure",
-											JOptionPane.ERROR_MESSAGE, GlobalVariablesDB.getONCLogo());
-			}
-    		}		
-	}
-	
-	void edit()
-	{
-		//determine selected user
-		int viewrow = dlgTable.getSelectedRow();
-		int modelrow = dlgTable.convertRowIndexToModel(viewrow);
-		ONCUser currUser = userDB.getUserFromIndex(modelrow);
-		
-		//construct and display a UserProfile Dialog
-		UserProfileDialog upDlg = new UserProfileDialog(owner, currUser, null);
-		upDlg.setLocationRelativeTo(this);
-		upDlg.showDialog();
-	}
-*/
+
 	void delete()	//is really reset password 
 	{
 		int viewrow = dlgTable.getSelectedRow();
@@ -313,14 +270,7 @@ public class ManageUsersDialog extends ONCEntityTableDialog implements ActionLis
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{
-		if(e.getSource() == btnAdd)
-		{
-			Point location = this.getLocationOnScreen();
-			location.x = location.x + 10;
-			location.y = location.y + 10;
-			DialogManager.getInstance().showEntityDialog("Edit Users",location);
-		}
-		else if(e.getSource() == btnEdit)
+		if(e.getSource() == btnEdit)
 		{
 			Point location = this.getLocationOnScreen();
 			location.x = location.x + 10;

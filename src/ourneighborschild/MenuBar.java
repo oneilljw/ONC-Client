@@ -36,8 +36,8 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 	private JMenuItem assignDelMI, manageDelMI, mapsMI, delstatusMI, distMI;
 	private JMenuItem newFamMI, changeONCMI, changeRefMI, changeBatchMI, newChildMI;
 	private JMenuItem delChildMI, markAdultMI, connectChildMI, famHistMI;
-	private JMenu submenuImport, submenuFamilyDataChecks;
-	private JMenu submenuExport, submenuChangeFamilyNumbers, submenuDBYearList;
+	private JMenu submenuImport, submenuFamilyDataChecks, submenuExport, submenuChangeFamilyNumbers;
+	private JMenu submenuDBYearList, submenuUsers;
 	private JMenuItem viewDBMI, sortWishesMI, sortFamiliesMI, sortOrgsMI, recGiftsMI, sortMealsMI;
 	private JMenuItem agentMI, groupMI, manageGroupsMI, orgMI, catMI, barcodeWishHistoryMI, inventoryMI;
 	private JMenuItem aboutONCMI, oncPrefrencesMI, profileMI, editUsersMI, manageUsersMI, onlineMI, chatMI, changePWMI, stopPollingMI;
@@ -418,17 +418,19 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 	    oncPrefrencesMI.addActionListener(this);
 	    menuSettings.add(oncPrefrencesMI);
 	    
+	    submenuUsers = new JMenu("Users");
+	    submenuUsers.setVisible(false);   
+	    menuSettings.add(submenuUsers);
+	    
 	    //Edit Users
 	    editUsersMI = new JMenuItem("Edit Users");
 	    editUsersMI.setActionCommand("Edit Users");
-	    editUsersMI.setEnabled(true);
 	    editUsersMI.addActionListener(this);
-	    menuSettings.add(editUsersMI);
+	    submenuUsers.add(editUsersMI);
 	    
 	    manageUsersMI = new JMenuItem("Manage Users");
-	    manageUsersMI.setVisible(false);
 	    manageUsersMI.addActionListener(this);
-	    menuSettings.add(manageUsersMI);
+	    submenuUsers.add(manageUsersMI);
 	    
 	    onlineMI = new JMenuItem("Who's Online?");
 	    onlineMI.addActionListener(this);
@@ -478,7 +480,7 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
      ****************************************************************************************/
     void addDBYearToSubmenu(DBYear dbYear)
     {	
-    	String zYear = Integer.toString(dbYear.getYear());
+    		String zYear = Integer.toString(dbYear.getYear());
 		
 		JMenuItem mi = new JMenuItem(zYear, GlobalVariablesDB.getInstance().getImageIcon(dbYear.isLocked() ? 
 				DB_LOCKED_IMAGE_INDEX : DB_UNLOCKED_IMAGE_INDEX));
@@ -492,7 +494,7 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 
 	void processDBYears(List<DBYear> dbYears)
     {
-    	//clear the current list
+		//clear the current list
 		submenuDBYearList.removeAll();
     	
 		for(DBYear dbYear:dbYears)
@@ -542,22 +544,21 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 	void setEnabledWishCatalogAndOrgMenuItems(boolean tf)
 	{
 		catMI.setEnabled(tf);	//Once new season created can manage wishes and partners
-		orgMI.setEnabled(tf);	//Or when a file is opened
+		orgMI.setEnabled(tf);	//or when a file is opened
 		sortOrgsMI.setEnabled(tf);
 	}	
 	
-	void setVisibleSpecialImports(boolean tf)	//Only Superuser can perform these functions
+	void setVisibleSpecialImports(boolean tf)	//Only Sys_Admin's can perform these functions
     {
-    	showWebsiteStatusMI.setVisible(true);
-    	stopPollingMI.setVisible(true);
+		submenuUsers.setVisible(tf);
+    		showWebsiteStatusMI.setVisible(true);
+    		stopPollingMI.setVisible(true);
     }
 	
 	void setVisibleAdminFunctions(boolean tf)
 	{
 		newMI.setVisible(tf);
 		dbStatusMI.setVisible(tf);
-		editUsersMI.setVisible(tf);
-		manageUsersMI.setVisible(tf);
 	}
 	
 	void setEnabledServerConnected(boolean tf)

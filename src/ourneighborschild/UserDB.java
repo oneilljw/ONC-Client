@@ -158,7 +158,7 @@ public class UserDB extends ONCSearchableDatabase
 		
 		if(response != null && response.startsWith("UPDATED_USER") && 
 				(processUpdatedObject(source, response.substring(12)) != null))
-			return "UPDATED_USER";
+			return response;
 		else
 			return "UPDATE_FAILED";
 	}

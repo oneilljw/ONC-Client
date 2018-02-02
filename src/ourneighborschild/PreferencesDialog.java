@@ -464,7 +464,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		userPrefs.setFamilyDNSFilter(fdnsFilterDefaultCB.getSelectedIndex());
 		
 		String response = UserDB.getInstance().update(this, updateUserReq);
-		if(!response.equals("UDATED_USER"))
+		if(!response.startsWith("UDATED_USER"))
 		{
 			//we have a failure, display the original preferences
 			display(uPrefs);

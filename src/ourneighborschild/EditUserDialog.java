@@ -49,7 +49,7 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
 	private ONCTable memberTbl, candidateTbl;
 	private MemberTableModel memberTM;
 	private CandidateTableModel candidateTM;
-	private JTextField firstnameTF, lastnameTF, useridTF, orgTF, titleTF, emailTF, phoneTF;
+	private JTextField firstnameTF, lastnameTF, usernameTF, orgTF, titleTF, emailTF, phoneTF;
 	private JLabel lblLastChangedBy, lblDateChanged, lblLogins, lblLastLogin;
 	private JComboBox<UserStatus> statusCB;
     private JComboBox<UserAccess> accessCB;
@@ -75,7 +75,6 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
 		
 		if(userDB != null)
 			userDB.addDatabaseListener(this);
-		
 		
 		//initialize the table lists
 		memberList = new LinkedList<ONCGroup>();
@@ -123,19 +122,21 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
         //set up op2
         orgTF = new JTextField(18);
         orgTF.setBorder(BorderFactory.createTitledBorder("Organization"));
+        orgTF.setToolTipText("What organization does this user belong too?");
         orgTF.addActionListener(dcListener);
         
         titleTF = new JTextField(16);
         titleTF.setBorder(BorderFactory.createTitledBorder("Title"));
+        titleTF.setToolTipText("What job title does this user hold?");
         titleTF.addActionListener(dcListener);
         
         lblLastChangedBy = new JLabel("No one");
-        lblLastChangedBy.setToolTipText("User that last changed group info");
+        lblLastChangedBy.setToolTipText("Who last changed this user's info");
         lblLastChangedBy.setPreferredSize(new Dimension (124, 48));
         lblLastChangedBy.setBorder(BorderFactory.createTitledBorder("Last Changed By"));
         
         lblDateChanged = new JLabel("Never");
-        lblDateChanged.setToolTipText("Timestamp when group info last changed");
+        lblDateChanged.setToolTipText("Timestamp when user info last changed");
         lblDateChanged.setPreferredSize(new Dimension (120, 48));
         lblDateChanged.setBorder(BorderFactory.createTitledBorder("Date Changed"));
         sdf = new SimpleDateFormat("MM/d/yyyy");
@@ -149,34 +150,38 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
         //set up o03
         accessCB = new JComboBox<UserAccess>(UserAccess.values());
         accessCB.setBorder(BorderFactory.createTitledBorder("User Access"));
+        accessCB.setToolTipText("What environments may this user login to?");
         accessCB.addActionListener(dcListener);
  
         permissionCB = new JComboBox<UserPermission>(UserPermission.values());
         permissionCB.setBorder(BorderFactory.createTitledBorder("User Permission"));
+        permissionCB.setToolTipText("What level of data is this user allowed to view/process?");
         permissionCB.addActionListener(dcListener);
         
         statusCB = new JComboBox<UserStatus>(UserStatus.values());
         statusCB.setBorder(BorderFactory.createTitledBorder("User Status"));
+        statusCB.setToolTipText("What status should this user have?");
         statusCB.addActionListener(dcListener);
         
         lblLogins = new JLabel();
-        lblLogins.setToolTipText("User login count");
+        lblLogins.setToolTipText("How many times has this user logged in (all-time)?");
         lblLogins.setPreferredSize(new Dimension (80, 48));
         lblLogins.setBorder(BorderFactory.createTitledBorder("# Logins"));
         lblLogins.setHorizontalAlignment(JLabel.CENTER);
         
         lblLastLogin = new JLabel("Never");
-        lblLastLogin.setToolTipText("Timestamp when user last logged in");
+        lblLastLogin.setToolTipText("When did this user last log in?");
         lblLastLogin.setPreferredSize(new Dimension (120, 48));
         lblLastLogin.setBorder(BorderFactory.createTitledBorder("Last Login"));
         
-        useridTF = new JTextField(20);
-        useridTF.setBorder(BorderFactory.createTitledBorder("User Name"));
-        useridTF.setVisible(false);
+        usernameTF = new JTextField(20);
+        usernameTF.setBorder(BorderFactory.createTitledBorder("User Name"));
+        usernameTF.setToolTipText("What User Name does this user want?");
+        usernameTF.setVisible(false);
 
         ActionListener usernameAndResetListener = new SameAsEmailListener();
         ckBoxSameAsEmail = new JCheckBox("Same as Email?");
-        ckBoxSameAsEmail.setToolTipText("Check to use Email Address as User Name");
+        ckBoxSameAsEmail.setToolTipText("Check to use users email dddress as their User Name");
         ckBoxSameAsEmail.setVisible(false);
         ckBoxSameAsEmail.addActionListener(usernameAndResetListener);
         
@@ -185,7 +190,7 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
         op3.add(statusCB);
         op3.add(lblLogins);
         op3.add(lblLastLogin);
-        op3.add(useridTF);
+        op3.add(usernameTF);
         op3.add(ckBoxSameAsEmail);
         
         //set up panel 4
@@ -216,8 +221,6 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
 			tablewidth += colWidths[col];
 		}
 		tablewidth += 24; 	//count for vertical scroll bar
-		
-		memberTbl.setAutoCreateRowSorter(true);	//add a row sorter
 
 		//set the header color
         JTableHeader anHeader = memberTbl.getTableHeader();
@@ -275,8 +278,6 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
 			tablewidth += posColWidths[col];
 		}
 		tablewidth += 24; 	//account for vertical scroll bar
-		
-		candidateTbl.setAutoCreateRowSorter(true);	//add a row sorter
 
 		//set the table header color
         JTableHeader candidateHeader = candidateTbl.getTableHeader();
@@ -336,7 +337,6 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
 	@Override
 	public void dataChanged(DatabaseEvent dbe)
 	{
-//		System.out.println(dbe.getType());
 		if(dbe.getSource() != this && dbe.getType().equals("UPDATED_USER"))
 		{
 			ONCUser updatedUser = (ONCUser) dbe.getObject1();
@@ -375,8 +375,6 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
 			ONCGroup addedGroup = (ONCGroup) dbe.getObject1();
 			candidateList.add(addedGroup);
 			candidateTM.fireTableDataChanged();
-				
-			setEnabledEditUserGroups(true);
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_GROUP"))
 		{
@@ -396,22 +394,16 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
 				memberList.remove(index);
 				memberList.add(index, updatedGroup);
 				memberTM.fireTableDataChanged();
-			}
-	
-			setEnabledEditUserGroups(true);		
+			}	
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_GROUPS"))
 		{
 			candidateList = groupDB.getList();
 			candidateTM.fireTableDataChanged();
-			
-			setEnabledEditUserGroups(true);
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_USERS"))
 		{
 			display(null);	//will display the first user in the data base, if there is one
-			
-			setEnabledEditUserGroups(true);
 		}
 	}
 
@@ -437,8 +429,6 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
 				update();
 				display(userDB.getObjectAtIndex(nav.getIndex()));
 			}
-			
-			setEnabledEditUserGroups(true);
 		}
 	}
 
@@ -451,52 +441,60 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
 	@Override
 	void update()
 	{
-		//Check to see if user has changed any field, if so, save it
-		ONCUser reqUser;
+		System.out.println(String.format("EditUserDlg.update: adding new:%b, memberListSize = %d",
+				bAddingNewEntity, memberList.size()));
 		
-		if(currUser != null)
-			reqUser = new ONCUser(currUser);	//make a copy for update request
-		else
+		if(currUser != null && !memberList.isEmpty())
 		{
-			//display an error message that update request failed
-			JOptionPane.showMessageDialog(this, "ONC User Dialog Error:," +
-					"No current user","ONC User Dialog Error",  
-					JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
-			return;	//If no current user, should never have gotten an update request
-		}
-		
-		int bCD = 0; //used to indicate a change to the user has been detected	
-		if(!firstnameTF.getText().equals(reqUser.getFirstName())) { reqUser.setFirstName(firstnameTF.getText()); bCD = bCD | 1; }
-		if(!lastnameTF.getText().equals(reqUser.getLastName())) { reqUser.setLastName(lastnameTF.getText()); bCD = bCD | 2; }
-		if(!emailTF.getText().equals(reqUser.getEmail())) { reqUser.setEmail(emailTF.getText()); bCD = bCD | 4; }
-		if(!phoneTF.getText().equals(reqUser.getHomePhone())) { reqUser.setHomePhone(phoneTF.getText()); reqUser.setCellPhone(phoneTF.getText());bCD = bCD | 8; }
-		if(statusCB.getSelectedItem() != reqUser.getStatus()) { reqUser.setStatus((UserStatus)statusCB.getSelectedItem()); bCD = bCD | 16; }
-		if(accessCB.getSelectedItem() != reqUser.getAccess()) { reqUser.setAccess((UserAccess)accessCB.getSelectedItem()); bCD = bCD | 32; }
-		if(permissionCB.getSelectedItem() != reqUser.getPermission()) { reqUser.setPermission((UserPermission)permissionCB.getSelectedItem()); bCD = bCD | 64; }
-		if(memberList.size() != reqUser.getGroupList().size()) { reqUser.setGroupList(getUserGroupList()); bCD = bCD | 128; }
+			ONCUser reqUser = new ONCUser(currUser);	//make a copy for update request
+			int bCD = 0; //used to indicate a change to the user has been detected	
+			if(!firstnameTF.getText().equals(reqUser.getFirstName())) { reqUser.setFirstName(firstnameTF.getText()); bCD = bCD | 1; }
+			if(!lastnameTF.getText().equals(reqUser.getLastName())) { reqUser.setLastName(lastnameTF.getText()); bCD = bCD | 2; }
+			if(!emailTF.getText().equals(reqUser.getEmail())) { reqUser.setEmail(emailTF.getText()); bCD = bCD | 4; }
+			if(!phoneTF.getText().equals(reqUser.getHomePhone())) { reqUser.setHomePhone(phoneTF.getText()); reqUser.setCellPhone(phoneTF.getText());bCD = bCD | 8; }
+			if(statusCB.getSelectedItem() != reqUser.getStatus()) { reqUser.setStatus((UserStatus)statusCB.getSelectedItem()); bCD = bCD | 16; }
+			if(accessCB.getSelectedItem() != reqUser.getAccess()) { reqUser.setAccess((UserAccess)accessCB.getSelectedItem()); bCD = bCD | 32; }
+			if(permissionCB.getSelectedItem() != reqUser.getPermission()) { reqUser.setPermission((UserPermission)permissionCB.getSelectedItem()); bCD = bCD | 64; }
+			if(memberList.size() != reqUser.getGroupList().size()){ reqUser.setGroupList(getUserGroupList()); bCD = bCD | 128; }
 			
-		if(bCD > 0)	//If an update to partner data (not stop light data) was detected
-		{
-//			System.out.println(String.format("EditUserDlg.update: bCD= %d", bCD));
-			reqUser.setChangedBy(userDB.getUserLNFI());
-			
-			String response = userDB.update(this, reqUser);	//notify the database of the change
-			
-			if(response.startsWith("UPDATED_USER"))
+			if(bCD > 0)	//If an update to partner data (not stop light data) was detected
 			{
-				Gson gson = new Gson();
-				ONCUser updatedUser = gson.fromJson(response.substring(12), ONCUser.class);
+//				System.out.println(String.format("EditUserDlg.update: bCD= %d", bCD));
+				reqUser.setChangedBy(userDB.getUserLNFI());
+			
+				String response = userDB.update(this, reqUser);	//notify the database of the change
+			
+				if(response.startsWith("UPDATED_USER"))
+				{
+					Gson gson = new Gson();
+					ONCUser updatedUser = gson.fromJson(response.substring(12), ONCUser.class);
 				
-				display(updatedUser);
+					display(updatedUser);
+				}
+				else
+				{
+					//display an error message that update request failed
+					JOptionPane.showMessageDialog(this, "ONC Server denied User Update," +
+											"try again later","User Update Failed",  
+											JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
+					display(currUser);
+				}
 			}
-			else
-			{
-				//display an error message that update request failed
-				JOptionPane.showMessageDialog(this, "ONC Server denied User Update," +
-						"try again later","User Update Failed",  
-						JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
-				display(currUser);
-			}
+		}
+		else  //currUser is null or memeberList is empty
+		{
+			//display an error message that update request could not be processed
+			String mssg = "Update could not be processed";
+			if(currUser == null)
+				mssg = "No current users, please add a new user.";
+			else if(memberList.isEmpty())
+				mssg = "<html>Each user must be in at least <b>one</b> group at all times!<br>Please add a new group "
+						+ "before removing the last<br>group the user participates in.</html>";
+			
+			JOptionPane.showMessageDialog(this, mssg, "User Dialog Error",  
+										JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
+			
+			display(currUser);
 		}
 	}
 
@@ -509,6 +507,8 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
 			firstnameTF.setText("No Users Yet");	//If no users, display this message
 			nav.btnNextSetEnabled(false);
 			nav.btnPreviousSetEnabled(false);
+			btnAddMember.setEnabled(false);
+			btnRemoveMember.setEnabled(false);
 		}
 		else
 		{
@@ -557,7 +557,7 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
 			}
 			
 			ckBoxSameAsEmail.setSelected(false);
-			useridTF.setText("");
+			usernameTF.setText("");
 			
 			lblLastChangedBy.setText(currUser.getChangedBy());
 			lblDateChanged.setText(sdf.format(currUser.getDateChanged()));
@@ -595,22 +595,12 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
 		lblLogins.setText("");
 		lblLastLogin.setText("");
 		ckBoxSameAsEmail.setSelected(false);
-		useridTF.setText("");
+		usernameTF.setText("");
 		
 		memberList.clear();
 		memberTM.fireTableDataChanged();
 		
 		bIgnoreEvents = false;
-	}
-	
-	void setEnabledEditUserGroups(boolean bEditMembersEnabled)
-	{
-		btnAddMember.setEnabled(false);
-		btnRemoveMember.setEnabled(false);
-		memberTbl.clearSelection();
-		candidateTbl.clearSelection();
-		memberTbl.setRowSelectionAllowed(bEditMembersEnabled);
-		candidateTbl.setRowSelectionAllowed(bEditMembersEnabled);
 	}
 	
 	List<Integer> getUserGroupList()
@@ -620,6 +610,25 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
 			list.add(g.getID());
 		
 		return list;
+	}
+	
+	String isUserInfoCompleteAndValid()
+	{
+		if(firstnameTF.getText().isEmpty() || lastnameTF.getText().isEmpty())
+			return "First Name or Last Name missing.";
+		else if(!(emailTF.getText().contains("@") && emailTF.getText().contains(".")))
+			return "Email is missing or invalid.";
+		else if(!(phoneTF.getText().length() == 10 ||  phoneTF.getText().length() == 12 ||
+					phoneTF.getText().length() == 14))
+			return "Phone is missing or not a valid format";
+		else if(orgTF.getText().isEmpty() || titleTF.getText().isEmpty())
+			return "Organization and/or Title is missing";
+		else if(usernameTF.getText().isEmpty())
+			return "User Name is missing"; 
+		else if(memberList.isEmpty())
+			return "New user must participate in at least one group.";
+		else
+			return "";
 	}
 
 	@Override
@@ -634,9 +643,11 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
 		lblLogins.setVisible(false);
 		lblLastLogin.setVisible(false);
 		ckBoxSameAsEmail.setVisible(true);
-		useridTF.setVisible(true);
-		setEnabledEditUserGroups(false);
+		usernameTF.setVisible(true);
+		memberTbl.clearSelection();
+		candidateTbl.clearSelection();
 		entityPanel.setBackground(Color.CYAN);	//Use color to indicate add org mode vs. review mode
+		btnSave.setEnabled(false);
 		setControlState();
 	}
 
@@ -649,9 +660,10 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
 		lblLogins.setVisible(true);
 		lblLastLogin.setVisible(true);
 		ckBoxSameAsEmail.setVisible(false);
-		useridTF.setVisible(false);
+		usernameTF.setVisible(false);
 		display(currUser);
-		setEnabledEditUserGroups(true);
+		memberTbl.clearSelection();
+		candidateTbl.clearSelection();
 		entityPanel.setBackground(pBkColor);
 		bAddingNewEntity = false;
 		setControlState();
@@ -659,54 +671,61 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
 
 	@Override
 	void onSaveNew() 
-	{
-		//construct a new user
-		List<Integer> newGroupList = new LinkedList<Integer>();
-		for(ONCGroup g : memberList)
-			newGroupList.add(g.getID());
-		Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-		ONCServerUser reqAddUser = new ONCServerUser(0, calendar.getTime(), userDB.getUserLNFI(), 3, 
-				"New user added",
-				userDB.getUserLNFI(), firstnameTF.getText(), lastnameTF.getText(),
-				UserStatus.Change_PW,
-				(UserAccess) accessCB.getSelectedItem(), 
-				(UserPermission) permissionCB.getSelectedItem(),
-				useridTF.getText(), "********", 0,
-				calendar.getTimeInMillis(), true, orgTF.getText(), titleTF.getText(),
-				emailTF.getText(), phoneTF.getText(), newGroupList);
+	{	
+		//construct a new user if all the fields are valid
+		String err_mssg = isUserInfoCompleteAndValid();
+		if(err_mssg.isEmpty())
+		{	
+			Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+			ONCServerUser reqAddUser = new ONCServerUser(0, calendar.getTime(), userDB.getUserLNFI(), 3, 
+					"New user added", userDB.getUserLNFI(), firstnameTF.getText(), lastnameTF.getText(),
+					UserStatus.Change_PW, (UserAccess) accessCB.getSelectedItem(), 
+					(UserPermission) permissionCB.getSelectedItem(), usernameTF.getText(), "********", 0,
+					calendar.getTimeInMillis(), true, orgTF.getText(), titleTF.getText(),
+					emailTF.getText(), phoneTF.getText(), getUserGroupList());
 		
 				
-		//send request to add new group to the local data base
-		ONCUser addedUser = (ONCUser) userDB.add(this, reqAddUser);
+			//send request to add new group to the local data base
+			ONCUser addedUser = (ONCUser) userDB.add(this, reqAddUser);
 				
-		if(addedUser != null)
-		{
-			//set the display index to the newly added user and display the user
-			nav.setIndex(userDB.getListIndexByID(userDB.getList(), addedUser.getID()));
-			display(addedUser);
+			if(addedUser != null)
+			{
+				//set the display index to the newly added user and display the user
+				nav.setIndex(userDB.getListIndexByID(userDB.getList(), addedUser.getID()));
+				display(addedUser);
+			}
+			else
+			{
+				err_mssg = "ONC Server denied add user request, try again later";
+				JOptionPane.showMessageDialog(this, err_mssg, "Add User Request Failure",
+										JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
+				display(currUser);
+			}
+				
+			//reset to review mode and display the proper partner
+			nav.navSetEnabled(true);
+			entityPanel.setBorder(BorderFactory.createTitledBorder("User Information"));
+			entityPanel.setBackground(pBkColor);
+			statusCB.setVisible(true);
+			lblLogins.setVisible(true);
+			lblLastLogin.setVisible(true);
+			ckBoxSameAsEmail.setVisible(false);
+			usernameTF.setVisible(false);
+		
+			memberTbl.clearSelection();
+			candidateTbl.clearSelection();
+			
+			bAddingNewEntity = false;
+			setControlState();
 		}
 		else
 		{
-			String err_mssg = "ONC Server denied add user request, try again later";
-			JOptionPane.showMessageDialog(this, err_mssg, "Add User Request Failure",
-										JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
-			display(currUser);
-		}
-				
-		//reset to review mode and display the proper partner
-		nav.navSetEnabled(true);
-		entityPanel.setBorder(BorderFactory.createTitledBorder("User Information"));
-		entityPanel.setBackground(pBkColor);
-		statusCB.setVisible(true);
-		lblLogins.setVisible(true);
-		lblLastLogin.setVisible(true);
-		ckBoxSameAsEmail.setVisible(false);
-		useridTF.setVisible(false);
-		
-		setEnabledEditUserGroups(true);
-
-		bAddingNewEntity = false;
-		setControlState();
+			String mssg = String.format("<html>Error: <b><i>%s.</i></b><br>"
+							+ "Please correct and try to save again.</html>", err_mssg);
+			
+			JOptionPane.showMessageDialog(this, mssg, "Incomplete or Invalid Info",
+					JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
+		}		
 	}
 
 	@Override
@@ -732,17 +751,16 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
 	@Override
 	public void valueChanged(ListSelectionEvent lse) 
 	{
-		if(lse.getSource() == memberTbl.getSelectionModel() && !bAddingNewEntity)
+		if(lse.getSource() == memberTbl.getSelectionModel())
 		{
-			//a row in the StockSymbol table was selected or de-selected by the user
-			if(memberTbl.getSelectedRow() > -1)	//if a row was selected, enable add of member
+			if(memberTbl.getSelectedRow() > -1)
 			{
 				btnAddMember.setEnabled(false);
 				btnRemoveMember.setEnabled(true);
 				candidateTbl.clearSelection();
 			}
 		}
-		else if(lse.getSource() == candidateTbl.getSelectionModel() && !bAddingNewEntity)
+		else if(lse.getSource() == candidateTbl.getSelectionModel())
 		{
 			//a row in the StockQuote table was selected or de-selected by the user
 			if(candidateTbl.getSelectedRow() > -1)	//if a row was selected, enable removal of member
@@ -765,7 +783,7 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
 //		private static final int STATUS_COL = 2;
 //		private static final int PERMISSION_COL = 3;
 		
-		public String[] columnNames = {"Gropu Name"};
+		public String[] columnNames = {"Group Name"};
 		
 		@Override
 		public String getColumnName(int col) { return columnNames[col]; }
@@ -823,10 +841,9 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
 		@Override
 		public void actionPerformed(ActionEvent e) 
 		{
-			ONCGroup selectedGroup = null;
-			if(e.getSource() == btnAddMember && candidateTbl.getSelectedRow() > -1 && !bAddingNewEntity)
+			if(e.getSource() == btnAddMember && candidateTbl.getSelectedRow() > -1)
 			{
-				selectedGroup = candidateList.get(candidateTbl.getSelectedRow());
+				ONCGroup selectedGroup = candidateList.get(candidateTbl.getSelectedRow());
 				
 				//check to see if user is already in the selected group. If they are, don't add them
 				int index = 0;
@@ -836,19 +853,28 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
 				if(index == memberList.size())
 				{
 					//update the user with the added group
-					update();
+					memberList.add(selectedGroup);
+					btnSave.setEnabled(true);
+					memberTM.fireTableDataChanged();
+					if(!bAddingNewEntity)
+						update();
 				}
-				else
-				{
-					//user is already in group. Clear the selection and disable the button
-					candidateTbl.clearSelection();
-					btnAddMember.setEnabled(false);
-				}
+				
+				candidateTbl.clearSelection();
+				btnAddMember.setEnabled(false);
 			}
-			else if(e.getSource() == btnRemoveMember && memberTbl.getSelectedRow() > -1 && !bAddingNewEntity)
+			else if(e.getSource() == btnRemoveMember && memberTbl.getSelectedRow() > -1)
 			{
-				//update the user, removing the selected group
-				update();
+				ONCGroup selectedGroup = memberList.get(memberTbl.getSelectedRow());
+				memberList.remove(selectedGroup);
+				btnSave.setEnabled(!memberList.isEmpty());
+				memberTM.fireTableDataChanged();
+				
+				memberTbl.clearSelection();
+				btnRemoveMember.setEnabled(false);
+				
+				if(!bAddingNewEntity)
+					update();
 			}
 		}
 	}
@@ -862,7 +888,7 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
 		public void actionPerformed(ActionEvent e)
 		{
 			if(bAddingNewEntity && e.getSource() == ckBoxSameAsEmail)
-				useridTF.setText(ckBoxSameAsEmail.isSelected() ? emailTF.getText() : "");
+				usernameTF.setText(ckBoxSameAsEmail.isSelected() ? emailTF.getText() : "");
 		}
 	}
 }
