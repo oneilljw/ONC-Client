@@ -66,56 +66,56 @@ public class ServerIF
     
     ServerIF(String serverAddress, int port) throws UnknownHostException, IOException, SocketTimeoutException
     {    	
-    	bConnected = false;
-    	timeCommandSent = 0;
-    	timeLastLogWritten = System.currentTimeMillis();
-    	nServerErrorsDetected = 0;
-    	bLogFileA = true;
-    	bDatabaseLoaded = false;
+    		bConnected = false;
+    		timeCommandSent = 0;
+    		timeLastLogWritten = System.currentTimeMillis();
+    		nServerErrorsDetected = 0;
+    		bLogFileA = true;
+    		bDatabaseLoaded = false;
     	
-    	socket = new Socket();
+    		socket = new Socket();
     	
-    	timeCommandSent = System.currentTimeMillis();
+    		timeCommandSent = System.currentTimeMillis();
 //    	time = new Date(timeCommandSent);
     	
 //    	System.out.println("ServerIF Connecting to Server at: " + timeCommandSent);
     	
-    	socket.connect(new InetSocketAddress(serverAddress, port), SOCKET_CREATION_TIMEOUT);
-    	socket.setSoTimeout ( SOCKET_TRANSMISSION_TIMEOUT );
+    		socket.connect(new InetSocketAddress(serverAddress, port), SOCKET_CREATION_TIMEOUT);
+    		socket.setSoTimeout ( SOCKET_TRANSMISSION_TIMEOUT );
 
         if(socket != null)
         {
-        	try 
-        	{
-        		out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()),1); 
+        		try 
+        		{
+        			out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()),1); 
 //        		out = new PrintWriter(socket.getOutputStream(), true);
-        	} 
-        	catch (IOException e1)
-        	{
-        		// TODO Auto-generated catch block
-        		e1.printStackTrace();
-        	}
+        		} 
+        		catch (IOException e1)
+        		{
+        			// TODO Auto-generated catch block
+        			e1.printStackTrace();
+        		}
         
-        	try 
-        	{
-        		//should encrypt the login message
-        		in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        		loginMssg = EncryptionManager.decrypt(in.readLine());
+        		try 
+        		{
+        			//should encrypt the login message
+        			in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        			loginMssg = EncryptionManager.decrypt(in.readLine());
         		
 //        		long timeElapsed = System.currentTimeMillis() - timeCommandSent;
 //        		System.out.println(String.format("ServerIF: Took %d milliseconds to connect to Server", timeElapsed));
 			
-        		if (loginMssg.startsWith("LOGIN"))
-        			bConnected = true;
-        	} 
-        	catch (IOException e1) 
-        	{
-        		// TODO Auto-generated catch block
-        		e1.printStackTrace();
-        	}
+        			if (loginMssg.startsWith("LOGIN"))
+        				bConnected = true;
+        		} 
+        		catch (IOException e1) 
+        		{
+        			// TODO Auto-generated catch block
+        			e1.printStackTrace();
+        		}
         
-        	//Create the polling timer
-        	timer = new Timer(NORMAL_POLLING_RATE, new TimerListener());
+        		//Create the polling timer
+        		timer = new Timer(NORMAL_POLLING_RATE, new TimerListener());
         }
         
         serverLog = new ArrayList<String>();
@@ -125,122 +125,129 @@ public class ServerIF
     
     public synchronized static ServerIF getInstance()
     {
-    	return instance; 
+    		return instance; 
     }
     
     void setEnabledServerPolling(boolean tf)
     {
-    	if(tf)
-    		timer.start();
-    	else
-    		timer.stop();
+    		if(tf)
+    			timer.start();
+    		else
+    			timer.stop();
     }
     
     void setDatabaseLoaded(boolean tf) { bDatabaseLoaded = tf; }
     
     synchronized String sendRequest(String request)
     {
-    	timeCommandSent = System.currentTimeMillis();
+    		timeCommandSent = System.currentTimeMillis();
 
-    	try {
+    		try 
+    		{
 			out.write(request);
 			out.newLine();
-	    	out.flush();
+			out.flush();
 	    	
-	    	if(request.length() > SERVER_LOG_LINE_LENGTH)
-	    		addServerLogItem("Request: " + request.substring(0, SERVER_LOG_LINE_LENGTH-1));
-	    	else
-	    		addServerLogItem("Request: " + request);
+			if(request.length() > SERVER_LOG_LINE_LENGTH)
+	    			addServerLogItem("Request: " + request.substring(0, SERVER_LOG_LINE_LENGTH-1));
+			else
+	    			addServerLogItem("Request: " + request);
 	    		
 		} 
-    	catch (IOException e1) 
-    	{
-    		GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
+    		catch (IOException e1) 
+    		{
+    			GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
     		
-	    	String mssg = String.format("Error sending command<br>%s<br> to ONC Server,<br>netwok connection may be lost." +
+    			String mssg = String.format("Error sending command<br>%s<br> to ONC Server,<br>netwok connection may be lost." +
 	    			"<br>Server errors detected: %d", request, nServerErrorsDetected); 			   		
 	    	
-	    	ONCPopupMessage clientIDPU = new ONCPopupMessage(gvs.getImageIcon(0));
+    			ONCPopupMessage clientIDPU = new ONCPopupMessage(gvs.getImageIcon(0));
 			clientIDPU.setLocationRelativeTo(GlobalVariablesDB.getFrame());
 			clientIDPU.show("ONC Server I/F Exception", mssg);
 	    	
 			e1.printStackTrace();
 		}
     	
-    	String response = null;
+    		String response = null;
     		
-    	try { 
-    		response = in.readLine(); 
-    	}	//Blocks until response received or timeout occurs
-		catch (IOException e) { 
+    		try 
+    		{ 
+    			response = in.readLine(); 
+    		}	//Blocks until response received or timeout occurs
+		catch (IOException e) 
+    		{ 
 			serverConnectionIssue();
 		}
     	
-    	//if the network response time is very slow, notify the user
-    	long elapsedTime = System.currentTimeMillis() - timeCommandSent;
+    		//if the network response time is very slow, notify the user
+    		long elapsedTime = System.currentTimeMillis() - timeCommandSent;
 //    	System.out.println("Elapsed Time: " + elapsedTime);
     	
 		if(elapsedTime > NETWORK_TIME_LIMIT && bDatabaseLoaded)	//Don't show pop-up until local data loaded
 		{
-	    	GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
-	    	String mssg = String.format("Server I/F is slow,<br>last transaction took %d seconds", 
+			GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
+			String mssg = String.format("Server I/F is slow,<br>last transaction took %d seconds", 
 	    									elapsedTime/1000);
 	    	
-	    	ONCPopupMessage clientIDPU = new ONCPopupMessage(gvs.getImageIcon(0));
+			ONCPopupMessage clientIDPU = new ONCPopupMessage(gvs.getImageIcon(0));
 			clientIDPU.setLocationRelativeTo(GlobalVariablesDB.getFrame());
 			clientIDPU.show("ONC Server I/F Notification", mssg);
 		}
 		
-    	if(response == null)
+		if(response == null)
 		{
 			GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
-	    	String mssg = "Server did not respond,<br>netwok connection may be lost"; 			   		
+	    		String mssg = "Server did not respond,<br>netwok connection may be lost"; 			   		
 	    	
-	    	ONCPopupMessage clientIDPU = new ONCPopupMessage(gvs.getImageIcon(0));
+	    		ONCPopupMessage clientIDPU = new ONCPopupMessage(gvs.getImageIcon(0));
 			clientIDPU.setLocationRelativeTo(GlobalVariablesDB.getFrame());
 			clientIDPU.show("ONC Server I/F Exception", mssg);
 			
-	    	response ="ERROR_SERVER_DID_NOT_RESPOND";
-	    	addServerLogItem("Response: " + response);  
+	    		response ="ERROR_SERVER_DID_NOT_RESPOND";
+	    		addServerLogItem("Response: " + response);  
 		}
-    	else
-    	{
-    		if(response.length() > SERVER_LOG_LINE_LENGTH)
-	    		addServerLogItem("Response: " + response.substring(0, SERVER_LOG_LINE_LENGTH-1));
-	    	else
-	    		addServerLogItem("Response: " + response);
-    	}
+		else
+		{
+    			if(response.length() > SERVER_LOG_LINE_LENGTH)
+    				addServerLogItem("Response: " + response.substring(0, SERVER_LOG_LINE_LENGTH-1));
+    			else
+    				addServerLogItem("Response: " + response);
+		}
     	
        	return response;
     }
+    
     void serverConnectionIssue()
     {
-    	//if the server if is not connected, notify the user and exit
-    	GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
-    	String mssg = "<html>Server I/F: Connection with ONC Server lost<br>" +
-    				"all changes have been saved</html>";
+    		//if the server if is not connected, notify the user and exit
+    		GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
+    		String mssg = "<html>Server I/F: Connection with ONC Server lost<br>" +
+    					"all changes have been saved</html>";
         		
-    	JOptionPane.showMessageDialog(GlobalVariablesDB.getFrame(), mssg, "ONC Server Connecton Error", 
+    		JOptionPane.showMessageDialog(GlobalVariablesDB.getFrame(), mssg, "ONC Server Connecton Error", 
     									JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
     	
-    	//need to write server log to disk prior to exit
-    	writeServerLogFile();
+    		//need to write server log to disk prior to exit
+    		writeServerLogFile();
     	
-    	//exit the application
-    	System.exit(0);
+    		//exit the application
+    		System.exit(0);
     }
     
     String getLoginMssg() { return loginMssg; }
     
     void close()
     {
-    	timer.stop();
+    		timer.stop();
     	
-    	writeServerLogFile();
+    		writeServerLogFile();
     	
-    	try {
+    		try
+    		{
 			socket.close();
-		} catch (IOException e) {
+		} 
+    		catch (IOException e) 
+    		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -248,7 +255,7 @@ public class ServerIF
     
     void addServerLogItem(String item)
     {
-    	Calendar timestamp = Calendar.getInstance();
+    		Calendar timestamp = Calendar.getInstance();
 		String line = new SimpleDateFormat("H:mm:ss.SSS").format(timestamp.getTime());
 		serverLog.add(line + " " + item);
 //		LogDialog.add(item, "ServerLog");
@@ -256,7 +263,7 @@ public class ServerIF
     
     void writeServerLogFile()
     {
-    	PrintWriter outputStream = null;
+    		PrintWriter outputStream = null;
         FileWriter fileWriter = null;
         
         String filename = bLogFileA ? LOG_FILE_A : LOG_FILE_B;
@@ -290,7 +297,7 @@ public class ServerIF
     
     void processChanges(String qContentJson)
     {
-    	String[] restrictedResponses = {"UPDATED_GLOBALS",
+    		String[] restrictedResponses = {"UPDATED_GLOBALS",
     						  "USER_ONLINE", "USER_OFFLINE",
     						  "ADDED_FAMILY", "UPDATED_FAMILY",
     						  "ADDED_MEAL","UPDATED_MEAL", "DELETED_MEAL",
@@ -309,98 +316,97 @@ public class ServerIF
     						  "UPDATED_INVENTORY_ITEM", "DELETED_INVENTORY_ITEM",
     						  "UPDATED_WEBSITE_STATUS"};
     	
-    	String[] chatResponses = {"CHAT_REQUESTED", "CHAT_ACCEPTED", "CHAT_MESSAGE", "CHAT_ENDED",  "ADDED_NEW_YEAR"};
+    		String[] chatResponses = {"CHAT_REQUESTED", "CHAT_ACCEPTED", "CHAT_MESSAGE", "CHAT_ENDED",  "ADDED_NEW_YEAR"};
     	
-    	String[] unrestrictedResponses = {"UPDATED_DBYEAR", "ADDED_DBYEAR", "ADDED_USER", "UPDATED_USER",};
+    		String[] unrestrictedResponses = {"UPDATED_DBYEAR", "ADDED_DBYEAR", "ADDED_USER", "UPDATED_USER",};
     	
-    	Gson gson = new Gson();
-    	Type listtype = new TypeToken<ArrayList<String>>(){}.getType();
-    	ArrayList<String> changeList = gson.fromJson(qContentJson, listtype);
+    		Gson gson = new Gson();
+    		Type listtype = new TypeToken<ArrayList<String>>(){}.getType();
+    		ArrayList<String> changeList = gson.fromJson(qContentJson, listtype);
     	
-    	//loop thru list of changes, processing each one
-    	for(String change: changeList)
-    	{
-    		if(change.startsWith("GLOBAL_MESSAGE"))
+    		//loop thru list of changes, processing each one
+    		for(String change: changeList)
     		{
-    			ONCPopupMessage popup = new ONCPopupMessage(GlobalVariablesDB.getONCLogo());
-    			Point loc = GlobalVariablesDB.getFrame().getLocationOnScreen();
-    			popup.setLocation(loc.x+450, loc.y+70);
-    			popup.show("Message from ONC Server", change.substring(14));
-    		}
-    		else if(change.startsWith("CHAT_"))
-    		{
-    			//if a message is a CHAT message, we don't have to wait for the user to load a local data base
-    			//chats can occur prior to the local data base being loaded
-    			int index = 0;
-    			while(index < chatResponses.length && !change.startsWith(chatResponses[index]))
-    				index++;
-    	
-    			if(index < chatResponses.length)
-    				fireDataChanged(chatResponses[index], change.substring(chatResponses[index].length()));
-    		}
-    		else if(change.contains("_DBYEAR") || change.contains("_USER"))
-    		{
-    			int index = 0;
-    			while(index < unrestrictedResponses.length && !change.startsWith(unrestrictedResponses[index]))
-    				index++;
-    	
-    			if(index < unrestrictedResponses.length)
-    				fireDataChanged(unrestrictedResponses[index], change.substring(unrestrictedResponses[index].length()));
-    		
-    		}
-    		else if(bDatabaseLoaded)
-    		{
-    			//all other change processing requires local data bases to be loaded from the server first
-    			//otherwise we run the risk of updating data without a local copy present
-    			int index = 0;
-    			while(index < restrictedResponses.length && !change.startsWith(restrictedResponses[index]))
-    				index++;
-    			
-    			if(index < restrictedResponses.length)
+    			if(change.startsWith("GLOBAL_MESSAGE"))
     			{
-    				String logEntry = String.format("Server IF.processChanges Event: %s, Message: %s",
-    						restrictedResponses[index], change);
-    				LogDialog.add(logEntry, "S");
-    				fireDataChanged(restrictedResponses[index], change.substring(restrictedResponses[index].length()));
+    				ONCPopupMessage popup = new ONCPopupMessage(GlobalVariablesDB.getONCLogo());
+    				Point loc = GlobalVariablesDB.getFrame().getLocationOnScreen();
+    				popup.setLocation(loc.x+450, loc.y+70);
+    				popup.show("Message from ONC Server", change.substring(14));
+    			}
+    			else if(change.startsWith("CHAT_"))
+    			{
+    				//if a message is a CHAT message, we don't have to wait for the user to load a local data base
+    				//chats can occur prior to the local data base being loaded
+    				int index = 0;
+    				while(index < chatResponses.length && !change.startsWith(chatResponses[index]))
+    					index++;
+    	
+    				if(index < chatResponses.length)
+    					fireDataChanged(chatResponses[index], change.substring(chatResponses[index].length()));
+    			}
+    			else if(change.contains("_DBYEAR") || change.contains("_USER"))
+    			{
+    				int index = 0;
+    				while(index < unrestrictedResponses.length && !change.startsWith(unrestrictedResponses[index]))
+    					index++;
+    	
+    				if(index < unrestrictedResponses.length)
+    					fireDataChanged(unrestrictedResponses[index], change.substring(unrestrictedResponses[index].length()));
+    			}
+    			else if(bDatabaseLoaded)
+    			{
+    				//all other change processing requires local data bases to be loaded from the server first
+    				//otherwise we run the risk of updating data without a local copy present
+    				int index = 0;
+    				while(index < restrictedResponses.length && !change.startsWith(restrictedResponses[index]))
+    					index++;
+    			
+    				if(index < restrictedResponses.length)
+    				{
+    					String logEntry = String.format("Server IF.processChanges Event: %s, Message: %s",
+    							restrictedResponses[index], change);
+    					LogDialog.add(logEntry, "S");
+    					fireDataChanged(restrictedResponses[index], change.substring(restrictedResponses[index].length()));
+    				}
     			}
     		}
-    	}
     }
     
     /** Register a listener for server DataChange events */
     synchronized public void addServerListener(ServerListener l)
     {
-    	if (listeners == null)
-    		listeners = new ArrayList<ServerListener>();
-    	listeners.add(l);
+    		if (listeners == null)
+    			listeners = new ArrayList<ServerListener>();
+    		listeners.add(l);
     }  
 
     /** Remove a listener for server DataChange */
     synchronized public void removeServerListener(ServerListener l)
     {
-    	if (listeners == null)
-    		listeners = new ArrayList<ServerListener>();
-    	listeners.remove(l);
+    		if (listeners == null)
+    			listeners = new ArrayList<ServerListener>();
+    		listeners.remove(l);
     }
     
     /** Fire a Data ChangedEvent to all registered listeners */
     @SuppressWarnings("unchecked")
 	protected void fireDataChanged(String event_type, String json)
     {
-    	// if we have no listeners, do nothing...
-    	if (listeners != null && !listeners.isEmpty())
-    	{
-    		// create the event object to send
-    		ServerEvent event = new ServerEvent(this, event_type, json);
+    		// if we have no listeners, do nothing...
+    		if (listeners != null && !listeners.isEmpty())
+    		{
+    			// create the event object to send
+    			ServerEvent event = new ServerEvent(this, event_type, json);
 
-    		// make a copy of the listener list in case anyone adds/removes listeners
-    		ArrayList<ServerListener> targets;
-    		synchronized (this) { targets = (ArrayList<ServerListener>) listeners.clone(); }
+    			// make a copy of the listener list in case anyone adds/removes listeners
+    			ArrayList<ServerListener> targets;
+    			synchronized (this) { targets = (ArrayList<ServerListener>) listeners.clone(); }
 
-    		// walk through the cloned listener list and call the dataChanged method in each
-    		for(ServerListener l:targets)
-    			l.dataChanged(event);
-    	}
+    			// walk through the cloned listener list and call the dataChanged method in each
+    			for(ServerListener l:targets)
+    				l.dataChanged(event);
+    		}
     }
     
     private class TimerListener implements ActionListener
