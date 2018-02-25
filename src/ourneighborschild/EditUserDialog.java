@@ -429,21 +429,26 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
 				update();
 				display(userDB.getObjectAtIndex(nav.getIndex()));
 			}
+			else if(tse.getSource() != nav && tse.getType() == EntityType.FAMILY)
+			{
+				ONCFamily fam = (ONCFamily) tse.getObject1();
+				ONCUser user = userDB.getUser(fam.getAgentID());
+				update();
+				nav.setIndex(userDB.getListIndexByID(userDB.getList(), user.getID()));
+				display(user);
+			}
 		}
 	}
 
 	@Override
 	public EnumSet<EntityType> getEntityEventListenerEntityTypes() 
 	{
-		return EnumSet.of(EntityType.USER, EntityType.AGENT);
+		return EnumSet.of(EntityType.USER, EntityType.AGENT, EntityType.FAMILY);
 	}
 
 	@Override
 	void update()
 	{
-		System.out.println(String.format("EditUserDlg.update: adding new:%b, memberListSize = %d",
-				bAddingNewEntity, memberList.size()));
-		
 		if(currUser != null && !memberList.isEmpty())
 		{
 			ONCUser reqUser = new ONCUser(currUser);	//make a copy for update request

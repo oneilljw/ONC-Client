@@ -13,6 +13,7 @@ import java.io.PrintWriter;
 import java.lang.reflect.Type;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
@@ -167,6 +168,7 @@ public class ServerIF
 	    	
 			e1.printStackTrace();
 		}
+    		
     	
     		String response = null;
     		

@@ -7,6 +7,7 @@ import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -1182,7 +1183,9 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		}
 		else if(e.getSource() == rbAgentInfo)
 		{   
-	        DialogManager.getInstance().showFamilyInfoDialog("Agent");
+			Point currLocation = this.getLocation();
+			currLocation.translate(30, 60);
+	        DialogManager.getInstance().showEntityDialog("Edit Users", currLocation );
 		}
 		else if(e.getSource() == rbFamDetails)
 		{
