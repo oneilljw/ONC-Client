@@ -1,8 +1,11 @@
 package ourneighborschild;
 
+import java.security.SecureRandom;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 
 public class ONCServerUser extends ONCUser 
 {
@@ -10,8 +13,15 @@ public class ONCServerUser extends ONCUser
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	private static final long UNIX_EPOCH = 0L;
+	private static final int RECOVERY_ID_LENGTH = 16;
+	private static final int TEMP_PASSWORD_LENGTH = 8;
+	
 	private String userid;
 	private String password;
+	private int failedLoginCount;
+	private String recoveryID;
+	private long recoveryIDTime;
 	
 	public ONCServerUser(int id, Date today, String chgby, int slpos, String slmssg,
 							String slchgby, String fn, String ln, 
@@ -25,6 +35,9 @@ public class ONCServerUser extends ONCUser
 				 org, title, email, phone, groupList);
 		userid = uid;
 		password = pw;
+		failedLoginCount = 0;
+		recoveryID="";
+		recoveryIDTime = UNIX_EPOCH;
 	}
 	
 	public ONCServerUser(ONCServerUser currUser)	//make a new object copy
@@ -36,6 +49,9 @@ public class ONCServerUser extends ONCUser
 				currUser.organization, currUser.title, currUser.email, currUser.cellPhone, currUser.groupList);
 		userid = currUser.userid;
 		password = currUser.password;
+		failedLoginCount = currUser.failedLoginCount;
+		recoveryID = currUser.recoveryID;
+		recoveryIDTime = currUser.recoveryIDTime;
 	}
 	
 	public ONCServerUser(String[] nextLine, Date date_changed)
@@ -49,6 +65,9 @@ public class ONCServerUser extends ONCUser
 				
 		userid = nextLine[1];
 		password = nextLine[2];
+		failedLoginCount = nextLine[23].isEmpty() ? 0 : Integer.parseInt(nextLine[23]);
+		recoveryID = nextLine[24];
+		recoveryIDTime = nextLine[25].isEmpty() ? UNIX_EPOCH : Long.parseLong(nextLine[25]);
 	}
 	
 	static List<Integer> createGroupList(String delimitedGroups)
@@ -67,9 +86,43 @@ public class ONCServerUser extends ONCUser
 	
 	public String getUserID() { return userid; }
 	public String getUserPW() { return password; }
+	public int getFailedLoginCount() { return failedLoginCount; }
+	public String getRecoveryID() { return recoveryID; }
+	public long getRecoveryIDTime() { return recoveryIDTime; }
 	
 	public void setUserPW(String pw) { password = pw; }
 	public void setUserID(String uid) { userid = uid; }
+	public void setFailedLoginCount(int flc) { failedLoginCount = flc; }
+	
+	private String createRandomString(int length) 
+	{ 
+		char[] characterSet = "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789!".toCharArray();
+		Random random = new SecureRandom();
+		char[] result = new char[length];
+		for (int i = 0; i < result.length; i++) 
+		{
+			// picks a random index out of character set > random character
+		    int randomCharIndex = random.nextInt(characterSet.length);
+		       result[i] = characterSet[randomCharIndex];
+		}
+		
+		return new String(result);
+	}
+	
+	public void createTemporaryPassword()
+	{	
+		this.setStatus(UserStatus.Change_PW);
+		this.setUserPW(createRandomString(TEMP_PASSWORD_LENGTH));
+	}
+
+	public void createRecoveryID()
+	{
+		recoveryID = createRandomString(RECOVERY_ID_LENGTH );
+		
+		//set the creation time
+		Calendar now = Calendar.getInstance();
+		recoveryIDTime = now.getTimeInMillis();
+	}
 	
 	//creates and returns a new ONCUser object from this ONCServerUserObject
 	public ONCUser getUserFromServerUser()
@@ -100,7 +153,10 @@ public class ONCServerUser extends ONCUser
 						organization, title, email, cellPhone, getGroupListAsDelimitedString(),
 						Integer.toString(preferences.getFontSize()), 
 						Integer.toString(preferences.getWishAssigneeFilter()), 
-						Integer.toString(preferences.getFamilyDNSFilter())
+						Integer.toString(preferences.getFamilyDNSFilter()),
+						Integer.toString(failedLoginCount),
+						recoveryID,
+						Long.toString(recoveryIDTime)
 						};
 		return row;
 	}
