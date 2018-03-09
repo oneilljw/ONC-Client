@@ -26,12 +26,14 @@ public class ActivityDB extends ONCSearchableDatabase
 	private static ActivityDB instance = null;
 	private List<VolunteerActivity> activityList;
 	private List<String> categoryList;
+	private List<SignUp> signUpList;
 	
 	private ActivityDB()
 	{
 		super(DB_TYPE);
 		activityList = new ArrayList<VolunteerActivity>();
 		categoryList = new ArrayList<String>();
+		signUpList = new ArrayList<SignUp>();
 	}
 	
 	public static ActivityDB getInstance()
@@ -56,7 +58,11 @@ public class ActivityDB extends ONCSearchableDatabase
 		else if(ue.getType().equals("DELETED_ACTIVITY"))
 		{
 			processDeletedObject(this, ue.getJson());
-		}	
+		}
+		else if(ue.getType().equals("UPDATED_SIGNUPS"))
+		{
+			processUpdatedSignUps(this, ue.getJson());
+		}
 	}
 	
 	VolunteerActivity getActivity(int id)
@@ -188,6 +194,8 @@ public class ActivityDB extends ONCSearchableDatabase
 	@Override
 	List<? extends ONCEntity> getList() { return activityList; }
 	
+	List<SignUp> getSignUpList() { return signUpList; }
+	
 	//implementation of abstract classes
 	VolunteerActivity getObjectAtIndex(int index) { return activityList.get(index); }
 
@@ -230,6 +238,17 @@ public class ActivityDB extends ONCSearchableDatabase
 				fireDataChanged(this, "UPDATED_CATEGORIES", null);
 			}
 		}
+	}
+	
+	void processUpdatedSignUps(Object source, String signUpJson)
+	{
+		Gson gson = new Gson();
+		Type listtype = new TypeToken<ArrayList<SignUp>>(){}.getType();
+		
+		signUpList = gson.fromJson(signUpJson, listtype);
+
+		if(signUpList != null)
+			fireDataChanged(this, "UPDATED_SIGNUPS", null);
 	}
 	
 	String importDatabase()

@@ -430,7 +430,7 @@ public class ActivityDialog extends EntityDialog
 	void onSaveNew()
 	{
 		//construct a new volunteer activity from user input. Comment field is empty	
-		VolunteerActivity newAct = new VolunteerActivity(-1, categoryTF.getText(), nameTF.getText(),
+		VolunteerActivity newAct = new VolunteerActivity(-1, -1, categoryTF.getText(), nameTF.getText(),
 					dateFormatter.format(startDC.getDate()), startTimeTF.getText(),
 					dateFormatter.format(endDC.getDate()), endTimeTF.getText(),
 					locationTF.getText(), descriptionTF.getText(), "", 

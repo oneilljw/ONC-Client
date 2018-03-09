@@ -1,5 +1,6 @@
 package ourneighborschild;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Point;
@@ -9,6 +10,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -20,14 +23,19 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.JTableHeader;
 
 import com.toedter.calendar.JDateChooser;
+
 
 public class PreferencesDialog extends JDialog implements ActionListener, DatabaseListener
 {
@@ -36,11 +44,15 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 	 */
 	private static final long serialVersionUID = 1L;
 	private static final Integer DEFAULT_FONT_SIZE = 13;
+	private static final int PREFERRED_NUMBER_OF_TABLE_ROWS = 12;
 	
 	private GlobalVariablesDB pdGVs;
 	private UserDB userDB;
+	private ActivityDB activityDB;
 	
 	private UserPreferences uPrefs;
+	
+	List<SignUp> signUpList;
 	
 	private JDateChooser dc_today, dc_delivery, dc_seasonstart, dc_giftsreceived;
 	private JDateChooser dc_DecemberCutoff, dc_InfoEditCutoff, dc_ThanksgivingCutoff;
@@ -54,6 +66,8 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 	private JComboBox<Barcode> barcodeCB;
 	private JSpinner averyXOffsetSpinner, averyYOffsetSpinner;
 	private Integer[] fontSizes = {8, 10, 12, 13, 14, 16, 18};
+	private ONCTable signUpTbl;
+	private SignUpTableModel signUpTM;
 	
 	PreferencesDialog(JFrame parentFrame)
 	{
@@ -67,6 +81,12 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		userDB = UserDB.getInstance();
 		if(userDB != null)
 			userDB.addDatabaseListener(this);
+		
+		activityDB = ActivityDB.getInstance();
+		if(activityDB != null)
+			activityDB.addDatabaseListener(this);
+		
+		signUpList = new ArrayList<SignUp>();
 		
 		bIgnoreDialogEvents = false;
 		
@@ -253,11 +273,56 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		
 		tabbedPane.addTab("Ornament Labels", wishlabelPanel);
 		
+		//set up the SignUpGenuis Tab
+		JPanel geniusPanel = new JPanel();
+		geniusPanel.setLayout(new BoxLayout(geniusPanel, BoxLayout.Y_AXIS));
+		JPanel geniusPanelTop = new JPanel();
+		JPanel geniusPanelBottom = new JPanel();
+		
+		//instantiate the signup table model
+		signUpTM = new SignUpTableModel();
+				
+		//set up the member table
+		String[] signUpTblTT = {"SignUp Name", "ID"};
+		signUpTbl = new ONCTable(signUpTM, signUpTblTT, new Color(240,248,255)); 
+
+		signUpTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+				
+		//Set table column widths
+		int tablewidth = 0;
+		int[] colWidths = {240, 96};
+		for(int col=0; col < colWidths.length; col++)
+		{
+			signUpTbl.getColumnModel().getColumn(col).setPreferredWidth(colWidths[col]);
+			tablewidth += colWidths[col];
+		}
+		tablewidth += 24; 	//count for vertical scroll bar
+				
+		signUpTbl.setAutoCreateRowSorter(true);	//add a row sorter
+
+		//set the header color
+		JTableHeader anHeader = signUpTbl.getTableHeader();
+		anHeader.setForeground( Color.black);
+		anHeader.setBackground( new Color(161,202,241));
+		   
+		//Create the scroll pane and add the table to it and set the user tip
+		Dimension tablesize = new Dimension(tablewidth, signUpTbl.getRowHeight() *
+		        										PREFERRED_NUMBER_OF_TABLE_ROWS);
+		signUpTbl.setPreferredScrollableViewportSize(tablesize);
+		JScrollPane signUpScrollPane = new JScrollPane(signUpTbl,
+		JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		signUpScrollPane.setToolTipText("ONC Sign Ups");
+		 
+		//add the table scroll pane to the symbol panel
+		geniusPanel.add(signUpScrollPane);
+				
+		tabbedPane.addTab("SignUp Genius", geniusPanel);
+		
 		//Add the components to the frame pane
         this.getContentPane().add(tabbedPane);
                
         this.pack();
-        this.setMinimumSize(new Dimension(520, 200));
+        this.setMinimumSize(new Dimension(620, 200));
         btnApplyDateChanges.requestFocusInWindow();
 	}
 	
@@ -369,7 +434,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 													  dc_giftsreceived.getDate(),
 													   dc_ThanksgivingCutoff.getDate(),
 													    dc_DecemberCutoff.getDate(),
-													     dc_InfoEditCutoff.getDate());
+													     dc_InfoEditCutoff.getDate(), -1);
 			
 			String response = pdGVs.update(this, updateGVreq);
 			if(!response.startsWith("UPDATED_GLOBALS"))
@@ -496,6 +561,11 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 			wishAssigneeFilterDefaultCB.setEnabled(true);
 			fdnsFilterDefaultCB.setEnabled(true);
 		}
+		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_SIGNUPS"))
+		{
+			signUpList = activityDB.getSignUpList();
+			signUpTM.fireTableDataChanged();
+		}
 	} 
 	
 	private class DateChangeListener implements PropertyChangeListener
@@ -548,4 +618,36 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 			
 		}
 	 }
+	private class SignUpTableModel extends AbstractTableModel
+	{
+		/**
+		* 
+		*/
+		private static final long serialVersionUID = 1L;
+		private static final int TITLE_COL = 0;
+		private static final int ID_COL = 1;
+			
+		public String[] columnNames = {"SignUp Title", "ID"};
+			
+		@Override
+		public String getColumnName(int col) { return columnNames[col]; }
+			
+		@Override
+		public int getColumnCount() { return columnNames.length; }
+
+		@Override
+		public int getRowCount() { return signUpList.size(); }
+
+		@Override
+		public Object getValueAt(int row, int col)
+		{
+			SignUp su = signUpList.get(row);
+			if(col == TITLE_COL)
+				return su.getTitle();
+			else if(col == ID_COL)
+				return su.getSignupid();
+			else
+				return "Error";
+			}
+		}	 
 }

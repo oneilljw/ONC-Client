@@ -501,7 +501,7 @@ public class VolunteerDialog extends EntityDialog
 	void onSaveNew()
 	{
 		//construct a new volunteer from user input	
-		ONCVolunteer newVol = new ONCVolunteer(-1, "N/A", firstnameTF.getText(), lastnameTF.getText(),
+		ONCVolunteer newVol = new ONCVolunteer(-1, -1, "N/A", firstnameTF.getText(), lastnameTF.getText(),
 					emailTF.getText(), streetnumTF.getText(), streetnameTF.getText(), 
 					unitTF.getText(), cityTF.getText(), zipTF.getText(), 
 					hPhoneTF.getText(), cPhoneTF.getText(), "1", "", commentTF.getText(),

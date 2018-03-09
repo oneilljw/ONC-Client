@@ -15,6 +15,7 @@ public class VolunteerActivity extends ONCEntity
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	private int 	   geniusID;
 	private String category;
 	private String name;
 	private String startDate;
@@ -27,12 +28,13 @@ public class VolunteerActivity extends ONCEntity
 	private boolean bOpen;
 	private boolean bEmailReminder;
 	
-	public VolunteerActivity(int id, String category, String name, String startDate, String startTime,
-								String endDate, String endTime, String location, String description,
-								String volComment,
+	public VolunteerActivity(int id, int genisuID, String category, String name, String startDate, 
+								String startTime, String endDate, String endTime, String location, 
+								String description, String volComment,
 								boolean bOpen, boolean bEmailReminder, String username) 
 	{
 		super(id, new Date(), username, 3, "New Activity", username);
+		this.geniusID = geniusID;
 		this.category = category;
 		this.name = name;
 		this.startDate = startDate;
@@ -48,7 +50,9 @@ public class VolunteerActivity extends ONCEntity
 	
 	public VolunteerActivity(VolunteerActivity activity)
 	{
-		super(activity.id, activity.dateChanged.getTimeInMillis(), activity.changedBy, activity.slPos, activity.slMssg, activity.slChangedBy);
+		super(activity.id, activity.dateChanged.getTimeInMillis(), activity.changedBy, activity.slPos,
+				activity.slMssg, activity.slChangedBy);
+		this.geniusID = activity.geniusID;
 		this.category = activity.category;
 		this.name = activity.name;
 		this.startDate = activity.startDate;
@@ -64,25 +68,27 @@ public class VolunteerActivity extends ONCEntity
 	
 	public VolunteerActivity(String[] line)
 	{
-		super(Integer.parseInt(line[0]), Long.parseLong(line[11]), line[12],
-				Integer.parseInt(line[13]), line[14], line[15]);
+		super(Integer.parseInt(line[0]), Long.parseLong(line[12]), line[13],
+				Integer.parseInt(line[14]), line[15], line[16]);
 		
-		this.category = line[1];
-		this.name = line[2];
-		this.startDate = line[3];
-		this.startTime = line[4];
-		this.endDate = line[5];
-		this.endTime = line[6];
-		this.location = line[7];
-		this.description = line[8];
+		this.geniusID = line[1].isEmpty() ? -1 : Integer.parseInt(line[1]);
+		this.category = line[2];
+		this.name = line[3];
+		this.startDate = line[4];
+		this.startTime = line[5];
+		this.endDate = line[6];
+		this.endTime = line[7];
+		this.location = line[8];
+		this.description = line[9];
 		this.volComment = "";
-		this.bOpen = !line[9].isEmpty() && line[9].charAt(0) == 'T' ? true : false;
-		this.bEmailReminder = !line[10].isEmpty() && line[10].charAt(0) == 'T' ? true : false;
+		this.bOpen = !line[10].isEmpty() && line[10].charAt(0) == 'T' ? true : false;
+		this.bEmailReminder = !line[11].isEmpty() && line[11].charAt(0) == 'T' ? true : false;
 		
 //		System.out.println(String.format("VolAct: id %d, start time %s end time %s", id, startTime, endTime));
 	}
 	
 	//getters
+	public int getGeniusID()  { return geniusID; }
 	String getCategory() { return category; }
 	public String getName() { return name; }
 	public String getStartDate() { return startDate; }
@@ -98,6 +104,7 @@ public class VolunteerActivity extends ONCEntity
 	public boolean sendReminder() { return bEmailReminder; }
 	
 	//setters
+	public void setGeniusID(int gID) { this.geniusID = gID; }
 	void setCategory(String category) { this.category = category; }
 	void setName(String name) { this.name = name; }
 	public void setStartDate(String startDate) { this.startDate = startDate; }
@@ -136,24 +143,25 @@ public class VolunteerActivity extends ONCEntity
 	@Override
 	public String[] getExportRow() 
 	{
-		String[] row = new String[16];
+		String[] row = new String[17];
 		
 		row[0] = Integer.toString(id);
-		row[1] = category;
-		row[2] = name;
-		row[3] = startDate;
-		row[4] = startTime;
-		row[5] = endDate;
-		row[6] = endTime;
-		row[7] = location;
-		row[8] = description;
-		row[9] = bOpen ? "T" : "F";
-		row[10] = bEmailReminder ? "T" : "F";
-		row[11] = Long.toString(dateChanged.getTimeInMillis());
-		row[12] = changedBy;
-		row[13] = Integer.toString(slPos);
-		row[14] = slMssg;
-		row[15] = slChangedBy;
+		row[1] = Integer.toString(geniusID);
+		row[2] = category;
+		row[3] = name;
+		row[4] = startDate;
+		row[5] = startTime;
+		row[6] = endDate;
+		row[7] = endTime;
+		row[8] = location;
+		row[9] = description;
+		row[10] = bOpen ? "T" : "F";
+		row[11] = bEmailReminder ? "T" : "F";
+		row[12] = Long.toString(dateChanged.getTimeInMillis());
+		row[13] = changedBy;
+		row[14] = Integer.toString(slPos);
+		row[15] = slMssg;
+		row[16] = slChangedBy;
 		
 		return row;
 	}

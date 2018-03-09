@@ -308,20 +308,20 @@ public class DatabaseManager extends ONCDatabase
      */
     void serverDataLoadComplete(boolean bServerDataLoaded, String year)
     {
-    	if(bServerDataLoaded)
-    	{
-    		//Now that we have season data loaded let the user know that data has been loaded
-    		GlobalVariablesDB.getFrame().setTitle("Our Neighbor's Child - " + year + " Season Data");
+    		if(bServerDataLoaded)
+    		{
+    			//Now that we have season data loaded let the user know that data has been loaded
+    			GlobalVariablesDB.getFrame().setTitle("Our Neighbor's Child - " + year + " Season Data");
 
 			oncWishCat.initializeWishCounts();
 			
 			//check to see if family data is present and enable controls
 			this.fireDataChanged(this, "LOADED_DATABASE", year);
-    	}
+    		}
 
-    	//tell the server interface to pass on server data base changes to local data bases
-    	if(serverIF != null)
-    		serverIF.setDatabaseLoaded(true);	
+    		//tell the server interface to pass on server data base changes to local data bases
+    		if(serverIF != null)
+    			serverIF.setDatabaseLoaded(true);	
     }
     
     @Override
@@ -346,17 +346,17 @@ public class DatabaseManager extends ONCDatabase
      **************************************************************************************************/
     public class ONCServerDBImporter extends SwingWorker<Void, Void>
     {
-    	private static final int NUM_OF_DBs = 15;
-    	String year;
-    	ONCProgressBar pb;
-    	boolean bServerDataLoaded;
+    		private static final int NUM_OF_DBs = 15;
+    		String year;
+    		ONCProgressBar pb;
+    		boolean bServerDataLoaded;
     	
-    	ONCServerDBImporter(int year, ONCProgressBar pb)
-    	{
-    		this.year = Integer.toString(year);;
-    		this.pb = pb;
-    		bServerDataLoaded = false;
-    	}
+    		ONCServerDBImporter(int year, ONCProgressBar pb)
+    		{
+    			this.year = Integer.toString(year);;
+    			this.pb = pb;
+    			bServerDataLoaded = false;
+    		}
     	
 		@Override
 		protected Void doInBackground() throws Exception
@@ -365,11 +365,11 @@ public class DatabaseManager extends ONCDatabase
 			int increment = 100/NUM_OF_DBs;
 			this.setProgress(progress);
 	    	
-	    	//Set the year this client will be working with
-	    	serverIF.sendRequest("POST<setyear>" + year);
+			//Set the year this client will be working with
+			serverIF.sendRequest("POST<setyear>" + year);
 			
 			//import from ONC Server
-	    	pb.updateHeaderText("<html>Loading Regions</html>");
+			pb.updateHeaderText("<html>Loading Regions</html>");
 			oncRegions.getRegionsFromServer();
 			this.setProgress(progress += increment);
 			
@@ -445,7 +445,7 @@ public class DatabaseManager extends ONCDatabase
 	    @Override
 	    public void done()
 	    {
-	    	serverDataLoadComplete(bServerDataLoaded, year);
+	    		serverDataLoadComplete(bServerDataLoaded, year);
 	        Toolkit.getDefaultToolkit().beep();
 	        pb.dispose();
 	    }
