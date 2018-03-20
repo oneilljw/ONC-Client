@@ -11,9 +11,8 @@ public class ServerGVs extends ONCObject
 	private Calendar oncGiftsReceivedDate;
 	private Calendar thanksgivingDeadline, decemberDeadline;
 	private Calendar familyEditDeadline;
-	private int signUpGeniusID;
 	
-	public ServerGVs(Long dd, Long ssd, String wa, Long grd, Long td, Long decd, Long fed, int signUpGeniusID)
+	public ServerGVs(Long dd, Long ssd, String wa, Long grd, Long td, Long decd, Long fed)
 	{
 		super(0); //id is 0 since there is only one instance of server global variables
 		oncDeliveryDate = Calendar.getInstance();
@@ -35,8 +34,6 @@ public class ServerGVs extends ONCObject
 		
 		familyEditDeadline = Calendar.getInstance();
 		familyEditDeadline.setTimeInMillis(fed);
-		
-		this.signUpGeniusID = signUpGeniusID;
 	}
 	
 	public ServerGVs(Date delDate, Date seasonStartDate, String wa, Date giftsreceivedDate,
@@ -62,8 +59,6 @@ public class ServerGVs extends ONCObject
 		
 		this.familyEditDeadline = Calendar.getInstance();
 		this.familyEditDeadline.setTime(familyEditDeadline);
-		
-		this.signUpGeniusID = signUpGeniusID;
 	}
 	
 	//getters
@@ -76,7 +71,6 @@ public class ServerGVs extends ONCObject
 	public Date getThanksgivingDeadline() { return thanksgivingDeadline.getTime(); }
 	public Date getDecemberDeadline() { return decemberDeadline.getTime(); }
 	public Date getFamilyEditDeadline() { return familyEditDeadline.getTime(); }
-	public int getSignUpGeniusID() { return signUpGeniusID; }
 	
 	//setters
 
@@ -91,7 +85,6 @@ public class ServerGVs extends ONCObject
  						Long.toString(thanksgivingDeadline.getTimeInMillis()),
  						Long.toString(decemberDeadline.getTimeInMillis()),
  						Long.toString(familyEditDeadline.getTimeInMillis()),
- 						Integer.toString(signUpGeniusID)
  						};		
 		return row;
 	}

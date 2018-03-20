@@ -1,8 +1,9 @@
 package ourneighborschild;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.GridLayout;
+import java.awt.FlowLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -10,11 +11,12 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.ArrayList;
-import java.util.List;
+import java.sql.Date;
+import java.text.SimpleDateFormat;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -26,13 +28,18 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
+import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
 
 import com.toedter.calendar.JDateChooser;
 
@@ -44,7 +51,12 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 	 */
 	private static final long serialVersionUID = 1L;
 	private static final Integer DEFAULT_FONT_SIZE = 13;
-	private static final int PREFERRED_NUMBER_OF_TABLE_ROWS = 12;
+	private static final int PREFERRED_NUMBER_OF_TABLE_ROWS = 5;
+	
+	private static final int TITLE_COL = 0;
+	private static final int LAST_IMPORT_COL = 1;
+	private static final int EXPIRES_COL = 2;
+	private static final int FREQ_COL = 3;
 	
 	private GlobalVariablesDB pdGVs;
 	private UserDB userDB;
@@ -52,7 +64,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 	
 	private UserPreferences uPrefs;
 	
-	List<SignUp> signUpList;
+	GeniusSignUps geniusSignUps;
 	
 	private JDateChooser dc_today, dc_delivery, dc_seasonstart, dc_giftsreceived;
 	private JDateChooser dc_DecemberCutoff, dc_InfoEditCutoff, dc_ThanksgivingCutoff;
@@ -66,8 +78,12 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 	private JComboBox<Barcode> barcodeCB;
 	private JSpinner averyXOffsetSpinner, averyYOffsetSpinner;
 	private Integer[] fontSizes = {8, 10, 12, 13, 14, 16, 18};
+	
+	private SimpleDateFormat sdf;
+	private JLabel lblLastSignUpImportTime;
 	private ONCTable signUpTbl;
 	private SignUpTableModel signUpTM;
+	private JComboBox<SignUpStatus> importSignUpListCB;
 	
 	PreferencesDialog(JFrame parentFrame)
 	{
@@ -86,15 +102,15 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		if(activityDB != null)
 			activityDB.addDatabaseListener(this);
 		
-		signUpList = new ArrayList<SignUp>();
+		geniusSignUps = new GeniusSignUps();
 		
 		bIgnoreDialogEvents = false;
 		
 		JTabbedPane tabbedPane = new JTabbedPane();
 		
 		//set up personal elf settings tab
-		JPanel elfSettingsPanel = new JPanel();
-		elfSettingsPanel.setLayout(new BoxLayout(elfSettingsPanel, BoxLayout.Y_AXIS));
+		JPanel userSettingsPanel = new JPanel();
+		userSettingsPanel.setLayout(new BoxLayout(userSettingsPanel, BoxLayout.Y_AXIS));
 		
 		JPanel fontPanel = new JPanel();
 		JLabel lblFont = new JLabel("Font Size:");
@@ -125,76 +141,83 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		fdfPanel.add(lblFDF);
 		fdfPanel.add(fdnsFilterDefaultCB);
 		
-		elfSettingsPanel.add(fontPanel);
-		elfSettingsPanel.add(wafdPanel);
-		elfSettingsPanel.add(fdfPanel);
+		userSettingsPanel.add(fontPanel);
+		userSettingsPanel.add(wafdPanel);
+		userSettingsPanel.add(fdfPanel);
 		
-		tabbedPane.addTab("Elf Filters/Font", elfSettingsPanel);
+		tabbedPane.addTab("User Filters/Font", userSettingsPanel);
 		
 		//set up the date tab
 		JPanel dateTab = new JPanel();
 		dateTab.setLayout(new BoxLayout(dateTab, BoxLayout.Y_AXIS));
 		
-		JPanel datePanel = new JPanel();
-		datePanel.setLayout(new GridLayout(3,3));
+		JPanel datePanelTop = new JPanel();
+		datePanelTop.setLayout(new FlowLayout(FlowLayout.LEFT));
+//		datePanel.setLayout(new GridLayout(3,3));
 		DateChangeListener dcl = new DateChangeListener();	//listener for all date changes
 		
-		Dimension dateSize = new Dimension(120, 56);
+		Dimension dateSize = new Dimension(184, 56);
 		dc_today = new JDateChooser(pdGVs.getTodaysDate());
 		dc_today.setPreferredSize(dateSize);
 		dc_today.setBorder(BorderFactory.createTitledBorder("Today's Date"));
 		dc_today.setEnabled(false);
 		dc_today.getDateEditor().addPropertyChangeListener(dcl); 
-		datePanel.add(dc_today);
+		datePanelTop.add(dc_today);
 		
 		dc_seasonstart = new JDateChooser(pdGVs.getSeasonStartDate());
 		dc_seasonstart.setPreferredSize(dateSize);
 		dc_seasonstart.setBorder(BorderFactory.createTitledBorder("Season Start Date"));
 		dc_seasonstart.setEnabled(false);
 		dc_seasonstart.getDateEditor().addPropertyChangeListener(dcl);	
-		datePanel.add(dc_seasonstart);
+		datePanelTop.add(dc_seasonstart);
 		
 		dc_delivery = new JDateChooser(pdGVs.getDeliveryDate());
 		dc_delivery.setPreferredSize(dateSize);
 		dc_delivery.setBorder(BorderFactory.createTitledBorder("Delivery Date"));
 		dc_delivery.setEnabled(false);
 		dc_delivery.getDateEditor().addPropertyChangeListener(dcl);
-		datePanel.add(dc_delivery);
+		datePanelTop.add(dc_delivery);
 		
+		JPanel datePanelMid = new JPanel();
+		datePanelMid.setLayout(new FlowLayout(FlowLayout.LEFT));
 		dc_ThanksgivingCutoff = new JDateChooser();
 		dc_ThanksgivingCutoff.setPreferredSize(dateSize);
 		dc_ThanksgivingCutoff.setBorder(BorderFactory.createTitledBorder("Thanksgiving Deadline"));
 		dc_ThanksgivingCutoff.setEnabled(false);
 		dc_ThanksgivingCutoff.getDateEditor().addPropertyChangeListener(dcl);		
-		datePanel.add(dc_ThanksgivingCutoff);
+		datePanelMid.add(dc_ThanksgivingCutoff);
 		
 		dc_DecemberCutoff = new JDateChooser();
 		dc_DecemberCutoff.setPreferredSize(dateSize);
 		dc_DecemberCutoff.setBorder(BorderFactory.createTitledBorder("December Deadline"));
 		dc_DecemberCutoff.setEnabled(false);
 		dc_DecemberCutoff.getDateEditor().addPropertyChangeListener(dcl);
-		datePanel.add(dc_DecemberCutoff);
+		datePanelMid.add(dc_DecemberCutoff);
 		
 		dc_InfoEditCutoff = new JDateChooser();
 		dc_InfoEditCutoff.setPreferredSize(dateSize);
 		dc_InfoEditCutoff.setBorder(BorderFactory.createTitledBorder("Family Update Deadline"));
 		dc_InfoEditCutoff.setEnabled(false);
 		dc_InfoEditCutoff.getDateEditor().addPropertyChangeListener(dcl);		
-		datePanel.add(dc_InfoEditCutoff);
+		datePanelMid.add(dc_InfoEditCutoff);
 		
+		JPanel datePanelBottom = new JPanel();
+		datePanelBottom.setLayout(new FlowLayout(FlowLayout.LEFT));
 		dc_giftsreceived = new JDateChooser(pdGVs.getGiftsReceivedDate());
 		dc_giftsreceived.setPreferredSize(dateSize);
 		dc_giftsreceived.setToolTipText("<html>All gifts must be received from partners <b><i>BEFORE</i></b> this date</html>");
 		dc_giftsreceived.setBorder(BorderFactory.createTitledBorder("Gifts Received Deadline"));
 		dc_giftsreceived.setEnabled(false);
 		dc_giftsreceived.getDateEditor().addPropertyChangeListener(dcl);		
-		datePanel.add(dc_giftsreceived);
+		datePanelBottom.add(dc_giftsreceived);
 		
 		btnApplyDateChanges = new JButton("Apply Date Changes");
 		btnApplyDateChanges.setEnabled(false);
 		btnApplyDateChanges.addActionListener(this);
 		
-		dateTab.add(datePanel);
+		dateTab.add(datePanelTop);
+		dateTab.add(datePanelMid);
+		dateTab.add(datePanelBottom);
 		dateTab.add(btnApplyDateChanges);
 		
 		tabbedPane.addTab("Season Dates", dateTab);
@@ -276,21 +299,44 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		//set up the SignUpGenuis Tab
 		JPanel geniusPanel = new JPanel();
 		geniusPanel.setLayout(new BoxLayout(geniusPanel, BoxLayout.Y_AXIS));
-		JPanel geniusPanelTop = new JPanel();
-		JPanel geniusPanelBottom = new JPanel();
 		
 		//instantiate the signup table model
 		signUpTM = new SignUpTableModel();
 				
 		//set up the member table
-		String[] signUpTblTT = {"SignUp Name", "ID"};
+		String[] signUpTblTT = {"Name of SignUp", "Time of last import of volunteers from SignUp Genius",
+								"Deadline for volunteers to sign up", 
+								"Frequency the signup will automatically be imported from SignUp Genius"};
+		
 		signUpTbl = new ONCTable(signUpTM, signUpTblTT, new Color(240,248,255)); 
 
 		signUpTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		
+		TableColumn permColumn = signUpTbl.getColumnModel().getColumn(FREQ_COL);
+		permColumn.setCellEditor(new DefaultCellEditor(new JComboBox<Frequency>(Frequency.values())));
+		
+		//set up a cell renderer for the LAST_LOGINS column to display the date 
+		TableCellRenderer tableCellRenderer = new DefaultTableCellRenderer()
+		{
+			private static final long serialVersionUID = 1L;
+			SimpleDateFormat f = new SimpleDateFormat("M/dd/yy H:mm");
+
+		    public Component getTableCellRendererComponent(JTable table, Object value,
+		            boolean isSelected, boolean hasFocus, int row, int column)
+		    { 
+		        if(value instanceof java.util.Date)
+		            value = f.format(value);
+		        
+		        return super.getTableCellRendererComponent(table, value, isSelected,
+		                hasFocus, row, column);
+		    }
+		};
+		signUpTbl.getColumnModel().getColumn(LAST_IMPORT_COL).setCellRenderer(tableCellRenderer);
+		signUpTbl.getColumnModel().getColumn(EXPIRES_COL).setCellRenderer(tableCellRenderer);
 				
 		//Set table column widths
 		int tablewidth = 0;
-		int[] colWidths = {240, 96};
+		int[] colWidths = {256, 88, 88, 48};
 		for(int col=0; col < colWidths.length; col++)
 		{
 			signUpTbl.getColumnModel().getColumn(col).setPreferredWidth(colWidths[col]);
@@ -298,12 +344,17 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		}
 		tablewidth += 24; 	//count for vertical scroll bar
 				
-		signUpTbl.setAutoCreateRowSorter(true);	//add a row sorter
+//		signUpTbl.setAutoCreateRowSorter(true);	//add a row sorter
 
 		//set the header color
 		JTableHeader anHeader = signUpTbl.getTableHeader();
 		anHeader.setForeground( Color.black);
 		anHeader.setBackground( new Color(161,202,241));
+		
+		 //justify columns
+        DefaultTableCellRenderer dtcr = new DefaultTableCellRenderer();
+        dtcr.setHorizontalAlignment(SwingConstants.CENTER);
+        signUpTbl.getColumnModel().getColumn(FREQ_COL).setCellRenderer(dtcr);
 		   
 		//Create the scroll pane and add the table to it and set the user tip
 		Dimension tablesize = new Dimension(tablewidth, signUpTbl.getRowHeight() *
@@ -312,11 +363,25 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		JScrollPane signUpScrollPane = new JScrollPane(signUpTbl,
 		JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		signUpScrollPane.setToolTipText("ONC Sign Ups");
-		 
+		
+		JPanel geniusPanelBottom = new JPanel();
+		
+		importSignUpListCB = new JComboBox<SignUpStatus>(SignUpStatus.values());
+		importSignUpListCB.addActionListener(this);
+		
+		sdf = new SimpleDateFormat("M/d/yy h:mm a");
+		lblLastSignUpImportTime = new JLabel();
+		lblLastSignUpImportTime.setPreferredSize(new Dimension(184, 52));
+		lblLastSignUpImportTime.setBorder(BorderFactory.createTitledBorder("Last Sign Up List Import"));
+		
+		geniusPanelBottom.add(importSignUpListCB);
+		geniusPanelBottom.add(lblLastSignUpImportTime);
+		
 		//add the table scroll pane to the symbol panel
 		geniusPanel.add(signUpScrollPane);
+		geniusPanel.add(geniusPanelBottom);
 				
-		tabbedPane.addTab("SignUp Genius", geniusPanel);
+		tabbedPane.addTab("SignUpGenius", geniusPanel);
 		
 		//Add the components to the frame pane
         this.getContentPane().add(tabbedPane);
@@ -399,6 +464,14 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 			whState = whAddressCityAndState[1];
 			whStateTF.setText(whState);
 		}
+	}
+	
+	void displaySignUpData()
+	{
+		GeniusSignUps geniusSignUps = activityDB.getSignUps();
+		lblLastSignUpImportTime.setText(sdf.format(geniusSignUps.getLastImportTime().getTime()));
+			
+		signUpTM.fireTableDataChanged();
 	}
 	
 	String getWarehouseAddressInGoogleMapsFormat()
@@ -517,6 +590,11 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		{
 			updateUserPreferences();
 		}
+
+		else if(e.getSource().equals(importSignUpListCB) && importSignUpListCB.getSelectedIndex() > 0)
+		{
+			activityDB.requestGeniusSignUps((SignUpStatus) importSignUpListCB.getSelectedItem());
+		}
 	}
 	
 	void updateUserPreferences()
@@ -539,6 +617,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 	@Override
 	public void dataChanged(DatabaseEvent dbe)
 	{
+		System.out.println(String.format("ActDB.dataChanged: event %s", dbe.getType()));
 		if(dbe.getSource() != this && dbe.getType().equals("UPDATED_GLOBALS"))
 		{
 			display(uPrefs);
@@ -561,12 +640,24 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 			wishAssigneeFilterDefaultCB.setEnabled(true);
 			fdnsFilterDefaultCB.setEnabled(true);
 		}
-		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_SIGNUPS"))
+		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_SIGNUPS"))
 		{
-			signUpList = activityDB.getSignUpList();
-			signUpTM.fireTableDataChanged();
+			if(dbe.getObject1() != null)
+			{
+				geniusSignUps = (GeniusSignUps) dbe.getObject1();
+				displaySignUpData();
+			}
 		}
-	} 
+		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_SIGNUP"))
+		{
+			displaySignUpData();
+		}
+		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_GENIUS_SIGNUPS"))
+		{
+			geniusSignUps = (GeniusSignUps) dbe.getObject1();
+			displaySignUpData();
+		}
+	}
 	
 	private class DateChangeListener implements PropertyChangeListener
 	{
@@ -604,7 +695,6 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 	 
 	 private class SpinnerChangeListener implements ChangeListener
 	 {
-
 		@Override
 		public void stateChanged(ChangeEvent ce)
 		{
@@ -615,7 +705,6 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 				
 				pdGVs.setAveryLabelOffset(offset);
 			}
-			
 		}
 	 }
 	private class SignUpTableModel extends AbstractTableModel
@@ -624,10 +713,8 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		* 
 		*/
 		private static final long serialVersionUID = 1L;
-		private static final int TITLE_COL = 0;
-		private static final int ID_COL = 1;
 			
-		public String[] columnNames = {"SignUp Title", "ID"};
+		public String[] columnNames = {"SignUps From SignUpGenius", "Last Import", "Expires", "Frequency"};
 			
 		@Override
 		public String getColumnName(int col) { return columnNames[col]; }
@@ -636,18 +723,62 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		public int getColumnCount() { return columnNames.length; }
 
 		@Override
-		public int getRowCount() { return signUpList.size(); }
+		public int getRowCount() { return geniusSignUps.getSignUpList().size(); }
 
 		@Override
 		public Object getValueAt(int row, int col)
 		{
-			SignUp su = signUpList.get(row);
+			SignUp su = geniusSignUps.getSignUpList().get(row);
 			if(col == TITLE_COL)
 				return su.getTitle();
-			else if(col == ID_COL)
-				return su.getSignupid();
+			else if(col == LAST_IMPORT_COL)
+				return su.getLastImportTime().getTime();
+			else if(col == EXPIRES_COL)
+				return su.getEndTime().getTime();
+			else if(col == FREQ_COL)
+				return su.getFrequency();
 			else
 				return "Error";
-			}
-		}	 
+		}
+		public Class<?> getColumnClass(int column)
+        {
+        		if(column == FREQ_COL)
+        			return Frequency.class;
+        		else if(column == LAST_IMPORT_COL || column == EXPIRES_COL)
+        			return Date.class;
+        		else
+        			return String.class;
+        }
+ 
+        public boolean isCellEditable(int row, int col)
+        {
+        		//frequency can change only if sign-up hasn't expired
+        		return col == FREQ_COL
+ //       	&& System.currentTimeMillis() < geniusSignUps.getSignUpList().get(row).getEndtimeInMillis()
+        		;
+        }
+
+        public void setValueAt(Object value, int row, int col)
+        { 
+        		SignUp signUp = geniusSignUps.getSignUpList().get(row);
+        		
+        		//determine if the user made a change to a user object
+        		if(col == FREQ_COL && signUp.getFrequency() != ((Frequency)value))
+        		{
+        			SignUp reqUpdateSU = new SignUp(signUp);	//make a copy of current signUp
+        			reqUpdateSU.setFrequency((Frequency) value);
+        		
+        			//if the user made a change in the table, attempt to update the signUp object in
+        			//the local user data base
+        			String response = activityDB.updateSignUp(this, reqUpdateSU);        		
+        			if(response == null || (response !=null && !response.startsWith("UPDATED_SIGNUP")))
+        			{
+        				//request failed
+        				String err_mssg = "ONC Server denied update signup request, try again later";
+        				JOptionPane.showMessageDialog(GlobalVariablesDB.getFrame(), err_mssg, "Update SignUp Request Failure",
+													JOptionPane.ERROR_MESSAGE, GlobalVariablesDB.getONCLogo());
+        			}
+        		}
+        }		
+	}
 }

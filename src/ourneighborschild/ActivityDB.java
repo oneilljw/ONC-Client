@@ -26,14 +26,15 @@ public class ActivityDB extends ONCSearchableDatabase
 	private static ActivityDB instance = null;
 	private List<VolunteerActivity> activityList;
 	private List<String> categoryList;
-	private List<SignUp> signUpList;
+//	private List<SignUp> signUpList;
+	private GeniusSignUps geniusSignUps;
 	
 	private ActivityDB()
 	{
 		super(DB_TYPE);
 		activityList = new ArrayList<VolunteerActivity>();
 		categoryList = new ArrayList<String>();
-		signUpList = new ArrayList<SignUp>();
+		geniusSignUps = new GeniusSignUps();
 	}
 	
 	public static ActivityDB getInstance()
@@ -59,9 +60,13 @@ public class ActivityDB extends ONCSearchableDatabase
 		{
 			processDeletedObject(this, ue.getJson());
 		}
-		else if(ue.getType().equals("UPDATED_SIGNUPS"))
+		else if(ue.getType().equals("UPDATED_SIGNUP"))
 		{
-			processUpdatedSignUps(this, ue.getJson());
+			processUpdatedSignUp(this, ue.getJson());
+		}
+		else if(ue.getType().equals("UPDATED_GENIUS_SIGNUPS"))
+		{
+			processUpdatedGeniusSignUps(this, ue.getJson());
 		}
 	}
 	
@@ -194,7 +199,7 @@ public class ActivityDB extends ONCSearchableDatabase
 	@Override
 	List<? extends ONCEntity> getList() { return activityList; }
 	
-	List<SignUp> getSignUpList() { return signUpList; }
+	GeniusSignUps getSignUps() { return geniusSignUps; }
 	
 	//implementation of abstract classes
 	VolunteerActivity getObjectAtIndex(int index) { return activityList.get(index); }
@@ -240,15 +245,47 @@ public class ActivityDB extends ONCSearchableDatabase
 		}
 	}
 	
-	void processUpdatedSignUps(Object source, String signUpJson)
+	void processUpdatedGeniusSignUps(Object source, String signUpsJson)
 	{
 		Gson gson = new Gson();
-		Type listtype = new TypeToken<ArrayList<SignUp>>(){}.getType();
+//		Type listtype = new TypeToken<ArrayList<SignUp>>(){}.getType();
 		
-		signUpList = gson.fromJson(signUpJson, listtype);
+		geniusSignUps = gson.fromJson(signUpsJson, GeniusSignUps.class);
 
-		if(signUpList != null)
-			fireDataChanged(this, "UPDATED_SIGNUPS", null);
+		if(geniusSignUps != null)
+			fireDataChanged(this, "UPDATED_GENIUS_SIGNUPS", geniusSignUps);
+	}
+	
+	String updateSignUp(Object source, SignUp reqUpdateSignUp)
+	{
+		Gson gson = new Gson();
+		String response = "UPDATE_FAILED";
+		
+		response = serverIF.sendRequest("POST<update_signup>" + 
+											gson.toJson(reqUpdateSignUp, SignUp.class));
+		
+		if(response != null && response.startsWith("UPDATED_SIGNUP"))
+			processUpdatedSignUp(source, response.substring(14));
+		
+		return response;
+	}
+	
+	void processUpdatedSignUp(Object source, String signUpJson)
+	{
+		Gson gson = new Gson();
+		SignUp updatedSignUp = gson.fromJson(signUpJson, SignUp.class);
+		
+		//find the signUp in the current list and replace it with the update
+		int index = 0;
+		List<SignUp> signUpList = geniusSignUps.getSignUpList();
+		while(index < signUpList.size() && signUpList.get(index).getSignupid() != updatedSignUp.getSignupid())
+			index++;
+		
+		if(index < signUpList.size())
+			signUpList.set(index, updatedSignUp);
+		
+		if(updatedSignUp != null)
+			fireDataChanged(this, "UPDATED_SIGNUP", updatedSignUp);
 	}
 	
 	String importDatabase()
@@ -261,7 +298,7 @@ public class ActivityDB extends ONCSearchableDatabase
 			Type listtype = new TypeToken<ArrayList<VolunteerActivity>>(){}.getType();
 			
 			response = serverIF.sendRequest("GET<activities>");
-				activityList = gson.fromJson(response, listtype);
+			activityList = gson.fromJson(response, listtype);
 
 			if(!response.startsWith("NO_ACTIVITIES"))
 			{
@@ -275,6 +312,21 @@ public class ActivityDB extends ONCSearchableDatabase
 					
 					fireDataChanged(this, "UPDATED_CATEGORIES", null);
 				}
+			}
+			
+			//import the sign ups
+//			listtype = new TypeToken<ArrayList<SignUp>>(){}.getType();
+			
+			response = serverIF.sendRequest("GET<genius_signups>");
+			if(response != null)
+			{
+				geniusSignUps = gson.fromJson(response, GeniusSignUps.class);
+				
+//				for(SignUp su : geniusSignUps.getSignUpList())
+//					System.out.println(String.format("ActDB.importDB: SignUp Title %s, id= %d, endtime= %d, freq= %s",
+//							su.getTitle(), su.getSignupid(), su.getEndtime(), su.getFrequency()));
+				
+				fireDataChanged(this, "LOADED_SIGNUPS", geniusSignUps);
 			}
 		}
 		
@@ -362,48 +414,53 @@ public class ActivityDB extends ONCSearchableDatabase
 		return index < categoryList.size();
 	}
 	
+	String requestGeniusSignUps(SignUpStatus status)
+	{
+		Gson gson = new Gson();
+		return serverIF.sendRequest("GET<request_signups>"+ gson.toJson(status, SignUpStatus.class));
+	}
 	
 	String exportDBToCSV(JFrame pf, String filename)
     {
 		File oncwritefile = null;
 		
-    	if(filename == null)
-    	{
-    		ONCFileChooser fc = new ONCFileChooser(pf);
-    		oncwritefile= fc.getFile("Select .csv file to save Activity DB to",
+		if(filename == null)
+		{
+    			ONCFileChooser fc = new ONCFileChooser(pf);
+    			oncwritefile= fc.getFile("Select .csv file to save Activity DB to",
 										new FileNameExtensionFilter("CSV Files", "csv"), 1);
-    	}
-    	else
-    		oncwritefile = new File(filename);
+    		}
+    		else
+    			oncwritefile = new File(filename);
     	
-    	if(oncwritefile!= null)
-    	{
-    		//If user types a new filename and doesn't include the .csv, add it
-	    	String filePath = oncwritefile.getPath();		
-	    	if(!filePath.toLowerCase().endsWith(".csv")) 
-	    		oncwritefile = new File(filePath + ".csv");
+		if(oncwritefile!= null)
+		{
+    			//If user types a new filename and doesn't include the .csv, add it
+			String filePath = oncwritefile.getPath();		
+			if(!filePath.toLowerCase().endsWith(".csv")) 
+	    			oncwritefile = new File(filePath + ".csv");
 	    	
-	    	try 
-	    	{
-	    		String[] header = {"ID", "Category" ,"Name", "Start Time", "End Time", 
+	    		try 
+	    		{
+	    			String[] header = {"ID", "Category" ,"Name", "Start Time", "End Time", 
 		 				  			"Location", "Description"};
 	    		
-	    		CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
-	    	    writer.writeNext(header);
+	    			CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
+	    			writer.writeNext(header);
 	    	    
-	    	    for(VolunteerActivity va:activityList)
-	    	    	writer.writeNext(va.getExportRow());	//Get activity data
+	    			for(VolunteerActivity va:activityList)
+	    				writer.writeNext(va.getExportRow());	//Get activity data
 	    	 
-	    	    writer.close();
-	    	    filename = oncwritefile.getName();
+	    			writer.close();
+	    			filename = oncwritefile.getName();
 	    	       	    
-	    	} 
-	    	catch (IOException x)
-	    	{
-	    		System.err.format("IO Exception: %s%n", x);
-	    		JOptionPane.showMessageDialog(pf, oncwritefile.getName() + " could not be saved", 
+	    		} 
+	    		catch (IOException x)
+	    		{
+	    			System.err.format("IO Exception: %s%n", x);
+	    			JOptionPane.showMessageDialog(pf, oncwritefile.getName() + " could not be saved", 
 						"ONC File Save Error", JOptionPane.ERROR_MESSAGE);
-	    	}
+	    		}
 	    }
     	
 	    return filename;

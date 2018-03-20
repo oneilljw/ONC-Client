@@ -36,16 +36,16 @@ public class DatabaseManager extends ONCDatabase
 	private static DatabaseManager instance = null;
 	
 	//Local Data Base Structures
-	private GlobalVariablesDB oncGVs;			//Holds the Global Variables
+	private GlobalVariablesDB oncGVs;		//Holds the Global Variables
 	private UserDB oncUserDB;				//Holds the ONC User, many of which are Agents
 	private FamilyDB oncFamDB;				//Holds ONC Family Database
 	private ChildDB oncChildDB;				//Holds ONC Child database
-	private ChildWishDB oncChildWishDB; 	//Holds ONC Child Wish database
+	private ChildWishDB oncChildWishDB; 		//Holds ONC Child Wish database
 	private GroupDB oncGroupDB;				//Holds ONC Groups
 	private PartnerDB oncOrgDB;				//Holds ONC Partner Organizations
 	private ONCWishCatalog oncWishCat;		//Holds ONC Wish Catalog
 	private WishDetailDB oncWishDetailDB;	//Holds ONC Wish Detail Data Base
-	private ActivityDB oncActDB;			//Holds the Volunteer Activity Data Base
+	private ActivityDB oncActDB;				//Holds the Volunteer Activity Data Base
 	private VolunteerDB oncVolDB;			//Holds the Volunteer Data Base
 	private FamilyHistoryDB oncDelDB;		//Holds the ONC Delivery Data Base
 	private ONCRegions oncRegions;
