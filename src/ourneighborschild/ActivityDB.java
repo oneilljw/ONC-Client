@@ -306,26 +306,17 @@ public class ActivityDB extends ONCSearchableDatabase
 				fireDataChanged(this, "LOADED_ACTIVITIES", null);
 				
 				for(VolunteerActivity va : activityList)
-				{
 					if(!isCategoryInList(va.getCategory()))
 						categoryList.add(va.getCategory());
-					
-					fireDataChanged(this, "UPDATED_CATEGORIES", null);
-				}
+				
+				fireDataChanged(this, "LOADED_CATEGORIES", null);
 			}
 			
 			//import the sign ups
-//			listtype = new TypeToken<ArrayList<SignUp>>(){}.getType();
-			
 			response = serverIF.sendRequest("GET<genius_signups>");
 			if(response != null)
 			{
-				geniusSignUps = gson.fromJson(response, GeniusSignUps.class);
-				
-//				for(SignUp su : geniusSignUps.getSignUpList())
-//					System.out.println(String.format("ActDB.importDB: SignUp Title %s, id= %d, endtime= %d, freq= %s",
-//							su.getTitle(), su.getSignupid(), su.getEndtime(), su.getFrequency()));
-				
+				geniusSignUps = gson.fromJson(response, GeniusSignUps.class);		
 				fireDataChanged(this, "LOADED_SIGNUPS", geniusSignUps);
 			}
 		}
@@ -414,10 +405,9 @@ public class ActivityDB extends ONCSearchableDatabase
 		return index < categoryList.size();
 	}
 	
-	String requestGeniusSignUps(SignUpStatus status)
+	String requestGeniusSignUps()
 	{
-		Gson gson = new Gson();
-		return serverIF.sendRequest("GET<request_signups>"+ gson.toJson(status, SignUpStatus.class));
+		return serverIF.sendRequest("GET<request_signups>");
 	}
 	
 	String exportDBToCSV(JFrame pf, String filename)

@@ -51,7 +51,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 	 */
 	private static final long serialVersionUID = 1L;
 	private static final Integer DEFAULT_FONT_SIZE = 13;
-	private static final int PREFERRED_NUMBER_OF_TABLE_ROWS = 5;
+	private static final int PREFERRED_NUMBER_OF_TABLE_ROWS = 10;
 	
 	private static final int TITLE_COL = 0;
 	private static final int LAST_IMPORT_COL = 1;
@@ -83,7 +83,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 	private JLabel lblLastSignUpImportTime;
 	private ONCTable signUpTbl;
 	private SignUpTableModel signUpTM;
-	private JComboBox<SignUpStatus> importSignUpListCB;
+	private JButton btnImportSignUpList;
 	
 	PreferencesDialog(JFrame parentFrame)
 	{
@@ -222,7 +222,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		
 		tabbedPane.addTab("Season Dates", dateTab);
 		
-		//set up the address tab
+		//set up the warehouse address tab
 		JPanel addressTab = new JPanel();
 		addressTab.setLayout(new BoxLayout(addressTab, BoxLayout.Y_AXIS));
 		addressTab.setBorder(BorderFactory.createTitledBorder("Warehouse Address:"));
@@ -242,7 +242,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		whCityTF.setBorder(BorderFactory.createTitledBorder("City"));
 		whCityTF.addKeyListener(akl);
 		
-		whStateTF = new JTextField(3);
+		whStateTF = new JTextField(4);
 		whStateTF.setBorder(BorderFactory.createTitledBorder("State"));
 		whStateTF.addKeyListener(akl);
 		
@@ -304,9 +304,9 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		signUpTM = new SignUpTableModel();
 				
 		//set up the member table
-		String[] signUpTblTT = {"Name of SignUp", "Time of last import of volunteers from SignUp Genius",
+		String[] signUpTblTT = {"Name of SignUp", "Time volunteers last imported from SignUp Genius",
 								"Deadline for volunteers to sign up", 
-								"Frequency the signup will automatically be imported from SignUp Genius"};
+								"Frequency of automatica import from SignUp Genius"};
 		
 		signUpTbl = new ONCTable(signUpTM, signUpTblTT, new Color(240,248,255)); 
 
@@ -336,7 +336,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 				
 		//Set table column widths
 		int tablewidth = 0;
-		int[] colWidths = {256, 88, 88, 48};
+		int[] colWidths = {256, 88, 88, 64};
 		for(int col=0; col < colWidths.length; col++)
 		{
 			signUpTbl.getColumnModel().getColumn(col).setPreferredWidth(colWidths[col]);
@@ -364,22 +364,28 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		signUpScrollPane.setToolTipText("ONC Sign Ups");
 		
-		JPanel geniusPanelBottom = new JPanel();
-		
-		importSignUpListCB = new JComboBox<SignUpStatus>(SignUpStatus.values());
-		importSignUpListCB.addActionListener(this);
+		JPanel geniusControlPanel = new JPanel();
+		geniusControlPanel.setLayout(new BoxLayout(geniusControlPanel, BoxLayout.X_AXIS));
+		JPanel geniusImportPanel = new JPanel();
+		geniusImportPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+		JPanel geniusBtnPanel = new JPanel();
+		geniusBtnPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
 		
 		sdf = new SimpleDateFormat("M/d/yy h:mm a");
-		lblLastSignUpImportTime = new JLabel();
-		lblLastSignUpImportTime.setPreferredSize(new Dimension(184, 52));
-		lblLastSignUpImportTime.setBorder(BorderFactory.createTitledBorder("Last Sign Up List Import"));
+		lblLastSignUpImportTime = new JLabel("Last Sign Up List Import: Never");
+//		lblLastSignUpImportTime.setPreferredSize(new Dimension(184, 52));
+		geniusImportPanel.add(lblLastSignUpImportTime);
 		
-		geniusPanelBottom.add(importSignUpListCB);
-		geniusPanelBottom.add(lblLastSignUpImportTime);
+		btnImportSignUpList = new JButton("Import List From SignUpGenius");
+		btnImportSignUpList.addActionListener(this);
+		geniusBtnPanel.add(btnImportSignUpList);
+		
+		geniusControlPanel.add(geniusImportPanel);
+		geniusControlPanel.add(geniusBtnPanel);
 		
 		//add the table scroll pane to the symbol panel
 		geniusPanel.add(signUpScrollPane);
-		geniusPanel.add(geniusPanelBottom);
+		geniusPanel.add(geniusControlPanel);
 				
 		tabbedPane.addTab("SignUpGenius", geniusPanel);
 		
@@ -387,7 +393,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
         this.getContentPane().add(tabbedPane);
                
         this.pack();
-        this.setMinimumSize(new Dimension(620, 200));
+//      this.setMinimumSize(new Dimension(560, 160));
         btnApplyDateChanges.requestFocusInWindow();
 	}
 	
@@ -469,7 +475,9 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 	void displaySignUpData()
 	{
 		GeniusSignUps geniusSignUps = activityDB.getSignUps();
-		lblLastSignUpImportTime.setText(sdf.format(geniusSignUps.getLastImportTime().getTime()));
+		String time = String.format("Last Sign Up List Import: %s", 
+				sdf.format(geniusSignUps.getLastImportTime().getTime()));
+		lblLastSignUpImportTime.setText(time);
 			
 		signUpTM.fireTableDataChanged();
 	}
@@ -591,9 +599,9 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 			updateUserPreferences();
 		}
 
-		else if(e.getSource().equals(importSignUpListCB) && importSignUpListCB.getSelectedIndex() > 0)
+		else if(e.getSource().equals(btnImportSignUpList))
 		{
-			activityDB.requestGeniusSignUps((SignUpStatus) importSignUpListCB.getSelectedItem());
+			activityDB.requestGeniusSignUps();
 		}
 	}
 	
@@ -617,7 +625,6 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 	@Override
 	public void dataChanged(DatabaseEvent dbe)
 	{
-		System.out.println(String.format("ActDB.dataChanged: event %s", dbe.getType()));
 		if(dbe.getSource() != this && dbe.getType().equals("UPDATED_GLOBALS"))
 		{
 			display(uPrefs);
@@ -714,7 +721,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		*/
 		private static final long serialVersionUID = 1L;
 			
-		public String[] columnNames = {"SignUps From SignUpGenius", "Last Import", "Expires", "Frequency"};
+		public String[] columnNames = {"List of SignUps From SignUpGenius", "Last Import", "Expires", "Import Freq."};
 			
 		@Override
 		public String getColumnName(int col) { return columnNames[col]; }

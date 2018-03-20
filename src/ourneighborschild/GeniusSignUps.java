@@ -1,7 +1,7 @@
 package ourneighborschild;
 
-import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.LinkedList;
 import java.util.List;
 
 public class GeniusSignUps
@@ -11,7 +11,7 @@ public class GeniusSignUps
 	
 	public GeniusSignUps()
 	{
-		signUpList = new ArrayList<SignUp>();
+		signUpList = new LinkedList<SignUp>();
 		lastSignUpListImportTime = 0;
 	}
 	
@@ -37,5 +37,4 @@ public class GeniusSignUps
 	public void setLastSignUpListImportTime(long time) { this. lastSignUpListImportTime = time; }
 	
 	public void add(SignUp signUp) { signUpList.add(signUp); }
-	public void clear() { signUpList.clear(); }	
 }
