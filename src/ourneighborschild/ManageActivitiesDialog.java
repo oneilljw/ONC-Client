@@ -11,7 +11,10 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -31,6 +34,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 
 import au.com.bytecode.opencsv.CSVWriter;
@@ -49,10 +53,8 @@ public class ManageActivitiesDialog extends ONCEntityTableDialog implements Acti
 
 	private static final int ACT_NAME_COL= 0;
 	private static final int ACT_START_DATE_COL = 1;
-	private static final int ACT_START_TIME_COL = 2;
-	private static final int ACT_END_DATE_COL = 3;
-	private static final int ACT_END_TIME_COL = 4;
-
+	private static final int ACT_END_DATE_COL = 2;
+	
 	private static final int NUM_VOL_TABLE_ROWS = 12;
 	private static final int NUM_ACT_TABLE_ROWS = 15;
 
@@ -120,15 +122,34 @@ public class ManageActivitiesDialog extends ONCEntityTableDialog implements Acti
 
         //create the activity table
       	actTableModel = new ActivityTableModel();
-       	String[] actToolTips = {"Name", "Start Date", "Start Time", "End Date", "End Time"};
+       	String[] actToolTips = {"Name", "Start Date", "End Date"};
       	actTable = new ONCTable(actTableModel, actToolTips, new Color(240,248,255));
 
      	actTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
       	actTable.getSelectionModel().addListSelectionListener(this);
       		
+		//set up a cell renderer for the LAST_LOGINS column to display the date 
+		DefaultTableCellRenderer tableCellRenderer = new DefaultTableCellRenderer()
+		{
+			private static final long serialVersionUID = 1L;
+			SimpleDateFormat f = new SimpleDateFormat("M/dd/yy H:mm");
+
+		    public Component getTableCellRendererComponent(JTable table,Object value,
+		            boolean isSelected, boolean hasFocus, int row, int column)
+		    {
+		        if( value instanceof Date)
+		            value = f.format(value);
+		        
+		        return super.getTableCellRendererComponent(table, value, isSelected,
+		                hasFocus, row, column);
+		    }
+		};
+		actTable.getColumnModel().getColumn(ACT_START_DATE_COL).setCellRenderer(tableCellRenderer);
+		actTable.getColumnModel().getColumn(ACT_END_DATE_COL).setCellRenderer(tableCellRenderer);
+		
       	//Set table column widths
       	int tablewidth = 0;
-      	int[] act_colWidths = {256, 80, 80, 80, 80};
+      	int[] act_colWidths = {400, 192,192};
       	for(int col=0; col < act_colWidths.length; col++)
       	{
       		actTable.getColumnModel().getColumn(col).setPreferredWidth(act_colWidths[col]);
@@ -167,25 +188,7 @@ public class ManageActivitiesDialog extends ONCEntityTableDialog implements Acti
 		volTable = new ONCTable(volTableModel, colToolTips, new Color(240,248,255));
 		volTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		volTable.getSelectionModel().addListSelectionListener(this);
-/*		
-		//set up a cell renderer for the LAST_LOGINS column to display the date 
-		TableCellRenderer tableCellRenderer = new DefaultTableCellRenderer()
-		{
-			private static final long serialVersionUID = 1L;
-			SimpleDateFormat f = new SimpleDateFormat("M/dd/yy H:mm:ss");
 
-		    public Component getTableCellRendererComponent(JTable table,Object value,
-		            boolean isSelected, boolean hasFocus, int row, int column)
-		    {
-		        if( value instanceof Date)
-		            value = f.format(value);
-		        
-		        return super.getTableCellRendererComponent(table, value, isSelected,
-		                hasFocus, row, column);
-		    }
-		};
-		volTable.getColumnModel().getColumn(TIME_COL).setCellRenderer(tableCellRenderer);
-*/		
 		//Set table column widths
 		tablewidth = 0;
 		int[] colWidths = {96, 96, 192, 272};
@@ -541,7 +544,7 @@ public class ManageActivitiesDialog extends ONCEntityTableDialog implements Acti
 		 */
 		private static final long serialVersionUID = 1L;
 		
-		private String[] columnNames = {"Activity Name", "Start Date", "StartTime", "End Date", "End Time"};
+		private String[] columnNames = {"Activity Name", "Start Date", "End Date"};
  
         public int getColumnCount() { return columnNames.length; }
  
@@ -551,27 +554,33 @@ public class ManageActivitiesDialog extends ONCEntityTableDialog implements Acti
  
         public Object getValueAt(int row, int col)
         {
-        	VolunteerActivity act = actTableList.get(row);
+        		VolunteerActivity act = actTableList.get(row);
         	
-        	if(col == ACT_NAME_COL)  
-        		return act.getName();
-        	else if(col == ACT_START_DATE_COL)
-        		return act.getStartDate();
-        	else if(col == ACT_START_TIME_COL)
-        		return act.getStartTime();
-        	else if (col == ACT_END_DATE_COL)
-        		return act.getEndDate();
-        	else if (col == ACT_END_TIME_COL)
-        		return act.getEndTime();
-        	else
-        		return "Error";
+        		if(col == ACT_NAME_COL)  
+        			return act.getName();
+        		else if(col == ACT_START_DATE_COL)
+        			return convertLongToDate(act.getStartDate());
+        		else if (col == ACT_END_DATE_COL)
+        			return  convertLongToDate(act.getEndDate());
+        		else
+        			return "Error";
+        }
+        
+        private Date convertLongToDate(long date)
+        {
+        		Calendar cal = Calendar.getInstance();
+        		cal.setTimeInMillis(date);
+        		return cal.getTime();
         }
         
         //JTable uses this method to determine the default renderer/editor for each cell.
         @Override
         public Class<?> getColumnClass(int column)
         {
-        	return String.class;
+        		if(column == ACT_START_DATE_COL || column == ACT_END_DATE_COL)
+        			return Date.class;
+        		else
+        			return String.class;
         }
  
         public boolean isCellEditable(int row, int col)

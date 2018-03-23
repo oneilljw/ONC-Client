@@ -9,6 +9,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
@@ -226,7 +227,7 @@ public class VolunteerDialog extends EntityDialog
       	TableCellRenderer tableCellRenderer = new DefaultTableCellRenderer()
 		{
 			private static final long serialVersionUID = 1L;
-			SimpleDateFormat f = new SimpleDateFormat("M/dd/yy H:mm:ss");
+			SimpleDateFormat f = new SimpleDateFormat("M/dd/yy H:mm");
 
 		    public Component getTableCellRendererComponent(JTable table,Object value,
 		            boolean isSelected, boolean hasFocus, int row, int column)
@@ -243,7 +244,7 @@ public class VolunteerDialog extends EntityDialog
       		
       	//Set table column widths
       	int tablewidth = 0;
-      	int[] act_colWidths = {56, 240, 128, 128, 240};
+      	int[] act_colWidths = {56, 240, 104, 104, 288};
       	for(int col=0; col < act_colWidths.length; col++)
       	{
       		actTable.getColumnModel().getColumn(col).setPreferredWidth(act_colWidths[col]);
@@ -713,31 +714,40 @@ public class VolunteerDialog extends EntityDialog
  
         public Object getValueAt(int row, int col)
         {
-        	VolunteerActivity act = (VolunteerActivity) activityDB.getList().get(row);
-        	VolunteerActivity volAct = currVolunteer != null ? currVolunteer.getVolunteerActivity(act.getID()) : null;
+        		VolunteerActivity act = (VolunteerActivity) activityDB.getList().get(row);
+        		VolunteerActivity volAct = currVolunteer != null ? currVolunteer.getVolunteerActivity(act.getID()) : null;
         	
-        	if(col == PARTICIPATION_COL)
-        		return volAct != null;
-        	else if(col == ACT_NAME_COL)  
-        		return act.getName();
-        	else if(col == ACT_START_COL)
-        		return act.getStartDate() + " " + act.getStartTime();
-        	else if (col == ACT_END_COL)
-        		return act.getEndDate() + " " + act.getEndTime();
-        	else if (col == ACT_COMMENT_COL)
-        		return volAct != null ? volAct.getComment() : "";
-        	else
-        		return "Error";
+        		if(col == PARTICIPATION_COL)
+        			return volAct != null;
+        		else if(col == ACT_NAME_COL)  
+        			return act.getName();
+        		else if(col == ACT_START_COL)
+        			return convertLongToDate(act.getStartDate());
+        		else if (col == ACT_END_COL)
+        			return convertLongToDate(act.getEndDate());
+        		else if (col == ACT_COMMENT_COL)
+        			return volAct != null ? volAct.getComment() : "";
+        			else
+        				return "Error";
+        }
+        
+        private Date convertLongToDate(long date)
+        {
+        		Calendar cal = Calendar.getInstance();
+        		cal.setTimeInMillis(date);
+        		return cal.getTime();
         }
         
         //JTable uses this method to determine the default renderer/editor for each cell.
         @Override
         public Class<?> getColumnClass(int column)
         {
-        	if(column == PARTICIPATION_COL)
-        		return Boolean.class;
-        	else
-        		return String.class;
+        		if(column == PARTICIPATION_COL)
+        			return Boolean.class;
+        		else if(column == ACT_START_COL || column == ACT_END_COL)
+        			return Date.class;
+        		else
+        			return String.class;
         }
  
         public boolean isCellEditable(int row, int col)

@@ -10,6 +10,7 @@ import java.awt.print.PrinterException;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
@@ -50,9 +51,7 @@ public class ManageVolDialog extends ONCEntityTableDialog implements ActionListe
 	
 	private static final int ACT_NAME_COL= 0;
 	private static final int ACT_START_DATE_COL = 1;
-	private static final int ACT_START_TIME_COL = 2;
-	private static final int ACT_END_DATE_COL = 3;
-	private static final int ACT_END_TIME_COL = 4;
+	private static final int ACT_END_DATE_COL = 2;
 	
 	private static final int NUM_VOL_TABLE_ROWS = 12;
 	private static final int NUM_ACT_TABLE_ROWS = 9;
@@ -141,7 +140,7 @@ public class ManageVolDialog extends ONCEntityTableDialog implements ActionListe
 		TableCellRenderer tableCellRenderer = new DefaultTableCellRenderer()
 		{
 			private static final long serialVersionUID = 1L;
-			SimpleDateFormat f = new SimpleDateFormat("M/dd/yy H:mm:ss");
+			SimpleDateFormat f = new SimpleDateFormat("M/dd/yy H:mm");
 
 		    public Component getTableCellRendererComponent(JTable table,Object value,
 		            boolean isSelected, boolean hasFocus, int row, int column)
@@ -195,16 +194,18 @@ public class ManageVolDialog extends ONCEntityTableDialog implements ActionListe
       	actTableModel = new ActivityTableModel();
       		
       	//create the table
-      	String[] actToolTips = {"Name", "Start Date", "Start Time", "End Date", "End Time"};
+      	String[] actToolTips = {"Name", "Start Date", "End Date"};
       		
       	actTable = new ONCTable(actTableModel, actToolTips, new Color(240,248,255));
 
       	actTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
       	actTable.getSelectionModel().addListSelectionListener(this);
-      		
+      	
+      	actTable.getColumnModel().getColumn(ACT_START_DATE_COL).setCellRenderer(tableCellRenderer);
+      	actTable.getColumnModel().getColumn(ACT_END_DATE_COL).setCellRenderer(tableCellRenderer);
       	//Set table column widths
       	tablewidth = 0;
-      	int[] act_colWidths = {256, 80, 80, 80, 80};
+      	int[] act_colWidths = {400, 192, 192};
       	for(int col=0; col < act_colWidths.length; col++)
       	{
      		actTable.getColumnModel().getColumn(col).setPreferredWidth(act_colWidths[col]);
@@ -227,7 +228,7 @@ public class ManageVolDialog extends ONCEntityTableDialog implements ActionListe
       													JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         actScrollPane.setPreferredSize(new Dimension(tablewidth, actTable.getRowHeight()*NUM_ACT_TABLE_ROWS));
         actScrollPane.setBorder(BorderFactory.createTitledBorder("Selected Volunteer's Activites"));
-//        actScrollPane.setBorder(UIManager.getBorder("Table.scrollPaneBorder"));
+//      actScrollPane.setBorder(UIManager.getBorder("Table.scrollPaneBorder"));
     
         JPanel cntlPanel = new JPanel();
         cntlPanel.setLayout(new BoxLayout(cntlPanel, BoxLayout.X_AXIS));
@@ -472,11 +473,11 @@ public class ManageVolDialog extends ONCEntityTableDialog implements ActionListe
 		}
 		else if(e.getSource() == btnImport)
 		{
-			String loggedInLNFI = UserDB.getInstance().getLoggedInUser().getLNFI();
-			String resultMssg = volDB.importSignUpGeniusVolunteers(GlobalVariablesDB.getFrame(), loggedInLNFI);
-			
-			JOptionPane.showMessageDialog(this, resultMssg, "Sign-Up Genius Import Result", 
-					JOptionPane.INFORMATION_MESSAGE, GlobalVariablesDB.getONCLogo());
+//			String loggedInLNFI = UserDB.getInstance().getLoggedInUser().getLNFI();
+//			String resultMssg = volDB.importSignUpGeniusVolunteers(GlobalVariablesDB.getFrame(), loggedInLNFI);
+//			
+//			JOptionPane.showMessageDialog(this, resultMssg, "Sign-Up Genius Import Result", 
+//					JOptionPane.INFORMATION_MESSAGE, GlobalVariablesDB.getONCLogo());
 		}
 	}
 	
@@ -547,7 +548,7 @@ public class ManageVolDialog extends ONCEntityTableDialog implements ActionListe
 		 */
 		private static final long serialVersionUID = 1L;
 		
-		private String[] columnNames = {"Activity Name", "Start Date", "StartTime", "End Date", "End Time"};
+		private String[] columnNames = {"Activity Name", "Start Date","End Date"};
  
         public int getColumnCount() { return columnNames.length; }
  
@@ -557,33 +558,38 @@ public class ManageVolDialog extends ONCEntityTableDialog implements ActionListe
  
         public Object getValueAt(int row, int col)
         {
-        	VolunteerActivity act = selectedVol.getActivityList().get(row);
+        		VolunteerActivity act = selectedVol.getActivityList().get(row);
         	
-        	if(col == ACT_NAME_COL)  
-        		return act.getName();
-        	else if(col == ACT_START_DATE_COL)
-        		return act.getStartDate();
-        	else if(col == ACT_START_TIME_COL)
-        		return act.getStartTime();
-        	else if (col == ACT_END_DATE_COL)
-        		return act.getEndDate();
-        	else if (col == ACT_END_TIME_COL)
-        		return act.getEndTime();
-        	else
-        		return "Error";
+        		if(col == ACT_NAME_COL)  
+        			return act.getName();
+        		else if(col == ACT_START_DATE_COL)
+        			return convertLongToDate(act.getStartDate());
+        		else if (col == ACT_END_DATE_COL)
+        			return convertLongToDate(act.getEndDate());
+        		else
+        			return "Error";
+        }
+        
+        private Date convertLongToDate(long date)
+        {
+        		Calendar cal = Calendar.getInstance();
+        		cal.setTimeInMillis(date);
+        		return cal.getTime();
         }
         
         //JTable uses this method to determine the default renderer/editor for each cell.
         @Override
         public Class<?> getColumnClass(int column)
         {
-        	return String.class;
+        		if(column == ACT_START_DATE_COL || column == ACT_END_DATE_COL)
+        			return Date.class;
+        		else
+        			return String.class;
         }
  
         public boolean isCellEditable(int row, int col)
         {
-        	//Name, Status, Access and Permission are editable
-        	return false;
+        		return false;
         }
 	}
 }

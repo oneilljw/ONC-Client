@@ -5,11 +5,9 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.EnumSet;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -27,11 +25,10 @@ import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SpinnerDateModel;
 import javax.swing.SwingConstants;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import com.google.gson.Gson;
-import com.toedter.calendar.JDateChooser;
 
 public class ActivityDialog extends EntityDialog 
 {
@@ -49,11 +46,10 @@ public class ActivityDialog extends EntityDialog
 	private JLabel lblActID, lblTimestamp, lblChangedBy, lblVolCount;
 	private JCheckBox openCkBox, reminderCkBox;
     private JTextField categoryTF,nameTF, locationTF, descriptionTF;
-    private JDateChooser startDC, endDC;
     private JSpinner startTimeSpinner, endTimeSpinner;
+    private SpinnerDateModel startModel, endModel;
     private JButton btnSaveTimeChanges;
-    private JTextField startTimeTF, endTimeTF;
-    private SimpleDateFormat dateFormatter;
+    private TimeChangeListener timeChangeListener;
     
     private VolunteerActivity currActivity;	 //reference to the current object displayed
     
@@ -72,8 +68,7 @@ public class ActivityDialog extends EntityDialog
 			volunteerDB.addDatabaseListener(this);
 		
 		currActivity = null;
-		dateFormatter = new SimpleDateFormat("M/d/yy");
-        
+
         //set up the navigation panel at the top of dialog
         nav = new ONCNavPanel(pf, activityDB);
         nav.setDefaultMssg("Our Neighbor's Child Volunteer Activities");
@@ -123,50 +118,37 @@ public class ActivityDialog extends EntityDialog
         
         op2.add(descriptionTF); 
         
-        DateChangeListener dateListener = new DateChangeListener();
-        TimeChangeListener timeListener = new TimeChangeListener();
+        timeChangeListener = new TimeChangeListener();
         ActivityActionListener actActionListener = new ActivityActionListener();
        
         JPanel startTimePanel = new JPanel();
         startTimePanel.setLayout(new BoxLayout(startTimePanel, BoxLayout.X_AXIS));
-        startDC = new JDateChooser(gvs.getTodaysDate());
-        startDC.setMinimumSize(new Dimension(136, 48));
-        startDC.setEnabled(false);
-        startDC.getDateEditor().addPropertyChangeListener(dateListener);
         
-        startTimeSpinner = new JSpinner( new SpinnerDateModel());
-        startTimeSpinner.setMinimumSize(new Dimension(96, 48));
-        JSpinner.DateEditor startTimeEditor = new JSpinner.DateEditor(startTimeSpinner, "h:mm a");
+        startModel = new SpinnerDateModel();
+        startTimeSpinner = new JSpinner( startModel);
+//      startTimeSpinner.setMinimumSize(new Dimension(96, 48));
+        JSpinner.DateEditor startTimeEditor = new JSpinner.DateEditor(startTimeSpinner, "EEE M/dd/yy h:mm a");
         startTimeSpinner.setEditor(startTimeEditor);
-        startTimeTF = startTimeEditor.getTextField();
-        startTimeTF.getDocument().addDocumentListener(timeListener);
-        
-        startTimePanel.setBorder(BorderFactory.createTitledBorder("Start"));
-        startTimePanel.add(startDC);
+
+        startTimePanel.setBorder(BorderFactory.createTitledBorder("Start Date/Time"));
         startTimePanel.add(startTimeSpinner);
         
         JPanel endTimePanel = new JPanel();
         endTimePanel.setLayout(new BoxLayout(endTimePanel, BoxLayout.X_AXIS));
-        endDC = new JDateChooser(gvs.getTodaysDate());
-        endDC.setMinimumSize(new Dimension(136, 48));
-        endDC.setEnabled(false);
-        endDC.getDateEditor().addPropertyChangeListener(dateListener);
-        
-        endTimeSpinner = new JSpinner( new SpinnerDateModel());
-        endTimeSpinner.setMinimumSize(new Dimension(96, 48));
-        JSpinner.DateEditor endTimeEditor = new JSpinner.DateEditor(endTimeSpinner, "h:mm a");
+
+        endModel = new SpinnerDateModel();
+        endTimeSpinner = new JSpinner( endModel);
+//      endTimeSpinner.setMinimumSize(new Dimension(96, 48));
+        JSpinner.DateEditor endTimeEditor = new JSpinner.DateEditor(endTimeSpinner, "EEE M/dd/yy h:mm a");
         endTimeSpinner.setEditor(endTimeEditor);
-        endTimeTF = endTimeEditor.getTextField();
-        endTimeTF.getDocument().addDocumentListener(timeListener);
         
-        endTimePanel.setBorder(BorderFactory.createTitledBorder("End"));
-        endTimePanel.add(endDC);
+        endTimePanel.setBorder(BorderFactory.createTitledBorder("End Date/Time"));
         endTimePanel.add(endTimeSpinner);
         
         btnSaveTimeChanges = new JButton("Save Time Changes");
-    	btnSaveTimeChanges.setToolTipText("Click to save changes made to activity start or end times");
-    	btnSaveTimeChanges.setEnabled(false);
-    	btnSaveTimeChanges.addActionListener(actActionListener);
+        btnSaveTimeChanges.setToolTipText("Click to save changes made to activity start or end times");
+        btnSaveTimeChanges.setEnabled(false);
+    		btnSaveTimeChanges.addActionListener(actActionListener);
 
         op3.add(startTimePanel);
         op3.setBorder(BorderFactory.createTitledBorder("Activity Start & End Dates/Times"));
@@ -213,18 +195,18 @@ public class ActivityDialog extends EntityDialog
         
         //Set up control panel
         btnNew.setText("Add New Activity");
-    	btnNew.setToolTipText("Click to add a new activity");
+        btnNew.setToolTipText("Click to add a new activity");
      
         btnDelete.setText("Delete Activity");
-    	btnDelete.setToolTipText("Click to delete this activity");
+        btnDelete.setToolTipText("Click to delete this activity");
     	
         btnSave.setText("Save New Activity");
-    	btnSave.setToolTipText("Click to save the new activity");
+        btnSave.setToolTipText("Click to save the new activity");
         
         btnCancel.setText("Cancel Add New Activity");
-    	btnCancel.setToolTipText("Click to cancel adding a new activity");
+        btnCancel.setToolTipText("Click to cancel adding a new activity");
 
-    	//add the panels to the content pane
+        //add the panels to the content pane
         contentPane.add(nav);
         contentPane.add(entityPanel);
         contentPane.add(cntlPanel);
@@ -247,12 +229,10 @@ public class ActivityDialog extends EntityDialog
 		if(!nameTF.getText().equals(currActivity.getName())) { reqUpdateAct.setName(nameTF.getText()); bCD = bCD | 2; }
 		if(!locationTF.getText().equals(currActivity.getLocation())) { reqUpdateAct.setLocation(locationTF.getText()); bCD = bCD | 4; }
 		if(!descriptionTF.getText().equals(currActivity.getDescription())) { reqUpdateAct.setDescription(descriptionTF.getText()); bCD = bCD | 8; }
-		if(!dateFormatter.format(startDC.getDate()).equals(currActivity.getStartDate())) { reqUpdateAct.setStartDate(dateFormatter.format(startDC.getDate())); bCD = 16; }
-		if(!startTimeTF.getText().equals(currActivity.getStartTime())) { reqUpdateAct.setStartTime(startTimeTF.getText()); bCD = bCD | 32; }
-		if(!dateFormatter.format(endDC.getDate()).equals(currActivity.getEndDate())) { reqUpdateAct.setEndDate(dateFormatter.format(startDC.getDate())); bCD = 16; }
-		if(!endTimeTF.getText().equals(currActivity.getEndTime())) { reqUpdateAct.setEndTime(endTimeTF.getText()); bCD = bCD | 128; }
-		if(openCkBox.isSelected() != currActivity.isOpen()) { reqUpdateAct.setOpen(openCkBox.isSelected()); bCD = bCD | 256; }
-		if(reminderCkBox.isSelected() != currActivity.sendReminder()) { reqUpdateAct.setReminder(reminderCkBox.isSelected()); bCD = bCD | 512; }
+		if(getSpinnerTimeInMillis(startModel) != currActivity.getStartDate()) { reqUpdateAct.setStartDate(getSpinnerTimeInMillis(startModel)); bCD = bCD | 16; }
+		if(getSpinnerTimeInMillis(endModel) != currActivity.getEndDate()) { reqUpdateAct.setEndDate(getSpinnerTimeInMillis(endModel)); bCD = bCD | 32; }
+		if(openCkBox.isSelected() != currActivity.isOpen()) { reqUpdateAct.setOpen(openCkBox.isSelected()); bCD = bCD | 64; }
+		if(reminderCkBox.isSelected() != currActivity.sendReminder()) { reqUpdateAct.setReminder(reminderCkBox.isSelected()); bCD = bCD | 128; }
 		
 		if(bCD > 0)	//If an update to organization data (not stop light data) was detected
 		{
@@ -263,22 +243,21 @@ public class ActivityDialog extends EntityDialog
 			String response = activityDB.update(this, reqUpdateAct);
 			
 			if(response.startsWith("UPDATED_ACTIVITY"))
-			{
 				display(reqUpdateAct);
-				btnSaveTimeChanges.setEnabled(false);
-			}
 			else
-			{
 				//display an error message that update request failed
 				JOptionPane.showMessageDialog(this, "ONC Server denied activity update," +
 						"try again later","Activity Update Failed",  
 						JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
-			}
 		}
 	}
 	
 	void display(ONCEntity activity)
 	{	
+		startModel.removeChangeListener(timeChangeListener);
+		endModel.removeChangeListener(timeChangeListener);
+		btnSaveTimeChanges.setEnabled(false);
+		
 		if(activityDB.size() <= 0)
 		{
 			currActivity = null;
@@ -296,10 +275,6 @@ public class ActivityDialog extends EntityDialog
 			else if(activity != null)
 				currActivity =  (VolunteerActivity) activity;
 			
-			//enable the date choosers
-			startDC.setEnabled(true);
-			endDC.setEnabled(true);
-			
 			//check if activity can be deleted
 			int nVolunteers = volunteerDB.getVolunteerCountForActivity(currActivity);
 			btnDelete.setEnabled(nVolunteers == 0);
@@ -315,28 +290,14 @@ public class ActivityDialog extends EntityDialog
 			openCkBox.setSelected(currActivity.isOpen());
 			lblVolCount.setText(Integer.toString(nVolunteers));
 			
-			SimpleDateFormat combinedSDF = new SimpleDateFormat("M/d/yy h:mm a", Locale.US);
 			Calendar startCal = Calendar.getInstance();
+			startCal.setTimeInMillis(currActivity.getStartDate());
+			startTimeSpinner.setValue(startCal.getTime());
+			
 			Calendar endCal = Calendar.getInstance();
-			
-			try 
-			{
-				startCal.setTime(dateFormatter.parse(currActivity.getStartDate()));
-				startDC.setCalendar(startCal);
-				String startCombined = String.format("%s %s",currActivity.getStartDate(), currActivity.getStartTime());
-				startTimeSpinner.setValue(combinedSDF.parse(startCombined));
-			
-				endCal.setTime(dateFormatter.parse(currActivity.getEndDate()));	
-				endDC.setCalendar(endCal);
-				String endCombined = String.format("%s %s",currActivity.getEndDate(), currActivity.getEndTime());
-				endTimeSpinner.setValue(combinedSDF.parse(endCombined));
-			}
-			catch (ParseException e)
-			{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-			}		
-			
+			endCal.setTimeInMillis(currActivity.getEndDate());
+			endTimeSpinner.setValue(endCal.getTime());
+
 			reminderCkBox.setSelected(currActivity.sendReminder());
 			
 			SimpleDateFormat sdf = new SimpleDateFormat("MMM d h:mm a", Locale.US);
@@ -354,6 +315,9 @@ public class ActivityDialog extends EntityDialog
 			nav.btnNextSetEnabled(true);
 			nav.btnPreviousSetEnabled(true);
 			
+			startModel.addChangeListener(timeChangeListener);
+			endModel.addChangeListener(timeChangeListener);
+			
 			bIgnoreEvents = false;
 		}
 		
@@ -363,14 +327,26 @@ public class ActivityDialog extends EntityDialog
 	}
 	
 	void clear()
-	{
+	{	
 		lblActID.setText("");
 		nameTF.setText("");
 		categoryTF.setText("");
 		openCkBox.setSelected(false);
 		descriptionTF.setText("");
-		startDC.setCalendar(Calendar.getInstance());
-		endDC.setCalendar(Calendar.getInstance());
+		
+		startModel.removeChangeListener(timeChangeListener);
+		endModel.removeChangeListener(timeChangeListener);
+		btnSaveTimeChanges.setEnabled(false);
+		
+		Calendar startCal = Calendar.getInstance();
+		startTimeSpinner.setValue(startCal.getTime());
+		
+		Calendar endCal = Calendar.getInstance();
+		endTimeSpinner.setValue(endCal.getTime());
+		
+		startModel.addChangeListener(timeChangeListener);
+		endModel.addChangeListener(timeChangeListener);
+		
 		locationTF.setText("");
 		reminderCkBox.setSelected(false);
 		lblTimestamp.setText("");
@@ -429,10 +405,10 @@ public class ActivityDialog extends EntityDialog
 	
 	void onSaveNew()
 	{
-		//construct a new volunteer activity from user input. Comment field is empty	
+		//construct a new volunteer activity from user input. Comment field is empty
+		
 		VolunteerActivity newAct = new VolunteerActivity(-1, -1, categoryTF.getText(), nameTF.getText(),
-					dateFormatter.format(startDC.getDate()), startTimeTF.getText(),
-					dateFormatter.format(endDC.getDate()), endTimeTF.getText(),
+					getSpinnerTimeInMillis(startModel),getSpinnerTimeInMillis(endModel),
 					locationTF.getText(), descriptionTF.getText(), "", 
 					openCkBox.isSelected(), reminderCkBox.isSelected(),
 					userDB.getUserLNFI()); 
@@ -599,13 +575,12 @@ public class ActivityDialog extends EntityDialog
 		return EnumSet.of(EntityType.ACTIVITY);
 	}
 	
-	boolean hasDateOrTimeChanged()
+	long getSpinnerTimeInMillis(SpinnerDateModel model)
 	{
-		return currActivity != null && !bIgnoreEvents && !bAddingNewEntity && 
-				(!dateFormatter.format(startDC.getDate()).equals(currActivity.getStartDate()) ||
-				 !dateFormatter.format(endDC.getDate()).equals(currActivity.getEndDate()) ||
-				 !startTimeTF.getText().equals(currActivity.getStartTime()) ||
-				 !endTimeTF.getText().equals(currActivity.getEndTime()));
+		Date date = model.getDate();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        return calendar.getTimeInMillis();
 	}
 
 	/****************************************************************************************
@@ -628,46 +603,6 @@ public class ActivityDialog extends EntityDialog
 		return localCal;
 	}
 	
-	private class DateChangeListener implements PropertyChangeListener
-	{
-		@Override
-		public void propertyChange(PropertyChangeEvent pce)
-		{
-			if(currActivity != null && !bIgnoreEvents && !bAddingNewEntity && 
-				"date".equals(pce.getPropertyName()))
-			{
-				btnSaveTimeChanges.setEnabled(hasDateOrTimeChanged());
-			}
-		}
-	}
-	
-	private class TimeChangeListener implements DocumentListener
-	{
-		@Override
-		public void changedUpdate(DocumentEvent arg0) 
-		{
-			
-		}
-
-		@Override
-		public void insertUpdate(DocumentEvent arg0) 
-		{
-			//check for time change, if change enable save time change button
-			if(currActivity != null && !bIgnoreEvents && !bAddingNewEntity && 
-				(!startTimeTF.getText().equals(currActivity.getStartTime()) ||
-				 !endTimeTF.getText().equals(currActivity.getEndTime())))
-			{
-				btnSaveTimeChanges.setEnabled(hasDateOrTimeChanged());
-			}
-		}
-
-		@Override
-		public void removeUpdate(DocumentEvent arg0)
-		{
-			
-		}
-	}
-	
 	private class ActivityActionListener implements ActionListener
 	{
 		@Override
@@ -675,6 +610,22 @@ public class ActivityDialog extends EntityDialog
 		{	
 			if(currActivity != null && !bIgnoreEvents && !bAddingNewEntity)
 				update();
+		}	
+	}
+	
+	private class TimeChangeListener implements ChangeListener
+	{
+		@Override
+		public void stateChanged(ChangeEvent e)
+		{
+			Date date = ((SpinnerDateModel)e.getSource()).getDate();
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(date);
+            long changeTimeInMillis = calendar.getTimeInMillis();
+            
+            boolean timeChangesEnabled = e.getSource() == startModel && changeTimeInMillis != currActivity.getStartDate() ||
+            									e.getSource() == endModel && changeTimeInMillis != currActivity.getEndDate();
+            btnSaveTimeChanges.setEnabled(timeChangesEnabled);	
 		}	
 	}
 }

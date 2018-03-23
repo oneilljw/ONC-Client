@@ -90,31 +90,15 @@ public class ActivityDB extends ONCSearchableDatabase
 	 * @param endTime
 	 * @return
 	 */
-	VolunteerActivity getActivity(String activity, String startDate,  String endDate)
+	VolunteerActivity getActivity(String activity, long startDate,  long endDate)
 	{
-		//convert the startDate and endDate strings to calendar objects
-		SimpleDateFormat sdf = new SimpleDateFormat("M/dd/yy hh:mm a");
-		Calendar startCal = Calendar.getInstance();
-		Calendar endCal = Calendar.getInstance();
-		
-		//convert the parameter start and end date/time strings and create Calendar objects
-		try
-		{
-			startCal.setTime(sdf.parse(startDate));
-			endCal.setTime(sdf.parse(endDate));
-		}
-		catch (ParseException e)
-		{
-			return null;	//couldn't parse the input compare parameters so return null activity
-		}
-		
 		//search for matching activity. A match requires the activity name, start date/time and
 		//end date/time to all be equal
 		int index = 0;
 		while(index < activityList.size() && 
 				!(activityList.get(index).getName().equals(activity) &&
-				   activityList.get(index).getStartCal().equals(startCal) &&
-				    activityList.get(index).getEndCal().equals(endCal)))
+				   activityList.get(index).getStartDate() == startDate &&
+				    activityList.get(index).getEndDate() == endDate))
 		{
 			index++;
 		}

@@ -59,7 +59,7 @@ public class VolunteerDB extends ONCSearchableDatabase
 	ONCVolunteer getObjectAtIndex(int index) { return volunteerList.get(index); }
 	
 	public List<ONCVolunteer> getDriverDB() { return volunteerList; }
-	
+/*	
 	String importSignUpGeniusVolunteers(JFrame pFrame, String user )	
 	{	
     	JFileChooser chooser = new JFileChooser();
@@ -206,7 +206,7 @@ public class VolunteerDB extends ONCSearchableDatabase
 	    					
 	    				}
 	    				
-/*	    				//DEBUG Diagnostic
+	    				//DEBUG Diagnostic
 	    				for(ONCVolunteer v : newVolList)
 	    				{
 	    					System.out.println(String.format("New vol: id=%d, fn=%s, ln=%s",
@@ -224,7 +224,7 @@ public class VolunteerDB extends ONCSearchableDatabase
 	    					for(VolunteerActivity va : v.getActivityList())
 	    						System.out.println(String.format("Activity: %s", va.getName()));
 	    				}
-*/	    				
+	    				
 	    				//now that we have a list of new and updated volunteers from the file, send the to the
 	    				//server to add to the existing database
 	    				//create the request to the server and process the return
@@ -318,7 +318,7 @@ public class VolunteerDB extends ONCSearchableDatabase
 	    			volunteersAddedCount, volunteersModifiedCount, volFile.getName());
 	    
 	}
-	
+*/	
 	ONCVolunteer searchVolunteerListForMatch(String fn, String ln, List<ONCVolunteer> volList)
 	{
 		int index = 0;
