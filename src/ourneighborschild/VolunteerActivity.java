@@ -9,7 +9,11 @@ public class VolunteerActivity extends ONCEntity
 	 * @author johnoneill
 	 */
 	private static final long serialVersionUID = 1L;
-	private int 	   geniusID;
+	public static final int VOLUNTEER_ACTIVITY_EXACT_MATCH = 3;
+	public static final int VOLUNTEER_ACTIVITY_GENIUS_MATCH = 2;
+	public static final int VOLUNTEER_ACTIVITY_NAME_TIME_MATCH = 1;
+	public static final int VOLUNTEER_ACTIVITY_DOES_NOT_MATCH = 0;
+	private int geniusID;
 	private String category;
 	private String name;
 	private long startTimeInMillis;
@@ -20,7 +24,7 @@ public class VolunteerActivity extends ONCEntity
 	private boolean bOpen;
 	private boolean bEmailReminder;
 	
-	public VolunteerActivity(int id, int genisuID, String category, String name, long start, long end, 
+	public VolunteerActivity(int id, int geniusID, String category, String name, long start, long end, 
 								String location, String description, String volComment,
 								boolean bOpen, boolean bEmailReminder, String username) 
 	{
@@ -51,6 +55,27 @@ public class VolunteerActivity extends ONCEntity
 		this.volComment = activity.volComment;
 		this.bOpen = activity.bOpen;
 		this.bEmailReminder = activity.bEmailReminder;
+	}
+	
+	/***
+	 * Constructs a new VolunteerActivity object from a SignUp Genius activity object
+	 * Note the SignUpGenius object will have start and end dates in seconds, not milliseconds
+	 * @param sua
+	 */
+	public VolunteerActivity(SignUpActivity sua)
+	{
+		super(-1, new Date(), "Lavin, K", 3,
+				"New activity from SignUpGenius", "Lavin, K");
+		this.geniusID = (int) sua.getSlotitemid();
+		this.category = sua.getItem();
+		this.name = sua.getItem();
+		this.startTimeInMillis = sua.getStartdate() * 1000; //convert seconds to millis
+		this.endTimeInMillis = sua.getEnddate() * 1000;
+		this.location = sua.getLocation();
+		this.description = "";
+		this.volComment = sua.getComment();
+		this.bOpen = false;
+		this.bEmailReminder = false;
 	}
 	
 	public VolunteerActivity(String[] line)
@@ -116,5 +141,19 @@ public class VolunteerActivity extends ONCEntity
 		row[14] = slChangedBy;
 		
 		return row;
+	}
+	
+	public int compareActivities(VolunteerActivity va)
+	{
+		int match = VOLUNTEER_ACTIVITY_DOES_NOT_MATCH;
+		
+		if(va.getName().equals(this.name) && 
+			va.getStartDate() == this.startTimeInMillis && va.getEndDate() == this.endTimeInMillis)
+			match = match | VOLUNTEER_ACTIVITY_NAME_TIME_MATCH;
+		
+		if(va.getGeniusID() == this.geniusID)
+			match = match | VOLUNTEER_ACTIVITY_GENIUS_MATCH;
+		
+		return match;
 	}
 }

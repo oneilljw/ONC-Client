@@ -12,14 +12,14 @@ public class ONCVolunteer extends ONCGmailContactEntity implements Comparable<ON
 	 */
 	private static final long serialVersionUID = -5277718159822649083L;
 	
-	private int geniusID;
+	private long geniusID;
 	private String drvNum;
 	private List<VolunteerActivity>  activityList;
 	private int qty;
 	private int delAssigned;
-	private int signIns;
+	private int warehouseSignIns;
 	
-	public ONCVolunteer(int driverid, int geniusID, String drvNum, String fName, String lName, String email, 
+	public ONCVolunteer(int driverid, long geniusID, String drvNum, String fName, String lName, String email, 
 						String hNum, String street, String unit, String city, String zipcode, 
 						String homePhone, String cellPhone, String qty, String group, String comment, 
 						List<VolunteerActivity> actList, Date today, String changedBy)
@@ -31,10 +31,10 @@ public class ONCVolunteer extends ONCGmailContactEntity implements Comparable<ON
 		this.activityList = actList;
 		this.qty = qty.isEmpty() ? 0 : Integer.parseInt(qty);
 		this.delAssigned = 0;
-		this.signIns = 0;
+		this.warehouseSignIns = 0;
 	}
 	
-	public ONCVolunteer(int driverid, int geniusID, String drvNum, String fName, String lName, String email, 
+	public ONCVolunteer(int driverid, long geniusID, String drvNum, String fName, String lName, String email, 
 			String hNum, String street, String unit, String city, String zipcode, 
 			String homePhone, String cellPhone, String qty, List<VolunteerActivity> actList, String group,
 			String comment, Date today, String changedBy)
@@ -46,7 +46,7 @@ public class ONCVolunteer extends ONCGmailContactEntity implements Comparable<ON
 		this.activityList = actList;
 		this.qty = qty.isEmpty() ? 0 : Integer.parseInt(qty);
 		this.delAssigned = 0;
-		this.signIns = 0;
+		this.warehouseSignIns = 0;
 	}
 	
 	/***
@@ -68,8 +68,44 @@ public class ONCVolunteer extends ONCGmailContactEntity implements Comparable<ON
 		qty = activityList.size();
 		this.activityList = activityList;
 		this.delAssigned = 0;
-		this.signIns = 0;
+		this.warehouseSignIns = 0;
 	}
+	
+	/***
+	 * Constrcutor used when importing volunteers from sign-up genius direct import
+	 * @param line
+	 * @param changedBy
+	 * @param activityList
+	 */
+	public ONCVolunteer(SignUpActivity sua)
+	{
+		super(-1, sua.getFirstname(), sua.getLastname(), sua.getEmail(), getPhone("Home", sua), 
+				getPhone("Mobile", sua), getAddress(sua), "", "SignUpGenius",  new Date(), 
+				"Lavin, K", STOPLIGHT_OFF, "SignUp Volunteer added", "Lavin, K");
+		
+		this.geniusID = sua.getItemmemberid();
+		this.drvNum = "";
+		this.activityList = new ArrayList<VolunteerActivity>();
+		this.qty = 0;
+		this.delAssigned = 0;
+		this.warehouseSignIns = 0;
+	}
+	
+	static String getPhone(String type, SignUpActivity sua)
+	{
+		if(type.equals("Mobile") && sua.getPhonetype().equals("Mobile"))
+			return sua.getPhone();
+		else if(type.equals("Home") && sua.getPhonetype().equals("Home"))
+			return sua.getPhone();
+		else
+			return "";
+	}
+	
+	static Address getAddress(SignUpActivity sua)
+	{
+		return new Address("", sua.getAddress1(), sua.getAddress2(), sua.getCity(), sua.getZipcode());
+	}
+	
 	
 	static String getPhone(String field, String phone, String type)
 	{
@@ -106,7 +142,7 @@ public class ONCVolunteer extends ONCGmailContactEntity implements Comparable<ON
 		this.geniusID = -1;
 		qty = 1;
 		delAssigned = 0;
-		signIns = 0;
+		warehouseSignIns = 0;
 	}
 	
 	public ONCVolunteer(String[] nextLine, List<VolunteerActivity> volActList)
@@ -116,12 +152,12 @@ public class ONCVolunteer extends ONCGmailContactEntity implements Comparable<ON
 				nextLine[13], (nextLine[15]), Long.parseLong(nextLine[20]), nextLine[21],
 				Integer.parseInt(nextLine[22]), nextLine[23], nextLine[24]);
 		
-		this.geniusID = nextLine[1].isEmpty() ? -1 : Integer.parseInt(nextLine[1]);
+		this.geniusID = nextLine[1].isEmpty() ? -1 :Long.parseLong(nextLine[1]);
 		drvNum = getDBString(nextLine[2]);
 		activityList = volActList;
 		qty = nextLine[17].isEmpty() ? 0 : Integer.parseInt(nextLine[17]);;
 		delAssigned = nextLine[18].isEmpty() ? 0 : Integer.parseInt(nextLine[18]);;
-		signIns = nextLine[19].isEmpty() ? 0 : Integer.parseInt(nextLine[19]);
+		warehouseSignIns = nextLine[19].isEmpty() ? 0 : Integer.parseInt(nextLine[19]);
 	}
 	
 	public ONCVolunteer(ONCVolunteer v)	//copy constructor
@@ -138,7 +174,7 @@ public class ONCVolunteer extends ONCGmailContactEntity implements Comparable<ON
 		
 		qty = v.qty;
 		delAssigned = v.delAssigned; 
-		signIns = v.signIns;
+		warehouseSignIns = v.warehouseSignIns;
 	}
 	
 	String getDBString(String s)
@@ -147,20 +183,20 @@ public class ONCVolunteer extends ONCGmailContactEntity implements Comparable<ON
 	}
 
 	//getters
-	public int getGeniusID() { return geniusID; }
+	public long getGeniusID() { return geniusID; }
 	public String getDrvNum() { return drvNum; }
 	public int getQty() { return qty; }
 	public int getDelAssigned() { return delAssigned; }
-	public int getSignIns() { return signIns; }
+	public int getSignIns() { return warehouseSignIns; }
 	public List<VolunteerActivity> getActivityList() { return activityList; }
 	
 	//setters
-	public void setGeniusID(int gID) { this.geniusID = gID; }
+	public void setGeniusID(long gID) { this.geniusID = gID; }
 	public void setDrvNum(String drvNum) { this.drvNum = drvNum; }
 	public void setActivityList(List<VolunteerActivity> list) { this.activityList = list; }
 	public void setQtyd(int qty) { this.qty = qty; }
 	public void setDelAssigned(int da) { delAssigned = da; }
-	public void setSignIns(int si) { signIns = si; }
+	public void setSignIns(int si) { warehouseSignIns = si; }
 	
 	//activity list methods
 	public void addActivity(VolunteerActivity activity)
@@ -278,10 +314,10 @@ public class ONCVolunteer extends ONCGmailContactEntity implements Comparable<ON
 	@Override
 	public String[] getExportRow()
 	{
-		String[] row = {Integer.toString(id), Integer.toString(geniusID), drvNum, firstName, lastName, 
+		String[] row = {Integer.toString(id), Long.toString(geniusID), drvNum, firstName, lastName, 
 						houseNum, street, unit, city, zipCode, email, homePhone, cellPhone, comment,
 						convertActivityIDListToString(), organization, convertActivityCommentsToString(), 
-						Integer.toString(qty), Integer.toString(delAssigned), Integer.toString(signIns),
+						Integer.toString(qty), Integer.toString(delAssigned), Integer.toString(warehouseSignIns),
 						Long.toString(dateChanged.getTimeInMillis()), changedBy,  Integer.toString(slPos),
 						slMssg, slChangedBy};
 		

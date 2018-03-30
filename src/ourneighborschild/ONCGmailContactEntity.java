@@ -45,6 +45,25 @@ public abstract class ONCGmailContactEntity extends ONCEntity
 	}
 	
 	public ONCGmailContactEntity(int id, String fn, String ln, String email, String homePhone, 
+			String cellPhone, Address address, String comment, String organization, Date today, 
+			String changedBy, int slpos, String slmssg, String slchgby) 
+	{
+		super(id, today, changedBy, slpos, slmssg, slchgby);
+		this.firstName = fn;
+		this.lastName = ln;
+		this.email = email;
+		this.homePhone = homePhone;
+		this.cellPhone = cellPhone;
+		this.houseNum = address.getStreetNum();
+		this.street = address.getStreetName();
+		this.unit = address.getUnit();
+		this.city = address.getCity();
+		this.zipCode = address.getZipCode();
+		this.comment = comment;
+		this.organization = organization;
+	}
+	
+	public ONCGmailContactEntity(int id, String fn, String ln, String email, String homePhone, 
 			String cellPhone, String houseNum, String street, String unit, String city, String zipCode,
 			String comment, String organization, long dateInMillis, String changedBy, int slpos,
 			String slmssg, String slchgby) 
