@@ -54,8 +54,8 @@ public abstract class ONCGmailContactEntity extends ONCEntity
 		this.email = email;
 		this.homePhone = homePhone;
 		this.cellPhone = cellPhone;
-		this.houseNum = address.getStreetNum();
-		this.street = address.getStreetName();
+		this.houseNum = address.getFullStreetNum();
+		this.street = address.getFullStreetName();
 		this.unit = address.getUnit();
 		this.city = address.getCity();
 		this.zipCode = address.getZipCode();

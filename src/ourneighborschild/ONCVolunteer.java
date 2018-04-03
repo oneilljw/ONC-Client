@@ -12,6 +12,17 @@ public class ONCVolunteer extends ONCGmailContactEntity implements Comparable<ON
 	 */
 	private static final long serialVersionUID = -5277718159822649083L;
 	
+	public static final int VOLUNTEER_EXACT_MATCH = 255;
+	public static final int VOLUNTEER_ZIPCODE_MATCH = 128;
+	public static final int VOLUNTEER_CITY_MATCH = 64;
+	public static final int VOLUNTEER_UNIT_MATCH = 32;
+	public static final int VOLUNTEER_STREET_NAME_MATCH = 16;
+	public static final int VOLUNTEER_STREET_NUM_MATCH = 8;
+	public static final int VOLUNTEER_HOME_PHONE_MATCH = 4;
+	public static final int VOLUNTEER_CELL_PHONE_MATCH = 2;
+	public static final int VOLUNTEER_NAME_EMAIL_MATCH = 1;
+	public static final int VOLUNTEER_DOES_NOT_MATCH = 0;
+	
 	private long geniusID;
 	private String drvNum;
 	private List<VolunteerActivity>  activityList;
@@ -309,6 +320,73 @@ public class ONCVolunteer extends ONCGmailContactEntity implements Comparable<ON
 		else if(va.getID() < 100) { return "00" + Integer.toString(va.getID()) + va.getComment(); }
 		else if(va.getID() < 1000) { return "0" + Integer.toString(va.getID()) + va.getComment(); }
 		else { return Integer.toString(va.getID()) + va.getComment(); }
+	}
+	
+	/****
+	 * compares ONCVolunteer object to an object imported from SignUpGenius. If the first name, last name
+	 * & email addresses are not identical, returns VOLUNTEER_DOES_NOT_MATCH. If they are identical, 
+	 * compares cell and home phones, street number, street, unit, city and zip code and returns 
+	 * an integer indicating the result. Since SignUpGenius only provides a cell or a home phone, care
+	 * is taken to ensure comparisons are only done if both home or cell are present. 
+	 * @param currVol
+	 * @return
+	 */
+	public int compareVolunteers(ONCVolunteer currVol)
+	{
+		int match = VOLUNTEER_DOES_NOT_MATCH;
+		
+		if(currVol.getEmail().equalsIgnoreCase(this.email) && currVol.getFirstName().equalsIgnoreCase(this.firstName) &&
+				currVol.getLastName().equalsIgnoreCase(this.lastName))
+		{
+			match = match | VOLUNTEER_NAME_EMAIL_MATCH;
+ 
+			//omit all non-numeric numbers from the phone number
+			String volCell = currVol.getCellPhone().replaceAll("[^\\d]", "");
+			String volHome = currVol.getHomePhone().replaceAll("[^\\d]", "");
+			String sugCell = this.cellPhone.replaceAll("[^\\d]", "");
+			String sugHome = this.homePhone.replaceAll("[^\\d]", "");
+
+			if(sugCell.isEmpty() &&  !volCell.isEmpty() || sugCell.equals(volCell))
+				match = match | VOLUNTEER_CELL_PHONE_MATCH;
+//			else
+//				System.out.println(String.format("ONCVol.compare %s cell %s does not match imported cell %s", currVol.getLastName(), currVol.getCellPhone(), this.cellPhone));
+	
+			if(sugHome.isEmpty() && !volHome.isEmpty() || sugHome.equals(volHome))
+				match = match | VOLUNTEER_HOME_PHONE_MATCH;
+//			else
+//				System.out.println(String.format("ONCVol.compare %s home %s does not match imported home %s", currVol.getLastName(), currVol.getCellPhone(), this.cellPhone));
+				
+			if(currVol.getHouseNum().equals(this.houseNum))
+				match = match | VOLUNTEER_STREET_NUM_MATCH;
+//			else
+//				System.out.println(String.format("ONCVol.compare %s housenum %s does not match imported housenum %s", currVol.getLastName(), currVol.getHouseNum(), this.houseNum));
+			
+			//remove all white space and '.' characters
+			String volStreet = currVol.getStreet().replaceAll("[\\s.]", "");
+			String sugStreet = this.street.replaceAll("[\\s.]", "");
+			
+			if(volStreet.equalsIgnoreCase(sugStreet))
+				match = match | VOLUNTEER_STREET_NAME_MATCH;
+//			else
+//				System.out.println(String.format("ONCVol.compare %s street name %s does not match imported street %s", currVol.getLastName(), currVol.getStreet(), this.street));
+	
+			if(currVol.getUnit().equalsIgnoreCase(this.unit))
+				match = match | VOLUNTEER_UNIT_MATCH;
+//			else
+//				System.out.println(String.format("ONCVol.compare %s unit %s does not match imported unit %s", currVol.getLastName(), currVol.getUnit(), this.unit));
+	
+			if(currVol.getCity().equalsIgnoreCase(this.city))
+				match = match | VOLUNTEER_CITY_MATCH;
+//			else
+//				System.out.println(String.format("ONCVol.compare %s city %s does not match imported city %s", currVol.getLastName(), currVol.getCity(), this.city));
+		
+			if(currVol.getZipCode().equals(this.zipCode))
+				match = match | VOLUNTEER_ZIPCODE_MATCH;
+//			else
+//				System.out.println(String.format("ONCVol.compare %s zipcode %s does not match imported zipcode %s", currVol.getLastName(), currVol.getZipCode(), this.zipCode));
+		}
+		
+		return match;
 	}
 	
 	@Override

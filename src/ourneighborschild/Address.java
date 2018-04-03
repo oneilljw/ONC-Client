@@ -214,6 +214,14 @@ public class Address
 	}
 	
 	public String getStreetNum() { return streetNum; }
+	public String getFullStreetNum()
+	{
+		StringBuilder streetnum = new StringBuilder(streetNum);
+		if(!streetNumSuffix.isEmpty())
+			streetnum.append(streetNumSuffix);
+		
+		return streetnum.toString();
+	}
 	public String getStreetNumSuffix() { return streetNumSuffix; }
 	public String getStreetPostDir() { return streetPostDir; }
 	public String getStreetDir() { return streetDir; }
@@ -222,6 +230,19 @@ public class Address
 	public String getUnit() { return unit; }
 	public String getCity() { return city; }
 	public String getZipCode() { return zip; }
+	public String getFullStreetName()
+	{
+		StringBuilder name = new StringBuilder();
+		if(!streetDir.isEmpty())
+			name.append(streetDir + ".");
+		
+		name.append(streetName +" " + streetType);
+		
+		if(!streetPostDir.isEmpty())
+			name.append(" " + streetPostDir);
+		
+		return name.toString();
+	}
 	public String getPrintableAddress()
 	{
 		StringBuilder address = new StringBuilder(streetNum);
