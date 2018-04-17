@@ -4,10 +4,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -26,7 +23,6 @@ public class ActivityDB extends ONCSearchableDatabase
 	private static ActivityDB instance = null;
 	private List<VolunteerActivity> activityList;
 	private List<String> categoryList;
-//	private List<SignUp> signUpList;
 	private GeniusSignUps geniusSignUps;
 	
 	private ActivityDB()
@@ -104,17 +100,15 @@ public class ActivityDB extends ONCSearchableDatabase
 		}
 		
 		return index < activityList.size() ? activityList.get(index) : null;
-		
-//		if(index < activityList.size())
-//		{
-//			System.out.println(String.format("ActDB.getAct: found act id %d", activityList.get(index).getID()));
-//			return activityList.get(index);
-//		}
-//		else
-//		{
-//			System.out.println(String.format("ActDB.getAct: didn't find act"));
-//			return null;
-//		}
+	}
+	VolunteerActivity getActivity(String activity)
+	{
+		//search for matching activity.
+		int index = 0;
+		while(index < activityList.size() && !activityList.get(index).getName().equals(activity))
+			index++;
+
+		return index < activityList.size() ? activityList.get(index) : null;
 	}
 	
 	//creates a list of volunteer activities based on stored string of activity ID's 
@@ -232,8 +226,6 @@ public class ActivityDB extends ONCSearchableDatabase
 	void processUpdatedGeniusSignUps(Object source, String signUpsJson)
 	{
 		Gson gson = new Gson();
-//		Type listtype = new TypeToken<ArrayList<SignUp>>(){}.getType();
-		
 		geniusSignUps = gson.fromJson(signUpsJson, GeniusSignUps.class);
 
 		if(geniusSignUps != null)

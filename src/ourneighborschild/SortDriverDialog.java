@@ -40,7 +40,10 @@ public class SortDriverDialog extends DependantTableDialog
 	
 	private FamilyHistoryDB familyHistoryDB;
 	private VolunteerDB volunteerDB;
+	private ActivityDB activityDB;
+	private VolunteerActivityDB volActDB;
 	private ArrayList<ONCVolunteer> atAL;	//Holds references to driver objects for driver table
+	private VolunteerActivity deliveryActivity;
 	
 	SortDriverDialog(JFrame pf)
 	{
@@ -52,6 +55,14 @@ public class SortDriverDialog extends DependantTableDialog
 		volunteerDB = VolunteerDB.getInstance();
 		if(volunteerDB != null)
 			volunteerDB.addDatabaseListener(this);
+		
+		activityDB = ActivityDB.getInstance();
+		if(activityDB != null)
+			activityDB.addDatabaseListener(this);
+		
+		volActDB = VolunteerActivityDB.getInstance();
+		if(volActDB != null)
+			volActDB.addDatabaseListener(this);
 		
 		UserDB userDB = UserDB.getInstance();
 		if(userDB != null)
@@ -170,28 +181,39 @@ public class SortDriverDialog extends DependantTableDialog
 	@Override
 	void buildTableList(boolean bPreserveSelections) 
 	{
-		//archive the table rows selected prior to rebuild so the can be reselected if the
-		//build occurred due to an external modification of the table
-		tableRowSelectedObjectList.clear();
-		if(bPreserveSelections)
-			archiveTableSelections(atAL);
+		if(deliveryActivity == null)
+		{
+			JOptionPane.showMessageDialog(this, "Couldn't find delivery day activity named \"Delivery Day\", "
+					+ "please ensure one has been created and try again.","Couldn't find Delivery Day Activity",  
+					JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
+		}
 		else
-			tableSortCol = -1;
+		{
+			//archive the table rows selected prior to rebuild so the can be reselected if the
+			//build occurred due to an external modification of the table
+			tableRowSelectedObjectList.clear();
+			if(bPreserveSelections)
+				archiveTableSelections(atAL);
+			else
+				tableSortCol = -1;
 		
-		atAL.clear();	//Clear the prior table data array list
-		stAL.clear();
+			atAL.clear();	//Clear the prior table data array list
+			stAL.clear();
 		
-		clearFamilyTable();
-		familyTable.clearSelection();
+			clearFamilyTable();
+			familyTable.clearSelection();
 		
-		for(ONCVolunteer v : volunteerDB.getDriverDB())
-			if(v.isVolunteeringFor("Delivery Volunteer") && 
-			     doesDrvNumMatch(v.getDrvNum()) && doesLNameMatch(v.getLastName()) && 
+			for(ONCVolunteer v : volunteerDB.getDriverDB())
+			{
+				VolAct volAct = volActDB.getVolunteerActivity(v.getID(), deliveryActivity.getID());
+				if(volAct != null && doesDrvNumMatch(v.getDrvNum()) && doesLNameMatch(v.getLastName()) && 
 				  doesChangedByMatch(v.getChangedBy()) && doesStoplightMatch(v.getStoplightPos()))
-				atAL.add(v);
+					atAL.add(v);
+			}
 			
-		lblNumOfObjects.setText(Integer.toString(atAL.size()));
-		displaySortTable(atAL, true, tableRowSelectedObjectList);
+			lblNumOfObjects.setText(Integer.toString(atAL.size()));
+			displaySortTable(atAL, true, tableRowSelectedObjectList);
+		}
 	}
 	
 	void updateLNameCBList()
@@ -434,10 +456,16 @@ public class SortDriverDialog extends DependantTableDialog
 		{
 			this.setTitle(String.format("Our Neighbor's Child - %d Delivery Volunteer Management", GlobalVariablesDB.getCurrentSeason()));
 		}
+		else if(dbe.getType().equals("LOADED_ACTIVITIES"))
+		{
+//			deliveryActivity = activityDB.getActivity("Delivery Day");
+		}
 		else if(dbe.getType().contains("_DRIVER"))	//build on add, update or delete event
 		{
 			//update the agent table and update the org and title combo box models
-			buildTableList(true);
+			if(deliveryActivity != null)
+				buildTableList(true);
+			
 			updateLNameCBList();
 		}
 		else if(dbe.getType().contains("_USER"))

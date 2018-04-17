@@ -47,6 +47,7 @@ public class DatabaseManager extends ONCDatabase
 	private WishDetailDB oncWishDetailDB;	//Holds ONC Wish Detail Data Base
 	private ActivityDB oncActDB;				//Holds the Volunteer Activity Data Base
 	private VolunteerDB oncVolDB;			//Holds the Volunteer Data Base
+	private VolunteerActivityDB volActDB;	//Holds the Volunteer ActivityData Base
 	private FamilyHistoryDB oncDelDB;		//Holds the ONC Delivery Data Base
 	private ONCRegions oncRegions;
 	private AdultDB oncAdultDB;				//Holds ONC Adult database
@@ -67,6 +68,7 @@ public class DatabaseManager extends ONCDatabase
 		oncWishCat = ONCWishCatalog.getInstance();
 		oncActDB = ActivityDB.getInstance();
 		oncVolDB = VolunteerDB.getInstance();
+		volActDB = VolunteerActivityDB.getInstance();
 		oncDelDB = FamilyHistoryDB.getInstance();
 		oncChildDB = ChildDB.getInstance();
 		oncChildWishDB = ChildWishDB.getInstance();
@@ -346,7 +348,7 @@ public class DatabaseManager extends ONCDatabase
      **************************************************************************************************/
     public class ONCServerDBImporter extends SwingWorker<Void, Void>
     {
-    		private static final int NUM_OF_DBs = 15;
+    		private static final int NUM_OF_DBs = 16;
     		String year;
     		ONCProgressBar pb;
     		boolean bServerDataLoaded;
@@ -419,6 +421,10 @@ public class DatabaseManager extends ONCDatabase
 			
 			pb.updateHeaderText("Loading Volunteers");
 			oncVolDB.importDriverDatabase();
+			this.setProgress(progress += increment);
+			
+			pb.updateHeaderText("Loading Volunteer Activities");
+			volActDB.importDB();
 			this.setProgress(progress += increment);
 			
 			pb.updateHeaderText("Loading History");

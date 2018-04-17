@@ -1,9 +1,7 @@
 package ourneighborschild;
 
 //import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 public class ONCVolunteer extends ONCGmailContactEntity implements Comparable<ONCVolunteer>
 {
@@ -23,42 +21,39 @@ public class ONCVolunteer extends ONCGmailContactEntity implements Comparable<ON
 	public static final int VOLUNTEER_NAME_EMAIL_MATCH = 1;
 	public static final int VOLUNTEER_DOES_NOT_MATCH = 0;
 	
-	private long geniusID;
 	private String drvNum;
-	private List<VolunteerActivity>  activityList;
-	private int qty;
+//	private List<VolunteerActivity>  activityList;
+//	private int qty;
 	private int delAssigned;
 	private int warehouseSignIns;
 	
-	public ONCVolunteer(int driverid, long geniusID, String drvNum, String fName, String lName, String email, 
+	public ONCVolunteer(int driverid, String drvNum, String fName, String lName, String email, 
 						String hNum, String street, String unit, String city, String zipcode, 
-						String homePhone, String cellPhone, String qty, String group, String comment, 
-						List<VolunteerActivity> actList, Date today, String changedBy)
+						String homePhone, String cellPhone, String group, String comment, 
+						Date today, String changedBy)
 	{
 		super(driverid, fName, lName, email, homePhone, cellPhone, hNum, street, unit, city, zipcode,
 				comment, group,  new Date(), changedBy, STOPLIGHT_OFF, "Volunteer added", changedBy);
-		this.geniusID = geniusID;
 		this.drvNum = drvNum;
-		this.activityList = actList;
-		this.qty = qty.isEmpty() ? 0 : Integer.parseInt(qty);
+//		this.activityList = actList;
+//		this.qty = qty.isEmpty() ? 0 : Integer.parseInt(qty);
 		this.delAssigned = 0;
 		this.warehouseSignIns = 0;
 	}
 	
-	public ONCVolunteer(int driverid, long geniusID, String drvNum, String fName, String lName, String email, 
-			String hNum, String street, String unit, String city, String zipcode, 
-			String homePhone, String cellPhone, String qty, List<VolunteerActivity> actList, String group,
-			String comment, Date today, String changedBy)
-	{
-		super(driverid, fName, lName, email, homePhone, cellPhone, hNum, street, unit, city, zipcode,
-				comment, group,  new Date(), changedBy, STOPLIGHT_OFF, "Volunteer added", changedBy);
-		this.geniusID = geniusID;
-		this.drvNum = drvNum;
-		this.activityList = actList;
-		this.qty = qty.isEmpty() ? 0 : Integer.parseInt(qty);
-		this.delAssigned = 0;
-		this.warehouseSignIns = 0;
-	}
+//	public ONCVolunteer(int driverid, String drvNum, String fName, String lName, String email, 
+//			String hNum, String street, String unit, String city, String zipcode, 
+//			String homePhone, String cellPhone, String group,
+//			String comment, Date today, String changedBy)
+//	{
+//		super(driverid, fName, lName, email, homePhone, cellPhone, hNum, street, unit, city, zipcode,
+//				comment, group,  new Date(), changedBy, STOPLIGHT_OFF, "Volunteer added", changedBy);
+//		this.drvNum = drvNum;
+//		this.activityList = actList;
+//		this.qty = qty.isEmpty() ? 0 : Integer.parseInt(qty);
+//		this.delAssigned = 0;
+//		this.warehouseSignIns = 0;
+//	}
 	
 	/***
 	 * Constrcutor used when importing volunteers from sign-up genius eported .csv file.
@@ -67,23 +62,20 @@ public class ONCVolunteer extends ONCGmailContactEntity implements Comparable<ON
 	 * @param changedBy
 	 * @param activityList
 	 */
-	public ONCVolunteer(String[] line, String changedBy, List<VolunteerActivity> activityList)
+	public ONCVolunteer(String[] line, String changedBy)
 	{
 		super(-1, line[6], line[7], line[8], getPhone("Home", line[17], line[18]), 
 				getPhone("Mobile", line[17], line[18]), parseAddress(line[11])[0], 
 				parseAddress(line[11])[1], line[12], line[13], line[15],
 				"", "Self",  new Date(), changedBy, STOPLIGHT_OFF, "Sign-Up Genius Volunteer", changedBy); 
 		
-		this.geniusID = -1;
 		drvNum = "N/A";
-		qty = activityList.size();
-		this.activityList = activityList;
 		this.delAssigned = 0;
 		this.warehouseSignIns = 0;
 	}
 	
 	/***
-	 * Constrcutor used when importing volunteers from sign-up genius direct import
+	 * Constructor used when importing volunteers from sign-up genius direct import
 	 * @param line
 	 * @param changedBy
 	 * @param activityList
@@ -94,10 +86,7 @@ public class ONCVolunteer extends ONCGmailContactEntity implements Comparable<ON
 				getPhone("Mobile", sua), getAddress(sua), "", "SignUpGenius",  new Date(), 
 				"Lavin, K", STOPLIGHT_OFF, "SignUp Volunteer added", "Lavin, K");
 		
-		this.geniusID = sua.getItemmemberid();
 		this.drvNum = "";
-		this.activityList = new ArrayList<VolunteerActivity>();
-		this.qty = 0;
 		this.delAssigned = 0;
 		this.warehouseSignIns = 0;
 	}
@@ -150,25 +139,20 @@ public class ONCVolunteer extends ONCGmailContactEntity implements Comparable<ON
 		super(id, "", "", "", "", "", "", "", "", "", "", "", "", 
 				new Date(), changedBy, STOPLIGHT_OFF, "Volunteer Added", changedBy);
 		
-		this.geniusID = -1;
-		qty = 1;
 		delAssigned = 0;
 		warehouseSignIns = 0;
 	}
 	
-	public ONCVolunteer(String[] nextLine, List<VolunteerActivity> volActList)
+	public ONCVolunteer(String[] nextLine)
 	{
-		super(Integer.parseInt(nextLine[0]), nextLine[3], nextLine[4], nextLine[10],nextLine[11],
-				nextLine[12], nextLine[5],nextLine[6], nextLine[7], nextLine[8], nextLine[9],
-				nextLine[13], (nextLine[15]), Long.parseLong(nextLine[20]), nextLine[21],
-				Integer.parseInt(nextLine[22]), nextLine[23], nextLine[24]);
+		super(Integer.parseInt(nextLine[0]), nextLine[2], nextLine[3], nextLine[9],nextLine[10],
+				nextLine[11], nextLine[4],nextLine[5], nextLine[6], nextLine[7], nextLine[8],
+				nextLine[12], nextLine[13], Long.parseLong(nextLine[16]), nextLine[17],
+				Integer.parseInt(nextLine[18]), nextLine[19], nextLine[20]);
 		
-		this.geniusID = nextLine[1].isEmpty() ? -1 :Long.parseLong(nextLine[1]);
-		drvNum = getDBString(nextLine[2]);
-		activityList = volActList;
-		qty = nextLine[17].isEmpty() ? 0 : Integer.parseInt(nextLine[17]);;
-		delAssigned = nextLine[18].isEmpty() ? 0 : Integer.parseInt(nextLine[18]);;
-		warehouseSignIns = nextLine[19].isEmpty() ? 0 : Integer.parseInt(nextLine[19]);
+		drvNum = getDBString(nextLine[1]);
+		delAssigned = nextLine[14].isEmpty() ? 0 : Integer.parseInt(nextLine[14]);
+		warehouseSignIns = nextLine[15].isEmpty() ? 0 : Integer.parseInt(nextLine[15]);
 	}
 	
 	public ONCVolunteer(ONCVolunteer v)	//copy constructor
@@ -177,13 +161,7 @@ public class ONCVolunteer extends ONCGmailContactEntity implements Comparable<ON
 				v.unit, v.city, v.zipCode, v.comment, v.organization, v.dateChanged, v.changedBy,
 				v.slPos, v.slMssg, v.slChangedBy);
 		
-		this.geniusID = v.geniusID;
 		drvNum = v.drvNum;
-		this.activityList = new ArrayList<VolunteerActivity>();
-		for(VolunteerActivity activity : v.activityList)
-			this.activityList.add(activity);
-		
-		qty = v.qty;
 		delAssigned = v.delAssigned; 
 		warehouseSignIns = v.warehouseSignIns;
 	}
@@ -194,21 +172,19 @@ public class ONCVolunteer extends ONCGmailContactEntity implements Comparable<ON
 	}
 
 	//getters
-	public long getGeniusID() { return geniusID; }
 	public String getDrvNum() { return drvNum; }
-	public int getQty() { return qty; }
+//	public int getQty() { return qty; }
 	public int getDelAssigned() { return delAssigned; }
 	public int getSignIns() { return warehouseSignIns; }
-	public List<VolunteerActivity> getActivityList() { return activityList; }
+//	public List<VolunteerActivity> getActivityList() { return activityList; }
 	
 	//setters
-	public void setGeniusID(long gID) { this.geniusID = gID; }
 	public void setDrvNum(String drvNum) { this.drvNum = drvNum; }
-	public void setActivityList(List<VolunteerActivity> list) { this.activityList = list; }
-	public void setQtyd(int qty) { this.qty = qty; }
+//	public void setActivityList(List<VolunteerActivity> list) { this.activityList = list; }
+//	public void setQtyd(int qty) { this.qty = qty; }
 	public void setDelAssigned(int da) { delAssigned = da; }
 	public void setSignIns(int si) { warehouseSignIns = si; }
-	
+/*	
 	//activity list methods
 	public void addActivity(VolunteerActivity activity)
 	{
@@ -267,9 +243,9 @@ public class ONCVolunteer extends ONCGmailContactEntity implements Comparable<ON
 		
 		return index < activityList.size() ? activityList.get(index) : null;
 	}
-	
+*/	
 	public void incrementDeliveryCount(int count) { delAssigned += count; }
-	
+/*	
 //	List<VolunteerActivity> convertActivityStringToList(String zActivities, List<VolunteerActivity> allActList)
 //	{
 //		String[] activities = zActivities.split("_");
@@ -300,28 +276,28 @@ public class ONCVolunteer extends ONCGmailContactEntity implements Comparable<ON
 		}
 	}
 	
-	String convertActivityCommentsToString()
-	{
-		if(activityList.isEmpty())
-			return "";
-		else
-		{
-			StringBuffer activityBuffer = new StringBuffer(getEncodedActivityComment(activityList.get(0)));
-			for(int i=1; i < activityList.size(); i++)
-				activityBuffer.append("_" + getEncodedActivityComment(activityList.get(i)));
-			
-			return activityBuffer.toString();
-		}
-	}
+//	String convertActivityCommentsToString()
+//	{
+//		if(activityList.isEmpty())
+//			return "";
+//		else
+//		{
+//			StringBuffer activityBuffer = new StringBuffer(getEncodedActivityComment(activityList.get(0)));
+//			for(int i=1; i < activityList.size(); i++)
+//				activityBuffer.append("_" + getEncodedActivityComment(activityList.get(i)));
+//			
+//			return activityBuffer.toString();
+//		}
+//	}
 	
-	String getEncodedActivityComment(VolunteerActivity va)
-	{
-		if(va.getID() < 10) { return "000" + Integer.toString(va.getID()) + va.getComment(); }
-		else if(va.getID() < 100) { return "00" + Integer.toString(va.getID()) + va.getComment(); }
-		else if(va.getID() < 1000) { return "0" + Integer.toString(va.getID()) + va.getComment(); }
-		else { return Integer.toString(va.getID()) + va.getComment(); }
-	}
-	
+//	String getEncodedActivityComment(VolunteerActivity va)
+//	{
+//		if(va.getID() < 10) { return "000" + Integer.toString(va.getID()) + va.getComment(); }
+//		else if(va.getID() < 100) { return "00" + Integer.toString(va.getID()) + va.getComment(); }
+//		else if(va.getID() < 1000) { return "0" + Integer.toString(va.getID()) + va.getComment(); }
+//		else { return Integer.toString(va.getID()) + va.getComment(); }
+//	}
+*/	
 	/****
 	 * compares ONCVolunteer object to an object imported from SignUpGenius. If the first name, last name
 	 * & email addresses are not identical, returns VOLUNTEER_DOES_NOT_MATCH. If they are identical, 
@@ -392,10 +368,9 @@ public class ONCVolunteer extends ONCGmailContactEntity implements Comparable<ON
 	@Override
 	public String[] getExportRow()
 	{
-		String[] row = {Integer.toString(id), Long.toString(geniusID), drvNum, firstName, lastName, 
+		String[] row = {Integer.toString(id), drvNum, firstName, lastName, 
 						houseNum, street, unit, city, zipCode, email, homePhone, cellPhone, comment,
-						convertActivityIDListToString(), organization, convertActivityCommentsToString(), 
-						Integer.toString(qty), Integer.toString(delAssigned), Integer.toString(warehouseSignIns),
+						organization, Integer.toString(delAssigned), Integer.toString(warehouseSignIns),
 						Long.toString(dateChanged.getTimeInMillis()), changedBy,  Integer.toString(slPos),
 						slMssg, slChangedBy};
 		

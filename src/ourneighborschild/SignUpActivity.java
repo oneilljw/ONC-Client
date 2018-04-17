@@ -50,7 +50,7 @@ public class SignUpActivity
 	{
 		return state;
 	}
-	String getFirstname()
+	public String getFirstname()
 	{
 		return firstname;
 	}
@@ -58,7 +58,7 @@ public class SignUpActivity
 	{
 		return itemmemberid;
 	}
-	String getEmail()
+	public String getEmail()
 	{
 		return email;
 	}
@@ -82,7 +82,7 @@ public class SignUpActivity
 	{
 		return country;
 	}
-	String getLastname()
+	public String getLastname()
 	{
 		return lastname;
 	}

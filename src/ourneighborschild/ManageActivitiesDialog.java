@@ -73,6 +73,7 @@ public class ManageActivitiesDialog extends ONCEntityTableDialog implements Acti
 
 	private VolunteerDB volDB;
 	private ActivityDB activityDB;
+	private VolunteerActivityDB volActDB;
 
 	private List<VolunteerActivity> actTableList;
 	private List<ONCVolunteer> volTableList;
@@ -93,6 +94,10 @@ public class ManageActivitiesDialog extends ONCEntityTableDialog implements Acti
 		activityDB = ActivityDB.getInstance();
 		if(activityDB != null)
 			activityDB.addDatabaseListener(this);
+		
+		volActDB = VolunteerActivityDB.getInstance();
+		if(volActDB != null)
+			volActDB.addDatabaseListener(this);
 		
 		//set up the table lists
 		actTableList = new ArrayList<VolunteerActivity>();
@@ -419,7 +424,7 @@ public class ManageActivitiesDialog extends ONCEntityTableDialog implements Acti
 	@Override
 	public void valueChanged(ListSelectionEvent lse)
 	{
-		if(lse.getSource() == actTable.getSelectionModel())
+		if(!lse.getValueIsAdjusting() && lse.getSource() == actTable.getSelectionModel())
 		{
 			int modelRow = actTable.getSelectedRow() == -1 ? -1 : 
 						actTable.convertRowIndexToModel(actTable.getSelectedRow());
@@ -433,7 +438,7 @@ public class ManageActivitiesDialog extends ONCEntityTableDialog implements Acti
 				volTableModel.fireTableDataChanged();
 			}
 		}
-		else if(lse.getSource() == volTable.getSelectionModel())
+		else if(!lse.getValueIsAdjusting() && lse.getSource() == volTable.getSelectionModel())
 		{
 			int modelRow = volTable.getSelectedRow() == -1 ? -1 : 
 				volTable.convertRowIndexToModel(volTable.getSelectedRow());
@@ -497,44 +502,45 @@ public class ManageActivitiesDialog extends ONCEntityTableDialog implements Acti
  
         public Object getValueAt(int row, int col)
         {
-        	//get the volunteer for the row
-        	ONCVolunteer v = volTableList.get(row);
+        		//get the volunteer for the row
+        		ONCVolunteer v = volTableList.get(row);
         	
-        	//get the detailed activity for the volunteer. Get the generic activity first
-        	//then get the detailed activity
-        	int actModelRow = actTable.getSelectedRow() == -1 ? -1 : 
+        		//get the detailed activity for the volunteer. Get the generic activity first
+        		//then get the detailed activity
+        		int actModelRow = actTable.getSelectedRow() == -1 ? -1 : 
 				actTable.convertRowIndexToModel(actTable.getSelectedRow());
 
-        	VolunteerActivity detailedAct = null;
-        	if(actModelRow > -1)
-        	{
-        		VolunteerActivity genericAct = actTableList.get(actModelRow);
-        		detailedAct = v.getVolunteerActivity(genericAct.getID());
-        	}
+        		VolAct va = null;
+        		if(actModelRow > -1)
+        		{
+        			VolunteerActivity genericAct = actTableList.get(actModelRow);
+        			if(genericAct != null)
+        				va = volActDB.getVolunteerActivity(v.getID(), genericAct.getID());
+        		}
         	
-        	if(col == FIRST_NAME_COL)  
-        		return v.getFirstName();
-        	else if(col == LAST_NAME_COL)
-        		return v.getLastName();
-        	else if (col == GROUP_COL)
-        		return v.getOrganization();
-        	else if (col == COMMENT_COL)
-        		return detailedAct != null ? detailedAct.getComment() : "";
-        	else
-        		return "Error";
+        		if(col == FIRST_NAME_COL)  
+        			return v.getFirstName();
+        		else if(col == LAST_NAME_COL)
+        			return v.getLastName();
+        		else if (col == GROUP_COL)
+        			return v.getOrganization();
+        		else if (col == COMMENT_COL)
+        			return va != null ? va.getComment() : "";
+        			else
+        				return "Error";
         }
         
         //JTable uses this method to determine the default renderer/editor for each cell.
         @Override
         public Class<?> getColumnClass(int column)
         {
-        	return String.class;
+        		return String.class;
         }
  
         public boolean isCellEditable(int row, int col)
         {
-        	//Name, Status, Access and Permission are editable
-        	return false;
+        		//Name, Status, Access and Permission are editable
+        		return false;
         }
 	}
 	

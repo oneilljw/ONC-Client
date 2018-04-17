@@ -31,6 +31,7 @@ public class VolunteerDB extends ONCSearchableDatabase
 	private static final int SIGN_UP_GENIUS_FILE_HEADER_LENGTH = 19;
 	private static VolunteerDB instance = null;
 	private ActivityDB activityDB;
+	private VolunteerActivityDB volActDB;
 	
 	private List<ONCVolunteer> volunteerList;
 	
@@ -40,6 +41,7 @@ public class VolunteerDB extends ONCSearchableDatabase
 		volunteerList = new ArrayList<ONCVolunteer>();
 		
 		activityDB = ActivityDB.getInstance();
+		volActDB = VolunteerActivityDB.getInstance();
 	}
 	
 	public static VolunteerDB getInstance()
@@ -352,28 +354,10 @@ public class VolunteerDB extends ONCSearchableDatabase
 	{
 		List<ONCVolunteer> volList = new ArrayList<ONCVolunteer>();
 		for(ONCVolunteer v : volunteerList)
-			if(v.isVolunteeringFor(va.getID()))
+			if(volActDB.getVolunteerActivity(v.getID(), va.getID()) != null)
 				volList.add(v);
 		
 		return volList;
-	}
-	
-	int getVolunteerCountForActivity(VolunteerActivity va)
-	{
-		int volunteerCount = 0;
-		for(ONCVolunteer v : volunteerList)
-		{
-			List<VolunteerActivity> actList = v.getActivityList();
-			
-			int index = 0;
-			while(index < actList.size() && actList.get(index).getID() != va.getID())
-				index++;
-			
-			if(index < actList.size())
-				volunteerCount++;
-		}
-		
-		return volunteerCount;
 	}
 	
 	public int getDriverIndex(int driverID)
@@ -681,12 +665,12 @@ public class VolunteerDB extends ONCSearchableDatabase
 		{
 			processDeletedObject(this, ue.getJson());
 		}
-		else if(ue.getType().equals("ADDED_VOLUNTEER"))
+		else if(ue.getType().equals("ADDED_WAREHOUSE_VOLUNTEER"))
 		{
 			Gson gson = new Gson();
 			ONCVolunteer addedVol = gson.fromJson(ue.getJson(), ONCVolunteer.class);
 			
-			fireDataChanged(this, "ADDED_VOLUNTEER", addedVol);
+			fireDataChanged(this, "ADDED_WAREHOUSE_VOLUNTEER", addedVol);
 		}
 	}
 

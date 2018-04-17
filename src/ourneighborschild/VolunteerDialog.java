@@ -25,6 +25,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
@@ -45,16 +46,18 @@ public class VolunteerDialog extends EntityDialog
 	private static final int ACT_NAME_COL= 1;
 	private static final int ACT_START_COL = 2;
 	private static final int ACT_END_COL = 3;
-	private static final int ACT_COMMENT_COL = 4;
+	private static final int ACT_QTY_COL = 4;
+	private static final int ACT_COMMENT_COL = 5;
 	private static final int NUM_ACT_TABLE_ROWS = 9;
 	
 	//database references
 	private VolunteerDB volDB;
 	private FamilyHistoryDB familyHistoryDB;
 	private ActivityDB activityDB;
+	private VolunteerActivityDB volActDB;
 
 	//ui components
-	private JLabel lblFamDel, lblSignIns, lblLastSignIn, lblQty;
+	private JLabel lblFamDel, lblSignIns, lblLastSignIn;
     private JTextField drvNumTF, firstnameTF,lastnameTF, groupTF;
     private JTextField streetnumTF, streetnameTF, unitTF, cityTF, zipTF, hPhoneTF, cPhoneTF;
     private JTextField emailTF, commentTF;
@@ -64,7 +67,11 @@ public class VolunteerDialog extends EntityDialog
 	private AbstractTableModel actTableModel;
     
     private ONCVolunteer currVolunteer;	//reference to the current object displayed
+    private List<VolAct> currVolActList; //reference to the current activities for the volunteer
+    private List<VolAct> newVolActList; //reference to the current activities for the volunteer
+    private List<VolunteerActivity> activityList;
     
+	@SuppressWarnings("unchecked")
 	public VolunteerDialog(JFrame pf)
 	{
 		super(pf);
@@ -83,7 +90,14 @@ public class VolunteerDialog extends EntityDialog
 		if(activityDB != null)
 			activityDB.addDatabaseListener(this);
 		
+		volActDB = VolunteerActivityDB.getInstance();
+		if(volActDB != null)
+			volActDB.addDatabaseListener(this);
+		
 		currVolunteer = null;
+		currVolActList = new ArrayList<VolAct>();
+		newVolActList = new ArrayList<VolAct>();
+		activityList = (List<VolunteerActivity>) activityDB.getList();
         
         //set up the navigation panel at the top of dialog
         nav = new ONCNavPanel(pf, volDB);
@@ -113,15 +127,9 @@ public class VolunteerDialog extends EntityDialog
         lastnameTF.addActionListener(dcListener);
         
         groupTF = new JTextField(18);
-//        groupTF.setPreferredSize(new Dimension (216, 48));
         groupTF.setToolTipText("Group volunteer is with");
         groupTF.setBorder(BorderFactory.createTitledBorder("Group"));
         groupTF.addActionListener(dcListener);
-        
-        lblQty = new JLabel("1", JLabel.RIGHT);
-        lblQty.setPreferredSize(new Dimension (48, 48));
-        lblQty.setToolTipText("# in group");
-        lblQty.setBorder(BorderFactory.createTitledBorder("Qty"));
         
         lblSignIns = new JLabel("0", JLabel.RIGHT);
         lblSignIns.setPreferredSize(new Dimension (72, 48));
@@ -137,18 +145,17 @@ public class VolunteerDialog extends EntityDialog
         op1.add(firstnameTF);
         op1.add(lastnameTF);
         op1.add(groupTF);
-        op1.add(lblQty);
         op1.add(lblSignIns);
         op1.add(lblLastSignIn);
         
         hPhoneTF = new JTextField(8);
         hPhoneTF.setToolTipText("Volunteer home phone #");
-        hPhoneTF.setBorder(BorderFactory.createTitledBorder("Home Phone #"));
+        hPhoneTF.setBorder(BorderFactory.createTitledBorder("Home Phone"));
         hPhoneTF.addActionListener(dcListener);
         
         cPhoneTF = new JTextField(8);
         cPhoneTF.setToolTipText("Volunteer cell phone #");
-        cPhoneTF.setBorder(BorderFactory.createTitledBorder(" Cell Phone #"));
+        cPhoneTF.setBorder(BorderFactory.createTitledBorder(" Cell Phone"));
         cPhoneTF.addActionListener(dcListener);
                                           
         emailTF = new JTextField(17);
@@ -157,7 +164,7 @@ public class VolunteerDialog extends EntityDialog
         emailTF.setHorizontalAlignment(JTextField.LEFT);
         emailTF.addActionListener(dcListener);
         
-        commentTF = new JTextField(30);
+        commentTF = new JTextField(28);
         commentTF.setToolTipText("Volunteer comment");
         commentTF.setBorder(BorderFactory.createTitledBorder("Volunteer Comment"));
         commentTF.setHorizontalAlignment(JTextField.LEFT);
@@ -216,7 +223,7 @@ public class VolunteerDialog extends EntityDialog
       		
       	//create the table
       	String[] actToolTips = {"A check indicates volunteer will participate in this activity",
-      							"Activity Name", "Start Time", "End Time",
+      							"Activity Name", "Start Time", "End Time", "# of participants",
       							"Comment from volunteer"};
       		
       	actTable = new ONCTable(actTableModel, actToolTips, new Color(240,248,255));
@@ -244,7 +251,7 @@ public class VolunteerDialog extends EntityDialog
       		
       	//Set table column widths
       	int tablewidth = 0;
-      	int[] act_colWidths = {56, 240, 104, 104, 288};
+      	int[] act_colWidths = {52, 228, 104, 104, 28, 252};
       	for(int col=0; col < act_colWidths.length; col++)
       	{
       		actTable.getColumnModel().getColumn(col).setPreferredWidth(act_colWidths[col]);
@@ -257,10 +264,9 @@ public class VolunteerDialog extends EntityDialog
         anHeader.setBackground( new Color(161,202,241));
               
         //Center justify wish count column
-//      DefaultTableCellRenderer dtcr = new DefaultTableCellRenderer();
-//      dtcr.setHorizontalAlignment(SwingConstants.CENTER);
-//      volTable.getColumnModel().getColumn(NUM_ACT_COL).setCellRenderer(dtcr);
-//      volTable.getColumnModel().getColumn(NUM_SIGNIN_COL).setCellRenderer(dtcr);
+        DefaultTableCellRenderer dtcr = new DefaultTableCellRenderer();
+        dtcr.setHorizontalAlignment(SwingConstants.CENTER);
+        actTable.getColumnModel().getColumn(ACT_QTY_COL).setCellRenderer(dtcr);
               
         //Create the scroll pane and add the table to it.
         JScrollPane actScrollPane = new JScrollPane(actTable, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
@@ -277,18 +283,18 @@ public class VolunteerDialog extends EntityDialog
         
         //Set up control panel
         btnNew.setText("Add New Volunteer");
-    	btnNew.setToolTipText("Click to add a new volunteer");
+    		btnNew.setToolTipText("Click to add a new volunteer");
      
         btnDelete.setText("Delete Volunteer");
-    	btnDelete.setToolTipText("Click to delete this volunteer");
+        btnDelete.setToolTipText("Click to delete this volunteer");
     	
         btnSave.setText("Save New Volunteer");
-    	btnSave.setToolTipText("Click to save the new volunteer");
+    		btnSave.setToolTipText("Click to save the new volunteer");
         
         btnCancel.setText("Cancel Add New Volunteer");
-    	btnCancel.setToolTipText("Click to cancel adding a new volunteer");
+    		btnCancel.setToolTipText("Click to cancel adding a new volunteer");
 
-    	//add the panels to the content pane
+    		//add the panels to the content pane
         contentPane.add(nav);
         contentPane.add(entityPanel);
         contentPane.add(cntlPanel);
@@ -348,6 +354,8 @@ public class VolunteerDialog extends EntityDialog
 				JOptionPane.showMessageDialog(this, "ONC Server denied Volunteer Update," +
 						"try again later","Volunteer Update Failed",  
 						JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
+				
+				display(currVolunteer);
 			}
 			
 //			bCD = false;
@@ -390,7 +398,6 @@ public class VolunteerDialog extends EntityDialog
 			cPhoneTF.setText(currVolunteer.getCellPhone());
 			cPhoneTF.setCaretPosition(0);
 				
-			lblQty.setText(Integer.toString(currVolunteer.getQty()));
 			lblFamDel.setText(Integer.toString(currVolunteer.getDelAssigned()));
 			lblSignIns.setText(Integer.toString(currVolunteer.getSignIns()));
 			
@@ -409,10 +416,12 @@ public class VolunteerDialog extends EntityDialog
 			groupTF.setText(currVolunteer.getOrganization());
 			
 			SimpleDateFormat sdf = new SimpleDateFormat("M/dd h:mm");
-			lblLastSignIn.setText(currVolunteer.getSignIns() == 0 ? "Never" : sdf.format(currVolunteer.getDateChanged()));
+			lblLastSignIn.setText(currVolunteer.getSignIns() == 0 ? "Never" : 
+									sdf.format(currVolunteer.getDateChanged()));
 			
 			btnSignInHistory.setEnabled(currVolunteer.getSignIns() > 0);
 			
+			currVolActList = volActDB.getVolunteerActivityList(currVolunteer.getID());
 			actTableModel.fireTableDataChanged();	//update the activity table
 
 			nav.setStoplightEntity(currVolunteer);
@@ -428,7 +437,6 @@ public class VolunteerDialog extends EntityDialog
 		drvNumTF.setText("");
 		firstnameTF.setText("");
 		lastnameTF.setText("");
-		lblQty.setText("0");
 		lblFamDel.setText("0");
 		lblSignIns.setText("0");
 		groupTF.setText("");
@@ -444,6 +452,8 @@ public class VolunteerDialog extends EntityDialog
 		nav.clearStoplight();
 		
 		currVolunteer = null;
+		currVolActList.clear();
+		newVolActList.clear();
 		actTableModel.fireTableDataChanged();
 		
 		btnSignInHistory.setEnabled(false);
@@ -502,23 +512,37 @@ public class VolunteerDialog extends EntityDialog
 	void onSaveNew()
 	{
 		//construct a new volunteer from user input	
-		ONCVolunteer newVol = new ONCVolunteer(-1, -1, "N/A", firstnameTF.getText(), lastnameTF.getText(),
+		ONCVolunteer newVol = new ONCVolunteer(-1, "N/A", firstnameTF.getText(), lastnameTF.getText(),
 					emailTF.getText(), streetnumTF.getText(), streetnameTF.getText(), 
 					unitTF.getText(), cityTF.getText(), zipTF.getText(), 
-					hPhoneTF.getText(), cPhoneTF.getText(), "1", "", commentTF.getText(),
-					new ArrayList<VolunteerActivity>(), new Date(), userDB.getUserLNFI());
+					hPhoneTF.getText(), cPhoneTF.getText(), "Self", commentTF.getText(),
+					new Date(), userDB.getUserLNFI());
 		
-		//need to loop thur the activities table and see what's been clicked in "New" mode
+		//need to loop thru the activities table and see what's been clicked in "New" mode
 						
 		//send add request to the local data base
 		String response = volDB.add(this, newVol);
 						
 		if(response.startsWith("ADDED_DRIVER"))
 		{
-			//update the ui with new id assigned by the server 
+			//add the new activities, if any for the volunteer to the VolActDB.
 			Gson gson = new Gson();
 			ONCVolunteer addedVol = gson.fromJson(response.substring(12), ONCVolunteer.class);
-							
+			
+			if(!newVolActList.isEmpty())
+			 {
+				for(VolAct va : newVolActList)	//set the Volunteer ID to the newly added volunteer
+					va.setVolID(addedVol.getID());
+				
+				 response = volActDB.addVolActGroup(this, newVolActList);
+				 if(response == null)
+				 {
+					JOptionPane.showMessageDialog(this, "ONC Server denied Volunteer Activity Update," +
+								"try again later","Volunteer Activity Update Failed",  
+								JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
+				 }
+			 }
+					
 			//set the display index, on, to the new volunteer added and display group
 			display(addedVol);
 			nav.setIndex(volDB.getListIndexByID(volDB.getList(), addedVol.getID()));
@@ -552,11 +576,26 @@ public class VolunteerDialog extends EntityDialog
 		setControlState();
 	}
 	
+	@SuppressWarnings("unchecked")
 	public void dataChanged(DatabaseEvent dbe)
 	{
-		if(this.isVisible() && !bAddingNewEntity)
+		if(!bAddingNewEntity)
 		{
-			if(dbe.getSource() != this && dbe.getType().equals("UPDATED_DRIVER"))
+			if(dbe.getSource() != this && (dbe.getType().equals("LOADED_ACTIVITIES") ||
+										  dbe.getType().equals("ADDED_ACTIVITY") ||
+										  dbe.getType().equals("UPDATED_ACTIVITY") ||
+										  dbe.getType().equals("DELETED_ACTIVITY")))
+			{
+				activityList = (List<VolunteerActivity>) activityDB.getList();
+				
+				if(currVolunteer != null)
+					currVolActList = volActDB.getVolunteerActivityList(currVolunteer.getID());
+				else
+					currVolActList.clear();
+				
+				actTableModel.fireTableDataChanged();
+			}
+			else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_DRIVER"))
 			{
 				ONCVolunteer updatedVol = (ONCVolunteer) dbe.getObject1();
 			
@@ -612,9 +651,14 @@ public class VolunteerDialog extends EntityDialog
 			{
 				this.setTitle(String.format("Our Neighbor's Child - %d Volunteer Information", GlobalVariablesDB.getCurrentSeason()));
 			}
-			else if(dbe.getSource() != this && dbe.getType().contains("_ACTIVITY"))
+			else if(dbe.getSource() != this && dbe.getType().contains("_VOLUNTEER_ACTIVITY"))
 			{
-				actTableModel.fireTableDataChanged();
+				VolAct changedVA = (VolAct) dbe.getObject1();
+				if(currVolunteer != null && currVolunteer.getID() == changedVA.getVolID())
+				{
+					currVolActList = volActDB.getVolunteerActivityList(currVolunteer.getID());
+					actTableModel.fireTableDataChanged();
+				}
 			}
 		}
 	}
@@ -691,9 +735,9 @@ public class VolunteerDialog extends EntityDialog
 	        
 	        siHistoryDlg.setLocationRelativeTo(btnSignInHistory);
 	        siHistoryDlg.display(currVolunteer);
-	    	siHistoryDlg.setVisible(true);
+	        siHistoryDlg.setVisible(true);
 	    	
-//	    	EntityEventManager.getInstance().removeEntitySelectionListener(siHistoryDlg);
+//	    		EntityEventManager.getInstance().removeEntitySelectionListener(siHistoryDlg);
 		}
 	}
 	
@@ -704,19 +748,30 @@ public class VolunteerDialog extends EntityDialog
 		 */
 		private static final long serialVersionUID = 1L;
 		
-		private String[] columnNames = {"Vol For?", "Activity Name", "Start Date/Time", "End Date/Time", "Comment"};
+		private String[] columnNames = {"Vol For?", "Activity Name", "Start Date/Time", "End Date/Time", "Qty", "Comment"};
  
         public int getColumnCount() { return columnNames.length; }
  
-        public int getRowCount() { return activityDB.size(); }
+        public int getRowCount() { return activityList.size(); }
  
         public String getColumnName(int col) { return columnNames[col]; }
  
         public Object getValueAt(int row, int col)
         {
-        		VolunteerActivity act = (VolunteerActivity) activityDB.getList().get(row);
-        		VolunteerActivity volAct = currVolunteer != null ? currVolunteer.getVolunteerActivity(act.getID()) : null;
-        	
+        		//we know the current volunteer, need generic activity info from the activity DB and
+        		//specific comment from the VolunteerActvityDB;
+        		VolunteerActivity act = (VolunteerActivity) activityList.get(row);
+        		
+        		//based on whether we're adding a new volunteer or editing a current volunteer, determine
+        		//which list to search to display VolActs associated with the volunteer.
+        		List<VolAct> searchVolActList = bAddingNewEntity ? newVolActList : currVolActList;
+        		
+        		int index = 0;
+        		while(index < searchVolActList.size() && searchVolActList.get(index).getActID() != act.getID())
+        			index++;
+        		
+        		VolAct volAct =  index < searchVolActList.size() ? searchVolActList.get(index) : null;
+
         		if(col == PARTICIPATION_COL)
         			return volAct != null;
         		else if(col == ACT_NAME_COL)  
@@ -725,10 +780,12 @@ public class VolunteerDialog extends EntityDialog
         			return convertLongToDate(act.getStartDate());
         		else if (col == ACT_END_COL)
         			return convertLongToDate(act.getEndDate());
+        		else if (col == ACT_QTY_COL)
+        			return volAct != null ? volAct.getQty() : 0;
         		else if (col == ACT_COMMENT_COL)
         			return volAct != null ? volAct.getComment() : "";
-        			else
-        				return "Error";
+        		else
+        			return "Error";
         }
         
         private Date convertLongToDate(long date)
@@ -746,63 +803,149 @@ public class VolunteerDialog extends EntityDialog
         			return Boolean.class;
         		else if(column == ACT_START_COL || column == ACT_END_COL)
         			return Date.class;
+        		else if(column == ACT_QTY_COL)
+        			return Integer.class;
         		else
         			return String.class;
         }
  
         public boolean isCellEditable(int row, int col)
         {
-        	//participation is editable
-        	return col == PARTICIPATION_COL & !bAddingNewEntity;
+        		if(col == PARTICIPATION_COL)
+        			return true;
+        		else if(col == ACT_COMMENT_COL || col == ACT_QTY_COL)
+        		{
+        			//only editable if participating
+            		VolunteerActivity act = activityList.get(row);
+            		List<VolAct> searchVolActList = bAddingNewEntity ? newVolActList : currVolActList;
+            		
+            		int index = 0;
+            		while(index < searchVolActList.size() && searchVolActList.get(index).getActID() != act.getID())
+            			index++;
+            		
+            		return index < searchVolActList.size();
+        		}
+        		else
+        			return false;
         }
         
         public void setValueAt(Object value, int row, int col)
         { 
-        	@SuppressWarnings("unchecked")
-			List<VolunteerActivity> activityList = (List<VolunteerActivity>) activityDB.getList();
-        	VolunteerActivity act = activityList.get(row);
-        	ONCVolunteer reqUpdateVol = null;
-        	
-        	//determine if the user made a change to a user object
-        	if(col == PARTICIPATION_COL && currVolunteer.isVolunteeringFor(act.getID()) != (Boolean) value)
-        	{
-        		reqUpdateVol = new ONCVolunteer(currVolunteer);	//make a copy
-        		
-        		//update all other fields
-        		reqUpdateVol.setDrvNum(drvNumTF.getText());
-        		reqUpdateVol.setFirstName(firstnameTF.getText());
-        		reqUpdateVol.setLastName(lastnameTF.getText());
-        		reqUpdateVol.setOrganization(groupTF.getText());
-        		reqUpdateVol.setHomePhone(hPhoneTF.getText());
-        		reqUpdateVol.setCellPhone(cPhoneTF.getText());
-        		reqUpdateVol.setEmail(emailTF.getText());
-        		reqUpdateVol.setComment(commentTF.getText());
-        		reqUpdateVol.setHouseNum(streetnumTF.getText());
-        		reqUpdateVol.setStreet(streetnameTF.getText());	
-        		reqUpdateVol.setUnit(unitTF.getText());
-        		reqUpdateVol.setCity(cityTF.getText());
-        		reqUpdateVol.setZipCode(zipTF.getText());
-        		if((Boolean) value)
-        			reqUpdateVol.addActivity(act);
-        		else
-        			reqUpdateVol.removeActivity(act);
-        	}
-        	
-        	//if the user made a change in the table, attempt to update the volunteer object in
-        	//the local user data base
-        	if(reqUpdateVol != null)
-        	{
-        		String response = volDB.update(this, reqUpdateVol);        		
-        		if(response != null || (response !=null && response.startsWith("UPDATED_DRIVER")))
-        			display(reqUpdateVol);
-        		else
+        		VolunteerActivity act = activityList.get(row);
+        		if(!bAddingNewEntity)
         		{
-        			//request failed
-        			String err_mssg = "ONC Server denied update user request, try again later";
-        			JOptionPane.showMessageDialog(GlobalVariablesDB.getFrame(), err_mssg, "Update Volunteer Request Failure",
-													JOptionPane.ERROR_MESSAGE, GlobalVariablesDB.getONCLogo());
+        			//in edit mode. Make changes to the VolAct data base
+        			//determine if the user made a change to a user object
+        			if(col == PARTICIPATION_COL)
+        			{
+        				//the user is either adding or removing a volunteer activity. First, 
+        				//check to see if there are volunteer changes
+        				update();
+        			
+        				//then, update the volunteer activity database
+        				if((Boolean) value)
+        				{
+        					//adding an activity
+        					VolAct addVAReq= new VolAct(-1, currVolunteer.getID(), act.getID(), -1, 1, "" );
+        					String response = volActDB.add(this, addVAReq);
+        					if(response != null && !response.startsWith("ADDED_VOLUNTEER_ACTIVITY"))
+        						displayErrMssg("ONC Server denied add activity request, try again later");
+        						
+        				}
+        				else
+        				{
+        					//removing an activity. First, have to find the vol act.
+        					//search the currVolActList to the volunteered for activity
+        					VolAct deleteVAReq = findVolAct(act.getID(), currVolActList);
+        					String response = volActDB.delete(this, deleteVAReq);
+        					if(response != null && !response.startsWith("DELETED_VOLUNTEER_ACTIVITY"))
+        						displayErrMssg("ONC Server denied delete activity request, try again later");
+        				}
+        			}
+        			else if(col == ACT_QTY_COL)
+        			{
+        				//the user is potentially updating qty, check to see if there are qty changes
+        				//First, have to find the vol act, search the currVolActList to the volunteered for activity
+        				VolAct vaReq = findVolAct(act.getID(), currVolActList);
+        				if(vaReq != null && vaReq.getQty() != (Integer) value)
+        				{
+        					VolAct updateVAReq = new VolAct(vaReq);
+        					updateVAReq.setQty((Integer) value);
+            			
+        					String response = volActDB.update(this, updateVAReq);
+        					if(response != null && !response.startsWith("UPDATED_VOLUNTEER_ACTIVITY"))
+        						displayErrMssg("ONC Server denied update activity request, try again later");
+        				}
+        			}
+        			else if(col == ACT_COMMENT_COL)
+        			{
+        				//the user is potentially updating a comment, check to see if there are comment changes
+        				//First, have to find the vol act, search the currVolActList to the volunteered for activity
+        				VolAct vaReq = findVolAct(act.getID(), currVolActList);
+        				if(vaReq != null && !vaReq.getComment().equals((String) value))
+        				{
+        					VolAct updateVAReq = new VolAct(vaReq);
+        					updateVAReq.setComment((String) value);
+            			
+        					String response = volActDB.update(this, updateVAReq);
+        					if(response != null && !response.startsWith("UPDATED_VOLUNTEER_ACTIVITY"))
+        						displayErrMssg("ONC Server denied update activity request, try again later");
+        				}
+        			}
         		}
-        	}
-        }  
+        		else		//adding new volunteer mode. Make changes to the list only
+        		{
+        			if(col == PARTICIPATION_COL)
+        			{
+        				//user is adding an activity for the new volunteer
+        				if((Boolean) value)	//adding an activity
+        					newVolActList.add(new VolAct(-1, -1, act.getID(), -1, 1, "" ));
+        				else	 //removing an activity.
+        					deleteVolActFromList(act.getID(), newVolActList);	
+        			}
+        			else if(col == ACT_QTY_COL)
+        			{
+        				//the user is potentially updating qty, check to see if there are qty changes
+        				//First, have to find the vol act, search the newVolActList to the volunteered for activity
+        				VolAct vaReq = findVolAct(act.getID(), newVolActList);
+        				if(vaReq != null && vaReq.getQty() != (Integer) value)
+        					vaReq.setQty((Integer) value);
+        			}
+        			else if(col == ACT_COMMENT_COL)
+        			{
+        				//the user is potentially updating a comment, check to see if there are comment changes
+        				//First, have to find the vol act, search the newVolActList to the volunteered for activity
+        				VolAct vaReq = findVolAct(act.getID(), newVolActList);
+        				if(vaReq != null && !vaReq.getComment().equals((String) value))
+        					vaReq.setComment((String) value);
+        			}
+        		}
+        }
+        
+        VolAct findVolAct(int actID, List<VolAct> searchList)
+        {
+        		int index = 0;
+			while(index < searchList.size() && searchList.get(index).getActID() != actID)
+				index++;
+		
+			return index < searchList.size() ? searchList.get(index) : null;
+        }
+        
+        void deleteVolActFromList(int actID, List<VolAct> searchList)
+        {
+        		int index = 0;
+			while(index < searchList.size() && searchList.get(index).getActID() != actID)
+				index++;
+		
+			if(index < searchList.size())
+				searchList.remove(index);
+        }
+        
+        void displayErrMssg(String err_mssg)
+        {
+        		JOptionPane.showMessageDialog(GlobalVariablesDB.getFrame(), err_mssg, 
+				"Update Volunteer Activity Request Failure", JOptionPane.ERROR_MESSAGE,
+				GlobalVariablesDB.getONCLogo());
+        }
 	}
 }

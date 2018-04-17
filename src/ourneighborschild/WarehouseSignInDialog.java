@@ -201,7 +201,7 @@ public class WarehouseSignInDialog extends ONCEntityTableDialog implements Actio
 	@Override
 	public void dataChanged(DatabaseEvent dbe)
 	{
-		if(dbe.getSource() != this && (dbe.getType().equals("ADDED_VOLUNTEER")))
+		if(dbe.getSource() != this && (dbe.getType().equals("ADDED_WAREHOUSE_VOLUNTEER")))
 		{
 			//add the new sign-in to the first item in the list
 			ONCVolunteer addedVol = (ONCVolunteer) dbe.getObject1();

@@ -41,6 +41,7 @@ public class ActivityDialog extends EntityDialog
 	//database references
 	private ActivityDB activityDB;
 	private VolunteerDB volunteerDB;
+	private VolunteerActivityDB volActDB;
 
 	//ui components
 	private JLabel lblActID, lblTimestamp, lblChangedBy, lblVolCount;
@@ -66,6 +67,10 @@ public class ActivityDialog extends EntityDialog
 		volunteerDB = VolunteerDB.getInstance();
 		if(volunteerDB != null)
 			volunteerDB.addDatabaseListener(this);
+		
+		volActDB = VolunteerActivityDB.getInstance();
+		if(volActDB != null)
+			volActDB.addDatabaseListener(this);
 		
 		currActivity = null;
 
@@ -276,7 +281,7 @@ public class ActivityDialog extends EntityDialog
 				currActivity =  (VolunteerActivity) activity;
 			
 			//check if activity can be deleted
-			int nVolunteers = volunteerDB.getVolunteerCountForActivity(currActivity);
+			int nVolunteers = volActDB.getVolunteerCountForActivity(currActivity.getID());
 			btnDelete.setEnabled(nVolunteers == 0);
 			 
 			//display the current volunteer

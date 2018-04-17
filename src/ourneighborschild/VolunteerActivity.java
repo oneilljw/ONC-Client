@@ -20,7 +20,7 @@ public class VolunteerActivity extends ONCEntity
 	private long endTimeInMillis;
 	private String location;
 	private String description;
-	private String volComment;	//personalized by each volunteer for each of their activities
+//	private String volComment;	//personalized by each volunteer for each of their activities
 	private boolean bOpen;
 	private boolean bEmailReminder;
 	
@@ -36,7 +36,7 @@ public class VolunteerActivity extends ONCEntity
 		this.endTimeInMillis = end;
 		this.location = location;
 		this.description = description;
-		this.volComment = volComment;
+//		this.volComment = volComment;
 		this.bOpen = bOpen;
 		this.bEmailReminder = bEmailReminder;
 	}
@@ -52,7 +52,7 @@ public class VolunteerActivity extends ONCEntity
 		this.endTimeInMillis = activity.endTimeInMillis;
 		this.location = activity.location;
 		this.description = activity.description;
-		this.volComment = activity.volComment;
+//		this.volComment = activity.volComment;
 		this.bOpen = activity.bOpen;
 		this.bEmailReminder = activity.bEmailReminder;
 	}
@@ -73,7 +73,7 @@ public class VolunteerActivity extends ONCEntity
 		this.endTimeInMillis = sua.getEnddate() * 1000;
 		this.location = sua.getLocation();
 		this.description = "";
-		this.volComment = sua.getComment();
+//		this.volComment = sua.getComment();
 		this.bOpen = false;
 		this.bEmailReminder = false;
 	}
@@ -90,7 +90,7 @@ public class VolunteerActivity extends ONCEntity
 		this.endTimeInMillis = line[5].isEmpty() ? 0 : Long.parseLong(line[5]);
 		this.location = line[6];
 		this.description = line[7];
-		this.volComment = "";
+//		this.volComment = "";
 		this.bOpen = !line[8].isEmpty() && line[8].charAt(0) == 'T' ? true : false;
 		this.bEmailReminder = !line[9].isEmpty() && line[9].charAt(0) == 'T' ? true : false;
 	}
@@ -103,7 +103,7 @@ public class VolunteerActivity extends ONCEntity
 	public long getEndDate() { return endTimeInMillis; }
 	public String getLocation() { return location; }
 	String getDescription() { return description; }
-	public String getComment() { return volComment; }
+//	public String getComment() { return volComment; }
 	public boolean isOpen() { return bOpen; }
 	public boolean sendReminder() { return bEmailReminder; }
 	
@@ -114,7 +114,7 @@ public class VolunteerActivity extends ONCEntity
 	public void setStartDate(long startDate) { this.startTimeInMillis = startDate; }
 	public void setEndDate(long endDate) { this.endTimeInMillis = endDate; }
 	void setLocation(String location) { this.location = location; }
-	public void setComment(String volComment) { this.volComment = volComment; }
+//	public void setComment(String volComment) { this.volComment = volComment; }
 	void setDescription(String description) { this.description = description; }
 	void setOpen (boolean bOpen) { this.bOpen = bOpen; }
 	void setReminder (boolean bRemind) { this.bEmailReminder = bRemind; }
