@@ -62,11 +62,11 @@ public class SignUpActivity
 	{
 		return email;
 	}
-	int getMyqty()
+	 public int getMyqty()
 	{
 		return myqty;
 	}
-	String getComment()
+	public String getComment()
 	{
 		return comment;
 	}
