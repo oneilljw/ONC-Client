@@ -63,6 +63,7 @@ public class ServerGVs extends ONCObject
 	
 	//getters
 	Date getDeliveryDate() { return oncDeliveryDate.getTime(); }
+	public Calendar getDeliveryDateCal() { return oncDeliveryDate; }
 	public Date getSeasonStartDate() { return oncSeasonStartDate.getTime(); }
 	public Calendar getSeasonStartCal() { return oncSeasonStartDate; }
 	String getWarehouseAddress() { return warehouseAddress; }

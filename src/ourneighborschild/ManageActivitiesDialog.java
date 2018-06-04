@@ -75,9 +75,9 @@ public class ManageActivitiesDialog extends ONCEntityTableDialog implements Acti
 	private ActivityDB activityDB;
 	private VolunteerActivityDB volActDB;
 
-	private List<VolunteerActivity> actTableList;
+	private List<Activity> actTableList;
 	private List<ONCVolunteer> volTableList;
-	private VolunteerActivity selectedAct;
+	private Activity selectedAct;
 
 	public ManageActivitiesDialog(JFrame pf)
 	{
@@ -100,7 +100,7 @@ public class ManageActivitiesDialog extends ONCEntityTableDialog implements Acti
 			volActDB.addDatabaseListener(this);
 		
 		//set up the table lists
-		actTableList = new ArrayList<VolunteerActivity>();
+		actTableList = new ArrayList<Activity>();
 		volTableList = new ArrayList<ONCVolunteer>();
 		
 		bIgnoreCBEvents = false;
@@ -276,7 +276,7 @@ public class ManageActivitiesDialog extends ONCEntityTableDialog implements Acti
 		
 		lblVolCount.setText("Volunteers for selected activity: " + Integer.toString(volTableList.size()));
 		
-		for(VolunteerActivity va : (List<VolunteerActivity>) activityDB.getList())
+		for(Activity va : (List<Activity>) activityDB.getList())
 			if(doesActivityMatch(va))
 				actTableList.add(va);
 		
@@ -299,7 +299,7 @@ public class ManageActivitiesDialog extends ONCEntityTableDialog implements Acti
 		createTableList();
 	}
 	
-	boolean doesActivityMatch(VolunteerActivity va)
+	boolean doesActivityMatch(Activity va)
 	{
 		//test for activity category match
 		 return sortActivityCategory.equals("Any") || va.getCategory().equals(sortActivityCategory);
@@ -513,7 +513,7 @@ public class ManageActivitiesDialog extends ONCEntityTableDialog implements Acti
         		VolAct va = null;
         		if(actModelRow > -1)
         		{
-        			VolunteerActivity genericAct = actTableList.get(actModelRow);
+        			Activity genericAct = actTableList.get(actModelRow);
         			if(genericAct != null)
         				va = volActDB.getVolunteerActivity(v.getID(), genericAct.getID());
         		}
@@ -561,7 +561,7 @@ public class ManageActivitiesDialog extends ONCEntityTableDialog implements Acti
  
         public Object getValueAt(int row, int col)
         {
-        		VolunteerActivity act = actTableList.get(row);
+        		Activity act = actTableList.get(row);
         	
         		if(col == ACT_NAME_COL)  
         			return act.getName();

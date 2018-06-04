@@ -2,7 +2,7 @@ package ourneighborschild;
 
 import java.util.Date;
 
-public class VolunteerActivity extends ONCEntity
+public class Activity extends ONCEntity
 {
 	/***
 	 * Basic java object that describes activities that ONC volunteers can sign up for
@@ -24,7 +24,7 @@ public class VolunteerActivity extends ONCEntity
 	private boolean bOpen;
 	private boolean bEmailReminder;
 	
-	public VolunteerActivity(int id, int geniusID, String category, String name, long start, long end, 
+	public Activity(int id, int geniusID, String category, String name, long start, long end, 
 								String location, String description, String volComment,
 								boolean bOpen, boolean bEmailReminder, String username) 
 	{
@@ -41,7 +41,7 @@ public class VolunteerActivity extends ONCEntity
 		this.bEmailReminder = bEmailReminder;
 	}
 	
-	public VolunteerActivity(VolunteerActivity activity)
+	public Activity(Activity activity)
 	{
 		super(activity.id, activity.dateChanged.getTimeInMillis(), activity.changedBy, activity.slPos,
 				activity.slMssg, activity.slChangedBy);
@@ -62,7 +62,7 @@ public class VolunteerActivity extends ONCEntity
 	 * Note the SignUpGenius object will have start and end dates in seconds, not milliseconds
 	 * @param sua
 	 */
-	public VolunteerActivity(SignUpActivity sua)
+	public Activity(SignUpActivity sua)
 	{
 		super(-1, new Date(), "Lavin, K", 3,
 				"New activity from SignUpGenius", "Lavin, K");
@@ -78,7 +78,7 @@ public class VolunteerActivity extends ONCEntity
 		this.bEmailReminder = false;
 	}
 	
-	public VolunteerActivity(String[] line)
+	public Activity(String[] line)
 	{
 		super(Integer.parseInt(line[0]), Long.parseLong(line[10]), line[11],
 				Integer.parseInt(line[12]), line[13], line[14]);
@@ -143,7 +143,7 @@ public class VolunteerActivity extends ONCEntity
 		return row;
 	}
 	
-	public int compareActivities(VolunteerActivity va)
+	public int compareActivities(Activity va)
 	{
 		int match = VOLUNTEER_ACTIVITY_DOES_NOT_MATCH;
 		

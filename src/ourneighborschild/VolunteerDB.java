@@ -350,7 +350,7 @@ public class VolunteerDB extends ONCSearchableDatabase
 		}
 	}
 	
-	List<ONCVolunteer> getVolunteersForActivity(VolunteerActivity va)
+	List<ONCVolunteer> getVolunteersForActivity(Activity va)
 	{
 		List<ONCVolunteer> volList = new ArrayList<ONCVolunteer>();
 		for(ONCVolunteer v : volunteerList)

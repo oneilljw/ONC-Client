@@ -43,7 +43,7 @@ public class SortDriverDialog extends DependantTableDialog
 	private ActivityDB activityDB;
 	private VolunteerActivityDB volActDB;
 	private ArrayList<ONCVolunteer> atAL;	//Holds references to driver objects for driver table
-	private VolunteerActivity deliveryActivity;
+	private Activity deliveryActivity;
 	
 	SortDriverDialog(JFrame pf)
 	{

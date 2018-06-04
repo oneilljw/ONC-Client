@@ -1,5 +1,11 @@
 package ourneighborschild;
 
+/***
+ * Object that defines an activity that a volunteer has agreed to participate in. Holds a reference
+ * to the volunteer and the activity. Allows the volunteer to indicate participation with a number
+ * of friends or relatives as well as a comment.
+ * @author johnoneil
+ */
 public class VolAct extends ONCObject
 {
 	private int volID;

@@ -21,14 +21,14 @@ public class ActivityDB extends ONCSearchableDatabase
 {
 	private static final EntityType DB_TYPE = EntityType.ACTIVITY;
 	private static ActivityDB instance = null;
-	private List<VolunteerActivity> activityList;
+	private List<Activity> activityList;
 	private List<String> categoryList;
 	private GeniusSignUps geniusSignUps;
 	
 	private ActivityDB()
 	{
 		super(DB_TYPE);
-		activityList = new ArrayList<VolunteerActivity>();
+		activityList = new ArrayList<Activity>();
 		categoryList = new ArrayList<String>();
 		geniusSignUps = new GeniusSignUps();
 	}
@@ -66,7 +66,7 @@ public class ActivityDB extends ONCSearchableDatabase
 		}
 	}
 	
-	VolunteerActivity getActivity(int id)
+	Activity getActivity(int id)
 	{
 		int index = 0;
 		while(index < activityList.size() && activityList.get(index).getID() != id)
@@ -86,7 +86,7 @@ public class ActivityDB extends ONCSearchableDatabase
 	 * @param endTime
 	 * @return
 	 */
-	VolunteerActivity getActivity(String activity, long startDate,  long endDate)
+	Activity getActivity(String activity, long startDate,  long endDate)
 	{
 		//search for matching activity. A match requires the activity name, start date/time and
 		//end date/time to all be equal
@@ -101,7 +101,7 @@ public class ActivityDB extends ONCSearchableDatabase
 		
 		return index < activityList.size() ? activityList.get(index) : null;
 	}
-	VolunteerActivity getActivity(String activity)
+	Activity getActivity(String activity)
 	{
 		//search for matching activity.
 		int index = 0;
@@ -113,9 +113,9 @@ public class ActivityDB extends ONCSearchableDatabase
 	
 	//creates a list of volunteer activities based on stored string of activity ID's 
 	//separated by the '_' character.
-	List<VolunteerActivity> createActivityList(String zActivities)
+	List<Activity> createActivityList(String zActivities)
 	{
-		List<VolunteerActivity> volActList = new LinkedList<VolunteerActivity>();
+		List<Activity> volActList = new LinkedList<Activity>();
 			
 		String[] activityParts = zActivities.split("_");
 		for(String zActivity : activityParts)
@@ -154,7 +154,7 @@ public class ActivityDB extends ONCSearchableDatabase
     	else	//search for activity name
     	{
     		searchType = "Activities containing";
-			for(VolunteerActivity va:activityList)
+			for(Activity va:activityList)
 			{
 				if(va.getName().toLowerCase().contains(data.toLowerCase()) ||
 					va.getDescription().toLowerCase().contains(data.toLowerCase()) ||
@@ -180,7 +180,7 @@ public class ActivityDB extends ONCSearchableDatabase
 	GeniusSignUps getSignUps() { return geniusSignUps; }
 	
 	//implementation of abstract classes
-	VolunteerActivity getObjectAtIndex(int index) { return activityList.get(index); }
+	Activity getObjectAtIndex(int index) { return activityList.get(index); }
 
 	@Override
 	String update(Object source, ONCObject entity)
@@ -189,7 +189,7 @@ public class ActivityDB extends ONCSearchableDatabase
 		String response = "UPDATE_FAILED";
 		
 		response = serverIF.sendRequest("POST<update_activity>" + 
-											gson.toJson(entity, VolunteerActivity.class));
+											gson.toJson(entity, Activity.class));
 		
 		if(response != null && response.startsWith("UPDATED_ACTIVITY"))
 			processUpdatedObject(source, response.substring(16));
@@ -200,7 +200,7 @@ public class ActivityDB extends ONCSearchableDatabase
 	void processUpdatedObject(Object source, String json)
 	{
 		Gson gson = new Gson();
-		VolunteerActivity updatedObj = gson.fromJson(json, VolunteerActivity.class);
+		Activity updatedObj = gson.fromJson(json, Activity.class);
 		
 		//store updated object in local data base
 		int index = 0;
@@ -271,7 +271,7 @@ public class ActivityDB extends ONCSearchableDatabase
 		if(serverIF != null && serverIF.isConnected())
 		{		
 			Gson gson = new Gson();
-			Type listtype = new TypeToken<ArrayList<VolunteerActivity>>(){}.getType();
+			Type listtype = new TypeToken<ArrayList<Activity>>(){}.getType();
 			
 			response = serverIF.sendRequest("GET<activities>");
 			activityList = gson.fromJson(response, listtype);
@@ -281,7 +281,7 @@ public class ActivityDB extends ONCSearchableDatabase
 				response =  "ACTIVITIES_LOADED";
 				fireDataChanged(this, "LOADED_ACTIVITIES", null);
 				
-				for(VolunteerActivity va : activityList)
+				for(Activity va : activityList)
 					if(!isCategoryInList(va.getCategory()))
 						categoryList.add(va.getCategory());
 				
@@ -306,7 +306,7 @@ public class ActivityDB extends ONCSearchableDatabase
 		String response = "";
 		
 		response = serverIF.sendRequest("POST<add_activity>" + 
-											gson.toJson(entity, VolunteerActivity.class));
+											gson.toJson(entity, Activity.class));
 		
 		if(response.startsWith("ADDED_ACTIVITY"))
 			processAddedObject(source, response.substring(14));
@@ -318,7 +318,7 @@ public class ActivityDB extends ONCSearchableDatabase
 	{
 		//Store added activity in local data base
 		Gson gson = new Gson();
-		VolunteerActivity addedActivity = gson.fromJson(json, VolunteerActivity.class);
+		Activity addedActivity = gson.fromJson(json, Activity.class);
 		activityList.add(addedActivity);
 //		System.out.println(String.format("DriverDB processAddedDriver: Driver Added ID: %d",
 //				addedDriver.getID()));
@@ -339,7 +339,7 @@ public class ActivityDB extends ONCSearchableDatabase
 		String response = "";
 		
 		response = serverIF.sendRequest("POST<delete_activity>" + 
-											gson.toJson(entity, VolunteerActivity.class));
+											gson.toJson(entity, Activity.class));
 		
 		
 		if(response.startsWith("DELETED_ACTIVITY"))
@@ -352,7 +352,7 @@ public class ActivityDB extends ONCSearchableDatabase
 	{
 		//remove deleted activity in local data base
 		Gson gson = new Gson();
-		VolunteerActivity deletedAct = gson.fromJson(json, VolunteerActivity.class);
+		Activity deletedAct = gson.fromJson(json, Activity.class);
 		
 		int index=0;
 		while(index < activityList.size() && activityList.get(index).getID() != deletedAct.getID())
@@ -414,7 +414,7 @@ public class ActivityDB extends ONCSearchableDatabase
 	    			CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
 	    			writer.writeNext(header);
 	    	    
-	    			for(VolunteerActivity va:activityList)
+	    			for(Activity va:activityList)
 	    				writer.writeNext(va.getExportRow());	//Get activity data
 	    	 
 	    			writer.close();

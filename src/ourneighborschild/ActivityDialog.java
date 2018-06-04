@@ -52,7 +52,7 @@ public class ActivityDialog extends EntityDialog
     private JButton btnSaveTimeChanges;
     private TimeChangeListener timeChangeListener;
     
-    private VolunteerActivity currActivity;	 //reference to the current object displayed
+    private Activity currActivity;	 //reference to the current object displayed
     
 	public ActivityDialog(JFrame pf)
 	{
@@ -227,7 +227,7 @@ public class ActivityDialog extends EntityDialog
 	void update()
 	{
 		//Check to see if user has changed any field, if so, save it	
-		VolunteerActivity reqUpdateAct = new VolunteerActivity(currActivity);	//make a copy of current driver
+		Activity reqUpdateAct = new Activity(currActivity);	//make a copy of current driver
 		int bCD = 0; //used to indicate a change has been detected
 		
 		if(!categoryTF.getText().equals(currActivity.getCategory())) { reqUpdateAct.setName(categoryTF.getText()); bCD = bCD | 1; }
@@ -276,9 +276,9 @@ public class ActivityDialog extends EntityDialog
 			//null, the set it to the first activity in the database. If currActviity is not null
 			//and activity isn't null, then set currActivity = activity;
 			if(currActivity == null)
-				currActivity = (VolunteerActivity) activityDB.getObjectAtIndex(0);
+				currActivity = (Activity) activityDB.getObjectAtIndex(0);
 			else if(activity != null)
-				currActivity =  (VolunteerActivity) activity;
+				currActivity =  (Activity) activity;
 			
 			//check if activity can be deleted
 			int nVolunteers = volActDB.getVolunteerCountForActivity(currActivity.getID());
@@ -376,7 +376,7 @@ public class ActivityDialog extends EntityDialog
 	@Override
 	void onDelete()
 	{	
-		VolunteerActivity delAct = activityDB.getObjectAtIndex(nav.getIndex());
+		Activity delAct = activityDB.getObjectAtIndex(nav.getIndex());
 		
 		//Confirm with the user that the deletion is really intended
 		String confirmMssg = String.format("<html>Are you sure you want to delete<br>%s<br>from the data base?</html>", 
@@ -412,7 +412,7 @@ public class ActivityDialog extends EntityDialog
 	{
 		//construct a new volunteer activity from user input. Comment field is empty
 		
-		VolunteerActivity newAct = new VolunteerActivity(-1, -1, categoryTF.getText(), nameTF.getText(),
+		Activity newAct = new Activity(-1, -1, categoryTF.getText(), nameTF.getText(),
 					getSpinnerTimeInMillis(startModel),getSpinnerTimeInMillis(endModel),
 					locationTF.getText(), descriptionTF.getText(), "", 
 					openCkBox.isSelected(), reminderCkBox.isSelected(),
@@ -425,7 +425,7 @@ public class ActivityDialog extends EntityDialog
 		{
 			//update the ui with new id assigned by the server 
 			Gson gson = new Gson();
-			VolunteerActivity addedAct = gson.fromJson(response.substring(14), VolunteerActivity.class);
+			Activity addedAct = gson.fromJson(response.substring(14), Activity.class);
 							
 			//set the display index, on, to the new volunteer added and display group
 			display(addedAct);
@@ -464,7 +464,7 @@ public class ActivityDialog extends EntityDialog
 		{
 			if(dbe.getSource() != this && dbe.getType().equals("UPDATED_ACTIVITY"))
 			{
-				VolunteerActivity updatedAct = (VolunteerActivity) dbe.getObject1();
+				Activity updatedAct = (Activity) dbe.getObject1();
 				
 				//If a current activity is being displayed has changed, re-display it
 				if(currActivity != null && currActivity.getID() == updatedAct.getID())
@@ -472,7 +472,7 @@ public class ActivityDialog extends EntityDialog
 			}
 			else if(dbe.getSource() != this && dbe.getType().equals("ADDED_ACTIVITY"))
 			{
-				VolunteerActivity addedActivity = (VolunteerActivity) dbe.getObject1();
+				Activity addedActivity = (Activity) dbe.getObject1();
 				
 				//If no activity is being displayed, display the added one
 				if(currActivity == null && activityDB.size() > 0)
@@ -502,7 +502,7 @@ public class ActivityDialog extends EntityDialog
 				}
 				else
 				{
-					VolunteerActivity deletedAct = (VolunteerActivity) dbe.getObject1();
+					Activity deletedAct = (Activity) dbe.getObject1();
 					if(currActivity.getID() == deletedAct.getID())
 					{
 						if(nav.getIndex() == 0)
@@ -567,7 +567,7 @@ public class ActivityDialog extends EntityDialog
 			{
 //				System.out.println(String.format("ActDlg.entitySelected: type: %s, source: %s",
 //						tse.getType().toString(), tse.getSource().toString()));
-				VolunteerActivity activity = (VolunteerActivity) tse.getObject1();
+				Activity activity = (Activity) tse.getObject1();
 				update();
 				display(activity);
 			}

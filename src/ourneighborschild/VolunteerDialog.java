@@ -69,7 +69,7 @@ public class VolunteerDialog extends EntityDialog
     private ONCVolunteer currVolunteer;	//reference to the current object displayed
     private List<VolAct> currVolActList; //reference to the current activities for the volunteer
     private List<VolAct> newVolActList; //reference to the current activities for the volunteer
-    private List<VolunteerActivity> activityList;
+    private List<Activity> activityList;
     
 	@SuppressWarnings("unchecked")
 	public VolunteerDialog(JFrame pf)
@@ -97,7 +97,7 @@ public class VolunteerDialog extends EntityDialog
 		currVolunteer = null;
 		currVolActList = new ArrayList<VolAct>();
 		newVolActList = new ArrayList<VolAct>();
-		activityList = (List<VolunteerActivity>) activityDB.getList();
+		activityList = (List<Activity>) activityDB.getList();
         
         //set up the navigation panel at the top of dialog
         nav = new ONCNavPanel(pf, volDB);
@@ -586,7 +586,7 @@ public class VolunteerDialog extends EntityDialog
 										  dbe.getType().equals("UPDATED_ACTIVITY") ||
 										  dbe.getType().equals("DELETED_ACTIVITY")))
 			{
-				activityList = (List<VolunteerActivity>) activityDB.getList();
+				activityList = (List<Activity>) activityDB.getList();
 				
 				if(currVolunteer != null)
 					currVolActList = volActDB.getVolunteerActivityList(currVolunteer.getID());
@@ -760,7 +760,7 @@ public class VolunteerDialog extends EntityDialog
         {
         		//we know the current volunteer, need generic activity info from the activity DB and
         		//specific comment from the VolunteerActvityDB;
-        		VolunteerActivity act = (VolunteerActivity) activityList.get(row);
+        		Activity act = (Activity) activityList.get(row);
         		
         		//based on whether we're adding a new volunteer or editing a current volunteer, determine
         		//which list to search to display VolActs associated with the volunteer.
@@ -816,7 +816,7 @@ public class VolunteerDialog extends EntityDialog
         		else if(col == ACT_COMMENT_COL || col == ACT_QTY_COL)
         		{
         			//only editable if participating
-            		VolunteerActivity act = activityList.get(row);
+            		Activity act = activityList.get(row);
             		List<VolAct> searchVolActList = bAddingNewEntity ? newVolActList : currVolActList;
             		
             		int index = 0;
@@ -831,7 +831,7 @@ public class VolunteerDialog extends EntityDialog
         
         public void setValueAt(Object value, int row, int col)
         { 
-        		VolunteerActivity act = activityList.get(row);
+        		Activity act = activityList.get(row);
         		if(!bAddingNewEntity)
         		{
         			//in edit mode. Make changes to the VolAct data base

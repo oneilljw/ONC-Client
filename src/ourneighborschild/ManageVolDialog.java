@@ -459,7 +459,7 @@ public class ManageVolDialog extends ONCEntityTableDialog implements ActionListe
 			VolAct va = modelRow > -1 ? volActDB.getVolunteerActivityList(selectedVol.getID()).get(modelRow) : null;
 			if(va != null)
 			{
-				VolunteerActivity selActivity = activityDB.getActivity(va.getActID());
+				Activity selActivity = activityDB.getActivity(va.getActID());
 				if(selActivity != null)
 					fireEntitySelected(this, EntityType.ACTIVITY, selActivity, null, null);
 			}
@@ -601,7 +601,7 @@ public class ManageVolDialog extends ONCEntityTableDialog implements ActionListe
         {
         		List<VolAct> volActList = volActDB.getVolunteerActivityList(selectedVol.getID());
         		VolAct va = volActList.get(row);
-        		VolunteerActivity act = activityDB.getActivity(va.getActID());
+        		Activity act = activityDB.getActivity(va.getActID());
         	
         		if(col == ACT_NAME_COL)  
         			return act.getName();
