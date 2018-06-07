@@ -14,6 +14,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -51,7 +52,6 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
     private JComboBox<GroupType> groupTypeCB;
     private JButton btnAddMember, btnRemoveMember;
     private JCheckBox ckBoxShared, ckBoxWebpage, ckBoxContactInfo;
-    private int seasonCount = 0;	//Holds the navigation panel overall counts
     
     private ONCGroup currGroup;	//reference to ONCGroup object being displayed
     private List<ONCUser> memberList; //holds ONCUser's in the member table
@@ -84,16 +84,17 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
         nav = new ONCNavPanel(pf, groupDB);
         nav.setDefaultMssg("Our Neighbor's Child Groups");
         nav.setCount1("Total: " + Integer.toString(0));
-        nav.setCount2("Season: " + Integer.toString(0));
+        nav.setCount2("");
 
         //set up the edit organization panel
 //      entityPanel.setBorder(BorderFactory.createTitledBorder("Gift Partner Information"));
         JPanel op1 = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JPanel op2 = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JPanel op3 = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel op4 = new JPanel(new FlowLayout(FlowLayout.LEFT));
         
         //set up panel 1
-        nameTF = new JTextField(23);
+        nameTF = new JTextField(25);
         nameTF.setBorder(BorderFactory.createTitledBorder("Group Name"));
         nameTF.addActionListener(dcListener);
                 
@@ -101,7 +102,7 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
         groupTypeCB.setToolTipText("Type of group, e.g. Business");
         groupTypeCB.setPreferredSize(new Dimension (144, 48));
         groupTypeCB.setBorder(BorderFactory.createTitledBorder("Group Type"));
-        groupTypeCB.addActionListener(dcListener);
+        groupTypeCB.addActionListener(new GroupTypeListener());
         
         lblLastChangedBy = new JLabel("No one");
         lblLastChangedBy.setToolTipText("User that last changed group info");
@@ -112,7 +113,7 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
         lblDateChanged.setToolTipText("Timestamp when group info last changed");
         lblDateChanged.setPreferredSize(new Dimension (120, 48));
         lblDateChanged.setBorder(BorderFactory.createTitledBorder("Date Changed"));
-        sdf = new SimpleDateFormat("MM/d/yyyy");
+        sdf = new SimpleDateFormat("MM/dd/yyyy");
         
         op1.add(nameTF);
         op1.add(groupTypeCB);
@@ -120,23 +121,27 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
         op1.add(lblDateChanged);
 
         //set up panel 2
-        ckBoxShared = new JCheckBox("Info shared among members?");
-        ckBoxShared.setToolTipText("Check to allow Group Memebers to view/edit each other's referrals");
+        ckBoxShared = new JCheckBox("Info shared among group members?");
+        ckBoxShared.setToolTipText("If checked, group members can view/edit each other's referrals");
         ckBoxShared.addActionListener(dcListener);
-        
-        ckBoxWebpage = new JCheckBox("Include group in Warehouse Sign-In dropdown menu?");
-        ckBoxWebpage.setToolTipText("Check to inlcude Group in warehouse registration dropdown menu");
-        ckBoxWebpage.addActionListener(dcListener);
-        
-        ckBoxContactInfo = new JCheckBox("Require Volunteer Contact Info?");
-        ckBoxContactInfo.setToolTipText("Check to require volunteer to include contact info when signing in");
-        ckBoxContactInfo.addActionListener(dcListener);
-        
+
         op2.add(ckBoxShared);
-        op2.add(ckBoxWebpage);
-        op2.add(ckBoxContactInfo);
        
         //set up panel 3
+        ckBoxWebpage = new JCheckBox("Include group in Warehouse Sign-In dropdown menu?");
+        ckBoxWebpage.setToolTipText("If checked, group is included on warehouse sign-in webpage group dropdown menu");
+        ckBoxWebpage.setEnabled(false);
+        ckBoxWebpage.addActionListener(dcListener);
+        
+        ckBoxContactInfo = new JCheckBox("Require Volunteer Contact Info when signing in?");
+        ckBoxContactInfo.setToolTipText("If checked, when signing into the warehouse, volunteer is required to provide contact info");
+        ckBoxContactInfo.setEnabled(false);
+        ckBoxContactInfo.addActionListener(dcListener);
+        
+        op3.add(ckBoxWebpage);
+        op3.add(ckBoxContactInfo);
+       
+        //set up panel 4
         JPanel memberPanel = new JPanel();	//left panel
 		JPanel btnPanel = new JPanel();	//center panel
 		JPanel candidatePanel = new JPanel();	//right panel
@@ -246,26 +251,28 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
         //add the table scroll pane to the candidate panel
         candidatePanel.add(candidateScrollPane);
        
-        op3.add(memberPanel);
-        op3.add(btnPanel);
-        op3.add(candidatePanel);
+        op4.add(memberPanel);
+        op4.add(btnPanel);
+        op4.add(candidatePanel);
         
         entityPanel.add(op1);
         entityPanel.add(op2);
         entityPanel.add(op3);
+        entityPanel.add(op4);
+        entityPanel.add(Box.createVerticalGlue());
         
         //Set the button names and tool tips for control panel
         btnNew.setText("Add New Group");
-    	btnNew.setToolTipText("Click to add a new group");
+    		btnNew.setToolTipText("Click to add a new group");
         
         btnDelete.setText("Delete Group");
-    	btnDelete.setToolTipText("Click to delete this group");
+        btnDelete.setToolTipText("Click to delete this group");
         
         btnSave.setText("Save New Group");
-    	btnSave.setToolTipText("Click to save the new group");
+        btnSave.setToolTipText("Click to save the new group");
         
         btnCancel.setText("Cancel Add New Group");
-    	btnCancel.setToolTipText("Click to cancel adding a new group");
+        btnCancel.setToolTipText("Click to cancel adding a new group");
        
         contentPane.add(nav);
         contentPane.add(entityPanel);
@@ -274,7 +281,7 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
         this.setContentPane(contentPane);
 
         this.pack();
-        this.setMinimumSize(new Dimension(768, 400));
+        this.setMinimumSize(new Dimension(752, 528));
         this.setResizable(true);
         Point pt = pf.getLocation();
         setLocation(pt.x + 20, pt.y + 20);
@@ -468,7 +475,6 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
 			lblDateChanged.setText(sdf.format(currGroup.getDateChanged()));
 			
 			nav.setCount1("Total Groups: " + Integer.toString(groupDB.size()));
-			nav.setCount2("Season: " + Integer.toString(seasonCount));
 			
 			nav.setStoplightEntity(currGroup);
 			nav.btnNextSetEnabled(true);
@@ -718,6 +724,42 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
 					memberTM.fireTableDataChanged();
 				}	
 			}
+		}
+	}
+	
+	private class GroupTypeListener implements ActionListener
+	{
+		@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			//If the group is type Volunteer, show the check boxes for warehouse sign-in. Otherwise, show
+			//the check box for sharing data and the group member tables
+			if(groupTypeCB.getSelectedItem() == GroupType.Volunteer)
+			{
+				ckBoxShared.setEnabled(false);
+				ckBoxWebpage.setEnabled(true);
+				ckBoxContactInfo.setEnabled(true);
+				candidateTbl.setEnabled(false);
+				memberTbl.setEnabled(false);
+				candidateList.clear();
+				candidateTM.fireTableDataChanged();
+			}
+			else
+			{
+				ckBoxShared.setEnabled(true);
+				ckBoxWebpage.setEnabled(false);
+				ckBoxContactInfo.setEnabled(false);
+				candidateTbl.setEnabled(true);
+				memberTbl.setEnabled(true);
+				candidateList = userDB.getCandidateGroupMembers();
+				candidateTM.fireTableDataChanged();
+			}
+			
+			btnAddMember.setEnabled(false);
+			btnRemoveMember.setEnabled(false);
+			
+			if(!bIgnoreEvents && !bAddingNewEntity)
+				update();
 		}
 	}
 }
