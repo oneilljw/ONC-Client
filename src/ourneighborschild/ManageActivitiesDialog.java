@@ -30,6 +30,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -49,7 +50,8 @@ public class ManageActivitiesDialog extends ONCEntityTableDialog implements Acti
 	private static final int FIRST_NAME_COL= 0;
 	private static final int LAST_NAME_COL = 1;
 	private static final int GROUP_COL = 2;
-	private static final int COMMENT_COL = 3;
+	private static final int QTY_COL = 3;
+	private static final int COMMENT_COL = 4;
 
 	private static final int ACT_NAME_COL= 0;
 	private static final int ACT_START_DATE_COL = 1;
@@ -155,7 +157,7 @@ public class ManageActivitiesDialog extends ONCEntityTableDialog implements Acti
 		
       	//Set table column widths
       	int tablewidth = 0;
-      	int[] act_colWidths = {320, 192,192, 80};
+      	int[] act_colWidths = {360, 144,144, 120};
       	for(int col=0; col < act_colWidths.length; col++)
       	{
       		actTable.getColumnModel().getColumn(col).setPreferredWidth(act_colWidths[col]);
@@ -188,8 +190,8 @@ public class ManageActivitiesDialog extends ONCEntityTableDialog implements Acti
         
 		//Create the volunteer table model and table
 		volTableModel = new VolunteerTableModel();
-		String[] colToolTips = {"First Name", "Last Name", "Group", "# of Actvities", 
-								"# of Warehouse Sign-Ins", "Last Sign-In Time"};
+		String[] colToolTips = {"First Name", "Last Name", "Group",
+								"Quantity for Activity", "Comment for Activiity"};
 		
 		volTable = new ONCTable(volTableModel, colToolTips, new Color(240,248,255));
 		volTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
@@ -197,7 +199,7 @@ public class ManageActivitiesDialog extends ONCEntityTableDialog implements Acti
 
 		//Set table column widths
 		tablewidth = 0;
-		int[] colWidths = {96, 96, 192, 272};
+		int[] colWidths = {96, 96, 176, 32, 288};
 		for(int col=0; col < colWidths.length; col++)
 		{
 			volTable.getColumnModel().getColumn(col).setPreferredWidth(colWidths[col]);
@@ -212,10 +214,9 @@ public class ManageActivitiesDialog extends ONCEntityTableDialog implements Acti
         anHeader.setBackground( new Color(161,202,241));
         
         //Center justify columns
-//        DefaultTableCellRenderer dtcr = new DefaultTableCellRenderer();
-//        dtcr.setHorizontalAlignment(SwingConstants.CENTER);
-//        volTable.getColumnModel().getColumn(COMMENT_COL).setCellRenderer(dtcr);
-//        volTable.getColumnModel().getColumn(NUM_SIGNIN_COL).setCellRenderer(dtcr);
+        DefaultTableCellRenderer dtcr = new DefaultTableCellRenderer();
+        dtcr.setHorizontalAlignment(SwingConstants.CENTER);
+        volTable.getColumnModel().getColumn(QTY_COL).setCellRenderer(dtcr);
         
         //Create the scroll pane and add the table to it.
         JScrollPane volScrollPane = new JScrollPane(volTable, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
@@ -284,6 +285,16 @@ public class ManageActivitiesDialog extends ONCEntityTableDialog implements Acti
 		
 		actTableModel.fireTableDataChanged();
 		volTableModel.fireTableDataChanged();
+	}
+	
+	void updateVolTableList()
+	{	
+		if(selectedAct != null)
+		{
+			volTableList = volDB.getVolunteersForActivity(selectedAct);
+			lblVolCount.setText("Volunteers for selected activity: " + Integer.toString(volTableList.size()));
+			volTableModel.fireTableDataChanged();
+		}
 	}
 	
 	void resetFilters()
@@ -419,6 +430,10 @@ public class ManageActivitiesDialog extends ONCEntityTableDialog implements Acti
 			this.setTitle(String.format("Our Neighbor's Child - %d Activity Management", GlobalVariablesDB.getCurrentSeason()));
 			createTableList();
 		}
+		else if(dbe.getSource() != this && dbe.getType().contains("_VOLUNTEER_ACTIVITY"))
+		{
+			updateVolTableList();
+		}
 	}
 
 	@Override
@@ -435,6 +450,14 @@ public class ManageActivitiesDialog extends ONCEntityTableDialog implements Acti
 				volTableList = volDB.getVolunteersForActivity(selectedAct);
 				lblVolCount.setText("Volunteers for selected activity: " + Integer.toString(volTableList.size()));
 				fireEntitySelected(this, EntityType.ACTIVITY, selectedAct, null, null);
+				volTableModel.fireTableDataChanged();
+			}
+			else
+			{
+				//clear the table, activity selected was cleared
+				selectedAct = null;
+				volTableList.clear();
+				lblVolCount.setText("Volunteers for selected activity: " + Integer.toString(volTableList.size()));
 				volTableModel.fireTableDataChanged();
 			}
 		}
@@ -492,7 +515,7 @@ public class ManageActivitiesDialog extends ONCEntityTableDialog implements Acti
 		 */
 		private static final long serialVersionUID = 1L;
 		
-		private String[] columnNames = {"First Name", "Last Name", "Group", "Comment for Activity"};
+		private String[] columnNames = {"First Name", "Last Name", "Group", "Qty", "Comment for Activity"};
  
         public int getColumnCount() { return columnNames.length; }
  
@@ -524,22 +547,26 @@ public class ManageActivitiesDialog extends ONCEntityTableDialog implements Acti
         			return v.getLastName();
         		else if (col == GROUP_COL)
         			return v.getOrganization();
+        		else if (col == QTY_COL)
+        			return va != null ? va.getQty() : -1;
         		else if (col == COMMENT_COL)
         			return va != null ? va.getComment() : "";
-        			else
-        				return "Error";
+        		else
+        			return "Error";
         }
         
         //JTable uses this method to determine the default renderer/editor for each cell.
         @Override
         public Class<?> getColumnClass(int column)
         {
-        		return String.class;
+        		if(column == QTY_COL)
+        			return Integer.class;
+        		else
+        			return String.class;
         }
  
         public boolean isCellEditable(int row, int col)
         {
-        		//Name, Status, Access and Permission are editable
         		return false;
         }
 	}

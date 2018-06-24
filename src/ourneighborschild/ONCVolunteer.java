@@ -83,8 +83,8 @@ public class ONCVolunteer extends ONCGmailContactEntity implements Comparable<ON
 	public ONCVolunteer(SignUpActivity sua)
 	{
 		super(-1, sua.getFirstname(), sua.getLastname(), sua.getEmail(), getPhone("Home", sua), 
-				getPhone("Mobile", sua), getAddress(sua), "", "SignUpGenius",  new Date(), 
-				"Lavin, K", STOPLIGHT_OFF, "SignUp Volunteer added", "Lavin, K");
+				getPhone("Mobile", sua), getAddress(sua), "", "Self",  new Date(), 
+				"Lavin, K", STOPLIGHT_OFF, "Sign-Up Genius Volunteer", "Lavin, K");
 		
 		this.drvNum = "";
 		this.delAssigned = 0;

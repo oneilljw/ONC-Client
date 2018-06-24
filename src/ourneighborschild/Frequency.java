@@ -3,6 +3,7 @@ package ourneighborschild;
 public enum Frequency
 {
 	NEVER (0, "Never"),
+	ONE_TIME(0, "One Time"),
 	MINUTE(1000*60, "1 minute"),
 	FIVE_MINUTES(1000*60*5, "5 minutes"),
 	HALF_HOUR (1000*60*30, "30 minutes"),

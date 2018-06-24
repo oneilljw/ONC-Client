@@ -126,9 +126,10 @@ public class VolunteerActivityDB extends ONCDatabase
 		response = serverIF.sendRequest("POST<delete_volunteer_activity>" + 
 											gson.toJson(entity, VolAct.class));
 		
-		
-		if(response.startsWith("DELETED_VOLUNTEER_ACTIVITY"))
+		if(response != null && response.startsWith("DELETED_VOLUNTEER_ACTIVITY"))
 			processDeletedObject(source, response.substring(26));
+		else
+			response= "DELETE_FAILED";
 		
 		return response;
 	}
@@ -158,6 +159,10 @@ public class VolunteerActivityDB extends ONCDatabase
 		if(ue.getType().equals("ADDED_VOLUNTEER_ACTIVITY"))
 		{
 			processAddedObject(this, ue.getJson());
+		}
+		else if(ue.getType().equals("UPDATED_VOLUNTEER_ACTIVITY"))
+		{
+			processUpdatedObject(this, ue.getJson());
 		}
 		else if(ue.getType().equals("DELETED_VOLUNTEER_ACTIVITY"))
 		{
@@ -200,5 +205,4 @@ public class VolunteerActivityDB extends ONCDatabase
 			fireDataChanged(source, "UPDATED_VOLUNTEER_ACTIVITY", updatedObj);
 		}
 	}
-
 }
