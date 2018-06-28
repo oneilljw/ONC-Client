@@ -25,4 +25,14 @@ public enum Frequency
 	
 	public long interval() { return interval; }
 	public String toString() { return text; }
+	
+	static Frequency[] getGeniusImportFrequencies()
+	{
+		Frequency[] frequency = {Frequency.NEVER, Frequency.ONE_TIME, Frequency.FIVE_MINUTES,
+								Frequency.HALF_HOUR, Frequency.HOUR, Frequency.TWO_HOURS,
+								Frequency.FOUR_HOURS, Frequency.EIGHT_HOURS, Frequency.DAILY,
+								Frequency.WEEKLY};
+		
+		return frequency;
+	}
 }

@@ -41,6 +41,7 @@ import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
+import com.google.gson.Gson;
 import com.toedter.calendar.JDateChooser;
 
 
@@ -73,7 +74,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 	public JComboBox<Integer> oncFontSizeCB;
 	private JButton btnApplyDateChanges, btnApplyAddressChanges;
 	private boolean bIgnoreDialogEvents;
-	private JCheckBox barcodeCkBox;
+	private JCheckBox barcodeCkBox, signUpImportCkBox;
 	private JComboBox<String> wishAssigneeFilterDefaultCB, fdnsFilterDefaultCB;
 	private JComboBox<Barcode> barcodeCB;
 	private JSpinner averyXOffsetSpinner, averyYOffsetSpinner;
@@ -300,6 +301,14 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		JPanel geniusPanel = new JPanel();
 		geniusPanel.setLayout(new BoxLayout(geniusPanel, BoxLayout.Y_AXIS));
 		
+		JPanel importPanel = new JPanel();
+		importPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+		
+		signUpImportCkBox = new JCheckBox("Automatic Import of Sign-Ups Enabled?");
+		signUpImportCkBox.setSelected(false);
+		signUpImportCkBox.addActionListener(this);
+		importPanel.add(signUpImportCkBox);
+		
 		//instantiate the signup table model
 		signUpTM = new SignUpTableModel();
 				
@@ -310,12 +319,13 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		
 		signUpTbl = new ONCTable(signUpTM, signUpTblTT, new Color(240,248,255)); 
 
-		signUpTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+//		signUpTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		signUpTbl.setRowSelectionAllowed(false);
 		
 		TableColumn permColumn = signUpTbl.getColumnModel().getColumn(FREQ_COL);
-		permColumn.setCellEditor(new DefaultCellEditor(new JComboBox<Frequency>(Frequency.values())));
+		permColumn.setCellEditor(new DefaultCellEditor(new JComboBox<Frequency>(Frequency.getGeniusImportFrequencies())));
 		
-		//set up a cell renderer for the LAST_LOGINS column to display the date 
+		//set up a cell renderer for the LAST_IMPORT column to display the time of last import
 		TableCellRenderer tableCellRenderer = new DefaultTableCellRenderer()
 		{
 			private static final long serialVersionUID = 1L;
@@ -384,6 +394,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		geniusControlPanel.add(geniusBtnPanel);
 		
 		//add the table scroll pane to the symbol panel
+		geniusPanel.add(importPanel);
 		geniusPanel.add(signUpScrollPane);
 		geniusPanel.add(geniusControlPanel);
 				
@@ -477,6 +488,8 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		GeniusSignUps geniusSignUps = activityDB.getSignUps();
 		String time = String.format("Last Sign Up List Import: %s", 
 				sdf.format(geniusSignUps.getLastImportTime().getTime()));
+		
+		signUpImportCkBox.setSelected(geniusSignUps.isImportEnabled());
 		lblLastSignUpImportTime.setText(time);
 			
 		signUpTM.fireTableDataChanged();
@@ -598,10 +611,23 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		{
 			updateUserPreferences();
 		}
-
 		else if(e.getSource().equals(btnImportSignUpList))
 		{
 			activityDB.requestGeniusSignUps();
+		}
+		else if(e.getSource().equals(signUpImportCkBox))
+		{
+			GeniusSignUps reqUpdateGSU = new GeniusSignUps(geniusSignUps);
+			reqUpdateGSU.setSignUpImportEnabled(signUpImportCkBox.isSelected());
+			String response = activityDB.updateGeniusSignUps(this, reqUpdateGSU);
+			
+			if(response != null && response.startsWith("UPDATED_GENIUS_SIGNUPS"))
+			{
+				Gson gson = new Gson();
+				geniusSignUps = gson.fromJson(response.substring(22), GeniusSignUps.class);	
+			}
+			
+			displaySignUpData();
 		}
 	}
 	
@@ -760,10 +786,11 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
         public boolean isCellEditable(int row, int col)
         {
         		//frequency can change only if sign-up hasn't expired
-        		return col == FREQ_COL
+        		return geniusSignUps.isImportEnabled() && col == FREQ_COL
  //       	&& System.currentTimeMillis() < geniusSignUps.getSignUpList().get(row).getEndtimeInMillis()
         		;
         }
+        
 
         public void setValueAt(Object value, int row, int col)
         { 
@@ -777,13 +804,19 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
         		
         			//if the user made a change in the table, attempt to update the signUp object in
         			//the local user data base
-        			String response = activityDB.updateSignUp(this, reqUpdateSU);        		
-        			if(response == null || (response !=null && !response.startsWith("UPDATED_SIGNUP")))
+        			String response = activityDB.updateSignUp(this, reqUpdateSU);
+        			if(response != null && response.startsWith("UPDATED_SIGNUP"))
+        			{
+        				//request succeeded
+        				signUp.setFrequency(reqUpdateSU.getFrequency());
+        			}
+        			else
         			{
         				//request failed
         				String err_mssg = "ONC Server denied update signup request, try again later";
         				JOptionPane.showMessageDialog(GlobalVariablesDB.getFrame(), err_mssg, "Update SignUp Request Failure",
 													JOptionPane.ERROR_MESSAGE, GlobalVariablesDB.getONCLogo());
+        				displaySignUpData();	
         			}
         		}
         }		

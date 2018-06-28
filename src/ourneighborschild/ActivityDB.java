@@ -232,6 +232,20 @@ public class ActivityDB extends ONCSearchableDatabase
 			fireDataChanged(this, "UPDATED_GENIUS_SIGNUPS", geniusSignUps);
 	}
 	
+	String updateGeniusSignUps(Object source, GeniusSignUps reqUpdateGSU)
+	{
+		Gson gson = new Gson();
+		String response = "UPDATE_FAILED";
+		
+		response = serverIF.sendRequest("POST<update_genius_signups>" + 
+											gson.toJson(reqUpdateGSU, GeniusSignUps.class));
+		
+		if(response != null && response.startsWith("UPDATED_GENIUS_SIGNUPS"))
+			processUpdatedGeniusSignUps(source, response.substring(22));
+		
+		return response;
+	}
+	
 	String updateSignUp(Object source, SignUp reqUpdateSignUp)
 	{
 		Gson gson = new Gson();
