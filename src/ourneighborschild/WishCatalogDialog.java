@@ -343,7 +343,11 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 		else if(dbe.getSource() != this && dbe.getType().equals("DELETED_CATALOG_WISH"))
 		{
 			wcTableModel.fireTableDataChanged();
-		}	
+		}
+		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_CATALOG"))
+		{
+			wcTableModel.fireTableDataChanged();
+		}
 	}
 	
 	class WishCatalogTableModel extends AbstractTableModel
