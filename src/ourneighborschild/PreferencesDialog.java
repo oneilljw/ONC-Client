@@ -785,10 +785,9 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
  
         public boolean isCellEditable(int row, int col)
         {
-        		//frequency can change only if sign-up hasn't expired
+        		//frequency can change only if import is enabled and sign-up hasn't expired
         		return geniusSignUps.isImportEnabled() && col == FREQ_COL
- //       	&& System.currentTimeMillis() < geniusSignUps.getSignUpList().get(row).getEndtimeInMillis()
-        		;
+        				&& System.currentTimeMillis() < geniusSignUps.getSignUpList().get(row).getEndtimeInMillis();
         }
         
 
