@@ -1,20 +1,15 @@
 package ourneighborschild;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.lang.reflect.Type;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -22,15 +17,12 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
 
 public class VolunteerDB extends ONCSearchableDatabase
 {
 	private static final EntityType DB_TYPE = EntityType.VOLUNTEER;
-	private static final int SIGN_UP_GENIUS_FILE_HEADER_LENGTH = 19;
 	private static VolunteerDB instance = null;
-	private ActivityDB activityDB;
 	private VolunteerActivityDB volActDB;
 	
 	private List<ONCVolunteer> volunteerList;
@@ -39,8 +31,7 @@ public class VolunteerDB extends ONCSearchableDatabase
 	{
 		super(DB_TYPE);
 		volunteerList = new ArrayList<ONCVolunteer>();
-		
-		activityDB = ActivityDB.getInstance();
+
 		volActDB = VolunteerActivityDB.getInstance();
 	}
 	

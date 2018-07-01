@@ -53,7 +53,20 @@ public class DeliveryDirectionsPrinter implements Printable
 		g2d.setFont(ddFont[6]);
 		g2d.drawString(familyInfo[1], x, y+48);	//First and Last Name
 		g2d.drawString(familyInfo[2], x, y+60);	//Street Address
-		g2d.drawString(familyInfo[3], x, y+72);	//City, State, Zip	    
+		g2d.drawString(familyInfo[3], x, y+72);	//City, State, Zip
+		
+		//delivery content info
+		g2d.drawString("# Bags", x+180, y+48);
+		g2d.drawString("# Bikes", x+240, y+48);
+		g2d.drawString("# Large Items", x+300, y+48);
+		g2d.drawString("---------", x+180, y+54);
+		g2d.drawString("---------", x+240, y+54);
+		g2d.drawString("-----------------", x+300, y+54);
+		g2d.drawString(familyInfo[11], x+196, y+66);	//number of bags
+		g2d.drawString(familyInfo[12], x+258, y+66); //number of bikes
+		g2d.drawString(familyInfo[13], x+328, y+66); //number of large items
+		
+		//family phone info
 		g2d.drawString("Home Phone: " + familyInfo[5], x+422, y+60);	//Home Phone
 	    g2d.drawString("Alt. Phone: " + familyInfo[7], x+434, y+72);	//Other Phone
 	}

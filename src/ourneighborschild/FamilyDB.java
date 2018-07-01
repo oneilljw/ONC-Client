@@ -814,9 +814,9 @@ public class FamilyDB extends ONCSearchableDatabase
 		
 		ycData[9] = f.getLanguage();
 		ycData[10] = f.getDeliveryInstructions();
-		ycData[11] = Integer.toString(f.getNumOfBags());
+		ycData[11] = f.getNumOfBags() == 0 ? "" : Integer.toString(f.getNumOfBags());
 		ycData[12] = Integer.toString(getNumberOfBikesSelectedForFamily(f));
-		ycData[13] = Integer.toString(f.getNumOfLargeItems());
+		ycData[13] = f.getNumOfLargeItems() == 0 ? "" : Integer.toString(f.getNumOfLargeItems());
 		ycData[14] = Integer.toString(f.getFamilyStatus().statusIndex());
 			
 		return ycData;

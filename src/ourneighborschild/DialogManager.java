@@ -93,7 +93,8 @@ public class DialogManager implements EntitySelectionListener
 		eeManager = EntityEventManager.getInstance();
 		eeManager.registerEntitySelectionListener(this);
 		
-		//create the log dialog
+		//create the log dialog.. this initializes the ability to log data
+		@SuppressWarnings("unused")
 		LogDialog logDlg = new LogDialog();	//create the static log dialog
         
         // set up the preferences dialog
