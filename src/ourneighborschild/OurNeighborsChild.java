@@ -48,10 +48,6 @@ public class OurNeighborsChild
 	
 	//Server Connection
 	private ServerIF serverIF;	
-//	private static final String defaultServerAddress = "72.209.233.207";	//Cox based server
-//	private static final String defaultServerAddress = "localhost";
-//	private static final String defaultServerAddress = "96.127.35.251";	//IDT-Amazon cloud based server
-//	private static final String defaultServerAddress = "onc.idtus.com";	//IDT-Amazon cloud based server
 //	private static final String defaultServerAddress = "34.224.169.163";// 2017 Amazon cloud development server
 	private static final String defaultServerAddress = "34.234.112.242";// 2017 Amazon cloud production server
 	private static final int PORT = 8901;
