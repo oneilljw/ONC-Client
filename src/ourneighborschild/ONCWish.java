@@ -96,6 +96,12 @@ public class ONCWish extends ONCObject implements Serializable
 		return wishDetail1ID > -1 || wishDetail2ID > -1 || wishDetail3ID > -1 || wishDetail4ID > -1;
 	}
 	
+	public boolean canBeWish(int wn)
+	{
+		int mask = 1 << wn;
+		return (listindex & mask) > 0;
+	}
+	
 	@Override
 	public String[] getExportRow()
 	{

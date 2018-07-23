@@ -131,36 +131,42 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 			String[] regionLatLong = 
 					{
 					"Unassigned, no Address",	//PLACE HOLDER FOR UNASSIGNED FAMILIES
-					"38.8605972,-77.4596217",
-					"38.8592872,-77.4474546",
-					"38.8465375,-77.4492307",
-					"38.8451097,-77.4607807",
-					"38.8281786,-77.4673007",
-					"38.8438858,-77.4188626",
-					"38.8332837,-77.4274877",
-					"38.8298497,-77.4462841",
-					"38.8192277,-77.4528976",
-					"38.8323606,-77.4619244",
-					"38.8167603,-77.4226005",
-					"38.7797701,-77.384582",
-					"38.7817242,-77.3223597",
-					"38.8969661,-77.4755806",
-					"38.8978402,-77.4536521",
-					"38.8958435,-77.4164022",
-					"38.8830304,-77.4255473",
-					"38.8624991,-77.4148267",
-					"38.881464,-77.3812288",
-					"38.8699022,-77.3515107",
-					"38.8671858,-77.374384",
-					"38.8734542,-77.3969387",
-					"38.862498,-77.3935485",
-					"38.8323606,-77.4619244"
+					"38.8605972,-77.4596217",	//Region A PIN 1
+					"38.8592872,-77.4474546",	//Region B PIN 2
+					"38.8465375,-77.4492307",	//Region C PIN 3
+					"38.8451097,-77.4607807",	//Region D PIN 4
+					"38.844207,-77.477659",		//Region E PIN 5
+					"38.8438858,-77.4188626",	//Region F PIN 6
+					"38.8332837,-77.4274877",	//Region G PIN 7
+					"38.8298497,-77.4462841",	//Region H PIN 8
+					"38.8192277,-77.4528976",	//Region I PIN 9
+					"38.820919,-77.433434",		//Region J PIN 10
+					"38.8167603,-77.4226005",	//Region K PIN 11
+					"38.7797701,-77.384582",		//Region L PIN 12
+					"38.7817242,-77.3223597",	//Region M PIN 13
+					"38.8969661,-77.4755806",	//Region N PIN 14
+					"38.8978402,-77.4536521",	//Region O PIN 15
+					"38.8958435,-77.4164022",	//Region P PIN 16
+					"38.8830304,-77.4255473",	//Region Q PIN 17
+					"38.8624991,-77.4148267",	//Region R PIN 18
+					"38.881464,-77.3812288",		//Region S PIN 19
+					"38.8699022,-77.3515107",	//Region T PIN 20
+					"38.8671858,-77.374384",		//Region U PIN 21
+					"38.8734542,-77.3969387",	//Region V PIN 22
+					"38.862498,-77.3935485",		//Region W PIN 23
+					"38.832765,-77.459801"		//Region X PIN 24
+//					"38.832765,-77.4619244",	    //Region X PIN 25
+//					"38.839880,-77.405274"
+//					"38.828027,-77.404695"		//Region Y PIN 26
+//					"38.858007,-77.389963"		//Region Z PIN 27
 					};
 			
 			for(int i=1; i<regionLatLong.length; i++)
 				markers.append("&markers=label:"+ regions.getRegionID(i)+"%7C" + regionLatLong[i]);
 			
 			DrivingDirections ddir = new DrivingDirections();
+			String completeURL = url+parms+markers.toString()+"&key=" + EncryptionManager.getKey("key1");
+			System.out.println("ClientMapDlg.buildClientMap: completeURL= " + completeURL);
 			BufferedImage map = ddir.getGoogleMap((url+parms+markers.toString()+"&key=" + EncryptionManager.getKey("key1")));
 			
 			if(map != null)	
