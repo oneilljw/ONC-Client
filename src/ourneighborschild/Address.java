@@ -270,9 +270,21 @@ public class Address
 	public void setCity(String s) { city = s; }
 	public void setZipCode(String s) { zip = s; }
 	
-	public boolean isSameHouseNumAndStreet(String streetnum, String streetname)
+	public boolean matches(String streetnum, String streetname)
 	{
 		return streetname.contains(this.streetName) && streetnum.contains(this.streetNum);
+	}
+	
+	public boolean matches(Address address)
+	{
+		//all but street type match
+		return  address.getStreetNum().equals(this.streetNum) &&
+				address.getStreetNumSuffix().equalsIgnoreCase(this.streetNumSuffix) &&
+				address.getStreetDir().equals(streetDir) &&
+				address.getStreetName().equalsIgnoreCase(this.streetName) &&
+				address.getUnit().equalsIgnoreCase(this.unit) &&
+				city.equalsIgnoreCase(this.city) && 
+				zip.equals(this.zip);
 	}
 	
 	public String[] getExportRow() 

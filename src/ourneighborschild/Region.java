@@ -8,6 +8,9 @@ public class Region extends ONCObject
 	private String streetName;
 	private String streetType;
 	private String region;
+	private String schoolRegion;
+	private String school;
+	private boolean bSchoolAddress;
 	private String streetDir;
 	private String postDir;
 	private int addressNumLow;
@@ -20,23 +23,26 @@ public class Region extends ONCObject
 //	private String stateSenateDistrict;
 //	private String stateHouseDistrict;
 	
-	public Region(String[] file_line)
+	public Region(String[] col)
 	{
-		super(isNumeric(file_line[0]) ? Integer.parseInt(file_line[0]) : -1);
-		streetName = file_line[1];
-		streetType = file_line[2];
-		region = file_line[3];
-		streetDir = file_line[4];
-		postDir = file_line[5];
-		addressNumLow = isNumeric(file_line[6]) ? Integer.parseInt(file_line[6]) : 0;
-		addressNumHi = isNumeric(file_line[7]) ? Integer.parseInt(file_line[7]) : 0;;
-//		odd_even = file_line[8];
-		zipCode = file_line[9];
-//		precinct = file_line[10];
-//		townPrecinct = file_line[11];
-//		congDistrict = file_line[12];
-//		stateSenateDistrict = file_line[13];
-//		stateHouseDistrict = file_line[14];
+		super(isNumeric(col[0]) ? Integer.parseInt(col[0]) : -1);
+		streetName = col[1];
+		streetType = col[2];
+		region = col[3];
+		schoolRegion = col[4];
+		school = col[5];
+		bSchoolAddress = col[6].equalsIgnoreCase("Y");
+		streetDir = col[7];
+		postDir = col[8];
+		addressNumLow = isNumeric(col[9]) ? Integer.parseInt(col[9]) : 0;
+		addressNumHi = isNumeric(col[10]) ? Integer.parseInt(col[10]) : 0;;
+//		odd_even = file_line[11];
+		zipCode = col[12];
+//		precinct = file_line[13];
+//		townPrecinct = file_line[14];
+//		congDistrict = file_line[15];
+//		stateSenateDistrict = file_line[16];
+//		stateHouseDistrict = file_line[17];
 	}
 	
 	/*******************************************************************************************
@@ -86,7 +92,9 @@ public class Region extends ONCObject
 	public String getStreetType() { return streetType; }
 	public String getStreetDir() { return streetDir; }
 	public String getRegion() { return region; }
-	public String getPostDir() { return postDir; }
+	public String getSchoolRegion() { return schoolRegion; }
+	public String getSchool() { return school; }
+	public boolean isAddressSchool() { return bSchoolAddress; }
 	public int getAddressNumLow() { return addressNumLow; }
 	public int getAddressNumHi() { return addressNumHi; }
 	public String getZipCode() { return zipCode; }
@@ -99,17 +107,20 @@ public class Region extends ONCObject
 	@Override
 	public String[] getExportRow()
 	{
-		String[] row = new String[10];
+		String[] row = new String[13];
 		row[0] = Integer.toString(id);
 		row[1] = streetName;
 		row[2] = streetType;
 		row[3] = region;
-		row[4] = streetDir;
-		row[5] = postDir;
-		row[6] = Integer.toString(addressNumLow);
-		row[7] = Integer.toString(addressNumHi);
-		row[8] = "B";
-		row[9] = zipCode;
+		row[4] = schoolRegion;
+		row[5] = school;
+		row[6] = bSchoolAddress ? "Y" : "N";
+		row[7] = streetDir;
+		row[8] = postDir;
+		row[9] = Integer.toString(addressNumLow);
+		row[10] = Integer.toString(addressNumHi);
+		row[11] = "B";
+		row[12] = zipCode;
 		
 		return row;
 	}
