@@ -10,7 +10,7 @@ public class Region extends ONCObject
 	private String region;
 	private String schoolRegion;
 	private String school;
-	private boolean bSchoolAddress;
+	private String location;
 	private String streetDir;
 	private String postDir;
 	private int addressNumLow;
@@ -31,7 +31,7 @@ public class Region extends ONCObject
 		region = col[3];
 		schoolRegion = col[4];
 		school = col[5];
-		bSchoolAddress = col[6].equalsIgnoreCase("Y");
+		location = col[6];
 		streetDir = col[7];
 		postDir = col[8];
 		addressNumLow = isNumeric(col[9]) ? Integer.parseInt(col[9]) : 0;
@@ -94,7 +94,7 @@ public class Region extends ONCObject
 	public String getRegion() { return region; }
 	public String getSchoolRegion() { return schoolRegion; }
 	public String getSchool() { return school; }
-	public boolean isAddressSchool() { return bSchoolAddress; }
+	public String getLocation() { return location; }
 	public int getAddressNumLow() { return addressNumLow; }
 	public int getAddressNumHi() { return addressNumHi; }
 	public String getZipCode() { return zipCode; }
@@ -114,7 +114,7 @@ public class Region extends ONCObject
 		row[3] = region;
 		row[4] = schoolRegion;
 		row[5] = school;
-		row[6] = bSchoolAddress ? "Y" : "N";
+		row[6] = location;
 		row[7] = streetDir;
 		row[8] = postDir;
 		row[9] = Integer.toString(addressNumLow);
