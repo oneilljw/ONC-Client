@@ -20,7 +20,7 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 	 * map is obtained from Google Maps using its API. 
 	 */
 	private static final long serialVersionUID = 1L;
-	private ONCRegions regions;
+	private RegionDB regions;
 	private JPanel mapPanel, distPanel;
 	private JLabel lblClientMap = null;
 	private boolean bClientMapStored;
@@ -44,7 +44,7 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 		if(famDB != null)
 			famDB.addDatabaseListener(this);	//listen for family changes
 		
-		regions = ONCRegions.getInstance();
+		regions = RegionDB.getInstance();
 		if(regions != null)
 			regions.addDatabaseListener(this);
 		

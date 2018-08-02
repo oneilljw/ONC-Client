@@ -19,7 +19,7 @@ public abstract class SortFamilyTableDialog extends ChangeDialog
 	
 	protected ChildDB cDB;
 	protected FamilyHistoryDB familyHistoryDB;
-	protected ONCRegions regions;
+	protected RegionDB regions;
 	
 	protected ArrayList<ONCFamily> stAL = new ArrayList<ONCFamily>();
 	protected ArrayList<ONCFamily> tableRowSelectedObjectList;
@@ -36,7 +36,7 @@ public abstract class SortFamilyTableDialog extends ChangeDialog
 		
 		cDB = ChildDB.getInstance();
 		familyHistoryDB = FamilyHistoryDB.getInstance();
-		regions = ONCRegions.getInstance();
+		regions = RegionDB.getInstance();
 		
 		stAL = new ArrayList<ONCFamily>();
 		tableRowSelectedObjectList = new ArrayList<ONCFamily>();

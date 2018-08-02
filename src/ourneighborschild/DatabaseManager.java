@@ -49,7 +49,7 @@ public class DatabaseManager extends ONCDatabase
 	private VolunteerDB oncVolDB;			//Holds the Volunteer Data Base
 	private VolunteerActivityDB volActDB;	//Holds the Volunteer ActivityData Base
 	private FamilyHistoryDB oncDelDB;		//Holds the ONC Delivery Data Base
-	private ONCRegions oncRegions;
+	private RegionDB oncRegions;
 	private AdultDB oncAdultDB;				//Holds ONC Adult database
 	private MealDB oncMealDB;				//Holds ONC Meal database
 	private InventoryDB oncInvDB;			//Holds current inventory
@@ -60,7 +60,7 @@ public class DatabaseManager extends ONCDatabase
 		
 		//initialize the component data bases
 		oncGVs = GlobalVariablesDB.getInstance();
-		oncRegions = ONCRegions.getInstance();
+		oncRegions = RegionDB.getInstance();
 		oncUserDB = UserDB.getInstance();
 		oncGroupDB = GroupDB.getInstance();
 		oncOrgDB = PartnerDB.getInstance();

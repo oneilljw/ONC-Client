@@ -74,7 +74,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private ChildDB cDB;
 	private AdultDB adultDB;
 	private FamilyHistoryDB familyHistoryDB;
-	private ONCRegions regions;
+	private RegionDB regions;
 	private UserDB userDB;
 	
 	private ONCFamily currFam;	//The panel needs to know which family is being displayed
@@ -91,7 +91,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private JTextField oncDNScode;
 	private JTextField HOHFirstName, HOHLastName, EMail;
 	private JTextField housenumTF, Street, Unit, City, ZipCode;
-	private JLabel lblONCNum, lblRefNum, lblBatchNum, lblRegion, lblNumBags, lblChangedBy;
+	private JLabel lblONCNum, lblRefNum, lblBatchNum, lblSchool, lblNumBags, lblChangedBy;
 	private JRadioButton rbGiftStatusHistory, rbAltAddress, rbMeals, rbPriorHistory, rbAgentInfo;
 	private JRadioButton rbShowAllPhones, rbFamDetails, rbTransportation, rbDirections;
 	private JRadioButton rbNotGiftCardOnly, rbGiftCardOnly, rbAdults;
@@ -125,7 +125,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		cDB = ChildDB.getInstance();
 		adultDB = AdultDB.getInstance();
 		familyHistoryDB = FamilyHistoryDB.getInstance();
-		regions = ONCRegions.getInstance();
+		regions = RegionDB.getInstance();
 		userDB = UserDB.getInstance();
 		
 		if(dbMgr != null)
@@ -250,8 +250,8 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         giftStatusCB.addActionListener(this);
 
         housenumTF = new JTextField();
-        housenumTF.setPreferredSize(new Dimension(72, 44));
-        housenumTF.setBorder(BorderFactory.createTitledBorder("House #"));
+        housenumTF.setPreferredSize(new Dimension(56, 44));
+        housenumTF.setBorder(BorderFactory.createTitledBorder("St #"));
         housenumTF.setEditable(false);
         housenumTF.addActionListener(this);
         
@@ -262,7 +262,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         Street.addActionListener(this);
         
         Unit = new JTextField();
-        Unit.setPreferredSize(new Dimension(80, 44));
+        Unit.setPreferredSize(new Dimension(72, 44));
         Unit.setBorder(BorderFactory.createTitledBorder("Unit"));
         Unit.setEditable(false);
         Unit.addActionListener(this);
@@ -279,9 +279,9 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         ZipCode.setEditable(false);
         ZipCode.addActionListener(this);
         
-        lblRegion = new JLabel("?", JLabel.CENTER);
-        lblRegion.setPreferredSize(new Dimension(60, 44));
-        lblRegion.setBorder(BorderFactory.createTitledBorder("Region"));
+        lblSchool = new JLabel();
+        lblSchool.setPreferredSize(new Dimension(120, 44));
+        lblSchool.setBorder(BorderFactory.createTitledBorder("Elem School"));
         
         rbAltAddress = new JRadioButton(gvs.getImageIcon(19));
         rbAltAddress.setToolTipText("Click to see alternate address");
@@ -480,7 +480,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         p3.add(Unit);
         p3.add(City);
         p3.add(ZipCode);
-        p3.add(lblRegion);
+        p3.add(lblSchool);
         p3.add(lblChangedBy);
         
         c.gridx=0;
@@ -708,7 +708,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		giftStatusCB.setSelectedItem(currFam.getGiftStatus());
 		languageCB.setSelectedItem((String)currFam.getLanguage());
 		lblChangedBy.setText(currFam.getChangedBy());
-		lblRegion.setText(regions.getRegionID(currFam.getRegion()));
+		lblSchool.setText(regions.getSchoolName(currFam.getSchoolCode()));
 		
 		oncNotesPane.setText(currFam.getNotes());
 		oncNotesPane.setCaretPosition(0);
@@ -776,8 +776,8 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			rbFamDetails.setEnabled(currFam.getDetails().length() > 1);
 			
 			//Test to see if an ONC number could be assigned. If so, make the auto assign button visible
-			if(!lblONCNum.getText().equals("DEL") && !lblRegion.getText().equals("?") &&
-					  !Character.isDigit(lblONCNum.getText().charAt(0)))	
+			if(!lblONCNum.getText().equals("DEL") && !lblSchool.getText().equals("Y") &&
+					  !lblSchool.getText().equals("Z") && !Character.isDigit(lblONCNum.getText().charAt(0)))	
 				btnAssignONCNum.setVisible(true);
 			else
 				btnAssignONCNum.setVisible(false);

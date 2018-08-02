@@ -42,7 +42,7 @@ public class PartnerDialog extends EntityDialog
 	private static final long serialVersionUID = 1L;
 	private static final int	CONFIRMED_STATUS_INDEX = 5;
 	
-	private ONCRegions regions;
+	private RegionDB regions;
 	
 	private JLabel lblCYAssigned, lblCYDel, lblCYRecBefore, lblCYRecAfter;
 	private JLabel lblOrgID, lblRegion, lblDateChanged, lblChangedBy;
@@ -65,7 +65,7 @@ public class PartnerDialog extends EntityDialog
 		super(parentFrame);
 		this.setTitle("Our Neighbor's Child - Gift Partner Information");
 		
-		regions = ONCRegions.getInstance();
+		regions = RegionDB.getInstance();
 		partnerDB = PartnerDB.getInstance();
 		
 		//register to listen for partner, global variable, child and  and childwish

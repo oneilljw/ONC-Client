@@ -65,7 +65,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 	private ChildWishDB cwDB;
 	private PartnerDB partnerDB;
 	private ONCWishCatalog wishCat;
-	private ONCRegions regions;
+	private RegionDB regions;
 
 	private ArrayList<SortWishObject> stAL;
 	
@@ -108,7 +108,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		cwDB = ChildWishDB.getInstance();
 		partnerDB = PartnerDB.getInstance();
 		wishCat = ONCWishCatalog.getInstance();
-		regions = ONCRegions.getInstance();
+		regions = RegionDB.getInstance();
 		
 		//set up data base listeners
 		if(userDB != null)

@@ -37,7 +37,7 @@ public abstract class DependantTableDialog extends SortTableDialog
 	private static final long serialVersionUID = 1L;
 	private static final int NUM_FAMILY_ROWS_TO_DISPLAY = 15;
 	
-	protected ONCRegions regions;
+	protected RegionDB regions;
 	protected ONCTable familyTable;
 	private DefaultTableModel familyTableModel;
 	protected JComboBox<String> famPrintCB;
@@ -60,7 +60,7 @@ public abstract class DependantTableDialog extends SortTableDialog
 		super(pf, 10);
 		columns = getColumnNames();
 		
-		regions = ONCRegions.getInstance();
+		regions = RegionDB.getInstance();
 		
 		stAL = new ArrayList<ONCFamily>();
 		

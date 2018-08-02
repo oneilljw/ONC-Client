@@ -17,4 +17,7 @@ public class School
 	public String getCode() { return code; }
 	public Address getAddress() { return address; }
 	public String getName() { return name; }
+	
+	@Override
+	public String toString() { return name; }
 }

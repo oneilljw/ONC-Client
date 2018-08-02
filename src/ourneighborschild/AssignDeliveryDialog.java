@@ -54,7 +54,7 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 		if(volunteerDB != null)
 			volunteerDB.addDatabaseListener(this);
 		
-		ONCRegions regions = ONCRegions.getInstance();
+		RegionDB regions = RegionDB.getInstance();
 		if(regions != null)
 			regions.addDatabaseListener(this);
 		

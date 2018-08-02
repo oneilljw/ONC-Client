@@ -63,7 +63,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
     private static final String PHOTO_ATTACHMENT_2_FILE = "2017 Partner 2.jpg";
 //	private static final String ONCLOGO_ATTACHMENT_FILE = "onclogosmall.jpg";
 	
-    private ONCRegions regions;
+    private RegionDB regions;
     private PartnerDB orgs;
     private ChildDB childDB;
 	
@@ -96,7 +96,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
     	this.columns = getColumnNames();
     	this.setTitle("Our Neighbor's Child - Partner Management");
 		
-    	regions = ONCRegions.getInstance();
+    	regions = RegionDB.getInstance();
     	orgs = PartnerDB.getInstance();
     	childDB = ChildDB.getInstance();
 		

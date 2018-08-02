@@ -14,6 +14,7 @@ public class ONCFamily extends ONCEntity
 		
 	private String		oncNum;
 	private int			region;
+	private String		schoolCode;
 	private FamilyStatus		famStatus;
 	private FamilyGiftStatus 	giftStatus;
 	private int 		nBags;
@@ -57,6 +58,7 @@ public class ONCFamily extends ONCEntity
 		super(f.getID(), f.getDateChanged(), f.getChangedBy(), f.getStoplightPos(), f.getStoplightMssg(), f.getStoplightChangedBy());
 		oncNum = f.oncNum;
 		region = f.region;
+		this.schoolCode = f.schoolCode;
 		famStatus = f.famStatus;
 		giftStatus = f.giftStatus;
 		nBags = f.nBags;
@@ -106,6 +108,7 @@ public class ONCFamily extends ONCEntity
 		super(id, new Date(), cb, STOPLIGHT_OFF, "Family imported", cb);
 		oncNum = sONC;
 		this.region = region;
+		this.schoolCode = "Z";
 		famStatus = FamilyStatus.Unverified;
 		giftStatus = FamilyGiftStatus.Requested;
 		nBags = 0;
@@ -150,46 +153,47 @@ public class ONCFamily extends ONCEntity
 	//Overloaded Constructor - import Family DB from .csv file
 	public ONCFamily(String[] nextLine)
 	{
-		super(Integer.parseInt(nextLine[0]), new Date(), nextLine[10], 
-				Integer.parseInt(nextLine[38]), nextLine[39], nextLine[40]);
+		super(Integer.parseInt(nextLine[0]), new Date(), nextLine[11], 
+				Integer.parseInt(nextLine[39]), nextLine[40], nextLine[41]);
 		oncNum = getDBString(nextLine[1]);
 		region = Integer.parseInt(nextLine[2]);
-		referenceNum = getDBString(nextLine[3]);
-		batchNum = getDBString(nextLine[4]);	
-		dnsCode = getDBString(nextLine[5]);
-		famStatus = FamilyStatus.getFamilyStatus(Integer.parseInt(nextLine[6]));
-		giftStatus = FamilyGiftStatus.getFamilyGiftStatus(Integer.parseInt(nextLine[7]));
-		speakEnglish =getDBString(nextLine[8]);
-		language = getDBString(nextLine[9]);
-		notes = getDBString(nextLine[11]);
-		deliveryInstructions = getDBString(nextLine[12]);	
-		clientFamily = getDBString(nextLine[13]);
-		firstName = getDBString(nextLine[14]);
-		lastName = getDBString(nextLine[15]);
-		houseNum = getDBString(nextLine[16]);
-		street = getDBString(nextLine[17]);
-		unit = getDBString(nextLine[18]);
-		city = getDBString(nextLine[19]);
-		zipCode = getDBString(nextLine[20]);
-		substituteDeliveryAddress = getDBString(nextLine[21]);
-		allPhoneNumbers = getDBString(nextLine[22]);
-		homePhone = getDBString(nextLine[23]);
-		cellPhone = getDBString(nextLine[24]);
-		email = getDBString(nextLine[25]);
-		details = getDBString(nextLine[26]);
-		childrenNames = getDBString(nextLine[27]);
-		schools = getDBString(nextLine[28]);
-		wishList = getDBString(nextLine[29]);
-		adoptedFor = getDBString(nextLine[30]);
-		agentID = Integer.parseInt(nextLine[31]);
-		groupID = Integer.parseInt(nextLine[32]);
-		deliveryID = Integer.parseInt(nextLine[33]);
-		mealID = Integer.parseInt(nextLine[34]);
-		mealStatus = MealStatus.valueOf(nextLine[35]);
-		nBags = Integer.parseInt(nextLine[36]);
-		nLargeItems = Integer.parseInt(nextLine[37]);
-		transportation = Transportation.valueOf(nextLine[41]);
-		bGiftCardOnly = nextLine[42].equals("TRUE") ? true : false;
+		this.schoolCode = nextLine[3];
+		referenceNum = getDBString(nextLine[4]);
+		batchNum = getDBString(nextLine[5]);	
+		dnsCode = getDBString(nextLine[6]);
+		famStatus = FamilyStatus.getFamilyStatus(Integer.parseInt(nextLine[7]));
+		giftStatus = FamilyGiftStatus.getFamilyGiftStatus(Integer.parseInt(nextLine[8]));
+		speakEnglish =getDBString(nextLine[9]);
+		language = getDBString(nextLine[10]);
+		notes = getDBString(nextLine[12]);
+		deliveryInstructions = getDBString(nextLine[13]);	
+		clientFamily = getDBString(nextLine[14]);
+		firstName = getDBString(nextLine[15]);
+		lastName = getDBString(nextLine[16]);
+		houseNum = getDBString(nextLine[17]);
+		street = getDBString(nextLine[18]);
+		unit = getDBString(nextLine[19]);
+		city = getDBString(nextLine[20]);
+		zipCode = getDBString(nextLine[21]);
+		substituteDeliveryAddress = getDBString(nextLine[22]);
+		allPhoneNumbers = getDBString(nextLine[23]);
+		homePhone = getDBString(nextLine[24]);
+		cellPhone = getDBString(nextLine[25]);
+		email = getDBString(nextLine[26]);
+		details = getDBString(nextLine[27]);
+		childrenNames = getDBString(nextLine[28]);
+		schools = getDBString(nextLine[29]);
+		wishList = getDBString(nextLine[30]);
+		adoptedFor = getDBString(nextLine[31]);
+		agentID = Integer.parseInt(nextLine[32]);
+		groupID = Integer.parseInt(nextLine[33]);
+		deliveryID = Integer.parseInt(nextLine[34]);
+		mealID = Integer.parseInt(nextLine[35]);
+		mealStatus = MealStatus.valueOf(nextLine[36]);
+		nBags = Integer.parseInt(nextLine[37]);
+		nLargeItems = Integer.parseInt(nextLine[38]);
+		transportation = Transportation.valueOf(nextLine[42]);
+		bGiftCardOnly = nextLine[43].equals("TRUE") ? true : false;
 	}
 	
 	//Overloaded Constructor - Direct Intake Processing
@@ -203,6 +207,7 @@ public class ONCFamily extends ONCEntity
 		super(id, new Date(), cb, STOPLIGHT_OFF, "Family referred", cb);
 		this.oncNum = oncNum;
 		this.region = -1;
+		this.schoolCode  = "Z";
 		this.famStatus = FamilyStatus.Unverified;
 		this.giftStatus = bGiftsRequested ? FamilyGiftStatus.Requested : FamilyGiftStatus.NotRequested;
 		this.nBags = 0;
@@ -452,6 +457,7 @@ public class ONCFamily extends ONCEntity
 	//Getters
 	public String	getONCNum() {return oncNum;}
 	public int		getRegion() {return region;}
+	public String	getSchoolCode() { return schoolCode; }
 	public FamilyStatus		getFamilyStatus() {return famStatus; }
 	public FamilyGiftStatus	getGiftStatus() { return giftStatus; }
 	public int		getNumOfBags() { return nBags; }
@@ -492,6 +498,7 @@ public class ONCFamily extends ONCEntity
 	//Setters
 	public void setONCNum(String s) { oncNum = s;}
 	public void setRegion(int r) { region = r;}
+	public void setSchoolCode(String sc) { this.schoolCode = sc; }
 	public void setFamilyStatus(FamilyStatus fs){ famStatus = fs; }
 	public void setGiftStatus(FamilyGiftStatus fgs) { giftStatus = fgs; }
 	public void setNumOfBags(int b) { nBags = b; }
@@ -578,6 +585,7 @@ public class ONCFamily extends ONCEntity
 		rowList.add(Integer.toString(getID()));
 		rowList.add(getONCNum());		
 		rowList.add(Integer.toString(getRegion()));
+		rowList.add(getSchoolCode());
 		rowList.add(getReferenceNum());
 		rowList.add(getBatchNum());	
 		rowList.add(getDNSCode());

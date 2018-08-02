@@ -48,7 +48,7 @@ public class CompareFamilyData
 	String readWFCMCSVfile(String source, String action)
 	{
 //		ONCRegions regions = new ONCRegions(cfdGVs.getImageIcon(0));
-		ONCRegions regions = ONCRegions.getInstance();
+		RegionDB regions = RegionDB.getInstance();
 		
 		ONCFileChooser oncFC = new ONCFileChooser(parentFrame);
     	File odbfile= oncFC.getFile("Select " + source + " .csv file to " + action, 

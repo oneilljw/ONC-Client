@@ -46,7 +46,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 
 	private MealDB mealDB;
 	private PartnerDB orgs;
-	protected ONCRegions regions;
+	protected RegionDB regions;
 
 	private ArrayList<SortMealObject> stAL;
 
@@ -87,7 +87,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		//set up the data base references. Family data base reference is inherited.
 		mealDB = MealDB.getInstance();
 		orgs = PartnerDB.getInstance();
-		regions = ONCRegions.getInstance();
+		regions = RegionDB.getInstance();
 		
 		//set up data base listeners
 		UserDB userDB = UserDB.getInstance();

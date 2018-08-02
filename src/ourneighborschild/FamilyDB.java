@@ -51,6 +51,7 @@ public class FamilyDB extends ONCSearchableDatabase
 	private VolunteerDB volunteerDB;
 	private FamilyHistoryDB familyHistoryDB;
 	private GlobalVariablesDB fGVs;
+	private RegionDB regionDB;
 	
 	private FamilyDB()
 	{
@@ -65,6 +66,7 @@ public class FamilyDB extends ONCSearchableDatabase
 		
 		oncFamAL = new ArrayList<ONCFamily>();
 		fGVs = GlobalVariablesDB.getInstance();
+		regionDB = RegionDB.getInstance();
 //		serverIF.addServerListener(this);
 		
 //		initializeONCNumberRegionRanges();
@@ -797,7 +799,7 @@ public class FamilyDB extends ONCSearchableDatabase
 			String unit = isNumeric(f.getUnit()) ? "#" + f.getUnit() : f.getUnit();
 			ycData[2] =	f.getHouseNum() + " " + f.getStreet() + " " + unit ;
 			ycData[3] = f.getCity() + ", VA " + f.getZipCode();
-			ycData[4] = ONCRegions.getInstance().getRegionID(f.getRegion());
+			ycData[4] = RegionDB.getInstance().getRegionID(f.getRegion());
 		}
 		
 //		ycData[4] = "?";
@@ -960,6 +962,8 @@ public class FamilyDB extends ONCSearchableDatabase
 			Collections.sort(fal, new ONCFamilyZipComparator()); }
 		else if(dbField.equals("Reg")) {
 			Collections.sort(fal, new ONCFamilyRegionComparator()); }
+		else if(dbField.equals("School")) {
+			Collections.sort(fal, new ONCFamilySchoolComparator()); }
 		else if(dbField.equals("Changed By")) {
 			Collections.sort(fal, new ONCFamilyCallerComparator()); }
 		else if(dbField.equals("GCO")) {
@@ -1287,6 +1291,18 @@ public class FamilyDB extends ONCSearchableDatabase
 			Integer o1Reg = (Integer) o1.getRegion();
 			Integer o2Reg = (Integer) o2.getRegion();
 			return o1Reg.compareTo(o2Reg);
+		}
+	}
+	
+	private class ONCFamilySchoolComparator implements Comparator<ONCFamily>
+	{
+		@Override
+		public int compare(ONCFamily o1, ONCFamily o2)
+		{
+			String o1School = regionDB.getSchoolName(o1.getSchoolCode());
+			String o2School = regionDB.getSchoolName(o2.getSchoolCode());
+			
+			return o1School.compareTo(o2School);
 		}
 	}
 		

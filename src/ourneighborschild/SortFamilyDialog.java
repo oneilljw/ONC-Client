@@ -87,8 +87,10 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	private JComboBox<ImageIcon> stoplightCB;
 	private JComboBox<MealStatus> mealstatusCB;
 	private JComboBox<String> exportCB, printCB, emailCB, callCB;
+	private JComboBox<School> schoolCB;
 	
 	private DefaultComboBoxModel<String> changedByCBM, changeDNSCBM;
+	private DefaultComboBoxModel<School> schoolCBM;
 	
 	private JProgressBar progressBar;
 	private ONCEmailer oncEmailer;
@@ -99,6 +101,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	private MealStatus sortMealStatus;
 	private FamilyGiftStatus sortGiftStatus;
 	private FamilyStatus sortFamilyStatus;
+	private School sortSchool;
 
 	private static String[] giftCardFilter = {"Any", "True", "False"};
 	private static String[] dnsCodes = {"None", "Any", "All", "DUP", "FO", "NC", "NISA", "OPT-OUT", "SA", "SBO", "WA"};
@@ -190,6 +193,18 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		zipCB.setBorder(BorderFactory.createTitledBorder("Zip Code"));
 		zipCB.addActionListener(this);
 		
+		schoolCB = new JComboBox<School>();
+		schoolCBM = new DefaultComboBoxModel<School>();
+		sortSchool = new School("Any", null, "Any");
+		schoolCBM.addElement(sortSchool);
+		School[] schoolArray = regionDB.getSchoolArray();
+		for(int index=0; index < schoolArray.length; index++)
+			schoolCBM.addElement(schoolArray[index]);
+		schoolCB.setModel(schoolCBM);
+		schoolCB.setPreferredSize(new Dimension(180, 56));
+		schoolCB.setBorder(BorderFactory.createTitledBorder("School"));
+		schoolCB.addActionListener(this);
+		
 		changedByCB = new JComboBox<String>();
 		changedByCBM = new DefaultComboBoxModel<String>();
 	    changedByCBM.addElement("Anyone");
@@ -220,6 +235,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		sortCriteriaPanelBottom.add(streetCB);
 		sortCriteriaPanelBottom.add(zipCB);
 		sortCriteriaPanelBottom.add(regionCB);
+		sortCriteriaPanelBottom.add(schoolCB);
 		sortCriteriaPanelBottom.add(changedByCB);
 		sortCriteriaPanelBottom.add(giftCardCB);
 		sortCriteriaPanelBottom.add(stoplightCB);
@@ -362,6 +378,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			f.getUnit(),
 			f.getZipCode(),
 			regions.getRegionID(f.getRegion()),
+			regions.getSchoolName(f.getSchoolCode()),
 			f.getChangedBy(),
 			f.isGiftCardOnly() ? "T" : "F",
 			gvs.getImageIcon(23 + f.getStoplightPos())};
@@ -405,9 +422,10 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 				     doesStreetMatch(f.getStreet()) &&
 				      doesZipMatch(f.getZipCode()) &&
 				       doesRegionMatch(f.getRegion()) &&
-				        doesChangedByMatch(f.getChangedBy()) &&
-				         doesGiftCardOnlyMatch(f.isGiftCardOnly()) &&
-				          doesStoplightMatch(f.getStoplightPos()))	//Family criteria pass
+				        doesSchoolMatch(f.getSchoolCode()) &&
+				         doesChangedByMatch(f.getChangedBy()) &&
+				          doesGiftCardOnlyMatch(f.isGiftCardOnly()) &&
+				           doesStoplightMatch(f.getStoplightPos()))	//Family criteria pass
 			{
 				stAL.add(f);
 			}
@@ -419,9 +437,9 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		if(sortONCNum.equals("Any") && sortBatchNum == 0 && sortDNSCode.equals(dnsCodes[0])  &&
 			sortFamilyStatus == FamilyStatus.Any && sortGiftStatus == FamilyGiftStatus.Any && sortLN.equals("Any") && 
 			sortStreet.equals("Any") && sortZip == 0 && sortRegion == 0 && sortChangedBy == 0 &&
-			sortStoplight == 0)
+			sortStoplight == 0 && sortSchool.getCode().equals("Any"))
 		{
-			itemCountPanel.setBorder(BorderFactory.createTitledBorder("Families Served Total"));
+			itemCountPanel.setBorder(BorderFactory.createTitledBorder("Total Families Served"));
 		}
 		else
 			itemCountPanel.setBorder(BorderFactory.createTitledBorder("Families Meeting Criteria"));
@@ -1238,6 +1256,11 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		sortRegion = 0;
 		regionCB.addActionListener(this);
 		
+		schoolCB.removeActionListener(this);
+		schoolCB.setSelectedIndex(0);
+		sortSchool = new School("Any", null, "Any");
+		schoolCB.addActionListener(this);
+		
 		changedByCB.removeActionListener(this);
 		changedByCB.setSelectedIndex(0);
 		sortChangedBy = 0;
@@ -1549,6 +1572,12 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	
 	boolean doesStoplightMatch(int sl) { return sortStoplight == 0 || sl == stoplightCB.getSelectedIndex()-1; }
 	
+	boolean doesSchoolMatch(String schoolCode) 
+	{
+		School selectedSchool = (School) schoolCB.getSelectedItem();
+		return schoolCB.getSelectedIndex() == 0 || schoolCode.equals(selectedSchool.getCode());
+	}
+	
 //	void setFamilyStatusComboItemEnabled(int index, boolean tf) {changeFamItem[index].setEnabled(tf); }
 
 	//updated for 2016 season, Britepaths changed the format
@@ -1696,7 +1725,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	void onExportFamilyFloorList()
 	{
     	String[] header = {"ONC #", "Region"};
-    	ONCRegions regionDB = ONCRegions.getInstance();
+    	RegionDB regionDB = RegionDB.getInstance();
     						
     
     	ONCFileChooser oncfc = new ONCFileChooser(this);
@@ -1736,7 +1765,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	    }
 	}
 	
-	public String[] getExportONCFamilyFloorRow(ONCFamily f, ONCRegions regionDB)
+	public String[] getExportONCFamilyFloorRow(ONCFamily f, RegionDB regionDB)
 	{
 		String[] exportRow = {f.getONCNum(), regionDB.getRegionID(f.getRegion())};
 		return exportRow;
@@ -2276,7 +2305,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		String[] toolTips = {"ONC Family Number", "Batch Number", "Reference #", "Do Not Serve Code", 
 				  "Family Status", "Delivery Status", "Meal Status", "Head of Household First Name", 
 				  "Head of Household Last Name", "House Number","Street",
-				  "Unit or Apartment Number", "Zip Code", "Region",
+				  "Unit or Apartment Number", "Zip Code", "Region", "Elementary School For Address",
 				  "Changed By", "Gift Card Only Family?", "Stoplight Color"};	
 		return toolTips;
 	}
@@ -2285,21 +2314,21 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	String[] getColumnNames() 
 	{
 		String[] columns = {"ONC", "Batch #", "Ref #", "DNS", "Fam Status", "Gift Status", "Meal Status",
-				"First", "Last", "House", "Street", "Unit", "Zip", "Reg", "Changed By", "GCO", "SL"};
+				"First", "Last", "House", "Street", "Unit", "Zip", "Reg", "School", "Changed By", "GCO", "SL"};
 		return columns;
 	}
 
 	@Override
 	int[] getColumnWidths()
 	{
-		int[] colWidths = {36, 48, 56, 48, 72, 72, 72, 72, 72, 48, 128, 72, 48, 32, 72, 32, 24};
+		int[] colWidths = {36, 48, 56, 48, 72, 72, 72, 72, 72, 48, 128, 72, 48, 32, 104, 72, 32, 24};
 		return colWidths;
 	}
 
 	@Override
 	int[] getCenteredColumns()
 	{
-		int [] center_cols = {1, 13, 15};
+		int [] center_cols = {1, 13, 16};
 		return center_cols;
 	}
 	@Override
@@ -2363,6 +2392,11 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		else if(e.getSource() == giftCardCB && giftCardCB.getSelectedIndex() != sortGCO)
 		{
 			sortGCO = giftCardCB.getSelectedIndex();
+			buildTableList(false);
+		}
+		else if(e.getSource() == schoolCB && !((School) schoolCB.getSelectedItem()).equals(sortSchool.getCode()))
+		{
+			sortSchool = (School) schoolCB.getSelectedItem();
 			buildTableList(false);
 		}
 		else if(e.getSource() == stoplightCB && stoplightCB.getSelectedIndex() != sortStoplight)
