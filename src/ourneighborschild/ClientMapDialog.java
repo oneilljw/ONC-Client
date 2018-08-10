@@ -3,6 +3,8 @@ package ourneighborschild;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.swing.BoxLayout;
@@ -20,10 +22,17 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 	 * map is obtained from Google Maps using its API. 
 	 */
 	private static final long serialVersionUID = 1L;
-	private RegionDB regions;
+	
+	private static final String GOOGLE_STATIC_MAP_URL = "http://maps.googleapis.com/maps/api/staticmap?";
+	private static final String MAP_CENTER = "38.886055,-77.435431";
+	private static final int MAP_ZOOM = 12;
+	private static final int MAP_WIDTH = 480;
+	private static final int MAP_HEIGHT = 640;
+	
+	private RegionDB regionDB;
 	private JPanel mapPanel, distPanel;
 	private JLabel lblClientMap = null;
-	private boolean bClientMapStored;
+	private boolean bClientMapInMemory;
 	private ImageIcon iiClientMap;
 	private List<RegionCountLabel> regionCountLabelList;
 	private JLabel lblLegend, lblTotalServed;
@@ -44,15 +53,14 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 		if(famDB != null)
 			famDB.addDatabaseListener(this);	//listen for family changes
 		
-		regions = RegionDB.getInstance();
-		if(regions != null)
-			regions.addDatabaseListener(this);
+		regionDB = RegionDB.getInstance();
+		if(regionDB != null)
+			regionDB.addDatabaseListener(this);
 		
 		//Initialize instance variables
-		bClientMapStored = false;
+		bClientMapInMemory = false;
 		
-		//Set up the map and distribution panels and the labels that will hold the map and distribution
-		//counts
+		//Set up the map and distribution panels and the labels that will hold the map and distribution counts
 		mapPanel = new JPanel();	
 		distPanel = new JPanel();
 		distPanel.setLayout(new BoxLayout(distPanel, BoxLayout.Y_AXIS));
@@ -60,7 +68,7 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 		lblClientMap = new JLabel();
 		iiClientMap = new ImageIcon();
 		
-		//create the region distribution labels
+		//create the distribution labels
 		lblLegend = new JLabel("<html><center><b>Served Family<br><u>Distribution Legend:</u></b></html>");
 		lblTotalServed = new JLabel("Total Served: 0");
 		regionCountLabelList = new ArrayList<RegionCountLabel>();
@@ -72,17 +80,14 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
         getContentPane().add(distPanel);
        
         pack();
-        setSize(800,640);
+        setSize(680,640);
         Point pt = parent.getLocation();
         setLocation(pt.x + 50, pt.y + 50);
 	}
 	
 	void display()
 	{		
-		//Build # of families in each region-note: regionCount[0] is for unassigned served families		
-		//If the family is served (no DNS Code) and the region contains a string that has
-		//numeric values, parse the string to an integer and increment that regions count
-		//else if the family is served and the region string isn't numeric, increment the unassigned count
+		//Build # of families in each region
 		buildRegionCounts(famDB.getList());
 						
 		//Build the map
@@ -120,14 +125,12 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 				};
 */				
 				
-		if(!bClientMapStored)
+		if(!bClientMapInMemory)
 		{
-			String url = "http://maps.googleapis.com/maps/api/staticmap?";
-			String parms = "&size=640x600&zoom=12&center=38.84765,-77.40215";
+			String parms = String.format("&size=%dx%d&zoom=%d&center=%s", MAP_WIDTH, MAP_HEIGHT, MAP_ZOOM, MAP_CENTER);
 			GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
-			String marker = "&markers=color:green%7C" + gvs.getWarehouseAddress();
-			StringBuffer markers = new StringBuffer(marker);		
-			
+			StringBuffer markers = new StringBuffer("&markers=color:green%7C" + gvs.getWarehouseAddress());		
+/*			
 			String[] regionLatLong = 
 					{
 					"Unassigned, no Address",	//PLACE HOLDER FOR UNASSIGNED FAMILIES
@@ -160,21 +163,25 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 //					"38.828027,-77.404695"		//Region Y PIN 26
 //					"38.858007,-77.389963"		//Region Z PIN 27
 					};
-			
-			for(int i=1; i<regionLatLong.length; i++)
-				markers.append("&markers=label:"+ regions.getRegionID(i)+"%7C" + regionLatLong[i]);
+*/			
+			List<School> schoolList = regionDB.getServedSchoolList();
+			for(School sch : schoolList)
+				markers.append("&markers=label:"+ sch.getCode()+"%7C" + sch.getLatLong());
+				
+//			for(int i=1; i<regionLatLong.length; i++)
+//				markers.append("&markers=label:"+ regionDB.getRegionID(i)+"%7C" + regionLatLong[i]);
 			
 			DrivingDirections ddir = new DrivingDirections();
-			String completeURL = url+parms+markers.toString()+"&key=" + EncryptionManager.getKey("key1");
-			System.out.println("ClientMapDlg.buildClientMap: completeURL= " + completeURL);
-			BufferedImage map = ddir.getGoogleMap((url+parms+markers.toString()+"&key=" + EncryptionManager.getKey("key1")));
+//			String completeURL = url+parms+markers.toString()+"&key=" + EncryptionManager.getKey("key1");
+//			System.out.println("ClientMapDlg.buildClientMap: completeURL= " + completeURL);
+			BufferedImage map = ddir.getGoogleMap(GOOGLE_STATIC_MAP_URL+parms+markers.toString()+"&key=" + EncryptionManager.getKey("key1"));
 			
 			if(map != null)	
 			{
 				iiClientMap.setImage(map);
 				lblClientMap.setIcon(iiClientMap);
 				mapPanel.add(lblClientMap);
-				bClientMapStored = true;
+				bClientMapInMemory = true;
 			}
 			else
 				JOptionPane.showMessageDialog(null, "Can't get Map from Google, check your Internet Connection",
@@ -190,12 +197,24 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 	
 		distPanel.add(lblLegend);
 		
-		for(int i=0; i<regions.size(); i++)
-		{	
-			RegionCountLabel rcl = new RegionCountLabel(0, regions.getRegionID(i));
-			regionCountLabelList.add(rcl);
+//		for(int i=0; i<regionDB.size(); i++)
+//		{	
+//			RegionCountLabel rcl = new RegionCountLabel(0, regionDB.getRegionID(i));
+//			regionCountLabelList.add(rcl);
+//			distPanel.add(rcl);
+//		}
+		
+		for(School sch : regionDB.getServedSchoolList())
+			regionCountLabelList.add(new RegionCountLabel(0, sch.getName(), sch.getCode()));
+		
+		//add labels for not in pyramid and not in zipcode families
+		regionCountLabelList.add(new RegionCountLabel(0, "Not in Pyramid", "Y"));
+		regionCountLabelList.add(new RegionCountLabel(0, "Not in Serving Area", "Z"));
+		
+		//sort the regionCountLabelList by SchoolCode and add each label to the panel
+		Collections.sort(regionCountLabelList, new RegionCountLabelListSchoolCodeSorter());
+		for(RegionCountLabel rcl : regionCountLabelList)
 			distPanel.add(rcl);
-		}
 		
 		distPanel.add(lblTotalServed);
 	}
@@ -214,7 +233,10 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 			//only count served families
 			if(isNumeric(f.getONCNum()) && f.getDNSCode().isEmpty())
 			{
-				regionCountLabelList.get(f.getRegion()).addToCount(1);
+				RegionCountLabel associatedLbl = findLabelBySchoolCode(f.getSchoolCode());
+				if(associatedLbl != null)
+					associatedLbl.addToCount(1);
+				
 				totalServed++;
 			}
 		}
@@ -222,35 +244,47 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 		lblTotalServed.setText("Total Served: " + Integer.toString(totalServed));
 	}
 	
+	
+	
 	public static boolean isNumeric(String str)
     {
       return str.matches("-?\\d+(\\.\\d+)?");  //match a number with optional '-' and decimal.
     }
 	
-	/**************************************************************************
-	 * For a region change, the DataChange object holds the integer region
-	 * numbers of the regions being decremented (oldData instance variable) and 
-	 * incremented (newData instance variable). If either variables equals =1
-	 * only an decrement or increment is taking place, not both. 
-	 * @param regionChange
-	 ***********************************************************************/
-	void updateRegionCounts(DataChange regionChange)
+	void updateRegionCounts(SchoolCodeChange scc)
 	{
-		if(regionChange.getOldData() >= 0)	//-1 indicates an unchanged region
+		if(scc.getDecCode() != null)	//null indicates an unchanged count
 		{
-			//region is losing an object, decrement count
-			regionCountLabelList.get(regionChange.getOldData()).addToCount(-1);
-			totalServed--;	
+			//region is losing a family. Find the label by code and subtract 1
+			RegionCountLabel decremetedLabel = findLabelBySchoolCode(scc.getDecCode());
+			if(decremetedLabel != null)
+			{
+				decremetedLabel.addToCount(-1);
+				totalServed--;
+			}	
 		}
 		
-		if(regionChange.getNewData() >= 0)
+		if(scc.getIncCode() != null)
 		{
-			//region is gaining an object, increment count
-			regionCountLabelList.get(regionChange.getNewData()).addToCount(1);
-			totalServed++;
+			//region is gaining a family. Find the label by school code and add 1
+			RegionCountLabel incrementedLabel = findLabelBySchoolCode(scc.getIncCode());
+			if(incrementedLabel != null)
+			{
+				incrementedLabel.addToCount(1);
+				totalServed++;
+			}	
 		}
 		
 		lblTotalServed.setText("Total Served: " + Integer.toString(totalServed));
+	}
+	
+	RegionCountLabel findLabelBySchoolCode(String schoolCode)
+	{
+		int index = 0;
+		while(index < regionCountLabelList.size() && !regionCountLabelList.get(index).matches(schoolCode))
+			index++;
+				
+		return index < regionCountLabelList.size() ? regionCountLabelList.get(index) : null; 
 	}
 
 	@Override
@@ -261,8 +295,8 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 //			System.out.println(String.format("Client Map Dlg DB Event: Source: %s, Type: %s, Object: %s",
 //					dbe.getSource().toString(), dbe.getType(), dbe.getObject().toString()));
 			
-			DataChange regionChange = (DataChange) dbe.getObject1();
-			updateRegionCounts(regionChange);	
+			SchoolCodeChange scc = (SchoolCodeChange) dbe.getObject1();
+			updateRegionCounts(scc);	
 		}
 		else if(dbe.getType().equals("UPDATED_REGION_LIST"))
 		{
@@ -273,13 +307,13 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 		else if(dbe.getType().equals("UPDATED_GLOBALS") && this.isVisible())
 		{
 			mapPanel.remove(lblClientMap);
-			bClientMapStored = false;
+			bClientMapInMemory = false;
 			buildClientMap();
 			this.getContentPane().repaint();
 		}
 		else if(dbe.getType().equals("LOADED_FAMILIES"))
 		{
-			this.setTitle(String.format("Distribution of %d ONC Families Served Gifts by Region", GlobalVariablesDB.getCurrentSeason()));
+			this.setTitle(String.format("Distribution of %d ONC Families Served Gifts by Elementary School", GlobalVariablesDB.getCurrentSeason()));
 		}
 	}
 	
@@ -292,25 +326,43 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 		 */
 		private static final long serialVersionUID = 1L;
 		private int count;
-		private String region;
+//		private String region;
+		private String schoolName;
+		private String schoolCode;
 		
-		RegionCountLabel(int count, String region)
-		{		
-			super("Region " + region +": " + Integer.toString(count) + " families");
+//		RegionCountLabel(int count, String region)
+		RegionCountLabel(int count, String name, String code)
+		{	
+//			super("Region " + region +": " + Integer.toString(count) + " families");
+			super(name +": " + Integer.toString(count));
 			this.count = count;
-			this.region = region;
+//			this.region = region;
+			this.schoolName = name;
+			this.schoolCode = code;
 		}
 	
 		void setCount(int count) 
 		{ 
 			this.count = count;
-			setText("Region " + region + ": " + Integer.toString(count) + " families");
+			setText(String.format("%s-%s: %d", schoolCode, schoolName, count));
 		}
 	
 		void addToCount(int adder) 
 		{
 			count += adder;
-			setText("Region " + region + ": " + Integer.toString(count) + " families");
+			setText(String.format("%s-%s: %d", schoolCode, schoolName, count));
+		}
+		
+		String getSchoolCode() { return schoolCode; }
+		boolean matches(String code) { return schoolCode.equals(code); }
+	}
+	
+	private class RegionCountLabelListSchoolCodeSorter implements Comparator<RegionCountLabel>
+	{
+		public int compare(RegionCountLabel o1, RegionCountLabel o2)
+		{
+		
+			return o1.getSchoolCode().compareTo(o2.getSchoolCode());
 		}
 	}
 }

@@ -7,7 +7,7 @@ public class GoogleGeocode
 	private String status;
 	
 	//getter
-	String getGeocode() { return results[0].geometry().getLocation(); }
+	public String getGeocode() { return results[0].geometry().getLocation(); }
 	String getFormattedAddress() { return results[0].formatted_address(); }
 
 	private class Result

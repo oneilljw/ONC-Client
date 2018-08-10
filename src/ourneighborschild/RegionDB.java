@@ -16,27 +16,27 @@ public class RegionDB extends ONCDatabase
 	{
 		super();
 		
-		//Create the list of elementary schools in ONC's serving area
+		//Create the list of elementary schools in ONC's serving area, ordered by school name
 		schoolList = new ArrayList<School>();
-		schoolList.add(new School("J", new Address("4200", "", "", "Lees Corner", "Road", "", "", "Chantilly", "20151"), "Brookfield"));
-		schoolList.add(new School("A", new Address("15301", "", "", "Lee", "Highway", "", "", "Centreville", "20120"), "Bull Run"));
-		schoolList.add(new School("B", new Address("14400", "", "", "New Braddock", "Road", "", "", "Centreville", "20121"), "Centre Ridge"));
-		schoolList.add(new School("C", new Address("14330", "", "", "Green Trais", "Blvd", "", "", "Centreville", "20121"), "Centreville"));
-		schoolList.add(new School("F", new Address("5301", "", "", "Sully Station", "Drive", "", "", "Centreville", "20120"), "Cub Run"));
-		schoolList.add(new School("H", new Address("15109", "", "", "Carlbern", "Drive", "", "", "Centreville", "20120"), "Deer Park"));
-		schoolList.add(new School("Q", new Address("2708", "", "", "Centreville", "Road", "", "", "Herndon", "20171"), "Floris"));
-		schoolList.add(new School("K", new Address("13006", "", "", "Point Pleasant", "Drive", "", "", "Fairfax", "22033"), "Greenbriar East"));
-		schoolList.add(new School("L", new Address("13300", "", "", "Poplar Tree", "Road", "", "", "Fairfax", "22033"), "Greenbriar West"));
-		schoolList.add(new School("M", new Address("13500", "", "", "Hollinger", "Avenue", "", "", "Fairfax", "22033"), "Lees Corner"));
-		schoolList.add(new School("I", new Address("6100", "", "", "Stone", "Road", "", "", "Centreville", "20120"), "London Towne"));
-		schoolList.add(new School("R", new Address("2480", "", "", "River Birch", "Drive", "", "", "Herndon", "20171"), "Lutie Lewis Coates"));
-		schoolList.add(new School("S", new Address("2499", "", "", "Thomas Jefferson", "Drive", "", "", "Herndon", "20171"), "McNair"));
-		schoolList.add(new School("P", new Address("3210", "", "", "Kincross", "Circle", "", "", "Herndon", "20171"), "Oak Hill"));
-		schoolList.add(new School("N", new Address("13440", "", "", "Melville", "Lane", "", "", "Chantilly", "20151"), "Poplar Tree"));
-		schoolList.add(new School("D", new Address("13340", "", "", "Leland", "Road", "", "", "Centreville", "20120"), "Powell"));
-		schoolList.add(new School("E", new Address("13611", "", "", "Springstone", "Drive", "", "", "Clifton", "20124"), "Union Mill"));
-		schoolList.add(new School("G", new Address("15450", "", "", "Martins Hundred", "Drive", "", "", "Centreville", "20120"), "Virginia Run"));
-		schoolList.add(new School("O", new Address("5400", "", "", "Willow Springs School", "Road", "", "", "Fairfax", "22030"), "Willow Springs"));
+		schoolList.add(new School("J", new Address("4200", "", "", "Lees Corner", "Road", "", "", "Chantilly", "20151"), "Brookfield", "38.882490,-77.419328"));
+		schoolList.add(new School("A", new Address("15301", "", "", "Lee", "Highway", "", "", "Centreville", "20120"), "Bull Run", "38.828835,-77.475749"));
+		schoolList.add(new School("B", new Address("14400", "", "", "New Braddock", "Road", "", "", "Centreville", "20121"), "Centre Ridge", "38.826088,-77.445725"));
+		schoolList.add(new School("C", new Address("14330", "", "", "Green Trais", "Blvd", "", "", "Centreville", "20121"), "Centreville", "38.820056,-77.440809"));
+		schoolList.add(new School("F", new Address("5301", "", "", "Sully Station", "Drive", "", "", "Centreville", "20120"), "Cub Run", "38.865949,-77.458535"));
+		schoolList.add(new School("H", new Address("15109", "", "", "Carlbern", "Drive", "", "", "Centreville", "20120"), "Deer Park", "38.855992,-77.470855"));
+		schoolList.add(new School("Q", new Address("2708", "", "", "Centreville", "Road", "", "", "Herndon", "20171"), "Floris", "38.936122,-77.414987"));
+		schoolList.add(new School("K", new Address("13006", "", "", "Point Pleasant", "Drive", "", "", "Fairfax", "22033"), "Greenbriar East", "38.872170,-77.394355"));
+		schoolList.add(new School("L", new Address("13300", "", "", "Poplar Tree", "Road", "", "", "Fairfax", "22033"), "Greenbriar West", "38.876560,-77.405355"));
+		schoolList.add(new School("M", new Address("13500", "", "", "Hollinger", "Avenue", "", "", "Fairfax", "22033"), "Lees Corner", "38.890636,-77.411140"));
+		schoolList.add(new School("I", new Address("6100", "", "", "Stone", "Road", "", "", "Centreville", "20120"), "London Towne", "38.839880,-77.456534"));
+		schoolList.add(new School("R", new Address("2480", "", "", "River Birch", "Road", "", "", "Herndon", "20171"), "Lutie Lewis Coates", "38.952190,-77.419300"));
+		schoolList.add(new School("S", new Address("2499", "", "", "Thomas Jefferson", "Drive", "", "", "Herndon", "20171"), "McNair", "38.946508,-77.404669"));
+		schoolList.add(new School("P", new Address("3210", "", "", "Kincross", "Circle", "", "", "Herndon", "20171"), "Oak Hill", "38.913202,-77.408478"));
+		schoolList.add(new School("N", new Address("13440", "", "", "Melville", "Lane", "", "", "Chantilly", "20151"), "Poplar Tree", "38.863387,-77.414740"));
+		schoolList.add(new School("D", new Address("13340", "", "", "Leland", "Road", "", "", "Centreville", "20120"), "Powell", "38.846304,-77.407887"));
+		schoolList.add(new School("E", new Address("13611", "", "", "Springstone", "Drive", "", "", "Clifton", "20124"), "Union Mill", "38.820727,-77.417579"));
+		schoolList.add(new School("G", new Address("15450", "", "", "Martins Hundred", "Drive", "", "", "Centreville", "20120"), "Virginia Run", "38.852333,-77.485570"));
+		schoolList.add(new School("O", new Address("5400", "", "", "Willow Springs School", "Road", "", "", "Fairfax", "22030"), "Willow Springs", "38.832115,-77.379740"));
 	}
 	
 	public static RegionDB getInstance()
@@ -229,12 +229,21 @@ public class RegionDB extends ONCDatabase
 */
 	String getSchoolName(String schoolCode)
 	{
-		int index = 0;
-		while(index < schoolList.size() && ! schoolList.get(index).getCode().equals(schoolCode))
-			index++;
+		if(schoolCode.equals("Y"))
+			return "Not in Pyramid";
+		else if(schoolCode.equals("Z"))
+			return "Not in Area";
+		else
+		{	
+			int index = 0;
+			while(index < schoolList.size() && ! schoolList.get(index).getCode().equals(schoolCode))
+				index++;
 		
-		return index < schoolList.size() ? schoolList.get(index).getName() : "";
+			return index < schoolList.size() ? schoolList.get(index).getName() : "";
+		}
 	}
+	
+	List<School> getServedSchoolList() { return schoolList; }
 	
 	School[] getSchoolArray()
 	{

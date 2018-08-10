@@ -2,31 +2,26 @@ package ourneighborschild;
 
 public class AddressValidation 
 {
-	private boolean  bAddressIsSchool;
-	private int errorCode;
+	private int returnCode;
 	private String errMssg;
 		
-	public AddressValidation(boolean bAddressIsSchool, int errorCode)
+	public AddressValidation()
 	{
-		this.bAddressIsSchool = bAddressIsSchool;
-		this.errorCode = errorCode;
+		this.returnCode = 0;
 		this.errMssg = "";
 	}
 	
-	public AddressValidation(boolean bAddressIsSchool, int errorCode, String errMssg)
+	public AddressValidation(int errorCode, String errMssg)
 	{
-		this.bAddressIsSchool = bAddressIsSchool;
-		this.errorCode = errorCode;
+		this.returnCode = errorCode;
 		this.errMssg = errMssg;
 	}
 		
 	//getters
-	boolean isAddressSchool() { return bAddressIsSchool; }
-	int getErrorCode() { return errorCode; }
-	String getErrorMessage() { return errMssg; }
+	public int getReturnCode() { return returnCode; }
+	public String getErrorMessage() { return errMssg; }
 		
 	//setters
-	void setAddressIsSchool(boolean tf) { this.bAddressIsSchool = tf; }
-	void setErrorCode(int ec) { this.errorCode = ec; }
+	void setReturnCode(int ec) { this.returnCode = ec; }
 	void setErrorMessage(String errMssg) { this.errMssg = errMssg; }
 }

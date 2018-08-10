@@ -99,6 +99,11 @@ public class Region extends ONCObject
 	public int getAddressNumHi() { return addressNumHi; }
 	public String getZipCode() { return zipCode; }
 	
+	//setters
+	public void setLocation(String latlong) { this.location = latlong; }
+	public void setSchool(String school) { this.school = school; }
+	public void setSchoolRegion(String schoolCode) { this.schoolRegion = schoolCode; }
+	
 	public static boolean isNumeric(String str)
     {
       return str.matches("-?\\d+(\\.\\d+)?");  //match a number with optional '-' and decimal.
