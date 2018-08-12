@@ -1,7 +1,13 @@
 package ourneighborschild;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 public class RegionDB extends ONCDatabase
 {
@@ -15,9 +21,11 @@ public class RegionDB extends ONCDatabase
 	private RegionDB()
 	{
 		super();
-		
+	
 		//Create the list of elementary schools in ONC's serving area, ordered by school name
+	
 		schoolList = new ArrayList<School>();
+/*			
 		schoolList.add(new School("J", new Address("4200", "", "", "Lees Corner", "Road", "", "", "Chantilly", "20151"), "Brookfield", "38.882490,-77.419328"));
 		schoolList.add(new School("A", new Address("15301", "", "", "Lee", "Highway", "", "", "Centreville", "20120"), "Bull Run", "38.828835,-77.475749"));
 		schoolList.add(new School("B", new Address("14400", "", "", "New Braddock", "Road", "", "", "Centreville", "20121"), "Centre Ridge", "38.826088,-77.445725"));
@@ -37,6 +45,7 @@ public class RegionDB extends ONCDatabase
 		schoolList.add(new School("E", new Address("13611", "", "", "Springstone", "Drive", "", "", "Clifton", "20124"), "Union Mill", "38.820727,-77.417579"));
 		schoolList.add(new School("G", new Address("15450", "", "", "Martins Hundred", "Drive", "", "", "Centreville", "20120"), "Virginia Run", "38.852333,-77.485570"));
 		schoolList.add(new School("O", new Address("5400", "", "", "Willow Springs School", "Road", "", "", "Fairfax", "22030"), "Willow Springs", "38.832115,-77.379740"));
+*/
 	}
 	
 	public static RegionDB getInstance()
@@ -58,6 +67,29 @@ public class RegionDB extends ONCDatabase
 			
 			fireDataChanged(this, "UPDATED_REGION_LIST", regions);
 		}
+	}
+	
+	String importSchoolDB()
+	{
+		String response = "NO_SCHOOLS";
+		if(serverIF != null && serverIF.isConnected())
+		{		
+			Gson gson = new Gson();
+			Type listtype = new TypeToken<ArrayList<School>>(){}.getType();
+			
+			response = serverIF.sendRequest("GET<served_schools>");
+			
+			schoolList = gson.fromJson(response, listtype);
+			Collections.sort(schoolList, new SchoolNameComparator());	//sort list by school code
+			
+			if(!response.startsWith("NO_SCHOOLS"))
+			{
+				response =  "SCHOOLS_LOADED";
+				fireDataChanged(this, "LOADED_SCHOOLS", null);
+			}
+		}
+		
+		return response;
 	}
 	
 	/********************************************************************************************
@@ -244,15 +276,6 @@ public class RegionDB extends ONCDatabase
 	}
 	
 	List<School> getServedSchoolList() { return schoolList; }
-	
-	School[] getSchoolArray()
-	{
-		School[] schoolArray = new School[schoolList.size()];
-		for(int index=0; index < schoolList.size(); index++)
-			schoolArray[index] = schoolList.get(index);
-		
-		return schoolArray;	
-	}
 		
 	@Override
 	public void dataChanged(ServerEvent ue) {
@@ -264,5 +287,13 @@ public class RegionDB extends ONCDatabase
 	String update(Object source, ONCObject entity) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	private class SchoolNameComparator implements Comparator<School>
+	{
+		public int compare(School o1, School o2)
+		{
+			return o1.getName().compareTo(o2.getName());
+		}
 	}
 }

@@ -197,9 +197,6 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		schoolCBM = new DefaultComboBoxModel<School>();
 		sortSchool = new School("Any", null, "Any", "");
 		schoolCBM.addElement(sortSchool);
-		School[] schoolArray = regionDB.getSchoolArray();
-		for(int index=0; index < schoolArray.length; index++)
-			schoolCBM.addElement(schoolArray[index]);
 		schoolCB.setModel(schoolCBM);
 		schoolCB.setPreferredSize(new Dimension(180, 56));
 		schoolCB.setBorder(BorderFactory.createTitledBorder("School"));
@@ -595,6 +592,33 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		sortChangedBy = selIndex;
 		
 		changedByCB.addActionListener(this);
+	}
+	
+	void updateSchoolList()
+	{	
+		schoolCB.removeActionListener(this);
+		
+		School curr_sel = (School) schoolCB.getSelectedItem();
+		int selIndex = 0;
+		
+		schoolCBM.removeAllElements();
+		
+		sortSchool = new School("Any", null, "Any", "");
+		schoolCBM.addElement(sortSchool);
+		
+		int index = 0;
+		for(School sch : regionDB.getServedSchoolList())
+		{
+			schoolCBM.addElement(sch);
+			index++;
+			if(curr_sel.matches(sch))
+				selIndex = index;
+		}
+		
+		schoolCB.setSelectedIndex(selIndex); //Keep current selection in sort criteria
+		sortSchool = (School) schoolCB.getSelectedItem();
+		
+		schoolCB.addActionListener(this);
 	}
 	
 	void updateRegionList(String[] regions)
@@ -2506,6 +2530,10 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		else if(dbe.getType().contains("LOADED_USERS"))
 		{
 			updateUserList();
+		}
+		else if(dbe.getType().contains("LOADED_SCHOOLS"))
+		{
+			updateSchoolList();
 		}
 		else if(dbe.getType().equals("LOADED_FAMILIES"))
 		{

@@ -49,7 +49,7 @@ public class DatabaseManager extends ONCDatabase
 	private VolunteerDB oncVolDB;			//Holds the Volunteer Data Base
 	private VolunteerActivityDB volActDB;	//Holds the Volunteer ActivityData Base
 	private FamilyHistoryDB oncDelDB;		//Holds the ONC Delivery Data Base
-	private RegionDB oncRegions;
+	private RegionDB regionDB;				//Holds the region and school databases
 	private AdultDB oncAdultDB;				//Holds ONC Adult database
 	private MealDB oncMealDB;				//Holds ONC Meal database
 	private InventoryDB oncInvDB;			//Holds current inventory
@@ -60,7 +60,7 @@ public class DatabaseManager extends ONCDatabase
 		
 		//initialize the component data bases
 		oncGVs = GlobalVariablesDB.getInstance();
-		oncRegions = RegionDB.getInstance();
+		regionDB = RegionDB.getInstance();
 		oncUserDB = UserDB.getInstance();
 		oncGroupDB = GroupDB.getInstance();
 		oncOrgDB = PartnerDB.getInstance();
@@ -348,7 +348,7 @@ public class DatabaseManager extends ONCDatabase
      **************************************************************************************************/
     public class ONCServerDBImporter extends SwingWorker<Void, Void>
     {
-    		private static final int NUM_OF_DBs = 16;
+    		private static final int NUM_OF_DBs = 17;
     		String year;
     		ONCProgressBar pb;
     		boolean bServerDataLoaded;
@@ -372,7 +372,7 @@ public class DatabaseManager extends ONCDatabase
 			
 			//import from ONC Server
 			pb.updateHeaderText("<html>Loading Regions</html>");
-			oncRegions.getRegionsFromServer();
+			regionDB.getRegionsFromServer();
 			this.setProgress(progress += increment);
 			
 			pb.updateHeaderText("Loading Season Data");
@@ -437,7 +437,10 @@ public class DatabaseManager extends ONCDatabase
 			
 			pb.updateHeaderText("Loading Detail");
 			oncWishDetailDB.importWishDetailDatabase();
+			this.setProgress(progress += increment);
 			
+			pb.updateHeaderText("Loading Schools");
+			regionDB.importSchoolDB();
 			this.setProgress(progress += increment);
 			
 			bServerDataLoaded = true;
