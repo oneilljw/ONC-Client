@@ -99,6 +99,18 @@ public class Region extends ONCObject
 	public int getAddressNumHi() { return addressNumHi; }
 	public String getZipCode() { return zipCode; }
 	
+	public String getPrintalbeRegion()
+	{
+		StringBuffer buff = new StringBuffer();
+		if(!streetDir.isEmpty())
+			buff.append(streetDir +".");
+		
+		buff.append(String.format("%s %s, Lo= %d, Hi=%d, Region= %S, ES= %s, Lat/Long=%s, SC= %s",
+				streetName, streetType, addressNumLow, addressNumHi, region, school, location, schoolRegion));
+		
+		return buff.toString();	
+	}
+	
 	//setters
 	public void setLocation(String latlong) { this.location = latlong; }
 	public void setSchool(String school) { this.school = school; }
