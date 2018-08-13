@@ -37,6 +37,8 @@ public class ChildDB extends ONCDatabase
 		return instance;
 	}
 	
+	int size() { return childAL.size(); }
+	
 	//Used to create a child internal to the application via the ONC Server
 	ONCObject add(Object source, ONCObject entity)
 	{	

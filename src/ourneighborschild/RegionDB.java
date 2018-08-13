@@ -275,7 +275,15 @@ public class RegionDB extends ONCDatabase
 		}
 	}
 	
-	List<School> getServedSchoolList() { return schoolList; }
+	List<School> getServedSchoolList(SchoolType type)
+	{
+		List<School> resultSchoolList = new ArrayList<School>();
+		for(School sch : schoolList)
+			if(type == SchoolType.ALL || type == sch.getType())
+				resultSchoolList.add(sch);
+		
+		return resultSchoolList; 
+	}
 		
 	@Override
 	public void dataChanged(ServerEvent ue) {

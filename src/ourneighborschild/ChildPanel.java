@@ -312,6 +312,13 @@ public class ChildPanel extends JPanel implements DatabaseListener, EntitySelect
 			LogDialog.add(logEntry, "M");
 			setEditableGUIFields(true);
 		}
+		else if(dbe.getSource() != this && dbe.getType().equals("ADDED_CHILD") && dispChild == null && cDB.size() == 1)
+		{
+			//this is the first child added for the season, display it
+			ONCChild firstChildOfSeason = (ONCChild) dbe.getObject1();
+			if(firstChildOfSeason != null)
+				displayChild(firstChildOfSeason);	
+		}
 	}
 
 	@Override

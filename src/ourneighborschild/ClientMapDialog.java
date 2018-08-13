@@ -186,7 +186,7 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 		GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
 		StringBuffer markers = new StringBuffer("&markers=color:green%7C" + gvs.getWarehouseAddress());
 		if(type.equals("School"))
-			for(School sch : regionDB.getServedSchoolList())
+			for(School sch : regionDB.getServedSchoolList(SchoolType.ES))
 				markers.append("&markers=label:"+ sch.getCode()+"%7C" + sch.getLatLong());
 		else
 		{
@@ -247,7 +247,7 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 	
 		schoolDistPanel.add(new JLabel("<html><center><b>Served Family<br><u>Distribution Legend:</u></b></html>"));
 
-		for(School sch : regionDB.getServedSchoolList())
+		for(School sch : regionDB.getServedSchoolList(SchoolType.ES))
 			schoolCountLabelList.add(new ZoneCountLabel(0, sch.getName(), sch.getCode()));
 		
 		//add labels for not in pyramid and not in zipcode families

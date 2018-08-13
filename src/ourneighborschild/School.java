@@ -6,13 +6,18 @@ public class School
 	private Address address;
 	private String name;
 	private String latlong;
+	private String pyramid;
+	private SchoolType type;
 	
-	public School(String code, Address address, String name, String latlong)
+	
+	public School(String code, Address address, String name, String latlong, String pyramid, SchoolType type)
 	{
 		this.code = code;
 		this.address = address;
 		this.name = name;
 		this.latlong = latlong;
+		this.pyramid = pyramid;
+		this.type = type;
 	}
 	
 	public School(String[] nextLine)
@@ -22,6 +27,18 @@ public class School
 								  nextLine[6], nextLine[7], nextLine[8], nextLine[9]);
 		this.name = nextLine[10];
 		this.latlong = nextLine[11];
+		this.pyramid = nextLine[12];
+		this.type = SchoolType.valueOf(nextLine[13]);
+	}
+	
+	public School()
+	{
+		this.code = "Any";
+		this.address = null;
+		this.name = "Any";
+		this.latlong = "";
+		this.pyramid = "";
+		this.type = SchoolType.ES;
 	}
 	
 	//getters
@@ -29,15 +46,17 @@ public class School
 	public Address getAddress() { return address; }
 	public String getName() { return name; }
 	public String getLatLong() { return latlong; }
+	public String getPyramid() { return pyramid; }
+	public SchoolType getType() { return type; }
 	
 	boolean matches(School school)
 	{
-		return code.equals(school.getCode());
+		return school != null && code.equals(school.getCode());
 	}
 	
 	public String[] getExportRow()
 	{
-		String[] row = new String[12];
+		String[] row = new String[14];
 		
 		row[0] = code;
 		row[1] = address.getStreetNum();
@@ -51,6 +70,8 @@ public class School
 		row[9] = address.getZipCode();
 		row[10] = name;
 		row[11] = latlong;
+		row[12] = pyramid;
+		row[13] = type.toString();
 		
 		return row;
 	}
