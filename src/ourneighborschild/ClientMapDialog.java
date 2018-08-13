@@ -42,7 +42,7 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 	private ImageIcon iiSchoolClientMap, iiRegionClientMap;
 	private List<ZoneCountLabel> schoolCountLabelList, regionCountLabelList;
 	private JLabel lblRegionTotalServed, lblSchoolTotalServed;
-	private int totalServed;
+	private int totalSchoolsServed, totalRegionsServed;
 	
 	private FamilyDB famDB;
 	
@@ -105,7 +105,7 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
         regionPanel.add(regionDistPanel);
         
         //Add the region panel to the tabbed pane
-        tabbedPane.addTab("Distribution By School", schoolPanel);
+        tabbedPane.addTab("Distribution By Elementary School", schoolPanel);
         tabbedPane.addTab("Distribution By Region", regionPanel);
         this.getContentPane().add(tabbedPane);
        
@@ -243,7 +243,7 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 	{
 		schoolDistPanel.removeAll();
 		schoolCountLabelList.clear();
-		totalServed = 0;
+		totalSchoolsServed = 0;
 	
 		schoolDistPanel.add(new JLabel("<html><center><b>Served Family<br><u>Distribution Legend:</u></b></html>"));
 
@@ -266,7 +266,7 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 	{
 		regionDistPanel.removeAll();
 		regionCountLabelList.clear();
-		totalServed = 0;
+		totalRegionsServed = 0;
 	
 		regionDistPanel.add(new JLabel("<html><center><b>Served Family<br><u>Distribution Legend:</u></b></html>"));
 		
@@ -285,7 +285,7 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 		//Clear current counts
 		for(ZoneCountLabel rcl: schoolCountLabelList)
 			rcl.setCount(0);
-		totalServed = 0;
+		totalSchoolsServed = 0;
 		
 		//Separate families by region, only count served families. Served families
 		//have numeric ONC#'s and don't have a Do Not Serve code (empty)
@@ -296,21 +296,25 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 			{
 				ZoneCountLabel associatedSchoolLbl = findLabelByZoneCode(schoolCountLabelList, f.getSchoolCode());
 				if(associatedSchoolLbl != null)
+				{
 					associatedSchoolLbl.addToCount(1);
+					totalSchoolsServed++;
+				}
 				
 				ZoneCountLabel associatedRegionLbl = findLabelByZoneCode(regionCountLabelList, regionDB.getRegionID(f.getRegion()));
 				if(associatedRegionLbl != null)
+				{
 					associatedRegionLbl.addToCount(1);
+					totalRegionsServed++;
+				}
 				
-				totalServed++;
+				
 			}
 		}
 		
-		lblSchoolTotalServed.setText("Total Served: " + Integer.toString(totalServed));
-		lblRegionTotalServed.setText("Total Served: " + Integer.toString(totalServed));
+		lblSchoolTotalServed.setText("Total Served: " + Integer.toString(totalSchoolsServed));
+		lblRegionTotalServed.setText("Total Served: " + Integer.toString(totalRegionsServed));
 	}
-	
-	
 	
 	public static boolean isNumeric(String str)
     {
@@ -326,7 +330,7 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 			if(decremetedLabel != null)
 			{
 				decremetedLabel.addToCount(-1);
-				totalServed--;
+				totalSchoolsServed--;
 			}	
 		}
 		
@@ -337,11 +341,38 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 			if(incrementedLabel != null)
 			{
 				incrementedLabel.addToCount(1);
-				totalServed++;
+				totalSchoolsServed++;
 			}	
 		}
 		
-		lblSchoolTotalServed.setText("Total Served: " + Integer.toString(totalServed));
+		lblSchoolTotalServed.setText("Total Served: " + Integer.toString(totalSchoolsServed));
+	}
+	
+	void updateRegionCounts(SchoolCodeChange scc)
+	{
+		if(scc.getDecCode() != null)	//null indicates an unchanged count
+		{
+			//region is losing a family. Find the label by code and subtract 1
+			ZoneCountLabel decremetedLabel = findLabelByZoneCode(regionCountLabelList, scc.getDecCode());
+			if(decremetedLabel != null)
+			{
+				decremetedLabel.addToCount(-1);
+				totalRegionsServed--;
+			}	
+		}
+		
+		if(scc.getIncCode() != null)
+		{
+			//region is gaining a family. Find the label by school code and add 1
+			ZoneCountLabel incrementedLabel = findLabelByZoneCode(regionCountLabelList, scc.getIncCode());
+			if(incrementedLabel != null)
+			{
+				incrementedLabel.addToCount(1);
+				totalRegionsServed++;
+			}	
+		}
+		
+		lblRegionTotalServed.setText("Total Served: " + Integer.toString(totalRegionsServed));
 	}
 	
 	ZoneCountLabel findLabelByZoneCode(List<ZoneCountLabel> labelList, String zoneCode)
@@ -356,13 +387,21 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 	@Override
 	public void dataChanged(DatabaseEvent dbe) 
 	{
-		if(dbe.getSource() != this && dbe.getType().equals("UPDATED_REGIONS"))
+		if(dbe.getSource() != this && dbe.getType().equals("UPDATED_SCHOOL_CODE"))
 		{
 //			System.out.println(String.format("Client Map Dlg DB Event: Source: %s, Type: %s, Object: %s",
 //					dbe.getSource().toString(), dbe.getType(), dbe.getObject().toString()));
 			
 			SchoolCodeChange scc = (SchoolCodeChange) dbe.getObject1();
 			updateSchoolZoneCounts(scc);	
+		}
+		if(dbe.getSource() != this && dbe.getType().equals("UPDATED_REGION_CODE"))
+		{
+//			System.out.println(String.format("Client Map Dlg DB Event: Source: %s, Type: %s, Object: %s",
+//					dbe.getSource().toString(), dbe.getType(), dbe.getObject().toString()));
+			
+			SchoolCodeChange scc = (SchoolCodeChange) dbe.getObject1();
+			updateRegionCounts(scc);	
 		}
 		else if(dbe.getType().equals("UPDATED_REGION_LIST"))
 		{
@@ -379,7 +418,7 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 		}
 		else if(dbe.getType().equals("LOADED_FAMILIES"))
 		{
-			this.setTitle(String.format("Distribution of %d ONC Families Served Gifts by Elementary School", GlobalVariablesDB.getCurrentSeason()));
+			this.setTitle(String.format("Distribution of %d ONC Families Served Gifts", GlobalVariablesDB.getCurrentSeason()));
 		}
 		else if(dbe.getType().equals("LOADED_SCHOOLS"))
 		{
@@ -402,7 +441,7 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 		
 		ZoneCountLabel(int count, String code)
 		{	
-			super(code +": " + Integer.toString(count));
+			super("Region " + code +": " + Integer.toString(count));
 			this.count = count;
 			this.zoneName = "";
 			this.zoneCode = code;
@@ -420,7 +459,7 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 		{ 
 			this.count = count;
 			if(zoneName.isEmpty())
-				setText(String.format("%s: %d", zoneCode, count));
+				setText(String.format("Region %s: %d", zoneCode, count));
 			else
 				setText(String.format("%s-%s: %d", zoneCode, zoneName, count));
 		}
@@ -429,7 +468,7 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 		{
 			count += adder;
 			if(zoneName.isEmpty())
-				setText(String.format("%s: %d", zoneCode, count));
+				setText(String.format("Region %s: %d", zoneCode, count));
 			else
 				setText(String.format("%s-%s: %d", zoneCode, zoneName, count));
 		}

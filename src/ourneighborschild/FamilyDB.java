@@ -181,6 +181,7 @@ public class FamilyDB extends ONCSearchableDatabase
 			String currONCNum = oncFamAL.get(index).getONCNum();
 			String currDNSCode  = oncFamAL.get(index).getDNSCode();
 			String currSchoolCode = oncFamAL.get(index).getSchoolCode();
+			String currRegion = regionDB.getRegionID(oncFamAL.get(index).getRegion());
 			
 			oncFamAL.set(index, updatedFamily);
 			
@@ -193,23 +194,20 @@ public class FamilyDB extends ONCSearchableDatabase
 			
 //			System.out.println(String.format("Families- processUpdateFamily: currFam region: %d", currFam.getRegion()));
 //			System.out.println(String.format("Families- processUpdateFamily: updatedFamily region: %d", updatedFamily.getRegion()));
-			if(currSchoolCode != null && !currSchoolCode.equals(updatedFamily.getSchoolCode()))
-			{
-				//create SchoolCodeChange object for regions changing
-				SchoolCodeChange schoolCodeChange = new SchoolCodeChange(currSchoolCode, updatedFamily.getSchoolCode());
-				fireDataChanged(this, "UPDATED_REGIONS", schoolCodeChange);
-			}
-			else if(!currDNSCode.equals(updatedFamily.getDNSCode()) ||
+			if(!currDNSCode.equals(updatedFamily.getDNSCode()) ||
 					!currONCNum.equals(updatedFamily.getONCNum()))
 			{
 				//A change to either ONC Number or DNS code or both detected
-				SchoolCodeChange schoolCodeChange;
+				SchoolCodeChange schoolCodeChange, regionCodeChange;
 				
 				//if both are now valid, add a region and update the counts
 				if(isNumeric(updatedFamily.getONCNum()) && updatedFamily.getDNSCode().isEmpty())
 				{
 					schoolCodeChange = new SchoolCodeChange(null, updatedFamily.getSchoolCode());
-					fireDataChanged(this, "UPDATED_REGIONS", schoolCodeChange);
+					fireDataChanged(this, "UPDATED_SCHOOL_CODE", schoolCodeChange);
+					
+					regionCodeChange = new SchoolCodeChange(null, regionDB.getRegionID(updatedFamily.getRegion()));
+					fireDataChanged(this, "UPDATED_SCHOOL_CODE", regionCodeChange);
 					
 					int[] countsChange = getServedFamilyAndChildCount();
 					DataChange servedCountsChange = new DataChange(countsChange[0], countsChange[1]);
@@ -220,12 +218,31 @@ public class FamilyDB extends ONCSearchableDatabase
 						!(isNumeric(updatedFamily.getONCNum()) && updatedFamily.getDNSCode().isEmpty()))
 				{
 					schoolCodeChange = new SchoolCodeChange(updatedFamily.getSchoolCode(), null);
-					fireDataChanged(this, "UPDATED_REGIONS", schoolCodeChange);
+					fireDataChanged(this, "UPDATED_SCHOOL_CODE", schoolCodeChange);
+					
+					regionCodeChange = new SchoolCodeChange(regionDB.getRegionID(updatedFamily.getRegion()), null);
+					fireDataChanged(this, "UPDATED_SCHOOL_CODE", regionCodeChange);
 					
 					int[] countsChange = getServedFamilyAndChildCount();
 					DataChange servedCountsChange = new DataChange(countsChange[0], countsChange[1]);
 					fireDataChanged(this, "UPDATED_SERVED_COUNTS", servedCountsChange);
 				}				
+			}
+			else
+			{
+				if(currSchoolCode != null && !currSchoolCode.equals(updatedFamily.getSchoolCode()))
+				{
+					//create SchoolCodeChange object for regions changing
+					SchoolCodeChange schoolCodeChange = new SchoolCodeChange(currSchoolCode, updatedFamily.getSchoolCode());
+					fireDataChanged(this, "UPDATED_SCHOOL_CODE", schoolCodeChange);
+				}
+				
+				if(currRegion != null && !currSchoolCode.equals(updatedFamily.getSchoolCode()))
+				{
+					//create SchoolCodeChange object for regions changing
+					SchoolCodeChange regionCodeChange = new SchoolCodeChange(currRegion, regionDB.getRegionID(updatedFamily.getRegion()));
+					fireDataChanged(this, "UPDATED_REGION_CODE", regionCodeChange);
+				}
 			}
 		}
 		
@@ -271,7 +288,10 @@ public class FamilyDB extends ONCSearchableDatabase
 			if(isNumeric(addedFamily.getONCNum()) && addedFamily.getDNSCode().isEmpty())
 			{
 				SchoolCodeChange schoolCodeChange = new SchoolCodeChange(null, addedFamily.getSchoolCode());
-				fireDataChanged(this, "UPDATED_REGIONS", schoolCodeChange);
+				fireDataChanged(this, "UPDATED_SCHOOL_CODE", schoolCodeChange);
+				
+				SchoolCodeChange regionCodeChange = new SchoolCodeChange(null, regionDB.getRegionID(addedFamily.getRegion()));
+				fireDataChanged(this, "UPDATED_SCHOOL_CODE", regionCodeChange);
 				
 				int[] countsChange = getServedFamilyAndChildCount();
 				DataChange servedCountsChange = new DataChange(countsChange[0], countsChange[1]);
