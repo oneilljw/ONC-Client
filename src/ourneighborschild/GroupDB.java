@@ -56,7 +56,7 @@ public class GroupDB extends ONCSearchableDatabase
 		List<ONCGroup> groupList = new LinkedList<ONCGroup>();
 		for(Integer id : intList)
 			groupList.add(getGroupByID(id));
-		
+
 		return groupList;
 	}
 	

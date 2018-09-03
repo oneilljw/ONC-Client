@@ -386,6 +386,7 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
 				
 			//if the user is in the updated group, update the table
 			int index = 0;
+			
 			while(index < memberList.size() && memberList.get(index).getID() != updatedGroup.getID())
 				index++;
 			
@@ -400,10 +401,6 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
 		{
 			candidateList = groupDB.getList();
 			candidateTM.fireTableDataChanged();
-		}
-		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_USERS"))
-		{
-			display(null);	//will display the first user in the data base, if there is one
 		}
 	}
 
@@ -519,8 +516,8 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
 		{
 			//Determine what to display based on currUser and user
 			if(currUser == null && user == null)
-				currUser = (ONCUser) userDB.getObjectAtIndex(0);
-			else if(user != null  && currUser != user)
+				currUser = (ONCUser) userDB.getObjectAtIndex(0);	
+			else if(user != null  && currUser.getID() != user.getID())
 				currUser = (ONCUser) user;
 			
 			bIgnoreEvents = true;
