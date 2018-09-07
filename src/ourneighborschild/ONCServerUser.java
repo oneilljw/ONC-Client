@@ -124,6 +124,18 @@ public class ONCServerUser extends ONCUser
 		recoveryIDTime = now.getTimeInMillis();
 	}
 	
+	public void disableRecoveryID()
+	{
+		//set the recoveryID to "DI$@BLED" and set the recovery time to two hours before 
+		//current time. This will disable the recovery process as recovery links are only active
+		//for one hour. It will also preserve evidence of a recovery occurrence
+		recoveryID = "DI$@BLED";
+		//set the creation time
+		Calendar now = Calendar.getInstance();
+		long two_hours_millis = 1000 * 60 * 60 * 2;
+		recoveryIDTime = now.getTimeInMillis() - two_hours_millis;
+	}
+	
 	//creates and returns a new ONCUser object from this ONCServerUserObject
 	public ONCUser getUserFromServerUser()
 	{

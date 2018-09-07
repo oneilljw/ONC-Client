@@ -139,7 +139,7 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
         lblDateChanged.setToolTipText("Timestamp when user info last changed");
         lblDateChanged.setPreferredSize(new Dimension (120, 48));
         lblDateChanged.setBorder(BorderFactory.createTitledBorder("Date Changed"));
-        sdf = new SimpleDateFormat("MM/d/yyyy");
+        sdf = new SimpleDateFormat("MM/dd/yyyy");
         
         //set up panel 2
         op2.add(orgTF);
@@ -448,23 +448,23 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
 	{
 		if(currUser != null && !memberList.isEmpty())
 		{
-			ONCUser reqUser = new ONCUser(currUser);	//make a copy for update request
+			ONCUser reqUpdateUser = new ONCUser(currUser);	//make a copy for update request
 			int bCD = 0; //used to indicate a change to the user has been detected	
-			if(!firstnameTF.getText().equals(reqUser.getFirstName())) { reqUser.setFirstName(firstnameTF.getText()); bCD = bCD | 1; }
-			if(!lastnameTF.getText().equals(reqUser.getLastName())) { reqUser.setLastName(lastnameTF.getText()); bCD = bCD | 2; }
-			if(!emailTF.getText().equals(reqUser.getEmail())) { reqUser.setEmail(emailTF.getText()); bCD = bCD | 4; }
-			if(!phoneTF.getText().equals(reqUser.getHomePhone())) { reqUser.setHomePhone(phoneTF.getText()); reqUser.setCellPhone(phoneTF.getText());bCD = bCD | 8; }
-			if(statusCB.getSelectedItem() != reqUser.getStatus()) { reqUser.setStatus((UserStatus)statusCB.getSelectedItem()); bCD = bCD | 16; }
-			if(accessCB.getSelectedItem() != reqUser.getAccess()) { reqUser.setAccess((UserAccess)accessCB.getSelectedItem()); bCD = bCD | 32; }
-			if(permissionCB.getSelectedItem() != reqUser.getPermission()) { reqUser.setPermission((UserPermission)permissionCB.getSelectedItem()); bCD = bCD | 64; }
-			if(memberList.size() != reqUser.getGroupList().size()){ reqUser.setGroupList(getUserGroupList()); bCD = bCD | 128; }
+			if(!firstnameTF.getText().equals(reqUpdateUser.getFirstName())) { reqUpdateUser.setFirstName(firstnameTF.getText()); bCD = bCD | 1; }
+			if(!lastnameTF.getText().equals(reqUpdateUser.getLastName())) { reqUpdateUser.setLastName(lastnameTF.getText()); bCD = bCD | 2; }
+			if(!emailTF.getText().equals(reqUpdateUser.getEmail())) { reqUpdateUser.setEmail(emailTF.getText()); bCD = bCD | 4; }
+			if(!phoneTF.getText().equals(reqUpdateUser.getHomePhone())) { reqUpdateUser.setHomePhone(phoneTF.getText()); reqUpdateUser.setCellPhone(phoneTF.getText());bCD = bCD | 8; }
+			if(statusCB.getSelectedItem() != reqUpdateUser.getStatus()) { reqUpdateUser.setStatus((UserStatus)statusCB.getSelectedItem()); bCD = bCD | 16; }
+			if(accessCB.getSelectedItem() != reqUpdateUser.getAccess()) { reqUpdateUser.setAccess((UserAccess)accessCB.getSelectedItem()); bCD = bCD | 32; }
+			if(permissionCB.getSelectedItem() != reqUpdateUser.getPermission()) { reqUpdateUser.setPermission((UserPermission)permissionCB.getSelectedItem()); bCD = bCD | 64; }
+			if(memberList.size() != reqUpdateUser.getGroupList().size()){ reqUpdateUser.setGroupList(getUserGroupList()); bCD = bCD | 128; }
 			
 			if(bCD > 0)	//If an update to partner data (not stop light data) was detected
 			{
 //				System.out.println(String.format("EditUserDlg.update: bCD= %d", bCD));
-				reqUser.setChangedBy(userDB.getUserLNFI());
+				reqUpdateUser.setChangedBy(userDB.getUserLNFI());
 			
-				String response = userDB.update(this, reqUser);	//notify the database of the change
+				String response = userDB.update(this, reqUpdateUser);	//notify the database of the change
 			
 				if(response.startsWith("UPDATED_USER"))
 				{
@@ -516,8 +516,10 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
 		{
 			//Determine what to display based on currUser and user
 			if(currUser == null && user == null)
-				currUser = (ONCUser) userDB.getObjectAtIndex(0);	
-			else if(user != null  && currUser.getID() != user.getID())
+				currUser = (ONCUser) userDB.getObjectAtIndex(0);
+			if(currUser == null && user != null)
+				currUser = (ONCUser) user;
+			else if(user != null  && currUser.getID() == user.getID())
 				currUser = (ONCUser) user;
 			
 			bIgnoreEvents = true;
