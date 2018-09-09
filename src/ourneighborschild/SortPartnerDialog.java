@@ -218,8 +218,8 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
       	String[] exportChoices = {
       				"Export Data",
       				"Gmail Contact List",
-      				"2016 Partner Info",
-      				"2016 Partner Performance",
+      				"Partner Info",
+      				"Partner Performance",
 				};
       	exportCB = new JComboBox<String>(exportChoices);
       	exportCB.setPreferredSize(new Dimension(136, 28));
