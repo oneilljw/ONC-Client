@@ -401,6 +401,12 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
 		{
 			candidateList = groupDB.getList();
 			candidateTM.fireTableDataChanged();
+			
+			//loading users occurs before loading groups. Use loading of groups as trigger to 
+			//display the first user in the database. If the trigger was loading users, the 
+			//groups the first user is a member of wouldn't be available resulting in a error.
+			if(currUser == null)
+				display(currUser);
 		}
 	}
 
@@ -413,7 +419,7 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
 		 * group and display the group selected.
 		 ************************************************************************************/
 		if(!bAddingNewEntity)
-		{
+		{	
 			if(tse.getSource() != nav && (tse.getType() == EntityType.USER || tse.getType() == EntityType.AGENT))
 			{
 				ONCUser user = (ONCUser) tse.getObject1();
@@ -483,19 +489,14 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
 				}
 			}
 		}
-		else  //currUser is null or memeberList is empty
+		else if(currUser != null && memberList.isEmpty()) //memeberList is empty
 		{
 			//display an error message that update request could not be processed
-			String mssg = "Update could not be processed";
-			if(currUser == null)
-				mssg = "No current users, please add a new user.";
-			else if(memberList.isEmpty())
-				mssg = "<html>Each user must be in at least <b>one</b> group at all times!<br>Please add a new group "
+			String mssg = "<html>Each user must be in at least <b>one</b> group at all times!<br>Please add a new group "
 						+ "before removing the last<br>group the user participates in.</html>";
 			
 			JOptionPane.showMessageDialog(this, mssg, "User Dialog Error",  
 										JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
-			
 			display(currUser);
 		}
 	}
@@ -519,7 +520,7 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
 				currUser = (ONCUser) userDB.getObjectAtIndex(0);
 			if(currUser == null && user != null)
 				currUser = (ONCUser) user;
-			else if(user != null  && currUser.getID() == user.getID())
+			else if(currUser != null && user != null)
 				currUser = (ONCUser) user;
 			
 			bIgnoreEvents = true;
