@@ -521,7 +521,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		
 		String[] header = headerList.toArray(new String[0]);
 			
-    	ONCFileChooser oncfc = new ONCFileChooser(this);
+		ONCFileChooser oncfc = new ONCFileChooser(this);
        	File oncwritefile = oncfc.getFile("Select file for export of selected meals" ,
        										new FileNameExtensionFilter("CSV Files", "csv"), 1);
        	if(oncwritefile!= null)
@@ -539,8 +539,8 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 	    	    int[] row_sel = sortTable.getSelectedRows();
 	    	    for(int i=0; i<sortTable.getSelectedRowCount(); i++)
 	    	    {
-	    	    	int index = row_sel[i];
-	    	    	writer.writeNext(stAL.get(index).get2016ExportRow(choice));
+	    	    		int index = row_sel[i];
+	    	    		writer.writeNext(stAL.get(index).get2016ExportRow(choice));
 	    	    }
 	    	   
 	    	    writer.close();

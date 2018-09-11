@@ -76,6 +76,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private FamilyHistoryDB familyHistoryDB;
 	private RegionDB regions;
 	private UserDB userDB;
+	private GroupDB groupDB;
 	
 	private ONCFamily currFam;	//The panel needs to know which family is being displayed
 	private ONCChild currChild;	//The panel needs to know which child is being displayed
@@ -127,6 +128,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		familyHistoryDB = FamilyHistoryDB.getInstance();
 		regions = RegionDB.getInstance();
 		userDB = UserDB.getInstance();
+		groupDB = GroupDB.getInstance();
 		
 		if(dbMgr != null)
 			dbMgr.addDatabaseListener(this);
@@ -142,6 +144,8 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			familyHistoryDB.addDatabaseListener(this);
 		if(userDB != null)
 			userDB.addDatabaseListener(this);	//font preference updates
+		if(groupDB != null)
+			groupDB.addDatabaseListener(this);
 		
 		currFam = null;
 		
@@ -709,13 +713,14 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		languageCB.setSelectedItem((String)currFam.getLanguage());
 		lblChangedBy.setText(currFam.getChangedBy());
 		lblSchool.setText(regions.getSchoolName(currFam.getSchoolCode()));
+		lblSchool.setToolTipText("Referring Group: " + groupDB.getGroupByID(currFam.getGroupID()).getName());
 		
 		oncNotesPane.setText(currFam.getNotes());
 		oncNotesPane.setCaretPosition(0);
 		oncDIPane.setText(currFam.getDeliveryInstructions());
 		oncDIPane.setCaretPosition(0);
 		
-		//set meal button icon
+		//set meal button iconBar
 		if(currFam.getMealID()  == -1)
 		{
 			rbMeals.setIcon(gvs.getImageIcon( NO_MEAL_ICON_INDEX));
