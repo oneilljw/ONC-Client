@@ -45,7 +45,7 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
     private FamilyDB fDB;
 	private ChildDB cDB;
 	private ChildWishDB cwDB;
-	private ONCWishCatalog cat;
+	private WishCatalogDB cat;
 	private PartnerDB partnerDB;
 	private UserDB userDB;
 	
@@ -81,7 +81,7 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 		if(cwDB != null)
 			cwDB.addDatabaseListener(this);
 		
-		cat = ONCWishCatalog.getInstance();
+		cat = WishCatalogDB.getInstance();
 		if(cat != null)
 			cat.addDatabaseListener(this);
 		
@@ -366,7 +366,7 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 	
 	boolean doesWishFitOnLabel(ONCChildWish cw)
 	{
-		ONCWishCatalog cat = ONCWishCatalog.getInstance();
+		WishCatalogDB cat = WishCatalogDB.getInstance();
 		
 		ONCWish catWish = cat.getWishByID(cw.getWishID());
 		String wishName = catWish == null ? "None" : catWish.getName();

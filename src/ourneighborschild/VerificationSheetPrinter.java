@@ -31,13 +31,13 @@ public abstract class VerificationSheetPrinter implements Printable
 	Image img;
 	String oncSeason;
 	ChildWishDB cwDB;
-	ONCWishCatalog cat;
+	WishCatalogDB cat;
 	
 	VerificationSheetPrinter(ArrayList<ONCVerificationSheet> vsal)
 	{
 		vsAL = vsal;
 		cwDB = ChildWishDB.getInstance();
-		cat = ONCWishCatalog.getInstance();
+		cat = WishCatalogDB.getInstance();
 		
 	}
 	

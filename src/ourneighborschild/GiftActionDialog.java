@@ -52,7 +52,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 	
 	private ChildDB cDB;
 	private ChildWishDB cwDB;
-	private ONCWishCatalog cat;
+	private WishCatalogDB cat;
 	
 	private ArrayList<SortWishObject> stAL;
 	protected SortWishObject lastWishChanged;	//Holds the last wish received for undo function
@@ -73,7 +73,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 		
 		cDB = ChildDB.getInstance();
 		cwDB = ChildWishDB.getInstance();
-		cat = ONCWishCatalog.getInstance();
+		cat = WishCatalogDB.getInstance();
 		
 		if(cDB != null)
 			cDB.addDatabaseListener(this);	//Child updates

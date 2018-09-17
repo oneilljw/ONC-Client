@@ -49,7 +49,7 @@ public class InventoryDialog extends BarcodeTableDialog implements ActionListene
 	private static final int DEFAULT_TABLE_ROW_COUNT = 15;
 	
 	private InventoryDB inventoryDB;
-	private ONCWishCatalog cat;
+	private WishCatalogDB cat;
 	private JRadioButton rbEdit, rbAdd, rbRemove;
 	private JComboBox<ONCWish> wishCB;
 	private DefaultComboBoxModel<ONCWish> wishCBM;
@@ -63,7 +63,7 @@ public class InventoryDialog extends BarcodeTableDialog implements ActionListene
 		if(inventoryDB != null)
 			inventoryDB.addDatabaseListener(this);
 		
-		cat = ONCWishCatalog.getInstance();
+		cat = WishCatalogDB.getInstance();
 		if(cat != null)
 			cat.addDatabaseListener(this);
 		

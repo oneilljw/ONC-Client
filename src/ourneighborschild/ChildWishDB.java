@@ -25,14 +25,14 @@ public class ChildWishDB extends ONCDatabase
 	private static final String CHILD_WISH_DEFAULT_DETAIL = "Age appropriate";
 	
 	private static ChildWishDB instance = null;
-	private ONCWishCatalog cat;
+	private WishCatalogDB cat;
 	private ChildDB childDB;
 	private ArrayList<ONCChildWish> childwishAL;
 	
 	private ChildWishDB()
 	{	
 		super();
-		cat = ONCWishCatalog.getInstance();
+		cat = WishCatalogDB.getInstance();
 		childDB = ChildDB.getInstance();
 		childwishAL = new ArrayList<ONCChildWish>();
 	}

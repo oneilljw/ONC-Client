@@ -17,6 +17,7 @@ import java.text.SimpleDateFormat;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultCellEditor;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -58,9 +59,10 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 	private static final int EXPIRES_COL = 2;
 	private static final int FREQ_COL = 3;
 	
-	private GlobalVariablesDB pdGVs;
+	private GlobalVariablesDB gvDB;
 	private UserDB userDB;
 	private ActivityDB activityDB;
+	private WishCatalogDB catDB;
 	
 	private UserPreferences uPrefs;
 	
@@ -71,6 +73,8 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 	private JTextField whStreetNumTF, whStreetTF, whCityTF, whStateTF;
 	private String whStreetNum, whStreet,whCity, whState;
 	public JComboBox<Integer> oncFontSizeCB;
+	private JComboBox<ONCWish> defaultGiftCB;
+	private DefaultComboBoxModel<ONCWish> defaultGiftCBM;
 	private JButton btnApplyDateChanges, btnApplyAddressChanges;
 	private boolean bIgnoreDialogEvents;
 	private JCheckBox barcodeCkBox, signUpImportCkBox;
@@ -90,9 +94,9 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		super(parentFrame, false);
 		this.setTitle("Our Neighbor's Child Elf & Season Settings");
 		
-		pdGVs = GlobalVariablesDB.getInstance();
-		if(pdGVs != null)
-			pdGVs.addDatabaseListener(this);
+		gvDB = GlobalVariablesDB.getInstance();
+		if(gvDB != null)
+			gvDB.addDatabaseListener(this);
 		
 		userDB = UserDB.getInstance();
 		if(userDB != null)
@@ -101,6 +105,10 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		activityDB = ActivityDB.getInstance();
 		if(activityDB != null)
 			activityDB.addDatabaseListener(this);
+		
+		catDB = WishCatalogDB.getInstance();
+		if(catDB != null)
+			catDB.addDatabaseListener(this);
 		
 		geniusSignUps = new GeniusSignUps();
 		
@@ -157,21 +165,21 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		DateChangeListener dcl = new DateChangeListener();	//listener for all date changes
 		
 		Dimension dateSize = new Dimension(184, 56);
-		dc_today = new JDateChooser(pdGVs.getTodaysDate());
+		dc_today = new JDateChooser(gvDB.getTodaysDate());
 		dc_today.setPreferredSize(dateSize);
 		dc_today.setBorder(BorderFactory.createTitledBorder("Today's Date"));
 		dc_today.setEnabled(false);
 		dc_today.getDateEditor().addPropertyChangeListener(dcl); 
 		datePanelTop.add(dc_today);
 		
-		dc_seasonstart = new JDateChooser(pdGVs.getSeasonStartDate());
+		dc_seasonstart = new JDateChooser(gvDB.getSeasonStartDate());
 		dc_seasonstart.setPreferredSize(dateSize);
 		dc_seasonstart.setBorder(BorderFactory.createTitledBorder("Season Start Date"));
 		dc_seasonstart.setEnabled(false);
 		dc_seasonstart.getDateEditor().addPropertyChangeListener(dcl);	
 		datePanelTop.add(dc_seasonstart);
 		
-		dc_delivery = new JDateChooser(pdGVs.getDeliveryDate());
+		dc_delivery = new JDateChooser(gvDB.getDeliveryDate());
 		dc_delivery.setPreferredSize(dateSize);
 		dc_delivery.setBorder(BorderFactory.createTitledBorder("Delivery Date"));
 		dc_delivery.setEnabled(false);
@@ -203,7 +211,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		
 		JPanel datePanelBottom = new JPanel();
 		datePanelBottom.setLayout(new FlowLayout(FlowLayout.LEFT));
-		dc_giftsreceived = new JDateChooser(pdGVs.getGiftsReceivedDate());
+		dc_giftsreceived = new JDateChooser(gvDB.getGiftsReceivedDate());
 		dc_giftsreceived.setPreferredSize(dateSize);
 		dc_giftsreceived.setToolTipText("<html>All gifts must be received from partners <b><i>BEFORE</i></b> this date</html>");
 		dc_giftsreceived.setBorder(BorderFactory.createTitledBorder("Gifts Received Deadline"));
@@ -266,19 +274,20 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		JPanel wishlabelPanel = new JPanel();
 		wishlabelPanel.setLayout(new BoxLayout(wishlabelPanel, BoxLayout.Y_AXIS));
 		JPanel wishlabelPanelTop = new JPanel();
+		JPanel wishlabelPanelMiddle = new JPanel();
 		JPanel wishlabelPanelBottom = new JPanel();
 		
 		barcodeCkBox = new JCheckBox("Use barcode instead of icon on label using barcode:");
-		barcodeCkBox.setSelected(pdGVs.includeBarcodeOnLabels());
+		barcodeCkBox.setSelected(gvDB.includeBarcodeOnLabels());
 		barcodeCkBox.addActionListener(this);
 		wishlabelPanelTop.add(barcodeCkBox);
 		
 		barcodeCB = new JComboBox<Barcode>(Barcode.values());
-		barcodeCB.setSelectedItem(pdGVs.getBarcodeCode());
+		barcodeCB.setSelectedItem(gvDB.getBarcodeCode());
 		barcodeCB.addActionListener(this);;
 		wishlabelPanelTop.add(barcodeCB);
 		
-		Point lblOffset = pdGVs.getAveryLabelOffset();
+		Point lblOffset = gvDB.getAveryLabelOffset();
 		averyXOffsetSpinner = new JSpinner(new SpinnerNumberModel(lblOffset.x, 0, 100, 1));
 		averyYOffsetSpinner = new JSpinner(new SpinnerNumberModel(lblOffset.y, 0, 100, 1));
 		
@@ -286,12 +295,23 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		averyXOffsetSpinner.addChangeListener(listener);
 		averyYOffsetSpinner.addChangeListener(listener);
 		
-		wishlabelPanelBottom.add(new JLabel("Label X Offset:"));
-		wishlabelPanelBottom.add(averyXOffsetSpinner);
-		wishlabelPanelBottom.add(new JLabel("Label Y Offset:"));
-		wishlabelPanelBottom.add(averyYOffsetSpinner);
+		wishlabelPanelMiddle.add(new JLabel("Label X Offset:"));
+		wishlabelPanelMiddle.add(averyXOffsetSpinner);
+		wishlabelPanelMiddle.add(new JLabel("Label Y Offset:"));
+		wishlabelPanelMiddle.add(averyYOffsetSpinner);
+		
+		defaultGiftCB = new JComboBox<ONCWish>();
+		defaultGiftCBM = new DefaultComboBoxModel<ONCWish>();
+		
+		defaultGiftCBM.addElement(new ONCWish(-1, "None", 7));//creates a dummy gift with name "None", id = -1;
+		defaultGiftCB.setModel(defaultGiftCBM);
+		defaultGiftCB.setPreferredSize(new Dimension(180, 56));
+		defaultGiftCB.setBorder(BorderFactory.createTitledBorder("Default Gift"));
+		defaultGiftCB.addActionListener(this);
+		wishlabelPanelBottom.add(defaultGiftCB);
 		
 		wishlabelPanel.add(wishlabelPanelTop);
+		wishlabelPanel.add(wishlabelPanelMiddle);
 		wishlabelPanel.add(wishlabelPanelBottom);
 		
 		tabbedPane.addTab("Ornament Labels", wishlabelPanel);
@@ -414,13 +434,25 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		
 		bIgnoreDialogEvents = true;
 		
-		dc_today.setDate(pdGVs.getTodaysDate());
-		dc_delivery.setDate(pdGVs.getDeliveryDate());
-		dc_seasonstart.setDate(pdGVs.getSeasonStartDate());
-		dc_giftsreceived.setDate(pdGVs.getGiftsReceivedDate());
-		dc_ThanksgivingCutoff.setDate(pdGVs.getThanksgivingDeadline());
-		dc_DecemberCutoff.setDate(pdGVs.getDecemberDeadline());
-		dc_InfoEditCutoff.setDate(pdGVs.getFamilyEditDeadline());
+		dc_today.setDate(gvDB.getTodaysDate());
+		dc_delivery.setDate(gvDB.getDeliveryDate());
+		dc_seasonstart.setDate(gvDB.getSeasonStartDate());
+		dc_giftsreceived.setDate(gvDB.getGiftsReceivedDate());
+		dc_ThanksgivingCutoff.setDate(gvDB.getThanksgivingDeadline());
+		dc_DecemberCutoff.setDate(gvDB.getDecemberDeadline());
+		dc_InfoEditCutoff.setDate(gvDB.getFamilyEditDeadline());
+		
+//		if(gvDB.getDefaultGiftID() > -1)
+//		{
+//			System.out.println(String.format("PrefDlg.disp: defaultGiftID= %d", gvDB.getDefaultGiftID()));
+//			ONCWish defaultWish = catDB.getWishByID(gvDB.getDefaultGiftID());
+//			if(defaultWish != null)
+//				defaultGiftCB.setSelectedItem(defaultWish);
+//			else
+//				defaultGiftCB.setSelectedIndex(0);	
+//		}
+//		else
+//			defaultGiftCB.setSelectedIndex(0);
 		
 		displayWarehouseAddress();
 		
@@ -443,7 +475,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 			fdnsFilterDefaultCB.setSelectedIndex(0);
 		}
 		
-		barcodeCkBox.setSelected(pdGVs.includeBarcodeOnLabels());
+		barcodeCkBox.setSelected(gvDB.includeBarcodeOnLabels());
 		
 		btnApplyDateChanges.setEnabled(false);
 		
@@ -459,7 +491,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 	 */
 	void displayWarehouseAddress()
 	{
-		String[] whAddressPart = pdGVs.getWarehouseAddress().split("\\+");
+		String[] whAddressPart = gvDB.getWarehouseAddress().split("\\+");
 		if(whAddressPart.length > 2)
 		{	
 			int index=0;
@@ -511,13 +543,16 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 	void update()
 	{
 		int cf = 0;
-		if(!pdGVs.getSeasonStartDate().equals(dc_seasonstart.getDate())) { cf |= 1;}
-		if(!pdGVs.getDeliveryDate().equals(dc_delivery.getDate())) { cf |= 2; }
-		if(!pdGVs.getWarehouseAddress().equals(getWarehouseAddressInGoogleMapsFormat())) {cf |= 4;}
-		if(!pdGVs.getGiftsReceivedDate().equals(dc_giftsreceived.getDate())) {cf |= 8;}
-		if(!pdGVs.getThanksgivingDeadline().equals(dc_ThanksgivingCutoff.getDate())) {cf |= 16;}
-		if(!pdGVs.getDecemberDeadline().equals(dc_DecemberCutoff.getDate())) {cf |= 32;}
-		if(!pdGVs.getFamilyEditDeadline().equals(dc_InfoEditCutoff.getDate())) {cf |= 64;}
+		if(!gvDB.getSeasonStartDate().equals(dc_seasonstart.getDate())) { cf |= 1;}
+		if(!gvDB.getDeliveryDate().equals(dc_delivery.getDate())) { cf |= 2; }
+		if(!gvDB.getWarehouseAddress().equals(getWarehouseAddressInGoogleMapsFormat())) {cf |= 4;}
+		if(!gvDB.getGiftsReceivedDate().equals(dc_giftsreceived.getDate())) {cf |= 8;}
+		if(!gvDB.getThanksgivingDeadline().equals(dc_ThanksgivingCutoff.getDate())) {cf |= 16;}
+		if(!gvDB.getDecemberDeadline().equals(dc_DecemberCutoff.getDate())) {cf |= 32;}
+		if(!gvDB.getFamilyEditDeadline().equals(dc_InfoEditCutoff.getDate())) {cf |= 64;}
+		
+		ONCWish cbWish = (ONCWish) defaultGiftCB.getSelectedItem();
+		if(gvDB.getDefaultGiftID() != cbWish.getID()) {cf |= 128;}
 		
 		if(cf > 0)
 		{
@@ -527,15 +562,16 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 													  dc_giftsreceived.getDate(),
 													   dc_ThanksgivingCutoff.getDate(),
 													    dc_DecemberCutoff.getDate(),
-													     dc_InfoEditCutoff.getDate(), -1);
+													     dc_InfoEditCutoff.getDate(),
+													     cbWish.getID());
 			
-			String response = pdGVs.update(this, updateGVreq);
+			String response = gvDB.update(this, updateGVreq);
 			if(!response.startsWith("UPDATED_GLOBALS"))
 			{
 				//display an error message that update request failed
 				JOptionPane.showMessageDialog(this, "ONC Server denied global update," +
 						"try again later","Global Update Failed",  
-						JOptionPane.ERROR_MESSAGE, pdGVs.getImageIcon(0));
+						JOptionPane.ERROR_MESSAGE, gvDB.getImageIcon(0));
 			}
 			else
 			{
@@ -561,12 +597,12 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 	
 	void checkApplyChangesEnabled()
 	{
-		if(!pdGVs.getSeasonStartDate().equals(dc_seasonstart.getDate()) || 
-			!pdGVs.getDeliveryDate().equals(dc_delivery.getDate()) ||
-			!pdGVs.getGiftsReceivedDate().equals(dc_giftsreceived.getDate()) ||
-			!pdGVs.getThanksgivingDeadline().equals(dc_ThanksgivingCutoff.getDate()) ||
-			!pdGVs.getDecemberDeadline().equals(dc_DecemberCutoff.getDate()) ||
-			!pdGVs.getFamilyEditDeadline().equals(dc_InfoEditCutoff.getDate()))
+		if(!gvDB.getSeasonStartDate().equals(dc_seasonstart.getDate()) || 
+			!gvDB.getDeliveryDate().equals(dc_delivery.getDate()) ||
+			!gvDB.getGiftsReceivedDate().equals(dc_giftsreceived.getDate()) ||
+			!gvDB.getThanksgivingDeadline().equals(dc_ThanksgivingCutoff.getDate()) ||
+			!gvDB.getDecemberDeadline().equals(dc_DecemberCutoff.getDate()) ||
+			!gvDB.getFamilyEditDeadline().equals(dc_InfoEditCutoff.getDate()))
 		{
 			btnApplyDateChanges.setEnabled(true);
 		}
@@ -597,9 +633,9 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 			updateUserPreferences();
 		}
 		else if(!bIgnoreDialogEvents && e.getSource() == barcodeCkBox)
-			pdGVs.setIncludeBarcodeOnLabels(barcodeCkBox.isSelected());
-		else if(!bIgnoreDialogEvents && e.getSource() == barcodeCB && pdGVs.getBarcodeCode() != barcodeCB.getSelectedItem())
-			pdGVs.setBarcode( (Barcode) barcodeCB.getSelectedItem());
+			gvDB.setIncludeBarcodeOnLabels(barcodeCkBox.isSelected());
+		else if(!bIgnoreDialogEvents && e.getSource() == barcodeCB && gvDB.getBarcodeCode() != barcodeCB.getSelectedItem())
+			gvDB.setBarcode( (Barcode) barcodeCB.getSelectedItem());
 		else if(!bIgnoreDialogEvents && e.getSource() == wishAssigneeFilterDefaultCB &&
 				userDB.getLoggedInUser().getPreferences().getWishAssigneeFilter() != wishAssigneeFilterDefaultCB.getSelectedIndex())
 		{
@@ -609,6 +645,11 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 				userDB.getUserPreferences().getFamilyDNSFilter() != fdnsFilterDefaultCB.getSelectedIndex())
 		{
 			updateUserPreferences();
+		}
+		else if(e.getSource().equals(defaultGiftCB) &&
+				((ONCWish) defaultGiftCB.getSelectedItem()).getID() != gvDB.getDefaultGiftID())
+		{
+			update();
 		}
 		else if(e.getSource().equals(btnImportSignUpList))
 		{
@@ -645,6 +686,47 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 			//we have a failure, display the original preferences
 			display(uPrefs);
 		}
+	}
+	
+	void updateGiftList(boolean bInitialize)
+	{	
+		defaultGiftCB.removeActionListener(this);
+		
+		ONCWish curr_sel;
+		System.out.println(String.format("PrefDlg.updateGiftList bInit=%b, defaultID= %d", 
+				bInitialize,  gvDB.getDefaultGiftID()));
+		if(bInitialize &&  gvDB.getDefaultGiftID() > -1)
+		{
+			curr_sel = (ONCWish) catDB.getWishByID(gvDB.getDefaultGiftID());
+			System.out.println(String.format("PrefDlg.updateGiftList sel wish=%d, %s", curr_sel.getID(), curr_sel.getName()));
+			
+		}
+		else
+		{
+			curr_sel = (ONCWish) defaultGiftCB.getSelectedItem();
+			System.out.println(String.format("PrefDlg.updateGiftList sel wish=%d, %s", curr_sel.getID(), curr_sel.getName()));
+		}
+		int selIndex = 0;
+		
+		
+		defaultGiftCBM.removeAllElements();
+		
+		int index = 0;
+		for(ONCWish w : catDB.getDefaultWishList())
+		{
+			defaultGiftCBM.addElement(w);
+			System.out.println(String.format("PrefDlg.updateGiftList wish=%d, %s", w.getID(), w.getName()));
+			index++;
+			if(curr_sel.getID() == w.getID())
+			{
+				selIndex = index;
+				System.out.println(String.format("PrefDlg.updateGiftList found sel wish=%d, %s", w.getID(), w.getName()));
+			}
+		}
+		
+		defaultGiftCB.setSelectedIndex(selIndex); //Keep current selection in sort criteria
+		
+		defaultGiftCB.addActionListener(this);
 	}
 
 	@Override
@@ -689,6 +771,14 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 			geniusSignUps = (GeniusSignUps) dbe.getObject1();
 			displaySignUpData();
 		}
+//		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_CATALOG"))
+//		{
+//			updateGiftList(true);
+//		}
+//		else if(dbe.getSource() != this && dbe.getType().contains("_CATALOG_WISH"))
+//		{
+//			updateGiftList(false);
+//		}
 	}
 	
 	private class DateChangeListener implements PropertyChangeListener
@@ -735,7 +825,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 				Point offset = new Point((Integer)averyXOffsetSpinner.getValue(), 
 										 (Integer)averyYOffsetSpinner.getValue());
 				
-				pdGVs.setAveryLabelOffset(offset);
+				gvDB.setAveryLabelOffset(offset);
 			}
 		}
 	 }

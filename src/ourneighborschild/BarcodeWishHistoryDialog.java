@@ -34,7 +34,7 @@ public class BarcodeWishHistoryDialog extends BarcodeTableDialog
 	private FamilyDB fDB;
 	private ChildDB cDB;
 	private ChildWishDB cwDB;
-	private ONCWishCatalog cat;
+	private WishCatalogDB cat;
 	private PartnerDB partnerDB;
 	private UserDB userDB;
 	
@@ -53,7 +53,7 @@ public class BarcodeWishHistoryDialog extends BarcodeTableDialog
 		cwDB = ChildWishDB.getInstance();
 		if(cwDB != null)
 			cwDB.addDatabaseListener(this);
-		cat = ONCWishCatalog.getInstance();
+		cat = WishCatalogDB.getInstance();
 		partnerDB = PartnerDB.getInstance();
 		userDB = UserDB.getInstance();
 		

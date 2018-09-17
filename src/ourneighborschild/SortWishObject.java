@@ -10,7 +10,7 @@ public class SortWishObject extends ONCObject
 	private ONCChildWish soChildWish;
 	
 	PartnerDB partnerDB;
-	ONCWishCatalog cat;
+	WishCatalogDB cat;
 	
 	String[] indicator = {"", "*", "#"};
 	
@@ -22,7 +22,7 @@ public class SortWishObject extends ONCObject
 		soChildWish = cw;
 		
 		partnerDB = PartnerDB.getInstance();
-		cat = ONCWishCatalog.getInstance();
+		cat = WishCatalogDB.getInstance();
 	}
 	
 	//getters
@@ -57,7 +57,7 @@ public class SortWishObject extends ONCObject
 	
 	String[] getReceivingSheetRow()
 	{
-		ONCWishCatalog cat = ONCWishCatalog.getInstance();
+		WishCatalogDB cat = WishCatalogDB.getInstance();
 		
 		ONCWish wish = cat.getWishByID(soChildWish.getWishID());
 		String wishName = wish == null ? "None" : wish.getName();
@@ -75,7 +75,7 @@ public class SortWishObject extends ONCObject
 	String[] getWishLabel()
 	{	
 		GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
-		ONCWishCatalog cat = ONCWishCatalog.getInstance();
+		WishCatalogDB cat = WishCatalogDB.getInstance();
 		
 		String[] line = new String[5];
 		SimpleDateFormat sYear = new SimpleDateFormat("yyyy");

@@ -45,7 +45,7 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 	private ONCTable dlgTable;
 	private AbstractTableModel wcTableModel;
 	private JButton btnAdd, btnEdit, btnDelete, btnPrint;
-	private ONCWishCatalog cat;
+	private WishCatalogDB cat;
 		
 	public WishCatalogDialog(JFrame pf)
 	{
@@ -55,7 +55,7 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 		//Save the reference to the one wish catalog object in the app. It is created in the 
 		//top level object and passed to all objects that require the wish catalog, including
 		//this dialog
-		cat = ONCWishCatalog.getInstance();
+		cat = WishCatalogDB.getInstance();
 		if(cat != null)
 			cat.addDatabaseListener(this);
 		
@@ -395,13 +395,20 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
         public boolean isCellEditable(int row, int col)
         {
             //Only the check boxes can be edited and then only if there is not
-        	//a wish already selected from the list associated with that column
-            if(col == WISH_1_COL && cat.getWishCount(row, 0) == 0)
-            	return true;
-            else if(col == WISH_2_COL && cat.getWishCount(row, 1) == 0)
-            	return true;
-            else if(col == WISH_3_COL && cat.getWishCount(row, 2) == 0)
-            	return true;
+        		//a wish already selected from the list associated with that column.
+        		//also, if the wish is the default wish, it cannot be edited.
+        		ONCWish wish = cat.getWish(row);
+        		if(wish.getID() != gvs.getDefaultGiftID())
+        		{
+        			if(col == WISH_1_COL && cat.getWishCount(row, 0) == 0)
+        	            	return true;
+        	        else if(col == WISH_2_COL && cat.getWishCount(row, 1) == 0)
+        	            	return true;
+        	        else if(col == WISH_3_COL && cat.getWishCount(row, 2) == 0)
+        	            	return true;
+        	        else 
+                     return false;
+        		}
             else 
                 return false;
         }

@@ -880,7 +880,7 @@ public class FamilyDB extends ONCSearchableDatabase
 	int getNumberOfBikesSelectedForFamily(ONCFamily f)
 	{
 		int nBikes = 0;
-		ONCWishCatalog cat = ONCWishCatalog.getInstance();
+		WishCatalogDB cat = WishCatalogDB.getInstance();
 		
 		for(ONCChild c: childDB.getChildren(f.getID()))	
 			for(int wn=0; wn<NUMBER_OF_WISHES_PER_CHILD; wn++)

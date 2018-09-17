@@ -21,14 +21,14 @@ public class ONCFamilyReportRowBuilder
 	private ChildDB cDB;
 	private ChildWishDB cwDB;
 	private UserDB userDB;
-	private ONCWishCatalog cat;
+	private WishCatalogDB cat;
 	
 	ONCFamilyReportRowBuilder()
 	{
 		cDB = ChildDB.getInstance();
 		cwDB = ChildWishDB.getInstance();
 		userDB = UserDB.getInstance();
-		cat = ONCWishCatalog.getInstance();
+		cat = WishCatalogDB.getInstance();
 	}
 	
 	String[] getFamilyReportCSVRowData(ONCFamily f)	//Used when writing the database to a .csv file

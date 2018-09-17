@@ -22,7 +22,7 @@ import com.google.gson.reflect.TypeToken;
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
 
-public class ONCWishCatalog extends ONCDatabase
+public class WishCatalogDB extends ONCDatabase
 {
 	/********
 	 * This class implements a singleton data base for ONC Wishes, known as the wish catalog.
@@ -48,11 +48,11 @@ public class ONCWishCatalog extends ONCDatabase
 	private static final int WISH_CATALOG_LIST_ALL = 7;
 	private static final int NUMBER_OF_WISHES_PER_CHILD = 3;
 	
-	private static ONCWishCatalog instance = null;
+	private static WishCatalogDB instance = null;
 	private ArrayList<WishCatalogItem> wishCatalog;
 	private WishDetailDB  wdDB;
 	
-	private ONCWishCatalog()
+	private WishCatalogDB()
 	{
 		super();
 		wdDB = WishDetailDB.getInstance();
@@ -60,10 +60,10 @@ public class ONCWishCatalog extends ONCDatabase
 		wishCatalog = new ArrayList<WishCatalogItem>();
 	}
 	
-	public static ONCWishCatalog getInstance()
+	public static WishCatalogDB getInstance()
 	{
 		if(instance == null)
-			instance = new ONCWishCatalog();
+			instance = new WishCatalogDB();
 		
 		return instance;
 	}
@@ -299,8 +299,8 @@ public class ONCWishCatalog extends ONCDatabase
 	 * The binary representation of the ONCWish list index
 	 * member variable to determines inclusion in a list. All wishes that have odd list indexes 
 	 * are included in wishNumber 0 lists for example. All wishes with list indexes greater than 4
-	 * are included in wishNubmer 2 list requests and all wishes with list indexes of 2, 3, 6,
-	 * or 7 are included in wishNubmer 1 wish list requests.
+	 * are included in wishNumber 2 list requests and all wishes with list indexes of 2, 3, 6,
+	 * or 7 are included in wishNumber 1 wish list requests.
 	 * 
 	 * An overloaded method that only takes a WishListType will return a list for that
 	 * purpose that contains all ONCWish objects
@@ -337,6 +337,19 @@ public class ONCWishCatalog extends ONCDatabase
 			Collections.sort(wishlist, new WishListComparator());	//Alphabetize the list
 			wishlist.add(0, new ONCWish(-2, "Any", 7));
 		}
+
+		return  wishlist;
+	}
+	List<ONCWish> getDefaultWishList()
+	{
+		List<ONCWish> wishlist = new ArrayList<ONCWish>();
+	
+		for(ONCWish w:getCatalogWishList())
+			if(w.getListindex() == WISH_CATALOG_LIST_ALL)
+				wishlist.add(w);
+		
+		Collections.sort(wishlist, new WishListComparator());	//Alphabetize the list
+		wishlist.add(0, new ONCWish(-1, "None", WISH_CATALOG_LIST_ALL));
 
 		return  wishlist;
 	}

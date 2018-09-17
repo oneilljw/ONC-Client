@@ -11,8 +11,9 @@ public class ServerGVs extends ONCObject
 	private Calendar oncGiftsReceivedDate;
 	private Calendar thanksgivingDeadline, decemberDeadline;
 	private Calendar familyEditDeadline;
+	private int defaultGiftID;
 	
-	public ServerGVs(Long dd, Long ssd, String wa, Long grd, Long td, Long decd, Long fed)
+	public ServerGVs(Long dd, Long ssd, String wa, Long grd, Long td, Long decd, Long fed, int defaultGiftID)
 	{
 		super(0); //id is 0 since there is only one instance of server global variables
 		oncDeliveryDate = Calendar.getInstance();
@@ -34,10 +35,12 @@ public class ServerGVs extends ONCObject
 		
 		familyEditDeadline = Calendar.getInstance();
 		familyEditDeadline.setTimeInMillis(fed);
+		
+		this.defaultGiftID = defaultGiftID;
 	}
 	
 	public ServerGVs(Date delDate, Date seasonStartDate, String wa, Date giftsreceivedDate,
-			Date thanksgivingDeadline, Date decemberDeadline, Date familyEditDeadline, int signUpGeniusID)
+			Date thanksgivingDeadline, Date decemberDeadline, Date familyEditDeadline, int defaultGiftID)
 	{
 		super(0); //id is 0 since there is only one instance of server global variables
 		oncDeliveryDate = Calendar.getInstance();
@@ -59,6 +62,8 @@ public class ServerGVs extends ONCObject
 		
 		this.familyEditDeadline = Calendar.getInstance();
 		this.familyEditDeadline.setTime(familyEditDeadline);
+		
+		this.defaultGiftID = defaultGiftID;
 	}
 	
 	//getters
@@ -72,6 +77,7 @@ public class ServerGVs extends ONCObject
 	public Date getThanksgivingDeadline() { return thanksgivingDeadline.getTime(); }
 	public Date getDecemberDeadline() { return decemberDeadline.getTime(); }
 	public Date getFamilyEditDeadline() { return familyEditDeadline.getTime(); }
+	public int getDefaultGiftID() { return defaultGiftID; }
 	
 	//setters
 
@@ -86,6 +92,7 @@ public class ServerGVs extends ONCObject
  						Long.toString(thanksgivingDeadline.getTimeInMillis()),
  						Long.toString(decemberDeadline.getTimeInMillis()),
  						Long.toString(familyEditDeadline.getTimeInMillis()),
+ 						Integer.toString(defaultGiftID)
  						};		
 		return row;
 	}
