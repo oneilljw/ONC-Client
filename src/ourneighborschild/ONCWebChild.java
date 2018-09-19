@@ -10,13 +10,13 @@ public class ONCWebChild
 	private String	gender;
 	private String	sDOB;
 	
-	public ONCWebChild(ONCChild c)
+	public ONCWebChild(ONCChild c, boolean bIncludeSchool)
 	{
 		this.id = c.getID();
 		this.famid = c.getFamID();
 		this.firstname = c.getChildFirstName();
 		this.lastname = c.getChildLastName();
-		this.school = c.getChildSchool();
+		this.school = bIncludeSchool ? c.getChildSchool() : "";
 		this.gender = c.getChildGender();
 		this.sDOB = c.getChildDOBString("M/dd/yyyy");
 	}
