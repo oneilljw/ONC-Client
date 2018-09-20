@@ -64,7 +64,7 @@ public class ONCMeal extends ONCEntity
 		row.add(Integer.toString(id));
 		row.add(Integer.toString(famID));
 		row.add(status.toString());
-		row.add(type.toString());
+		row.add(type.name());
 		row.add(Integer.toString(partnerID));
 		row.add(dietaryRestrictions);
 		row.add(changedBy);

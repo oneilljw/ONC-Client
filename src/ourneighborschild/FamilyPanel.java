@@ -1190,7 +1190,19 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		{   
 			Point currLocation = this.getLocation();
 			currLocation.translate(30, 60);
-	        DialogManager.getInstance().showEntityDialog("Edit Users", currLocation );
+			
+			if(currFam != null)
+			{
+				System.out.println(String.format("FamPanel.actPerf: currFamONC= %s", currFam.getONCNum()));
+				ONCUser famAgent = userDB.getUser(currFam.getAgentID());
+				
+				if(famAgent != null)
+				{
+					System.out.println(String.format("FamPanel.actPerf: Agent= %s", famAgent.getLNFI()));
+					fireEntitySelected(this, EntityType.AGENT, famAgent, null);
+					DialogManager.getInstance().showEntityDialog("Edit Users", currLocation );
+				}
+			}
 		}
 		else if(e.getSource() == rbFamDetails)
 		{
@@ -1541,7 +1553,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	@Override
 	public EnumSet<EntityType> getEntityEventSelectorEntityTypes() 
 	{
-		return EnumSet.of(EntityType.FAMILY, EntityType.CHILD);
+		return EnumSet.of(EntityType.FAMILY, EntityType.CHILD, EntityType.AGENT);
 	}
 
 	class FamilyBagDialog extends JDialog implements ActionListener
