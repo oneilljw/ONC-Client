@@ -325,7 +325,7 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 			{
 				wishCB.setEnabled(true);
 				wishindCB.setEnabled(false);
-				wishdetailTF.setEnabled(false);
+				wishdetailTF.setEnabled(true);
 				wishassigneeCB.setEnabled(false);
 			}
 			else if(ws == WishStatus.Selected || ws == WishStatus.Assigned ||
@@ -479,10 +479,20 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 			//add a new wish with the new indicator
 			addWish();
 		}
-		else if(!bWishChanging && e.getSource() == wishdetailTF &&
-				!childWish.getChildWishDetail().equals(wishdetailTF.getText())) 
+		else if(!bWishChanging && e.getSource() == wishdetailTF && !wishdetailTF.getText().isEmpty() &&
+				(childWish == null || childWish != null && !childWish.getChildWishDetail().equals(wishdetailTF.getText()))) 
 		{
-			//Add a new wish with new wish detail
+			//Add a new wish with new wish detail. If the current wish id = -1 (None) and the indicator
+			//selected index is 0, then set the wishID combo box to the default wish as well, prior to adding
+			//the wish
+			ONCWish cbWish = (ONCWish) wishCB.getSelectedItem();
+			if(cbWish.getID() == -1 && wishindCB.getSelectedIndex() == 0 && gvs.getDefaultGiftID() > -1 )
+			{
+				wishCB.removeActionListener(this);
+				ONCWish defaultWish = (ONCWish) cat.getWishByID(gvs.getDefaultGiftID());
+				wishCB.setSelectedItem(defaultWish);
+				wishCB.addActionListener(this);
+			}
 			addWish();
 		}
 		else if(!bWishChanging && e.getSource() == wishassigneeCB &&

@@ -226,7 +226,7 @@ public class WishCatalogDB extends ONCDatabase
 			wishCatalog.add(index, new WishCatalogItem(addedWish));
 		else
 			wishCatalog.add(new WishCatalogItem(addedWish));
-		
+
 		//Notify local user IFs that an organization/partner was added
 		fireDataChanged(source, "ADDED_CATALOG_WISH", addedWish);
 		

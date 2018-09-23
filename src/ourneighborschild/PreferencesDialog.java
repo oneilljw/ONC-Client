@@ -442,17 +442,16 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		dc_DecemberCutoff.setDate(gvDB.getDecemberDeadline());
 		dc_InfoEditCutoff.setDate(gvDB.getFamilyEditDeadline());
 		
-//		if(gvDB.getDefaultGiftID() > -1)
-//		{
-//			System.out.println(String.format("PrefDlg.disp: defaultGiftID= %d", gvDB.getDefaultGiftID()));
-//			ONCWish defaultWish = catDB.getWishByID(gvDB.getDefaultGiftID());
-//			if(defaultWish != null)
-//				defaultGiftCB.setSelectedItem(defaultWish);
-//			else
-//				defaultGiftCB.setSelectedIndex(0);	
-//		}
-//		else
-//			defaultGiftCB.setSelectedIndex(0);
+		if(gvDB.getDefaultGiftID() > -1 && catDB.size() > 0)
+		{
+			ONCWish defaultWish = catDB.getWishByID(gvDB.getDefaultGiftID());
+			if(defaultWish != null)
+				defaultGiftCB.setSelectedItem(defaultWish);
+			else
+				defaultGiftCB.setSelectedIndex(0);	
+		}
+		else
+			defaultGiftCB.setSelectedIndex(0);
 		
 		displayWarehouseAddress();
 		
@@ -646,7 +645,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		{
 			updateUserPreferences();
 		}
-		else if(e.getSource().equals(defaultGiftCB) &&
+		else if(!bIgnoreDialogEvents && e.getSource().equals(defaultGiftCB) &&
 				((ONCWish) defaultGiftCB.getSelectedItem()).getID() != gvDB.getDefaultGiftID())
 		{
 			update();
@@ -693,21 +692,12 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		defaultGiftCB.removeActionListener(this);
 		
 		ONCWish curr_sel;
-		System.out.println(String.format("PrefDlg.updateGiftList bInit=%b, defaultID= %d", 
-				bInitialize,  gvDB.getDefaultGiftID()));
 		if(bInitialize &&  gvDB.getDefaultGiftID() > -1)
-		{
 			curr_sel = (ONCWish) catDB.getWishByID(gvDB.getDefaultGiftID());
-			System.out.println(String.format("PrefDlg.updateGiftList sel wish=%d, %s", curr_sel.getID(), curr_sel.getName()));
-			
-		}
 		else
-		{
 			curr_sel = (ONCWish) defaultGiftCB.getSelectedItem();
-			System.out.println(String.format("PrefDlg.updateGiftList sel wish=%d, %s", curr_sel.getID(), curr_sel.getName()));
-		}
+			
 		int selIndex = 0;
-		
 		
 		defaultGiftCBM.removeAllElements();
 		
@@ -715,13 +705,10 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		for(ONCWish w : catDB.getDefaultWishList())
 		{
 			defaultGiftCBM.addElement(w);
-			System.out.println(String.format("PrefDlg.updateGiftList wish=%d, %s", w.getID(), w.getName()));
-			index++;
 			if(curr_sel.getID() == w.getID())
-			{
 				selIndex = index;
-				System.out.println(String.format("PrefDlg.updateGiftList found sel wish=%d, %s", w.getID(), w.getName()));
-			}
+				
+			index++;
 		}
 		
 		defaultGiftCB.setSelectedIndex(selIndex); //Keep current selection in sort criteria
@@ -771,14 +758,14 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 			geniusSignUps = (GeniusSignUps) dbe.getObject1();
 			displaySignUpData();
 		}
-//		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_CATALOG"))
-//		{
-//			updateGiftList(true);
-//		}
-//		else if(dbe.getSource() != this && dbe.getType().contains("_CATALOG_WISH"))
-//		{
-//			updateGiftList(false);
-//		}
+		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_CATALOG"))
+		{
+			updateGiftList(true);
+		}
+		else if(dbe.getSource() != this && dbe.getType().contains("_CATALOG_WISH"))
+		{
+			updateGiftList(false);
+		}
 	}
 	
 	private class DateChangeListener implements PropertyChangeListener

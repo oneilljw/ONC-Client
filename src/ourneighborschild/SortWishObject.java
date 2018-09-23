@@ -67,6 +67,8 @@ public class SortWishObject extends ONCObject
 		rsr[1] = soChild.getChildAge() + " " +  soChild.getChildGender();
 		if(soChildWish.getChildWishDetail().isEmpty())
 			rsr[2] = wishName;
+		else if(wishName.equals("-"))
+			rsr[2] = soChildWish.getChildWishDetail();
 		else
 			rsr[2] = wishName + "- " + soChildWish.getChildWishDetail();
 		return rsr;
@@ -100,7 +102,8 @@ public class SortWishObject extends ONCObject
 			ONCWish catWish = cat.getWishByID(soChildWish.getWishID());
 			String wishName = catWish == null ? "None" : catWish.getName();
 			
-			String wish = wishName + "- " + soChildWish.getChildWishDetail();
+			String wish = wishName.equals("-") ? soChildWish.getChildWishDetail() : 
+				wishName + "- " + soChildWish.getChildWishDetail();
 	
 			//does it fit on one line?
 			if(wish.length() <= MAX_LABEL_LINE_LENGTH)
