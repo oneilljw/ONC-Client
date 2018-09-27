@@ -1193,12 +1193,10 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			
 			if(currFam != null)
 			{
-				System.out.println(String.format("FamPanel.actPerf: currFamONC= %s", currFam.getONCNum()));
 				ONCUser famAgent = userDB.getUser(currFam.getAgentID());
 				
 				if(famAgent != null)
 				{
-					System.out.println(String.format("FamPanel.actPerf: Agent= %s", famAgent.getLNFI()));
 					fireEntitySelected(this, EntityType.AGENT, famAgent, null);
 					DialogManager.getInstance().showEntityDialog("Edit Users", currLocation );
 				}
