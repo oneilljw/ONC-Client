@@ -58,7 +58,7 @@ public class ONCWish extends ONCObject implements Serializable
 	
 	//getters
 	public String getName() {return name;}
-	int getListindex() {return listindex;}
+	public int getListindex() {return listindex;}
 //	ArrayList<WishDetail> getWishDetailAL() { return drAL; }
 	int getWishDetailID(int dn)
 	{
