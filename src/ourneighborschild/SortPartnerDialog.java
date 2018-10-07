@@ -59,8 +59,8 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
     private static final String GIFT__BUSINESS_PARTNER_EMAIL_SENDER_ADDRESS = "partnercontact@ourneighborschild.org";
     private static final String GIFT_CHURCH_SCHOOL_EMAIL_SENDER_ADDRESS = "GiftCoordinator@ourneighborschild.org";;
 //	private static final String CLOTHING_PARTNER_EMAIL_SENDER_ADDRESS = "Clothing@ourneighborschild.org";
-    private static final String PHOTO_ATTACHMENT_1_FILE = "2017 Partner 1.jpg";
-    private static final String PHOTO_ATTACHMENT_2_FILE = "2017 Partner 2.jpg";
+    private static final String PHOTO_ATTACHMENT_1_FILE = "2018 Partner 1.jpg";
+    private static final String PHOTO_ATTACHMENT_2_FILE = "2018 Partner 2.jpg";
 //	private static final String ONCLOGO_ATTACHMENT_FILE = "onclogosmall.jpg";
 	
     private RegionDB regions;
@@ -234,8 +234,8 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 				
         String[] emailChoices = {
 								"Email",
-								"2017 Season: Church/School Email",
-								"2017 Season: Business Email",
+								"2018 Season: Church/School Email",
+								"2018 Season: Business Email",
 								"2017 Season: Church Gift Drop Off Email",
 								"2017 Season: McDonald Gift Drop Off Email",
 								};
@@ -486,9 +486,9 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 			
 			//Create the email body and potentially subject
 	        if(emailType == 1)	//Church and School Email
-	        	emailBody = create2017SeasonChurchSchoolEmailBody(o, cid0, cid1);
+	        	emailBody = create2018SeasonChurchSchoolEmailBody(o, cid0, cid1);
 	        if(emailType == 2)	//Business Email
-	        	emailBody = create2017SeasonBusinessEmailBody(o, cid0, cid1);
+	        	emailBody = create2018SeasonBusinessEmailBody(o, cid0, cid1);
 	        if(emailType == 3)	//Church and School Email
 	        	emailBody = create2017ChurchGiftDropOffEmailBody();
 	        if(emailType == 4)	//Business Email
@@ -536,11 +536,11 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		//Create mail server credentials, then the mailer background task and execute it
 		ServerCredentials creds = null;
 		if(emailType == 1)
-		    creds = new ServerCredentials("smtp.gmail.com", GIFT_CHURCH_SCHOOL_EMAIL_SENDER_ADDRESS, "Churchschool");
+		    creds = new ServerCredentials("smtp.gmail.com", GIFT_CHURCH_SCHOOL_EMAIL_SENDER_ADDRESS, "SuperelfDiane");
 		else if(emailType == 2)
 		    creds = new ServerCredentials("smtp.gmail.com", GIFT__BUSINESS_PARTNER_EMAIL_SENDER_ADDRESS, "crazyelf");
 		if(emailType == 3)
-			creds = new ServerCredentials("smtp.gmail.com", GIFT_CHURCH_SCHOOL_EMAIL_SENDER_ADDRESS, "Churchschool");
+			creds = new ServerCredentials("smtp.gmail.com", GIFT_CHURCH_SCHOOL_EMAIL_SENDER_ADDRESS, "SuperelfDiane");
 		else if(emailType == 4)
 		    creds = new ServerCredentials("smtp.gmail.com", GIFT__BUSINESS_PARTNER_EMAIL_SENDER_ADDRESS, "crazyelf");
 	
@@ -941,7 +941,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		return msg;
 	}
 */
-	String create2017SeasonChurchSchoolEmailBody(ONCPartner o, String cid0, String cid1)
+	String create2018SeasonChurchSchoolEmailBody(ONCPartner o, String cid0, String cid1)
 	{
 		 //Create the variables for the body of the email     
         String name = o.getLastName();
@@ -1011,15 +1011,11 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
         		+ "<p>With your continued and valued support, our <b>all-volunteer</b> team at "
         		+ "<b>Our Neighbor's Child</b> is gearing up to coordinate "
         		+ "holiday assistance for children from low income families in western Fairfax county.</p>"
-        		+ "<p>My name is Diane Church and I'm a long time ONC volunteer in my first season "
-        		+ "as ONC's Gift Partner Coordinator.  Denise McInerney will be serving in another "
-        		+ "ONC role and hopes to see many of you during gift drop off days! We both look "
-        		+ "forward to joining you in support of our local children in need.</p>"
         		+ "<p>This neighbor-to-neighbor effort is only possible when our community "
         		+ "comes together and through the consistent, generous support of ONC partners like %s.</p>"
-        		+ "<p>Hundreds of families in our area struggle to meet their most basic needs. "
+        		+ "<p>Many families in our area struggle to meet their most basic needs. "
         		+ "When we help out with children's gifts at the holidays, it allows many of these "
-        		+ "families to direct their stretched financial resources toward essential housing costs, "
+        		+ "families to direct their financial resources toward essential housing costs, "
         		+ "utilities and critically important food essentials.</p>"
         		+ "<p>We sincerely hope participating makes a difference in your life, and the lives of "
         		+ "others fortunate and generous enough to give.</p>"
@@ -1030,7 +1026,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
         		+ "&emsp;<font color=\"red\">Phone #:</font>   <b>%s</b><br>" 
         		+ "&emsp;<font color=\"red\">Contact:</font>   <b>%s</b><br>" 
         		+ "&emsp;<font color=\"red\">Phone #:</font>   <b>%s</b><br>" 
-        		+ "&emsp;<font color=\"red\">Email:</font>   <b>%s</b><br>", fn, name, name, address, busphone, contact, contactphone, contactemail);
+        		+ "&emsp;<font color=\"red\">Email:</font>   <b>%s</b><br>", fn, name, name, address, busphone, contact.toUpperCase(), contactphone, contactemail);
         
         //Create the middle part of the message if 2nd contact exists
         String msgmid = "";
@@ -1039,23 +1035,22 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
         	msgmid = String.format(
         		"&emsp;<font color=\"red\">Contact:</font>   <b>%s</b><br>" +
         		"&emsp;<font color=\"red\">Phone #:</font>   <b>%s</b><br>" +
-        		"&emsp;<font color=\"red\">Email:</font>   <b>%s</b><br>", contact2, contact2phone, contact2email);
+        		"&emsp;<font color=\"red\">Email:</font>   <b>%s</b><br>", contact2.toUpperCase(), contact2phone, contact2email);
         }
         
         //Create the bottom part of the text part of the email using html
         String msgbot = String.format(
         		" &emsp;<font color=\"red\">Gift Collection Type:</font>  <b>%s</b><br>"
-        		+ "&emsp;<font color=\"red\">Ornaments Requested in 2016:</font>   <b>%d</b><br>"
+        		+ "&emsp;<font color=\"red\">Ornaments Requested in 2017:</font>   <b>%d</b><br>"
         		+ "<p><b>Please reply at your earliest convenience with any corrections, updates or "
-        		+ "questions.</b></p>"
-        		+ "<p>Here are a few important dates: Gift wish \"ornaments\" will be delivered "
-        		+ "on Wednesday, November 15th.</p>"
+        		+ "questions - especially if our point of contact has changed.</b></p>"
+        		+ "<p>Here are a few important dates:</p>"
+        		+" <p>Gift wish \"ornaments\" will be delivered on <b>Wednesday, November 14</b>.</p>"
         		+ "<p>Gift drop-off dates will be:<br>"
-        		+ "<b>Sunday, December 10, Noon to 2pm<br>"
-        		+ "Monday, December 11, 3:30 - 6:30pm<br>"
-        		+ "Tuesday, December 12, 3:30pm - 6:30pm</b>"
-        		+ "<p>Churches with space or storage concerns may make arrangements for early drop-off by "
-        		+ "appointment. Delivery to families' homes will be Sunday, December 17.</p>"
+        		+ "<b>Sunday, December 9, Noon to 2pm<br>"
+        		+ "Monday, December 10, 3:30 - 6:30pm<br>"
+        		+ "Tuesday, December 11, 3:30pm - 6:30pm</b>"
+        		+ "<p>Gifts will be home delivered on <b>Sunday, December 16</b>.</p>"
         		+"<p>We rely on donated warehouse space each year and will forward the (Chantilly area) "
         		+ "address as soon as it's confirmed.</p>"
         		+ "<p>I've included a few photos from prior seasons and hope you'll visit our website for more photos "
@@ -1067,6 +1062,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
         		+ "organization with EVERY donation dollar going directly to gifts delivered to a child in need.</p>"
         		+ "<p>We are deeply grateful for your support and look forward to working with you "
         		+ "again this holiday season! Please feel free to contact me with any questions at 703-615-1934.</p>"
+        		+ "<p>I will keep in contact with you or the current contact as our season of giving progresses.</p>"
         		+ "<p>Sincerely,<br><br>"
         		+ "Diane Church<br>"
         		+ "Gift Partner Coordinator<br>"
@@ -1081,7 +1077,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
         return msgtop + msgmid + msgbot;
 	}
 	
-	String create2017SeasonBusinessEmailBody(ONCPartner o, String cid0, String cid1)
+	String create2018SeasonBusinessEmailBody(ONCPartner o, String cid0, String cid1)
 	{
 		 //Create the variables for the body of the email     
         String name = o.getLastName();
@@ -1151,10 +1147,6 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
         		+ "<p>With your continued and valued support, your <b>all-volunteer</b> team at "
         		+ "<b>Our Neighbor's Child</b> is gearing up to coordinate "
         		+ "holiday assistance for children from low income families in western Fairfax county.</p>"
-        		+ "<p>My name is Kathleen McDonald and I'm a long time ONC volunteer in my first season "
-        		+ "as ONC's Gift Partner Coordinator. Denise McInerney will be serving in another ONC "
-        		+ "role and hopes to see many of you during gift drop off days! We both look forward to "
-        		+ "joining you in support of our local children in need.</p>"
         		+ "<p>This neighbor-to-neighbor effort is only possible when our community "
         		+ "comes together and through the consistent, generous support of ONC partners like %s.</p>"
         		+ "<p>Hundreds of families in our area still struggle to meet their most basic needs. "
@@ -1185,16 +1177,14 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
         //Create the bottom part of the text part of the email using html
         String msgbot = String.format(
         		" &emsp;<font color=\"red\">Gift Collection Type:</font>  <b>%s</b><br>"
-        		+ "&emsp;<font color=\"red\">Ornaments Requested in 2016:</font>   <b>%d</b><br>"
-        		+ "<p><b>Please reply at your earliest convenience with any corrections, updates or "
-        		+ "questions.</b></p>"
-        		+ "<p>Here are a few important dates: Gift wish \"ornaments\" will be delivered "
-        		+ "on Wednesday, November 15th.</p>"
+        		+ "&emsp;<font color=\"red\">Ornaments Requested in 2017:</font>   <b>%d</b><br>"
+        		+ "<p><b>Please reply at your earliest convenience with any corrections, updates or questions.</b></p>"
+        		+ "<p>Here are a few important dates: Gift wish \"ornaments\" will be delivered on <b>Wednesday, November 14</b>.</p>"
         		+ "<p>Gift drop-off dates will be:<br>"
-        		+ "<b>Sunday, December 10, Noon to 2pm<br>"
-        		+ "Monday, December 11, 3:30 - 6:30pm<br>"
-        		+ "Tuesday, December 12, 3:30pm - 6:30pm</b>"
-        		+ "<p>Delivery to families' homes will be Sunday, December 17.</p>"
+        		+ "<b>Sunday, December 19, Noon to 2pm<br>"
+        		+ "Monday, December 10, 3:30 - 6:30pm<br>"
+        		+ "Tuesday, December 11, 3:30pm - 6:30pm</b>"
+        		+ "<p>Gifts will be home delivered to each family on <b>Sunday, December 16</b>.</p>"
         		+"<p>We rely on donated warehouse space each year and will forward the (Chantilly area) "
         		+ "address as soon as it's confirmed.</p>"
         		+ "<p>I've included a few photos from prior seasons and hope you'll visit our website for more photos "
