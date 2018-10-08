@@ -1066,6 +1066,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
         		+ "<p>Sincerely,<br><br>"
         		+ "Diane Church<br>"
         		+ "Gift Partner Coordinator<br>"
+        		+ "703-615-1934<br>"
         		+ "Our Neighbor's Child<br>"
         		+ "P.O. Box 276<br>"
         		+ "Centreville, VA  20120<br>" 
