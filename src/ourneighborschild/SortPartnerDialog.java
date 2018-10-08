@@ -1181,7 +1181,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
         		+ "<p><b>Please reply at your earliest convenience with any corrections, updates or questions.</b></p>"
         		+ "<p>Here are a few important dates: Gift wish \"ornaments\" will be delivered on <b>Wednesday, November 14</b>.</p>"
         		+ "<p>Gift drop-off dates will be:<br>"
-        		+ "<b>Sunday, December 19, Noon to 2pm<br>"
+        		+ "<b>Sunday, December 9, Noon to 2pm<br>"
         		+ "Monday, December 10, 3:30 - 6:30pm<br>"
         		+ "Tuesday, December 11, 3:30pm - 6:30pm</b>"
         		+ "<p>Gifts will be home delivered to each family on <b>Sunday, December 16</b>.</p>"
