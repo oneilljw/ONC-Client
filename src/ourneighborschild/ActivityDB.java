@@ -408,7 +408,7 @@ public class ActivityDB extends ONCSearchableDatabase
 		{
     			ONCFileChooser fc = new ONCFileChooser(pf);
     			oncwritefile= fc.getFile("Select .csv file to save Activity DB to",
-										new FileNameExtensionFilter("CSV Files", "csv"), 1);
+								new FileNameExtensionFilter("CSV Files", "csv"), ONCFileChooser.SAVE_FILE);
     		}
     		else
     			oncwritefile = new File(filename);

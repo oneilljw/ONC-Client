@@ -121,7 +121,7 @@ public class InventoryDialog extends BarcodeTableDialog implements ActionListene
     
     	ONCFileChooser oncfc = new ONCFileChooser(this);
        	File oncwritefile = oncfc.getFile("Select file for export of ONC Gift Inventory" ,
-       										new FileNameExtensionFilter("CSV Files", "csv"), 1);
+       								new FileNameExtensionFilter("CSV Files", "csv"), ONCFileChooser.SAVE_FILE);
        	if(oncwritefile!= null)
        	{
        		//If user types a new filename without extension.csv, add it

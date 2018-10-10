@@ -1,20 +1,22 @@
 package ourneighborschild;
 
+import java.io.File;
+
 public class ONCEmailAttachment
 {
-	private String filename;
+	private File file;
 	private String cid;
 	private String disposition;
 	
-	ONCEmailAttachment(String fn, String cid, String disp)
+	ONCEmailAttachment(File file, String cid, String disp)
 	{
-		filename = fn;
+		this.file = file;
 		this.cid = cid;
-		disposition = disp;
+		this.disposition = disp;
 	}
 	
 	//getters
-	public String getFilename() { return filename; }
+	public File getFile() { return file; }
 	public String getCID() { return cid; }
 	public String getDisposition() { return disposition; }
 	

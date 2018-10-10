@@ -412,7 +412,7 @@ public class ManageGroupsDialog extends ONCEntityTableDialog implements ActionLi
 		{
 			ONCFileChooser oncfc = new ONCFileChooser(this);
 			File oncwritefile = oncfc.getFile("Select file for export of Agent Gmail Contact Group" ,
-       										new FileNameExtensionFilter("CSV Files", "csv"), 1, groupName);
+       						new FileNameExtensionFilter("CSV Files", "csv"), ONCFileChooser.SAVE_FILE, groupName);
 			if(oncwritefile!= null)
 			{
 				//If user types a new filename without extension.csv, add it

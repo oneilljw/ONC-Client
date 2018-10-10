@@ -35,7 +35,6 @@ public class FamilyDB extends ONCSearchableDatabase
 	 * generation of ONC Numbers.
 	 */
 	private static final EntityType DB_TYPE = EntityType.FAMILY;
-	private static final int ONC_OPEN_FILE = 0;
 	private static final int ONC_REBASELINE_REGION_MARGIN = 5;
 	private static final int NUMBER_OF_WISHES_PER_CHILD = 3;
 	private static final int BRITEPATHS_FAMILY_RECORD_LENGTH = 29;
@@ -329,7 +328,7 @@ public class FamilyDB extends ONCSearchableDatabase
 	String importBPFile(JFrame parentFrame)
     { 
     	File bpFile = new ONCFileChooser(parentFrame).getFile("Select Britepaths .csv file to import families from",
-				new FileNameExtensionFilter("CSV Files", "csv"), ONC_OPEN_FILE);
+				new FileNameExtensionFilter("CSV Files", "csv"), ONCFileChooser.OPEN_FILE);
     	
     	String filename = "";
     	
@@ -1085,7 +1084,7 @@ public class FamilyDB extends ONCSearchableDatabase
     	{
     		ONCFileChooser fc = new ONCFileChooser(pf);
     		oncwritefile= fc.getFile("Select .csv file to save Family DB to",
-										new FileNameExtensionFilter("CSV Files", "csv"), 1);
+										new FileNameExtensionFilter("CSV Files", "csv"), ONCFileChooser.SAVE_FILE);
     	}
     	else
     		oncwritefile = new File(filename);

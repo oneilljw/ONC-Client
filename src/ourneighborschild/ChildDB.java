@@ -388,7 +388,7 @@ public class ChildDB extends ONCDatabase
     	{
     		ONCFileChooser fc = new ONCFileChooser(pf);
     		oncwritefile= fc.getFile("Select .csv file to save Child DB to",
-										new FileNameExtensionFilter("CSV Files", "csv"), 1);
+							new FileNameExtensionFilter("CSV Files", "csv"), ONCFileChooser.SAVE_FILE);
     	}
     	else
     		oncwritefile = new File(filename);

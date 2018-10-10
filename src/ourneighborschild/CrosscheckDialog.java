@@ -171,7 +171,7 @@ public class CrosscheckDialog extends JDialog implements ActionListener, Databas
 	{
 		ONCFileChooser oncFC = new ONCFileChooser(owner);
     	File ccfile= oncFC.getFile("Select Crosscheck .csv file to import", 
-    									new FileNameExtensionFilter("CSV Files", "csv"), 0);
+    									new FileNameExtensionFilter("CSV Files", "csv"), ONCFileChooser.OPEN_FILE);
     	String filename = "";
     	
     	if( ccfile!= null)

@@ -270,7 +270,7 @@ public class DatabaseManager extends ONCDatabase
     	
     	ONCFileChooser fc = new ONCFileChooser(GlobalVariablesDB.getFrame());
     	File oncwritefile= fc.getFile("Select .csv file to save to",
-										new FileNameExtensionFilter("CSV Files", "csv"), 1);
+										new FileNameExtensionFilter("CSV Files", "csv"), ONCFileChooser.SAVE_FILE);
     	if(oncwritefile!= null)
     	{
     		//If user types a new filename and doesn't include the .csv, add it

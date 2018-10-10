@@ -52,7 +52,7 @@ public class CompareFamilyData
 		
 		ONCFileChooser oncFC = new ONCFileChooser(parentFrame);
     	File odbfile= oncFC.getFile("Select " + source + " .csv file to " + action, 
-    									new FileNameExtensionFilter("CSV Files", "csv"), ONC_OPEN_FILE);
+    									new FileNameExtensionFilter("CSV Files", "csv"), ONCFileChooser.OPEN_FILE);
     	String filename = "";
     	
     	if( odbfile!= null)
@@ -128,7 +128,7 @@ public class CompareFamilyData
     	
     	ONCFileChooser oncFC = new ONCFileChooser(parentFrame);
        	File oncwritefile= oncFC.getFile("Select  file to " + action,
-       										new FileNameExtensionFilter("CSV Files", "csv"), ONC_SAVE_FILE);
+       										new FileNameExtensionFilter("CSV Files", "csv"), ONCFileChooser.SAVE_FILE);
        	if(oncwritefile!= null)
        	{
 	    	filename = oncwritefile.getName();

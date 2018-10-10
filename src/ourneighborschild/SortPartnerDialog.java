@@ -59,10 +59,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
     private static final String GIFT__BUSINESS_PARTNER_EMAIL_SENDER_ADDRESS = "partnercontact@ourneighborschild.org";
     private static final String GIFT_CHURCH_SCHOOL_EMAIL_SENDER_ADDRESS = "GiftCoordinator@ourneighborschild.org";;
 //	private static final String CLOTHING_PARTNER_EMAIL_SENDER_ADDRESS = "Clothing@ourneighborschild.org";
-    private static final String PHOTO_ATTACHMENT_1_FILE = "2018 Partner 1.jpg";
-    private static final String PHOTO_ATTACHMENT_2_FILE = "2018 Partner 2.jpg";
-//	private static final String ONCLOGO_ATTACHMENT_FILE = "onclogosmall.jpg";
-	
+    
     private RegionDB regions;
     private PartnerDB orgs;
     private ChildDB childDB;
@@ -92,126 +89,126 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 	
     SortPartnerDialog(JFrame pf)
     {
-    	super(pf);
-    	this.columns = getColumnNames();
-    	this.setTitle("Our Neighbor's Child - Partner Management");
+    		super(pf);
+    		this.columns = getColumnNames();
+    		this.setTitle("Our Neighbor's Child - Partner Management");
 		
-    	regions = RegionDB.getInstance();
-    	orgs = PartnerDB.getInstance();
-    	childDB = ChildDB.getInstance();
+    		regions = RegionDB.getInstance();
+    		orgs = PartnerDB.getInstance();
+    		childDB = ChildDB.getInstance();
 		
-    	//Get reference for data base listeners
-    	UserDB userDB = UserDB.getInstance();
-    	if(userDB != null)
-    		userDB.addDatabaseListener(this);
+    		//Get reference for data base listeners
+    		UserDB userDB = UserDB.getInstance();
+    		if(userDB != null)
+    			userDB.addDatabaseListener(this);
 				
-    	if(orgs != null)
-    		orgs.addDatabaseListener(this);
+    		if(orgs != null)
+    			orgs.addDatabaseListener(this);
 		
-    	if(regions != null)
-    		regions.addDatabaseListener(this);
+    		if(regions != null)
+    			regions.addDatabaseListener(this);
 		
-    	if(childDB != null)
-    		childDB.addDatabaseListener(this);
+    		if(childDB != null)
+    			childDB.addDatabaseListener(this);
 		
-    	ChildWishDB childwishDB = ChildWishDB.getInstance();
-    	if(childwishDB != null)
-    		childwishDB.addDatabaseListener(this);	//listen for partner gift assignment changes
+    		ChildWishDB childwishDB = ChildWishDB.getInstance();
+    		if(childwishDB != null)
+    			childwishDB.addDatabaseListener(this);	//listen for partner gift assignment changes
 		
     		//Set up the array lists
-    	stAL = new ArrayList<ONCPartner>();
+    		stAL = new ArrayList<ONCPartner>();
 				
-    	//Set up the search criteria panel      
-    	statusCB = new JComboBox<String>(status);
-    	statusCB.setBorder(BorderFactory.createTitledBorder("Partner Status"));
-    	statusCB.addActionListener(this);
+    		//Set up the search criteria panel      
+    		statusCB = new JComboBox<String>(status);
+    		statusCB.setBorder(BorderFactory.createTitledBorder("Partner Status"));
+    		statusCB.addActionListener(this);
 				
-    	typeCB = new JComboBox<String>(types);
-    	typeCB.setBorder(BorderFactory.createTitledBorder("Partner Type"));
-    	typeCB.addActionListener(this);
+    		typeCB = new JComboBox<String>(types);
+    		typeCB.setBorder(BorderFactory.createTitledBorder("Partner Type"));
+    		typeCB.addActionListener(this);
 		
-    	collectionCB = new JComboBox<GiftCollection>(GiftCollection.values());
-    	collectionCB.setBorder(BorderFactory.createTitledBorder("Collection Type"));
-    	collectionCB.addActionListener(this);
+    		collectionCB = new JComboBox<GiftCollection>(GiftCollection.values());
+    		collectionCB.setBorder(BorderFactory.createTitledBorder("Collection Type"));
+    		collectionCB.addActionListener(this);
 				
-    	regionCBM = new DefaultComboBoxModel<String>();
-    	regionCBM.addElement("Any");
-    	regionCB = new JComboBox<String>();
-    	regionCB.setModel(regionCBM);
-    	regionCB.setBorder(BorderFactory.createTitledBorder("Region"));
-    	regionCB.addActionListener(this);
+    		regionCBM = new DefaultComboBoxModel<String>();
+    		regionCBM.addElement("Any");
+    		regionCB = new JComboBox<String>();
+    		regionCB.setModel(regionCBM);
+    		regionCB.setBorder(BorderFactory.createTitledBorder("Region"));
+    		regionCB.addActionListener(this);
 				
-    	changedByCB = new JComboBox<String>();
-    	changedByCBM = new DefaultComboBoxModel<String>();
-    	changedByCBM.addElement("Anyone");
-    	changedByCB.setModel(changedByCBM);
-    	changedByCB.setPreferredSize(new Dimension(144, 56));
-    	changedByCB.setBorder(BorderFactory.createTitledBorder("Changed By"));
-    	changedByCB.addActionListener(this);
+    		changedByCB = new JComboBox<String>();
+    		changedByCBM = new DefaultComboBoxModel<String>();
+    		changedByCBM.addElement("Anyone");
+    		changedByCB.setModel(changedByCBM);
+    		changedByCB.setPreferredSize(new Dimension(144, 56));
+    		changedByCB.setBorder(BorderFactory.createTitledBorder("Changed By"));
+    		changedByCB.addActionListener(this);
 				
-    	stoplightCB = new JComboBox<ImageIcon>(GlobalVariablesDB.getLights());
-    	stoplightCB.setPreferredSize(new Dimension(80, 56));
-    	stoplightCB.setBorder(BorderFactory.createTitledBorder("Stoplight"));
-    	stoplightCB.addActionListener(this);
+    		stoplightCB = new JComboBox<ImageIcon>(GlobalVariablesDB.getLights());
+    		stoplightCB.setPreferredSize(new Dimension(80, 56));
+    		stoplightCB.setBorder(BorderFactory.createTitledBorder("Stoplight"));
+    		stoplightCB.addActionListener(this);
 				
-    	//Add all sort criteria components to dialog pane
-    	sortCriteriaPanelTop.add(statusCB);
-    	sortCriteriaPanelTop.add(typeCB);
-    	sortCriteriaPanelTop.add(collectionCB);
-    	sortCriteriaPanelTop.add(changedByCB);
-    	sortCriteriaPanelTop.add(regionCB);
-    	sortCriteriaPanelTop.add(stoplightCB);
+    		//Add all sort criteria components to dialog pane
+    		sortCriteriaPanelTop.add(statusCB);
+    		sortCriteriaPanelTop.add(typeCB);
+    		sortCriteriaPanelTop.add(collectionCB);
+    		sortCriteriaPanelTop.add(changedByCB);
+    		sortCriteriaPanelTop.add(regionCB);
+    		sortCriteriaPanelTop.add(stoplightCB);
 		        
-    	//Set up the change panel holding count panel, orn assigned panel and change panel
-    	itemCountPanel.setBorder(BorderFactory.createTitledBorder("Partners Meeting Criteria"));
+    		//Set up the change panel holding count panel, orn assigned panel and change panel
+    		itemCountPanel.setBorder(BorderFactory.createTitledBorder("Partners Meeting Criteria"));
 
-    	JPanel ornReqPanel = new JPanel();       
-    	lblOrnReq = new JLabel("0");
-    	ornReqPanel.setBorder(BorderFactory.createTitledBorder("# Orn Requested"));
-    	ornReqPanel.setPreferredSize(new Dimension(125, 80));
-    	ornReqPanel.add(lblOrnReq);
+    		JPanel ornReqPanel = new JPanel();       
+    		lblOrnReq = new JLabel("0");
+    		ornReqPanel.setBorder(BorderFactory.createTitledBorder("# Orn Requested"));
+    		ornReqPanel.setPreferredSize(new Dimension(125, 80));
+    		ornReqPanel.add(lblOrnReq);
         
-    	gbc.gridx = 1;
-    	gbc.ipadx = 0;
-    	gbc.weightx = 0.8;
-    	changePanel.add(ornReqPanel, gbc);
+    		gbc.gridx = 1;
+    		gbc.ipadx = 0;
+    		gbc.weightx = 0.8;
+    		changePanel.add(ornReqPanel, gbc);
 
-    	changePartItem = new ComboItem[8];	//Delivery status combo box list objects can be enabled/disabled
-    	changePartItem[0] = new ComboItem(DEFAULT_NO_CHANGE_LIST_ITEM);
-    	changePartItem[1] = new ComboItem("No Action Yet");
-    	changePartItem[2] = new ComboItem("1st Email Sent");
-    	changePartItem[3] = new ComboItem("Responded");  
-    	changePartItem[4] = new ComboItem("2nd Email Sent");
-    	changePartItem[5] = new ComboItem("Called, Left Mssg");  
-    	changePartItem[6] = new ComboItem("Confirmed");
-    	changePartItem[7] = new ComboItem("Not Participating");   
+    		changePartItem = new ComboItem[8];	//Delivery status combo box list objects can be enabled/disabled
+    		changePartItem[0] = new ComboItem(DEFAULT_NO_CHANGE_LIST_ITEM);
+    		changePartItem[1] = new ComboItem("No Action Yet");
+    		changePartItem[2] = new ComboItem("1st Email Sent");
+    		changePartItem[3] = new ComboItem("Responded");  
+    		changePartItem[4] = new ComboItem("2nd Email Sent");
+    		changePartItem[5] = new ComboItem("Called, Left Mssg");  
+    		changePartItem[6] = new ComboItem("Confirmed");
+    		changePartItem[7] = new ComboItem("Not Participating");   
 				
-    	changePStatusCB = new JComboBox<ComboItem>(changePartItem);
-    	changePStatusCB.setRenderer(new ComboRenderer());
-    	changePStatusCB.setPreferredSize(new Dimension(172, 56));
-    	changePStatusCB.setBorder(BorderFactory.createTitledBorder("Change Partner Status"));
-    	changePStatusCB.addActionListener(new ComboListener(changePStatusCB));	//Prevents selection of disabled combo box items
-    	changePStatusCB.addActionListener(this);	//Used to check for enabling the Apply Changes button
+    		changePStatusCB = new JComboBox<ComboItem>(changePartItem);
+    		changePStatusCB.setRenderer(new ComboRenderer());
+    		changePStatusCB.setPreferredSize(new Dimension(172, 56));
+    		changePStatusCB.setBorder(BorderFactory.createTitledBorder("Change Partner Status"));
+    		changePStatusCB.addActionListener(new ComboListener(changePStatusCB));	//Prevents selection of disabled combo box items
+    		changePStatusCB.addActionListener(this);	//Used to check for enabling the Apply Changes button
 				
-    	String[] choices = {DEFAULT_NO_CHANGE_LIST_ITEM, "25", "50", "75", "100",
+    		String[] choices = {DEFAULT_NO_CHANGE_LIST_ITEM, "25", "50", "75", "100",
 									"125", "150", "175", "200", "250", "300", "400", "500"};
-    	changeOrnReqCB = new JComboBox<String>(choices);
-    	changeOrnReqCB.setEditable(true);
-    	changeOrnReqCB.setPreferredSize(new Dimension(192, 56));
-    	changeOrnReqCB.setBorder(BorderFactory.createTitledBorder("Change # Ornaments Req"));
-    	changeOrnReqCB.addActionListener(this);
+    		changeOrnReqCB = new JComboBox<String>(choices);
+    		changeOrnReqCB.setEditable(true);
+    		changeOrnReqCB.setPreferredSize(new Dimension(192, 56));
+    		changeOrnReqCB.setBorder(BorderFactory.createTitledBorder("Change # Ornaments Req"));
+    		changeOrnReqCB.addActionListener(this);
 
-    	//Add the components to the change data panel			
-    	changeDataPanel.add(changePStatusCB);
-    	changeDataPanel.add(changeOrnReqCB);
-    	changeDataPanel.setBorder(BorderFactory.createTitledBorder("Change Select Partner Data"));
+    		//Add the components to the change data panel			
+    		changeDataPanel.add(changePStatusCB);
+    		changeDataPanel.add(changeOrnReqCB);
+    		changeDataPanel.setBorder(BorderFactory.createTitledBorder("Change Select Partner Data"));
 		
-    	gbc.gridx = 2;
-    	gbc.ipadx = 0;
-    	gbc.weightx = 1.0;
-    	changePanel.add(changeDataPanel, gbc);
+    		gbc.gridx = 2;
+    		gbc.ipadx = 0;
+    		gbc.weightx = 1.0;
+    		changePanel.add(changeDataPanel, gbc);
         
-    	//Set up the control panel that goes in the bottom panel with border layout
+    		//Set up the control panel that goes in the bottom panel with border layout
         JPanel cntlPanel = new JPanel();
       	cntlPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
       	
@@ -234,10 +231,10 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 				
         String[] emailChoices = {
 								"Email",
-								"2018 Season: Church/School Email",
-								"2018 Season: Business Email",
-								"2017 Season: Church Gift Drop Off Email",
-								"2017 Season: McDonald Gift Drop Off Email",
+								"2018 Church/School Email - Diane Church",
+								"2018 Business Email - Kathleen McDonald",
+//								"2017 Season: Church Gift Drop Off Email",
+//								"2017 Season: McDonald Gift Drop Off Email",
 								};
         emailCB = new JComboBox<String>(emailChoices);
         emailCB.setPreferredSize(new Dimension(136, 28));
@@ -267,9 +264,9 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
     @Override
     public Object[] getTableRow(ONCObject obj)
     {
-    	ONCPartner o = (ONCPartner) obj;
-    	SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yy");
-    	Object[] sorttablerow = {o.getLastName(), status[o.getStatus()+1], types[o.getType()],
+    		ONCPartner o = (ONCPartner) obj;
+    		SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yy");
+    		Object[] sorttablerow = {o.getLastName(), status[o.getStatus()+1], types[o.getType()],
 				o.getGiftCollectionType().toString(),
 				Integer.toString(o.getNumberOfOrnamentsRequested()),
 				Integer.toString(o.getNumberOfOrnamentsAssigned()),
@@ -278,51 +275,51 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 				o.getChangedBy(),
 				regions.getRegionID(o.getRegion()),
 		 		gvs.getImageIcon(23 + o.getStoplightPos())};
-    	return sorttablerow;
+    		return sorttablerow;
     }
 	
     public void buildTableList(boolean bPreserveSelections)
     {
-    	tableRowSelectedObjectList.clear();
-    	if(bPreserveSelections)
-    		archiveTableSelections(stAL);
-    	else
-    		tableSortCol = -1;
+    		tableRowSelectedObjectList.clear();
+    		if(bPreserveSelections)
+    			archiveTableSelections(stAL);
+    		else
+    			tableSortCol = -1;
 		
-    	stAL.clear();	//Clear the prior table data array list
-    	int totalornreq = 0;	//total number of orn requested in table
+    		stAL.clear();	//Clear the prior table data array list
+    		int totalornreq = 0;	//total number of orn requested in table
 		
-    	for(ONCPartner o : orgs.getList())
-    	{
-    		if(doesStatusMatch(o.getStatus()) &&
-    			doesTypeMatch(o.getType()) &&
-    			 doesCollectionMatch(o.getGiftCollectionType()) && 
-    			  doesRegionMatch(o.getRegion()) &&
-    			   doesChangedByMatch(o.getChangedBy()) &&
-    				doesStoplightMatch(o.getStoplightPos()))	//Search criteria pass
+    		for(ONCPartner o : orgs.getList())
     		{
-    			stAL.add(o);
-    			totalornreq += o.getNumberOfOrnamentsRequested();
+    			if(doesStatusMatch(o.getStatus()) &&
+    				doesTypeMatch(o.getType()) &&
+    				 doesCollectionMatch(o.getGiftCollectionType()) && 
+    				  doesRegionMatch(o.getRegion()) &&
+    				   doesChangedByMatch(o.getChangedBy()) &&
+    				    doesStoplightMatch(o.getStoplightPos()))	//Search criteria pass
+    			{
+    				stAL.add(o);
+    				totalornreq += o.getNumberOfOrnamentsRequested();
+    			}
     		}
-    	}
 		
-    	lblNumOfTableItems.setText(Integer.toString(stAL.size()));
-    	lblOrnReq.setText(Integer.toString(totalornreq));
-    	displaySortTable(stAL, true, tableRowSelectedObjectList);		//Display the table after table array list is built						
+    		lblNumOfTableItems.setText(Integer.toString(stAL.size()));
+    		lblOrnReq.setText(Integer.toString(totalornreq));
+    		displaySortTable(stAL, true, tableRowSelectedObjectList);		//Display the table after table array list is built						
     }
 
     @Override
     int sortTableList(int col)
     {
-    	archiveTableSelections(stAL);
+    		archiveTableSelections(stAL);
 		
-    	if(orgs.sortDB(stAL, columns[col]))
-    	{
-    		displaySortTable(stAL, false, tableRowSelectedObjectList);
-    		return col;
-    	}
-    	else
-    		return -1;
+    		if(orgs.sortDB(stAL, columns[col]))
+    		{
+    			displaySortTable(stAL, false, tableRowSelectedObjectList);
+    			return col;
+    		}
+    		else
+    			return -1;
     }
 	
 	@Override
@@ -425,23 +422,70 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		ArrayList<ONCEmailAttachment> attachmentAL = new ArrayList<ONCEmailAttachment>();
 		String cid0 = null, cid1 = null;
 		String emailBody = null, subject = null;
+		boolean bIncludesAttachments = false;
+		boolean bAttachmentsSelected = false;
 		
 		//Create the subject and attachment array list
 		if(emailType == 1)	//church & school email
 		{
 			subject = "Greetings From Our Neighbor's Child";
-			cid0 = ContentIDGenerator.getContentId();
-			cid1 = ContentIDGenerator.getContentId();
-			attachmentAL.add(new ONCEmailAttachment(PHOTO_ATTACHMENT_1_FILE, cid0, MimeBodyPart.INLINE));
-			attachmentAL.add(new ONCEmailAttachment(PHOTO_ATTACHMENT_2_FILE, cid1, MimeBodyPart.INLINE));
+			bIncludesAttachments = true;
+			
+			//construct a file chooser
+			ONCFileChooser fc = new ONCFileChooser(this);
+			FileNameExtensionFilter fnef = new FileNameExtensionFilter("JPEG file", "jpg", "jpeg");
+			
+			//get first file to attach
+			File attachmentfile0= fc.getFile("Select 1st jpg file to include with the email",
+					fnef, ONCFileChooser.OPEN_FILE);
+			
+			if(attachmentfile0 != null)
+			{
+				System.out.println(attachmentfile0.getAbsolutePath());
+				cid0 = ContentIDGenerator.getContentId();
+				attachmentAL.add(new ONCEmailAttachment(attachmentfile0, cid0, MimeBodyPart.INLINE));
+				
+				File attachmentfile1= fc.getFile("Select 2nd jpg file to include with the email",
+						new FileNameExtensionFilter("JPEG file", "jpg", "jpeg"), ONCFileChooser.OPEN_FILE);
+				
+				//get second file to attach
+				if(attachmentfile1 != null)
+				{
+					cid1 = ContentIDGenerator.getContentId();
+					attachmentAL.add(new ONCEmailAttachment(attachmentfile1, cid1, MimeBodyPart.INLINE));
+					bAttachmentsSelected = true;
+				}
+			}	
 		}
 		else if(emailType == 2) //business email
 		{
 			subject = "Greetings From Our Neighbor's Child";
-			cid0 = ContentIDGenerator.getContentId();
-			cid1 = ContentIDGenerator.getContentId();
-			attachmentAL.add(new ONCEmailAttachment(PHOTO_ATTACHMENT_1_FILE, cid0, MimeBodyPart.INLINE));
-			attachmentAL.add(new ONCEmailAttachment(PHOTO_ATTACHMENT_2_FILE, cid1, MimeBodyPart.INLINE));
+			bIncludesAttachments = true;
+			
+			//construct a file chooser
+			ONCFileChooser fc = new ONCFileChooser(this);
+			FileNameExtensionFilter fnef = new FileNameExtensionFilter("JPEG file", "jpg", "jpeg");
+			
+			//get first file to attach
+			File attachmentfile0= fc.getFile("Please select 1st jpg file to include with the partner email",
+					fnef, ONCFileChooser.OPEN_FILE);
+			
+			if(attachmentfile0 != null)
+			{
+				cid0 = ContentIDGenerator.getContentId();
+				attachmentAL.add(new ONCEmailAttachment(attachmentfile0, cid0, MimeBodyPart.INLINE));
+				
+				File attachmentfile1= fc.getFile("Please select 2nd jpg file to include with the partner email",
+						fnef, ONCFileChooser.OPEN_FILE);
+				
+				//get second file to attach
+				if(attachmentfile1 != null)
+				{
+					cid1 = ContentIDGenerator.getContentId();
+					attachmentAL.add(new ONCEmailAttachment(attachmentfile1, cid1, MimeBodyPart.INLINE));
+					bAttachmentsSelected = true;
+				}
+			}	
 		}
 		if(emailType == 3)	//church & school gift drop off email
 		{
@@ -544,11 +588,25 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		else if(emailType == 4)
 		    creds = new ServerCredentials("smtp.gmail.com", GIFT__BUSINESS_PARTNER_EMAIL_SENDER_ADDRESS, "crazyelf");
 	
-	    if(fromAddress != null && creds != null)
+	    if(fromAddress != null && creds != null && (!bIncludesAttachments || (bIncludesAttachments && bAttachmentsSelected)))
 	    {
-	    	oncEmailer = new ONCEmailer(this, progressBar, fromAddress, bccList, emailAL, attachmentAL, creds);
-	    	oncEmailer.addPropertyChangeListener(this);
-	    	oncEmailer.execute();
+	    		//Everything looks good to send. Confirm with the user that sending email is really intended
+			String confirmMssg = "Are you sure you want to send " + 
+								 emailCB.getSelectedItem().toString() + "?"; 
+											
+			Object[] options= {"Cancel", "Send"};
+			JOptionPane confirmOP = new JOptionPane(confirmMssg, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION,
+					gvs.getImageIcon(0), options, "Cancel");
+			JDialog confirmDlg = confirmOP.createDialog(this, "*** Confirm " + emailCB.getSelectedItem().toString() + " ***");
+			confirmDlg.setVisible(true);
+		
+			Object selectedValue = confirmOP.getValue();
+			if(selectedValue != null && selectedValue.toString().equals("Send"))
+			{
+	    			oncEmailer = new ONCEmailer(this, progressBar, fromAddress, bccList, emailAL, attachmentAL, creds);
+	    			oncEmailer.addPropertyChangeListener(this);
+	    			oncEmailer.execute();
+	    		}
 	    }
 	    
 	    emailCB.setEnabled(false);		
@@ -1313,7 +1371,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		{
 			ONCFileChooser oncfc = new ONCFileChooser(this);
 			File oncwritefile = oncfc.getFile("Select file for export of Agent Gmail Contact Group" ,
-       										new FileNameExtensionFilter("CSV Files", "csv"), 1, groupName);
+       							new FileNameExtensionFilter("CSV Files", "csv"), ONCFileChooser.SAVE_FILE, groupName);
 			if(oncwritefile!= null)
 			{
 				//If user types a new filename without extension.csv, add it
@@ -1366,7 +1424,8 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
     	ONCFileChooser oncfc = new ONCFileChooser(parentFrame);
     	String fileDlgMssg = "Select File For Export of Partner Data"; 
     											
-       	File oncwritefile = oncfc.getFile(fileDlgMssg, new FileNameExtensionFilter("CSV Files", "csv"), 1);
+       	File oncwritefile = oncfc.getFile(fileDlgMssg, 
+       			new FileNameExtensionFilter("CSV Files", "csv"), ONCFileChooser.SAVE_FILE);
        	if(oncwritefile!= null)
        	{
        		//If user types a new filename without extension.csv, add it
@@ -1410,7 +1469,8 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
     	ONCFileChooser oncfc = new ONCFileChooser(parentFrame);
     	String fileDlgMssg = "Select File For Export of Partner Performance Data"; 
     											
-       	File oncwritefile = oncfc.getFile(fileDlgMssg, new FileNameExtensionFilter("CSV Files", "csv"), 1);
+       	File oncwritefile = oncfc.getFile(fileDlgMssg, 
+       			new FileNameExtensionFilter("CSV Files", "csv"), ONCFileChooser.SAVE_FILE);
        	if(oncwritefile!= null)
        	{
        		//If user types a new filename without extension.csv, add it
@@ -1580,22 +1640,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		}
 		else if(e.getSource() == emailCB && emailCB.getSelectedIndex() > 0 && emailCB.getSelectedIndex() < 5)
 		{
-			//Confirm with the user that the deletion is really intended
-			String confirmMssg = "Are you sure you want to send " + 
-								 emailCB.getSelectedItem().toString() + "?"; 
-											
-			Object[] options= {"Cancel", "Send"};
-			JOptionPane confirmOP = new JOptionPane(confirmMssg, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION,
-					gvs.getImageIcon(0), options, "Cancel");
-			JDialog confirmDlg = confirmOP.createDialog(this, "*** Confirm " + emailCB.getSelectedItem().toString() + " ***");
-			confirmDlg.setVisible(true);
-		
-			Object selectedValue = confirmOP.getValue();
-			if(selectedValue != null && selectedValue.toString().equals("Send"))
-			{
-				createAndSendPartnerEmail(emailCB.getSelectedIndex());	
-			}
-	
+			createAndSendPartnerEmail(emailCB.getSelectedIndex());
 			emailCB.setSelectedIndex(0);	//Reset the email combo choice
 		}
 		else if(e.getSource() == exportCB && exportCB.getSelectedIndex() > 0)

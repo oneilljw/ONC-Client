@@ -282,7 +282,7 @@ public class SortDriverDialog extends DependantTableDialog
     	
     	ONCFileChooser oncfc = new ONCFileChooser(parentFrame);
        	File oncwritefile = oncfc.getFile("Select file for export of selected rows" ,
-       										new FileNameExtensionFilter("CSV Files", "csv"), 1);
+       							new FileNameExtensionFilter("CSV Files", "csv"), ONCFileChooser.SAVE_FILE);
        	if(oncwritefile!= null)
        	{
        		//If user types a new filename without extension.csv, add it

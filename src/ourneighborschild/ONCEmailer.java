@@ -133,11 +133,17 @@ public class ONCEmailer extends SwingWorker<Void, Void> implements TransportList
         //If there are attachments, create the attachments, 
         //attachments must be in the application launch folder
         ArrayList<MimeBodyPart> imagePart = new ArrayList<MimeBodyPart>();
+        
+        
     
         for(int i=0; i<attachmentAL.size(); i++)
         {
         	imagePart.add(new MimeBodyPart()); 
-        	imagePart.get(i).attachFile(System.getProperty("user.dir") + "/" + attachmentAL.get(i).getFilename());   
+//        	String fullFilePath = System.getProperty("user.dir") + "/" + attachmentAL.get(i).getFilename();
+//        	String message = String.format("user.dir: %s", System.getProperty("user.dir"));
+//        	JOptionPane.showMessageDialog(parent, message, "Mail Server File Attachment", 
+//							JOptionPane.ERROR_MESSAGE);
+        	imagePart.get(i).attachFile(attachmentAL.get(i).getFile());   
         	imagePart.get(i).setContentID("<" + attachmentAL.get(i).getCID() + ">");
         	imagePart.get(i).setDisposition(attachmentAL.get(i).getDisposition());
         }

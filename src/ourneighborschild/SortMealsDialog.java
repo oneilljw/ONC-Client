@@ -454,7 +454,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
     
     	ONCFileChooser oncfc = new ONCFileChooser(this);
        	File oncwritefile = oncfc.getFile("Select file for export of selected meals" ,
-       										new FileNameExtensionFilter("CSV Files", "csv"), 1);
+       								new FileNameExtensionFilter("CSV Files", "csv"), ONCFileChooser.SAVE_FILE);
        	if(oncwritefile!= null)
        	{
        		//If user types a new filename without extension.csv, add it
@@ -523,7 +523,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 			
 		ONCFileChooser oncfc = new ONCFileChooser(this);
        	File oncwritefile = oncfc.getFile("Select file for export of selected meals" ,
-       										new FileNameExtensionFilter("CSV Files", "csv"), 1);
+       							new FileNameExtensionFilter("CSV Files", "csv"), ONCFileChooser.SAVE_FILE);
        	if(oncwritefile!= null)
        	{
        		//If user types a new filename without extension.csv, add it
