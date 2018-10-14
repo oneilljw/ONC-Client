@@ -278,19 +278,19 @@ public class MealDialog extends HistoryDialog
 
         public void setValueAt(Object value, int row, int col)
         { 
-        	//verify user changed the meal type or restrictions and if so,
-        	//add a new meal to the history and redisplay. Table row 0 always
-        	//contains the most recent meal
-        	if(!mealList.isEmpty() && row == 0 && col == 0 &&
-        		(MealType) value != mealList.get(0).getType())
-        	{
-        		addMeal((MealType)value, mealList.get(0).getRestricitons());
-        	}
-        	else if(!mealList.isEmpty() && row == 0 && col == 1 &&
-        				!mealList.get(0).getRestricitons().equals((String)value))
-        	{
-        		addMeal(mealList.get(0).getType(), (String)value);
-        	}
+        		//verify user changed the meal type or restrictions and if so,
+        		//add a new meal to the history and redisplay. Table row 0 always
+        		//contains the most recent meal
+        		if(!mealList.isEmpty() && row == 0 && col == HOLIDAY_COL &&
+        							(MealType) value != mealList.get(0).getType())
+        		{
+        			addMeal((MealType)value, mealList.get(0).getRestricitons());
+        		}
+        		else if(!mealList.isEmpty() && row == 0 && col == RESTRICTIONS_COL &&
+        					!mealList.get(0).getRestricitons().equals((String)value))
+        		{
+        			addMeal(mealList.get(0).getType(), (String)value);
+        		}
         }
     }
 	
