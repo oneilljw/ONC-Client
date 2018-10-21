@@ -323,7 +323,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		JPanel importPanel = new JPanel();
 		importPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 		
-		signUpImportCkBox = new JCheckBox("Automatic Import of Sign-Ups Enabled?");
+		signUpImportCkBox = new JCheckBox("Automatic Import of Volunteers from Sign-Up(s) Enabled?");
 		signUpImportCkBox.setSelected(false);
 		signUpImportCkBox.addActionListener(this);
 		importPanel.add(signUpImportCkBox);
@@ -401,11 +401,11 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		geniusBtnPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
 		
 		sdf = new SimpleDateFormat("M/d/yy h:mm a");
-		lblLastSignUpImportTime = new JLabel("Last Sign Up List Import: Never");
+		lblLastSignUpImportTime = new JLabel("Time List of Active Sign-Up(s) Imported: Never");
 //		lblLastSignUpImportTime.setPreferredSize(new Dimension(184, 52));
 		geniusImportPanel.add(lblLastSignUpImportTime);
 		
-		btnImportSignUpList = new JButton("Import List From SignUpGenius");
+		btnImportSignUpList = new JButton("Import Sign-Ups");
 		btnImportSignUpList.addActionListener(this);
 		geniusBtnPanel.add(btnImportSignUpList);
 		
@@ -516,7 +516,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 	void displaySignUpData()
 	{
 		GeniusSignUps geniusSignUps = activityDB.getSignUps();
-		String time = String.format("Last Sign Up List Import: %s", 
+		String time = String.format("Time List of Active Sign Up(s) Imported: %s", 
 				sdf.format(geniusSignUps.getLastImportTime().getTime()));
 		
 		signUpImportCkBox.setSelected(geniusSignUps.isImportEnabled());

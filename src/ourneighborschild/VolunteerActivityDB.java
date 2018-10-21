@@ -44,7 +44,7 @@ public class VolunteerActivityDB extends ONCDatabase
 		int count = 0;
 		for(VolAct va : volunteerActivityList)
 			if(va.getActID() == actID)
-				count++;
+				count = count + va.getQty();
 		
 		return count;
 	}
