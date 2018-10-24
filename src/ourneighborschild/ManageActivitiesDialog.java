@@ -415,7 +415,7 @@ public class ManageActivitiesDialog extends ONCEntityTableDialog implements Acti
 	public void dataChanged(DatabaseEvent dbe)
 	{
 		if(dbe.getSource() != this && (dbe.getType().equals("ADDED_ACTIVITY") ||
-				dbe.getType().equals("UPDATED_ACTIVITY")))
+				dbe.getType().equals("UPDATED_ACTIVITY") || dbe.getType().equals("DELETED_ACTIVITY")))
 		{
 			//update the table
 			createTableList();
