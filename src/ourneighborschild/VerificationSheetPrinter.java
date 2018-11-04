@@ -126,7 +126,7 @@ public abstract class VerificationSheetPrinter implements Printable
 				
 				
 				ONCChild c = vsAL.get(page).getChildArrayList().get(childnum);
-				ONCChildWish cw = cwDB.getWish(c.getChildWishID(wn));
+				ONCChildWish cw = cwDB.getWish(c.getChildGiftID(wn));
 				ONCWish catWish = cat.getWishByID(cw.getWishID());
 				String wishName = catWish == null ? "None" : catWish.getName();
 				

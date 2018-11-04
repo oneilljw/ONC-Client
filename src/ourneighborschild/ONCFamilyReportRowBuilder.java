@@ -109,8 +109,8 @@ public class ONCFamilyReportRowBuilder
 	
 	private String getFullWish(ONCChild c, int wn)
 	{
-		ONCChildWish cw = cwDB.getWish(c.getChildWishID(wn));
-		if(c.getChildWishID(wn) == -1 || cw == null)
+		ONCChildWish cw = cwDB.getWish(c.getChildGiftID(wn));
+		if(c.getChildGiftID(wn) == -1 || cw == null)
 			return "";
 		else
 		{
@@ -295,11 +295,11 @@ public class ONCFamilyReportRowBuilder
 	{
 		return new String[] 
 				{
-				"ONC ID", "ONCNum", "Region", "ODB Family #", "Batch #", "DNS Code", "Family Status", "Delivery Status",
+				"ONC ID", "ONC Num", "Region", "Reference #", "Batch #", "DNS Code", "Family Status", "Delivery Status",
 				"Speak English?","Language if No", "Caller", "Notes", "Delivery Instructions",
 				"Client Family", "First Name", "Last Name", "House #", "Street", "Unit #", "City", "Zip Code",
 				"Substitute Delivery Address", "All Phone #'s", "Home Phone", "Other Phone", "Family Email", 
-				"ODB Details", "Children Names", "Schools", "ODB WishList",
+				"ODB Details", "Children Names", "Schools", "WishList",
 				"Child 1 FN", "Child 1 LN", "Child 1 School", "Child 1 Gender", "Child 1 DOB", "Child 1 Age",
 				"Child 1 Wish 1", "Child 1 Wish 2", "Child 1 Wish 3",
 				"Child 2 FN", "Child 2 LN", "Child 2 School", "Child 2 Gender", "Child 2 DOB", "Child 2 Age",

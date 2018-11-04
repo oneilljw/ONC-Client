@@ -54,7 +54,8 @@ public class FamilyHistoryDialog extends HistoryDialog
 	{
 		this.currFam = (ONCFamily) obj;
 		setDialogTitle();
-		histList = getSortedList();
+		if(currFam != null)
+			histList = getSortedList();
 		dlgTableModel.fireTableDataChanged();
 	}
 	
@@ -129,6 +130,10 @@ public class FamilyHistoryDialog extends HistoryDialog
 			//driver may have been added to current family delivery history
 			if(currFam != null)
 				display(currFam);
+		}
+		else if(dbe.getSource() != this && this.isVisible() && dbe.getType().equals("DELETED_FAMILY"))
+		{
+			
 		}
 	}
 

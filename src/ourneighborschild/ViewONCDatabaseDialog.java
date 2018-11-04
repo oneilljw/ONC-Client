@@ -318,7 +318,7 @@ public class ViewONCDatabaseDialog extends JDialog implements ActionListener, Li
 	    	   	writer.close();
 	    	    
 				JOptionPane.showMessageDialog(this, 
-							Integer.toString(exportCount) + " records ucessfully exported to " + oncwritefile.getName(), 
+							Integer.toString(exportCount) + " records sucessfully exported to " + oncwritefile.getName(), 
 							"Export Successful", JOptionPane.INFORMATION_MESSAGE, 
 							GlobalVariablesDB.getONCLogo());
 			} 

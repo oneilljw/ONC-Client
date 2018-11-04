@@ -246,7 +246,7 @@ public class PartnerDB extends ONCSearchableDatabase
 		//wish counts for the assignee
 		for(int wn=0; wn< NUMBER_OF_WISHES_PER_CHILD; wn++)
 		{
-			ONCChildWish cw = cwDB.getWish(delChild.getChildWishID(wn));
+			ONCChildWish cw = cwDB.getWish(delChild.getChildGiftID(wn));
 			if(cw != null && cw.getChildWishAssigneeID() > 0)
 				decrementConfirmedOrgOrnAssigned(cw.getChildWishAssigneeID());
 		}

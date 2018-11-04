@@ -56,78 +56,78 @@ public class ChildWishDB extends ONCDatabase
 	 * current partner unchanged
 	 */
 	ONCChildWish add(Object source, int childid, int wishid, String wd, int wn, int wi,
-						WishStatus ws, ONCPartner currPartner)
-	{		
-		GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
-		String cb = UserDB.getInstance().getUserLNFI();
-		Date dc = gvs.getTodaysDate();
-		
-		//Get the old wish being replaced. getWish method returns null if wish not found
-		ONCChildWish replacedWish = getWish(childid, wn);
-		
-		//determine if we need to change the partner id
-		int newPartnerID = -1;
-		if(replacedWish != null && replacedWish.getWishID() != wishid)
-			newPartnerID = -1;
-		else if(currPartner == null && replacedWish != null)
-			newPartnerID = replacedWish.getChildWishAssigneeID(); 	//Staying the same
-		else if(currPartner != null)
-			newPartnerID = currPartner.getID();
-		
-		//create the new wish, with childwishID = -1, meaning no wish selected
-		//the server will add the childwishID and return it
-		ONCChildWish retCW = null;
-		ONCChildWish reqCW = new ONCChildWish(-1, childid, wishid,
-											   checkForDetailChange(wi, wd, currPartner, replacedWish), 
-											   wn, wi,
-											   checkForStatusChange(replacedWish, wishid, ws, currPartner), 
-											   newPartnerID, cb, dc);		
-		Gson gson = new Gson();
-		String response = null, helmetResponse = null;
-		
-		//send add new wish request to the server
-		response = serverIF.sendRequest("POST<childwish>" + gson.toJson(reqCW, ONCChildWish.class));
-		
-		//get the wish in the sever response and add it to the local cache data base
-		//it contains the wish id assigned by the server child wish data base
-		//Notify all other ui's that a wish has been added
-		if(response != null && response.startsWith("WISH_ADDED"))
-		{
-//			System.out.println("ChildWish DB_add: Server Response: " + response);
-			retCW = processAddedWish(source, response.substring(10));
-			
-			//must check to see if new wish is wish 0 and has changed to/from a 
-			//Bike. If so, wish 2 must become a Helmet/Empty
-			ONCChild child = childDB.getChild(retCW.getChildID());
-			int bikeID = cat.getWishID("Bike");
-			int helmetID = cat.getWishID("Helmet");
-			if(retCW.getWishNumber() == 0 && replacedWish != null && replacedWish.getWishID() != bikeID && 
-				retCW.getWishID() == bikeID || retCW.getWishNumber() == 0 && replacedWish == null &&
-				 retCW.getWishID() == bikeID)		
-			{
-				//add Helmet as wish 1
-				ONCChildWish helmetCW = new ONCChildWish(-1, childid, helmetID, "", 1, 1,
-						WishStatus.Selected, -1, cb, dc);
-				helmetResponse = serverIF.sendRequest("POST<childwish>" + gson.toJson(helmetCW, ONCChildWish.class));
-				if(helmetResponse != null && helmetResponse.startsWith("WISH_ADDED"))
-					processAddedWish(this, helmetResponse.substring(10));
-			}
-			//if replaced wish was a bike and now isn't and wish 1 was a helmet, make
-			//wish one empty
-			else if(retCW.getWishNumber() == 0 && replacedWish != null && child.getChildWishID(1) > -1 &&
-					replacedWish.getWishID() == bikeID && retCW.getWishID() != bikeID)
-			{
-				//change wish 1 from Helmet to None
-				ONCChildWish helmetCW = new ONCChildWish(-1, childid, -1, "", 1, 0,
-						WishStatus.Not_Selected, -1, cb, dc);
-				helmetResponse = serverIF.sendRequest("POST<childwish>" + gson.toJson(helmetCW, ONCChildWish.class));
-				if(helmetResponse != null && helmetResponse.startsWith("WISH_ADDED"))
-					processAddedWish(this, helmetResponse.substring(10));
-			}
-		}
-		
-		return retCW;
-	}
+			WishStatus ws, ONCPartner currPartner)
+{		
+GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
+String cb = UserDB.getInstance().getUserLNFI();
+Date dc = gvs.getTodaysDate();
+
+//Get the old wish being replaced. getWish method returns null if wish not found
+ONCChildWish replacedWish = getWish(childid, wn);
+
+//determine if we need to change the partner id
+int newPartnerID = -1;
+if(replacedWish != null && replacedWish.getWishID() != wishid)
+newPartnerID = -1;
+else if(currPartner == null && replacedWish != null)
+newPartnerID = replacedWish.getChildWishAssigneeID(); 	//Staying the same
+else if(currPartner != null)
+newPartnerID = currPartner.getID();
+
+//create the new wish, with childwishID = -1, meaning no wish selected
+//the server will add the childwishID and return it
+ONCChildWish retCW = null;
+ONCChildWish reqCW = new ONCChildWish(-1, childid, wishid,
+								   checkForDetailChange(wi, wd, currPartner, replacedWish), 
+								   wn, wi,
+								   checkForStatusChange(replacedWish, wishid, ws, currPartner), 
+								   newPartnerID, cb, dc);		
+Gson gson = new Gson();
+String response = null, helmetResponse = null;
+
+//send add new wish request to the server
+response = serverIF.sendRequest("POST<childwish>" + gson.toJson(reqCW, ONCChildWish.class));
+
+//get the wish in the sever response and add it to the local cache data base
+//it contains the wish id assigned by the server child wish data base
+//Notify all other ui's that a wish has been added
+if(response != null && response.startsWith("WISH_ADDED"))
+{
+//System.out.println("ChildWish DB_add: Server Response: " + response);
+retCW = processAddedWish(source, response.substring(10));
+
+//must check to see if new wish is wish 0 and has changed to/from a 
+//Bike. If so, wish 2 must become a Helmet/Empty
+ONCChild child = childDB.getChild(retCW.getChildID());
+int bikeID = cat.getWishID("Bike");
+int helmetID = cat.getWishID("Helmet");
+if(retCW.getWishNumber() == 0 && replacedWish != null && replacedWish.getWishID() != bikeID && 
+	retCW.getWishID() == bikeID || retCW.getWishNumber() == 0 && replacedWish == null &&
+	 retCW.getWishID() == bikeID)		
+{
+	//add Helmet as wish 1
+	ONCChildWish helmetCW = new ONCChildWish(-1, childid, helmetID, "", 1, 1,
+			WishStatus.Selected, -1, cb, dc);
+	helmetResponse = serverIF.sendRequest("POST<childwish>" + gson.toJson(helmetCW, ONCChildWish.class));
+	if(helmetResponse != null && helmetResponse.startsWith("WISH_ADDED"))
+		processAddedWish(this, helmetResponse.substring(10));
+}
+//if replaced wish was a bike and now isn't and wish 1 was a helmet, make
+//wish one empty
+else if(retCW.getWishNumber() == 0 && replacedWish != null && child.getChildGiftID(1) > -1 &&
+		replacedWish.getWishID() == bikeID && retCW.getWishID() != bikeID)
+{
+	//change wish 1 from Helmet to None
+	ONCChildWish helmetCW = new ONCChildWish(-1, childid, -1, "", 1, 0,
+			WishStatus.Not_Selected, -1, cb, dc);
+	helmetResponse = serverIF.sendRequest("POST<childwish>" + gson.toJson(helmetCW, ONCChildWish.class));
+	if(helmetResponse != null && helmetResponse.startsWith("WISH_ADDED"))
+		processAddedWish(this, helmetResponse.substring(10));
+}
+}
+
+return retCW;
+}
 	
 	ONCChildWish processAddedWish(Object source, String json)
 	{
@@ -176,7 +176,7 @@ public class ChildWishDB extends ONCDatabase
 	 * the catalog, this method will set the wish status to CHILD_WISH_SELECTED. Conversely, if
 	 * a wish was selected from the catalog and is reset to empty, the wish status is set to
 	 * CHILD_WISH_EMPTY.
-	 ************************************************************************************************************/
+	 ************************************************************************************************************/	
 	WishStatus checkForStatusChange(ONCChildWish oldWish, int wishBase, WishStatus reqStatus, ONCPartner reqOrg)
 	{
 		WishStatus currStatus, newStatus;
@@ -289,6 +289,7 @@ public class ChildWishDB extends ONCDatabase
 	 * the replaced wish is of status Delivered and requested parter is of type ONC Shopper
 	 * and the requested wish indicator is #. 
 	 */
+	
 	String checkForDetailChange(int reqWishRes, String reqWishDetail,
 									ONCPartner reqPartner, ONCChildWish replWish)
 	{
@@ -319,7 +320,7 @@ public class ChildWishDB extends ONCDatabase
 		ArrayList<WishBaseChange> wishbasechangelist = new ArrayList<WishBaseChange>();
 		for(int wn=0; wn<NUMBER_OF_WISHES_PER_CHILD; wn++)
 		{
-			ONCChildWish cw = getWish(delChild.getChildWishID(wn));
+			ONCChildWish cw = getWish(delChild.getChildGiftID(wn));
 			if(cw != null && cw.getChildWishStatus().compareTo(WishStatus.Selected) >= 0)
 				wishbasechangelist.add(new WishBaseChange(cw, null));	
 		}

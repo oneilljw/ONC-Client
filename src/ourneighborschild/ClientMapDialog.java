@@ -251,6 +251,7 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 			schoolCountLabelList.add(new ZoneCountLabel(0, sch.getName(), sch.getCode()));
 		
 		//add labels for not in pyramid and not in zipcode families
+		schoolCountLabelList.add(new ZoneCountLabel(0, "Wish Anticipation", "X"));
 		schoolCountLabelList.add(new ZoneCountLabel(0, "Not in Pyramid", "Y"));
 		schoolCountLabelList.add(new ZoneCountLabel(0, "Not in Serving Area", "Z"));
 		

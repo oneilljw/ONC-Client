@@ -104,40 +104,51 @@ public class ChildDB extends ONCDatabase
 		return response;
 	}
 	
-	void processDeletedChild(Object source, String json)
+	ONCChild processDeletedChild(Object source, String json)
 	{
 		ChildWishDB cwDB = ChildWishDB.getInstance();
 		PartnerDB partnerDB = PartnerDB.getInstance();
 		
 		Gson gson = new Gson();
-		ONCChild deletedChild = gson.fromJson(json, ONCChild.class);
-				
-		//remove child from local partner and child wish databases and remove the child from this data base
-		partnerDB.deleteChildWishAssignments(deletedChild);
 		
-		ArrayList<WishBaseChange> wishbasechanges = cwDB.deleteChildWishes(deletedChild);
+		ONCChild deletedChild =  removeChild(source, gson.fromJson(json, ONCChild.class).getID());
 		
-		int index = 0;
-		while(index < childAL.size() && childAL.get(index).getID() != deletedChild.getID())
-			index++;
-		
-		if(index < childAL.size())
+		//If the child had gifts, delete them from the child wish and partner assignment databases
+		if(deletedChild.hasGifts())
 		{
-			childAL.remove(index);
-			
+			partnerDB.deleteChildWishAssignments(deletedChild);
+			ArrayList<WishBaseChange> wishbasechanges = cwDB.deleteChildWishes(deletedChild);
+		
 			for(WishBaseChange change: wishbasechanges)
 				//deleted wish - need to tell wish catalog dialog to adjust wish counts
 				fireDataChanged(source, "WISH_BASE_CHANGED", change.getReplacedWish(), change.getAddedWish());
-			
-			FamilyDB fDB = FamilyDB.getInstance();
-			int[] countsChange = fDB.getServedFamilyAndChildCount();
-			DataChange servedCountsChange = new DataChange(countsChange[0], countsChange[1]);
-			fireDataChanged(source, "UPDATED_SERVED_COUNTS", servedCountsChange);
-						
-			fireDataChanged(source, "DELETED_CHILD", deletedChild);
 		}
-		else
-			System.out.println("Child DB: Child removal failed, childID not found");
+		
+		FamilyDB fDB = FamilyDB.getInstance();
+		int[] countsChange = fDB.getServedFamilyAndChildCount();
+		DataChange servedCountsChange = new DataChange(countsChange[0], countsChange[1]);
+		fireDataChanged(source, "UPDATED_SERVED_COUNTS", servedCountsChange);
+					
+		fireDataChanged(source, "DELETED_CHILD", deletedChild);
+		
+		return deletedChild;
+	}
+	
+	ONCChild removeChild(Object source, int deletedChildID)
+	{
+		ONCChild deletedChild = null;
+		
+		int index = 0;
+		while(index < childAL.size() && childAL.get(index).getID() != deletedChildID)
+			index++;
+		
+		if(index < childAL.size())	//found the deleted child
+		{
+			deletedChild = childAL.get(index);
+			childAL.remove(index);
+		}
+		
+		return deletedChild;
 	}
 	
 	/***************************************************************
@@ -274,7 +285,7 @@ public class ChildDB extends ONCDatabase
 	{
 		ONCChild c = getChild(childid);
 		if(c != null)
-			c.setChildWishID(newWishID, wishnumber);	
+			c.setChildGiftID(newWishID, wishnumber);	
 	}
 	
 	void searchForLastName(String s, List<Integer> rAL)

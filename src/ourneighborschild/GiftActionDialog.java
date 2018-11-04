@@ -187,7 +187,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 					{
 						for(int i=0; i< cwDB.getNumberOfWishesPerChild(); i++)
 						{	
-							ONCChildWish cw = cwDB.getWish(c.getChildWishID(i));
+							ONCChildWish cw = cwDB.getWish(c.getChildGiftID(i));
 							
 							//Status matches and wish was assigned (Wish indicator is not *)
 							if(cw != null && doesChildWishStatusMatch(cw))

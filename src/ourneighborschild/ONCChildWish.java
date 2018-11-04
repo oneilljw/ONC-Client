@@ -67,9 +67,9 @@ public class ONCChildWish extends ONCObject implements Serializable
 	public Calendar getChildWishDateChanged() {return dateChanged;}
 
 	public void setWishID(int id) { wishID = id; }
-	void setChildWishDetail(String cwd) { childWishDetail = cwd; }
+	public void setChildWishDetail(String cwd) { childWishDetail = cwd; }
 	void setChildWishIndicator(int cwi) { childWishIndicator = cwi; }
-	void setChildWishStatus(WishStatus cws) { childWishStatus = cws;}
+	public void setChildWishStatus(WishStatus cws) { childWishStatus = cws;}
 	void setChildWishAssigneeID(int id) {childWishAssigneeID = id;}
 	void setChildWishChangedBy(String name) {changedBy = name;}
 	void setChildWishDateChanged(Calendar dc) {dateChanged = dc;}

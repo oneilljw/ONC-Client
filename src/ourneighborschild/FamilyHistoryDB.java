@@ -75,6 +75,36 @@ public class FamilyHistoryDB extends ONCDatabase
 		return addedObject;
 	}
 	
+	ONCFamilyHistory processDeletedFamilyHistory(Object source, String json)
+	{
+		//remove the family history item from this local data base
+		Gson gson = new Gson();
+		ONCFamilyHistory deletedFH = removeDeletedHistory(source, gson.fromJson(json, ONCFamilyHistory.class).getID());
+		
+		if(deletedFH != null)
+			fireDataChanged(source, "DELETED_FAMILY_HISTORY", deletedFH);
+		
+		return deletedFH;
+	}
+	
+	ONCFamilyHistory removeDeletedHistory(Object source, int famHistID)
+	{
+		//remove the meal from this data base
+		ONCFamilyHistory deletedFH = null;
+		
+		int index = 0;
+		while(index < fhList.size() && fhList.get(index).getID() != famHistID)
+				index++;
+				
+		if(index < fhList.size())
+		{
+			deletedFH = fhList.get(index);
+			fhList.remove(index);
+		}
+		
+		return deletedFH;
+	}
+	
 	ONCFamilyHistory getFamilyHistory(int id)
 	{
 		int index = 0;

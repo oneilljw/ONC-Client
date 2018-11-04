@@ -261,7 +261,9 @@ public class RegionDB extends ONCDatabase
 */
 	String getSchoolName(String schoolCode)
 	{
-		if(schoolCode.equals("Y"))
+		if(schoolCode.equals("X"))
+			return "Wish Anticipation";
+		else if(schoolCode.equals("Y"))
 			return "Not in Pyramid";
 		else if(schoolCode.equals("Z"))
 			return "Not in Area";

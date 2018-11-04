@@ -151,23 +151,32 @@ public class AdultDB extends ONCDatabase
 	
 	ONCAdult processDeletedAdult(Object source, String json)
 	{
-		Gson gson = new Gson();
-		ONCAdult deletedAdult = gson.fromJson(json, ONCAdult.class);
-				
 		//remove the adult from this local data base
-		int index = 0;
-		while(index < adultList.size() && adultList.get(index).getID() != deletedAdult.getID())
-			index++;
+		Gson gson = new Gson();
+		ONCAdult deletedAdult = removeAdult(source, gson.fromJson(json, ONCAdult.class).getID());
 		
+		if(deletedAdult != null)
+			fireDataChanged(source, "DELETED_ADULT", deletedAdult);
+		
+		return deletedAdult;
+	}
+	
+	ONCAdult removeAdult(Object source, int adultID)
+	{
+		//remove the meal from this data base
+		ONCAdult deletedAdult = null;
+		
+		int index = 0;
+		while(index < adultList.size() && adultList.get(index).getID() != adultID)
+				index++;
+				
 		if(index < adultList.size())
 		{
-			adultList.remove(index);
-			fireDataChanged(source, "DELETED_ADULT", deletedAdult);
-			return deletedAdult;
+			deletedAdult = adultList.get(index);
+			adultList.remove(index);	
 		}
-		else
-			
-			return null;
+		
+		return deletedAdult;
 	}
 	
 	int getNumberOfOtherAdultsInFamily(int familyID)

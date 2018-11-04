@@ -300,7 +300,7 @@ public class ServerIF
     {
     		String[] restrictedResponses = {"UPDATED_GLOBALS",
     						  "USER_ONLINE", "USER_OFFLINE",
-    						  "ADDED_FAMILY", "UPDATED_FAMILY",
+    						  "ADDED_FAMILY", "UPDATED_FAMILY", "DELETED_FAMILY",
     						  "ADDED_MEAL","UPDATED_MEAL", "DELETED_MEAL",
     						  "ADDED_AGENT","UPDATED_AGENT", "DELETED_AGENT",
     						  "ADDED_GROUP","UPDATED_GROUP", "DELETED_GROUP",

@@ -612,7 +612,7 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 			
 			//check to see if there are children in the family, is so, display first child
 			if(childList != null && !childList.isEmpty() &&
-					childList.get(0).getChildWishID(wishNumber) > -1)
+					childList.get(0).getChildGiftID(wishNumber) > -1)
 			{
 				ONCChildWish cw = cwDB.getWish(childList.get(0).getID(), wishNumber);
 				if(cw != null)
@@ -639,8 +639,8 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 			
 			checkForUpdateToWishDetail();
 			
-			if(selChild.getChildWishID(wishNumber) > -1)
-				displayWish(cwDB.getWish(selChild.getChildWishID(wishNumber)), selChild);
+			if(selChild.getChildGiftID(wishNumber) > -1)
+				displayWish(cwDB.getWish(selChild.getChildGiftID(wishNumber)), selChild);
 			else
 			{
 				child = selChild;

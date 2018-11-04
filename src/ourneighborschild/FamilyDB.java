@@ -884,7 +884,7 @@ public class FamilyDB extends ONCSearchableDatabase
 		for(ONCChild c: childDB.getChildren(f.getID()))	
 			for(int wn=0; wn<NUMBER_OF_WISHES_PER_CHILD; wn++)
 			{
-				int childwishID = c.getChildWishID(wn);
+				int childwishID = c.getChildGiftID(wn);
 				if(childwishID > -1 && childwishDB.getWish(childwishID).getWishID() == cat.getWishID("Bike"))
 					nBikes++;
 			}
@@ -917,7 +917,7 @@ public class FamilyDB extends ONCSearchableDatabase
 				{
 					for(int wn=0; wn < NUMBER_OF_WISHES_PER_CHILD; wn++)	//get each of their wishes
 					{
-						ONCChildWish cw = childwishDB.getWish(c.getChildWishID(wn));
+						ONCChildWish cw = childwishDB.getWish(c.getChildGiftID(wn));
 						
 						//cw is null if child doesn't have this wish yet
 						if(cw != null && cw.getChildWishStatus().compareTo(WishStatus.Selected) >= 0)

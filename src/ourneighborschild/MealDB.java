@@ -159,21 +159,32 @@ public class MealDB extends ONCDatabase
 	
 	void processDeletedMeal(Object source, String json)
 	{
-		Gson gson = new Gson();
-		ONCMeal deletedMeal = gson.fromJson(json, ONCMeal.class);
-				
 		//remove the meal from this data base
-		int index = 0;
-		while(index < mealList.size() && mealList.get(index).getID() != deletedMeal.getID())
-			index++;
+		Gson gson = new Gson();
+		ONCMeal deletedMeal = removeMeal(source, gson.fromJson(json, ONCMeal.class).getID());
 		
-		if(index < mealList.size())
-		{
-			mealList.remove(index);
+		if(deletedMeal != null)
 			fireDataChanged(source, "DELETED_MEAL", deletedMeal);
-		}
 		else
 			System.out.println("Meal DB: Meal deletion failed, mealID not found");
+	}
+	
+	ONCMeal removeMeal(Object source, int mealID)
+	{
+		//remove the meal from this data base
+		ONCMeal deletedMeal = null;
+		
+		int index = 0;
+		while(index < mealList.size() && mealList.get(index).getID() != mealID)
+				index++;
+				
+		if(index < mealList.size())
+		{
+			deletedMeal = mealList.get(index);
+			mealList.remove(index);
+		}
+		
+		return deletedMeal;
 	}
 	
 	String importDB()

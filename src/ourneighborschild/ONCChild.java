@@ -29,9 +29,9 @@ public class ONCChild extends ONCObject implements Serializable
 	private String		sChildAge;
 	private int 		nChildAge = -1;	//-1: Unknown, else age in years is valid from 0 (DOB) and older
 	private long		childDOB;	//GMT time in milliseconds 
-	private int			childWish1ID;
-	private int			childWish2ID;
-	private int			childWish3ID;
+	private int			childGift1ID;
+	private int			childGift2ID;
+	private int			childGift3ID;
 	private int			pyChildID;
 		
 	//Constructor for a new child created by the user
@@ -46,10 +46,10 @@ public class ONCChild extends ONCObject implements Serializable
 		sChildAge = calculateAge(currYear);
 		childLastName = ln;
 		childSchool = school;
-    	childWish1ID = -1;	//Set the wish id's to "no wish selected"
-    	childWish2ID = -1;
-    	childWish3ID = -1;
-    	pyChildID = -1;
+    		childGift1ID = -1;	//Set the wish id's to "no wish selected"
+    		childGift2ID = -1;
+    		childGift3ID = -1;
+    		pyChildID = -1;
 	}
 	
 	//Constructor used to make a copy
@@ -65,10 +65,10 @@ public class ONCChild extends ONCObject implements Serializable
 		sChildAge = c.sChildAge;
 		nChildAge = c.nChildAge;
 		childSchool = c.childSchool;
-		childWish1ID = c.childWish1ID;	//Set the wish id's to "no wish selected"
-    	childWish2ID = c.childWish2ID;
-    	childWish3ID = c.childWish3ID;
-    	pyChildID = c.pyChildID;
+		childGift1ID = c.childGift1ID;	//Set the wish id's to "no wish selected"
+		childGift2ID = c.childGift2ID;
+		childGift3ID = c.childGift3ID;
+		pyChildID = c.pyChildID;
     	
 //    	SimpleDateFormat sdf = new SimpleDateFormat("M/dd/yy");
 //    	sChildDOB = sdf.format(childDOB.getTime());
@@ -100,10 +100,10 @@ public class ONCChild extends ONCObject implements Serializable
 
 		sChildAge = calculateAge(currYear);
 		childSchool = nextLine[7].isEmpty() ? "" : nextLine[7];
-		childWish1ID = Integer.parseInt(nextLine[8]);	//Set the wish id's to "no wish selected"
-    	childWish2ID = Integer.parseInt(nextLine[9]);
-    	childWish3ID = Integer.parseInt(nextLine[10]);
-    	pyChildID = Integer.parseInt(nextLine[11]);
+		childGift1ID = Integer.parseInt(nextLine[8]);	//Set the wish id's to "no wish selected"
+    		childGift2ID = Integer.parseInt(nextLine[9]);
+    		childGift3ID = Integer.parseInt(nextLine[10]);
+    		pyChildID = Integer.parseInt(nextLine[11]);
     	
 //    	SimpleDateFormat sdf = new SimpleDateFormat("M/dd/yy");
 //    	sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
@@ -119,40 +119,39 @@ public class ONCChild extends ONCObject implements Serializable
 		
 		String[] childdata = c.split(ODB_FAMILY_MEMBER_COLUMN_SEPARATOR, 3);
 		
-    	if(c.length() > 0 && childdata.length == 3)
-    	{  		   		
-    		String allnames = childdata[0].trim();
-    		String[] names = allnames.split(" ", 2);
-    		childFirstName = names[0].trim();
-    		childLastName = names[1].trim();
+		if(c.length() > 0 && childdata.length == 3)
+		{  		   		
+    			String allnames = childdata[0].trim();
+    			String[] names = allnames.split(" ", 2);
+    			childFirstName = names[0].trim();
+    			childLastName = names[1].trim();
     		
-    		String childgender = childdata[1].trim();
-    		if(childgender.contains("Male"))
-    			childGender = "Boy";
-    		else if(childgender.contains("Female") || c.contains("female"))
-    			childGender = "Girl";
-    		else
-    			childGender = "Unknown";
+    			String childgender = childdata[1].trim();
+    			if(childgender.contains("Male"))
+    				childGender = "Boy";
+    			else if(childgender.contains("Female") || c.contains("female"))
+    				childGender = "Girl";
+    			else
+    				childGender = "Unknown";
     	   		
 //    		sChildDOB = childdata[2].trim();
        		sChildAge = calculateChildsAgeAndCalendarDOB(childdata[2].trim(), currYear);
-    	}
-    		
-    	else
-    	{
-    		childFirstName = "MISSING";
-    		childLastName = "MISSING";
-    		childGender = "Unknown";
+		}
+		else
+		{
+    			childFirstName = "MISSING";
+    			childLastName = "MISSING";
+    			childGender = "Unknown";
 //    		sChildDOB = "Unknown";
-    		sChildAge = "Unknown";
-    	}
+    			sChildAge = "Unknown";
+		}
     	
-    	childSchool = "";
+		childSchool = "";
     	
-    	childWish1ID = -1;	//Set the wish id's to "no wish selected"
-    	childWish2ID = -1;
-    	childWish3ID = -1;
-    	pyChildID = -1;
+    		childGift1ID = -1;	//Set the wish id's to "no wish selected"
+    		childGift2ID = -1;
+    		childGift3ID = -1;
+    		pyChildID = -1;
 	}
 	
 	//Getters
@@ -168,6 +167,8 @@ public class ONCChild extends ONCObject implements Serializable
 	public Long getChildDateOfBirth() { return childDOB; }
 	
 	public void setChildDateOfBirth(long dob) { childDOB = dob; }
+	
+	boolean hasGifts() { return childGift1ID > -1 || childGift2ID > -1 || childGift3ID > -1; }
 	
 	/**********************************************************************************************
 	 * return a GMT based Calendar for DOB
@@ -196,29 +197,29 @@ public class ONCChild extends ONCObject implements Serializable
     	return sdf.format(gmtDOB.getTime());
 	}
 
-	public int getChildWishID(int wn)
+	public int getChildGiftID(int wn)
 	{
-		int wishid = -1;
+		int giftID = -1;
 		
 		if(wn==0)
-			wishid = childWish1ID;
+			giftID = childGift1ID;
 		else if(wn==1)
-			wishid = childWish2ID;
+			giftID = childGift2ID;
 		else if(wn==2)
-			wishid = childWish3ID;
+			giftID = childGift3ID;
 		
-		return wishid;
+		return giftID;
 	}
 	
 	//Setters
-	public void setChildWishID(int wishid, int wn)
+	public void setChildGiftID(int giftID, int wn)
 	{
 		if(wn == 0)
-			childWish1ID = wishid;
+			childGift1ID = giftID;
 		else if(wn == 1)
-			childWish2ID = wishid;
+			childGift2ID = giftID;
 		else if(wn == 2)
-			childWish3ID = wishid;
+			childGift3ID = giftID;
 	}
 	
 	public void setPriorYearChildID(int pyid) { pyChildID = pyid; }
@@ -366,8 +367,8 @@ public class ONCChild extends ONCObject implements Serializable
 	{
 		String[] row= {Long.toString(id), Integer.toString(famid), Integer.toString(childNumber), 
 						childFirstName, childLastName, childGender, Long.toString(childDOB), childSchool, 
-						Long.toString(childWish1ID), Long.toString(childWish2ID),
-						Long.toString(childWish3ID), Long.toString(pyChildID)};
+						Long.toString(childGift1ID), Long.toString(childGift2ID),
+						Long.toString(childGift3ID), Long.toString(pyChildID)};
 						
 		return row;
 	}

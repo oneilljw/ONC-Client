@@ -76,7 +76,7 @@ public class ONCPartner extends ONCEntity
 		pyReceivedAfterDeadline = 0;
 	}
 	
-	ONCPartner(int orgid, String name, String createdBy)
+	public ONCPartner(int orgid, String name, String createdBy)
 	{
 		//constructor used when adding creating a non-assigned organization for wish filter and 
 		//selection lists

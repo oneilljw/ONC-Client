@@ -403,7 +403,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 					{
 						for(int i=0; i< cwDB.getNumberOfWishesPerChild(); i++)
 						{	 //Assignee, Status, Date & Wish match
-							ONCChildWish cw = cwDB.getWish(c.getChildWishID(i));
+							ONCChildWish cw = cwDB.getWish(c.getChildGiftID(i));
 							
 							if(cw != null && doesResMatch(cw.getChildWishIndicator()) &&
 								doesAssigneeMatch(cw.getChildWishAssigneeID()) &&
