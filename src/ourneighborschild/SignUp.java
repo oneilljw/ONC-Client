@@ -90,7 +90,7 @@ public class SignUp
 	
 	public String[] getExportRow()
 	{
-		String[] row = new String[5];
+		String[] row = new String[6];
 		row[0] = Long.toString(lastImportTime);
 		row[1] = Integer.toString(signupid);
 		row[2] = title;
