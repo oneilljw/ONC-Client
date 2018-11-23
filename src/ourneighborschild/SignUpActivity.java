@@ -61,4 +61,22 @@ public class SignUpActivity
 	
 	//setters
 	public void setEnddate(long enddate) { this.enddate = enddate; }
+	
+	public String[] getExportRow()
+	{
+		String[] row = new String[11];
+		row[0] = firstname;
+		row[1] = lastname;
+		row[2] = email;
+		row[3] = phone;
+		row[4] = phonetype;
+		row[5] = address1;
+		row[6] = address2;
+		row[7] = zipcode;
+		row[8] = Integer.toString(myqty);
+		row[9] = item;
+		row[10] = comment;
+		
+		return row;
+	}
 }

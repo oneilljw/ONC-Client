@@ -55,9 +55,10 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 	private static final int PREFERRED_NUMBER_OF_TABLE_ROWS = 10;
 	
 	private static final int TITLE_COL = 0;
-	private static final int LAST_IMPORT_COL = 1;
-	private static final int EXPIRES_COL = 2;
-	private static final int FREQ_COL = 3;
+	private static final int TYPE_COL = 1;
+	private static final int LAST_IMPORT_COL = 2;
+	private static final int EXPIRES_COL = 3;
+	private static final int FREQ_COL = 4;
 	
 	private GlobalVariablesDB gvDB;
 	private UserDB userDB;
@@ -332,7 +333,8 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		signUpTM = new SignUpTableModel();
 				
 		//set up the member table
-		String[] signUpTblTT = {"Name of SignUp", "Time volunteers last imported from SignUp Genius",
+		String[] signUpTblTT = {"Name of SignUp", "Type of SignUp, i.e., Volunteer, Clothing...",
+								"Time volunteers last imported from SignUp Genius",
 								"Deadline for volunteers to sign up", 
 								"Frequency of automatica import from SignUp Genius"};
 		
@@ -340,6 +342,9 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 
 //		signUpTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		signUpTbl.setRowSelectionAllowed(false);
+		
+		TableColumn typeColumn = signUpTbl.getColumnModel().getColumn(TYPE_COL);
+		typeColumn.setCellEditor(new DefaultCellEditor(new JComboBox<SignUpType>(SignUpType.values())));
 		
 		TableColumn permColumn = signUpTbl.getColumnModel().getColumn(FREQ_COL);
 		permColumn.setCellEditor(new DefaultCellEditor(new JComboBox<Frequency>(Frequency.getGeniusImportFrequencies())));
@@ -365,7 +370,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 				
 		//Set table column widths
 		int tablewidth = 0;
-		int[] colWidths = {256, 88, 88, 64};
+		int[] colWidths = {256, 80, 88, 88, 64};
 		for(int col=0; col < colWidths.length; col++)
 		{
 			signUpTbl.getColumnModel().getColumn(col).setPreferredWidth(colWidths[col]);
@@ -423,7 +428,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
         this.getContentPane().add(tabbedPane);
                
         this.pack();
-//      this.setMinimumSize(new Dimension(560, 160));
+        this.setMinimumSize(new Dimension(720, 160));
         btnApplyDateChanges.requestFocusInWindow();
 	}
 	
@@ -823,7 +828,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		*/
 		private static final long serialVersionUID = 1L;
 			
-		public String[] columnNames = {"List of SignUps From SignUpGenius", "Last Import", "Expires", "Import Freq."};
+		public String[] columnNames = {"List of SignUps From SignUpGenius", "Type", "Last Import", "Expires", "Import Freq."};
 			
 		@Override
 		public String getColumnName(int col) { return columnNames[col]; }
@@ -840,6 +845,8 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 			SignUp su = geniusSignUps.getSignUpList().get(row);
 			if(col == TITLE_COL)
 				return su.getTitle();
+			else if(col == TYPE_COL)
+				return su.getSignUpType();
 			else if(col == LAST_IMPORT_COL)
 				return su.getLastImportTime().getTime();
 			else if(col == EXPIRES_COL)
@@ -853,6 +860,8 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
         {
         		if(column == FREQ_COL)
         			return Frequency.class;
+        		else if(column == TYPE_COL)
+        			return SignUpType.class;
         		else if(column == LAST_IMPORT_COL || column == EXPIRES_COL)
         			return Date.class;
         		else
@@ -861,11 +870,23 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
  
         public boolean isCellEditable(int row, int col)
         {
-        		//frequency can change only if import is enabled and sign-up hasn't expired
-        		return geniusSignUps.isImportEnabled() && col == FREQ_COL
-        				&& System.currentTimeMillis() < geniusSignUps.getSignUpList().get(row).getEndtimeInMillis();
+        		SignUp su = geniusSignUps.getSignUpList().get(row);
+        		
+        		//frequency can't change unless import is enabled, the sign-up hasn't expired and the type is set to
+        		//either Volunteer or CLothing
+        		if(geniusSignUps.isImportEnabled() && col == FREQ_COL &&
+        			System.currentTimeMillis() < su.getEndtimeInMillis() &&
+        			 (su.getSignUpType() == SignUpType.Volunteer || su.getSignUpType() == SignUpType.Clothing ||
+        			  su.getSignUpType() == SignUpType.Coat))
+        			
+//        				&& (su.getSignUpType() == SignUpType.Volunteer || su.getSignUpType() == SignUpType.Clothing))
+        			return true;
+        		//type can only be set if the sign up has never been imported.
+        		else if(col == TYPE_COL && geniusSignUps.getSignUpList().get(row).getLastImportTimeInMillis() == 0)
+        			return true;
+        		else
+        			return false;
         }
-        
 
         public void setValueAt(Object value, int row, int col)
         { 
@@ -884,6 +905,28 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
         			{
         				//request succeeded
         				signUp.setFrequency(reqUpdateSU.getFrequency());
+        			}
+        			else
+        			{
+        				//request failed
+        				String err_mssg = "ONC Server denied update signup request, try again later";
+        				JOptionPane.showMessageDialog(GlobalVariablesDB.getFrame(), err_mssg, "Update SignUp Request Failure",
+													JOptionPane.ERROR_MESSAGE, GlobalVariablesDB.getONCLogo());
+        				displaySignUpData();	
+        			}
+        		}
+        		else if(col == TYPE_COL && signUp.getSignUpType() != ((SignUpType)value))
+        		{
+        			SignUp reqUpdateSU = new SignUp(signUp);	//make a copy of current signUp
+        			reqUpdateSU.setSignUpType((SignUpType) value);
+        		
+        			//if the user made a change in the table, attempt to update the signUp object in
+        			//the local user data base
+        			String response = activityDB.updateSignUp(this, reqUpdateSU);
+        			if(response != null && response.startsWith("UPDATED_SIGNUP"))
+        			{
+        				//request succeeded
+        				signUp.setSignUpType(reqUpdateSU.getSignUpType());
         			}
         			else
         			{

@@ -25,9 +25,9 @@ public class ONCPartner extends ONCEntity
 	private int orn_delivered;
 	private int orn_rec_before;
 	private int orn_rec_after;
-	private String other;
+	private String generalPartnerInfo;
 	private String deliverTo;
-	private String specialNotes;
+	private String cyNotes;
 	private String contact;
 	private String contact_email;
 	private String contact_phone;
@@ -60,9 +60,9 @@ public class ONCPartner extends ONCEntity
 		orn_delivered = 0;
 		orn_rec_before = 0;
 		orn_rec_after = 0;
-		other = "";
+		generalPartnerInfo = "";
 		deliverTo = "";
-		specialNotes = "";
+		cyNotes = "";
 		contact = "";
 		contact_email = "";
 		contact_phone = "";
@@ -97,9 +97,9 @@ public class ONCPartner extends ONCEntity
 		orn_delivered = 0;
 		orn_rec_before = 0;
 		orn_rec_after = 0;
-		other = "";
+		generalPartnerInfo = "";
 		deliverTo = "";
-		specialNotes = "";
+		cyNotes = "";
 		contact = "";
 		contact_email = "";
 		contact_phone = "";
@@ -131,21 +131,21 @@ public class ONCPartner extends ONCEntity
 		this.city = city;
 		this.zipCode = zipcode;
 		this.region = 0;
-		this.homePhone = phone;
+		this.homePhone = formatPhone(phone);
 		this.orn_req = orn_req;
 		this.orn_assigned = 0;
 		this.orn_delivered = 0;
 		this.orn_rec_before = 0;
 		this.orn_rec_after = 0;
-		this.other = other;
+		this.generalPartnerInfo = other;
 		this.deliverTo = deliverTo;
-		this.specialNotes = specialNotes;
+		this.cyNotes = specialNotes;
 		this.contact = contact;
 		this.contact_email = contact_email;
-		this.contact_phone = contact_phone;
+		this.contact_phone = formatPhone(contact_phone);
 		this.contact2 = contact2;
 		this.contact2_email = contact2_email;
-		this.contact2_phone = contact2_phone;
+		this.contact2_phone = formatPhone(contact2_phone);
 		this.pyRequested = 0;
 		this.pyAssigned = 0;
 		this.pyDelivered = 0;
@@ -174,9 +174,9 @@ public class ONCPartner extends ONCEntity
 		this.orn_delivered = o.orn_delivered;
 		this.orn_rec_before = o.orn_rec_before;
 		this.orn_rec_after = o.orn_rec_after;
-		this.other = o.other;
+		this.generalPartnerInfo = o.generalPartnerInfo;
 		this.deliverTo = o.deliverTo;
-		this.specialNotes = o.specialNotes;
+		this.cyNotes = o.cyNotes;
 		this.contact = o.contact;
 		this.contact_email = o.contact_email;
 		this.contact_phone = o.contact_phone;
@@ -211,9 +211,9 @@ public class ONCPartner extends ONCEntity
 		orn_delivered = nextLine[14].isEmpty() ? 0 : Integer.parseInt(nextLine[14]);
 		orn_rec_before = nextLine[15].isEmpty() ? 0 : Integer.parseInt(nextLine[15]);
 		orn_rec_after = nextLine[16].isEmpty() ? 0 : Integer.parseInt(nextLine[16]);
-		other = getDBString(nextLine[17]);
+		generalPartnerInfo = getDBString(nextLine[17]);
 		deliverTo = getDBString(nextLine[18]);
-		specialNotes = getDBString(nextLine[19]);
+		cyNotes = getDBString(nextLine[19]);
 		contact = getDBString(nextLine[20]);
 		contact_email = getDBString(nextLine[21]);
 		contact_phone = getDBString(nextLine[22]);
@@ -225,6 +225,71 @@ public class ONCPartner extends ONCEntity
 		pyDelivered = nextLine[33].isEmpty() ? 0 : Integer.parseInt(nextLine[33]);
 		pyReceivedBeforeDeadline = nextLine[34].isEmpty() ? 0 : Integer.parseInt(nextLine[34]);
 		pyReceivedAfterDeadline = nextLine[35].isEmpty() ? 0 : Integer.parseInt(nextLine[35]);
+	}
+	
+	/***
+	 * Constructor used when importing partners from sign-up genius direct import
+	 * @param line
+	 * @param changedBy
+	 * @param activityList
+	 */
+	public ONCPartner(SignUpActivity sua, SignUpType signUpType)
+	{	
+		super(-1, new Date(), "Lavin, K", STOPLIGHT_OFF, "Sign-Up Genius Partner", "Lavin, K");
+		this.status = 5;	//confirmed
+		
+		if(signUpType == SignUpType.Clothing)
+			this.type = 4;	//clothing
+		else if(signUpType == SignUpType.Coat)
+			this.type = 5;	//coat
+		else
+			this.type = 6; //ONC Shopper
+		
+		this.collection = GiftCollection.Ornament;
+		this.lastName = sua.getLastname() + ", " + sua.getFirstname();
+		
+		Address address = getAddress(sua);
+		this.houseNum = address.getFullStreetNum();
+		this.street = address.getFullStreetName();
+		this.unit = sua.getAddress2();
+		this.city = sua.getCity();
+		this.zipCode = sua.getZipcode();
+		this.region = 0;
+		this.homePhone = formatPhone(sua.getPhone());
+		this.orn_req = 0;
+		this.orn_assigned = 0;
+		this.orn_delivered = 0;
+		this.orn_rec_before = 0;
+		this.orn_rec_after = 0;
+		this.generalPartnerInfo =  "Phone type: " + sua.getPhonetype();
+		this.cyNotes = "Imported from SignUp Genius SignUp";
+		this.deliverTo = "WH";
+		this.contact = sua.getFirstname() + " " + sua.getLastname();
+		this.contact_email = sua.getEmail();
+		this.contact_phone = formatPhone(sua.getPhone());
+		this.contact2 = "";
+		this.contact2_email = "";
+		this.contact2_phone = "";
+		this.pyRequested = 0;
+		this.pyAssigned = 0;
+		this.pyDelivered = 0;
+		this.pyReceivedBeforeDeadline = 0;
+		this.pyReceivedAfterDeadline = 0;
+	}
+	
+	static String getPhone(String type, SignUpActivity sua)
+	{
+		if(type.equals("Mobile") && sua.getPhonetype().equals("Mobile"))
+			return sua.getPhone();
+		else if(type.equals("Home") && sua.getPhonetype().equals("Home"))
+			return sua.getPhone();
+		else
+			return "";
+	}
+	
+	static Address getAddress(SignUpActivity sua)
+	{
+		return new Address("", sua.getAddress1(), sua.getAddress2(), sua.getCity(), sua.getZipcode());
 	}
 	
 	String getDBString(String s)
@@ -249,10 +314,10 @@ public class ONCPartner extends ONCEntity
 	public int getNumberOfOrnamentsDelivered() { return orn_delivered; }
 	public int getNumberOfOrnamentsReceivedBeforeDeadline() { return orn_rec_before; }
 	public int getNumberOfOrnamentsReceivedAfterDeadline() { return orn_rec_after; }
-	public String getOther()	{ return other; }
+	public String getOther()	{ return generalPartnerInfo; }
 //	public String getConfirmed() { return confirmed;}
 	public String getDeliverTo() { return deliverTo; }
-	public String getSpecialNotes()	{ return specialNotes; }
+	public String getSpecialNotes()	{ return cyNotes; }
 	public String getContact()	{ return contact; }
 	public String getContact_email()	{ return contact_email; }
 	public String getContact_phone()	{ return contact_phone; }
@@ -282,9 +347,9 @@ public class ONCPartner extends ONCEntity
 	public void setNumberOfOrnamentsDelivered(int n)	{ orn_delivered = n; }
 	public void setNumberOfOrnamentsReceivedBeforeDeadline(int n)	{ orn_rec_before = n; }
 	public void setNumberOfOrnamentsReceivedAfterDeadline(int n)	{ orn_rec_after = n; }
-	public void setOther(String o)	{ other = o; }
+	public void setOther(String o)	{ generalPartnerInfo = o; }
 	public void setDeliverTo(String dt) { deliverTo = dt; }
-	public void setSpecialNotes(String sn)	{ specialNotes = sn; }
+	public void setSpecialNotes(String sn)	{ cyNotes = sn; }
 	public void setContact(String c)	{ contact = c; }
 	public void setContact_email(String e)	{ contact_email = e; }
 	public void setContact_phone(String p)	{ contact_phone = p; }
@@ -335,6 +400,34 @@ public class ONCPartner extends ONCEntity
 	public int incrementPYReceivedBeforeDeadline() { return ++pyReceivedBeforeDeadline; }
 	public int incrementPYReceivedAfterDeadline() { return ++pyReceivedAfterDeadline; }
 	
+	String formatPhone(String inputPhone)
+	{
+		//make sure inputPhone isn't null
+		if(inputPhone != null)
+		{
+			//get rid of all non numeric characters and test to see if it has 10 digits as required
+			String numericString = inputPhone.replaceAll("\\D", "");
+			if(numericString.length() == 10)
+				return numericString.replaceFirst("(\\d{3})(\\d{3})(\\d+)", "$1-$2-$3");
+			else
+				return inputPhone;
+		}
+		else
+			return "";
+	}
+	
+	//used to determine if two partner object substantially match.
+	boolean doPartnersMatch(ONCPartner mp)
+	{
+		return this.id == mp.getID() && this.status == mp.getStatus() && this.type == mp.getType() &&
+				this.collection == mp.getGiftCollectionType() && this.lastName.equals(mp.getLastName()) && 
+				this.homePhone.equals(mp.getHomePhone()) && this.houseNum.equals(mp.getHouseNum()) &&
+				this.street.equals(mp.getStreet()) && this.unit.equals(mp.getUnit()) &&
+				this.city.equals(mp.getCity()) && this.zipCode.equals(mp.getZipCode()) &&
+				this.contact.equals(mp.getContact()) && this.contact_email.equals(mp.getContact_email()) &&
+				this.getContact_phone().equals(mp.getContact_phone());
+	}
+	
 	String[] getOrgInfoTableRow()
 	{
 		String[] sorttablerow = {lastName, homePhone,
@@ -352,7 +445,7 @@ public class ONCPartner extends ONCEntity
 						street, unit, city, zipCode, Integer.toString(region), homePhone,
 						Integer.toString(orn_req),Integer.toString(orn_assigned), Integer.toString(orn_delivered),
 						Integer.toString(orn_rec_before), Integer.toString(orn_rec_after), 
-						other, deliverTo, specialNotes, contact,
+						generalPartnerInfo, deliverTo, cyNotes, contact,
 						contact_email, contact_phone, contact2, contact2_email, contact2_phone, 
 						Long.toString(dateChanged.getTimeInMillis()), changedBy, Integer.toString(slPos),
 						slMssg, slChangedBy, Integer.toString(pyRequested), Integer.toString(pyAssigned),

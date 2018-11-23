@@ -12,6 +12,7 @@ public class SignUp
 {
 	private long lastImportTime;
 	private Frequency frequency;
+	private SignUpType signUpType;
 //	private String contactname;
 //	private long enddate;
 //	private String enddatestring;
@@ -35,6 +36,7 @@ public class SignUp
 		this.title = nextLine[2];
 		this.endtime = nextLine[3].isEmpty() ? 0 : Long.parseLong(nextLine[3]);
 		this.frequency = nextLine[4].isEmpty() ? Frequency.NEVER : Frequency.valueOf(nextLine[4]);
+		this.signUpType = nextLine[5].isEmpty() ? SignUpType.Unknown : SignUpType.valueOf(nextLine[5]);
 	}
 	
 	public SignUp(SignUp su)
@@ -44,6 +46,7 @@ public class SignUp
 		this.title = su.title;
 		this.endtime = su.endtime;
 		this.frequency = su.frequency;
+		this.signUpType = su.signUpType;
 	}
 	
 	//getters
@@ -77,11 +80,13 @@ public class SignUp
 	public long getLastImportTimeInMillis() { return lastImportTime; }
 	public long getInterval() { return frequency.interval(); }
 	public Frequency getFrequency() { return frequency; }
+	public SignUpType getSignUpType() { return signUpType; }
 	
 	//setters
 	public void setLastImportTimeInMillis(long time) { this.lastImportTime = time; }
 	public void setFrequency(Frequency frequency) { this.frequency = frequency; }
 	public void setEndtime(long time) { this.endtime = time; }
+	public void setSignUpType(SignUpType type) { this.signUpType = type; }
 	
 	public String[] getExportRow()
 	{
@@ -91,6 +96,7 @@ public class SignUp
 		row[2] = title;
 		row[3] = Long.toString(endtime);
 		row[4] = frequency.name();
+		row[5] = signUpType.toString();
 		
 		return row;
 	}
