@@ -69,14 +69,14 @@ public class AveryWishLabelPrinter implements Printable
 	    
 	    if(line[3] == null)	//Only a 3 line label
 	    {
-	    	g2d.setFont(lFont[2]);
-	    	drawCenteredString(line[2], 120, x+50, y+35, g2d, Color.BLACK);	//Draw line 3
+	    		g2d.setFont(lFont[2]);
+	    		drawCenteredString(line[2], 120, x+50, y+35, g2d, Color.BLACK);	//Draw line 3
 	    }
 	    else	//A 4 line label
 	    {	    	
-	    	drawCenteredString(line[2], 120, x+50, y+35, g2d, Color.BLACK);	//Draw line 3	    	
-	    	g2d.setFont(lFont[2]);
-	    	drawCenteredString(line[3], 120, x+50, y+50, g2d, Color.BLACK);	//Draw line 4
+	    		drawCenteredString(line[2], 120, x+50, y+35, g2d, Color.BLACK);	//Draw line 3	    	
+	    		g2d.setFont(lFont[2]);
+	    		drawCenteredString(line[3], 120, x+50, y+50, g2d, Color.BLACK);	//Draw line 4
 	    }
 	}
 	
@@ -177,19 +177,19 @@ public class AveryWishLabelPrinter implements Printable
 	    int row = 0, col = 0;
 	    if(totalNumOfLabelsToPrint == 1)
 	    {
-	    	row = position.y;
-	    	col = position.x;
+	    		row = position.y;
+	    		col = position.x;
 	    }
 	    
 	    while(row < AVERY_LABELS_PER_PAGE/AVERY_COLUMNS_PER_PAGE && index < endOfSelection)
 	    {
-	    	line = stAL.get(row_sel[index++]).getWishLabel();
-	    	drawLabel(col * AVERY_LABEL_WIDTH, row * AVERY_LABEL_HEIGHT, line, lFont, img, g2d);	
-	    	if(++col == AVERY_COLUMNS_PER_PAGE)
-	    	{ 
-	    		row++; 
-	    		col = 0;
-	    	} 	
+	    		line = stAL.get(row_sel[index++]).getWishLabel();
+	    		drawLabel(col * AVERY_LABEL_WIDTH, row * AVERY_LABEL_HEIGHT, line, lFont, img, g2d);	
+	    		if(++col == AVERY_COLUMNS_PER_PAGE)
+	    		{ 
+	    			row++; 
+	    			col = 0;
+	    		} 	
 	    }
 	    	    
 	     /* tell the caller that this page is part of the printed document */

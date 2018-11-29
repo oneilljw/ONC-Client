@@ -57,7 +57,7 @@ public abstract class BarcodeTableDialog extends ONCEntityTableDialog implements
 		JLabel lblONCIcon = new JLabel(gvs.getImageIcon(0));
 		
 		barcodeTF = new JTextField(9);
-    	barcodeTF.setMaximumSize(new Dimension(136,56));
+		barcodeTF.setMaximumSize(new Dimension(136,56));
 		barcodeTF.setBorder(BorderFactory.createTitledBorder("Barcode"));
 		barcodeTF.setToolTipText("Scan barcode or type barcode # and press <enter>");
 		barcodeTF.addActionListener(this);

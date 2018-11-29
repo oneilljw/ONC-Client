@@ -22,7 +22,7 @@ public class WishLabelViewer extends JDialog implements DatabaseListener
 	private ChildDB childDB;
 	private ChildWishDB childWishDB;
 	
-	private JPanel labelPanel;
+	private WishLabelPanel labelPanel;
 	
 	private final Image img;
 	

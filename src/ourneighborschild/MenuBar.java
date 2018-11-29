@@ -38,7 +38,7 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 	private JMenuItem delChildMI, markAdultMI, connectChildMI, famHistMI;
 	private JMenu submenuImport, submenuFamilyDataChecks, submenuExport, submenuChangeFamilyNumbers;
 	private JMenu submenuDBYearList, submenuUsers;
-	private JMenuItem viewDBMI, sortWishesMI, sortFamiliesMI, sortOrgsMI, recGiftsMI, sortMealsMI;
+	private JMenuItem viewDBMI, sortWishesMI, sortFamiliesMI, sortOrgsMI, recGiftsMI, sortMealsMI, batteryMI;
 	private JMenuItem agentMI, groupMI, manageGroupsMI, orgMI, catMI, barcodeWishHistoryMI, inventoryMI;
 	private JMenuItem aboutONCMI, oncPrefrencesMI, profileMI, editUsersMI, manageUsersMI, onlineMI, chatMI, changePWMI, stopPollingMI;
 	private JMenuItem showServerLogMI, showServerClientIDMI, showCurrDirMI, showWebsiteStatusMI;
@@ -285,6 +285,12 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 	    barcodeWishHistoryMI.addActionListener(this);
 	    menuWishes.add(barcodeWishHistoryMI);
 	    
+	    batteryMI = new JMenuItem("Gift Batteries");
+	    batteryMI.setActionCommand("Gift Batteries");
+	    batteryMI.setEnabled(false);
+	    batteryMI.addActionListener(this);
+	    menuWishes.add(batteryMI);
+	    
 	    menuWishes.addSeparator();
 	    
 	    inventoryMI = new JMenuItem("Gift Inventory");
@@ -522,6 +528,7 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 		sortWishesMI.setEnabled(true);
 		recGiftsMI.setEnabled(true);
 		barcodeWishHistoryMI.setEnabled(true);
+		batteryMI.setEnabled(true);
 	}
 	
 	void setEnabledRestrictedMenuItems(boolean tf)	//Only Admins can perform these functions
@@ -709,6 +716,8 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 			dlgManager.showSortDialog(recGiftsMI.getActionCommand(), SORT_DIALOG_OFFSET);
 		else if(e.getSource() == barcodeWishHistoryMI)
 			dlgManager.showBarcodeWishHistoryDialog();
+		else if(e.getSource() == batteryMI)
+			dlgManager.showBatteryDialog();
 		else if(e.getSource() == inventoryMI)
 			dlgManager.showInventoryDialog();
 		else if(e.getSource() == catMI) {dlgManager.showWishCatalogDialog(); }

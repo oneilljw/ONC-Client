@@ -37,6 +37,7 @@ public class DialogManager implements EntitySelectionListener
 	private PYChildConnectionDialog pyConnectionDlg;
 	private AngelAutoCallDialog angelDlg;
 	private FamilyHistoryChangesDialog famHistChgDlg;
+	private BatteryDialog batteryDlg;
 		
 	//dialogs that inherit from HistoryDialog
 	private Map<String, HistoryDialog> historyDlgMap;
@@ -117,7 +118,6 @@ public class DialogManager implements EntitySelectionListener
         historyDlgMap.put("Meal History", mealDlg);
         eeManager.registerEntitySelectionListener(mealDlg);
         
-        
         //Set up adult dialog box 
         adultDlg = new AdultDialog(GlobalVariablesDB.getFrame());
         eeManager.registerEntitySelectionListener(adultDlg);
@@ -146,6 +146,10 @@ public class DialogManager implements EntitySelectionListener
     		//Set up the sign-in dialog
     		signInDlg = new WarehouseSignInDialog(GlobalVariablesDB.getFrame());
     		eeManager.registerEntitySelector(signInDlg);
+    		
+    		//Set up the battery dialog
+    		batteryDlg = new BatteryDialog(GlobalVariablesDB.getFrame());
+    		eeManager.registerEntitySelector(batteryDlg);
     	
     		//Set up the manage volunteer dialog
     		manageVolDlg = new ManageVolDialog(GlobalVariablesDB.getFrame());
@@ -343,6 +347,15 @@ public class DialogManager implements EntitySelectionListener
 		{
 	        manageVolDlg.setLocationRelativeTo(GlobalVariablesDB.getFrame());
 			manageVolDlg.setVisible(true);
+		}
+	}
+	
+	void showBatteryDialog()
+	{
+		if(!batteryDlg.isVisible())
+		{
+	        batteryDlg.setLocationRelativeTo(GlobalVariablesDB.getFrame());
+			batteryDlg.setVisible(true);
 		}
 	}
 	

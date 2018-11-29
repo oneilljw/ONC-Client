@@ -84,4 +84,9 @@ public abstract class ONCEntityTableDialog extends JDialog implements EntitySele
     				l.entitySelected(event);
     		}
     }
+    
+    boolean isNumeric(String str)
+    {
+      return str.matches("-?\\d+(\\.\\d+)?");  //match a number with optional '-' and decimal.
+    }
 }
