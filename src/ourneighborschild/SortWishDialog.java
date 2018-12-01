@@ -74,6 +74,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 	private JComboBox<ONCWish> wishCB;
 	private JComboBox<WishStatus>  statusCB, changeStatusCB;
 	private JComboBox<ONCPartner> assignCB, changeAssigneeCB;
+	private JComboBox<FamilyStatus> famStatusCB;
 	
 	private DefaultComboBoxModel<String> changedByCBM, regionCBM, schoolCBM;
 	private DefaultComboBoxModel<ONCWish> wishCBM;
@@ -88,6 +89,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 	private int sortStartAge = 0, sortEndAge = ONC_AGE_LIMIT, sortGender = 0, sortChangedBy = 0;
 	private int sortWishNum = 0, sortRes = 0, sortAssigneeID, sortRegion = 0;
 	private WishStatus sortStatus = WishStatus.Any;
+	private FamilyStatus sortFamilyStatus;
 	private String sortSchool = "Any", sortDNSCode = "Any";
 	private int sortWishID = -2;
 	private boolean bOversizeWishes = false;
@@ -175,6 +177,11 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		startAgeCB.setPreferredSize(new Dimension(72,56));
 		wishnumCB.addActionListener(this);
 		
+		famStatusCB = new JComboBox<FamilyStatus>(FamilyStatus.getSearchFilterList());
+		sortFamilyStatus = FamilyStatus.Any;
+		famStatusCB.setBorder(BorderFactory.createTitledBorder("Family Status"));
+		famStatusCB.addActionListener(this);
+		
 		schoolCBM = new DefaultComboBoxModel<String>();
 	    schoolCBM.addElement("Any");
 		schoolCB = new JComboBox<String>();		
@@ -248,6 +255,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		sortCriteriaPanelTop.add(regionCB);
 		sortCriteriaPanelTop.add(startAgeCB);
 		sortCriteriaPanelTop.add(endAgeCB);
+		sortCriteriaPanelTop.add(famStatusCB);
 		sortCriteriaPanelTop.add(genderCB);
 		sortCriteriaPanelTop.add(schoolCB);
 		sortCriteriaPanelTop.add(wishnumCB);
@@ -394,7 +402,7 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		int itemID = 0;
 		for(ONCFamily f:fDB.getList())
 		{
-			if(isNumeric(f.getONCNum()) && doesONCNumMatch(f.getONCNum()) &&
+			if(isNumeric(f.getONCNum()) && doesONCNumMatch(f.getONCNum()) && doesFamilyStatusMatch(f.getFamilyStatus()) &&
 				doesDNSCodeMatch(f.getDNSCode()) && doesRegionMatch(f.getRegion()))	//Must be a valid family	
 			{
 				for(ONCChild c:cDB.getChildren(f.getID()))
@@ -877,6 +885,11 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		return sortGender == 0 || (c.getChildGender().equalsIgnoreCase(genders[sortGender]));		
 	}
 	
+	private boolean doesFamilyStatusMatch(FamilyStatus fs)
+	{
+		return sortFamilyStatus == FamilyStatus.Any || fs == sortFamilyStatus;
+	}
+	
 	private boolean doesSchoolMatch(ONCChild c)
 	{
 		return sortSchool.equals("Any") || (c.getChildSchool().equalsIgnoreCase(sortSchool));		
@@ -1026,6 +1039,12 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 				sortSchool = (String) schoolCB.getSelectedItem();
 				buildTableList(false);
 			}
+		
+		}
+		else if(e.getSource() == famStatusCB && sortFamilyStatus != (FamilyStatus) famStatusCB.getSelectedItem())
+		{
+			sortFamilyStatus = (FamilyStatus) famStatusCB.getSelectedItem();
+			buildTableList(false);
 		}
 		else if(e.getSource() == wishnumCB && wishnumCB.getSelectedIndex() != sortWishNum)
 		{
@@ -1169,6 +1188,11 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 		schoolCB.setSelectedIndex(0);	//no need to test for a change here.
 		sortSchool = "Any";
 		schoolCB.addActionListener(this);
+		
+		famStatusCB.removeActionListener(this);
+		famStatusCB.setSelectedIndex(0);
+		sortFamilyStatus = FamilyStatus.Any;
+		famStatusCB.addActionListener(this);
 		
 		wishnumCB.removeActionListener(this);
 		wishnumCB.setSelectedIndex(0);

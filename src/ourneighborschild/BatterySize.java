@@ -2,19 +2,20 @@ package ourneighborschild;
 
 public enum BatterySize
 {
-	NONE("None", "0001000"),
-	AA("AA","0001001"),
-	AAA("AAA","0001002"),
-	AG13("AG13","0001003"),
-	FIVE_VOLT("5V","0001004"),
-	C("C","0001005"),
-	CR927("CR927","0001006"),
-	D("D","0001007"),
-	NINE_VOLT("9V","0001008"),
-	LI_POLY3_7V("3.7V LI-POLY", "0001009"),
-	LR03("LR03","0001010"),
-	LR41("LR41","0001011"),
-	LR44("LR44","0001012");
+	NONE("None", "0800000"),
+	AA("AA","0800001"),
+	AAA("AAA","0800002"),
+	AG13("AG13","0800003"),
+	FIVE_VOLT("5V","0800004"),
+	C("C","0800005"),
+	CR927("CR927","0800006"),
+	D("D","0800007"),
+	NINE_VOLT("9V","0800008"),
+	LI_POLY3_7V("3.7V LI-POLY", "0080009"),
+	LR03("LR03","0800010"),
+	LR41("LR41","0800011"),
+	LR44("LR44","0800012"),
+	Other("Other","0800000");;
 			
 	private final String text;
 	private final String code;

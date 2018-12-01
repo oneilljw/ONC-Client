@@ -58,8 +58,8 @@ public class BatteryBarcodeSheetPrinter implements Printable
 		//draw the bounding rectangle around the BarCode
 		g2d.drawRect(x, y, 80, 70);
 		
-		//draw the label text below the bounding rectangle
-		drawCenteredString(label, 80, x, y+96, g2d, Color.BLACK);
+		//draw the label text above the bounding rectangle
+		drawCenteredString(label, 80, x, y - 4, g2d, Color.BLACK);
 	}
 	
 	private void drawCenteredString(String s, int width, int XPos, int YPos, Graphics2D g2d, Color color)
@@ -82,9 +82,9 @@ public class BatteryBarcodeSheetPrinter implements Printable
 		
 		 Graphics2D g2d = (Graphics2D)g;
 		
-		//print the battery size barcodes
+		//print the battery size bar codes
 		int count = 0, x = 40, y = 40;
-		for(BatterySize bs : BatterySize.values())
+		for(BatterySize bs : BatterySize.searchList())
 		{
 			drawBarCode(bs.code(), bs.toString(), x, y, g2d);
 			if(++count % 4 == 0)

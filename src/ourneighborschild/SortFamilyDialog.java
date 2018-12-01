@@ -104,7 +104,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	private School sortSchool;
 
 	private static String[] giftCardFilter = {"Any", "True", "False"};
-	private static String[] dnsCodes = {"None", "Any", "All", "DUP", "FO", "NC", "NISA", "OPT-OUT", "SA", "SBO", "WA"};
+	private static String[] dnsCodes = {"None", "Any", "All", "DUP", "FO", "NC", "NISA", "OPT-OUT", "SA", "SBO", "WA", "WL"};
 	private static String[] exportChoices = {"Export", "Britepath Crosscheck", "Family Floor List", 
 											 "Delivery Instructions", "Toys for Tots Application",
 											 "Family Referral", "Agent/Children/School Report"};
@@ -247,7 +247,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		changeDNSCBM = new DefaultComboBoxModel<String>();
 	    changeDNSCBM.addElement(DEFAULT_NO_CHANGE_LIST_ITEM);
 	    for(int index=1; index < dnsCodes.length; index++)
-	    	changeDNSCBM.addElement(dnsCodes[index]);
+	    		changeDNSCBM.addElement(dnsCodes[index]);
 	    changeDNSCB.setModel(changeDNSCBM);
 		changeDNSCB.setPreferredSize(new Dimension(172, 56));
 		changeDNSCB.setBorder(BorderFactory.createTitledBorder("Change DNS Code"));
