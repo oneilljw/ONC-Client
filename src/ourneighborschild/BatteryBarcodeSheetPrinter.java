@@ -1,6 +1,7 @@
 package ourneighborschild;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -15,10 +16,13 @@ import org.krysalis.barcode4j.output.java2d.Java2DCanvasProvider;
 
 public class BatteryBarcodeSheetPrinter implements Printable
 {
-	private final String[] batteryQty = {"1", "2", "3","4","5", "6"};
+	private static final int NUMBER_BARCODES_LINE = 3;
+	private static final int BARCODE_INITIAL_X_POS = 60;
+	private static final int BARCODE_INITIAL_Y_POS = 70;
+	private static final int WIDTH_BETWEEN_BARCODES = 190;
+	private static final int HEIGHT_BETWEEN_BARCODES = 110;
+	private static final int HEIGHT_BETWEEN_SIZE_AND_QTY = 480;
 	
-	private final String[] batteryQtyCode = {"0002001", "0002002", "0002003", "0002004", "0002005", "0002006"};
-			
 	private GlobalVariablesDB gvs;
 	
 	//constructor used when drawing labels on a Swing component
@@ -41,13 +45,12 @@ public class BatteryBarcodeSheetPrinter implements Printable
 		
 		//create the canvass
 		Java2DCanvasProvider cc = new Java2DCanvasProvider(tempg2d, 0);
-//		tempg2d.translate(x + AVERY_LABEL_X_BARCODE_OFFSET, y + AVERY_LABEL_Y_BARCODE_OFFSET);
 		tempg2d.translate(x+2, y+4);
 		
 		tempg2d.setRenderingHint( RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
 //		tempg2d.scale(2.835, 2.835);	//scale from millimeters to points
 //		tempg2d.scale(2.4, 2.4);	//scale from millimeters to points
-		tempg2d.scale(3.2,3.2);	//scale from millimeters to points
+		tempg2d.scale(3.4,3.4);	//scale from millimeters to points
 
 		//set the bean content
 		bean.generateBarcode(cc, code);
@@ -56,7 +59,7 @@ public class BatteryBarcodeSheetPrinter implements Printable
 		tempg2d.dispose();
 		
 		//draw the bounding rectangle around the BarCode
-		g2d.drawRect(x, y, 80, 70);
+//		g2d.drawRect(x, y, 80, 70);
 		
 		//draw the label text above the bounding rectangle
 		drawCenteredString(label, 80, x, y - 4, g2d, Color.BLACK);
@@ -80,25 +83,43 @@ public class BatteryBarcodeSheetPrinter implements Printable
 			return NO_SUCH_PAGE;
 	    }
 		
-		 Graphics2D g2d = (Graphics2D)g;
+		Graphics2D g2d = (Graphics2D)g;
+		 
+		//draw the battery size title and bounding box
+		g2d.setFont(new Font("Calibri", Font.BOLD, 16));
+		drawCenteredString("Battery Size", 590, 0, 40, g2d, Color.BLACK);
+//		g2d.drawRect(30, 50, 530, 440);
 		
 		//print the battery size bar codes
-		int count = 0, x = 40, y = 40;
+		int count = 0, x =BARCODE_INITIAL_X_POS, y = BARCODE_INITIAL_Y_POS;
 		for(BatterySize bs : BatterySize.searchList())
 		{
 			drawBarCode(bs.code(), bs.toString(), x, y, g2d);
-			if(++count % 4 == 0)
+			if(++count % NUMBER_BARCODES_LINE == 0)
 			{
-				x=40;
-				y+=100;
+				x=BARCODE_INITIAL_X_POS;
+				y+=HEIGHT_BETWEEN_BARCODES;
 			}
 			else
+				x += WIDTH_BETWEEN_BARCODES;
+		}
+		
+		//draw the battery quantity title and bounding box
+		drawCenteredString("Battery Quantity", 590, 0, 520, g2d, Color.BLACK);
+//		g2d.drawRect(30, 528, 530, 216);
+		
+		//print the battery quantity bar codes
+		count = 0; x = BARCODE_INITIAL_X_POS; y = BARCODE_INITIAL_Y_POS + HEIGHT_BETWEEN_SIZE_AND_QTY;
+		for(BatteryQty bq : BatteryQty.printValues())
+		{
+			drawBarCode(bq.code(), bq.name(), x, y, g2d);
+			if(++count % NUMBER_BARCODES_LINE == 0)
 			{
-				x += 120;
+				x = BARCODE_INITIAL_X_POS;
+				y += HEIGHT_BETWEEN_BARCODES;
 			}
-			
-			System.out.println(String.format("BatteryBarcodePrinter: printing battery size %s at (%d,%d)",
-					bs.toString(), x, y));
+			else
+				x += WIDTH_BETWEEN_BARCODES;
 		}
 		  
 	     /* tell the caller that this page is part of the printed document */

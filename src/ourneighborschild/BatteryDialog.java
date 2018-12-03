@@ -9,9 +9,9 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.print.PrinterException;
-import java.awt.print.PrinterJob;
+import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -32,6 +32,7 @@ public class BatteryDialog extends ONCEntityTableDialog implements ActionListene
 	private static final long serialVersionUID = 1L;
 	
 	//database references
+	private BatteryDB batteryDB;
 	private FamilyDB familyDB;
 	private ChildDB childDB;
 	private ChildWishDB childWishDB;
@@ -39,7 +40,7 @@ public class BatteryDialog extends ONCEntityTableDialog implements ActionListene
 	private SortWishObject swo; //holds current family, child and gift info for gift getting batteries assigned
 	private ScanState scanState;	//holds current state of battery scanning process
 	
-	private BatterySize size1, size2;
+	private String size1, size2;
 	private Integer qty1, qty2;
 	
 	private final Image img;
@@ -47,18 +48,21 @@ public class BatteryDialog extends ONCEntityTableDialog implements ActionListene
 	private Color pBkColor; //Used to restore background for panels
 	
 	private JTextField barcodeTF;
-	private JButton btnSubmit, btnClear, btnPrint;
+	private JButton btnSubmit, btnClear;
 	private WishLabelPanel wishLabelPanel;
 	private JPanel barcodePanel;
 	private JPanel batteryPanel1, qtyPanel1, batteryPanel2, qtyPanel2;
-	private JComboBox<String> batterySizeCB1, batterySizeCB2;
-	private JComboBox<Integer> qtyCB1, qtyCB2;
+	private JComboBox<String> batterySizeCB1, batterySizeCB2, qtyCB1, qtyCB2;
 	
 	BatteryDialog(JFrame parentFrame)
 	{
 		super(parentFrame);
 		this.parentFrame = parentFrame;
-		this.setTitle("Assign Batteries for Gifts - 2018");
+		this.setTitle("Assign Batteries for Gifts");
+		
+		batteryDB = BatteryDB.getInstance();
+		if(batteryDB != null)
+			batteryDB.addDatabaseListener(this);
 		
 		familyDB = FamilyDB.getInstance();
 		childDB = ChildDB.getInstance();
@@ -73,13 +77,12 @@ public class BatteryDialog extends ONCEntityTableDialog implements ActionListene
 		errMessage = "Ready to Scan a Gift";
 		swo = null;
 		
-		size1 = BatterySize.NONE;
+		size1 = BatterySize.NONE.toString();
 		qty1 = 0;
-		size2 =  BatterySize.NONE;
+		size2 =  BatterySize.NONE.toString();
 		qty1 = 0;
 		
 		//set up the gui
-		
 		JPanel topPanel = new JPanel();
 		topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.X_AXIS));
 //		JPanel topPanel = new JPanel(new BorderLayout());
@@ -108,8 +111,6 @@ public class BatteryDialog extends ONCEntityTableDialog implements ActionListene
 //		topPanel.add(barcodePanel, BorderLayout.WEST);
 		topPanel.add(barcodePanel);
 		
-		Integer[] quantities = {0,1,2,3,4,5,6};
-		
 		//set up battery info panel
 		JPanel batteryPanel = new JPanel();
 		batteryPanel.setLayout(new BoxLayout(batteryPanel, BoxLayout.X_AXIS));
@@ -125,7 +126,8 @@ public class BatteryDialog extends ONCEntityTableDialog implements ActionListene
 		batterySizeCB1.setEditable(true);
 		batterySizeCB1.addActionListener(this);
 		
-		qtyCB1= new JComboBox<Integer>(quantities);
+		qtyCB1= new JComboBox<String>(BatteryQty.textValues());
+		qtyCB1.setPreferredSize(new Dimension(88, 56));
 		qtyCB1.setBorder(BorderFactory.createTitledBorder("Quantity"));
 		qtyCB1.setEditable(true);
 		qtyCB1.addActionListener(this);
@@ -146,7 +148,8 @@ public class BatteryDialog extends ONCEntityTableDialog implements ActionListene
 		batterySizeCB2.setEditable(true);
 		batterySizeCB2.addActionListener(this);
 		
-		qtyCB2= new JComboBox<Integer>(quantities);
+		qtyCB2= new JComboBox<String>(BatteryQty.textValues());
+		qtyCB2.setPreferredSize(new Dimension(88, 56));
 		qtyCB2.setBorder(BorderFactory.createTitledBorder("Quantity"));
 		qtyCB2.setEditable(true);
 		qtyCB2.addActionListener(this);
@@ -161,10 +164,6 @@ public class BatteryDialog extends ONCEntityTableDialog implements ActionListene
 		
 		//set up the control panel
 		JPanel cntlPanel = new JPanel();
-		
-		btnPrint = new JButton("Print");
-	    btnPrint.addActionListener(this);
-	    cntlPanel.add(btnPrint);
 		
 		btnClear = new JButton("Clear");
 	    btnClear.addActionListener(this);
@@ -187,7 +186,7 @@ public class BatteryDialog extends ONCEntityTableDialog implements ActionListene
 		setScanState(ScanState.INITIAL);
 	}
 	
-	void onClear()
+	void clear()
 	{
 		qtyCB2.removeActionListener(this);
 		qtyCB1.removeActionListener(this);
@@ -198,10 +197,10 @@ public class BatteryDialog extends ONCEntityTableDialog implements ActionListene
 		barcodeTF.setText("");
 		
 		batterySizeCB1.setSelectedIndex(0);
-		size1 = BatterySize.NONE;
+		size1 = BatterySize.NONE.toString();
 		
 		batterySizeCB2.setSelectedIndex(0);
-		size2 = BatterySize.NONE;
+		size2 = BatterySize.NONE.toString();
 		
 		qtyCB1.setSelectedIndex(0);
 		qty1 = 0;
@@ -310,22 +309,24 @@ public class BatteryDialog extends ONCEntityTableDialog implements ActionListene
 				
 				qtyCB2.requestFocus();
 			}
+			else if(scanState == ScanState.READY_TO_SUBMIT)
+			{
+				batteryPanel1.setBackground(pBkColor);
+				qtyPanel1.setBackground(pBkColor);
+				batteryPanel2.setBackground(pBkColor);
+				qtyPanel2.setBackground(pBkColor);
+				
+				batterySizeCB1.setEnabled(false);
+				qtyCB1.setEnabled(false);
+				batterySizeCB2.setEnabled(false);
+				qtyCB2.setEnabled(false);
+				
+				btnSubmit.setEnabled(true);
+				btnSubmit.requestFocus();
+			}
 		}
 	}
-	
-	void onPrintBatterySheet()
-	{
-		PrinterJob pj = PrinterJob.getPrinterJob();
-		pj.setPrintable(new BatteryBarcodeSheetPrinter());
-         
-		boolean ok = pj.printDialog();
-		if (ok)
-		{
-			try { pj.print(); }
-			catch (PrinterException ex) { /* The job did not successfully complete */ }       
-		}
-	}
-	
+
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{
@@ -393,37 +394,64 @@ public class BatteryDialog extends ONCEntityTableDialog implements ActionListene
 				newSize = BatterySize.find(s.substring(0, s.length()-1));
 				if(newSize != null)
 				{
-					size1 = newSize;
+					size1 = newSize.toString();
 					setScanState(ScanState.QTY1);
 					batterySizeCB1.setSelectedItem(newSize.toString());
 				}
 				else
 				{
-					size1 = BatterySize.NONE;
-					batterySizeCB1.setSelectedIndex(0);	
+					size1 = BatterySize.NONE.toString();
+					batterySizeCB1.setSelectedIndex(0);
 				}
 			}
 			else if(s.equals(BatterySize.NONE.toString()))
 			{
-				size1 = BatterySize.NONE;
+				size1 = BatterySize.NONE.toString();
 			}
 			else
 			{
-				size1 = BatterySize.Other;
+				size1 = (String) batterySizeCB1.getSelectedItem();
 				setScanState(ScanState.QTY1);
 			}
 				
 			//if the size is the same, do nothing
 			batterySizeCB1.addActionListener(this);
 		}
-		else if(e.getSource() == qtyCB1)
+		else if(e.getSource() == qtyCB1 && scanState == ScanState.QTY1)
 		{
-			Integer newQty = (Integer) qtyCB1.getSelectedItem();
-			if(qty1 != newQty && newQty != 0)
+			qtyCB1.removeActionListener(this);
+			String s = (String) qtyCB1.getSelectedItem();
+			BatteryQty newQty = null;
+			
+			if(isNumeric(s) && (s.length() == 8 || s.length() == 7))
+			{		
+				newQty = BatteryQty.find(s.substring(0, s.length()-1));
+				if(newQty != null)
+				{
+					qty1 = newQty.value();
+					setScanState(ScanState.SIZE2);
+					qtyCB1.setSelectedItem(newQty.toString());
+				}
+				else
+				{
+					qty1 = 0;
+					qtyCB1.setSelectedIndex(0);	
+				}
+			}
+			else if(isNumeric(s))
 			{
-				qty1 = newQty;
+				qty1 = Integer.parseInt((String) qtyCB1.getSelectedItem());
 				setScanState(ScanState.SIZE2);
 			}
+			else
+			{
+				qtyCB1.setSelectedIndex(0);
+				qty1 = 0;
+				setScanState(ScanState.QTY1);
+			}
+				
+			//if the quantity is the same, do nothing
+			qtyCB1.addActionListener(this);
 		}
 		else if(e.getSource() == batterySizeCB2 && scanState == ScanState.SIZE2)
 		{
@@ -436,51 +464,96 @@ public class BatteryDialog extends ONCEntityTableDialog implements ActionListene
 				newSize = BatterySize.find(s.substring(0, s.length()-1));
 				if(newSize != null)
 				{
-					size2 = newSize;
+					size2 = newSize.toString();
 					setScanState(ScanState.QTY2);
 					batterySizeCB2.setSelectedItem(newSize.toString());
 				}
 				else
 				{
-					size2 = BatterySize.NONE;
+					size2 = BatterySize.NONE.toString();
 					batterySizeCB2.setSelectedIndex(0);	
 				}
 			}
 			else if(s.equals(BatterySize.NONE.toString()))
 			{
-				size2 = BatterySize.NONE;
+				size2 = BatterySize.NONE.toString();
 				setScanState(ScanState.SIZE2);
 			}
 			else
 			{
-				size2 = BatterySize.Other;
+				size2 = (String) batterySizeCB2.getSelectedItem();
 				setScanState(ScanState.QTY2);
 			}
 				
 			//if the size is the same, do nothing
 			batterySizeCB2.addActionListener(this);
 		}
-		else if(e.getSource() == qtyCB2)
+		else if(e.getSource() == qtyCB2 && scanState == ScanState.QTY2)
 		{
-			Integer newQty = (Integer) qtyCB2.getSelectedItem();
-			if(qty2 != newQty && newQty != 0)
+			qtyCB2.removeActionListener(this);
+			String s = (String) qtyCB2.getSelectedItem();
+			BatteryQty newQty = null;
+			
+			if(isNumeric(s) && (s.length() == 8 || s.length() == 7))
+			{		
+				newQty = BatteryQty.find(s.substring(0, s.length()-1));
+				if(newQty != null)
+				{
+					qty2 = newQty.value();
+					setScanState(ScanState.READY_TO_SUBMIT);
+					qtyCB2.setSelectedItem(newQty.toString());
+				}
+				else
+				{
+					qty2 = 0;
+					qtyCB2.setSelectedIndex(0);	
+				}
+			}
+			else if(isNumeric(s))
 			{
-				qty2 = newQty;
+				qty2 = Integer.parseInt((String) qtyCB2.getSelectedItem());
 				setScanState(ScanState.READY_TO_SUBMIT);
 			}
-		}
-		else if(e.getSource() == btnPrint)
-		{
-			onPrintBatterySheet();
+			else
+			{
+				qtyCB2.setSelectedIndex(0);
+				qty2 = 0;
+				setScanState(ScanState.QTY2);
+			}
+				
+			//if the quantity is the same, do nothing
+			qtyCB2.addActionListener(this);
 		}
 		else if(e.getSource() == btnClear)
 		{
-			onClear();
+			clear();
 			setScanState(ScanState.INITIAL);
 		}
-		else if(e.getSource() == btnSubmit)
+		else if(e.getSource() == btnSubmit && scanState.compareTo(ScanState.QTY1) > 0)
 		{
-			onClear();
+			List<Battery> batteryReqList = new ArrayList<Battery>();
+			
+			batteryReqList.add(new Battery(-1, swo.getChild().getID(), swo.getChildWish().getWishNumber(), size1, qty1));
+			if(scanState == ScanState.READY_TO_SUBMIT)	//there are two batteries for this gift
+				batteryReqList.add(new Battery(-1, swo.getChild().getID(), swo.getChildWish().getWishNumber(), size2, qty2));
+			
+			Battery addedBattery;
+			int count = 0;
+			for(Battery addBatteryReq : batteryReqList)
+			{
+				addedBattery = (Battery)batteryDB.add(this, addBatteryReq);
+				if(addedBattery != null)
+					count++;
+			}
+			
+			if(count > 1)
+				errMessage = "Batteries Successfully Added";
+			else if(count == 1)
+				errMessage = "Battery Successfully Added";
+			else
+				errMessage = "Failed to Add";
+					
+			clear();
 			setScanState(ScanState.INITIAL);
 		}
 	}
@@ -552,4 +625,24 @@ public class BatteryDialog extends ONCEntityTableDialog implements ActionListene
 		QTY2,
 		READY_TO_SUBMIT;
 	}
+/*	
+	private class BatteryComboBox<String> extends JComboBox<String>
+	{
+		private static final long serialVersionUID = 1L;
+
+		BatteryComboBox(String[] values)
+		{
+			super(values);
+		}
+		
+		@Override
+	    public void setSelectedItem(Object item)
+	    {
+	        super.setSelectedItem( item );
+	        ComboBoxEditor editor = getEditor();
+	        JTextField textField = (JTextField)editor.getEditorComponent();
+	        textField.setCaretPosition(0);
+	    }
+	}
+*/
 }

@@ -2,7 +2,7 @@ package ourneighborschild;
 
 public enum BatterySize
 {
-	NONE("None", "0800000"),
+	NONE("", "0800000"),
 	AA("AA","0800001"),
 	AAA("AAA","0800002"),
 	AG13("AG13","0800003"),
@@ -43,9 +43,15 @@ public enum BatterySize
 		return result;
 	}
 	
+	public static String[] filterList()
+	{
+		return new String[] {"All", AA.text,AAA.text,AG13.text,FIVE_VOLT.text,C.text,CR927.text,D.text,NINE_VOLT.text,
+				LI_POLY3_7V.text,LR03.text,LR41.text,LR44.text};
+	}
+	
 	public static BatterySize[] searchList()
 	{
-		return new BatterySize[] {AA,AAA,AG13,FIVE_VOLT,C,CR927,D,NINE_VOLT,LI_POLY3_7V,LR03,LR41,LR44};
+		return new BatterySize[] {AA,AAA,NINE_VOLT,C,D,FIVE_VOLT,AG13,CR927,LI_POLY3_7V,LR03,LR41,LR44};
 	}
 	
 	public static String[] textValues()

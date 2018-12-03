@@ -38,7 +38,7 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 	private JMenuItem delChildMI, markAdultMI, connectChildMI, famHistMI;
 	private JMenu submenuImport, submenuFamilyDataChecks, submenuExport, submenuChangeFamilyNumbers;
 	private JMenu submenuDBYearList, submenuUsers;
-	private JMenuItem viewDBMI, sortWishesMI, sortFamiliesMI, sortOrgsMI, recGiftsMI, sortMealsMI, batteryMI;
+	private JMenuItem viewDBMI, sortWishesMI, sortFamiliesMI, sortOrgsMI, recGiftsMI, sortMealsMI, batteryMI, manageBatteryMI;
 	private JMenuItem agentMI, groupMI, manageGroupsMI, orgMI, catMI, barcodeWishHistoryMI, inventoryMI;
 	private JMenuItem aboutONCMI, oncPrefrencesMI, profileMI, editUsersMI, manageUsersMI, onlineMI, chatMI, changePWMI, stopPollingMI;
 	private JMenuItem showServerLogMI, showServerClientIDMI, showCurrDirMI, showWebsiteStatusMI;
@@ -285,11 +285,19 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 	    barcodeWishHistoryMI.addActionListener(this);
 	    menuWishes.add(barcodeWishHistoryMI);
 	    
-	    batteryMI = new JMenuItem("Gift Batteries");
-	    batteryMI.setActionCommand("Gift Batteries");
+	    menuWishes.addSeparator();
+	    
+	    batteryMI = new JMenuItem("Add Batteries");
+	    batteryMI.setActionCommand("Add Batteries");
 	    batteryMI.setEnabled(false);
 	    batteryMI.addActionListener(this);
 	    menuWishes.add(batteryMI);
+	    
+	    manageBatteryMI = new JMenuItem("Manage Batteries");
+	    manageBatteryMI.setActionCommand("Manage Batteries");
+	    manageBatteryMI.setEnabled(false);
+	    manageBatteryMI.addActionListener(this);
+	    menuWishes.add( manageBatteryMI);
 	    
 	    menuWishes.addSeparator();
 	    
@@ -529,6 +537,7 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 		recGiftsMI.setEnabled(true);
 		barcodeWishHistoryMI.setEnabled(true);
 		batteryMI.setEnabled(true);
+		manageBatteryMI.setEnabled(true);
 	}
 	
 	void setEnabledRestrictedMenuItems(boolean tf)	//Only Admins can perform these functions
@@ -718,6 +727,8 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 			dlgManager.showBarcodeWishHistoryDialog();
 		else if(e.getSource() == batteryMI)
 			dlgManager.showBatteryDialog();
+		else if(e.getSource() == manageBatteryMI)
+			dlgManager.showManageBatteryDialog();
 		else if(e.getSource() == inventoryMI)
 			dlgManager.showInventoryDialog();
 		else if(e.getSource() == catMI) {dlgManager.showWishCatalogDialog(); }

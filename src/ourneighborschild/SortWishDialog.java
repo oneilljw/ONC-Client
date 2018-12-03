@@ -802,43 +802,43 @@ public class SortWishDialog extends ChangeDialog implements PropertyChangeListen
 	void onExportRequested()
 	{
 		//Write the selected row data to a .csv file
-    	String[] header = {"ONC #", "Gender", "Age on 12/25", "DoB", "Res", "Wish", "Detail", "Status", 
+		String[] header = {"ONC #", "Gender", "Age on 12/25", "DoB", "Res", "Wish", "Detail", "Status", 
     						"Assignee", "Changed By", "Date Changed"};
     
-    	ONCFileChooser oncfc = new ONCFileChooser(this);
+		ONCFileChooser oncfc = new ONCFileChooser(this);
        	File oncwritefile = oncfc.getFile("Select file for export of selected rows" ,
        							new FileNameExtensionFilter("CSV Files", "csv"), ONCFileChooser.SAVE_FILE);
        	if(oncwritefile!= null)
        	{
        		//If user types a new filename without extension.csv, add it
-	    	String filePath = oncwritefile.getPath();
-	    	if(!filePath.toLowerCase().endsWith(".csv")) 
-	    		oncwritefile = new File(filePath + ".csv");
+       		String filePath = oncwritefile.getPath();
+       		if(!filePath.toLowerCase().endsWith(".csv")) 
+       			oncwritefile = new File(filePath + ".csv");
 	    	
-	    	try 
-	    	{
-	    		CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
-	    	    writer.writeNext(header);
+       		try 
+       		{
+       			CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
+       			writer.writeNext(header);
 	    	    
-	    	    int[] row_sel = sortTable.getSelectedRows();
-	    	    for(int i=0; i<sortTable.getSelectedRowCount(); i++)
-	    	    {
-	    	    	int index = row_sel[i];
-	    	    	writer.writeNext(stAL.get(index).getExportRow());
-	    	    }
+       			int[] row_sel = sortTable.getSelectedRows();
+       			for(int i=0; i<sortTable.getSelectedRowCount(); i++)
+       			{
+       				int index = row_sel[i];
+       				writer.writeNext(stAL.get(index).getExportRow());
+       			}
 	    	   
-	    	    writer.close();
+       			writer.close();
 	    	    
-	    	    JOptionPane.showMessageDialog(this, 
+       			JOptionPane.showMessageDialog(this, 
 						sortTable.getSelectedRowCount() + " wishes sucessfully exported to " + oncwritefile.getName(), 
 						"Export Successful", JOptionPane.INFORMATION_MESSAGE, gvs.getImageIcon(0));
-	    	} 
-	    	catch (IOException x)
-	    	{
-	    		JOptionPane.showMessageDialog(this, "Export Failed, I/O Error: "  + x.getMessage(),  
-						"Export Failed", JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
-	    		System.err.format("IOException: %s%n", x);
-	    	}
+       		} 
+       		catch (IOException x)
+       		{
+       			JOptionPane.showMessageDialog(this, "Export Failed, I/O Error: "  + x.getMessage(),  
+       						"Export Failed", JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
+       			System.err.format("IOException: %s%n", x);
+       		}
 	    }
 	}
 
