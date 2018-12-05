@@ -47,9 +47,11 @@ public class ManageBatteryDialog extends ONCEntityTableDialog implements ActionL
 	private static final int ONC_NUM_COL= 0;
 	private static final int CHILD_FIRST_NAME_COL = 1;
 	private static final int CHILD_LAST_NAME_COL = 2;
-	private static final int GIFT_COL = 3;
-	private static final int SIZE_COL = 4;
-	private static final int QTY_COL = 5;
+	private static final int CHILD_AGE_COL = 3;
+	private static final int CHILD_GENDER_COL = 4;
+	private static final int GIFT_COL = 5;
+	private static final int SIZE_COL = 6;
+	private static final int QTY_COL = 7;
 	
 	private static final int NUM_TABLE_ROWS = 12;
 	
@@ -70,6 +72,7 @@ public class ManageBatteryDialog extends ONCEntityTableDialog implements ActionL
 	private ChildDB childDB;
 	private ChildWishDB giftDB;
 	private WishCatalogDB catDB;
+	private UserDB userDB;
 	
 	private List<BatteryTableObject> batteryTableList;
 	
@@ -96,6 +99,10 @@ public class ManageBatteryDialog extends ONCEntityTableDialog implements ActionL
 			familyDB.addDatabaseListener(this);
 		
 		catDB = WishCatalogDB.getInstance();
+		
+		userDB = UserDB.getInstance();
+		if(userDB != null)
+			userDB.addDatabaseListener(this);
 		
 		//set up the table list
 		batteryTableList = new ArrayList<BatteryTableObject>();
@@ -124,7 +131,8 @@ public class ManageBatteryDialog extends ONCEntityTableDialog implements ActionL
 		batteryTableModel = new BatteryTableModel();
 		
 		//create the table
-		String[] colToolTips = {"ONC #", "Child First Name", "Child Last Name", "Gift", "Battery", "Qty"};
+		String[] colToolTips = {"ONC #", "Child First Name", "Child Last Name", "Child's Age", "Childs Gender",
+								"Gift", "Battery", "Qty"};
 		
 		batteryTable = new ONCTable(batteryTableModel, colToolTips, new Color(240,248,255));
 
@@ -133,7 +141,7 @@ public class ManageBatteryDialog extends ONCEntityTableDialog implements ActionL
 		
 		//Set table column widths
 		int tablewidth = 0;
-		int[] colWidths = {40, 96, 96, 288, 56, 32};
+		int[] colWidths = {40, 96, 96,64, 48, 288, 80, 32};
 		for(int col=0; col < colWidths.length; col++)
 		{
 			batteryTable.getColumnModel().getColumn(col).setPreferredWidth(colWidths[col]);
@@ -182,7 +190,7 @@ public class ManageBatteryDialog extends ONCEntityTableDialog implements ActionL
         exportCB.setEnabled(true);
         exportCB.addActionListener(this);
         
-        printChoices = new String[] {"Print", "Table","Battery Sheet"};
+        printChoices = new String[] {"Print", "Table", "Battery Sheet"};
         printCB = new JComboBox<String>(printChoices);
         printCB.setToolTipText("Print the sign-in table list");
         printCB.addActionListener(this);
@@ -281,7 +289,7 @@ public class ManageBatteryDialog extends ONCEntityTableDialog implements ActionL
 	void onExportRequested()
 	{
 		//Write the selected row data to a .csv file
-		String[] header = {"ONC #", "Child FN", "Child LN", "Gift Type", "Detail", "Battery Size", "Qty"};
+		String[] header = {"ONC #", "Child FN", "Child LN", "Age", "Gender", "Gift Type", "Detail", "Battery Size", "Qty"};
     
 		ONCFileChooser oncfc = new ONCFileChooser(this);
        	File oncwritefile = oncfc.getFile("Select file for export of selected rows" ,
@@ -373,11 +381,23 @@ public class ManageBatteryDialog extends ONCEntityTableDialog implements ActionL
 	public void valueChanged(ListSelectionEvent lse)
 	{
 		//If user selects a battery in the table, notify the entity listeners the selection occurred 
-		ListSelectionModel stLSM = batteryTable.getSelectionModel();
-		if(!lse.getValueIsAdjusting() && lse.getSource() == stLSM && batteryTable.getSelectedRow() > -1 && !bChangingTable)
+//		ListSelectionModel stLSM = batteryTable.getSelectionModel();
+//		if(!lse.getValueIsAdjusting() && lse.getSource() == stLSM && batteryTable.getSelectedRow() > -1 && !bChangingTable)
+//		{
+//			BatteryTableObject bto = batteryTableList.get(batteryTable.getSelectedRow());
+//			fireEntitySelected(this, EntityType.WISH, bto.getFamily(), bto.getChild());
+//		}
+		
+		if(!lse.getValueIsAdjusting() && !bChangingTable)
 		{
-			BatteryTableObject bto = batteryTableList.get(batteryTable.getSelectedRow());
-			fireEntitySelected(this, EntityType.WISH, bto.getFamily(), bto.getChild());
+			int modelRow = batteryTable.getSelectedRow() == -1 ? -1 : 
+				batteryTable.convertRowIndexToModel(batteryTable.getSelectedRow());
+			
+			if(modelRow > -1)
+			{
+				BatteryTableObject bto = batteryTableList.get(modelRow);
+				this.fireEntitySelected(this, EntityType.WISH, bto.getFamily(), bto.getChild());
+			}
 		}
 	}
 
@@ -394,7 +414,7 @@ public class ManageBatteryDialog extends ONCEntityTableDialog implements ActionL
 		 */
 		private static final long serialVersionUID = 1L;
 		
-		private String[] columnNames = {"ONC #", "Child FN", "Child LN", "Gift", "Batteries", "Qty",};
+		private String[] columnNames = {"ONC #", "Child FN", "Child LN", "Age", "Gender", "Gift", "Batteries", "Qty",};
  
         public int getColumnCount() { return columnNames.length; }
  
@@ -410,18 +430,45 @@ public class ManageBatteryDialog extends ONCEntityTableDialog implements ActionL
         		ONCFamily family = null;
         		
         		gift = giftDB.getWish(bto.getChild().getID(), bto.getBattery().getWishNum());
+        		
+        		String childFN, childLN;
         		if(gift != null)
+        		{
         			child = childDB.getChild(gift.getChildID());
+        			if(userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0)
+            		{
+            			//Only display child's actual name if user permission permits
+            			childFN = child.getChildFirstName();
+            			childLN = child.getChildLastName();
+            		}
+            		else
+            		{
+            			//Else, display the restricted name for the child
+            			childFN = "Child " + childDB.getChildNumber(child);
+            			childLN = "";
+            		}
+        		}
+        		else
+        		{
+        			childFN = "Error";
+        			childLN = "Error:";
+        		}
+        		
         		
         		if(child != null)
         			family = familyDB.getFamily(child.getFamID());
         		
+        		
         		if(col == ONC_NUM_COL)  
         			return family == null ? "Error" : family.getONCNum();
        		else if(col == CHILD_FIRST_NAME_COL)
-       			return child == null ? "Error" : child.getChildFirstName();
+       			return childFN;
         		else if (col == CHILD_LAST_NAME_COL)
-        			return child == null ? "Error" : child.getChildLastName();
+        			return childLN;
+        		else if(col == CHILD_AGE_COL)
+           			return child == null ? "Error" : child.getChildAge();
+            		else if (col == CHILD_GENDER_COL)
+            			return child == null ? "Error" : child.getChildGender();
         		else if (col == GIFT_COL)
         		{
         			if(gift != null)
@@ -480,18 +527,39 @@ public class ManageBatteryDialog extends ONCEntityTableDialog implements ActionL
 		
 		String[] getExportRow()
 		{
-			String[] row = new String[7];
+			String[] row = new String[9];
 			
 			ONCChildWish gift = giftDB.getWish(battery.getChildID(), battery.getWishNum());
 			ONCWish wish = catDB.getWishByID(gift.getWishID());
 			
+			//determine if user has permission to see child first and last name. If not, substitute
+			String childFN = "Error", childLN = "Error";
+    			if(gift != null)
+    			{
+    				child = childDB.getChild(gift.getChildID());
+    				if(userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0)
+    				{
+    					//Only display child's actual name if user permission permits
+    					childFN = child.getChildFirstName();
+    					childLN = child.getChildLastName();
+    				}
+    				else
+    				{
+    					//Else, display the restricted name for the child
+    					childFN = "Child " + childDB.getChildNumber(child);
+    					childLN = "";
+    				}
+    			}
+  
 			row[0] = family == null ? "Error" : family.getONCNum();
-			row[1] = child == null ? "Error" : child.getChildFirstName();
-			row[2] = child == null ? "Error" : child.getChildLastName();
-			row[3] = wish == null ? "Error" : wish.getName();
-			row[4] = gift == null ? "Error" : gift.getChildWishDetail();
-			row[5] = battery.getSize();
-			row[6] = Integer.toString(battery.getQuantity());
+			row[1] = childFN;
+			row[2] = childLN;
+			row[3] = child == null ? "Error" : child.getChildAge();
+			row[4] = child == null ? "Error" : child.getChildGender();
+			row[5] = wish == null ? "Error" : wish.getName();
+			row[6] = gift == null ? "Error" : gift.getChildWishDetail();
+			row[7] = battery.getSize();
+			row[8] = Integer.toString(battery.getQuantity());
 			
 			return row;	
 		}

@@ -29,8 +29,8 @@ public class Battery extends ONCObject
 	public Battery(Battery b)
 	{
 		super(b.id);
-		this.childID = childID;
-		this.wishnum = wishnum;
+		this.childID = b.childID;
+		this.wishnum = b.wishnum;
 		this.size = b.size;
 		this.quantity = b.quantity;
 	}

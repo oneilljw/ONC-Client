@@ -10,6 +10,7 @@ import java.awt.print.PageFormat;
 import java.awt.print.Printable;
 import java.awt.print.PrinterException;
 import java.util.ArrayList;
+
 import org.json.JSONException;
 
 public class DeliveryDirectionsPrinter implements Printable
@@ -47,8 +48,8 @@ public class DeliveryDirectionsPrinter implements Printable
 		g2d.drawString("Family # " + familyInfo[0], x, y+24); 	//ONC Number
 
 		//Draw the delivery instructions
-		g2d.setFont(ddFont[1]);
-		g2d.drawString("Delivery Map & Directions", x+200, y+20);
+//		g2d.setFont(ddFont[1]);
+//		g2d.drawString("Delivery Map & Directions", x+200, y+20);
 		
 		g2d.setFont(ddFont[6]);
 		g2d.drawString(familyInfo[1], x, y+48);	//First and Last Name
@@ -56,17 +57,24 @@ public class DeliveryDirectionsPrinter implements Printable
 		g2d.drawString(familyInfo[3], x, y+72);	//City, State, Zip
 		
 		//delivery content info
-		g2d.drawString("# Bags", x+180, y+48);
-		g2d.drawString("# Bikes", x+240, y+48);
-		g2d.drawString("# Large Items", x+300, y+48);
-		g2d.drawString("---------", x+180, y+54);
-		g2d.drawString("---------", x+240, y+54);
-		g2d.drawString("-----------------", x+300, y+54);
-		g2d.drawString(familyInfo[11], x+196, y+66);	//number of bags
-		g2d.drawString(familyInfo[12], x+258, y+66); //number of bikes
-		g2d.drawString(familyInfo[13], x+328, y+66); //number of large items
+		g2d.setFont(ddFont[7]);	//should be underlined font
+		g2d.drawString("# Bags", x+168, y+22);
+		g2d.drawString("# Bikes", x+228, y+22);
+		g2d.drawString("# Large Items", x+288, y+22);
+//		g2d.drawString("---------", x+170, y+34);
+//		g2d.drawString("---------", x+230, y+34);
+//		g2d.drawString("------------------", x+290, y+34);
+		g2d.drawString("______", x+168, y+26);
+		g2d.drawString("______", x+228, y+26);
+		g2d.drawString("___________", x+288, y+26);
+		
+		g2d.setFont(ddFont[8]);
+		g2d.drawString(familyInfo[11], x+186, y+56);	//number of bags
+		g2d.drawString(familyInfo[12], x+248, y+56); //number of bikes
+		g2d.drawString(familyInfo[13], x+318, y+56); //number of large items
 		
 		//family phone info
+		g2d.setFont(ddFont[6]);
 		g2d.drawString("Home Phone: " + familyInfo[5], x+422, y+60);	//Home Phone
 	    g2d.drawString("Alt. Phone: " + familyInfo[7], x+434, y+72);	//Other Phone
 	}
@@ -126,7 +134,7 @@ public class DeliveryDirectionsPrinter implements Printable
 	    g2d.translate(pf.getImageableX(), pf.getImageableY());
 		
 		//Create fonts
-		Font[] cFonts = new Font[7];
+		Font[] cFonts = new Font[9];
 	    cFonts[0] = new Font("Calibri", Font.PLAIN, 10);//Instructions Font
 	    cFonts[1] = new Font("Calibri", Font.BOLD, 14);	//Season Font
 	    cFonts[2] = new Font("Calibri", Font.BOLD, 20);	//ONC Num Text Font
@@ -134,6 +142,12 @@ public class DeliveryDirectionsPrinter implements Printable
 	    cFonts[4] = new Font("Calibri", Font.BOLD, 13);	//Footer Font
 	    cFonts[5] = new Font("Calibri", Font.ITALIC, 13);	//Table header Font
 	    cFonts[6] = new Font("Calibri", Font.PLAIN, 12);	//Header Name, Address, Phone# Font
+	    cFonts[7] = new Font("Calibri", Font.BOLD, 16);	//Bag Info Headers - Bikes, #Bags, etc.
+	    cFonts[8] = new Font("Calibri", Font.BOLD, 32);	//Bag Info - Bikes, #Bags, etc.
+	    
+//	    Hashtable<TextAttribute, Object> fontmap = new Hashtable<TextAttribute, Object>();
+//	    fontmap.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON);
+//	    cFonts[7] = new Font("Calibri", Font.BOLD, 16).deriveFont(fontmap);	//Bag Info - Bikes, #Bags, etc.
 		
 		//Print page header			
 		printDeliveryDirectionsSheetHeader(DELIVERY_SHEET_X_OFFSET, 0, oncSeasonImg, oncSeason, 

@@ -1,5 +1,6 @@
 package ourneighborschild;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -27,7 +28,8 @@ public class BatteryDialog extends ONCEntityTableDialog implements ActionListene
 {
 
 	/**
-	 * 
+	 * Records batteries for gifts by scanning label, then allowing user to scan battery size and
+	 * quantity for two battery types.
 	 */
 	private static final long serialVersionUID = 1L;
 	
@@ -40,17 +42,20 @@ public class BatteryDialog extends ONCEntityTableDialog implements ActionListene
 	private SortWishObject swo; //holds current family, child and gift info for gift getting batteries assigned
 	private ScanState scanState;	//holds current state of battery scanning process
 	
+	private List<Battery> submittalList;	//holds battery or batteries submitted for undo
+	
 	private String size1, size2;
 	private Integer qty1, qty2;
 	
 	private final Image img;
-	private String errMessage;
+	private List<String> errMessage;
 	private Color pBkColor; //Used to restore background for panels
 	
 	private JTextField barcodeTF;
-	private JButton btnSubmit, btnClear;
+	private JButton btnSubmit, btnClear, btnUndo;
+	private JLabel lblResult;
 	private WishLabelPanel wishLabelPanel;
-	private JPanel barcodePanel;
+	private JPanel topPanel, barcodePanel;
 	private JPanel batteryPanel1, qtyPanel1, batteryPanel2, qtyPanel2;
 	private JComboBox<String> batterySizeCB1, batterySizeCB2, qtyCB1, qtyCB2;
 	
@@ -58,7 +63,7 @@ public class BatteryDialog extends ONCEntityTableDialog implements ActionListene
 	{
 		super(parentFrame);
 		this.parentFrame = parentFrame;
-		this.setTitle("Assign Batteries for Gifts");
+		this.setTitle("Record Batteries for Gifts");
 		
 		batteryDB = BatteryDB.getInstance();
 		if(batteryDB != null)
@@ -74,7 +79,8 @@ public class BatteryDialog extends ONCEntityTableDialog implements ActionListene
 			childWishDB.addDatabaseListener(this);
 
 		img = GlobalVariablesDB.getSeasonIcon().getImage();
-		errMessage = "Ready to Scan a Gift";
+		errMessage = new ArrayList<String>();
+		errMessage.add("Ready to Scan a Gift Label");
 		swo = null;
 		
 		size1 = BatterySize.NONE.toString();
@@ -82,34 +88,29 @@ public class BatteryDialog extends ONCEntityTableDialog implements ActionListene
 		size2 =  BatterySize.NONE.toString();
 		qty1 = 0;
 		
-		//set up the gui
-		JPanel topPanel = new JPanel();
-		topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.X_AXIS));
-//		JPanel topPanel = new JPanel(new BorderLayout());
+		submittalList = new ArrayList<Battery>();
 		
-		barcodePanel = new JPanel();
-		barcodePanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-//		barcodePanel.setLayout(new BoxLayout(barcodePanel, BoxLayout.X_AXIS));
-		barcodePanel.setPreferredSize(new Dimension(550, 100));
+		//set up the gui
+		topPanel = new JPanel();
+		topPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+		topPanel.setPreferredSize(new Dimension(550, 100));
 		
 		JLabel lblONCIcon = new JLabel(gvs.getImageIcon(0));
 		
+		barcodePanel = new JPanel();
 		barcodeTF = new JTextField(9);
 		barcodeTF.setMaximumSize(new Dimension(136,56));
 		barcodeTF.setBorder(BorderFactory.createTitledBorder("Gift Barcode"));
 		barcodeTF.setToolTipText("Scan barcode or type barcode # and press <enter>");
 		barcodeTF.addActionListener(this);
+		barcodePanel.add(barcodeTF);
 		
-//		wishLabelPanel = null;
 		wishLabelPanel = new WishLabelPanel();
 
-		barcodePanel.add(lblONCIcon);
-		barcodePanel.add(barcodeTF);
-		barcodePanel.add(Box.createHorizontalGlue());
-		barcodePanel.add(wishLabelPanel);
-		
-//		topPanel.add(barcodePanel, BorderLayout.WEST);
+		topPanel.add(lblONCIcon);
 		topPanel.add(barcodePanel);
+		topPanel.add(Box.createHorizontalGlue());
+		topPanel.add(wishLabelPanel);
 		
 		//set up battery info panel
 		JPanel batteryPanel = new JPanel();
@@ -162,23 +163,39 @@ public class BatteryDialog extends ONCEntityTableDialog implements ActionListene
 		batteryPanel.add(batteryQtyPanel1);
 		batteryPanel.add(batteryQtyPanel2);
 		
-		//set up the control panel
+		//set up a bottom panel
+		JPanel bottomPanel = new JPanel(new BorderLayout());
+		
+		//set up the control panel with an undo button and label to the control panel.
 		JPanel cntlPanel = new JPanel();
 		
+		btnUndo = new JButton(gvs.getImageIcon(16));
+        btnUndo.setToolTipText("Click to undo last battery ");
+        btnUndo.setEnabled(false);
+        btnUndo.addActionListener(this);
+        cntlPanel.add(btnUndo);
+        
 		btnClear = new JButton("Clear");
 	    btnClear.addActionListener(this);
 	    cntlPanel.add(btnClear);
+	    
+	    lblResult = new JLabel();
+        cntlPanel.add(lblResult);
 		
+	    JPanel submitPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		btnSubmit = new JButton("Submit");
 	    btnSubmit.addActionListener(this);
 	    btnSubmit.setEnabled(true);
-	    cntlPanel.add(btnSubmit);
+	    submitPanel.add(btnSubmit);
+	    
+	    bottomPanel.add(cntlPanel, BorderLayout.LINE_START);
+	    bottomPanel.add(submitPanel, BorderLayout.LINE_END);
 		
 		//set up the dialog pane
 		this.getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 		this.getContentPane().add(topPanel);
 		this.getContentPane().add(batteryPanel);
-		this.getContentPane().add(cntlPanel);
+		this.getContentPane().add(bottomPanel);
 		
 		this.setMinimumSize(new Dimension(550,280));
 //		pack();
@@ -208,10 +225,11 @@ public class BatteryDialog extends ONCEntityTableDialog implements ActionListene
 		qtyCB2.setSelectedIndex(0);
 		qty2 = 0;
 		
-		errMessage = "Ready to Scan a Gift";
+		errMessage.clear();
+		errMessage.add("Ready to Scan a Gift Label");
 		swo = null;
-		barcodePanel.revalidate();
-		barcodePanel.repaint();
+		topPanel.revalidate();
+		topPanel.repaint();
 		
 		if(scanState != ScanState.INITIAL)
 			setScanState(ScanState.INITIAL);
@@ -232,11 +250,13 @@ public class BatteryDialog extends ONCEntityTableDialog implements ActionListene
 			scanState = newState;
 			if(scanState == ScanState.INITIAL)
 			{
+				barcodePanel.setBackground(Color.GREEN);
 				batteryPanel1.setBackground(pBkColor);
 				batteryPanel2.setBackground(pBkColor);
 				qtyPanel1.setBackground(pBkColor);
 				qtyPanel2.setBackground(pBkColor);
 				
+				barcodeTF.setEnabled(true);
 				batterySizeCB1.setEnabled(false);
 				qtyCB1.setEnabled(false);
 				batterySizeCB2.setEnabled(false);
@@ -248,11 +268,13 @@ public class BatteryDialog extends ONCEntityTableDialog implements ActionListene
 			}
 			else if(scanState == ScanState.SIZE1)
 			{
+				barcodePanel.setBackground(pBkColor);
 				batteryPanel1.setBackground(Color.GREEN);
 				qtyPanel1.setBackground(pBkColor);
 				batteryPanel2.setBackground(pBkColor);
 				qtyPanel2.setBackground(pBkColor);
 				
+				barcodeTF.setEnabled(false);
 				batterySizeCB1.setEnabled(true);
 				qtyCB1.setEnabled(false);
 				batterySizeCB2.setEnabled(false);
@@ -261,14 +283,18 @@ public class BatteryDialog extends ONCEntityTableDialog implements ActionListene
 				btnSubmit.setEnabled(false);
 				
 				batterySizeCB1.requestFocus();
+				
+				lblResult.setText("");
 			}
 			else if(scanState == ScanState.QTY1)
 			{
+				barcodePanel.setBackground(pBkColor);
 				batteryPanel1.setBackground(pBkColor);
 				qtyPanel1.setBackground(Color.GREEN);
 				batteryPanel2.setBackground(pBkColor);
 				qtyPanel2.setBackground(pBkColor);
 				
+				barcodeTF.setEnabled(false);
 				batterySizeCB1.setEnabled(false);
 				qtyCB1.setEnabled(true);
 				batterySizeCB2.setEnabled(false);
@@ -277,14 +303,18 @@ public class BatteryDialog extends ONCEntityTableDialog implements ActionListene
 				btnSubmit.setEnabled(false);
 				
 				qtyCB1.requestFocus();
+				
+				lblResult.setText("");
 			}
 			else if(scanState == ScanState.SIZE2)
 			{
+				barcodePanel.setBackground(pBkColor);
 				batteryPanel1.setBackground(pBkColor);
 				qtyPanel1.setBackground(pBkColor);
 				batteryPanel2.setBackground(Color.GREEN);
 				qtyPanel2.setBackground(pBkColor);
 				
+				barcodeTF.setEnabled(false);
 				batterySizeCB1.setEnabled(false);
 				qtyCB1.setEnabled(false);
 				batterySizeCB2.setEnabled(true);
@@ -292,14 +322,18 @@ public class BatteryDialog extends ONCEntityTableDialog implements ActionListene
 				btnSubmit.setEnabled(true);
 				
 				batterySizeCB2.requestFocus();
+				
+				lblResult.setText("");
 			}
 			else if(scanState == ScanState.QTY2)
 			{
+				barcodePanel.setBackground(pBkColor);
 				batteryPanel1.setBackground(pBkColor);
 				qtyPanel1.setBackground(pBkColor);
 				batteryPanel2.setBackground(pBkColor);
 				qtyPanel2.setBackground(Color.GREEN);
 				
+				barcodeTF.setEnabled(false);
 				batterySizeCB1.setEnabled(false);
 				qtyCB1.setEnabled(false);
 				batterySizeCB2.setEnabled(false);
@@ -308,14 +342,18 @@ public class BatteryDialog extends ONCEntityTableDialog implements ActionListene
 				btnSubmit.setEnabled(false);
 				
 				qtyCB2.requestFocus();
+				
+				lblResult.setText("");
 			}
 			else if(scanState == ScanState.READY_TO_SUBMIT)
 			{
+				barcodePanel.setBackground(pBkColor);
 				batteryPanel1.setBackground(pBkColor);
 				qtyPanel1.setBackground(pBkColor);
 				batteryPanel2.setBackground(pBkColor);
 				qtyPanel2.setBackground(pBkColor);
 				
+				barcodeTF.setEnabled(false);
 				batterySizeCB1.setEnabled(false);
 				qtyCB1.setEnabled(false);
 				batterySizeCB2.setEnabled(false);
@@ -323,10 +361,61 @@ public class BatteryDialog extends ONCEntityTableDialog implements ActionListene
 				
 				btnSubmit.setEnabled(true);
 				btnSubmit.requestFocus();
+				
+				lblResult.setText("");
 			}
 		}
 	}
-
+	
+	void onSubmit()
+	{
+		submittalList.clear();
+		List<Battery> batteryReqList = new ArrayList<Battery>();
+		
+		batteryReqList.add(new Battery(-1, swo.getChild().getID(), swo.getChildWish().getWishNumber(), size1, qty1));
+		if(scanState == ScanState.READY_TO_SUBMIT)	//there are two batteries for this gift
+			batteryReqList.add(new Battery(-1, swo.getChild().getID(), swo.getChildWish().getWishNumber(), size2, qty2));
+		
+		Battery addedBattery;
+		for(Battery addBatteryReq : batteryReqList)
+		{
+			addedBattery = (Battery)batteryDB.add(this, addBatteryReq);
+			if(addedBattery != null)
+				submittalList.add(addedBattery);
+		}
+		
+		if(submittalList.isEmpty())
+			lblResult.setText(String.format("Battery Add Failed, Family # %s", swo.getFamily().getONCNum()));
+		else if(submittalList.size() == 1)
+			lblResult.setText(String.format(" 1 Battery Type Added Successfully, Family # %s", swo.getFamily().getONCNum()));
+		else
+			lblResult.setText(String.format("2 Batteries Types Added Successfully, Family # %s", swo.getFamily().getONCNum()));
+		
+		btnUndo.setEnabled(!submittalList.isEmpty());
+		clear();
+		setScanState(ScanState.INITIAL);
+	}
+	void onUndoSubmittal()
+	{
+		//To undo the battery add(s), delete the submittal
+		List<Battery> deletedBatteryList = new ArrayList<Battery>();
+		
+		for(Battery delBatteryReq : submittalList)
+			deletedBatteryList.add(batteryDB.delete(this, delBatteryReq));
+		
+		if(deletedBatteryList.size() > 1)
+			lblResult.setText("2 Batteries Types Deleted Successfully");
+		else if(deletedBatteryList.size() == 1)
+			lblResult.setText("1 Battery Types Deleted Successfully");
+		else
+			lblResult.setText("Battery Delete Failed");
+		
+		submittalList.clear();
+		btnUndo.setEnabled(false);
+		clear();
+		setScanState(ScanState.INITIAL);
+	}
+	
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{
@@ -347,13 +436,14 @@ public class BatteryDialog extends ONCEntityTableDialog implements ActionListene
 			}
 			else
 			{
-				errMessage = "Invalid Barcode";
-				barcodePanel.revalidate();
-				barcodePanel.repaint();
+				errMessage.clear();
+				errMessage.add("Invalid Barcode");
+				topPanel.revalidate();
+				topPanel.repaint();
 			}
 				
-			//find the gift by child ID and wish number
-			//the Wish entity selection.
+			//find the gift by child ID and wish number. Only gifts that have already been 
+			//received can have batteries recorded.
 			if(cID > -1 && wn > -1)
 			{
 				ONCChildWish cw = childWishDB.getWish(cID, wn);
@@ -368,17 +458,20 @@ public class BatteryDialog extends ONCEntityTableDialog implements ActionListene
 						if(family != null)
 						{
 							swo = new SortWishObject(0, family, child, cw);
-							barcodePanel.revalidate();
-							barcodePanel.repaint();
+							topPanel.revalidate();
+							topPanel.repaint();
 							setScanState(ScanState.SIZE1);
 						}
 					}
 				}
 				else
 				{
-					errMessage = "Gift is not received";
-					barcodePanel.revalidate();
-					barcodePanel.repaint();
+					errMessage.clear();
+					errMessage.add("Gift is not yet received, ");
+					errMessage.add("please receive gift before ");
+					errMessage.add("battery scanning");
+					topPanel.revalidate();
+					topPanel.repaint();
 					setScanState(ScanState.INITIAL);
 				}
 			}	
@@ -529,8 +622,14 @@ public class BatteryDialog extends ONCEntityTableDialog implements ActionListene
 			clear();
 			setScanState(ScanState.INITIAL);
 		}
+		else if(e.getSource() == btnUndo && !submittalList.isEmpty())
+		{
+			onUndoSubmittal();
+		}
 		else if(e.getSource() == btnSubmit && scanState.compareTo(ScanState.QTY1) > 0)
 		{
+			onSubmit();
+/*			
 			List<Battery> batteryReqList = new ArrayList<Battery>();
 			
 			batteryReqList.add(new Battery(-1, swo.getChild().getID(), swo.getChildWish().getWishNumber(), size1, qty1));
@@ -555,13 +654,18 @@ public class BatteryDialog extends ONCEntityTableDialog implements ActionListene
 					
 			clear();
 			setScanState(ScanState.INITIAL);
+*/			
 		}
 	}
 	
 	@Override
 	public void dataChanged(DatabaseEvent dbe)
 	{
-		// TODO Auto-generated method stub	
+		if(dbe.getSource() != this && dbe.getType().equals("LOADED_BATTERIES"))
+		{
+			//get the initial data and set title
+			this.setTitle(String.format("Record Batteries for Gifts - %d", GlobalVariablesDB.getCurrentSeason()));
+		}
 	}
 
 	@Override
@@ -612,7 +716,15 @@ public class BatteryDialog extends ONCEntityTableDialog implements ActionListene
 			if(swo != null)
 				awlp.drawLabel(10, 10, swo.getWishLabel(), lFont, img, g2d);
 			else
-				 g.drawString(errMessage, 20, 20);
+			{
+				g2d.setFont(new Font("Calibri", Font.ITALIC, 16));
+				int x=8, y=16;
+				for(int i=0; i<errMessage.size(); i++)
+				{
+					g.drawString(errMessage.get(i), x, y);
+					y += 14;
+				}
+			}
 		}
 	}
 	
@@ -625,24 +737,4 @@ public class BatteryDialog extends ONCEntityTableDialog implements ActionListene
 		QTY2,
 		READY_TO_SUBMIT;
 	}
-/*	
-	private class BatteryComboBox<String> extends JComboBox<String>
-	{
-		private static final long serialVersionUID = 1L;
-
-		BatteryComboBox(String[] values)
-		{
-			super(values);
-		}
-		
-		@Override
-	    public void setSelectedItem(Object item)
-	    {
-	        super.setSelectedItem( item );
-	        ComboBoxEditor editor = getEditor();
-	        JTextField textField = (JTextField)editor.getEditorComponent();
-	        textField.setCaretPosition(0);
-	    }
-	}
-*/
 }

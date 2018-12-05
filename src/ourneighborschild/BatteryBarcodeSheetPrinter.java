@@ -8,6 +8,8 @@ import java.awt.RenderingHints;
 import java.awt.print.PageFormat;
 import java.awt.print.Printable;
 import java.awt.print.PrinterException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.krysalis.barcode4j.impl.AbstractBarcodeBean;
 import org.krysalis.barcode4j.impl.code128.Code128Bean;
@@ -18,10 +20,10 @@ public class BatteryBarcodeSheetPrinter implements Printable
 {
 	private static final int NUMBER_BARCODES_LINE = 3;
 	private static final int BARCODE_INITIAL_X_POS = 60;
-	private static final int BARCODE_INITIAL_Y_POS = 70;
+	private static final int BARCODE_INITIAL_Y_POS = 80;
 	private static final int WIDTH_BETWEEN_BARCODES = 190;
 	private static final int HEIGHT_BETWEEN_BARCODES = 110;
-	private static final int HEIGHT_BETWEEN_SIZE_AND_QTY = 480;
+//	private static final int HEIGHT_BETWEEN_SIZE_AND_QTY = 480;
 	
 	private GlobalVariablesDB gvs;
 	
@@ -78,13 +80,31 @@ public class BatteryBarcodeSheetPrinter implements Printable
 	@Override
 	public int print(Graphics g, PageFormat pf, int page) throws PrinterException
 	{
-		if (page > 0)	//'page' is zero-based 
+		if (page > 1)	//'page' is zero-based 
 		{ 
 			return NO_SUCH_PAGE;
 	    }
 		
-		Graphics2D g2d = (Graphics2D)g;
-		 
+//		Graphics2D g2d = (Graphics2D)g;
+		
+		List<BarcodeInfo> barcodeInfoList = new ArrayList<BarcodeInfo>();
+		if(page == 0)
+		{
+			//print battery size barcodes
+			for(BatterySize bs : BatterySize.searchList())
+				barcodeInfoList.add(new BarcodeInfo(bs));
+			
+			printPage(g, "Battery Size", barcodeInfoList);
+		}
+		else		//must be page 1
+		{
+			//print battery quantity barcodes
+			for(BatteryQty bq : BatteryQty.printValues())
+				barcodeInfoList.add(new BarcodeInfo(bq));
+			
+			printPage(g, "Battery Quantity", barcodeInfoList);
+		}
+/*		 
 		//draw the battery size title and bounding box
 		g2d.setFont(new Font("Calibri", Font.BOLD, 16));
 		drawCenteredString("Battery Size", 590, 0, 40, g2d, Color.BLACK);
@@ -121,8 +141,34 @@ public class BatteryBarcodeSheetPrinter implements Printable
 			else
 				x += WIDTH_BETWEEN_BARCODES;
 		}
-		  
+*/		  
 	     /* tell the caller that this page is part of the printed document */
 	     return PAGE_EXISTS;
+	}
+	
+	void printPage(Graphics g, String title, List<BarcodeInfo> infoList)
+	{
+		Graphics2D g2d = (Graphics2D) g;
+		
+		int count = 0;
+		int x = BARCODE_INITIAL_X_POS;
+		int y = BARCODE_INITIAL_Y_POS; 
+		
+		//draw the battery quantity title and bounding box
+		g2d.setFont(new Font("Calibri", Font.BOLD, 16));
+		drawCenteredString(title, 590, 0, BARCODE_INITIAL_Y_POS-30, g2d, Color.BLACK);
+		
+		//print the bar codes
+		for(BarcodeInfo bci : infoList)
+		{
+			drawBarCode(bci.code(), bci.label(), x, y, g2d);
+			if(++count % NUMBER_BARCODES_LINE == 0)
+			{
+				x = BARCODE_INITIAL_X_POS;
+				y += HEIGHT_BETWEEN_BARCODES;
+			}
+			else
+				x += WIDTH_BETWEEN_BARCODES;
+		}
 	}
 }
