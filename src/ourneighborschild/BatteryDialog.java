@@ -447,9 +447,7 @@ public class BatteryDialog extends ONCEntityTableDialog implements ActionListene
 			if(cID > -1 && wn > -1)
 			{
 				ONCChildWish cw = childWishDB.getWish(cID, wn);
-				if(cw != null 
-//					&& cw.getChildWishStatus() == WishStatus.Received
-				  )
+				if(cw != null && cw.getChildWishStatus() == WishStatus.Received)
 				{
 					ONCChild child = childDB.getChild(cID);
 					if(child != null)
