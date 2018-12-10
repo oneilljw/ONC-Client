@@ -121,19 +121,23 @@ public abstract class VerificationSheetPrinter implements Printable
 		{
 			childdata = vsAL.get(page).getChildArrayList().get(childnum).getChildAge() + " " +
 							vsAL.get(page).getChildArrayList().get(childnum).getChildGender();
+			
 			for(int wn=0; wn < NUM_GIFTS_PER_CHILD; wn++)
 			{
-				
-				
 				ONCChild c = vsAL.get(page).getChildArrayList().get(childnum);
 				ONCChildWish cw = cwDB.getWish(c.getChildGiftID(wn));
-				ONCWish catWish = cat.getWishByID(cw.getWishID());
-				String wishName = catWish == null ? "None" : catWish.getName();
 				
-				String restriction = restrictions[cw.getChildWishIndicator()];
-				String wish = wishName;
-				String detail = cw.getChildWishDetail();
-				giftdata[wn] = restriction + wish + "- " +  detail;
+				if(cw != null)
+				{
+					ONCWish catWish = cat.getWishByID(cw.getWishID());
+					String wishName = catWish == null ? "None" : catWish.getName();
+				
+					String restriction = restrictions[cw.getChildWishIndicator()];
+					String detail = cw.getChildWishDetail();
+					giftdata[wn] = restriction + wishName + "- " +  detail;
+				}
+				else
+					giftdata[wn] = "";
 			}
 			
 			printVerificationSheetChild(26, y, childnum+1, childdata, giftdata, cFonts, g2d);

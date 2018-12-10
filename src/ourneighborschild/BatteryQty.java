@@ -2,7 +2,7 @@ package ourneighborschild;
 
 public enum BatteryQty
 {
-	NONE("0",0,"0900000"),
+	NONE("",0,"0900000"),
 	ONE("1",1,"0900001"),
 	TWO("2",2,"0900002"),
 	THREE("3",3,"0900003"),

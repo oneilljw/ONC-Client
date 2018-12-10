@@ -2591,7 +2591,8 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			g2d.drawString(line[0], x, y+27); 	//ONC Number
 			
 			//draw ONC number bar code
-			drawBarCode( String.format("%07d", Integer.parseInt(line[0])), x+64, y, g2d, false);
+//			drawBarCode( String.format("%07d", Integer.parseInt(line[0])), x+64, y, g2d, false);	//top
+			drawBarCode( String.format("%07d", Integer.parseInt(line[0])), x, y+290, g2d, false);	//bottom
 			
 			g2d.setFont(ycFont[3]);
 			g2d.drawString(line[1], x, y+68);		//First and Last Name
@@ -2609,9 +2610,9 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		    
 		    //Draw the last line
 		    g2d.setFont(ycFont[4]);
-		    g2d.drawString("TOY BAGS", x+72, y+266);
+		    g2d.drawString("TOY BAGS", x+92, y+266);
 		    g2d.drawString("BIKE(S)", x+216, y+266);
-		    g2d.drawString("OTHER LARGE ITEMS", x+346, y+266);
+		    g2d.drawString("OTHER LARGE ITEMS", x+326, y+266);
 		    
 		    //Draw the # of Bikes. If the family status == PACKAGED, draw the # of bags and large items
 		    g2d.setFont(ycFont[2]);

@@ -197,7 +197,7 @@ public class BatteryDialog extends ONCEntityTableDialog implements ActionListene
 		this.getContentPane().add(batteryPanel);
 		this.getContentPane().add(bottomPanel);
 		
-		this.setMinimumSize(new Dimension(550,280));
+		this.setMinimumSize(new Dimension(580,280));
 //		pack();
 		
 		setScanState(ScanState.INITIAL);
@@ -447,7 +447,9 @@ public class BatteryDialog extends ONCEntityTableDialog implements ActionListene
 			if(cID > -1 && wn > -1)
 			{
 				ONCChildWish cw = childWishDB.getWish(cID, wn);
-				if(cw != null && cw.getChildWishStatus() == WishStatus.Received)
+				if(cw != null
+//				&& cw.getChildWishStatus() == WishStatus.Received
+				)
 				{
 					ONCChild child = childDB.getChild(cID);
 					if(child != null)
