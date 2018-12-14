@@ -2592,7 +2592,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			
 			//draw ONC number bar code
 //			drawBarCode( String.format("%07d", Integer.parseInt(line[0])), x+64, y, g2d, false);	//top
-			drawBarCode( String.format("%07d", Integer.parseInt(line[0])), x, y+290, g2d, false);	//bottom
+			drawBarCode( String.format("%07d", Integer.parseInt(line[0])), x+484, y+290, g2d, false);	//bottom
 			
 			g2d.setFont(ycFont[3]);
 			g2d.drawString(line[1], x, y+68);		//First and Last Name

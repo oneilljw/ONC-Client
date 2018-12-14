@@ -22,6 +22,7 @@ public class ONCFamilyReportRowBuilder
 	private ChildWishDB cwDB;
 	private UserDB userDB;
 	private WishCatalogDB cat;
+	private RegionDB regions;
 	
 	ONCFamilyReportRowBuilder()
 	{
@@ -29,6 +30,7 @@ public class ONCFamilyReportRowBuilder
 		cwDB = ChildWishDB.getInstance();
 		userDB = UserDB.getInstance();
 		cat = WishCatalogDB.getInstance();
+		regions = RegionDB.getInstance();
 	}
 	
 	String[] getFamilyReportCSVRowData(ONCFamily f)	//Used when writing the database to a .csv file
@@ -76,6 +78,7 @@ public class ONCFamilyReportRowBuilder
 		row[index++] = 	Integer.toString(f.getID());
 		row[index++] =	f.getONCNum();		
 		row[index++] = 	Integer.toString(f.getRegion());
+		row[index++] =  regions.getSchoolName(f.getSchoolCode());
 		row[index++] = 	f.getReferenceNum();
 		row[index++] = 	f.getBatchNum();	
 		row[index++] =  f.getDNSCode();
@@ -243,7 +246,7 @@ public class ONCFamilyReportRowBuilder
 	 
 	private String[] getCommonFamilyHeader()
 	{
-		String[] header = {"ONC ID", "ONCNum", "Region", "ODB Family #", "Batch #", "DNS Code", "Family Status", "Delivery Status",
+		String[] header = {"ONC ID", "ONCNum", "Region", "School", "ODB Family #", "Batch #", "DNS Code", "Family Status", "Delivery Status",
 					"Speak English?","Language if No", "Caller", "Notes", "Delivery Instructions",
 					"Client Family", "First Name", "Last Name", "House #", "Street", "Unit #", "City", "Zip Code",
 					"Substitute Delivery Address", "All Phone #'s", "Home Phone", "Other Phone", "Family Email", 
@@ -295,7 +298,7 @@ public class ONCFamilyReportRowBuilder
 	{
 		return new String[] 
 				{
-				"ONC ID", "ONC Num", "Region", "Reference #", "Batch #", "DNS Code", "Family Status", "Delivery Status",
+				"ONC ID", "ONC Num", "Region","School", "Reference #", "Batch #", "DNS Code", "Family Status", "Delivery Status",
 				"Speak English?","Language if No", "Caller", "Notes", "Delivery Instructions",
 				"Client Family", "First Name", "Last Name", "House #", "Street", "Unit #", "City", "Zip Code",
 				"Substitute Delivery Address", "All Phone #'s", "Home Phone", "Other Phone", "Family Email", 

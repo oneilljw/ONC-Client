@@ -315,35 +315,35 @@ public class WarehouseSignInDialog extends ONCEntityTableDialog implements Actio
  
         public Object getValueAt(int row, int col)
         {
-        	WarehouseSignIn whSignIn = whList.get(row);
-        	if(col == FIRST_NAME_COL)  
-        		return whSignIn.getVolunteer().getFirstName();
-        	else if(col == LAST_NAME_COL)
-        		return whSignIn.getVolunteer().getLastName();
-        	else if (col == GROUP_COL)
-        		return whSignIn.getVolunteer().getOrganization();
-        	else if (col == TIME_COL)
-        		return whSignIn.getTime();
-        	else if (col == DRIVER_NUM_COL)
-        		return whSignIn.getDriverNum();
-        	else
-        		return "Error";
+        		WarehouseSignIn whSignIn = whList.get(row);
+        		if(col == FIRST_NAME_COL)  
+        			return whSignIn.getVolunteer().getFirstName();
+        		else if(col == LAST_NAME_COL)
+        			return whSignIn.getVolunteer().getLastName();
+        		else if (col == GROUP_COL)
+        			return whSignIn.getVolunteer().getOrganization();
+        		else if (col == TIME_COL)
+        			return whSignIn.getTime();
+        		else if (col == DRIVER_NUM_COL)
+        			return whSignIn.getDriverNum();
+        		else
+        			return "Error";
         }
         
         //JTable uses this method to determine the default renderer/editor for each cell.
         @Override
         public Class<?> getColumnClass(int column)
         {
-        	if(column == TIME_COL)
-        		return Date.class;
-        	else
-        		return String.class;
+        		if(column == TIME_COL)
+        			return Date.class;
+        		else
+        			return String.class;
         }
  
         public boolean isCellEditable(int row, int col)
         {
-        	//Name, Status, Access and Permission are editable
-        	return false;
+        		//Name, Status, Access and Permission are editable
+        		return false;
         }
 	}
 	

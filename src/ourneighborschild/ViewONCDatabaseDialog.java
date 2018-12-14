@@ -145,14 +145,14 @@ public class ViewONCDatabaseDialog extends JDialog implements ActionListener, Li
 			dbTableModel.removeRow(0);
 		
 		//Add rows to table
-    	for(ONCFamily f:fDB.getList())
-    		dbTableModel.addRow(rb.getFamilyReportCSVRowData(f));
+    		for(ONCFamily f:fDB.getList())
+    			dbTableModel.addRow(rb.getFamilyReportCSVRowData(f));
     	
-    	btnExport.setEnabled(dbTable.getRowCount() > 0);
-    	bChangingTable = false;
+    		btnExport.setEnabled(dbTable.getRowCount() > 0);
+    		bChangingTable = false;
     	
-    	ColumnsAutoSizer dbTAS = new ColumnsAutoSizer();   	
-    	dbTAS.sizeColumnsToFit(dbTable);
+    		ColumnsAutoSizer dbTAS = new ColumnsAutoSizer();   	
+    		dbTAS.sizeColumnsToFit(dbTable);
 	}
 	
 	public class ColumnsAutoSizer 

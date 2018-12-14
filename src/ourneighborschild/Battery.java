@@ -49,6 +49,6 @@ public class Battery extends ONCObject
 		row[2] = Integer.toString(wishnum);
 		row[3] = size;
 		row[4] = Integer.toString(quantity);
-		return null;
+		return row;
 	}
 }
