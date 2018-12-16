@@ -28,6 +28,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -52,7 +53,7 @@ public class WarehouseSignInDialog extends ONCEntityTableDialog implements Actio
 	
 	private ONCTable dlgTable;
 	private AbstractTableModel dlgTableModel;
-	private JButton btnPrint, btnClear;
+	private JButton btnPrint, btnClear, btnRefresh;
 	private VolunteerDB volDB;
 	private List<WarehouseSignIn> whList;
 	
@@ -134,16 +135,20 @@ public class WarehouseSignInDialog extends ONCEntityTableDialog implements Actio
         anHeader.setForeground( Color.black);
         anHeader.setBackground( new Color(161,202,241));
         
-        //left justify wish count column
-//      DefaultTableCellRenderer dtcr = new DefaultTableCellRenderer();
-//      dtcr.setHorizontalAlignment(SwingConstants.LEFT);
-//      dlgTable.getColumnModel().getColumn(LOGINS_COL).setCellRenderer(dtcr);
+        //center justify driver number column
+        DefaultTableCellRenderer dtcr = new DefaultTableCellRenderer();
+        dtcr.setHorizontalAlignment(SwingConstants.CENTER);
+        dlgTable.getColumnModel().getColumn(DRIVER_NUM_COL).setCellRenderer(dtcr);
         
         //Create the scroll pane and add the table to it.
         JScrollPane dsScrollPane = new JScrollPane(dlgTable);
         dsScrollPane.setBorder(UIManager.getBorder("Table.scrollPaneBorder"));
         
         JPanel cntlPanel = new JPanel();
+        
+        btnRefresh = new JButton("Refresh");
+        btnRefresh.setToolTipText("Refresh the sign-in table list");
+        btnRefresh.addActionListener(this);
         
         btnPrint = new JButton("Print");
         btnPrint.setToolTipText("Print the sign-in table list");
@@ -153,6 +158,7 @@ public class WarehouseSignInDialog extends ONCEntityTableDialog implements Actio
         btnClear.setToolTipText("Clear the sign-in table list");
         btnClear.addActionListener(this);
         
+        cntlPanel.add(btnRefresh);
         cntlPanel.add(btnPrint);
         cntlPanel.add(btnClear);
         
@@ -178,7 +184,6 @@ public class WarehouseSignInDialog extends ONCEntityTableDialog implements Actio
 		}
 		
 		Collections.sort(whList, new WHDateComparator());
-		
 	}
 	
 	void print(String name)
@@ -208,7 +213,7 @@ public class WarehouseSignInDialog extends ONCEntityTableDialog implements Actio
 			whList.add(0, new WarehouseSignIn(addedVol));
 			
 			//update the sign-in table
-			dlgTableModel.fireTableRowsInserted(0, 0);;
+			dlgTableModel.fireTableRowsInserted(0, 0);
 		}
 		if(dbe.getSource() != this && (dbe.getType().equals("UPDATED_DRIVER")))
 		{
@@ -249,32 +254,28 @@ public class WarehouseSignInDialog extends ONCEntityTableDialog implements Actio
 			whList.clear();
 			dlgTableModel.fireTableDataChanged();
 		}
+		else if(e.getSource() == btnRefresh)
+		{
+			createWarehouseSignInList();
+			dlgTableModel.fireTableDataChanged();
+		}
 		
 	}
 	
 	private class WarehouseSignIn
 	{
 		private ONCVolunteer vol;
-//		private String firstName;
-//		private String lastName;
-//		private String group;
 		private long time;	//UTC time
 		
 		WarehouseSignIn(ONCVolunteer vol, Calendar time)
 		{
 			this.vol = vol;
-//			this.firstName = fn;
-//			this.lastName = ln;
-//			this.group = group;
 			this.time = time.getTimeInMillis();
 		}
 		
 		WarehouseSignIn(ONCVolunteer v)
 		{
 			this.vol = v;
-//			this.firstName = v.getFirstName();
-//			this.lastName = v.getLastName();
-//			this.group = v.getOrganization();
 			this.time = v.getDateChanged().getTime(); //last warehouse sign-in
 		}
 		
@@ -342,8 +343,35 @@ public class WarehouseSignInDialog extends ONCEntityTableDialog implements Actio
  
         public boolean isCellEditable(int row, int col)
         {
-        		//Name, Status, Access and Permission are editable
-        		return false;
+        		//Driver number is editable
+        		return col == DRIVER_NUM_COL;
+        }
+        
+        public void setValueAt(Object value, int row, int col)
+        { 
+        		ONCVolunteer selectedVol = whList.get(row).getVolunteer();
+        	
+        		//determine if the user made a change to the volunteer driver number
+        		if(col == DRIVER_NUM_COL && !selectedVol.getDrvNum().equals((String)value))
+        		{
+        			ONCVolunteer reqUpdateVol = new ONCVolunteer(selectedVol);	//make a copy
+        			reqUpdateVol.setDrvNum(((String) value));
+        		
+        			//if the user made a change to the driver number, attempt to update the volunteer object
+        			if(reqUpdateVol != null)
+        			{
+        				String response = volDB.update(this, reqUpdateVol);        		
+        				if(response == null || (response !=null && !response.startsWith("UPDATED_DRIVER")))
+        				{
+        					//request failed
+        					String err_mssg = "ONC Server denied update volunteer request, try again later";
+        					JOptionPane.showMessageDialog(GlobalVariablesDB.getFrame(), err_mssg, "Update Volunteer Request Failure",
+													JOptionPane.ERROR_MESSAGE, GlobalVariablesDB.getONCLogo());
+        					
+        					dlgTableModel.fireTableDataChanged();
+        				}
+        			}
+        		}
         }
 	}
 	
