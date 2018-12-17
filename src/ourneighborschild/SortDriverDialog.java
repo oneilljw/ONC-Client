@@ -458,7 +458,7 @@ public class SortDriverDialog extends DependantTableDialog
 		}
 		else if(dbe.getType().equals("LOADED_ACTIVITIES"))
 		{
-//			deliveryActivity = activityDB.getActivity("Delivery Day");
+			deliveryActivity = activityDB.getActivity("Delivery Day");
 		}
 		else if(dbe.getType().contains("_DRIVER"))	//build on add, update or delete event
 		{
