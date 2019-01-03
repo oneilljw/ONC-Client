@@ -432,16 +432,10 @@ public class VolunteerDB extends ONCSearchableDatabase
 			Type listtype = new TypeToken<ArrayList<ONCVolunteer>>(){}.getType();
 			
 			response = serverIF.sendRequest("GET<drivers>");
-				volunteerList = gson.fromJson(response, listtype);				
-
+				volunteerList = gson.fromJson(response, listtype);
+				
 			if(!response.startsWith("NO_DRIVERS"))
 			{
-//				//debug comment issue
-//				for(ONCVolunteer v : volunteerList)
-//					for(VolunteerActivity va : v.getActivityList())
-//						System.out.println(String.format("VolDB.import: v name: %s, v act: %s, act comment %s",
-//								v.getfName(), va.getName(), va.getComment()));
-				
 				response =  "DRIVERS_LOADED";
 				fireDataChanged(this, "LOADED_DRIVERS", null);
 			}

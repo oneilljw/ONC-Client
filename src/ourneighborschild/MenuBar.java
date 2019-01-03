@@ -37,8 +37,8 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 	private JMenuItem newFamMI, changeONCMI, changeRefMI, changeBatchMI, newChildMI;
 	private JMenuItem delChildMI, markAdultMI, connectChildMI, famHistMI;
 	private JMenu submenuImport, submenuFamilyDataChecks, submenuExport, submenuChangeFamilyNumbers;
-	private JMenu submenuDBYearList, submenuUsers;
-	private JMenuItem viewDBMI, sortWishesMI, sortFamiliesMI, sortOrgsMI, recGiftsMI, sortMealsMI, batteryMI, manageBatteryMI;
+	private JMenu submenuDBYearList, submenuUsers, submenuReceiveGifts;
+	private JMenuItem viewDBMI, sortWishesMI, sortFamiliesMI, sortOrgsMI, recGiftsMI, recGiftsBarcodeMI, sortMealsMI, batteryMI, manageBatteryMI;
 	private JMenuItem agentMI, groupMI, manageGroupsMI, orgMI, catMI, barcodeWishHistoryMI, inventoryMI;
 	private JMenuItem aboutONCMI, oncPrefrencesMI, profileMI, editUsersMI, manageUsersMI, onlineMI, chatMI, changePWMI, stopPollingMI;
 	private JMenuItem showServerLogMI, showServerClientIDMI, showCurrDirMI, showWebsiteStatusMI;
@@ -273,11 +273,22 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 	    
 	    menuWishes.addSeparator();
 	    
-	    recGiftsMI = new JMenuItem("Receive Gifts");
+	    submenuReceiveGifts = new JMenu("Receive Gifts");
+	    submenuImport.setEnabled(false);
+	    
+	    recGiftsBarcodeMI = new JMenuItem("By Barcode Scan");
+	    recGiftsBarcodeMI.setActionCommand("Receive Gifts - Barcode");
+	    recGiftsBarcodeMI.setEnabled(false);
+	    recGiftsBarcodeMI.addActionListener(this);;
+	    submenuReceiveGifts.add(recGiftsBarcodeMI);
+	    
+	    recGiftsMI = new JMenuItem("By Table Lookup");
 	    recGiftsMI.setActionCommand("Receive Gifts");
 	    recGiftsMI.setEnabled(false);
 	    recGiftsMI.addActionListener(this);;
-	    menuWishes.add(recGiftsMI);
+	    submenuReceiveGifts.add(recGiftsMI);
+	    
+	    menuWishes.add(submenuReceiveGifts);
 	    
 	    barcodeWishHistoryMI = new JMenuItem("Wish History");
 	    barcodeWishHistoryMI.setActionCommand("Barcode Wish History");
@@ -535,6 +546,7 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 		distMI.setEnabled(tf);	
 		sortWishesMI.setEnabled(true);
 		recGiftsMI.setEnabled(true);
+		recGiftsBarcodeMI.setEnabled(true);
 		barcodeWishHistoryMI.setEnabled(true);
 		batteryMI.setEnabled(true);
 		manageBatteryMI.setEnabled(true);
@@ -727,6 +739,8 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 			dlgManager.showBarcodeWishHistoryDialog();
 		else if(e.getSource() == batteryMI)
 			dlgManager.showBatteryDialog();
+		else if(e.getSource() == recGiftsBarcodeMI )
+			dlgManager.showReceiveGiftDialog();
 		else if(e.getSource() == manageBatteryMI)
 			dlgManager.showManageBatteryDialog();
 		else if(e.getSource() == inventoryMI)

@@ -56,8 +56,8 @@ public class ONCVolunteer extends ONCGmailContactEntity implements Comparable<ON
 //	}
 	
 	/***
-	 * Constrcutor used when importing volunteers from sign-up genius eported .csv file.
-	 * Should be deprecated for the 2018 season and beyond by direct import thur the API.
+	 * Constructor used when importing volunteers from sign-up genius exported .csv file.
+	 * Should be deprecated for the 2018 season and beyond by direct import thru the API.
 	 * @param line
 	 * @param changedBy
 	 * @param activityList

@@ -37,10 +37,11 @@ public class GlobalVariablesDB extends ONCDatabase implements Serializable
 	private Calendar oncDeliveryDate;
 	private static Calendar oncSeasonStartDate;
 	private Calendar oncGiftsReceivedDate;
-	private Calendar thanksgivingDeadline, decemberDeadline;
+	private Calendar thanksgivingMealDeadline, decemberGiftDeadline;
+	private Calendar decemberMealDeadline, waitlistGiftDeadline;
 	private Calendar familyEditDeadline;
 	private String warehouseAddress;
-	private int defaultGiftID;
+	private int defaultGiftID, defaultGiftCardID;
 	
 	private transient String[] sGrwth_pcts = {"5%", "10%", "15%", "20%", "25%"};
 	private transient int[] nGrwth_pcts = {5,10,15,20,25};
@@ -81,17 +82,29 @@ public class GlobalVariablesDB extends ONCDatabase implements Serializable
 	    oncGiftsReceivedDate.set(Calendar.SECOND, 0);
 	    oncGiftsReceivedDate.set(Calendar.MILLISECOND, 0);
 	    
-	    thanksgivingDeadline = Calendar.getInstance();
-	    thanksgivingDeadline.set(Calendar.HOUR_OF_DAY, 0);
-	    thanksgivingDeadline.set(Calendar.MINUTE, 0);
-	    thanksgivingDeadline.set(Calendar.SECOND, 0);
-	    thanksgivingDeadline.set(Calendar.MILLISECOND, 0);
+	    thanksgivingMealDeadline = Calendar.getInstance();
+	    thanksgivingMealDeadline.set(Calendar.HOUR_OF_DAY, 0);
+	    thanksgivingMealDeadline.set(Calendar.MINUTE, 0);
+	    thanksgivingMealDeadline.set(Calendar.SECOND, 0);
+	    thanksgivingMealDeadline.set(Calendar.MILLISECOND, 0);
 	    
-	    decemberDeadline = Calendar.getInstance();
-	    decemberDeadline.set(Calendar.HOUR_OF_DAY, 0);
-	    decemberDeadline.set(Calendar.MINUTE, 0);
-	    decemberDeadline.set(Calendar.SECOND, 0);
-	    decemberDeadline.set(Calendar.MILLISECOND, 0);
+	    decemberGiftDeadline = Calendar.getInstance();
+	    decemberGiftDeadline.set(Calendar.HOUR_OF_DAY, 0);
+	    decemberGiftDeadline.set(Calendar.MINUTE, 0);
+	    decemberGiftDeadline.set(Calendar.SECOND, 0);
+	    decemberGiftDeadline.set(Calendar.MILLISECOND, 0);
+	    
+	    decemberMealDeadline = Calendar.getInstance();
+	    decemberMealDeadline.set(Calendar.HOUR_OF_DAY, 0);
+	    decemberMealDeadline.set(Calendar.MINUTE, 0);
+	    decemberMealDeadline.set(Calendar.SECOND, 0);
+	    decemberMealDeadline.set(Calendar.MILLISECOND, 0);
+	    
+	    waitlistGiftDeadline = Calendar.getInstance();
+	    waitlistGiftDeadline.set(Calendar.HOUR_OF_DAY, 0);
+	    waitlistGiftDeadline.set(Calendar.MINUTE, 0);
+	    waitlistGiftDeadline.set(Calendar.SECOND, 0);
+	    waitlistGiftDeadline.set(Calendar.MILLISECOND, 0);
 	    
 	    familyEditDeadline = Calendar.getInstance();
 	    familyEditDeadline.set(Calendar.HOUR_OF_DAY, 0);
@@ -166,6 +179,7 @@ public class GlobalVariablesDB extends ONCDatabase implements Serializable
 		
 		warehouseAddress = "6476+Trillium+House+Lane+Centreville,VA";
 		defaultGiftID = -1;
+		defaultGiftCardID = -1;
 		startONCNum = 100;
 		ytyGrwthIndex = 2;
 		version = "N/A";
@@ -184,8 +198,10 @@ public class GlobalVariablesDB extends ONCDatabase implements Serializable
 	public Date getDeliveryDate() { return oncDeliveryDate.getTime(); }
 	public Date getGiftsReceivedDate() { return oncGiftsReceivedDate.getTime(); }
 	public Calendar getGiftsReceivedCalendar() { return oncGiftsReceivedDate; }
-	public Date getThanksgivingDeadline() { return thanksgivingDeadline.getTime(); }
-	public Date getDecemberDeadline() { return decemberDeadline.getTime(); }
+	public Date getThanksgivingMealDeadline() { return thanksgivingMealDeadline.getTime(); }
+	public Date getDecemberGiftDeadline() { return decemberGiftDeadline.getTime(); }
+	public Date getDecemberMealDeadline() { return decemberMealDeadline.getTime(); }
+	public Date getWaitlistGiftDeadline() { return waitlistGiftDeadline.getTime(); }
 	public Date getFamilyEditDeadline() { return familyEditDeadline.getTime(); }
 	public Date getSeasonStartDate() { return oncSeasonStartDate.getTime(); }
 	public String getWarehouseAddress() { return warehouseAddress; }
@@ -194,6 +210,7 @@ public class GlobalVariablesDB extends ONCDatabase implements Serializable
 	int getYTYGrwthPct() { return nGrwth_pcts[ytyGrwthIndex]; } 
 	String[] getGrwthPcts() { return sGrwth_pcts; }
 	int getDefaultGiftID() { return defaultGiftID; }
+	int getDefaultGiftCardID() { return defaultGiftCardID; }
 
 	public ImageIcon getImageIcon(int icon){ return imageIcons[icon]; }
 	public ImageIcon getImageIcon(String description)
@@ -234,8 +251,10 @@ public class GlobalVariablesDB extends ONCDatabase implements Serializable
 	//setters globally used - need to update at the server and broadcast
 	public void setDeliveryDate(Date dd) { oncDeliveryDate.setTime(dd); }
 	public void setGiftsReceivedDate(Date grd) { oncGiftsReceivedDate.setTime(grd); }
-	public void setThanksgivingDeadline(Date td) { decemberDeadline.setTime(td); }
-	public void setDecemberDeadline(Date dd) { decemberDeadline.setTime(dd); }
+	public void setThanksgivingMealDeadline(Date td) { thanksgivingMealDeadline.setTime(td); }
+	public void setDecemberGiftDeadline(Date dd) { decemberGiftDeadline.setTime(dd); }
+	public void setDecemberMealDeadline(Date td) { decemberMealDeadline.setTime(td); }
+	public void setWaitlistGiftDeadline(Date dd) { waitlistGiftDeadline.setTime(dd); }
 	public void setFamilyEditDeadline(Date fed) { familyEditDeadline.setTime(fed); }
 	public void setSeasonStartDate(Date ssd) { oncSeasonStartDate.setTime(ssd); }
 	public void setWarehouseAddress(String address) {warehouseAddress = address; }
@@ -243,6 +262,7 @@ public class GlobalVariablesDB extends ONCDatabase implements Serializable
 	public void setBarcode(Barcode barcode) { this.barcode = barcode; }
 	public void setAveryLabelOffset(Point offset) { this.averyLabelOffsetPoint = offset; }
 	public void setDefaultGift(ONCWish w) { this.defaultGiftID = w.getID(); }
+	public void setDefaultGiftCard(ONCWish w) { this.defaultGiftCardID = w.getID(); }
 	
 	//Setters locally used
 	void setFrame(JFrame frame) { oncFrame = frame; }
@@ -275,12 +295,15 @@ public class GlobalVariablesDB extends ONCDatabase implements Serializable
 			{
 				oncDeliveryDate.setTime(gvs.getDeliveryDate());
 				oncGiftsReceivedDate.setTime(gvs.getGiftsReceivedDate());
-				thanksgivingDeadline.setTime(gvs.getThanksgivingDeadline());
-				decemberDeadline.setTime(gvs.getDecemberDeadline());
+				thanksgivingMealDeadline.setTime(gvs.getThanksgivingMealDeadline());
+				decemberGiftDeadline.setTime(gvs.getDecemberGiftDeadline());
+				decemberMealDeadline.setTime(gvs.getDecemberMealDeadline());
+				waitlistGiftDeadline.setTime(gvs.getWaitListGiftDeadline());
 				familyEditDeadline.setTime(gvs.getFamilyEditDeadline());
 				oncSeasonStartDate.setTime(gvs.getSeasonStartDate());
 				warehouseAddress = gvs.getWarehouseAddress();
 				defaultGiftID = gvs.getDefaultGiftID();
+				defaultGiftCardID = gvs.getDefaultGiftCardID();
 				
 				response = "GLOBALS_LOADED";
 				
@@ -333,8 +356,9 @@ public class GlobalVariablesDB extends ONCDatabase implements Serializable
 	    	try 
 	    	{
 	    		 String[] header = {"Delivery Date", "Season Start Date", "Warehouse Address",
-	    				 "Gifts Received Deadline", "Thanksgiving Deadline", "December Deadline", "Edit Deadline",
-	    				 "Default Gift"};
+	    				 "Gifts Received Deadline", "Thanksgiving Meal Deadline", "December Gift Deadline", 
+	    				 "Edit Deadline", "Default Gift ID", "Defalut Gift Card ID", "December Meal Deadline",
+	    				 "Waitlist Deadline"};
 	    		
 	    		CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
 	    	    writer.writeNext(header);
@@ -344,10 +368,13 @@ public class GlobalVariablesDB extends ONCDatabase implements Serializable
 	    	    				Long.toString(oncSeasonStartDate.getTimeInMillis()),
 	    	    				warehouseAddress,
 	    	    				Long.toString(oncGiftsReceivedDate.getTimeInMillis()),
-	    	    				Long.toString(thanksgivingDeadline.getTimeInMillis()),
-	    	    				Long.toString(decemberDeadline.getTimeInMillis()),
-	    	    				Long.toString(familyEditDeadline.getTimeInMillis())};
-	    	    				Integer.toString(defaultGiftID);
+	    	    				Long.toString(thanksgivingMealDeadline.getTimeInMillis()),
+	    	    				Long.toString(decemberGiftDeadline.getTimeInMillis()),
+	    	    				Long.toString(familyEditDeadline.getTimeInMillis()),
+	    	    				Integer.toString(defaultGiftID),
+	    	    				Integer.toString(defaultGiftCardID),
+	    	    				Long.toString(decemberMealDeadline.getTimeInMillis()),
+	    	    				Long.toString(waitlistGiftDeadline.getTimeInMillis())};
 	    	    
 	    	    writer.writeNext(row);	//Write gv row
 	    	 
@@ -405,10 +432,13 @@ public class GlobalVariablesDB extends ONCDatabase implements Serializable
 		oncSeasonStartDate.setTime(updatedObj.getSeasonStartDate());
 		warehouseAddress = updatedObj.getWarehouseAddress();
 		oncGiftsReceivedDate.setTime(updatedObj.getGiftsReceivedDate());
-		thanksgivingDeadline.setTime(updatedObj.getThanksgivingDeadline());
-		decemberDeadline.setTime(updatedObj.getDecemberDeadline());
+		thanksgivingMealDeadline.setTime(updatedObj.getThanksgivingMealDeadline());
+		decemberGiftDeadline.setTime(updatedObj.getDecemberGiftDeadline());
+		decemberMealDeadline.setTime(updatedObj.getDecemberMealDeadline());
+		waitlistGiftDeadline.setTime(updatedObj.getWaitListGiftDeadline());
 		familyEditDeadline.setTime(updatedObj.getFamilyEditDeadline());
 		defaultGiftID = updatedObj.getDefaultGiftID();
+		defaultGiftCardID = updatedObj.getDefaultGiftCardID();
 		
 		//Notify local user IFs that a change occurred
 		fireDataChanged(source, "UPDATED_GLOBALS", updatedObj);

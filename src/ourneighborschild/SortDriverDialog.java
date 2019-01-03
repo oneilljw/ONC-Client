@@ -184,7 +184,7 @@ public class SortDriverDialog extends DependantTableDialog
 		if(deliveryActivity == null)
 		{
 			JOptionPane.showMessageDialog(this, "Couldn't find delivery day activity named \"Delivery Day\", "
-					+ "please ensure one has been created and try again.","Couldn't find Delivery Day Activity",  
+					+ "please ensure one has been assigned in Preferences.","Couldn't find Delivery Day Activity",  
 					JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
 		}
 		else

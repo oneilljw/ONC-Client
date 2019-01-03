@@ -39,6 +39,7 @@ public class DialogManager implements EntitySelectionListener
 	private AngelAutoCallDialog angelDlg;
 	private FamilyHistoryChangesDialog famHistChgDlg;
 	private BatteryDialog batteryDlg;
+	private ReceiveGiftsByBarcodeDialog recGiftDialog;
 		
 	//dialogs that inherit from HistoryDialog
 	private Map<String, HistoryDialog> historyDlgMap;
@@ -151,6 +152,9 @@ public class DialogManager implements EntitySelectionListener
     		//Set up the battery dialog
     		batteryDlg = new BatteryDialog(GlobalVariablesDB.getFrame());
     		eeManager.registerEntitySelector(batteryDlg);
+    		
+    		recGiftDialog = new ReceiveGiftsByBarcodeDialog(GlobalVariablesDB.getFrame());
+    		eeManager.registerEntitySelector(recGiftDialog);
     		
     		//Set up the manage batteries dialog
     		manageBatteryDlg = new ManageBatteryDialog(GlobalVariablesDB.getFrame());
@@ -361,6 +365,15 @@ public class DialogManager implements EntitySelectionListener
 		{
 	        batteryDlg.setLocationRelativeTo(GlobalVariablesDB.getFrame());
 			batteryDlg.setVisible(true);
+		}
+	}
+	
+	void showReceiveGiftDialog()
+	{
+		if(!recGiftDialog.isVisible())
+		{
+			recGiftDialog.setLocationRelativeTo(GlobalVariablesDB.getFrame());
+			recGiftDialog.setVisible(true);
 		}
 	}
 	

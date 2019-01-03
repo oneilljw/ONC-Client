@@ -204,10 +204,10 @@ public abstract class GiftActionDialog extends SortTableDialog
 	}
 	
 	/****
-	 * Method processes a gift identified by child id and wish number. actOnGift to change the status of the child wish/gift.
-	 * A number of error conditions may occur that result in the wish/gift being invalid.
-	 * The method returns an integer code that provides a result of the attempt to change the
-	 * wish/gift status. The background color of the search criteria panel color is changed to
+	 * Method processes a gift identified by child id and wish number. actOnGift to change the status 
+	 * of the child wish/gift.  A number of error conditions may occur that result in the wish/gift 
+	 * being invalid. The method returns an integer code that provides a result of the attempt to change
+	 * the wish/gift status. The background color of the search criteria panel color is changed to
 	 * either green or red depending on the success of the requested state change
 	 * 
 	 * Return codes are:
@@ -224,19 +224,15 @@ public abstract class GiftActionDialog extends SortTableDialog
 	 */
 	GiftActionReturnCode actOnGiftFromBarcode(int cID, int wn)
 	{
-//		int returnCode;
 		GiftActionReturnCode rc = null;
 		
 		ONCChildWish cw = cwDB.getWish(cID, wn);	//get latest wish for child
 		if(cw == null)
 			rc = new GiftActionReturnCode(CHILD_NOT_IN_LOCAL_DB, null);
-//			returnCode = CHILD_NOT_IN_LOCAL_DB;	//wish not in local child wish data base
 		else if(cw.getChildWishStatus() == getGiftStatusAction())
 			rc = new GiftActionReturnCode(GIFT_ACTION_ALREADY_OCCURRED, new SortWishObject(-1, null, null, cw));
-//			returnCode = GIFT_ACTION_ALREADY_OCCURRED;	//double scan
 		else if(!doesChildWishStatusMatch(cw))
 			rc = new GiftActionReturnCode(GIFT_STATUS_INVALID, null);
-//			returnCode = GIFT_STATUS_INVALID;	//wish  not in valid state
 		else
 		{
 			//attempt to act on the wish/gift,if it fails, server didn't accept update
@@ -249,7 +245,6 @@ public abstract class GiftActionDialog extends SortTableDialog
 				rc = new GiftActionReturnCode(GIFT_ACTION_FAMILY_NOT_SERVED, swo);
 			else if(actOnGift(swo))
 				rc = new GiftActionReturnCode(GIFT_ACTION_SUCCESSFUL, swo);
-//				returnCode = GIFT_ACTION_SUCCESSFUL;
 			else
 				rc = new GiftActionReturnCode(GIFT_ACTION_REQUEST_SERVER_FAILURE, null);
 //				returnCode = GIFT_ACTION_REQUEST_SERVER_FAILURE;

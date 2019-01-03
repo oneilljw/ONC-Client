@@ -158,24 +158,17 @@ public class SortWishObject extends ONCObject
 			line[4] = Integer.toString(soChildWish.getID());
 		
 		line[4] = line[4] + Integer.toString(soChildWish.getWishNumber());	
-/*		
-		//generate leading zero padded bar code string for child wish id
-		if(soChildWish.getID() < 10)
-			line[4] = "000000" + Integer.toString(soChildWish.getID());
-		else if(soChildWish.getID() < 100)
-			line[4] = "00000" + Integer.toString(soChildWish.getID());
-		else if(soChildWish.getID() < 1000)
-			line[4] = "0000" + Integer.toString(soChildWish.getID());
-		else if(soChildWish.getID() < 10000)
-			line[4] = "000" + Integer.toString(soChildWish.getID());
-		else if(soChildWish.getID() < 100000)
-			line[4] = "00" + Integer.toString(soChildWish.getID());
-		else if(soChildWish.getID() < 1000000)
-			line[4] = "0" + Integer.toString(soChildWish.getID());
-		else
-			line[4] = Integer.toString(soChildWish.getID());
-*/		
+	
 		return line;
+	}
+	
+	String getWishPlusDetail()
+	{
+		ONCWish catWish = cat.getWishByID(soChildWish.getWishID());
+		String wishName = catWish == null ? "None" : catWish.getName();
+		
+		return wishName.equals("-") ? soChildWish.getChildWishDetail() : 
+			wishName + "- " + soChildWish.getChildWishDetail();
 	}
 	
 	//determine if two SortWishObjects match

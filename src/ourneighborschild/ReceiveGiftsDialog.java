@@ -68,7 +68,5 @@ public class ReceiveGiftsDialog extends GiftActionDialog
 	void initializeFilters() {
 		// TODO Auto-generated method stub
 		
-	}
-
-	
+	}	
 }
