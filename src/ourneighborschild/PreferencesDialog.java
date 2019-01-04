@@ -166,13 +166,13 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 //		datePanel.setLayout(new GridLayout(3,3));
 		DateChangeListener dcl = new DateChangeListener();	//listener for all date changes
 		
-		Dimension dateSize = new Dimension(184, 56);
+		Dimension dateSize = new Dimension(200, 56);
 		dc_today = new JDateChooser(gvDB.getTodaysDate());
 		dc_today.setPreferredSize(dateSize);
 		dc_today.setBorder(BorderFactory.createTitledBorder("Today's Date"));
 		dc_today.setEnabled(false);
 		dc_today.getDateEditor().addPropertyChangeListener(dcl); 
-		datePanelTop.add(dc_today);
+//		datePanelTop.add(dc_today);
 		
 		dc_seasonstart = new JDateChooser(gvDB.getSeasonStartDate());
 		dc_seasonstart.setPreferredSize(dateSize);
@@ -187,6 +187,13 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		dc_delivery.setEnabled(false);
 		dc_delivery.getDateEditor().addPropertyChangeListener(dcl);
 		datePanelTop.add(dc_delivery);
+
+		dc_InfoEditCutoff = new JDateChooser();
+		dc_InfoEditCutoff.setPreferredSize(dateSize);
+		dc_InfoEditCutoff.setBorder(BorderFactory.createTitledBorder("Family Update Deadline"));
+		dc_InfoEditCutoff.setEnabled(false);
+		dc_InfoEditCutoff.getDateEditor().addPropertyChangeListener(dcl);		
+		datePanelTop.add(dc_InfoEditCutoff);
 		
 		JPanel datePanelMid = new JPanel();
 		datePanelMid.setLayout(new FlowLayout(FlowLayout.LEFT));
@@ -204,21 +211,21 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		dc_DecemberMealCutoff.getDateEditor().addPropertyChangeListener(dcl);		
 		datePanelMid.add(dc_DecemberMealCutoff);
 		
+		JPanel datePanelBottom = new JPanel();
+		datePanelBottom.setLayout(new FlowLayout(FlowLayout.LEFT));
 		dc_DecemberGiftCutoff = new JDateChooser();
 		dc_DecemberGiftCutoff.setPreferredSize(dateSize);
 		dc_DecemberGiftCutoff.setBorder(BorderFactory.createTitledBorder("December Gift Deadline"));
 		dc_DecemberGiftCutoff.setEnabled(false);
 		dc_DecemberGiftCutoff.getDateEditor().addPropertyChangeListener(dcl);
-		datePanelMid.add(dc_DecemberGiftCutoff);
-		
-		JPanel datePanelBottom = new JPanel();
-		datePanelBottom.setLayout(new FlowLayout(FlowLayout.LEFT));		
+		datePanelBottom.add(dc_DecemberGiftCutoff);
+				
 		dc_WaitlistGiftCutoff = new JDateChooser();
 		dc_WaitlistGiftCutoff.setPreferredSize(dateSize);
 		dc_WaitlistGiftCutoff.setBorder(BorderFactory.createTitledBorder("Waitlist Gift Deadline"));
 		dc_WaitlistGiftCutoff.setEnabled(false);
 		dc_WaitlistGiftCutoff.getDateEditor().addPropertyChangeListener(dcl);
-		datePanelBottom.add(dc_DecemberGiftCutoff);
+		datePanelBottom.add(dc_WaitlistGiftCutoff);
 		
 		dc_giftsreceived = new JDateChooser(gvDB.getGiftsReceivedDate());
 		dc_giftsreceived.setPreferredSize(dateSize);
@@ -227,13 +234,6 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		dc_giftsreceived.setEnabled(false);
 		dc_giftsreceived.getDateEditor().addPropertyChangeListener(dcl);		
 		datePanelBottom.add(dc_giftsreceived);
-		
-		dc_InfoEditCutoff = new JDateChooser();
-		dc_InfoEditCutoff.setPreferredSize(dateSize);
-		dc_InfoEditCutoff.setBorder(BorderFactory.createTitledBorder("Family Update Deadline"));
-		dc_InfoEditCutoff.setEnabled(false);
-		dc_InfoEditCutoff.getDateEditor().addPropertyChangeListener(dcl);		
-		datePanelBottom.add(dc_InfoEditCutoff);
 		
 		btnApplyDateChanges = new JButton("Apply Date Changes");
 		btnApplyDateChanges.setEnabled(false);

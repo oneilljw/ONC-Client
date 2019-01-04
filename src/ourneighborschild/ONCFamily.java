@@ -197,12 +197,13 @@ public class ONCFamily extends ONCEntity
 	}
 	
 	//Overloaded Constructor - Direct Intake Processing
-	public ONCFamily(int id, String cb, String oncNum, String odbFamilyNum, String batchNum, String speakEnglish,
-				String language, String hohFirstName, String hohLastName, String houseNum, String street, 
-				String unitNum, String city, String zipCode, String altHouseNum, String altStreet,
-				String altUnitNum, String altCity, String altZipCode, String homePhone, String otherPhone, 
-				String altPhone, String familyEmail, String odbDetails, String schools, boolean bGiftsRequested, 
-				String odbWishList, int agentID, int groupID, int mealID, MealStatus mStatus, Transportation transportation)
+	public ONCFamily(int id, String cb, String oncNum, String odbFamilyNum, String batchNum, String dnsCode,
+				String speakEnglish, String language, String hohFirstName, String hohLastName, 
+				String houseNum, String street, String unitNum, String city, String zipCode, 
+				String altHouseNum, String altStreet, String altUnitNum, String altCity, String altZipCode,
+				String homePhone, String otherPhone, String altPhone, String familyEmail, String odbDetails,
+				String schools, boolean bGiftsRequested, String odbWishList, int agentID, int groupID,
+				int mealID, MealStatus mStatus, Transportation transportation)
 	{
 		super(id, new Date(), cb, STOPLIGHT_OFF, "Family referred", cb);
 		this.oncNum = oncNum;
@@ -213,8 +214,8 @@ public class ONCFamily extends ONCEntity
 		this.nBags = 0;
 		this.nLargeItems = 0;
 		this.referenceNum = odbFamilyNum;
-		this.batchNum = batchNum;	
-		this.dnsCode = "";
+		this.batchNum = batchNum;
+		this.dnsCode = dnsCode;
 		this.speakEnglish = speakEnglish;	//Values are "Yes" or "No"	
 		this.language = language;		//Spanish, Arabic, Korean, etc	
 		this.notes = "";

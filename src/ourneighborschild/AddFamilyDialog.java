@@ -649,7 +649,7 @@ public class AddFamilyDialog extends JDialog implements ActionListener, ListSele
 		}
 		
 		ONCFamily fam = new ONCFamily(-1, user.getLNFI(), "NNA",
-					"NNA", "B-CR",
+					"NNA", "B-CR", "",
 					languageCB.getSelectedIndex()==0 ? "Yes" : "No",
 					(String) languageCB.getSelectedItem(),
 					hohFN.getText(), hohLN.getText(), housenumTF.getText(),
