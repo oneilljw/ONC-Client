@@ -11,12 +11,11 @@ public class ServerGVs extends ONCObject
 	private Calendar oncGiftsReceivedDate;
 	private Calendar thanksgivingMealDeadline, decemberMealDeadline;
 	private Calendar familyEditDeadline;
-	private int defaultGiftID;
-	private int defaultGiftCardID;
+	private int defaultGiftID, defaultGiftCardID, deliveryActivityID;
 	private Calendar decemberGiftDeadline, waitlistGiftDeadline;
 	
 	public ServerGVs(Long dd, Long ssd, String wa, Long grd, Long td, Long decd, Long fed, int defaultGiftID,
-			 int defaultGiftCardID, Long decMealDeadlone, Long wlDeadline)
+			 int defaultGiftCardID, Long decMealDeadlone, Long wlDeadline, int defaultDeliveryActivityID)
 	{
 		super(0); //id is 0 since there is only one instance of server global variables
 		giftDeliveryDate = Calendar.getInstance();
@@ -48,11 +47,14 @@ public class ServerGVs extends ONCObject
 		
 		waitlistGiftDeadline = Calendar.getInstance();
 		waitlistGiftDeadline.setTimeInMillis(decd);
+		
+		this.deliveryActivityID = defaultDeliveryActivityID;
 	}
 	
 	public ServerGVs(Date delDate, Date seasonStartDate, String wa, Date giftsreceivedDate,
 			Date thanksgivingDeadline, Date decemberDeadline, Date familyEditDeadline, int defaultGiftID,
-			int defaultGiftCardID, Date decMealDeadline, Date waitlistGiftDeadline)
+			int defaultGiftCardID, Date decMealDeadline, Date waitlistGiftDeadline,
+			int defaultDeliveryActivityID)
 	{
 		super(0); //id is 0 since there is only one instance of server global variables
 		giftDeliveryDate = Calendar.getInstance();
@@ -84,6 +86,8 @@ public class ServerGVs extends ONCObject
 		
 		this.waitlistGiftDeadline = Calendar.getInstance();
 		this.waitlistGiftDeadline.setTime(waitlistGiftDeadline);
+		
+		this.deliveryActivityID = defaultDeliveryActivityID;
 	}
 	
 	//getters
@@ -101,6 +105,7 @@ public class ServerGVs extends ONCObject
 	public int getDefaultGiftCardID() { return defaultGiftCardID; }
 	public Date getDecemberMealDeadline() { return decemberMealDeadline.getTime(); }
 	public Date getWaitListGiftDeadline() { return waitlistGiftDeadline.getTime(); }
+	public int getDeliveryActivityID() { return deliveryActivityID; }
 	
 	//setters
 
@@ -119,6 +124,7 @@ public class ServerGVs extends ONCObject
  						Integer.toString(defaultGiftCardID),
  						Long.toString(decemberMealDeadline.getTimeInMillis()),
  						Long.toString(waitlistGiftDeadline.getTimeInMillis()),
+ 						Integer.toString(deliveryActivityID)
  						};		
 		return row;
 	}

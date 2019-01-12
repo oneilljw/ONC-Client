@@ -101,15 +101,6 @@ public class ActivityDB extends ONCSearchableDatabase
 		
 		return index < activityList.size() ? activityList.get(index) : null;
 	}
-	Activity getActivity(String activity)
-	{
-		//search for matching activity.
-		int index = 0;
-		while(index < activityList.size() && !activityList.get(index).getName().equals(activity))
-			index++;
-
-		return index < activityList.size() ? activityList.get(index) : null;
-	}
 	
 	//creates a list of volunteer activities based on stored string of activity ID's 
 	//separated by the '_' character.

@@ -13,8 +13,10 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
+import java.util.List;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultCellEditor;
 import javax.swing.DefaultComboBoxModel;
@@ -76,7 +78,9 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 	private String whStreetNum, whStreet,whCity, whState;
 	public JComboBox<Integer> oncFontSizeCB;
 	private JComboBox<ONCWish> defaultGiftCB, defaultGiftCardCB;
+	private JComboBox<Activity> deliveryActivityCB;
 	private DefaultComboBoxModel<ONCWish> defaultGiftCBM, defaultGiftCardCBM;
+	private DefaultComboBoxModel<Activity> deliveryActivityCBM;
 	private JButton btnApplyDateChanges, btnApplyAddressChanges;
 	private boolean bIgnoreDialogEvents;
 	private JCheckBox barcodeCkBox, signUpImportCkBox;
@@ -157,7 +161,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		
 		tabbedPane.addTab("User Filters/Font", userSettingsPanel);
 		
-		//set up the date tab
+		//set up the season dates tab
 		JPanel dateTab = new JPanel();
 		dateTab.setLayout(new BoxLayout(dateTab, BoxLayout.Y_AXIS));
 		
@@ -342,7 +346,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		
 		tabbedPane.addTab("Ornament Labels", wishlabelPanel);
 		
-		//set up the SignUpGenuis Tab
+		//set up the SignUpGenuis/Activities Tab
 		JPanel geniusPanel = new JPanel();
 		geniusPanel.setLayout(new BoxLayout(geniusPanel, BoxLayout.Y_AXIS));
 		
@@ -431,7 +435,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		geniusBtnPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
 		
 		sdf = new SimpleDateFormat("M/d/yy h:mm a");
-		lblLastSignUpImportTime = new JLabel("Time List of Active Sign-Up(s) Imported: Never");
+		lblLastSignUpImportTime = new JLabel("Time List of Active Sign-Up(s) Last Imported: Never");
 //		lblLastSignUpImportTime.setPreferredSize(new Dimension(184, 52));
 		geniusImportPanel.add(lblLastSignUpImportTime);
 		
@@ -442,10 +446,30 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		geniusControlPanel.add(geniusImportPanel);
 		geniusControlPanel.add(geniusBtnPanel);
 		
+		JPanel deliveryActivityPanel = new JPanel();
+		deliveryActivityPanel.setLayout(new BoxLayout(deliveryActivityPanel, BoxLayout.X_AXIS));
+		deliveryActivityPanel.setBorder(BorderFactory.createTitledBorder("Delivery Activity"));
+		
+		JLabel lblDeliveryActivity = new JLabel("Set the Delivery Activity:");
+		deliveryActivityPanel.add(lblDeliveryActivity);
+		
+		deliveryActivityCB = new JComboBox<Activity>();
+		deliveryActivityCBM = new DefaultComboBoxModel<Activity>();
+		
+		deliveryActivityCBM.addElement(new Activity(-1, "None"));//creates a dummy Activity with name "None", id = -1;
+		deliveryActivityCB.setModel(deliveryActivityCBM);
+		deliveryActivityCB.setPreferredSize(new Dimension(180, 56));
+		deliveryActivityCB.setToolTipText("Used to determine what volunteers are making deliveries");
+		deliveryActivityCB.addActionListener(this);
+		deliveryActivityPanel.add(deliveryActivityCB);
+		
+		deliveryActivityPanel.add(Box.createRigidArea(new Dimension(240,0)));
+		
 		//add the table scroll pane to the symbol panel
 		geniusPanel.add(importPanel);
 		geniusPanel.add(signUpScrollPane);
 		geniusPanel.add(geniusControlPanel);
+		geniusPanel.add(deliveryActivityPanel);
 				
 		tabbedPane.addTab("SignUpGenius", geniusPanel);
 		
@@ -492,6 +516,17 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 				defaultGiftCardCB.setSelectedItem(defaultGiftCardWish);
 			else
 				defaultGiftCardCB.setSelectedIndex(0);	
+		}
+		else
+			defaultGiftCardCB.setSelectedIndex(0);
+		
+		if(gvDB.getDeliveryActivityID() > -1 && activityDB.size() > 0)
+		{
+			Activity defaultDeliveryActivity = activityDB.getActivity(gvDB.getDeliveryActivityID());
+			if(defaultDeliveryActivity != null)
+				deliveryActivityCB.setSelectedItem(defaultDeliveryActivity);
+			else
+				deliveryActivityCB.setSelectedIndex(0);	
 		}
 		else
 			defaultGiftCardCB.setSelectedIndex(0);
@@ -559,7 +594,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 	void displaySignUpData()
 	{
 		GeniusSignUps geniusSignUps = activityDB.getSignUps();
-		String time = String.format("Time List of Active Sign Up(s) Imported: %s", 
+		String time = String.format("Time List of Active Sign Up(s) Last Imported: %s", 
 				sdf.format(geniusSignUps.getLastImportTime().getTime()));
 		
 		signUpImportCkBox.setSelected(geniusSignUps.isImportEnabled());
@@ -601,6 +636,10 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		ONCWish cbGiftCardWish = (ONCWish) defaultGiftCardCB.getSelectedItem();
 		if(gvDB.getDefaultGiftCardID() != cbGiftCardWish.getID()) {cf |= 1024;}
 		
+		Activity cbDefaultDeliveryActivity = (Activity) deliveryActivityCB.getSelectedItem();
+		if(gvDB.getDeliveryActivityID() != cbDefaultDeliveryActivity.getID()) {cf |= 2048;}
+		
+		
 		if(cf > 0)
 		{
 			ServerGVs updateGVreq = new ServerGVs(dc_delivery.getDate(), 
@@ -612,7 +651,8 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 													     dc_InfoEditCutoff.getDate(),
 													      cbWish.getID(), cbGiftCardWish.getID(),
 													       dc_DecemberMealCutoff.getDate(),
-													        dc_WaitlistGiftCutoff.getDate());
+													        dc_WaitlistGiftCutoff.getDate(),
+													         cbDefaultDeliveryActivity.getID());
 			
 			String response = gvDB.update(this, updateGVreq);
 			if(!response.startsWith("UPDATED_GLOBALS"))
@@ -704,6 +744,16 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		{
 			update();
 		}
+		else if(!bIgnoreDialogEvents && e.getSource().equals(defaultGiftCardCB) &&
+				((ONCWish) defaultGiftCardCB.getSelectedItem()).getID() != gvDB.getDefaultGiftCardID())
+		{
+			update();
+		}
+		else if(!bIgnoreDialogEvents && e.getSource().equals(deliveryActivityCB) &&
+				((Activity) deliveryActivityCB.getSelectedItem()).getID() != gvDB.getDeliveryActivityID())
+		{
+			update();
+		}
 		else if(e.getSource().equals(btnImportSignUpList))
 		{
 			activityDB.requestGeniusSignUps();
@@ -741,7 +791,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		}
 	}
 	
-	void updateDefalutGiftCBLists(boolean bInitialize)
+	private void updateDefalutGiftCBLists(boolean bInitialize)
 	{	
 		//remove the action listener for each CB
 		defaultGiftCB.removeActionListener(this);
@@ -800,6 +850,42 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		defaultGiftCB.addActionListener(this);
 		defaultGiftCardCB.addActionListener(this);
 	}
+	
+	void updateDefaultDeliveryActivityCBList(boolean bInitialize)
+	{	
+		//remove the action listener
+		deliveryActivityCB.removeActionListener(this);
+		
+		//archive the default delivery activity selection
+		Activity curr_defalut_act_sel;
+		if(bInitialize &&  gvDB.getDeliveryActivityID() > -1)
+			curr_defalut_act_sel = (Activity) activityDB.getActivity(gvDB.getDeliveryActivityID());
+		else
+			curr_defalut_act_sel = (Activity) deliveryActivityCB.getSelectedItem();
+			
+		int selDefalutDeliveryActivityIndex = 0;
+		
+		//update the default delivery activity CBM
+		deliveryActivityCBM.removeAllElements();
+		int index = 0;
+		@SuppressWarnings("unchecked")
+		List<Activity> activityList = (List<Activity>) activityDB.getList();
+		for(Activity a: activityList)
+		{
+			deliveryActivityCBM.addElement(a);
+			if(curr_defalut_act_sel.getID() == a.getID())
+				selDefalutDeliveryActivityIndex = index;
+				
+			index++;
+		}
+		
+		//restore a prior selection if there was one
+		deliveryActivityCB.setSelectedIndex(selDefalutDeliveryActivityIndex); //Keep current selection
+		
+		
+		//restore the action listeners
+		deliveryActivityCB.addActionListener(this);
+	}
 
 	@Override
 	public void dataChanged(DatabaseEvent dbe)
@@ -848,6 +934,14 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 			updateDefalutGiftCBLists(true);
 		}
 		else if(dbe.getSource() != this && dbe.getType().contains("_CATALOG_WISH"))
+		{
+			updateDefalutGiftCBLists(false);
+		}
+		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_ACTIVITIES"))
+		{
+			updateDefaultDeliveryActivityCBList(true);
+		}
+		else if(dbe.getSource() != this && dbe.getType().contains("_ACTIVITY"))
 		{
 			updateDefalutGiftCBLists(false);
 		}

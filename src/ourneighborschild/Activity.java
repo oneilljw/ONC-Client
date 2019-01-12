@@ -20,7 +20,6 @@ public class Activity extends ONCEntity
 	private long endTimeInMillis;
 	private String location;
 	private String description;
-//	private String volComment;	//personalized by each volunteer for each of their activities
 	private boolean bOpen;
 	private boolean bEmailReminder;
 	
@@ -36,7 +35,6 @@ public class Activity extends ONCEntity
 		this.endTimeInMillis = end;
 		this.location = location;
 		this.description = description;
-//		this.volComment = volComment;
 		this.bOpen = bOpen;
 		this.bEmailReminder = bEmailReminder;
 	}
@@ -52,7 +50,6 @@ public class Activity extends ONCEntity
 		this.endTimeInMillis = activity.endTimeInMillis;
 		this.location = activity.location;
 		this.description = activity.description;
-//		this.volComment = activity.volComment;
 		this.bOpen = activity.bOpen;
 		this.bEmailReminder = activity.bEmailReminder;
 	}
@@ -73,7 +70,6 @@ public class Activity extends ONCEntity
 		this.endTimeInMillis = sua.getEnddate() * 1000;
 		this.location = sua.getLocation();
 		this.description = "";
-//		this.volComment = sua.getComment();
 		this.bOpen = false;
 		this.bEmailReminder = false;
 	}
@@ -90,10 +86,24 @@ public class Activity extends ONCEntity
 		this.endTimeInMillis = line[5].isEmpty() ? 0 : Long.parseLong(line[5]);
 		this.location = line[6];
 		this.description = line[7];
-//		this.volComment = "";
 		this.bOpen = !line[8].isEmpty() && line[8].charAt(0) == 'T' ? true : false;
 		this.bEmailReminder = !line[9].isEmpty() && line[9].charAt(0) == 'T' ? true : false;
 	}
+	
+	//dummy Activity
+	public Activity(int id, String name) 
+	{
+		super(id, new Date(), "Lavin, K", 3, "Default Delivery Activity", "Lavin, K");
+		this.geniusID = -1;
+		this.category = "";
+		this.name = name;
+		this.startTimeInMillis = 0;
+		this.endTimeInMillis = 0;
+		this.location = "";
+		this.description = "";
+		this.bOpen = false;
+		this.bEmailReminder = false;
+}
 	
 	//getters
 	public int getGeniusID()  { return geniusID; }
@@ -156,4 +166,7 @@ public class Activity extends ONCEntity
 		
 		return match;
 	}
+	
+	@Override
+	public String toString() { return name; }
 }

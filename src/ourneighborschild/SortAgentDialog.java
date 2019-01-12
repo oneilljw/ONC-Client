@@ -378,7 +378,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 						f.getStreet(),
 						f.getUnit(),
 						f.getZipCode(),
-						regions.getRegionID(f.getRegion()),
+						regionDB.getRegionID(f.getRegion()),
 						f.getChangedBy()
 						};
 		return row;

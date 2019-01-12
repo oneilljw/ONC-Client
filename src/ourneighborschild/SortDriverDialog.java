@@ -68,6 +68,9 @@ public class SortDriverDialog extends DependantTableDialog
 		if(userDB != null)
 			userDB.addDatabaseListener(this);
 		
+		if(gvs != null)
+			gvs.addDatabaseListener(this); 	//listen for delivery activity update
+		
 		//Set up the agent table content array list
 		atAL = new ArrayList<ONCVolunteer>();
 		
@@ -333,7 +336,7 @@ public class SortDriverDialog extends DependantTableDialog
 						f.getStreet(),
 						f.getUnit(),
 						f.getZipCode(),
-						regions.getRegionID(f.getRegion()),
+						regionDB.getRegionID(f.getRegion()),
 						f.getChangedBy()
 						};
 		return row;
@@ -458,7 +461,17 @@ public class SortDriverDialog extends DependantTableDialog
 		}
 		else if(dbe.getType().equals("LOADED_ACTIVITIES"))
 		{
-			deliveryActivity = activityDB.getActivity("Delivery Day");
+			int deliveryActivityID = gvs.getDeliveryActivityID();
+			deliveryActivity = activityDB.getActivity(deliveryActivityID);
+		}
+		else if(dbe.getType().equals("UPDATED_GLOBALS"))
+		{
+			int updatedDelActID = gvs.getDeliveryActivityID();
+			if(deliveryActivity != null && updatedDelActID != deliveryActivity.getID())
+			{
+				deliveryActivity = activityDB.getActivity(updatedDelActID);
+				buildTableList(true);
+			}
 		}
 		else if(dbe.getType().contains("_DRIVER"))	//build on add, update or delete event
 		{
