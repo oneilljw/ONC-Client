@@ -665,16 +665,16 @@ public class FamilyDB extends ONCSearchableDatabase
 	
 	private void searchForPhoneNumber(String s, List<Integer> rAL)
     {
-    	for(ONCFamily f:oncFamAL)
-    	{
-    		//Ensure just 10 digits, no dashes in numbers
-    		String hp = f.getHomePhone().replaceAll("-", "");
-    		String op = f.getCellPhone().replaceAll("-", "");
-    		String target = s.replaceAll("-", "");
+		for(ONCFamily f:oncFamAL)
+		{
+    			//Ensure just 10 digits, no dashes in numbers
+    			String hp = f.getHomePhone().replaceAll("-", "");
+    			String op = f.getCellPhone().replaceAll("-", "");
+    			String target = s.replaceAll("-", "");
     		
-    		if(hp.contains(target) || op.contains(target))
-    			rAL.add(f.getID());
-    	}
+    			if(hp.contains(target) || op.contains(target))
+    				rAL.add(f.getID());
+		}
     }
 	
 	/******************************************************************************************************

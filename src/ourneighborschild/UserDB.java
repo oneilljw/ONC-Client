@@ -8,6 +8,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.List;
 
 import javax.swing.JFrame;
@@ -333,14 +334,20 @@ public class UserDB extends ONCSearchableDatabase
 		return response;
 	}
 	
-	List<ONCUser> getGroupMembers(int groupID)
+	List<ONCUser> getGroupMembers(int groupID, EnumSet<UserStatus> us )
 	{
 		List<ONCUser> memberList = new ArrayList<ONCUser>();
 		
+		EnumSet<UserStatus> activeUserSet = EnumSet.of(UserStatus.Active, UserStatus.Change_PW, 
+													UserStatus.Update_Profile);
 		for(ONCUser u : uAL)
 			for(Integer gID : u.getGroupList())
-				if(gID == groupID)
+			{
+				if(gID == groupID && us.equals(EnumSet.allOf(UserStatus.class)))
 					memberList.add(u);
+				else if(gID == groupID && activeUserSet.contains(u.getStatus()))
+					memberList.add(u);
+		}
 				
 		return memberList;
 	}
@@ -393,18 +400,44 @@ public class UserDB extends ONCSearchableDatabase
 		searchAL.clear();
 		String searchType = "";
 
-    	if(!data.isEmpty())
-    	{
-    		searchType = "User Name";
-			for(ONCUser u:uAL)
-			{
-				if(u.getFirstName().toLowerCase().contains(data.toLowerCase()) ||
-					u.getLastName().toLowerCase().contains(data.toLowerCase()))
-				{
-					searchAL.add(u.getID());
-				}
-			}
-    	}
+    		if(!data.isEmpty() && data.contains("@") && data.contains("."))
+    		{
+    			searchType = "Email Address";
+    			for(ONCUser u:uAL)
+    				if(u.getEmail().toLowerCase().equals(data.toLowerCase()))
+    					searchAL.add(u.getID());
+    		}
+    		else if(!data.isEmpty() && isNumeric(data) && data.length() == 10)
+    		{
+    			//treat as phone number. eliminate the dashes
+    			searchType = "Phone #";
+    			for(ONCUser u:uAL)
+    			{	
+    				String up = u.getHomePhone().replaceAll("-", "");
+    				if(isNumeric(up) && up.equals(data))
+    					searchAL.add(u.getID());
+    			}
+    		}
+    		else if(!data.isEmpty() && data.contains("-") && data.length() == 12)
+    		{
+    			//treat as phone number. eliminate the dashes
+    			String target = data.replaceAll("-", "");
+    			searchType = "Phone #";
+    			for(ONCUser u:uAL)
+    			{	
+    				String up = u.getHomePhone().replaceAll("-", "");
+    				if(isNumeric(up) && up.equals(target))
+    					searchAL.add(u.getID());
+    			}
+    		}
+    		else	 if(!data.isEmpty())
+    		{
+    			searchType = "User Name";
+    			for(ONCUser u:uAL)
+    				if(u.getFirstName().toLowerCase().contains(data.toLowerCase()) ||
+    						u.getLastName().toLowerCase().contains(data.toLowerCase()))
+				searchAL.add(u.getID());
+    		}
     	
 		return searchType;
 	}

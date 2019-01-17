@@ -158,7 +158,7 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
         permissionCB.setToolTipText("What level of data is this user allowed to view/process?");
         permissionCB.addActionListener(dcListener);
         
-        statusCB = new JComboBox<UserStatus>(UserStatus.values());
+        statusCB = new JComboBox<UserStatus>(UserStatus.getStatusValues());
         statusCB.setBorder(BorderFactory.createTitledBorder("User Status"));
         statusCB.setToolTipText("What status should this user have?");
         statusCB.addActionListener(dcListener);
@@ -373,15 +373,18 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
 		else if(dbe.getSource() != this && dbe.getType().equals("ADDED_GROUP"))
 		{
 			ONCGroup addedGroup = (ONCGroup) dbe.getObject1();
-			candidateList.add(addedGroup);
-			candidateTM.fireTableDataChanged();
+			if(addedGroup.getType() != GroupType.Any && addedGroup.getType() == GroupType.Volunteer)
+			{	
+				candidateList.add(addedGroup);
+				candidateTM.fireTableDataChanged();
+			}
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_GROUP"))
 		{
 			ONCGroup updatedGroup = (ONCGroup) dbe.getObject1();
 			
 			//refresh the candidate table
-			candidateList = groupDB.getList();
+			candidateList = groupDB.getAgentGroupList();
 			candidateTM.fireTableDataChanged();
 				
 			//if the user is in the updated group, update the table
@@ -399,7 +402,7 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_GROUPS"))
 		{
-			candidateList = groupDB.getList();
+			candidateList = groupDB.getAgentGroupList();
 			candidateTM.fireTableDataChanged();
 			
 			//loading users occurs before loading groups. Use loading of groups as trigger to 
@@ -689,39 +692,65 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
 					calendar.getTimeInMillis(), true, orgTF.getText(), titleTF.getText(),
 					emailTF.getText(), phoneTF.getText(), getUserGroupList());
 		
-				
-			//send request to add new group to the local data base
-			ONCUser addedUser = (ONCUser) userDB.add(this, reqAddUser);
-				
-			if(addedUser != null)
+			//check for a duplicate user. Search twice, once for duplicate user names and
+			//once for duplicate email addresses
+			ArrayList<Integer> searchList = new ArrayList<Integer>();
+			userDB.searchForListItem(searchList, usernameTF.getText());
+			if(searchList.isEmpty()) 
+				userDB.searchForListItem(searchList, emailTF.getText());
+			
+			if(searchList.isEmpty())
 			{
-				//set the display index to the newly added user and display the user
-				nav.setIndex(userDB.getListIndexByID(userDB.getList(), addedUser.getID()));
-				display(addedUser);
+				//no duplicate user name or email found, send add user request
+				ONCUser addedUser = (ONCUser) userDB.add(this, reqAddUser);
+					
+				if(addedUser != null)
+				{
+					//set the display index to the newly added user and display the user
+					nav.setIndex(userDB.getListIndexByID(userDB.getList(), addedUser.getID()));
+					display(addedUser);
+				}
+				else
+				{
+					err_mssg = "ONC Server denied add user request, try again later";
+					JOptionPane.showMessageDialog(this, err_mssg, "Add User Request Failure",
+											JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
+					display(currUser);
+				}
+					
+				//reset to review mode and display the proper partner
+				nav.navSetEnabled(true);
+				entityPanel.setBorder(BorderFactory.createTitledBorder("User Information"));
+				entityPanel.setBackground(pBkColor);
+				statusCB.setVisible(true);
+				lblLogins.setVisible(true);
+				lblLastLogin.setVisible(true);
+				ckBoxSameAsEmail.setVisible(false);
+				usernameTF.setVisible(false);
+			
+				memberTbl.clearSelection();
+				candidateTbl.clearSelection();
+				
+				bAddingNewEntity = false;
+				setControlState();
 			}
 			else
-			{
-				err_mssg = "ONC Server denied add user request, try again later";
-				JOptionPane.showMessageDialog(this, err_mssg, "Add User Request Failure",
-										JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
-				display(currUser);
-			}
-				
-			//reset to review mode and display the proper partner
-			nav.navSetEnabled(true);
-			entityPanel.setBorder(BorderFactory.createTitledBorder("User Information"));
-			entityPanel.setBackground(pBkColor);
-			statusCB.setVisible(true);
-			lblLogins.setVisible(true);
-			lblLastLogin.setVisible(true);
-			ckBoxSameAsEmail.setVisible(false);
-			usernameTF.setVisible(false);
-		
-			memberTbl.clearSelection();
-			candidateTbl.clearSelection();
+			{	
+				//get the users who are duplicate
+				List<ONCUser> dupUsers = new ArrayList<ONCUser>();
+				for(Integer id : searchList)
+					dupUsers.add(userDB.getUser(id));
 			
-			bAddingNewEntity = false;
-			setControlState();
+				//if there are duplicate users, form a error message
+				StringBuffer buff = new StringBuffer("<html><b><font color=\"red\">Error: duplicate User Name or<br>Email Address found for users:<font color=\"black\"></b><br><br>");
+				for(ONCUser dupUser : dupUsers)
+					buff.append(dupUser.getFirstName() + " " + dupUser.getLastName() +",<br>");
+				
+				buff.append("<br><b><i>Please try again with a different<br>User Name and/or Email address.</i></b></html>");
+				
+				JOptionPane.showMessageDialog(this, buff.toString(), "Duplicate UserName or Email",
+						JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
+			}
 		}
 		else
 		{

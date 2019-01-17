@@ -52,7 +52,9 @@ public class ManageGroupsDialog extends ONCEntityTableDialog implements ActionLi
 	private static final int GROUP_NAME_COL= 0;
 	private static final int GROUP_TYPE_COL = 1;
 	private static final int GROUP_AGENT_COUNT_COL = 2;
-	private static final int GROUP_SHARING_COL = 3;
+	private static final int GROUP_ACTIVE_COUNT_COL = 3;
+	private static final int GROUP_REFER_COL = 4;
+	private static final int GROUP_SHARING_COL = 5;
 
 	private static final int AGENT_FIRST_NAME_COL= 0;
 	private static final int AGENT_LAST_NAME_COL = 1;
@@ -67,6 +69,7 @@ public class ManageGroupsDialog extends ONCEntityTableDialog implements ActionLi
 	private JPanel sortCriteriaPanel;
 	private JComboBox<GroupType> typeCB;
 	private JComboBox<String> sharingCB;
+	private JComboBox<String> referCB;
 	private JComboBox<ONCUser> userCB;
 	private JComboBox<String> volExportCB;
 	
@@ -74,7 +77,7 @@ public class ManageGroupsDialog extends ONCEntityTableDialog implements ActionLi
 	
 	private boolean bIgnoreCBEvents;
 	private GroupType sortGroupType;
-	private String sortSharing;
+	private String sortSharing, sortRefer;
 	private ONCUser sortUser;
 
 	private ONCTable agentTable, groupTable;
@@ -126,7 +129,7 @@ public class ManageGroupsDialog extends ONCEntityTableDialog implements ActionLi
 		//create search filter
 		typeCB = new JComboBox<GroupType>(GroupType.getSearchFilterList());
 		typeCB.setBorder(BorderFactory.createTitledBorder("Group Type"));
-		typeCB.setPreferredSize(new Dimension(200,56));
+		typeCB.setPreferredSize(new Dimension(144,56));
 		typeCB.addActionListener(this);
 		sortCriteriaPanel.add(typeCB);
 		sortGroupType = GroupType.Any;
@@ -138,6 +141,13 @@ public class ManageGroupsDialog extends ONCEntityTableDialog implements ActionLi
 		sharingCB.addActionListener(this);
 		sortCriteriaPanel.add(sharingCB);
 		sortSharing ="Any";
+		
+		referCB = new JComboBox<String>(sharingChoices);
+		referCB.setBorder(BorderFactory.createTitledBorder("Members Refer?"));
+		referCB.setPreferredSize(new Dimension(120,56));
+		referCB.addActionListener(this);
+		sortCriteriaPanel.add(referCB);
+		sortRefer ="Any";
 		
 		userCB = new JComboBox<ONCUser>();
 		userCBM = new DefaultComboBoxModel<ONCUser>();
@@ -153,7 +163,10 @@ public class ManageGroupsDialog extends ONCEntityTableDialog implements ActionLi
         //create the group table
       	groupTableModel = new GroupTableModel();
        	String[] actToolTips = {"Name of group", "Type of group", "# Agents in the group",
-       							"Is group sharing each other's referral information?"};
+       							"# Active Agents in the group",
+       							"Do any members of the group submit family referrals?",
+       							"Is group sharing family referral information between members?"};
+       	
       	groupTable = new ONCTable(groupTableModel, actToolTips, new Color(240,248,255));
 
      	groupTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -161,7 +174,7 @@ public class ManageGroupsDialog extends ONCEntityTableDialog implements ActionLi
       		
       	//Set table column widths
       	int tablewidth = 0;
-      	int[] group_colWidths = {256, 200, 48, 64};
+      	int[] group_colWidths = {256, 108, 56, 56, 96, 56};
       	for(int col=0; col < group_colWidths.length; col++)
       	{
       		groupTable.getColumnModel().getColumn(col).setPreferredWidth(group_colWidths[col]);
@@ -177,6 +190,7 @@ public class ManageGroupsDialog extends ONCEntityTableDialog implements ActionLi
         DefaultTableCellRenderer dtcr = new DefaultTableCellRenderer();
         dtcr.setHorizontalAlignment(SwingConstants.CENTER);
         groupTable.getColumnModel().getColumn(GROUP_AGENT_COUNT_COL).setCellRenderer(dtcr);
+        groupTable.getColumnModel().getColumn(GROUP_ACTIVE_COUNT_COL).setCellRenderer(dtcr);
         
         groupTable.setAutoCreateRowSorter(true);	//add a sorter
               
@@ -196,8 +210,9 @@ public class ManageGroupsDialog extends ONCEntityTableDialog implements ActionLi
 		//Create the agent table model and table
 		agentTableModel = new AgentTableModel();
 		String[] colToolTips = {"Agent's First Name", "Agent's Last Name",
-								"Organization agent listed in their user profile",
-								"Agent's user status", "# of logins by agent", "Agent's Last Login"};
+								"Organization listed in agents user profile",
+								"User status of agent", "# of logins by agent",
+								"Last time agent logged in"};
 		
 		agentTable = new ONCTable(agentTableModel, colToolTips, new Color(240,248,255));
 		agentTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
@@ -302,7 +317,7 @@ public class ManageGroupsDialog extends ONCEntityTableDialog implements ActionLi
 		lblAgentCount.setText("# Agents in group: " + Integer.toString(agentTableList.size()));
 	
 		for(ONCGroup g : (List<ONCGroup>) groupDB.getList())
-			if(doesGroupTypeMatch(g) && doesSharingMatch(g) && doesAgentMatch(g))
+			if(doesGroupTypeMatch(g) && doesSharingMatch(g) && doesAgentMatch(g) && doesMembersReferMatch(g))
 				groupTableList.add(g);
 		
 		lblGroupCount.setText(String.format("# Groups Meeting Criteria: %d", groupTableList.size()));
@@ -323,6 +338,11 @@ public class ManageGroupsDialog extends ONCEntityTableDialog implements ActionLi
 		sharingCB.addActionListener(this);
 		sortSharing = "Any";
 		
+		referCB.removeActionListener(this);
+		referCB.setSelectedIndex(0);
+		referCB.addActionListener(this);
+		sortRefer = "Any";
+		
 		userCB.removeActionListener(this);
 		userCB.setSelectedIndex(0);
 		userCB.addActionListener(this);
@@ -341,8 +361,14 @@ public class ManageGroupsDialog extends ONCEntityTableDialog implements ActionLi
 	
 	boolean doesSharingMatch(ONCGroup g)
 	{
-		 return sortSharing.equals("Any") || g.getPermission() == 1 && sortSharing.equals("Yes") ||
-				 g.getPermission() == 0 && sortSharing.equals("No");
+		 return sortSharing.equals("Any") || (g.groupSharesInfo() && sortSharing.equals("Yes")) ||
+				 (!g.groupSharesInfo() && sortSharing.equals("No"));
+	}
+	
+	boolean doesMembersReferMatch(ONCGroup g)
+	{
+		 return sortRefer.equals("Any") || (g.memberRefer() && sortRefer.equals("Yes")) ||
+				 (!g.memberRefer() && sortRefer.equals("No"));
 	}
 	
 	boolean doesAgentMatch(ONCGroup g)
@@ -479,7 +505,7 @@ public class ManageGroupsDialog extends ONCEntityTableDialog implements ActionLi
 			if(modelRow > -1)
 			{
 				selectedGroup = groupTableList.get(modelRow);
-				agentTableList = userDB.getGroupMembers(selectedGroup.getID());
+				agentTableList = userDB.getGroupMembers(selectedGroup.getID(), EnumSet.allOf(UserStatus.class));
 				lblAgentCount.setText("Agents in selected group: " + Integer.toString(agentTableList.size()));
 				fireEntitySelected(this, EntityType.GROUP, selectedGroup, null, null);
 				agentTableModel.fireTableDataChanged();
@@ -515,6 +541,11 @@ public class ManageGroupsDialog extends ONCEntityTableDialog implements ActionLi
 		else if(e.getSource() == sharingCB && !bIgnoreCBEvents)
 		{
 			sortSharing = (String) sharingCB.getSelectedItem();
+			createTableList();
+		}
+		else if(e.getSource() == referCB && !bIgnoreCBEvents)
+		{
+			sortRefer = (String) referCB.getSelectedItem();
 			createTableList();
 		}
 		else if(e.getSource() == userCB && !bIgnoreCBEvents)
@@ -554,7 +585,7 @@ public class ManageGroupsDialog extends ONCEntityTableDialog implements ActionLi
 		 */
 		private static final long serialVersionUID = 1L;
 		
-		private String[] columnNames = {"Name", "Type", "# Agents", "Sharing?"};
+		private String[] columnNames = {"Name", "Type", "# Agents", "# Active", "Members Refer?", "Sharing?"};
  
         public int getColumnCount() { return columnNames.length; }
  
@@ -564,41 +595,43 @@ public class ManageGroupsDialog extends ONCEntityTableDialog implements ActionLi
  
         public Object getValueAt(int row, int col)
         {
-        	ONCGroup g = groupTableList.get(row);
+        		ONCGroup g = groupTableList.get(row);
+ //       	GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
         	
-        	if(col == GROUP_NAME_COL)  
-        		return g.getName();
-        	else if(col == GROUP_TYPE_COL)
-        		return g.getType();
-        	else if(col == GROUP_AGENT_COUNT_COL)
-        		return userDB.getGroupMembers(g.getID()).size();
-        	else if (col ==GROUP_SHARING_COL)
-        	{
-        		GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
-        		return g.getPermission() > 0 ? gvs.getImageIcon(21) : gvs.getImageIcon(22);
-        	}
-        	else
-        		return "Error";
+        		if(col == GROUP_NAME_COL)  
+        			return g.getName();
+        		else if(col == GROUP_TYPE_COL)
+        			return g.getType();
+        		else if(col == GROUP_AGENT_COUNT_COL)
+        			return userDB.getGroupMembers(g.getID(), EnumSet.allOf(UserStatus.class)).size();
+        		else if(col == GROUP_ACTIVE_COUNT_COL)
+        			return userDB.getGroupMembers(g.getID(), UserStatus.getActiveUserSet()).size();
+        		else if(col == GROUP_REFER_COL)
+        			return g.memberRefer() ? gvs.getImageIcon(21) : gvs.getImageIcon(22);
+        		else if (col == GROUP_SHARING_COL)
+        			return g.groupSharesInfo() ? gvs.getImageIcon(21) : gvs.getImageIcon(22);
+        		else
+        			return "Error";
         }
         
         //JTable uses this method to determine the default renderer/editor for each cell.
         @Override
         public Class<?> getColumnClass(int column)
         {
-        	if(column == GROUP_AGENT_COUNT_COL)
-        		return Integer.class;
-        	else if(column == GROUP_TYPE_COL)
-        		return GroupType.class;
-        	else if(column == GROUP_SHARING_COL)
-        		return ImageIcon.class;
-        	else
-        		return String.class;
+        		if(column == GROUP_AGENT_COUNT_COL)
+        			return Integer.class;
+        		else if(column == GROUP_TYPE_COL)
+        			return GroupType.class;
+        		else if(column >= GROUP_REFER_COL)
+        			return ImageIcon.class;
+        		else
+        			return String.class;
         }
  
         public boolean isCellEditable(int row, int col)
         {
-        	//Name, Status, Access and Permission are editable
-        	return false;
+        		//Name, Status, Access and Permission are editable
+        		return false;
         }
 	}
 	

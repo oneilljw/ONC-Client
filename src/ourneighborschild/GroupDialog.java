@@ -51,7 +51,7 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
 	private SimpleDateFormat sdf;
     private JComboBox<GroupType> groupTypeCB;
     private JButton btnAddMember, btnRemoveMember;
-    private JCheckBox ckBoxShared, ckBoxWebpage, ckBoxContactInfo;
+    private JCheckBox ckBoxShared, ckBoxWebpage, ckBoxContactInfo, ckBoxMembersRefer;
     
     private ONCGroup currGroup;	//reference to ONCGroup object being displayed
     private List<ONCUser> memberList; //holds ONCUser's in the member table
@@ -121,10 +121,15 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
         op1.add(lblDateChanged);
 
         //set up panel 2
-        ckBoxShared = new JCheckBox("Info shared among group members?");
+        ckBoxShared = new JCheckBox("Referral info shared among group members?");
         ckBoxShared.setToolTipText("If checked, group members can view/edit each other's referrals");
         ckBoxShared.addActionListener(dcListener);
+        
+        ckBoxMembersRefer = new JCheckBox("Do any members of the group refer families?");
+        ckBoxMembersRefer.setToolTipText("If checked, group members submit family referrals");
+        ckBoxMembersRefer.addActionListener(dcListener);
 
+        op2.add(ckBoxMembersRefer);
         op2.add(ckBoxShared);
        
         //set up panel 3
@@ -344,7 +349,7 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
 			//refresh the member table
 			if(currGroup != null)
 			{	
-				memberList = userDB.getGroupMembers(currGroup.getID());
+				memberList = userDB.getGroupMembers(currGroup.getID(), EnumSet.allOf(UserStatus.class));
 				memberTM.fireTableDataChanged();
 				
 				setEnabledEditGroupMembers(true);
@@ -414,10 +419,12 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
 		int bCD = 0; //used to indicate a change has been detected	
 		if(!nameTF.getText().equals(reqGroup.getName())) { reqGroup.setName(nameTF.getText()); bCD = bCD | 1; }
 		if(groupTypeCB.getSelectedItem() !=reqGroup.getType()) { reqGroup.setType((GroupType)groupTypeCB.getSelectedItem()); bCD = bCD | 2; }
-		if(ckBoxShared.isSelected() && reqGroup.getPermission() == 0) { reqGroup.setPermission(1);  bCD = bCD | 4; }
-		if(!ckBoxShared.isSelected() && reqGroup.getPermission() == 1) { reqGroup.setPermission(0);  bCD = bCD | 8; }
+		if(ckBoxShared.isSelected() && !reqGroup.groupSharesInfo()) { reqGroup.setGroupSharesInfo(true);  bCD = bCD | 4; }
+		if(!ckBoxShared.isSelected() && reqGroup.groupSharesInfo()) { reqGroup.setGroupSharesInfo(false);  bCD = bCD | 8; }
 		if(ckBoxWebpage.isSelected() != reqGroup.includeOnWebpage()) { reqGroup.setIncludeOnWebpage(ckBoxWebpage.isSelected());  bCD = bCD | 16; }
 		if(ckBoxContactInfo.isSelected() != reqGroup.contactInfoRqrd()) { reqGroup.setContactInfoRqrd(ckBoxContactInfo.isSelected()); bCD = bCD | 32; }
+		if(ckBoxMembersRefer.isSelected() && !reqGroup.memberRefer()) { reqGroup.setMembersRefer(true);  bCD = bCD | 64; }
+		if(!ckBoxMembersRefer.isSelected() && reqGroup.memberRefer()) { reqGroup.setMembersRefer(false);  bCD = bCD | 128; }
 			
 		if(bCD > 0)	//If an update to partner data (not stop light data) was detected
 		{
@@ -468,7 +475,9 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
 			
 			groupTypeCB.setSelectedItem(currGroup.getType());
 			
-			ckBoxShared.setSelected(currGroup.getPermission() > 0);
+			ckBoxShared.setSelected(currGroup.groupSharesInfo());
+			
+			ckBoxMembersRefer.setSelected(currGroup.memberRefer());
 			
 			ckBoxWebpage.setSelected(currGroup.includeOnWebpage());
 			
@@ -483,7 +492,7 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
 			nav.btnNextSetEnabled(true);
 			nav.btnPreviousSetEnabled(true);
 
-			memberList = userDB.getGroupMembers(currGroup.getID());
+			memberList = userDB.getGroupMembers(currGroup.getID(), EnumSet.allOf(UserStatus.class));
 			memberTM.fireTableDataChanged();
 			
 			bIgnoreEvents = false;
@@ -500,6 +509,7 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
 		lblDateChanged.setText(sdf.format(new Date()));
 		lblLastChangedBy.setText(userDB.getLoggedInUser().getLNFI());
 		ckBoxShared.setSelected(false);
+		ckBoxMembersRefer.setSelected(false);
 		ckBoxWebpage.setSelected(false);
 		ckBoxContactInfo.setSelected(false);
 		
@@ -551,8 +561,8 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
 		ONCGroup newGroup = new ONCGroup(-1, new Date(), userDB.getUserLNFI(),
 										  3, "Group Created", userDB.getUserLNFI(),
 										  nameTF.getText(), (GroupType) groupTypeCB.getSelectedItem(),
-										  ckBoxShared.isSelected() ? 1 : 0, ckBoxWebpage.isSelected(),
-										  ckBoxContactInfo.isSelected());
+										  ckBoxShared.isSelected(), ckBoxWebpage.isSelected(),
+										  ckBoxContactInfo.isSelected(), ckBoxMembersRefer.isSelected());
 				
 		//send request to add new group to the local data base
 		ONCGroup addedGroup = (ONCGroup) groupDB.add(this, newGroup);
@@ -723,7 +733,7 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
 				String response = userDB.update(this, reqUpdatedUser);
 				if(response != null && response.startsWith("UPDATED_USER"))
 				{
-					memberList = userDB.getGroupMembers(currGroup.getID());
+					memberList = userDB.getGroupMembers(currGroup.getID(), EnumSet.allOf(UserStatus.class));
 					memberTM.fireTableDataChanged();
 				}	
 			}
@@ -740,6 +750,7 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
 			if(groupTypeCB.getSelectedItem() == GroupType.Volunteer)
 			{
 				ckBoxShared.setEnabled(false);
+				ckBoxMembersRefer.setEnabled(false);
 				ckBoxWebpage.setEnabled(true);
 				ckBoxContactInfo.setEnabled(true);
 				candidateTbl.setEnabled(false);
@@ -750,6 +761,7 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
 			else
 			{
 				ckBoxShared.setEnabled(true);
+				ckBoxMembersRefer.setEnabled(true);
 				ckBoxWebpage.setEnabled(false);
 				ckBoxContactInfo.setEnabled(false);
 				candidateTbl.setEnabled(true);

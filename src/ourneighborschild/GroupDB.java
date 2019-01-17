@@ -5,6 +5,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -50,6 +51,16 @@ public class GroupDB extends ONCSearchableDatabase
 	ONCGroup getGroup(int index) { return groupList.get(index); }
 
 	List<ONCGroup> getList() { return groupList; }
+	
+	List<ONCGroup> getAgentGroupList()
+	{
+		List<ONCGroup> agentGroupList = new ArrayList<ONCGroup>();
+		for(ONCGroup g : groupList)
+			if(g.memberRefer())
+				agentGroupList.add(g);
+		
+		return agentGroupList; 
+	}
 	
 	List<ONCGroup> getGroupList(List<Integer> intList)
 	{
@@ -284,7 +295,7 @@ public class GroupDB extends ONCSearchableDatabase
 					searchAL.add(g.getID());
 				
 				//search for group member last name match
-				for(ONCUser u : userDB.getGroupMembers(g.getID()))
+				for(ONCUser u : userDB.getGroupMembers(g.getID(), EnumSet.allOf(UserStatus.class)))
 					if(u.getLastName().toLowerCase().contains(data.toLowerCase()))
 						searchAL.add(g.getID());
 			}
