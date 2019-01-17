@@ -20,10 +20,11 @@ public class FamilyHistoryDialog extends HistoryDialog
 	private static final long serialVersionUID = 1L;
 	private static final int FAMILY_STATUS_COL = 0;
 	private static final int GIFT_STATUS_COL = 1;
-	private static final int DELIVERED_BY_COL = 2;
-	private static final int NOTES_COL = 3;
-	private static final int CHANGED_BY_COL = 4;
-	private static final int DATE_CHANGED_COL = 5;
+	private static final int DNS_COL = 2;
+	private static final int DELIVERED_BY_COL = 3;
+	private static final int NOTES_COL = 4;
+	private static final int CHANGED_BY_COL = 5;
+	private static final int DATE_CHANGED_COL = 6;
 	
 	private AbstractTableModel dlgTableModel;
 	
@@ -147,14 +148,14 @@ public class FamilyHistoryDialog extends HistoryDialog
 	@Override
 	String[] getColumnToolTips() 
 	{
-		String[] colTT = {"Family Status", "Gift Status", "Who delivered gifts to the family", "Notes", "Changed By", "Time Stamp"};
+		String[] colTT = {"Family Status", "Gift Status", "DNS Code", "Who delivered gifts to the family", "Notes", "Changed By", "Time Stamp"};
 		return colTT;
 	}
 
 	@Override
 	int[] getColumnWidths()
 	{
-		int[] colWidths = {88, 88, 112, 208, 96, 128};
+		int[] colWidths = {88, 88, 64, 112, 208, 96, 128};
 		return colWidths;
 	}
 	
@@ -164,7 +165,7 @@ public class FamilyHistoryDialog extends HistoryDialog
 		 * Implements the table model for the Delivery History Dialog
 		 */
 		private static final long serialVersionUID = 1L;
-		private String[] columnNames = {"Fam Status", "Gift Status", "Gifts Delivered By", "Notes", "Changed By", "Time Stamp"};
+		private String[] columnNames = {"Fam Status", "Gift Status", "DNS Code", "Gifts Delivered By", "Notes", "Changed By", "Time Stamp"};
 		private SimpleDateFormat sdf;
 		
 		public DialogTableModel()
@@ -188,6 +189,8 @@ public class FamilyHistoryDialog extends HistoryDialog
         			value = histObj.getFamilyStatus().toString();
         		else if(col == GIFT_STATUS_COL)
         			value = histObj.getGiftStatus().toString();
+        		else if(col == DNS_COL)
+        			value = histObj.getDNSCode();
         		else if(col == DELIVERED_BY_COL)  
         			value = volunteerDB.getDriverLNFN(histObj.getdDelBy());
         		else if(col == NOTES_COL)
@@ -217,7 +220,7 @@ public class FamilyHistoryDialog extends HistoryDialog
         public void setValueAt(Object value, int row, int col)
         { 
         		//verify user changed the delivery not and if not, update the delivery and redisplay. 
-        		//Table row 0 alwaysvcontains the most recent delivery
+        		//Table row 0 always contains the most recent delivery
         		if(!histList.isEmpty() && row == 0 && col == NOTES_COL)
         		{
         			String notes = (String) value;

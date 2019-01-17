@@ -512,7 +512,8 @@ public class AngelAutoCallDialog extends ONCEntityTableDialog implements ActionL
 							 					familyHistoryDB.getDeliveredBy(f.getDeliveryID()),
 							 					"Automated Call Result: Confirmed",
 							 					userDB.getUserLNFI(),
-							 					Calendar.getInstance());
+							 					Calendar.getInstance(),
+							 					f.getDNSCode());
 					 
 					 reqFamilyUpdateList.add(reqHistory);
 				 }			 
@@ -524,7 +525,8 @@ public class AngelAutoCallDialog extends ONCEntityTableDialog implements ActionL
 							 					familyHistoryDB.getDeliveredBy(f.getDeliveryID()),
 							 					"Automated Call Result: Contacted",
 							 					userDB.getUserLNFI(),
-							 					Calendar.getInstance());
+							 					Calendar.getInstance(),
+							 					f.getDNSCode());
 					 
 					 reqFamilyUpdateList.add(reqHistory);
 				 }

@@ -282,7 +282,8 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 															assignDriverTF.getText(),
 															"Delivery Driver Assigned",
 															userDB.getUserLNFI(),
-															Calendar.getInstance());
+															Calendar.getInstance(),
+															f.getDNSCode());
 				
 				ONCFamilyHistory response = familyHistoryDB.add(this, reqDelivery);
 				if(response != null && response instanceof ONCFamilyHistory)

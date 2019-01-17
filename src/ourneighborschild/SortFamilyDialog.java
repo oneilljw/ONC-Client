@@ -479,7 +479,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 
 				bFamilyChangeDetected = true;
 			}
-			//If a change to Gift Status, process it
+			//If a change to Family Gift Status, process it
 			if(changeGiftStatusCB.getSelectedIndex() > 0 && 
 					f.getGiftStatus() != changeGiftStatusCB.getSelectedItem())
 			{
@@ -492,17 +492,19 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 
 				bFamilyChangeDetected = true;
 				
-				//Add a new gift status to the gift status history with the assigned driver
+/*	THE SERVER WILL CHECK FOR DNS, FAM OR FAM GIFT STATUS CHANGES AND AUTOMATICALLY ADD A HISTORY ITEM			
+				//Add a new family history with the assigned driver
 				//and the status set to assigned.
-				ONCFamilyHistory reqDelivery = new ONCFamilyHistory(-1, f.getID(), f.getFamilyStatus(),
+				ONCFamilyHistory reqFH = new ONCFamilyHistory(-1, f.getID(), f.getFamilyStatus(),
 						(FamilyGiftStatus) changeGiftStatusCB.getSelectedItem(),
 						familyHistoryDB.getDeliveredBy(f.getDeliveryID()),
 						"Gift Status Changed",
 						userDB.getUserLNFI(),
-						Calendar.getInstance());
+						Calendar.getInstance(),
+						f.getDNSCode());
 
 //				String response = familyHistoryDB.add(this, reqDelivery);
-				ONCFamilyHistory response = familyHistoryDB.add(this, reqDelivery);
+				ONCFamilyHistory response = familyHistoryDB.add(this, reqFH);
 				if(response != null && response instanceof ONCFamilyHistory)
 //				if(response.startsWith("ADDED_DELIVERY"))
 					bDataChanged = true;
@@ -510,12 +512,12 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 				{
 					//display an error message that update request failed
 					GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
-					JOptionPane.showMessageDialog(this, "ONC Server denied Delivery Update," +
-							"try again later","Delivery Update Failed",  
+					JOptionPane.showMessageDialog(this, "ONC Server denied Family History Update," +
+							"try again later","Family History Update Failed",  
 							JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
 				}
-			}
-			
+*/				
+			}			
 			if(bFamilyChangeDetected)	//submit change to local db. If successful, set table to rebuild
 			{
 				String response = fDB.update(this, f);

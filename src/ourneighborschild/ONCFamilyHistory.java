@@ -19,20 +19,22 @@ public class ONCFamilyHistory extends ONCObject implements Serializable
 	String dNotes;
 	String dChangedBy;
 	Calendar dDateChanged;
+	String dnsCode;
 
 	//Constructor used after separating ONC Deliveries from ONC Families
 	public ONCFamilyHistory(int id, int famid, FamilyStatus fStat, FamilyGiftStatus dStat, String dBy, 
-							String notes, String cb, Calendar dateChanged)
+							String notes, String cb, Calendar dateChanged, String dnsCode)
 	{
 		super(id);
-		famID = famid;
-		familyStatus = fStat;
-		giftStatus = dStat;			
-		dDelBy = dBy;
-		dNotes = notes;		
-		dChangedBy = cb;
-		dDateChanged = Calendar.getInstance();
-		dDateChanged = dateChanged;
+		this.famID = famid;
+		this.familyStatus = fStat;
+		this.giftStatus = dStat;			
+		this.dDelBy = dBy;
+		this.dNotes = notes;		
+		this.dChangedBy = cb;
+		this.dDateChanged = Calendar.getInstance();
+		this.dDateChanged = dateChanged;
+		this.dnsCode = dnsCode;
 	}
 		
 	//Copy Constructor
@@ -46,20 +48,22 @@ public class ONCFamilyHistory extends ONCObject implements Serializable
 		dNotes = d.dNotes;		
 		dChangedBy = d.dChangedBy;
 		dDateChanged = Calendar.getInstance();
+		this.dnsCode = d.dnsCode;
 	}
 	
 	//Constructor used when reading from Delivery .csv file
 	public ONCFamilyHistory(String[] del)
 	{
 		super(Integer.parseInt(del[0]));
-		famID = Integer.parseInt(del[1]);
-		familyStatus = FamilyStatus.getFamilyStatus(Integer.parseInt(del[2]));
-		giftStatus = FamilyGiftStatus.getFamilyGiftStatus(Integer.parseInt(del[3]));			
-		dDelBy = del[4].isEmpty() ? "" : del[4];
-		dNotes = del[5].isEmpty() ? "" : del[5];	
-		dChangedBy = del[6].isEmpty() ? "" : del[6];
-		dDateChanged = Calendar.getInstance();
-		dDateChanged.setTimeInMillis(Long.parseLong(del[7]));
+		this.famID = Integer.parseInt(del[1]);
+		this.familyStatus = FamilyStatus.getFamilyStatus(Integer.parseInt(del[2]));
+		this.giftStatus = FamilyGiftStatus.getFamilyGiftStatus(Integer.parseInt(del[3]));			
+		this.dDelBy = del[4].isEmpty() ? "" : del[4];
+		this.dNotes = del[5].isEmpty() ? "" : del[5];	
+		this.dChangedBy = del[6].isEmpty() ? "" : del[6];
+		this.dDateChanged = Calendar.getInstance();
+		this.dDateChanged.setTimeInMillis(Long.parseLong(del[7]));
+		this.dnsCode = del[8].isEmpty() ? "" : del[8];
 	}
 
 	//Getters
@@ -71,6 +75,7 @@ public class ONCFamilyHistory extends ONCObject implements Serializable
 	String getdChangedBy() { return dChangedBy; }
 	public Date getdChanged() { return dDateChanged.getTime(); }
 	Calendar getDateChangedCal() { return dDateChanged; }
+	String getDNSCode() { return dnsCode; }
 	
 	//Setters
 	public void setdDelBy(String db) { dDelBy = db; }
@@ -85,7 +90,8 @@ public class ONCFamilyHistory extends ONCObject implements Serializable
 		String[] exportRow = {Integer.toString(id), Integer.toString(famID),
 							  Integer.toString(familyStatus.statusIndex()),
 							  Integer.toString(giftStatus.statusIndex()),
-							  dDelBy, dNotes, dChangedBy, Long.toString(dDateChanged.getTimeInMillis())};
+							  dDelBy, dNotes, dChangedBy,
+							  Long.toString(dDateChanged.getTimeInMillis()), dnsCode};
 		
 		return exportRow;
 		

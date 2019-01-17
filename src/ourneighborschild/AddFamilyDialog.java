@@ -677,7 +677,8 @@ public class AddFamilyDialog extends JDialog implements ActionListener, ListSele
 															addedFamily.getGiftStatus(),
 															"", "Family Referred", 
 															addedFamily.getChangedBy(), 
-															Calendar.getInstance(TimeZone.getTimeZone("UTC")));
+															Calendar.getInstance(TimeZone.getTimeZone("UTC")),
+															addedFamily.getDNSCode());
 		
 			ONCFamilyHistory addedFamHistory = famHistDB.add(this, famHistory);
 			
