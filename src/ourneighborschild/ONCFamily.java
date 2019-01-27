@@ -51,50 +51,52 @@ public class ONCFamily extends ONCEntity
 	private MealStatus  mealStatus;
 	private Transportation transportation;
 	private boolean		bGiftCardOnly;
+	private String		agentNote;
 	
 	//constructor used to make a copy for server update requests
 	public ONCFamily(ONCFamily f)
 	{
 		super(f.getID(), f.getDateChanged(), f.getChangedBy(), f.getStoplightPos(), f.getStoplightMssg(), f.getStoplightChangedBy());
-		oncNum = f.oncNum;
-		region = f.region;
+		this.oncNum = f.oncNum;
+		this.region = f.region;
 		this.schoolCode = f.schoolCode;
-		famStatus = f.famStatus;
-		giftStatus = f.giftStatus;
-		nBags = f.nBags;
-		nLargeItems = f.nLargeItems;
-		referenceNum = f.referenceNum;
-		batchNum = f.batchNum;	
-		dnsCode = f.dnsCode;
-		speakEnglish = f.speakEnglish;
-		language = f.language;
-		notes = f.notes;
-		deliveryInstructions = f.deliveryInstructions;
-		clientFamily = f.clientFamily;
-		firstName = f.firstName;
-		lastName = f.lastName;
-		houseNum = f.houseNum;
-		street = f.street;
-		unit = f.unit;
-		city = f.city;
-		zipCode = f.zipCode;
-		substituteDeliveryAddress = f.substituteDeliveryAddress;
-		allPhoneNumbers = f.allPhoneNumbers;
-		homePhone = f.homePhone;
-		cellPhone = f.cellPhone;
-		email = f.email;
-		details = f.details;
-		childrenNames = f.childrenNames;
-		schools = f.schools;
-		wishList = f.wishList;						
-		adoptedFor = f.adoptedFor;
-		agentID = f.agentID;
-		groupID = f.groupID;
-		deliveryID = f.deliveryID;
-		mealID = f.mealID;
-		mealStatus = f.mealStatus;
-		transportation = f.transportation;
-		bGiftCardOnly = f.bGiftCardOnly;
+		this.famStatus = f.famStatus;
+		this.giftStatus = f.giftStatus;
+		this.nBags = f.nBags;
+		this.nLargeItems = f.nLargeItems;
+		this.referenceNum = f.referenceNum;
+		this.batchNum = f.batchNum;	
+		this.dnsCode = f.dnsCode;
+		this.speakEnglish = f.speakEnglish;
+		this.language = f.language;
+		this.notes = f.notes;
+		this.deliveryInstructions = f.deliveryInstructions;
+		this.clientFamily = f.clientFamily;
+		this.firstName = f.firstName;
+		this.lastName = f.lastName;
+		this.houseNum = f.houseNum;
+		this.street = f.street;
+		this.unit = f.unit;
+		this.city = f.city;
+		this.zipCode = f.zipCode;
+		this.substituteDeliveryAddress = f.substituteDeliveryAddress;
+		this.allPhoneNumbers = f.allPhoneNumbers;
+		this.homePhone = f.homePhone;
+		this.cellPhone = f.cellPhone;
+		this.email = f.email;
+		this.details = f.details;
+		this.childrenNames = f.childrenNames;
+		this.schools = f.schools;
+		this.wishList = f.wishList;						
+		this.adoptedFor = f.adoptedFor;
+		this.agentID = f.agentID;
+		this.groupID = f.groupID;
+		this.deliveryID = f.deliveryID;
+		this.mealID = f.mealID;
+		this.mealStatus = f.mealStatus;
+		this.transportation = f.transportation;
+		this.bGiftCardOnly = f.bGiftCardOnly;
+		this.agentNote = f.agentNote;
 	}
 
 	//Overloaded Constructor - 29 column (A to AC) input from ODB .csv file - 2014, 2015
@@ -142,6 +144,7 @@ public class ONCFamily extends ONCEntity
 		else
 			this.transportation = Transportation.TBD;
 		bGiftCardOnly = false;
+		this.agentNote = "";
 
 		parseHOH(HOH);
 		parsePhoneData(ClientFamPhone);
@@ -194,6 +197,7 @@ public class ONCFamily extends ONCEntity
 		nLargeItems = Integer.parseInt(nextLine[38]);
 		transportation = Transportation.valueOf(nextLine[42]);
 		bGiftCardOnly = nextLine[43].equals("TRUE") ? true : false;
+		this.agentNote = nextLine[44];
 	}
 	
 	//Overloaded Constructor - Direct Intake Processing
@@ -260,9 +264,10 @@ public class ONCFamily extends ONCEntity
 		this.groupID = groupID;
 		this.deliveryID = -1;
 		this.mealID = mealID;
-		mealStatus = mStatus;
+		this.mealStatus = mStatus;
 		this.transportation = transportation;
-		bGiftCardOnly = false;
+		this.bGiftCardOnly = false;
+		this.agentNote = "";
 	}
 	
 	String getDBString(String s)
@@ -495,6 +500,7 @@ public class ONCFamily extends ONCEntity
 	public MealStatus getMealStatus() { return mealStatus; }
 	public Transportation getTransportation() { return transportation; }
 	public boolean 	isGiftCardOnly() { return bGiftCardOnly; }
+	public String	getAgentNote() { return agentNote; }
 
 	//Setters
 	public void setONCNum(String s) { oncNum = s;}
@@ -535,6 +541,7 @@ public class ONCFamily extends ONCEntity
 	public void setMealStatus(MealStatus ms) { mealStatus = ms; }
 	public void setTransportation(Transportation t) { transportation = t; }
 	public void setGiftCardOnly(boolean gco) { bGiftCardOnly = gco; }
+	public void setAgentNote(String note) { this.agentNote = note; }
 	
 	public String getGoogleMapAddress()
 	{
@@ -627,6 +634,7 @@ public class ONCFamily extends ONCEntity
 		rowList.add(getStoplightChangedBy());
 		rowList.add(getTransportation().toString());
 		rowList.add(isGiftCardOnly() ? "TRUE" : "FALSE");
+		rowList.add(getAgentNote());
 		
 		return rowList.toArray(new String[rowList.size()]);
 	}

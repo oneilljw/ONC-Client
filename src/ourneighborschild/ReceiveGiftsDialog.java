@@ -11,23 +11,23 @@ public class ReceiveGiftsDialog extends GiftActionDialog
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	ReceiveGiftsDialog(JFrame pf, WishStatus dialogType) 
+	ReceiveGiftsDialog(JFrame pf, GiftStatus dialogType) 
 	{
 		super(pf, dialogType);
 	}
 
 	@Override
-	boolean doesChildWishStatusMatch(ONCChildWish cw) 
+	boolean doesChildWishStatusMatch(ONCChildGift cw) 
 	{
-		return cw.getChildWishStatus() == WishStatus.Delivered || 
-				cw.getChildWishStatus() == WishStatus.Shopping ||
-				 cw.getChildWishStatus() == WishStatus.Missing;
+		return cw.getGiftStatus() == GiftStatus.Delivered || 
+				cw.getGiftStatus() == GiftStatus.Shopping ||
+				 cw.getGiftStatus() == GiftStatus.Missing;
 	}
 	
 	@Override
-	WishStatus getGiftStatusAction() 
+	GiftStatus getGiftStatusAction() 
 	{
-		return WishStatus.Received;
+		return GiftStatus.Received;
 	}
 
 	@Override

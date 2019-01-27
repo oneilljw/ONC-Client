@@ -70,8 +70,8 @@ public class ManageBatteryDialog extends ONCEntityTableDialog implements ActionL
 	private BatteryDB batteryDB;
 	private FamilyDB familyDB;
 	private ChildDB childDB;
-	private ChildWishDB giftDB;
-	private WishCatalogDB catDB;
+	private ChildGiftDB giftDB;
+	private GiftCatalogDB catDB;
 	private UserDB userDB;
 	
 	private List<BatteryTableObject> batteryTableList;
@@ -86,7 +86,7 @@ public class ManageBatteryDialog extends ONCEntityTableDialog implements ActionL
 		if(batteryDB != null)
 			batteryDB.addDatabaseListener(this);
 		
-		giftDB = ChildWishDB.getInstance();
+		giftDB = ChildGiftDB.getInstance();
 		if(giftDB != null)
 			giftDB.addDatabaseListener(this);
 		
@@ -98,7 +98,7 @@ public class ManageBatteryDialog extends ONCEntityTableDialog implements ActionL
 		if(familyDB != null)
 			familyDB.addDatabaseListener(this);
 		
-		catDB = WishCatalogDB.getInstance();
+		catDB = GiftCatalogDB.getInstance();
 		
 		userDB = UserDB.getInstance();
 		if(userDB != null)
@@ -425,7 +425,7 @@ public class ManageBatteryDialog extends ONCEntityTableDialog implements ActionL
         public Object getValueAt(int row, int col)
         {
         		BatteryTableObject bto = batteryTableList.get(row);
-        		ONCChildWish gift = null;
+        		ONCChildGift gift = null;
         		ONCChild child = null;
         		ONCFamily family = null;
         		
@@ -473,9 +473,9 @@ public class ManageBatteryDialog extends ONCEntityTableDialog implements ActionL
         		{
         			if(gift != null)
         			{
-        				ONCWish wish = catDB.getWishByID(gift.getWishID());
+        				ONCWish wish = catDB.getWishByID(gift.getGiftID());
         				return  wish == null ? "Error" : wish.getName().equals("-") ? 
-        						gift.getChildWishDetail() : wish.getName() + "- " + gift.getChildWishDetail();
+        						gift.getDetail() : wish.getName() + "- " + gift.getDetail();
         			}
         			else
         				return "Error";
@@ -529,8 +529,8 @@ public class ManageBatteryDialog extends ONCEntityTableDialog implements ActionL
 		{
 			String[] row = new String[9];
 			
-			ONCChildWish gift = giftDB.getWish(battery.getChildID(), battery.getWishNum());
-			ONCWish wish = catDB.getWishByID(gift.getWishID());
+			ONCChildGift gift = giftDB.getWish(battery.getChildID(), battery.getWishNum());
+			ONCWish wish = catDB.getWishByID(gift.getGiftID());
 			
 			//determine if user has permission to see child first and last name. If not, substitute
 			String childFN = "Error", childLN = "Error";
@@ -557,7 +557,7 @@ public class ManageBatteryDialog extends ONCEntityTableDialog implements ActionL
 			row[3] = child == null ? "Error" : child.getChildAge();
 			row[4] = child == null ? "Error" : child.getChildGender();
 			row[5] = wish == null ? "Error" : wish.getName();
-			row[6] = gift == null ? "Error" : gift.getChildWishDetail();
+			row[6] = gift == null ? "Error" : gift.getDetail();
 			row[7] = battery.getSize();
 			row[8] = Integer.toString(battery.getQuantity());
 			

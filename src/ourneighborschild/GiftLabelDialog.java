@@ -38,7 +38,7 @@ public abstract class GiftLabelDialog extends ONCEntityTableDialog implements Ac
 	//database references
 	protected FamilyDB familyDB;
 	protected ChildDB childDB;
-	protected ChildWishDB childWishDB;
+	protected ChildGiftDB childGiftDB;
 	
 	protected SortWishObject swo; //holds current family, child and gift info for gift getting batteries assigned
 	protected SortWishObject lastWishChanged;	//Holds the info for last gift label displayed
@@ -66,9 +66,9 @@ public abstract class GiftLabelDialog extends ONCEntityTableDialog implements Ac
 		if(childDB != null)
 			childDB.addDatabaseListener(this);
 		
-		childWishDB = ChildWishDB.getInstance();
-		if(childWishDB != null)
-			childWishDB.addDatabaseListener(this);
+		childGiftDB = ChildGiftDB.getInstance();
+		if(childGiftDB != null)
+			childGiftDB.addDatabaseListener(this);
 
 		img = GlobalVariablesDB.getSeasonIcon().getImage();
 		errMessage = "Ready to Scan a Gift Label";
@@ -136,7 +136,7 @@ public abstract class GiftLabelDialog extends ONCEntityTableDialog implements Ac
 	abstract void onClearOtherPanels();
 	abstract void onSubmit();
 	abstract void onUndoSubmittal();
-	abstract boolean isGiftEligible(ONCChildWish cw);
+	abstract boolean isGiftEligible(ONCChildGift cw);
 	abstract void onGiftLabelFound(SortWishObject swo);
 	abstract void onGiftLabelNotFound();
 	abstract void onActionPerformed(ActionEvent e);
@@ -228,7 +228,7 @@ public abstract class GiftLabelDialog extends ONCEntityTableDialog implements Ac
 				
 			//find the gift by child ID and wish number. Only gifts that have already been 
 			//received can have batteries recorded.
-			ONCChildWish cw = childWishDB.getWish(cID, wn);
+			ONCChildGift cw = childGiftDB.getWish(cID, wn);
 			ONCChild child = null;
 			ONCFamily family = null;
 			

@@ -17,7 +17,7 @@ import javax.swing.JTextField;
 
 import com.google.gson.Gson;
 
-public class WishDetailDialog extends JDialog implements ActionListener
+public class GiftDetailDialog extends JDialog implements ActionListener
 {
 	/*****************************************************************************************
 	 * This class implements a dialog that allows the user to specify up to four additional
@@ -34,15 +34,15 @@ public class WishDetailDialog extends JDialog implements ActionListener
 	private JButton btnSave, btnCancel;
 	private boolean bWishChanged;
 	
-	WishDetailDB wdDB;	//reference to the wish detail data base
+	GiftDetailDB wdDB;	//reference to the wish detail data base
 	ONCWish w; //wish being edited
 	
-	WishDetailDialog(JDialog owner, String title)
+	GiftDetailDialog(JDialog owner, String title)
 	{
 		super(owner, title, true);	
 		
 		//get reference to wish detail data base
-		wdDB = WishDetailDB.getInstance();
+		wdDB = GiftDetailDB.getInstance();
 		
 		titleTFAL = new ArrayList<JTextField>();
 		contentTFAL = new ArrayList<JTextField>();
@@ -168,7 +168,7 @@ public class WishDetailDialog extends JDialog implements ActionListener
 				for(String s:convertWishStringtoList(contentTFAL.get(wdn).getText()))
 					buf.append(s + ";");
 				
-				WishDetail reqWishDetail = new WishDetail(-1, titleTFAL.get(wdn).getText(), 
+				GiftDetail reqWishDetail = new GiftDetail(-1, titleTFAL.get(wdn).getText(), 
 															buf.toString());
 				
 				String response = wdDB.add(this, reqWishDetail);
@@ -176,7 +176,7 @@ public class WishDetailDialog extends JDialog implements ActionListener
 				if(response.startsWith("ADDED_WISH_DETAIL"))
 				{
 					Gson gson = new Gson();
-					WishDetail addedWishDetail = gson.fromJson(response.substring(17), WishDetail.class);
+					GiftDetail addedWishDetail = gson.fromJson(response.substring(17), GiftDetail.class);
 					w.setWishDetailID(wdn, addedWishDetail.getID());
 					bWishChanged = true;
 				}
@@ -197,7 +197,7 @@ public class WishDetailDialog extends JDialog implements ActionListener
 				contentTFAL.get(wdn).setText("");
 				
 				//Delete the wish detail from the server
-				WishDetail delreqWD = wdDB.getWishDetail(w.getWishDetailID(wdn));
+				GiftDetail delreqWD = wdDB.getWishDetail(w.getWishDetailID(wdn));
 				String response = wdDB.delete(this, delreqWD);
 
 				if(response.startsWith("DELETED_WISH_DETAIL"))
@@ -235,7 +235,7 @@ public class WishDetailDialog extends JDialog implements ActionListener
 				wdDB.getWishDetail(wdID).setDetailChoices(convertWishStringtoList(contentTFAL.get(wdn).getText()));
 				bWishChanged = true;
 				
-				WishDetail updateWishDetail = new WishDetail(w.getWishDetailID(wdn),
+				GiftDetail updateWishDetail = new GiftDetail(w.getWishDetailID(wdn),
 															  titleTFAL.get(wdn).getText(), 
 															   contentTFAL.get(wdn).getText());
 

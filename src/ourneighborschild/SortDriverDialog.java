@@ -473,9 +473,9 @@ public class SortDriverDialog extends DependantTableDialog
 				buildTableList(true);
 			}
 		}
-		else if(dbe.getType().contains("_DRIVER"))	//build on add, update or delete event
+		else if(dbe.getType().contains("_DRIVER") || dbe.getType().contains("_VOLUNTEER_ACTIVITY"))
 		{
-			//update the agent table and update the org and title combo box models
+			//update the driver table and update the changedBy combo box
 			if(deliveryActivity != null)
 				buildTableList(true);
 			

@@ -80,7 +80,7 @@ public class PartnerDialog extends EntityDialog
 		if(childDB != null)
 			childDB.addDatabaseListener(this);
 		
-		ChildWishDB childwishDB = ChildWishDB.getInstance();
+		ChildGiftDB childwishDB = ChildGiftDB.getInstance();
 		if(childwishDB != null)
 			childwishDB.addDatabaseListener(this);	//listen for partner gift assignment changes
 

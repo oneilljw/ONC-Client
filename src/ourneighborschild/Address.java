@@ -70,6 +70,50 @@ public class Address
 		this.city = city;
 		this.zip = zip;	
 	}
+	
+	/*****
+	 * Method will build an address object by breaking the substitute delivery address into it's 
+	 * component parts
+	 * @param streetnum
+	 * @param streetname
+	 * @param unit
+	 * @param city
+	 * @param zip
+	 */
+	public Address(String substituteDeliveryAddress)
+	{
+		if(substituteDeliveryAddress != null && substituteDeliveryAddress.split("_").length == 5)
+		{
+			//format the substituteDeliveryAddress for the URL request to Google Maps
+			String[] addPart = substituteDeliveryAddress.split("_");
+	
+			this.streetNum = addPart[0].trim();
+			separateStreetNumberSuffix(this.streetNum);
+			this.streetName = addPart[1].trim();
+			
+			//check to see if remaining street name starts with a direction. If so, separate it
+			this.streetName = separateStreetDirectionFromStreetName(this.streetName);
+		
+			//check to see if remaining street name contains a post direction
+			this.streetName = separateStreetPostDirectionFromStreetName(this.streetName);
+		
+			//check to see if remaining street name contains a street type
+			this.streetName = separateStreetType(this.streetName);
+		
+			this.unit = addPart[2];
+			this.city = addPart[3];
+			this.zip = addPart[4];
+		}
+		else
+		{
+			this.streetNum = "";
+			this.streetName = "";
+			this.unit = "";
+			this.city = "";
+			this.zip = "";
+		}
+	}
+	
 
 	/*********************************************************************************
 	 * This method takes a string and separates the street number if its starts with a digit.

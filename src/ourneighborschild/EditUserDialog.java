@@ -90,12 +90,12 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
         nav.setCount1("Total: " + Integer.toString(0));
         nav.setCount2("Season: " + Integer.toString(0));
 
-        //set up the edit organization panel
+        //set up the edit user panel
         entityPanel.setBorder(BorderFactory.createTitledBorder("User Information"));
-        JPanel op1 = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JPanel op2 = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JPanel op3 = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JPanel op4 = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel p1 = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel p2 = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel p3 = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel p4 = new JPanel(new FlowLayout(FlowLayout.LEFT));
         
         //set up panel 1
         firstnameTF = new JTextField(12);
@@ -114,10 +114,10 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
         phoneTF.setBorder(BorderFactory.createTitledBorder("Phone"));
         phoneTF.addActionListener(dcListener);
         
-        op1.add(firstnameTF);
-        op1.add(lastnameTF);
-        op1.add(emailTF);
-        op1.add(phoneTF);
+        p1.add(firstnameTF);
+        p1.add(lastnameTF);
+        p1.add(emailTF);
+        p1.add(phoneTF);
         
         //set up op2
         orgTF = new JTextField(18);
@@ -142,10 +142,10 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
         sdf = new SimpleDateFormat("MM/dd/yyyy");
         
         //set up panel 2
-        op2.add(orgTF);
-        op2.add(titleTF);
-        op2.add(lblDateChanged);
-        op2.add(lblLastChangedBy);
+        p2.add(orgTF);
+        p2.add(titleTF);
+        p2.add(lblDateChanged);
+        p2.add(lblLastChangedBy);
         
         //set up o03
         accessCB = new JComboBox<UserAccess>(UserAccess.values());
@@ -185,13 +185,13 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
         ckBoxSameAsEmail.setVisible(false);
         ckBoxSameAsEmail.addActionListener(usernameAndResetListener);
         
-        op3.add(accessCB);
-        op3.add(permissionCB);
-        op3.add(statusCB);
-        op3.add(lblLogins);
-        op3.add(lblLastLogin);
-        op3.add(usernameTF);
-        op3.add(ckBoxSameAsEmail);
+        p3.add(accessCB);
+        p3.add(permissionCB);
+        p3.add(statusCB);
+        p3.add(lblLogins);
+        p3.add(lblLastLogin);
+        p3.add(usernameTF);
+        p3.add(ckBoxSameAsEmail);
         
         //set up panel 4
         JPanel memberPanel = new JPanel();	//left panel
@@ -299,14 +299,14 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
         //add the table scroll pane to the candidate panel
         candidatePanel.add(candidateScrollPane);
        
-        op4.add(memberPanel);
-        op4.add(btnPanel);
-        op4.add(candidatePanel);
+        p4.add(memberPanel);
+        p4.add(btnPanel);
+        p4.add(candidatePanel);
         
-        entityPanel.add(op1);
-        entityPanel.add(op2);
-        entityPanel.add(op3);
-        entityPanel.add(op4);
+        entityPanel.add(p1);
+        entityPanel.add(p2);
+        entityPanel.add(p3);
+        entityPanel.add(p4);
        
         //Set the button names and tool tips for control panel
         btnNew.setText("Add New User");

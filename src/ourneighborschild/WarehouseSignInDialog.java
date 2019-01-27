@@ -7,8 +7,12 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.print.PrinterException;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
@@ -32,10 +36,13 @@ import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
+
+import au.com.bytecode.opencsv.CSVWriter;
 
 public class WarehouseSignInDialog extends ONCEntityTableDialog implements ActionListener, DatabaseListener, ListSelectionListener
 {
@@ -53,9 +60,10 @@ public class WarehouseSignInDialog extends ONCEntityTableDialog implements Actio
 	
 	private ONCTable dlgTable;
 	private AbstractTableModel dlgTableModel;
-	private JButton btnPrint, btnClear, btnRefresh;
+	private JButton btnPrint, btnClear, btnRefresh, btnExport;
 	private VolunteerDB volDB;
 	private List<WarehouseSignIn> whList;
+	private SimpleDateFormat f;
 	
 		
 	public WarehouseSignInDialog(JFrame pf)
@@ -101,6 +109,7 @@ public class WarehouseSignInDialog extends ONCEntityTableDialog implements Actio
 		dlgTable.getSelectionModel().addListSelectionListener(this);
 		
 		//set up a cell renderer for the LAST_LOGINS column to display the date 
+		f = new SimpleDateFormat("M/dd/yy H:mm:ss");
 		TableCellRenderer tableCellRenderer = new DefaultTableCellRenderer()
 		{
 			private static final long serialVersionUID = 1L;
@@ -154,12 +163,17 @@ public class WarehouseSignInDialog extends ONCEntityTableDialog implements Actio
         btnPrint.setToolTipText("Print the sign-in table list");
         btnPrint.addActionListener(this);
         
+        btnExport = new JButton("Export");
+        btnExport.setToolTipText("Export the sign-in table list");
+        btnExport.addActionListener(this);
+        
         btnClear = new JButton("Clear");
         btnClear.setToolTipText("Clear the sign-in table list");
         btnClear.addActionListener(this);
         
         cntlPanel.add(btnRefresh);
         cntlPanel.add(btnPrint);
+        cntlPanel.add(btnExport);
         cntlPanel.add(btnClear);
         
         getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
@@ -201,7 +215,49 @@ public class WarehouseSignInDialog extends ONCEntityTableDialog implements Actio
 										JOptionPane.ERROR_MESSAGE, GlobalVariablesDB.getONCLogo());
 		}
 	}
-
+	void onExportRequested()
+	{
+		//Write the selected row data to a .csv file
+		List<String> headerList = new ArrayList<String>();
+		headerList.add("First Name");
+		headerList.add("Last Name");
+		headerList.add("Group");
+		headerList.add("Sign-In Time");
+		headerList.add("Driver Number");
+		String[] header = headerList.toArray(new String[0]);
+			
+		ONCFileChooser oncfc = new ONCFileChooser(this);
+       	File oncwritefile = oncfc.getFile("Select file for export of sign-in log" ,
+       							new FileNameExtensionFilter("CSV Files", "csv"), ONCFileChooser.SAVE_FILE);
+       	if(oncwritefile!= null)
+       	{
+       		//If user types a new filename without extension.csv, add it
+       		String filePath = oncwritefile.getPath();
+       		if(!filePath.toLowerCase().endsWith(".csv")) 
+       			oncwritefile = new File(filePath + ".csv");
+	    	
+       		try 
+       		{
+       			CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
+       			writer.writeNext(header);
+	    	    
+       			for(WarehouseSignIn whsi : whList)
+       				writer.writeNext(whsi.getExportRow());
+	    	   
+       			writer.close();
+	    	    
+       			JOptionPane.showMessageDialog(this, String.format("%d volunteer sign-ins sucessfully exported to %s", 
+       					whList.size(), oncwritefile.getName()), 
+						"Export Successful", JOptionPane.INFORMATION_MESSAGE, gvs.getImageIcon(0));
+       		} 
+       		catch (IOException x)
+       		{
+       			JOptionPane.showMessageDialog(this, "Export Failed, I/O Error: "  + x.getMessage(),  
+						"Export Failed", JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
+       			System.err.format("IOException: %s%n", x);
+       		}
+	    }
+	}
 	
 	@Override
 	public void dataChanged(DatabaseEvent dbe)
@@ -248,6 +304,10 @@ public class WarehouseSignInDialog extends ONCEntityTableDialog implements Actio
 		if(e.getSource() == btnPrint)
 		{
 			print("Warehouse Sign-In Log");
+		}
+		if(e.getSource() == btnExport)
+		{
+			onExportRequested();
 		}
 		else if(e.getSource() == btnClear)
 		{
@@ -297,6 +357,26 @@ public class WarehouseSignInDialog extends ONCEntityTableDialog implements Actio
 		
 		//setters
 		void setUpdatedVolunteer(ONCVolunteer updatedVolunteer) { this.vol = updatedVolunteer; }
+		
+		String[] getExportRow()
+		{
+			String[] row = new String[5];
+			row[0] = vol.getFirstName();
+			row[1] = vol.getLastName();
+			row[2] = vol.getOrganization();
+			
+			//create a new calendar in local time zone, set to gmtDOB and add the offset
+			TimeZone tz = TimeZone.getDefault();	//Local time zone
+			int offsetFromUTC = tz.getOffset(time);
+			Calendar localCal = Calendar.getInstance();
+			localCal.setTimeInMillis(time);
+			localCal.add(Calendar.MILLISECOND, offsetFromUTC);
+			
+			row[3] = f.format(localCal.getTime());
+			row[4] = vol.getDrvNum();
+			
+			return row;
+		}
 	}
 	
 	class DialogTableModel extends AbstractTableModel

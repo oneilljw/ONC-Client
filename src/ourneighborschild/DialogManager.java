@@ -27,7 +27,7 @@ public class DialogManager implements EntitySelectionListener
 		
 	private AdultDialog adultDlg;
 	private DirectionsDialog dirDlg;
-	private WishCatalogDialog catDlg;
+	private GiftCatalogDialog catDlg;
 	private ManageUsersDialog userDlg;
 	private WarehouseSignInDialog signInDlg;
 	private ManageVolDialog manageVolDlg;
@@ -66,7 +66,7 @@ public class DialogManager implements EntitySelectionListener
 	private AssignDeliveryDialog assignDeliveryDlg;
 	private SortDriverDialog sortDriverDlg;
 	private SortPartnerDialog sortPartnerDlg;
-	private SortWishDialog sortWishesDlg;
+	private SortGiftsDialog sortGiftsDlg;
 	private SortMealsDialog sortMealsDlg;
 	private ReceiveGiftsDialog recGiftsDlg;
 		
@@ -133,13 +133,13 @@ public class DialogManager implements EntitySelectionListener
         //Set up client map dialog
         cmDlg = new ClientMapDialog(GlobalVariablesDB.getFrame()); 
         
-        //Set up the sort wishes dialog
-        sortWishesDlg = new SortWishDialog(GlobalVariablesDB.getFrame());
-        eeManager.registerEntitySelector(sortWishesDlg);
-        stDlgMap.put("Wishes", sortWishesDlg);
+        //Set up the sort gifts dialog
+        sortGiftsDlg = new SortGiftsDialog(GlobalVariablesDB.getFrame());
+        eeManager.registerEntitySelector(sortGiftsDlg);
+        stDlgMap.put("Gifts", sortGiftsDlg);
 
         	//Set up the manage catalog dialog
-    		catDlg = new WishCatalogDialog(GlobalVariablesDB.getFrame());
+    		catDlg = new GiftCatalogDialog(GlobalVariablesDB.getFrame());
     	
     		//Set up the manage user dialog
     		userDlg = new ManageUsersDialog(GlobalVariablesDB.getFrame());
@@ -287,7 +287,7 @@ public class DialogManager implements EntitySelectionListener
         //set up a dialog to receive gifts. This is last so it's the last called when a 
         //change is received at the server. This allows the bar code text field to retain
         //focus.
-      	recGiftsDlg = new ReceiveGiftsDialog(GlobalVariablesDB.getFrame(), WishStatus.Received);
+      	recGiftsDlg = new ReceiveGiftsDialog(GlobalVariablesDB.getFrame(), GiftStatus.Received);
       	stDlgMap.put("Receive Gifts", recGiftsDlg);
       	eeManager.registerEntitySelector(recGiftsDlg);
       	

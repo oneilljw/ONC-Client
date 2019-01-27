@@ -28,9 +28,9 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.TransferHandler;
+import javax.swing.border.TitledBorder;
 
-public class WishPanel extends JPanel implements ActionListener, DatabaseListener,
-									EntitySelectionListener
+public class GiftPanel extends JPanel implements ActionListener, DatabaseListener, EntitySelectionListener
 {
 	/**
 	 * 
@@ -44,16 +44,17 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 	private GlobalVariablesDB gvs;
     private FamilyDB fDB;
 	private ChildDB cDB;
-	private ChildWishDB cwDB;
-	private WishCatalogDB cat;
+	private ChildGiftDB cwDB;
+	private GiftCatalogDB cat;
 	private PartnerDB partnerDB;
 	private UserDB userDB;
 	
 	private ONCChild child;			//child being displayed on panel
-	private ONCChildWish childWish; //wish being displayed on panel
+	private ONCChildGift childWish; //wish being displayed on panel
 	private int wishNumber; 		//wish# being displayed on panel
 	
 	private boolean bWishChanging; 		//semaphore indicating changing ComboBoxes
+	private TitledBorder border;
 	private JComboBox<ONCWish> wishCB;
 	private JComboBox<String> wishindCB;
 	private JComboBox<ONCPartner> wishassigneeCB;
@@ -63,7 +64,7 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 	private JRadioButton rbWish, rbLabel;
 	private WishPanelStatus wpStatus;
 	
-	public WishPanel(int wishNumber)
+	public GiftPanel(int wishNumber)
 	{
 		this.wishNumber = wishNumber;
 		this.setTransferHandler(new InventoryTransferhandler());
@@ -77,11 +78,11 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 		if(cDB != null)
 			cDB.addDatabaseListener(this);
 		
-		cwDB = ChildWishDB.getInstance();
+		cwDB = ChildGiftDB.getInstance();
 		if(cwDB != null)
 			cwDB.addDatabaseListener(this);
 		
-		cat = WishCatalogDB.getInstance();
+		cat = GiftCatalogDB.getInstance();
 		if(cat != null)
 			cat.addDatabaseListener(this);
 		
@@ -103,7 +104,8 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 		 //Set up the wish combo boxes and detail text fields for child wishes        
         String[] indications = {"", "*", "#"};        
 
-        this.setBorder(BorderFactory.createTitledBorder("Wish " + Integer.toString(wishNumber+1)));
+        border = BorderFactory.createTitledBorder(String.format("Gift %d", wishNumber+1));
+        this.setBorder(border);
         
         Dimension dwa = new Dimension(140, 24);  
           
@@ -168,43 +170,43 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 	 *******************************************************************************************/
 	void checkForUpdateToWishDetail()
 	{
-		if(childWish != null && !childWish.getChildWishDetail().equals(wishdetailTF.getText()))
+		if(childWish != null && !childWish.getDetail().equals(wishdetailTF.getText()))
 			addWish();
 	}
 	
-	void displayWish(ONCChildWish cw, ONCChild c)
+	void displayWish(ONCChildGift cw, ONCChild c)
 	{
 		bWishChanging = true;
 		
 		child = c;
 		childWish = cw;
 		
-		this.setBorder(BorderFactory.createTitledBorder("Wish " + Integer.toString(wishNumber+1) +
-					": " + cw.getChildWishStatus().toString()));
+		border.setTitle(String.format("Gift %d: %s", wishNumber+1, cw.getGiftStatus()));
+		this.repaint();
 			
-		ONCWish wish = cat.getWishByID(cw.getWishID());
+		ONCWish wish = cat.getWishByID(cw.getGiftID());
 		if(wish != null)
 			wishCB.setSelectedItem(wish);
 		else
 			wishCB.setSelectedIndex(0);
 		
-		wishindCB.setSelectedIndex(cw.getChildWishIndicator());
+		wishindCB.setSelectedIndex(cw.getIndicator());
 			
-		wishdetailTF.setText(cw.getChildWishDetail());
+		wishdetailTF.setText(cw.getDetail());
 		wishdetailTF.setCaretPosition(0);
 		if(doesWishFitOnLabel(cw))
 			wishdetailTF.setBackground(Color.WHITE);
 		else
 			wishdetailTF.setBackground(Color.YELLOW);
 
-		if(cw.getChildWishAssigneeID() == -1)
+		if(cw.getPartnerID() == -1)
 		{
 			//wish does not have a partner assigned
 			wishassigneeCB.setSelectedIndex(0);
 		}
 		else
 		{
-			ONCPartner wishPartner = partnerDB.getPartnerByID(cw.getChildWishAssigneeID());		
+			ONCPartner wishPartner = partnerDB.getPartnerByID(cw.getPartnerID());		
 			if(wishPartner != null)
 			{	
 //				System.out.println("WishPanel %d.Display partner= " + wishPartner);
@@ -221,20 +223,9 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 			}
 		}
 			
-		setEnabledWishPanelComponents(cw.getChildWishStatus());
+		setEnabledWishPanelComponents(cw.getGiftStatus());
 
 		bWishChanging = false;
-	}
-	
-	int debugAssigneeCBContents()
-	{
-		for(int i=0; i<assigneeCBM.getSize(); i++)
-		{
-			ONCPartner partner = (ONCPartner) assigneeCBM.getElementAt(i);
-			System.out.println("Wish " + wishNumber + " panel partner " + i + " is: " + partner);
-		}
-		
-		return assigneeCBM.getSize();
 	}
 	
 	void clearWish()
@@ -243,13 +234,15 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 		
 		childWish = null;
 		
-		this.setBorder(BorderFactory.createTitledBorder("Wish " + Integer.toString(wishNumber+1)));
+		border.setTitle(String.format("Gift %d", wishNumber+1));
+		this.repaint();
+		
 		wishCB.setSelectedIndex(0);
 		wishdetailTF.setText("");
 		wishindCB.setSelectedIndex(0);
 		wishassigneeCB.setSelectedIndex(0);
 		
-		setEnabledWishPanelComponents(WishStatus.Not_Selected);
+		setEnabledWishPanelComponents(GiftStatus.Not_Selected);
 		
 		bWishChanging = false;
 	}
@@ -260,14 +253,14 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 		
 		wishCBM.removeAllElements();	//Clear the combo box selection list
 
-		for(ONCWish w: cat.getWishList(wishNumber, WishListPurpose.Selection))	//Add new list elements
+		for(ONCWish w: cat.getWishList(wishNumber, GiftListPurpose.Selection))	//Add new list elements
 			wishCBM.addElement(w);
 			
 		//Reselect the proper wish for the currently displayed child
-		ONCWish wish = childWish == null ? null : cat.getWishByID(childWish.getWishID());
+		ONCWish wish = childWish == null ? null : cat.getWishByID(childWish.getGiftID());
 			
 		if(wish != null) 
-			wishCB.setSelectedItem(cat.getWishByID(childWish.getWishID()));
+			wishCB.setSelectedItem(cat.getWishByID(childWish.getGiftID()));
 		else
 			wishCB.setSelectedIndex(0);
 	
@@ -291,8 +284,8 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 			assigneeCBM.addElement(confirmedPartner);
 		
 		//Restore selection to prior selection, if they are still confirmed
-		if(childWish != null  && childWish.getChildWishAssigneeID() != -1)
-			wishassigneeCB.setSelectedItem(partnerDB.getPartnerByID(childWish.getChildWishAssigneeID()));
+		if(childWish != null  && childWish.getPartnerID() != -1)
+			wishassigneeCB.setSelectedItem(partnerDB.getPartnerByID(childWish.getPartnerID()));
 		else
 			wishassigneeCB.setSelectedIndex(0);
 		
@@ -312,32 +305,32 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 		
 		//now that we've updated the panel status, update the component status
 		if(childWish != null)
-			setEnabledWishPanelComponents(childWish.getChildWishStatus());
+			setEnabledWishPanelComponents(childWish.getGiftStatus());
 		else
-			setEnabledWishPanelComponents(WishStatus.Not_Selected);
+			setEnabledWishPanelComponents(GiftStatus.Not_Selected);
 	}
 
-	void setEnabledWishPanelComponents(WishStatus ws)
+	void setEnabledWishPanelComponents(GiftStatus ws)
 	{
 		if(wpStatus == WishPanelStatus.Enabled)
 		{
-			if(ws == WishStatus.Not_Selected)
+			if(ws == GiftStatus.Not_Selected)
 			{
 				wishCB.setEnabled(true);
 				wishindCB.setEnabled(false);
 				wishdetailTF.setEnabled(true);
 				wishassigneeCB.setEnabled(false);
 			}
-			else if(ws == WishStatus.Selected || ws == WishStatus.Assigned ||
-					ws == WishStatus.Returned)
+			else if(ws == GiftStatus.Selected || ws == GiftStatus.Assigned ||
+					ws == GiftStatus.Returned)
 			{
 				wishCB.setEnabled(true);
 				wishindCB.setEnabled(true);
 				wishdetailTF.setEnabled(true);
 				wishassigneeCB.setEnabled(true);
 			}
-			else if(ws == WishStatus.Delivered || ws == WishStatus.Shopping || 
-					ws == WishStatus.Missing)
+			else if(ws == GiftStatus.Delivered || ws == GiftStatus.Shopping || 
+					ws == GiftStatus.Missing)
 			{
 				wishCB.setEnabled(false);
 				wishindCB.setEnabled(false);
@@ -361,20 +354,20 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 		}
 		
 		rbWish.setEnabled(true);
-		rbLabel.setEnabled(ws != WishStatus.Not_Selected);
+		rbLabel.setEnabled(ws != GiftStatus.Not_Selected);
 	}
 	
-	boolean doesWishFitOnLabel(ONCChildWish cw)
+	boolean doesWishFitOnLabel(ONCChildGift cw)
 	{
-		WishCatalogDB cat = WishCatalogDB.getInstance();
+		GiftCatalogDB cat = GiftCatalogDB.getInstance();
 		
-		ONCWish catWish = cat.getWishByID(cw.getWishID());
+		ONCWish catWish = cat.getWishByID(cw.getGiftID());
 		String wishName = catWish == null ? "None" : catWish.getName();
 		
 //		String[] indicator = {"", "*", "#"};
 		
 //		String wish = indicator[cw.getChildWishIndicator()] + wishName + "- " + cw.getChildWishDetail();
-		String wish = wishName + "- " + cw.getChildWishDetail();
+		String wish = wishName + "- " + cw.getDetail();
 		
 		//does it fit on one line?
 		if(wish != null && wish.length() <= MAX_LABEL_LINE_LENGTH)
@@ -394,7 +387,7 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 	
 	void showWishHistoryDlg()
 	{
-		List<ONCChildWish> cwhList = null;
+		List<ONCChildGift> cwhList = null;
 		
 		if(childWish != null &&
 			!(cwhList = cwDB.getWishHistory(childWish.getChildID(), wishNumber)).isEmpty())
@@ -404,19 +397,19 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 			PartnerDB orgDB = PartnerDB.getInstance();
 			
 			ArrayList<String[]> wishHistoryTable = new ArrayList<String[]>();
-			for(ONCChildWish cw:cwhList)
+			for(ONCChildGift cw:cwhList)
 			{
-				ONCWish wish = cat.getWishByID(cw.getWishID());
-				ONCPartner assignee = orgDB.getPartnerByID(cw.getChildWishAssigneeID());
+				ONCWish wish = cat.getWishByID(cw.getGiftID());
+				ONCPartner assignee = orgDB.getPartnerByID(cw.getPartnerID());
 				
 				String[] whTR = new String[7];
 				whTR[0] = wish == null ? "None" : wish.getName();
-				whTR[1] = cw.getChildWishDetail();
-				whTR[2] = indicators[cw.getChildWishIndicator()];
-				whTR[3] = cw.getChildWishStatus().toString();
+				whTR[1] = cw.getDetail();
+				whTR[2] = indicators[cw.getIndicator()];
+				whTR[3] = cw.getGiftStatus().toString();
 				whTR[4] = assignee == null ? "None" : assignee.getLastName();
-				whTR[5] = cw.getChildWishChangedBy();
-				whTR[6] = new SimpleDateFormat("MM/dd H:mm:ss").format(cw.getChildWishDateChanged().getTime());
+				whTR[5] = cw.getChangedBy();
+				whTR[6] = new SimpleDateFormat("MM/dd H:mm:ss").format(cw.getDateChanged().getTime());
 				
 				wishHistoryTable.add(whTR);
 			}
@@ -426,7 +419,7 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 				firstname = child.getChildFirstName();
 			else
 				firstname = "Child " + cDB.getChildNumber(child);
-			WishHistoryDialog whDlg = new WishHistoryDialog(GlobalVariablesDB.getFrame(), wishHistoryTable,
+			GiftHistoryDialog whDlg = new GiftHistoryDialog(GlobalVariablesDB.getFrame(), wishHistoryTable,
 											wishNumber, firstname);
 			whDlg.setLocationRelativeTo(rbWish);
 			whDlg.setVisible(true);
@@ -444,7 +437,7 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 	public void actionPerformed(ActionEvent e) 
 	{
 		if(!bWishChanging && e.getSource() == wishCB && (childWish == null || childWish!= null &&
-			((ONCWish)wishCB.getSelectedItem()).getID() != childWish.getWishID()))
+			((ONCWish)wishCB.getSelectedItem()).getID() != childWish.getGiftID()))
 		{
 			//user selected a new wish. Check to see if we need to show wish detail dialog
 			//Check if a detail dialog is required. It is required if the wish name is found
@@ -453,7 +446,7 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 			//the wish detail text field so the user can create new detail. This prevents inadvertent
 			//legacy wish detail from being carried forward with a wish change
 			int selectedCBWishID = ((ONCWish) wishCB.getSelectedItem()).getID();
-			ArrayList<WishDetail> drDlgData = cat.getWishDetail(selectedCBWishID);
+			ArrayList<GiftDetail> drDlgData = cat.getWishDetail(selectedCBWishID);
 			if(drDlgData != null)
 			{
 				//Construct and show the wish detail required dialog
@@ -473,14 +466,14 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 		
 			addWish();
 		}
-		else if(!bWishChanging && e.getSource() == wishindCB && childWish.getChildWishIndicator() != 
+		else if(!bWishChanging && e.getSource() == wishindCB && childWish.getIndicator() != 
 				wishindCB.getSelectedIndex())
 		{
 			//add a new wish with the new indicator
 			addWish();
 		}
 		else if(!bWishChanging && e.getSource() == wishdetailTF && !wishdetailTF.getText().isEmpty() &&
-				(childWish == null || childWish != null && !childWish.getChildWishDetail().equals(wishdetailTF.getText()))) 
+				(childWish == null || childWish != null && !childWish.getDetail().equals(wishdetailTF.getText()))) 
 		{
 			//Add a new wish with new wish detail. If the current wish id = -1 (None) and the indicator
 			//selected index is 0, then set the wishID combo box to the default wish as well, prior to adding
@@ -496,7 +489,7 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 			addWish();
 		}
 		else if(!bWishChanging && e.getSource() == wishassigneeCB &&
-				childWish.getChildWishAssigneeID() != ((ONCPartner) wishassigneeCB.getSelectedItem()).getID()) 
+				childWish.getPartnerID() != ((ONCPartner) wishassigneeCB.getSelectedItem()).getID()) 
 		{
 			//Add a new wish with the new organization
 			addWish();
@@ -508,7 +501,7 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 		else if(e.getSource() == rbLabel)
 		{
 			//construct and show label viewer for selected label
-			WishLabelViewer viewer = new WishLabelViewer(GlobalVariablesDB.getFrame(), child, wishNumber);
+			OrnamentLabelViewer viewer = new OrnamentLabelViewer(GlobalVariablesDB.getFrame(), child, wishNumber);
 			viewer.setLocationRelativeTo(this);
 			viewer.setVisible(true);
 		}
@@ -516,8 +509,8 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 	
 	void addWish()
 	{
-		WishStatus ws = childWish != null ? childWish.getChildWishStatus() : WishStatus.Not_Selected;
-		ONCChildWish addedWish =  cwDB.add(this, child.getID(),
+		GiftStatus ws = childWish != null ? childWish.getGiftStatus() : GiftStatus.Not_Selected;
+		ONCChildGift addedWish =  cwDB.add(this, child.getID(),
 									((ONCWish) wishCB.getSelectedItem()).getID(),
 									wishdetailTF.getText(), wishNumber, wishindCB.getSelectedIndex(),
 									ws, (ONCPartner) wishassigneeCB.getSelectedItem());
@@ -534,14 +527,14 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 		if(dbe.getSource() != this && dbe.getType().equals("WISH_ADDED"))
 		{	
 			//Get the added wish to extract the child
-			ONCChildWish addedWish = (ONCChildWish) dbe.getObject1();
+			ONCChildGift addedWish = (ONCChildGift) dbe.getObject1();
 			
 //			System.out.println(String.format("WishPanel %d DB Event: Type %s, addWishID: %d, addWish# %d, addWishchildID %d, childID: %d, partnerID: %d",
 //					wishNumber, dbe.getType(), addedWish.getWishID(), addedWish.getWishNumber(), addedWish.getChildID(), child.getID(), addedWish.getChildWishAssigneeID()));
 
 			//If the added wish would be displayed by this wish panel and the added wish belongs
 			//to the child this panel is currently displaying, display the added wish
-			if(addedWish.getWishNumber() == wishNumber && child != null &&
+			if(addedWish.getGiftNumber() == wishNumber && child != null &&
 				child.getID() == addedWish.getChildID())
 			{
 				displayWish(addedWish, child);
@@ -551,12 +544,12 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 		{
 			//Get the updated wish to extract the ONCChildWish. For updates, the ONCChildWish
 			//id will remain the same
-			ONCChildWish updatedWish = (ONCChildWish) dbe.getObject1();
+			ONCChildGift updatedWish = (ONCChildGift) dbe.getObject1();
 			
-			if(updatedWish.getWishNumber() == wishNumber && updatedWish.getID() == childWish.getID())
+			if(updatedWish.getGiftNumber() == wishNumber && updatedWish.getID() == childWish.getID())
 			{
 				String logEntry = String.format("WishPanel Event: %s, Child: %s, wish %d",
-						dbe.getType(), child.getChildFirstName(), updatedWish.getWishNumber());
+						dbe.getType(), child.getChildFirstName(), updatedWish.getGiftNumber());
 				LogDialog.add(logEntry, "M");
 				
 				displayWish(updatedWish, child);
@@ -614,7 +607,7 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 			if(childList != null && !childList.isEmpty() &&
 					childList.get(0).getChildGiftID(wishNumber) > -1)
 			{
-				ONCChildWish cw = cwDB.getWish(childList.get(0).getID(), wishNumber);
+				ONCChildGift cw = cwDB.getWish(childList.get(0).getID(), wishNumber);
 				if(cw != null)
 					displayWish(cw, childList.get(0));
 				else
@@ -679,7 +672,7 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 		JTextField detailTF;
 		JButton btnOK;
 		
-		public DetailDialog(JFrame pf, String wishname, ArrayList<WishDetail> wdAL)
+		public DetailDialog(JFrame pf, String wishname, ArrayList<GiftDetail> wdAL)
 		{
 			super(pf, true);
 			this.setTitle("Additional " + wishname + " Detail");
@@ -774,12 +767,12 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 				return true;
 			else
 			{
-				WishStatus ws = childWish.getChildWishStatus();
-				if(ws.compareTo(WishStatus.Delivered) <= 0)
+				GiftStatus ws = childWish.getGiftStatus();
+				if(ws.compareTo(GiftStatus.Delivered) <= 0)
 					return true;
-				else if(ws.equals(WishStatus.Returned))
+				else if(ws.equals(GiftStatus.Returned))
 					return true;
-				else if(ws.equals(WishStatus.Missing))
+				else if(ws.equals(GiftStatus.Missing))
 					return true;
 				else
 					return false;
@@ -794,7 +787,7 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 			try 
 			{
 				transItem = (InventoryItem) t.getTransferData(df);
-				ONCChildWish transferredWish = createWishFromInventoryTransfer(transItem);
+				ONCChildGift transferredWish = createWishFromInventoryTransfer(transItem);
 				if(transferredWish != null)
 					displayWish(transferredWish, child);
 				return true;
@@ -811,15 +804,15 @@ public class WishPanel extends JPanel implements ActionListener, DatabaseListene
 			return false;
 		}
 		
-		ONCChildWish createWishFromInventoryTransfer(InventoryItem ii)
+		ONCChildGift createWishFromInventoryTransfer(InventoryItem ii)
 		{
 			//create new wish with the wish status = WishStatus.ASSIGNED && assignee = ONC_CONTAINER
 			ONCPartner partner = partnerDB.getPartnerByNameAndType("ONC Container", 6);
-			ONCChildWish addWishReq = null;
+			ONCChildGift addWishReq = null;
 			if(partner != null && child != null)
 			{
 				addWishReq = cwDB.add(this, child.getID(), ii.getWishID(), ii.getItemName(),
-										wishNumber, 0, WishStatus.Assigned, partner);
+										wishNumber, 0, GiftStatus.Assigned, partner);
 			}
 			
 			return addWishReq;

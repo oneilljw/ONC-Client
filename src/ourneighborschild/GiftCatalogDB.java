@@ -22,7 +22,7 @@ import com.google.gson.reflect.TypeToken;
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
 
-public class WishCatalogDB extends ONCDatabase
+public class GiftCatalogDB extends ONCDatabase
 {
 	/********
 	 * This class implements a singleton data base for ONC Wishes, known as the wish catalog.
@@ -48,22 +48,22 @@ public class WishCatalogDB extends ONCDatabase
 	private static final int WISH_CATALOG_LIST_ALL = 7;
 	private static final int NUMBER_OF_WISHES_PER_CHILD = 3;
 	
-	private static WishCatalogDB instance = null;
+	private static GiftCatalogDB instance = null;
 	private ArrayList<WishCatalogItem> wishCatalog;
-	private WishDetailDB  wdDB;
+	private GiftDetailDB  wdDB;
 	
-	private WishCatalogDB()
+	private GiftCatalogDB()
 	{
 		super();
-		wdDB = WishDetailDB.getInstance();
+		wdDB = GiftDetailDB.getInstance();
 		
 		wishCatalog = new ArrayList<WishCatalogItem>();
 	}
 	
-	public static WishCatalogDB getInstance()
+	public static GiftCatalogDB getInstance()
 	{
 		if(instance == null)
-			instance = new WishCatalogDB();
+			instance = new GiftCatalogDB();
 		
 		return instance;
 	}
@@ -140,7 +140,7 @@ public class WishCatalogDB extends ONCDatabase
 	
 	//Returns detail required array list by searching for wish name. If wish not found
 	//or if detail required array list is empty, returns null
-	ArrayList<WishDetail> getWishDetail(int wishID)	
+	ArrayList<GiftDetail> getWishDetail(int wishID)	
 	{
 		int index = 0;
 		while(index < wishCatalog.size() && wishID != wishCatalog.get(index).getWish().getID())
@@ -148,7 +148,7 @@ public class WishCatalogDB extends ONCDatabase
 		
 		if(index < wishCatalog.size() && wishCatalog.get(index).getWish().getNumberOfDetails() > 0)
 		{
-			ArrayList<WishDetail> wdAL = new ArrayList<WishDetail>();
+			ArrayList<GiftDetail> wdAL = new ArrayList<GiftDetail>();
 			for(int i=0; i < 4; i++)
 				if(wishCatalog.get(index).getWish().getWishDetailID(i) > -1)
 					wdAL.add(wdDB.getWishDetail(wishCatalog.get(index).getWish().getWishDetailID(i)));
@@ -309,8 +309,8 @@ public class WishCatalogDB extends ONCDatabase
 	 * @param listpurpose Valid purposes are WishListType.Sort and WishListType.Select
 	 * @return list of ONCWish objects in accordance with requested list type and purpose
 	 ******************************************************************************************************/
-	List<ONCWish> getWishList(WishListPurpose listPurpose)  { return getWishList(WISH_CATALOG_LIST_ALL, listPurpose); }
-	List<ONCWish> getWishList(int wishNumber, WishListPurpose listPurpose)
+	List<ONCWish> getWishList(GiftListPurpose listPurpose)  { return getWishList(WISH_CATALOG_LIST_ALL, listPurpose); }
+	List<ONCWish> getWishList(int wishNumber, GiftListPurpose listPurpose)
 	{
 		List<ONCWish> wishlist = new ArrayList<ONCWish>();
 	
@@ -326,12 +326,12 @@ public class WishCatalogDB extends ONCDatabase
 		//Add appropriate elements based on purpose. For selection lists, "None" must be at the
 		//top of the list. For sort lists, "None" must be alphabetized in the list and "Any" 
 		//must be at the top of the list
-		if(listPurpose == WishListPurpose.Selection)
+		if(listPurpose == GiftListPurpose.Selection)
 		{
 			Collections.sort(wishlist, new WishListComparator());	//Alphabetize the list
 			wishlist.add(0, new ONCWish(-1, "None", 7));
 		}
-		else if(listPurpose == WishListPurpose.Filtering)
+		else if(listPurpose == GiftListPurpose.Filtering)
 		{	
 			wishlist.add(new ONCWish(-1, "None", 7));	//Add "None" to the list
 			Collections.sort(wishlist, new WishListComparator());	//Alphabetize the list
@@ -375,28 +375,28 @@ public class WishCatalogDB extends ONCDatabase
 	 * If either ONCChildWish object is null, the decrement  or increment count is not performed.
 	 * @param WishBaseChange contains the replaced and added ONCChildWish objects
 	 **************************************************************************************************/
-	void changeWishCounts(ONCChildWish replWish, ONCChildWish addedWish)
+	void changeWishCounts(ONCChildGift replWish, ONCChildGift addedWish)
 	{
 		boolean bWishCountChanged = false;
 		
-		if(replWish != null && replWish.getWishID() > -1)	//Search for from wish if it's not "None"
+		if(replWish != null && replWish.getGiftID() > -1)	//Search for from wish if it's not "None"
 		{
 			//Decrement the count of the first wish and update the table
-			int row = findModelIndexFromID(replWish.getWishID());
+			int row = findModelIndexFromID(replWish.getGiftID());
 			if(row > -1)
 			{
-				wishCatalog.get(row).incrementWishCount(replWish.getWishNumber(), -1);
+				wishCatalog.get(row).incrementWishCount(replWish.getGiftNumber(), -1);
 				bWishCountChanged = true;
 			}
 		}
 		
-		if(addedWish != null && addedWish.getWishID() > -1)	//Search for second wish if it's not "None"
+		if(addedWish != null && addedWish.getGiftID() > -1)	//Search for second wish if it's not "None"
 		{
 			//Increment the count of the second wish and update the table
-			int row = findModelIndexFromID(addedWish.getWishID());
+			int row = findModelIndexFromID(addedWish.getGiftID());
 			if(row > -1)
 			{
-				wishCatalog.get(row).incrementWishCount(addedWish.getWishNumber(), 1);
+				wishCatalog.get(row).incrementWishCount(addedWish.getGiftNumber(), 1);
 				bWishCountChanged = true;
 			}
 		}

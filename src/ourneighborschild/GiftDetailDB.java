@@ -21,22 +21,22 @@ import com.google.gson.reflect.TypeToken;
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
 
-public class WishDetailDB extends ONCDatabase
+public class GiftDetailDB extends ONCDatabase
 {
 	private static final int WISH_DETAIL_HEADER_LENGTH = 3;
-	private static WishDetailDB instance = null;
-	private ArrayList<WishDetail> wdAL;
+	private static GiftDetailDB instance = null;
+	private ArrayList<GiftDetail> wdAL;
 	
-	private WishDetailDB()
+	private GiftDetailDB()
 	{
 		super();
-		wdAL = new ArrayList<WishDetail>();
+		wdAL = new ArrayList<GiftDetail>();
 	}
 	
-	public static WishDetailDB getInstance()
+	public static GiftDetailDB getInstance()
 	{
 		if(instance == null)
-			instance = new WishDetailDB();
+			instance = new GiftDetailDB();
 		
 		return instance;
 	}
@@ -48,7 +48,7 @@ public class WishDetailDB extends ONCDatabase
 		String response = "";
 		
 		response = serverIF.sendRequest("POST<update_wishdetail>" + 
-											 gson.toJson(entity, WishDetail.class));
+											 gson.toJson(entity, GiftDetail.class));
 		
 		if(response != null && response.startsWith("UPDATED_WISH_DETAIL"))
 			processUpdatedWishDetail(source, response.substring(19));
@@ -61,7 +61,7 @@ public class WishDetailDB extends ONCDatabase
 	{
 		//create an object from the response
 		Gson gson = new Gson();
-		WishDetail updatedWishDetail = gson.fromJson(json,WishDetail.class);
+		GiftDetail updatedWishDetail = gson.fromJson(json,GiftDetail.class);
 		
 		//replace the current wish detail with the update
 		int index = 0;
@@ -78,7 +78,7 @@ public class WishDetailDB extends ONCDatabase
 		String response = "";
 		
 		response = serverIF.sendRequest("POST<add_wishdetail>" + 
-											 gson.toJson(entity, WishDetail.class));
+											 gson.toJson(entity, GiftDetail.class));
 		
 		if(response.startsWith("ADDED_WISH_DETAIL"))
 			processAddedWishDetail(source, response.substring(17));
@@ -89,7 +89,7 @@ public class WishDetailDB extends ONCDatabase
 	void processAddedWishDetail(Object source, String json)
 	{
 		Gson gson = new Gson();
-		WishDetail addedWishDetail = gson.fromJson(json, WishDetail.class);
+		GiftDetail addedWishDetail = gson.fromJson(json, GiftDetail.class);
 		
 		wdAL.add(addedWishDetail);
 		
@@ -104,7 +104,7 @@ public class WishDetailDB extends ONCDatabase
 		String response = "";
 		
 		response = serverIF.sendRequest("POST<delete_wishdetail>" + 
-											 gson.toJson(entity, WishDetail.class));
+											 gson.toJson(entity, GiftDetail.class));
 		
 		if(response.startsWith("DELETED_WISH_DETAIL"))
 			processDeletedWishDetail(source, response.substring(19));
@@ -115,7 +115,7 @@ public class WishDetailDB extends ONCDatabase
 	void processDeletedWishDetail(Object source, String json)
 	{
 		Gson gson = new Gson();
-		WishDetail deletedWishDetail = gson.fromJson(json, WishDetail.class);
+		GiftDetail deletedWishDetail = gson.fromJson(json, GiftDetail.class);
 		
 		
 		//notify wish catalog that the detail has been deleted
@@ -131,7 +131,7 @@ public class WishDetailDB extends ONCDatabase
 			wdAL.remove(index);
 	}
 	
-	WishDetail getWishDetail(int id)
+	GiftDetail getWishDetail(int id)
 	{
 		int index = 0;
 		while(index < wdAL.size() && wdAL.get(index).getID() != id)
@@ -146,13 +146,13 @@ public class WishDetailDB extends ONCDatabase
 	@SuppressWarnings("unchecked")
 	public void readWishDetailALObject(ObjectInputStream ois)
 	{
-		ArrayList<WishDetail> wdal = new ArrayList<WishDetail>();
+		ArrayList<GiftDetail> wdal = new ArrayList<GiftDetail>();
 		
 		try 
 		{
-			wdal = (ArrayList<WishDetail>) ois.readObject();
+			wdal = (ArrayList<GiftDetail>) ois.readObject();
 			
-			for(WishDetail wd:wdal)
+			for(GiftDetail wd:wdal)
 			{
 				wdAL.add(wd);
 			}
@@ -189,7 +189,7 @@ public class WishDetailDB extends ONCDatabase
 		if(serverIF != null && serverIF.isConnected())
 		{		
 			Gson gson = new Gson();
-			Type listtype = new TypeToken<ArrayList<WishDetail>>(){}.getType();
+			Type listtype = new TypeToken<ArrayList<GiftDetail>>(){}.getType();
 			
 			response = serverIF.sendRequest("GET<wishdetail>");
 				wdAL = gson.fromJson(response, listtype);
@@ -237,7 +237,7 @@ public class WishDetailDB extends ONCDatabase
 	    			{
 	    				wdAL.clear();
 	    				while ((nextLine = reader.readNext()) != null)	// nextLine[] is an array of values from the line
-	    					wdAL.add(new WishDetail(nextLine));
+	    					wdAL.add(new GiftDetail(nextLine));
 	    			}
 	    			else
 	    				JOptionPane.showMessageDialog(pf, "Wish Detail DB file corrupted, header length = " + Integer.toString(header.length), 
@@ -285,7 +285,7 @@ public class WishDetailDB extends ONCDatabase
 	    		CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
 	    	    writer.writeNext(header);
 	    	    
-	    	    for(WishDetail wd:wdAL)
+	    	    for(GiftDetail wd:wdAL)
 	    	    	writer.writeNext(wd.getExportRow());	//Get family data
 	    	 
 	    	    writer.close();

@@ -41,8 +41,8 @@ public class ReceiveGiftsByBarcodeDialog extends GiftLabelDialog
 		if(lastWishChanged != null &&
 			swo.getFamily().getID() == lastWishChanged.getFamily().getID() &&
 			swo.getChild().getID() == lastWishChanged.getChild().getID() && 
-			swo.getChildWish().getWishNumber() == lastWishChanged.getChildWish().getWishNumber() &&
-			swo.getChildWish().getChildWishStatus() == WishStatus.Received)
+			swo.getChildWish().getGiftNumber() == lastWishChanged.getChildWish().getGiftNumber() &&
+			swo.getChildWish().getGiftStatus() == GiftStatus.Received)
 		{
 			//double scan of the last received gift at this workstation
 			alert(Result.SUCCESS, String.format("Gift Already Received: Family # %s, %s",
@@ -52,11 +52,11 @@ public class ReceiveGiftsByBarcodeDialog extends GiftLabelDialog
 		{
 			lastWishChanged = new SortWishObject(-1, swo.getFamily(), swo.getChild(), swo.getChildWish());
 			
-			ONCChildWish addedWish = childWishDB.add(this, swo.getChild().getID(), swo.getChildWish().getWishID(),
-												swo.getChildWish().getChildWishDetail(),
-												swo.getChildWish().getWishNumber(),
-												swo.getChildWish().getChildWishIndicator(), 
-												WishStatus.Received, null);
+			ONCChildGift addedWish = childGiftDB.add(this, swo.getChild().getID(), swo.getChildWish().getGiftID(),
+												swo.getChildWish().getDetail(),
+												swo.getChildWish().getGiftNumber(),
+												swo.getChildWish().getIndicator(), 
+												GiftStatus.Received, null);
 			
 			//change color and enable undo operation based on success of receiving gift
 			if(addedWish != null)
@@ -102,12 +102,12 @@ public class ReceiveGiftsByBarcodeDialog extends GiftLabelDialog
 	void onUndoSubmittal()
 	{
 		//To undo the wish, add the old wish back with the previous status		
-		ONCChildWish lastWish = lastWishChanged.getChildWish();
+		ONCChildGift lastWish = lastWishChanged.getChildWish();
 				
-		ONCChildWish undoneWish = childWishDB.add(this, lastWishChanged.getChild().getID(),
-						lastWish.getWishID(), lastWish.getChildWishDetail(),
-						lastWish.getWishNumber(),lastWish.getChildWishIndicator(),
-						lastWish.getChildWishStatus(), null);	//null to keep same partner
+		ONCChildGift undoneWish = childGiftDB.add(this, lastWishChanged.getChild().getID(),
+						lastWish.getGiftID(), lastWish.getDetail(),
+						lastWish.getGiftNumber(),lastWish.getIndicator(),
+						lastWish.getGiftStatus(), null);	//null to keep same partner
 		
 		if(undoneWish != null)
 		{
@@ -143,11 +143,11 @@ public class ReceiveGiftsByBarcodeDialog extends GiftLabelDialog
 	}
 
 	@Override
-	boolean isGiftEligible(ONCChildWish cw)
+	boolean isGiftEligible(ONCChildGift cw)
 	{
-		return cw.getChildWishStatus() == WishStatus.Delivered || 
-				cw.getChildWishStatus() == WishStatus.Shopping ||
-				 cw.getChildWishStatus() == WishStatus.Missing ||
-				  cw.getChildWishStatus() == WishStatus.Received;
+		return cw.getGiftStatus() == GiftStatus.Delivered || 
+				cw.getGiftStatus() == GiftStatus.Shopping ||
+				 cw.getGiftStatus() == GiftStatus.Missing ||
+				  cw.getGiftStatus() == GiftStatus.Received;
 	}
 }

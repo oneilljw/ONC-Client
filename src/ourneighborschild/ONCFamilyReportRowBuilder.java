@@ -19,17 +19,17 @@ public class ONCFamilyReportRowBuilder
 	 ********************/
 	
 	private ChildDB cDB;
-	private ChildWishDB cwDB;
+	private ChildGiftDB cwDB;
 	private UserDB userDB;
-	private WishCatalogDB cat;
+	private GiftCatalogDB cat;
 	private RegionDB regions;
 	
 	ONCFamilyReportRowBuilder()
 	{
 		cDB = ChildDB.getInstance();
-		cwDB = ChildWishDB.getInstance();
+		cwDB = ChildGiftDB.getInstance();
 		userDB = UserDB.getInstance();
-		cat = WishCatalogDB.getInstance();
+		cat = GiftCatalogDB.getInstance();
 		regions = RegionDB.getInstance();
 	}
 	
@@ -112,21 +112,21 @@ public class ONCFamilyReportRowBuilder
 	
 	private String getFullWish(ONCChild c, int wn)
 	{
-		ONCChildWish cw = cwDB.getWish(c.getChildGiftID(wn));
+		ONCChildGift cw = cwDB.getWish(c.getChildGiftID(wn));
 		if(c.getChildGiftID(wn) == -1 || cw == null)
 			return "";
 		else
 		{
-			ONCWish wish = cat.getWishByID(cw.getWishID());
+			ONCWish wish = cat.getWishByID(cw.getGiftID());
 		
 			if(wish == null)
 				return "";
 			else
 			{
 				String[] restrictions = {" ", "*", "#"};
-				String restriction = restrictions[cw.getChildWishIndicator()];
+				String restriction = restrictions[cw.getIndicator()];
 				String wishbase = wish.getName();
-				String detail = cw.getChildWishDetail();
+				String detail = cw.getDetail();
 		
 				return restriction + wishbase + "- " +  detail;
 			}

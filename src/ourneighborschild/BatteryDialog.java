@@ -49,9 +49,9 @@ public class BatteryDialog extends GiftLabelDialog
 		if(childDB != null)
 			childDB.addDatabaseListener(this);
 		
-		childWishDB = ChildWishDB.getInstance();
-		if(childWishDB != null)
-			childWishDB.addDatabaseListener(this);
+		childGiftDB = ChildGiftDB.getInstance();
+		if(childGiftDB != null)
+			childGiftDB.addDatabaseListener(this);
 
 		size1 = BatterySize.NONE.toString();
 		qty1 = 0;
@@ -288,9 +288,9 @@ public class BatteryDialog extends GiftLabelDialog
 			submittalList.clear();
 			List<Battery> batteryReqList = new ArrayList<Battery>();
 		
-			batteryReqList.add(new Battery(-1, swo.getChild().getID(), swo.getChildWish().getWishNumber(), size1, qty1));
+			batteryReqList.add(new Battery(-1, swo.getChild().getID(), swo.getChildWish().getGiftNumber(), size1, qty1));
 			if(scanState == ScanState.READY_TO_SUBMIT)	//there are two batteries for this gift
-				batteryReqList.add(new Battery(-1, swo.getChild().getID(), swo.getChildWish().getWishNumber(), size2, qty2));
+				batteryReqList.add(new Battery(-1, swo.getChild().getID(), swo.getChildWish().getGiftNumber(), size2, qty2));
 		
 			Battery addedBattery;
 			for(Battery addBatteryReq : batteryReqList)
@@ -516,9 +516,9 @@ public class BatteryDialog extends GiftLabelDialog
 	}
 	
 	@Override
-	boolean isGiftEligible(ONCChildWish cw)
+	boolean isGiftEligible(ONCChildGift cw)
 	{
-		return cw.getChildWishStatus() == WishStatus.Received;
+		return cw.getGiftStatus() == GiftStatus.Received;
 	}
 	
 	private enum ScanState

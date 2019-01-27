@@ -49,7 +49,7 @@ public class InventoryDialog extends BarcodeTableDialog implements ActionListene
 	private static final int DEFAULT_TABLE_ROW_COUNT = 15;
 	
 	private InventoryDB inventoryDB;
-	private WishCatalogDB cat;
+	private GiftCatalogDB cat;
 	private JRadioButton rbEdit, rbAdd, rbRemove;
 	private JComboBox<ONCWish> wishCB;
 	private DefaultComboBoxModel<ONCWish> wishCBM;
@@ -63,7 +63,7 @@ public class InventoryDialog extends BarcodeTableDialog implements ActionListene
 		if(inventoryDB != null)
 			inventoryDB.addDatabaseListener(this);
 		
-		cat = WishCatalogDB.getInstance();
+		cat = GiftCatalogDB.getInstance();
 		if(cat != null)
 			cat.addDatabaseListener(this);
 		
@@ -93,7 +93,7 @@ public class InventoryDialog extends BarcodeTableDialog implements ActionListene
 		TableColumn typeColumn = dlgTable.getColumnModel().getColumn(TYPE_COL);
 		//set up the catalog wish type panel
         wishCBM = new DefaultComboBoxModel<ONCWish>();
-        for(ONCWish w: cat.getWishList(WishListPurpose.Selection))	//Add new list elements
+        for(ONCWish w: cat.getWishList(GiftListPurpose.Selection))	//Add new list elements
 			wishCBM.addElement(w);
         wishCB = new JComboBox<ONCWish>();
         wishCB.setModel(wishCBM);
@@ -110,7 +110,7 @@ public class InventoryDialog extends BarcodeTableDialog implements ActionListene
 	{
 		wishCBM.removeAllElements();	//Clear the combo box selection list
 
-		for(ONCWish w: cat.getWishList(WishListPurpose.Selection))	//Add new list elements
+		for(ONCWish w: cat.getWishList(GiftListPurpose.Selection))	//Add new list elements
 			wishCBM.addElement(w);
 	}
 	
@@ -536,7 +536,7 @@ public class InventoryDialog extends BarcodeTableDialog implements ActionListene
 			
 			//set up the catalog wish type panel
 	        wishCBM = new DefaultComboBoxModel<ONCWish>();
-	        for(ONCWish w: cat.getWishList(WishListPurpose.Selection))	//Add new list elements
+	        for(ONCWish w: cat.getWishList(GiftListPurpose.Selection))	//Add new list elements
 				wishCBM.addElement(w);
 	        wishCB = new JComboBox<ONCWish>();
 	        wishCB.setModel(wishCBM);

@@ -106,7 +106,7 @@ public class ChildDB extends ONCDatabase
 	
 	ONCChild processDeletedChild(Object source, String json)
 	{
-		ChildWishDB cwDB = ChildWishDB.getInstance();
+		ChildGiftDB cwDB = ChildGiftDB.getInstance();
 		PartnerDB partnerDB = PartnerDB.getInstance();
 		
 		Gson gson = new Gson();
@@ -117,11 +117,11 @@ public class ChildDB extends ONCDatabase
 		if(deletedChild.hasGifts())
 		{
 			partnerDB.deleteChildWishAssignments(deletedChild);
-			ArrayList<WishBaseChange> wishbasechanges = cwDB.deleteChildWishes(deletedChild);
+			ArrayList<GiftBaseChange> wishbasechanges = cwDB.deleteChildWishes(deletedChild);
 		
-			for(WishBaseChange change: wishbasechanges)
+			for(GiftBaseChange change: wishbasechanges)
 				//deleted wish - need to tell wish catalog dialog to adjust wish counts
-				fireDataChanged(source, "WISH_BASE_CHANGED", change.getReplacedWish(), change.getAddedWish());
+				fireDataChanged(source, "WISH_BASE_CHANGED", change.getReplacedGift(), change.getAddedGift());
 		}
 		
 		FamilyDB fDB = FamilyDB.getInstance();

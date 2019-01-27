@@ -22,7 +22,7 @@ public class WebChildWish
 	}
 	
 	public WebChildWish(String name, int wishID, String detail, String res, String partner, 
-						int partnerID, WishStatus status)
+						int partnerID, GiftStatus status)
 	{
 		this.name = name;
 		this.wishID = Integer.toString(wishID);

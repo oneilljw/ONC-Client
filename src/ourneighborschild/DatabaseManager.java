@@ -40,17 +40,18 @@ public class DatabaseManager extends ONCDatabase
 	private UserDB oncUserDB;				//Holds the ONC User, many of which are Agents
 	private FamilyDB oncFamDB;				//Holds ONC Family Database
 	private ChildDB oncChildDB;				//Holds ONC Child database
-	private ChildWishDB oncChildWishDB; 		//Holds ONC Child Wish database
+	private ChildGiftDB oncChildWishDB; 		//Holds ONC Child Wish database
 	private GroupDB oncGroupDB;				//Holds ONC Groups
 	private PartnerDB oncOrgDB;				//Holds ONC Partner Organizations
-	private WishCatalogDB oncWishCat;		//Holds ONC Wish Catalog
-	private WishDetailDB oncWishDetailDB;	//Holds ONC Wish Detail Data Base
+	private GiftCatalogDB oncWishCat;		//Holds ONC Wish Catalog
+	private GiftDetailDB oncWishDetailDB;	//Holds ONC Wish Detail Data Base
 	private ActivityDB oncActDB;				//Holds the Volunteer Activity Data Base
 	private VolunteerDB oncVolDB;			//Holds the Volunteer Data Base
 	private VolunteerActivityDB volActDB;	//Holds the Volunteer ActivityData Base
 	private FamilyHistoryDB oncDelDB;		//Holds the ONC Delivery Data Base
 	private RegionDB regionDB;				//Holds the region and school databases
 	private AdultDB oncAdultDB;				//Holds ONC Adult database
+	private NoteDB noteDB;					//Holds ONC Note database
 	private MealDB oncMealDB;				//Holds ONC Meal database
 	private BatteryDB batteryDB;				//Holds Battery database
 	private InventoryDB oncInvDB;			//Holds current inventory
@@ -65,15 +66,16 @@ public class DatabaseManager extends ONCDatabase
 		oncUserDB = UserDB.getInstance();
 		oncGroupDB = GroupDB.getInstance();
 		oncOrgDB = PartnerDB.getInstance();
-		oncWishDetailDB = WishDetailDB.getInstance();
-		oncWishCat = WishCatalogDB.getInstance();
+		oncWishDetailDB = GiftDetailDB.getInstance();
+		oncWishCat = GiftCatalogDB.getInstance();
 		oncActDB = ActivityDB.getInstance();
 		oncVolDB = VolunteerDB.getInstance();
 		volActDB = VolunteerActivityDB.getInstance();
 		oncDelDB = FamilyHistoryDB.getInstance();
 		oncChildDB = ChildDB.getInstance();
-		oncChildWishDB = ChildWishDB.getInstance();
+		oncChildWishDB = ChildGiftDB.getInstance();
 		oncAdultDB = AdultDB.getInstance();
+		noteDB = NoteDB.getInstance();
 		oncMealDB = MealDB.getInstance();
 		oncInvDB = InventoryDB.getInstance();
 		batteryDB = BatteryDB.getInstance();
@@ -241,7 +243,7 @@ public class DatabaseManager extends ONCDatabase
 		{	
     			String path = folder.toString();
     	
-    			oncAdultDB.exportDBToCSV(GlobalVariablesDB.getFrame(), path + "/AdultDB.csv");
+    			noteDB.exportDBToCSV(GlobalVariablesDB.getFrame(), path + "/NoteDB.csv");
     			oncUserDB.exportDBToCSV(GlobalVariablesDB.getFrame(), path + "/UserDB.csv");
     			oncGroupDB.exportDBToCSV(GlobalVariablesDB.getFrame(), path + "/GroupDB.csv");
     			oncChildDB.exportDBToCSV(GlobalVariablesDB.getFrame(), path + "/ChildDB.csv");
@@ -270,10 +272,10 @@ public class DatabaseManager extends ONCDatabase
 	
 	String exportFamilyReportToCSV()
     {
-    	String filename = null;
+    		String filename = null;
     	
-    	ONCFileChooser fc = new ONCFileChooser(GlobalVariablesDB.getFrame());
-    	File oncwritefile= fc.getFile("Select .csv file to save to",
+    		ONCFileChooser fc = new ONCFileChooser(GlobalVariablesDB.getFrame());
+    		File oncwritefile= fc.getFile("Select .csv file to save to",
 										new FileNameExtensionFilter("CSV Files", "csv"), ONCFileChooser.SAVE_FILE);
     	if(oncwritefile!= null)
     	{
@@ -352,7 +354,7 @@ public class DatabaseManager extends ONCDatabase
      **************************************************************************************************/
     public class ONCServerDBImporter extends SwingWorker<Void, Void>
     {
-    		private static final int NUM_OF_DBs = 18;
+    		private static final int NUM_OF_DBs = 19;
     		String year;
     		ONCProgressBar pb;
     		boolean bServerDataLoaded;
@@ -389,6 +391,10 @@ public class DatabaseManager extends ONCDatabase
 			
 			pb.updateHeaderText("Loading Adults");
 			oncAdultDB.importDB();
+			this.setProgress(progress += increment);
+			
+			pb.updateHeaderText("Loading Notes");
+			noteDB.importDB();
 			this.setProgress(progress += increment);
 			
 			pb.updateHeaderText("Loading Meals");

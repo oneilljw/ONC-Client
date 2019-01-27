@@ -30,14 +30,14 @@ public abstract class VerificationSheetPrinter implements Printable
 	ArrayList<ONCVerificationSheet> vsAL;
 	Image img;
 	String oncSeason;
-	ChildWishDB cwDB;
-	WishCatalogDB cat;
+	ChildGiftDB cwDB;
+	GiftCatalogDB cat;
 	
 	VerificationSheetPrinter(ArrayList<ONCVerificationSheet> vsal)
 	{
 		vsAL = vsal;
-		cwDB = ChildWishDB.getInstance();
-		cat = WishCatalogDB.getInstance();
+		cwDB = ChildGiftDB.getInstance();
+		cat = GiftCatalogDB.getInstance();
 		
 	}
 	
@@ -125,15 +125,15 @@ public abstract class VerificationSheetPrinter implements Printable
 			for(int wn=0; wn < NUM_GIFTS_PER_CHILD; wn++)
 			{
 				ONCChild c = vsAL.get(page).getChildArrayList().get(childnum);
-				ONCChildWish cw = cwDB.getWish(c.getChildGiftID(wn));
+				ONCChildGift cw = cwDB.getWish(c.getChildGiftID(wn));
 				
 				if(cw != null)
 				{
-					ONCWish catWish = cat.getWishByID(cw.getWishID());
+					ONCWish catWish = cat.getWishByID(cw.getGiftID());
 					String wishName = catWish == null ? "None" : catWish.getName();
 				
-					String restriction = restrictions[cw.getChildWishIndicator()];
-					String detail = cw.getChildWishDetail();
+					String restriction = restrictions[cw.getIndicator()];
+					String detail = cw.getDetail();
 					giftdata[wn] = restriction + wishName + "- " +  detail;
 				}
 				else

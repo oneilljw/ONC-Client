@@ -38,8 +38,8 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 	private JMenuItem delChildMI, markAdultMI, connectChildMI, famHistMI;
 	private JMenu submenuImport, submenuFamilyDataChecks, submenuExport, submenuChangeFamilyNumbers;
 	private JMenu submenuDBYearList, submenuUsers, submenuReceiveGifts;
-	private JMenuItem viewDBMI, sortWishesMI, sortFamiliesMI, sortOrgsMI, recGiftsMI, recGiftsBarcodeMI, sortMealsMI, batteryMI, manageBatteryMI;
-	private JMenuItem agentMI, groupMI, manageGroupsMI, orgMI, catMI, barcodeWishHistoryMI, inventoryMI;
+	private JMenuItem viewDBMI, sortGiftsMI, sortFamiliesMI, sortOrgsMI, recGiftsMI, recGiftsBarcodeMI, sortMealsMI, batteryMI, manageBatteryMI;
+	private JMenuItem agentMI, groupMI, manageGroupsMI, orgMI, catMI, barcodeGiftHistoryMI, inventoryMI;
 	private JMenuItem aboutONCMI, oncPrefrencesMI, profileMI, editUsersMI, manageUsersMI, onlineMI, chatMI, changePWMI, stopPollingMI;
 	private JMenuItem showServerLogMI, showServerClientIDMI, showCurrDirMI, showWebsiteStatusMI;
 	private List<JMenuItem> dbYearsMIList;
@@ -63,7 +63,7 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 		
 		userDB = UserDB.getInstance();
 		
-		JMenu menuDatabase, menuAgents, menuFamilies, menuWishes, menuMeals, menuPartners, 
+		JMenu menuDatabase, menuAgents, menuFamilies, menuGifts, menuMeals, menuPartners, 
 				menuVolunteers, menuDelivery, menuSettings;	    
         
 	    //Build the Database menu.
@@ -256,22 +256,22 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 	    
 	    this.add(menuFamilies);
 	    
-	    //Build Wishes Menu Structure
-	    menuWishes = new JMenu("Wishes");
-	    this.add(menuWishes);
+	    //Build Gifts Menu Structure
+	    menuGifts = new JMenu("Gifts");
+	    this.add(menuGifts);
 	    
 	    catMI = new JMenuItem("Manage Catalog");
 	    catMI.setEnabled(false);
 	    catMI.addActionListener(this);
-	    menuWishes.add(catMI);
+	    menuGifts.add(catMI);
 	    
-	    sortWishesMI = new JMenuItem("Manage Wishes");
-	    sortWishesMI.setActionCommand("Wishes");
-	    sortWishesMI.setEnabled(false);
-	    sortWishesMI.addActionListener(this);
-	    menuWishes.add(sortWishesMI);
+	    sortGiftsMI = new JMenuItem("Manage Gifts");
+	    sortGiftsMI.setActionCommand("Gifts");
+	    sortGiftsMI.setEnabled(false);
+	    sortGiftsMI.addActionListener(this);
+	    menuGifts.add(sortGiftsMI);
 	    
-	    menuWishes.addSeparator();
+	    menuGifts.addSeparator();
 	    
 	    submenuReceiveGifts = new JMenu("Receive Gifts");
 	    submenuImport.setEnabled(false);
@@ -288,35 +288,35 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 	    recGiftsMI.addActionListener(this);;
 	    submenuReceiveGifts.add(recGiftsMI);
 	    
-	    menuWishes.add(submenuReceiveGifts);
+	    menuGifts.add(submenuReceiveGifts);
 	    
-	    barcodeWishHistoryMI = new JMenuItem("Wish History");
-	    barcodeWishHistoryMI.setActionCommand("Barcode Wish History");
-	    barcodeWishHistoryMI.setEnabled(false);
-	    barcodeWishHistoryMI.addActionListener(this);
-	    menuWishes.add(barcodeWishHistoryMI);
+	    barcodeGiftHistoryMI = new JMenuItem("Wish History");
+	    barcodeGiftHistoryMI.setActionCommand("Barcode Wish History");
+	    barcodeGiftHistoryMI.setEnabled(false);
+	    barcodeGiftHistoryMI.addActionListener(this);
+	    menuGifts.add(barcodeGiftHistoryMI);
 	    
-	    menuWishes.addSeparator();
+	    menuGifts.addSeparator();
 	    
 	    batteryMI = new JMenuItem("Add Batteries");
 	    batteryMI.setActionCommand("Add Batteries");
 	    batteryMI.setEnabled(false);
 	    batteryMI.addActionListener(this);
-	    menuWishes.add(batteryMI);
+	    menuGifts.add(batteryMI);
 	    
 	    manageBatteryMI = new JMenuItem("Manage Batteries");
 	    manageBatteryMI.setActionCommand("Manage Batteries");
 	    manageBatteryMI.setEnabled(false);
 	    manageBatteryMI.addActionListener(this);
-	    menuWishes.add( manageBatteryMI);
+	    menuGifts.add( manageBatteryMI);
 	    
-	    menuWishes.addSeparator();
+	    menuGifts.addSeparator();
 	    
 	    inventoryMI = new JMenuItem("Gift Inventory");
 	    inventoryMI.setActionCommand("Inventory");
 	    inventoryMI.setEnabled(false);
 	    inventoryMI.addActionListener(this);
-	    menuWishes.add(inventoryMI);
+	    menuGifts.add(inventoryMI);
 	    
 	    //Build Meals Menu Structure
 	    menuMeals = new JMenu("Meals");
@@ -544,10 +544,10 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 		assignDelMI.setEnabled(tf);
 		mapsMI.setEnabled(tf);	
 		distMI.setEnabled(tf);	
-		sortWishesMI.setEnabled(true);
+		sortGiftsMI.setEnabled(true);
 		recGiftsMI.setEnabled(true);
 		recGiftsBarcodeMI.setEnabled(true);
-		barcodeWishHistoryMI.setEnabled(true);
+		barcodeGiftHistoryMI.setEnabled(true);
 		batteryMI.setEnabled(true);
 		manageBatteryMI.setEnabled(true);
 	}
@@ -729,13 +729,13 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 		else if(e.getSource() == delstatusMI)
 			dlgManager.showHistoryDialog(delstatusMI.getActionCommand());
 		else if(e.getSource() == viewDBMI) {dlgManager.showEntireDatabase();}
-		else if(e.getSource() == sortWishesMI)
-			dlgManager.showSortDialog(sortWishesMI.getActionCommand(), SORT_DIALOG_OFFSET);
+		else if(e.getSource() == sortGiftsMI)
+			dlgManager.showSortDialog(sortGiftsMI.getActionCommand(), SORT_DIALOG_OFFSET);
 		else if(e.getSource() == sortMealsMI)
 			dlgManager.showSortDialog(sortMealsMI.getActionCommand(), SORT_DIALOG_OFFSET);
 		else if(e.getSource() == recGiftsMI)
 			dlgManager.showSortDialog(recGiftsMI.getActionCommand(), SORT_DIALOG_OFFSET);
-		else if(e.getSource() == barcodeWishHistoryMI)
+		else if(e.getSource() == barcodeGiftHistoryMI)
 			dlgManager.showBarcodeWishHistoryDialog();
 		else if(e.getSource() == batteryMI)
 			dlgManager.showBatteryDialog();

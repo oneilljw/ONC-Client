@@ -1,6 +1,6 @@
 package ourneighborschild;
 
-public enum WishListPurpose 
+public enum GiftListPurpose 
 {
 	Selection,
 	Filtering;

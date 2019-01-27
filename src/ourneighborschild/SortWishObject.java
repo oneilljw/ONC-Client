@@ -7,14 +7,14 @@ public class SortWishObject extends ONCObject
 	private static final int MAX_LABEL_LINE_LENGTH = 26;
 	private ONCFamily	 soFamily;
 	private ONCChild	 soChild;
-	private ONCChildWish soChildWish;
+	private ONCChildGift soChildWish;
 	
 	PartnerDB partnerDB;
-	WishCatalogDB cat;
+	GiftCatalogDB cat;
 	
 	String[] indicator = {"", "*", "#"};
 	
-	public SortWishObject(int itemID, ONCFamily fam, ONCChild c, ONCChildWish cw) 
+	public SortWishObject(int itemID, ONCFamily fam, ONCChild c, ONCChildGift cw) 
 	{
 		super(itemID);
 		soFamily = fam;
@@ -22,62 +22,62 @@ public class SortWishObject extends ONCObject
 		soChildWish = cw;
 		
 		partnerDB = PartnerDB.getInstance();
-		cat = WishCatalogDB.getInstance();
+		cat = GiftCatalogDB.getInstance();
 	}
 	
 	//getters
 	ONCFamily getFamily() { return soFamily; }
 	ONCChild getChild() { return soChild; }
-	ONCChildWish getChildWish() { return soChildWish; }
+	ONCChildGift getChildWish() { return soChildWish; }
 	
 	public String[] getExportRow()
 	{
 		
 		SimpleDateFormat dob = new SimpleDateFormat("MM-dd-yyyy");
-		String dateChanged = dob.format(soChildWish.getChildWishDateChanged().getTime());
+		String dateChanged = dob.format(soChildWish.getDateChanged().getTime());
 		
-		ONCWish wish = cat.getWishByID(soChildWish.getWishID());
+		ONCWish wish = cat.getWishByID(soChildWish.getGiftID());
 		String wishName = wish == null ? "None" : wish.getName();
 		
-		ONCPartner partner = partnerDB.getPartnerByID(soChildWish.getChildWishAssigneeID());
+		ONCPartner partner = partnerDB.getPartnerByID(soChildWish.getPartnerID());
 		String partnerName = partner == null ? "" : partner.getLastName();
 		
 		String[] exportRow = {soFamily.getONCNum(), soChild.getChildGender(),
 								soChild.getChildAge(),
 								soChild.getChildDOBString("MM-dd-yyyy"), 
-								indicator[soChildWish.getChildWishIndicator()],
+								indicator[soChildWish.getIndicator()],
 								wishName,
-								soChildWish.getChildWishDetail(),
-								soChildWish.getChildWishStatus().toString(),
+								soChildWish.getDetail(),
+								soChildWish.getGiftStatus().toString(),
 								partnerName,
-								soChildWish.getChildWishChangedBy(),
+								soChildWish.getChangedBy(),
 								dateChanged};
 		return exportRow;
 	}
 	
 	String[] getReceivingSheetRow()
 	{
-		WishCatalogDB cat = WishCatalogDB.getInstance();
+		GiftCatalogDB cat = GiftCatalogDB.getInstance();
 		
-		ONCWish wish = cat.getWishByID(soChildWish.getWishID());
+		ONCWish wish = cat.getWishByID(soChildWish.getGiftID());
 		String wishName = wish == null ? "None" : wish.getName();
 		
 		String[] rsr = new String[3];
 		rsr[0] = soFamily.getONCNum();
 		rsr[1] = soChild.getChildAge() + " " +  soChild.getChildGender();
-		if(soChildWish.getChildWishDetail().isEmpty())
+		if(soChildWish.getDetail().isEmpty())
 			rsr[2] = wishName;
 		else if(wishName.equals("-"))
-			rsr[2] = soChildWish.getChildWishDetail();
+			rsr[2] = soChildWish.getDetail();
 		else
-			rsr[2] = wishName + "- " + soChildWish.getChildWishDetail();
+			rsr[2] = wishName + "- " + soChildWish.getDetail();
 		return rsr;
 	}
 	
 	String[] getWishLabel()
 	{	
 		GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
-		WishCatalogDB cat = WishCatalogDB.getInstance();
+		GiftCatalogDB cat = GiftCatalogDB.getInstance();
 		
 		String[] line = new String[5];
 		SimpleDateFormat sYear = new SimpleDateFormat("yyyy");
@@ -87,9 +87,9 @@ public class SortWishObject extends ONCObject
 		//Changed when adding bar code to labels			
 		line[0] = soChild.getChildAge() + " " + soChild.getChildGender();
 		
-		if(soChildWish.getChildWishDetail().isEmpty())
+		if(soChildWish.getDetail().isEmpty())
 		{
-			ONCWish wish = cat.getWishByID(soChildWish.getWishID());
+			ONCWish wish = cat.getWishByID(soChildWish.getGiftID());
 			String wishName = wish == null ? "None" : wish.getName();
 			
 			line[1] = wishName + "- ";
@@ -99,11 +99,11 @@ public class SortWishObject extends ONCObject
 		}	
 		else
 		{
-			ONCWish catWish = cat.getWishByID(soChildWish.getWishID());
+			ONCWish catWish = cat.getWishByID(soChildWish.getGiftID());
 			String wishName = catWish == null ? "None" : catWish.getName();
 			
-			String wish = wishName.equals("-") ? soChildWish.getChildWishDetail() : 
-				wishName + "- " + soChildWish.getChildWishDetail();
+			String wish = wishName.equals("-") ? soChildWish.getDetail() : 
+				wishName + "- " + soChildWish.getDetail();
 	
 			//does it fit on one line?
 			if(wish.length() <= MAX_LABEL_LINE_LENGTH)
@@ -157,18 +157,18 @@ public class SortWishObject extends ONCObject
 		else
 			line[4] = Integer.toString(soChildWish.getID());
 		
-		line[4] = line[4] + Integer.toString(soChildWish.getWishNumber());	
+		line[4] = line[4] + Integer.toString(soChildWish.getGiftNumber());	
 	
 		return line;
 	}
 	
 	String getWishPlusDetail()
 	{
-		ONCWish catWish = cat.getWishByID(soChildWish.getWishID());
+		ONCWish catWish = cat.getWishByID(soChildWish.getGiftID());
 		String wishName = catWish == null ? "None" : catWish.getName();
 		
-		return wishName.equals("-") ? soChildWish.getChildWishDetail() : 
-			wishName + "- " + soChildWish.getChildWishDetail();
+		return wishName.equals("-") ? soChildWish.getDetail() : 
+			wishName + "- " + soChildWish.getDetail();
 	}
 	
 	//determine if two SortWishObjects match

@@ -24,7 +24,7 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 
-public class WishCatalogDialog extends JDialog implements ActionListener, ListSelectionListener,
+public class GiftCatalogDialog extends JDialog implements ActionListener, ListSelectionListener,
 															DatabaseListener
 {
 	/**
@@ -45,9 +45,9 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 	private ONCTable dlgTable;
 	private AbstractTableModel wcTableModel;
 	private JButton btnAdd, btnEdit, btnDelete, btnPrint;
-	private WishCatalogDB cat;
+	private GiftCatalogDB cat;
 		
-	public WishCatalogDialog(JFrame pf)
+	public GiftCatalogDialog(JFrame pf)
 	{
 		super(pf);
 		this.setTitle("Wish Catalog");
@@ -55,7 +55,7 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 		//Save the reference to the one wish catalog object in the app. It is created in the 
 		//top level object and passed to all objects that require the wish catalog, including
 		//this dialog
-		cat = WishCatalogDB.getInstance();
+		cat = GiftCatalogDB.getInstance();
 		if(cat != null)
 			cat.addDatabaseListener(this);
 		
@@ -144,7 +144,7 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 		{
 			ONCWish wishsel = cat.getWish(modelRow);
 			
-			WishDetailDialog wdDlg =  new WishDetailDialog(this, "Edit Catalog Wish");
+			GiftDetailDialog wdDlg =  new GiftDetailDialog(this, "Edit Catalog Wish");
 			wdDlg.displayWishDetail(wishsel, cat.getTotalWishCount(modelRow));
 			
 			wdDlg.setLocationRelativeTo(btnDelete);
@@ -179,7 +179,7 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 		ONCWish reqAddWish = new ONCWish(-1, "New Wish", 0);
 		
 		//use wish detail dialog to get input from user on the new wish request
-		WishDetailDialog wdDlg =  new WishDetailDialog(this, "Add New Catalog Wish");
+		GiftDetailDialog wdDlg =  new GiftDetailDialog(this, "Add New Catalog Wish");
 				
 		wdDlg.displayWishDetail(reqAddWish, 0);
 		wdDlg.setLocationRelativeTo(btnDelete);
@@ -315,11 +315,11 @@ public class WishCatalogDialog extends JDialog implements ActionListener, ListSe
 		if(dbe.getSource() != this && dbe.getType().equals("WISH_BASE_CHANGED"))
 		{
 			//User changed a wish base, must update wish counts
-			ONCChildWish replWish = (ONCChildWish) dbe.getObject1();
-			ONCChildWish addedWish = (ONCChildWish) dbe.getObject2();
+			ONCChildGift replWish = (ONCChildGift) dbe.getObject1();
+			ONCChildGift addedWish = (ONCChildGift) dbe.getObject2();
 			
 			//update table
-			if(replWish != null &&  replWish.getWishID() > -1 || addedWish != null && addedWish.getWishID() > -1)
+			if(replWish != null &&  replWish.getGiftID() > -1 || addedWish != null && addedWish.getGiftID() > -1)
 					wcTableModel.fireTableDataChanged();
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("ADDED_CATALOG_WISH"))

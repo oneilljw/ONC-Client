@@ -2,7 +2,7 @@ package ourneighborschild;
 
 import java.io.Serializable;
 
-public class WishDetail extends ONCObject implements Serializable
+public class GiftDetail extends ONCObject implements Serializable
 {
 	/**
 	 * This class provides the data for one of the choices that a user must select from when
@@ -15,7 +15,7 @@ public class WishDetail extends ONCObject implements Serializable
 //	private String[] choices;
 	private String zChoices;
 	
-	WishDetail(int id, String name, String choices)
+	GiftDetail(int id, String name, String choices)
 	{
 		super(id);
 		this.name = name;
@@ -23,7 +23,7 @@ public class WishDetail extends ONCObject implements Serializable
 	}
 	
 	//constructor used when making a copy of a WishDetail
-	public WishDetail(WishDetail wd)
+	public GiftDetail(GiftDetail wd)
 	{
 		super(wd.id);
 		this.name = wd.name;
@@ -31,7 +31,7 @@ public class WishDetail extends ONCObject implements Serializable
 	}
 	
 	//Constructor used when wish detail objects are imported from .csv file
-	public WishDetail(String[] wishdetail)	
+	public GiftDetail(String[] wishdetail)	
 	{
 		super(Integer.parseInt(wishdetail[0]));
 		name = wishdetail[1];

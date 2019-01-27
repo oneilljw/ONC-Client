@@ -33,12 +33,12 @@ public class BarcodeWishHistoryDialog extends BarcodeTableDialog
 	
 	private FamilyDB fDB;
 	private ChildDB cDB;
-	private ChildWishDB cwDB;
-	private WishCatalogDB cat;
+	private ChildGiftDB cwDB;
+	private GiftCatalogDB cat;
 	private PartnerDB partnerDB;
 	private UserDB userDB;
 	
-	private ONCChildWish cw;
+	private ONCChildGift cw;
 		
 	public BarcodeWishHistoryDialog(JFrame pf)
 	{
@@ -50,14 +50,14 @@ public class BarcodeWishHistoryDialog extends BarcodeTableDialog
 		//this dialog
 		fDB = FamilyDB.getInstance();
 		cDB = ChildDB.getInstance();
-		cwDB = ChildWishDB.getInstance();
+		cwDB = ChildGiftDB.getInstance();
 		if(cwDB != null)
 			cwDB.addDatabaseListener(this);
-		cat = WishCatalogDB.getInstance();
+		cat = GiftCatalogDB.getInstance();
 		partnerDB = PartnerDB.getInstance();
 		userDB = UserDB.getInstance();
 		
-		stAL = new ArrayList<ONCChildWish>();
+		stAL = new ArrayList<ONCChildGift>();
 		
 		btnAction.setVisible(false);
 	}
@@ -136,11 +136,11 @@ public class BarcodeWishHistoryDialog extends BarcodeTableDialog
 	    }
 	}
 	
-	void getWishHistory(ONCChildWish cw)
+	void getWishHistory(ONCChildGift cw)
 	{	
 		if(cw != null)
 		{
-			stAL = cwDB.getWishHistory(cw.getChildID(), cw.getWishNumber());	
+			stAL = cwDB.getWishHistory(cw.getChildID(), cw.getGiftNumber());	
 		}
 		else
 			stAL.clear();
@@ -182,11 +182,11 @@ public class BarcodeWishHistoryDialog extends BarcodeTableDialog
 					if(userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0)
 						lblInfo.setText(String.format("Wish History for %s %s, Wish %d, Family #%s",
 							child.getChildFirstName(), child.getChildLastName(),
-							cw.getWishNumber()+1, family.getONCNum()));
+							cw.getGiftNumber()+1, family.getONCNum()));
 					else
 						lblInfo.setText(String.format("Wish History for %s %d,  Wish %d, Family #%s",
 							"Child", cDB.getChildNumber(child),
-							cw.getWishNumber()+1, family.getONCNum()));
+							cw.getGiftNumber()+1, family.getONCNum()));
 				}
 			}
 		}
@@ -205,9 +205,9 @@ public class BarcodeWishHistoryDialog extends BarcodeTableDialog
 		if(dbe.getSource() != this && dbe.getType().equals("ADDED_WISH"))
 		{
 			//update the wish history displayed if the added wish is from same child and wish #
-			ONCChildWish addedWish = (ONCChildWish) dbe.getObject1();
+			ONCChildGift addedWish = (ONCChildGift) dbe.getObject1();
 			if(cw != null && addedWish.getChildID() == cw.getChildID() &&
-					addedWish.getWishNumber() == cw.getWishNumber())
+					addedWish.getGiftNumber() == cw.getGiftNumber())
 			{
 				getWishHistory(cw);
 				dlgTableModel.fireTableDataChanged();
@@ -239,31 +239,31 @@ public class BarcodeWishHistoryDialog extends BarcodeTableDialog
  
         public Object getValueAt(int row, int col)
         {
-        	ONCChildWish cw = (ONCChildWish) stAL.get(row);
+        	ONCChildGift cw = (ONCChildGift) stAL.get(row);
         	if(col == WISH_COL)
         	{
-        		ONCWish wish = cat.getWishByID(cw.getWishID());
+        		ONCWish wish = cat.getWishByID(cw.getGiftID());
 				return wish == null ? "None" : wish.getName();
         	}
         	else if(col == DETAIL_COL)
-        		return cw.getChildWishDetail();
+        		return cw.getDetail();
         	else if (col == STATUS_COL)
-        		return cw.getChildWishStatus().toString();
+        		return cw.getGiftStatus().toString();
         	else if (col == IND_COL)
         	{
         		String[] indicators = {"", "*", "#"};
-        		return indicators[cw.getChildWishIndicator()];
+        		return indicators[cw.getIndicator()];
         	}
         	else if (col == CHANGEDBY_COL)
-        		return cw.getChildWishChangedBy();
+        		return cw.getChangedBy();
         	else if (col == TIMESTAMP_COL)
         	{
         		SimpleDateFormat sdf = new SimpleDateFormat("M/dd/yy H:mm:ss");
-        		return sdf.format(cw.getChildWishDateChanged().getTime());
+        		return sdf.format(cw.getDateChanged().getTime());
         	}
         	else if (col == ASSIGNEE_COL)
         	{
-        		ONCPartner partner = partnerDB.getPartnerByID(cw.getChildWishAssigneeID());
+        		ONCPartner partner = partnerDB.getPartnerByID(cw.getPartnerID());
         		return partner == null ? "None" : partner.getLastName();
         	}
         	else

@@ -57,6 +57,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private static final int TRANSPORTATION_ICON_INDEX = 31;
 	private static final int HISTORY_ICON_INDEX = 32;
 	private static final int AGENT_INFO_ICON_INDEX = 33;
+	private static final int FAMILY_NOTE_ICON_INDEX = 47;
 	private static final int FAMILY_DETAILS_ICON_INDEX = 34;
 	private static final int PHONE_ICON_INDEX = 35;
 	private static final int NO_TRANSPORTATION_ICON_INDEX = 36;
@@ -94,7 +95,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private JTextField housenumTF, Street, Unit, City, ZipCode;
 	private JLabel lblONCNum, lblRefNum, lblBatchNum, lblSchool, lblNumBags, lblChangedBy;
 	private JRadioButton rbGiftStatusHistory, rbAltAddress, rbMeals, rbPriorHistory, rbAgentInfo;
-	private JRadioButton rbShowAllPhones, rbFamDetails, rbTransportation, rbDirections;
+	private JRadioButton rbFamilyNote, rbShowAllPhones, rbFamDetails, rbTransportation, rbDirections;
 	private JRadioButton rbNotGiftCardOnly, rbGiftCardOnly, rbAdults;
 	private JComboBox<String> languageCB;
 	private JComboBox<FamilyStatus> statusCB;
@@ -112,7 +113,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	
 	//sub-panels of the family panel
 	private ChildPanel oncChildPanel;
-	private WishPanel[] wishPanelList;
+	private GiftPanel[] wishPanelList;
 	
 	//Temporary for debug
 	SimpleDateFormat sdf;
@@ -317,6 +318,11 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         rbAgentInfo.setEnabled(false);
         rbAgentInfo.addActionListener(this);
         
+        rbFamilyNote = new JRadioButton(gvs.getImageIcon(FAMILY_NOTE_ICON_INDEX));
+        rbFamilyNote.setToolTipText("Click to edit family note to agent");
+        rbFamilyNote.setEnabled(false);
+        rbFamilyNote.addActionListener(this);
+        
         rbFamDetails = new JRadioButton(gvs.getImageIcon(FAMILY_DETAILS_ICON_INDEX));
         rbFamDetails.setToolTipText("Click for additional details for this family");
         rbFamDetails.setEnabled(false);
@@ -450,10 +456,10 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         
         //create the wish panels
         JPanel childwishespanel = new JPanel(new GridLayout(1,3));
-        wishPanelList = new WishPanel[NUMBER_OF_WISHES_PER_CHILD];
+        wishPanelList = new GiftPanel[NUMBER_OF_WISHES_PER_CHILD];
         for(int wp=0; wp < wishPanelList.length; wp++)
         {
-        	wishPanelList[wp] = new WishPanel(wp);
+        	wishPanelList[wp] = new GiftPanel(wp);
         	childwishespanel.add(wishPanelList[wp]);
         	
         	//register the entity selection listeners
@@ -526,6 +532,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         iconBar.add(rbAltAddress);
         iconBar.add(rbFamDetails);
         iconBar.add(rbAgentInfo);
+        iconBar.add(rbFamilyNote);
         iconBar.add(rbMeals);
         iconBar.add(rbTransportation);
         iconBar.add(rbAdults);
@@ -696,6 +703,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		rbGiftCardOnly.setEnabled(true);
 		rbGiftCardOnly.setVisible(false);
 		rbAdults.setEnabled(true);
+		rbFamilyNote.setEnabled(!currFam.getDNSCode().isEmpty());
 		
 		lblONCNum.setText(currFam.getONCNum());
 		lblONCNum.setToolTipText("Family Database ID= " + Integer.toString(currFam.getID()));
@@ -1200,6 +1208,15 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 					fireEntitySelected(this, EntityType.AGENT, famAgent, null);
 					DialogManager.getInstance().showEntityDialog("Edit Users", currLocation );
 				}
+			}
+		}
+		else if(e.getSource() == rbFamilyNote)
+		{   
+			if(currFam != null)
+			{
+				AgentNoteDialog noteDlg = new AgentNoteDialog(parentFrame, currFam);
+				noteDlg.setLocationRelativeTo(rbFamilyNote);;
+				noteDlg.display();
 			}
 		}
 		else if(e.getSource() == rbFamDetails)

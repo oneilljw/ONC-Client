@@ -225,47 +225,46 @@ public class AdultDB extends ONCDatabase
     {
 		File oncwritefile = null;
 		
-    	if(filename == null)
-    	{
-    		ONCFileChooser fc = new ONCFileChooser(pf);
-    		oncwritefile= fc.getFile("Select .csv file to save Adult DB to",
+		if(filename == null)
+    		{
+    			ONCFileChooser fc = new ONCFileChooser(pf);
+    			oncwritefile= fc.getFile("Select .csv file to save Adult DB to",
 								new FileNameExtensionFilter("CSV Files", "csv"), ONCFileChooser.SAVE_FILE);
-    	}
-    	else
-    		oncwritefile = new File(filename);
+    		}
+    		else
+    			oncwritefile = new File(filename);
     	
-    	if(oncwritefile!= null)
-    	{
-    		//If user types a new filename and doesn't include the .csv, add it
-	    	String filePath = oncwritefile.getPath();		
-	    	if(!filePath.toLowerCase().endsWith(".csv")) 
-	    		oncwritefile = new File(filePath + ".csv");
+		if(oncwritefile!= null)
+    		{
+    			//If user types a new filename and doesn't include the .csv, add it
+	    		String filePath = oncwritefile.getPath();		
+	    		if(!filePath.toLowerCase().endsWith(".csv")) 
+	    			oncwritefile = new File(filePath + ".csv");
 	    	
-	    	try 
-	    	{
-	    		 String[] header = {"ID", "Family ID", "Name", "Gender"};
+	    		try 
+	    		{
+	    			String[] header = {"ID", "Family ID", "Name", "Gender"};
 	    		
-	    		CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
-	    	    writer.writeNext(header);
+	    			CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
+	    			writer.writeNext(header);
 	    	    
-	    	    for(ONCAdult a : adultList)
-	    	    	writer.writeNext(a.getExportRow());	//Get family data
+	    			for(ONCAdult a : adultList)
+	    				writer.writeNext(a.getExportRow());	//Get family data
 	    	 
-	    	    writer.close();
-	    	    filename = oncwritefile.getName();
+	    			writer.close();
+	    			filename = oncwritefile.getName();
 	    	       	    
-	    	} 
-	    	catch (IOException x)
-	    	{
-	    		System.err.format("IO Exception: %s%n", x);
-	    		JOptionPane.showMessageDialog(pf, oncwritefile.getName() + " could not be saved", 
+	    		} 
+	    		catch (IOException x)
+	    		{
+	    			System.err.format("IO Exception: %s%n", x);
+	    			JOptionPane.showMessageDialog(pf, oncwritefile.getName() + " could not be saved", 
 						"ONC File Save Error", JOptionPane.ERROR_MESSAGE);
-	    	}
+	    		}
 	    }
     	
 	    return filename;
     }
-
 
 	@Override
 	public void dataChanged(ServerEvent ue)

@@ -65,7 +65,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 	private GlobalVariablesDB gvDB;
 	private UserDB userDB;
 	private ActivityDB activityDB;
-	private WishCatalogDB catDB;
+	private GiftCatalogDB catDB;
 	
 	private UserPreferences uPrefs;
 	
@@ -112,7 +112,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		if(activityDB != null)
 			activityDB.addDatabaseListener(this);
 		
-		catDB = WishCatalogDB.getInstance();
+		catDB = GiftCatalogDB.getInstance();
 		if(catDB != null)
 			catDB.addDatabaseListener(this);
 		

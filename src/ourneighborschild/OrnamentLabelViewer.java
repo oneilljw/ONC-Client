@@ -10,7 +10,7 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-public class WishLabelViewer extends JDialog implements DatabaseListener
+public class OrnamentLabelViewer extends JDialog implements DatabaseListener
 {
 	/**
 	 * 
@@ -20,21 +20,21 @@ public class WishLabelViewer extends JDialog implements DatabaseListener
 	//database references
 	private FamilyDB familyDB;
 	private ChildDB childDB;
-	private ChildWishDB childWishDB;
+	private ChildGiftDB childGiftDB;
 	
-	private WishLabelPanel labelPanel;
+	private GiftLabelPanel labelPanel;
 	
 	private final Image img;
 	
 	private ONCChild child;	//current child being displayed
 	private int wn;			//current wish number being displayed
 	
-	WishLabelViewer(JFrame pf, ONCChild child, int wn)
+	OrnamentLabelViewer(JFrame pf, ONCChild child, int wn)
 	{
 		super(pf, true);
 		this.child = child;
 		this.wn = wn;
-		this.setTitle(String.format("Wish %d Ornament Label", wn+1));
+		this.setTitle(String.format("Gift %d Ornament Label", wn+1));
 		
 		familyDB = FamilyDB.getInstance();
 		
@@ -42,11 +42,11 @@ public class WishLabelViewer extends JDialog implements DatabaseListener
 		if(childDB != null)
 			childDB.addDatabaseListener(this);
 		
-		childWishDB = ChildWishDB.getInstance();
-		if(childWishDB != null)
-			childWishDB.addDatabaseListener(this);
+		childGiftDB = ChildGiftDB.getInstance();
+		if(childGiftDB != null)
+			childGiftDB.addDatabaseListener(this);
 
-		labelPanel = new WishLabelPanel();
+		labelPanel = new GiftLabelPanel();
 		img = GlobalVariablesDB.getSeasonIcon().getImage();
 		
 		this.setContentPane(labelPanel);
@@ -64,7 +64,7 @@ public class WishLabelViewer extends JDialog implements DatabaseListener
 //					dbe.getSource().toString(), dbe.getType(), dbe.getObject().toString()));
 			
 			//Get the added wish to extract the child
-			ONCChildWish addedWish = (ONCChildWish) dbe.getObject1();
+			ONCChildGift addedWish = (ONCChildGift) dbe.getObject1();
 		
 			//If the current child is being displayed has a wish added update the 
 			//wish label to show the added wish
@@ -75,10 +75,9 @@ public class WishLabelViewer extends JDialog implements DatabaseListener
 		{
 			//Get the updated wish to extract the ONCChildWish. For updates, the ONCChildWish
 			//id will remain the same
-			ONCChildWish updatedWish = (ONCChildWish) dbe.getObject1();
+			ONCChildGift updatedWish = (ONCChildGift) dbe.getObject1();
 			
-			//If the current child is being displayed has a wish added update the 
-			//wish label to show the added wish
+			//If the current child is being displayed has a gift added, update the label
 			if(child != null && updatedWish.getChildID() == child.getID())
 				labelPanel.repaint();
 		}
@@ -93,7 +92,7 @@ public class WishLabelViewer extends JDialog implements DatabaseListener
 		}
 	}
 	
-	private class WishLabelPanel extends JPanel
+	private class GiftLabelPanel extends JPanel
 	{
 		/**
 		 * 
@@ -105,7 +104,7 @@ public class WishLabelViewer extends JDialog implements DatabaseListener
 		private Font[] lFont;
 		private AveryWishLabelPrinter awlp;
 		
-		public WishLabelPanel()
+		public GiftLabelPanel()
 		{
 			awlp = new AveryWishLabelPrinter();
 			
@@ -130,7 +129,7 @@ public class WishLabelViewer extends JDialog implements DatabaseListener
 		    
 		    //create the sort wish object list.
 		    ONCFamily fam = familyDB.getFamily(child.getFamID());
-			ONCChildWish cw = childWishDB.getWish(child.getID(), wn);
+			ONCChildGift cw = childGiftDB.getWish(child.getID(), wn);
 		    SortWishObject swo = new SortWishObject(0, fam, child, cw);
 		    
 		    awlp.drawLabel(10, 20, swo.getWishLabel(), lFont, img, g2d);

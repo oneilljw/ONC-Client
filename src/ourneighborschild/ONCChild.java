@@ -379,20 +379,20 @@ public class ONCChild extends ONCObject implements Serializable
 		 * 
 		 */
 		private static final long serialVersionUID = 1487985298719174837L;
-		private ArrayList<ONCChildWish> wishHistoryAL = new ArrayList<ONCChildWish>();
+		private ArrayList<ONCChildGift> wishHistoryAL = new ArrayList<ONCChildGift>();
 			
 		ChildWishHistory()
 		{
 //			wishHistory.add(new ONCChildWish());
 		}
 			
-		void addWish(ONCChildWish wish)
+		void addWish(ONCChildGift wish)
 		{
 			wishHistoryAL.add(wish);
 		}
 			
-		ONCChildWish getCurrentWish(){return wishHistoryAL.get(wishHistoryAL.size()-1);}
-		ArrayList<ONCChildWish> getWishHistory() {return wishHistoryAL;}
+		ONCChildGift getCurrentWish(){return wishHistoryAL.get(wishHistoryAL.size()-1);}
+		ArrayList<ONCChildGift> getWishHistory() {return wishHistoryAL;}
 		
 		/**************************************************************************************************
 		* Method takes a child wish history array list of child wishes and merges it with the current
@@ -401,15 +401,15 @@ public class ONCChild extends ONCObject implements Serializable
 		* @param mwhAL
 		* @return
 		******************************************************************************************************/
-		boolean mergeWishHistories(ArrayList<ONCChildWish> mwhAL)
+		boolean mergeWishHistories(ArrayList<ONCChildGift> mwhAL)
 		
 		{
 			boolean bWishChangeDetected = false;
-			for(ONCChildWish mw:mwhAL)
+			for(ONCChildGift mw:mwhAL)
 			{
 				//Check to see if merge wish is identical to a current wish in wish history array list
 				boolean bWishIdentical = false;
-				for(ONCChildWish cw:wishHistoryAL)
+				for(ONCChildGift cw:wishHistoryAL)
 					if(cw.isComparisonWishIdentical(mw))
 						bWishIdentical = true;
 							
