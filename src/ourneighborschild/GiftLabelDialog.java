@@ -40,8 +40,8 @@ public abstract class GiftLabelDialog extends ONCEntityTableDialog implements Ac
 	protected ChildDB childDB;
 	protected ChildGiftDB childGiftDB;
 	
-	protected SortWishObject swo; //holds current family, child and gift info for gift getting batteries assigned
-	protected SortWishObject lastWishChanged;	//Holds the info for last gift label displayed
+	protected SortGiftObject swo; //holds current family, child and gift info for gift getting batteries assigned
+	protected SortGiftObject lastWishChanged;	//Holds the info for last gift label displayed
 	
 	private final Image img;
 	protected String errMessage;
@@ -137,7 +137,7 @@ public abstract class GiftLabelDialog extends ONCEntityTableDialog implements Ac
 	abstract void onSubmit();
 	abstract void onUndoSubmittal();
 	abstract boolean isGiftEligible(ONCChildGift cw);
-	abstract void onGiftLabelFound(SortWishObject swo);
+	abstract void onGiftLabelFound(SortGiftObject swo);
 	abstract void onGiftLabelNotFound();
 	abstract void onActionPerformed(ActionEvent e);
 	
@@ -204,7 +204,7 @@ public abstract class GiftLabelDialog extends ONCEntityTableDialog implements Ac
 	@Override
 	public EnumSet<EntityType> getEntityEventSelectorEntityTypes()
 	{
-		return EnumSet.of(EntityType.WISH);
+		return EnumSet.of(EntityType.GIFT);
 	}
 	
 	@Override
@@ -264,7 +264,7 @@ public abstract class GiftLabelDialog extends ONCEntityTableDialog implements Ac
 			else
 			{
 				//child wish was found, is in an eligible state
-				swo = new SortWishObject(0, family, child, cw);
+				swo = new SortGiftObject(0, family, child, cw);
 				onGiftLabelFound(swo);	
 			}
 			
@@ -340,7 +340,7 @@ public abstract class GiftLabelDialog extends ONCEntityTableDialog implements Ac
 		    //If the SortWishObject is valid, use it to draw the label in the panel.
 			//Otherwise draw an error message
 			if(swo != null)
-				awlp.drawLabel(10, 10, swo.getWishLabel(), lFont, img, g2d);
+				awlp.drawLabel(10, 10, swo.getGiftLabel(), lFont, img, g2d);
 			else
 			{
 				g2d.setFont(new Font("Calibri", Font.ITALIC, LABEL_ERR_MESSAGE_FONT_SIZE));

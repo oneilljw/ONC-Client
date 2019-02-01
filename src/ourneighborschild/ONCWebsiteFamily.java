@@ -12,6 +12,7 @@ public class ONCWebsiteFamily
 	private String	HOHLastName;
 	private String	mealStatus;
 	private int		agentID;
+	private boolean	bHasNote;
 	
 	public ONCWebsiteFamily(ONCFamily f)
 	{
@@ -31,6 +32,27 @@ public class ONCWebsiteFamily
 		this.HOHLastName = f.getLastName();
 		this.mealStatus = f.getMealStatus().toString();
 		this.agentID = f.getAgentID();
+		this.bHasNote = false;
+	}
+	public ONCWebsiteFamily(ONCFamily f, boolean bHasNote)
+	{
+		this.id = f.id;
+		this.oncNum = f.getONCNum();
+		this.targetID = f.getReferenceNum();
+		this.fstatus = f.getFamilyStatus().toString();
+		this.giftStatus = f.getGiftStatus().toString();
+		
+//		if(f.getGiftStatus() == FamilyGiftStatus.Requested && f.getFamilyStatus().compareTo(FamilyStatus.InfoVerified) > 1)
+//				this.giftStatus = f.getFamilyStatus().toString();
+//		else
+//			this.giftStatus = f.getGiftStatus().toString();
+		
+		this.DNSCode = f.getDNSCode();
+		this.HOHFirstName = f.getFirstName();
+		this.HOHLastName = f.getLastName();
+		this.mealStatus = f.getMealStatus().toString();
+		this.agentID = f.getAgentID();
+		this.bHasNote = bHasNote;
 	}
 
 	int getId() { return id; }

@@ -361,7 +361,7 @@ public class ChildPanel extends JPanel implements DatabaseListener, EntitySelect
 			LogDialog.add(logEntry, "M");
 			displayChild(child);
 		}
-		else if(tse.getType() == EntityType.WISH)
+		else if(tse.getType() == EntityType.GIFT)
 		{
 			ONCChild child = (ONCChild) tse.getObject2();
 			
@@ -378,7 +378,7 @@ public class ChildPanel extends JPanel implements DatabaseListener, EntitySelect
 	@Override
 	public EnumSet<EntityType> getEntityEventListenerEntityTypes() 
 	{
-		return EnumSet.of(EntityType.FAMILY, EntityType.CHILD, EntityType.WISH);
+		return EnumSet.of(EntityType.FAMILY, EntityType.CHILD, EntityType.GIFT);
 	}
 	
 	/***********************************************************************************************

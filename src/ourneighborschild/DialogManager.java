@@ -77,6 +77,7 @@ public class DialogManager implements EntitySelectionListener
 	private VolunteerDialog volunteerDlg;
 	private ActivityDialog activityDlg;
 	private EditUserDialog editUserDlg;
+	private NoteDialog noteDlg;
 		
 	private PreferencesDialog prefsDlg;
 	private BarcodeWishHistoryDialog barcodeWHDlg;
@@ -239,6 +240,12 @@ public class DialogManager implements EntitySelectionListener
         editUserDlg = new EditUserDialog(GlobalVariablesDB.getFrame());
         entityDlgMap.put("Edit Users", editUserDlg);
         eeManager.registerEntitySelectionListener(editUserDlg);
+        
+        //Set up the notes dialog and register it to listen for 
+        //selection events from particular ui's that have notes associated
+        noteDlg = new NoteDialog(GlobalVariablesDB.getFrame());
+        entityDlgMap.put("Edit Notes", noteDlg);
+        eeManager.registerEntitySelectionListener(noteDlg);
         
         //Set up the view family database dialog
         dbDlg = new ViewONCDatabaseDialog(GlobalVariablesDB.getFrame());
@@ -839,7 +846,7 @@ public class DialogManager implements EntitySelectionListener
 	public void entitySelected(EntitySelectionEvent tse) 
 	{	
 		if(tse.getType() == EntityType.FAMILY || tse.getType() == EntityType.CHILD || 
-				tse.getType() == EntityType.WISH)
+				tse.getType() == EntityType.GIFT)
 		{
 			currFam = (ONCFamily) tse.getObject1();
 			
@@ -858,6 +865,6 @@ public class DialogManager implements EntitySelectionListener
 	@Override
 	public EnumSet<EntityType> getEntityEventListenerEntityTypes() 
 	{
-		return EnumSet.of(EntityType.FAMILY, EntityType.CHILD, EntityType.WISH);
+		return EnumSet.of(EntityType.FAMILY, EntityType.CHILD, EntityType.GIFT);
 	}
 }

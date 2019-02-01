@@ -319,7 +319,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         rbAgentInfo.addActionListener(this);
         
         rbFamilyNote = new JRadioButton(gvs.getImageIcon(FAMILY_NOTE_ICON_INDEX));
-        rbFamilyNote.setToolTipText("Click to edit family note to agent");
+        rbFamilyNote.setToolTipText("Click to edit notes to agent regarding family");
         rbFamilyNote.setEnabled(false);
         rbFamilyNote.addActionListener(this);
         
@@ -703,7 +703,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		rbGiftCardOnly.setEnabled(true);
 		rbGiftCardOnly.setVisible(false);
 		rbAdults.setEnabled(true);
-		rbFamilyNote.setEnabled(!currFam.getDNSCode().isEmpty());
+		rbFamilyNote.setEnabled(true);
 		
 		lblONCNum.setText(currFam.getONCNum());
 		lblONCNum.setToolTipText("Family Database ID= " + Integer.toString(currFam.getID()));
@@ -1214,9 +1214,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		{   
 			if(currFam != null)
 			{
-				AgentNoteDialog noteDlg = new AgentNoteDialog(parentFrame, currFam);
-				noteDlg.setLocationRelativeTo(rbFamilyNote);;
-				noteDlg.display();
+				DialogManager.getInstance().showEntityDialog("Edit Notes", this.getLocation());
 			}
 		}
 		else if(e.getSource() == rbFamDetails)
@@ -1515,7 +1513,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	@Override
 	public void entitySelected(EntitySelectionEvent tse)
 	{
-		if(tse.getSource() != this && (tse.getType() == EntityType.FAMILY || tse.getType() == EntityType.WISH))
+		if(tse.getSource() != this && (tse.getType() == EntityType.FAMILY || tse.getType() == EntityType.GIFT))
 		{
 			ONCFamily selFam = (ONCFamily) tse.getObject1();
 			ONCChild selChild = (ONCChild) tse.getObject2();
@@ -1562,7 +1560,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	@Override
 	public EnumSet<EntityType> getEntityEventListenerEntityTypes() 
 	{
-		return EnumSet.of(EntityType.FAMILY, EntityType.WISH);
+		return EnumSet.of(EntityType.FAMILY, EntityType.GIFT);
 	}
     
 	@Override

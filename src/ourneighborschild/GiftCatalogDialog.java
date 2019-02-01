@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.print.PrinterException;
 import java.text.MessageFormat;
+import java.util.LinkedList;
 
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -28,57 +29,53 @@ public class GiftCatalogDialog extends JDialog implements ActionListener, ListSe
 															DatabaseListener
 {
 	/**
-	 * This class implements a dialog which allows the user to add wishes to the wish catalog
-	 * and specify which child wish lists contain the wish. It also allows the catalog designer
+	 * This class implements a dialog which allows the user to add gifts to the catalog
+	 * and specify which child gift lists contain the gift. It also allows the catalog designer
 	 * to specify what additional detail is requested from the user when they select or modify
 	 * a gift for a child. Finally, it shows the user how many of each gift type have been 
 	 * assigned to children in a particular year. 
 	 */
 	private static final long serialVersionUID = 1L;
-	private static final int WISH_NAME_COL= 0;
-	private static final int WISH_COUNT_COL = 1;
-	private static final int WISH_1_COL = 2;
-	private static final int WISH_2_COL = 3;
-	private static final int WISH_3_COL = 4;
-	private static final int WISH_ADD_DET_COL = 5;
+	private static final int NAME_COL= 0;
+	private static final int COUNT_COL = 1;
+	private static final int GIFT_1_COL = 2;
+	private static final int GIFT_2_COL = 3;
+	private static final int GIFT_3_COL = 4;
+	private static final int ADDL_DET_COL = 5;
 	
 	private ONCTable dlgTable;
-	private AbstractTableModel wcTableModel;
+	private AbstractTableModel gcTableModel;
 	private JButton btnAdd, btnEdit, btnDelete, btnPrint;
 	private GiftCatalogDB cat;
 		
 	public GiftCatalogDialog(JFrame pf)
 	{
 		super(pf);
-		this.setTitle("Wish Catalog");
+		this.setTitle("Gift Catalog");
 		
-		//Save the reference to the one wish catalog object in the app. It is created in the 
-		//top level object and passed to all objects that require the wish catalog, including
+		//Save the reference to the one catalog object in the app. It is created in the 
+		//top level object and passed to all objects that require the gift catalog, including
 		//this dialog
 		cat = GiftCatalogDB.getInstance();
 		if(cat != null)
 			cat.addDatabaseListener(this);
-		
-//		ChildWishDB cwDB = ChildWishDB.getInstance();
-//		if(cwDB != null)
-//			cwDB.addDatabaseListener(this);	//Listen for child wish base changes
-		
+	
 		ChildDB childDB = ChildDB.getInstance();
 		if(childDB != null)
 			childDB.addDatabaseListener(this);
 		
 		//Create the catalog table model
-		wcTableModel = new WishCatalogTableModel();
+		gcTableModel = new GiftCatalogTableModel();
 		
 		//create the catalog table
-		String[] colToolTips = {"Wish Name",
-				"Total number of times this wish has been selected",
-				"Check to include in Wish 1 List",
-				"Check to include in Wish 2 List",
-				"Check to include in Wish 3 List",
-				"Is additional detail associated with this wish?"};
+		String[] colToolTips = {"Gift Name",
+				"Total number of times this gift has been selected",
+				"Check to include in Gift 1 List",
+				"Check to include in Gift 2 List",
+				"Check to include in Gift 3 List",
+				"Is additional detail associated with this gift?"};
 		
-		dlgTable = new ONCTable(wcTableModel, colToolTips, new Color(240,248,255));
+		dlgTable = new ONCTable(gcTableModel, colToolTips, new Color(240,248,255));
 
 		dlgTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		dlgTable.getSelectionModel().addListSelectionListener(this);
@@ -94,10 +91,10 @@ public class GiftCatalogDialog extends JDialog implements ActionListener, ListSe
         anHeader.setForeground( Color.black);
         anHeader.setBackground( new Color(161,202,241));
         
-        //left justify wish count column
+        //left justify gift count column
         DefaultTableCellRenderer dtcr = new DefaultTableCellRenderer();
         dtcr.setHorizontalAlignment(SwingConstants.LEFT);
-        dlgTable.getColumnModel().getColumn(WISH_COUNT_COL).setCellRenderer(dtcr);
+        dlgTable.getColumnModel().getColumn(COUNT_COL).setCellRenderer(dtcr);
         
         //Create the scroll pane and add the table to it.
         JScrollPane dsScrollPane = new JScrollPane(dlgTable);
@@ -106,20 +103,20 @@ public class GiftCatalogDialog extends JDialog implements ActionListener, ListSe
         JPanel cntlPanel = new JPanel();
         
         btnPrint = new JButton("Print Catalog");
-        btnPrint.setToolTipText("Print the wish catalog");
+        btnPrint.setToolTipText("Print the gift catalog");
         btnPrint.addActionListener(this);
         
-        btnAdd = new JButton("Add Wish");
-        btnAdd.setToolTipText("Add a new wish to the catalog");
+        btnAdd = new JButton("Add Gift");
+        btnAdd.setToolTipText("Add a new gift to the catalog");
         btnAdd.addActionListener(this);
         
-        btnEdit = new JButton("Edit Wish");
-        btnEdit.setToolTipText("Edit the selected wish");
+        btnEdit = new JButton("Edit Gift");
+        btnEdit.setToolTipText("Edit the selected gift");
         btnEdit.setEnabled(false);
         btnEdit.addActionListener(this);
         
-        btnDelete = new JButton("Delete Wish");
-        btnDelete.setToolTipText("Delete the selected wish");
+        btnDelete = new JButton("Delete Gift");
+        btnDelete.setToolTipText("Delete the selected gift");
         btnDelete.setEnabled(false);
         btnDelete.addActionListener(this);
           
@@ -142,30 +139,30 @@ public class GiftCatalogDialog extends JDialog implements ActionListener, ListSe
 		
 		if(modelRow > -1)
 		{
-			ONCWish wishsel = cat.getWish(modelRow);
+			ONCGift giftsel = cat.getGift(modelRow);
 			
-			GiftDetailDialog wdDlg =  new GiftDetailDialog(this, "Edit Catalog Wish");
-			wdDlg.displayWishDetail(wishsel, cat.getTotalWishCount(modelRow));
+			GiftDetailDialog gdDlg =  new GiftDetailDialog(this, "Edit Catalog Gift");
+			gdDlg.displayWishDetail(giftsel, cat.getTotalGiftCount(modelRow));
 			
-			wdDlg.setLocationRelativeTo(btnDelete);
+			gdDlg.setLocationRelativeTo(btnDelete);
 			
-			//a wish detail change could include the wish name changing or adding or removal
-			//of a wish detail as well as the editing of a detail field. 
-			if(wdDlg.showDialog())	//true if wish detail changed
+			//a gift detail change could include the gift name changing or adding or removal
+			//of a gift detail as well as the editing of a detail field. 
+			if(gdDlg.showDialog())	//true if gift detail changed
 			{
-				//send updated wish request object to server
-				String response = cat.update(this, wishsel);
+				//send updated gift request object to server
+				String response = cat.update(this, giftsel);
 			
 				if(response != null && response.startsWith("UPDATED_CATALOG_WISH"))
 				{
-					//Wish has been updated, update to wish table with the name change
-					wcTableModel.fireTableRowsUpdated(modelRow, modelRow);
+					//Gift has been updated, update to gift table with the name change
+					gcTableModel.fireTableRowsUpdated(modelRow, modelRow);
 					
 				}
 				else
 				{
-					String err_mssg = "ONC Server denied add catalog wish request, try again later";
-					JOptionPane.showMessageDialog(this, err_mssg, "Add Catalog Wish Request Failure",
+					String err_mssg = "ONC Server denied add catalog gift request, try again later";
+					JOptionPane.showMessageDialog(this, err_mssg, "Add Catalog Gift Request Failure",
 												JOptionPane.ERROR_MESSAGE,
 												GlobalVariablesDB.getONCLogo());
 				}
@@ -175,32 +172,39 @@ public class GiftCatalogDialog extends JDialog implements ActionListener, ListSe
 	
 	void add()
 	{
-		//create new wish request
-		ONCWish reqAddWish = new ONCWish(-1, "New Wish", 0);
+		//create new gift request. Create the list with 4 slots for details. This HACK will
+		//need to be fixed when the design is updated to a variable amount of detail per gift.
+		LinkedList<Integer> giftDetailIDList = new LinkedList<Integer>();
+		giftDetailIDList.add(-1);
+		giftDetailIDList.add(-1);
+		giftDetailIDList.add(-1);
+		giftDetailIDList.add(-1);
+	
+		ONCGift reqAddGift = new ONCGift(-1, "New Gift", 0, giftDetailIDList);
 		
-		//use wish detail dialog to get input from user on the new wish request
-		GiftDetailDialog wdDlg =  new GiftDetailDialog(this, "Add New Catalog Wish");
+		//use gift detail dialog to get input from user on the new gift request
+		GiftDetailDialog gdDlg =  new GiftDetailDialog(this, "Add New Catalog Wish");
 				
-		wdDlg.displayWishDetail(reqAddWish, 0);
-		wdDlg.setLocationRelativeTo(btnDelete);
+		gdDlg.displayWishDetail(reqAddGift, 0);
+		gdDlg.setLocationRelativeTo(btnDelete);
 		
-		if(wdDlg.showDialog())	//returns true if wish detail changed
+		if(gdDlg.showDialog())	//returns true if gift detail changed
 		{
-			//send add wish request object to the database. It responds with the table row
-			//where the added wish was inserted. If the requested wish wasn't added, a 
+			//send add gift request object to the database. It responds with the table row
+			//where the added gift was inserted. If the requested gift wasn't added, a 
 			//value of -1 is returned.
-			int tableRow = cat.add(this, reqAddWish);
+			int tableRow = cat.add(this, reqAddGift);
 			if(tableRow > -1)
 			{
 				dlgTable.clearSelection();
-				wcTableModel.fireTableDataChanged();
+				gcTableModel.fireTableDataChanged();
 				dlgTable.scrollRectToVisible(dlgTable.getCellRect(tableRow, 0, true));
 				dlgTable.setRowSelectionInterval(tableRow, tableRow);
 			}
 			else
 			{
-				String err_mssg = "Add catalog wish request failed, try again later";
-				JOptionPane.showMessageDialog(this, err_mssg, "Add Catalog Wish Request Failure",
+				String err_mssg = "Add catalog gift request failed, try again later";
+				JOptionPane.showMessageDialog(this, err_mssg, "Add Catalog Gift Request Failure",
 											JOptionPane.ERROR_MESSAGE, GlobalVariablesDB.getONCLogo());
 			}
 		}
@@ -211,38 +215,38 @@ public class GiftCatalogDialog extends JDialog implements ActionListener, ListSe
 		int modelRow = dlgTable.getSelectedRow() == -1 ? -1 : 
 			dlgTable.convertRowIndexToModel(dlgTable.getSelectedRow());
 		
-		if(modelRow > -1 && cat.getTotalWishCount(modelRow) == 0)
+		if(modelRow > -1 && cat.getTotalGiftCount(modelRow) == 0)
 		{
 			GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
 			
-			//create the delete wish request object
-			ONCWish delreqWish = cat.getWish(modelRow);
+			//create the delete gift request object
+			ONCGift delreqGift = cat.getGift(modelRow);
 			
 			//Confirm with the user that the deletion is really intended
 			String confirmMssg =String.format("Are you sure you want to delete %s from the catalog?", 
-												delreqWish.getName());
+												delreqGift.getName());
 	
-			Object[] options= {"Cancel", "Delete Wish"};
+			Object[] options= {"Cancel", "Delete Gift"};
 			JOptionPane confirmOP = new JOptionPane(confirmMssg, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION,
 													gvs.getImageIcon(0), options, "Cancel");
-			JDialog confirmDlg = confirmOP.createDialog(this, "*** Confirm Wish Catalog Deletion ***");
+			JDialog confirmDlg = confirmOP.createDialog(this, "*** Confirm Gift Catalog Deletion ***");
 			confirmDlg.setVisible(true);
 	
 			Object selectedValue = confirmOP.getValue();
-			if(selectedValue != null && selectedValue.toString().equals("Delete Wish"))
+			if(selectedValue != null && selectedValue.toString().equals("Delete Gift"))
 			{
-				//send updated wish request object to server
-				String response = cat.delete(this, delreqWish);
+				//send updated gift request object to server
+				String response = cat.delete(this, delreqGift);
 		
 				if(response != null && response.startsWith("DELETED_CATALOG_WISH"))
 				{
-					//Wish has been deleted
-					wcTableModel.fireTableRowsDeleted(modelRow, modelRow);	
+					//Gift has been deleted
+					gcTableModel.fireTableRowsDeleted(modelRow, modelRow);	
 				}
 				else
 				{
-					String err_mssg = "ONC Server denied delete catalog wish request, try again later";
-					JOptionPane.showMessageDialog(this, err_mssg, "Delete Catalog Wish Request Failure",
+					String err_mssg = "ONC Server denied delete catalog gift request, try again later";
+					JOptionPane.showMessageDialog(this, err_mssg, "Delete Catalog Gift Request Failure",
 											JOptionPane.ERROR_MESSAGE, GlobalVariablesDB.getONCLogo());
 				}
 			}
@@ -259,8 +263,8 @@ public class GiftCatalogDialog extends JDialog implements ActionListener, ListSe
 		} 
 		catch (PrinterException e) 
 		{
-			String err_mssg = "Unable to print wish catalog: " + e.getMessage();
-			JOptionPane.showMessageDialog(this, err_mssg, "Print Wish Catalog Error",
+			String err_mssg = "Unable to print gift catalog: " + e.getMessage();
+			JOptionPane.showMessageDialog(this, err_mssg, "Print Gift Catalog Error",
 										JOptionPane.ERROR_MESSAGE, GlobalVariablesDB.getONCLogo());
 		}
 	}
@@ -282,8 +286,7 @@ public class GiftCatalogDialog extends JDialog implements ActionListener, ListSe
 		}
 		else if(e.getSource() == btnPrint)
 		{
-			print(Integer.toString(GlobalVariablesDB.getCurrentSeason()) +
-						" ONC Wish Catalog");
+			print(Integer.toString(GlobalVariablesDB.getCurrentSeason()) + " ONC Gift Catalog");
 		}		
 	}
 	
@@ -297,7 +300,7 @@ public class GiftCatalogDialog extends JDialog implements ActionListener, ListSe
 		{
 			btnEdit.setEnabled(true);
 			
-			if(cat.getTotalWishCount(modelRow) == 0)
+			if(cat.getTotalGiftCount(modelRow) == 0)
 				btnDelete.setEnabled(true);
 			else
 				btnDelete.setEnabled(false);
@@ -314,51 +317,51 @@ public class GiftCatalogDialog extends JDialog implements ActionListener, ListSe
 	{
 		if(dbe.getSource() != this && dbe.getType().equals("WISH_BASE_CHANGED"))
 		{
-			//User changed a wish base, must update wish counts
-			ONCChildGift replWish = (ONCChildGift) dbe.getObject1();
-			ONCChildGift addedWish = (ONCChildGift) dbe.getObject2();
+			//User changed a gift base, must update gift counts
+			ONCChildGift replGift = (ONCChildGift) dbe.getObject1();
+			ONCChildGift addedGift = (ONCChildGift) dbe.getObject2();
 			
 			//update table
-			if(replWish != null &&  replWish.getGiftID() > -1 || addedWish != null && addedWish.getGiftID() > -1)
-					wcTableModel.fireTableDataChanged();
+			if(replGift != null &&  replGift.getGiftID() > -1 || addedGift != null && addedGift.getGiftID() > -1)
+					gcTableModel.fireTableDataChanged();
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("ADDED_CATALOG_WISH"))
 		{
-			ONCWish addedWish = (ONCWish) dbe.getObject1();
-			int tablerow = cat.findModelIndexFromID(addedWish.getID());
+			ONCGift addedGift = (ONCGift) dbe.getObject1();
+			int tablerow = cat.findModelIndexFromID(addedGift.getID());
 			
 			if(tablerow > -1)
 			{
-				//add new wish to wish table
-				wcTableModel.fireTableDataChanged();
+				//add new gift to gift table
+				gcTableModel.fireTableDataChanged();
 			}
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_CATALOG_WISH"))
 		{
-			//determine which row the updated wish is in
-			ONCWish updatedWish = (ONCWish) dbe.getObject1();
-			int tablerow = cat.findModelIndexFromID(updatedWish.getID());
-			wcTableModel.fireTableRowsUpdated(tablerow, tablerow);
+			//determine which row the updated gift is in
+			ONCGift updatedGift = (ONCGift) dbe.getObject1();
+			int tablerow = cat.findModelIndexFromID(updatedGift.getID());
+			gcTableModel.fireTableRowsUpdated(tablerow, tablerow);
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("DELETED_CATALOG_WISH"))
 		{
-			wcTableModel.fireTableDataChanged();
+			gcTableModel.fireTableDataChanged();
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_CATALOG"))
 		{
-			wcTableModel.fireTableDataChanged();
+			gcTableModel.fireTableDataChanged();
 		}
 	}
 	
-	class WishCatalogTableModel extends AbstractTableModel
+	class GiftCatalogTableModel extends AbstractTableModel
 	{
         /**
-		 * Implements the table model for the Wish Catalog Dialog
+		 * Implements the table model for the Gift Catalog Dialog
 		 */
 		private static final long serialVersionUID = 1L;
 		private GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
-		private String[] columnNames = {"Wish Name", "Count", "Wish 1", "Wish 2",
-                                        "Wish 3", "Addl. Detail?"};
+		private String[] columnNames = {"Gift Name", "Count", "Gift 1", "Gift 2",
+                                        "Gift 3", "Addl. Detail?"};
  
         public int getColumnCount() { return columnNames.length; }
  
@@ -368,43 +371,43 @@ public class GiftCatalogDialog extends JDialog implements ActionListener, ListSe
  
         public Object getValueAt(int row, int col)
         {
-        	if(col == WISH_NAME_COL)  
-        		return cat.getWishName(row);
-        	else if(col == WISH_COUNT_COL)
-        		return cat.getTotalWishCount(row);
-        	else if(col == WISH_ADD_DET_COL)
-        		return cat.isDetailRqrd(row) ? gvs.getImageIcon(21) : gvs.getImageIcon(22);
-        	else
-        		return cat.isInWishList(row, col- WISH_1_COL);      			
+        		if(col == NAME_COL)  
+        			return cat.getGiftName(row);
+        		else if(col == COUNT_COL)
+        			return cat.getTotalGiftCount(row);
+        		else if(col == ADDL_DET_COL)
+        			return cat.isDetailRqrd(row) ? gvs.getImageIcon(21) : gvs.getImageIcon(22);
+        		else
+        			return cat.isInGiftList(row, col- GIFT_1_COL);      			
         }
         
         //JTable uses this method to determine the default renderer/editor for each cell.
         @Override
         public Class<?> getColumnClass(int column)
         {
-        	if(column == WISH_NAME_COL)
+        		if(column == NAME_COL)
                 return String.class;
-        	if(column == WISH_COUNT_COL)
-        		return Integer.class;
-        	else if(column == WISH_ADD_DET_COL)
-        		return ImageIcon.class;
-        	else
-        		return Boolean.class;
+        		if(column == COUNT_COL)
+        			return Integer.class;
+        		else if(column == ADDL_DET_COL)
+        			return ImageIcon.class;
+        		else
+        			return Boolean.class;
         }
  
         public boolean isCellEditable(int row, int col)
         {
             //Only the check boxes can be edited and then only if there is not
-        		//a wish already selected from the list associated with that column.
-        		//also, if the wish is the default wish, it cannot be edited.
-        		ONCWish wish = cat.getWish(row);
-        		if(wish.getID() != gvs.getDefaultGiftID())
+        		//a gift already selected from the list associated with that column.
+        		//also, if the gift is the default gift, it cannot be edited.
+        		ONCGift gift = cat.getGift(row);
+        		if(gift.getID() != gvs.getDefaultGiftID())
         		{
-        			if(col == WISH_1_COL && cat.getWishCount(row, 0) == 0)
+        			if(col == GIFT_1_COL && cat.getGiftCount(row, 0) == 0)
         	            	return true;
-        	        else if(col == WISH_2_COL && cat.getWishCount(row, 1) == 0)
+        	        else if(col == GIFT_2_COL && cat.getGiftCount(row, 1) == 0)
         	            	return true;
-        	        else if(col == WISH_3_COL && cat.getWishCount(row, 2) == 0)
+        	        else if(col == GIFT_3_COL && cat.getGiftCount(row, 2) == 0)
         	            	return true;
         	        else 
                      return false;
@@ -416,25 +419,25 @@ public class GiftCatalogDialog extends JDialog implements ActionListener, ListSe
         //Don't need to implement this method unless your table's data can change. 
         public void setValueAt(Object value, int row, int col)
         { 	
-        	if(col >= WISH_1_COL && col <= WISH_3_COL)	//Wish list columns
-        	{
-        		ONCWish reqUpdateWish = new ONCWish(cat.getWish(row));	//copy current wish
-        		int li = reqUpdateWish.getListindex(); //Get current list index	
-        		int bitmask = 1 << col-WISH_1_COL;	//which wish is being toggled
-        		
-        		reqUpdateWish.setListindex(li ^ bitmask); //Set updated list index
-        		
-        		String response = cat.update(this, reqUpdateWish);
-        		
-        		if(response == null || (response !=null && !response.startsWith("UPDATED_CATALOG_WISH")))
+        		if(col >= GIFT_1_COL && col <= GIFT_3_COL)	//Gift list columns
         		{
-        			//request failed
-        			GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
-					String err_mssg = "ONC Server denied update catalog wish  request, try again later";
+        			ONCGift reqUpdateGift = new ONCGift(cat.getGift(row));	//copy current gift
+        			int li = reqUpdateGift.getListindex(); //Get current list index	
+        			int bitmask = 1 << col-GIFT_1_COL;	//which gift is being toggled
+        		
+        			reqUpdateGift.setListindex(li ^ bitmask); //Set updated list index
+        		
+        			String response = cat.update(this, reqUpdateGift);
+        		
+        			if(response == null || (response !=null && !response.startsWith("UPDATED_CATALOG_WISH")))
+        			{
+        				//request failed
+        				GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
+					String err_mssg = "ONC Server denied update catalog gift  request, try again later";
 					JOptionPane.showMessageDialog(GlobalVariablesDB.getFrame(), err_mssg, "Update Catalog Request Failure",
 													JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
-        		}
-        	}                      
+        			}
+        		}                      
         }  
     }
 }

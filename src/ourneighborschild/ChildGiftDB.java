@@ -99,8 +99,8 @@ retCW = processAddedWish(source, response.substring(10));
 //must check to see if new wish is wish 0 and has changed to/from a 
 //Bike. If so, wish 2 must become a Helmet/Empty
 ONCChild child = childDB.getChild(retCW.getChildID());
-int bikeID = cat.getWishID("Bike");
-int helmetID = cat.getWishID("Helmet");
+int bikeID = cat.getGiftID("Bike");
+int helmetID = cat.getGiftID("Helmet");
 if(retCW.getGiftNumber() == 0 && replacedWish != null && replacedWish.getGiftID() != bikeID && 
 	retCW.getGiftID() == bikeID || retCW.getGiftNumber() == 0 && replacedWish == null &&
 	 retCW.getGiftID() == bikeID)		
@@ -161,7 +161,7 @@ return retCW;
 		if(replacedWish == null && addedWish.getGiftStatus() == GiftStatus.Selected ||
 			replacedWish != null && replacedWish.getGiftID() != addedWish.getGiftID())
 		{
-			cat.changeWishCounts(replacedWish, addedWish);				
+			cat.changeGiftCounts(replacedWish, addedWish);				
 		}
 
 		return addedWish;

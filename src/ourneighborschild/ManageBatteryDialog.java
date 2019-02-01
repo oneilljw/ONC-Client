@@ -396,7 +396,7 @@ public class ManageBatteryDialog extends ONCEntityTableDialog implements ActionL
 			if(modelRow > -1)
 			{
 				BatteryTableObject bto = batteryTableList.get(modelRow);
-				this.fireEntitySelected(this, EntityType.WISH, bto.getFamily(), bto.getChild());
+				this.fireEntitySelected(this, EntityType.GIFT, bto.getFamily(), bto.getChild());
 			}
 		}
 	}
@@ -404,7 +404,7 @@ public class ManageBatteryDialog extends ONCEntityTableDialog implements ActionL
 	@Override
 	public EnumSet<EntityType> getEntityEventSelectorEntityTypes() 
 	{	
-		return EnumSet.of(EntityType.WISH);
+		return EnumSet.of(EntityType.GIFT);
 	}
 	
 	class BatteryTableModel extends AbstractTableModel
@@ -473,7 +473,7 @@ public class ManageBatteryDialog extends ONCEntityTableDialog implements ActionL
         		{
         			if(gift != null)
         			{
-        				ONCWish wish = catDB.getWishByID(gift.getGiftID());
+        				ONCGift wish = catDB.getGiftByID(gift.getGiftID());
         				return  wish == null ? "Error" : wish.getName().equals("-") ? 
         						gift.getDetail() : wish.getName() + "- " + gift.getDetail();
         			}
@@ -530,7 +530,7 @@ public class ManageBatteryDialog extends ONCEntityTableDialog implements ActionL
 			String[] row = new String[9];
 			
 			ONCChildGift gift = giftDB.getWish(battery.getChildID(), battery.getWishNum());
-			ONCWish wish = catDB.getWishByID(gift.getGiftID());
+			ONCGift wish = catDB.getGiftByID(gift.getGiftID());
 			
 			//determine if user has permission to see child first and last name. If not, substitute
 			String childFN = "Error", childLN = "Error";

@@ -28,7 +28,7 @@ public class AveryWishLabelPrinter implements Printable
 	
 	private GlobalVariablesDB gvs;
 	private ONCTable sortTable;
-	private List<SortWishObject> stAL; 
+	private List<SortGiftObject> stAL; 
 	private int totalNumOfLabelsToPrint;
 	private Point position;
 	
@@ -43,7 +43,7 @@ public class AveryWishLabelPrinter implements Printable
 	}
 	
 	//constructor used when drawing labels on a sheet via the printable interface
-	public AveryWishLabelPrinter(List<SortWishObject> stAL, ONCTable sortTable, int numOfLabels, Point position)
+	public AveryWishLabelPrinter(List<SortGiftObject> stAL, ONCTable sortTable, int numOfLabels, Point position)
 	{
 		gvs = GlobalVariablesDB.getInstance();
 		this.stAL = stAL;
@@ -183,7 +183,7 @@ public class AveryWishLabelPrinter implements Printable
 	    
 	    while(row < AVERY_LABELS_PER_PAGE/AVERY_COLUMNS_PER_PAGE && index < endOfSelection)
 	    {
-	    		line = stAL.get(row_sel[index++]).getWishLabel();
+	    		line = stAL.get(row_sel[index++]).getGiftLabel();
 	    		drawLabel(col * AVERY_LABEL_WIDTH, row * AVERY_LABEL_HEIGHT, line, lFont, img, g2d);	
 	    		if(++col == AVERY_COLUMNS_PER_PAGE)
 	    		{ 

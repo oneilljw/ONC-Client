@@ -101,7 +101,7 @@ public class TransportationDialog extends InfoDialog implements DatabaseListener
 	@Override
 	public void entitySelected(EntitySelectionEvent tse) 
 	{
-		if(tse.getType() == EntityType.FAMILY || tse.getType() == EntityType.WISH)
+		if(tse.getType() == EntityType.FAMILY || tse.getType() == EntityType.GIFT)
 		{
 			if(this.isShowing())	//If Agent Info dialog visible, notify agent selection change
 			{
@@ -112,7 +112,7 @@ public class TransportationDialog extends InfoDialog implements DatabaseListener
 	@Override
 	public EnumSet<EntityType> getEntityEventListenerEntityTypes() 
 	{
-		return EnumSet.of(EntityType.FAMILY, EntityType.WISH);
+		return EnumSet.of(EntityType.FAMILY, EntityType.GIFT);
 	}
 
 	@Override

@@ -47,7 +47,7 @@ public class PartnerDialog extends EntityDialog
 	private JLabel lblCYAssigned, lblCYDel, lblCYRecBefore, lblCYRecAfter;
 	private JLabel lblOrgID, lblRegion, lblDateChanged, lblChangedBy;
     private JComboBox<String> typeCB, statusCB;
-    private JComboBox<GiftCollection> collectionCB;
+    private JComboBox<GiftCollectionType> collectionCB;
     private JTextPane otherTP, specialNotesTP, deliverToTP;
     private JLabel lblPYReq, lblPYAssigned, lblPYDel, lblPYRecBefore, lblPYRecAfter;
     private JTextField nameTF, cyReqTF;
@@ -123,8 +123,8 @@ public class PartnerDialog extends EntityDialog
         typeCB.setBorder(BorderFactory.createTitledBorder("Partner Type"));
         typeCB.addActionListener(dcListener);
         
-        collectionCB = new JComboBox<GiftCollection>();
-        collectionCB.setModel(new DefaultComboBoxModel<GiftCollection>(GiftCollection.selectionValues()));
+        collectionCB = new JComboBox<GiftCollectionType>();
+        collectionCB.setModel(new DefaultComboBoxModel<GiftCollectionType>(GiftCollectionType.selectionValues()));
         collectionCB.setPreferredSize(new Dimension (128, 48));
         collectionCB.setBorder(BorderFactory.createTitledBorder("Collection Type"));
         collectionCB.addActionListener(dcListener);
@@ -589,7 +589,7 @@ public class PartnerDialog extends EntityDialog
 			//The partner collection type has changed, store the new type and update the 
 			//confirmed partnerlist since changes between general and ornament affect 
 			//the partner selection lists in other ui's
-			reqPartner.setGiftCollectionType((GiftCollection) collectionCB.getSelectedItem());
+			reqPartner.setGiftCollectionType((GiftCollectionType) collectionCB.getSelectedItem());
 			bCD = true;
 		}
 		if(cyReqTF.getText().isEmpty())
@@ -759,7 +759,7 @@ public class PartnerDialog extends EntityDialog
 		ONCPartner newPartner = new ONCPartner(-1, new Date(), userDB.getUserLNFI(),
 				3, "Partner Created", userDB.getUserLNFI(),
 				statusCB.getSelectedIndex(), typeCB.getSelectedIndex(),
-				(GiftCollection) collectionCB.getSelectedItem(), nameTF.getText(), 
+				(GiftCollectionType) collectionCB.getSelectedItem(), nameTF.getText(), 
 				streetnumTF.getText(),
 				streetnameTF.getText(), unitTF.getText(), cityTF.getText(), zipTF.getText(), 
 				phoneTF.getText(), cyReqTF.getText().isEmpty() ? 0 : Integer.parseInt(cyReqTF.getText()),

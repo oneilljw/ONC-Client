@@ -321,7 +321,7 @@ public class DatabaseManager extends ONCDatabase
     			//Now that we have season data loaded let the user know that data has been loaded
     			GlobalVariablesDB.getFrame().setTitle("Our Neighbor's Child - " + year + " Season Data");
 
-			oncWishCat.initializeWishCounts();
+			oncWishCat.initializeCounts();
 			
 			//check to see if family data is present and enable controls
 			this.fireDataChanged(this, "LOADED_DATABASE", year);
@@ -442,7 +442,7 @@ public class DatabaseManager extends ONCDatabase
 			this.setProgress(progress += increment);
 			
 			pb.updateHeaderText("Loading Catalog");
-			oncWishCat.importWishCatalogFromServer();
+			oncWishCat.importCatalogFromServer();
 			this.setProgress(progress += increment);
 			
 			pb.updateHeaderText("Loading Detail");

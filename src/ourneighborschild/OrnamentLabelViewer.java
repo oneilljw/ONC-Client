@@ -130,9 +130,9 @@ public class OrnamentLabelViewer extends JDialog implements DatabaseListener
 		    //create the sort wish object list.
 		    ONCFamily fam = familyDB.getFamily(child.getFamID());
 			ONCChildGift cw = childGiftDB.getWish(child.getID(), wn);
-		    SortWishObject swo = new SortWishObject(0, fam, child, cw);
+		    SortGiftObject swo = new SortGiftObject(0, fam, child, cw);
 		    
-		    awlp.drawLabel(10, 20, swo.getWishLabel(), lFont, img, g2d);
+		    awlp.drawLabel(10, 20, swo.getGiftLabel(), lFont, img, g2d);
 		}
 	}	
 }

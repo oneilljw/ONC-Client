@@ -21,7 +21,7 @@ public class GiftDetailDialog extends JDialog implements ActionListener
 {
 	/*****************************************************************************************
 	 * This class implements a dialog that allows the user to specify up to four additional
-	 * detail from the user regarding gift selection details. It provides customizable 
+	 * details from the user regarding gift selection. It provides customizable 
 	 * combo boxes and a detail text field. 
 	 ******************************************************************************************/
 	private static final long serialVersionUID = 1L;
@@ -34,15 +34,15 @@ public class GiftDetailDialog extends JDialog implements ActionListener
 	private JButton btnSave, btnCancel;
 	private boolean bWishChanged;
 	
-	GiftDetailDB wdDB;	//reference to the wish detail data base
-	ONCWish w; //wish being edited
+	GiftDetailDB gdDB;	//reference to the gift detail data base
+	ONCGift gift; //gift being edited
 	
 	GiftDetailDialog(JDialog owner, String title)
 	{
 		super(owner, title, true);	
 		
 		//get reference to wish detail data base
-		wdDB = GiftDetailDB.getInstance();
+		gdDB = GiftDetailDB.getInstance();
 		
 		titleTFAL = new ArrayList<JTextField>();
 		contentTFAL = new ArrayList<JTextField>();
@@ -50,7 +50,7 @@ public class GiftDetailDialog extends JDialog implements ActionListener
 		//Create the wish name panel
 		JPanel wishnamepanel = new JPanel();
 		
-		JLabel lblWishMssg = new JLabel("Wish Name: ");
+		JLabel lblWishMssg = new JLabel("GIft Name: ");
 		wishnameTF = new JTextField(8);
 		
 		wishnamepanel.add(lblWishMssg);
@@ -108,10 +108,10 @@ public class GiftDetailDialog extends JDialog implements ActionListener
 		return bWishChanged;
 	}
 
-	void displayWishDetail(ONCWish wish, int totalCount)
+	void displayWishDetail(ONCGift g, int totalCount)
 	{
-		this.w = wish;
-		wishnameTF.setText(w.getName());
+		this.gift = g;
+		wishnameTF.setText(gift.getName());
 		
 		if(totalCount > 0)
 			wishnameTF.setEnabled(false);
@@ -122,10 +122,10 @@ public class GiftDetailDialog extends JDialog implements ActionListener
 		String name, choices;
 		for(int dn=0; dn<MAX_NUM_OF_WISH_DETAILS_PER_WISH; dn++)
 		{
-			if((wishdetailID = wish.getWishDetailID(dn)) > -1)
+			if((wishdetailID = gift.getGiftDetailID(dn)) > -1)
 			{
-				name = wdDB.getWishDetail(wishdetailID).getWishDetailName();
-				choices = wdDB.getWishDetail(wishdetailID).getWishDetailChoiceString();
+				name = gdDB.getWishDetail(wishdetailID).getWishDetailName();
+				choices = gdDB.getWishDetail(wishdetailID).getWishDetailChoiceString();
 			}
 			else
 			{
@@ -143,16 +143,16 @@ public class GiftDetailDialog extends JDialog implements ActionListener
 	/***************************************************************************************************
 	 * Tests to see if a change has occurred to the wish. If so, updates the wish. Examines each
 	 * wish field against the dialog box for changes.  
-	 * @param w - ONCWish object
+	 * @param gift - ONCWish object
 	 * @return - true if a change was detected, false if wish is unchanged
 	 **************************************************************************************************/
 	boolean getWishDetailChanges()
 	{	
 		bWishChanged = false;
 		
-		if(!w.getName().equals(wishnameTF.getText()))	//Wish name change?
+		if(!gift.getName().equals(wishnameTF.getText()))	//Wish name change?
 		{
-			w.setName(wishnameTF.getText().trim());
+			gift.setName(wishnameTF.getText().trim());
 			bWishChanged = true;
 		}
 		
@@ -162,7 +162,7 @@ public class GiftDetailDialog extends JDialog implements ActionListener
 		for(int wdn=0; wdn < MAX_NUM_OF_WISH_DETAILS_PER_WISH; wdn++)
 		{
 			//Wish Detail is currently empty and Text Fields are not => add new wish detail
-			if((wdID = w.getWishDetailID(wdn)) == -1 && !titleTFAL.get(wdn).getText().isEmpty())
+			if((wdID = gift.getGiftDetailID(wdn)) == -1 && !titleTFAL.get(wdn).getText().isEmpty())
 			{
 				StringBuffer buf = new StringBuffer("");
 				for(String s:convertWishStringtoList(contentTFAL.get(wdn).getText()))
@@ -171,13 +171,13 @@ public class GiftDetailDialog extends JDialog implements ActionListener
 				GiftDetail reqWishDetail = new GiftDetail(-1, titleTFAL.get(wdn).getText(), 
 															buf.toString());
 				
-				String response = wdDB.add(this, reqWishDetail);
+				String response = gdDB.add(this, reqWishDetail);
 				
 				if(response.startsWith("ADDED_WISH_DETAIL"))
 				{
 					Gson gson = new Gson();
 					GiftDetail addedWishDetail = gson.fromJson(response.substring(17), GiftDetail.class);
-					w.setWishDetailID(wdn, addedWishDetail.getID());
+					gift.setGiftDetailID(wdn, addedWishDetail.getID());
 					bWishChanged = true;
 				}
 				else
@@ -191,26 +191,26 @@ public class GiftDetailDialog extends JDialog implements ActionListener
 			
 			//Wish Detail is currently not empty and Text Fields are empty => Remove Wish Detail
 			//To do this, move all other wish descriptions up and clear the final wish description
-			if((wdID = w.getWishDetailID(wdn)) > -1 && titleTFAL.get(wdn).getText().isEmpty())
+			if((wdID = gift.getGiftDetailID(wdn)) > -1 && titleTFAL.get(wdn).getText().isEmpty())
 			{
 				//Clear the content field
 				contentTFAL.get(wdn).setText("");
 				
 				//Delete the wish detail from the server
-				GiftDetail delreqWD = wdDB.getWishDetail(w.getWishDetailID(wdn));
-				String response = wdDB.delete(this, delreqWD);
+				GiftDetail delreqWD = gdDB.getWishDetail(gift.getGiftDetailID(wdn));
+				String response = gdDB.delete(this, delreqWD);
 
 				if(response.startsWith("DELETED_WISH_DETAIL"))
 				{
 					//Move the remaining wish descriptions and text fields up
 					for(int i=wdn; i < MAX_NUM_OF_WISH_DETAILS_PER_WISH-1; i++)
 					{
-						w.setWishDetailID(i, w.getWishDetailID(i+1));
+						gift.setGiftDetailID(i, gift.getGiftDetailID(i+1));
 						titleTFAL.get(i).setText(titleTFAL.get(i+1).getText());
 						contentTFAL.get(i).setText(contentTFAL.get(i+1).getText());
 					}
 				
-					w.setWishDetailID(MAX_NUM_OF_WISH_DETAILS_PER_WISH-1, -1);
+					gift.setGiftDetailID(MAX_NUM_OF_WISH_DETAILS_PER_WISH-1, -1);
 					titleTFAL.get(MAX_NUM_OF_WISH_DETAILS_PER_WISH-1).setText("");
 					contentTFAL.get(MAX_NUM_OF_WISH_DETAILS_PER_WISH-1).setText("");
 				
@@ -227,19 +227,19 @@ public class GiftDetailDialog extends JDialog implements ActionListener
 			
 			//Wish Detail is not empty and Text Fields are not empty, but either the names or choices
 			//are different => Update Name and Contents
-			if((wdID = w.getWishDetailID(wdn)) > -1 && !titleTFAL.get(wdn).getText().isEmpty() &&
-					 (!wdDB.getWishDetail(wdID).getWishDetailName().equals(titleTFAL.get(wdn).getText()) ||
-					   !wdDB.getWishDetail(wdID).getWishDetailChoiceString().equals(contentTFAL.get(wdn).getText())))
+			if((wdID = gift.getGiftDetailID(wdn)) > -1 && !titleTFAL.get(wdn).getText().isEmpty() &&
+					 (!gdDB.getWishDetail(wdID).getWishDetailName().equals(titleTFAL.get(wdn).getText()) ||
+					   !gdDB.getWishDetail(wdID).getWishDetailChoiceString().equals(contentTFAL.get(wdn).getText())))
 			{
-				wdDB.getWishDetail(wdID).setDetailName(titleTFAL.get(wdn).getText());
-				wdDB.getWishDetail(wdID).setDetailChoices(convertWishStringtoList(contentTFAL.get(wdn).getText()));
+				gdDB.getWishDetail(wdID).setDetailName(titleTFAL.get(wdn).getText());
+				gdDB.getWishDetail(wdID).setDetailChoices(convertWishStringtoList(contentTFAL.get(wdn).getText()));
 				bWishChanged = true;
 				
-				GiftDetail updateWishDetail = new GiftDetail(w.getWishDetailID(wdn),
+				GiftDetail updateWishDetail = new GiftDetail(gift.getGiftDetailID(wdn),
 															  titleTFAL.get(wdn).getText(), 
 															   contentTFAL.get(wdn).getText());
 
-				String response = wdDB.update(this, updateWishDetail);
+				String response = gdDB.update(this, updateWishDetail);
 
 				if(response.startsWith("UPDATED_WISH_DETAIL"))
 				{

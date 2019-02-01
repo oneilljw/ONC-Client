@@ -885,14 +885,14 @@ public class FamilyDB extends ONCSearchableDatabase
 			for(int wn=0; wn<NUMBER_OF_WISHES_PER_CHILD; wn++)
 			{
 				int childwishID = c.getChildGiftID(wn);
-				if(childwishID > -1 && childwishDB.getWish(childwishID).getGiftID() == cat.getWishID("Bike"))
+				if(childwishID > -1 && childwishDB.getWish(childwishID).getGiftID() == cat.getGiftID("Bike"))
 					nBikes++;
 			}
 			
 		return nBikes;
 	}
 	
-	ArrayList<int[]> getWishBaseSelectedCounts(ArrayList<ONCWish> wishList)
+	ArrayList<int[]> getWishBaseSelectedCounts(ArrayList<ONCGift> wishList)
 	{
 		ArrayList<int[]> wishcountAL = new ArrayList<int[]>();
 	

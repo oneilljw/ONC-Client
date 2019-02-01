@@ -355,7 +355,7 @@ public class PYChildConnectionDialog extends JDialog implements ActionListener,
 			ONCChild child = (ONCChild) tse.getObject2();
 			display(fam, child);
 		}
-		else if(tse.getType() == EntityType.WISH)
+		else if(tse.getType() == EntityType.GIFT)
 		{
 			ONCFamily fam = (ONCFamily) tse.getObject1();
 			ONCChild child = (ONCChild) tse.getObject2();
@@ -365,7 +365,7 @@ public class PYChildConnectionDialog extends JDialog implements ActionListener,
 	@Override
 	public EnumSet<EntityType> getEntityEventListenerEntityTypes() 
 	{
-		return EnumSet.of(EntityType.FAMILY, EntityType.CHILD, EntityType.WISH);
+		return EnumSet.of(EntityType.FAMILY, EntityType.CHILD, EntityType.GIFT);
 	}
 
 	@Override

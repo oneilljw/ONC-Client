@@ -5,13 +5,14 @@ public enum EntityType
 	AGENT ("Agent"),
 	FAMILY ("Family"), 
 	CHILD ("Child"),
-	WISH ("Wish"), 
+	GIFT ("Gift"), 
 	PARTNER ("Partner"), 
 	VOLUNTEER ("Volunteer"), 
 	USER ("User"), 
 	INVENTORY_ITEM ("Inventory Item"), 
 	GROUP ("Group"), 
-	ACTIVITY ("Activity");
+	ACTIVITY ("Activity"),
+	NOTE ("Note");
 	
 	private final String name;
 	

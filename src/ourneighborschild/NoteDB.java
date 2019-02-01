@@ -16,15 +16,20 @@ import com.google.gson.reflect.TypeToken;
 
 import au.com.bytecode.opencsv.CSVWriter;
 
-public class NoteDB extends ONCDatabase
+public class NoteDB extends ONCSearchableDatabase
 {
+	private static final EntityType DB_TYPE = EntityType.NOTE;
 	private static NoteDB instance = null;
 	private List<ONCNote> noteList;
+	private List<ONCNote> filteredNoteList;
+	private int filterID;
 	
 	private NoteDB()
 	{
-		super();
-		noteList = new ArrayList<ONCNote>();
+		super(DB_TYPE);
+		this.noteList = new ArrayList<ONCNote>();
+		this.filteredNoteList = new ArrayList<ONCNote>();
+		this.filterID = -1;
 	}
 	
 	public static NoteDB getInstance()
@@ -33,6 +38,43 @@ public class NoteDB extends ONCDatabase
 			instance = new NoteDB();
 		
 		return instance;
+	}
+	
+	@Override
+	int size() { return filteredNoteList.size(); }
+	
+	@Override
+	ONCEntity getObjectAtIndex(int index)
+	{
+		return index < filteredNoteList.size() ? filteredNoteList.get(index) : null; 
+	}
+	
+	@Override
+	List<? extends ONCEntity> getList() { return filteredNoteList; }
+	
+	/***
+	 * Method sets the filter. The filter is an integer used to filter objects in the
+	 * database to a filtered list. The filter operates on one field only. In the case of
+	 * this Note DB the filter operates on the note owner field. 
+	 * 
+	 * @param filterID
+	 */
+	void setFilter(int filterID)
+	{
+		this.filterID = filterID;
+		updateFilteredNoteList();
+	}
+	
+	void updateFilteredNoteList()
+	{
+		filteredNoteList.clear();
+		
+		if(filterID > -1)
+		{
+			for(ONCNote n : noteList)
+				if(n.getOwnerID() == filterID)
+					filteredNoteList.add(n);
+		}
 	}
 	
 	ONCNote getNote(int id)
@@ -74,6 +116,7 @@ public class NoteDB extends ONCDatabase
 		if(addedNote != null)
 		{	
 			noteList.add(addedNote);
+			updateFilteredNoteList();
 			fireDataChanged(source, "ADDED_NOTE", addedNote);
 		}
 				
@@ -116,6 +159,7 @@ public class NoteDB extends ONCDatabase
 		if(index <  noteList.size())
 		{
 			noteList.set(index, updatedNote);
+			updateFilteredNoteList();
 			fireDataChanged(source, "UPDATED_NOTE", updatedNote);
 		}
 		else
@@ -169,7 +213,8 @@ public class NoteDB extends ONCDatabase
 		if(index < noteList.size())
 		{
 			deletedNote = noteList.get(index);
-			noteList.remove(index);	
+			noteList.remove(index);
+			updateFilteredNoteList();
 		}
 		
 		return deletedNote;
@@ -196,7 +241,7 @@ public class NoteDB extends ONCDatabase
 	    	
 	    		try 
 	    		{
-	    			String[] header = {"Note ID", "Owner ID", "Status", "Note", "Changed By",
+	    			String[] header = {"Note ID", "Owner ID", "Status", "Title", "Note", "Changed By",
 	    					"Response", "Response By", "Time Created", "Time Viewed",
 	    					"Time Responded", "Stoplight Pos", "Stoplight Mssg", "Stoplight C/B"};
 	    			
@@ -224,13 +269,17 @@ public class NoteDB extends ONCDatabase
 	
 	List<ONCNote> getNotesForFamily(int ownerID)
 	{
-		List<ONCNote> ownerNoteList = new ArrayList<ONCNote>();
-		
-		for(ONCNote note : noteList)
-			if(note.getOwnerID() == ownerID)
-				ownerNoteList.add(note);
-		
-		return ownerNoteList;
+		if(filterID > -1 && ownerID == filterID)
+			return filteredNoteList;
+		else
+		{
+			List<ONCNote> noteList = new ArrayList<ONCNote>();
+			for(ONCNote n : noteList)
+				if(n.getOwnerID() == ownerID)
+					noteList.add(n);
+					
+			return noteList;
+		}		 
 	}
 	
 	String importDB()
@@ -269,5 +318,12 @@ public class NoteDB extends ONCDatabase
 		{
 			processDeletedNote(this, ue.getJson());
 		}			
+	}
+
+	@Override
+	String searchForListItem(ArrayList<Integer> searchAL, String data)
+	{
+		// TODO Auto-generated method stub
+		return "";
 	}
 }

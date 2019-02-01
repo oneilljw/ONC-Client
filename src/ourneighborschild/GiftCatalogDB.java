@@ -1,7 +1,6 @@
 package ourneighborschild;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -10,8 +9,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import javax.swing.ImageIcon;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -19,45 +16,48 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
 
 public class GiftCatalogDB extends ONCDatabase
 {
 	/********
-	 * This class implements a singleton data base for ONC Wishes, known as the wish catalog.
+	 * This class implements a singleton data base for ONCGift objects, known as the Gift Catalog.
 	 * The catalog is a list of gifts that users can choose from to fulfill the wish requests
-	 * of served children. In addition, the catalog maintains a count of the number of
-	 * times a gift has been assigned to fulfill a wish. The count is broken into component
-	 * counts - a separate count for each individual child wish. Each ONC child has more than 
-	 * one wish, the variable NUMBER_OF_WISHES_PER_CHILD holds the number of wishes per child.
+	 * of served children. 
 	 * 
-	 * The catalog consists of a list of WishCatalogItems. Each WishCatalogItem contains an 
-	 * ONCWish and the wish count for that wish, including component counts. Wish counts are
-	 * not persistent in the ONCClient application, they are initialized once the catalog and
-	 * family, child and child wish data is loaded from the server and maintained for the life
+	 * It's important to distinguish between ONCGift objects and ONCChildGift objects. An ONCChildGift
+	 * object contains information about an ONCGift object after an ONCGift has been selected to 
+	 * fulfill a child's wish. 
+	 * 
+	 * In addition to holding ONCGift objects, the catalog maintains a count of the number of
+	 * times a gift has been selected to fulfill a wish. The count is broken into component
+	 * counts - a separate count for each individual child gift. Each ONC child has more than 
+	 * one wish request and fit. NUMBER_OF_GIFTS_PER_CHILD holds the number of gifts per child.
+	 * 
+	 * The catalog consists of a list of GiftCatalogItem objects. Each object contains an 
+	 * ONCGift reference and the count for that gift, including component counts. Counts are
+	 * not persistent. In the ONC Client application, counts are initialized once the catalog and
+	 * family, child and child gift data is loaded from the server and maintained for the life
 	 * of the client.
 	 * 
-	 * The catalog list is maintained in ONCWish name alphabetical order in order to support
+	 * The catalog list is maintained in ONCGift name alphabetical order in order to support
 	 * display using an AbstractTabelModel
 	 * 
-	 * The catalog provides a method that returns a list of ONCWishes that can be 
-	 * used for sorting or selecting a wish. 
+	 * The catalog provides a method that returns a list of ONCGifts that can be 
+	 * used for sorting or selecting a gift. 
 	 */
-	private static final int ONC_WISH_CATALOG_HEADER_LENGTH = 7;
-	private static final int WISH_CATALOG_LIST_ALL = 7;
-	private static final int NUMBER_OF_WISHES_PER_CHILD = 3;
+	private static final int GIFT_CATALOG_LIST_ALL = 7;
+	private static final int NUMBER_OF_GIFTS_PER_CHILD = 3;
 	
 	private static GiftCatalogDB instance = null;
-	private ArrayList<WishCatalogItem> wishCatalog;
-	private GiftDetailDB  wdDB;
+	private ArrayList<GiftCatalogItem> giftCatalog;
+	private GiftDetailDB  giftDetailDB;
 	
 	private GiftCatalogDB()
 	{
 		super();
-		wdDB = GiftDetailDB.getInstance();
-		
-		wishCatalog = new ArrayList<WishCatalogItem>();
+		giftDetailDB = GiftDetailDB.getInstance();
+		giftCatalog = new ArrayList<GiftCatalogItem>();
 	}
 	
 	public static GiftCatalogDB getInstance()
@@ -68,90 +68,85 @@ public class GiftCatalogDB extends ONCDatabase
 		return instance;
 	}
 	
-	//getters from wish catalog
-	ONCWish getWish(int index) { return wishCatalog.get(index).getWish(); }
-	ArrayList<ONCWish> getCatalogWishList()
+	//getters from catalog
+	ONCGift getGift(int index) { return giftCatalog.get(index).getGift(); }
+	ArrayList<ONCGift> getCatalogGiftList()
 	{
-		ArrayList<ONCWish> wishList = new ArrayList<ONCWish>();
-		for(WishCatalogItem wci: wishCatalog)
-			wishList.add(wci.getWish());
+		ArrayList<ONCGift> giftList = new ArrayList<ONCGift>();
+		for(GiftCatalogItem gci: giftCatalog)
+			giftList.add(gci.getGift());
 		
-		return wishList;
+		return giftList;
 	}
 	
-	public ONCWish getWishByID(int wishID)
+	//find gift object by giftID. Return ONCGift object or null if id not found
+	public ONCGift getGiftByID(int giftID)
 	{
 		int index = 0;
-		while(index < wishCatalog.size() && wishCatalog.get(index).getWish().getID() != wishID)
+		while(index < giftCatalog.size() && giftCatalog.get(index).getGift().getID() != giftID)
 			index++;
 		
-		if(index < wishCatalog.size())
-			return wishCatalog.get(index).getWish();
+		if(index < giftCatalog.size())
+			return giftCatalog.get(index).getGift();
 		else
 			return null;
 	}
 	
-	int findModelIndexFromID(int wishID)
+	int findModelIndexFromID(int giftID)
 	{
 		int index = 0;
-		while(index < wishCatalog.size() && wishCatalog.get(index).getWish().getID() != wishID)
+		while(index < giftCatalog.size() && giftCatalog.get(index).getGift().getID() != giftID)
 			index++;
 		
-		if(index < wishCatalog.size())
+		if(index < giftCatalog.size())
 			return index;
 		else
 			return -1;
 	}
 	
-	int size() { return wishCatalog.size(); }
-	int getWishID(int index) { return wishCatalog.get(index).getWish().getID(); }
-	String getWishName(int index) { return wishCatalog.get(index).getWish().getName(); }
+	int size() { return giftCatalog.size(); }
+	int getGiftID(int index) { return giftCatalog.get(index).getGift().getID(); }
+	String getGiftName(int index) { return giftCatalog.get(index).getGift().getName(); }
 	
-	ArrayList<Integer> getWishIDs()
-	{
-		ArrayList<Integer> wishIDs = new ArrayList<Integer>();
-		for(ONCWish w:getCatalogWishList())
-			wishIDs.add(w.getID());
-		
-		return wishIDs;
-	}
-
-	boolean isInWishList(int index, int wish)
+	boolean isInGiftList(int index, int giftnum)
 	{
 		int mask = 1;
-		mask = mask << wish;
-		return (wishCatalog.get(index).getWish().getListindex() & mask) > 0;
+		mask = mask << giftnum;
+		return (giftCatalog.get(index).getGift().getListindex() & mask) > 0;
 	}
 	
-	boolean isDetailRqrd(int index) { return wishCatalog.get(index).getWish().isDetailRqrd(); }
+	boolean isDetailRqrd(int index) 
+	{ 
+		return giftCatalog.get(index).getGift().isDetailRqrd(); 
+	}
 	
-	int getWishID(String wishname)
+	int getGiftID(String giftName)
 	{
 		int index=0;
-		while(index < wishCatalog.size() &&
-			   !wishCatalog.get(index).getWish().getName().equals(wishname))
+		while(index < giftCatalog.size() &&
+			   !giftCatalog.get(index).getGift().getName().equals(giftName))
 			index++;
 		
-		if(index < wishCatalog.size())
-			return wishCatalog.get(index).getWish().getID();
+		if(index < giftCatalog.size())
+			return giftCatalog.get(index).getGift().getID();
 		else
 			return -1;
 	}
 	
-	//Returns detail required array list by searching for wish name. If wish not found
+	//Returns detail required array list by searching for gift name. If gift not found
 	//or if detail required array list is empty, returns null
-	ArrayList<GiftDetail> getWishDetail(int wishID)	
+	ArrayList<GiftDetail> getGiftDetail(int giftID)	
 	{
 		int index = 0;
-		while(index < wishCatalog.size() && wishID != wishCatalog.get(index).getWish().getID())
+		while(index < giftCatalog.size() && giftID != giftCatalog.get(index).getGift().getID())
 			index++;
 		
-		if(index < wishCatalog.size() && wishCatalog.get(index).getWish().getNumberOfDetails() > 0)
+		if(index < giftCatalog.size() && giftCatalog.get(index).getGift().getNumberOfDetails() > 0)
 		{
 			ArrayList<GiftDetail> wdAL = new ArrayList<GiftDetail>();
 			for(int i=0; i < 4; i++)
-				if(wishCatalog.get(index).getWish().getWishDetailID(i) > -1)
-					wdAL.add(wdDB.getWishDetail(wishCatalog.get(index).getWish().getWishDetailID(i)));
+				if(giftCatalog.get(index).getGift().getGiftDetailID(i) > -1)
+					wdAL.add(giftDetailDB.getWishDetail(giftCatalog.get(index).getGift().getGiftDetailID(i)));
 			
 			return wdAL;
 		}
@@ -166,33 +161,33 @@ public class GiftCatalogDB extends ONCDatabase
 		String response = "";
 		
 		response = serverIF.sendRequest("POST<update_catwish>" + 
-											gson.toJson(entity, ONCWish.class));
+											gson.toJson(entity, ONCGift.class));
 		
 		if(response.startsWith("UPDATED_CATALOG_WISH"))
 		{
-			processUpdatedWish(source, response.substring(20));
+			processUpdatedGift(source, response.substring(20));
 		}
 		
 		return response;	
 	}
 	
-	void processUpdatedWish(Object source, String json)
+	void processUpdatedGift(Object source, String json)
 	{
-		//Store added catalog wish in local wish catalog
+		//Store added catalog gift in local catalog
 		Gson gson = new Gson();
-		ONCWish updatedWish = gson.fromJson(json, ONCWish.class);
+		ONCGift updatedGift = gson.fromJson(json, ONCGift.class);
 		
-		//find the updated wish in the data base and replace
+		//find the updated gift in the data base and replace
 		int index=0;
-		while(index < wishCatalog.size() &&
-			   wishCatalog.get(index).getWish().getID() != updatedWish.getID())
+		while(index < giftCatalog.size() &&
+			   giftCatalog.get(index).getGift().getID() != updatedGift.getID())
 			index++;
 		
-		if(index < wishCatalog.size())
+		if(index < giftCatalog.size())
 		{
-			wishCatalog.get(index).setWish(updatedWish);
-			//Notify local user IFs that an organization/partner was added
-			fireDataChanged(source, "UPDATED_CATALOG_WISH", updatedWish);
+			giftCatalog.get(index).setGift(updatedGift);
+			//Notify local user IFs that gift was updated in the catalog
+			fireDataChanged(source, "UPDATED_CATALOG_WISH", updatedGift);
 		}
 	}
 	
@@ -202,238 +197,226 @@ public class GiftCatalogDB extends ONCDatabase
 		String response;
 		
 		response = serverIF.sendRequest("POST<add_catwish>" + 
-											gson.toJson(entity, ONCWish.class));
+											gson.toJson(entity, ONCGift.class));
 		
 		if(response != null && response.startsWith("ADDED_CATALOG_WISH"))
-			return processAddedWish(source, response.substring(18));
+			return processAddedGift(source, response.substring(18));
 		else
 			return -1;	
 	}
 	
-	int processAddedWish(Object source, String json)
+	int processAddedGift(Object source, String json)
 	{
-		//Store added catalog wish in local wish catalog
+		//Store added catalog gift in local catalog
 		Gson gson = new Gson();
-		ONCWish addedWish = gson.fromJson(json, ONCWish.class);
+		ONCGift addedGift = gson.fromJson(json, ONCGift.class);
 		
-		//add the wish in the proper spot alphabetically
+		//add the gift in the proper spot alphabetically
 		int index = 0;
-		while(index < wishCatalog.size() &&
-				(wishCatalog.get(index).getWish().getName().compareTo(addedWish.getName())) < 0)
+		while(index < giftCatalog.size() &&
+				(giftCatalog.get(index).getGift().getName().compareTo(addedGift.getName())) < 0)
 			index++;
 		
-		if(index < wishCatalog.size())
-			wishCatalog.add(index, new WishCatalogItem(addedWish));
+		if(index < giftCatalog.size())
+			giftCatalog.add(index, new GiftCatalogItem(addedGift));
 		else
-			wishCatalog.add(new WishCatalogItem(addedWish));
+			giftCatalog.add(new GiftCatalogItem(addedGift));
 
-		//Notify local user IFs that an organization/partner was added
-		fireDataChanged(source, "ADDED_CATALOG_WISH", addedWish);
+		//Notify local user IFs that gift was added to the catalog
+		fireDataChanged(source, "ADDED_CATALOG_WISH", addedGift);
 		
 		return index;
 	}
 
-	//setters to wish catalog
-	void setWishName(int index, String name)
-	{ 
-		wishCatalog.get(index).getWish().setName(name); 
-	}
+	//setters to catalog
+	void setGiftName(int index, String name) { giftCatalog.get(index).getGift().setName(name); }
 	
 	/*********************************************************************************
-	 * This method is called when the user changes which wish list a wish appears in.
+	 * This method is called when the user changes which gift list a gift appears in.
 	 * An update request is formed and sent to the server.
 	 * @param index
-	 * @param wishnum
+	 * @param giftnum
 	 */
-//	void toggleWishListIndex(int index, int wishnum )
-//	{
-//		ONCWish reqUpdateWish = new ONCWish(wishCatalog.get(index).getWish());	//copy current wish
-//		int li = reqUpdateWish.getListindex(); //Get current list index	
-//		int bitmask = 1 << wishnum;	//which wish is being toggled
-//		
-//		reqUpdateWish.setListindex(li ^ bitmask); //Set updated list index	
-//	}
-	
-	
-	//Delete a wish from catalog. Overloaded. Can delete by index or by wish
+
+	//Delete a gift from catalog. Overloaded. Can delete by index or by gift
 	String  delete(Object source, ONCObject entity) 
 	{
 		Gson gson = new Gson();
 		String response = "";
 		
 		response = serverIF.sendRequest("POST<delete_catwish>" + 
-											gson.toJson(entity, ONCWish.class));
+											gson.toJson(entity, ONCGift.class));
 		
 		if(response.startsWith("DELETED_CATALOG_WISH"))
-			processDeletedWish(source, response.substring(20));
+			processDeletedGift(source, response.substring(20));
 		
 		return response;	
 	}
 	
-	void processDeletedWish(Object source, String json)
+	void processDeletedGift(Object source, String json)
 	{
-		//locate and remove deleted catalog wish in local wish catalog
-		//delete the corresponding wish count
+		//locate and remove deleted catalog gift in local catalog
+		//delete the corresponding gift count
 		Gson gson = new Gson();
-		ONCWish deletedWish = gson.fromJson(json, ONCWish.class);
+		ONCGift deletedGift = gson.fromJson(json, ONCGift.class);
 		
 		int index = 0;
-		while(index < wishCatalog.size() &&
-				wishCatalog.get(index).getWish().getID() != deletedWish.getID())
+		while(index < giftCatalog.size() &&
+				giftCatalog.get(index).getGift().getID() != deletedGift.getID())
 			index++;
 		
-		if(index < wishCatalog.size())
-			wishCatalog.remove(index);
+		if(index < giftCatalog.size())
+			giftCatalog.remove(index);
 		
-		//Notify local user IFs that an organization/partner was added
-		fireDataChanged(source, "DELETED_CATALOG_WISH", deletedWish);
+		//Notify local user IFs that a gift was deleted from the catalog
+		fireDataChanged(source, "DELETED_CATALOG_WISH", deletedGift);
 	}
 	
 	
 	/***************************************************************************************
-	 * This method returns a subset of the names of wishes in the wish catalog based on the
+	 * This method returns a subset of the names of gifts in the catalog based on the
 	 * requested type and purpose of the list. Two purposes are supported: SORT lists puts
-	 * an ONCWish "Any" in element 0 and ONCWish "None" in the returned list alphabetically.  
-	 * SELECTION lists put an ONCWish "None" in element 0 of the list.
+	 * an ONCGift "Any" in element 0 and ONCGift "None" in the returned list alphabetically.  
+	 * SELECTION lists put an ONCGift "None" in element 0 of the list.
 	 * 
-	 * The binary representation of the ONCWish list index
-	 * member variable to determines inclusion in a list. All wishes that have odd list indexes 
-	 * are included in wishNumber 0 lists for example. All wishes with list indexes greater than 4
-	 * are included in wishNumber 2 list requests and all wishes with list indexes of 2, 3, 6,
-	 * or 7 are included in wishNumber 1 wish list requests.
+	 * The binary representation of the ONCGift list index
+	 * member variable to determines inclusion in a list. All gifts that have odd list indexes 
+	 * are included in giftNumber 0 lists for example. All gifts with list indexes greater than 4
+	 * are included in giftNumber 2 list requests and all gifts with list indexes of 2, 3, 6,
+	 * or 7 are included in giftNumber 1 gift list requests.
 	 * 
-	 * An overloaded method that only takes a WishListType will return a list for that
-	 * purpose that contains all ONCWish objects
+	 * An overloaded method that only takes a GiftListType will return a list for that
+	 * purpose that contains all ONCGift objects
 	 * 
 	 * @param listtype - Valid lists are 0 - 2.
-	 * @param listpurpose Valid purposes are WishListType.Sort and WishListType.Select
-	 * @return list of ONCWish objects in accordance with requested list type and purpose
+	 * @param listpurpose Valid purposes are GiftListType.Sort and GiftListType.Select
+	 * @return list of ONCGift objects in accordance with requested list type and purpose
 	 ******************************************************************************************************/
-	List<ONCWish> getWishList(GiftListPurpose listPurpose)  { return getWishList(WISH_CATALOG_LIST_ALL, listPurpose); }
-	List<ONCWish> getWishList(int wishNumber, GiftListPurpose listPurpose)
+	List<ONCGift> getGiftList(GiftListPurpose listPurpose)  { return getGiftList(GIFT_CATALOG_LIST_ALL, listPurpose); }
+	List<ONCGift> getGiftList(int giftNumber, GiftListPurpose listPurpose)
 	{
-		List<ONCWish> wishlist = new ArrayList<ONCWish>();
+		List<ONCGift> giftlist = new ArrayList<ONCGift>();
 	
 		//Add catalog items to the list based on type of list requested
-		int bitmask = WISH_CATALOG_LIST_ALL;	//include wish in all lists
-		if(wishNumber < WISH_CATALOG_LIST_ALL)
-			bitmask = 1 << wishNumber; 	//raise 2 to the listtype power
+		int bitmask = GIFT_CATALOG_LIST_ALL;	//include gift in all lists
+		if(giftNumber < GIFT_CATALOG_LIST_ALL)
+			bitmask = 1 << giftNumber; 	//raise 2 to the listtype power
 		
-		for(ONCWish w:getCatalogWishList())
-			if((w.getListindex() & bitmask) > 0)
-				wishlist.add(w);
+		for(ONCGift g:getCatalogGiftList())
+			if((g.getListindex() & bitmask) > 0)
+				giftlist.add(g);
 		
 		//Add appropriate elements based on purpose. For selection lists, "None" must be at the
 		//top of the list. For sort lists, "None" must be alphabetized in the list and "Any" 
 		//must be at the top of the list
 		if(listPurpose == GiftListPurpose.Selection)
 		{
-			Collections.sort(wishlist, new WishListComparator());	//Alphabetize the list
-			wishlist.add(0, new ONCWish(-1, "None", 7));
+			Collections.sort(giftlist, new GiftListComparator());	//Alphabetize the list
+			giftlist.add(0, new ONCGift(-1, "None", 7));
 		}
 		else if(listPurpose == GiftListPurpose.Filtering)
 		{	
-			wishlist.add(new ONCWish(-1, "None", 7));	//Add "None" to the list
-			Collections.sort(wishlist, new WishListComparator());	//Alphabetize the list
-			wishlist.add(0, new ONCWish(-2, "Any", 7));
+			giftlist.add(new ONCGift(-1, "None", 7));	//Add "None" to the list
+			Collections.sort(giftlist, new GiftListComparator());	//Alphabetize the list
+			giftlist.add(0, new ONCGift(-2, "Any", 7));
 		}
 
-		return  wishlist;
+		return  giftlist;
 	}
-	List<ONCWish> getDefaultWishList()
+	List<ONCGift> getDefaultGiftList()
 	{
-		List<ONCWish> wishlist = new ArrayList<ONCWish>();
+		List<ONCGift> giftlist = new ArrayList<ONCGift>();
 	
-		for(ONCWish w:getCatalogWishList())
-			if(w.getListindex() == WISH_CATALOG_LIST_ALL)
-				wishlist.add(w);
+		for(ONCGift g : getCatalogGiftList())
+			if(g.getListindex() == GIFT_CATALOG_LIST_ALL)
+				giftlist.add(g);
 		
-		Collections.sort(wishlist, new WishListComparator());	//Alphabetize the list
-		wishlist.add(0, new ONCWish(-1, "None", WISH_CATALOG_LIST_ALL));
+		Collections.sort(giftlist, new GiftListComparator());	//Alphabetize the list
+		giftlist.add(0, new ONCGift(-1, "None", GIFT_CATALOG_LIST_ALL));
 
-		return  wishlist;
+		return  giftlist;
 	}
 
-	void initializeWishCounts()
+	void initializeCounts()
 	{	
 		FamilyDB fDB = FamilyDB.getInstance();
-		ArrayList<int[]> wishCounts = fDB.getWishBaseSelectedCounts(getCatalogWishList());
-		for(int index=0; index < wishCounts.size(); index++)
-			wishCatalog.get(index).setWishCounts(wishCounts.get(index));		
+		ArrayList<int[]> giftCounts = fDB.getWishBaseSelectedCounts(getCatalogGiftList());
+		for(int index=0; index < giftCounts.size(); index++)
+			giftCatalog.get(index).setGiftCounts(giftCounts.get(index));		
 	}
 	
 	/***************************************************************************************************
-	 * This method takes changes the wish counts associated with an ONCWish held in catalog
-	 * The replaced wish and added wish are passed as parameters. The first object is 
-	 * the ONCChildWish that has been replaced, the second object is the ONCChildWish that is
+	 * This method takes changes the gift counts associated with an ONCGift held in catalog
+	 * The replaced gift and added gift are passed as parameters. The first object is 
+	 * the ONCChildGift that has been replaced, the second object is the ONCChildGift that is
 	 * it's replacement. 
 	 * 
-	 * The method locates the associated ONCWish in the catalog, decrementing the count for 
-	 * the replaced ONCWish and incrementing the count for the add ONCWish. Wish counts have 
-	 * component counts, one for each possible wish afforded an ONCCHild.
+	 * The method locates the associated ONCGift in the catalog, decrementing the count for 
+	 * the replaced ONCGift and incrementing the count for the add ONCGift. Counts have 
+	 * component counts, one for each possible gift afforded an ONCCHild.
 	 * 
-	 * If either ONCChildWish object is null, the decrement  or increment count is not performed.
-	 * @param WishBaseChange contains the replaced and added ONCChildWish objects
+	 * If either ONCChildGift object is null, the decrement  or increment count is not performed.
+	 * @param GiftBaseChange contains the replaced and added ONCChildWish objects
 	 **************************************************************************************************/
-	void changeWishCounts(ONCChildGift replWish, ONCChildGift addedWish)
+	void changeGiftCounts(ONCChildGift replGift, ONCChildGift addedGift)
 	{
-		boolean bWishCountChanged = false;
+		boolean bCountChanged = false;
 		
-		if(replWish != null && replWish.getGiftID() > -1)	//Search for from wish if it's not "None"
+		if(replGift != null && replGift.getGiftID() > -1)	//Search for from gift if it's not "None"
 		{
-			//Decrement the count of the first wish and update the table
-			int row = findModelIndexFromID(replWish.getGiftID());
+			//Decrement the count of the first gift and update the table
+			int row = findModelIndexFromID(replGift.getGiftID());
 			if(row > -1)
 			{
-				wishCatalog.get(row).incrementWishCount(replWish.getGiftNumber(), -1);
-				bWishCountChanged = true;
+				giftCatalog.get(row).incrementCount(replGift.getGiftNumber(), -1);
+				bCountChanged = true;
 			}
 		}
 		
-		if(addedWish != null && addedWish.getGiftID() > -1)	//Search for second wish if it's not "None"
+		if(addedGift != null && addedGift.getGiftID() > -1)	//Search for second gfit if it's not "None"
 		{
-			//Increment the count of the second wish and update the table
-			int row = findModelIndexFromID(addedWish.getGiftID());
+			//Increment the count of the second gift and update the table
+			int row = findModelIndexFromID(addedGift.getGiftID());
 			if(row > -1)
 			{
-				wishCatalog.get(row).incrementWishCount(addedWish.getGiftNumber(), 1);
-				bWishCountChanged = true;
+				giftCatalog.get(row).incrementCount(addedGift.getGiftNumber(), 1);
+				bCountChanged = true;
 			}
 		}
 		
-		if(bWishCountChanged)
-			fireDataChanged(this, "WISH_BASE_CHANGED", replWish, addedWish); //notify the UI's
+		if(bCountChanged)
+			fireDataChanged(this, "WISH_BASE_CHANGED", replGift, addedGift); //notify the UI's
 		
 	}
 	
-	int getTotalWishCount(int row) { return wishCatalog.get(row).getTotalWishCount(); }
+	int getTotalGiftCount(int row) { return giftCatalog.get(row).getTotalGiftCount(); }
 	
-	int getWishCount(int row, int wishnum)
+	int getGiftCount(int row, int giftnum)
 	{
-		if(!wishCatalog.isEmpty() && wishnum >=0 && wishnum < wishCatalog.size())
-			return wishCatalog.get(row).getWishCountForWishNumber(wishnum);
+		if(!giftCatalog.isEmpty() && giftnum >=0 && giftnum < giftCatalog.size())
+			return giftCatalog.get(row).getCountForGiftNumber(giftnum);
 		else
 			return -1;
 	}
 	
-	String importWishCatalogFromServer()
+	String importCatalogFromServer()
 	{
-		ArrayList<ONCWish> wishList = new ArrayList<ONCWish>();
+		ArrayList<ONCGift> giftList = new ArrayList<ONCGift>();
 		String response = "NO_CATALOG";
 		
 		if(serverIF != null && serverIF.isConnected())
 		{		
 			Gson gson = new Gson();
-			Type listtype = new TypeToken<ArrayList<ONCWish>>(){}.getType();
+			Type listtype = new TypeToken<ArrayList<ONCGift>>(){}.getType();
 			
 			response = serverIF.sendRequest("GET<catalog>");
-			wishList = gson.fromJson(response, listtype);
-			Collections.sort(wishList, new WishListComparator());
+			giftList = gson.fromJson(response, listtype);
+			Collections.sort(giftList, new GiftListComparator());
 			
 			if(!response.startsWith("NO_CATALOG"))
 			{		
-				for(ONCWish wish: wishList)
-					wishCatalog.add(new WishCatalogItem(wish));
+				for(ONCGift g: giftList)
+					giftCatalog.add(new GiftCatalogItem(g));
 				
 				response =  "CATALOG_LOADED";
 				fireDataChanged(this, "LOADED_CATALOG", null);
@@ -443,167 +426,53 @@ public class GiftCatalogDB extends ONCDatabase
 		return response;
 	}
 	
-	String importWishCatalog(JFrame pf, ImageIcon oncIcon, String path)	//Only used by superuser to import from .csv file
-	{
-		File pyfile;
-		JFileChooser chooser;
-		String filename = "";
-		int returnVal = JFileChooser.CANCEL_OPTION;
-		
-		if(path != null)
-		{
-			pyfile = new File(path + "WishCatalog.csv");
-			returnVal = JFileChooser.APPROVE_OPTION;
-		}
-		else
-		{
-    		chooser = new JFileChooser();
-    		chooser.setDialogTitle("Select Wish Catalog .csv file to import");	
-    		chooser.setFileFilter(new FileNameExtensionFilter("CSV Files", "csv"));
-    		returnVal = chooser.showOpenDialog(pf);
-    		pyfile = chooser.getSelectedFile();
-		}
-		
-	    if(returnVal == JFileChooser.APPROVE_OPTION)
-	    {	    
-	    	filename = pyfile.getName();
-	    	try 
-	    	{
-	    		CSVReader reader = new CSVReader(new FileReader(pyfile.getAbsoluteFile()));
-	    		String[] nextLine, header;
-    		
-	    		if((header = reader.readNext()) != null)
-	    		{
-	    			//Read the ONC CSV File
-	    			if(header.length == ONC_WISH_CATALOG_HEADER_LENGTH)
-	    			{
-	    				wishCatalog.clear();
-	    				while ((nextLine = reader.readNext()) != null)	// nextLine[] is an array of values from the line
-	    					wishCatalog.add(new WishCatalogItem(new ONCWish(nextLine)));
-	    			}
-	    			else
-	    			{
-	    				
-	    				JOptionPane.showMessageDialog(pf, "Wish catalog file corrupted, header length = " + Integer.toString(header.length), 
-    						"Invalid Wish Catalog File", JOptionPane.ERROR_MESSAGE, oncIcon); 
-	    			}
-	    		}
-	    		else
-	    			JOptionPane.showMessageDialog(pf, "Couldn't read header in wish catalog file: " + filename, 
-						"Invalid Wish Catalog File", JOptionPane.ERROR_MESSAGE, oncIcon);
-	    		
-	    		reader.close();
-	    		
-	    	} 
-	    	catch (IOException x)
-	    	{
-	    		JOptionPane.showMessageDialog(pf, "Unable to open wish catalog file: " + filename, 
-    				"Wish Catalog file not found", JOptionPane.ERROR_MESSAGE, oncIcon);
-	    	}
-	    }
-	    
-	    return filename;    
-	}
-	
 	String exportToCSV(JFrame pf, String filename)
     {
 		File oncwritefile = null;
 		
-    	if(filename == null)
-    	{
-    		ONCFileChooser fc = new ONCFileChooser(pf);
-    		oncwritefile= fc.getFile("Select .csv file to save Wish Catalog to",
+		if(filename == null)
+		{
+    			ONCFileChooser fc = new ONCFileChooser(pf);
+    			oncwritefile= fc.getFile("Select .csv file to save Wish Catalog to",
 								new FileNameExtensionFilter("CSV Files", "csv"), ONCFileChooser.SAVE_FILE);
-    	}
-    	else
-    		oncwritefile = new File(filename);
+		}
+		else
+    			oncwritefile = new File(filename);
     	
-    	if(oncwritefile!= null)
-    	{
-    		//If user types a new filename and doesn't include the .csv, add it
-	    	String filePath = oncwritefile.getPath();		
-	    	if(!filePath.toLowerCase().endsWith(".csv")) 
-	    		oncwritefile = new File(filePath + ".csv");
+    		if(oncwritefile!= null)
+    		{
+    			//If user types a new filename and doesn't include the .csv, add it
+    			String filePath = oncwritefile.getPath();		
+    			if(!filePath.toLowerCase().endsWith(".csv")) 
+    				oncwritefile = new File(filePath + ".csv");
 	    	
-	    	try 
-	    	{
-	    		 String[] header = {"Wish ID", "Name", "List Index", "Wish Detail 1 ID", 
+    			try 
+    			{
+    				String[] header = {"Wish ID", "Name", "List Index", "Wish Detail 1 ID", 
 	    				 			"Wish Detail 2 ID", "Wish Detail 3 ID", "Wish Detail 4 ID"};
 	    		
-	    		CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
-	    	    writer.writeNext(header);
+    				CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
+    				writer.writeNext(header);
 	    	    
-	    	    for(WishCatalogItem wci:wishCatalog)
-	    	    	writer.writeNext(wci.getWish().getExportRow());	//Get family data
+    				for(GiftCatalogItem wci:giftCatalog)
+    					writer.writeNext(wci.getGift().getExportRow());	//Get family data
 	    	 
-	    	    writer.close();
-	    	    filename = oncwritefile.getName();
+    				writer.close();
+    				filename = oncwritefile.getName();
 	    	       	    
-	    	} 
-	    	catch (IOException x)
-	    	{
-	    		System.err.format("IO Exception: %s%n", x);
-	    		JOptionPane.showMessageDialog(pf, oncwritefile.getName() + " could not be saved", 
+    			} 
+    			catch (IOException x)
+    			{
+    				System.err.format("IO Exception: %s%n", x);
+    				JOptionPane.showMessageDialog(pf, oncwritefile.getName() + " could not be saved", 
 						"ONC File Save Error", JOptionPane.ERROR_MESSAGE);
-	    	}
+    			}
 	    }
     	
 	    return filename;
     }
-/*	
-	public void readWishCatalogALObject(ObjectInputStream ois)
-	{
-		ArrayList<ONCWish> wcAL = new ArrayList<ONCWish>();
-		
-		try 
-		{
-			wcAL = (ArrayList<ONCWish>) ois.readObject();
-			
-			wishCatalog.clear();
-			long newWishID, newWishDetailID;
-			for(ONCWish w:wcAL)
-			{
-				newWishID = addWish(w.getName(), w.getListindex());
-				ONCWish newWish = getWish(newWishID);
-				
-				for(int index=0; index < w.getWishDetailAL().size(); index++)
-				{
-					WishDetail wd = w.getWishDetailAL().get(index);
-					String name = wd.getWishDetailName();
-					if(!name.isEmpty())
-					{
-						newWishDetailID = wdDB.addWishDetail(wd.getWishDetailName(), wd.getOldWishDetailChoices());
-						newWish.setWishDetailID(index, newWishDetailID);
-					}
-				}
-			}
-		} 
-		catch (IOException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		catch (ClassNotFoundException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	public void writeWishCatalogObject(ObjectOutputStream oos)
-	{
-		try
-		{
-			oos.writeObject(wishCatalog);
-		}
-		catch (IOException e) 
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-*/	
-	void clearCatalogData() { wishCatalog.clear(); }
+
+	void clearCatalogData() { giftCatalog.clear(); }
 
 	@Override
 	public void dataChanged(ServerEvent ue)
@@ -611,84 +480,84 @@ public class GiftCatalogDB extends ONCDatabase
 
 		if(ue.getType().equals("ADDED_CATALOG_WISH"))
 		{
-			processAddedWish(this, ue.getJson());
+			processAddedGift(this, ue.getJson());
 		}
 		else if(ue.getType().equals("UPDATED_CATALOG_WISH"))
 		{
-			processUpdatedWish(this, ue.getJson());
+			processUpdatedGift(this, ue.getJson());
 		}
 		else if(ue.getType().equals("DELETED_CATALOG_WISH"))
 		{
-			processDeletedWish(this, ue.getJson());
+			processDeletedGift(this, ue.getJson());
 		}
 	}
 	
-	private class WishListComparator implements Comparator<ONCWish>
+	private class GiftListComparator implements Comparator<ONCGift>
 	{
 		@Override
-		public int compare(ONCWish w1, ONCWish w2)
+		public int compare(ONCGift g1, ONCGift g2)
 		{
-			return w1.getName().compareTo(w2.getName());
+			return g1.getName().compareTo(g2.getName());
 		}
 	}
 	
 	/*********
-	 * This class holds each item in the Wish Catalog. A catalog item consists of an ONCWish
-	 * and a wish count. Each wish count has NUMBER_OF_WISHES_PER_CHILD component counts, 
-	 * one count for each of the wishes for an ONCChild
+	 * This class holds each item in the Gift Catalog. A catalog item consists of an ONCGift
+	 * and a count. Each count has NUMBER_OF_GIFTS_PER_CHILD component counts, 
+	 * one count for each of the gifts for an ONCChild
 	 */
-	private class WishCatalogItem
+	private class GiftCatalogItem
 	{
-		private ONCWish wish;
-		private int[] wishCount;
+		private ONCGift gift;
+		private int[] giftCount;
 		
-		WishCatalogItem(ONCWish wish)
+		GiftCatalogItem(ONCGift gift)
 		{
-			this.wish = wish;
-			wishCount = new int[NUMBER_OF_WISHES_PER_CHILD];
-			for(int i=0; i<wishCount.length; i++)
-				wishCount[i] = 0;
+			this.gift = gift;
+			giftCount = new int[NUMBER_OF_GIFTS_PER_CHILD];
+			for(int i=0; i<giftCount.length; i++)
+				giftCount[i] = 0;
 		}
 		
 		//getters
-		ONCWish getWish() { return wish; }
+		ONCGift getGift() { return gift; }
 		
-		int getWishCountForWishNumber(int wishNumber) 
+		int getCountForGiftNumber(int gn) 
 		{
-			if(wishNumber >= 0 && wishNumber < wishCount.length)
-				return wishCount[wishNumber];
+			if(gn >= 0 && gn < giftCount.length)
+				return giftCount[gn];
 			else
 				return -1;
 		}
 		
-		int getTotalWishCount()
+		int getTotalGiftCount()
 		{
 			int count = 0;
-			for(int wn=0; wn< wishCount.length; wn++)
-				count += wishCount[wn];
+			for(int gn=0; gn< giftCount.length; gn++)
+				count += giftCount[gn];
 			
 			return count;
 		}
 		
 		//setters
-		void setWish(ONCWish newWish) { wish = newWish; }
+		void setGift(ONCGift newGift) { gift = newGift; }
 		
 		
-		//helper method to increment/decrement component wish counts
-		int incrementWishCount(int wishNumber, int increment)
+		//helper method to increment/decrement component counts
+		int incrementCount(int giftNumber, int increment)
 		{
-			if(wishNumber >= 0 && wishNumber < wishCount.length)
-				return wishCount[wishNumber] += increment;
+			if(giftNumber >= 0 && giftNumber < giftCount.length)
+				return giftCount[giftNumber] += increment;
 			
-			return wishCount[wishNumber];
+			return giftCount[giftNumber];
 		}
 		
 		//helper method used at client start up to initialize counts
-		void setWishCounts(int[] wishCounts)
+		void setGiftCounts(int[] giftCounts)
 		{
-			if(wishCounts.length == wishCount.length)
-				for(int wn=0; wn < wishCount.length; wn++)
-					wishCount[wn] = wishCounts[wn];
+			if(giftCounts.length == giftCount.length)
+				for(int wn=0; wn < giftCount.length; wn++)
+					giftCount[wn] = giftCounts[wn];
 		}
 	}
 }

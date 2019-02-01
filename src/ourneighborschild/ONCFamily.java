@@ -51,7 +51,6 @@ public class ONCFamily extends ONCEntity
 	private MealStatus  mealStatus;
 	private Transportation transportation;
 	private boolean		bGiftCardOnly;
-	private String		agentNote;
 	
 	//constructor used to make a copy for server update requests
 	public ONCFamily(ONCFamily f)
@@ -96,7 +95,6 @@ public class ONCFamily extends ONCEntity
 		this.mealStatus = f.mealStatus;
 		this.transportation = f.transportation;
 		this.bGiftCardOnly = f.bGiftCardOnly;
-		this.agentNote = f.agentNote;
 	}
 
 	//Overloaded Constructor - 29 column (A to AC) input from ODB .csv file - 2014, 2015
@@ -144,7 +142,6 @@ public class ONCFamily extends ONCEntity
 		else
 			this.transportation = Transportation.TBD;
 		bGiftCardOnly = false;
-		this.agentNote = "";
 
 		parseHOH(HOH);
 		parsePhoneData(ClientFamPhone);
@@ -197,7 +194,6 @@ public class ONCFamily extends ONCEntity
 		nLargeItems = Integer.parseInt(nextLine[38]);
 		transportation = Transportation.valueOf(nextLine[42]);
 		bGiftCardOnly = nextLine[43].equals("TRUE") ? true : false;
-		this.agentNote = nextLine[44];
 	}
 	
 	//Overloaded Constructor - Direct Intake Processing
@@ -267,7 +263,6 @@ public class ONCFamily extends ONCEntity
 		this.mealStatus = mStatus;
 		this.transportation = transportation;
 		this.bGiftCardOnly = false;
-		this.agentNote = "";
 	}
 	
 	String getDBString(String s)
@@ -500,7 +495,6 @@ public class ONCFamily extends ONCEntity
 	public MealStatus getMealStatus() { return mealStatus; }
 	public Transportation getTransportation() { return transportation; }
 	public boolean 	isGiftCardOnly() { return bGiftCardOnly; }
-	public String	getAgentNote() { return agentNote; }
 
 	//Setters
 	public void setONCNum(String s) { oncNum = s;}
@@ -541,7 +535,6 @@ public class ONCFamily extends ONCEntity
 	public void setMealStatus(MealStatus ms) { mealStatus = ms; }
 	public void setTransportation(Transportation t) { transportation = t; }
 	public void setGiftCardOnly(boolean gco) { bGiftCardOnly = gco; }
-	public void setAgentNote(String note) { this.agentNote = note; }
 	
 	public String getGoogleMapAddress()
 	{
@@ -634,7 +627,6 @@ public class ONCFamily extends ONCEntity
 		rowList.add(getStoplightChangedBy());
 		rowList.add(getTransportation().toString());
 		rowList.add(isGiftCardOnly() ? "TRUE" : "FALSE");
-		rowList.add(getAgentNote());
 		
 		return rowList.toArray(new String[rowList.size()]);
 	}

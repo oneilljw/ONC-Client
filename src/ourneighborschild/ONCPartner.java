@@ -11,7 +11,7 @@ public class ONCPartner extends ONCEntity
 	
 	private int status;
 	private int type;
-	private GiftCollection collection;
+	private GiftCollectionType collection;
 	private String lastName;
 	private String houseNum;
 	private String street;
@@ -46,7 +46,7 @@ public class ONCPartner extends ONCEntity
 		super(orgid, new Date(), createdBy, STOPLIGHT_OFF, "Partner created", createdBy);
 		status = 0;
 		type = 0;
-		collection = GiftCollection.Unknown;
+		collection = GiftCollectionType.Unknown;
 		lastName = "";
 		houseNum = "";
 		street = "";
@@ -83,7 +83,7 @@ public class ONCPartner extends ONCEntity
 		super(orgid, new Date(), createdBy, STOPLIGHT_RED, "Non-Assigned Partner created", createdBy);
 		status = 0;
 		type = 0;
-		collection = GiftCollection.Unknown;
+		collection = GiftCollectionType.Unknown;
 		this.lastName = name;
 		houseNum = "";
 		street = "";
@@ -114,7 +114,7 @@ public class ONCPartner extends ONCEntity
 	}
 	
 	public ONCPartner(int orgid, Date date, String changedBy, int slPos, String slMssg, String slChangedBy,
-			int status, int type, GiftCollection collection, String name, String streetnum, String streetname,
+			int status, int type, GiftCollectionType collection, String name, String streetnum, String streetname,
 			String unit, String city, String zipcode, String phone, int orn_req, String other, 
 			String deliverTo, String specialNotes, String contact, String contact_email,
 			String contact_phone, String contact2, String contact2_email, String contact2_phone)
@@ -197,7 +197,7 @@ public class ONCPartner extends ONCEntity
 				Integer.parseInt(nextLine[28]), nextLine[29], nextLine[30]);
 		status = Integer.parseInt(nextLine[1]);
 		type = Integer.parseInt(nextLine[2]);
-		collection = nextLine[3].isEmpty() ? GiftCollection.Unknown : GiftCollection.valueOf(nextLine[3]);
+		collection = nextLine[3].isEmpty() ? GiftCollectionType.Unknown : GiftCollectionType.valueOf(nextLine[3]);
 		lastName = getDBString(nextLine[4]);
 		houseNum = getDBString(nextLine[5]);
 		street = getDBString(nextLine[6]);
@@ -245,7 +245,7 @@ public class ONCPartner extends ONCEntity
 		else
 			this.type = 6; //ONC Shopper
 		
-		this.collection = GiftCollection.Ornament;
+		this.collection = GiftCollectionType.Ornament;
 		this.lastName = sua.getLastname() + ", " + sua.getFirstname();
 		
 		Address address = getAddress(sua);
@@ -300,7 +300,7 @@ public class ONCPartner extends ONCEntity
 	//getters
 	public int getStatus()	{ return status; }
 	public int getType()	{ return type; }
-	public GiftCollection getGiftCollectionType() {return collection; }
+	public GiftCollectionType getGiftCollectionType() {return collection; }
 	public String getLastName()	{ return lastName; }
 	public String getHouseNum()	{ return houseNum; }
 	public String getStreet()	{return street; }
@@ -333,7 +333,7 @@ public class ONCPartner extends ONCEntity
 	//setters
 	public void setStatus(int s)	{ status = s; }
 	public void setType(int t)		{ type = t; }
-	public void setGiftCollectionType(GiftCollection gc)	{ collection = gc; }
+	public void setGiftCollectionType(GiftCollectionType gc)	{ collection = gc; }
 	public void setLastName(String n)	{ lastName = n; }
 	public void setHouseNum(String sn)	{ houseNum = sn; }
 	public void setStreet(String sn)	{ street = sn; }

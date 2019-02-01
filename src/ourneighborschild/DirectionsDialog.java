@@ -446,7 +446,7 @@ public class DirectionsDialog extends JDialog implements ActionListener, Databas
 	@Override
 	public void entitySelected(EntitySelectionEvent tse)
 	{
-		if(this.isVisible() && (tse.getType() == EntityType.FAMILY || tse.getType() == EntityType.WISH)) 
+		if(this.isVisible() && (tse.getType() == EntityType.FAMILY || tse.getType() == EntityType.GIFT)) 
 		{
 			ONCFamily fam = (ONCFamily) tse.getObject1();
 			if(fam != null)
@@ -457,7 +457,7 @@ public class DirectionsDialog extends JDialog implements ActionListener, Databas
 	@Override
 	public EnumSet<EntityType> getEntityEventListenerEntityTypes() 
 	{
-		return EnumSet.of(EntityType.FAMILY, EntityType.WISH);
+		return EnumSet.of(EntityType.FAMILY, EntityType.GIFT);
 	}
 	
 }

@@ -1,6 +1,7 @@
 package ourneighborschild;
 
 import java.util.Calendar;
+import java.util.Date;
 import java.util.TimeZone;
 
 public class ONCNote extends ONCEntity
@@ -11,62 +12,83 @@ public class ONCNote extends ONCEntity
 	private static final long serialVersionUID = 1L;
 	public static final int UNREAD = 0;
 	public static final int READ = 1;
-	public static final int RESONDED = 2;
+	public static final int RESPONDED = 2;
 	
 	private int ownerID;
 	private int status;
+	private String title;
 	private String note;
 	private String response;
 	private String respondedBy;
 	private Calendar timeViewed;		//should always be UTC
 	private Calendar timeResponse;	//should always be UTC
 	
-	public ONCNote(int id, int ownerID, int status, String note, String createdBy  )
+	public ONCNote(int id, int ownerID, String title, String note)
 	{
-		super(id, Calendar.getInstance().getTime(), createdBy, 0, "Note Created", createdBy);
+		super(id, new Date(), "", 0, "Note Created", "");
 		this.ownerID = ownerID;
-		this.status = status;
+		this.status = ONCNote.UNREAD;
+		this.title = title;
 		this.note = note;
 		this.response = "";
 		this.respondedBy = "";
 		this.timeViewed = Calendar.getInstance();
+		this.timeViewed.setTimeInMillis(0);
 		this.timeResponse = Calendar.getInstance();
+		this.timeResponse.setTimeInMillis(0);
 	}
 	
 	public ONCNote(String[] line)
 	{
-		super(Integer.parseInt(line[0]), Long.parseLong(line[7]), line[4],
-				Integer.parseInt(line[10]), line[11], line[12]);
+		super(Integer.parseInt(line[0]), Long.parseLong(line[8]), line[5],
+				Integer.parseInt(line[11]), line[12], line[13]);
 		
 		this.ownerID = line[1].isEmpty() ? 0 : Integer.parseInt(line[1]);
 		this.status= line[2].isEmpty() ? 0 : Integer.parseInt(line[2]);
-		this.note = line[3];
-		this.response = line[5];
-		this.respondedBy = line[6];
+		this.title = line[3];
+		this.note = line[4];
+		this.response = line[6];
+		this.respondedBy = line[7];
 		
 		TimeZone tz = TimeZone.getDefault();	//Local time zone
 		int offsetFromUTC;
 		
 		this.timeViewed = Calendar.getInstance();
-		if(!line[8].isEmpty())
-		{
-			offsetFromUTC = tz.getOffset(Long.parseLong(line[8]));
-			this.timeViewed.setTimeInMillis(Long.parseLong(line[8]));
-			this.timeViewed.add(Calendar.MILLISECOND, offsetFromUTC);
-		}
-		
-		this.timeResponse = Calendar.getInstance();
 		if(!line[9].isEmpty())
 		{
 			offsetFromUTC = tz.getOffset(Long.parseLong(line[9]));
 			this.timeViewed.setTimeInMillis(Long.parseLong(line[9]));
 			this.timeViewed.add(Calendar.MILLISECOND, offsetFromUTC);
 		}
+		
+		this.timeResponse = Calendar.getInstance();
+		if(!line[10].isEmpty())
+		{
+			offsetFromUTC = tz.getOffset(Long.parseLong(line[10]));
+			this.timeResponse.setTimeInMillis(Long.parseLong(line[10]));
+			this.timeResponse.add(Calendar.MILLISECOND, offsetFromUTC);
+		}
+	}
+	
+	public ONCNote()
+	{
+		super(-1, new Date(), "", 0, "", "");
+		this.ownerID = -1;
+		this.status = ONCNote.UNREAD;
+		this.title = "";
+		this.note = "";
+		this.response = "";
+		this.respondedBy = "";
+		this.timeViewed = Calendar.getInstance();
+		this.timeViewed.setTimeInMillis(0);
+		this.timeResponse = Calendar.getInstance();
+		this.timeResponse.setTimeInMillis(0);
 	}
 	
 	//getters
-	int getOwnerID() { return ownerID; }
-	int getStatus() { return status; }
+	public int getOwnerID() { return ownerID; }
+	public int getStatus() { return status; }
+	String getTitle() { return title; }
 	String getNote() { return note; }
 	String getResponse() { return response; }
 	String getRespondedBy() { return respondedBy; }
@@ -75,32 +97,43 @@ public class ONCNote extends ONCEntity
 	
 	//setters
 	void setStatus(int status) { this.status = status; }
+	void setTitle(String title) { this.title = title; }
 	void setNote(String note) { this.note = note; }
-	void setTimeViewed() { this.timeViewed = Calendar.getInstance(); }
-	void setResponse(String response, String respondedBy)
+	public void noteViewed(String viewedBy)
+	{
+		this.timeViewed = Calendar.getInstance();
+		if(this.status == UNREAD)
+		{
+			this.respondedBy = viewedBy;
+			this.status = READ;
+		}
+	}
+	public void setResponse(String response, String respondedBy)
 	{
 		this.response = response;
 		this.respondedBy = respondedBy;
+		this.status = RESPONDED;
 		this.timeResponse = Calendar.getInstance();
 	}
 	
 	@Override
 	public String[] getExportRow()
 	{
-		String[] row = new String[13];
+		String[] row = new String[14];
 		row[0] = Integer.toString(id);
 		row[1] = Integer.toString(ownerID);
 		row[2] = Integer.toString(status);
-		row[3] = note;
-		row[4] = changedBy;
-		row[5] = response;
-		row[6] = respondedBy;
-		row[7] = Long.toString(dateChanged.getTimeInMillis());
-		row[8] = Long.toString(timeViewed.getTimeInMillis());
-		row[9] = Long.toString(timeResponse.getTimeInMillis());
-		row[10] = Integer.toString(slPos);
-		row[11] = slMssg;
-		row[12] = slChangedBy;
+		row[3] = title;
+		row[4] = note;
+		row[5] = changedBy;
+		row[6] = response;
+		row[7] = respondedBy;
+		row[8] = Long.toString(dateChanged.getTimeInMillis());
+		row[9] = Long.toString(timeViewed.getTimeInMillis());
+		row[10] = Long.toString(timeResponse.getTimeInMillis());
+		row[11] = Integer.toString(slPos);
+		row[12] = slMssg;
+		row[13] = slChangedBy;
 		return row;
 	}
 }

@@ -62,23 +62,23 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 	private static final int MAX_LABEL_LINE_LENGTH = 26;
 	
 	private ChildDB cDB;
-	private ChildGiftDB cwDB;
+	private ChildGiftDB giftDB;
 	private PartnerDB partnerDB;
-	private GiftCatalogDB wishCat;
+	private GiftCatalogDB giftCat;
 	private RegionDB regions;
 
-	private ArrayList<SortWishObject> stAL;
+	private ArrayList<SortGiftObject> stAL;
 	
-	private JComboBox<String> startAgeCB, endAgeCB, dnsCB, wishnumCB, genderCB, resCB, changedByCB;
+	private JComboBox<String> startAgeCB, endAgeCB, dnsCB, giftnumCB, genderCB, resCB, changedByCB;
 	private JComboBox<String> changeResCB, printCB, regionCB, schoolCB;
-	private JComboBox<ONCWish> wishCB;
+	private JComboBox<ONCGift> giftCB;
 	private JComboBox<GiftStatus>  statusCB, changeStatusCB;
-	private JComboBox<ONCPartner> assignCB, changeAssigneeCB;
+	private JComboBox<ONCPartner> assignCB, changePartnerCB;
 	private JComboBox<FamilyStatus> famStatusCB;
 	
 	private DefaultComboBoxModel<String> changedByCBM, regionCBM, schoolCBM;
-	private DefaultComboBoxModel<ONCWish> wishCBM;
-	private DefaultComboBoxModel<ONCPartner> assignCBM, changeAssigneeCBM;
+	private DefaultComboBoxModel<ONCGift> giftCBM;
+	private DefaultComboBoxModel<ONCPartner> assignCBM, changePartnerCBM;
 	
 	private JTextField oncnumTF;
 	private JButton btnExport;
@@ -87,12 +87,12 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 	private JCheckBox labelFitCxBox;
 	
 	private int sortStartAge = 0, sortEndAge = ONC_AGE_LIMIT, sortGender = 0, sortChangedBy = 0;
-	private int sortWishNum = 0, sortRes = 0, sortAssigneeID, sortRegion = 0;
+	private int sortGiftNum = 0, sortRes = 0, sortPartnerID, sortRegion = 0;
 	private GiftStatus sortStatus = GiftStatus.Any;
 	private FamilyStatus sortFamilyStatus;
 	private String sortSchool = "Any", sortDNSCode = "Any";
-	private int sortWishID = -2;
-	private boolean bOversizeWishes = false;
+	private int sortGiftID = -2;
+	private boolean bOversizeGifts = false;
 	
 	private static String[] genders = {"Any", "Boy", "Girl"};
 	private static String[] res = {"Any", "Blank", "*", "#"};
@@ -103,13 +103,13 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 	SortGiftsDialog(JFrame pf)
 	{
 		super(pf);
-		this.setTitle("Our Neighbor's Child - Wish Management");
+		this.setTitle("Our Neighbor's Child - Gift Management");
 		
 		//set up the data base references
 		cDB = ChildDB.getInstance();
-		cwDB = ChildGiftDB.getInstance();
+		giftDB = ChildGiftDB.getInstance();
 		partnerDB = PartnerDB.getInstance();
-		wishCat = GiftCatalogDB.getInstance();
+		giftCat = GiftCatalogDB.getInstance();
 		regions = RegionDB.getInstance();
 		
 		//set up data base listeners
@@ -117,17 +117,17 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 			userDB.addDatabaseListener(this);
 		if(cDB != null)
 			cDB.addDatabaseListener(this);
-		if(cwDB != null)
-			cwDB.addDatabaseListener(this);
+		if(giftDB != null)
+			giftDB.addDatabaseListener(this);
 		if(partnerDB != null)
 			partnerDB.addDatabaseListener(this);
-		if(wishCat != null)
-			wishCat.addDatabaseListener(this);
+		if(giftCat != null)
+			giftCat.addDatabaseListener(this);
 		if(regions != null)
 			regions.addDatabaseListener(this);
 		
 		//initialize member variables
-		stAL = new ArrayList<SortWishObject>();
+		stAL = new ArrayList<SortGiftObject>();
 
 		//Set up the search criteria panel
 		oncnumTF = new JTextField(4);
@@ -149,7 +149,7 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 		regionCB = new JComboBox<String>();
 		regionCB.setModel(regionCBM);
 		regionCB.setBorder(BorderFactory.createTitledBorder("Region"));
-		regionCB.setPreferredSize(new Dimension(64,56));
+		regionCB.setPreferredSize(new Dimension(72,56));
 		regionCB.addActionListener(this);
     	
 		String[] ages = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10",
@@ -171,11 +171,11 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 		genderCB.setSize(new Dimension(72,56));
 		genderCB.addActionListener(this);
 		
-		String[] wishnums = {"Any", "1", "2", "3"};
-		wishnumCB = new JComboBox<String>(wishnums);
-		wishnumCB.setBorder(BorderFactory.createTitledBorder("Wish #"));
-		startAgeCB.setPreferredSize(new Dimension(72,56));
-		wishnumCB.addActionListener(this);
+		String[] giftnums = {"Any", "1", "2", "3"};
+		giftnumCB = new JComboBox<String>(giftnums);
+		giftnumCB.setBorder(BorderFactory.createTitledBorder("Gift #"));
+		giftnumCB.setPreferredSize(new Dimension(72,56));
+		giftnumCB.addActionListener(this);
 		
 		famStatusCB = new JComboBox<FamilyStatus>(FamilyStatus.getSearchFilterList());
 		sortFamilyStatus = FamilyStatus.Any;
@@ -190,13 +190,13 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 		schoolCB.setBorder(BorderFactory.createTitledBorder("School Attended"));
 		schoolCB.addActionListener(this);
 		
-		wishCBM = new DefaultComboBoxModel<ONCWish>();
-	    wishCBM.addElement(new ONCWish(-2, "Any", 7));
-		wishCB = new JComboBox<ONCWish>();		
-        wishCB.setModel(wishCBM);
-		wishCB.setPreferredSize(new Dimension(180, 56));
-		wishCB.setBorder(BorderFactory.createTitledBorder("Wish Type"));
-		wishCB.addActionListener(this);
+		giftCBM = new DefaultComboBoxModel<ONCGift>();
+	    giftCBM.addElement(new ONCGift(-2, "Any", 7));
+		giftCB = new JComboBox<ONCGift>();		
+        giftCB.setModel(giftCBM);
+		giftCB.setPreferredSize(new Dimension(180, 56));
+		giftCB.setBorder(BorderFactory.createTitledBorder("Gift Type"));
+		giftCB.addActionListener(this);
 		
 		changedByCB = new JComboBox<String>();
 		changedByCBM = new DefaultComboBoxModel<String>();
@@ -243,11 +243,11 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 	    assignCBM.addElement(new ONCPartner(-1, "Unassigned", "Unassigned"));
 	    assignCB.setModel(assignCBM);
 		assignCB.setPreferredSize(new Dimension(192, 56));
-		assignCB.setBorder(BorderFactory.createTitledBorder("Assigned To"));
+		assignCB.setBorder(BorderFactory.createTitledBorder("Partner Assigned To"));
 		
 		//set the user preference for assignee filter default setting
 		assignCB.setSelectedIndex(1);
-		sortAssigneeID = -1;
+		sortPartnerID = -1;
 		assignCB.addActionListener(this);
 
 		sortCriteriaPanelTop.add(oncnumTF);
@@ -258,8 +258,8 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 		sortCriteriaPanelTop.add(famStatusCB);
 		sortCriteriaPanelTop.add(genderCB);
 		sortCriteriaPanelTop.add(schoolCB);
-		sortCriteriaPanelTop.add(wishnumCB);
-		sortCriteriaPanelBottom.add(wishCB);
+		sortCriteriaPanelTop.add(giftnumCB);
+		sortCriteriaPanelBottom.add(giftCB);
 		sortCriteriaPanelBottom.add(resCB);
 		sortCriteriaPanelBottom.add(statusCB);
 		sortCriteriaPanelBottom.add(assignCB);
@@ -269,9 +269,9 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 		
 		//set up the change panel, which consists of the item count panel and the 
 		//change data panel
-		itemCountPanel.setBorder(BorderFactory.createTitledBorder("Wishes Meeting Criteria"));
+		itemCountPanel.setBorder(BorderFactory.createTitledBorder("Gifts Meeting Criteria"));
 		
-		changeDataPanel.setBorder(BorderFactory.createTitledBorder("Change Wish Restrictions/Status/Assignee"));
+		changeDataPanel.setBorder(BorderFactory.createTitledBorder("Change Gift Restrictions/Status/Partner"));
         
 		changeResCB = new JComboBox<String>(res);
         changeResCB.setPreferredSize(new Dimension(192, 56));
@@ -283,18 +283,18 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 		changeStatusCB.setBorder(BorderFactory.createTitledBorder("Change Status To:"));
 		changeStatusCB.addActionListener(this);
         
-        changeAssigneeCB = new JComboBox<ONCPartner>();
-        changeAssigneeCBM = new DefaultComboBoxModel<ONCPartner>();
-	    changeAssigneeCBM.addElement(new ONCPartner(0, "No Change", "No Change"));
-	    changeAssigneeCBM.addElement(new ONCPartner(-1, "None", "None"));
-        changeAssigneeCB.setModel(changeAssigneeCBM);
-        changeAssigneeCB.setPreferredSize(new Dimension(192, 56));
-		changeAssigneeCB.setBorder(BorderFactory.createTitledBorder("Change Assignee To:"));
-		changeAssigneeCB.addActionListener(this);
+        changePartnerCB = new JComboBox<ONCPartner>();
+        changePartnerCBM = new DefaultComboBoxModel<ONCPartner>();
+	    changePartnerCBM.addElement(new ONCPartner(0, "No Change", "No Change"));
+	    changePartnerCBM.addElement(new ONCPartner(-1, "None", "None"));
+        changePartnerCB.setModel(changePartnerCBM);
+        changePartnerCB.setPreferredSize(new Dimension(192, 56));
+		changePartnerCB.setBorder(BorderFactory.createTitledBorder("Change Partner To:"));
+		changePartnerCB.addActionListener(this);
 		
 		changeDataPanel.add(changeResCB);
 		changeDataPanel.add(changeStatusCB);
-		changeDataPanel.add(changeAssigneeCB);
+		changeDataPanel.add(changePartnerCB);
 		
 		gbc.gridx = 1;
 	    gbc.ipadx = 0;
@@ -303,8 +303,8 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 
 	    //set up the dialog defined control panel to add to the bottom panel
 	    JPanel infoPanel = new JPanel();
-	    labelFitCxBox = new JCheckBox("Over Length Wishes Only");
-	    labelFitCxBox.setSelected(bOversizeWishes);
+	    labelFitCxBox = new JCheckBox("Overlength Ornament Labels Only");
+	    labelFitCxBox.setSelected(bOversizeGifts);
 	    labelFitCxBox.addActionListener(this);
 	    infoPanel.add(labelFitCxBox);
 	    
@@ -336,7 +336,6 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
         for(int i=0; i< colWidths.length; i++)
         	dlgWidth += colWidths[i];
         this.setMinimumSize(new Dimension(dlgWidth, 560));
-//      pack();
 	}
 	
 	@Override
@@ -357,21 +356,21 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
     		else if(col == 5)	//Sort on Child's School
     			Collections.sort(stAL, new ONCSortItemSchoolComparator());
     		else if(col == 6)	//Sort on Child's Wish #
-    			Collections.sort(stAL, new ONCSortItemWishNumComparator());
+    			Collections.sort(stAL, new ONCSortItemGiftNumComparator());
     		else if(col == 7)	//Sort on Child's Base Wish
-    			Collections.sort(stAL, new ONCSortItemWishBaseComparator());
+    			Collections.sort(stAL, new ONCSortItemGiftBaseComparator());
     		else if(col == 8)	//Sort on Child's Wish Detail
-    			Collections.sort(stAL, new ONCSortItemWishDetailComparator());
+    			Collections.sort(stAL, new ONCSortItemGiftDetailComparator());
     		else if(col == 9)	//Sort on Child's Wish Indicator
-    			Collections.sort(stAL, new ONCSortItemWishIndicatorComparator());
+    			Collections.sort(stAL, new ONCSortItemGiftIndicatorComparator());
     		else if(col == 10)	//Sort on Child's Wish Status
-    			Collections.sort(stAL, new ONCSortItemWishStatusComparator());
+    			Collections.sort(stAL, new ONCSortItemGiftStatusComparator());
     		else if(col == 11)	//Sort on Child's Wish Assignee
-    			Collections.sort(stAL, new ONCSortItemWishAssigneeComparator());
+    			Collections.sort(stAL, new ONCSortItemGiftPartnerComparator());
     		else if(col ==  12)	//Sort on Child's Wish Changed By
-    			Collections.sort(stAL, new ONCSortItemWishChangedByComparator());
+    			Collections.sort(stAL, new ONCSortItemGiftChangedByComparator());
     		else if(col == 13)	//Sort on Child's Wish Date Changed
-    			Collections.sort(stAL, new ONCSortItemWishDateChangedComparator());
+    			Collections.sort(stAL, new ONCSortItemGiftDateChangedComparator());
     		else
     			col = -1;
 		
@@ -409,21 +408,21 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 				{
 					if(isAgeInRange(c) && doesGenderMatch(c) && doesSchoolMatch(c))	//Children criteria pass
 					{
-						for(int i=0; i< cwDB.getNumberOfWishesPerChild(); i++)
+						for(int i=0; i< giftDB.getNumberOfWishesPerChild(); i++)
 						{	 //Assignee, Status, Date & Wish match
-							ONCChildGift cw = cwDB.getWish(c.getChildGiftID(i));
+							ONCChildGift cw = giftDB.getWish(c.getChildGiftID(i));
 							
 							if(cw != null && doesResMatch(cw.getIndicator()) &&
-								doesAssigneeMatch(cw.getPartnerID()) &&
+								doesPartnerMatch(cw.getPartnerID()) &&
 								 doesStatusMatch(cw.getGiftStatus()) &&
-								  isWishChangeDateBetween(cw.getDateChanged()) &&
+								  isGiftChangeDateBetween(cw.getDateChanged()) &&
 								   doesChangedByMatch(cw.getChangedBy()) &&
-									doesWishBaseMatch(cw.getGiftID()) &&
-									 doesWishNumMatch(i)  &&
-									  !(bOversizeWishes && !isWishOversize(cw)))//Wish criteria pass
+									doesGiftBaseMatch(cw.getGiftID()) &&
+									 doesGiftNumMatch(i)  &&
+									  !(bOversizeGifts && !isGiftOversize(cw)))//Wish criteria pass
 							{
 								
-								stAL.add(new SortWishObject(itemID++, f, c, cw));
+								stAL.add(new SortGiftObject(itemID++, f, c, cw));
 							}
 						}
 					}
@@ -439,74 +438,74 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 	boolean onApplyChanges()
 	{
 //		bChangingTable = true;
-		boolean bRebuildTable = false; //set true if a wish is changed so table is only rebuilt once per applyWishChange
+		boolean bRebuildTable = false; //set true if a gift is changed so table is only rebuilt once per applyWishChange
 		
 		int[] row_sel = sortTable.getSelectedRows();
 		for(int i=0; i<row_sel.length; i++)
 		{
-			boolean bNewWishRqrd = false; 	//Restriction, status or assignee change
+			boolean bNewGiftrqrd = false; 	//Restriction, status or assignee change
 			
-			//Find child and wish number for selected
+			//Find child and gift number for selected
 			ONCChild c = stAL.get(row_sel[i]).getChild();
-			int wn = stAL.get(row_sel[i]).getChildWish().getGiftNumber();
-			ONCChildGift cw = stAL.get(row_sel[i]).getChildWish();
+			int gn = stAL.get(row_sel[i]).getGift().getGiftNumber();
+			ONCChildGift cg = stAL.get(row_sel[i]).getGift();
 
-			//Get current wish information
-			int cwWishID = cw.getGiftID();
-			String cwd = cw.getDetail();
-			int cwi = cw.getIndicator();
-			GiftStatus cws = cw.getGiftStatus();
+			//Get current gift information
+			int cgGiftID = cg.getGiftID();
+			String cgd = cg.getDetail();
+			int cgi = cg.getIndicator();
+			GiftStatus gs = cg.getGiftStatus();
 			ONCPartner partner = null;
-			if(cw.getPartnerID() > -1)
-				partner = partnerDB.getPartnerByID(cw.getPartnerID());
+			if(cg.getPartnerID() > -1)
+				partner = partnerDB.getPartnerByID(cg.getPartnerID());
 			
-			//Determine if a change to wish restrictions, if so set new wish restriction for request
-			if(changeResCB.getSelectedIndex() > 0 && cwi != changeResCB.getSelectedIndex()-1)
+			//Determine if a change to goft restrictions, if so set new gift restriction for request
+			if(changeResCB.getSelectedIndex() > 0 && cgi != changeResCB.getSelectedIndex()-1)
 			{
-				//a change to the indicator is requested. Can only change wish restrictions
-				//in certain WishStatus
-				if(cws == GiftStatus.Selected || cws == GiftStatus.Assigned
-						||cws == GiftStatus.Shopping || cws == GiftStatus.Returned)
+				//a change to the indicator is requested. Can only change gift restrictions
+				//in certain GiftStatus
+				if(gs == GiftStatus.Selected || gs == GiftStatus.Assigned
+						||gs == GiftStatus.Shopping || gs == GiftStatus.Returned)
 				{
-					cwi = changeResCB.getSelectedIndex()-1;	//Restrictions start at 0
-					bNewWishRqrd = true;
+					cgi = changeResCB.getSelectedIndex()-1;	//Restrictions start at 0
+					bNewGiftrqrd = true;
 				}
 			}
 			
-			//Determine if a change to wish assignee, if so, set new wish assignee in request
-			if(changeAssigneeCB.getSelectedIndex() > 0 &&
-					cw.getPartnerID() != ((ONCPartner)changeAssigneeCB.getSelectedItem()).getID())
+			//Determine if a change to a partner, if so, set new partner in request
+			if(changePartnerCB.getSelectedIndex() > 0 &&
+					cg.getPartnerID() != ((ONCPartner)changePartnerCB.getSelectedItem()).getID())
 			{
-				//can only change wish assignees in certain WishState's
-				if(cws == GiftStatus.Selected || cws == GiftStatus.Assigned || cws == GiftStatus.Delivered ||
-					cws == GiftStatus.Shopping || cws == GiftStatus.Returned || cws == GiftStatus.Missing)
+				//can only change partners in certain GIftState's
+				if(gs == GiftStatus.Selected || gs == GiftStatus.Assigned || gs == GiftStatus.Delivered ||
+					gs == GiftStatus.Shopping || gs == GiftStatus.Returned || gs == GiftStatus.Missing)
 				{
-					partner = ((ONCPartner)changeAssigneeCB.getSelectedItem());
-					bNewWishRqrd = true;
+					partner = ((ONCPartner)changePartnerCB.getSelectedItem());
+					bNewGiftrqrd = true;
 				}
 			}
 			
-			//Determine if a change to wish status, if so, set new wish status in request
-			if(changeStatusCB.getSelectedIndex() > 0 && cws != changeStatusCB.getSelectedItem())
+			//Determine if a change to gift status, if so, set new status in request
+			if(changeStatusCB.getSelectedIndex() > 0 && gs != changeStatusCB.getSelectedItem())
 			{
-				//user has requested to change the wish status
+				//user has requested to change the status
 				GiftStatus reqStatus = (GiftStatus) changeStatusCB.getSelectedItem();
-				GiftStatus newStatus = cwDB.checkForStatusChange(cw, cw.getGiftID(), reqStatus, partner);
+				GiftStatus newStatus = giftDB.checkForStatusChange(cg, cg.getGiftID(), reqStatus, partner);
 				
-				if(newStatus != cw.getGiftStatus())
+				if(newStatus != cg.getGiftStatus())
 				{
-					cws = reqStatus;
-					bNewWishRqrd = true;
+					gs = reqStatus;
+					bNewGiftrqrd = true;
 				}
 			}
 			
-			if(bNewWishRqrd)	//Restriction, Status or Partner change detected
+			if(bNewGiftrqrd)	//Restriction, Status or Partner change detected
 			{
-				//Add the new wish to the child wish history, returns -1 if no wish created
-				ONCChildGift addedWish = cwDB.add(this, c.getID(), cwWishID, cwd, wn, cwi, cws, partner);
+				//Add the new gift to the gift history, returns -1 if no gift created
+				ONCChildGift addedGift = giftDB.add(this, c.getID(), cgGiftID, cgd, gn, cgi, gs, partner);
 				
-				if(addedWish != null)	//only proceed if wish was accepted by the data base
-					bRebuildTable = true;	//set flag to rebuild/display the table array/wish table
+				if(addedGift != null)	//only proceed if gift was accepted by the data base
+					bRebuildTable = true;	//set flag to rebuild/display the table array/gift table
 			}
 		}
 		
@@ -516,7 +515,7 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 		//Reset the change combo boxes to "No Change"
 		changeResCB.setSelectedIndex(0);
 		changeStatusCB.setSelectedIndex(0);
-		changeAssigneeCB.setSelectedIndex(0);
+		changePartnerCB.setSelectedIndex(0);
 		
 		btnApplyChanges.setEnabled(false);
 		
@@ -525,45 +524,45 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 		return bRebuildTable;
 	}
 	
-	void updateWishSelectionList()
+	void updateGiftSelectionList()
 	{
 		//disable the combo box
 		bIgnoreCBEvents = true;
-		wishCB.setEnabled(false);
+		giftCB.setEnabled(false);
 		
 		//get the current selection
-		int currSelID = ((ONCWish) wishCB.getSelectedItem()).getID();
+		int currSelID = ((ONCGift) giftCB.getSelectedItem()).getID();
 		
 		//reset the selection in case the current selection is removed by the update
-		wishCB.setSelectedIndex(0);
-		sortWishID = -2;
+		giftCB.setSelectedIndex(0);
+		sortGiftID = -2;
 		
 		//Clear the combo box of current elements
-		wishCBM.removeAllElements();	
+		giftCBM.removeAllElements();	
 	
-		List<ONCWish> wishList = wishCat.getWishList(GiftListPurpose.Filtering);
-		for(ONCWish w: wishList )	//Add new list elements
-			wishCBM.addElement(w);
+		List<ONCGift> giftList = giftCat.getGiftList(GiftListPurpose.Filtering);
+		for(ONCGift w: giftList )	//Add new list elements
+			giftCBM.addElement(w);
 		
 		//reselect the prior selection, if it's still in the list
 		int index = 0;
-		while(index < wishList.size() && wishList.get(index).getID() != currSelID)
+		while(index < giftList.size() && giftList.get(index).getID() != currSelID)
 			index++;
 		
-		if(index < wishList.size())
+		if(index < giftList.size())
 		{
-			wishCB.setSelectedItem(wishList.get(index));
-			sortWishID = wishList.get(index).getID();
+			giftCB.setSelectedItem(giftList.get(index));
+			sortGiftID = giftList.get(index).getID();
 		}
 		
 		//re-enable the combo box
-		wishCB.setEnabled(true);
+		giftCB.setEnabled(true);
 		bIgnoreCBEvents = false;
 	}
 	
 	/*********************************************************************************************
-	 * This method updates the drop down selection list associated with the Wish Assignee combo
-	 * boxes used to search for wish assignees and to select assignees. The lists must be updated
+	 * This method updates the drop down selection list associated with the Assignee combo
+	 * boxes used to search for assignees and to select partners. The lists must be updated
 	 * every time a partner is confirmed or unconfirmed. 
 	 * 
 	 * The method must keep the current assignee selected in the combo boxes even if their position 
@@ -574,31 +573,31 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 		bIgnoreCBEvents = true;
 		int currentAssigneeID = -1, currentChangeAssigneeID = -1;	//set to null for reselection
 		int currentAssigneeIndex = assignCB.getSelectedIndex();
-		int currentChangeAssigneeIndex = changeAssigneeCB.getSelectedIndex();
+		int currentChangeAssigneeIndex = changePartnerCB.getSelectedIndex();
 		
 		if(assignCB.getSelectedIndex() > 1)	//leaves the current selection null if no selection made
 			currentAssigneeID = ((ONCPartner)assignCB.getSelectedItem()).getID();
 		
-		if(changeAssigneeCB.getSelectedIndex() > 1)
-			currentChangeAssigneeID = ((ONCPartner)changeAssigneeCB.getSelectedItem()).getID();
+		if(changePartnerCB.getSelectedIndex() > 1)
+			currentChangeAssigneeID = ((ONCPartner)changePartnerCB.getSelectedItem()).getID();
 		
 		assignCB.setSelectedIndex(0);
-		sortAssigneeID = 0;
-		changeAssigneeCB.setSelectedIndex(0);
+		sortPartnerID = 0;
+		changePartnerCB.setSelectedIndex(0);
 		
 		assignCBM.removeAllElements();
-		changeAssigneeCBM.removeAllElements();
+		changePartnerCBM.removeAllElements();
 		
 		//take advantage of the fact that partner id's are 7 digits and start with the calendar year
 		assignCBM.addElement(new ONCPartner(0, "Any", "Any"));
 		assignCBM.addElement(new ONCPartner(-1, "Unassigned", "Unassigned"));
-		changeAssigneeCBM.addElement(new ONCPartner(-1, "No Change", "No Change"));
-		changeAssigneeCBM.addElement(new ONCPartner(-1, "None", "None"));
+		changePartnerCBM.addElement(new ONCPartner(-1, "No Change", "No Change"));
+		changePartnerCBM.addElement(new ONCPartner(-1, "None", "None"));
 		
-		for(ONCPartner confirmedPartner :partnerDB.getConfirmedPartnerList(GiftCollection.Ornament))
+		for(ONCPartner confirmedPartner :partnerDB.getConfirmedPartnerList(GiftCollectionType.Ornament))
 		{
 			assignCBM.addElement(confirmedPartner);
-			changeAssigneeCBM.addElement(confirmedPartner);
+			changePartnerCBM.addElement(confirmedPartner);
 		}
 		
 		//Attempt to reselect the previous selected organization, if one was selected. 
@@ -607,7 +606,7 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 		if(currentAssigneeIndex == 1)	//Organization == "No one", ID = -1
 		{
 			assignCB.setSelectedIndex(1);
-			sortAssigneeID = -1;
+			sortPartnerID = -1;
 		}
 		else if(currentAssigneeIndex > 1)
 		{
@@ -615,17 +614,17 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 			if(assigneeOrg != null)
 			{
 				assignCB.setSelectedItem(assigneeOrg);
-				sortAssigneeID = assigneeOrg.getID();	//Need to update the sort Assignee as well
+				sortPartnerID = assigneeOrg.getID();	//Need to update the sort Assignee as well
 			}
 		}
 		
 		if(currentChangeAssigneeIndex == 1)		//Organization == "None"
-			changeAssigneeCB.setSelectedIndex(1);
+			changePartnerCB.setSelectedIndex(1);
 		else
 		{
 			ONCPartner changeAssigneeOrg = partnerDB.getPartnerByID(currentChangeAssigneeID);
 			if(changeAssigneeOrg != null)
-				changeAssigneeCB.setSelectedItem(changeAssigneeOrg);
+				changePartnerCB.setSelectedItem(changeAssigneeOrg);
 		}
 		
 		bIgnoreCBEvents = false;
@@ -689,7 +688,7 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 		{
 			assignCB.removeActionListener(this);
 			assignCB.setSelectedIndex(u.getPreferences().getWishAssigneeFilter());
-			sortAssigneeID = assignCB.getSelectedIndex() == 0 ? 0 : -1;
+			sortPartnerID = assignCB.getSelectedIndex() == 0 ? 0 : -1;
 			assignCB.addActionListener(this);
 			
 			buildTableList(false);
@@ -718,7 +717,6 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 			ArrayList<ONCReceivingSheet> rsAL = new ArrayList<ONCReceivingSheet>();
 			
 			int totalpages = sortTable.getSelectedRowCount() / RS_ITEMS_PER_PAGE + 1;
-//			int[] row_sel = sortTable.getSelectedRows();
 			
 			for(int i=0; i < totalpages; i++)
 			{
@@ -775,9 +773,9 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 		}
 		else	//Warn user that the table is empty
 			JOptionPane.showMessageDialog(this, 
-					"No wishes in table to print, table must contain wishes in order to" + 
+					"No gifts in table to print, table must contain gifts in order to" + 
 					"print listing", 
-					"No Wishes To Print", JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
+					"No Gifts To Print", JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
 			
 		 printCB.setSelectedIndex(0);	//Reset the user print request
 	}
@@ -785,7 +783,7 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 	void checkApplyChangesEnabled()
 	{
 		if(sortTable.getSelectedRows().length > 0 &&
-				(changeResCB.getSelectedIndex() > 0 || changeStatusCB.getSelectedIndex() > 0 ||changeAssigneeCB.getSelectedIndex() > 0))	
+				(changeResCB.getSelectedIndex() > 0 || changeStatusCB.getSelectedIndex() > 0 ||changePartnerCB.getSelectedIndex() > 0))	
 			btnApplyChanges.setEnabled(true);
 		else
 			btnApplyChanges.setEnabled(false);
@@ -802,8 +800,8 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 	void onExportRequested()
 	{
 		//Write the selected row data to a .csv file
-		String[] header = {"ONC #", "Gender", "Age on 12/25", "DoB", "Res", "Wish", "Detail", "Status", 
-    						"Assignee", "Changed By", "Date Changed"};
+		String[] header = {"ONC #", "Gender", "Age on 12/25", "DoB", "Res", "Gift", "Detail", "Status", 
+    						"Partner", "Changed By", "Date Changed"};
     
 		ONCFileChooser oncfc = new ONCFileChooser(this);
        	File oncwritefile = oncfc.getFile("Select file for export of selected rows" ,
@@ -830,7 +828,7 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
        			writer.close();
 	    	    
        			JOptionPane.showMessageDialog(this, 
-						sortTable.getSelectedRowCount() + " wishes sucessfully exported to " + oncwritefile.getName(), 
+						sortTable.getSelectedRowCount() + " gifts sucessfully exported to " + oncwritefile.getName(), 
 						"Export Successful", JOptionPane.INFORMATION_MESSAGE, gvs.getImageIcon(0));
        		} 
        		catch (IOException x)
@@ -895,9 +893,9 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 		return sortSchool.equals("Any") || (c.getChildSchool().equalsIgnoreCase(sortSchool));		
 	}
 	
-	private boolean doesWishNumMatch(int wn)
+	private boolean doesGiftNumMatch(int wn)
 	{
-		return sortWishNum == 0 || sortWishNum == wn+1;		
+		return sortGiftNum == 0 || sortGiftNum == wn+1;		
 	}
 	
 	private boolean doesResMatch(int res) { return sortRes == 0  || sortRes == res+1; }
@@ -906,54 +904,54 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 	
 	private boolean doesStatusMatch(GiftStatus ws){return sortStatus == GiftStatus.Any || sortStatus.compareTo(ws) == 0;}
 	
-	private boolean doesAssigneeMatch(int assigneeID)
+	private boolean doesPartnerMatch(int assigneeID)
 	{
-		//sortAssigneeID's 0 and -1 are reserved for special filters. 0 shows all wishes regardless off assignee,
-		//-1 displays wishes that are not assigned
-		return sortAssigneeID == 0 || sortAssigneeID == assigneeID;
+		//sortAssigneeID's 0 and -1 are reserved for special filters. 0 shows all gifts regardless off assignee,
+		//-1 displays gifts that are not assigned
+		return sortPartnerID == 0 || sortPartnerID == assigneeID;
 	}
 	
-	private boolean isWishChangeDateBetween(Calendar wcd)
+	private boolean isGiftChangeDateBetween(Calendar wcd)
 	{
 		return !wcd.getTime().after(sortEndCal.getTime()) && !wcd.getTime().before(sortStartCal.getTime());
 	}
 			
-	private boolean doesWishBaseMatch(int wishID)	{return sortWishID == -2 ||  sortWishID == wishID; }
+	private boolean doesGiftBaseMatch(int giftID)	{return sortGiftID == -2 ||  sortGiftID == giftID; }
 	
 	private boolean doesChangedByMatch(String s) { return sortChangedBy == 0 || changedByCB.getSelectedItem().toString().equals(s); }
 	
 	/*************
-	 * Method checks to see if a wish will fit on a label. A label has two lines to describe
-	 * the wish. If the wish name and detail fit on one line, it's ok. If it requires two
+	 * Method checks to see if a gift will fit on a label. A label has two lines to describe
+	 * the gift. If the name and detail fit on one line, it's ok. If it requires two
 	 * lines, need to check the 2nd line to see if it fits. If the second line is too long
 	 * the method returns true. Otherwise it returns false.
-	 * @param cw - ONCChildWish to check if it fits on a label
-	 * @return - true if wish is too big for label, false it it fits on label
+	 * @param cg - ONCChildWish to check if it fits on a label
+	 * @return - true if gift is too big for label, false it it fits on label
 	 ******************/
-	boolean isWishOversize(ONCChildGift cw)
+	boolean isGiftOversize(ONCChildGift cg)
 	{
-		ONCWish oncwish;
-		boolean bOversizeWish = false;	//only get to true if 2nd line doesn't fit
+		ONCGift goft;
+		boolean bOversize = false;	//only get to true if 2nd line doesn't fit
 		
-		if(cw != null && bOversizeWishes && (oncwish=wishCat.getWishByID(cw.getGiftID())) != null)
+		if(cg != null && bOversizeGifts && (goft=giftCat.getGiftByID(cg.getGiftID())) != null)
 		{
-			//construct how wish will appear on label
-			String wishOnLabel = oncwish.getName() + " - " + cw.getDetail();
+			//construct how gift will appear on label
+			String giftOnLabel = goft.getName() + " - " + cg.getDetail();
 			
 			//test the length to see if it needs two lines, if only one line, labels OK
-			if(wishOnLabel.length() > MAX_LABEL_LINE_LENGTH)
+			if(giftOnLabel.length() > MAX_LABEL_LINE_LENGTH)
 			{
 				//else, split into two lines and check 2nd line
 				int index = MAX_LABEL_LINE_LENGTH;
-				while(index > 0 && wishOnLabel.charAt(index) != ' ')	//find the line break
+				while(index > 0 && giftOnLabel.charAt(index) != ' ')	//find the line break
 					index--;
 				
 				//does 2nd line fit on label?
-				bOversizeWish = wishOnLabel.substring(index).length() > MAX_LABEL_LINE_LENGTH;
+				bOversize = giftOnLabel.substring(index).length() > MAX_LABEL_LINE_LENGTH;
 			}
 		}
 		
-		return bOversizeWish;
+		return bOversize;
 	}
 	
 	void setSortStartDate(Date sd) {sortStartCal.setTime(sd); ds.setDate(sortStartCal.getTime());}
@@ -1046,15 +1044,15 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 			sortFamilyStatus = (FamilyStatus) famStatusCB.getSelectedItem();
 			buildTableList(false);
 		}
-		else if(e.getSource() == wishnumCB && wishnumCB.getSelectedIndex() != sortWishNum)
+		else if(e.getSource() == giftnumCB && giftnumCB.getSelectedIndex() != sortGiftNum)
 		{
-			sortWishNum = wishnumCB.getSelectedIndex();
+			sortGiftNum = giftnumCB.getSelectedIndex();
 			buildTableList(false);
 		}
-		else if(e.getSource() == wishCB && !bIgnoreCBEvents && 
-				((ONCWish)wishCB.getSelectedItem()).getID() != sortWishID)
+		else if(e.getSource() == giftCB && !bIgnoreCBEvents && 
+				((ONCGift)giftCB.getSelectedItem()).getID() != sortGiftID)
 		{						
-			sortWishID = ((ONCWish)wishCB.getSelectedItem()).getID();
+			sortGiftID = ((ONCGift)giftCB.getSelectedItem()).getID();
 			buildTableList(false);
 		}
 		else if(e.getSource() == changedByCB && changedByCB.getSelectedIndex() != sortChangedBy && !bIgnoreCBEvents)
@@ -1079,13 +1077,13 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 		}
 		else if(e.getSource() == labelFitCxBox )
 		{
-			bOversizeWishes = labelFitCxBox.isSelected();
+			bOversizeGifts = labelFitCxBox.isSelected();
 			buildTableList(false);
 		}
 		else if(e.getSource() == assignCB && !bIgnoreCBEvents && 
-				((ONCPartner)assignCB.getSelectedItem()).getID() != sortAssigneeID )
+				((ONCPartner)assignCB.getSelectedItem()).getID() != sortPartnerID )
 		{						
-			sortAssigneeID = ((ONCPartner)assignCB.getSelectedItem()).getID();
+			sortPartnerID = ((ONCPartner)assignCB.getSelectedItem()).getID();
 			buildTableList(false);
 		}
 		else if(e.getSource() == printCB)
@@ -1106,9 +1104,9 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 				else	//Warn user
 				{
 					JOptionPane.showMessageDialog(this, 
-    					"No wishes selected, please selected wishes in order to" + 
+    					"No gifts selected, please selected gifts in order to " + 
     					printCB.getSelectedItem().toString(), 
-    					"No Wishes Selected", JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
+    					"No Gifts Selected", JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
 					printCB.setSelectedIndex(0);
 				}
 			}
@@ -1118,7 +1116,7 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 			onExportRequested();	
 		}
 		else if(!bIgnoreCBEvents && (e.getSource() == changeResCB ||
-					e.getSource() == changeStatusCB || e.getSource() == changeAssigneeCB))
+					e.getSource() == changeStatusCB || e.getSource() == changePartnerCB))
 		{
 			checkApplyChangesEnabled();
 		}
@@ -1128,17 +1126,17 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 	String[] getColumnToolTips()
 	{
 		String[] colToolTips = {"ONC Family Number", "Family DNS Code", "Child's Age", 
-				"Child's Gender", "School Child Attends", "Wish Number - 1, 2 or 3", "Wish Assigned", "Wish Detail",
-				"# - Selected by ONC or * - Don't asssign", "Wish Status", "Who is fulfilling?",
-				"User who last changed wish", "Date & Time Wish Last Changed"};
+				"Child's Gender", "School Child Attends", "Gift Number - 1, 2 or 3", "Gift Assigned", "Gift Detail",
+				"# - Selected by ONC or * - Don't asssign", "Gift Status", "Who is fulfilling?",
+				"User who last changed gift", "Date & Time Last Changed"};
 		
 		return colToolTips;
 	}
 	@Override
 	String[] getColumnNames()
 	{
-		String[] columns = {"ONC", "DNS", "Reg","Age", "Gend", "School", "Wish", "Wish Type", "Details", " Res ",
-				"Status", "Assignee", "Changed By", "Time Stamp"};
+		String[] columns = {"ONC", "DNS", "Reg","Age", "Gend", "School", "Gift", "Gift Type", "Details", " Res ",
+				"Status", "Partner", "Changed By", "Timestamp"};
 		
 		return columns;
 	}
@@ -1194,15 +1192,15 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 		sortFamilyStatus = FamilyStatus.Any;
 		famStatusCB.addActionListener(this);
 		
-		wishnumCB.removeActionListener(this);
-		wishnumCB.setSelectedIndex(0);
-		sortWishNum = 0;
-		wishnumCB.addActionListener(this);
+		giftnumCB.removeActionListener(this);
+		giftnumCB.setSelectedIndex(0);
+		sortGiftNum = 0;
+		giftnumCB.addActionListener(this);
 		
-		wishCB.removeActionListener(this);
-		wishCB.setSelectedIndex(0);
-		sortWishID = -2;
-		wishCB.addActionListener(this);
+		giftCB.removeActionListener(this);
+		giftCB.setSelectedIndex(0);
+		sortGiftID = -2;
+		giftCB.addActionListener(this);
 		
 		changedByCB.removeActionListener(this);
 		changedByCB.setSelectedIndex(0);
@@ -1227,7 +1225,7 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 		assignCB.removeActionListener(this);
 		//set the user preference for assignee filter default setting
 		assignCB.setSelectedIndex(uPrefs.getWishAssigneeFilter());
-		sortAssigneeID = assignCB.getSelectedIndex() == 0 ? 0 : -1;
+		sortPartnerID = assignCB.getSelectedIndex() == 0 ? 0 : -1;
 		assignCB.addActionListener(this);
 		
 		changeResCB.removeActionListener(this);
@@ -1238,13 +1236,13 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 		changeStatusCB.setSelectedIndex(0);
 		changeStatusCB.addActionListener(this);
 		
-		changeAssigneeCB.removeActionListener(this);
-		changeAssigneeCB.setSelectedIndex(0);
-		changeAssigneeCB.addActionListener(this);
+		changePartnerCB.removeActionListener(this);
+		changePartnerCB.setSelectedIndex(0);
+		changePartnerCB.addActionListener(this);
 		
 		labelFitCxBox.removeActionListener(this);
 		labelFitCxBox.setSelected(false);
-		bOversizeWishes = false;
+		bOversizeGifts = false;
 		labelFitCxBox.addActionListener(this);
 		
 		//Check to see if date sort criteria has changed. Since the setDate() method
@@ -1352,11 +1350,11 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 		{
 			ONCFamily fam = stAL.get(sortTable.getSelectedRow()).getFamily();
 			ONCChild child = stAL.get(sortTable.getSelectedRow()).getChild();
-			ONCChildGift cw = stAL.get(sortTable.getSelectedRow()).getChildWish();
-			fireEntitySelected(this, EntityType.WISH, fam, child, cw);
+			ONCChildGift cg = stAL.get(sortTable.getSelectedRow()).getGift();
+			fireEntitySelected(this, EntityType.GIFT, fam, child, cg);
 			
-			//determine if a partner has been assigned for the selected wish
-			int childWishAssigneeID = cw.getPartnerID();
+			//determine if a partner has been assigned for the selected gift
+			int childWishAssigneeID = cg.getPartnerID();
 			if(childWishAssigneeID > -1)
 			{
 				ONCPartner org = partnerDB.getPartnerByID(childWishAssigneeID);
@@ -1403,7 +1401,7 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 		}
 		else if(dbe.getSource() != this && dbe.getType().contains("_CATALOG"))
 		{			
-			updateWishSelectionList();
+			updateGiftSelectionList();
 		}
 		else if(dbe.getType().contains("ADDED_USER") || dbe.getType().contains("UPDATED_USER"))
 		{
@@ -1421,7 +1419,7 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 		else if(dbe.getType().contains("LOADED_CHILDREN"))
 		{
 			updateSchoolFilterList();
-			this.setTitle(String.format("Our Neighbor's Child - %d Wish Management", GlobalVariablesDB.getCurrentSeason()));
+			this.setTitle(String.format("Our Neighbor's Child - %d Gift Management", GlobalVariablesDB.getCurrentSeason()));
 		}
 		else if(dbe.getType().contains("CHANGED_USER"))
 		{
@@ -1438,7 +1436,7 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 	@Override
 	public EnumSet<EntityType> getEntityEventSelectorEntityTypes() 
 	{	
-		return EnumSet.of(EntityType.WISH, EntityType.PARTNER);
+		return EnumSet.of(EntityType.GIFT, EntityType.PARTNER);
 	}
 	
 	/**************************************************************************************
@@ -1530,7 +1528,7 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 			g2d.drawString(pageinfo, x+262, y+76);
 		}
 
-		void printReceivingSheetBody(int x, int y, ArrayList<SortWishObject> stAL, int index, int linesonpage,
+		void printReceivingSheetBody(int x, int y, ArrayList<SortGiftObject> stAL, int index, int linesonpage,
 										Font[] psFont, Graphics2D g2d)
 		{		
 			for(int line=0; line< linesonpage; line++)
@@ -1612,19 +1610,19 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 		int getRSTotalpages() { return totalpages; }
 	}
 
-	private class ONCSortItemAgeComparator implements Comparator<SortWishObject>
+	private class ONCSortItemAgeComparator implements Comparator<SortGiftObject>
 	{
 		@Override
-		public int compare(SortWishObject o1, SortWishObject o2)
+		public int compare(SortGiftObject o1, SortGiftObject o2)
 		{
 			return o1.getChild().getChildDOB().compareTo(o2.getChild().getChildDOB());
 		}
 	}
 	
-	private class ONCSortItemFamNumComparator implements Comparator<SortWishObject>
+	private class ONCSortItemFamNumComparator implements Comparator<SortGiftObject>
 	{
 		@Override
-		public int compare(SortWishObject o1, SortWishObject o2)
+		public int compare(SortGiftObject o1, SortGiftObject o2)
 		{
 			Integer onc1, onc2;
 			
@@ -1642,19 +1640,19 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 		}
 	}
 	
-	private class ONCSortItemFamilyDNSComparator implements Comparator<SortWishObject>
+	private class ONCSortItemFamilyDNSComparator implements Comparator<SortGiftObject>
 	{
 		@Override
-		public int compare(SortWishObject o1, SortWishObject o2)
+		public int compare(SortGiftObject o1, SortGiftObject o2)
 		{			
 			return o1.getFamily().getDNSCode().compareTo(o2.getFamily().getDNSCode());
 		}
 	}
 	
-	private class ONCSortItemFamilyRegionComparator implements Comparator<SortWishObject>
+	private class ONCSortItemFamilyRegionComparator implements Comparator<SortGiftObject>
 	{
 		@Override
-		public int compare(SortWishObject o1, SortWishObject o2)
+		public int compare(SortGiftObject o1, SortGiftObject o2)
 		{
 			Integer o1Reg = (Integer) o1.getFamily().getRegion();
 			Integer o2Reg = (Integer) o2.getFamily().getRegion();
@@ -1662,114 +1660,107 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 		}
 	}
 	
-	private class ONCSortItemGenderComparator implements Comparator<SortWishObject>
+	private class ONCSortItemGenderComparator implements Comparator<SortGiftObject>
 	{
 		@Override
-		public int compare(SortWishObject o1, SortWishObject o2)
+		public int compare(SortGiftObject o1, SortGiftObject o2)
 		{
 			return o1.getChild().getChildGender().compareTo(o2.getChild().getChildGender());
 		}
 	}
 	
-	private class ONCSortItemSchoolComparator implements Comparator<SortWishObject>
+	private class ONCSortItemSchoolComparator implements Comparator<SortGiftObject>
 	{
 		@Override
-		public int compare(SortWishObject o1, SortWishObject o2)
+		public int compare(SortGiftObject o1, SortGiftObject o2)
 		{
 			return o1.getChild().getChildSchool().compareTo(o2.getChild().getChildSchool());
 		}
 	}
 	
-	private class ONCSortItemWishNumComparator implements Comparator<SortWishObject>
+	private class ONCSortItemGiftNumComparator implements Comparator<SortGiftObject>
 	{
 		@Override
-		public int compare(SortWishObject o1, SortWishObject o2)
+		public int compare(SortGiftObject o1, SortGiftObject o2)
 		{
-			Integer wishNum1 = o1.getChildWish().getGiftNumber();
-			Integer wishNum2 = o2.getChildWish().getGiftNumber();
-			return wishNum1.compareTo (wishNum2);
+			Integer gn1 = o1.getGift().getGiftNumber();
+			Integer gn2 = o2.getGift().getGiftNumber();
+			return gn1.compareTo (gn2);
 		}
 	}
 	
-	private class ONCSortItemWishBaseComparator implements Comparator<SortWishObject>
+	private class ONCSortItemGiftBaseComparator implements Comparator<SortGiftObject>
 	{
 		@Override
-		public int compare(SortWishObject o1, SortWishObject o2)
+		public int compare(SortGiftObject o1, SortGiftObject o2)
 		{
 			GiftCatalogDB cat = GiftCatalogDB.getInstance();
 
-			String wishBase1, wishBase2;
-			if(o1.getChildWish().getGiftID() == -1)
-				wishBase1 = "None";
+			String base1, base2;
+			if(o1.getGift().getGiftID() == -1)
+				base1 = "None";
 			else
-				wishBase1 = cat.getWishByID(o1.getChildWish().getGiftID()).getName();
+				base1 = cat.getGiftByID(o1.getGift().getGiftID()).getName();
 			
-			if(o2.getChildWish().getGiftID() == -1)
-				wishBase2 = "None";
+			if(o2.getGift().getGiftID() == -1)
+				base2 = "None";
 			else
-				wishBase2 = cat.getWishByID(o2.getChildWish().getGiftID()).getName();
+				base2 = cat.getGiftByID(o2.getGift().getGiftID()).getName();
 			
-//			String wishBase1 = cat.getWishByID(o1.getChildWish().getWishID()).getName();
-//			String wishBase2 = cat.getWishByID(o2.getChildWish().getWishID()).getName();
-			return wishBase1.compareTo(wishBase2);
-//			return o1.getSortItemChildWishBase().compareTo(o2.getSortItemChildWishBase());
+			return base1.compareTo(base2);
 		}
 	}
 	
-	private class ONCSortItemWishDetailComparator implements Comparator<SortWishObject>
+	private class ONCSortItemGiftDetailComparator implements Comparator<SortGiftObject>
 	{
 		@Override
-		public int compare(SortWishObject o1, SortWishObject o2)
+		public int compare(SortGiftObject o1, SortGiftObject o2)
 		{
-			return o1.getChildWish().getDetail().compareTo(
-					o2.getChildWish().getDetail());
+			return o1.getGift().getDetail().compareTo(
+					o2.getGift().getDetail());
 		}
 	}
 	
-	private class ONCSortItemWishIndicatorComparator implements Comparator<SortWishObject>
+	private class ONCSortItemGiftIndicatorComparator implements Comparator<SortGiftObject>
 	{
 		@Override
-		public int compare(SortWishObject o1, SortWishObject o2)
+		public int compare(SortGiftObject o1, SortGiftObject o2)
 		{
-			Integer wishInd1 = o1.getChildWish().getIndicator();
-			Integer wishInd2 = o2.getChildWish().getIndicator();
-			return wishInd1.compareTo(wishInd2);	
-//			return o1.getSortItemChildWishIndicator().compareTo(o2.getSortItemChildWishIndicator());
+			Integer ind1 = o1.getGift().getIndicator();
+			Integer ind2 = o2.getGift().getIndicator();
+			return ind1.compareTo(ind2);	
 		}
 	}
 	
-	private class ONCSortItemWishStatusComparator implements Comparator<SortWishObject>
+	private class ONCSortItemGiftStatusComparator implements Comparator<SortGiftObject>
 	{
 		@Override
-		public int compare(SortWishObject o1, SortWishObject o2)
+		public int compare(SortGiftObject o1, SortGiftObject o2)
 		{
-//			Integer wishStatus1 = o1.getChildWish().getChildWishStatus();
-//			Integer wishStatus2 = o2.getChildWish().getChildWishStatus();
-//			return wishStatus1.compareTo(wishStatus2);	
-			return o1.getChildWish().getGiftStatus().compareTo(o2.getChildWish().getGiftStatus());
+			return o1.getGift().getGiftStatus().compareTo(o2.getGift().getGiftStatus());
 		}
 	}
 	
-	private class ONCSortItemWishAssigneeComparator implements Comparator<SortWishObject>
+	private class ONCSortItemGiftPartnerComparator implements Comparator<SortGiftObject>
 	{
 		@Override
-		public int compare(SortWishObject o1, SortWishObject o2)
+		public int compare(SortGiftObject o1, SortGiftObject o2)
 		{
 			PartnerDB partnerDB = PartnerDB.getInstance();
 			
-			ONCChildGift wish1 = o1.getChildWish();
-			if(wish1 == null)
+			ONCChildGift g1 = o1.getGift();
+			if(g1 == null)
 				return 10;
 			
-			ONCPartner partner1 =  partnerDB.getPartnerByID(wish1.getPartnerID());
+			ONCPartner partner1 =  partnerDB.getPartnerByID(g1.getPartnerID());
 			if(partner1 == null)
 				return 10;
 			
-			ONCChildGift wish2 = o2.getChildWish();
-			if(wish2 == null)
+			ONCChildGift g2 = o2.getGift();
+			if(g2 == null)
 				return -10;
 			
-			ONCPartner partner2 =  partnerDB.getPartnerByID(wish2.getPartnerID());
+			ONCPartner partner2 =  partnerDB.getPartnerByID(g2.getPartnerID());
 			if(partner2 == null)	
 				return -10;
 				
@@ -1777,51 +1768,51 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 		}
 	}
 	
-	private class ONCSortItemWishChangedByComparator implements Comparator<SortWishObject>
+	private class ONCSortItemGiftChangedByComparator implements Comparator<SortGiftObject>
 	{
 		@Override
-		public int compare(SortWishObject o1, SortWishObject o2)
+		public int compare(SortGiftObject o1, SortGiftObject o2)
 		{
-			return o1.getChildWish().getChangedBy().compareTo(
-					o2.getChildWish().getChangedBy());
+			return o1.getGift().getChangedBy().compareTo(
+					o2.getGift().getChangedBy());
 		}
 	}
 	
-	private class ONCSortItemWishDateChangedComparator implements Comparator<SortWishObject>
+	private class ONCSortItemGiftDateChangedComparator implements Comparator<SortGiftObject>
 	{
 		@Override
-		public int compare(SortWishObject o1, SortWishObject o2)
+		public int compare(SortGiftObject o1, SortGiftObject o2)
 		{
-			return o1.getChildWish().getDateChanged().compareTo(
-					o2.getChildWish().getDateChanged());
+			return o1.getGift().getDateChanged().compareTo(
+					o2.getGift().getDateChanged());
 		}
 	}
 
 	@Override
 	protected String[] getTableRow(ONCObject o) 
 	{
-		SortWishObject swo = (SortWishObject) o;
+		SortGiftObject sgo = (SortGiftObject) o;
 		
 		String[] indicator = {"", "*", "#"};
-		ONCWish wish = wishCat.getWishByID(swo.getChildWish().getGiftID());
-		String wishName = wish == null ? "None" : wish.getName();
-		ONCPartner partner = partnerDB.getPartnerByID(swo.getChildWish().getPartnerID());
+		ONCGift gift = giftCat.getGiftByID(sgo.getGift().getGiftID());
+		String giftName = gift == null ? "None" : gift.getName();
+		ONCPartner partner = partnerDB.getPartnerByID(sgo.getGift().getPartnerID());
 		String partnerName = partner != null ? partner.getLastName() : "";
-		String ds = new SimpleDateFormat("MM/dd H:mm").format(swo.getChildWish().getDateChanged().getTime());
+		String ds = new SimpleDateFormat("MM/dd H:mm").format(sgo.getGift().getDateChanged().getTime());
 		String[] tablerow = {
-							swo.getFamily().getONCNum(),
-							swo.getFamily().getDNSCode(),
-							regions.getRegionID(swo.getFamily().getRegion()),
-							swo.getChild().getChildAge().split("old", 2)[0].trim(), //Take the word "old" out of string
-							swo.getChild().getChildGender(),
-							swo.getChild().getChildSchool(),
-							Integer.toString(swo.getChildWish().getGiftNumber()+1),
-							wishName,
-							swo.getChildWish().getDetail(),
-							indicator[swo.getChildWish().getIndicator()],
-							swo.getChildWish().getGiftStatus().toString(), 
+							sgo.getFamily().getONCNum(),
+							sgo.getFamily().getDNSCode(),
+							regions.getRegionID(sgo.getFamily().getRegion()),
+							sgo.getChild().getChildAge().split("old", 2)[0].trim(), //Take the word "old" out of string
+							sgo.getChild().getChildGender(),
+							sgo.getChild().getChildSchool(),
+							Integer.toString(sgo.getGift().getGiftNumber()+1),
+							giftName,
+							sgo.getGift().getDetail(),
+							indicator[sgo.getGift().getIndicator()],
+							sgo.getGift().getGiftStatus().toString(), 
 							partnerName, 
-							swo.getChildWish().getChangedBy(), ds};
+							sgo.getGift().getChangedBy(), ds};
 		return tablerow;
 	}
 

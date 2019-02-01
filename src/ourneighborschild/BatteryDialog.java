@@ -288,9 +288,9 @@ public class BatteryDialog extends GiftLabelDialog
 			submittalList.clear();
 			List<Battery> batteryReqList = new ArrayList<Battery>();
 		
-			batteryReqList.add(new Battery(-1, swo.getChild().getID(), swo.getChildWish().getGiftNumber(), size1, qty1));
+			batteryReqList.add(new Battery(-1, swo.getChild().getID(), swo.getGift().getGiftNumber(), size1, qty1));
 			if(scanState == ScanState.READY_TO_SUBMIT)	//there are two batteries for this gift
-				batteryReqList.add(new Battery(-1, swo.getChild().getID(), swo.getChildWish().getGiftNumber(), size2, qty2));
+				batteryReqList.add(new Battery(-1, swo.getChild().getID(), swo.getGift().getGiftNumber(), size2, qty2));
 		
 			Battery addedBattery;
 			for(Battery addBatteryReq : batteryReqList)
@@ -337,7 +337,7 @@ public class BatteryDialog extends GiftLabelDialog
 		}
 	}
 	
-	void onGiftLabelFound(SortWishObject swo)
+	void onGiftLabelFound(SortGiftObject swo)
 	{
 		setBackgroundColor(pBkColor);
 		setScanState(ScanState.SIZE1);
@@ -512,7 +512,7 @@ public class BatteryDialog extends GiftLabelDialog
 	@Override
 	public EnumSet<EntityType> getEntityEventSelectorEntityTypes()
 	{
-		return EnumSet.of(EntityType.WISH);
+		return EnumSet.of(EntityType.GIFT);
 	}
 	
 	@Override

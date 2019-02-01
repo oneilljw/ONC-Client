@@ -65,7 +65,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
     private ChildDB childDB;
 	
     private JComboBox<String> regionCB, statusCB, typeCB, changedByCB, changeOrnReqCB;
-    private JComboBox<GiftCollection> collectionCB;
+    private JComboBox<GiftCollectionType> collectionCB;
     private JComboBox<ImageIcon> stoplightCB;
     private ComboItem[] changePartItem;
     private JComboBox<ComboItem> changePStatusCB;
@@ -75,7 +75,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
     private ArrayList<ONCPartner> stAL;
 
     private int sortStatus = 0, sortType = 0, sortRegion = 0, sortChangedBy = 0, sortStoplight = 0;
-    private GiftCollection sortCollection = GiftCollection.Any;
+    private GiftCollectionType sortCollection = GiftCollectionType.Any;
 	
     private String[] status = {"Any","No Action Yet", "1st Email Sent", "Responded", "2nd Email Sent", "Called, Left Mssg",
 							   "Confirmed", "Not Participating"};
@@ -127,7 +127,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
     		typeCB.setBorder(BorderFactory.createTitledBorder("Partner Type"));
     		typeCB.addActionListener(this);
 		
-    		collectionCB = new JComboBox<GiftCollection>(GiftCollection.values());
+    		collectionCB = new JComboBox<GiftCollectionType>(GiftCollectionType.values());
     		collectionCB.setBorder(BorderFactory.createTitledBorder("Collection Type"));
     		collectionCB.addActionListener(this);
 				
@@ -1558,7 +1558,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 	
 	boolean doesTypeMatch(int ty) { return sortType == 0 || ty == typeCB.getSelectedIndex(); }
 	
-	boolean doesCollectionMatch(GiftCollection gc) { return sortCollection == GiftCollection.Any || gc == collectionCB.getSelectedItem(); }
+	boolean doesCollectionMatch(GiftCollectionType gc) { return sortCollection == GiftCollectionType.Any || gc == collectionCB.getSelectedItem(); }
 	
 	boolean doesRegionMatch(int fr) { return sortRegion == 0 || fr == regionCB.getSelectedIndex()-1; }
 	
@@ -1611,7 +1611,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		}
 		else if(e.getSource() == collectionCB && collectionCB.getSelectedItem() != sortCollection)
 		{
-			sortCollection = (GiftCollection) collectionCB.getSelectedItem();
+			sortCollection = (GiftCollectionType) collectionCB.getSelectedItem();
 			buildTableList(false);
 		}
 		else if(e.getSource() == regionCB && regionCB.getSelectedIndex() != sortRegion && !bIgnoreCBEvents)
@@ -1683,8 +1683,8 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		typeCB.addActionListener(this);
 		
 		collectionCB.removeActionListener(this);
-		collectionCB.setSelectedItem(GiftCollection.Any);
-		sortCollection = GiftCollection.Any; 
+		collectionCB.setSelectedItem(GiftCollectionType.Any);
+		sortCollection = GiftCollectionType.Any; 
 		typeCB.addActionListener(this);
 		
 		regionCB.removeActionListener(this);

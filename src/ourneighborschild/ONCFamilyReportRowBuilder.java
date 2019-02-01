@@ -117,7 +117,7 @@ public class ONCFamilyReportRowBuilder
 			return "";
 		else
 		{
-			ONCWish wish = cat.getWishByID(cw.getGiftID());
+			ONCGift wish = cat.getGiftByID(cw.getGiftID());
 		
 			if(wish == null)
 				return "";

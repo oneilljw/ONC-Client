@@ -178,7 +178,7 @@ public class BarcodeWishHistoryDialog extends BarcodeTableDialog
 				ONCFamily family = fDB.getFamily(child.getFamID());
 				if(family != null)
 				{
-					fireEntitySelected(this, EntityType.WISH, family, child, cw);
+					fireEntitySelected(this, EntityType.GIFT, family, child, cw);
 					if(userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0)
 						lblInfo.setText(String.format("Wish History for %s %s, Wish %d, Family #%s",
 							child.getChildFirstName(), child.getChildLastName(),
@@ -219,7 +219,7 @@ public class BarcodeWishHistoryDialog extends BarcodeTableDialog
 	@Override
 	public EnumSet<EntityType> getEntityEventSelectorEntityTypes() 
 	{	
-		return EnumSet.of(EntityType.WISH);
+		return EnumSet.of(EntityType.GIFT);
 	}
 	
 	class DialogTableModel extends AbstractTableModel
@@ -242,7 +242,7 @@ public class BarcodeWishHistoryDialog extends BarcodeTableDialog
         	ONCChildGift cw = (ONCChildGift) stAL.get(row);
         	if(col == WISH_COL)
         	{
-        		ONCWish wish = cat.getWishByID(cw.getGiftID());
+        		ONCGift wish = cat.getGiftByID(cw.getGiftID());
 				return wish == null ? "None" : wish.getName();
         	}
         	else if(col == DETAIL_COL)

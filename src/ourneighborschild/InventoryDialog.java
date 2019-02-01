@@ -51,8 +51,8 @@ public class InventoryDialog extends BarcodeTableDialog implements ActionListene
 	private InventoryDB inventoryDB;
 	private GiftCatalogDB cat;
 	private JRadioButton rbEdit, rbAdd, rbRemove;
-	private JComboBox<ONCWish> wishCB;
-	private DefaultComboBoxModel<ONCWish> wishCBM;
+	private JComboBox<ONCGift> wishCB;
+	private DefaultComboBoxModel<ONCGift> wishCBM;
 
 	public InventoryDialog(JFrame parentFrame) 
 	{
@@ -92,10 +92,10 @@ public class InventoryDialog extends BarcodeTableDialog implements ActionListene
 		//set up the columns that use combo box editors for the status, access and permission enums
 		TableColumn typeColumn = dlgTable.getColumnModel().getColumn(TYPE_COL);
 		//set up the catalog wish type panel
-        wishCBM = new DefaultComboBoxModel<ONCWish>();
-        for(ONCWish w: cat.getWishList(GiftListPurpose.Selection))	//Add new list elements
+        wishCBM = new DefaultComboBoxModel<ONCGift>();
+        for(ONCGift w: cat.getGiftList(GiftListPurpose.Selection))	//Add new list elements
 			wishCBM.addElement(w);
-        wishCB = new JComboBox<ONCWish>();
+        wishCB = new JComboBox<ONCGift>();
         wishCB.setModel(wishCBM);
 		typeColumn.setCellEditor(new DefaultCellEditor(wishCB));
 		
@@ -110,7 +110,7 @@ public class InventoryDialog extends BarcodeTableDialog implements ActionListene
 	{
 		wishCBM.removeAllElements();	//Clear the combo box selection list
 
-		for(ONCWish w: cat.getWishList(GiftListPurpose.Selection))	//Add new list elements
+		for(ONCGift w: cat.getGiftList(GiftListPurpose.Selection))	//Add new list elements
 			wishCBM.addElement(w);
 	}
 	
@@ -141,7 +141,7 @@ public class InventoryDialog extends BarcodeTableDialog implements ActionListene
 	    	    	InventoryItem ii = inventoryDB.getItem(index);
 	    	    	String[] exportRow = new String[3];
 	    	    	exportRow[0] = ii.getItemName();
-	    	    	exportRow[1] = ii.getWishID() == -1 ? " None" : cat.getWishName(ii.getWishID());
+	    	    	exportRow[1] = ii.getWishID() == -1 ? " None" : cat.getGiftName(ii.getWishID());
 	    	    	exportRow[2] = Integer.toString(ii.getCount());
 	    	    	exportRow[2] = Integer.toString(ii.getNCommits());
 	    	    	exportRow[4] = ii.getNumber();
@@ -360,7 +360,7 @@ public class InventoryDialog extends BarcodeTableDialog implements ActionListene
         	else if(col == COMMIT_COL)
         		return ii.getNCommits();
         	else if(col == TYPE_COL)
-        		return ii.getWishID() == -1 ? new ONCWish(-1, "None", 7) : cat.getWishByID(ii.getWishID());
+        		return ii.getWishID() == -1 ? new ONCGift(-1, "None", 7) : cat.getGiftByID(ii.getWishID());
         	else
         		return "Error";
         }
@@ -372,7 +372,7 @@ public class InventoryDialog extends BarcodeTableDialog implements ActionListene
         	if(column == COUNT_COL || column == COMMIT_COL)
         		return Integer.class;
         	else if(column == TYPE_COL)
-        		return ONCWish.class;
+        		return ONCGift.class;
         	else
         		return String.class;
         }
@@ -422,10 +422,10 @@ public class InventoryDialog extends BarcodeTableDialog implements ActionListene
         		reqUpdateItem = new InventoryItem(selItem);	//make a copy
         		reqUpdateItem.setNumber( ((String) value).replaceFirst("^0+(?!$)", ""));
         	}
-        	else if(col == TYPE_COL && selItem.getWishID() != ((ONCWish) value).getID())
+        	else if(col == TYPE_COL && selItem.getWishID() != ((ONCGift) value).getID())
         	{
         		reqUpdateItem = new InventoryItem(selItem);	//make a copy
-        		reqUpdateItem.setWishID(((ONCWish) value).getID());
+        		reqUpdateItem.setWishID(((ONCGift) value).getID());
         	}
         	        	
         	//if the user made a change in the table, attempt to update the user object in
@@ -511,8 +511,8 @@ public class InventoryDialog extends BarcodeTableDialog implements ActionListene
 		private static final int BARCODE_FIELD_LENGTH = 12;
 		
 		private InventoryItem addItemReq;
-		private JComboBox<ONCWish> wishCB;
-		private DefaultComboBoxModel<ONCWish> wishCBM;
+		private JComboBox<ONCGift> wishCB;
+		private DefaultComboBoxModel<ONCGift> wishCBM;
 
 		AddInventoryItemDialog(JFrame pf, boolean bModal)
 		{
@@ -535,10 +535,10 @@ public class InventoryDialog extends BarcodeTableDialog implements ActionListene
 			}
 			
 			//set up the catalog wish type panel
-	        wishCBM = new DefaultComboBoxModel<ONCWish>();
-	        for(ONCWish w: cat.getWishList(GiftListPurpose.Selection))	//Add new list elements
+	        wishCBM = new DefaultComboBoxModel<ONCGift>();
+	        for(ONCGift w: cat.getGiftList(GiftListPurpose.Selection))	//Add new list elements
 				wishCBM.addElement(w);
-	        wishCB = new JComboBox<ONCWish>();
+	        wishCB = new JComboBox<ONCGift>();
 	        wishCB.setModel(wishCBM);
 	        wishCB.setPreferredSize(new Dimension(256, 32));
 	        wishCB.setToolTipText("Select wish type from ONC Wish Catalog");
@@ -573,7 +573,7 @@ public class InventoryDialog extends BarcodeTableDialog implements ActionListene
 		void update() //user clicked the action button
 		{
 			//generate an add inventory item request object and close the dialog
-			ONCWish addReqWishType = (ONCWish) wishCB.getSelectedItem();
+			ONCGift addReqWishType = (ONCGift) wishCB.getSelectedItem();
 			addItemReq = new InventoryItem(tf[NAME_FIELD].getText(), addReqWishType.getID(),
 											tf[BARCODE_FIELD].getText());
 			result = true;
@@ -598,7 +598,7 @@ public class InventoryDialog extends BarcodeTableDialog implements ActionListene
 			{
 				//item is not empty, check that wishid != 1 && bar code field length 
 				char[] barcode = tf[BARCODE_FIELD].getText().toCharArray();
-				ONCWish reqWish = (ONCWish) wishCB.getSelectedItem();
+				ONCGift reqWish = (ONCGift) wishCB.getSelectedItem();
 				
 				if(reqWish.getID() != -1 && barcode.length == BARCODE_FIELD_LENGTH)
 				{

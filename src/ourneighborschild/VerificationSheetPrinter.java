@@ -129,7 +129,7 @@ public abstract class VerificationSheetPrinter implements Printable
 				
 				if(cw != null)
 				{
-					ONCWish catWish = cat.getWishByID(cw.getGiftID());
+					ONCGift catWish = cat.getGiftByID(cw.getGiftID());
 					String wishName = catWish == null ? "None" : catWish.getName();
 				
 					String restriction = restrictions[cw.getIndicator()];

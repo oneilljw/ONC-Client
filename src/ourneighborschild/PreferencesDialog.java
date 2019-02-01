@@ -77,9 +77,9 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 	private JTextField whStreetNumTF, whStreetTF, whCityTF, whStateTF;
 	private String whStreetNum, whStreet,whCity, whState;
 	public JComboBox<Integer> oncFontSizeCB;
-	private JComboBox<ONCWish> defaultGiftCB, defaultGiftCardCB;
+	private JComboBox<ONCGift> defaultGiftCB, defaultGiftCardCB;
 	private JComboBox<Activity> deliveryActivityCB;
-	private DefaultComboBoxModel<ONCWish> defaultGiftCBM, defaultGiftCardCBM;
+	private DefaultComboBoxModel<ONCGift> defaultGiftCBM, defaultGiftCardCBM;
 	private DefaultComboBoxModel<Activity> deliveryActivityCBM;
 	private JButton btnApplyDateChanges, btnApplyAddressChanges;
 	private boolean bIgnoreDialogEvents;
@@ -320,20 +320,20 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		wishlabelPanelMiddle.add(new JLabel("Label Y Offset:"));
 		wishlabelPanelMiddle.add(averyYOffsetSpinner);
 		
-		defaultGiftCB = new JComboBox<ONCWish>();
-		defaultGiftCBM = new DefaultComboBoxModel<ONCWish>();
+		defaultGiftCB = new JComboBox<ONCGift>();
+		defaultGiftCBM = new DefaultComboBoxModel<ONCGift>();
 		
-		defaultGiftCBM.addElement(new ONCWish(-1, "None", 7));//creates a dummy gift with name "None", id = -1;
+		defaultGiftCBM.addElement(new ONCGift(-1, "None", 7));//creates a dummy gift with name "None", id = -1;
 		defaultGiftCB.setModel(defaultGiftCBM);
 		defaultGiftCB.setPreferredSize(new Dimension(180, 56));
 		defaultGiftCB.setBorder(BorderFactory.createTitledBorder("Default Gift"));
 		defaultGiftCB.addActionListener(this);
 		wishlabelPanelBottom.add(defaultGiftCB);
 		
-		defaultGiftCardCB = new JComboBox<ONCWish>();
-		defaultGiftCardCBM = new DefaultComboBoxModel<ONCWish>();
+		defaultGiftCardCB = new JComboBox<ONCGift>();
+		defaultGiftCardCBM = new DefaultComboBoxModel<ONCGift>();
 		
-		defaultGiftCardCBM.addElement(new ONCWish(-1, "None", 7));//creates a dummy gift with name "None", id = -1;
+		defaultGiftCardCBM.addElement(new ONCGift(-1, "None", 7));//creates a dummy gift with name "None", id = -1;
 		defaultGiftCardCB.setModel(defaultGiftCardCBM);
 		defaultGiftCardCB.setPreferredSize(new Dimension(180, 56));
 		defaultGiftCardCB.setBorder(BorderFactory.createTitledBorder("Default Gift Card"));
@@ -500,7 +500,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		
 		if(gvDB.getDefaultGiftID() > -1 && catDB.size() > 0)
 		{
-			ONCWish defaultWish = catDB.getWishByID(gvDB.getDefaultGiftID());
+			ONCGift defaultWish = catDB.getGiftByID(gvDB.getDefaultGiftID());
 			if(defaultWish != null)
 				defaultGiftCB.setSelectedItem(defaultWish);
 			else
@@ -511,7 +511,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		
 		if(gvDB.getDefaultGiftCardID() > -1 && catDB.size() > 0)
 		{
-			ONCWish defaultGiftCardWish = catDB.getWishByID(gvDB.getDefaultGiftCardID());
+			ONCGift defaultGiftCardWish = catDB.getGiftByID(gvDB.getDefaultGiftCardID());
 			if(defaultGiftCardWish != null)
 				defaultGiftCardCB.setSelectedItem(defaultGiftCardWish);
 			else
@@ -630,10 +630,10 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		if(!gvDB.getDecemberMealDeadline().equals(dc_DecemberMealCutoff.getDate())) {cf |= 128;}
 		if(!gvDB.getWaitlistGiftDeadline().equals(dc_WaitlistGiftCutoff.getDate())) {cf |= 256;}
 		
-		ONCWish cbWish = (ONCWish) defaultGiftCB.getSelectedItem();
+		ONCGift cbWish = (ONCGift) defaultGiftCB.getSelectedItem();
 		if(gvDB.getDefaultGiftID() != cbWish.getID()) {cf |= 512;}
 		
-		ONCWish cbGiftCardWish = (ONCWish) defaultGiftCardCB.getSelectedItem();
+		ONCGift cbGiftCardWish = (ONCGift) defaultGiftCardCB.getSelectedItem();
 		if(gvDB.getDefaultGiftCardID() != cbGiftCardWish.getID()) {cf |= 1024;}
 		
 		Activity cbDefaultDeliveryActivity = (Activity) deliveryActivityCB.getSelectedItem();
@@ -740,12 +740,12 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 			updateUserPreferences();
 		}
 		else if(!bIgnoreDialogEvents && e.getSource().equals(defaultGiftCB) &&
-				((ONCWish) defaultGiftCB.getSelectedItem()).getID() != gvDB.getDefaultGiftID())
+				((ONCGift) defaultGiftCB.getSelectedItem()).getID() != gvDB.getDefaultGiftID())
 		{
 			update();
 		}
 		else if(!bIgnoreDialogEvents && e.getSource().equals(defaultGiftCardCB) &&
-				((ONCWish) defaultGiftCardCB.getSelectedItem()).getID() != gvDB.getDefaultGiftCardID())
+				((ONCGift) defaultGiftCardCB.getSelectedItem()).getID() != gvDB.getDefaultGiftCardID())
 		{
 			update();
 		}
@@ -798,18 +798,18 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		defaultGiftCardCB.removeActionListener(this);
 		
 		//archive the default gift selection
-		ONCWish curr_defalut_gift_sel;
+		ONCGift curr_defalut_gift_sel;
 		if(bInitialize &&  gvDB.getDefaultGiftID() > -1)
-			curr_defalut_gift_sel = (ONCWish) catDB.getWishByID(gvDB.getDefaultGiftID());
+			curr_defalut_gift_sel = (ONCGift) catDB.getGiftByID(gvDB.getDefaultGiftID());
 		else
-			curr_defalut_gift_sel = (ONCWish) defaultGiftCB.getSelectedItem();
+			curr_defalut_gift_sel = (ONCGift) defaultGiftCB.getSelectedItem();
 			
 		int selDefalutGiftIndex = 0;
 		
 		//update the default gift CBM
 		defaultGiftCBM.removeAllElements();
 		int index = 0;
-		for(ONCWish w : catDB.getDefaultWishList())
+		for(ONCGift w : catDB.getDefaultGiftList())
 		{
 			defaultGiftCBM.addElement(w);
 			if(curr_defalut_gift_sel.getID() == w.getID())
@@ -823,18 +823,18 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		
 		//update the default gift card gift/wish
 		//archive the default gift card selection
-		ONCWish curr_defalut_gift_card_sel;
+		ONCGift curr_defalut_gift_card_sel;
 		if(bInitialize &&  gvDB.getDefaultGiftCardID() > -1)
-			curr_defalut_gift_card_sel = (ONCWish) catDB.getWishByID(gvDB.getDefaultGiftCardID());
+			curr_defalut_gift_card_sel = (ONCGift) catDB.getGiftByID(gvDB.getDefaultGiftCardID());
 		else
-			curr_defalut_gift_card_sel = (ONCWish) defaultGiftCardCB.getSelectedItem();
+			curr_defalut_gift_card_sel = (ONCGift) defaultGiftCardCB.getSelectedItem();
 			
 		int selDefaultGiftCardIndex = 0;
 		
 		//update the default gift card CBM
 		defaultGiftCardCBM.removeAllElements();
 		index = 0;
-		for(ONCWish w : catDB.getDefaultWishList())
+		for(ONCGift w : catDB.getDefaultGiftList())
 		{
 			defaultGiftCardCBM.addElement(w);
 			if(curr_defalut_gift_card_sel.getID() == w.getID())

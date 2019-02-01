@@ -157,8 +157,7 @@ public class ONCNavPanel extends ONCPanel implements ActionListener
 		
 		this.index = index; 
 	}
-//	void setNextButtonText(String text) {btnNext.setText(text); }
-//	void setPreviousButtonText(String text) {btnPrevious.setText(text); }
+
 	void btnNextSetEnabled(boolean tf) { btnNext.setEnabled(tf); }
 	void btnPreviousSetEnabled(boolean tf) { btnPrevious.setEnabled(tf); }
 	void setMssg(String mssg) { lblMssg.setText(mssg); }
@@ -226,17 +225,17 @@ public class ONCNavPanel extends ONCPanel implements ActionListener
 			String type = searchableDB.searchForListItem(searchAL, data);	//builds searchAL
 			
 			if(searchAL.size() > 1)	//duplicate ONC Entities were found   	
-	    		setMssg(Integer.toString(searchAL.size()) +" " + type + " " + data + "'s were found");
-	    	else if(searchAL.size() == 1)
-	    		setMssg(type + " " + data + " found");
-	    	else
-	    		setMssg(type + " " + data + " not found");
+	    			setMssg(Integer.toString(searchAL.size()) +" " + type + " " + data + "'s were found");
+	    		else if(searchAL.size() == 1)
+	    			setMssg(type + " " + data + " found");
+	    		else
+	    			setMssg(type + " " + data + " not found");
 			
 			if(searchAL.size() > 0)	//Match found, search list has elements
 			{				
-    			srchALindex=0;
-    			index = searchableDB.getListIndexByID(searchableDB.getList(), searchAL.get(srchALindex));
-    			fireEntitySelected(this, searchableDB.getDBType(), searchableDB.getObjectAtIndex(index), null);
+    				srchALindex=0;
+    				index = searchableDB.getListIndexByID(searchableDB.getList(), searchAL.get(srchALindex));
+    				fireEntitySelected(this, searchableDB.getDBType(), searchableDB.getObjectAtIndex(index), null);
 			}
 			else
 			{

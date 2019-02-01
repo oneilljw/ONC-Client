@@ -80,10 +80,6 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
 		memberList = new LinkedList<ONCGroup>();
 		candidateList = new ArrayList<ONCGroup>();
 		
-		//Create a content panel for the dialog and add panel components to it.
-        JPanel odContentPane = new JPanel();
-        odContentPane.setLayout(new BoxLayout(odContentPane, BoxLayout.PAGE_AXIS));
-        
         //set up the navigation panel at the top of dialog
         nav = new ONCNavPanel(pf, userDB);
         nav.setDefaultMssg("Our Neighbor's Child Users");

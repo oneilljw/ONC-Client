@@ -146,7 +146,7 @@ public abstract class HistoryDialog extends JDialog implements ActionListener, E
 	public void entitySelected(EntitySelectionEvent tse)
 	{
 		if(this.isVisible() && (tse.getType() == EntityType.FAMILY || 
-				tse.getType() == EntityType.WISH))
+				tse.getType() == EntityType.GIFT))
 		{
 			ONCFamily fam = (ONCFamily) tse.getObject1();
 			if(fam != null)
@@ -159,6 +159,6 @@ public abstract class HistoryDialog extends JDialog implements ActionListener, E
 	@Override
 	public EnumSet<EntityType> getEntityEventListenerEntityTypes() 
 	{
-		return EnumSet.of(EntityType.FAMILY, EntityType.WISH);
+		return EnumSet.of(EntityType.FAMILY, EntityType.GIFT);
 	}
 }

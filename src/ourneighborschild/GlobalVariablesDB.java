@@ -264,8 +264,8 @@ public class GlobalVariablesDB extends ONCDatabase implements Serializable
 	public void setIncludeBarcodeOnLabels(boolean tf) { bBarcodeOnOrnmament = tf; }
 	public void setBarcode(Barcode barcode) { this.barcode = barcode; }
 	public void setAveryLabelOffset(Point offset) { this.averyLabelOffsetPoint = offset; }
-	public void setDefaultGift(ONCWish w) { this.defaultGiftID = w.getID(); }
-	public void setDefaultGiftCard(ONCWish w) { this.defaultGiftCardID = w.getID(); }
+	public void setDefaultGift(ONCGift w) { this.defaultGiftID = w.getID(); }
+	public void setDefaultGiftCard(ONCGift w) { this.defaultGiftCardID = w.getID(); }
 	public void setDeliveryActivityID(Activity act) { this.deliveryActivityID = act.getID(); }
 	
 	//Setters locally used

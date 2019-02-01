@@ -193,7 +193,7 @@ public class PartnerDB extends ONCSearchableDatabase
 	 * The top half of the list are confirmed businesses, churches and schools, sorted alphabetically.
 	 * The bottom half of the list are all other confirmed partners sorted alphabetically
 	 *****************************************************************************************/
-	List<ONCPartner> getConfirmedPartnerList(GiftCollection collectionType)
+	List<ONCPartner> getConfirmedPartnerList(GiftCollectionType collectionType)
 	{
 		//Create two lists, the list to be returned and a temporary list
 		ArrayList<ONCPartner> confirmedPartnerList = new ArrayList<ONCPartner>();

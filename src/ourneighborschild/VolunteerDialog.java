@@ -673,7 +673,7 @@ public class VolunteerDialog extends EntityDialog
 	{
 		if(this.isVisible() && !bAddingNewEntity)
 		{
-			if(tse.getType() == EntityType.FAMILY || tse.getType() == EntityType.WISH)
+			if(tse.getType() == EntityType.FAMILY || tse.getType() == EntityType.GIFT)
 			{
 				ONCFamily fam = (ONCFamily) tse.getObject1();
 				
@@ -709,7 +709,7 @@ public class VolunteerDialog extends EntityDialog
 	@Override
 	public EnumSet<EntityType> getEntityEventListenerEntityTypes() 
 	{
-		return EnumSet.of(EntityType.FAMILY, EntityType.WISH, EntityType.VOLUNTEER);
+		return EnumSet.of(EntityType.FAMILY, EntityType.GIFT, EntityType.VOLUNTEER);
 	}
 	
 	/***********************************************************************************************
