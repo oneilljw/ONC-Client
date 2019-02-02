@@ -7,11 +7,9 @@ import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.TimeZone;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
@@ -21,6 +19,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
+
+import com.google.gson.Gson;
 
 public class NoteDialog extends EntityDialog
 {
@@ -34,6 +34,7 @@ public class NoteDialog extends EntityDialog
 	private ONCFamily currFam;
 	private ONCNote currNote;
 	
+	private Mode mode;
 	
 	private TitledBorder familyBorder, noteBorder, responseBorder;
 	private JTextField titleTF;
@@ -54,11 +55,13 @@ public class NoteDialog extends EntityDialog
 		currFam = null;
 		currNote = null;
 		
+		mode = Mode.NORMAL;
+		
         //set up the navigation panel at the top of dialog
         nav = new ONCNavPanel(pf, noteDB);
         nav.setDefaultMssg("Family Notes");
-        nav.setCount1("Family Notes: " + Integer.toString(0));
-        nav.setCount2("Viewed: " + Integer.toString(0));
+        nav.setCount1("Family Notes: 0");
+        nav.setCount2("Unread: 0");
 		
 		//set up the edit note user interface
 		familyBorder = BorderFactory.createTitledBorder("Family Notes");
@@ -189,7 +192,38 @@ public class NoteDialog extends EntityDialog
 	@Override
 	void update()
 	{
-		// TODO Auto-generated method stub
+		//if the note or title has changed, update the note. Only the note and title 
+		//of the last note can be edited and only before the note is viewed
+		if(nav.getIndex() == 0  && currNote.getStatus() == ONCNote.UNREAD)
+		{
+			int bCD = 0;
+			if(!currNote.getTitle().equals(titleTF.getText())) { bCD = bCD | 1; }
+			if(!currNote.getNote().equals(titleTF.getText())) { bCD = bCD | 2; }
+			
+			if(bCD > 0)
+			{
+				ONCNote updateNoteReq = new ONCNote(currNote);
+				updateNoteReq.setTitle(titleTF.getText());
+				updateNoteReq.setNote(noteTA.getText());
+				
+				String response = noteDB.update(this, updateNoteReq);
+				if(response.startsWith("UPDATED_NOTE"))
+				{
+					Gson gson = new Gson();
+					ONCNote updatedNote = gson.fromJson(response.substring(12), ONCNote.class);
+					
+					display(updatedNote);
+				}
+				else
+				{
+					//display an error message that update request failed
+					JOptionPane.showMessageDialog(this, "ONC Server denied Noter Update," +
+											"try again later","Note Update Failed",  
+											JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
+					display(currNote);
+				}
+			}
+		}
 	}
 
 	void display(ONCEntity note)	//displays currNote for currFam
@@ -208,12 +242,19 @@ public class NoteDialog extends EntityDialog
 			
 			bIgnoreEvents = true;
 			
+			nav.setDefaultMssg("Notes for "+ currFam.getLastName() + " Family");
 			if(userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0)
+			{
+				nav.setDefaultMssg("Notes for "+ currFam.getLastName() + " Family");
 				familyBorder.setTitle(String.format("Note %d of %d for %s family, ONC #%s",
 					nav.getIndex()+1, noteDB.size(), currFam.getLastName(), currFam.getONCNum()));
+			}
 			else
+			{
+				nav.setDefaultMssg("Notes for ONC #" + currFam.getONCNum());
 				familyBorder.setTitle(String.format("Note %d of %d for ONC #%s",
 						nav.getIndex()+1, noteDB.size(), currFam.getONCNum()));
+			}
 				
 			titleTF.setText(currNote.getTitle());
 			titleTF.setCaretPosition(0);
@@ -222,32 +263,33 @@ public class NoteDialog extends EntityDialog
 			String noteBorderText = String.format("Sent by %s on %s", currNote.getChangedBy(),
 									timeFormat.format(currNote.getDateChanged()));
 			noteBorder.setTitle(noteBorderText);
-			
 			noteTA.setText(currNote.getNote());
-			noteTA.setEditable(true);
-			
-//			System.out.println(String.format("NoteDlg.disp: created: %d, viewed: %d response: %d",
-//					currNote.getDateChanged().getTime(), 
-//					currNote.getTimeViewed().getTimeInMillis(),
-//					currNote.getTimeResponse().getTimeInMillis()));
-					
+				
 			//set the response border
 			String responseBorderText;
-			if(currNote.getStatus() == ONCNote.RESPONDED)
+			if(currNote.getStatus() == ONCNote.RESPONDED)	
 				responseBorderText = String.format("Response from %s on %s", currNote.getRespondedBy(),
 									timeFormat.format(currNote.getTimeResponse().getTime()));
-			else if(currNote.getStatus() == ONCNote.READ)
+			else if(currNote.getStatus() == ONCNote.READ)	
 				responseBorderText = String.format("Read by %s on %s", currNote.getRespondedBy(),
 									timeFormat.format(currNote.getTimeViewed().getTime()));
 			else
 				responseBorderText = "No Response: Not Yet Viewed";
 			
-			responseBorder.setTitle(responseBorderText);
 			
+			responseBorder.setTitle(responseBorderText);
 			responseTA.setText(currNote.getResponse());
 			
-			nav.setCount1("Total Notes: " + Integer.toString(noteDB.size()));
-			nav.setCount2("Unread Notes: " + Integer.toString(noteDB.size()));
+			setEditableInput(currNote);
+			
+			List<ONCNote> familyNoteList = noteDB.getNotesForFamily(currFam.getID());
+			int unread = 0;
+			for(ONCNote n : familyNoteList)
+				if(n.getStatus() < ONCNote.READ)
+					unread++;
+			
+			nav.setCount1("Family Notes: " + Integer.toString(noteDB.size()));
+			nav.setCount2("Unread: " + Integer.toString(unread));
 			
 			nav.setStoplightEntity(currNote);
 			nav.btnNextSetEnabled(true);
@@ -256,6 +298,25 @@ public class NoteDialog extends EntityDialog
 			entityPanel.repaint();	//mark for painting to refresh border changes
 
 			bIgnoreEvents = false;
+		}
+	}
+	
+	void setEditableInput(ONCNote note)
+	{
+		if(note.getStatus() == ONCNote.RESPONDED)
+		{
+			noteTA.setEditable(false);
+			titleTF.setEditable(false);
+		}
+		else if(note.getStatus() == ONCNote.READ)
+		{
+			noteTA.setEditable(false);
+			titleTF.setEditable(false);
+		}
+		else if(note.getStatus() == ONCNote.UNREAD)
+		{
+			noteTA.setEditable(true);
+			titleTF.setEditable(true);
 		}
 	}
 	
@@ -270,10 +331,16 @@ public class NoteDialog extends EntityDialog
 			if(currNote != null && (!titleTF.getText().equals(currNote.getTitle()) ||
 					   !noteTA.getText().equals(currNote.getNote())))
 			{
+				mode = Mode.UPDATE;
 				btnNew.setText("Update Note");
+				btnDelete.setText("Cancel Update");
 			}
 			else
+			{
+				mode = Mode.NORMAL;
 				btnNew.setText("Add New Note");
+				btnDelete.setText("Cancel Update");
+			}
 		}
 	}
 	@Override
@@ -281,12 +348,25 @@ public class NoteDialog extends EntityDialog
 	{
 		bIgnoreEvents = true;
 		
-		if(userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0)
-			familyBorder.setTitle(String.format("No notes for %s family, ONC #%s",
+		if(currFam != null)
+		{	
+			if(userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0)
+			{
+				nav.setDefaultMssg("No Notes for "+ currFam.getLastName() + " Family");
+				familyBorder.setTitle(String.format("No notes for %s family, ONC #%s",
 											currFam.getLastName(), currFam.getONCNum()));
+			}
+			else
+			{
+				nav.setDefaultMssg("No Notes for ONC #" + currFam.getONCNum());
+				familyBorder.setTitle(String.format("No notes for ONC #%s", currFam.getONCNum()));
+			}
+		}
 		else
-			familyBorder.setTitle(String.format("No notes for ONC #%s", currFam.getONCNum()));
-			
+		{
+			nav.setDefaultMssg("Family Notes");
+			familyBorder.setTitle("No Notes");
+		}
 		titleTF.setText("");
 		titleTF.setCaretPosition(0);
 		noteBorder.setTitle("");
@@ -295,8 +375,8 @@ public class NoteDialog extends EntityDialog
 		responseBorder.setTitle("");
 		responseTA.setText("");
 		
-		nav.setCount1("Total Notes: 0");
-		nav.setCount2("Unread Notes: 0");
+		nav.setCount1("Family Notes: 0");
+		nav.setCount2("Unread: 0");
 		
 		nav.setIndex(0);
 		nav.clearStoplight();
@@ -312,21 +392,37 @@ public class NoteDialog extends EntityDialog
 	@Override
 	void onNew() 
 	{
-		bAddingNewEntity = true;
+		if(mode == Mode.NORMAL)
+		{
+			bAddingNewEntity = true;
 		
-		nav.navSetEnabled(false);
-		clear();
-		familyBorder.setTitle("Enter New Note");
+			nav.navSetEnabled(false);
+			clear();
 		
-		Calendar now = Calendar.getInstance();
-		String title = String.format("Created by %s on %s", userDB.getLoggedInUser().getLNFI(),
-				timeFormat.format(now.getTime()));
-		noteBorder.setTitle(title);
-		noteTA.setEditable(true);
-		entityPanel.setBackground(Color.CYAN);	//Use color to indicate add org mode vs. review mode
-		entityPanel.repaint();
-		btnSave.setEnabled(false);
-		setControlState();
+			if(userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0)
+			{	
+				nav.setDefaultMssg("Add Note for "+ currFam.getLastName() + " Family");
+				familyBorder.setTitle(String.format("Add note for %s family, ONC #%s",
+										currFam.getLastName(), currFam.getONCNum()));
+			}
+			else
+			{	
+				nav.setDefaultMssg("Add Note for ONC # " + currFam.getONCNum());
+				familyBorder.setTitle(String.format("Add note for ONC #%s", currFam.getONCNum()));
+			}
+		
+			Calendar now = Calendar.getInstance();
+			String title = String.format("Created by %s on %s", userDB.getLoggedInUser().getLNFI(),
+					timeFormat.format(now.getTime()));
+			noteBorder.setTitle(title);
+			noteTA.setEditable(true);
+			entityPanel.setBackground(Color.CYAN);	//Use color to indicate add org mode vs. review mode
+			entityPanel.repaint();
+			btnSave.setEnabled(false);
+			setControlState();
+		}
+		else
+			update();
 	}
 
 	@Override
@@ -356,10 +452,10 @@ public class NoteDialog extends EntityDialog
 			}
 			else
 			{
-					String err_mssg = "ONC Server denied add note request, try again later";
-					JOptionPane.showMessageDialog(this, err_mssg, "Add Note Failure",
+				String err_mssg = "ONC Server denied add note request, try again later";
+				JOptionPane.showMessageDialog(this, err_mssg, "Add Note Failure",
 											JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
-					display(currNote);
+				display(currNote);
 			}
 					
 			//reset to review mode and display the proper partner
@@ -380,7 +476,15 @@ public class NoteDialog extends EntityDialog
 	@Override
 	void onDelete()
 	{
-		// TODO Auto-generated method stub
+		if(mode == mode.NORMAL)
+		{
+			//delete the note
+		}
+		else
+		{
+			//cancel any changes made by the user
+			display(currNote);
+		}
 		
 	}
 	private class TitleAndNoteChangeListener implements KeyListener
@@ -404,4 +508,6 @@ public class NoteDialog extends EntityDialog
 			checkForChanges();
 		}
 	}
+	
+	private enum Mode { NORMAL, UPDATE }
 }

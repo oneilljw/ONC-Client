@@ -38,6 +38,21 @@ public class ONCNote extends ONCEntity
 		this.timeResponse.setTimeInMillis(0);
 	}
 	
+	public ONCNote(ONCNote n)
+	{
+		super(n.id, new Date(), n.changedBy, n.slPos, n.slMssg, n.slChangedBy);
+		this.ownerID = n.ownerID;
+		this.status = n.status;
+		this.title = n.title;
+		this.note = n.note;
+		this.response = n.response;
+		this.respondedBy = n.respondedBy;
+		this.timeViewed = Calendar.getInstance();
+		this.timeViewed.setTimeInMillis(n.timeViewed.getTimeInMillis());
+		this.timeResponse = Calendar.getInstance();
+		this.timeResponse.setTimeInMillis(n.timeViewed.getTimeInMillis());
+	}
+	
 	public ONCNote(String[] line)
 	{
 		super(Integer.parseInt(line[0]), Long.parseLong(line[8]), line[5],

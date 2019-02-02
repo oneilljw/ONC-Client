@@ -57,7 +57,9 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private static final int TRANSPORTATION_ICON_INDEX = 31;
 	private static final int HISTORY_ICON_INDEX = 32;
 	private static final int AGENT_INFO_ICON_INDEX = 33;
-	private static final int FAMILY_NOTE_ICON_INDEX = 47;
+	private static final int FAMILY_NOTE_NONE_ICON_INDEX = 47;
+	private static final int FAMILY_NOTE_SENT_ICON_INDEX = 48;
+	private static final int FAMILY_NOTE_RESPONDED_ICON_INDEX = 49;
 	private static final int FAMILY_DETAILS_ICON_INDEX = 34;
 	private static final int PHONE_ICON_INDEX = 35;
 	private static final int NO_TRANSPORTATION_ICON_INDEX = 36;
@@ -78,6 +80,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private RegionDB regions;
 	private UserDB userDB;
 	private GroupDB groupDB;
+	private NoteDB noteDB;
 	
 	private ONCFamily currFam;	//The panel needs to know which family is being displayed
 	private ONCChild currChild;	//The panel needs to know which child is being displayed
@@ -130,6 +133,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		regions = RegionDB.getInstance();
 		userDB = UserDB.getInstance();
 		groupDB = GroupDB.getInstance();
+		noteDB = NoteDB.getInstance();
 		
 		if(dbMgr != null)
 			dbMgr.addDatabaseListener(this);
@@ -147,6 +151,8 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			userDB.addDatabaseListener(this);	//font preference updates
 		if(groupDB != null)
 			groupDB.addDatabaseListener(this);
+		if(noteDB != null)
+			noteDB.addDatabaseListener(this);
 		
 		currFam = null;
 		
@@ -318,7 +324,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         rbAgentInfo.setEnabled(false);
         rbAgentInfo.addActionListener(this);
         
-        rbFamilyNote = new JRadioButton(gvs.getImageIcon(FAMILY_NOTE_ICON_INDEX));
+        rbFamilyNote = new JRadioButton(gvs.getImageIcon(FAMILY_NOTE_NONE_ICON_INDEX));
         rbFamilyNote.setToolTipText("Click to edit notes to agent regarding family");
         rbFamilyNote.setEnabled(false);
         rbFamilyNote.addActionListener(this);
@@ -727,6 +733,15 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		oncNotesPane.setCaretPosition(0);
 		oncDIPane.setText(currFam.getDeliveryInstructions());
 		oncDIPane.setCaretPosition(0);
+		
+		//set family note button icon
+		ONCNote lastFamNote = noteDB.getLastNoteForFamily(currFam.getID());
+		if(lastFamNote == null)
+			rbFamilyNote.setIcon(gvs.getImageIcon(FAMILY_NOTE_NONE_ICON_INDEX));
+		else if(lastFamNote.getStatus() < ONCNote.RESPONDED)
+			rbFamilyNote.setIcon(gvs.getImageIcon( FAMILY_NOTE_SENT_ICON_INDEX));
+		else
+			rbFamilyNote.setIcon(gvs.getImageIcon(FAMILY_NOTE_RESPONDED_ICON_INDEX));
 		
 		//set meal button iconBar
 		if(currFam.getMealID()  == -1)
@@ -1487,18 +1502,18 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			else
 				mssg = userDB.getLoggedInUser().getFirstName() + ", " + year + " season data has been loaded";
 			
-    		setMssg(mssg, true);
+    			setMssg(mssg, true);
     		
-    		//if first family is present, load family and fire family selected event
-    		if(fDB.size() > 0)
-    		{
-    			currFam = (ONCFamily) fDB.getObjectAtIndex(nav.getIndex());
-    			display(currFam, null); //will set currChild if family has children
-    			nav.setStoplightEntity(currFam);
-    			onInitialFamilyDataLoaded();
-    			updateDBStatus(fDB.getServedFamilyAndChildCount());
-    			this.fireEntitySelected(this, EntityType.FAMILY, currFam, currChild);	
-    		}
+    			//if first family is present, load family and fire family selected event
+    			if(fDB.size() > 0)
+    			{
+    				currFam = (ONCFamily) fDB.getObjectAtIndex(nav.getIndex());
+    				display(currFam, null); //will set currChild if family has children
+    				nav.setStoplightEntity(currFam);
+    				onInitialFamilyDataLoaded();
+    				updateDBStatus(fDB.getServedFamilyAndChildCount());
+    				this.fireEntitySelected(this, EntityType.FAMILY, currFam, currChild);	
+    			}
 		}
 		else if(dbe.getSource() != this && (dbe.getType().equals("UPDATED_USER") ||
 				dbe.getType().equals("CHANGED_USER")))
@@ -1507,6 +1522,13 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			ONCUser updatedUser = (ONCUser)dbe.getObject1();
 			if(userDB.getLoggedInUser().getID() == updatedUser.getID())
 				setTextPaneFontSize(updatedUser.getPreferences().getFontSize());
+		}
+		else if(dbe.getType().equals("ADDED_NOTE") || dbe.getType().equals("UPDATED_NOTE")
+				|| dbe.getType().equals("DELETED_NOTE"))
+		{
+			ONCNote changedNote = (ONCNote) dbe.getObject1();
+			if(currFam != null && changedNote.getOwnerID() == currFam.getID())
+				display(currFam, currChild);
 		}
 	}
 

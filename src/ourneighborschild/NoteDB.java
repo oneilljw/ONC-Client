@@ -5,6 +5,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.swing.JFrame;
@@ -75,6 +77,8 @@ public class NoteDB extends ONCSearchableDatabase
 				if(n.getOwnerID() == filterID)
 					filteredNoteList.add(n);
 		}
+		
+		Collections.sort(filteredNoteList, new ONCNoteTimeCreatedComparator());
 	}
 	
 	ONCNote getNote(int id)
@@ -132,8 +136,7 @@ public class NoteDB extends ONCSearchableDatabase
 		//notify the server
 		Gson gson = new Gson();
 		String response = null;
-		response = serverIF.sendRequest("POST<update_note>" + 
-												gson.toJson(updatedNote, ONCAdult.class));
+		response = serverIF.sendRequest("POST<update_note>" + gson.toJson(updatedNote, ONCNote.class));
 		
 		//check response. If response from server indicates a successful update,
 		//create and store the updated note in the local data base and notify local
@@ -278,8 +281,21 @@ public class NoteDB extends ONCSearchableDatabase
 				if(n.getOwnerID() == ownerID)
 					noteList.add(n);
 					
+			Collections.sort(noteList, new ONCNoteTimeCreatedComparator());
+			
 			return noteList;
 		}		 
+	}
+	
+	//take advantage of the fact the list of notes if saved in time order. Search 
+	//from the bottom for the first note for the family. If no note, return a dummy note
+	ONCNote getLastNoteForFamily(int ownerID)
+	{
+		int index = noteList.size()-1;
+		while(index >= 0 && noteList.get(index).getOwnerID() != ownerID)
+			index--;
+			
+		return index >= 0 ? noteList.get(index) : null;
 	}
 	
 	String importDB()
@@ -325,5 +341,19 @@ public class NoteDB extends ONCSearchableDatabase
 	{
 		// TODO Auto-generated method stub
 		return "";
+	}
+	
+	private class ONCNoteTimeCreatedComparator implements Comparator<ONCNote>
+	{
+		@Override
+		public int compare(ONCNote o1, ONCNote o2)
+		{
+			if(o1.getDateChanged().compareTo(o2.getDateChanged()) == 0) 
+	            return 0;
+	        else if(o1.getDateChanged().after(o2.getDateChanged()))
+	        		return -1;
+	        else
+	        		return 1;
+		}
 	}
 }
