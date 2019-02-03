@@ -1,6 +1,7 @@
 package ourneighborschild;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Point;
@@ -8,6 +9,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -16,19 +18,36 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
+import javax.swing.UIManager;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.JTableHeader;
+import javax.swing.table.TableCellRenderer;
 
 import com.google.gson.Gson;
 
-public class NoteDialog extends EntityDialog
+public class NoteDialog extends EntityDialog implements ListSelectionListener
 {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-
+	
+	private static final int TITLE_COL = 0;
+	private static final int CREATED_BY_COL = 1;
+	private static final int TIME_CREATED_COL = 2;
+	private static final int STATUS_COL = 3;
+	private static final int RESPONDED_BY_COL = 4;
+	private static final int TIME_RESPONSE_COL = 5;
+	
 	private NoteDB noteDB;
 	
 	private ONCFamily currFam;
@@ -36,6 +55,8 @@ public class NoteDialog extends EntityDialog
 	
 	private Mode mode;
 	
+	private ONCTable dlgTable;
+	private AbstractTableModel dlgTableModel;
 	private TitledBorder familyBorder, noteBorder, responseBorder;
 	private JTextField titleTF;
 	private JTextArea noteTA, responseTA;
@@ -68,9 +89,65 @@ public class NoteDialog extends EntityDialog
         entityPanel.setBorder(familyBorder);
       
         TitleAndNoteChangeListener changeListener = new TitleAndNoteChangeListener();
+        
+        //set up the table panel
+        dlgTableModel = new DialogTableModel();
+        String[] colTT = {"Title", "User who wrote the note", "Time the note was written", 
+        						"Has the note been read?", "Agent who viewed or responded to the note",
+        						"Time the agent read or responded"};
+        
+      	dlgTable = new ONCTable(dlgTableModel, colTT, new Color(240,248,255));
+      	dlgTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+      	dlgTable.getSelectionModel().addListSelectionListener(this);
+      	
+      	//set up a cell renderer for the LAST_LOGINS column to display the date 
+      	TableCellRenderer tableCellRenderer = new DefaultTableCellRenderer()
+      	{
+      		private static final long serialVersionUID = 1L;
+      		SimpleDateFormat f = new SimpleDateFormat("M/dd/yy h:mm a");
+
+      		public Component getTableCellRendererComponent(JTable table, Object value,
+      		            boolean isSelected, boolean hasFocus, int row, int column)
+      		{ 
+      		    if(value instanceof java.util.Date)
+      		        value = f.format(value);
+      		        
+      		    return super.getTableCellRendererComponent(table, value, isSelected,
+      		            hasFocus, row, column);
+      		}
+      	};
+      	dlgTable.getColumnModel().getColumn(TIME_CREATED_COL).setCellRenderer(tableCellRenderer);
+      	dlgTable.getColumnModel().getColumn(TIME_RESPONSE_COL).setCellRenderer(tableCellRenderer);
+
+      	//Set table column widths
+      	int tablewidth = 0;
+      	int[] colWidths = {192,80,120,80,90,120};
+      	for(int col=0; col < colWidths.length; col++)
+      	{
+      		dlgTable.getColumnModel().getColumn(col).setPreferredWidth(colWidths[col]);
+      		tablewidth += colWidths[col];
+      	}
+      	tablewidth += 24; 	//count for vertical scroll bar
+      		
+//       dlgTable.setAutoCreateRowSorter(true);	//add a sorter
+              
+         JTableHeader anHeader = dlgTable.getTableHeader();
+         anHeader.setForeground( Color.black);
+         anHeader.setBackground( new Color(161,202,241));
+              
+         //left justify columns
+         DefaultTableCellRenderer dtcr = new DefaultTableCellRenderer();
+         dtcr.setHorizontalAlignment(SwingConstants.CENTER);
+         dlgTable.getColumnModel().getColumn(STATUS_COL).setCellRenderer(dtcr);
+              
+         //Create the scroll pane and add the table to it.
+         JScrollPane dsScrollPane = new JScrollPane(dlgTable);
+         dsScrollPane.setPreferredSize(new Dimension(tablewidth, 96));
+         dsScrollPane.setBorder(UIManager.getBorder("Table.scrollPaneBorder"));
+         
         //set up title panel
-        JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        titleTF = new JTextField(32);
+        JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        titleTF = new JTextField(16);
         titleTF.setBorder(BorderFactory.createTitledBorder("Title"));
         titleTF.addActionListener(dcListener);
         titleTF.addKeyListener(changeListener);
@@ -79,7 +156,7 @@ public class NoteDialog extends EntityDialog
         
         //set up note and response panel
         JPanel noteAndResponsePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        Dimension textAreaDimension = new Dimension(280, 120);
+        Dimension textAreaDimension = new Dimension(320, 100);
         timeFormat = new SimpleDateFormat("M/dd/yy h:mm a");
         
         //set up the note Panel
@@ -116,6 +193,7 @@ public class NoteDialog extends EntityDialog
 		noteAndResponsePanel.add(notePanel);
 		noteAndResponsePanel.add(responsePanel);
      
+		entityPanel.add(dsScrollPane);
         entityPanel.add(titlePanel);
         entityPanel.add(noteAndResponsePanel);
         
@@ -140,7 +218,7 @@ public class NoteDialog extends EntityDialog
 
         this.pack();
         this.setResizable(true);
-        this.setMinimumSize(new Dimension(640, 300));
+        this.setMinimumSize(new Dimension(720, 360));
         Point pt = pf.getLocation();
         setLocation(pt.x + 20, pt.y + 20);
 	}
@@ -154,6 +232,9 @@ public class NoteDialog extends EntityDialog
 		else if(dbe.getType().equals("UPDATED_NOTE"))
 		{
 			ONCNote updatedNote = (ONCNote) dbe.getObject1();
+			if(currFam != null && updatedNote.getOwnerID() == currFam.getID())
+				dlgTableModel.fireTableDataChanged();
+			
 			if(currNote != null && updatedNote.getID() == currNote.getID())
 				display(updatedNote);
 		}
@@ -198,7 +279,7 @@ public class NoteDialog extends EntityDialog
 		{
 			int bCD = 0;
 			if(!currNote.getTitle().equals(titleTF.getText())) { bCD = bCD | 1; }
-			if(!currNote.getNote().equals(titleTF.getText())) { bCD = bCD | 2; }
+			if(!currNote.getNote().equals(noteTA.getText())) { bCD = bCD | 2; }
 			
 			if(bCD > 0)
 			{
@@ -242,18 +323,19 @@ public class NoteDialog extends EntityDialog
 			
 			bIgnoreEvents = true;
 			
+			dlgTable.setRowSelectionInterval(nav.getIndex(), nav.getIndex());
+			
 			nav.setDefaultMssg("Notes for "+ currFam.getLastName() + " Family");
 			if(userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0)
 			{
 				nav.setDefaultMssg("Notes for "+ currFam.getLastName() + " Family");
-				familyBorder.setTitle(String.format("Note %d of %d for %s family, ONC #%s",
-					nav.getIndex()+1, noteDB.size(), currFam.getLastName(), currFam.getONCNum()));
+				familyBorder.setTitle(String.format("Notes for %s family, ONC #%s",
+													currFam.getLastName(), currFam.getONCNum()));
 			}
 			else
 			{
 				nav.setDefaultMssg("Notes for ONC #" + currFam.getONCNum());
-				familyBorder.setTitle(String.format("Note %d of %d for ONC #%s",
-						nav.getIndex()+1, noteDB.size(), currFam.getONCNum()));
+				familyBorder.setTitle(String.format("Notes for ONC #%s", currFam.getONCNum()));
 			}
 				
 			titleTF.setText(currNote.getTitle());
@@ -415,6 +497,7 @@ public class NoteDialog extends EntityDialog
 			String title = String.format("Created by %s on %s", userDB.getLoggedInUser().getLNFI(),
 					timeFormat.format(now.getTime()));
 			noteBorder.setTitle(title);
+			titleTF.setEditable(true);
 			noteTA.setEditable(true);
 			entityPanel.setBackground(Color.CYAN);	//Use color to indicate add org mode vs. review mode
 			entityPanel.repaint();
@@ -476,7 +559,7 @@ public class NoteDialog extends EntityDialog
 	@Override
 	void onDelete()
 	{
-		if(mode == mode.NORMAL)
+		if(mode == Mode.NORMAL)
 		{
 			//delete the note
 		}
@@ -487,6 +570,94 @@ public class NoteDialog extends EntityDialog
 		}
 		
 	}
+	
+	@Override
+	public void valueChanged(ListSelectionEvent lse)
+	{
+		if(!lse.getValueIsAdjusting() && !bIgnoreEvents)
+		{
+			int modelRow = dlgTable.getSelectedRow() == -1 ? -1 : 
+				dlgTable.convertRowIndexToModel(dlgTable.getSelectedRow());
+			
+			if(modelRow > -1)
+			{
+				display(noteDB.getObjectAtIndex(modelRow));
+				nav.setIndex(modelRow);
+			}
+		}
+	}
+	
+	class DialogTableModel extends AbstractTableModel
+	{
+        /**
+		 * Implements the table model for the Delivery History Dialog
+		 */
+		private static final long serialVersionUID = 1L;
+		private String[] columnNames = {"Title", "Written By", "Time", "Status", "Agent", "Time"};
+		private String[] statusText;
+		
+		public DialogTableModel()
+		{
+			statusText =  new String[] {"Unread", "Read", "Responded"};
+		}
+
+        public int getColumnCount() { return columnNames.length; }
+ 
+        public int getRowCount() { return noteDB == null ? 0 : noteDB.size(); }
+ 
+        public String getColumnName(int col) { return columnNames[col]; }
+ 
+        public Object getValueAt(int row, int col)
+        {
+        		Object value;
+        	
+        		ONCNote n = noteDB.getNotesForFamily(currFam.getID()).get(row);
+        	
+        		if(col == TITLE_COL)
+        			value = n.getTitle();
+        		else if(col == CREATED_BY_COL)
+        			value = n.getChangedBy();
+        		else if(col == TIME_CREATED_COL)
+        			value = n.getDateChanged();
+        		else if(col == STATUS_COL)
+        		{
+        			if(n.getStatus() >= ONCNote.UNREAD && n.getStatus() <= ONCNote.RESPONDED)
+        				value = statusText[n.getStatus()];
+        			else
+        				value = "";
+        		}
+        		else if(col == RESPONDED_BY_COL)
+        			value = n.getRespondedBy();
+        		else if(col == TIME_RESPONSE_COL)
+        		{
+        			if(n.getStatus() == ONCNote.READ)
+        				value = n.getTimeViewed().getTime();
+        			else if(n.getStatus() == ONCNote.RESPONDED)
+        				value = n.getTimeResponse().getTime();
+        			else
+        				value = "";
+        		}
+        		else
+        			value = "Error";
+        	
+         	return value;
+        }
+        
+        //JTable uses this method to determine the default renderer/editor for each cell.
+        @Override
+        public Class<?> getColumnClass(int column)
+        {
+        		if(column == TIME_CREATED_COL || column == TIME_RESPONSE_COL)
+        			return Date.class;
+        		else
+        			return String.class;
+        }
+ 
+        public boolean isCellEditable(int row, int col)
+        {
+        		return false;
+        }
+    }
 	private class TitleAndNoteChangeListener implements KeyListener
 	{
 
