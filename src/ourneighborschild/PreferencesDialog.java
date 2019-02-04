@@ -870,6 +870,8 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		int index = 0;
 		@SuppressWarnings("unchecked")
 		List<Activity> activityList = (List<Activity>) activityDB.getList();
+		
+		deliveryActivityCBM.addElement(new Activity(-1, "None")); //creates a dummy Activity with name "None", id = -1;
 		for(Activity a: activityList)
 		{
 			deliveryActivityCBM.addElement(a);
@@ -881,7 +883,6 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		
 		//restore a prior selection if there was one
 		deliveryActivityCB.setSelectedIndex(selDefalutDeliveryActivityIndex); //Keep current selection
-		
 		
 		//restore the action listeners
 		deliveryActivityCB.addActionListener(this);

@@ -596,36 +596,36 @@ public class FamilyDB extends ONCSearchableDatabase
 	
 	private void searchForONCNumber(String s, List<Integer> rAL)
     {
-    	for(ONCFamily f: oncFamAL)
-    		if(s.equals(f.getONCNum()))
-    			rAL.add(f.getID());		
+    		for(ONCFamily f: oncFamAL)
+    			if(s.equals(f.getONCNum()))
+    				rAL.add(f.getID());		
     }
 	
 	public int searchForONCNumber(String oncnum)
     {
-    	int index = 0;
+    		int index = 0;
     	
-    	while(index < oncFamAL.size() && !oncnum.equals(oncFamAL.get(index).getONCNum()))
-    		index++;
+    		while(index < oncFamAL.size() && !oncnum.equals(oncFamAL.get(index).getONCNum()))
+    			index++;
     	
-    	return index == oncFamAL.size() ? -1 : index;   		
+    		return index == oncFamAL.size() ? -1 : index;   		
     }
 	
 	private void searchForODBNumber(String s, List<Integer> rAL)
     {
-    	for(ONCFamily f: oncFamAL)
-    		if(s.equals(f.getReferenceNum()))
-    			rAL.add(f.getID());   	
+		for(ONCFamily f: oncFamAL)
+    			if(s.equals(f.getReferenceNum()))
+    				rAL.add(f.getID());   	
     }
 	
 	int searchForODBNumber(String odbnum)
     {
-    	int index = 0;
+		int index = 0;
     	
-    	while(index < oncFamAL.size() && !odbnum.equals(oncFamAL.get(index).getReferenceNum()))
-    		index++;
+		while(index < oncFamAL.size() && !odbnum.equals(oncFamAL.get(index).getReferenceNum()))
+    			index++;
     	
-    	return index==oncFamAL.size() ? -1 : index;   		
+		return index==oncFamAL.size() ? -1 : index;   		
     }
 	
 	/***

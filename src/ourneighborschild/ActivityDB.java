@@ -280,7 +280,6 @@ public class ActivityDB extends ONCSearchableDatabase
 			
 			response = serverIF.sendRequest("GET<activities>");
 			activityList = gson.fromJson(response, listtype);
-
 			if(!response.startsWith("NO_ACTIVITIES"))
 			{
 				response =  "ACTIVITIES_LOADED";
@@ -325,8 +324,7 @@ public class ActivityDB extends ONCSearchableDatabase
 		Gson gson = new Gson();
 		Activity addedActivity = gson.fromJson(json, Activity.class);
 		activityList.add(addedActivity);
-//		System.out.println(String.format("DriverDB processAddedDriver: Driver Added ID: %d",
-//				addedDriver.getID()));
+
 		//Notify local user IFs that an organization/partner was added
 		fireDataChanged(source, "ADDED_ACTIVITY", addedActivity);
 		

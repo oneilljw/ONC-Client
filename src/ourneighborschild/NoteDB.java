@@ -339,8 +339,18 @@ public class NoteDB extends ONCSearchableDatabase
 	@Override
 	String searchForListItem(ArrayList<Integer> searchAL, String data)
 	{
-		// TODO Auto-generated method stub
-		return "";
+		searchAL.clear();
+		
+		//Determine the type of search based on characteristics of search string
+		for(ONCNote note : filteredNoteList)
+			if(note.getTitle().toLowerCase().contains(data.toLowerCase()) ||
+			    note.getNote().toLowerCase().contains(data.toLowerCase()) ||
+			     note.getResponse().toLowerCase().contains(data.toLowerCase()))
+		{
+				searchAL.add(note.getID());
+		}
+		
+		return "Text";
 	}
 	
 	private class ONCNoteTimeCreatedComparator implements Comparator<ONCNote>

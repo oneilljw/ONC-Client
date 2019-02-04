@@ -19,8 +19,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.JTextPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
@@ -31,6 +31,8 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
 
 import com.google.gson.Gson;
 
@@ -59,7 +61,7 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
 	private AbstractTableModel dlgTableModel;
 	private TitledBorder familyBorder, noteBorder, responseBorder;
 	private JTextField titleTF;
-	private JTextArea noteTA, responseTA;
+	private JTextPane notePane, responsePane;
 	private SimpleDateFormat timeFormat;
 	
 	NoteDialog(JFrame pf)
@@ -71,6 +73,9 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
 		noteDB = NoteDB.getInstance();
 		if(noteDB != null)
 			noteDB.addDatabaseListener(this);
+		
+		if(userDB != null)
+			userDB.addDatabaseListener(this);
 		
 		//initialize member variables
 		currFam = null;
@@ -162,15 +167,19 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
         //set up the note Panel
         JPanel notePanel = new JPanel();
         
-        noteTA = new JTextArea();
-		noteTA.setPreferredSize(textAreaDimension);
-	    noteTA.setToolTipText("Family specific note entered by ONC Elf");
-	    noteTA.setLineWrap(true);
-	    noteTA.setWrapStyleWord(true);
-	    noteTA.setEditable(false);
-	    noteTA.addKeyListener(changeListener);
+        SimpleAttributeSet attribs = new SimpleAttributeSet();  
+        StyleConstants.setAlignment(attribs , StyleConstants.ALIGN_LEFT);
+        StyleConstants.setFontSize(attribs, userDB.getUserPreferences().getFontSize());
+        StyleConstants.setSpaceBelow(attribs, 3);
+        
+        notePane = new JTextPane();
+		notePane.setPreferredSize(textAreaDimension);
+	    notePane.setToolTipText("Family specific note entered by ONC Elf");
+	    notePane.setParagraphAttributes(attribs,true); 
+	    notePane.setEditable(false);
+	    notePane.addKeyListener(changeListener);
 	    
-	    JScrollPane noteScrollPane = new JScrollPane(noteTA);
+	    JScrollPane noteScrollPane = new JScrollPane(notePane);
 	    noteBorder = BorderFactory.createTitledBorder("Note");
 		noteScrollPane.setBorder(noteBorder);
 		notePanel.add(noteScrollPane);
@@ -178,14 +187,13 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
         //set up response Panel
         JPanel responsePanel = new JPanel();
         
-        responseTA = new JTextArea();
-        responseTA.setPreferredSize(textAreaDimension);
-        responseTA.setToolTipText("Note response provided by Agent");
-        responseTA.setLineWrap(true);
-        responseTA.setWrapStyleWord(true);
-        responseTA.setEditable(false);
+        responsePane = new JTextPane();
+        responsePane.setPreferredSize(textAreaDimension);
+        responsePane.setToolTipText("Note response provided by Agent");
+        notePane.setParagraphAttributes(attribs,true);
+        responsePane.setEditable(false);
 	    
-	    JScrollPane responseScrollPane = new JScrollPane(responseTA);
+	    JScrollPane responseScrollPane = new JScrollPane(responsePane);
 	    responseBorder = BorderFactory.createTitledBorder("Response");
 		responseScrollPane.setBorder(responseBorder);
 		responsePanel.add(responseScrollPane);
@@ -222,6 +230,19 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
         Point pt = pf.getLocation();
         setLocation(pt.x + 20, pt.y + 20);
 	}
+	
+	void setTextPaneFontSize(Integer fontSize)
+	{
+		SimpleAttributeSet attribs = new SimpleAttributeSet();  
+        StyleConstants.setAlignment(attribs , StyleConstants.ALIGN_LEFT);
+        StyleConstants.setFontSize(attribs, fontSize);
+        StyleConstants.setSpaceBelow(attribs, 3);
+        notePane.setParagraphAttributes(attribs, true);
+        responsePane.setParagraphAttributes(attribs, true);
+        
+        if(currFam != null && currNote != null)
+        	display(currNote);
+	}
 
 	@Override
 	public void dataChanged(DatabaseEvent dbe)
@@ -237,6 +258,20 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
 			
 			if(currNote != null && updatedNote.getID() == currNote.getID())
 				display(updatedNote);
+		}
+		else if(dbe.getType().equals("ADDED_NOTE"))
+		{
+			ONCNote addedNote = (ONCNote) dbe.getObject1();
+			if(currFam != null && addedNote.getOwnerID() == currFam.getID())
+				dlgTableModel.fireTableDataChanged();
+		}
+		else if(dbe.getSource() != this && (dbe.getType().equals("UPDATED_USER") ||
+				dbe.getType().equals("CHANGED_USER")))
+		{
+			//determine if it's the currently logged in user
+			ONCUser updatedUser = (ONCUser)dbe.getObject1();
+			if(userDB.getLoggedInUser().getID() == updatedUser.getID())
+				setTextPaneFontSize(updatedUser.getPreferences().getFontSize());
 		}
 	}
 	
@@ -279,13 +314,13 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
 		{
 			int bCD = 0;
 			if(!currNote.getTitle().equals(titleTF.getText())) { bCD = bCD | 1; }
-			if(!currNote.getNote().equals(noteTA.getText())) { bCD = bCD | 2; }
+			if(!currNote.getNote().equals(notePane.getText())) { bCD = bCD | 2; }
 			
 			if(bCD > 0)
 			{
 				ONCNote updateNoteReq = new ONCNote(currNote);
 				updateNoteReq.setTitle(titleTF.getText());
-				updateNoteReq.setNote(noteTA.getText());
+				updateNoteReq.setNote(notePane.getText());
 				
 				String response = noteDB.update(this, updateNoteReq);
 				if(response.startsWith("UPDATED_NOTE"))
@@ -345,7 +380,7 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
 			String noteBorderText = String.format("Sent by %s on %s", currNote.getChangedBy(),
 									timeFormat.format(currNote.getDateChanged()));
 			noteBorder.setTitle(noteBorderText);
-			noteTA.setText(currNote.getNote());
+			notePane.setText(currNote.getNote());
 				
 			//set the response border
 			String responseBorderText;
@@ -360,7 +395,7 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
 			
 			
 			responseBorder.setTitle(responseBorderText);
-			responseTA.setText(currNote.getResponse());
+			responsePane.setText(currNote.getResponse());
 			
 			setEditableInput(currNote);
 			
@@ -387,17 +422,17 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
 	{
 		if(note.getStatus() == ONCNote.RESPONDED)
 		{
-			noteTA.setEditable(false);
+			notePane.setEditable(false);
 			titleTF.setEditable(false);
 		}
 		else if(note.getStatus() == ONCNote.READ)
 		{
-			noteTA.setEditable(false);
+			notePane.setEditable(false);
 			titleTF.setEditable(false);
 		}
 		else if(note.getStatus() == ONCNote.UNREAD)
 		{
-			noteTA.setEditable(true);
+			notePane.setEditable(true);
 			titleTF.setEditable(true);
 		}
 	}
@@ -405,13 +440,13 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
 	void checkForChanges()
 	{
 		if(bAddingNewEntity)
-			btnSave.setEnabled(!titleTF.getText().isEmpty() && !noteTA.getText().isEmpty());
+			btnSave.setEnabled(!titleTF.getText().isEmpty() && !notePane.getText().isEmpty());
 		else
 		{
 			//if no changes, btn text should allow new note creation. If changes,
 			//it should allow update to existing note
 			if(currNote != null && (!titleTF.getText().equals(currNote.getTitle()) ||
-					   !noteTA.getText().equals(currNote.getNote())))
+					   !notePane.getText().equals(currNote.getNote())))
 			{
 				mode = Mode.UPDATE;
 				btnNew.setText("Update Note");
@@ -452,10 +487,10 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
 		titleTF.setText("");
 		titleTF.setCaretPosition(0);
 		noteBorder.setTitle("");
-		noteTA.setText("");
-		noteTA.setEditable(false);
+		notePane.setText("");
+		notePane.setEditable(false);
 		responseBorder.setTitle("");
-		responseTA.setText("");
+		responsePane.setText("");
 		
 		nav.setCount1("Family Notes: 0");
 		nav.setCount2("Unread: 0");
@@ -498,7 +533,7 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
 					timeFormat.format(now.getTime()));
 			noteBorder.setTitle(title);
 			titleTF.setEditable(true);
-			noteTA.setEditable(true);
+			notePane.setEditable(true);
 			entityPanel.setBackground(Color.CYAN);	//Use color to indicate add org mode vs. review mode
 			entityPanel.repaint();
 			btnSave.setEnabled(false);
@@ -522,9 +557,9 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
 	void onSaveNew() 
 	{	
 		//construct a new ONCNote if all the fields are valid
-		if(!titleTF.getText().isEmpty() && !noteTA.getText().isEmpty())
+		if(!titleTF.getText().isEmpty() && !notePane.getText().isEmpty())
 		{	
-			ONCNote reqAddNote = new ONCNote(-1, currFam.getID(), titleTF.getText(), noteTA.getText());
+			ONCNote reqAddNote = new ONCNote(-1, currFam.getID(), titleTF.getText(), notePane.getText());
 		
 			ONCNote addedNote = (ONCNote) noteDB.add(this, reqAddNote);
 			if(addedNote != null)
@@ -532,6 +567,7 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
 				//set the display index to the newly added note and display the note
 				nav.setIndex(noteDB.getListIndexByID(noteDB.getNotesForFamily(currFam.getID()), addedNote.getID()));
 				display(addedNote);
+				dlgTableModel.fireTableDataChanged();
 			}
 			else
 			{
@@ -581,8 +617,8 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
 			
 			if(modelRow > -1)
 			{
-				display(noteDB.getObjectAtIndex(modelRow));
 				nav.setIndex(modelRow);
+				display(noteDB.getObjectAtIndex(modelRow));
 			}
 		}
 	}

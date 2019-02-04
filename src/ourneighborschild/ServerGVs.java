@@ -43,10 +43,10 @@ public class ServerGVs extends ONCObject
 		this.defaultGiftCardID = defaultGiftCardID;
 		
 		decemberMealDeadline = Calendar.getInstance();
-		decemberMealDeadline.setTimeInMillis(td);
+		decemberMealDeadline.setTimeInMillis(decMealDeadlone);
 		
 		waitlistGiftDeadline = Calendar.getInstance();
-		waitlistGiftDeadline.setTimeInMillis(decd);
+		waitlistGiftDeadline.setTimeInMillis(wlDeadline);
 		
 		this.deliveryActivityID = defaultDeliveryActivityID;
 	}

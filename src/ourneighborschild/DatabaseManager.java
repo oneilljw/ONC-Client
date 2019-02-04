@@ -162,8 +162,8 @@ public class DatabaseManager extends ONCDatabase
 		{
 			//set up user notification of result
 			String mssg = null;
-	    	String title = "Add Year Failed";
-	    	int mssgType = JOptionPane.ERROR_MESSAGE;
+			String title = "Add Year Failed";
+	    		int mssgType = JOptionPane.ERROR_MESSAGE;
 	    	
 			//send add new year request to the ONC Server via the  DBStatus data base
 	    		//and process response. Inform the user of the result
@@ -405,7 +405,7 @@ public class DatabaseManager extends ONCDatabase
 			oncChildDB.importChildDatabase();
 			this.setProgress(progress += increment);
 			
-			pb.updateHeaderText("Loading Wishes");
+			pb.updateHeaderText("Loading Gifts");
 			oncChildWishDB.importChildWishDatabase();
 			this.setProgress(progress += increment);
 			

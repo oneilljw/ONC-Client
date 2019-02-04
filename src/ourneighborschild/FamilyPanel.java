@@ -1228,9 +1228,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		else if(e.getSource() == rbFamilyNote)
 		{   
 			if(currFam != null)
-			{
-				DialogManager.getInstance().showEntityDialog("Edit Notes", this.getLocation());
-			}
+				DialogManager.getInstance().showEntityDialog("Edit Notes", new Point(40, 80));	
 		}
 		else if(e.getSource() == rbFamDetails)
 		{
