@@ -249,7 +249,7 @@ public class GlobalVariablesDB extends ONCDatabase implements Serializable
 		
 		return lights;
 	}
-	public static ImageIcon[] getClipborads()
+	public static ImageIcon[] getTinyClipboradIcons()
 	{
 		ImageIcon[] lights = {imageIcons[27], imageIcons[52], imageIcons[53],
 				imageIcons[54], imageIcons[55], imageIcons[56]};

@@ -223,7 +223,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		stoplightCB.setBorder(BorderFactory.createTitledBorder("Stoplight"));
 		stoplightCB.addActionListener(this);
 		
-		noteStatusCB = new JComboBox<ImageIcon>(GlobalVariablesDB.getClipborads());
+		noteStatusCB = new JComboBox<ImageIcon>(GlobalVariablesDB.getTinyClipboradIcons());
 		noteStatusCB.setPreferredSize(new Dimension(88, 56));
 		noteStatusCB.setBorder(BorderFactory.createTitledBorder("Note"));
 		noteStatusCB.addActionListener(this);
