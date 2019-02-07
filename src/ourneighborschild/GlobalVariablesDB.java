@@ -118,7 +118,7 @@ public class GlobalVariablesDB extends ONCDatabase implements Serializable
 	    oncSeasonStartDate.set(Calendar.SECOND, 0);
 	    oncSeasonStartDate.set(Calendar.MILLISECOND, 0);
 	   
-	    imageIcons = new ImageIcon[50];
+	    imageIcons = new ImageIcon[57];
 		imageIcons[0] = createImageIcon("onclogosmall.gif", "ONC Logo");
 		imageIcons[1] = createImageIcon("InfoIcon.gif", "Info Icon");
 		imageIcons[2] = createImageIcon("Button-Next-icon.gif", "Next Icon");
@@ -176,9 +176,19 @@ public class GlobalVariablesDB extends ONCDatabase implements Serializable
 		imageIcons[44] = createImageIcon("Green_tag.png", "Gift Label");
 		imageIcons[45] = createImageIcon("cornerhat.png", "Corner Hat");
 		imageIcons[46] = createImageIcon("candle.png", "Candle");
-		imageIcons[47] = createImageIcon("clipboard-gray.png", "No Family Note");
-		imageIcons[48] = createImageIcon("clipboard-black.png", "Family Notes");
-		imageIcons[49] = createImageIcon("clipboard-green.png", "Family Notes Responded");
+		
+		//clipboards
+		imageIcons[47] = createImageIcon("clipboard-gray-32.png", "No Family Note");
+		imageIcons[48] = createImageIcon("clipboard-black-32.png", "Family Note Sent");
+		imageIcons[49] = createImageIcon("clipboard-blue-32.png", "Family Note Read");
+		imageIcons[50] = createImageIcon("clipboard-green-32.png", "Family Note Responded");
+		imageIcons[51] = createImageIcon("clipboard-red-32.png", "Family Note Past Deadline");
+		
+		imageIcons[52] = createImageIcon("clipboard-gray-16.png", "No Family Note_small");
+		imageIcons[53] = createImageIcon("clipboard-black-16.png", "Family Note Sent_small");
+		imageIcons[54] = createImageIcon("clipboard-blue-16.png", "Family Note Read_small");
+		imageIcons[55] = createImageIcon("clipboard-green-16.png", "Family Note Responded_small");
+		imageIcons[56] = createImageIcon("clipboard-red-16.png", "Family Note Past Deadline_small");
 		
 		warehouseAddress = "6476+Trillium+House+Lane+Centreville,VA";
 		defaultGiftID = -1;
@@ -239,6 +249,28 @@ public class GlobalVariablesDB extends ONCDatabase implements Serializable
 		
 		return lights;
 	}
+	public static ImageIcon[] getClipborads()
+	{
+		ImageIcon[] lights = {imageIcons[27], imageIcons[52], imageIcons[53],
+				imageIcons[54], imageIcons[55], imageIcons[56]};
+		
+		return lights;
+	}
+	
+	ImageIcon getTinyClipboardIcon(ONCNote n)
+	{
+		if(n == null)
+			return imageIcons[52];
+		else if(n.getStatus() == ONCNote.SENT)
+			return imageIcons[53];
+		else if(n.getStatus() == ONCNote.READ)
+			return imageIcons[54];
+		else if(n.getStatus() == ONCNote.RESPONDED)
+			return imageIcons[55];
+		else
+			return imageIcons[56];
+	}
+	
 	ImageIcon[] getImageIcons() {return imageIcons; }
 	ImageIcon getONCFullScreenLogo() {return imageIcons[15]; }
 	Image getImage(int icon) { return imageIcons[icon].getImage(); }

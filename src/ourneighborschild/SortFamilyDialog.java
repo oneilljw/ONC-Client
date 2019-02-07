@@ -76,15 +76,15 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	private static final int AVERY_LABEL_X_BARCODE_OFFSET = 0;
 	private static final int AVERY_LABEL_Y_BARCODE_OFFSET = 4;
 	
-//	public enum FamilyStatus {Empty, InfoVerified, GiftsSelected, GiftsReveived, GiftsVerified, Packaged}
-	
+	//Database references
+	NoteDB noteDB;
 	
 	//Unique gui elements for Sort Family Dialog
 	private JComboBox<String> oncCB, batchCB, regionCB, dnsCB, streetCB, lastnameCB, zipCB;
 	private JComboBox<FamilyStatus> fstatusCB, changeFStatusCB;
 	private JComboBox<FamilyGiftStatus> giftStatusCB, changeGiftStatusCB;
 	private JComboBox<String> changedByCB, giftCardCB, changeDNSCB; 
-	private JComboBox<ImageIcon> stoplightCB;
+	private JComboBox<ImageIcon> stoplightCB, noteStatusCB;
 	private JComboBox<MealStatus> mealstatusCB;
 	private JComboBox<String> exportCB, printCB, emailCB, callCB;
 	private JComboBox<School> schoolCB;
@@ -95,8 +95,8 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	private JProgressBar progressBar;
 	private ONCEmailer oncEmailer;
 
-	private int sortBatchNum = 0;
-	private int sortZip = 0, sortRegion = 0, sortChangedBy = 0, sortGCO = 0, sortStoplight = 0;
+	private int sortBatchNum = 0, sortZip = 0, sortRegion = 0, sortChangedBy = 0;
+	private int sortGCO = 0, sortStoplight = 0;
 	private String sortLN = "Any", sortStreet= "Any", sortDNSCode;
 	private MealStatus sortMealStatus;
 	private FamilyGiftStatus sortGiftStatus;
@@ -118,7 +118,10 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		super(pf);
 		this.setTitle("Our Neighbor's Child - Family Management");
 		
-//		ONCRegions regions = ONCRegions.getInstance();
+		noteDB = NoteDB.getInstance();
+		if(noteDB != null)
+			noteDB.addDatabaseListener(this);
+
 		if(regions != null)
 			regions.addDatabaseListener(this);
 		
@@ -215,11 +218,15 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		giftCardCB.setBorder(BorderFactory.createTitledBorder("Gift Card Only ?"));
 		giftCardCB.addActionListener(this);
 		
-//		stoplightCB = new JComboBox(stoplt);
 		stoplightCB = new JComboBox<ImageIcon>(GlobalVariablesDB.getLights());
 		stoplightCB.setPreferredSize(new Dimension(80, 56));
 		stoplightCB.setBorder(BorderFactory.createTitledBorder("Stoplight"));
 		stoplightCB.addActionListener(this);
+		
+		noteStatusCB = new JComboBox<ImageIcon>(GlobalVariablesDB.getClipborads());
+		noteStatusCB.setPreferredSize(new Dimension(88, 56));
+		noteStatusCB.setBorder(BorderFactory.createTitledBorder("Note"));
+		noteStatusCB.addActionListener(this);
 		
 		//Add all sort criteria components to search criteria panels
         sortCriteriaPanelTop.add(oncCB);
@@ -236,6 +243,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		sortCriteriaPanelBottom.add(changedByCB);
 		sortCriteriaPanelBottom.add(giftCardCB);
 		sortCriteriaPanelBottom.add(stoplightCB);
+		sortCriteriaPanelBottom.add(noteStatusCB);
 		
 		//Set the preferred size of the bottom panel since it was used here. The top panel preferred
 		//size is set in the parent class
@@ -359,26 +367,28 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	 **********************************************************************************/
 	protected Object[] getTableRow(ONCObject o)
 	{
-		ONCFamily f = (ONCFamily) o;
+		ONCFamilyAndNote faN = (ONCFamilyAndNote) o;
 		
-		Object[] tablerow = {f.getONCNum(), 
-			f.getBatchNum(),
-			f.getReferenceNum(),
-			f.getDNSCode(),
-			f.getFamilyStatus().toString(),
-			f.getGiftStatus().toString(),
-			f.getMealStatus().toString(),
-			f.getFirstName(),
-			f.getLastName(),
-			f.getHouseNum(),
-			f.getStreet(),
-			f.getUnit(),
-			f.getZipCode(),
-			regions.getRegionID(f.getRegion()),
-			regions.getSchoolName(f.getSchoolCode()),
-			f.getChangedBy(),
-			f.isGiftCardOnly() ? "T" : "F",
-			gvs.getImageIcon(23 + f.getStoplightPos())};
+		Object[] tablerow = {
+			faN.getFamily().getONCNum(), 
+			faN.getFamily().getBatchNum(),
+			faN.getFamily().getReferenceNum(),
+			faN.getFamily().getDNSCode(),
+			faN.getFamily().getFamilyStatus().toString(),
+			faN.getFamily().getGiftStatus().toString(),
+			faN.getFamily().getMealStatus().toString(),
+			faN.getFamily().getFirstName(),
+			faN.getFamily().getLastName(),
+			faN.getFamily().getHouseNum(),
+			faN.getFamily().getStreet(),
+			faN.getFamily().getUnit(),
+			faN.getFamily().getZipCode(),
+			regions.getRegionID(faN.getFamily().getRegion()),
+			regions.getSchoolName(faN.getFamily().getSchoolCode()),
+			faN.getFamily().getChangedBy(),
+			faN.getFamily().isGiftCardOnly() ? "T" : "F",
+			gvs.getImageIcon(23 + faN.getFamily().getStoplightPos()),
+			gvs.getTinyClipboardIcon(faN.getNote())};
 		
 		return tablerow;
 	}
@@ -407,6 +417,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		
 		stAL.clear();	//Clear the prior table data array list
 		
+		int id = 0;
 		for(ONCFamily f:fDB.getList())
 		{
 			if(doesONCNumMatch(f.getONCNum()) &&
@@ -422,9 +433,10 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 				        doesSchoolMatch(f.getSchoolCode()) &&
 				         doesChangedByMatch(f.getChangedBy()) &&
 				          doesGiftCardOnlyMatch(f.isGiftCardOnly()) &&
-				           doesStoplightMatch(f.getStoplightPos()))	//Family criteria pass
+				           doesStoplightMatch(f.getStoplightPos()) &&
+				            doesNoteStatusMatch(f))	//Family criteria pass
 			{
-				stAL.add(f);
+				stAL.add(new ONCFamilyAndNote(id++, f, noteDB.getLastNoteForFamily(f.getID())));
 			}
 		}
 		
@@ -453,7 +465,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 
 		for(int i=0; i<row_sel.length; i++)
 		{
-			ONCFamily f = stAL.get(row_sel[i]);
+			ONCFamily f = stAL.get(row_sel[i]).getFamily();
 			boolean bFamilyChangeDetected = false;	
 			
 			//If a change to the DNS Code, process it
@@ -689,7 +701,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			int[] row_sel = sortTable.getSelectedRows();
 			for(int i=0; i<sortTable.getSelectedRowCount(); i++)
 			{
-				ONCFamily f = stAL.get(row_sel[i]);
+				ONCFamily f = stAL.get(row_sel[i]).getFamily();
 				
 				//Build the packaging sheet array list. If the family has more that five children
 				//a second page is needed
@@ -760,7 +772,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		int[] row_sel = sortTable.getSelectedRows();
 		for(int i=0; i<sortTable.getSelectedRowCount(); i++)
 		{
-			ONCFamily f = stAL.get(row_sel[i]);
+			ONCFamily f = stAL.get(row_sel[i]).getFamily();
 				
 			//Get family address and format it for the URL request to Google Maps
 //			String dbdestAddress = f.getHouseNum().trim() + "+" + f.getStreet().trim() + 
@@ -1012,7 +1024,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
     				for(int i=0; i<sortTable.getSelectedRowCount(); i++)
     				{
     					//Determine the family object
-    					ONCFamily f = stAL.get(row_sel[i]);
+    					ONCFamily f = stAL.get(row_sel[i]).getFamily();
 			
     					//Build the phone number to call. Replace all dashes so that the resultant
     					//phone number is a 10 digit number
@@ -1302,6 +1314,10 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		sortStoplight = 0;
 		stoplightCB.addActionListener(this);
 		
+		noteStatusCB.removeActionListener(this);
+		noteStatusCB.setSelectedIndex(0);
+		noteStatusCB.addActionListener(this);
+		
 		buildTableList(false);
 	}
 	
@@ -1330,7 +1346,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		for(int row=0; row< sortTable.getSelectedRowCount(); row++)
 		{
 			//Get selected family object
-			ONCFamily fam = stAL.get(row_sel[row]);
+			ONCFamily fam = stAL.get(row_sel[row]).getFamily();
 			
 			//only families with valid email addresses will get an email. This allows selection of all families in the table
 			//and automatically filters out those without valid email addresses
@@ -1598,6 +1614,24 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	
 	boolean doesStoplightMatch(int sl) { return sortStoplight == 0 || sl == stoplightCB.getSelectedIndex()-1; }
 	
+	boolean doesNoteStatusMatch(ONCFamily f) 
+	{ 
+		if(noteStatusCB.getSelectedIndex() == 0)
+			return true;
+		else
+		{
+			//get the last note of the family. If there isn't one and the selected CB item 
+			//matches or there is one and it matches, return true;
+			ONCNote lastNote = noteDB.getLastNoteForFamily(f.getID());
+			if(lastNote == null && noteStatusCB.getSelectedIndex() == 1)
+				return true;
+			else if(lastNote == null)
+				return false;
+			else
+				return lastNote.getStatus() + 1 == noteStatusCB.getSelectedIndex();
+		}
+	}
+	
 	boolean doesSchoolMatch(String schoolCode) 
 	{
 		School selectedSchool = (School) schoolCB.getSelectedItem();
@@ -1637,7 +1671,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	    	    for(int i=0; i<sortTable.getSelectedRowCount(); i++)
 	    	    {
 	    	    	int index = row_sel[i];
-	    	    	writer.writeNext(getExportODBCrosscheckRow(stAL.get(index)));
+	    	    	writer.writeNext(getExportODBCrosscheckRow(stAL.get(index).getFamily()));
 	    	    }
 	    	   
 	    	    writer.close();
@@ -1730,7 +1764,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	    	    for(int i=0; i<sortTable.getSelectedRowCount(); i++)
 	    	    {
 	    	    	int index = row_sel[i];
-	    	    	writer.writeNext(getExportONCDeliveryNotesRow(stAL.get(index)));
+	    	    	writer.writeNext(getExportONCDeliveryNotesRow(stAL.get(index).getFamily()));
 	    	    }
 	    	   
 	    	    writer.close();
@@ -1773,7 +1807,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	    	    for(int i=0; i<sortTable.getSelectedRowCount(); i++)
 	    	    {
 	    	    	int index = row_sel[i];
-	    	    	writer.writeNext(getExportONCFamilyFloorRow(stAL.get(index), regionDB));
+	    	    	writer.writeNext(getExportONCFamilyFloorRow(stAL.get(index).getFamily(), regionDB));
 	    	    }
 	    	   
 	    	    writer.close();
@@ -1932,7 +1966,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		    	List<ONCFamily> selFamList = new ArrayList<ONCFamily>();
 		    	int[] row_sel = sortTable.getSelectedRows();
 		    	for(int i=0; i<sortTable.getSelectedRowCount(); i++)
-		    	    selFamList.add(stAL.get(row_sel[i]));
+		    	    selFamList.add(stAL.get(row_sel[i]).getFamily());
 		    	
 		    	//create the age range map
 		    	List<String> ageRanges = new ArrayList<String>();
@@ -2072,7 +2106,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	    	    for(int i=0; i<sortTable.getSelectedRowCount(); i++)
 	    	    {
 	    	    	int index = row_sel[i];
-	    	    	writer.writeNext(getReferralExportRow(stAL.get(index)));
+	    	    	writer.writeNext(getReferralExportRow(stAL.get(index).getFamily()));
 	    	    }
 	    	   
 	    	    writer.close();
@@ -2134,7 +2168,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	    	    {
 	    	    	int index = row_sel[i];
 	    	    	for(ONCChild child : childDB.getChildren(stAL.get(index).getID()))
-	    	    		writer.writeNext(getSchoolExportRow(stAL.get(index), child));
+	    	    		writer.writeNext(getSchoolExportRow(stAL.get(index).getFamily(), child));
 	    	    }
 	    	   
 	    	    writer.close();
@@ -2329,10 +2363,10 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	String[] getColumnToolTips()
 	{
 		String[] toolTips = {"ONC Family Number", "Batch Number", "Reference #", "Do Not Serve Code", 
-				  "Family Status", "Delivery Status", "Meal Status", "Head of Household First Name", 
+				  "Family Status", "Gift Status", "Meal Status", "Head of Household First Name", 
 				  "Head of Household Last Name", "House Number","Street",
 				  "Unit or Apartment Number", "Zip Code", "Region", "Elementary School For Address",
-				  "Changed By", "Gift Card Only Family?", "Stoplight Color"};	
+				  "Changed By", "Gift Card Only Family?", "Stoplight Color", "Clipboard Color"};	
 		return toolTips;
 	}
 
@@ -2340,14 +2374,14 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	String[] getColumnNames() 
 	{
 		String[] columns = {"ONC", "Batch #", "Ref #", "DNS", "Fam Status", "Gift Status", "Meal Status",
-				"First", "Last", "House", "Street", "Unit", "Zip", "Reg", "School", "Changed By", "GCO", "SL"};
+				"First", "Last", "House", "Street", "Unit", "Zip", "Reg", "School", "Changed By", "GCO", "SL", "CB"};
 		return columns;
 	}
 
 	@Override
 	int[] getColumnWidths()
 	{
-		int[] colWidths = {36, 48, 56, 48, 72, 72, 72, 72, 72, 48, 128, 72, 48, 32, 104, 72, 32, 24};
+		int[] colWidths = {36, 48, 56, 48, 72, 72, 72, 72, 72, 48, 128, 72, 48, 32, 104, 72, 32, 32, 32};
 		return colWidths;
 	}
 
@@ -2428,6 +2462,10 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		else if(e.getSource() == stoplightCB && stoplightCB.getSelectedIndex() != sortStoplight)
 		{
 			sortStoplight = stoplightCB.getSelectedIndex();
+			buildTableList(false);
+		}
+		else if(e.getSource() == noteStatusCB)
+		{
 			buildTableList(false);
 		}
 		else if(e.getSource() == exportCB)
@@ -2710,7 +2748,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		    {
 		    	//Create the data for the yellow card. First, obtain a reference to the family object
 		    	//for the selected family. 
-				ONCFamily f = stAL.get(row_sel[cardnum * midpoint + page]);	
+				ONCFamily f = stAL.get(row_sel[cardnum * midpoint + page]).getFamily();	
 				
 		    	carddata = fDB.getYellowCardData(f);
 //		    	carddata[4] = regions.getRegionID(f.getRegion());
@@ -3162,7 +3200,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		    while(row < AVERY_LABELS_PER_PAGE/AVERY_COLUMNS_PER_PAGE && index < endOfSelection)
 		    {
 		    	//Get a reference to the selected family
-		    	ONCFamily f = stAL.get(row_sel[index]);
+		    	ONCFamily f = stAL.get(row_sel[index]).getFamily();
 		    	
 		    	//Create a string array, one element for each child in the family
 				List<String> line = new ArrayList<String>();

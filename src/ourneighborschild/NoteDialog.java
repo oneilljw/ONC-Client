@@ -310,7 +310,7 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
 	{
 		//if the note or title has changed, update the note. Only the note and title 
 		//of the last note can be edited and only before the note is viewed
-		if(nav.getIndex() == 0  && currNote.getStatus() == ONCNote.UNREAD)
+		if(nav.getIndex() == 0  && currNote.getStatus() == ONCNote.SENT)
 		{
 			int bCD = 0;
 			if(!currNote.getTitle().equals(titleTF.getText())) { bCD = bCD | 1; }
@@ -430,7 +430,7 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
 			notePane.setEditable(false);
 			titleTF.setEditable(false);
 		}
-		else if(note.getStatus() == ONCNote.UNREAD)
+		else if(note.getStatus() == ONCNote.SENT)
 		{
 			notePane.setEditable(true);
 			titleTF.setEditable(true);
@@ -634,7 +634,7 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
 		
 		public DialogTableModel()
 		{
-			statusText =  new String[] {"Unread", "Read", "Responded"};
+			statusText =  new String[] {"No Note", "Unread", "Read", "Responded"};
 		}
 
         public int getColumnCount() { return columnNames.length; }
@@ -657,7 +657,7 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
         			value = n.getDateChanged();
         		else if(col == STATUS_COL)
         		{
-        			if(n.getStatus() >= ONCNote.UNREAD && n.getStatus() <= ONCNote.RESPONDED)
+        			if(n.getStatus() >= ONCNote.SENT && n.getStatus() <= ONCNote.RESPONDED)
         				value = statusText[n.getStatus()];
         			else
         				value = "";

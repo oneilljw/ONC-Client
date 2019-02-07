@@ -10,9 +10,10 @@ public class ONCNote extends ONCEntity
 	 * Note object used within the ONC Data Management System
 	 */
 	private static final long serialVersionUID = 1L;
-	public static final int UNREAD = 0;
-	public static final int READ = 1;
-	public static final int RESPONDED = 2;
+	public static final int SENT = 1;	//black
+	public static final int READ = 2;	//blue
+	public static final int RESPONDED = 3;	//green
+	public static final int LATE = 4;	//red
 	
 	private int ownerID;
 	private int status;
@@ -27,7 +28,7 @@ public class ONCNote extends ONCEntity
 	{
 		super(id, new Date(), "", 0, "Note Created", "");
 		this.ownerID = ownerID;
-		this.status = ONCNote.UNREAD;
+		this.status = ONCNote.SENT;
 		this.title = title;
 		this.note = note;
 		this.response = "";
@@ -89,7 +90,7 @@ public class ONCNote extends ONCEntity
 	{
 		super(-1, new Date(), "", 0, "", "");
 		this.ownerID = -1;
-		this.status = ONCNote.UNREAD;
+		this.status = ONCNote.SENT;
 		this.title = "";
 		this.note = "";
 		this.response = "";
@@ -117,7 +118,7 @@ public class ONCNote extends ONCEntity
 	public void noteViewed(String viewedBy)
 	{
 		this.timeViewed = Calendar.getInstance();
-		if(this.status == UNREAD)
+		if(this.status == SENT)
 		{
 			this.respondedBy = viewedBy;
 			this.status = READ;

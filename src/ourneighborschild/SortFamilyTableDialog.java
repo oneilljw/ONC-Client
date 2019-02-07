@@ -21,8 +21,8 @@ public abstract class SortFamilyTableDialog extends ChangeDialog
 	protected FamilyHistoryDB familyHistoryDB;
 	protected RegionDB regions;
 	
-	protected ArrayList<ONCFamily> stAL = new ArrayList<ONCFamily>();
-	protected ArrayList<ONCFamily> tableRowSelectedObjectList;
+	protected ArrayList<ONCFamilyAndNote> stAL;
+	protected ArrayList<ONCFamilyAndNote> tableRowSelectedObjectList;
 	protected DefaultComboBoxModel<String> regionCBM;
 	
 //	protected SortTableModel fdTableModel;
@@ -38,8 +38,8 @@ public abstract class SortFamilyTableDialog extends ChangeDialog
 		familyHistoryDB = FamilyHistoryDB.getInstance();
 		regions = RegionDB.getInstance();
 		
-		stAL = new ArrayList<ONCFamily>();
-		tableRowSelectedObjectList = new ArrayList<ONCFamily>();
+		stAL = new ArrayList<ONCFamilyAndNote>();
+		tableRowSelectedObjectList = new ArrayList<ONCFamilyAndNote>();
 		regionCBM = new DefaultComboBoxModel<String>();
 		
 //		fdTableModel = new SortTableModel(stAL, cols);
@@ -51,7 +51,7 @@ public abstract class SortFamilyTableDialog extends ChangeDialog
 	{
 		archiveTableSelections(stAL);
 		
-		if(fDB.sortDB(stAL, columns[col]))
+		if(fDB.sortFamilyAndNoteDB(stAL, columns[col]))
 		{
 			displaySortTable(stAL, false, tableRowSelectedObjectList);
 			return col;
@@ -59,6 +59,8 @@ public abstract class SortFamilyTableDialog extends ChangeDialog
 		else
 			return -1;
 	}
+	
+	
 /*	
 	void archiveTableSelections(ArrayList<? extends ONCObject> stAL)
 	{
@@ -78,7 +80,7 @@ public abstract class SortFamilyTableDialog extends ChangeDialog
 		if (!e.getValueIsAdjusting() && e.getSource() == sortTable.getSelectionModel() &&
 				sortTable.getSelectedRow() > -1 && !bChangingTable)
 		{
-			ONCFamily fam = (ONCFamily) stAL.get(sortTable.getSelectedRow());
+			ONCFamily fam = stAL.get(sortTable.getSelectedRow()).getFamily();
 			
 			fireEntitySelected(this, EntityType.FAMILY, fam, null);
 			this.requestFocus();

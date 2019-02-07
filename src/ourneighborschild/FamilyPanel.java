@@ -57,9 +57,6 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private static final int TRANSPORTATION_ICON_INDEX = 31;
 	private static final int HISTORY_ICON_INDEX = 32;
 	private static final int AGENT_INFO_ICON_INDEX = 33;
-	private static final int FAMILY_NOTE_NONE_ICON_INDEX = 47;
-	private static final int FAMILY_NOTE_SENT_ICON_INDEX = 48;
-	private static final int FAMILY_NOTE_RESPONDED_ICON_INDEX = 49;
 	private static final int FAMILY_DETAILS_ICON_INDEX = 34;
 	private static final int PHONE_ICON_INDEX = 35;
 	private static final int NO_TRANSPORTATION_ICON_INDEX = 36;
@@ -70,6 +67,8 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private static final int GIFT_CARD_ONLY_ICON_INDEX = 41;
 	private static final int ADULT_ICON_INDEX = 42;
 	private static final int NO_ADULT_ICON_INDEX = 43;
+	
+	private static final int FAMILY_NOTE_GRAY_ICON_INDEX = 47;
 	
 	//data base references
 	private DatabaseManager dbMgr;
@@ -97,9 +96,10 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private JTextField HOHFirstName, HOHLastName, EMail;
 	private JTextField housenumTF, Street, Unit, City, ZipCode;
 	private JLabel lblONCNum, lblRefNum, lblBatchNum, lblSchool, lblNumBags, lblChangedBy;
-	private JRadioButton rbGiftStatusHistory, rbAltAddress, rbMeals, rbPriorHistory, rbAgentInfo;
-	private JRadioButton rbFamilyNote, rbShowAllPhones, rbFamDetails, rbTransportation, rbDirections;
+	private JRadioButton rbGiftStatusHistory, rbAltAddress, rbPriorHistory, rbAgentInfo;
+	private JRadioButton rbShowAllPhones, rbFamDetails, rbDirections;
 	private JRadioButton rbNotGiftCardOnly, rbGiftCardOnly, rbAdults;
+	private JRadioButton[] rbFamilyNote, rbMeals, rbTransportation;
 	private JComboBox<String> languageCB;
 	private JComboBox<FamilyStatus> statusCB;
 	private JComboBox<FamilyGiftStatus> giftStatusCB;
@@ -324,26 +324,43 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         rbAgentInfo.setEnabled(false);
         rbAgentInfo.addActionListener(this);
         
-        rbFamilyNote = new JRadioButton(gvs.getImageIcon(FAMILY_NOTE_NONE_ICON_INDEX));
-        rbFamilyNote.setToolTipText("Click to edit notes to agent regarding family");
-        rbFamilyNote.setEnabled(false);
-        rbFamilyNote.addActionListener(this);
         
+        String[] noteToolTip = {"No notes for family, click to edit", "Last note sent, not yet viewed",
+        							"Last note read, no response", "Agent responded to last note",
+        							"Response to last note is overdue"};
+        rbFamilyNote = new JRadioButton[noteToolTip.length];
+        for(int i=0; i< noteToolTip.length; i++)
+        {
+        		rbFamilyNote[i] = new JRadioButton(gvs.getImageIcon(FAMILY_NOTE_GRAY_ICON_INDEX + i));
+            rbFamilyNote[i].setToolTipText(noteToolTip[i]);
+            rbFamilyNote[i].setVisible(false);
+            rbFamilyNote[i].addActionListener(this);
+        }
+       
         rbFamDetails = new JRadioButton(gvs.getImageIcon(FAMILY_DETAILS_ICON_INDEX));
         rbFamDetails.setToolTipText("Click for additional details for this family");
         rbFamDetails.setEnabled(false);
         rbFamDetails.addActionListener(this);
         
-        rbMeals = new JRadioButton(gvs.getImageIcon(REQUESTED_MEAL_ICON_INDEX));
-        rbMeals.setActionCommand("Meal History");
-        rbMeals.setToolTipText("Click for family food assistance status");
-        rbMeals.setEnabled(false);
-        rbMeals.addActionListener(this);
-        
-        rbTransportation = new JRadioButton(gvs.getImageIcon(TRANSPORTATION_ICON_INDEX));
-        rbTransportation.setToolTipText("Click for family transportation status");
-        rbTransportation.setEnabled(false);
-        rbTransportation.addActionListener(this);
+        int[] rbMealImageIndex = {NO_MEAL_ICON_INDEX, REQUESTED_MEAL_ICON_INDEX, REFERRED_MEAL_ICON_INDEX};
+        rbMeals = new JRadioButton[rbMealImageIndex.length];
+        for(int i=0; i<rbMeals.length; i++)
+        {
+        		rbMeals[i] = new JRadioButton(gvs.getImageIcon(rbMealImageIndex[i]));
+        		rbMeals[i].setToolTipText("Click for family food assistance status");
+        		rbMeals[i].setVisible(false);
+        		rbMeals[i].addActionListener(this);
+        }
+       
+        int[] rbTransImageIndex = {NO_TRANSPORTATION_ICON_INDEX, TRANSPORTATION_ICON_INDEX};
+        rbTransportation = new JRadioButton[rbTransImageIndex.length];
+        for(int i=0; i<rbTransportation.length; i++)
+        {
+        		rbTransportation[i] = new JRadioButton(gvs.getImageIcon(rbTransImageIndex[i]));
+        		rbTransportation[i].setToolTipText("Click for family transportation status");
+            rbTransportation[i].setVisible(false);
+            rbTransportation[i].addActionListener(this);
+        }
         
         rbDirections = new JRadioButton(gvs.getImageIcon( GOOGLE_MAP_ICON_INDEX));
         rbDirections.setToolTipText("Click for directions to family address");
@@ -538,9 +555,16 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         iconBar.add(rbAltAddress);
         iconBar.add(rbFamDetails);
         iconBar.add(rbAgentInfo);
-        iconBar.add(rbFamilyNote);
-        iconBar.add(rbMeals);
-        iconBar.add(rbTransportation);
+        
+        for(int i=0; i<rbFamilyNote.length; i++)
+        		iconBar.add(rbFamilyNote[i]);
+        
+        for(int i=0; i< rbMeals.length; i++)
+        		iconBar.add(rbMeals[i]);
+        
+        for(int i=0; i< rbTransportation.length; i++)
+    		iconBar.add(rbTransportation[i]);
+        
         iconBar.add(rbAdults);
         iconBar.add(rbNotGiftCardOnly);
         iconBar.add(rbGiftCardOnly);
@@ -701,15 +725,12 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		p2.setBackground(pBkColor);
 		p3.setBackground(pBkColor);
 		
-		rbMeals.setEnabled(true);
-		rbTransportation.setEnabled(true);
 		rbDirections.setEnabled(true);
 		rbNotGiftCardOnly.setEnabled(true);
 		rbNotGiftCardOnly.setVisible(true);
 		rbGiftCardOnly.setEnabled(true);
 		rbGiftCardOnly.setVisible(false);
 		rbAdults.setEnabled(true);
-		rbFamilyNote.setEnabled(true);
 		
 		lblONCNum.setText(currFam.getONCNum());
 		lblONCNum.setToolTipText("Family Database ID= " + Integer.toString(currFam.getID()));
@@ -736,35 +757,20 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		
 		//set family note button icon
 		ONCNote lastFamNote = noteDB.getLastNoteForFamily(currFam.getID());
-		if(lastFamNote == null)
-			rbFamilyNote.setIcon(gvs.getImageIcon(FAMILY_NOTE_NONE_ICON_INDEX));
-		else if(lastFamNote.getStatus() < ONCNote.RESPONDED)
-			rbFamilyNote.setIcon(gvs.getImageIcon( FAMILY_NOTE_SENT_ICON_INDEX));
-		else
-			rbFamilyNote.setIcon(gvs.getImageIcon(FAMILY_NOTE_RESPONDED_ICON_INDEX));
-		
+		int visibleNoteIndex = lastFamNote == null ? 0 : lastFamNote.getStatus(); 
+		for(int i=0; i< rbFamilyNote.length; i++)
+			rbFamilyNote[i].setVisible(visibleNoteIndex == i);
+				
 		//set meal button iconBar
-		if(currFam.getMealID()  == -1)
-		{
-			rbMeals.setIcon(gvs.getImageIcon( NO_MEAL_ICON_INDEX));
-			rbMeals.setActionCommand("Add Meal");
-		}
-		else if(currFam.getMealStatus() == MealStatus.Requested)	//meal not referred yet
-		{
-			rbMeals.setIcon(gvs.getImageIcon(REQUESTED_MEAL_ICON_INDEX));
-			rbMeals.setActionCommand("Meal History");
-		}
-		else
-		{
-			rbMeals.setIcon(gvs.getImageIcon( REFERRED_MEAL_ICON_INDEX));
-			rbMeals.setActionCommand("Meal History");
-		}
+		rbMeals[0].setVisible(currFam.getMealID()  == -1);
+		rbMeals[1].setVisible(currFam.getMealID() > -1 && (currFam.getMealStatus() == MealStatus.Requested ||
+														  currFam.getMealStatus() == MealStatus.Assigned));
+		rbMeals[2].setVisible(currFam.getMealID() > -1 && currFam.getMealStatus().compareTo(MealStatus.Referred) >= 0);
 		
 		//set transportation button icon
-		if(currFam.getTransportation() == Transportation.Yes)
-			rbTransportation.setIcon(gvs.getImageIcon(TRANSPORTATION_ICON_INDEX));
-		else
-			rbTransportation.setIcon(gvs.getImageIcon(NO_TRANSPORTATION_ICON_INDEX));
+		rbTransportation[0].setVisible(currFam.getTransportation() == Transportation.No ||
+									  currFam.getTransportation() == Transportation.TBD);
+		rbTransportation[1].setVisible(currFam.getTransportation() == Transportation.Yes);
 		
 		addChildrenToTable(cn);	//update child table
 		checkForAdultsInFamily(); //set the adults icon
@@ -776,6 +782,9 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		if(userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0)
 		{	
 			//show personal information for family since user is Administrator or higher
+//			System.out.println(String.format("FamPanel.disp: HoHFN= %s, HOHLN= %s, index=%d",
+//					currFam.getFirstName(), currFam.getLastName(), nav.getIndex()));
+			
 			HOHFirstName.setText(currFam.getFirstName());
 			HOHLastName.setText(currFam.getLastName());
 			
@@ -1225,7 +1234,9 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 				}
 			}
 		}
-		else if(e.getSource() == rbFamilyNote)
+		else if(e.getSource() == rbFamilyNote[0] || e.getSource() == rbFamilyNote[1] ||
+				e.getSource() == rbFamilyNote[2] || e.getSource() == rbFamilyNote[3] ||
+				e.getSource() == rbFamilyNote[4])
 		{   
 			if(currFam != null)
 				DialogManager.getInstance().showEntityDialog("Edit Notes", new Point(40, 80));	
@@ -1259,13 +1270,12 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		{
 			DialogManager.getInstance().showHistoryDialog(rbGiftStatusHistory.getActionCommand());
 		}
-		else if(e.getSource() == rbMeals)
-		{
-			if(rbMeals.getActionCommand().equals("Add Meal"))
-				DialogManager.getInstance().showFamilyInfoDialog(rbMeals.getActionCommand());
-			else
-				DialogManager.getInstance().showHistoryDialog(rbMeals.getActionCommand());
-		}
+		else if(e.getSource() == rbMeals[0])
+			DialogManager.getInstance().showFamilyInfoDialog("Add Meal");
+		else if(e.getSource() == rbMeals[1])
+			DialogManager.getInstance().showHistoryDialog("Meal History");
+		else if(e.getSource() == rbMeals[2])
+			DialogManager.getInstance().showHistoryDialog("Meal History");
 		else if(e.getSource() == rbAdults)
 		{
 			DialogManager.getInstance().showAdultDialog();
@@ -1333,7 +1343,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 
 			checkAndUpdateFamilyData(currFam);
 		}
-		else if(e.getSource() == rbTransportation)
+		else if(e.getSource() == rbTransportation[0] || e.getSource() == rbTransportation[1])
 		{
 			DialogManager.getInstance().showFamilyInfoDialog("Transportation");
 		}

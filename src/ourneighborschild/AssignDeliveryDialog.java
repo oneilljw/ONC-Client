@@ -164,12 +164,13 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 			//Determine if family meets search criteria to be added to the table. If a
 			//family's status isn't FamilyGiftStatus.Packaged, they aren't eligible to be
 			//assigned for delivery regardless of search criteria
+			int id = 0;
 			if(f.getGiftStatus() == FamilyGiftStatus.Packaged &&
 				isRegionInRange(f.getRegion()) &&
 				 doesONCNumMatch(f.getONCNum()) &&
 				  doesDStatusPass(f.getGiftStatus()))	
 			{													
-				stAL.add(f); //Family is eligible for delivery and search criteria pass	
+				stAL.add(new ONCFamilyAndNote(id++, f, null)); //Family is eligible for delivery and search criteria pass	
 			}
 		}
 		
@@ -268,7 +269,7 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 		for(int i=0; i<row_sel.length; i++)
 		{
 			//Get reference to family object selected
-			ONCFamily f = stAL.get(row_sel[i]);
+			ONCFamily f = stAL.get(row_sel[i]).getFamily();
 			
 			//If a change to the assigned delivery driver, process it
 			if(!assignDriverTF.getText().isEmpty() && 
