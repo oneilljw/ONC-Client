@@ -140,7 +140,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		String[] oncStrings = {"Any", "NNA", "OOR", "RNV", "DEL"};
     		oncCB = new JComboBox<String>(oncStrings);
     		oncCB.setEditable(true);
-    		oncCB.setPreferredSize(new Dimension(88,56));
+    		oncCB.setPreferredSize(new Dimension(80,56));
 		oncCB.setBorder(BorderFactory.createTitledBorder("ONC #"));
 		oncCB.addActionListener(this);
     	
@@ -178,10 +178,10 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		dnsCB.setBorder(BorderFactory.createTitledBorder("DNS Code"));
 		dnsCB.addActionListener(this);
 		
-		String[] any = {"Any", "UNDETERMINED"};
+		String[] any = {"Any"};
 		lastnameCB = new JComboBox<String>(any);
 		lastnameCB.setEditable(true);
-		lastnameCB.setPreferredSize(new Dimension(152, 56));
+		lastnameCB.setPreferredSize(new Dimension(144, 56));
 		lastnameCB.setBorder(BorderFactory.createTitledBorder("Last Name"));
 		lastnameCB.addActionListener(this);
 				
@@ -214,8 +214,9 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		changedByCB.addActionListener(this);
 		
 		giftCardCB = new JComboBox<String>(giftCardFilter);
-		giftCardCB.setPreferredSize(new Dimension(120, 56));
-		giftCardCB.setBorder(BorderFactory.createTitledBorder("Gift Card Only ?"));
+		giftCardCB.setPreferredSize(new Dimension(88, 56));
+		giftCardCB.setToolTipText("GCO - Gift Card Only Filter");
+		giftCardCB.setBorder(BorderFactory.createTitledBorder("GCO ?"));
 		giftCardCB.addActionListener(this);
 		
 		stoplightCB = new JComboBox<ImageIcon>(GlobalVariablesDB.getLights());
@@ -224,8 +225,8 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		stoplightCB.addActionListener(this);
 		
 		noteStatusCB = new JComboBox<ImageIcon>(GlobalVariablesDB.getTinyClipboradIcons());
-		noteStatusCB.setPreferredSize(new Dimension(88, 56));
-		noteStatusCB.setBorder(BorderFactory.createTitledBorder("Note"));
+		noteStatusCB.setPreferredSize(new Dimension(72, 56));
+		noteStatusCB.setBorder(BorderFactory.createTitledBorder("Notes"));
 		noteStatusCB.addActionListener(this);
 		
 		//Add all sort criteria components to search criteria panels
@@ -326,7 +327,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
         emailCB.setEnabled(false);
         emailCB.addActionListener(this);
         
-      //Set up the email progress bar
+        //Set up the email progress bar
       	progressBar = new JProgressBar(0, 100);
         progressBar.setValue(0);
         progressBar.setStringPainted(true);
@@ -443,16 +444,6 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		//update the family count. If the sort criteria is set such that only served
 		//family's are displayed, change the panel border to so indicate
 		lblNumOfTableItems.setText(Integer.toString(stAL.size()));
-		if(sortONCNum.equals("Any") && sortBatchNum == 0 && sortDNSCode.equals(dnsCodes[0])  &&
-			sortFamilyStatus == FamilyStatus.Any && sortGiftStatus == FamilyGiftStatus.Any && sortLN.equals("Any") && 
-			sortStreet.equals("Any") && sortZip == 0 && sortRegion == 0 && sortChangedBy == 0 &&
-			sortStoplight == 0 && sortSchool.getCode().equals("Any"))
-		{
-			itemCountPanel.setBorder(BorderFactory.createTitledBorder("Total Families Served"));
-		}
-		else
-			itemCountPanel.setBorder(BorderFactory.createTitledBorder("Families Meeting Criteria"));
-		
 		displaySortTable(stAL, true, tableRowSelectedObjectList);		//Display the table after table array list is built					
 	}
 
@@ -2550,6 +2541,11 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	{
 		if(dbe.getSource() != this && (dbe.getType().equals("ADDED_FAMILY") ||
 				dbe.getType().equals("UPDATED_FAMILY")))
+		{
+			buildTableList(true);		
+		}
+		if(dbe.getSource() != this && (dbe.getType().equals("ADDED_NOTE") ||
+				dbe.getType().equals("UPDATED_NOTE") || dbe.getType().equals("DELETED_NOTE")))
 		{
 			buildTableList(true);		
 		}

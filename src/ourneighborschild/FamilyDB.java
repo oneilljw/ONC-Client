@@ -1039,8 +1039,8 @@ public class FamilyDB extends ONCSearchableDatabase
 			Collections.sort(fal, new ONCFamilyAndNoteStoplightComparator()); }
 		else if(dbField.equals("# Bikes")) {
 			Collections.sort(fal, new ONCFamilyAndNoteBikesComparator()); }
-		else if(dbField.equals("Deliverer")) {
-			Collections.sort(fal, new ONCFamilyAndNoteDelivererComparator()); }
+		else if(dbField.equals("Deliverer")) { Collections.sort(fal, new ONCFamilyAndNoteDelivererComparator()); }
+		else if(dbField.equals("CB")) { Collections.sort(fal, new ONCFamilyAndNoteNoteStatusComparator()); }
 		else
 			bSortOccurred = false;
 		
@@ -1701,6 +1701,28 @@ public class FamilyDB extends ONCSearchableDatabase
 		{
 			return volunteerDB.getDriverLNFN(familyHistoryDB.getDeliveredBy(o1.getFamily().getDeliveryID())).compareTo
 					(volunteerDB.getDriverLNFN(familyHistoryDB.getDeliveredBy(o2.getFamily().getDeliveryID())));
+		}
+	}
+	
+	private class ONCFamilyAndNoteNoteStatusComparator implements Comparator<ONCFamilyAndNote>
+	{
+		@Override
+		public int compare(ONCFamilyAndNote o1, ONCFamilyAndNote o2)
+		{
+			if(o1.getNote() == null && o2.getNote() != null)
+				return 1;
+			else if(o1.getNote() == null && o2.getNote() == null)
+				return 0;
+			else if(o1.getNote() != null && o2.getNote() == null)
+				return -1;
+			else if(o1.getNote().getStatus() > o2.getNote().getStatus())
+				return -1;
+			else if(o1.getNote().getStatus() == o2.getNote().getStatus())
+				return 0;
+			else if(o1.getNote().getStatus() < o2.getNote().getStatus())
+				return 1;
+			else
+				return 0;
 		}
 	}
 }
