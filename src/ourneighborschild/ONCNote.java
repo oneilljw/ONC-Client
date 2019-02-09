@@ -23,8 +23,9 @@ public class ONCNote extends ONCEntity
 	private String respondedBy;
 	private Calendar timeViewed;		//should always be UTC
 	private Calendar timeResponse;	//should always be UTC
+	private boolean bSendEmail;
 	
-	public ONCNote(int id, int ownerID, String title, String note)
+	public ONCNote(int id, int ownerID, String title, String note, boolean bSendEmail)
 	{
 		super(id, new Date(), "", 0, "Note Created", "");
 		this.ownerID = ownerID;
@@ -37,6 +38,7 @@ public class ONCNote extends ONCEntity
 		this.timeViewed.setTimeInMillis(0);
 		this.timeResponse = Calendar.getInstance();
 		this.timeResponse.setTimeInMillis(0);
+		this.bSendEmail = bSendEmail;
 	}
 	
 	public ONCNote(ONCNote n)
@@ -52,12 +54,13 @@ public class ONCNote extends ONCEntity
 		this.timeViewed.setTimeInMillis(n.timeViewed.getTimeInMillis());
 		this.timeResponse = Calendar.getInstance();
 		this.timeResponse.setTimeInMillis(n.timeViewed.getTimeInMillis());
+		this.bSendEmail = n.bSendEmail;
 	}
 	
 	public ONCNote(String[] line)
 	{
 		super(Integer.parseInt(line[0]), Long.parseLong(line[8]), line[5],
-				Integer.parseInt(line[11]), line[12], line[13]);
+				Integer.parseInt(line[12]), line[13], line[14]);
 		
 		this.ownerID = line[1].isEmpty() ? 0 : Integer.parseInt(line[1]);
 		this.status= line[2].isEmpty() ? 0 : Integer.parseInt(line[2]);
@@ -84,6 +87,7 @@ public class ONCNote extends ONCEntity
 			this.timeResponse.setTimeInMillis(Long.parseLong(line[10]));
 			this.timeResponse.add(Calendar.MILLISECOND, offsetFromUTC);
 		}
+		this.bSendEmail = line[11].isEmpty() ? false : line[11].equals("T") ? true : false;
 	}
 	
 	public ONCNote()
@@ -99,6 +103,7 @@ public class ONCNote extends ONCEntity
 		this.timeViewed.setTimeInMillis(0);
 		this.timeResponse = Calendar.getInstance();
 		this.timeResponse.setTimeInMillis(0);
+		this.bSendEmail = false;
 	}
 	
 	//getters
@@ -110,6 +115,7 @@ public class ONCNote extends ONCEntity
 	String getRespondedBy() { return respondedBy; }
 	Calendar getTimeViewed() { return timeViewed; }
 	Calendar getTimeResponse() { return timeResponse; }
+	public boolean sendEmail() { return bSendEmail; }
 	
 	//setters
 	void setStatus(int status) { this.status = status; }
@@ -135,7 +141,7 @@ public class ONCNote extends ONCEntity
 	@Override
 	public String[] getExportRow()
 	{
-		String[] row = new String[14];
+		String[] row = new String[15];
 		row[0] = Integer.toString(id);
 		row[1] = Integer.toString(ownerID);
 		row[2] = Integer.toString(status);
@@ -147,9 +153,10 @@ public class ONCNote extends ONCEntity
 		row[8] = Long.toString(dateChanged.getTimeInMillis());
 		row[9] = Long.toString(timeViewed.getTimeInMillis());
 		row[10] = Long.toString(timeResponse.getTimeInMillis());
-		row[11] = Integer.toString(slPos);
-		row[12] = slMssg;
-		row[13] = slChangedBy;
+		row[11] = bSendEmail ? "T" : "F";
+		row[12] = Integer.toString(slPos);
+		row[13] = slMssg;
+		row[14] = slChangedBy;
 		return row;
 	}
 }

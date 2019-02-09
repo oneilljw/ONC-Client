@@ -14,6 +14,7 @@ import java.util.EnumSet;
 import java.util.List;
 
 import javax.swing.BorderFactory;
+import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -61,6 +62,7 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
 	private AbstractTableModel dlgTableModel;
 	private TitledBorder familyBorder, noteBorder, responseBorder;
 	private JTextField titleTF;
+	private JCheckBox ckBoxSendEmail;
 	private JTextPane notePane, responsePane;
 	private SimpleDateFormat timeFormat;
 	
@@ -157,7 +159,11 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
         titleTF.addActionListener(dcListener);
         titleTF.addKeyListener(changeListener);
         
+        ckBoxSendEmail = new JCheckBox("Send separate new note(s) notification email to agent?");
+        ckBoxSendEmail.setToolTipText("If checked, agent will get an email notification of new notes");
+        
         titlePanel.add(titleTF);
+        titlePanel.add(ckBoxSendEmail);
         
         //set up note and response panel
         JPanel noteAndResponsePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -376,6 +382,9 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
 			titleTF.setText(currNote.getTitle());
 			titleTF.setCaretPosition(0);
 			
+			ckBoxSendEmail.setEnabled(false);
+			ckBoxSendEmail.setSelected(currNote.sendEmail());
+
 			//set the note border
 			String noteBorderText = String.format("Sent by %s on %s", currNote.getChangedBy(),
 									timeFormat.format(currNote.getDateChanged()));
@@ -486,6 +495,8 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
 		}
 		titleTF.setText("");
 		titleTF.setCaretPosition(0);
+		ckBoxSendEmail.setEnabled(false);
+		ckBoxSendEmail.setSelected(false);
 		noteBorder.setTitle("");
 		notePane.setText("");
 		notePane.setEditable(false);
@@ -533,6 +544,7 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
 					timeFormat.format(now.getTime()));
 			noteBorder.setTitle(title);
 			titleTF.setEditable(true);
+			ckBoxSendEmail.setEnabled(true);
 			notePane.setEditable(true);
 			entityPanel.setBackground(Color.CYAN);	//Use color to indicate add org mode vs. review mode
 			entityPanel.repaint();
@@ -559,7 +571,8 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
 		//construct a new ONCNote if all the fields are valid
 		if(!titleTF.getText().isEmpty() && !notePane.getText().isEmpty())
 		{	
-			ONCNote reqAddNote = new ONCNote(-1, currFam.getID(), titleTF.getText(), notePane.getText());
+			ONCNote reqAddNote = new ONCNote(-1, currFam.getID(), titleTF.getText(), notePane.getText(),
+												ckBoxSendEmail.isSelected());
 		
 			ONCNote addedNote = (ONCNote) noteDB.add(this, reqAddNote);
 			if(addedNote != null)
