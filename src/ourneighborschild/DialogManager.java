@@ -78,6 +78,7 @@ public class DialogManager implements EntitySelectionListener
 	private ActivityDialog activityDlg;
 	private EditUserDialog editUserDlg;
 	private NoteDialog noteDlg;
+	private DNSCodeDialog dnsCodeDlg;
 		
 	private PreferencesDialog prefsDlg;
 	private BarcodeWishHistoryDialog barcodeWHDlg;
@@ -246,6 +247,12 @@ public class DialogManager implements EntitySelectionListener
         noteDlg = new NoteDialog(GlobalVariablesDB.getFrame());
         entityDlgMap.put("Edit Notes", noteDlg);
         eeManager.registerEntitySelectionListener(noteDlg);
+        
+        //Set up the DNS Code dialog and register it to listen for 
+        //selection events from particular ui's that have DNS codes associated
+        dnsCodeDlg = new DNSCodeDialog(GlobalVariablesDB.getFrame());
+        entityDlgMap.put("Edit Codes", dnsCodeDlg);
+        eeManager.registerEntitySelectionListener(dnsCodeDlg);
         
         //Set up the view family database dialog
         dbDlg = new ViewONCDatabaseDialog(GlobalVariablesDB.getFrame());

@@ -12,7 +12,8 @@ public enum EntityType
 	INVENTORY_ITEM ("Inventory Item"), 
 	GROUP ("Group"), 
 	ACTIVITY ("Activity"),
-	NOTE ("Note");
+	NOTE ("Note"),
+	DNS_CODE("DNS Code");
 	
 	private final String name;
 	

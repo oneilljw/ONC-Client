@@ -196,7 +196,7 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
         responsePane = new JTextPane();
         responsePane.setPreferredSize(textAreaDimension);
         responsePane.setToolTipText("Note response provided by Agent");
-        notePane.setParagraphAttributes(attribs,true);
+        responsePane.setParagraphAttributes(attribs,true);
         responsePane.setEditable(false);
 	    
 	    JScrollPane responseScrollPane = new JScrollPane(responsePane);
@@ -623,7 +623,7 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
 	@Override
 	public void valueChanged(ListSelectionEvent lse)
 	{
-		if(!lse.getValueIsAdjusting() && !bIgnoreEvents)
+		if(!lse.getValueIsAdjusting() && !bIgnoreEvents &&!bAddingNewEntity)
 		{
 			int modelRow = dlgTable.getSelectedRow() == -1 ? -1 : 
 				dlgTable.convertRowIndexToModel(dlgTable.getSelectedRow());

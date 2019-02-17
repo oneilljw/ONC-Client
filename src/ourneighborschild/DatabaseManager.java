@@ -52,6 +52,7 @@ public class DatabaseManager extends ONCDatabase
 	private RegionDB regionDB;				//Holds the region and school databases
 	private AdultDB oncAdultDB;				//Holds ONC Adult database
 	private NoteDB noteDB;					//Holds ONC Note database
+	private DNSCodeDB dnsCodeDB;				//Holds DNS Code database
 	private MealDB oncMealDB;				//Holds ONC Meal database
 	private BatteryDB batteryDB;				//Holds Battery database
 	private InventoryDB oncInvDB;			//Holds current inventory
@@ -76,6 +77,7 @@ public class DatabaseManager extends ONCDatabase
 		oncChildWishDB = ChildGiftDB.getInstance();
 		oncAdultDB = AdultDB.getInstance();
 		noteDB = NoteDB.getInstance();
+		dnsCodeDB = DNSCodeDB.getInstance();
 		oncMealDB = MealDB.getInstance();
 		oncInvDB = InventoryDB.getInstance();
 		batteryDB = BatteryDB.getInstance();
@@ -354,7 +356,7 @@ public class DatabaseManager extends ONCDatabase
      **************************************************************************************************/
     public class ONCServerDBImporter extends SwingWorker<Void, Void>
     {
-    		private static final int NUM_OF_DBs = 19;
+    		private static final int NUM_OF_DBs = 20;
     		String year;
     		ONCProgressBar pb;
     		boolean bServerDataLoaded;
@@ -379,6 +381,10 @@ public class DatabaseManager extends ONCDatabase
 			//import from ONC Server
 			pb.updateHeaderText("<html>Loading Regions</html>");
 			regionDB.getRegionsFromServer();
+			this.setProgress(progress += increment);
+			
+			pb.updateHeaderText("Loading DNS Codes");
+			dnsCodeDB.importDB();
 			this.setProgress(progress += increment);
 			
 			pb.updateHeaderText("Loading Season Data");

@@ -34,7 +34,7 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 	private JMenuItem findDupFamsMI, findDupChldrnMI, crosscheckMI;
 	private JMenuItem editVolMI, editActMI, viewSignInLogMI, manageVolMI, manageActMI;
 	private JMenuItem assignDelMI, manageDelMI, mapsMI, delstatusMI, distMI;
-	private JMenuItem newFamMI, changeONCMI, changeRefMI, changeBatchMI, newChildMI;
+	private JMenuItem newFamMI, changeONCMI, changeRefMI, changeBatchMI, newChildMI, editDNSCodesMI;
 	private JMenuItem delChildMI, markAdultMI, connectChildMI, famHistMI;
 	private JMenu submenuImport, submenuFamilyDataChecks, submenuExport, submenuChangeFamilyNumbers;
 	private JMenu submenuDBYearList, submenuUsers, submenuReceiveGifts;
@@ -181,6 +181,11 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 	    submenuChangeFamilyNumbers.add(changeBatchMI);
 	    
 	    menuFamilies.addSeparator();
+	    
+	    editDNSCodesMI = new JMenuItem("Edit DNS Codes");
+	    editDNSCodesMI.setActionCommand("Edit Codes");
+	    editDNSCodesMI.addActionListener(this);
+	    menuFamilies.add(editDNSCodesMI);
 	    
 	    //Manage Angel Call Results
 	    manageCallResultMI = new JMenuItem("Manage Call Results");
@@ -620,6 +625,7 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 		manageVolMI.setEnabled(tf);
 		manageActMI.setEnabled(tf);
 		famHistMI.setEnabled(tf);
+		editDNSCodesMI.setEnabled(tf);
 	}
 
 	@Override
@@ -701,6 +707,8 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 			dlgManager.showSortDialog(assignDelMI.getActionCommand(), SORT_DIALOG_OFFSET);
 		else if(e.getSource() == editVolMI)
 			dlgManager.showEntityDialog(editVolMI.getActionCommand(), SORT_DIALOG_OFFSET);
+		else if(e.getSource() == editDNSCodesMI)
+			dlgManager.showEntityDialog(editDNSCodesMI.getActionCommand(), SORT_DIALOG_OFFSET);
 		else if(e.getSource() == editActMI)
 			dlgManager.showEntityDialog(editActMI.getActionCommand(), SORT_DIALOG_OFFSET);
 		else if(e.getSource() == editUsersMI)
