@@ -23,6 +23,7 @@ public class ONCFamilyReportRowBuilder
 	private UserDB userDB;
 	private GiftCatalogDB cat;
 	private RegionDB regions;
+	private DNSCodeDB dnsCodeDB;
 	
 	ONCFamilyReportRowBuilder()
 	{
@@ -31,6 +32,7 @@ public class ONCFamilyReportRowBuilder
 		userDB = UserDB.getInstance();
 		cat = GiftCatalogDB.getInstance();
 		regions = RegionDB.getInstance();
+		dnsCodeDB = DNSCodeDB.getInstance();
 	}
 	
 	String[] getFamilyReportCSVRowData(ONCFamily f)	//Used when writing the database to a .csv file
@@ -69,10 +71,8 @@ public class ONCFamilyReportRowBuilder
 	
 	private String[] getFamilyCommonCSVRowData(ONCFamily f)	//Used when writing the database to a .csv file
 	{
-//		String[] famstatus = {"Unverified", "Info Verified", "Gifts Selected", "Gifts Received", "Gifts Verified", "Packaged"};
-//		String[] delstatus = {"Empty", "Contacted", "Confirmed", "Assigned", "Attempted", "Returned", "Delivered", "Counselor Pick-Up"};
-		
 		String[] row = new String[getCommonFamilyHeader().length];
+		DNSCode code = dnsCodeDB.getDNSCode(f.getDNSCode());
 		int index = 0;
 		
 		row[index++] = 	Integer.toString(f.getID());
@@ -81,7 +81,7 @@ public class ONCFamilyReportRowBuilder
 		row[index++] =  regions.getSchoolName(f.getSchoolCode());
 		row[index++] = 	f.getReferenceNum();
 		row[index++] = 	f.getBatchNum();	
-		row[index++] =  f.getDNSCode();
+		row[index++] = 	code.getAcronym();
 		row[index++] = 	Integer.toString(f.getFamilyStatus().statusIndex());
 		row[index++] = 	Integer.toString(f.getGiftStatus().statusIndex());
 		row[index++] = 	f.getSpeakEnglish();

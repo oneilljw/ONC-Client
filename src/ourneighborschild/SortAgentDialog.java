@@ -60,6 +60,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 
 	private UserDB userDB;
 	private GlobalVariablesDB gvDB;
+	private DNSCodeDB dnsCodeDB;
 	private List<ONCUser> atAL;	//Holds references to agent objects for agent table
 	
 //	private AgentInfoDialog aiDlg;
@@ -76,6 +77,10 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		gvDB = GlobalVariablesDB.getInstance();
 		if(gvDB != null)
 			gvDB.addDatabaseListener(this);
+		
+		dnsCodeDB = DNSCodeDB.getInstance();
+		if(dnsCodeDB != null)
+			dnsCodeDB.addDatabaseListener(this);
 		
 		//Set up the agent table content array list
 		atAL = new ArrayList<ONCUser>();
@@ -363,12 +368,13 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 	{
 		ONCFamily f = stAL.get(index);
 		ONCUser u = userDB.getUser(f.getAgentID());
+		DNSCode code = dnsCodeDB.getDNSCode(f.getDNSCode());
 		
 		String[] row = {
 						u.getFirstName() + " " + u.getLastName(),
 						f.getONCNum(),
 						f.getBatchNum(),
-						f.getDNSCode(),
+						code.getAcronym(),
 						f.getFamilyStatus().toString(),
 						f.getGiftStatus().toString(),
 						f.getMealStatus().toString(),

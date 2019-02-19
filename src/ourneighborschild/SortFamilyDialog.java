@@ -56,7 +56,7 @@ import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyChangeListener								
 {
 	private static final long serialVersionUID = 1L;
-	private static final String DEFAULT_NO_CHANGE_LIST_ITEM = "No Change";
+//	private static final String DEFAULT_NO_CHANGE_LIST_ITEM = "No Change";
 	private static final int CHANGE_DELIVERY_STATUS_ASSIGNED = 4;
 	private static final int ZIP_OUTOFAREA = 7;
 	private static final int NUM_OF_XMAS_ICONS = 5;
@@ -80,31 +80,35 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	NoteDB noteDB;
 	
 	//Unique gui elements for Sort Family Dialog
-	private JComboBox<String> oncCB, batchCB, regionCB, dnsCB, streetCB, lastnameCB, zipCB;
+	private JComboBox<String> oncCB, batchCB, regionCB, streetCB, lastnameCB, zipCB;
 	private JComboBox<FamilyStatus> fstatusCB, changeFStatusCB;
 	private JComboBox<FamilyGiftStatus> giftStatusCB, changeGiftStatusCB;
-	private JComboBox<String> changedByCB, giftCardCB, changeDNSCB; 
+	private JComboBox<String> changedByCB, giftCardCB; 
 	private JComboBox<ImageIcon> stoplightCB, noteStatusCB;
 	private JComboBox<MealStatus> mealstatusCB;
 	private JComboBox<String> exportCB, printCB, emailCB, callCB;
 	private JComboBox<School> schoolCB;
+	private JComboBox<DNSCode> dnsCodeCB, changeDNSCB;
+	private List<DNSCode> filterCodeList;
 	
-	private DefaultComboBoxModel<String> changedByCBM, changeDNSCBM;
+	private DefaultComboBoxModel<String> changedByCBM;
 	private DefaultComboBoxModel<School> schoolCBM;
+	private DefaultComboBoxModel<DNSCode> dnsCodeCBM, changeDNSCBM;
 	
 	private JProgressBar progressBar;
 	private ONCEmailer oncEmailer;
 
 	private int sortBatchNum = 0, sortZip = 0, sortRegion = 0, sortChangedBy = 0;
 	private int sortGCO = 0, sortStoplight = 0;
-	private String sortLN = "Any", sortStreet= "Any", sortDNSCode;
+	private String sortLN = "Any", sortStreet= "Any";
 	private MealStatus sortMealStatus;
 	private FamilyGiftStatus sortGiftStatus;
 	private FamilyStatus sortFamilyStatus;
+	private DNSCode sortDNSCode;
 	private School sortSchool;
 
 	private static String[] giftCardFilter = {"Any", "True", "False"};
-	private static String[] dnsCodes = {"None", "Any", "All", "DUP", "FO", "NC", "NISA", "OPT-OUT", "SA", "SBO", "WA", "WL"};
+//	private static String[] dnsCodes = {"None", "Any", "All", "DUP", "FO", "NC", "NISA", "OPT-OUT", "SA", "SBO", "WA", "WL"};
 	private static String[] exportChoices = {"Export", "Britepath Crosscheck", "Family Floor List", 
 											 "Delivery Instructions", "Toys for Tots Application",
 											 "Family Referral", "Agent/Children/School Report"};
@@ -131,10 +135,19 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		//listen for CHANGED_USER events
 		if(gvs != null)
 			gvs.addDatabaseListener(this);  //listen for preferences changes
+		
+		if(dnsCodeDB != null)
+			dnsCodeDB.addDatabaseListener(this);	//listen for dns code load/changes
 
 		//set up search comparison variables
 		sortONCNum = "Any";
-		sortDNSCode = dnsCodes[0];
+		
+		filterCodeList = new ArrayList<DNSCode>();
+		sortDNSCode = new DNSCode(-4, "No Codes", "No Codes", "Families being served");
+		filterCodeList.add(sortDNSCode);
+		filterCodeList.add(new DNSCode(-3, "Any", "Any", "Any"));
+		filterCodeList.add(new DNSCode(-2, "All Codes", "All Codes", "All Codes"));
+
 		
 		//Set up unique search criteria GUI
 		String[] oncStrings = {"Any", "NNA", "OOR", "RNV", "DEL"};
@@ -172,11 +185,21 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		regionCB.setBorder(BorderFactory.createTitledBorder("Region"));
 		regionCB.addActionListener(this);
 		
-		dnsCB = new JComboBox<String>(dnsCodes);
-		dnsCB.setEditable(true);
-		dnsCB.setPreferredSize(new Dimension(120, 56));
-		dnsCB.setBorder(BorderFactory.createTitledBorder("DNS Code"));
-		dnsCB.addActionListener(this);
+//		dnsCB = new JComboBox<String>(dnsCodes);
+//		dnsCB.setEditable(true);
+//		dnsCB.setPreferredSize(new Dimension(120, 56));
+//		dnsCB.setBorder(BorderFactory.createTitledBorder("DNS Code"));
+//		dnsCB.addActionListener(this);
+		
+		//Get a catalog for type=selection
+        dnsCodeCBM = new DefaultComboBoxModel<DNSCode>();
+        for(DNSCode filterCode : filterCodeList)
+        		dnsCodeCBM.addElement(filterCode);
+        dnsCodeCB = new JComboBox<DNSCode>();
+        dnsCodeCB.setModel(dnsCodeCBM);
+        dnsCodeCB.setPreferredSize(new Dimension(120, 56));
+        dnsCodeCB.setBorder(BorderFactory.createTitledBorder("DNS Code"));
+        dnsCodeCB.addActionListener(this);
 		
 		String[] any = {"Any"};
 		lastnameCB = new JComboBox<String>(any);
@@ -232,7 +255,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		//Add all sort criteria components to search criteria panels
         sortCriteriaPanelTop.add(oncCB);
 		sortCriteriaPanelTop.add(batchCB);				
-		sortCriteriaPanelTop.add(dnsCB);
+		sortCriteriaPanelTop.add(dnsCodeCB);
 		sortCriteriaPanelTop.add(fstatusCB);
 		sortCriteriaPanelTop.add(giftStatusCB);
 		sortCriteriaPanelTop.add(mealstatusCB);
@@ -251,26 +274,14 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		sortCriteriaPanelBottom.setPreferredSize(new Dimension(sortTable.getWidth(), 64));
 		
         //Set up change data panel gui
-        changeDNSCB = new JComboBox<String>();
-		changeDNSCB.setEditable(true);
-		changeDNSCBM = new DefaultComboBoxModel<String>();
-	    changeDNSCBM.addElement(DEFAULT_NO_CHANGE_LIST_ITEM);
-	    for(int index=1; index < dnsCodes.length; index++)
-	    		changeDNSCBM.addElement(dnsCodes[index]);
+		changeDNSCBM = new DefaultComboBoxModel<DNSCode>();
+		changeDNSCBM.addElement(new DNSCode(-1, "No Change", "No Change", "No Change"));
+        changeDNSCB = new JComboBox<DNSCode>();
 	    changeDNSCB.setModel(changeDNSCBM);
 		changeDNSCB.setPreferredSize(new Dimension(172, 56));
 		changeDNSCB.setBorder(BorderFactory.createTitledBorder("Change DNS Code"));
 		changeDNSCB.addActionListener(this);
-		
-//		changeFamItem = new ComboItem[7];	//Family status combo box list objects can be enabled/disabled
-//		changeFamItem[0] = new ComboItem(DEFAULT_NO_CHANGE_LIST_ITEM);
-//		changeFamItem[1] = new ComboItem("Unverified");
-//		changeFamItem[2] = new ComboItem("Info Verified");
-//		changeFamItem[3] = new ComboItem("Gifts Selected"); 
-//		changeFamItem[4] = new ComboItem("Gifts Received"); 
-//		changeFamItem[5] = new ComboItem("Gifts Verified");
-//		changeFamItem[6] = new ComboItem("Packaged", false);
-				
+						
         changeFStatusCB = new JComboBox<FamilyStatus>(FamilyStatus.getChangeList());
 //      changeFStatusCB.setRenderer(new ComboRenderer());
         changeFStatusCB.setPreferredSize(new Dimension(200, 56));
@@ -278,18 +289,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 //		changeFStatusCB.addActionListener(new ComboListener(changeFStatusCB)); //Prevents selection of disabled combo box items
 		changeFStatusCB.addActionListener(this); //Used to check for enabling the Apply Changes button
         
-//		changeDelItem = new ComboItem[9];	//Delivery status combo box list objects can be enabled/disabled
-//		changeDelItem[0] = new ComboItem(DEFAULT_NO_CHANGE_LIST_ITEM);
-//		changeDelItem[1] = new ComboItem("Empty");
-//		changeDelItem[2] = new ComboItem("Contacted");  
-//		changeDelItem[3] = new ComboItem("Confirmed");
-//		changeDelItem[4] = new ComboItem("Assigned", false);   
-//		changeDelItem[5] = new ComboItem("Attempted");
-//		changeDelItem[6] = new ComboItem("Returned");
-//		changeDelItem[7] = new ComboItem("Delivered");
-//		changeDelItem[8] = new ComboItem("Counselor Pick-Up");
-		
-//        changeGiftStatusCB = new JComboBox(changeDelItem);
+
         changeGiftStatusCB = new JComboBox<FamilyGiftStatus>(FamilyGiftStatus.getChangeList());
 //        changeGiftStatusCB.setRenderer(new ComboRenderer());
         changeGiftStatusCB.setPreferredSize(new Dimension(172, 56));
@@ -369,12 +369,15 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	protected Object[] getTableRow(ONCObject o)
 	{
 		ONCFamilyAndNote faN = (ONCFamilyAndNote) o;
+		String famDNSCode = "";
+		if(faN.getFamily().getDNSCode() > -1)
+			famDNSCode = dnsCodeDB.getDNSCode(faN.getFamily().getDNSCode()).getAcronym();
 		
 		Object[] tablerow = {
 			faN.getFamily().getONCNum(), 
 			faN.getFamily().getBatchNum(),
 			faN.getFamily().getReferenceNum(),
-			faN.getFamily().getDNSCode(),
+			famDNSCode,
 			faN.getFamily().getFamilyStatus().toString(),
 			faN.getFamily().getGiftStatus().toString(),
 			faN.getFamily().getMealStatus().toString(),
@@ -460,13 +463,13 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			boolean bFamilyChangeDetected = false;	
 			
 			//If a change to the DNS Code, process it
-			if(!changeDNSCB.getSelectedItem().equals(DEFAULT_NO_CHANGE_LIST_ITEM) && 
-					!f.getDNSCode().equals(changeDNSCB.getSelectedItem()))
+			if(changeDNSCB.getSelectedIndex() > 0 && 
+					f.getDNSCode() != ((DNSCode) changeDNSCB.getSelectedItem()).getID())
 			{
-				String newDNSCode = (String) changeDNSCB.getSelectedItem();
+				DNSCode newDNSCode = (DNSCode) changeDNSCB.getSelectedItem();
 				String chngdBy = userDB.getUserLNFI();
 				
-				f.setDNSCode(newDNSCode);
+				f.setDNSCode(newDNSCode.getID());
 				f.setChangedBy(chngdBy);	//Set the changed by field to current user
 				
 				bFamilyChangeDetected = true;
@@ -557,16 +560,23 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		//if there was a change to user preferences and the DNS filter is set to "Any" or
 		//"None" and the new preference is different, update the filter selection and rebuild
 		//the table
-		if(dnsCB.getSelectedIndex() < 2 &&
-			dnsCB.getSelectedIndex() != u.getPreferences().getFamilyDNSFilter())
+		DNSCode selDNSCode = (DNSCode) dnsCodeCB.getSelectedItem();
+		if(dnsCodeCB.getSelectedIndex() < 2 &&
+			selDNSCode.getID() != u.getPreferences().getFamilyDNSFilterCode().getID())
 		{
-			dnsCB.removeActionListener(this);
-			dnsCB.setSelectedIndex(u.getPreferences().getFamilyDNSFilter());
-			sortDNSCode = dnsCodes[u.getPreferences().getFamilyDNSFilter()];
-			dnsCB.addActionListener(this);
+			dnsCodeCB.removeActionListener(this);
+			dnsCodeCB.setSelectedItem(u.getPreferences().getFamilyDNSFilterCode());
+			sortDNSCode = u.getPreferences().getFamilyDNSFilterCode();
+			dnsCodeCB.addActionListener(this);
 			
 			buildTableList(false);
 		}
+	}
+	
+	int getDNSFilterIndex(int dnsFilterID)
+	{
+		//2 possiblities -3 (None) or -2 (Any). None index 0s 0, Any index is 1
+		return dnsFilterID == -1 ? 1 : 0;
 	}
 	
 	void updateUserList()
@@ -641,6 +651,37 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		regionCB.setSelectedItem(currSel);
 		
 		regionCB.addActionListener(this);
+	}
+	
+	@SuppressWarnings("unchecked")
+	void updateDNSCodeCB()
+	{
+		dnsCodeCB.removeActionListener(this);
+		changeDNSCB.removeActionListener(this);
+		
+		DNSCode currFilterSel = (DNSCode) dnsCodeCB.getSelectedItem();
+		DNSCode currChangeSel = (DNSCode) changeDNSCB.getSelectedItem();
+		
+		//Clear the combo box selection lists and add updated selection codes
+		dnsCodeCBM.removeAllElements();	
+		for(DNSCode filterCode : filterCodeList)
+    			dnsCodeCBM.addElement(filterCode);
+        
+        changeDNSCBM.removeAllElements();	//Clear the combo box selection list
+        changeDNSCBM.addElement(new DNSCode(-1, "No Change", "No Change", "No Change"));
+		
+		for(DNSCode code: (List<DNSCode>) dnsCodeDB.getList())	//Add new list elements
+		{	
+			dnsCodeCBM.addElement(code);
+			changeDNSCBM.addElement(code);
+		}
+			
+		//reselect the DNS code
+		dnsCodeCB.setSelectedItem(currFilterSel);
+		changeDNSCB.setSelectedItem(currChangeSel);
+	
+		dnsCodeCB.addActionListener(this);
+		changeDNSCB.addActionListener(this);
 	}
 	
 	void onPrintDeliveryCards()
@@ -1204,7 +1245,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 				(changeFStatusCB.getSelectedIndex() != 0 ||					
 				     !(changeGiftStatusCB.getSelectedIndex() == 0 ||
 				        changeGiftStatusCB.getSelectedIndex() == CHANGE_DELIVERY_STATUS_ASSIGNED) ||
-					     !changeDNSCB.getSelectedItem().toString().equals(DEFAULT_NO_CHANGE_LIST_ITEM)))
+					     changeDNSCB.getSelectedIndex() != 0))
 			btnApplyChanges.setEnabled(true);
 		else
 			btnApplyChanges.setEnabled(false);
@@ -1244,11 +1285,11 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		sortBatchNum = 0;
 		batchCB.addActionListener(this);
 		
-		dnsCB.removeActionListener(this);
+		dnsCodeCB.removeActionListener(this);
 		UserPreferences uPrefs = userDB.getUserPreferences();
-		dnsCB.setSelectedIndex(uPrefs.getFamilyDNSFilter());
-		sortDNSCode = dnsCodes[uPrefs.getFamilyDNSFilter()];
-		dnsCB.addActionListener(this);
+		dnsCodeCB.setSelectedItem(uPrefs.getFamilyDNSFilterCode());
+		sortDNSCode = uPrefs.getFamilyDNSFilterCode();
+		dnsCodeCB.addActionListener(this);
 		
 		fstatusCB.removeActionListener(this);
 		fstatusCB.setSelectedIndex(0);
@@ -1544,35 +1585,16 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	
 	boolean doesBatchNumMatch(String bn) {return sortBatchNum == 0 ||  bn.equals(batchCB.getSelectedItem());}
 	
-	/******
-	 * compares the families Do Not Serve Code to the filter for matches.
-	 * DNS codes are strings of one or more DNS code. If more
-	 * than one DNS code is given to a family, the codes are separated by commas
-	 * @param dnsc - DNS code for a family
-	 * @return - true if DNS Code string contains a match with the filter
-	 */
-	boolean doesDNSCodeMatch(String dnsc)
+	boolean doesDNSCodeMatch(int dnsCodeID)
 	{
-		boolean bDNSMatch = false;
-		if(sortDNSCode.equals("Any"))
-			bDNSMatch = true;
-		else if(sortDNSCode.equals("None") && dnsc.isEmpty())
-			bDNSMatch = true;
-		else if(sortDNSCode.equals("All"))
-			bDNSMatch = !dnsc.isEmpty();
+		if(sortDNSCode.getID() == -4 && dnsCodeID == -1)	//"No Code" -- show only families being served
+			return true;
+		else if(sortDNSCode.getID() == -3)	//show all families
+			return true;
+		else if(sortDNSCode.getID() == -2 && dnsCodeID > -1)	//show all families not being served
+			return true;
 		else
-		{
-			String[] dnsParts = dnsc.split(",");
-			int index = 0;
-			while(index < dnsParts.length && 
-					!dnsParts[index].trim().equalsIgnoreCase(dnsCB.getSelectedItem().toString()))
-				index++;
-		
-			if(index < dnsParts.length)
-				bDNSMatch = true;
-		}
-		
-		return bDNSMatch;
+			return sortDNSCode.getID() == dnsCodeID;
 	}
 	
 	boolean doesFStatusMatch(FamilyStatus fstat) {return sortFamilyStatus == FamilyStatus.Any  || fstat == (FamilyStatus) fstatusCB.getSelectedItem();}
@@ -2395,10 +2417,14 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			sortBatchNum = batchCB.getSelectedIndex();
 			buildTableList(false);			
 		}		
-		else if(e.getSource() == dnsCB && !dnsCB.getSelectedItem().toString().equals(sortDNSCode))
+		else if(e.getSource() == dnsCodeCB)
 		{
-			sortDNSCode = dnsCB.getSelectedItem().toString();
-			buildTableList(false);
+			DNSCode filterCode = (DNSCode) dnsCodeCB.getSelectedItem();
+			if(!filterCode.equals(sortDNSCode.getID()))
+			{	
+				sortDNSCode = filterCode;
+				buildTableList(false);
+			}
 		}
 		else if(e.getSource() == fstatusCB && fstatusCB.getSelectedItem() != sortFamilyStatus)
 		{						
@@ -2570,6 +2596,15 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		else if(dbe.getType().contains("LOADED_SCHOOLS"))
 		{
 			updateSchoolList();
+		}
+		else if(dbe.getType().equals("LOADED_DNSCODES") || dbe.getType().contains("ADDED_DNSCODE"))
+		{
+			updateDNSCodeCB();
+		}
+		else if(dbe.getType().contains("UPDATED_DNSCODE"))
+		{
+			updateDNSCodeCB();
+			buildTableList(true);
 		}
 		else if(dbe.getType().equals("LOADED_FAMILIES"))
 		{

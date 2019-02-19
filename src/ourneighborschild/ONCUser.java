@@ -47,7 +47,7 @@ public class ONCUser extends ONCGmailContactEntity
 	public ONCUser(int id, Date today, String changedBy, int slpos, String slmssg, String slchgby, 
 			String fn, String ln, UserStatus stat, UserAccess acc, UserPermission perm, long nSessions,
 			long last, String org, String title,String email, String phone, List<Integer> groupList,
-			int fontSize, int wafPos, int fdfPos)
+			int fontSize, int wafPos, DNSCode fdfDNSCode)
 	{
 		super(id, fn, ln, email, phone, phone, "","","","","","New User", org, today, changedBy, 
 				slpos, slmssg, slchgby);
@@ -61,7 +61,7 @@ public class ONCUser extends ONCGmailContactEntity
 		lastLogin = last;
 		this.title = title;
 		this.groupList = groupList;
-		this.preferences = new UserPreferences(fontSize, wafPos, fdfPos);
+		this.preferences = new UserPreferences(fontSize, wafPos, fdfDNSCode);
 	}
 	
 	//overloaded to allow conversion from ONCServerUser to ONCUser by creating a deep copy
@@ -125,7 +125,7 @@ public class ONCUser extends ONCGmailContactEntity
 		this.lastLogin = System.currentTimeMillis();
 		this.title = "None";
 		groupList = new LinkedList<Integer>();
-		this.preferences = new UserPreferences(13, 1, 1);
+		this.preferences = new UserPreferences(13, 1, new DNSCode(-4, "No Code", "No Code", "No Code"));
 	}
 	
 	public ONCUser(String fn, String ln)
@@ -141,7 +141,7 @@ public class ONCUser extends ONCGmailContactEntity
 		this.lastLogin = System.currentTimeMillis();
 		this.title = "None";
 		groupList = new LinkedList<Integer>();
-		this.preferences = new UserPreferences(13, 1, 1);
+		this.preferences = new UserPreferences(13, 1, new DNSCode(-4, "No Code", "No Code", "No Code"));
 	}
 	
 	//getters
@@ -196,7 +196,7 @@ public class ONCUser extends ONCGmailContactEntity
 						organization, title, email, cellPhone, getGroupListAsDelimitedString(),
 						Integer.toString(preferences.getFontSize()), 
 						Integer.toString(preferences.getWishAssigneeFilter()), 
-						Integer.toString(preferences.getFamilyDNSFilter())
+						Integer.toString(preferences.getFamilyDNSFilterCode().getID())
 						};
 		return row;
 	}

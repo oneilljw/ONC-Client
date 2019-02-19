@@ -4,29 +4,29 @@ public class UserPreferences
 {
 	private int fontSize;
 	private int wishAssigneeFilter;
-	private int familyDNSFilter;
+	private DNSCode familyDNSFilterCode;
 	
 	public UserPreferences()
 	{
 		this.fontSize = 13;
 		this.wishAssigneeFilter = 1;
-		this.familyDNSFilter = 1;
+		this.familyDNSFilterCode = new DNSCode(-3, "Any", "Any", "Any");
 	}
 	
-	public UserPreferences(int fs, int wafPos, int fdfPos)
+	public UserPreferences(int fs, int wafPos, DNSCode fdfDNSCode)
 	{
 		this.fontSize = fs;
 		this.wishAssigneeFilter = wafPos;
-		this.familyDNSFilter = fdfPos;
+		this.familyDNSFilterCode = fdfDNSCode;
 	}
 	
 	//getters
 	public int getFontSize() { return fontSize; }
 	public int getWishAssigneeFilter() { return wishAssigneeFilter; }
-	public int getFamilyDNSFilter() { return familyDNSFilter; }
+	public DNSCode getFamilyDNSFilterCode() { return familyDNSFilterCode; }
 	
 	//setters
 	public void setFontSize(int fs) { this.fontSize = fs; }
 	public void setWishAssigneeFilter(int pos) { this.wishAssigneeFilter = pos; }
-	public void setFamilyDNSFilter(int pos) { this.familyDNSFilter = pos; }
+	public void setFamilyDNSFilterCode(DNSCode code) { this.familyDNSFilterCode = code; }
 }

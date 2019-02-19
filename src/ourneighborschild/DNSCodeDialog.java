@@ -228,7 +228,7 @@ public class DNSCodeDialog extends EntityDialog implements DatabaseListener, Lis
 				//determine if family has a dns code. If it does, display that
 				//code in this dialog
 				ONCFamily selectedFam = (ONCFamily) tse.getObject1();
-				if(!selectedFam.getDNSCode().isEmpty())
+				if(selectedFam.getDNSCode() > -1)
 				{
 					//family has a dns code, find it in the database
 					@SuppressWarnings("unchecked")

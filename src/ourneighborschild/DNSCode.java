@@ -13,7 +13,7 @@ public class DNSCode extends ONCEntity
 	String name;
 	String definition;
 	
-	DNSCode(int id, String acronym, String name, String definition)
+	public DNSCode(int id, String acronym, String name, String definition)
 	{
 		super(id, new Date(), "", 3, "DNS Code Created", "");
 		this.acronym = acronym;
@@ -71,6 +71,26 @@ public class DNSCode extends ONCEntity
 		row[8] = slChangedBy;
 		
 		return row;
+	}
+	
+	@Override
+	public String toString() { return acronym; }
+	
+	@Override
+	public boolean equals(Object o) 
+	{
+	    if (o == this) { return true; }
+	    if (!(o instanceof DNSCode)) { return false; }
+	    DNSCode dnsCode = (DNSCode) o;
+	    return dnsCode.id == id;
+	}
+	
+	@Override
+	public int hashCode() 
+	{
+	    int result = 17;
+	    result = 31 * result + id;
+	    return result;
 	}
 }
 

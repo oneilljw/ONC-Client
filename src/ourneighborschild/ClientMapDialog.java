@@ -293,7 +293,7 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 		for(ONCFamily f:fAL)
 		{
 			//only count served families
-			if(isNumeric(f.getONCNum()) && f.getDNSCode().isEmpty())
+			if(isNumeric(f.getONCNum()) && f.getDNSCode() == -1)
 			{
 				ZoneCountLabel associatedSchoolLbl = findLabelByZoneCode(schoolCountLabelList, f.getSchoolCode());
 				if(associatedSchoolLbl != null)

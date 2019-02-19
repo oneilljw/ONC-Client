@@ -62,6 +62,7 @@ public class AngelAutoCallDialog extends ONCEntityTableDialog implements ActionL
 	
 	private FamilyDB familyDB;
 	private UserDB userDB;
+	private DNSCodeDB dnsCodeDB;
 	private ArrayList<AngelCallItem> stAL;
 	
 	private boolean bCallsProcessed;	//indicates if delivery status updated as a result of calls in table
@@ -83,6 +84,7 @@ public class AngelAutoCallDialog extends ONCEntityTableDialog implements ActionL
 		
 		familyDB = FamilyDB.getInstance();
 		userDB = UserDB.getInstance();
+		dnsCodeDB = DNSCodeDB.getInstance();
 		stAL = new ArrayList<AngelCallItem>();
 		bCallsProcessed = false;
 		
@@ -507,26 +509,28 @@ public class AngelAutoCallDialog extends ONCEntityTableDialog implements ActionL
 						 stAL.get(i).getCallResult().equals(ANGEL_DELIVERY_CONFIRMED))
 				 {
 					 //add a family history update to the list of families with status changing to Confirmed
+					 DNSCode famDNSCode = dnsCodeDB.getDNSCode(f.getDNSCode());
 					 ONCFamilyHistory reqHistory = new ONCFamilyHistory(-1, f.getID(), FamilyStatus.Confirmed,
 							 					f.getGiftStatus(),
 							 					familyHistoryDB.getDeliveredBy(f.getDeliveryID()),
 							 					"Automated Call Result: Confirmed",
 							 					userDB.getUserLNFI(),
 							 					Calendar.getInstance(),
-							 					f.getDNSCode());
+							 					famDNSCode.getAcronym());
 					 
 					 reqFamilyUpdateList.add(reqHistory);
 				 }			 
 				 else if(f.getFamilyStatus().compareTo(FamilyStatus.Contacted) < 0)
 				 {
 					//add a new family history to the history list
+					 DNSCode famDNSCode = dnsCodeDB.getDNSCode(f.getDNSCode());
 					 ONCFamilyHistory reqHistory = new ONCFamilyHistory(-1, f.getID(), FamilyStatus.Contacted,
 							 					f.getGiftStatus(),
 							 					familyHistoryDB.getDeliveredBy(f.getDeliveryID()),
 							 					"Automated Call Result: Contacted",
 							 					userDB.getUserLNFI(),
 							 					Calendar.getInstance(),
-							 					f.getDNSCode());
+							 					famDNSCode.getAcronym());
 					 
 					 reqFamilyUpdateList.add(reqHistory);
 				 }

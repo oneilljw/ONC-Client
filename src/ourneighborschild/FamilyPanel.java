@@ -15,9 +15,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.EnumSet;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
@@ -80,6 +82,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private UserDB userDB;
 	private GroupDB groupDB;
 	private NoteDB noteDB;
+	private DNSCodeDB dnsCodeDB;
 	
 	private ONCFamily currFam;	//The panel needs to know which family is being displayed
 	private ONCChild currChild;	//The panel needs to know which child is being displayed
@@ -92,7 +95,8 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private JScrollPane wishlistScrollPane;
 	private JTextPane homePhonePane, otherPhonePane;
 	private JButton btnAssignONCNum;
-	private JTextField oncDNScode;
+	private JComboBox<DNSCode> dnsCodeCB;
+	private DefaultComboBoxModel<DNSCode> dnsCodeCBM;
 	private JTextField HOHFirstName, HOHLastName, EMail;
 	private JTextField housenumTF, Street, Unit, City, ZipCode;
 	private JLabel lblONCNum, lblRefNum, lblBatchNum, lblSchool, lblNumBags, lblChangedBy;
@@ -134,6 +138,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		userDB = UserDB.getInstance();
 		groupDB = GroupDB.getInstance();
 		noteDB = NoteDB.getInstance();
+		dnsCodeDB = DNSCodeDB.getInstance();
 		
 		if(dbMgr != null)
 			dbMgr.addDatabaseListener(this);
@@ -153,6 +158,8 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			groupDB.addDatabaseListener(this);
 		if(noteDB != null)
 			noteDB.addDatabaseListener(this);
+		if(dnsCodeDB != null)
+			dnsCodeDB.addDatabaseListener(this);
 		
 		currFam = null;
 		
@@ -203,12 +210,22 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         lblBatchNum.setToolTipText("Indicates family intake grouping");
         lblBatchNum.setBorder(BorderFactory.createTitledBorder("Batch #"));
         lblBatchNum.setHorizontalAlignment(JLabel.CENTER);
-        
+/*        
         oncDNScode = new JTextField(6);
         oncDNScode.setToolTipText("Do not serve family code: e.g, SA= Salvation Army");
         oncDNScode.setBorder(BorderFactory.createTitledBorder("DNS Code"));
         oncDNScode.setEditable(false);
         oncDNScode.addActionListener(this);
+*/        
+        //Get a catalog for type=selection
+        dnsCodeCBM = new DefaultComboBoxModel<DNSCode>();
+        dnsCodeCBM.addElement(new DNSCode());
+        dnsCodeCB = new JComboBox<DNSCode>();
+        dnsCodeCB.setModel(dnsCodeCBM);
+        dnsCodeCB.setToolTipText("Do not serve family code: e.g, SA= Salvation Army");
+        dnsCodeCB.setBorder(BorderFactory.createTitledBorder("DNS Code"));
+        dnsCodeCB.setEnabled(false);
+        dnsCodeCB.addActionListener(this);
 
         HOHFirstName = new JTextField(9);
         HOHFirstName.setBorder(BorderFactory.createTitledBorder("First Name"));
@@ -496,7 +513,8 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         p1.add(lblONCNum);
         p1.add(lblRefNum);
         p1.add(lblBatchNum);
-        p1.add(oncDNScode);
+//        p1.add(oncDNScode);
+        p1.add(dnsCodeCB);
         p1.add(HOHFirstName);
         p1.add(HOHLastName);
         p1.add(statusCB);
@@ -585,7 +603,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	{
 		if(userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0)
 		{
-			oncDNScode.setEditable(tf);
+			dnsCodeCB.setEnabled(tf);
 			HOHFirstName.setEditable(tf);
 			HOHLastName.setEditable(tf);;
 			statusCB.setEnabled(tf);
@@ -736,8 +754,13 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		lblONCNum.setToolTipText("Family Database ID= " + Integer.toString(currFam.getID()));
 		lblRefNum.setText(currFam.getReferenceNum());
 		lblBatchNum.setText(currFam.getBatchNum());
-		oncDNScode.setText(currFam.getDNSCode());
-		oncDNScode.setCaretPosition(0);
+		
+		//get DNS Code
+		if(currFam.getDNSCode() == -1)
+			dnsCodeCB.setSelectedIndex(0);
+		else
+			dnsCodeCB.setSelectedItem(dnsCodeDB.getDNSCode(fam.getDNSCode()));
+		dnsCodeCB.setToolTipText(String.format("DNS Code ID= %d", currFam.getDNSCode()));
 		
 		checkForDNSorGiftCardOnly();
 		
@@ -781,10 +804,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		
 		if(userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0)
 		{	
-			//show personal information for family since user is Administrator or higher
-//			System.out.println(String.format("FamPanel.disp: HoHFN= %s, HOHLN= %s, index=%d",
-//					currFam.getFirstName(), currFam.getLastName(), nav.getIndex()));
-			
+			//show personal information for family since user is Administrator or higher		
 			HOHFirstName.setText(currFam.getFirstName());
 			HOHLastName.setText(currFam.getLastName());
 			
@@ -888,7 +908,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	void checkForDNSorGiftCardOnly()
 	{
 		//determine what color to paint the background
-		if(currFam.getDNSCode().length() > 1)
+		if(currFam.getDNSCode() > -1)
 		{
 			p1.setBackground(Color.RED);
 			p2.setBackground(Color.RED);
@@ -1016,13 +1036,14 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		
 		int cf = 0;	//used to indicate if a change is detected to a GUI field
 		
-		//If data has been changed store updated family info and return true to indicate a change
-		if(!oncDNScode.getText().equals(fam.getDNSCode())) //DNS code changed
+		DNSCode selCode = (DNSCode) dnsCodeCB.getSelectedItem();
+		if(selCode.getID() != fam.getDNSCode()) //DNS code changed
 		{
 			//Save the new DNS text field and mark that a field has changed
-			fam.setDNSCode(oncDNScode.getText());
+			fam.setDNSCode(selCode.getID());
 			cf = 3;
 		}
+		
 		if(!HOHFirstName.getText().equals(fam.getFirstName())) {fam.setHOHFirstName(HOHFirstName.getText()); cf = 4;}
 		if(!HOHLastName.getText().equals(fam.getLastName())) {fam.setHOHLastName(HOHLastName.getText()); cf = 5;}
 		if(Integer.parseInt(lblNumBags.getText()) != fam.getNumOfBags()) {fam.setNumOfBags(Integer.parseInt(lblNumBags.getText())); cf = 20;}
@@ -1104,6 +1125,27 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		if(userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0)
 			setRestrictedEnabledButtons(true);
     }
+    
+    @SuppressWarnings("unchecked")
+	void updateDNSCodeCB()
+	{
+		bFamilyDataChanging = true;
+		
+		dnsCodeCBM.removeAllElements();	//Clear the combo box selection list
+
+		dnsCodeCBM.addElement(new DNSCode());
+		
+		for(DNSCode code: (List<DNSCode>) dnsCodeDB.getList())	//Add new list elements
+			dnsCodeCBM.addElement(code);
+			
+		//set the proper selection in the updated combo box
+		if(currFam != null && currFam.getDNSCode() > -1) 
+			dnsCodeCB.setSelectedItem(dnsCodeDB.getDNSCode(currFam.getDNSCode()));
+		else
+			dnsCodeCB.setSelectedIndex(0);
+	
+		bFamilyDataChanging = false;
+	}
 	
 	/****************
 	 * Method fetches a prior year child from the server for the current child selected in
@@ -1310,8 +1352,8 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		{
 			checkAndUpdateFamilyData(currFam);
 		}
-		else if(e.getSource() == oncDNScode && !bFamilyDataChanging &&
-									!oncDNScode.getText().equals(currFam.getDNSCode()))
+		else if(e.getSource() == dnsCodeCB && !bFamilyDataChanging &&
+						((DNSCode) dnsCodeCB.getSelectedItem()).getID() != currFam.getDNSCode())
 		{	
 			checkAndUpdateFamilyData(currFam);
 		}
@@ -1511,6 +1553,9 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 				mssg = userDB.getLoggedInUser().getFirstName() + ", " + year + " season data has been loaded";
 			
     			setMssg(mssg, true);
+    			
+    			//update the dnsCode combo box
+    			updateDNSCodeCB();
     		
     			//if first family is present, load family and fire family selected event
     			if(fDB.size() > 0)
@@ -1537,6 +1582,10 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			ONCNote changedNote = (ONCNote) dbe.getObject1();
 			if(currFam != null && changedNote.getOwnerID() == currFam.getID())
 				display(currFam, currChild);
+		}
+		else if(dbe.getType().equals("ADDED_DNSCODE") || dbe.getType().equals("UPDATED_DNSCODE"))
+		{
+			updateDNSCodeCB();
 		}
 	}
 
@@ -1694,30 +1743,30 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
  
         public Object getValueAt(int row, int col)
         {
-        	ONCChild child = ctAL.get(row);
+        		ONCChild child = ctAL.get(row);
 
-        	if(col == FIRST_NAME_COL)
-        		return userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0 ? child.getChildFirstName() : "Child " + Integer.toString(row+1);
-        	else if(col == LAST_NAME_COL)
-        		return userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0 ? child.getChildLastName() : "";
-        	else if(col == DOB_COL)
-        		return child.getChildDOBString("M/d/yy");
-        	else if(col == GENDER_COL)
-        		return child.getChildGender();
-        	else
-        		return "Error";
+        		if(col == FIRST_NAME_COL)
+        			return userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0 ? child.getChildFirstName() : "Child " + Integer.toString(row+1);
+        		else if(col == LAST_NAME_COL)
+        			return userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0 ? child.getChildLastName() : "";
+        		else if(col == DOB_COL)
+        			return child.getChildDOBString("M/d/yy");
+        		else if(col == GENDER_COL)
+        			return child.getChildGender();
+        		else
+        			return "Error";
         }
         
         //JTable uses this method to determine the default renderer/editor for each cell.
         @Override
         public Class<?> getColumnClass(int column)
         {
-        	return String.class;
+        		return String.class;
         }
  
         public boolean isCellEditable(int row, int col)
         {
-        	return false;
+        		return false;
         }
     }
 }

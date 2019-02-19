@@ -39,8 +39,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 	private static final int GIFT_ACTION_REQUEST_SERVER_FAILURE = -4;
 	private static final int CHILD_NOT_IN_LOCAL_DB = -5;
 	private static final int GIFT_ACTION_FAMILY_NOT_SERVED = -6;
-	
-	private static final String WISH_ANTICIPATION_DNS_CODE = "WA";
+	private static final int WISH_ANTICIPATION_DNS_CODE = 7;
 
 	private JTextField oncnumTF, barcodeTF;
 	private JComboBox<String> startAgeCB, genderCB;
@@ -178,7 +177,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 			//ONC number is valid and matches criteria. It must be a served family and the
 			//only allowable DNS code is WISH_ANTICIPATION.
 			if(isNumeric(f.getONCNum()) && 
-				(f.getDNSCode().isEmpty() || f.getDNSCode().equals(WISH_ANTICIPATION_DNS_CODE)) && 
+				(f.getDNSCode() == -1 || f.getDNSCode() == WISH_ANTICIPATION_DNS_CODE) && 
 				 doesONCNumMatch(f.getONCNum()))	
 			{
 				for(ONCChild c:cDB.getChildren(f.getID()))
@@ -241,7 +240,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 			SortGiftObject swo = new SortGiftObject(-1, f, c, cw);
 			
 			//should only be if family is being served
-			if(!f.getDNSCode().isEmpty() && !f.getDNSCode().equals(WISH_ANTICIPATION_DNS_CODE))
+			if(f.getDNSCode() > -1 && f.getDNSCode() != WISH_ANTICIPATION_DNS_CODE)
 				rc = new GiftActionReturnCode(GIFT_ACTION_FAMILY_NOT_SERVED, swo);
 			else if(actOnGift(swo))
 				rc = new GiftActionReturnCode(GIFT_ACTION_SUCCESSFUL, swo);

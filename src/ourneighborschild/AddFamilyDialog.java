@@ -63,6 +63,7 @@ public class AddFamilyDialog extends JDialog implements ActionListener, ListSele
 	private MealDB mealDB;
 	private FamilyHistoryDB famHistDB;
 	private GroupDB groupDB;
+	private DNSCodeDB dnsCodeDB;
 	
 	private List<AddChild> childList;
 	private List<ONCAdult> adultList;
@@ -99,6 +100,7 @@ public class AddFamilyDialog extends JDialog implements ActionListener, ListSele
 		mealDB = MealDB.getInstance();
 		famHistDB = FamilyHistoryDB.getInstance();
 		groupDB = GroupDB.getInstance();
+		dnsCodeDB = DNSCodeDB.getInstance();
 		
 		//set up the adult t child list for the tables
 		adultList = new ArrayList<ONCAdult>();
@@ -649,7 +651,7 @@ public class AddFamilyDialog extends JDialog implements ActionListener, ListSele
 		}
 		
 		ONCFamily fam = new ONCFamily(-1, user.getLNFI(), "NNA",
-					"NNA", "B-CR", "",
+					"NNA", "B-CR", -1,
 					languageCB.getSelectedIndex()==0 ? "Yes" : "No",
 					(String) languageCB.getSelectedItem(),
 					hohFN.getText(), hohLN.getText(), housenumTF.getText(),
@@ -672,13 +674,14 @@ public class AddFamilyDialog extends JDialog implements ActionListener, ListSele
 			//add a family history item
 			//add the family history object and update the family history object id
 			
+			DNSCode dnsCode = dnsCodeDB.getDNSCode(addedFamily.getDNSCode());
 			ONCFamilyHistory famHistory = new ONCFamilyHistory(-1, addedFamily.getID(), 
 															addedFamily.getFamilyStatus(),
 															addedFamily.getGiftStatus(),
 															"", "Family Referred", 
 															addedFamily.getChangedBy(), 
 															Calendar.getInstance(TimeZone.getTimeZone("UTC")),
-															addedFamily.getDNSCode());
+															dnsCode.getAcronym());
 		
 			ONCFamilyHistory addedFamHistory = famHistDB.add(this, famHistory);
 			

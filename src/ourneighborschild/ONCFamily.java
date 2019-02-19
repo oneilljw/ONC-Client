@@ -21,7 +21,7 @@ public class ONCFamily extends ONCEntity
 	private int			nLargeItems;
 	private String		referenceNum;
 	private String		batchNum;	
-	private String 		dnsCode;
+	private int	 		dnsCode;			//reference to dns code object id
 	private String		speakEnglish;	//values are "Yes" or "No"	
 	private String		language;		//Spanish, Arabic, Korean, etc	
 	private String		notes;
@@ -115,7 +115,8 @@ public class ONCFamily extends ONCEntity
 		nLargeItems = 0;
 		referenceNum = ID;
 		batchNum = bn;
-		dnsCode = "";			
+//		dnsCode = "";
+		dnsCode = -1;
 		notes = "";
 		deliveryInstructions = "";
 		if(!ClientFam.isEmpty()) {clientFamily = ClientFam.split("Household", 2)[0].trim();}
@@ -160,7 +161,8 @@ public class ONCFamily extends ONCEntity
 		this.schoolCode = nextLine[3];
 		referenceNum = getDBString(nextLine[4]);
 		batchNum = getDBString(nextLine[5]);	
-		dnsCode = getDBString(nextLine[6]);
+//		dnsCode = getDBString(nextLine[6]);
+		dnsCode = nextLine[6].isEmpty() ? -1 : Integer.parseInt(nextLine[6]);
 		famStatus = FamilyStatus.getFamilyStatus(Integer.parseInt(nextLine[7]));
 		giftStatus = FamilyGiftStatus.getFamilyGiftStatus(Integer.parseInt(nextLine[8]));
 		speakEnglish =getDBString(nextLine[9]);
@@ -197,7 +199,7 @@ public class ONCFamily extends ONCEntity
 	}
 	
 	//Overloaded Constructor - Direct Intake Processing
-	public ONCFamily(int id, String cb, String oncNum, String odbFamilyNum, String batchNum, String dnsCode,
+	public ONCFamily(int id, String cb, String oncNum, String odbFamilyNum, String batchNum, int dnsCode,
 				String speakEnglish, String language, String hohFirstName, String hohLastName, 
 				String houseNum, String street, String unitNum, String city, String zipCode, 
 				String altHouseNum, String altStreet, String altUnitNum, String altCity, String altZipCode,
@@ -465,7 +467,8 @@ public class ONCFamily extends ONCEntity
 	public int		getNumOfLargeItems() { return nLargeItems; }
 	public String	getReferenceNum()	{return referenceNum;}
 	public String	getBatchNum() {return batchNum;}	
-	public String 	getDNSCode() {return dnsCode;}
+//	public String 	getDNSCode() {return dnsCode;}
+	public int 		getDNSCode() {return dnsCode;}
 	public String	getSpeakEnglish() {return speakEnglish;}
 	public String 	getLanguage() {return language; }
 	public String	getNotes() {return notes;}
@@ -506,7 +509,8 @@ public class ONCFamily extends ONCEntity
 	public void setNumOfLargeItems(int li) { nLargeItems = li; }
 	public void setReferenceNum(String s)	{ referenceNum = s;}
 	public void setBatchNum(String s) { batchNum = s;}	
-	public void setDNSCode(String s) { dnsCode = s;}
+//	public void setDNSCode(String s) { dnsCode = s;}
+	public void setDNSCode(int code) { dnsCode = code;}
 	public void setSpeakEnglish(String s) { speakEnglish = s;}	
 	public void setLanguage(String s) { speakEnglish = ((language=s).equals("English")) ? "Yes":"No"; }
 	public void setNotes(String s) { notes = s;}
@@ -589,7 +593,8 @@ public class ONCFamily extends ONCEntity
 		rowList.add(getSchoolCode());
 		rowList.add(getReferenceNum());
 		rowList.add(getBatchNum());	
-		rowList.add(getDNSCode());
+//		rowList.add(getDNSCode());
+		rowList.add(Integer.toString(getDNSCode()));
 		rowList.add(Integer.toString(famStatus.statusIndex()));
 		rowList.add(Integer.toString(giftStatus.statusIndex()));
 		rowList.add(getSpeakEnglish());

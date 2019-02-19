@@ -66,17 +66,21 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 	private PartnerDB partnerDB;
 	private GiftCatalogDB giftCat;
 	private RegionDB regions;
+	private DNSCodeDB dnsCodeDB;
 
 	private ArrayList<SortGiftObject> stAL;
 	
-	private JComboBox<String> startAgeCB, endAgeCB, dnsCB, giftnumCB, genderCB, resCB, changedByCB;
+	private JComboBox<String> startAgeCB, endAgeCB, giftnumCB, genderCB, resCB, changedByCB;
 	private JComboBox<String> changeResCB, printCB, regionCB, schoolCB;
 	private JComboBox<ONCGift> giftCB;
 	private JComboBox<GiftStatus>  statusCB, changeStatusCB;
 	private JComboBox<ONCPartner> assignCB, changePartnerCB;
 	private JComboBox<FamilyStatus> famStatusCB;
+	private JComboBox<DNSCode> dnsCodeCB;
+	private List<DNSCode> filterCodeList;
 	
 	private DefaultComboBoxModel<String> changedByCBM, regionCBM, schoolCBM;
+	private DefaultComboBoxModel<DNSCode> dnsCodeCBM;
 	private DefaultComboBoxModel<ONCGift> giftCBM;
 	private DefaultComboBoxModel<ONCPartner> assignCBM, changePartnerCBM;
 	
@@ -90,7 +94,8 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 	private int sortGiftNum = 0, sortRes = 0, sortPartnerID, sortRegion = 0;
 	private GiftStatus sortStatus = GiftStatus.Any;
 	private FamilyStatus sortFamilyStatus;
-	private String sortSchool = "Any", sortDNSCode = "Any";
+	private DNSCode sortDNSCode;
+	private String sortSchool = "Any";
 	private int sortGiftID = -2;
 	private boolean bOversizeGifts = false;
 	
@@ -98,7 +103,7 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 	private static String[] res = {"Any", "Blank", "*", "#"};
 	private static String [] status = {"Any", "Empty", "Selected", "Assigned", "Received",
 										"Distributed", "Verified"};
-	String[] dnsCodes = {"None", "Any", "All", "DUP", "FO", "NC", "NISA", "OPT-OUT", "SA", "SBO", "WA"};
+//	String[] dnsCodes = {"None", "Any", "All", "DUP", "FO", "NC", "NISA", "OPT-OUT", "SA", "SBO", "WA"};
 	
 	SortGiftsDialog(JFrame pf)
 	{
@@ -111,6 +116,7 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 		partnerDB = PartnerDB.getInstance();
 		giftCat = GiftCatalogDB.getInstance();
 		regions = RegionDB.getInstance();
+		dnsCodeDB = DNSCodeDB.getInstance();
 		
 		//set up data base listeners
 		if(userDB != null)
@@ -125,6 +131,8 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 			giftCat.addDatabaseListener(this);
 		if(regions != null)
 			regions.addDatabaseListener(this);
+		if(dnsCodeDB != null)
+			dnsCodeDB.addDatabaseListener(this);
 		
 		//initialize member variables
 		stAL = new ArrayList<SortGiftObject>();
@@ -138,11 +146,27 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 		oncnumTF.addActionListener(this);
 		oncnumTF.addKeyListener(new ONCNumberKeyListener());
 		
-		dnsCB = new JComboBox<String>(dnsCodes);
-		dnsCB.setEditable(true);
-		dnsCB.setPreferredSize(new Dimension(120, 56));
-		dnsCB.setBorder(BorderFactory.createTitledBorder("DNS Code"));
-		dnsCB.addActionListener(this);
+//		dnsCB = new JComboBox<String>(dnsCodes);
+//		dnsCB.setEditable(true);
+//		dnsCB.setPreferredSize(new Dimension(120, 56));
+//		dnsCB.setBorder(BorderFactory.createTitledBorder("DNS Code"));
+//		dnsCB.addActionListener(this);
+		
+		//Get a catalog for type=selection
+		sortDNSCode = new DNSCode(-4, "No Codes", "No Codes", "Families being served");
+		filterCodeList = new ArrayList<DNSCode>();
+		filterCodeList.add(sortDNSCode);
+		filterCodeList.add(new DNSCode(-3, "Any", "Any", "Any"));
+		filterCodeList.add(new DNSCode(-2, "All Codes", "All Codes", "All Codes"));
+		
+		dnsCodeCBM = new DefaultComboBoxModel<DNSCode>();
+		for(DNSCode filterCode : filterCodeList)
+			dnsCodeCBM.addElement(filterCode);
+		dnsCodeCB = new JComboBox<DNSCode>();
+		dnsCodeCB.setModel(dnsCodeCBM);
+		dnsCodeCB.setPreferredSize(new Dimension(120, 56));
+		dnsCodeCB.setBorder(BorderFactory.createTitledBorder("DNS Code"));
+		dnsCodeCB.addActionListener(this);
 		
 		regionCBM = new DefaultComboBoxModel<String>();
 		regionCBM.addElement("Any");
@@ -251,7 +275,7 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 		assignCB.addActionListener(this);
 
 		sortCriteriaPanelTop.add(oncnumTF);
-		sortCriteriaPanelTop.add(dnsCB);
+		sortCriteriaPanelTop.add(dnsCodeCB);
 		sortCriteriaPanelTop.add(regionCB);
 		sortCriteriaPanelTop.add(startAgeCB);
 		sortCriteriaPanelTop.add(endAgeCB);
@@ -629,6 +653,26 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 		
 		bIgnoreCBEvents = false;
 	}
+	
+	@SuppressWarnings("unchecked")
+	void updateDNSCodeCB()
+	{
+		dnsCodeCB.removeActionListener(this);
+		
+		DNSCode currFilterSel = (DNSCode) dnsCodeCB.getSelectedItem();
+		
+		dnsCodeCBM.removeAllElements();	//Clear the combo box selection list
+		for(DNSCode filterCode : filterCodeList)
+			dnsCodeCBM.addElement(filterCode);
+		
+		for(DNSCode code: (List<DNSCode>) dnsCodeDB.getList())	//Add new list elements	
+			dnsCodeCBM.addElement(code);
+			
+		//reselect the DNS code
+		dnsCodeCB.setSelectedItem(currFilterSel);
+	
+		dnsCodeCB.addActionListener(this);
+	}
 
 	void updateUserList()
 	{	
@@ -694,13 +738,14 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 			buildTableList(false);
 		}
 		
-		if(dnsCB.getSelectedIndex() < 2 &&
-			dnsCB.getSelectedIndex() != u.getPreferences().getFamilyDNSFilter())
+		DNSCode selDNSCode = (DNSCode) dnsCodeCB.getSelectedItem();
+		if(dnsCodeCB.getSelectedIndex() < 2 &&
+			selDNSCode != u.getPreferences().getFamilyDNSFilterCode())
 		{
-			dnsCB.removeActionListener(this);
-			dnsCB.setSelectedIndex(u.getPreferences().getFamilyDNSFilter());
-			sortDNSCode = dnsCodes[u.getPreferences().getFamilyDNSFilter()];
-			dnsCB.addActionListener(this);
+			dnsCodeCB.removeActionListener(this);
+			dnsCodeCB.setSelectedItem(u.getPreferences().getFamilyDNSFilterCode());
+			sortDNSCode = u.getPreferences().getFamilyDNSFilterCode();
+			dnsCodeCB.addActionListener(this);
 				
 			buildTableList(false);
 		}
@@ -842,35 +887,16 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 
 	private boolean doesONCNumMatch(String s) { return sortONCNum.isEmpty() || sortONCNum.equals(s); }
 	
-	/******
-	 * compares the families Do Not Serve Code to the filter for matches.
-	 * DNS codes are strings of one or more DNS code. If more
-	 * than one DNS code is given to a family, the codes are separated by commas
-	 * @param dnsc - DNS code for a family
-	 * @return - true if DNS Code string contains a match with the filter
-	 */
-	boolean doesDNSCodeMatch(String dnsc)
+	boolean doesDNSCodeMatch(int dnsCodeID)
 	{
-		boolean bDNSMatch = false;
-		if(sortDNSCode.equals("Any"))
-			bDNSMatch = true;
-		else if(sortDNSCode.equals("None") && dnsc.isEmpty())
-			bDNSMatch = true;
-		else if(sortDNSCode.equals("All"))
-			bDNSMatch = !dnsc.isEmpty();
+		if(sortDNSCode.getID() == -4 && dnsCodeID == -1)	//"No Code" -- show only families being served
+			return true;
+		else if(sortDNSCode.getID() == -3)	//show all families
+			return true;
+		else if(sortDNSCode.getID() == -2 && dnsCodeID > -1)	//show all families not being served
+			return true;
 		else
-		{
-			String[] dnsParts = dnsc.split(",");
-			int index = 0;
-			while(index < dnsParts.length && 
-					!dnsParts[index].trim().equalsIgnoreCase(dnsCB.getSelectedItem().toString()))
-				index++;
-		
-			if(index < dnsParts.length)
-				bDNSMatch = true;
-		}
-		
-		return bDNSMatch;
+			return sortDNSCode.getID() == dnsCodeID;
 	}
 	
 	private boolean isAgeInRange(ONCChild c)
@@ -1010,9 +1036,9 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 			sortONCNum = oncnumTF.getText();
 			buildTableList(false);
 		}
-		else if(e.getSource() == dnsCB && !sortDNSCode.equals((String) dnsCB.getSelectedItem()))
+		else if(e.getSource() == dnsCodeCB && sortDNSCode.getID() != ((DNSCode) dnsCodeCB.getSelectedItem()).getID())
 		{
-			sortDNSCode = (String) dnsCB.getSelectedItem();
+			sortDNSCode = (DNSCode) dnsCodeCB.getSelectedItem();
 			buildTableList(false);
 		}
 		else if(e.getSource() == startAgeCB && startAgeCB.getSelectedIndex() != sortStartAge)
@@ -1161,11 +1187,11 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 		oncnumTF.setText("");	//its a text field, not a cb, so need to clear sortONCNum also
 		sortONCNum = "";
 		
-		dnsCB.removeActionListener(this);
+		dnsCodeCB.removeActionListener(this);
 		UserPreferences uPrefs = userDB.getUserPreferences();
-		dnsCB.setSelectedIndex(uPrefs.getFamilyDNSFilter());
-		sortDNSCode = dnsCodes[uPrefs.getFamilyDNSFilter()];
-		dnsCB.addActionListener(this);
+		dnsCodeCB.setSelectedItem(uPrefs.getFamilyDNSFilterCode());
+		sortDNSCode = uPrefs.getFamilyDNSFilterCode();
+		dnsCodeCB.addActionListener(this);
 		
 		startAgeCB.removeActionListener(this);
 		startAgeCB.setSelectedIndex(0);	//Will trigger the CB event handler which
@@ -1431,6 +1457,15 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 			String[] regList = (String[]) dbe.getObject1();
 			updateRegionList(regList);
 		}
+		else if(dbe.getType().equals("LOADED_DNSCODES") || dbe.getType().contains("ADDED_DNSCODE"))
+		{
+			updateDNSCodeCB();
+		}
+		else if(dbe.getType().contains("UPDATED_DNSCODE"))
+		{
+			updateDNSCodeCB();
+			buildTableList(true);
+		}
 	}
 	
 	@Override
@@ -1644,8 +1679,18 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 	{
 		@Override
 		public int compare(SortGiftObject o1, SortGiftObject o2)
-		{			
-			return o1.getFamily().getDNSCode().compareTo(o2.getFamily().getDNSCode());
+		{	
+			DNSCode fam1Code = dnsCodeDB.getDNSCode(o1.getFamily().getDNSCode());
+			DNSCode fam2Code = dnsCodeDB.getDNSCode(o2.getFamily().getDNSCode());
+			
+			if(fam1Code.getID() == -1 && fam2Code.getID() == -1)
+				return 0;
+			else if(fam1Code.getID() == -1 && fam2Code.getID() > -1)
+				return 1;
+			else if(fam1Code.getID() > -1 && fam2Code.getID() == -1)
+				return -1;
+			else
+				return fam1Code.getAcronym().compareTo(fam2Code.getAcronym());
 		}
 	}
 	
@@ -1799,9 +1844,12 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 		ONCPartner partner = partnerDB.getPartnerByID(sgo.getGift().getPartnerID());
 		String partnerName = partner != null ? partner.getLastName() : "";
 		String ds = new SimpleDateFormat("MM/dd H:mm").format(sgo.getGift().getDateChanged().getTime());
+		String dnsAcronym = "";
+		if(sgo.getFamily().getDNSCode() > -1)
+			dnsAcronym = dnsCodeDB.getDNSCode(sgo.getFamily().getDNSCode()).getAcronym();
 		String[] tablerow = {
 							sgo.getFamily().getONCNum(),
-							sgo.getFamily().getDNSCode(),
+							dnsAcronym,
 							regions.getRegionID(sgo.getFamily().getRegion()),
 							sgo.getChild().getChildAge().split("old", 2)[0].trim(), //Take the word "old" out of string
 							sgo.getChild().getChildGender(),

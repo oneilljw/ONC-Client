@@ -51,6 +51,7 @@ public class FamilyDB extends ONCSearchableDatabase
 	private FamilyHistoryDB familyHistoryDB;
 	private GlobalVariablesDB fGVs;
 	private RegionDB regionDB;
+	private DNSCodeDB dnsCodeDB;
 	
 	private FamilyDB()
 	{
@@ -66,6 +67,7 @@ public class FamilyDB extends ONCSearchableDatabase
 		oncFamAL = new ArrayList<ONCFamily>();
 		fGVs = GlobalVariablesDB.getInstance();
 		regionDB = RegionDB.getInstance();
+		dnsCodeDB = DNSCodeDB.getInstance();
 //		serverIF.addServerListener(this);
 		
 //		initializeONCNumberRegionRanges();
@@ -178,7 +180,7 @@ public class FamilyDB extends ONCSearchableDatabase
 			//reusing WishChange object to change region counts, served family counts
 			//get current DNS and region to determine if they changed after updating data base
 			String currONCNum = oncFamAL.get(index).getONCNum();
-			String currDNSCode  = oncFamAL.get(index).getDNSCode();
+			int currDNSCodeID  = oncFamAL.get(index).getDNSCode();
 			String currSchoolCode = oncFamAL.get(index).getSchoolCode();
 			String currRegion = regionDB.getRegionID(oncFamAL.get(index).getRegion());
 			
@@ -193,14 +195,14 @@ public class FamilyDB extends ONCSearchableDatabase
 			
 //			System.out.println(String.format("Families- processUpdateFamily: currFam region: %d", currFam.getRegion()));
 //			System.out.println(String.format("Families- processUpdateFamily: updatedFamily region: %d", updatedFamily.getRegion()));
-			if(!currDNSCode.equals(updatedFamily.getDNSCode()) ||
+			if(currDNSCodeID != updatedFamily.getDNSCode() ||
 					!currONCNum.equals(updatedFamily.getONCNum()))
 			{
 				//A change to either ONC Number or DNS code or both detected
 				SchoolCodeChange schoolCodeChange, regionCodeChange;
 				
 				//if both are now valid, add a region and update the counts
-				if(isNumeric(updatedFamily.getONCNum()) && updatedFamily.getDNSCode().isEmpty())
+				if(isNumeric(updatedFamily.getONCNum()) && updatedFamily.getDNSCode() == -1)
 				{
 					schoolCodeChange = new SchoolCodeChange(null, updatedFamily.getSchoolCode());
 					fireDataChanged(this, "UPDATED_SCHOOL_CODE", schoolCodeChange);
@@ -213,8 +215,8 @@ public class FamilyDB extends ONCSearchableDatabase
 					fireDataChanged(this, "UPDATED_SERVED_COUNTS", servedCountsChange);
 				}
 				//if both were valid and now one is invalid, remove a region and update the counts
-				else if(isNumeric(currONCNum) && currDNSCode.isEmpty() && 
-						!(isNumeric(updatedFamily.getONCNum()) && updatedFamily.getDNSCode().isEmpty()))
+				else if(isNumeric(currONCNum) && currDNSCodeID == -1 && 
+						!(isNumeric(updatedFamily.getONCNum()) && updatedFamily.getDNSCode() == -1))
 				{
 					schoolCodeChange = new SchoolCodeChange(updatedFamily.getSchoolCode(), null);
 					fireDataChanged(this, "UPDATED_SCHOOL_CODE", schoolCodeChange);
@@ -284,7 +286,7 @@ public class FamilyDB extends ONCSearchableDatabase
 			
 			fireDataChanged(source, "ADDED_FAMILY", addedFamily);
 			
-			if(isNumeric(addedFamily.getONCNum()) && addedFamily.getDNSCode().isEmpty())
+			if(isNumeric(addedFamily.getONCNum()) && addedFamily.getDNSCode() == -1)
 			{
 				SchoolCodeChange schoolCodeChange = new SchoolCodeChange(null, addedFamily.getSchoolCode());
 				fireDataChanged(this, "UPDATED_SCHOOL_CODE", schoolCodeChange);
@@ -687,7 +689,7 @@ public class FamilyDB extends ONCSearchableDatabase
     	int nServedFamilies = 0, nServedChildren = 0;
     	for(ONCFamily f:oncFamAL)
     	{
-    		if(isNumeric(f.getONCNum()) && f.getDNSCode().isEmpty())
+    		if(isNumeric(f.getONCNum()) && f.getDNSCode() == -1)
     		{
     			nServedFamilies++;
     			nServedChildren += childDB.getNumberOfChildrenInFamily(f.getID()) ;
@@ -1201,10 +1203,21 @@ public class FamilyDB extends ONCSearchableDatabase
 		
 	private class ONCFamilyDNSComparator implements Comparator<ONCFamily>
 	{
+
 		@Override
 		public int compare(ONCFamily o1, ONCFamily o2)
-		{			
-			return o1.getDNSCode().compareTo(o2.getDNSCode());
+		{	
+			DNSCode fam1Code = dnsCodeDB.getDNSCode(o1.getDNSCode());
+			DNSCode fam2Code = dnsCodeDB.getDNSCode(o2.getDNSCode());
+			
+			if(fam1Code.getID() == -1 && fam2Code.getID() == -1)
+				return 0;
+			else if(fam1Code.getID() == -1 && fam2Code.getID() > -1)
+				return 1;
+			else if(fam1Code.getID() > -1 && fam2Code.getID() == -1)
+				return -1;
+			else
+				return fam1Code.getAcronym().compareTo(fam2Code.getAcronym());
 		}
 	}
 		
@@ -1490,8 +1503,18 @@ public class FamilyDB extends ONCSearchableDatabase
 	{
 		@Override
 		public int compare(ONCFamilyAndNote o1, ONCFamilyAndNote o2)
-		{			
-			return o1.getFamily().getDNSCode().compareTo(o2.getFamily().getDNSCode());
+		{	
+			DNSCode fam1Code = dnsCodeDB.getDNSCode(o1.getFamily().getDNSCode());
+			DNSCode fam2Code = dnsCodeDB.getDNSCode(o2.getFamily().getDNSCode());
+			
+			if(fam1Code.getID() == -1 && fam2Code.getID() == -1)
+				return 0;
+			else if(fam1Code.getID() == -1 && fam2Code.getID() > -1)
+				return 1;
+			else if(fam1Code.getID() > -1 && fam2Code.getID() == -1)
+				return -1;
+			else
+				return fam1Code.getAcronym().compareTo(fam2Code.getAcronym());
 		}
 	}
 		

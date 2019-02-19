@@ -61,13 +61,19 @@ public class ONCServerUser extends ONCUser
 				UserAccess.valueOf(nextLine[4]), UserPermission.valueOf(nextLine[5]),
 				Long.parseLong(nextLine[13]), Long.parseLong(nextLine[14]), 
 				nextLine[15], nextLine[16], nextLine[17], nextLine[18], createGroupList(nextLine[19]),
-				Integer.parseInt(nextLine[20]), Integer.parseInt(nextLine[21]), Integer.parseInt(nextLine[22]));
+				Integer.parseInt(nextLine[20]), Integer.parseInt(nextLine[21]),
+				getFilterDNSCode(Integer.parseInt(nextLine[22])));
 				
 		userid = nextLine[1];
 		password = nextLine[2];
 		failedLoginCount = nextLine[23].isEmpty() ? 0 : Integer.parseInt(nextLine[23]);
 		recoveryID = nextLine[24];
-		recoveryIDTime = nextLine[25].isEmpty() ? UNIX_EPOCH : Long.parseLong(nextLine[25]);
+	 	recoveryIDTime = nextLine[25].isEmpty() ? UNIX_EPOCH : Long.parseLong(nextLine[25]);
+	}
+	
+	private static DNSCode getFilterDNSCode(int dnsCodeID)
+	{
+		return dnsCodeID == -4 ? new DNSCode(-4, "No Codes", "No Codes", "Families being Served") : new DNSCode(-3, "Any", "Any", "Any");
 	}
 	
 	static List<Integer> createGroupList(String delimitedGroups)
@@ -165,7 +171,7 @@ public class ONCServerUser extends ONCUser
 						organization, title, email, cellPhone, getGroupListAsDelimitedString(),
 						Integer.toString(preferences.getFontSize()), 
 						Integer.toString(preferences.getWishAssigneeFilter()), 
-						Integer.toString(preferences.getFamilyDNSFilter()),
+						Integer.toString(preferences.getFamilyDNSFilterCode().getID()),
 						Integer.toString(failedLoginCount),
 						recoveryID,
 						Long.toString(recoveryIDTime)

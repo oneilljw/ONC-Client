@@ -84,7 +84,9 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 	private JButton btnApplyDateChanges, btnApplyAddressChanges;
 	private boolean bIgnoreDialogEvents;
 	private JCheckBox barcodeCkBox, signUpImportCkBox;
-	private JComboBox<String> wishAssigneeFilterDefaultCB, fdnsFilterDefaultCB;
+	private JComboBox<String> wishAssigneeFilterDefaultCB;
+	private JComboBox<DNSCode> fdnsFilterDefaultCB;
+	private DefaultComboBoxModel<DNSCode> fndsFilterDefaultCBM;
 	private JComboBox<Barcode> barcodeCB;
 	private JSpinner averyXOffsetSpinner, averyYOffsetSpinner;
 	private Integer[] fontSizes = {8, 10, 12, 13, 14, 16, 18};
@@ -147,9 +149,12 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		
 		JPanel fdfPanel = new JPanel();
 		JLabel lblFDF = new JLabel("Family Do Not Serve Filter Default:");
-		String[] options = {"None", "Any"};
-		fdnsFilterDefaultCB = new JComboBox<String>(options);
-		fdnsFilterDefaultCB.setSelectedIndex(0);
+//		String[] options = {"None", "Any"};
+		fndsFilterDefaultCBM = new DefaultComboBoxModel<DNSCode>();
+		fndsFilterDefaultCBM.addElement(new DNSCode(-4, "No Codes", "No Codes", "No Codes"));
+		fndsFilterDefaultCBM.addElement(new DNSCode(-3, "Any", "Any", "Any"));
+		fdnsFilterDefaultCB = new JComboBox<DNSCode>();
+		fdnsFilterDefaultCB.setModel(fndsFilterDefaultCBM);
 		fdnsFilterDefaultCB.setEnabled(false);
 		fdnsFilterDefaultCB.addActionListener(this);
 		fdfPanel.add(lblFDF);
@@ -536,14 +541,9 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		ONCUser user = userDB.getLoggedInUser();
 		if(user != null)
 		{
-//			System.out.println(String.format("PrefDlg.display: font: %d, wishIndex: %d, dnsIndex: %d",
-//					user.getPreferences().getFontSize(),
-//					user.getPreferences().getWishAssigneeFilter(),
-//					user.getPreferences().getFamilyDNSFilter()));
-			
 			oncFontSizeCB.setSelectedItem(user.getPreferences().getFontSize());
 			wishAssigneeFilterDefaultCB.setSelectedIndex(user.getPreferences().getWishAssigneeFilter());
-			fdnsFilterDefaultCB.setSelectedIndex(user.getPreferences().getFamilyDNSFilter());
+			fdnsFilterDefaultCB.setSelectedItem(user.getPreferences().getFamilyDNSFilterCode());
 		}
 		else
 		{
@@ -735,7 +735,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 			updateUserPreferences();
 		}
 		else if(!bIgnoreDialogEvents && e.getSource() == fdnsFilterDefaultCB &&
-				userDB.getUserPreferences().getFamilyDNSFilter() != fdnsFilterDefaultCB.getSelectedIndex())
+				userDB.getUserPreferences().getFamilyDNSFilterCode().getID() != ((DNSCode) fdnsFilterDefaultCB.getSelectedItem()).getID())
 		{
 			updateUserPreferences();
 		}
@@ -781,7 +781,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		
 		userPrefs.setFontSize((Integer)oncFontSizeCB.getSelectedItem());
 		userPrefs.setWishAssigneeFilter(wishAssigneeFilterDefaultCB.getSelectedIndex());
-		userPrefs.setFamilyDNSFilter(fdnsFilterDefaultCB.getSelectedIndex());
+		userPrefs.setFamilyDNSFilterCode((DNSCode) fdnsFilterDefaultCB.getSelectedItem());
 		
 		String response = UserDB.getInstance().update(this, updateUserReq);
 		if(!response.startsWith("UDATED_USER"))
@@ -902,7 +902,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 			ONCUser updatedUser = (ONCUser) dbe.getObject1();
 			if(updatedUser != null && userDB.getLoggedInUser().getID() == updatedUser.getID() &&
 				(updatedUser.getPreferences().getWishAssigneeFilter() != wishAssigneeFilterDefaultCB.getSelectedIndex() ||
-				 updatedUser.getPreferences().getFamilyDNSFilter() != fdnsFilterDefaultCB.getSelectedIndex()) ||
+				 updatedUser.getPreferences().getFamilyDNSFilterCode().getID() != ((DNSCode) fdnsFilterDefaultCB.getSelectedItem()).getID()) ||
 				 updatedUser.getPreferences().getFontSize() != (Integer)oncFontSizeCB.getSelectedItem())
 			{
 				display(updatedUser.getPreferences());

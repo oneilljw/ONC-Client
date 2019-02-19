@@ -7,14 +7,15 @@ public class ONCWebsiteFamily
 	private String 	targetID;
 	private String	fstatus;
 	private String	giftStatus;	
-	private String 	DNSCode;
+	private int		dnsCodeID;
+	private String	dnsCodeAcronym;
 	private String	HOHFirstName;
 	private String	HOHLastName;
 	private String	mealStatus;
 	private int		agentID;
 	private int		lastNoteStatus;
 	
-	public ONCWebsiteFamily(ONCFamily f)
+	public ONCWebsiteFamily(ONCFamily f, DNSCode dnsCode)
 	{
 		this.id = f.id;
 		this.oncNum = f.getONCNum();
@@ -27,14 +28,15 @@ public class ONCWebsiteFamily
 //		else
 //			this.giftStatus = f.getGiftStatus().toString();
 		
-		this.DNSCode = f.getDNSCode();
+		this.dnsCodeID = f.getDNSCode();
+		this.dnsCodeAcronym = dnsCode.getAcronym();
 		this.HOHFirstName = f.getFirstName();
 		this.HOHLastName = f.getLastName();
 		this.mealStatus = f.getMealStatus().toString();
 		this.agentID = f.getAgentID();
 		this.lastNoteStatus = -1;
 	}
-	public ONCWebsiteFamily(ONCFamily f, int lastNoteStatus)
+	public ONCWebsiteFamily(ONCFamily f, DNSCode dnsCode, int lastNoteStatus)
 	{
 		this.id = f.id;
 		this.oncNum = f.getONCNum();
@@ -47,7 +49,8 @@ public class ONCWebsiteFamily
 //		else
 //			this.giftStatus = f.getGiftStatus().toString();
 		
-		this.DNSCode = f.getDNSCode();
+		this.dnsCodeID = f.getDNSCode();
+		this.dnsCodeAcronym = dnsCode.getAcronym();
 		this.HOHFirstName = f.getFirstName();
 		this.HOHLastName = f.getLastName();
 		this.mealStatus = f.getMealStatus().toString();
@@ -60,7 +63,7 @@ public class ONCWebsiteFamily
 	String getTargetID() { return targetID; }
 	String getFstatus() { return fstatus; }
 	String getDstatus() { return giftStatus; }
-	String getDNSCode() { return DNSCode; }
+	int getDNSCodeID() { return dnsCodeID; }
 	String getHOHFirstName() {return HOHFirstName;}
 	public String getHOHLastName() { return HOHLastName; }
 	String getMealStatus() { return mealStatus; }
@@ -72,7 +75,7 @@ public class ONCWebsiteFamily
 	void setTargetID(String targetID) { this.targetID = targetID; }
 	void setFstatus(String fstatus) { this.fstatus = fstatus; }
 	void setDstatus(String dstatus) { this.giftStatus = dstatus; }
-	void setDNSCode(String dNSCode) { this.DNSCode = dNSCode; }
+	void setDNSCodeID(int dnsCodeID){ this.dnsCodeID = dnsCodeID; }
 	void setHOHFirstName(String hOHFirstName) {this.HOHFirstName = hOHFirstName; }	
 	void setHOHLastName(String hOHLastName) { this.HOHLastName = hOHLastName; }	
 	void setMealStatus(String mealStatus) {this.mealStatus = mealStatus; }

@@ -37,6 +37,8 @@ public abstract class DependantTableDialog extends SortTableDialog
 	private static final long serialVersionUID = 1L;
 	private static final int NUM_FAMILY_ROWS_TO_DISPLAY = 15;
 	
+	private DNSCodeDB dnsCodeDB;
+	
 	protected ONCTable familyTable;
 	private DefaultTableModel familyTableModel;
 	protected JComboBox<String> famPrintCB;
@@ -58,6 +60,8 @@ public abstract class DependantTableDialog extends SortTableDialog
 	{
 		super(pf, 10);
 		columns = getColumnNames();
+		
+		dnsCodeDB = DNSCodeDB.getInstance();
 		
 		stAL = new ArrayList<ONCFamily>();
 		
@@ -212,13 +216,16 @@ public abstract class DependantTableDialog extends SortTableDialog
 	
 	Object[] getFamilyTableRow(ONCFamily f)
 	{
-//		GlobalVariables gvs = GlobalVariables.getInstance();
-		
 		Object[] familytablerow = new Object[15];
 		
 		familytablerow[0] = f.getONCNum(); 
 		familytablerow[1] = f.getBatchNum();
-		familytablerow[2] = f.getDNSCode();
+		
+		if(f.getDNSCode() == -1)
+			familytablerow[2] = "";
+		else
+			familytablerow[2] = dnsCodeDB.getDNSCode(f.getDNSCode()).getAcronym();
+		
 		familytablerow[3] = f.getFamilyStatus().toString();
 		familytablerow[4] = f.getGiftStatus().toString();
 		familytablerow[5] = f.getMealStatus().toString();
@@ -277,12 +284,6 @@ public abstract class DependantTableDialog extends SortTableDialog
 
 	@Override
 	abstract Object[] getTableRow(ONCObject o); 
-//	{
-//		Agent a = (Agent) o;
-//		Object[] ai = {a.getAgentName(), a.getAgentOrg(), a.getAgentTitle(), 
-//						a.getAgentEmail(), a.getAgentPhone()};
-//		return ai;
-//	}
 
 	@Override
 	void checkApplyChangesEnabled()

@@ -42,6 +42,7 @@ public class SortDriverDialog extends DependantTableDialog
 	private VolunteerDB volunteerDB;
 	private ActivityDB activityDB;
 	private VolunteerActivityDB volActDB;
+	private DNSCodeDB dnsCodeDB;
 	private ArrayList<ONCVolunteer> atAL;	//Holds references to driver objects for driver table
 	private Activity deliveryActivity;
 	
@@ -63,6 +64,10 @@ public class SortDriverDialog extends DependantTableDialog
 		volActDB = VolunteerActivityDB.getInstance();
 		if(volActDB != null)
 			volActDB.addDatabaseListener(this);
+		
+		dnsCodeDB = DNSCodeDB.getInstance();
+		if(dnsCodeDB != null)
+			dnsCodeDB.addDatabaseListener(this);
 		
 		UserDB userDB = UserDB.getInstance();
 		if(userDB != null)
@@ -321,12 +326,13 @@ public class SortDriverDialog extends DependantTableDialog
 	String[] getDependantTableExportRow(int index)
 	{
 		ONCFamily f = stAL.get(index);
+		DNSCode code = dnsCodeDB.getDNSCode(f.getDNSCode());
 		
 		String[] row = {
 						volunteerDB.getDriverLNFN(familyHistoryDB.getFamilyHistory(f.getDeliveryID()).getdDelBy()),
 						f.getONCNum(),
 						f.getBatchNum(),
-						f.getDNSCode(),
+						code.getAcronym(),
 						f.getFamilyStatus().toString(),
 						f.getGiftStatus().toString(),
 						f.getMealStatus().toString(),
