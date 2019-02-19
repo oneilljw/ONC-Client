@@ -377,7 +377,7 @@ public class DNSCodeDialog extends EntityDialog implements DatabaseListener, Lis
 		    btnDelete.setText("Delete Code");
 	        btnDelete.setToolTipText("Click to delete this DNS Code");
 			
-			nav.setCount1("DNSCodes: " + Integer.toString(dnsCodeDB.size()));
+			nav.setCount1("DNS Codes: " + Integer.toString(dnsCodeDB.size()));
 			
 			nav.setStoplightEntity(currCode);
 			nav.btnNextSetEnabled(true);
@@ -548,7 +548,7 @@ public class DNSCodeDialog extends EntityDialog implements DatabaseListener, Lis
 		 * Implements the table model for the Delivery History Dialog
 		 */
 		private static final long serialVersionUID = 1L;
-		private String[] columnNames = {"Acronym", "Name", "Last Changed", "Changed By", "Stoplight"};
+		private String[] columnNames = {"Acronym", "Name", "Last Changed By", "Time Changed", "Stoplight"};
 		
         public int getColumnCount() { return columnNames.length; }
  
