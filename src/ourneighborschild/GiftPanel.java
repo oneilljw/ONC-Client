@@ -57,12 +57,12 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 	private TitledBorder border;
 	private JComboBox<ONCGift> giftCB;
 	private JComboBox<String> giftindCB;
-	private JComboBox<ONCPartner> assigneeCB;
+	private JComboBox<ONCPartner> partnerCB;
 	private DefaultComboBoxModel<ONCGift> giftCBM;
-	private DefaultComboBoxModel<ONCPartner> assigneeCBM;
+	private DefaultComboBoxModel<ONCPartner> partnerCBM;
 	private JTextField giftdetailTF;
 	private JRadioButton rbGift, rbLabel;
-	private GiftPanelStatus wpStatus;
+	private GiftPanelStatus gpStatus;
 	
 	public GiftPanel(int wishNumber)
 	{
@@ -140,21 +140,21 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
         giftdetailTF.setEnabled(false);
         giftdetailTF.addActionListener(this);
  
-        assigneeCBM = new DefaultComboBoxModel<ONCPartner>();
-        assigneeCBM.addElement(new ONCPartner(-1, "None", "None"));
-        assigneeCB = new JComboBox<ONCPartner>();
-        assigneeCB.setModel(assigneeCBM);
-        assigneeCB.setPreferredSize(dwa);
-        assigneeCB.setToolTipText("Select the organization for wish fulfillment");
-        assigneeCB.setEditable(true);
-        assigneeCB.setEnabled(false);
-        assigneeCB.addActionListener(this);
+        partnerCBM = new DefaultComboBoxModel<ONCPartner>();
+        partnerCBM.addElement(new ONCPartner(-1, "None", "None"));
+        partnerCB = new JComboBox<ONCPartner>();
+        partnerCB.setModel(partnerCBM);
+        partnerCB.setPreferredSize(dwa);
+        partnerCB.setToolTipText("Select the organization for wish fulfillment");
+        partnerCB.setEditable(true);
+        partnerCB.setEnabled(false);
+        partnerCB.addActionListener(this);
         
         wsp1.add(giftCB);
     		wsp1.add(giftindCB);
     		wsp1.add(rbGift);
     		wsp2.add(giftdetailTF);
-        wsp3.add(assigneeCB);
+        wsp3.add(partnerCB);
         wsp3.add(rbLabel);
         
         this.add(wsp1);
@@ -171,7 +171,7 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 	void checkForUpdateToWishDetail()
 	{
 		if(childGift != null && !childGift.getDetail().equals(giftdetailTF.getText()))
-			addWish();
+			addGift();
 	}
 	
 	void displayWish(ONCChildGift cw, ONCChild c)
@@ -194,7 +194,7 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 			
 		giftdetailTF.setText(cw.getDetail());
 		giftdetailTF.setCaretPosition(0);
-		if(doesWishFitOnLabel(cw))
+		if(doesGiftFitOnLabel(cw))
 			giftdetailTF.setBackground(Color.WHITE);
 		else
 			giftdetailTF.setBackground(Color.YELLOW);
@@ -202,7 +202,7 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 		if(cw.getPartnerID() == -1)
 		{
 			//wish does not have a partner assigned
-			assigneeCB.setSelectedIndex(0);
+			partnerCB.setSelectedIndex(0);
 		}
 		else
 		{
@@ -213,22 +213,22 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 //				int orgCBIndex = assigneeCBM.getIndexOf(wishPartner);
 //				debugAssigneeCBContents();
 //				System.out.println("WishPanel " + wishNumber + " Display Model Index for " + wishPartner + " = " + orgCBIndex);
-				assigneeCB.setSelectedItem(wishPartner);
+				partnerCB.setSelectedItem(wishPartner);
 //				System.out.println("WishPanel " + wishNumber + " Display Selected Index= " + wishassigneeCB.getSelectedIndex());
 			}
 			else
 			{
-				assigneeCB.setSelectedIndex(0);
+				partnerCB.setSelectedIndex(0);
 				System.out.println(String.format("WishPanel %d.Display partner was null", giftNumber));
 			}
 		}
 			
-		setEnabledWishPanelComponents(cw.getGiftStatus());
+		setEnabledGiftPanelComponents(cw.getGiftStatus());
 
 		bGiftChanging = false;
 	}
 	
-	void clearWish()
+	void clearGift()
 	{
 		bGiftChanging = true;
 		
@@ -240,14 +240,14 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 		giftCB.setSelectedIndex(0);
 		giftdetailTF.setText("");
 		giftindCB.setSelectedIndex(0);
-		assigneeCB.setSelectedIndex(0);
+		partnerCB.setSelectedIndex(0);
 		
-		setEnabledWishPanelComponents(GiftStatus.Not_Selected);
+		setEnabledGiftPanelComponents(GiftStatus.Not_Selected);
 		
 		bGiftChanging = false;
 	}
 	
-	void updateWishSelectionList()
+	void updateGiftSelectionList()
 	{
 		bGiftChanging = true;
 		
@@ -272,22 +272,22 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 	 * event occurs, the combo box is updated with a new set of organization objects. The first 
 	 * organization object at the top of the box is a non-assigned organization named None
 	 ***********************************************************************************************/
-	void updateWishAssigneeSelectionList()
+	void updateGiftPartnerSelectionList()
 	{
 		PartnerDB partnerDB = PartnerDB.getInstance();
 		bGiftChanging = true;
 		
-		assigneeCBM.removeAllElements();
-		assigneeCBM.addElement(new ONCPartner(-1, "None", "None"));
+		partnerCBM.removeAllElements();
+		partnerCBM.addElement(new ONCPartner(-1, "None", "None"));
 		
 		for(ONCPartner confirmedPartner: partnerDB.getConfirmedPartnerList(GiftCollectionType.Ornament))
-			assigneeCBM.addElement(confirmedPartner);
+			partnerCBM.addElement(confirmedPartner);
 		
 		//Restore selection to prior selection, if they are still confirmed
 		if(childGift != null  && childGift.getPartnerID() != -1)
-			assigneeCB.setSelectedItem(partnerDB.getPartnerByID(childGift.getPartnerID()));
+			partnerCB.setSelectedItem(partnerDB.getPartnerByID(childGift.getPartnerID()));
 		else
-			assigneeCB.setSelectedIndex(0);
+			partnerCB.setSelectedIndex(0);
 		
 		bGiftChanging = false;
 		
@@ -295,31 +295,31 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 //		debugAssigneeCBContents();
 	}	
 
-	void setEnabledWish(ONCFamily fam)
+	void setEnabledGift(ONCFamily fam)
 	{
-		//only enable wish panels if family has been verified and gifts have been requested
+		//only enable gift panels if family has been verified and gifts have been requested
 		if(fam.getFamilyStatus() == FamilyStatus.Unverified || fam.getGiftStatus() == FamilyGiftStatus.NotRequested)	
-			wpStatus = GiftPanelStatus.Disabled;
+			gpStatus = GiftPanelStatus.Disabled;
 		else 
-			wpStatus = GiftPanelStatus.Enabled;
+			gpStatus = GiftPanelStatus.Enabled;
 		
 		//now that we've updated the panel status, update the component status
 		if(childGift != null)
-			setEnabledWishPanelComponents(childGift.getGiftStatus());
+			setEnabledGiftPanelComponents(childGift.getGiftStatus());
 		else
-			setEnabledWishPanelComponents(GiftStatus.Not_Selected);
+			setEnabledGiftPanelComponents(GiftStatus.Not_Selected);
 	}
 
-	void setEnabledWishPanelComponents(GiftStatus ws)
+	void setEnabledGiftPanelComponents(GiftStatus ws)
 	{
-		if(wpStatus == GiftPanelStatus.Enabled)
+		if(gpStatus == GiftPanelStatus.Enabled)
 		{
 			if(ws == GiftStatus.Not_Selected)
 			{
 				giftCB.setEnabled(true);
 				giftindCB.setEnabled(false);
 				giftdetailTF.setEnabled(true);
-				assigneeCB.setEnabled(false);
+				partnerCB.setEnabled(false);
 			}
 			else if(ws == GiftStatus.Selected || ws == GiftStatus.Assigned ||
 					ws == GiftStatus.Returned)
@@ -327,7 +327,7 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 				giftCB.setEnabled(true);
 				giftindCB.setEnabled(true);
 				giftdetailTF.setEnabled(true);
-				assigneeCB.setEnabled(true);
+				partnerCB.setEnabled(true);
 			}
 			else if(ws == GiftStatus.Delivered || ws == GiftStatus.Shopping || 
 					ws == GiftStatus.Missing)
@@ -335,14 +335,14 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 				giftCB.setEnabled(false);
 				giftindCB.setEnabled(false);
 				giftdetailTF.setEnabled(false);
-				assigneeCB.setEnabled(true);
+				partnerCB.setEnabled(true);
 			}
 			else
 			{
 				giftCB.setEnabled(false);
 				giftindCB.setEnabled(false);
 				giftdetailTF.setEnabled(false);
-				assigneeCB.setEnabled(false);
+				partnerCB.setEnabled(false);
 			}
 		}
 		else
@@ -350,14 +350,14 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 			giftCB.setEnabled(false);
 			giftindCB.setEnabled(false);
 			giftdetailTF.setEnabled(false);
-			assigneeCB.setEnabled(false);
+			partnerCB.setEnabled(false);
 		}
 		
 		rbGift.setEnabled(true);
 		rbLabel.setEnabled(ws != GiftStatus.Not_Selected);
 	}
 	
-	boolean doesWishFitOnLabel(ONCChildGift cw)
+	boolean doesGiftFitOnLabel(ONCChildGift cw)
 	{
 		GiftCatalogDB cat = GiftCatalogDB.getInstance();
 		
@@ -385,7 +385,7 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 		}
 	}
 	
-	void showWishHistoryDlg()
+	void showHistoryDlg()
 	{
 		List<ONCChildGift> cwhList = null;
 		
@@ -464,13 +464,13 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 				giftdetailTF.setText("");	//Clear the text field if base wish changed so user can complete
 			}
 		
-			addWish();
+			addGift();
 		}
 		else if(!bGiftChanging && e.getSource() == giftindCB && childGift.getIndicator() != 
 				giftindCB.getSelectedIndex())
 		{
 			//add a new wish with the new indicator
-			addWish();
+			addGift();
 		}
 		else if(!bGiftChanging && e.getSource() == giftdetailTF && !giftdetailTF.getText().isEmpty() &&
 				(childGift == null || childGift != null && !childGift.getDetail().equals(giftdetailTF.getText()))) 
@@ -486,17 +486,17 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 				giftCB.setSelectedItem(defaultWish);
 				giftCB.addActionListener(this);
 			}
-			addWish();
+			addGift();
 		}
-		else if(!bGiftChanging && e.getSource() == assigneeCB &&
-				childGift.getPartnerID() != ((ONCPartner) assigneeCB.getSelectedItem()).getID()) 
+		else if(!bGiftChanging && e.getSource() == partnerCB &&
+				childGift.getPartnerID() != ((ONCPartner) partnerCB.getSelectedItem()).getID()) 
 		{
 			//Add a new wish with the new organization
-			addWish();
+			addGift();
 		}
 		else if(e.getSource() == rbGift)
 		{ 
-			showWishHistoryDlg(); 
+			showHistoryDlg(); 
 		}
 		else if(e.getSource() == rbLabel)
 		{
@@ -507,13 +507,13 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 		}
 	}
 	
-	void addWish()
+	void addGift()
 	{
 		GiftStatus ws = childGift != null ? childGift.getGiftStatus() : GiftStatus.Not_Selected;
 		ONCChildGift addedWish =  cwDB.add(this, child.getID(),
 									((ONCGift) giftCB.getSelectedItem()).getID(),
 									giftdetailTF.getText(), giftNumber, giftindCB.getSelectedIndex(),
-									ws, (ONCPartner) assigneeCB.getSelectedItem());
+									ws, (ONCPartner) partnerCB.getSelectedItem());
 		
 		if(addedWish != null)
 			displayWish(addedWish, child);
@@ -561,7 +561,7 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 			if(child != null && updatedFam.getID() == child.getFamID())
 			{
 				//current child displayed is in family, check for wish panel status change
-				setEnabledWish(updatedFam);
+				setEnabledGift(updatedFam);
 			}
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("DELETED_CHILD"))
@@ -571,8 +571,8 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 			if(delChild != null && delChild.getID()  == child.getID())
 			{
 				//current child wish displayed belongs to deleted child, clear the panel
-				clearWish();
-				wpStatus = GiftPanelStatus.Disabled;
+				clearGift();
+				gpStatus = GiftPanelStatus.Disabled;
 			}
 		}
 		else if(dbe.getSource() != this && (dbe.getType().equals("ADDED_CONFIRMED_PARTNER") ||
@@ -583,13 +583,13 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 		{
 			String logEntry = String.format("WishPanel Event: %s", dbe.getType());
 			LogDialog.add(logEntry, "M");
-			updateWishAssigneeSelectionList();
+			updateGiftPartnerSelectionList();
 		}
 		else if(dbe.getSource() != this && dbe.getType().contains("_CATALOG"))
 		{
 			String logEntry = String.format("WishPanel Event: %s", dbe.getType());
 			LogDialog.add(logEntry, "M");
-			updateWishSelectionList();
+			updateGiftSelectionList();
 		}
 	}
 	
@@ -611,7 +611,7 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 				if(cw != null)
 					displayWish(cw, childList.get(0));
 				else
-					clearWish();
+					clearGift();
 			}
 			else
 			{
@@ -620,10 +620,10 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 				else
 					child = null;
 				
-				clearWish();
+				clearGift();
 			}
 			
-			setEnabledWish(fam);	//lock or unlock the panel and/or panel components
+			setEnabledGift(fam);	//lock or unlock the panel and/or panel components
 		}
 		else if(tse.getType() == EntityType.CHILD || tse.getType() == EntityType.GIFT)
 		{
@@ -637,10 +637,10 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 			else
 			{
 				child = selChild;
-				clearWish();
+				clearGift();
 			}
 			
-			setEnabledWish(fam);	//lock or unlock the panel and/or panel components
+			setEnabledGift(fam);	//lock or unlock the panel and/or panel components
 		}
 	}
 	
@@ -761,7 +761,7 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 		@Override
 		public boolean canImport(JComponent comp, DataFlavor[] transferFlavors)
 		{
-			if(wpStatus.equals(GiftPanelStatus.Disabled))
+			if(gpStatus.equals(GiftPanelStatus.Disabled))
 				return false;
 			else if(childGift == null)
 				return true;
@@ -787,7 +787,7 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 			try 
 			{
 				transItem = (InventoryItem) t.getTransferData(df);
-				ONCChildGift transferredWish = createWishFromInventoryTransfer(transItem);
+				ONCChildGift transferredWish = createGiftFromInventoryTransfer(transItem);
 				if(transferredWish != null)
 					displayWish(transferredWish, child);
 				return true;
@@ -804,7 +804,7 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 			return false;
 		}
 		
-		ONCChildGift createWishFromInventoryTransfer(InventoryItem ii)
+		ONCChildGift createGiftFromInventoryTransfer(InventoryItem ii)
 		{
 			//create new wish with the wish status = WishStatus.ASSIGNED && assignee = ONC_CONTAINER
 			ONCPartner partner = partnerDB.getPartnerByNameAndType("ONC Container", 6);

@@ -51,7 +51,7 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
 	private SimpleDateFormat sdf;
     private JComboBox<GroupType> groupTypeCB;
     private JButton btnAddMember, btnRemoveMember;
-    private JCheckBox ckBoxShared, ckBoxWebpage, ckBoxContactInfo, ckBoxMembersRefer;
+    private JCheckBox ckBoxShared, ckBoxWebpage, ckBoxContactInfo, ckBoxMembersRefer, ckBoxAllowInProfile;
     
     private ONCGroup currGroup;	//reference to ONCGroup object being displayed
     private List<ONCUser> memberList; //holds ONCUser's in the member table
@@ -121,16 +121,21 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
         op1.add(lblDateChanged);
 
         //set up panel 2
-        ckBoxShared = new JCheckBox("Referral info shared among group members?");
+        ckBoxShared = new JCheckBox("Referral info shared?");
         ckBoxShared.setToolTipText("If checked, group members can view/edit each other's referrals");
         ckBoxShared.addActionListener(dcListener);
         
-        ckBoxMembersRefer = new JCheckBox("Do any members of the group refer families?");
+        ckBoxMembersRefer = new JCheckBox("Do group members refer families?");
         ckBoxMembersRefer.setToolTipText("If checked, group members submit family referrals");
         ckBoxMembersRefer.addActionListener(dcListener);
+        
+        ckBoxAllowInProfile = new JCheckBox("Allow in Agent profile?");
+        ckBoxAllowInProfile.setToolTipText("If checked, agents can add this group to their profile");
+        ckBoxAllowInProfile.addActionListener(dcListener);
 
         op2.add(ckBoxMembersRefer);
         op2.add(ckBoxShared);
+        op2.add(ckBoxAllowInProfile);
        
         //set up panel 3
         ckBoxWebpage = new JCheckBox("Include group in Warehouse Sign-In dropdown menu?");
@@ -423,8 +428,8 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
 		if(!ckBoxShared.isSelected() && reqGroup.groupSharesInfo()) { reqGroup.setGroupSharesInfo(false);  bCD = bCD | 8; }
 		if(ckBoxWebpage.isSelected() != reqGroup.includeOnWebpage()) { reqGroup.setIncludeOnWebpage(ckBoxWebpage.isSelected());  bCD = bCD | 16; }
 		if(ckBoxContactInfo.isSelected() != reqGroup.contactInfoRqrd()) { reqGroup.setContactInfoRqrd(ckBoxContactInfo.isSelected()); bCD = bCD | 32; }
-		if(ckBoxMembersRefer.isSelected() && !reqGroup.memberRefer()) { reqGroup.setMembersRefer(true);  bCD = bCD | 64; }
-		if(!ckBoxMembersRefer.isSelected() && reqGroup.memberRefer()) { reqGroup.setMembersRefer(false);  bCD = bCD | 128; }
+		if(ckBoxMembersRefer.isSelected() != reqGroup.memberRefer()) { reqGroup.setMembersRefer(ckBoxMembersRefer.isSelected());  bCD = bCD | 64; }
+		if(ckBoxAllowInProfile.isSelected() != reqGroup.allowInProfile()) { reqGroup.setAllowInProfile(ckBoxAllowInProfile.isSelected());  bCD = bCD | 128; }
 			
 		if(bCD > 0)	//If an update to partner data (not stop light data) was detected
 		{
@@ -479,6 +484,8 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
 			
 			ckBoxMembersRefer.setSelected(currGroup.memberRefer());
 			
+			ckBoxAllowInProfile.setSelected(currGroup.allowInProfile());
+			
 			ckBoxWebpage.setSelected(currGroup.includeOnWebpage());
 			
 			ckBoxContactInfo.setSelected(currGroup.contactInfoRqrd());
@@ -510,6 +517,7 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
 		lblLastChangedBy.setText(userDB.getLoggedInUser().getLNFI());
 		ckBoxShared.setSelected(false);
 		ckBoxMembersRefer.setSelected(false);
+		ckBoxAllowInProfile.setSelected(false);
 		ckBoxWebpage.setSelected(false);
 		ckBoxContactInfo.setSelected(false);
 		
@@ -562,7 +570,8 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
 										  3, "Group Created", userDB.getUserLNFI(),
 										  nameTF.getText(), (GroupType) groupTypeCB.getSelectedItem(),
 										  ckBoxShared.isSelected(), ckBoxWebpage.isSelected(),
-										  ckBoxContactInfo.isSelected(), ckBoxMembersRefer.isSelected());
+										  ckBoxContactInfo.isSelected(), ckBoxMembersRefer.isSelected(),
+										  ckBoxAllowInProfile.isSelected());
 				
 		//send request to add new group to the local data base
 		ONCGroup addedGroup = (ONCGroup) groupDB.add(this, newGroup);
@@ -751,6 +760,7 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
 			{
 				ckBoxShared.setEnabled(false);
 				ckBoxMembersRefer.setEnabled(false);
+				ckBoxAllowInProfile.setEnabled(false);
 				ckBoxWebpage.setEnabled(true);
 				ckBoxContactInfo.setEnabled(true);
 				candidateTbl.setEnabled(false);
@@ -762,6 +772,7 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
 			{
 				ckBoxShared.setEnabled(true);
 				ckBoxMembersRefer.setEnabled(true);
+				ckBoxAllowInProfile.setEnabled(true);
 				ckBoxWebpage.setEnabled(false);
 				ckBoxContactInfo.setEnabled(false);
 				candidateTbl.setEnabled(true);

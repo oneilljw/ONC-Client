@@ -370,97 +370,209 @@ public class PartnerDB extends ONCSearchableDatabase
     }
 	
 	/****************************************************************************************************
-	 * This method is called when a wish is added. It determines if the partner's wishes assigned,
+	 * This method is called when a gift is added. It determines if the partner's gifts assigned,
 	 * delivered or received counts should be incremented or decremented. If any changes occur based on 
-	 * the wish added and the wish it's replacing, the GUI's are notified.
+	 * the gift added and the gift it's replacing, the GUI's are notified.
 	 * 
-	 * @param replWish - ONCChildWish that is being replaced, null if it's the first wish for the child
-	 * @param addedWish - ONCChildWish that is being added
+	 * @param replGift - ONCChildGift that is being replaced, null if the initial gift selection
+	 * @param addedGift - ONCChildGift that is being added
 	 *********************************/
-	void processAddedWish(ONCChildGift replWish, ONCChildGift addedWish)
+	void processAddedGift(ONCChildGift replGift, ONCChildGift addedGift)
 	{
-		//process wish assignee changes
-		if(replWish == null && addedWish.getGiftStatus() == GiftStatus.Assigned)
+		ONCPartner addedGiftPartner = null;
+		
+		if(replGift != null && replGift.getGiftStatus() == GiftStatus.Selected &&
+			addedGift.getGiftStatus() == GiftStatus.Assigned && addedGift.getPartnerID() > -1)		
 		{
-			//This is the typical path in the wish life cycle. Find the new partner and increment their 
+			//gift status changing from Selected To Assigned w/ a partner
+			addedGiftPartner = (ONCPartner) find(partnerList, addedGift.getPartnerID());
+			addedGiftPartner.incrementOrnAssigned();
+			fireDataChanged(this, "PARTNER_WISH_ASSIGNED_CHANGED", null, addedGiftPartner);
+		}
+		else if(replGift != null && replGift.getGiftStatus() == GiftStatus.Assigned &&
+			(addedGift.getGiftStatus() == GiftStatus.Not_Selected || addedGift.getGiftStatus() == GiftStatus.Selected)) 	
+		{
+			//gift status changing from Assigned to Selected or Not Selected
+			ONCPartner replGiftPartner = (ONCPartner) find(partnerList, replGift.getPartnerID());
+			replGiftPartner.decrementOrnAssigned();
+			fireDataChanged(this, "PARTNER_WISH_ASSIGNED_CHANGED", replGiftPartner, null);
+		}
+		else if(replGift != null && addedGift.getGiftStatus() == GiftStatus.Assigned &&
+				replGift.getGiftStatus() == GiftStatus.Assigned && addedGift.getPartnerID() > -1 &&
+					replGift.getPartnerID() > -1 && addedGift.getPartnerID() != replGift.getPartnerID())
+		{
+			//gift status was Assigned and remains Assigned, however, partner has changed
+			ONCPartner replGiftPartner = (ONCPartner) find(partnerList, replGift.getPartnerID());
+			addedGiftPartner = (ONCPartner) find(partnerList, addedGift.getPartnerID());
+			replGiftPartner.decrementOrnAssigned();
+			addedGiftPartner.incrementOrnAssigned();
+			fireDataChanged(this, "PARTNER_WISH_ASSIGNED_CHANGED", replGiftPartner, addedGiftPartner);
+		}
+		else if(replGift != null && replGift.getGiftStatus() == GiftStatus.Missing && 
+				replGift.getPartnerID() != addedGift.getPartnerID() &&
+				(addedGift.getGiftStatus() == GiftStatus.Assigned || addedGift.getGiftStatus() == GiftStatus.Shopping))
+		{
+			//gift status changed from Missing to Assigned or Missing to Shopping with a new partner
+			//Increment the new partners assigned count
+			addedGiftPartner = (ONCPartner) find(partnerList, addedGift.getPartnerID());
+			addedGiftPartner.incrementOrnAssigned();
+			fireDataChanged(this, "PARTNER_WISH_ASSIGNED_CHANGED", null, addedGiftPartner);
+		}
+		else if(replGift != null && replGift.getGiftStatus() == GiftStatus.Returned && 
+				replGift.getPartnerID() != addedGift.getPartnerID() &&
+				(addedGift.getGiftStatus() == GiftStatus.Assigned || addedGift.getGiftStatus() == GiftStatus.Shopping))
+		{
+			//gift status changed from Returned to Assigned or Returned to Shopping with a new partner
+			//Increment the new partners assigned count
+			addedGiftPartner = (ONCPartner) find(partnerList, addedGift.getPartnerID());
+			addedGiftPartner.incrementOrnAssigned();
+			fireDataChanged(this, "PARTNER_WISH_ASSIGNED_CHANGED", null, addedGiftPartner);
+		}
+		else if(replGift != null && replGift.getGiftStatus() == GiftStatus.Delivered && 
+				replGift.getPartnerID() != addedGift.getPartnerID() &&
+				addedGift.getGiftStatus() == GiftStatus.Shopping)
+		{
+			//gift status changed from Delivered to Shopping with a new partner
+			//Increment the new partners assigned count
+			addedGiftPartner = (ONCPartner) find(partnerList, addedGift.getPartnerID());
+			addedGiftPartner.incrementOrnAssigned();
+			fireDataChanged(this, "PARTNER_WISH_ASSIGNED_CHANGED", null, addedGiftPartner);
+		}
+		else if(replGift != null && replGift.getPartnerID() == addedGift.getPartnerID() &&
+			replGift.getGiftStatus() == GiftStatus.Assigned && addedGift.getGiftStatus() == GiftStatus.Delivered)
+		{
+			//gift status changed from Assigned to Delivered with the same partner, increment the delivered count
+			addedGiftPartner = (ONCPartner) find(partnerList, addedGift.getPartnerID());
+			addedGiftPartner.incrementOrnDelivered();
+			fireDataChanged(this, "PARTNER_ORNAMENT_DELIVERED", addedGiftPartner);
+		}
+		else if(replGift != null && replGift.getPartnerID() == addedGift.getPartnerID() &&
+				replGift.getGiftStatus() == GiftStatus.Delivered && addedGift.getGiftStatus() == GiftStatus.Assigned)
+		{
+			//gift status changed from Delivered to Assigned w/ same partner, decrement delivered count
+			ONCPartner replGiftPartner = (ONCPartner) find(partnerList, addedGift.getPartnerID());
+			replGiftPartner.decrementOrnDelivered();
+			fireDataChanged(this, "PARTNER_ORNAMENT_DELIVERED", replGiftPartner);
+		}
+		else if(replGift != null && replGift.getPartnerID() == addedGift.getPartnerID() &&
+				 replGift.getGiftStatus() == GiftStatus.Delivered  && 
+				 addedGift.getGiftStatus() == GiftStatus.Received)
+		{
+			//gift status changed from Delivered to Received w/ same partner, increment received count
+			addedGiftPartner = (ONCPartner) find(partnerList, addedGift.getPartnerID());
+			boolean bBeforeDeadline = addedGift.getDateChanged().before(orgGVs.getGiftsReceivedCalendar());
+			addedGiftPartner.incrementOrnReceived(bBeforeDeadline);
+			fireDataChanged(this, "PARTNER_WISH_RECEIVED", addedGiftPartner);
+		}
+		else if(replGift != null && replGift.getPartnerID() == addedGift.getPartnerID() &&
+				(replGift.getGiftStatus() == GiftStatus.Shopping || 
+				   replGift.getGiftStatus() == GiftStatus.Missing) &&
+				addedGift.getGiftStatus() == GiftStatus.Received)
+		{
+			//gift status changed from Delivered, Shopping or Missing to Received w/ same partner, 
+			//increment received count. Do not mark it as received late, since it's already handling
+			//an exception
+			addedGiftPartner = (ONCPartner) find(partnerList, addedGift.getPartnerID());
+			addedGiftPartner.incrementOrnReceived(true);
+			fireDataChanged(this, "PARTNER_WISH_RECEIVED", addedGiftPartner);
+		}
+		else if(replGift != null && replGift.getGiftStatus() == GiftStatus.Received  && 
+				 addedGift.getGiftStatus() == GiftStatus.Delivered &&
+				  replGift.getPartnerID() == addedGift.getPartnerID())
+		{
+			//gift was un-received from partner it was assigned to. This occurs when an undo
+			//action is performed by the user
+			ONCPartner replGiftPartner = (ONCPartner) find(partnerList, replGift.getPartnerID());
+			boolean bBeforeDeadline = addedGift.getDateChanged().before(orgGVs.getGiftsReceivedCalendar());
+			replGiftPartner.decrementOrnReceived(bBeforeDeadline);
+			fireDataChanged(this, "PARTNER_WISH_RECEIVE_UNDONE", replGiftPartner);
+		}
+	}	
+/*
+	void processAddedGift(ONCChildGift replGift, ONCChildGift addedGift)
+	{
+		//process gift partner changes
+		if(replGift == null && addedGift.getGiftStatus() == GiftStatus.Assigned)
+		{
+			//This is the typical path in the gift life cycle. Find the new partner and increment their 
 			//assigned gift count
-			ONCPartner addedWishPartner = (ONCPartner) find(partnerList, addedWish.getPartnerID());
-			if(addedWishPartner != null)
+			ONCPartner addedGiftPartner = (ONCPartner) find(partnerList, addedGift.getPartnerID());
+			if(addedGiftPartner != null)
 			{
-				addedWishPartner.incrementOrnAssigned();
-				fireDataChanged(this, "PARTNER_WISH_ASSIGNED_CHANGED", null, addedWishPartner);
+				addedGiftPartner.incrementOrnAssigned();
+				fireDataChanged(this, "PARTNER_WISH_ASSIGNED_CHANGED", null, addedGiftPartner);
 			}
 		}
-		else if(replWish != null && replWish.getPartnerID() != addedWish.getPartnerID())
+		else if(replGift != null && replGift.getPartnerID() != addedGift.getPartnerID())
 		{
-			ONCPartner replWishPartner = null;
-			ONCPartner addedWishPartner = null;
+			ONCPartner replGiftPartner = null;
+			ONCPartner addedGiftPartner = null;
 			
 			//decrement the old partner if they exist
-			if(replWish.getPartnerID() > -1)
+			if(replGift.getPartnerID() > -1)
 			{
-				replWishPartner = (ONCPartner) find(partnerList, replWish.getPartnerID());
-				if(replWishPartner != null)
-					replWishPartner.decrementOrnAssigned();
+				replGiftPartner = (ONCPartner) find(partnerList, replGift.getPartnerID());
+				if(replGiftPartner != null)
+					replGiftPartner.decrementOrnAssigned();
 			}
 			
 			//increment the new partner if they exist
-			addedWishPartner = (ONCPartner) find(partnerList, addedWish.getPartnerID());
-			if(addedWishPartner != null)
-				addedWishPartner.incrementOrnAssigned();
+			addedGiftPartner = (ONCPartner) find(partnerList, addedGift.getPartnerID());
+			if(addedGiftPartner != null)
+				addedGiftPartner.incrementOrnAssigned();
 			
-			//notify the gui's if at least one partner's wishes assigned count changed
-			if(replWishPartner != null || addedWishPartner != null)
-				fireDataChanged(this, "PARTNER_WISH_ASSIGNEE_CHANGED", replWishPartner, addedWishPartner);
+			//notify the gui's if at least one partner's gifts assigned count changed
+			if(replGiftPartner != null || addedGiftPartner != null)
+				fireDataChanged(this, "PARTNER_WISH_ASSIGNEE_CHANGED", replGiftPartner, addedGiftPartner);
 		}	
 			
 		//process ornaments that are delivered to partners
-		if(replWish != null && replWish.getPartnerID() == addedWish.getPartnerID() &&
-			replWish.getGiftStatus() == GiftStatus.Assigned && addedWish.getGiftStatus() == GiftStatus.Delivered)
+		if(replGift != null && replGift.getPartnerID() == addedGift.getPartnerID() &&
+			replGift.getGiftStatus() == GiftStatus.Assigned && addedGift.getGiftStatus() == GiftStatus.Delivered)
 		{
-			ONCPartner addedWishPartner = (ONCPartner) find(partnerList, addedWish.getPartnerID());
-			if(addedWishPartner != null)
+			ONCPartner addedGiftPartner = (ONCPartner) find(partnerList, addedGift.getPartnerID());
+			if(addedGiftPartner != null)
 			{
 				//increment the delivered count
-				addedWishPartner.incrementOrnDelivered();
+				addedGiftPartner.incrementOrnDelivered();
 				
 				//notify the gui's that the partners delivered count changed
-				fireDataChanged(this, "PARTNER_ORNAMENT_DELIVERED", addedWishPartner);
+				fireDataChanged(this, "PARTNER_ORNAMENT_DELIVERED", addedGiftPartner);
 			}
 		}
 		
-		//process gifts received. Determine if the wish added time is before or after the deadline 
-//		boolean bReceviedBeforeDeadline = addedWish.getChildWishDateChanged().before(orgGVs.getGiftsReceivedDate());
+		//process gifts received. Determine if the gift added time is before or after the deadline 
+//		boolean bReceviedBeforeDeadline = addedGift.getChildWishDateChanged().before(orgGVs.getGiftsReceivedDate());
 		
-		if(replWish != null && replWish.getPartnerID() == addedWish.getPartnerID() &&
-		   (replWish.getGiftStatus() == GiftStatus.Delivered || replWish.getGiftStatus() == GiftStatus.Shopping)  && 
-			addedWish.getGiftStatus() == GiftStatus.Received)
+		if(replGift != null && replGift.getPartnerID() == addedGift.getPartnerID() &&
+		   (replGift.getGiftStatus() == GiftStatus.Delivered || replGift.getGiftStatus() == GiftStatus.Shopping)  && 
+			addedGift.getGiftStatus() == GiftStatus.Received)
 		{	
 			//gift was received from partner it was assigned to or was received from shopping
-			ONCPartner addedWishAssignee = (ONCPartner) find(partnerList, addedWish.getPartnerID());
+			ONCPartner addedWishAssignee = (ONCPartner) find(partnerList, addedGift.getPartnerID());
 			if(addedWishAssignee != null)
 			{
-				boolean bBeforeDeadline = addedWish.getDateChanged().before(orgGVs.getGiftsReceivedCalendar());
+				boolean bBeforeDeadline = addedGift.getDateChanged().before(orgGVs.getGiftsReceivedCalendar());
 				addedWishAssignee.incrementOrnReceived(bBeforeDeadline);
 				fireDataChanged(this, "PARTNER_WISH_RECEIVED", addedWishAssignee);
 			}
 		}
-		else if(replWish != null && replWish.getGiftStatus() == GiftStatus.Received  && 
-				 addedWish.getGiftStatus() == GiftStatus.Delivered &&
-				  replWish.getPartnerID() == addedWish.getPartnerID())
+		else if(replGift != null && replGift.getGiftStatus() == GiftStatus.Received  && 
+				 addedGift.getGiftStatus() == GiftStatus.Delivered &&
+				  replGift.getPartnerID() == addedGift.getPartnerID())
 		{
 			//gift was un-received from partner it was assigned to. This occurs when an undo
 			//action is performed by the user
-			ONCPartner replWishAssignee = (ONCPartner) find(partnerList, replWish.getPartnerID());
+			ONCPartner replWishAssignee = (ONCPartner) find(partnerList, replGift.getPartnerID());
 			if(replWishAssignee != null)
 			{
-				boolean bBeforeDeadline = addedWish.getDateChanged().before(orgGVs.getGiftsReceivedCalendar());
+				boolean bBeforeDeadline = addedGift.getDateChanged().before(orgGVs.getGiftsReceivedCalendar());
 				replWishAssignee.decrementOrnReceived(bBeforeDeadline);
 				fireDataChanged(this, "PARTNER_WISH_RECEIVE_UNDONE", replWishAssignee);
 			}
 		}
 	}
-	
+*/	
 	String add(Object source, ONCObject entity)
 	{
 		Gson gson = new Gson();

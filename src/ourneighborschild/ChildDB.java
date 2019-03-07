@@ -20,6 +20,7 @@ import com.google.gson.reflect.TypeToken;
 
 public class ChildDB extends ONCDatabase
 {
+	private static final int NUM_GIFTS_PER_CHILD = 3;
 	private static ChildDB instance = null;
 	private ArrayList<ONCChild> childAL;
 	
@@ -106,22 +107,24 @@ public class ChildDB extends ONCDatabase
 	
 	ONCChild processDeletedChild(Object source, String json)
 	{
-		ChildGiftDB cwDB = ChildGiftDB.getInstance();
-		PartnerDB partnerDB = PartnerDB.getInstance();
+		ChildGiftDB cgDB = ChildGiftDB.getInstance();
+		GiftCatalogDB cat = GiftCatalogDB.getInstance();
 		
 		Gson gson = new Gson();
 		
 		ONCChild deletedChild =  removeChild(source, gson.fromJson(json, ONCChild.class).getID());
 		
-		//If the child had gifts, delete them from the child wish and partner assignment databases
-		if(deletedChild.hasGifts())
+		//If the child had gifts, delete them from the child gift database & update the gift catalog counts. 
+		for(int giftNum= 0; giftNum < NUM_GIFTS_PER_CHILD; giftNum++)
 		{
-			partnerDB.deleteChildWishAssignments(deletedChild);
-			ArrayList<GiftBaseChange> wishbasechanges = cwDB.deleteChildWishes(deletedChild);
-		
-			for(GiftBaseChange change: wishbasechanges)
-				//deleted wish - need to tell wish catalog dialog to adjust wish counts
-				fireDataChanged(source, "WISH_BASE_CHANGED", change.getReplacedGift(), change.getAddedGift());
+			if(deletedChild.getChildGiftID(giftNum) > -1)
+			{
+				//ask the child gift data base to delete the gift
+				ONCChildGift deletedGift = cgDB.deleteChildGift(deletedChild.getChildGiftID(giftNum));
+				
+				//inform the gift catalog that the gift has been deleted
+				cat.changeGiftCounts(deletedGift, null);
+			}
 		}
 		
 		FamilyDB fDB = FamilyDB.getInstance();

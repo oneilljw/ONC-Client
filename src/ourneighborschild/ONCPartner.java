@@ -9,6 +9,13 @@ public class ONCPartner extends ONCEntity
 	 */
 	private static final long serialVersionUID = -7854045836478089523L;
 	
+	public static final int  BUSINESS = 1;
+	public static final int  CHURCH = 2;
+	public static final int  SCHOOL = 3;
+	public static final int  CLOTHING = 4;
+	public static final int  COAT = 5;
+	public static final int  ONC_SHOPPER = 6;
+	
 	private int status;
 	private int type;
 	private GiftCollectionType collection;
@@ -315,7 +322,6 @@ public class ONCPartner extends ONCEntity
 	public int getNumberOfOrnamentsReceivedBeforeDeadline() { return orn_rec_before; }
 	public int getNumberOfOrnamentsReceivedAfterDeadline() { return orn_rec_after; }
 	public String getOther()	{ return generalPartnerInfo; }
-//	public String getConfirmed() { return confirmed;}
 	public String getDeliverTo() { return deliverTo; }
 	public String getSpecialNotes()	{ return cyNotes; }
 	public String getContact()	{ return contact; }
@@ -425,7 +431,7 @@ public class ONCPartner extends ONCEntity
 				this.street.equals(mp.getStreet()) && this.unit.equals(mp.getUnit()) &&
 				this.city.equals(mp.getCity()) && this.zipCode.equals(mp.getZipCode()) &&
 				this.contact.equals(mp.getContact()) && this.contact_email.equals(mp.getContact_email()) &&
-				this.getContact_phone().equals(mp.getContact_phone());
+				this.contact_phone.equals(mp.getContact_phone());
 	}
 	
 	String[] getOrgInfoTableRow()

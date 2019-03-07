@@ -17,7 +17,7 @@ public class ONCChildGift extends ONCObject implements Serializable
 	private static final long serialVersionUID = -2478929652422873065L;
 	
 	private int childID;	//id of the child the wish belongs to
-	private int giftID;		//id of the wish from the catalog
+	private int giftID;		//id of gift from the Gift Catalog: NOTE: it's not the CHILD GIFT database id
 	private String giftDetail = "";
 	private int giftnumber;
 	private int indicator = 0;	//0 - Blank, 1-*, 2-#

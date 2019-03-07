@@ -18,10 +18,11 @@ public class ONCGroup extends ONCEntity
 	private boolean bWebpage;
 	private boolean bContactInfoRqrd;
 	private boolean bMembersRefer;
+	private boolean bAllowInProfile;
 	
 	public ONCGroup(int id, Date today, String changedBy, int slpos, String slmssg, String slchgby, 
 						String name, GroupType type, boolean bShareInfo, boolean bWebpage,
-						boolean bContactInfoRqrd, boolean bMembersRefer) 
+						boolean bContactInfoRqrd, boolean bMembersRefer, boolean bAllowInProfile) 
 	{
 		super(id, today, changedBy, slpos, slmssg, slchgby);
 		this.name = name;
@@ -30,6 +31,7 @@ public class ONCGroup extends ONCEntity
 		this.bWebpage = bWebpage;
 		this.bContactInfoRqrd = bContactInfoRqrd;
 		this.bMembersRefer = bMembersRefer;
+		this.bAllowInProfile = bAllowInProfile;
 	}
 	
 	public ONCGroup(String[] nextLine)
@@ -41,6 +43,7 @@ public class ONCGroup extends ONCEntity
 		this.bWebpage = nextLine[9].isEmpty() ? false : nextLine[9].equalsIgnoreCase("T") ? true : false;
 		this.bContactInfoRqrd = nextLine[10].isEmpty() ? false : nextLine[10].equalsIgnoreCase("T") ? true : false;
 		this.bMembersRefer = nextLine[11].isEmpty() ? false : nextLine[11].equalsIgnoreCase("T") ? true : false;
+		this.bAllowInProfile = nextLine[12].isEmpty() ? false : nextLine[12].equalsIgnoreCase("T") ? true : false;
 	}
 	
 	public ONCGroup(ONCGroup g)
@@ -52,6 +55,7 @@ public class ONCGroup extends ONCEntity
 		this.bWebpage = g.bWebpage;
 		this.bContactInfoRqrd = g.bContactInfoRqrd;
 		this.bMembersRefer = g.bMembersRefer;
+		this.bAllowInProfile = g.bAllowInProfile;
 	}
 	
 	//getters
@@ -61,6 +65,7 @@ public class ONCGroup extends ONCEntity
 	public boolean includeOnWebpage() { return bWebpage; }
 	public boolean contactInfoRqrd() { return bContactInfoRqrd; }
 	public boolean memberRefer() { return bMembersRefer; }
+	public boolean allowInProfile() { return bAllowInProfile; }
 	
 	//setters
 	void setName(String name) { this.name = name; }
@@ -69,6 +74,7 @@ public class ONCGroup extends ONCEntity
 	void setIncludeOnWebpage(boolean bWebpage) { this.bWebpage = bWebpage; }
 	void setContactInfoRqrd(boolean bContactInfoRqrd) { this.bContactInfoRqrd = bContactInfoRqrd; }
 	void setMembersRefer(boolean bMembersRefer) { this.bMembersRefer = bMembersRefer; }
+	void setAllowInProfile(boolean bAllowInProfile) { this.bAllowInProfile = bAllowInProfile; }
 	
 	@Override
 	public String[] getExportRow()
@@ -77,7 +83,7 @@ public class ONCGroup extends ONCEntity
 					   changedBy, Integer.toString(slPos), slMssg, slChangedBy,
 					   name, type.toString(), bShareInfo ? "T" : "F",
 					   bWebpage ? "T" : "F", bContactInfoRqrd ? "T" : "F",
-					   bMembersRefer ? "T" : "F"};
+					   bMembersRefer ? "T" : "F", bAllowInProfile ? "T" : "F"};
 		return row;
 	}
 	
