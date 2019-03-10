@@ -429,7 +429,7 @@ public class ManageBatteryDialog extends ONCEntityTableDialog implements ActionL
         		ONCChild child = null;
         		ONCFamily family = null;
         		
-        		gift = giftDB.getWish(bto.getChild().getID(), bto.getBattery().getWishNum());
+        		gift = giftDB.getGift(bto.getChild().getID(), bto.getBattery().getWishNum());
         		
         		String childFN, childLN;
         		if(gift != null)
@@ -529,7 +529,7 @@ public class ManageBatteryDialog extends ONCEntityTableDialog implements ActionL
 		{
 			String[] row = new String[9];
 			
-			ONCChildGift gift = giftDB.getWish(battery.getChildID(), battery.getWishNum());
+			ONCChildGift gift = giftDB.getGift(battery.getChildID(), battery.getWishNum());
 			ONCGift wish = catDB.getGiftByID(gift.getGiftID());
 			
 			//determine if user has permission to see child first and last name. If not, substitute

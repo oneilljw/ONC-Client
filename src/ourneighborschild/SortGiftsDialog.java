@@ -432,9 +432,9 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 				{
 					if(isAgeInRange(c) && doesGenderMatch(c) && doesSchoolMatch(c))	//Children criteria pass
 					{
-						for(int i=0; i< giftDB.getNumberOfWishesPerChild(); i++)
+						for(int i=0; i< giftDB.getNumberOfGiftsPerChild(); i++)
 						{	 //Assignee, Status, Date & Wish match
-							ONCChildGift cw = giftDB.getWish(c.getChildGiftID(i));
+							ONCChildGift cw = giftDB.getGift(c.getChildGiftID(i));
 							
 							if(cw != null && doesResMatch(cw.getIndicator()) &&
 								doesPartnerMatch(cw.getPartnerID()) &&
@@ -461,6 +461,7 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 
 	boolean onApplyChanges()
 	{
+		List<ONCChildGift> reqAddGiftList = new ArrayList<ONCChildGift>();
 //		bChangingTable = true;
 		boolean bRebuildTable = false; //set true if a gift is changed so table is only rebuilt once per applyWishChange
 		
@@ -480,8 +481,12 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 			int cgi = cg.getIndicator();
 			GiftStatus gs = cg.getGiftStatus();
 			ONCPartner partner = null;
+			int partnerID = -1;
 			if(cg.getPartnerID() > -1)
+			{
 				partner = partnerDB.getPartnerByID(cg.getPartnerID());
+				partnerID = partner.getID();
+			}
 			
 			//Determine if a change to goft restrictions, if so set new gift restriction for request
 			if(changeResCB.getSelectedIndex() > 0 && cgi != changeResCB.getSelectedIndex()-1)
@@ -505,6 +510,7 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 					gs == GiftStatus.Shopping || gs == GiftStatus.Returned || gs == GiftStatus.Missing)
 				{
 					partner = ((ONCPartner)changePartnerCB.getSelectedItem());
+					partnerID = partner.getID();
 					bNewGiftrqrd = true;
 				}
 			}
@@ -525,16 +531,25 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 			
 			if(bNewGiftrqrd)	//Restriction, Status or Partner change detected
 			{
-				//Add the new gift to the gift history, returns -1 if no gift created
-				ONCChildGift addedGift = giftDB.add(this, c.getID(), cgGiftID, cgd, gn, cgi, gs, partner);
+//				//Add the new gift to the gift history, returns -1 if no gift created
+//				ONCChildGift addedGift = giftDB.add(this, c.getID(), cgGiftID, cgd, gn, cgi, gs, partner);
+//				
+//				if(addedGift != null)	//only proceed if gift was accepted by the data base
+//					bRebuildTable = true;	//set flag to rebuild/display the table array/gift table
 				
-				if(addedGift != null)	//only proceed if gift was accepted by the data base
-					bRebuildTable = true;	//set flag to rebuild/display the table array/gift table
+				
+				ONCChildGift reqAddGift = new ONCChildGift(-1, cg.getChildID(), cg.getGiftID(), cg.getDetail(),
+						cg.getGiftNumber(), cgi, gs, partnerID, userDB.getUserLNFI(), new Date());
+				reqAddGiftList.add(reqAddGift);
 			}
 		}
 		
-		if(bRebuildTable)
+		String response = giftDB.addGiftList(this, reqAddGiftList);
+		if(response.startsWith("ADDED_GIFT_LIST"))
 			buildTableList(false);
+		
+//		if(bRebuildTable)
+//			buildTableList(false);
 		
 		//Reset the change combo boxes to "No Change"
 		changeResCB.setSelectedIndex(0);
@@ -1398,8 +1413,8 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 	public void dataChanged(DatabaseEvent dbe) 
 	{
 		if(dbe.getSource() != this && (dbe.getType().equals("WISH_ADDED") ||
-										dbe.getType().equals("UPDATED_CHILD_WISH") ||
-										   dbe.getType().equals("UPDATED_FAMILY")))	//ONC# or region?	
+									   dbe.getType().equals("UPDATED_CHILD_WISH") ||
+										dbe.getType().equals("UPDATED_FAMILY")))	//ONC# or region?	
 		{
 			buildTableList(true);
 		}

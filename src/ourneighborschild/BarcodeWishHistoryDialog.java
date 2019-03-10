@@ -140,7 +140,7 @@ public class BarcodeWishHistoryDialog extends BarcodeTableDialog
 	{	
 		if(cw != null)
 		{
-			stAL = cwDB.getWishHistory(cw.getChildID(), cw.getGiftNumber());	
+			stAL = cwDB.getGiftHistory(cw.getChildID(), cw.getGiftNumber());	
 		}
 		else
 			stAL.clear();
@@ -168,7 +168,7 @@ public class BarcodeWishHistoryDialog extends BarcodeTableDialog
 		
 		//get Wish History for bar code wish id. If found, notify entity listeners of
 		//the Wish entity selection.
-		cw = cwDB.getWish(cID, wn);
+		cw = cwDB.getGift(cID, wn);
 		if(cw != null)
 		{
 			getWishHistory(cw);

@@ -125,7 +125,7 @@ public abstract class VerificationSheetPrinter implements Printable
 			for(int wn=0; wn < NUM_GIFTS_PER_CHILD; wn++)
 			{
 				ONCChild c = vsAL.get(page).getChildArrayList().get(childnum);
-				ONCChildGift cw = cwDB.getWish(c.getChildGiftID(wn));
+				ONCChildGift cw = cwDB.getGift(c.getChildGiftID(wn));
 				
 				if(cw != null)
 				{

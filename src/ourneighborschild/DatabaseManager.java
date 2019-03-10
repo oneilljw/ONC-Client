@@ -412,7 +412,7 @@ public class DatabaseManager extends ONCDatabase
 			this.setProgress(progress += increment);
 			
 			pb.updateHeaderText("Loading Gifts");
-			oncChildWishDB.importChildWishDatabase();
+			oncChildWishDB.importChildGiftDatabase();
 			this.setProgress(progress += increment);
 			
 			pb.updateHeaderText("Loading Inventory");

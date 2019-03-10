@@ -19,22 +19,23 @@ import au.com.bytecode.opencsv.CSVWriter;
 
 public class ChildGiftDB extends ONCDatabase
 {
-//	private static final int CHILD_WISH_DB_HEADER_LENGTH = 10;
 	private static final int PARTNER_TYPE_ONC_SHOPPER = 6;
-	private static final int WISH_INDICATOR_ALLOW_SUBSTITUE = 2;
-	private static final String CHILD_WISH_DEFAULT_DETAIL = "Age appropriate";
+	private static final int GIFT_INDICATOR_ALLOW_SUBSTITUE = 2;
+	private static final String CHILD_GIFT_DEFAULT_DETAIL = "Age appropriate";
 	
 	private static ChildGiftDB instance = null;
 	private GiftCatalogDB cat;
 	private ChildDB childDB;
-	private ArrayList<ONCChildGift> childwishAL;
+	private PartnerDB partnerDB;
+	private ArrayList<ONCChildGift> childGiftList;
 	
 	private ChildGiftDB()
 	{	
 		super();
 		cat = GiftCatalogDB.getInstance();
 		childDB = ChildDB.getInstance();
-		childwishAL = new ArrayList<ONCChildGift>();
+		partnerDB = PartnerDB.getInstance();
+		childGiftList = new ArrayList<ONCChildGift>();
 	}
 	
 	public static ChildGiftDB getInstance()
@@ -46,98 +47,102 @@ public class ChildGiftDB extends ONCDatabase
 	}
 	
 	/*******
-	 * This is a critical method in the ONC application. A child's wish is never modified or
-	 * deleted, a new wish is always created to take an old wish's place. If the new wish 
-	 * being added has a base or assignee change, the wish status must be check to see if 
-	 * an automatic change needs to occur as well. The new wish, with correct status is 
-	 * then sent to the server. The list should never be sorted, that way the newest wish for
-	 * a child and wish number is at the bottom of the list
+	 * This is a critical method in the ONC application. A child's gift is never modified or
+	 * deleted, a new gift is always created to take an old gifts place. If the new gift 
+	 * being added has a base or assignee change, the status must be checked to see if 
+	 * an automatic change needs to occur as well. The new gift, with correct status is 
+	 * then sent to the server. The list should never be sorted, keeping the newest gifts for
+	 * a child at the bottom of the list
 	 * @param currPartner - defines who the requested partner is. null to leave the 
 	 * current partner unchanged
 	 */
-	ONCChildGift add(Object source, int childid, int wishid, String wd, int wn, int wi,
-			GiftStatus ws, ONCPartner currPartner)
+	ONCChildGift add(Object source, int childid, int giftID, String gd, int gn, int gi,
+			GiftStatus gs, ONCPartner currPartner)
 	{		
 		GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
 		String cb = UserDB.getInstance().getUserLNFI();
 		Date dc = gvs.getTodaysDate();
 
-		//Get the old wish being replaced. getWish method returns null if wish not found
-		ONCChildGift replacedWish = getWish(childid, wn);
+		//Get the old gift being replaced. getGift method returns null if gift not found
+		ONCChildGift replacedGift = getGift(childid, gn);
 
 		//determine if we need to change the partner id
 		int newPartnerID = -1;
-		if(replacedWish != null && replacedWish.getGiftID() != wishid)
+		if(replacedGift != null && replacedGift.getGiftID() != giftID)
 			newPartnerID = -1;
-		else if(currPartner == null && replacedWish != null)
-			newPartnerID = replacedWish.getPartnerID(); 	//Staying the same
+		else if(currPartner == null && replacedGift != null)
+			newPartnerID = replacedGift.getPartnerID(); 	//Staying the same
 		else if(currPartner != null)
 			newPartnerID = currPartner.getID();
 
-		//create the new wish, with childwishID = -1, meaning no wish selected
-		//the server will add the childwishID and return it
-		ONCChildGift retCW = null;
-		ONCChildGift reqCW = new ONCChildGift(-1, childid, wishid,
-								   checkForDetailChange(wi, wd, currPartner, replacedWish), 
-								   wn, wi,
-								   checkForStatusChange(replacedWish, wishid, ws, currPartner), 
+		//create the new gift, with childgiftID = -1, meaning no gift selected
+		//the server will add the childgiftID and return it
+		ONCChildGift retCG = null;
+		ONCChildGift reqCG = new ONCChildGift(-1, childid, giftID,
+								   checkForDetailChange(gi, gd, currPartner, replacedGift), 
+								   gn, gi,
+								   checkForStatusChange(replacedGift, giftID, gs, currPartner), 
 								   newPartnerID, cb, dc);		
 		Gson gson = new Gson();
 		String response = null, helmetResponse = null;
 
-		//send add new wish request to the server
-		response = serverIF.sendRequest("POST<childwish>" + gson.toJson(reqCW, ONCChildGift.class));
+		//send add new gift request to the server
+		response = serverIF.sendRequest("POST<childwish>" + gson.toJson(reqCG, ONCChildGift.class));
 
-		//get the wish in the sever response and add it to the local cache data base
-		//it contains the wish id assigned by the server child wish data base
-		//Notify all other ui's that a wish has been added
+		//get the gift in the sever response and add it to the local cache data base
+		//it contains the gift id assigned by the server child gift data base
+		//Notify all other ui's that a gift has been added
 		if(response != null && response.startsWith("WISH_ADDED"))
 		{
-			//System.out.println("ChildWish DB_add: Server Response: " + response);
-			retCW = processAddedGift(source, response.substring(10));
+			ONCChildGift addedGift = gson.fromJson(response.substring(10), ONCChildGift.class);
+			retCG = processAddedGift(source, addedGift);
 
-			//must check to see if new wish is wish 0 and has changed to/from a 
-			//Bike. If so, wish 2 must become a Helmet/Empty
-			ONCChild child = childDB.getChild(retCW.getChildID());
+			//must check to see if new gift is gift number 1 and has changed to/from a 
+			//Bike. If so, gift number 2 must become a Helmet/Empty
+			ONCChild child = childDB.getChild(retCG.getChildID());
 			int bikeID = cat.getGiftID("Bike");
 			int helmetID = cat.getGiftID("Helmet");
-			if(retCW.getGiftNumber() == 0 && replacedWish != null && replacedWish.getGiftID() != bikeID && 
-					retCW.getGiftID() == bikeID || retCW.getGiftNumber() == 0 && replacedWish == null &&
-					retCW.getGiftID() == bikeID)		
+			if(retCG.getGiftNumber() == 0 && replacedGift != null && replacedGift.getGiftID() != bikeID && 
+					retCG.getGiftID() == bikeID || retCG.getGiftNumber() == 0 && replacedGift == null &&
+					retCG.getGiftID() == bikeID)		
 			{
-				//add Helmet as wish 1
-				ONCChildGift helmetCW = new ONCChildGift(-1, childid, helmetID, "", 1, 1,
+				//add Helmet as gift 2
+				ONCChildGift helmetCG = new ONCChildGift(-1, childid, helmetID, "", 1, 1,
 						GiftStatus.Selected, -1, cb, dc);
-				helmetResponse = serverIF.sendRequest("POST<childwish>" + gson.toJson(helmetCW, ONCChildGift.class));
+				helmetResponse = serverIF.sendRequest("POST<childwish>" + gson.toJson(helmetCG, ONCChildGift.class));
 				if(helmetResponse != null && helmetResponse.startsWith("WISH_ADDED"))
-					processAddedGift(this, helmetResponse.substring(10));
+				{
+					ONCChildGift helmetGift = gson.fromJson(helmetResponse.substring(10), ONCChildGift.class);
+					processAddedGift(this, helmetGift);
+				}
+					
 			}
-			//if replaced wish was a bike and now isn't and wish 1 was a helmet, make
-			//wish one empty
-			else if(retCW.getGiftNumber() == 0 && replacedWish != null && child.getChildGiftID(1) > -1 &&
-					replacedWish.getGiftID() == bikeID && retCW.getGiftID() != bikeID)
+			//if replaced gift was a bike and now isn't and gift 2 was a helmet, make
+			//gift 1 empty
+			else if(retCG.getGiftNumber() == 0 && replacedGift != null && child.getChildGiftID(1) > -1 &&
+					replacedGift.getGiftID() == bikeID && retCG.getGiftID() != bikeID)
 			{
-				//change wish 1 from Helmet to None
-				ONCChildGift helmetCW = new ONCChildGift(-1, childid, -1, "", 1, 0,
+				//change gift 1 from Helmet to None
+				ONCChildGift helmetCG = new ONCChildGift(-1, childid, -1, "", 1, 0,
 						GiftStatus.Not_Selected, -1, cb, dc);
-				helmetResponse = serverIF.sendRequest("POST<childwish>" + gson.toJson(helmetCW, ONCChildGift.class));
+				helmetResponse = serverIF.sendRequest("POST<childwish>" + gson.toJson(helmetCG, ONCChildGift.class));
 				if(helmetResponse != null && helmetResponse.startsWith("WISH_ADDED"))
-					processAddedGift(this, helmetResponse.substring(10));
+				{
+					ONCChildGift helmetGift = gson.fromJson(helmetResponse.substring(10), ONCChildGift.class);
+					processAddedGift(this, helmetGift);
+				}
 			}
 		}
 
-		return retCW;
+		return retCG;
 	}
 	
-	ONCChildGift processAddedGift(Object source, String json)
+	ONCChildGift processAddedGift(Object source, ONCChildGift addedGift)
 	{
-		//create the new gift object from the json and get the gift it's replacing
-		Gson gson = new Gson();
-		ONCChildGift addedGift = gson.fromJson(json, ONCChildGift.class);
-		ONCChildGift replacedGift = getWish(addedGift.getChildID(), addedGift.getGiftNumber());
+		ONCChildGift replacedGift = getGift(addedGift.getChildID(), addedGift.getGiftNumber());
 				
 		//add the new gift to the local data base
-		childwishAL.add(addedGift);
+		childGiftList.add(addedGift);
 			
 		//Set the new gift ID in the child object that has been assigned this gift in the child data base
 		ChildDB childDB = ChildDB.getInstance();
@@ -161,24 +166,85 @@ public class ChildGiftDB extends ONCDatabase
 		return addedGift;
 	}
 	
+	//adds a list of gifts to the child gift data base.
+	String addGiftList(Object source, List<ONCChildGift> addGiftList)
+	{		
+		GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
+		String cb = UserDB.getInstance().getUserLNFI();
+		Date dc = gvs.getTodaysDate();
+		
+		List<ONCChildGift> reqAddGiftList = new ArrayList<ONCChildGift>();
+		
+		//create the list of added gifts
+		for(ONCChildGift addedGift : addGiftList)
+		{
+			//Get the old gift being replaced
+			ONCChildGift replacedGift = getGift(addedGift.getChildID(), addedGift.getGiftNumber());
+
+			//determine if we need to change the partner id
+			ONCPartner currPartner = partnerDB.getPartnerByID(addedGift.getPartnerID());
+			int newPartnerID = -1;
+			if(replacedGift != null && replacedGift.getGiftID() != addedGift.getGiftID())
+				newPartnerID = -1;
+			else if(currPartner == null && replacedGift != null)
+				newPartnerID = replacedGift.getPartnerID(); 	//Staying the same
+			else if(currPartner != null)
+				newPartnerID = currPartner.getID();
+
+			//create the added gift, with childwishID = -1, meaning no wish selected
+			//the server will add the childwishID and return it
+			ONCChildGift reqCW = new ONCChildGift(-1, addedGift.getChildID(),addedGift.getGiftID(),
+								   checkForDetailChange(addedGift.getIndicator(), addedGift.getDetail(), currPartner, replacedGift), 
+								   addedGift.getGiftNumber(), addedGift.getIndicator(),
+								   checkForStatusChange(replacedGift, addedGift.getGiftID(), addedGift.getGiftStatus(), currPartner), 
+								   newPartnerID, cb, dc);
+			
+			reqAddGiftList.add(reqCW);
+		}
+		
+		//wrap the child gift list in a json array and send the add request to the server
+		Gson gson = new Gson();
+		Type listOfChildGifts = new TypeToken<ArrayList<ONCChildGift>>(){}.getType();
+		String response = null, returnResp = "ADD_FAILED";
+		response = serverIF.sendRequest("POST<add_giftlist>" + gson.toJson(reqAddGiftList, listOfChildGifts));
+
+		//get the response from the server, validate it. Once validated, decompose the response json
+		//to a list of added gift json strings, convert them to ChildGift objects and process the adds.
+		//set the return string to indicate the server add list request was successful
+		if(response != null && response.startsWith("ADDED_GIFT_LIST"))
+		{
+			Type responseListType = new TypeToken<ArrayList<String>>(){}.getType();
+			List<String> responseList = gson.fromJson(response.substring(15), responseListType);
+			
+			for(String addGiftResp : responseList)
+			{
+				ONCChildGift addedGift = gson.fromJson(addGiftResp.substring(10), ONCChildGift.class);
+				processAddedGift(source, addedGift);
+			}
+			
+			returnResp = "ADDED_GIFT_LIST";
+		}
+
+		return returnResp;
+	}
+	
 	/*******************************************************************************************
-	 * This method implements a rules engine governing the relationship between a wish type and
-	 * wish status and wish assignment and wish status. It is called when a child's wish or
-	 * assignee changes and implements an automatic change of wish status.
+	 * This method implements a rules engine governing the relationship between a gift type and
+	 * gift status and gift assignment and gift status. It is called when a child's gift or
+	 * assignee changes and implements an automatic change of gift status.
 	 * 
-	 * For example, if a child's base wish is empty and it is changing to a wish selected from
-	 * the catalog, this method will set the wish status to CHILD_WISH_SELECTED. Conversely, if
-	 * a wish was selected from the catalog and is reset to empty, the wish status is set to
-	 * CHILD_WISH_EMPTY.
+	 * For example, if a child's base gift is empty and it is changing to a gift selected from
+	 * the catalog, this method will set the gift status to SELECTED. Conversely, if
+	 * a gift was selected from the catalog and is reset to empty, the status is set to Not_Selected.
 	 ************************************************************************************************************/	
-	GiftStatus checkForStatusChange(ONCChildGift oldWish, int wishBase, GiftStatus reqStatus, ONCPartner reqOrg)
+	GiftStatus checkForStatusChange(ONCChildGift oldGift, int giftBase, GiftStatus reqStatus, ONCPartner reqOrg)
 	{
 		GiftStatus currStatus, newStatus;
 		
-		if(oldWish == null)	//Creating first wish
+		if(oldGift == null)	//selecting first gift
 			currStatus = GiftStatus.Not_Selected;
 		else	
-			currStatus = oldWish.getGiftStatus();
+			currStatus = oldGift.getGiftStatus();
 		
 		//set new status = current status for default return
 		newStatus = currStatus;
@@ -186,23 +252,23 @@ public class ChildGiftDB extends ONCDatabase
 		switch(currStatus)
 		{
 			case Not_Selected:
-				if(wishBase > -1 && reqOrg != null && reqOrg.getID() != -1)
-					newStatus = GiftStatus.Assigned;	//wish assigned from inventory
-				else if(wishBase > -1)
+				if(giftBase > -1 && reqOrg != null && reqOrg.getID() != -1)
+					newStatus = GiftStatus.Assigned;	//assigned from inventory
+				else if(giftBase > -1)
 					newStatus = GiftStatus.Selected;
 				break;
 				
 			case Selected:
-				if(wishBase == -1)
+				if(giftBase == -1)
 					newStatus = GiftStatus.Not_Selected;
 				else if(reqOrg != null && reqOrg.getID() != -1)
 					newStatus = GiftStatus.Assigned;
 				break;
 				
 			case Assigned:
-				if(wishBase == -1)
+				if(giftBase == -1)
 					newStatus = GiftStatus.Not_Selected;
-				else if(oldWish.getGiftID() != wishBase)
+				else if(oldGift.getGiftID() != giftBase)
 					newStatus = GiftStatus.Selected;
 				else if(reqOrg == null || reqOrg != null && reqOrg.getID() == -1)
 					newStatus = GiftStatus.Selected;
@@ -225,7 +291,7 @@ public class ChildGiftDB extends ONCDatabase
 				break;
 				
 			case Returned:
-				if(wishBase == -1)
+				if(giftBase == -1)
 					newStatus = GiftStatus.Not_Selected;
 				else if(reqOrg != null && reqOrg.getID() == -1)
 					newStatus = GiftStatus.Selected;
@@ -279,23 +345,23 @@ public class ChildGiftDB extends ONCDatabase
 		return newStatus;			
 	}
 	
-	/*** checks for automatic change of wish detail. An automatic change is triggered if
-	 * the replaced wish is of status Delivered and requested parter is of type ONC Shopper
-	 * and the requested wish indicator is #. 
+	/*** checks for automatic change of gift detail. An automatic change is triggered if
+	 * the replaced gift is of status Delivered and requested parter is of type ONC Shopper
+	 * and the requested gift indicator is #. 
 	 */
 	
-	String checkForDetailChange(int reqWishRes, String reqWishDetail,
-									ONCPartner reqPartner, ONCChildGift replWish)
+	String checkForDetailChange(int reqGiftRes, String reqGiftDetail,
+									ONCPartner reqPartner, ONCChildGift replGift)
 	{
-		if(replWish != null && reqPartner != null && 
-			replWish.getGiftStatus() == GiftStatus.Delivered && 
+		if(replGift != null && reqPartner != null && 
+			replGift.getGiftStatus() == GiftStatus.Delivered && 
 			 reqPartner.getType() == PARTNER_TYPE_ONC_SHOPPER && 
-			  reqWishRes == WISH_INDICATOR_ALLOW_SUBSTITUE)
+			  reqGiftRes == GIFT_INDICATOR_ALLOW_SUBSTITUE)
 		{
-			return CHILD_WISH_DEFAULT_DETAIL;
+			return CHILD_GIFT_DEFAULT_DETAIL;
 		}
 		else
-			return reqWishDetail;
+			return reqGiftDetail;
 	}
 
 	/**
@@ -305,13 +371,13 @@ public class ChildGiftDB extends ONCDatabase
 	ONCChildGift deleteChildGift(int giftID)
 	{
 		int index = 0;
-		while(index < childwishAL.size() && childwishAL.get(index).getID() != giftID)
+		while(index < childGiftList.size() && childGiftList.get(index).getID() != giftID)
 			index++;
 			
-		if(index < childwishAL.size())
+		if(index < childGiftList.size())
 		{
-			ONCChildGift deletedGift = childwishAL.get(index);
-			childwishAL.remove(index);
+			ONCChildGift deletedGift = childGiftList.get(index);
+			childGiftList.remove(index);
 			return deletedGift;
 		}
 		else
@@ -320,8 +386,8 @@ public class ChildGiftDB extends ONCDatabase
 	
 	String update(Object source, ONCObject oncchildwish)
 	{		
-		//A wish is not updated in the current design. A new wish is always created 
-		//and added to the data base. This allows a child's wish history to be 
+		//A gift is not updated in the current design. A new gift is always created 
+		//and added to the data base. This allows a child's gift history to be 
 		//preserved for a season. 
 		Gson gson = new Gson();
 		String response = "";
@@ -331,7 +397,7 @@ public class ChildGiftDB extends ONCDatabase
 		
 		if(response.startsWith("UPDATED_CHILD_WISH"))
 		{
-			processUpdatedObject(source, response.substring(18), childwishAL);
+			processUpdatedObject(source, response.substring(18), childGiftList);
 		}
 		
 		return response;
@@ -365,62 +431,62 @@ public class ChildGiftDB extends ONCDatabase
 	 *************************************************************************/
 	void replaceObject(int index, ONCObject updatedObj)
 	{
-		ONCChildGift updatedWish = (ONCChildGift) updatedObj;
-		childwishAL.set(index,  updatedWish);
+		ONCChildGift updatedGift = (ONCChildGift) updatedObj;
+		childGiftList.set(index,  updatedGift);
 	}
 
-	ONCChildGift getWish(int wishid)
+	ONCChildGift getGift(int giftID)
 	{
-		int index = childwishAL.size() -1;
+		int index = childGiftList.size() -1;
 		
-		//Search from the bottom of the data base for speed. New wishes are added to the bottom
-		while (index >= 0 && childwishAL.get(index).getID() != wishid)
+		//Search from the bottom of the data base for speed. New gifts are added to the bottom
+		while (index >= 0 && childGiftList.get(index).getID() != giftID)
 			index--;
 		
 		if(index == -1)
-			return null;	//Wish wasn't found in data base
+			return null;	//Gift wasn't found in data base
 		else
-			return childwishAL.get(index);
+			return childGiftList.get(index);
 	}
 	
-	ONCChildGift getWish(int childid, int wn)
+	ONCChildGift getGift(int childid, int gn)
 	{
-		int index = childwishAL.size() -1;
+		int index = childGiftList.size() -1;
 		
-		//Search from the bottom of the data base for speed. New wishes are added to the bottom
-		while (index >= 0 && (childwishAL.get(index).getChildID() != childid || 
-								childwishAL.get(index).getGiftNumber() != wn))
+		//Search from the bottom of the data base for speed. New gifts are added to the bottom
+		while (index >= 0 && (childGiftList.get(index).getChildID() != childid || 
+								childGiftList.get(index).getGiftNumber() != gn))
 			index--;
 		
 		if(index == -1)
-			return null;	//Wish wasn't found in data base
+			return null;	//gift wasn't found in data base
 		else
-			return childwishAL.get(index);
+			return childGiftList.get(index);
 	}
 	
-	List<ONCChildGift> getWishHistory(int childID, int wn)
+	List<ONCChildGift> getGiftHistory(int childID, int gn)
 	{
-		List<ONCChildGift> cwhList = new ArrayList<ONCChildGift>();
+		List<ONCChildGift> cghList = new ArrayList<ONCChildGift>();
 		Gson gson = new Gson();
 		
-		HistoryRequest req = new HistoryRequest(childID, wn);
+		HistoryRequest req = new HistoryRequest(childID, gn);
 		String response = serverIF.sendRequest("GET<wishhistory>"+ 
 											gson.toJson(req, HistoryRequest.class));
 		
 		if(response != null)
 		{
 			Type listtype = new TypeToken<ArrayList<ONCChildGift>>(){}.getType();	
-			cwhList = gson.fromJson(response, listtype);
+			cghList = gson.fromJson(response, listtype);
 		}
 		
-		return cwhList;
+		return cghList;
 	}
 	
-	int getNumberOfWishesPerChild() { return NUMBER_OF_WISHES_PER_CHILD; }
+	int getNumberOfGiftsPerChild() { return NUMBER_OF_WISHES_PER_CHILD; }
 	
-	ArrayList<ONCChildGift> getList() { return childwishAL; }
+	ArrayList<ONCChildGift> getList() { return childGiftList; }
 	
-	String importChildWishDatabase()
+	String importChildGiftDatabase()
 	{
 		String response = "NO_WISHES";
 		
@@ -430,7 +496,7 @@ public class ChildGiftDB extends ONCDatabase
 			Type listtype = new TypeToken<ArrayList<ONCChildGift>>(){}.getType();
 			
 			response = serverIF.sendRequest("GET<childwishes>");
-			childwishAL = gson.fromJson(response, listtype);				
+			childGiftList = gson.fromJson(response, listtype);				
 
 			if(!response.startsWith("NO_WISHES"))
 			{
@@ -441,64 +507,7 @@ public class ChildGiftDB extends ONCDatabase
 		
 		return response;
 	}
-/*	
-	String importChildWishDB(JFrame pf, ImageIcon oncIcon, String path)	//Only used by superuser to import from .csv file
-	{
-    		
-		File pyfile;
-		JFileChooser chooser;
-		String filename = "";
-		int returnVal = JFileChooser.CANCEL_OPTION;
-		
-		if(path != null)
-		{
-			pyfile = new File(path + "ChildWishDB.csv");
-			returnVal = JFileChooser.APPROVE_OPTION;
-		}
-		else
-		{
-    		chooser = new JFileChooser();
-    		chooser.setDialogTitle("Select Child Wish DB .csv file to import");	
-    		chooser.setFileFilter(new FileNameExtensionFilter("CSV Files", "csv"));
-    		returnVal = chooser.showOpenDialog(pf);
-    		pyfile = chooser.getSelectedFile();
-		}
-		
-	    if(returnVal == JFileChooser.APPROVE_OPTION)
-	    {	    
-	    	filename = pyfile.getName();
-	    	try 
-	    	{
-	    		CSVReader reader = new CSVReader(new FileReader(pyfile.getAbsoluteFile()));
-	    		String[] nextLine, header;
-    		
-	    		if((header = reader.readNext()) != null)
-	    		{
-	    			//Read the ONC CSV File
-	    			if(header.length == CHILD_WISH_DB_HEADER_LENGTH)
-	    			{
-	    				childwishAL.clear();
-	    				while ((nextLine = reader.readNext()) != null)	// nextLine[] is an array of values from the line
-	    					childwishAL.add(new ONCChildWish(nextLine));
-	    			}
-	    			else
-	    				JOptionPane.showMessageDialog(pf, "Child Wish DB file corrupted, header length = " + Integer.toString(header.length), 
-    						"InvalidChild Wish DB File", JOptionPane.ERROR_MESSAGE, oncIcon);   			
-	    		}
-	    		else
-	    			JOptionPane.showMessageDialog(pf, "Couldn't read header in Child Wish db file: " + filename, 
-	    					"Invalid Child Wish DB File", JOptionPane.ERROR_MESSAGE, oncIcon); 
-	    	} 
-	    	catch (IOException x)
-	    	{
-	    		JOptionPane.showMessageDialog(pf, "Unable to open Child Wish db file: " + filename, 
-    				"Child Wish DB file not found", JOptionPane.ERROR_MESSAGE, oncIcon);
-	    	}
-	    }
-	    
-	    return filename;    
-	}
-*/	
+
 	String exportDBToCSV(JFrame pf, String filename)
     {
 		File oncwritefile = null;
@@ -506,7 +515,7 @@ public class ChildGiftDB extends ONCDatabase
     	if(filename == null)
     	{
     		ONCFileChooser fc = new ONCFileChooser(pf);
-    		oncwritefile= fc.getFile("Select .csv file to save Child Wish DB to",
+    		oncwritefile= fc.getFile("Select .csv file to save Child Gift DB to",
 							new FileNameExtensionFilter("CSV Files", "csv"), ONCFileChooser.SAVE_FILE);
     	}
     	else
@@ -521,15 +530,15 @@ public class ChildGiftDB extends ONCDatabase
 	    	
 	    	try 
 	    	{
-	    		 String[] header = {"Child Wish ID", "Child ID", "Wish ID", "Detail",
-	    				 			"Wish #", "Restrictions", "Status",
+	    		 String[] header = {"Child GIft ID", "Child ID", "GIft ID", "Detail",
+	    				 			"Gift #", "Restrictions", "Status",
 	    				 			"Changed By", "Time Stamp", "Org ID"};
 	    		
 	    		CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
 	    	    writer.writeNext(header);
 	    	    
-	    	    for(ONCChildGift cw:childwishAL)
-	    	    	writer.writeNext(cw.getExportRow());	//Get family data
+	    	    for(ONCChildGift cw:childGiftList)
+	    	    	writer.writeNext(cw.getExportRow());	
 	    	 
 	    	    writer.close();
 	    	    filename = oncwritefile.getName();
@@ -553,13 +562,26 @@ public class ChildGiftDB extends ONCDatabase
 		{
 //			System.out.println(String.format("ChildWishDB Server Event, Source: %s, Type: %s, Json: %s",
 //					ue.getSource().toString(), ue.getType(), ue.getJson()));
-			processAddedGift(this, ue.getJson());
+			Gson gson = new Gson();
+			processAddedGift(this, gson.fromJson(ue.getJson(), ONCChildGift.class));
 		}
 		else if(ue.getType().equals("UPDATED_CHILD_WISH"))
 		{
 //			System.out.println(String.format("ChildWishDB Server Event, Source: %s, Type: %s, Json: %s",
 //					ue.getSource().toString(), ue.getType(), ue.getJson()));
-			processUpdatedObject(this, ue.getJson(), childwishAL);
-		}		
+			processUpdatedObject(this, ue.getJson(), childGiftList);
+		}
+		else if(ue.getType().equals("ADDED_GIFT_LIST"))
+		{
+			Gson gson = new Gson()
+;			Type responseListType = new TypeToken<ArrayList<String>>(){}.getType();
+			List<String> addedGiftList = gson.fromJson(ue.getJson(), responseListType);
+			for(String responseGiftString : addedGiftList)
+			{
+				ONCChildGift addedGift = gson.fromJson(responseGiftString.substring(10), ONCChildGift.class);
+				processAddedGift(this, addedGift);
+			}
+//			processUpdatedObject(this, ue.getJson(), childwishAL);
+		}
 	}
 }

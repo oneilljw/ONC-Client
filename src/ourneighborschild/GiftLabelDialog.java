@@ -228,7 +228,7 @@ public abstract class GiftLabelDialog extends ONCEntityTableDialog implements Ac
 				
 			//find the gift by child ID and wish number. Only gifts that have already been 
 			//received can have batteries recorded.
-			ONCChildGift cw = childGiftDB.getWish(cID, wn);
+			ONCChildGift cw = childGiftDB.getGift(cID, wn);
 			ONCChild child = null;
 			ONCFamily family = null;
 			

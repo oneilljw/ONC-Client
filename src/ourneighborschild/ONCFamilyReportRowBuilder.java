@@ -112,7 +112,7 @@ public class ONCFamilyReportRowBuilder
 	
 	private String getFullWish(ONCChild c, int wn)
 	{
-		ONCChildGift cw = cwDB.getWish(c.getChildGiftID(wn));
+		ONCChildGift cw = cwDB.getGift(c.getChildGiftID(wn));
 		if(c.getChildGiftID(wn) == -1 || cw == null)
 			return "";
 		else

@@ -390,7 +390,7 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 		List<ONCChildGift> cwhList = null;
 		
 		if(childGift != null &&
-			!(cwhList = cwDB.getWishHistory(childGift.getChildID(), giftNumber)).isEmpty())
+			!(cwhList = cwDB.getGiftHistory(childGift.getChildID(), giftNumber)).isEmpty())
 		{
 			//need to add the assignee name based on the assignee ID for the table
 			String[] indicators = {"", "*", "#"};
@@ -607,7 +607,7 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 			if(childList != null && !childList.isEmpty() &&
 					childList.get(0).getChildGiftID(giftNumber) > -1)
 			{
-				ONCChildGift cw = cwDB.getWish(childList.get(0).getID(), giftNumber);
+				ONCChildGift cw = cwDB.getGift(childList.get(0).getID(), giftNumber);
 				if(cw != null)
 					displayWish(cw, childList.get(0));
 				else
@@ -633,7 +633,7 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 			checkForUpdateToWishDetail();
 			
 			if(selChild.getChildGiftID(giftNumber) > -1)
-				displayWish(cwDB.getWish(selChild.getChildGiftID(giftNumber)), selChild);
+				displayWish(cwDB.getGift(selChild.getChildGiftID(giftNumber)), selChild);
 			else
 			{
 				child = selChild;

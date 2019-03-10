@@ -184,9 +184,9 @@ public abstract class GiftActionDialog extends SortTableDialog
 				{
 					if(isAgeInRange(c) && doesGenderMatch(c))	//Children criteria pass
 					{
-						for(int i=0; i< cwDB.getNumberOfWishesPerChild(); i++)
+						for(int i=0; i< cwDB.getNumberOfGiftsPerChild(); i++)
 						{	
-							ONCChildGift cw = cwDB.getWish(c.getChildGiftID(i));
+							ONCChildGift cw = cwDB.getGift(c.getChildGiftID(i));
 							
 							//Status matches and wish was assigned (Wish indicator is not *)
 							if(cw != null && doesChildWishStatusMatch(cw))
@@ -225,7 +225,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 	{
 		GiftActionReturnCode rc = null;
 		
-		ONCChildGift cw = cwDB.getWish(cID, wn);	//get latest wish for child
+		ONCChildGift cw = cwDB.getGift(cID, wn);	//get latest wish for child
 		if(cw == null)
 			rc = new GiftActionReturnCode(CHILD_NOT_IN_LOCAL_DB, null);
 		else if(cw.getGiftStatus() == getGiftStatusAction())
