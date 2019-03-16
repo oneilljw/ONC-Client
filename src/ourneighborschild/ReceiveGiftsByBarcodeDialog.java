@@ -41,8 +41,8 @@ public class ReceiveGiftsByBarcodeDialog extends GiftLabelDialog
 		if(lastWishChanged != null &&
 			swo.getFamily().getID() == lastWishChanged.getFamily().getID() &&
 			swo.getChild().getID() == lastWishChanged.getChild().getID() && 
-			swo.getGift().getGiftNumber() == lastWishChanged.getGift().getGiftNumber() &&
-			swo.getGift().getGiftStatus() == GiftStatus.Received)
+			swo.getChildGift().getGiftNumber() == lastWishChanged.getChildGift().getGiftNumber() &&
+			swo.getChildGift().getGiftStatus() == GiftStatus.Received)
 		{
 			//double scan of the last received gift at this workstation
 			alert(Result.SUCCESS, String.format("Gift Already Received: Family # %s, %s",
@@ -50,12 +50,12 @@ public class ReceiveGiftsByBarcodeDialog extends GiftLabelDialog
 		}
 		else
 		{
-			lastWishChanged = new SortGiftObject(-1, swo.getFamily(), swo.getChild(), swo.getGift());
+			lastWishChanged = new SortGiftObject(-1, swo.getFamily(), swo.getChild(), swo.getChildGift());
 			
-			ONCChildGift addedWish = childGiftDB.add(this, swo.getChild().getID(), swo.getGift().getGiftID(),
-												swo.getGift().getDetail(),
-												swo.getGift().getGiftNumber(),
-												swo.getGift().getIndicator(), 
+			ONCChildGift addedWish = childGiftDB.add(this, swo.getChild().getID(), swo.getChildGift().getGiftID(),
+												swo.getChildGift().getDetail(),
+												swo.getChildGift().getGiftNumber(),
+												swo.getChildGift().getIndicator(), 
 												GiftStatus.Received, null);
 			
 			//change color and enable undo operation based on success of receiving gift
@@ -102,7 +102,7 @@ public class ReceiveGiftsByBarcodeDialog extends GiftLabelDialog
 	void onUndoSubmittal()
 	{
 		//To undo the wish, add the old wish back with the previous status		
-		ONCChildGift lastWish = lastWishChanged.getGift();
+		ONCChildGift lastWish = lastWishChanged.getChildGift();
 				
 		ONCChildGift undoneWish = childGiftDB.add(this, lastWishChanged.getChild().getID(),
 						lastWish.getGiftID(), lastWish.getDetail(),

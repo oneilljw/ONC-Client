@@ -252,6 +252,28 @@ public class UserDB extends ONCSearchableDatabase
 		
 		return response;
 	}
+	
+	String sendSeasonWelcomeEmail(List<ONCUser> emailList)
+	{
+		//convert user email list to json for array of user ID's
+		EmailUserIDs emailUserIDs = new EmailUserIDs(emailList);
+		Gson gson = new Gson();
+		String response = serverIF.sendRequest("POST<send_user_email>" + gson.toJson(emailUserIDs, EmailUserIDs.class));
+		
+		return response;
+	}
+	
+	private class EmailUserIDs
+	{
+		int[] emailUserIDs;
+		
+		EmailUserIDs(List<ONCUser> emailList)
+		{
+			emailUserIDs = new int[emailList.size()];
+			for(int i=0; i<emailList.size(); i++)
+				emailUserIDs[i] = emailList.get(i).getID();
+		}
+	}
 
 //	List<ONCUser> getList() { return uAL; }
 	
@@ -499,4 +521,20 @@ public class UserDB extends ONCSearchableDatabase
     	
 	    return filename;
     }
+	
+	private class UserIDList
+	{
+		private List<Integer> userIDList;
+		
+		UserIDList()
+		{
+			userIDList = new ArrayList<Integer>();
+		}
+	
+		void addUserID(ONCUser u) { userIDList.add(u.getID()); }
+		boolean isEmpty() { return userIDList.isEmpty(); }
+		
+		//getters
+		List<Integer> getUserIDList() { return userIDList; }
+	}
 }

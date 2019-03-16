@@ -28,7 +28,7 @@ public class SortGiftObject extends ONCObject
 	//getters
 	ONCFamily getFamily() { return soFamily; }
 	ONCChild getChild() { return soChild; }
-	ONCChildGift getGift() { return soChildGift; }
+	ONCChildGift getChildGift() { return soChildGift; }
 	
 	public String[] getExportRow()
 	{
@@ -167,7 +167,8 @@ public class SortGiftObject extends ONCObject
 			giftName + "- " + soChildGift.getDetail();
 	}
 	
-	//determine if two SortGiftObjects match
+	//determine if two SortGiftObjects match. If the childGift cn & gn match, the childGifts match,
+	//regardless of the actual content of the wish. Override the method in the base ONCObject class
 	@Override
 	public boolean matches(ONCObject otherObj)
 	{
@@ -177,7 +178,8 @@ public class SortGiftObject extends ONCObject
 				
 			return otherSO.soFamily != null && otherSO.soFamily.getID() == soFamily.getID() &&
 					otherSO.soChild != null && otherSO.soChild.getID() == soChild.getID() &&
-					otherSO.soChildGift != null && otherSO.soChildGift.getID() == soChildGift.getID();			
+					otherSO.soChildGift != null && otherSO.soChildGift.getChildID() == soChildGift.getChildID() &&
+					otherSO.soChildGift.getGiftNumber() == soChildGift.getGiftNumber();		
 		}
 		else
 			return false;

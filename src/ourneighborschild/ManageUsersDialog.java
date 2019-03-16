@@ -11,8 +11,10 @@ import java.awt.print.PrinterException;
 import java.sql.Date;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.TimeZone;
 
 import javax.swing.BorderFactory;
@@ -21,14 +23,18 @@ import javax.swing.DefaultCellEditor;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -38,6 +44,8 @@ import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
+import com.google.gson.Gson;
+
 public class ManageUsersDialog extends ONCEntityTableDialog implements ActionListener, ListSelectionListener,
 														DatabaseListener
 {
@@ -45,6 +53,7 @@ public class ManageUsersDialog extends ONCEntityTableDialog implements ActionLis
 	 * This class implements a dialog which allows the user to manage users
 	 */
 	private static final long serialVersionUID = 1L;
+	
 	private static final int LAST_NAME_COL= 0;
 	private static final int FIRST_NAME_COL = 1;
 	private static final int STATUS_COL = 2;
@@ -59,7 +68,10 @@ public class ManageUsersDialog extends ONCEntityTableDialog implements ActionLis
 	private ONCTable dlgTable;
 	private AbstractTableModel dlgTableModel;
 	private JButton btnEdit, btnResetPW, btnPrint;
+	private JComboBox<String> emailCB;
 	private UserDB userDB;
+	
+	String[] emailChoices;
 		
 	public ManageUsersDialog(JFrame pf)
 	{
@@ -99,7 +111,7 @@ public class ManageUsersDialog extends ONCEntityTableDialog implements ActionLis
 		
 		dlgTable = new ONCTable(dlgTableModel, colToolTips, new Color(240,248,255));
 
-		dlgTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		dlgTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		dlgTable.getSelectionModel().addListSelectionListener(this);
 		
 		//set up the columns that use combo box editors for the status, access and permission enums
@@ -157,6 +169,12 @@ public class ManageUsersDialog extends ONCEntityTableDialog implements ActionLis
         
         JPanel cntlPanel = new JPanel();
         
+        emailChoices = new String[]{"Email", "2019 Agent Welcome Email"};
+        emailCB = new JComboBox<String>(emailChoices);
+        emailCB.setPreferredSize(new Dimension(136, 28));
+        emailCB.setEnabled(false);
+        emailCB.addActionListener(this);
+        
         btnPrint = new JButton("Print");
         btnPrint.setToolTipText("Print the user list");
         btnPrint.addActionListener(this);
@@ -170,7 +188,8 @@ public class ManageUsersDialog extends ONCEntityTableDialog implements ActionLis
         btnResetPW.setToolTipText("Reset the selected user's password");
         btnResetPW.setEnabled(false);
         btnResetPW.addActionListener(this);
-          
+        
+        cntlPanel.add(emailCB);
         cntlPanel.add(btnEdit);
         cntlPanel.add(btnResetPW);
         cntlPanel.add(btnPrint);
@@ -212,6 +231,37 @@ public class ManageUsersDialog extends ONCEntityTableDialog implements ActionLis
 								JOptionPane.ERROR_MESSAGE, GlobalVariablesDB.getONCLogo());
     			}
 		}
+	}
+	void createAndSendUserSeasonWelcomeEmail()
+	{
+		List<ONCUser> emailList = new ArrayList<ONCUser>();
+		
+		//For each user selected, create an list of users to send to the server with the
+		//request to send the selected users the season welcome email
+		int[] row_sel = dlgTable.getSelectedRows();
+		
+		for(int row=0; row< row_sel.length; row++)
+		{
+			int modelRow = row_sel[row] == -1 ? -1 : 
+				dlgTable.convertRowIndexToModel(row_sel[row]);
+
+			if(modelRow > -1)	
+				emailList.add(userDB.getUserFromIndex(modelRow));
+		}
+		
+		if(!emailList.isEmpty())
+		{
+			String response = userDB.sendSeasonWelcomeEmail(emailList);
+			String mssg;
+			
+			if(response.startsWith("USER_EMAIL_SENT"))
+				mssg = response.substring(15);
+			else
+				mssg = response.substring(17);
+				
+			JOptionPane.showMessageDialog(GlobalVariablesDB.getFrame(), mssg, "User Email Send Request Status",
+				JOptionPane.INFORMATION_MESSAGE, GlobalVariablesDB.getONCLogo());
+		}	
 	}
 	
 	void print(String name)
@@ -255,7 +305,8 @@ public class ManageUsersDialog extends ONCEntityTableDialog implements ActionLis
 		{
 			int modelRow = dlgTable.getSelectedRow() == -1 ? -1 : 
 				dlgTable.convertRowIndexToModel(dlgTable.getSelectedRow());
-			
+		
+			emailCB.setEnabled(modelRow > -1);
 			btnEdit.setEnabled(modelRow > -1);
 			btnResetPW.setEnabled(modelRow > -1);
 			
@@ -284,7 +335,27 @@ public class ManageUsersDialog extends ONCEntityTableDialog implements ActionLis
 		else if(e.getSource() == btnPrint)
 		{
 			print("ONC User List");
-		}		
+		}
+		else if(e.getSource() == emailCB)
+		{
+			if(emailCB.getSelectedItem().equals(emailChoices[1]))
+			{
+				//Confirm with the user that the deletion is really intended
+				String confirmMssg = "Are you sure you want to send email(s)?"; 
+												
+				Object[] options= {"Cancel", "Send"};
+				JOptionPane confirmOP = new JOptionPane(confirmMssg, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION,
+									gvs.getImageIcon(0), options, "Cancel");
+				JDialog confirmDlg = confirmOP.createDialog(parentFrame, "*** Confirm Send User Email ***");
+				confirmDlg.setVisible(true);
+			
+				Object selectedValue = confirmOP.getValue();
+				if(selectedValue != null && selectedValue.toString().equals("Send"))
+					createAndSendUserSeasonWelcomeEmail();;
+				
+				emailCB.setSelectedIndex(0);	//Reset the combo box choice	
+			}
+		}
 	}
 	
 	@Override

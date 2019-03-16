@@ -275,12 +275,12 @@ public abstract class GiftActionDialog extends SortTableDialog
 		//Process change to wish status. Store the new wish to be added in case of an undo operation 
 		//and add the new wish to the child wish history. We reuse an ONCSortObject to store the
 		//new wish. Organization parameter is null, indicating we're not changing the gift partner
-		lastWishChanged = new SortGiftObject(-1, swo.getFamily(), swo.getChild(), swo.getGift());
+		lastWishChanged = new SortGiftObject(-1, swo.getFamily(), swo.getChild(), swo.getChildGift());
 					
-		ONCChildGift addedWish = cwDB.add(this, swo.getChild().getID(), swo.getGift().getGiftID(),
-											swo.getGift().getDetail(),
-											swo.getGift().getGiftNumber(),
-											swo.getGift().getIndicator(), 
+		ONCChildGift addedWish = cwDB.add(this, swo.getChild().getID(), swo.getChildGift().getGiftID(),
+											swo.getChildGift().getDetail(),
+											swo.getChildGift().getGiftNumber(),
+											swo.getChildGift().getIndicator(), 
 											getGiftStatusAction(), null);
 		
 		//Update the sort table, as the wish status should have changed
@@ -302,7 +302,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 	void onUndoReceiveGift()
 	{
 		//To undo the wish, add the old wish back with the previous status		
-		ONCChildGift lastWish = lastWishChanged.getGift();
+		ONCChildGift lastWish = lastWishChanged.getChildGift();
 		
 		cwDB.add(this, lastWishChanged.getChild().getID(),
 					lastWish.getGiftID(), lastWish.getDetail(),
@@ -424,7 +424,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 //						String wishName = catWish.getName();
 						
 						ONCFamily fam = rc.getSortWishObject().getFamily();
-						ONCChildGift cw = rc.getSortWishObject().getGift();
+						ONCChildGift cw = rc.getSortWishObject().getChildGift();
 						String wishName = cat.getGiftByID(cw.getGiftID()).getName();
 						
 						String mssg = String.format("Family# %s: %s- %s received", 
@@ -445,7 +445,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 					}
 					else if(rc.getReturnCode() == GIFT_ACTION_ALREADY_OCCURRED)
 					{
-						ONCChildGift cw = rc.getSortWishObject().getGift();
+						ONCChildGift cw = rc.getSortWishObject().getChildGift();
 						String wishName = cat.getGiftByID(cw.getGiftID()).getName();
 						
 						lblResult.setText(String.format("Gift: %s- %s already received", wishName, cw.getDetail()));
@@ -552,12 +552,12 @@ public abstract class GiftActionDialog extends SortTableDialog
 	String[] getTableRow(ONCObject obj)
 	{
 		SortGiftObject so = (SortGiftObject) obj;
-		ONCGift wish = cat.getGiftByID(so.getGift().getGiftID());
+		ONCGift wish = cat.getGiftByID(so.getChildGift().getGiftID());
 		String wishName = wish == null ? "None" : wish.getName();
 		
 		String[] tableRow = {so.getFamily().getONCNum(), so.getChild().getChildGender(),
 				so.getChild().getChildAge(), wishName,
-				so.getGift().getDetail()};
+				so.getChildGift().getDetail()};
 		
 		return tableRow;
 	}

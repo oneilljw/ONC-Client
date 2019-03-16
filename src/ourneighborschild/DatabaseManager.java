@@ -356,7 +356,7 @@ public class DatabaseManager extends ONCDatabase
      **************************************************************************************************/
     public class ONCServerDBImporter extends SwingWorker<Void, Void>
     {
-    		private static final int NUM_OF_DBs = 20;
+    		private static final int NUM_OF_DBs = 19;
     		String year;
     		ONCProgressBar pb;
     		boolean bServerDataLoaded;
@@ -423,9 +423,9 @@ public class DatabaseManager extends ONCDatabase
 //			oncAgentDB.importAgentDatabase();
 //			this.setProgress(progress += increment);
 			
-			pb.updateHeaderText("Loading Groups");
-			oncGroupDB.importGroupDBFromServer();
-			this.setProgress(progress += increment);
+//			pb.updateHeaderText("Loading Groups");
+//			oncGroupDB.importGroupDBFromServer();
+//			this.setProgress(progress += increment);
 			
 			pb.updateHeaderText("Loading Partners");
 			oncOrgDB.importDB();

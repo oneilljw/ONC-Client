@@ -30,7 +30,7 @@ public class OurNeighborsChild
 	 */
 	//Static Final Variables
 	private static final int SERVER_CONNECT_RETRY_LIMIT = 3;
-	private static final String VERSION = "6.26";
+	private static final String VERSION = "6.27";
 	private static final String APPNAME = "Our Neighbor's Child";
 	private static final String ONC_SERVER_IP_ADDRESS_FILE = "serveraddress.txt";
 	private static final int MAIN_FRAME_WIDTH = 837;
@@ -182,17 +182,11 @@ public class OurNeighborsChild
 		ONCUser user = UserDB.getInstance().setLoggedInUser(authDlg.getUser());
 		if(user.changePasswordRqrd() && !dlgManager.onChangePassword())
 			System.exit(0);
-		else if(user.getStatus() == UserStatus.Update_Profile)
-		{
-			UserProfileDialog upDlg = new UserProfileDialog(oncFrame, user, "Please Review & Update Your Profile:");
-			upDlg.setLocationRelativeTo(oncFrame);
-			upDlg.showDialog();
-		}
 		
 		if(user.getFirstName().isEmpty())
-    		oncFamilyPanel.setMssg("Welcome to Our Neighbor's Child!", true);
-    	else
-    		oncFamilyPanel.setMssg(user.getFirstName() + ", welcome to " +
+    			oncFamilyPanel.setMssg("Welcome to Our Neighbor's Child!", true);
+		else
+    			oncFamilyPanel.setMssg(user.getFirstName() + ", welcome to " +
     								"Our Neighbor's Child!", true);
 		
 		//Connected & logged in to server
@@ -224,8 +218,27 @@ public class OurNeighborsChild
         		//get encryption keys
         		encryptionMgr.importKeyMapFromServer();
         	
-        		//get user data base
+        		//get user and group data base components. They are necessary if user is required to 
+        		//update their profile
         		UserDB.getInstance().importUserDatabase();
+        		GroupDB.getInstance().importGroupDBFromServer();
+        		if(user.getStatus() == UserStatus.Update_Profile)
+        		{	
+        			//construct and display a UserProfile Dialog. If the user is an Agent, Admin or Sys_Admin, 
+        		   	//use the dialog that includes groups, otherwise use the simplified profile dialog.
+        		   	if(user.getPermission().compareTo(UserPermission.Agent) >=0)
+        		   	{
+        		   		UpdateProfileWithGroupsDialog upDlg = new UpdateProfileWithGroupsDialog(oncFrame, user, true);
+        		   		upDlg.setLocationRelativeTo(oncFrame);
+        		   		upDlg.showDialog();
+        		   	}
+        		   	else
+        		   	{
+        		   		UserProfileDialog upDlg = new UserProfileDialog(oncFrame, user, null);
+        		   		upDlg.setLocationRelativeTo(oncFrame);
+        		   		upDlg.showDialog();
+        		   	}
+        		}
         }
         
         //remove splash panel after authentication

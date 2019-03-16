@@ -275,6 +275,7 @@ public abstract class SortTableDialog extends ONCEntityTableDialog implements Ac
 			//find the id in the stAL, getting it's row, the reselect it
 			int jIndex = 0;
 			boolean bMatchFound = false;
+			
 			while(jIndex < stAL.size() && !bMatchFound)
 			{
 				if(stAL.get(jIndex).matches(tableRowSelectedObjectList.get(iIndex)))

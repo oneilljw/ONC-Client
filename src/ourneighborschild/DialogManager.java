@@ -734,9 +734,9 @@ public class DialogManager implements EntitySelectionListener
 */   
    void onChat()
    {
-   	ChatDialog chatDlg = new ChatDialog(GlobalVariablesDB.getFrame(), true, -1);	//true=user initiated chat, -1=no target yet
-   	chatDlg.setLocationRelativeTo(GlobalVariablesDB.getFrame());
-   	chatDlg.setVisible(true);
+   		ChatDialog chatDlg = new ChatDialog(GlobalVariablesDB.getFrame(), true, -1);	//true=user initiated chat, -1=no target yet
+   		chatDlg.setLocationRelativeTo(GlobalVariablesDB.getFrame());
+   		chatDlg.setVisible(true);
    }
    
    void onWebsiteStatus()
@@ -749,18 +749,28 @@ public class DialogManager implements EntitySelectionListener
    
    void onDBStatusClicked()
    {
-   	DatabaseStatusDialog statusDlg = new DatabaseStatusDialog(GlobalVariablesDB.getFrame());
-   	statusDlg.setLocationRelativeTo(GlobalVariablesDB.getFrame());
-   	statusDlg.setVisible(true);
+   		DatabaseStatusDialog statusDlg = new DatabaseStatusDialog(GlobalVariablesDB.getFrame());
+   		statusDlg.setLocationRelativeTo(GlobalVariablesDB.getFrame());
+   		statusDlg.setVisible(true);
    }
    
    void onEditProfile()
    {
-   	//construct and display a UserProfile Dialog
-	ONCUser user = UserDB.getInstance().getLoggedInUser();
-   	UserProfileDialog upDlg = new UserProfileDialog(GlobalVariablesDB.getFrame(), user, null);
-   	upDlg.setLocationRelativeTo(GlobalVariablesDB.getFrame());
-   	upDlg.showDialog();
+	   	//construct and display a UserProfile Dialog. If the user is an Agent, Admin or Sys_Admin, 
+	   	//use the dialog that includes groups, otherwise use the simplified profile dialog.
+	   	ONCUser user = UserDB.getInstance().getLoggedInUser();
+	   	if(user.getPermission().compareTo(UserPermission.Agent) >=0)
+	   	{
+	   		UpdateProfileWithGroupsDialog upDlg = new UpdateProfileWithGroupsDialog(GlobalVariablesDB.getFrame(), user, false);
+	   		upDlg.setLocationRelativeTo(GlobalVariablesDB.getFrame());
+	   		upDlg.showDialog();
+	   	}
+	   	else
+	   	{
+	   		UserProfileDialog upDlg = new UserProfileDialog(GlobalVariablesDB.getFrame(), user, null);
+	   		upDlg.setLocationRelativeTo(GlobalVariablesDB.getFrame());
+	   		upDlg.showDialog();
+	   	}
    }
    
    boolean onChangePassword()

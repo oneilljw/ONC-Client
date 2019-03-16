@@ -49,9 +49,6 @@ public class UserProfileDialog extends InfoDialog implements DatabaseListener
 			infopanel[pn].add(tf[pn]);
 		}
 		
-		//display profile data
-		display();
-		
 		//add text to action(Update) and delete(No Update) buttons
 		btnAction.setText("Update Profile");
 		btnDelete.setText("Don't Update");

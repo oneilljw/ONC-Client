@@ -458,7 +458,7 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 		lblNumOfTableItems.setText(Integer.toString(stAL.size()));
 		displaySortTable(stAL, true, tableRowSelectedObjectList);		//Display the table after table list is built	
 	}
-
+	
 	boolean onApplyChanges()
 	{
 		List<ONCChildGift> reqAddGiftList = new ArrayList<ONCChildGift>();
@@ -471,13 +471,13 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 			boolean bNewGiftrqrd = false; 	//Restriction, status or assignee change
 			
 			//Find child and gift number for selected
-			ONCChild c = stAL.get(row_sel[i]).getChild();
-			int gn = stAL.get(row_sel[i]).getGift().getGiftNumber();
-			ONCChildGift cg = stAL.get(row_sel[i]).getGift();
+//			ONCChild c = stAL.get(row_sel[i]).getChild();
+//			int gn = stAL.get(row_sel[i]).getChildGift().getGiftNumber();
+			ONCChildGift cg = stAL.get(row_sel[i]).getChildGift();
 
 			//Get current gift information
-			int cgGiftID = cg.getGiftID();
-			String cgd = cg.getDetail();
+//			int cgGiftID = cg.getGiftID();
+//			String cgd = cg.getDetail();
 			int cgi = cg.getIndicator();
 			GiftStatus gs = cg.getGiftStatus();
 			ONCPartner partner = null;
@@ -1391,7 +1391,7 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 		{
 			ONCFamily fam = stAL.get(sortTable.getSelectedRow()).getFamily();
 			ONCChild child = stAL.get(sortTable.getSelectedRow()).getChild();
-			ONCChildGift cg = stAL.get(sortTable.getSelectedRow()).getGift();
+			ONCChildGift cg = stAL.get(sortTable.getSelectedRow()).getChildGift();
 			fireEntitySelected(this, EntityType.GIFT, fam, child, cg);
 			
 			//determine if a partner has been assigned for the selected gift
@@ -1743,8 +1743,8 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 		@Override
 		public int compare(SortGiftObject o1, SortGiftObject o2)
 		{
-			Integer gn1 = o1.getGift().getGiftNumber();
-			Integer gn2 = o2.getGift().getGiftNumber();
+			Integer gn1 = o1.getChildGift().getGiftNumber();
+			Integer gn2 = o2.getChildGift().getGiftNumber();
 			return gn1.compareTo (gn2);
 		}
 	}
@@ -1757,15 +1757,15 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 			GiftCatalogDB cat = GiftCatalogDB.getInstance();
 
 			String base1, base2;
-			if(o1.getGift().getGiftID() == -1)
+			if(o1.getChildGift().getGiftID() == -1)
 				base1 = "None";
 			else
-				base1 = cat.getGiftByID(o1.getGift().getGiftID()).getName();
+				base1 = cat.getGiftByID(o1.getChildGift().getGiftID()).getName();
 			
-			if(o2.getGift().getGiftID() == -1)
+			if(o2.getChildGift().getGiftID() == -1)
 				base2 = "None";
 			else
-				base2 = cat.getGiftByID(o2.getGift().getGiftID()).getName();
+				base2 = cat.getGiftByID(o2.getChildGift().getGiftID()).getName();
 			
 			return base1.compareTo(base2);
 		}
@@ -1776,8 +1776,8 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 		@Override
 		public int compare(SortGiftObject o1, SortGiftObject o2)
 		{
-			return o1.getGift().getDetail().compareTo(
-					o2.getGift().getDetail());
+			return o1.getChildGift().getDetail().compareTo(
+					o2.getChildGift().getDetail());
 		}
 	}
 	
@@ -1786,8 +1786,8 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 		@Override
 		public int compare(SortGiftObject o1, SortGiftObject o2)
 		{
-			Integer ind1 = o1.getGift().getIndicator();
-			Integer ind2 = o2.getGift().getIndicator();
+			Integer ind1 = o1.getChildGift().getIndicator();
+			Integer ind2 = o2.getChildGift().getIndicator();
 			return ind1.compareTo(ind2);	
 		}
 	}
@@ -1797,7 +1797,7 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 		@Override
 		public int compare(SortGiftObject o1, SortGiftObject o2)
 		{
-			return o1.getGift().getGiftStatus().compareTo(o2.getGift().getGiftStatus());
+			return o1.getChildGift().getGiftStatus().compareTo(o2.getChildGift().getGiftStatus());
 		}
 	}
 	
@@ -1808,7 +1808,7 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 		{
 			PartnerDB partnerDB = PartnerDB.getInstance();
 			
-			ONCChildGift g1 = o1.getGift();
+			ONCChildGift g1 = o1.getChildGift();
 			if(g1 == null)
 				return 10;
 			
@@ -1816,7 +1816,7 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 			if(partner1 == null)
 				return 10;
 			
-			ONCChildGift g2 = o2.getGift();
+			ONCChildGift g2 = o2.getChildGift();
 			if(g2 == null)
 				return -10;
 			
@@ -1833,8 +1833,8 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 		@Override
 		public int compare(SortGiftObject o1, SortGiftObject o2)
 		{
-			return o1.getGift().getChangedBy().compareTo(
-					o2.getGift().getChangedBy());
+			return o1.getChildGift().getChangedBy().compareTo(
+					o2.getChildGift().getChangedBy());
 		}
 	}
 	
@@ -1843,8 +1843,8 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 		@Override
 		public int compare(SortGiftObject o1, SortGiftObject o2)
 		{
-			return o1.getGift().getDateChanged().compareTo(
-					o2.getGift().getDateChanged());
+			return o1.getChildGift().getDateChanged().compareTo(
+					o2.getChildGift().getDateChanged());
 		}
 	}
 
@@ -1854,11 +1854,11 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 		SortGiftObject sgo = (SortGiftObject) o;
 		
 		String[] indicator = {"", "*", "#"};
-		ONCGift gift = giftCat.getGiftByID(sgo.getGift().getGiftID());
+		ONCGift gift = giftCat.getGiftByID(sgo.getChildGift().getGiftID());
 		String giftName = gift == null ? "None" : gift.getName();
-		ONCPartner partner = partnerDB.getPartnerByID(sgo.getGift().getPartnerID());
+		ONCPartner partner = partnerDB.getPartnerByID(sgo.getChildGift().getPartnerID());
 		String partnerName = partner != null ? partner.getLastName() : "";
-		String ds = new SimpleDateFormat("MM/dd H:mm").format(sgo.getGift().getDateChanged().getTime());
+		String ds = new SimpleDateFormat("MM/dd H:mm").format(sgo.getChildGift().getDateChanged().getTime());
 		String dnsAcronym = "";
 		if(sgo.getFamily().getDNSCode() > -1)
 			dnsAcronym = dnsCodeDB.getDNSCode(sgo.getFamily().getDNSCode()).getAcronym();
@@ -1869,13 +1869,13 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 							sgo.getChild().getChildAge().split("old", 2)[0].trim(), //Take the word "old" out of string
 							sgo.getChild().getChildGender(),
 							sgo.getChild().getChildSchool(),
-							Integer.toString(sgo.getGift().getGiftNumber()+1),
+							Integer.toString(sgo.getChildGift().getGiftNumber()+1),
 							giftName,
-							sgo.getGift().getDetail(),
-							indicator[sgo.getGift().getIndicator()],
-							sgo.getGift().getGiftStatus().toString(), 
+							sgo.getChildGift().getDetail(),
+							indicator[sgo.getChildGift().getIndicator()],
+							sgo.getChildGift().getGiftStatus().toString(), 
 							partnerName, 
-							sgo.getGift().getChangedBy(), ds};
+							sgo.getChildGift().getChangedBy(), ds};
 		return tablerow;
 	}
 
