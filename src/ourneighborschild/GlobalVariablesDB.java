@@ -341,7 +341,9 @@ public class GlobalVariablesDB extends ONCDatabase implements Serializable
 				oncSeasonStartDate.setTime(serverGVs.getSeasonStartDate());
 				warehouseAddress = serverGVs.getWarehouseAddress();
 				defaultGiftID = serverGVs.getDefaultGiftID();
+
 				defaultGiftCardID = serverGVs.getDefaultGiftCardID();
+				
 				deliveryActivityID = serverGVs.getDeliveryActivityID();
 				
 				response = "GLOBALS_LOADED";

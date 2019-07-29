@@ -336,8 +336,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		wishlabelPanelBottom.add(defaultGiftCB);
 		
 		defaultGiftCardCB = new JComboBox<ONCGift>();
-		defaultGiftCardCBM = new DefaultComboBoxModel<ONCGift>();
-		
+		defaultGiftCardCBM = new DefaultComboBoxModel<ONCGift>();		
 		defaultGiftCardCBM.addElement(new ONCGift(-1, "None", 7));//creates a dummy gift with name "None", id = -1;
 		defaultGiftCardCB.setModel(defaultGiftCardCBM);
 		defaultGiftCardCB.setPreferredSize(new Dimension(180, 56));
@@ -520,7 +519,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 			if(defaultGiftCardWish != null)
 				defaultGiftCardCB.setSelectedItem(defaultGiftCardWish);
 			else
-				defaultGiftCardCB.setSelectedIndex(0);	
+				defaultGiftCardCB.setSelectedIndex(0);
 		}
 		else
 			defaultGiftCardCB.setSelectedIndex(0);
@@ -534,7 +533,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 				deliveryActivityCB.setSelectedIndex(0);	
 		}
 		else
-			defaultGiftCardCB.setSelectedIndex(0);
+			deliveryActivityCB.setSelectedIndex(0);
 		
 		displayWarehouseAddress();
 		
@@ -784,7 +783,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		userPrefs.setFamilyDNSFilterCode((DNSCode) fdnsFilterDefaultCB.getSelectedItem());
 		
 		String response = UserDB.getInstance().update(this, updateUserReq);
-		if(!response.startsWith("UDATED_USER"))
+		if(!response.startsWith("UPDATED_USER"))
 		{
 			//we have a failure, display the original preferences
 			display(uPrefs);
@@ -828,11 +827,11 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 			curr_defalut_gift_card_sel = (ONCGift) catDB.getGiftByID(gvDB.getDefaultGiftCardID());
 		else
 			curr_defalut_gift_card_sel = (ONCGift) defaultGiftCardCB.getSelectedItem();
-			
-		int selDefaultGiftCardIndex = 0;
 		
+		int selDefaultGiftCardIndex = 0;
 		//update the default gift card CBM
 		defaultGiftCardCBM.removeAllElements();
+		
 		index = 0;
 		for(ONCGift w : catDB.getDefaultGiftList())
 		{
@@ -944,7 +943,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		}
 		else if(dbe.getSource() != this && dbe.getType().contains("_ACTIVITY"))
 		{
-			updateDefalutGiftCBLists(false);
+			updateDefaultDeliveryActivityCBList(false);
 		}
 	}
 	
