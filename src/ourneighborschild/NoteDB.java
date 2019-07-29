@@ -288,7 +288,7 @@ public class NoteDB extends ONCSearchableDatabase
 	}
 	
 	//take advantage of the fact the list of notes if saved in time order. Search 
-	//from the bottom for the first note for the family. If no note, return a dummy note
+	//from the bottom for the first note for the family. If no note, return null
 	ONCNote getLastNoteForFamily(int ownerID)
 	{
 		int index = noteList.size()-1;
