@@ -162,10 +162,12 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 		for(ONCFamily f:fDB.getList())
 		{
 			//Determine if family meets search criteria to be added to the table. If a
-			//family's status isn't FamilyGiftStatus.Packaged, they aren't eligible to be
+			//family's status isn't FamilyGiftStatus.Packaged, Attempted or Returned, they aren't eligible to be
 			//assigned for delivery regardless of search criteria
 			int id = 0;
-			if(f.getGiftStatus() == FamilyGiftStatus.Packaged &&
+			if((f.getGiftStatus() == FamilyGiftStatus.Packaged || 
+				 f.getGiftStatus() == FamilyGiftStatus.Attempted || 
+				  f.getGiftStatus() == FamilyGiftStatus.Returned) &&
 				isRegionInRange(f.getRegion()) &&
 				 doesONCNumMatch(f.getONCNum()) &&
 				  doesDStatusPass(f.getGiftStatus()))	
@@ -217,7 +219,8 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 	{
 		VolunteerDB volunteerDB = VolunteerDB.getInstance();
 		
-		ONCFamily si = (ONCFamily) o;
+		ONCFamilyAndNote fan = (ONCFamilyAndNote) o;
+		ONCFamily si = fan.getFamily();
 		
 		String[] deliverytablerow = {si.getONCNum(),
 				 si.getFamilyStatus().toString(),
