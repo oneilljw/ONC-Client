@@ -62,7 +62,7 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
 	private AbstractTableModel dlgTableModel;
 	private TitledBorder familyBorder, noteBorder, responseBorder;
 	private JTextField titleTF;
-	private JCheckBox ckBoxSendEmail;
+	private JCheckBox ckBoxSendEmail, ckBoxShowNextSeason;
 	private JTextPane notePane, responsePane;
 	private SimpleDateFormat timeFormat;
 	
@@ -162,8 +162,12 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
         ckBoxSendEmail = new JCheckBox("Send separate new note(s) notification email to agent?");
         ckBoxSendEmail.setToolTipText("If checked, agent will get an email notification of new notes");
         
+        ckBoxShowNextSeason = new JCheckBox("Show note next season?");
+        ckBoxShowNextSeason.setToolTipText("If checked, agent will see note next season");
+        
         titlePanel.add(titleTF);
         titlePanel.add(ckBoxSendEmail);
+        titlePanel.add(ckBoxShowNextSeason);
         
         //set up note and response panel
         JPanel noteAndResponsePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -384,6 +388,8 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
 			
 			ckBoxSendEmail.setEnabled(false);
 			ckBoxSendEmail.setSelected(currNote.sendEmail());
+			
+			ckBoxSendEmail.setSelected(currNote.showNextSeason());
 
 			//set the note border
 			String noteBorderText = String.format("Sent by %s on %s", currNote.getChangedBy(),
@@ -497,6 +503,7 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
 		titleTF.setCaretPosition(0);
 		ckBoxSendEmail.setEnabled(false);
 		ckBoxSendEmail.setSelected(false);
+		ckBoxShowNextSeason.setSelected(false);
 		noteBorder.setTitle("");
 		notePane.setText("");
 		notePane.setEditable(false);
@@ -545,6 +552,7 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
 			noteBorder.setTitle(title);
 			titleTF.setEditable(true);
 			ckBoxSendEmail.setEnabled(true);
+			ckBoxShowNextSeason.setEnabled(true);
 			notePane.setEditable(true);
 			entityPanel.setBackground(Color.CYAN);	//Use color to indicate add org mode vs. review mode
 			entityPanel.repaint();
@@ -572,7 +580,7 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
 		if(!titleTF.getText().isEmpty() && !notePane.getText().isEmpty())
 		{	
 			ONCNote reqAddNote = new ONCNote(-1, currFam.getID(), titleTF.getText(), notePane.getText(),
-												ckBoxSendEmail.isSelected());
+												ckBoxSendEmail.isSelected(), ckBoxShowNextSeason.isSelected());
 		
 			ONCNote addedNote = (ONCNote) noteDB.add(this, reqAddNote);
 			if(addedNote != null)
