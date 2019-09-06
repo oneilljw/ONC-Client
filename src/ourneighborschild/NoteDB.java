@@ -23,15 +23,13 @@ public class NoteDB extends ONCSearchableDatabase
 	private static final EntityType DB_TYPE = EntityType.NOTE;
 	private static NoteDB instance = null;
 	private List<ONCNote> noteList;
-	private List<ONCNote> filteredNoteList;
-	private int filterID;
+	private List<ONCNote> famNoteList;
 	
 	private NoteDB()
 	{
 		super(DB_TYPE);
 		this.noteList = new ArrayList<ONCNote>();
-		this.filteredNoteList = new ArrayList<ONCNote>();
-		this.filterID = -1;
+		this.famNoteList = new ArrayList<ONCNote>();
 	}
 	
 	public static NoteDB getInstance()
@@ -43,16 +41,16 @@ public class NoteDB extends ONCSearchableDatabase
 	}
 	
 	@Override
-	int size() { return filteredNoteList.size(); }
+	int size() { return famNoteList.size(); }
 	
 	@Override
 	ONCEntity getObjectAtIndex(int index)
 	{
-		return index < filteredNoteList.size() ? filteredNoteList.get(index) : null; 
+		return index < famNoteList.size() ? famNoteList.get(index) : null; 
 	}
 	
 	@Override
-	List<? extends ONCEntity> getList() { return filteredNoteList; }
+	List<? extends ONCEntity> getList() { return famNoteList; }
 	
 	/***
 	 * Method sets the filter. The filter is an integer used to filter objects in the
@@ -61,6 +59,7 @@ public class NoteDB extends ONCSearchableDatabase
 	 * 
 	 * @param filterID
 	 */
+/*	
 	void setFilter(int filterID)
 	{
 		this.filterID = filterID;
@@ -80,7 +79,7 @@ public class NoteDB extends ONCSearchableDatabase
 		
 		Collections.sort(filteredNoteList, new ONCNoteTimeCreatedComparator());
 	}
-	
+*/	
 	ONCNote getNote(int id)
 	{
 		int index = 0;
@@ -119,8 +118,13 @@ public class NoteDB extends ONCSearchableDatabase
 				
 		if(addedNote != null)
 		{	
+			//if the showNextSeason flag is set, clear the showNextSeason flag for all other family notes
+			if(addedNote.showNextSeason())
+				for(ONCNote n : famNoteList)
+					if(n.getOwnerID() == addedNote.getOwnerID())
+						n.setShowNextSeason(false);
+			
 			noteList.add(addedNote);
-			updateFilteredNoteList();
 			fireDataChanged(source, "ADDED_NOTE", addedNote);
 		}
 				
@@ -161,13 +165,15 @@ public class NoteDB extends ONCSearchableDatabase
 		//Replace the current ONCNote object with the update
 		if(index <  noteList.size())
 		{
+			//if the showNextSeason flag is set, clear the showNextSeason flag for all other family notes
+			if(updatedNote.showNextSeason())
+				for(ONCNote n : famNoteList)
+					if(n.getOwnerID() == updatedNote.getOwnerID())
+						n.setShowNextSeason(false);
+			
 			noteList.set(index, updatedNote);
-			updateFilteredNoteList();
 			fireDataChanged(source, "UPDATED_NOTE", updatedNote);
 		}
-		else
-			System.out.println(String.format("Note DB processUpdatedNOte - note id %d not found",
-					updatedNote.getID()));
 	}
 	
 	/*******************************************************************************************
@@ -217,7 +223,6 @@ public class NoteDB extends ONCSearchableDatabase
 		{
 			deletedNote = noteList.get(index);
 			noteList.remove(index);
-			updateFilteredNoteList();
 		}
 		
 		return deletedNote;
@@ -272,19 +277,14 @@ public class NoteDB extends ONCSearchableDatabase
 	
 	List<ONCNote> getNotesForFamily(int ownerID)
 	{
-		if(filterID > -1 && ownerID == filterID)
-			return filteredNoteList;
-		else
-		{
-			List<ONCNote> noteList = new ArrayList<ONCNote>();
-			for(ONCNote n : noteList)
-				if(n.getOwnerID() == ownerID)
-					noteList.add(n);
+		famNoteList.clear();
+		for(ONCNote n : noteList)
+			if(n.getOwnerID() == ownerID)
+				famNoteList.add(n);
 					
-			Collections.sort(noteList, new ONCNoteTimeCreatedComparator());
+		Collections.sort(famNoteList, new ONCNoteTimeCreatedComparator());
 			
-			return noteList;
-		}		 
+		return famNoteList;		 
 	}
 	
 	//take advantage of the fact the list of notes if saved in time order. Search 
@@ -342,7 +342,7 @@ public class NoteDB extends ONCSearchableDatabase
 		searchAL.clear();
 		
 		//Determine the type of search based on characteristics of search string
-		for(ONCNote note : filteredNoteList)
+		for(ONCNote note : famNoteList)
 			if(note.getTitle().toLowerCase().contains(data.toLowerCase()) ||
 			    note.getNote().toLowerCase().contains(data.toLowerCase()) ||
 			     note.getResponse().toLowerCase().contains(data.toLowerCase()))

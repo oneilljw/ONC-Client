@@ -8,12 +8,14 @@ import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
 
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -45,11 +47,12 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
 	private static final long serialVersionUID = 1L;
 	
 	private static final int TITLE_COL = 0;
-	private static final int CREATED_BY_COL = 1;
-	private static final int TIME_CREATED_COL = 2;
-	private static final int STATUS_COL = 3;
-	private static final int RESPONDED_BY_COL = 4;
-	private static final int TIME_RESPONSE_COL = 5;
+	private static final int SHOW_NEXT_SEASON_COL = 1;
+	private static final int CREATED_BY_COL = 2;
+	private static final int TIME_CREATED_COL = 3;
+	private static final int STATUS_COL = 4;
+	private static final int RESPONDED_BY_COL = 5;
+	private static final int TIME_RESPONSE_COL = 6;
 	
 	private NoteDB noteDB;
 	
@@ -57,6 +60,7 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
 	private ONCNote currNote;
 	
 	private Mode mode;
+	private List<ONCNote> famNoteList; 	//holds notes for family
 	
 	private ONCTable dlgTable;
 	private AbstractTableModel dlgTableModel;
@@ -82,6 +86,7 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
 		//initialize member variables
 		currFam = null;
 		currNote = null;
+		famNoteList = new ArrayList<ONCNote>();
 		
 		mode = Mode.NORMAL;
 		
@@ -99,7 +104,8 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
         
         //set up the table panel
         dlgTableModel = new DialogTableModel();
-        String[] colTT = {"Title", "User who wrote the note", "Time the note was written", 
+        String[] colTT = {"Title", "Show this note next season?", "User who wrote the note",
+        						"Time the note was written", 
         						"Has the note been read?", "Agent who viewed or responded to the note",
         						"Time the agent read or responded"};
         
@@ -128,7 +134,7 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
 
       	//Set table column widths
       	int tablewidth = 0;
-      	int[] colWidths = {192,80,120,80,90,120};
+      	int[] colWidths = {192,80,80,120,80,90,120};
       	for(int col=0; col < colWidths.length; col++)
       	{
       		dlgTable.getColumnModel().getColumn(col).setPreferredWidth(colWidths[col]);
@@ -159,16 +165,21 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
         titleTF.addActionListener(dcListener);
         titleTF.addKeyListener(changeListener);
         
+        JPanel ckBoxPanel = new JPanel();
+        ckBoxPanel.setLayout(new BoxLayout(ckBoxPanel, BoxLayout.Y_AXIS));
+        
         ckBoxSendEmail = new JCheckBox("Send separate new note(s) notification email to agent?");
         ckBoxSendEmail.setToolTipText("If checked, agent will get an email notification of new notes");
+        ckBoxPanel.add(ckBoxSendEmail);
         
         ckBoxShowNextSeason = new JCheckBox("Show note next season?");
         ckBoxShowNextSeason.setToolTipText("If checked, agent will see note next season");
+        ckBoxShowNextSeason.addActionListener(dcListener);
+        ckBoxPanel.add(ckBoxShowNextSeason);
         
         titlePanel.add(titleTF);
-        titlePanel.add(ckBoxSendEmail);
-        titlePanel.add(ckBoxShowNextSeason);
-        
+        titlePanel.add(ckBoxPanel);
+      
         //set up note and response panel
         JPanel noteAndResponsePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         Dimension textAreaDimension = new Dimension(320, 100);
@@ -264,7 +275,10 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
 		{
 			ONCNote updatedNote = (ONCNote) dbe.getObject1();
 			if(currFam != null && updatedNote.getOwnerID() == currFam.getID())
+			{
+				famNoteList = noteDB.getNotesForFamily(currFam.getID());
 				dlgTableModel.fireTableDataChanged();
+			}
 			
 			if(currNote != null && updatedNote.getID() == currNote.getID())
 				display(updatedNote);
@@ -273,7 +287,10 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
 		{
 			ONCNote addedNote = (ONCNote) dbe.getObject1();
 			if(currFam != null && addedNote.getOwnerID() == currFam.getID())
+			{
+				famNoteList = noteDB.getNotesForFamily(currFam.getID());
 				dlgTableModel.fireTableDataChanged();
+			}
 		}
 		else if(dbe.getSource() != this && (dbe.getType().equals("UPDATED_USER") ||
 				dbe.getType().equals("CHANGED_USER")))
@@ -293,17 +310,16 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
 			if(tse.getSource() == nav && tse.getType() == EntityType.NOTE)
 			{
 				update();
-				display(noteDB.getObjectAtIndex(nav.getIndex()));
+				display(famNoteList.get(nav.getIndex()));
 			}
 			else if(tse.getSource() != nav && tse.getType() == EntityType.FAMILY)
 			{
 //				update();
 				if((currFam = (ONCFamily) tse.getObject1()) != null)
 				{	
-					noteDB.setFilter(currFam.getID());
 					nav.setIndex(0);
-					ONCNote famNote = (ONCNote) noteDB.getObjectAtIndex(0);
-					display(famNote);	//will be null if no notes for family
+					famNoteList = noteDB.getNotesForFamily(currFam.getID());
+					display(famNoteList.isEmpty() ? null : famNoteList.get(0));
 				}
 			}
 		}
@@ -318,36 +334,42 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
 	@Override
 	void update()
 	{
-		//if the note or title has changed, update the note. Only the note and title 
+		//if only the showNextSeaason box has changed, then just update that regardless of status
+		//else update only if the note or title has changed, update the note. Only the note and title 
 		//of the last note can be edited and only before the note is viewed
-		if(nav.getIndex() == 0  && currNote.getStatus() == ONCNote.SENT)
+		int bCD = 0;
+		if(currNote.showNextSeason() != ckBoxShowNextSeason.isSelected()) { bCD = bCD | 1; }
+		if(!currNote.getTitle().equals(titleTF.getText())) { bCD = bCD | 2; }
+		if(!currNote.getNote().equals(notePane.getText())) { bCD = bCD | 4; }
+		
+		ONCNote updateNoteReq = new ONCNote(currNote);
+		if(bCD == 1)
+			updateNoteReq.setShowNextSeason(ckBoxShowNextSeason.isSelected());
+		
+		else if(nav.getIndex() == 0  && currNote.getStatus() == ONCNote.SENT & bCD > 1)
 		{
-			int bCD = 0;
-			if(!currNote.getTitle().equals(titleTF.getText())) { bCD = bCD | 1; }
-			if(!currNote.getNote().equals(notePane.getText())) { bCD = bCD | 2; }
-			
-			if(bCD > 0)
+			updateNoteReq.setTitle(titleTF.getText());
+			updateNoteReq.setNote(notePane.getText());
+			updateNoteReq.setShowNextSeason(ckBoxShowNextSeason.isSelected());
+		}
+		
+		//if there was a change, update the database
+		if(bCD > 0)
+		{
+			String response = noteDB.update(this, updateNoteReq);
+			if(response.startsWith("UPDATED_NOTE"))
 			{
-				ONCNote updateNoteReq = new ONCNote(currNote);
-				updateNoteReq.setTitle(titleTF.getText());
-				updateNoteReq.setNote(notePane.getText());
-				
-				String response = noteDB.update(this, updateNoteReq);
-				if(response.startsWith("UPDATED_NOTE"))
-				{
-					Gson gson = new Gson();
-					ONCNote updatedNote = gson.fromJson(response.substring(12), ONCNote.class);
-					
-					display(updatedNote);
-				}
-				else
-				{
-					//display an error message that update request failed
-					JOptionPane.showMessageDialog(this, "ONC Server denied Noter Update," +
+				Gson gson = new Gson();
+				ONCNote updatedNote = gson.fromJson(response.substring(12), ONCNote.class);
+				display(updatedNote);
+			}
+			else
+			{
+				//display an error message that update request failed
+				JOptionPane.showMessageDialog(this, "ONC Server denied Noter Update," +
 											"try again later","Note Update Failed",  
 											JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
-					display(currNote);
-				}
+				display(currNote);
 			}
 		}
 	}
@@ -355,14 +377,14 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
 	void display(ONCEntity note)	//displays currNote for currFam
 	{
 		//Determine what to display based on currFam && currNote and
-		if(currFam == null || noteDB.size() <= 0 )
+		if(currFam == null || famNoteList.isEmpty())
 		{
 			clear();
 		}
 		else
 		{
 			if(note == null)
-				currNote = (ONCNote) noteDB.getObjectAtIndex(0);
+				currNote = (ONCNote) famNoteList.get(0);
 			else if(note != null)
 				currNote = (ONCNote) note;
 			
@@ -389,7 +411,17 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
 			ckBoxSendEmail.setEnabled(false);
 			ckBoxSendEmail.setSelected(currNote.sendEmail());
 			
-			ckBoxSendEmail.setSelected(currNote.showNextSeason());
+			//enable the ckBox if there are notes. Then, if it's the current season, enable only if
+			//it's the most recent note. For prior seasons, any note can be modified
+			if(!famNoteList.isEmpty() && GlobalVariablesDB.getCurrentSeason() != Calendar.YEAR)
+				ckBoxShowNextSeason.setEnabled(true);
+			else if(!famNoteList.isEmpty() && GlobalVariablesDB.getCurrentSeason() != Calendar.YEAR &&
+					nav.getIndex() == 0)
+				ckBoxShowNextSeason.setEnabled(true);
+			else
+				ckBoxShowNextSeason.setEnabled(false);
+					
+			ckBoxShowNextSeason.setSelected(currNote.showNextSeason());
 
 			//set the note border
 			String noteBorderText = String.format("Sent by %s on %s", currNote.getChangedBy(),
@@ -415,12 +447,14 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
 			setEditableInput(currNote);
 			
 			List<ONCNote> familyNoteList = noteDB.getNotesForFamily(currFam.getID());
+			dlgTableModel.fireTableDataChanged();
+			
 			int unread = 0;
 			for(ONCNote n : familyNoteList)
 				if(n.getStatus() < ONCNote.READ)
 					unread++;
 			
-			nav.setCount1("Family Notes: " + Integer.toString(noteDB.size()));
+			nav.setCount1("Family Notes: " + Integer.toString(famNoteList.size()));
 			nav.setCount2("Unread: " + Integer.toString(unread));
 			
 			nav.setStoplightEntity(currNote);
@@ -431,6 +465,15 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
 
 			bIgnoreEvents = false;
 		}
+	}
+	
+	boolean hasNextSeasonNote()
+	{
+		int index = famNoteList.size()-1;
+			while(index >= 0 && !famNoteList.get(index).showNextSeason())
+				index--;
+			
+			return index >=0;
 	}
 	
 	void setEditableInput(ONCNote note)
@@ -460,8 +503,10 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
 		{
 			//if no changes, btn text should allow new note creation. If changes,
 			//it should allow update to existing note
-			if(currNote != null && (!titleTF.getText().equals(currNote.getTitle()) ||
-					   !notePane.getText().equals(currNote.getNote())))
+			if(currNote != null && !famNoteList.isEmpty() && 
+					(!titleTF.getText().equals(currNote.getTitle()) ||
+					   !notePane.getText().equals(currNote.getNote()) || 
+					    ckBoxShowNextSeason.isSelected() != currNote.showNextSeason()))
 			{
 				mode = Mode.UPDATE;
 				btnNew.setText("Update Note");
@@ -585,8 +630,10 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
 			ONCNote addedNote = (ONCNote) noteDB.add(this, reqAddNote);
 			if(addedNote != null)
 			{
-				//set the display index to the newly added note and display the note
-				nav.setIndex(noteDB.getListIndexByID(noteDB.getNotesForFamily(currFam.getID()), addedNote.getID()));
+				//set the display index to the newly added note and display the note. The index of the added
+				//note should always be 0 as it is the most recent note
+				famNoteList = noteDB.getNotesForFamily(currFam.getID());
+				nav.setIndex(0);
 				display(addedNote);
 				dlgTableModel.fireTableDataChanged();
 			}
@@ -639,7 +686,7 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
 			if(modelRow > -1)
 			{
 				nav.setIndex(modelRow);
-				display(noteDB.getObjectAtIndex(modelRow));
+				display(famNoteList.get(modelRow));
 			}
 		}
 	}
@@ -650,7 +697,7 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
 		 * Implements the table model for the Delivery History Dialog
 		 */
 		private static final long serialVersionUID = 1L;
-		private String[] columnNames = {"Title", "Written By", "Time", "Status", "Agent", "Time"};
+		private String[] columnNames = {"Title", "Next Season?", "Written By", "Time", "Status", "Agent", "Time"};
 		private String[] statusText;
 		
 		public DialogTableModel()
@@ -660,7 +707,7 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
 
         public int getColumnCount() { return columnNames.length; }
  
-        public int getRowCount() { return noteDB == null ? 0 : noteDB.size(); }
+        public int getRowCount() { return famNoteList.size(); }
  
         public String getColumnName(int col) { return columnNames[col]; }
  
@@ -668,10 +715,12 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
         {
         		Object value;
         	
-        		ONCNote n = noteDB.getNotesForFamily(currFam.getID()).get(row);
-        	
+        		ONCNote n = famNoteList.get(row);
+        		
         		if(col == TITLE_COL)
         			value = n.getTitle();
+        		else if(col == SHOW_NEXT_SEASON_COL)
+        			value = n.showNextSeason() ? "Yes" : "No";
         		else if(col == CREATED_BY_COL)
         			value = n.getChangedBy();
         		else if(col == TIME_CREATED_COL)
@@ -694,6 +743,7 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
         			else
         				value = "";
         		}
+        		
         		else
         			value = "Error";
         	

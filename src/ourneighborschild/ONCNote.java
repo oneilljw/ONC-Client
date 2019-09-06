@@ -1,7 +1,6 @@
 package ourneighborschild;
 
 import java.util.Calendar;
-import java.util.Date;
 import java.util.TimeZone;
 
 public class ONCNote extends ONCEntity
@@ -28,7 +27,7 @@ public class ONCNote extends ONCEntity
 	
 	public ONCNote(int id, int ownerID, String title, String note, boolean bSendEmail, boolean bShowNextSeason)
 	{
-		super(id, new Date(), "", 0, "Note Created", "");
+		super(id, Calendar.getInstance(), "", 0, "Note Created", "");
 		this.ownerID = ownerID;
 		this.status = ONCNote.SENT;
 		this.title = title;
@@ -45,7 +44,7 @@ public class ONCNote extends ONCEntity
 	
 	public ONCNote(ONCNote n)
 	{
-		super(n.id, new Date(), n.changedBy, n.slPos, n.slMssg, n.slChangedBy);
+		super(n.id, n.dateChanged, n.changedBy, n.slPos, n.slMssg, n.slChangedBy);
 		this.ownerID = n.ownerID;
 		this.status = n.status;
 		this.title = n.title;
@@ -96,7 +95,7 @@ public class ONCNote extends ONCEntity
 	
 	public ONCNote()
 	{
-		super(-1, new Date(), "", 0, "", "");
+		super(-1, Calendar.getInstance(), "", 0, "", "");
 		this.ownerID = -1;
 		this.status = ONCNote.SENT;
 		this.title = "";
@@ -127,6 +126,7 @@ public class ONCNote extends ONCEntity
 	void setStatus(int status) { this.status = status; }
 	void setTitle(String title) { this.title = title; }
 	void setNote(String note) { this.note = note; }
+	public void setShowNextSeason(boolean bShowNextSeason) { this.bShowNextSeason = bShowNextSeason; }
 	public void noteViewed(String viewedBy)
 	{
 		this.timeViewed = Calendar.getInstance();
