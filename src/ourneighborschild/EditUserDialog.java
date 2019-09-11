@@ -117,7 +117,7 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
         
         //set up op2
         orgTF = new JTextField(18);
-        orgTF.setBorder(BorderFactory.createTitledBorder("Organization"));
+        orgTF.setBorder(BorderFactory.createTitledBorder("School/Organization"));
         orgTF.setToolTipText("What organization does this user belong too?");
         orgTF.addActionListener(dcListener);
         
@@ -459,10 +459,12 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
 			if(!lastnameTF.getText().equals(reqUpdateUser.getLastName())) { reqUpdateUser.setLastName(lastnameTF.getText()); bCD = bCD | 2; }
 			if(!emailTF.getText().equals(reqUpdateUser.getEmail())) { reqUpdateUser.setEmail(emailTF.getText()); bCD = bCD | 4; }
 			if(!phoneTF.getText().equals(reqUpdateUser.getHomePhone())) { reqUpdateUser.setHomePhone(phoneTF.getText()); reqUpdateUser.setCellPhone(phoneTF.getText());bCD = bCD | 8; }
-			if(statusCB.getSelectedItem() != reqUpdateUser.getStatus()) { reqUpdateUser.setStatus((UserStatus)statusCB.getSelectedItem()); bCD = bCD | 16; }
-			if(accessCB.getSelectedItem() != reqUpdateUser.getAccess()) { reqUpdateUser.setAccess((UserAccess)accessCB.getSelectedItem()); bCD = bCD | 32; }
-			if(permissionCB.getSelectedItem() != reqUpdateUser.getPermission()) { reqUpdateUser.setPermission((UserPermission)permissionCB.getSelectedItem()); bCD = bCD | 64; }
-			if(memberList.size() != reqUpdateUser.getGroupList().size()){ reqUpdateUser.setGroupList(getUserGroupList()); bCD = bCD | 128; }
+			if(!orgTF.getText().equals(reqUpdateUser.getOrganization())) { reqUpdateUser.setOrganization(orgTF.getText()); bCD = bCD | 16; }
+			if(!titleTF.getText().equals(reqUpdateUser.getTitle())) { reqUpdateUser.setTitle(titleTF.getText()); bCD = bCD | 32; }
+			if(statusCB.getSelectedItem() != reqUpdateUser.getStatus()) { reqUpdateUser.setStatus((UserStatus)statusCB.getSelectedItem()); bCD = bCD | 64; }
+			if(accessCB.getSelectedItem() != reqUpdateUser.getAccess()) { reqUpdateUser.setAccess((UserAccess)accessCB.getSelectedItem()); bCD = bCD | 128; }
+			if(permissionCB.getSelectedItem() != reqUpdateUser.getPermission()) { reqUpdateUser.setPermission((UserPermission)permissionCB.getSelectedItem()); bCD = bCD | 256; }
+			if(memberList.size() != reqUpdateUser.getGroupList().size()){ reqUpdateUser.setGroupList(getUserGroupList()); bCD = bCD | 512; }
 			
 			if(bCD > 0)	//If an update to partner data (not stop light data) was detected
 			{
