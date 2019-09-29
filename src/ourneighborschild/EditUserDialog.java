@@ -147,11 +147,13 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
         accessCB = new JComboBox<UserAccess>(UserAccess.values());
         accessCB.setBorder(BorderFactory.createTitledBorder("User Access"));
         accessCB.setToolTipText("What environments may this user login to?");
+        accessCB.setEnabled(false);
         accessCB.addActionListener(dcListener);
  
         permissionCB = new JComboBox<UserPermission>(UserPermission.values());
         permissionCB.setBorder(BorderFactory.createTitledBorder("User Permission"));
         permissionCB.setToolTipText("What level of data is this user allowed to view/process?");
+        permissionCB.setEnabled(false);
         permissionCB.addActionListener(dcListener);
         
         statusCB = new JComboBox<UserStatus>(UserStatus.getStatusValues());
@@ -307,6 +309,7 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
         //Set the button names and tool tips for control panel
         btnNew.setText("Add New User");
         btnNew.setToolTipText("Click to add a new user");
+        btnNew.setEnabled(false);
         
         btnDelete.setText("Reset Password");
         btnDelete.setToolTipText("Click to reset the displayed users password");
@@ -333,11 +336,19 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
 	@Override
 	public void dataChanged(DatabaseEvent dbe)
 	{
-		if(dbe.getSource() != this && dbe.getType().equals("UPDATED_USER"))
+		if(dbe.getSource() != this && dbe.getType().equals("CHANGED_USER"))
+		{
+			ONCUser newUser = (ONCUser) dbe.getObject1();
+			permissionCB.setEnabled(newUser.getPermission() == UserPermission.Sys_Admin);
+			accessCB.setEnabled(newUser.getPermission() == UserPermission.Sys_Admin);
+			btnNew.setEnabled(newUser.getPermission() == UserPermission.Sys_Admin);
+			btnDelete.setEnabled(newUser.getPermission().compareTo(UserPermission.Admin) >= 0);
+		}
+		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_USER"))
 		{
 			ONCUser updatedUser = (ONCUser) dbe.getObject1();
 			
-			//If current user is being displayed has changed, reshow it
+			//If current user is being displayed has changed, refresh
 			if(currUser != null && currUser.getID() ==  updatedUser.getID() && !bAddingNewEntity)
 				display(updatedUser); 
 		}

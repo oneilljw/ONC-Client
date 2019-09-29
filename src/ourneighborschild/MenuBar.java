@@ -33,7 +33,7 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 	public JMenuItem exitMI;	//public since exit method is external to the menu bar
 	private JMenuItem findDupFamsMI, findDupChldrnMI, crosscheckMI;
 	private JMenuItem editVolMI, editActMI, viewSignInLogMI, manageVolMI, manageActMI;
-	private JMenuItem assignDelMI, manageDelMI, mapsMI, delstatusMI, distMI;
+	private JMenuItem assignDelMI, manageDelMI, mapsMI, schoolDelMI, distMI;
 	private JMenuItem newFamMI, changeONCMI, changeRefMI, changeBatchMI, newChildMI, editDNSCodesMI;
 	private JMenuItem delChildMI, markAdultMI, connectChildMI, famHistMI;
 	private JMenu submenuImport, submenuFamilyDataChecks, submenuExport, submenuChangeFamilyNumbers;
@@ -397,11 +397,11 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 	    this.add(menuDelivery);
 	    
 	    //Delivery Status check
-	    delstatusMI = new JMenuItem("Family Status History");
-	    delstatusMI.setActionCommand("Family Status History");
-	    delstatusMI.setEnabled(false);
-	    delstatusMI.addActionListener(this);
-	    menuDelivery.add(delstatusMI);
+	    schoolDelMI = new JMenuItem("Deliveries to Schools");
+	    schoolDelMI.setActionCommand("Deliveries to Schools");
+	    schoolDelMI.setEnabled(false);
+	    schoolDelMI.addActionListener(this);
+	    menuDelivery.add(schoolDelMI);
 	    
 	    //Manage Delivery Volunteers
 	    manageDelMI = new JMenuItem("Manage Delivery Volunteers");
@@ -449,7 +449,7 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 	    menuSettings.add(oncPrefrencesMI);
 	    
 	    submenuUsers = new JMenu("Users");
-	    submenuUsers.setVisible(false);   
+	    submenuUsers.setVisible(false);
 	    menuSettings.add(submenuUsers);
 	    
 	    //Edit Users
@@ -459,6 +459,7 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 	    submenuUsers.add(editUsersMI);
 	    
 	    manageUsersMI = new JMenuItem("Manage Users");
+	    manageUsersMI.setEnabled(false);
 	    manageUsersMI.addActionListener(this);
 	    submenuUsers.add(manageUsersMI);
 	    
@@ -545,7 +546,7 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 	void SetEnabledMenuItems(boolean tf)	//Only with at least one family present in db
 	{
 //		clearMI.setEnabled(tf);		//Disable clear until fixed after migration to Client Server Architecture
-		delstatusMI.setEnabled(tf);
+		schoolDelMI.setEnabled(tf);
 		assignDelMI.setEnabled(tf);
 		mapsMI.setEnabled(tf);	
 		distMI.setEnabled(tf);	
@@ -583,7 +584,7 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 	
 	void setVisibleSpecialImports(boolean tf)	//Only Sys_Admin's can perform these functions
     {
-		submenuUsers.setVisible(tf);
+		manageUsersMI.setEnabled(tf);
     		showWebsiteStatusMI.setVisible(true);
     		stopPollingMI.setVisible(true);
     }
@@ -592,6 +593,7 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 	{
 		newMI.setVisible(tf);
 		dbStatusMI.setVisible(tf);
+		submenuUsers.setVisible(tf);
 	}
 	
 	void setEnabledServerConnected(boolean tf)
@@ -604,7 +606,7 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 	void setEnabledAdminDataLoadedMenuItems(boolean tf) 
 	{ 
 		submenuImport.setEnabled(tf);
-		newFamMI.setEnabled(tf);
+//		newFamMI.setEnabled(tf);
 	}
 	
 	void setEnabledMarkorDeleteChildMenuItem(boolean tf)
@@ -734,8 +736,8 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 			dlgManager.showFamilyInfoDialog(changeRefMI.getActionCommand());
 		else if(e.getSource() == changeBatchMI)
 			dlgManager.showFamilyInfoDialog(changeBatchMI.getActionCommand());
-		else if(e.getSource() == delstatusMI)
-			dlgManager.showHistoryDialog(delstatusMI.getActionCommand());
+		else if(e.getSource() == schoolDelMI)
+			dlgManager.showSchoolDelDialog(schoolDelMI.getActionCommand());
 		else if(e.getSource() == viewDBMI) {dlgManager.showEntireDatabase();}
 		else if(e.getSource() == sortGiftsMI)
 			dlgManager.showSortDialog(sortGiftsMI.getActionCommand(), SORT_DIALOG_OFFSET);

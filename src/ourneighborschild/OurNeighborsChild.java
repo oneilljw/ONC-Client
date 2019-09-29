@@ -30,7 +30,7 @@ public class OurNeighborsChild
 	 */
 	//Static Final Variables
 	private static final int SERVER_CONNECT_RETRY_LIMIT = 3;
-	private static final String VERSION = "7.01";
+	private static final String VERSION = "7.02";
 	private static final String APPNAME = "Our Neighbor's Child";
 	private static final String ONC_SERVER_IP_ADDRESS_FILE = "serveraddress.txt";
 	private static final int MAIN_FRAME_WIDTH = 837;
@@ -345,7 +345,7 @@ public class OurNeighborsChild
 		oncFrame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent we)
 			 {
-				exit("QUIT");			  
+				exit();			  
 			 }});
         oncFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);	//On close, user is prompted to confirm
         oncFrame.setMinimumSize(new Dimension(MAIN_FRAME_WIDTH, MAIN_FRAME_HEIGHT));
@@ -392,12 +392,12 @@ public class OurNeighborsChild
         oncMenuBar.exitMI.addActionListener(new ActionListener()
         {		
         		@Override
-        		public void actionPerformed(ActionEvent e) { exit("LOGOUT"); }
+        		public void actionPerformed(ActionEvent e) { exit(); }
         });
         oncFrame.setJMenuBar(oncMenuBar);
 	}
       
-    void exit(String command)
+    void exit()
     {
     		if(serverIF != null && serverIF.isConnected())
     		{

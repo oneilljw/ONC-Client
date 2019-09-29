@@ -475,12 +475,12 @@ public class ManageVolDialog extends ONCEntityTableDialog implements ActionListe
 			sortGroup = (String) groupCB.getSelectedItem();
 			createTableList();
 		}
-		if(e.getSource() == qtyCB && !bIgnoreCBEvents)
+		else if(e.getSource() == qtyCB && !bIgnoreCBEvents)
 		{
 			sortQty = (String) qtyCB.getSelectedItem();
 			createTableList();
 		}
-		if(e.getSource() == commentCB && !bIgnoreCBEvents)
+		else if(e.getSource() == commentCB && !bIgnoreCBEvents)
 		{
 			sortComment = (String) commentCB.getSelectedItem();
 			createTableList();

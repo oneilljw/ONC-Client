@@ -165,6 +165,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
       	//Create the middle control panel buttons
       	btnEditAgentInfo = new JButton("Edit Agent Info");
       	btnEditAgentInfo.setEnabled(false);
+      	btnEditAgentInfo.setVisible(false);
       	btnEditAgentInfo.addActionListener(this);
          
         cntlPanel.add(objectCountPanel);
@@ -1166,6 +1167,12 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 //			System.out.println(String.format("Sort Agent Dialog DB event, Source: %s, Type %s, Object: %s",
 //					dbe.getSource().toString(), dbe.getType(), dbe.getObject().toString()));
 			buildFamilyTableListAndDisplay();		
+		}
+		else if(dbe.getSource() != this && dbe.getType().equals("CHANGED_USER"))
+		{
+			//if new user has permission of Admin or higher, they can edit
+			ONCUser newUser = (ONCUser) dbe.getObject1();
+			btnEditAgentInfo.setVisible(newUser.getPermission().compareTo(UserPermission.Admin) >= 0);
 		}
 		else if(dbe.getType().equals("LOADED_USERS"))
 		{

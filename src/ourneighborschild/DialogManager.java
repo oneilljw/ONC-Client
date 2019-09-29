@@ -1,6 +1,7 @@
 package ourneighborschild;
 
 import java.awt.Point;
+import java.util.Calendar;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -13,6 +14,7 @@ import org.json.JSONException;
 
 public class DialogManager implements EntitySelectionListener
 {	
+	String COPYRIGHT = "\u00a9";
 	private static DialogManager instance;		//instance variable for this singleton class
 	
 	//reference to the EntityEventManager
@@ -31,6 +33,7 @@ public class DialogManager implements EntitySelectionListener
 	private ManageUsersDialog userDlg;
 	private WarehouseSignInDialog signInDlg;
 	private ManageVolDialog manageVolDlg;
+	private SchoolDeliveryDialog schoolDelDlg;
 	private ManageBatteryDialog manageBatteryDlg;
 	private ManageActivitiesDialog manageActDlg;
 	private ManageGroupsDialog manageGroupsDlg;
@@ -165,6 +168,10 @@ public class DialogManager implements EntitySelectionListener
     		//Set up the manage volunteer dialog
     		manageVolDlg = new ManageVolDialog(GlobalVariablesDB.getFrame());
     		eeManager.registerEntitySelector(manageVolDlg);
+    		
+    		//Set up the school delivery dialog
+    		schoolDelDlg = new SchoolDeliveryDialog(GlobalVariablesDB.getFrame());
+    		eeManager.registerEntitySelector(schoolDelDlg);
     	
     		//Set up the manage activities dialog
     		manageActDlg = new ManageActivitiesDialog(GlobalVariablesDB.getFrame());
@@ -373,6 +380,15 @@ public class DialogManager implements EntitySelectionListener
 		}
 	}
 	
+	void showSchoolDelDialog(String command)
+	{
+		if(!schoolDelDlg.isVisible())
+		{
+	        schoolDelDlg.setLocationRelativeTo(GlobalVariablesDB.getFrame());
+	        schoolDelDlg.setVisible(true);
+		}
+	}
+	
 	void showBatteryDialog()
 	{
 		if(!batteryDlg.isVisible())
@@ -561,10 +577,11 @@ public class DialogManager implements EntitySelectionListener
 	void showAboutONCDialog()
 	{
 		//User has chosen to view the About ONC dialog
-		String versionMsg = String.format("Our Neighbor's Child Client Version %s\n%s", 
-				GlobalVariablesDB.getVersion(),  "\u00A92012 - 2016 John W. O'Neill");
+		Calendar now = Calendar.getInstance();
+		String msg = String.format("<html><b>Our Neighbor's Child Client</b>\nVersion %s\n%s2012 - %s John W. O'Neill", 
+				GlobalVariablesDB.getVersion(), COPYRIGHT, now.get(Calendar.YEAR));
 		
-		JOptionPane.showMessageDialog(GlobalVariablesDB.getFrame(), versionMsg, "About the ONC App", 
+		JOptionPane.showMessageDialog(GlobalVariablesDB.getFrame(), msg, "About the ONC Application", 
 										JOptionPane.INFORMATION_MESSAGE, GlobalVariablesDB.getONCLogo());
 	}
 

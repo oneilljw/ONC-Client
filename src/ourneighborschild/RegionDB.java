@@ -286,6 +286,27 @@ public class RegionDB extends ONCDatabase
 		
 		return resultSchoolList; 
 	}
+	
+	/****
+	 * Takes an address and determines if it matches a served school address
+	 * @param streetNum
+	 * @param streetName
+	 * @param city
+	 * @param zipcode
+	 * @return ServedSchool
+	 */
+	School findServedShool(String streetNum, String streetName, String city, String zipcode)
+	{
+		School servedSchool = null;
+		for(School school : schoolList)
+		{
+			Address schoolAdd = school.getAddress();
+			if(schoolAdd.getStreetNum().equals(streetNum) && schoolAdd.getFullStreetName().equals(streetName) &&
+				schoolAdd.getCity().equals(city) && schoolAdd.getZipCode().equals(zipcode))
+					servedSchool = school;
+		}
+			return servedSchool;
+	}
 		
 	@Override
 	public void dataChanged(ServerEvent ue) {
