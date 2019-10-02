@@ -209,9 +209,18 @@ public class SchoolDeliveryDialog extends ONCEntityTableDialog implements Action
 		
 		for(ONCFamily f : famDB.getList())
 		{	
-			School searchSchoolResult = regionDB.findServedShool(f.getHouseNum(), f.getStreet(), f.getCity(), f.getZipCode());
-			if(searchSchoolResult != null && doesSchoolMatch(searchSchoolResult.getCode()))
-				delList.add(new SchoolDelivery(f, searchSchoolResult));
+			if(!f.getSubstituteDeliveryAddress().isEmpty())
+			{
+				String[] delAddrParts = f.getSubstituteDeliveryAddress().split("_");
+	
+				if(delAddrParts.length == 5)	//format uses"_" as separator. Five components
+				{	
+					School searchSchoolResult = regionDB.findServedShool(delAddrParts[0], delAddrParts[1],
+																		delAddrParts[3], delAddrParts[4]);
+					if(searchSchoolResult != null)
+						delList.add(new SchoolDelivery(f, searchSchoolResult));
+				}
+			}	
 		}
 		
 		lblDelCount.setText(String.format("School Deliveries Meeting Criteria: %d", delList.size()));
