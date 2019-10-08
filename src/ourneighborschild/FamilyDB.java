@@ -1203,21 +1203,21 @@ public class FamilyDB extends ONCSearchableDatabase
 		
 	private class ONCFamilyDNSComparator implements Comparator<ONCFamily>
 	{
-
 		@Override
 		public int compare(ONCFamily o1, ONCFamily o2)
 		{	
-			DNSCode fam1Code = dnsCodeDB.getDNSCode(o1.getDNSCode());
-			DNSCode fam2Code = dnsCodeDB.getDNSCode(o2.getDNSCode());
-			
-			if(fam1Code.getID() == -1 && fam2Code.getID() == -1)
+			//if no dns code, value = -1
+			if(o1.getDNSCode() == -1 && o2.getDNSCode() == -1)
 				return 0;
-			else if(fam1Code.getID() == -1 && fam2Code.getID() > -1)
+			else if(o1.getDNSCode() == -1 && o2.getDNSCode() > -1)
 				return 1;
-			else if(fam1Code.getID() > -1 && fam2Code.getID() == -1)
+			else if(o1.getDNSCode() > -1 && o2.getDNSCode() == -1)
 				return -1;
 			else
-				return fam1Code.getAcronym().compareTo(fam2Code.getAcronym());
+			{
+				return dnsCodeDB.getDNSCode(o1.getDNSCode()).getAcronym().compareTo(
+						dnsCodeDB.getDNSCode(o2.getDNSCode()).getAcronym());
+			}
 		}
 	}
 		
@@ -1504,17 +1504,15 @@ public class FamilyDB extends ONCSearchableDatabase
 		@Override
 		public int compare(ONCFamilyAndNote o1, ONCFamilyAndNote o2)
 		{	
-			DNSCode fam1Code = dnsCodeDB.getDNSCode(o1.getFamily().getDNSCode());
-			DNSCode fam2Code = dnsCodeDB.getDNSCode(o2.getFamily().getDNSCode());
-			
-			if(fam1Code.getID() == -1 && fam2Code.getID() == -1)
+			if(o1.getFamily().getDNSCode() == -1 && o2.getFamily().getDNSCode() == -1)
 				return 0;
-			else if(fam1Code.getID() == -1 && fam2Code.getID() > -1)
+			else if(o1.getFamily().getDNSCode() == -1 && o2.getFamily().getDNSCode() > -1)
 				return 1;
-			else if(fam1Code.getID() > -1 && fam2Code.getID() == -1)
+			else if(o1.getFamily().getDNSCode() > -1 && o2.getFamily().getDNSCode() == -1)
 				return -1;
 			else
-				return fam1Code.getAcronym().compareTo(fam2Code.getAcronym());
+				return dnsCodeDB.getDNSCode(o1.getFamily().getDNSCode()).getAcronym().compareTo(
+						dnsCodeDB.getDNSCode(o2.getFamily().getDNSCode()).getAcronym());
 		}
 	}
 		

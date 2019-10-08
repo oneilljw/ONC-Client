@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.TimeZone;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
@@ -424,8 +425,12 @@ public class FamilyHistoryChangesDialog extends ONCTableDialog implements Proper
         			value = histObj.getdNotes();
         		else if(col == CHANGED_BY_COL)
         			value = histObj.getdChangedBy();
-        		else if (col ==  DATE_CHANGED_COL)
-        			return histObj.getdChanged();
+        		else if (col == DATE_CHANGED_COL)
+        		{
+        			Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        			calendar.setTimeInMillis(histObj.dDateChanged.getTimeInMillis());
+        			return calendar.getTime();
+        		}
         		else
         			value = "Error";
         	
