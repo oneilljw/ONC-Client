@@ -6,7 +6,6 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.util.Calendar;
 
 import javax.sound.sampled.LineUnavailableException;
 import javax.swing.BorderFactory;
@@ -287,7 +286,7 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 															assignDriverTF.getText(),
 															"Delivery Driver Assigned",
 															userDB.getUserLNFI(),
-															Calendar.getInstance(),
+															System.currentTimeMillis(),
 															famDNSCode.getAcronym());
 				
 				ONCFamilyHistory response = familyHistoryDB.add(this, reqDelivery);

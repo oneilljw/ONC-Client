@@ -44,8 +44,6 @@ import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
-import com.google.gson.Gson;
-
 public class ManageUsersDialog extends ONCEntityTableDialog implements ActionListener, ListSelectionListener,
 														DatabaseListener
 {

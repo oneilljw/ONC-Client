@@ -12,7 +12,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -515,7 +514,7 @@ public class AngelAutoCallDialog extends ONCEntityTableDialog implements ActionL
 							 					familyHistoryDB.getDeliveredBy(f.getDeliveryID()),
 							 					"Automated Call Result: Confirmed",
 							 					userDB.getUserLNFI(),
-							 					Calendar.getInstance(),
+							 					System.currentTimeMillis(),
 							 					famDNSCode.getAcronym());
 					 
 					 reqFamilyUpdateList.add(reqHistory);
@@ -529,7 +528,7 @@ public class AngelAutoCallDialog extends ONCEntityTableDialog implements ActionL
 							 					familyHistoryDB.getDeliveredBy(f.getDeliveryID()),
 							 					"Automated Call Result: Contacted",
 							 					userDB.getUserLNFI(),
-							 					Calendar.getInstance(),
+							 					System.currentTimeMillis(),
 							 					famDNSCode.getAcronym());
 					 
 					 reqFamilyUpdateList.add(reqHistory);

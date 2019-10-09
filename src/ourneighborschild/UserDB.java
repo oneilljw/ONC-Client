@@ -521,7 +521,7 @@ public class UserDB extends ONCSearchableDatabase
     	
 	    return filename;
     }
-	
+/*	
 	private class UserIDList
 	{
 		private List<Integer> userIDList;
@@ -537,4 +537,5 @@ public class UserDB extends ONCSearchableDatabase
 		//getters
 		List<Integer> getUserIDList() { return userIDList; }
 	}
+*/	
 }

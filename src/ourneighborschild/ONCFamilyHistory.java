@@ -18,12 +18,12 @@ public class ONCFamilyHistory extends ONCObject implements Serializable
 	String dDelBy;
 	String dNotes;
 	String dChangedBy;
-	Calendar dDateChanged;
+	long dDateChanged;
 	String dnsCode;
 
 	//Constructor used after separating ONC Deliveries from ONC Families
 	public ONCFamilyHistory(int id, int famid, FamilyStatus fStat, FamilyGiftStatus dStat, String dBy, 
-							String notes, String cb, Calendar dateChanged, String dnsCode)
+							String notes, String cb, long dateChanged, String dnsCode)
 	{
 		super(id);
 		this.famID = famid;
@@ -32,7 +32,6 @@ public class ONCFamilyHistory extends ONCObject implements Serializable
 		this.dDelBy = dBy;
 		this.dNotes = notes;		
 		this.dChangedBy = cb;
-		this.dDateChanged = Calendar.getInstance();
 		this.dDateChanged = dateChanged;
 		this.dnsCode = dnsCode;
 	}
@@ -47,7 +46,7 @@ public class ONCFamilyHistory extends ONCObject implements Serializable
 		dDelBy = d.dDelBy;
 		dNotes = d.dNotes;		
 		dChangedBy = d.dChangedBy;
-		dDateChanged = Calendar.getInstance();
+		dDateChanged = System.currentTimeMillis();;
 		this.dnsCode = d.dnsCode;
 	}
 	
@@ -61,8 +60,7 @@ public class ONCFamilyHistory extends ONCObject implements Serializable
 		this.dDelBy = del[4].isEmpty() ? "" : del[4];
 		this.dNotes = del[5].isEmpty() ? "" : del[5];	
 		this.dChangedBy = del[6].isEmpty() ? "" : del[6];
-		this.dDateChanged = Calendar.getInstance();
-		this.dDateChanged.setTimeInMillis(Long.parseLong(del[7]));
+		this.dDateChanged = Long.parseLong(del[7]);
 		this.dnsCode = del[8].isEmpty() ? "" : del[8];
 	}
 
@@ -73,16 +71,27 @@ public class ONCFamilyHistory extends ONCObject implements Serializable
 	public String getdDelBy() {return dDelBy;}
 	String getdNotes() {return dNotes;}
 	String getdChangedBy() { return dChangedBy; }
-	public Date getdChanged() { return dDateChanged.getTime(); }
-	Calendar getDateChangedCal() { return dDateChanged; }
+	public Date getDateChanged() 
+	{
+		Calendar cal = Calendar.getInstance();
+		cal.setTimeInMillis(dDateChanged);
+		return cal.getTime(); 
+	}
+	
+	Calendar getDateChangedCal() 
+	{ 
+		Calendar cal = Calendar.getInstance();
+		cal.setTimeInMillis(dDateChanged);
+		return cal; 
+	}
+	
 	String getDNSCode() { return dnsCode; }
 	
 	//Setters
 	public void setdDelBy(String db) { dDelBy = db; }
 	void setdNotes(String s) {dNotes = s; }
 	void setdChangedBy(String cb) { dChangedBy = cb; }	
-	void setDateChanged(Date d) { dDateChanged.setTime(d); }
-	public void setDateChanged(Calendar calDateChanged) { dDateChanged = calDateChanged; }
+	public void setDateChanged(long calDateChanged) { dDateChanged = calDateChanged; }
 	
 	@Override
 	public String[] getExportRow()
@@ -90,8 +99,7 @@ public class ONCFamilyHistory extends ONCObject implements Serializable
 		String[] exportRow = {Integer.toString(id), Integer.toString(famID),
 							  Integer.toString(familyStatus.statusIndex()),
 							  Integer.toString(giftStatus.statusIndex()),
-							  dDelBy, dNotes, dChangedBy,
-							  Long.toString(dDateChanged.getTimeInMillis()), dnsCode};
+							  dDelBy, dNotes, dChangedBy, Long.toString(dDateChanged), dnsCode};
 		
 		return exportRow;
 		

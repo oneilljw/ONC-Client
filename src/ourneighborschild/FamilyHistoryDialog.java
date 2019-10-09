@@ -1,13 +1,10 @@
 package ourneighborschild;
 
 import java.sql.Date;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.TimeZone;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -169,13 +166,7 @@ public class FamilyHistoryDialog extends HistoryDialog
 		 */
 		private static final long serialVersionUID = 1L;
 		private String[] columnNames = {"Fam Status", "Gift Status", "DNS Code", "Gifts Delivered By", "Notes", "Changed By", "Time Stamp"};
-		private SimpleDateFormat sdf;
 		
-		public DialogTableModel()
-		{
-			sdf = new SimpleDateFormat("M/dd/yy H:mm");
-		}
-
         public int getColumnCount() { return columnNames.length; }
  
         public int getRowCount() { return histList == null ? 0 : histList.size(); }
@@ -201,11 +192,7 @@ public class FamilyHistoryDialog extends HistoryDialog
         		else if(col == CHANGED_BY_COL)
         			value = histObj.getdChangedBy();
         		else if (col == DATE_CHANGED_COL)
-        		{
-        			Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-        			calendar.setTimeInMillis(histObj.dDateChanged.getTimeInMillis());
-        			return calendar.getTime();
-        		}
+        			value = histObj.getDateChanged();
         		else
         			value = "Error";
         	
@@ -245,7 +232,7 @@ public class FamilyHistoryDialog extends HistoryDialog
 		@Override
 		public int compare(ONCFamilyHistory o1, ONCFamilyHistory o2)
 		{
-			return o2.getdChanged().compareTo(o1.getdChanged());
+			return o2.getDateChanged().compareTo(o1.getDateChanged());
 		}
 	}
 }
