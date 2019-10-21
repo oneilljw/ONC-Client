@@ -147,7 +147,7 @@ public class ONCNote extends ONCEntity
 	@Override
 	public String[] getExportRow()
 	{
-		String[] row = new String[15];
+		String[] row = new String[16];
 		row[0] = Integer.toString(id);
 		row[1] = Integer.toString(ownerID);
 		row[2] = Integer.toString(status);
@@ -161,9 +161,9 @@ public class ONCNote extends ONCEntity
 		row[10] = Long.toString(timeResponse.getTimeInMillis());
 		row[11] = bSendEmail ? "T" : "F";
 		row[12] = bShowNextSeason ? "T" : "F";
-		row[12] = Integer.toString(slPos);
-		row[13] = slMssg;
-		row[14] = slChangedBy;
+		row[13] = Integer.toString(slPos);
+		row[14] = slMssg;
+		row[15] = slChangedBy;
 		return row;
 	}
 }
