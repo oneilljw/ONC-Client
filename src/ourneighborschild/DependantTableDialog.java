@@ -88,12 +88,12 @@ public abstract class DependantTableDialog extends SortTableDialog
         String[] colTT = {"ONC Family Number", "Batch Number", "Do Not Serve Code", 
 					"Family Status", "Delivery Status", "Meal Status", "Head of Household First Name", 
 					"Head of Household Last Name", "House Number","Street", "Unit",
-					"Zip Code", "Region","Changed By", "Stoplight Color"};
+					"Zip Code", "School","Changed By", "Stoplight Color"};
         
         familyTable = new ONCTable(colTT, new Color(240,248,255));
 
       	final String[] ftcolumns = {"ONC", "Batch #", "DNS", "Fam Status", "Del Status", "Meal Status", "First", "Last", "House",
-      							"Street", "Unit", "Zip", "Reg", "Changed By", "SL"};
+      							"Street", "Unit", "Zip", "School", "Changed By", "SL"};
       	familyTableModel = new DefaultTableModel(ftcolumns, 0)
         {
       		private static final long serialVersionUID = 1L;
@@ -111,7 +111,7 @@ public abstract class DependantTableDialog extends SortTableDialog
               
       	//Set table column widths
       	int familytablewidth = 0;
-      	int[] familycolWidths = {40, 48, 48, 72, 72, 72, 72, 72, 48, 128, 56, 48, 28, 72, 24};
+      	int[] familycolWidths = {40, 48, 48, 72, 72, 72, 72, 72, 48, 128, 56, 48, 104, 72, 24};
       	for(int i=0; i < familycolWidths.length; i++)
       	{
       	  	familyTable.getColumnModel().getColumn(i).setPreferredWidth(familycolWidths[i]);
@@ -250,7 +250,8 @@ public abstract class DependantTableDialog extends SortTableDialog
 			familytablerow[11] = "";
 		}
 		
-		familytablerow[12] = regionDB.getRegionID(f.getRegion());
+//		familytablerow[12] = regionDB.getRegionID(f.getRegion());
+		familytablerow[12] = regionDB.getSchoolName(f.getSchoolCode());
 		familytablerow[13] = f.getChangedBy();
 //		familytablerow[13] = stoplt[f.getStoplightPos()+1].substring(0,1);
 		familytablerow[14] = gvs.getImageIcon(23 + f.getStoplightPos());

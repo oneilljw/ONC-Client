@@ -72,7 +72,6 @@ public class ONCFamilyReportRowBuilder
 	private String[] getFamilyCommonCSVRowData(ONCFamily f)	//Used when writing the database to a .csv file
 	{
 		String[] row = new String[getCommonFamilyHeader().length];
-		DNSCode code = dnsCodeDB.getDNSCode(f.getDNSCode());
 		int index = 0;
 		
 		row[index++] = 	Integer.toString(f.getID());
@@ -81,7 +80,7 @@ public class ONCFamilyReportRowBuilder
 		row[index++] =  regions.getSchoolName(f.getSchoolCode());
 		row[index++] = 	f.getReferenceNum();
 		row[index++] = 	f.getBatchNum();	
-		row[index++] = 	code.getAcronym();
+		row[index++] = 	f.getDNSCode() >= 0 ? dnsCodeDB.getDNSCode(f.getDNSCode()).getAcronym() : "";
 		row[index++] = 	Integer.toString(f.getFamilyStatus().statusIndex());
 		row[index++] = 	Integer.toString(f.getGiftStatus().statusIndex());
 		row[index++] = 	f.getSpeakEnglish();
