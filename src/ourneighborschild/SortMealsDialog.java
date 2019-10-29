@@ -43,6 +43,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 	 */
 	private static final long serialVersionUID = 1L;
 	private static final Integer MAXIMUM_ON_NUMBER = 9999;
+	private static final int FOOD_ONLY_DNS_CODE = 2;
 
 	private MealDB mealDB;
 	private PartnerDB orgs;
@@ -253,7 +254,12 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		int itemID = 0;
 		for(ONCFamily f:fDB.getList())
 		{
-			if(isNumeric(f.getONCNum()) && f.getMealID() > -1 && doesONCNumMatch(f.getONCNum()))	//Must be a valid family	
+			//Must be a valid family, meaning has a numeric ONC number, requested a meal, the
+			//family has been verified, and either has no DNSCode or has a Food Only DNS code. 
+			//(Not a DUP, SA, etc family)
+			if(isNumeric(f.getONCNum()) && f.getMealID() > -1 && doesONCNumMatch(f.getONCNum()) &&
+					(f.getDNSCode() == -1 || f.getDNSCode() == FOOD_ONLY_DNS_CODE) &&
+						f.getFamilyStatus().compareTo(FamilyStatus.Verified) >= 0)		
 			{
 				ONCMeal m = mealDB.getMeal(f.getMealID());
 				if(m != null && doesBatchNumMatch(f.getBatchNum()) && 
