@@ -56,6 +56,7 @@ public class DatabaseManager extends ONCDatabase
 	private MealDB oncMealDB;				//Holds ONC Meal database
 	private BatteryDB batteryDB;				//Holds Battery database
 	private InventoryDB oncInvDB;			//Holds current inventory
+	private SMSDB smsDB;						//Holds SMS messages
 	
 	private DatabaseManager()
 	{
@@ -80,6 +81,7 @@ public class DatabaseManager extends ONCDatabase
 		dnsCodeDB = DNSCodeDB.getInstance();
 		oncMealDB = MealDB.getInstance();
 		oncInvDB = InventoryDB.getInstance();
+		smsDB = SMSDB.getInstance();
 		batteryDB = BatteryDB.getInstance();
 		oncFamDB = FamilyDB.getInstance();
 	}
@@ -256,6 +258,7 @@ public class DatabaseManager extends ONCDatabase
     			oncFamDB.exportDBToCSV(GlobalVariablesDB.getFrame(), path + "/FamilyDB.csv");
     			oncGVs.exportDBToCSV(GlobalVariablesDB.getFrame(), path + "/GlobalVariables.csv");
     			oncInvDB.exportDBToCSV(GlobalVariablesDB.getFrame(), path + "/Inventory.csv");
+    			smsDB.exportDBToCSV(GlobalVariablesDB.getFrame(), path + "/SMSDB.csv");
     			oncMealDB.exportDBToCSV(GlobalVariablesDB.getFrame(), path + "/MealDB.csv");
     			oncAdultDB.exportDBToCSV(GlobalVariablesDB.getFrame(), path + "/AdultDB.csv");
     			batteryDB.exportDBToCSV(GlobalVariablesDB.getFrame(), path + "/BatteryDB.csv");
@@ -263,10 +266,10 @@ public class DatabaseManager extends ONCDatabase
     			oncWishCat.exportToCSV(GlobalVariablesDB.getFrame(), path + "/WishCatalog.csv");
     			oncWishDetailDB.exportDBToCSV(GlobalVariablesDB.getFrame(), path + "/WishDetailDB.csv");
     		
-    		mssg = String.format("Database sucessfully saved to:<br>%s", path); 			
-    	}
+    			mssg = String.format("Database sucessfully saved to:<br>%s", path); 			
+    		}
     	
-    	ONCPopupMessage savedbPU = new ONCPopupMessage(oncGVs.getImageIcon(0));
+    		ONCPopupMessage savedbPU = new ONCPopupMessage(oncGVs.getImageIcon(0));
 		savedbPU.setLocationRelativeTo(GlobalVariablesDB.getFrame());
 		savedbPU.show("Database Export Result", mssg);		
     }
@@ -279,33 +282,33 @@ public class DatabaseManager extends ONCDatabase
     		ONCFileChooser fc = new ONCFileChooser(GlobalVariablesDB.getFrame());
     		File oncwritefile= fc.getFile("Select .csv file to save to",
 										new FileNameExtensionFilter("CSV Files", "csv"), ONCFileChooser.SAVE_FILE);
-    	if(oncwritefile!= null)
-    	{
-    		//If user types a new filename and doesn't include the .csv, add it
-	    	String filePath = oncwritefile.getPath();		
-	    	if(!filePath.toLowerCase().endsWith(".csv")) 
-	    		oncwritefile = new File(filePath + ".csv");
+    		if(oncwritefile!= null)
+    		{
+    			//If user types a new filename and doesn't include the .csv, add it
+    			String filePath = oncwritefile.getPath();		
+    			if(!filePath.toLowerCase().endsWith(".csv")) 
+    				oncwritefile = new File(filePath + ".csv");
 	    	
-	    	try 
-	    	{
-	    		ONCFamilyReportRowBuilder rb = new ONCFamilyReportRowBuilder();
+    			try 
+    			{
+    				ONCFamilyReportRowBuilder rb = new ONCFamilyReportRowBuilder();
 	    		
-	    		CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
-	    	    writer.writeNext(rb.getFamilyReportHeader());
+    				CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
+    				writer.writeNext(rb.getFamilyReportHeader());
 	    	    
-	    	    for(ONCFamily fam:oncFamDB.getList())
-	    	    	writer.writeNext(rb.getFamilyReportCSVRowData(fam));	//Get family data
+    				for(ONCFamily fam:oncFamDB.getList())
+    					writer.writeNext(rb.getFamilyReportCSVRowData(fam));	//Get family data
 	    	 
-	    	    writer.close();
-	    	    filename = oncwritefile.getName();
+    				writer.close();
+    				filename = oncwritefile.getName();
 	    	       	    
-	    	} 
-	    	catch (IOException x)
-	    	{
-	    		System.err.format("IO Exception: %s%n", x);
-	    		JOptionPane.showMessageDialog(GlobalVariablesDB.getFrame(), oncwritefile.getName() + " could not be saved", 
+    			} 
+    			catch (IOException x)
+    			{
+    				System.err.format("IO Exception: %s%n", x);
+    				JOptionPane.showMessageDialog(GlobalVariablesDB.getFrame(), oncwritefile.getName() + " could not be saved", 
 						"ONC File Save Error", JOptionPane.ERROR_MESSAGE);
-	    	}
+    			}
 	    }
     	
 	    return filename;
@@ -356,7 +359,7 @@ public class DatabaseManager extends ONCDatabase
      **************************************************************************************************/
     public class ONCServerDBImporter extends SwingWorker<Void, Void>
     {
-    		private static final int NUM_OF_DBs = 19;
+    		private static final int NUM_OF_DBs = 20;
     		String year;
     		ONCProgressBar pb;
     		boolean bServerDataLoaded;
@@ -417,6 +420,10 @@ public class DatabaseManager extends ONCDatabase
 			
 			pb.updateHeaderText("Loading Inventory");
 			oncInvDB.importInventoryDatabase();
+			this.setProgress(progress += increment);
+			
+			pb.updateHeaderText("Loading Messages");
+			smsDB.importDB();
 			this.setProgress(progress += increment);
 						
 //			pb.updateHeaderText("Loading Agents");

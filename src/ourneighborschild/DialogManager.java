@@ -35,6 +35,7 @@ public class DialogManager implements EntitySelectionListener
 	private ManageVolDialog manageVolDlg;
 	private SchoolDeliveryDialog schoolDelDlg;
 	private ManageBatteryDialog manageBatteryDlg;
+	private ManageSMSDialog manageSMSDlg;
 	private ManageActivitiesDialog manageActDlg;
 	private ManageGroupsDialog manageGroupsDlg;
 	private ViewONCDatabaseDialog dbDlg;
@@ -164,6 +165,10 @@ public class DialogManager implements EntitySelectionListener
     		//Set up the manage batteries dialog
     		manageBatteryDlg = new ManageBatteryDialog(GlobalVariablesDB.getFrame());
     		eeManager.registerEntitySelector(manageBatteryDlg);
+    		
+    		//Set up the manage SMS dialog
+    		manageSMSDlg = new ManageSMSDialog(GlobalVariablesDB.getFrame());
+    		eeManager.registerEntitySelector(manageSMSDlg);
     	
     		//Set up the manage volunteer dialog
     		manageVolDlg = new ManageVolDialog(GlobalVariablesDB.getFrame());
@@ -413,6 +418,15 @@ public class DialogManager implements EntitySelectionListener
 		{
 	        manageBatteryDlg.setLocationRelativeTo(GlobalVariablesDB.getFrame());
 			manageBatteryDlg.setVisible(true);
+		}
+	}
+	
+	void showManageSMSDialog()
+	{
+		if(!manageSMSDlg.isVisible())
+		{
+	        manageSMSDlg.setLocationRelativeTo(GlobalVariablesDB.getFrame());
+			manageSMSDlg.setVisible(true);
 		}
 	}
 	

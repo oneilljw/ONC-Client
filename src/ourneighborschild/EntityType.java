@@ -13,7 +13,8 @@ public enum EntityType
 	GROUP ("Group"), 
 	ACTIVITY ("Activity"),
 	NOTE ("Note"),
-	DNS_CODE("DNS Code");
+	DNS_CODE("DNS Code"),
+	UNKNOWN("Unknown");
 	
 	private final String name;
 	

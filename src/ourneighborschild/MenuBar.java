@@ -26,7 +26,7 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 	
 	private DatabaseManager oncDB;
 	private JMenuItem newMI;
-	private JMenuItem importBritepathsMI, importWFCMMI;
+	private JMenuItem importBritepathsMI, importWFCMMI, manageSMSMI;
 //	private JMenuItem importVolMI;
 	private JMenuItem manageCallResultMI;
 	private JMenuItem exportMI, dbStatusMI, clearMI;
@@ -116,6 +116,11 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 	    menuDatabase.add(submenuExport);
 	   
 	    menuDatabase.addSeparator();
+	    
+	    manageSMSMI = new JMenuItem("Manage SMS");
+	    manageSMSMI.setEnabled(false);
+	    manageSMSMI.addActionListener(this);
+	    menuDatabase.add(manageSMSMI);
 	    
 	    clearMI = new JMenuItem("Clear");
 	    clearMI.setEnabled(false);
@@ -606,6 +611,7 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 	void setEnabledAdminDataLoadedMenuItems(boolean tf) 
 	{ 
 		submenuImport.setEnabled(tf);
+		manageSMSMI.setEnabled(tf);
 //		newFamMI.setEnabled(tf);
 	}
 	
@@ -695,6 +701,7 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 		if(e.getSource() == newMI) { dbManager.addONCSeason(); }
 		else if(e.getSource() == importBritepathsMI) {familyDB.importBPFile(GlobalVariablesDB.getFrame()); }
 		else if(e.getSource() == manageCallResultMI) {dlgManager.showAngelCallDialog();}
+		else if(e.getSource() == manageSMSMI) {dlgManager.showManageSMSDialog();}
 		else if(e.getSource() == exportMI){ dbManager.exportObjectDBToCSV(); }
 		else if(e.getSource() == dbStatusMI) {dlgManager.onDBStatusClicked();}
 		else if(e.getSource() == clearMI) {dlgManager.onClearMenuItemClicked();} 			       	
