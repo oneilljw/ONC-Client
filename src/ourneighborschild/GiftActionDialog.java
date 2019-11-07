@@ -40,6 +40,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 	private static final int CHILD_NOT_IN_LOCAL_DB = -5;
 	private static final int GIFT_ACTION_FAMILY_NOT_SERVED = -6;
 	private static final int WISH_ANTICIPATION_DNS_CODE = 7;
+	private static final int SERVED_BY_OTHERS_DNS_CODE = 6;
 
 	private JTextField oncnumTF, barcodeTF;
 	private JComboBox<String> startAgeCB, genderCB;
@@ -175,9 +176,9 @@ public abstract class GiftActionDialog extends SortTableDialog
 		for(ONCFamily f:fDB.getList())
 		{
 			//ONC number is valid and matches criteria. It must be a served family and the
-			//only allowable DNS code is WISH_ANTICIPATION.
+			//only allowable DNS code are WISH_ANTICIPATION or SERVED_BY_OTHERS.
 			if(isNumeric(f.getONCNum()) && 
-				(f.getDNSCode() == -1 || f.getDNSCode() == WISH_ANTICIPATION_DNS_CODE) && 
+				(f.getDNSCode() == -1 || f.getDNSCode() == WISH_ANTICIPATION_DNS_CODE || f.getDNSCode() == SERVED_BY_OTHERS_DNS_CODE) && 
 				 doesONCNumMatch(f.getONCNum()))	
 			{
 				for(ONCChild c:cDB.getChildren(f.getID()))

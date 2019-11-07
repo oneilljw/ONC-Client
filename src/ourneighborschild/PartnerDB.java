@@ -222,7 +222,7 @@ public class PartnerDB extends ONCSearchableDatabase
 		//return the integrated list
 		return confirmedPartnerList;
 	}
-	
+/*	
 	int decrementConfirmedOrgOrnAssigned(int orgID)
 	{
 		//find org by id
@@ -251,7 +251,7 @@ public class PartnerDB extends ONCSearchableDatabase
 				decrementConfirmedOrgOrnAssigned(cw.getPartnerID());
 		}
 	}
-
+*/
 	void resetAllOrgsStatus()
 	{
 		for(ONCPartner o:partnerList)

@@ -203,7 +203,6 @@ public class SMSDB extends ONCDatabase
 			Type listtype = new TypeToken<ArrayList<ONCSMS>>(){}.getType();
 			
 			response = serverIF.sendRequest("GET<sms_messages>");
-			System.out.println(response);
 			smsList = gson.fromJson(response, listtype);
 			
 			if(!response.startsWith("NO_SMS"))
@@ -237,10 +236,8 @@ public class SMSDB extends ONCDatabase
 	    	
 	    		try 
 	    		{
-	    			String[] header = {"ID", "AccountSid", "MessageSid", "Body", "ToZip", "ToCity",
-	    					"FromState", "SmsSid", "To", "ToCountry", "FromCountry", "SmsMessageSid",
-	    					"ApiVersion", "FromCity", "SmsStatus", "NumSegments", "NumMedia",
-	    					"From", "FromZip", "Timestamp"};
+	    			String[] header = {"ID", "Type", "Entity ID", "Phone Num", "Direction", "Body",
+	    								"Status", "Timestamp"};
 	    		
 	    			CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
 	    			writer.writeNext(header);

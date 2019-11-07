@@ -1,0 +1,19 @@
+package ourneighborschild;
+
+public enum SMSStatus
+{
+	REQUESTED,
+	VALIDATED,
+	ACCEPTED,
+	QUEUED,
+	SENDING,
+	SENT,
+	RECEIVING,
+	RECEIVED,
+	DELIVERED,
+	UNDELIVERED,
+	FAILED,
+	ERR_NO_PHONE,
+	ERR_NOT_MOBILE,
+	ERROR;
+}

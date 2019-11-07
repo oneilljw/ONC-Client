@@ -9,9 +9,11 @@ public class ONCSMS extends ONCObject
 	private String phoneNum;
 	private SMSDirection direction;
 	private String body;
+	private SMSStatus status;
 	private long timestamp;
 	
-	public ONCSMS(int id, EntityType type, int entityID, String phoneNum, SMSDirection direction, String body)
+	public ONCSMS(int id, EntityType type, int entityID, String phoneNum, SMSDirection direction,
+					String body, SMSStatus status)
 	{
 		super(id);
 		this.type = type;
@@ -19,6 +21,7 @@ public class ONCSMS extends ONCObject
 		this.phoneNum = phoneNum;
 		this.direction = direction;
 		this.body = body;
+		this.status = status;
 		this.timestamp = System.currentTimeMillis();
 	}
 	
@@ -31,21 +34,24 @@ public class ONCSMS extends ONCObject
 		this.phoneNum = nextLine[3];
 		this.direction = SMSDirection.valueOf(nextLine[4]);
 		this.body = nextLine[5];
-		this.timestamp = Long.parseLong(nextLine[6]);
+		this.status = SMSStatus.valueOf(nextLine[6]);
+		this.timestamp = Long.parseLong(nextLine[7]);
 	}
 	
 	EntityType getType() { return type; }
 	int getEntityID() { return entityID; }
-	String getPhoneNum() { return phoneNum; }
-	SMSDirection getDirection() { return direction; }
-	String getBody() { return body; }
+	public String getPhoneNum() { return phoneNum; }
+	public SMSDirection getDirection() { return direction; }
+	public String getBody() { return body; }
+	public SMSStatus getStatus() { return status; }
 	long getTimestamp() { return timestamp; }
 	
 	void setType(EntityType type) { this.type = type; }
 	void setEntityID(int entityID) { this.entityID = entityID; }
-	void setPhoneNum(String phoneNum) { this.phoneNum = phoneNum; }
-	void setDirection(SMSDirection direction) {this.direction = direction; }
+	public void setPhoneNumber(String phoneNum) { this.phoneNum = phoneNum; }
+	public void setDirection(SMSDirection direction) {this.direction = direction; }
 	void setBody(String body) { this.body = body; }
+	public void setStatus(SMSStatus status) { this.status = status; }
 	
 
 	@Override
@@ -58,6 +64,7 @@ public class ONCSMS extends ONCObject
 		row.add(phoneNum);
 		row.add(direction.toString());
 		row.add(body);
+		row.add(status.toString());
 		row.add(Long.toString(timestamp));
 		
 		return row.toArray(new String[row.size()]);
