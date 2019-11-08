@@ -78,6 +78,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	
 	//Database references
 	NoteDB noteDB;
+	SMSDB smsDB;
 	
 	//Unique gui elements for Sort Family Dialog
 	private JComboBox<String> oncCB, batchCB, regionCB, streetCB, lastnameCB, zipCB;
@@ -86,7 +87,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	private JComboBox<String> changedByCB, giftCardCB; 
 	private JComboBox<ImageIcon> stoplightCB, noteStatusCB;
 	private JComboBox<MealStatus> mealstatusCB;
-	private JComboBox<String> exportCB, printCB, emailCB, callCB;
+	private JComboBox<String> exportCB, printCB, contactCB, callCB;
 	private JComboBox<School> schoolCB;
 	private JComboBox<DNSCode> dnsCodeCB, changeDNSCB;
 	private List<DNSCode> filterCodeList;
@@ -121,6 +122,8 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	{
 		super(pf);
 		this.setTitle("Our Neighbor's Child - Family Management");
+		
+		smsDB = SMSDB.getInstance();
 		
 		noteDB = NoteDB.getInstance();
 		if(noteDB != null)
@@ -321,11 +324,11 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
         printCB.setEnabled(false);
         printCB.addActionListener(this);
         
-        String[] emailChoices = {"Email", "2018 Family Confirmation Email"};
-        emailCB = new JComboBox<String>(emailChoices);
-        emailCB.setPreferredSize(new Dimension(136, 28));
-        emailCB.setEnabled(false);
-        emailCB.addActionListener(this);
+        String[] emailChoices = {"Email/SMS", "2019 Family Confirmation Email", "2019 Family Confirmation SMS"};
+        contactCB = new JComboBox<String>(emailChoices);
+        contactCB.setPreferredSize(new Dimension(136, 28));
+        contactCB.setEnabled(false);
+        contactCB.addActionListener(this);
         
         //Set up the email progress bar
       	progressBar = new JProgressBar(0, 100);
@@ -343,7 +346,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
         cntlPanel.add(progressBar);
         cntlPanel.add(exportCB);
         cntlPanel.add(callCB);
-        cntlPanel.add(emailCB);
+        cntlPanel.add(contactCB);
         cntlPanel.add(printCB);
         
         bottomPanel.add(cntlPanel, BorderLayout.CENTER);
@@ -358,7 +361,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	void setEnabledControls(boolean tf)
 	{
 		printCB.setEnabled(tf);
-		emailCB.setEnabled(tf);
+		contactCB.setEnabled(tf);
 		callCB.setEnabled(tf);
 	}
 	
@@ -1256,7 +1259,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			{
 				exportCB.setEnabled(true);
 				printCB.setEnabled(true);
-				emailCB.setEnabled(true);
+				contactCB.setEnabled(true);
 				callCB.setEnabled(true);
 			}
 		}
@@ -1264,7 +1267,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		{
 			printCB.setEnabled(false);
 			exportCB.setEnabled(false);
-			emailCB.setEnabled(false);
+			contactCB.setEnabled(false);
 			callCB.setEnabled(false);
 		}
 			
@@ -1410,13 +1413,13 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		//Go Daddy Mail
 //		ServerCredentials creds = new ServerCredentials("smtpout.secureserver.net", "director@act4others.org", "crazyelf1");
 		//Google Mail - ONC
-		ServerCredentials creds = new ServerCredentials("smtp.gmail.com", "clientinformation@ourneighborschild.org", "crazyelf");
+		ServerCredentials creds = new ServerCredentials("smtp.gmail.com", "clientinformation@ourneighborschild.org", "ONCDataelf");
 //		ServerCredentials creds = new ServerCredentials("smtp.gmail.com", "johnwoneill1@gmail.com", "erin1992");
 		
 	    oncEmailer = new ONCEmailer(this, progressBar, fromAddress, bccList, emailAL, attachmentAL, creds);
 	    oncEmailer.addPropertyChangeListener(this);
 	    oncEmailer.execute();
-	    emailCB.setEnabled(false);		
+	    contactCB.setEnabled(false);		
 	}
 	
 	/**************************************************************************************************
@@ -1482,7 +1485,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
     		"&emsp;<b>Alternate Delivery Address:</b>  %s<br>" +
     		"&emsp;<b>Alternate Delivery Address:</b>  %s<br>" + 
         	"<p>An Our Neighbor's Child volunteer will deliver your children's gifts to the address listed above " +
-        	"on Sunday, December 16th between 1 and 4PM. <b>Please reply to this email (in English or Spanish) to "
+        	"on Sunday, December 15th between 1 and 4PM. <b>Please reply to this email (in English or Spanish) to "
         	+ "confirm that an adult will be home that day to receive your children's gifts.</b> We may also attempt to "
         	+ "contact you with an automated phone call.</p>" +
         	"<p><b>Important:  Families will only be served by one organization.</b> If your child/children's name " +
@@ -1490,7 +1493,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
         	"unable to deliver gifts to your home.</p>" +
         	"<p>If your address or telephone number should change, <b>Please include those changes in your reply</b> to this e-mail. "
         	+ "We are unable to accept any gift requests or changes to gift requests.</p>" +
-        	"<p>If an emergency arises and you are unable to have an adult home on Sunday, December 16th between 1 " +
+        	"<p>If an emergency arises and you are unable to have an adult home on Sunday, December 15th between 1 " +
         	"and 4PM - <b>Please reply to this e-mail with an alternate local address</b> (Centreville, Chantilly, Clifton or Fairfax) where " +
         	"someone will be home to receive the gifts on that day between 1 and 4PM.</p>"+
         	"<p>Thank you for your assistance and Happy Holidays!</p>" +
@@ -1516,7 +1519,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
     		"&emsp;<b>Direcci&#243;n alternativo:</b>  %s<br>" +
     		"&emsp;<b>Direcci&#243;n alternativo:</b>  %s<br>" +
         	"<p>Un voluntario de Our Neighbor's Child entregar&#225; los regalos para su hijo/hijos a la direcci&#243;n de " +
-        	"arriba el domingo, 16 de diciembre entre la 1 y la 4 de la tarde. "
+        	"arriba el domingo, 15 de diciembre entre la 1 y la 4 de la tarde. "
         	+ "<b>Por favor, responda a este correo electr�nico (en Ingl�s o Espa�ol) para confirmar que un adulto estar� "
         	+ "en casa ese d�a para recibir regalos de sus hijos</b>. Tambi�n vamos a contactar a usted con una "
         	+ "llamada telef�nica automatizada."
@@ -1525,7 +1528,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
         	"de nuestra lista y no podr&#225; entregar los regalos a su hogar</p>"
         	+"<p>Si su direcci&#243;n o numero de tel&#233;fono cambia, <b>Por favor, incluya los cambios en la respuesta a este "
         	+ "correo electr�nico.</b> Sin embargo, no podemos aceptar peticiones de regalos o cambios de peticiones.</p>" +
-        	"<p>Si hay una emergencia y un adulto no puede estar en su casa el domingo, 16 de diciembre, entre " +
+        	"<p>Si hay una emergencia y un adulto no puede estar en su casa el domingo, 15 de diciembre, entre " +
         	"la 1 y las 4 de la tarde <b>Por favor, responda a este mensaje con una direcci&#243;n local alternativa </b>" +
         	"(en Centreville, Clifton, o Fairfax) en que un adulto estar&#225; durante el d&#237;a de entrega entre la 1 y " +
         	"las 4.</p>"+
@@ -1578,6 +1581,35 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		}
 		
 		return recipientAddressList;
+	}
+	
+	void sendFamilyText()
+	{
+		//specify the phone -- THIS WILL NEED TO BE A DIALOG BOX
+		int phoneNum = 0;
+		
+		//build the family ID list
+		ArrayList<Integer> famIDList = new ArrayList<Integer>();
+		
+		//For each family selected, create the Family ID list 
+		int[] row_sel = sortTable.getSelectedRows();
+		for(int row=0; row< sortTable.getSelectedRowCount(); row++)
+		{
+			//Get selected family object
+			ONCFamily fam = stAL.get(row_sel[row]).getFamily();
+			
+			//only families with valid phone numbers will be included.
+			if(phoneNum == 0 && !fam.getHomePhone().isEmpty() || 
+				phoneNum == 1 && !fam.getCellPhone().isEmpty())
+			{
+				famIDList.add(fam.getID());
+			}
+		}
+		
+
+		String testMssg = "This is another test of ONC Text Messaging";
+		String response = smsDB.sendSMSRequest(this, testMssg, phoneNum, famIDList);
+		System.out.println(String.format("SortFamDlg.sendSMS: response= %s", response));
 	}
 	
 	//set up the search criteria filters
@@ -2540,23 +2572,29 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 				onExportAngelInputFile();
 			}
 		}
-		else if(e.getSource() == emailCB && emailCB.getSelectedIndex() > 0)	//only one email currently
+		else if(e.getSource() == contactCB && contactCB.getSelectedIndex() > 0)	//only one email currently
 		{
 			//Confirm with the user that the deletion is really intended
-			String confirmMssg = "Are you sure you want to send family email?"; 
+			String confirmMssg = "Are you sure you want to send family email or SMS?"; 
 											
 			Object[] options= {"Cancel", "Send"};
 			JOptionPane confirmOP = new JOptionPane(confirmMssg, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION,
 								gvs.getImageIcon(0), options, "Cancel");
-			JDialog confirmDlg = confirmOP.createDialog(parentFrame, "*** Confirm Send Family Email ***");
+			JDialog confirmDlg = confirmOP.createDialog(parentFrame, "*** Confirm Send Family Email/SMS ***");
 			confirmDlg.setLocationRelativeTo(this);
 			confirmDlg.setVisible(true);
 		
 			Object selectedValue = confirmOP.getValue();
 			if(selectedValue != null && selectedValue.toString().equals("Send"))
-				createAndSendFamilyEmail(emailCB.getSelectedIndex());
+			{
+				String request = (String) contactCB.getSelectedItem();
+				if(request.contains("Email"))
+					createAndSendFamilyEmail(contactCB.getSelectedIndex());
+				if(request.contains("SMS"))
+					sendFamilyText();
+			}
 			
-			emailCB.setSelectedIndex(0);	//Reset the combo box choice
+			contactCB.setSelectedIndex(0);	//Reset the combo box choice
 		}
 
 		checkApplyChangesEnabled();	//Check to see if user postured to change status or assignee. 
@@ -3275,8 +3313,8 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		{
 			if(evt.getNewValue() == SwingWorker.StateValue.DONE)
 			{
-				emailCB.setSelectedIndex(0);
-				emailCB.setEnabled(true);
+				contactCB.setSelectedIndex(0);
+				contactCB.setEnabled(true);
 			}
 		}			
 	}

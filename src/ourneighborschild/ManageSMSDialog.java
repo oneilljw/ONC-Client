@@ -10,10 +10,14 @@ import java.awt.print.PrinterException;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.sql.Date;
 import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.TimeZone;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -33,6 +37,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
+import javax.swing.table.TableCellRenderer;
 
 import au.com.bytecode.opencsv.CSVWriter;
 
@@ -48,7 +53,8 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 	private static final int PHONE_NUMBER_COL = 2;
 	private static final int DIRECTION_COL = 3;
 	private static final int BODY_COL = 4;
-	private static final int TIMESTAMP_COL = 5;
+	private static final int STATUS_COL = 5;
+	private static final int TIMESTAMP_COL = 6;
 	
 	private static final int NUM_TABLE_ROWS = 12;
 	
@@ -65,7 +71,7 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 	private JLabel lblCount;
 	
 	private SMSDB smsDB;
-//	private FamilyDB familyDB;
+	private FamilyDB familyDB;
 	
 	private List<ONCSMS> smsTableList;
 	
@@ -79,7 +85,10 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 		if(smsDB != null)
 			smsDB.addDatabaseListener(this);
 		
-	
+		familyDB = FamilyDB.getInstance();
+		if(familyDB != null)
+			familyDB.addDatabaseListener(this);
+
 		//set up the table list
 		smsTableList = new ArrayList<ONCSMS>();
 		
@@ -108,16 +117,33 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 		
 		//create the table
 		String[] colToolTips = {"Entity ID", "Entity Type", "Phone Number", "Direction",
-								"Body", "Time Stamp"};
+								"Body", "Status","Time Stamp"};
 		
 		smsTable = new ONCTable(smsTableModel, colToolTips, new Color(240,248,255));
 
 		smsTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		smsTable.getSelectionModel().addListSelectionListener(this);
 		
+		//set up a cell renderer for the LAST_LOGINS column to display the date 
+		TableCellRenderer tableCellRenderer = new DefaultTableCellRenderer()
+		{
+			private static final long serialVersionUID = 1L;
+			SimpleDateFormat f = new SimpleDateFormat("M/dd/yy H:mm:ss");
+
+			public Component getTableCellRendererComponent(JTable table, Object value,
+				            boolean isSelected, boolean hasFocus, int row, int column)
+			{ 
+				if(value instanceof java.util.Date)
+					value = f.format(value);
+				        
+				return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+			}
+		};
+		smsTable.getColumnModel().getColumn(TIMESTAMP_COL).setCellRenderer(tableCellRenderer);
+		
 		//Set table column widths
 		int tablewidth = 0;
-		int[] colWidths = {72, 56, 104, 64, 360, 104};
+		int[] colWidths = {72, 64, 104, 80, 360, 80, 144};
 		for(int col=0; col < colWidths.length; col++)
 		{
 			smsTable.getColumnModel().getColumn(col).setPreferredWidth(colWidths[col]);
@@ -243,7 +269,7 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 	void onExportRequested()
 	{
 		//Write the selected row data to a .csv file
-		String[] header = {"Entity ID", "Entity Type", "Phone #", "Direction", "Body", "Timestamp"};
+		String[] header = {"ID", "Entity Type", "Phone #", "Direction", "Body", "Timestamp"};
     
 		ONCFileChooser oncfc = new ONCFileChooser(this);
        	File oncwritefile = oncfc.getFile("Select file for export of selected rows" ,
@@ -283,6 +309,10 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 	{
 		if(dbe.getSource() != this && (dbe.getType().equals("ADDED_SMS") ||
 				dbe.getType().equals("UPDATED_SMS") || dbe.getType().equals("DELETED_SMS")))
+		{
+			createTableList(); //update the table
+		}
+		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_FAMILY"))
 		{
 			createTableList(); //update the table
 		}
@@ -333,7 +363,7 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 			
 			if(modelRow > -1)
 			{
-				ONCSMS sms = smsTableList.get(modelRow);
+//				ONCSMS sms = smsTableList.get(modelRow);
 //				this.fireEntitySelected(this, EntityType.GIFT, sms.getFamily(), sms.getChild());
 			}
 		}
@@ -352,7 +382,8 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 		 */
 		private static final long serialVersionUID = 1L;
 		
-		private String[] columnNames = {"Entity ID", "Entity Type", "Phone Number", "Direction", "Body", "Time Stamp"};
+		private String[] columnNames = {"ID", "Entity Type", "Phone Number", "Direction", 
+										"Body", "Status","Time Stamp"};
  
         public int getColumnCount() { return columnNames.length; }
  
@@ -364,8 +395,19 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
         {
         		ONCSMS sms = smsTableList.get(row);
 
-        		if(col == ENTITY_ID_COL)  
-        			return sms.getEntityID();
+        		if(col == ENTITY_ID_COL)
+        		{
+        			if(sms.getType() == EntityType.FAMILY)
+        			{
+        				ONCFamily f = familyDB.getFamily(sms.getEntityID());
+        				if(f != null)
+        					return f.getONCNum();
+        				else
+        					return "UNK";
+        			}
+        			else
+        				return Integer.toString(sms.getEntityID());
+        		}
        		else if(col == ENTITY_TYPE_COL)
        			return sms.getType().toString();
         		else if (col == PHONE_NUMBER_COL)
@@ -374,8 +416,14 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
            			return sms.getDirection().toString();
         		else if(col == BODY_COL)
         			return sms.getBody();
+        		else if(col == STATUS_COL)
+        			return sms.getStatus().toString();
         		else if (col == TIMESTAMP_COL)
-        			return sms.getTimestamp();
+        		{
+        			Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        			calendar.setTimeInMillis(sms.getTimestamp());
+        			return calendar.getTime();
+        		}
         		else
         			return "Error";
         }
@@ -384,10 +432,8 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
         @Override
         public Class<?> getColumnClass(int column)
         {
-        		if(column == ENTITY_ID_COL)
-        			return Integer.class;
         		if(column == TIMESTAMP_COL)
-        			return Long.class;
+        			return Date.class;
         		else
         			return String.class;
         }

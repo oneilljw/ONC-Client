@@ -69,4 +69,11 @@ public class ONCSMS extends ONCObject
 		
 		return row.toArray(new String[row.size()]);
 	}
+	
+	@Override
+	public String toString()
+	{
+		return String.format("ONCSMS: id=%d, entityType=%s, entityID=%d, phoneNum=%s, direction=%s, body=%s, status=%s, timestamp=%s",
+				id, type.toString(), entityID, phoneNum, direction.toString(), body, status.toString(), timestamp);
+	}
 }
