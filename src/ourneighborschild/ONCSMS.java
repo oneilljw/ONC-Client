@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 public class ONCSMS extends ONCObject
 {
+	private String messageSID;
 	private EntityType type;
 	private int	entityID;
 	private String phoneNum;
@@ -12,10 +13,11 @@ public class ONCSMS extends ONCObject
 	private SMSStatus status;
 	private long timestamp;
 	
-	public ONCSMS(int id, EntityType type, int entityID, String phoneNum, SMSDirection direction,
+	public ONCSMS(int id, String messageSID, EntityType type, int entityID, String phoneNum, SMSDirection direction,
 					String body, SMSStatus status)
 	{
 		super(id);
+		this.messageSID = messageSID;
 		this.type = type;
 		this.entityID = entityID;
 		this.phoneNum = phoneNum;
@@ -29,15 +31,17 @@ public class ONCSMS extends ONCObject
 	public ONCSMS(String[] nextLine)
 	{
 		super(Integer.parseInt(nextLine[0]));
-		this.type = EntityType.valueOf(nextLine[1]);
-		this.entityID = Integer.parseInt(nextLine[2]);
-		this.phoneNum = nextLine[3];
-		this.direction = SMSDirection.valueOf(nextLine[4]);
-		this.body = nextLine[5];
-		this.status = SMSStatus.valueOf(nextLine[6]);
-		this.timestamp = Long.parseLong(nextLine[7]);
+		this.messageSID = nextLine[1].isEmpty() ?  "" : nextLine[1];
+		this.type = EntityType.valueOf(nextLine[2]);
+		this.entityID = Integer.parseInt(nextLine[3]);
+		this.phoneNum = nextLine[4];
+		this.direction = SMSDirection.valueOf(nextLine[5]);
+		this.body = nextLine[6];
+		this.status = SMSStatus.valueOf(nextLine[7]);
+		this.timestamp = Long.parseLong(nextLine[8]);
 	}
 	
+	public String getMessageSID() { return messageSID; }
 	EntityType getType() { return type; }
 	int getEntityID() { return entityID; }
 	public String getPhoneNum() { return phoneNum; }
@@ -46,6 +50,7 @@ public class ONCSMS extends ONCObject
 	public SMSStatus getStatus() { return status; }
 	long getTimestamp() { return timestamp; }
 	
+	void setMessageSID(String messageSID) { this.messageSID = messageSID; }
 	void setType(EntityType type) { this.type = type; }
 	void setEntityID(int entityID) { this.entityID = entityID; }
 	public void setPhoneNumber(String phoneNum) { this.phoneNum = phoneNum; }
@@ -59,6 +64,7 @@ public class ONCSMS extends ONCObject
 	{
 		ArrayList<String> row = new ArrayList<String>();
 		row.add(Integer.toString(id));
+		row.add(messageSID);
 		row.add(type.toString());
 		row.add(Integer.toString(entityID));
 		row.add(phoneNum);
@@ -73,7 +79,7 @@ public class ONCSMS extends ONCObject
 	@Override
 	public String toString()
 	{
-		return String.format("ONCSMS: id=%d, entityType=%s, entityID=%d, phoneNum=%s, direction=%s, body=%s, status=%s, timestamp=%s",
-				id, type.toString(), entityID, phoneNum, direction.toString(), body, status.toString(), timestamp);
+		return String.format("ONCSMS: id=%d, messageSID= %s, entityType=%s, entityID=%d, phoneNum=%s, direction=%s, body=%s, status=%s, timestamp=%s",
+				id, messageSID, type.toString(), entityID, phoneNum, direction.toString(), body, status.toString(), timestamp);
 	}
 }

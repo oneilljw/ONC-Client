@@ -48,13 +48,14 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 	 * This class implements a dialog which allows the user to manage users
 	 */
 	private static final long serialVersionUID = 1L;
-	private static final int ENTITY_ID_COL= 0;
-	private static final int ENTITY_TYPE_COL = 1;
-	private static final int PHONE_NUMBER_COL = 2;
-	private static final int DIRECTION_COL = 3;
-	private static final int BODY_COL = 4;
-	private static final int STATUS_COL = 5;
-	private static final int TIMESTAMP_COL = 6;
+	private static final int MESSAGE_SID_COL = 0;
+	private static final int ENTITY_ID_COL= 1;
+	private static final int ENTITY_TYPE_COL = 2;
+	private static final int PHONE_NUMBER_COL = 3;
+	private static final int DIRECTION_COL = 4;
+	private static final int BODY_COL = 5;
+	private static final int STATUS_COL = 6;
+	private static final int TIMESTAMP_COL = 7;
 	
 	private static final int NUM_TABLE_ROWS = 12;
 	
@@ -116,7 +117,7 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 		smsTableModel = new SMSTableModel();
 		
 		//create the table
-		String[] colToolTips = {"Entity ID", "Entity Type", "Phone Number", "Direction",
+		String[] colToolTips = {"Message SID", "Entity ID", "Entity Type", "Phone Number", "Direction",
 								"Body", "Status","Time Stamp"};
 		
 		smsTable = new ONCTable(smsTableModel, colToolTips, new Color(240,248,255));
@@ -143,7 +144,7 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 		
 		//Set table column widths
 		int tablewidth = 0;
-		int[] colWidths = {72, 64, 104, 80, 360, 80, 144};
+		int[] colWidths = {144, 72, 64, 104, 80, 360, 80, 144};
 		for(int col=0; col < colWidths.length; col++)
 		{
 			smsTable.getColumnModel().getColumn(col).setPreferredWidth(colWidths[col]);
@@ -382,7 +383,7 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 		 */
 		private static final long serialVersionUID = 1L;
 		
-		private String[] columnNames = {"ID", "Entity Type", "Phone Number", "Direction", 
+		private String[] columnNames = {"Message SID", "ID", "Entity Type", "Phone Number", "Direction", 
 										"Body", "Status","Time Stamp"};
  
         public int getColumnCount() { return columnNames.length; }
@@ -395,7 +396,9 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
         {
         		ONCSMS sms = smsTableList.get(row);
 
-        		if(col == ENTITY_ID_COL)
+        		if(col == MESSAGE_SID_COL)
+        			return sms.getMessageSID();
+        		else if(col == ENTITY_ID_COL)
         		{
         			if(sms.getType() == EntityType.FAMILY)
         			{

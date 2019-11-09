@@ -248,7 +248,7 @@ public class SMSDB extends ONCDatabase
 	    	
 	    		try 
 	    		{
-	    			String[] header = {"ID", "Type", "Entity ID", "Phone Num", "Direction", "Body",
+	    			String[] header = {"ID", "Message SID", "Type", "Entity ID", "Phone Num", "Direction", "Body",
 	    								"Status", "Timestamp"};
 	    		
 	    			CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));

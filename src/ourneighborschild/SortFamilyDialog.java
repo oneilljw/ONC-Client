@@ -1606,8 +1606,9 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			}
 		}
 		
-
-		String testMssg = "This is another test of ONC Text Messaging";
+		String testMssg = "Our Neighbors Child (ONC): Reply \"C\" to confirm an adult will be "
+				+ "home between 1 and 4PM on Sunday, December 15 to accept children's gifts";
+		
 		String response = smsDB.sendSMSRequest(this, testMssg, phoneNum, famIDList);
 		System.out.println(String.format("SortFamDlg.sendSMS: response= %s", response));
 	}
@@ -2575,19 +2576,21 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		else if(e.getSource() == contactCB && contactCB.getSelectedIndex() > 0)	//only one email currently
 		{
 			//Confirm with the user that the deletion is really intended
-			String confirmMssg = "Are you sure you want to send family email or SMS?"; 
+			String request = (String) contactCB.getSelectedItem();
+			String type = request.contains("Email") ? "an Email" : "a SMS message";
+			
+			String confirmMssg = String.format("Are you sure you want to send family(s) %s?", type); 
 											
 			Object[] options= {"Cancel", "Send"};
 			JOptionPane confirmOP = new JOptionPane(confirmMssg, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION,
 								gvs.getImageIcon(0), options, "Cancel");
-			JDialog confirmDlg = confirmOP.createDialog(parentFrame, "*** Confirm Send Family Email/SMS ***");
+			JDialog confirmDlg = confirmOP.createDialog(parentFrame, String.format("*** Confirm Send Family(s) %s ***", type));
 			confirmDlg.setLocationRelativeTo(this);
 			confirmDlg.setVisible(true);
 		
 			Object selectedValue = confirmOP.getValue();
 			if(selectedValue != null && selectedValue.toString().equals("Send"))
 			{
-				String request = (String) contactCB.getSelectedItem();
 				if(request.contains("Email"))
 					createAndSendFamilyEmail(contactCB.getSelectedIndex());
 				if(request.contains("SMS"))
