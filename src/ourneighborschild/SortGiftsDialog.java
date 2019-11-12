@@ -33,7 +33,6 @@ import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -71,7 +70,7 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 	private ArrayList<SortGiftObject> stAL;
 	
 	private JComboBox<String> startAgeCB, endAgeCB, giftnumCB, genderCB, resCB, changedByCB;
-	private JComboBox<String> changeResCB, printCB, regionCB, schoolCB;
+	private JComboBox<String> changeResCB, printCB, regionCB, schoolCB, exportCB;
 	private JComboBox<ONCGift> giftCB;
 	private JComboBox<GiftStatus>  statusCB, changeStatusCB;
 	private JComboBox<ONCPartner> assignCB, changePartnerCB;
@@ -85,7 +84,7 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 	private DefaultComboBoxModel<ONCPartner> assignCBM, changePartnerCBM;
 	
 	private JTextField oncnumTF;
-	private JButton btnExport;
+//	private JButton btnExport;
 	private JDateChooser ds, de;
 	private Calendar sortStartCal = null, sortEndCal = null;
 	private JCheckBox labelFitCxBox;
@@ -334,9 +333,15 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 	    
 	    JPanel cntlPanel = new JPanel();
 	    cntlPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
-        btnExport = new JButton("Export Data");
-        btnExport.setEnabled(false);
-        btnExport.addActionListener(this);
+//        btnExport = new JButton("Export Data");
+//        btnExport.setEnabled(false);
+//        btnExport.addActionListener(this);
+        
+        String[] exportChoices = {"Export", "Exxport Listing", "Export SignUp Genius"};
+        exportCB = new JComboBox<String>(exportChoices);
+        exportCB.setPreferredSize(new Dimension(136, 28));
+        exportCB.setEnabled(true);
+        exportCB.addActionListener(this);
         
         String[] printChoices = {"Print", "Print Listing", "Print Labels", "Print Partner Receiving Check Sheets"};
         printCB = new JComboBox<String>(printChoices);
@@ -344,7 +349,8 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
         printCB.setEnabled(true);
         printCB.addActionListener(this);
    
-        cntlPanel.add(btnExport);
+//      cntlPanel.add(btnExport);
+        cntlPanel.add(exportCB);
       	cntlPanel.add(printCB);
       	
       	bottomPanel.add(infoPanel, BorderLayout.LINE_START);
@@ -407,7 +413,7 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 	@Override
 	void setEnabledControls(boolean tf)
 	{
-		btnExport.setEnabled(tf);
+		exportCB.setEnabled(tf);
 	}
 	
 	public void buildTableList(boolean bPreserveSelections)
@@ -841,9 +847,9 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 	void checkExportEnabled()
 	{
 		if(sortTable.getSelectedRowCount() > 0)
-			btnExport.setEnabled(true);
+			exportCB.setEnabled(true);
 		else
-			btnExport.setEnabled(false);
+			exportCB.setEnabled(false);
 	}
 	
 	void onExportRequested()
@@ -887,6 +893,52 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
        			System.err.format("IOException: %s%n", x);
        		}
 	    }
+       	
+        exportCB.setSelectedIndex(0);	//Reset the user export request
+	}
+	
+	void onExportSignUpGeniusRequested()
+	{
+		//Write the selected row data to a .csv file
+		String[] header = {"Start Date/Time", "Qty", "Item"};
+    
+		ONCFileChooser oncfc = new ONCFileChooser(this);
+       	File oncwritefile = oncfc.getFile("Select file for export of selected rows" ,
+       							new FileNameExtensionFilter("CSV Files", "csv"), ONCFileChooser.SAVE_FILE);
+       	if(oncwritefile!= null)
+       	{
+       		//If user types a new filename without extension.csv, add it
+       		String filePath = oncwritefile.getPath();
+       		if(!filePath.toLowerCase().endsWith(".csv")) 
+       			oncwritefile = new File(filePath + ".csv");
+	    	
+       		try 
+       		{
+       			CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
+       			writer.writeNext(header);
+	    	    
+       			int[] row_sel = sortTable.getSelectedRows();
+       			for(int i=0; i<sortTable.getSelectedRowCount(); i++)
+       			{
+       				int index = row_sel[i];
+       				writer.writeNext(stAL.get(index).getSignUpGeniusExportRow());
+       			}
+	    	   
+       			writer.close();
+	    	    
+       			JOptionPane.showMessageDialog(this, 
+						sortTable.getSelectedRowCount() + " gifts sucessfully exported to " + oncwritefile.getName(), 
+						"Export Successful", JOptionPane.INFORMATION_MESSAGE, gvs.getImageIcon(0));
+       		} 
+       		catch (IOException x)
+       		{
+       			JOptionPane.showMessageDialog(this, "Export Failed, I/O Error: "  + x.getMessage(),  
+       						"Export Failed", JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
+       			System.err.format("IOException: %s%n", x);
+       		}
+	    }
+       	
+        exportCB.setSelectedIndex(0);	//Reset the user export request
 	}
 
 	private boolean doesONCNumMatch(String s) { return sortONCNum.isEmpty() || sortONCNum.equals(s); }
@@ -1141,9 +1193,27 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 				}
 			}
 		}
-		else if(e.getSource() == btnExport)
+//		else if(e.getSource() == btnExport)
+//		{
+//			onExportRequested();	
+//		}
+		else if(e.getSource() == exportCB)
 		{
-			onExportRequested();	
+			if(sortTable.getSelectedRowCount() > 0)
+			{
+				if(exportCB.getSelectedIndex() == 1)
+					onExportRequested();
+				else if(exportCB.getSelectedIndex() == 2)
+					onExportSignUpGeniusRequested();
+			}
+			else	//Warn user
+			{
+				JOptionPane.showMessageDialog(this, 
+					"No gifts selected, please selected gifts in order to " + 
+					exportCB.getSelectedItem().toString(), 
+					"No Gifts Selected", JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
+				exportCB.setSelectedIndex(0);
+			}
 		}
 		else if(!bIgnoreCBEvents && (e.getSource() == changeResCB ||
 					e.getSource() == changeStatusCB || e.getSource() == changePartnerCB))

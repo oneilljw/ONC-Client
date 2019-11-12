@@ -55,6 +55,17 @@ public class SortGiftObject extends ONCObject
 		return exportRow;
 	}
 	
+	public String[] getSignUpGeniusExportRow()
+	{
+		
+		String[] row = new String[1];
+		
+		row[0] = String.format("ONC#: %s ** %s %s ** %s" , soFamily.getONCNum(), soChild.getChildAge(),
+				 soChild.getChildGender(), soChildGift.getDetail());
+		
+		return row;
+	}
+	
 	String[] getReceivingSheetRow()
 	{
 		GiftCatalogDB cat = GiftCatalogDB.getInstance();
