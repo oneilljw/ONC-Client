@@ -5,9 +5,17 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.print.PageFormat;
+import java.awt.print.Printable;
 import java.awt.print.PrinterException;
+import java.awt.print.PrinterJob;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -241,7 +249,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
         emailCB.setEnabled(false);
         emailCB.addActionListener(this);
 			    
-        String[] printChoices = {"Print", "Print Listing", "Print Partner Info"};
+        String[] printChoices = {"Print", "Print Listing", "Print Partner Info", "Print Bag Labels"};
         printCB = new JComboBox<String>(printChoices);
         printCB.setPreferredSize(new Dimension(136, 28));
         printCB.setEnabled(false);
@@ -1607,6 +1615,31 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		}
 	}
 	
+	void onPrintBagLabels()
+	{
+		if(sortTable.getSelectedRowCount() > 0)	 //Print selected rows. If no rows selected, do nothing
+		{
+			PrinterJob pj = PrinterJob.getPrinterJob();
+
+			pj.setPrintable(new AveryBagLabelPrinter());
+         
+			boolean ok = pj.printDialog();
+			if (ok)
+			{
+				try
+				{
+					pj.print();
+				}
+				catch (PrinterException ex)
+				{
+					/* The job did not successfully complete */
+				}       
+			}
+		}
+		
+        printCB.setSelectedIndex(0);	//Reset the user print request
+	}
+	
 	void onPrintPartnerInfo()
 	{
 		//pop up a dialog with the table and print it
@@ -1892,6 +1925,10 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 			else if(printCB.getSelectedIndex() == 2) {
 				onPrintPartnerInfo();
 			}
+			else if(printCB.getSelectedIndex() == 3) 
+			{
+				onPrintBagLabels();
+			}
 		}
 		else if(e.getSource() == emailCB && emailCB.getSelectedIndex() > 0 && emailCB.getSelectedIndex() < 5)
 		{
@@ -2131,5 +2168,162 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		// TODO Auto-generated method stub
 		
 	}
+	
+	/*********************************************************************************************
+	 * This class implements the Printable interface for printing ONC Book Labels on Avery 5164
+	 * label sheets. It contains a method that knows how to print a book label. To print a label,
+	 * the x, y position of the label on the sheet, the label content, the fonts to be used,
+	 * the current season, the ONC icon and a Graphics2D object are passed. The 
+	 * @author John O'Neill
+	 ********************************************************************************************/
+	private class AveryBagLabelPrinter implements Printable
+	{
+		private static final int AVERY_SHEET_X_OFFSET = 6;
+		private static final int AVERY_SHEET_Y_OFFSET = 20;	//30
+		private static final int AVERY_LABEL_X_COORDINATE_OFFSET = 18;	//Used for coordinate translation
+		private static final int AVERY_LABEL_Y_COORDINATE_OFFSET = 36;
+		private static final int AVERY_LABEL_Y_OFFSET = 0;	//Distance from to of label to 1st text
+		private static final int AVERY_LABELS_PER_PAGE = 6;
+		private static final int AVERY_COLUMNS_PER_PAGE = 2;
+		private static final int AVERY_LABEL_HEIGHT = 239;
+		private static final int AVERY_LABEL_WIDTH = 300;
+		private static final int AVERY_LABEL_IMAGE_X_OFFSET = 180;	//210
+		private static final int AVERY_LABEL_IMAGE_Y_OFFSET = 8;	//-18
+		private static final int AVERY_LABEL_CHILD_ROW_HEIGHT = 20;
+		
+		private static final int NUM_OF_XMAS_ICONS = 5;
+		private static final int XMAS_ICON_OFFSET = 9;
+		
+		void printLabel(int x, int y, List<String> line, Font[] lFont, String season, Image img, Graphics2D g2d)
+		{			     
+		    double scaleFactor = (72d / 300d) * 2;
+		     	     
+		    // Now we perform our rendering 	       	    
+		    int destX1 = (int) (img.getWidth(null) * scaleFactor);
+		    int destY1 = (int) (img.getHeight(null) * scaleFactor);
+		    
+		    //Draw ONC image scaled to fit image clip region on the label
+		    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		    g2d.drawImage(img, x+AVERY_LABEL_IMAGE_X_OFFSET, y + AVERY_LABEL_IMAGE_Y_OFFSET,
+		    				x+AVERY_LABEL_IMAGE_X_OFFSET+destX1, y+AVERY_LABEL_IMAGE_Y_OFFSET+destY1,
+		    				0,0, img.getWidth(null),img.getHeight(null),null); 
+	         
+		    //Draw the ONC Season
+		    g2d.setFont(lFont[1]);
+		    g2d.drawString("ONC " + season, x + AVERY_LABEL_IMAGE_X_OFFSET-2, y+58+AVERY_LABEL_IMAGE_Y_OFFSET);
+		    
+		    //Draw Partner Name
+		    g2d.setFont(lFont[1]);
+			g2d.drawString(line.get(0), x, y+AVERY_LABEL_Y_OFFSET); 	//Partner Name
+			
+			//Draw Partner ID #
+		    g2d.setFont(lFont[2]);
+			g2d.drawString(line.get(1), x, y+AVERY_LABEL_Y_OFFSET+16); 
+			
+			//Draw Street Address 
+		    g2d.setFont(lFont[2]);
+			g2d.drawString(line.get(2), x, y+AVERY_LABEL_Y_OFFSET+64);
+			
+			//Draw City, Zip
+		    g2d.setFont(lFont[2]);
+			g2d.drawString(line.get(3), x, y+AVERY_LABEL_Y_OFFSET+80);
+			
+			//Contact Name
+		    g2d.setFont(lFont[2]);
+			g2d.drawString(line.get(4), x, y+AVERY_LABEL_Y_OFFSET+136);
+			
+			//Partner Phone #
+		    g2d.setFont(lFont[2]);
+			g2d.drawString(line.get(5), x, y+AVERY_LABEL_Y_OFFSET+156);
+			
+			//Contact Phone #
+		    g2d.setFont(lFont[2]);
+			g2d.drawString(line.get(6), x, y+AVERY_LABEL_Y_OFFSET+172);
+			
+			//# Ornaments Assigned
+		    g2d.setFont(lFont[3]);
+		    int numOrnamentsLength = line.get(7).length();
+		    int offset = numOrnamentsLength == 2 ? 182 : 172;
+			g2d.drawString(line.get(7), x+offset, y+AVERY_LABEL_Y_OFFSET+128);
+			
+			//# Ornaments Assigned Label
+		    g2d.setFont(lFont[0]);
+			g2d.drawString("Ornaments", x+178, y+AVERY_LABEL_Y_OFFSET+144);
+		    
+		    //For each child, draw the child line
+//		    g2d.setFont(lFont[1]);
+//		    for(int i=1; i<line.size(); i++)
+//		    		g2d.drawString(line.get(i), x, i*AVERY_LABEL_CHILD_ROW_HEIGHT + y+AVERY_LABEL_Y_OFFSET);
+		}
+
+		@Override
+		public int print(Graphics g, PageFormat pf, int page) throws PrinterException
+		{
+			if (page > (sortTable.getSelectedRowCount()+1)/AVERY_LABELS_PER_PAGE)		//'page' is zero-based 
+			{ 
+				return NO_SUCH_PAGE;
+		    }
+			
+			SimpleDateFormat sYear = new SimpleDateFormat("yy");
+			SimpleDateFormat sSeason = new SimpleDateFormat("yyyy");
+			
+			int idx = Integer.parseInt(sYear.format(gvs.getSeasonStartDate())) % NUM_OF_XMAS_ICONS;
+			final Image img = gvs.getImageIcon(idx + XMAS_ICON_OFFSET).getImage();
+		     
+			Font[] lFont = new Font[4];
+		    lFont[0] = new Font("Calibri", Font.ITALIC, 12);
+		    lFont[1] = new Font("Calibri", Font.BOLD, 14);
+		    lFont[2] = new Font("Calibri", Font.PLAIN, 12);
+		    lFont[3] = new Font("Calibri", Font.BOLD, 44);	//ONC Number Text Font
+		    
+		    int endOfSelection = 0, index = 0;
+		    int[] row_sel = sortTable.getSelectedRows();
+	 		if(sortTable.getSelectedRowCount() > 0)
+	 		{	//print a label for each row selected
+	 			index = page * AVERY_LABELS_PER_PAGE;
+	 			endOfSelection = row_sel.length;
+	 		}
+		    	 
+		    // User (0,0) is typically outside the imageable area, so we must
+		    //translate by the X and Y values in the PageFormat to avoid clipping
+		    Graphics2D g2d = (Graphics2D)g;
+		    g2d.translate(AVERY_LABEL_X_COORDINATE_OFFSET, AVERY_LABEL_Y_COORDINATE_OFFSET);
+		    
+		    int row = 0, col = 0;
+		    
+		    while(row < AVERY_LABELS_PER_PAGE/AVERY_COLUMNS_PER_PAGE && index < endOfSelection)
+		    {
+		    		//Get a reference to the selected family
+		    		ONCPartner p = stAL.get(row_sel[index]);
+		    	
+		    		//Create a string array, one element for each child in the family
+				List<String> line = new ArrayList<String>();
+				
+				line.add(p.getLastName());
+				line.add(Integer.toString(p.getID()));
+				line.add(String.format("%s %s", p.getHouseNum(), p.getStreet()));
+				line.add(String.format("%s, %s", p.getCity(), p.getZipCode()));
+				line.add(p.getContact());
+				line.add(p.getHomePhone());
+				line.add(p.getContact_phone());
+				line.add(Integer.toString(p.getNumberOfOrnamentsAssigned()));
+				
+				//only print a label if there is qualifying information
+				if(line.size() > 1)	//more than just the ID number
+				{	
+					printLabel(col * AVERY_LABEL_WIDTH + AVERY_SHEET_X_OFFSET,
+		    				row * AVERY_LABEL_HEIGHT + AVERY_SHEET_Y_OFFSET,
+		    				line, lFont, sSeason.format(gvs.getSeasonStartDate()), img, g2d);	
+		    	
+					if(++col == AVERY_COLUMNS_PER_PAGE) { row++; col = 0; }
+				}
+		    	
+				index++; //Increment the total number of family book labels processed
+		    }
+		    	    
+		     /* tell the caller that this page is part of the printed document */
+		     return PAGE_EXISTS;
+		}
+	}	
 		
 }

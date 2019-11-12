@@ -189,6 +189,7 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 			giftCB.setSelectedItem(wish);
 		else
 			giftCB.setSelectedIndex(0);
+		giftCB.setToolTipText("Child Gift ID " + Integer.toString(cw.getID()));
 		
 		giftindCB.setSelectedIndex(cw.getIndicator());
 			

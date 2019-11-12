@@ -151,6 +151,7 @@ public class ChildPanel extends JPanel implements DatabaseListener, EntitySelect
 			firstnameTF.setText("Child " + cDB.getChildNumber(child));
 			lastnameTF.setText("");
 		}
+		lastnameTF.setToolTipText("Child ID " + Integer.toString(child.getID()));
 		
 		dobDC.setCalendar(convertDOBFromGMT(child.getChildDateOfBirth()));
 		
