@@ -337,7 +337,7 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 //        btnExport.setEnabled(false);
 //        btnExport.addActionListener(this);
         
-        String[] exportChoices = {"Export", "Exxport Listing", "Export SignUp Genius"};
+        String[] exportChoices = {"Export", "Export Listing", "Export SignUp Genius"};
         exportCB = new JComboBox<String>(exportChoices);
         exportCB.setPreferredSize(new Dimension(136, 28));
         exportCB.setEnabled(true);
