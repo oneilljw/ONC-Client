@@ -167,7 +167,7 @@ public class ChildGiftDB extends ONCDatabase
 	}
 	
 	//adds a list of gifts to the child gift data base.
-	String addGiftList(Object source, List<ONCChildGift> addGiftList)
+	String addGiftList(Object source, List<AddGiftRequest> addGiftRequestList)
 	{		
 		GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
 		String cb = UserDB.getInstance().getUserLNFI();
@@ -176,27 +176,33 @@ public class ChildGiftDB extends ONCDatabase
 		List<ONCChildGift> reqAddGiftList = new ArrayList<ONCChildGift>();
 		
 		//create the list of added gifts
-		for(ONCChildGift addedGift : addGiftList)
+		for(AddGiftRequest addGiftReq : addGiftRequestList)
 		{
 			//Get the old gift being replaced
-			ONCChildGift replacedGift = getGift(addedGift.getChildID(), addedGift.getGiftNumber());
+			ONCChildGift replacedGift = addGiftReq.getPriorGift();
+			ONCChildGift requestedGift = addGiftReq.getNewGift();
 
-			//determine if we need to change the partner id
-			ONCPartner currPartner = partnerDB.getPartnerByID(addedGift.getPartnerID());
-			int newPartnerID = -1;
-			if(replacedGift != null && replacedGift.getGiftID() != addedGift.getGiftID())
-				newPartnerID = -1;
-			else if(currPartner == null && replacedGift != null)
-				newPartnerID = replacedGift.getPartnerID(); 	//Staying the same
-			else if(currPartner != null)
-				newPartnerID = currPartner.getID();
-
+			//determine if we need to change the partner. If the gift is changing, then the partner ID 
+			//in the requested gift must be set to -1 (no partner)
+			int newPartnerID;
+			ONCPartner newPartner = null;
+			if(replacedGift != null && replacedGift.getGiftID() != requestedGift.getGiftID())
+				newPartnerID = -1;	//selected gift has changed, partner must be reset
+			else if(requestedGift.getPartnerID() == -1)
+				newPartnerID = -1;	//request gift has removed partner	
+			else
+			{
+				newPartnerID = requestedGift.getPartnerID();
+				newPartner = partnerDB.getPartnerByID(requestedGift.getPartnerID());
+			}
+			
+			
 			//create the added gift, with childwishID = -1, meaning no wish selected
 			//the server will add the childwishID and return it
-			ONCChildGift reqCW = new ONCChildGift(-1, addedGift.getChildID(),addedGift.getGiftID(),
-								   checkForDetailChange(addedGift.getIndicator(), addedGift.getDetail(), currPartner, replacedGift), 
-								   addedGift.getGiftNumber(), addedGift.getIndicator(),
-								   checkForStatusChange(replacedGift, addedGift.getGiftID(), addedGift.getGiftStatus(), currPartner), 
+			ONCChildGift reqCW = new ONCChildGift(-1, requestedGift.getChildID(),requestedGift.getGiftID(),
+								   checkForDetailChange(requestedGift.getIndicator(), requestedGift.getDetail(), newPartner, replacedGift), 
+								   requestedGift.getGiftNumber(),requestedGift.getIndicator(),
+								   checkForStatusChange(replacedGift, requestedGift.getGiftID(), requestedGift.getGiftStatus(), newPartner), 
 								   newPartnerID, cb, dc);
 			
 			reqAddGiftList.add(reqCW);
@@ -237,7 +243,7 @@ public class ChildGiftDB extends ONCDatabase
 	 * the catalog, this method will set the gift status to SELECTED. Conversely, if
 	 * a gift was selected from the catalog and is reset to empty, the status is set to Not_Selected.
 	 ************************************************************************************************************/	
-	GiftStatus checkForStatusChange(ONCChildGift oldGift, int giftBase, GiftStatus reqStatus, ONCPartner reqOrg)
+	GiftStatus checkForStatusChange(ONCChildGift oldGift, int giftBase, GiftStatus reqStatus, ONCPartner reqPartner)
 	{
 		GiftStatus currStatus, newStatus;
 		
@@ -252,7 +258,7 @@ public class ChildGiftDB extends ONCDatabase
 		switch(currStatus)
 		{
 			case Not_Selected:
-				if(giftBase > -1 && reqOrg != null && reqOrg.getID() != -1)
+				if(giftBase > -1 && reqPartner != null && reqPartner.getID() != -1)
 					newStatus = GiftStatus.Assigned;	//assigned from inventory
 				else if(giftBase > -1)
 					newStatus = GiftStatus.Selected;
@@ -261,7 +267,7 @@ public class ChildGiftDB extends ONCDatabase
 			case Selected:
 				if(giftBase == -1)
 					newStatus = GiftStatus.Not_Selected;
-				else if(reqOrg != null && reqOrg.getID() != -1)
+				else if(reqPartner != null && reqPartner.getID() != -1)
 					newStatus = GiftStatus.Assigned;
 				break;
 				
@@ -270,7 +276,7 @@ public class ChildGiftDB extends ONCDatabase
 					newStatus = GiftStatus.Not_Selected;
 				else if(oldGift.getGiftID() != giftBase)
 					newStatus = GiftStatus.Selected;
-				else if(reqOrg == null || reqOrg != null && reqOrg.getID() == -1)
+				else if(reqPartner == null || reqPartner != null && reqPartner.getID() == -1)
 					newStatus = GiftStatus.Selected;
 				else if(reqStatus == GiftStatus.Delivered)
 					newStatus = GiftStatus.Delivered;
@@ -279,10 +285,10 @@ public class ChildGiftDB extends ONCDatabase
 			case Delivered:
 				if(reqStatus == GiftStatus.Returned)
 					newStatus = GiftStatus.Returned;
-				else if(reqStatus == GiftStatus.Delivered && reqOrg != null && 
-							reqOrg.getID() > -1 && reqOrg.getType() == PARTNER_TYPE_ONC_SHOPPER)
+				else if(reqStatus == GiftStatus.Delivered && reqPartner != null && 
+							reqPartner.getID() > -1 && reqPartner.getType() == PARTNER_TYPE_ONC_SHOPPER)
 					newStatus = GiftStatus.Shopping;
-				else if(reqStatus == GiftStatus.Delivered && reqOrg != null && reqOrg.getID() > -1)
+				else if(reqStatus == GiftStatus.Delivered && reqPartner != null && reqPartner.getID() > -1)
 					newStatus = GiftStatus.Assigned;
 				else if(reqStatus == GiftStatus.Shopping)
 					newStatus = GiftStatus.Shopping;
@@ -293,11 +299,11 @@ public class ChildGiftDB extends ONCDatabase
 			case Returned:
 				if(giftBase == -1)
 					newStatus = GiftStatus.Not_Selected;
-				else if(reqOrg != null && reqOrg.getID() == -1)
+				else if(reqPartner != null && reqPartner.getID() == -1)
 					newStatus = GiftStatus.Selected;
-				else if(reqOrg != null && reqOrg.getType() != PARTNER_TYPE_ONC_SHOPPER)
+				else if(reqPartner != null && reqPartner.getType() != PARTNER_TYPE_ONC_SHOPPER)
 					newStatus = GiftStatus.Assigned;
-				else if(reqOrg != null && reqOrg.getType() == PARTNER_TYPE_ONC_SHOPPER)
+				else if(reqPartner != null && reqPartner.getType() == PARTNER_TYPE_ONC_SHOPPER)
 					newStatus = GiftStatus.Shopping;
 				break;
 				
@@ -327,9 +333,9 @@ public class ChildGiftDB extends ONCDatabase
 			case Missing:
 				if(reqStatus == GiftStatus.Received)
 					newStatus = GiftStatus.Received;
-				else if(reqOrg != null && reqOrg.getType() == PARTNER_TYPE_ONC_SHOPPER)
+				else if(reqPartner != null && reqPartner.getType() == PARTNER_TYPE_ONC_SHOPPER)
 					newStatus = GiftStatus.Shopping;
-				else if(reqStatus == GiftStatus.Assigned && reqOrg != null && reqOrg.getID() > -1)
+				else if(reqStatus == GiftStatus.Assigned && reqPartner != null && reqPartner.getID() > -1)
 					newStatus = GiftStatus.Assigned;
 				break;
 				

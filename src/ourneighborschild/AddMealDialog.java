@@ -1,6 +1,8 @@
 package ourneighborschild;
 
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Date;
 import java.util.EnumSet;
 
@@ -32,15 +34,22 @@ public class AddMealDialog extends InfoDialog implements EntitySelectionListener
 		//Set up the main panel, loop to set up components associated with names
 		for(int pn=0; pn < getDialogFieldNames().length; pn++)
 		{
-			tf[pn] = new JTextField(12);
+			tf[pn] = new JTextField(16);
 			tf[pn].addKeyListener(tfkl);
 			tf[pn].setEnabled(false);
 			infopanel[pn].add(tf[pn]);
 		}
 		
 		//set up the transformation panel
-		mealRequestCB = new JComboBox<MealType>(MealType.getSelectionList());
-		mealRequestCB.setPreferredSize(new Dimension(158,36));
+		mealRequestCB = new JComboBox<MealType>(MealType.getAddMealList());
+		mealRequestCB.setPreferredSize(new Dimension(208,36));
+		mealRequestCB.addActionListener(new ActionListener() 
+		{
+	        public void actionPerformed(ActionEvent arg0) 
+	        {
+	        		btnAction.setEnabled(mealRequestCB.getSelectedIndex() > 0);
+	        }	
+	    });
 		infopanel[2].remove(tf[2]);
 		infopanel[2].add(mealRequestCB);
 		tf[3].setEnabled(true);
@@ -57,7 +66,7 @@ public class AddMealDialog extends InfoDialog implements EntitySelectionListener
 		
 		tf[0].setText(f.getONCNum());
 		tf[1].setText(f.getLastName());
-		mealRequestCB.setSelectedItem(0);
+		mealRequestCB.setSelectedItem(MealType.No_Assistance_Rqrd);
 		tf[3].setText("");
 	}
 
@@ -88,9 +97,11 @@ public class AddMealDialog extends InfoDialog implements EntitySelectionListener
 	}
 
 	@Override
-	boolean fieldUnchanged() {
-		// TODO Auto-generated method stub
-		return false;
+	boolean fieldUnchanged() 
+	{
+		//since this dialog is only launched when adding a meal, just check to see if
+		//the meal type has changed from the initial state, index = 0;
+		return mealRequestCB.getSelectedIndex() == 0;
 	}
 
 	@Override

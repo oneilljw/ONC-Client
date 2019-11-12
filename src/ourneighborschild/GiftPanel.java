@@ -174,47 +174,47 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 			addGift();
 	}
 	
-	void displayWish(ONCChildGift cw, ONCChild c)
+	void display(ONCChildGift cg, ONCChild c)
 	{
 		bGiftChanging = true;
 		
-		child = c;
-		childGift = cw;
+		this.child = c;
+		this.childGift = cg;
 		
-		border.setTitle(String.format("Gift %d: %s", giftNumber+1, cw.getGiftStatus()));
+		border.setTitle(String.format("Gift %d: %s", giftNumber+1, cg.getGiftStatus()));
 		this.repaint();
 			
-		ONCGift wish = cat.getGiftByID(cw.getGiftID());
+		ONCGift wish = cat.getGiftByID(cg.getGiftID());
 		if(wish != null)
 			giftCB.setSelectedItem(wish);
 		else
 			giftCB.setSelectedIndex(0);
-		giftCB.setToolTipText("Child Gift ID " + Integer.toString(cw.getID()));
+		giftCB.setToolTipText("Child Gift ID " + Integer.toString(cg.getID()));
 		
-		giftindCB.setSelectedIndex(cw.getIndicator());
+		giftindCB.setSelectedIndex(cg.getIndicator());
 			
-		giftdetailTF.setText(cw.getDetail());
+		giftdetailTF.setText(cg.getDetail());
 		giftdetailTF.setCaretPosition(0);
-		if(doesGiftFitOnLabel(cw))
+		if(doesGiftFitOnLabel(cg))
 			giftdetailTF.setBackground(Color.WHITE);
 		else
 			giftdetailTF.setBackground(Color.YELLOW);
 
-		if(cw.getPartnerID() == -1)
+		if(cg.getPartnerID() == -1)
 		{
 			//wish does not have a partner assigned
 			partnerCB.setSelectedIndex(0);
 		}
 		else
 		{
-			ONCPartner wishPartner = partnerDB.getPartnerByID(cw.getPartnerID());		
-			if(wishPartner != null)
+			ONCPartner giftPartner = partnerDB.getPartnerByID(cg.getPartnerID());		
+			if(giftPartner != null)
 			{	
 //				System.out.println("WishPanel %d.Display partner= " + wishPartner);
 //				int orgCBIndex = assigneeCBM.getIndexOf(wishPartner);
 //				debugAssigneeCBContents();
 //				System.out.println("WishPanel " + wishNumber + " Display Model Index for " + wishPartner + " = " + orgCBIndex);
-				partnerCB.setSelectedItem(wishPartner);
+				partnerCB.setSelectedItem(giftPartner);
 //				System.out.println("WishPanel " + wishNumber + " Display Selected Index= " + wishassigneeCB.getSelectedIndex());
 			}
 			else
@@ -224,7 +224,7 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 			}
 		}
 			
-		setEnabledGiftPanelComponents(cw.getGiftStatus());
+		setEnabledGiftPanelComponents(cg.getGiftStatus());
 
 		bGiftChanging = false;
 	}
@@ -257,7 +257,7 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 		for(ONCGift w: cat.getGiftList(giftNumber, GiftListPurpose.Selection))	//Add new list elements
 			giftCBM.addElement(w);
 			
-		//Reselect the proper wish for the currently displayed child
+		//Reselect the proper gift for the currently displayed child
 		ONCGift wish = childGift == null ? null : cat.getGiftByID(childGift.getGiftID());
 			
 		if(wish != null) 
@@ -440,29 +440,29 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 		if(!bGiftChanging && e.getSource() == giftCB && (childGift == null || childGift!= null &&
 			((ONCGift)giftCB.getSelectedItem()).getID() != childGift.getGiftID()))
 		{
-			//user selected a new wish. Check to see if we need to show wish detail dialog
-			//Check if a detail dialog is required. It is required if the wish name is found
-			//in the catalog (return != null) and the ONC Wish object detail required array list
+			//user selected a new gift. Check to see if we need to show gift detail dialog
+			//Check if a detail dialog is required. It is required if the gift name is found
+			//in the catalog (return != null) and the ONCGift object detail required array list
 			//contains data. If required, construct and show the modal dialog. If not required, clear
-			//the wish detail text field so the user can create new detail. This prevents inadvertent
-			//legacy wish detail from being carried forward with a wish change
+			//the detail text field so the user can create new detail. This prevents inadvertent
+			//legacy detail from being carried forward with a gift change
 			int selectedCBWishID = ((ONCGift) giftCB.getSelectedItem()).getID();
 			ArrayList<GiftDetail> drDlgData = cat.getGiftDetail(selectedCBWishID);
 			if(drDlgData != null)
 			{
-				//Construct and show the wish detail required dialog
+				//Construct and show the gift detail required dialog
 				String newWishName = giftCB.getSelectedItem().toString();
 				DetailDialog dDlg = new DetailDialog(GlobalVariablesDB.getFrame(), newWishName, drDlgData);
 				Point pt = GlobalVariablesDB.getFrame().getLocation();	//Used to set dialog location
 				dDlg.setLocation(pt.x + (giftNumber*200) + 20, pt.y + 400);
 				dDlg.setVisible(true);
 				
-				//Retrieve the data and update the wish
+				//Retrieve the data and update the gift
 				giftdetailTF.setText(dDlg.getDetail());
 			}
 			else
 			{
-				giftdetailTF.setText("");	//Clear the text field if base wish changed so user can complete
+				giftdetailTF.setText("");	//Clear the text field if base gift changed so user can complete
 			}
 		
 			addGift();
@@ -470,15 +470,15 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 		else if(!bGiftChanging && e.getSource() == giftindCB && childGift.getIndicator() != 
 				giftindCB.getSelectedIndex())
 		{
-			//add a new wish with the new indicator
+			//add a new gift with the new indicator
 			addGift();
 		}
 		else if(!bGiftChanging && e.getSource() == giftdetailTF && !giftdetailTF.getText().isEmpty() &&
 				(childGift == null || childGift != null && !childGift.getDetail().equals(giftdetailTF.getText()))) 
 		{
-			//Add a new wish with new wish detail. If the current wish id = -1 (None) and the indicator
-			//selected index is 0, then set the wishID combo box to the default wish as well, prior to adding
-			//the wish
+			//Add a new gift with new detail. If the current gift id = -1 (None) and the indicator
+			//selected index is 0, then set the giftID combo box to the default gift as well, prior to adding
+			//the gift
 			ONCGift cbWish = (ONCGift) giftCB.getSelectedItem();
 			if(cbWish.getID() == -1 && giftindCB.getSelectedIndex() == 0 && gvs.getDefaultGiftID() > -1 )
 			{
@@ -492,7 +492,7 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 		else if(!bGiftChanging && e.getSource() == partnerCB &&
 				childGift.getPartnerID() != ((ONCPartner) partnerCB.getSelectedItem()).getID()) 
 		{
-			//Add a new wish with the new organization
+			//Add a new gift with the new partner
 			addGift();
 		}
 		else if(e.getSource() == rbGift)
@@ -510,16 +510,16 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 	
 	void addGift()
 	{
-		GiftStatus ws = childGift != null ? childGift.getGiftStatus() : GiftStatus.Not_Selected;
-		ONCChildGift addedWish =  cwDB.add(this, child.getID(),
+		GiftStatus gs = childGift != null ? childGift.getGiftStatus() : GiftStatus.Not_Selected;
+		ONCChildGift addedGift =  cwDB.add(this, child.getID(),
 									((ONCGift) giftCB.getSelectedItem()).getID(),
 									giftdetailTF.getText(), giftNumber, giftindCB.getSelectedIndex(),
-									ws, (ONCPartner) partnerCB.getSelectedItem());
+									gs, (ONCPartner) partnerCB.getSelectedItem());
 		
-		if(addedWish != null)
-			displayWish(addedWish, child);
+		if(addedGift != null)
+			display(addedGift, child);
 		else
-			displayWish(childGift, child);
+			display(childGift, child);
 	}
 	
 	@Override
@@ -538,7 +538,7 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 			if(addedWish.getGiftNumber() == giftNumber && child != null &&
 				child.getID() == addedWish.getChildID())
 			{
-				displayWish(addedWish, child);
+				display(addedWish, child);
 			}
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_CHILD_WISH"))
@@ -553,7 +553,7 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 						dbe.getType(), child.getChildFirstName(), updatedWish.getGiftNumber());
 				LogDialog.add(logEntry, "M");
 				
-				displayWish(updatedWish, child);
+				display(updatedWish, child);
 			}
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_FAMILY"))
@@ -610,7 +610,7 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 			{
 				ONCChildGift cw = cwDB.getGift(childList.get(0).getID(), giftNumber);
 				if(cw != null)
-					displayWish(cw, childList.get(0));
+					display(cw, childList.get(0));
 				else
 					clearGift();
 			}
@@ -634,7 +634,7 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 			checkForUpdateToWishDetail();
 			
 			if(selChild.getChildGiftID(giftNumber) > -1)
-				displayWish(cwDB.getGift(selChild.getChildGiftID(giftNumber)), selChild);
+				display(cwDB.getGift(selChild.getChildGiftID(giftNumber)), selChild);
 			else
 			{
 				child = selChild;
@@ -790,7 +790,7 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 				transItem = (InventoryItem) t.getTransferData(df);
 				ONCChildGift transferredWish = createGiftFromInventoryTransfer(transItem);
 				if(transferredWish != null)
-					displayWish(transferredWish, child);
+					display(transferredWish, child);
 				return true;
 			} 
 			catch (UnsupportedFlavorException e)

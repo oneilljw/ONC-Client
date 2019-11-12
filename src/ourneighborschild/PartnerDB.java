@@ -387,7 +387,7 @@ public class PartnerDB extends ONCSearchableDatabase
 			//gift status changing from Selected To Assigned w/ a partner
 			addedGiftPartner = (ONCPartner) find(partnerList, addedGift.getPartnerID());
 			addedGiftPartner.incrementOrnAssigned();
-			fireDataChanged(this, "PARTNER_WISH_ASSIGNED_CHANGED", null, addedGiftPartner);
+			fireDataChanged(this, "PARTNER_WISH_ASSIGNEE_CHANGED", null, addedGiftPartner);
 		}
 		else if(replGift != null && replGift.getGiftStatus() == GiftStatus.Assigned &&
 			(addedGift.getGiftStatus() == GiftStatus.Not_Selected || addedGift.getGiftStatus() == GiftStatus.Selected)) 	
@@ -395,7 +395,7 @@ public class PartnerDB extends ONCSearchableDatabase
 			//gift status changing from Assigned to Selected or Not Selected
 			ONCPartner replGiftPartner = (ONCPartner) find(partnerList, replGift.getPartnerID());
 			replGiftPartner.decrementOrnAssigned();
-			fireDataChanged(this, "PARTNER_WISH_ASSIGNED_CHANGED", replGiftPartner, null);
+			fireDataChanged(this, "PARTNER_WISH_ASSIGNEE_CHANGED", replGiftPartner, null);
 		}
 		else if(replGift != null && addedGift.getGiftStatus() == GiftStatus.Assigned &&
 				replGift.getGiftStatus() == GiftStatus.Assigned && addedGift.getPartnerID() > -1 &&
@@ -406,7 +406,7 @@ public class PartnerDB extends ONCSearchableDatabase
 			addedGiftPartner = (ONCPartner) find(partnerList, addedGift.getPartnerID());
 			replGiftPartner.decrementOrnAssigned();
 			addedGiftPartner.incrementOrnAssigned();
-			fireDataChanged(this, "PARTNER_WISH_ASSIGNED_CHANGED", replGiftPartner, addedGiftPartner);
+			fireDataChanged(this, "PARTNER_WISH_ASSIGNEE_CHANGED", replGiftPartner, addedGiftPartner);
 		}
 		else if(replGift != null && replGift.getGiftStatus() == GiftStatus.Missing && 
 				replGift.getPartnerID() != addedGift.getPartnerID() &&
@@ -416,7 +416,7 @@ public class PartnerDB extends ONCSearchableDatabase
 			//Increment the new partners assigned count
 			addedGiftPartner = (ONCPartner) find(partnerList, addedGift.getPartnerID());
 			addedGiftPartner.incrementOrnAssigned();
-			fireDataChanged(this, "PARTNER_WISH_ASSIGNED_CHANGED", null, addedGiftPartner);
+			fireDataChanged(this, "PARTNER_WISH_ASSIGNEE_CHANGED", null, addedGiftPartner);
 		}
 		else if(replGift != null && replGift.getGiftStatus() == GiftStatus.Returned && 
 				replGift.getPartnerID() != addedGift.getPartnerID() &&
@@ -426,7 +426,7 @@ public class PartnerDB extends ONCSearchableDatabase
 			//Increment the new partners assigned count
 			addedGiftPartner = (ONCPartner) find(partnerList, addedGift.getPartnerID());
 			addedGiftPartner.incrementOrnAssigned();
-			fireDataChanged(this, "PARTNER_WISH_ASSIGNED_CHANGED", null, addedGiftPartner);
+			fireDataChanged(this, "PARTNER_WISH_ASSIGNEE_CHANGED", null, addedGiftPartner);
 		}
 		else if(replGift != null && replGift.getGiftStatus() == GiftStatus.Delivered && 
 				replGift.getPartnerID() != addedGift.getPartnerID() &&
@@ -436,7 +436,7 @@ public class PartnerDB extends ONCSearchableDatabase
 			//Increment the new partners assigned count
 			addedGiftPartner = (ONCPartner) find(partnerList, addedGift.getPartnerID());
 			addedGiftPartner.incrementOrnAssigned();
-			fireDataChanged(this, "PARTNER_WISH_ASSIGNED_CHANGED", null, addedGiftPartner);
+			fireDataChanged(this, "PARTNER_WISH_ASSIGNEE_CHANGED", null, addedGiftPartner);
 		}
 		else if(replGift != null && replGift.getPartnerID() == addedGift.getPartnerID() &&
 			replGift.getGiftStatus() == GiftStatus.Assigned && addedGift.getGiftStatus() == GiftStatus.Delivered)

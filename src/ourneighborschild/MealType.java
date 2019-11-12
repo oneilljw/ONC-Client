@@ -37,6 +37,17 @@ public enum MealType
 		return mtSearch;
 	}
 	
+	static MealType[] getAddMealList()
+	{
+		MealType[] mtSearch = {MealType.No_Assistance_Rqrd, MealType.Thanksgiving, MealType.December, 
+								MealType.Thanksgiving_December,
+								MealType.December_Thanksgiving, MealType.Both};
+		
+		return mtSearch;
+	}
+	
+	
+	
 	@Override
 	public String toString() { return text; }
 }

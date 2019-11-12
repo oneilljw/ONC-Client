@@ -459,36 +459,30 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 		displaySortTable(stAL, true, tableRowSelectedObjectList);		//Display the table after table list is built	
 	}
 	
+	/****
+	 * Builds a list of changed gift requests from the highlighted ONCChildGifts in the table. Submits the list
+	 * to the local database to be sent to the server. Does some checking based on current gift status to
+	 * determine if gift restrictions or gift parters may be changed. The local database determines
+	 * if current gift status can be changed.
+	 */
 	boolean onApplyChanges()
 	{
-		List<ONCChildGift> reqAddGiftList = new ArrayList<ONCChildGift>();
-//		bChangingTable = true;
-		boolean bRebuildTable = false; //set true if a gift is changed so table is only rebuilt once per applyWishChange
-		
+		List<AddGiftRequest> reqAddGiftList = new ArrayList<AddGiftRequest>();
+
 		int[] row_sel = sortTable.getSelectedRows();
 		for(int i=0; i<row_sel.length; i++)
 		{
 			boolean bNewGiftrqrd = false; 	//Restriction, status or assignee change
 			
-			//Find child and gift number for selected
-//			ONCChild c = stAL.get(row_sel[i]).getChild();
-//			int gn = stAL.get(row_sel[i]).getChildGift().getGiftNumber();
-			ONCChildGift cg = stAL.get(row_sel[i]).getChildGift();
+			//get the prior gift
+			ONCChildGift priorGift = stAL.get(row_sel[i]).getChildGift();
 
-			//Get current gift information
-//			int cgGiftID = cg.getGiftID();
-//			String cgd = cg.getDetail();
-			int cgi = cg.getIndicator();
-			GiftStatus gs = cg.getGiftStatus();
-			ONCPartner partner = null;
-			int partnerID = -1;
-			if(cg.getPartnerID() > -1)
-			{
-				partner = partnerDB.getPartnerByID(cg.getPartnerID());
-				partnerID = partner.getID();
-			}
+			//baseline request with prior gift information
+			int cgi = priorGift.getIndicator();
+			GiftStatus gs = priorGift.getGiftStatus();
+			int partnerID = priorGift.getPartnerID();
 			
-			//Determine if a change to goft restrictions, if so set new gift restriction for request
+			//Determine if a change to gift restrictions, if so set new gift restriction for request
 			if(changeResCB.getSelectedIndex() > 0 && cgi != changeResCB.getSelectedIndex()-1)
 			{
 				//a change to the indicator is requested. Can only change gift restrictions
@@ -503,14 +497,13 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 			
 			//Determine if a change to a partner, if so, set new partner in request
 			if(changePartnerCB.getSelectedIndex() > 0 &&
-					cg.getPartnerID() != ((ONCPartner)changePartnerCB.getSelectedItem()).getID())
+					priorGift.getPartnerID() != ((ONCPartner)changePartnerCB.getSelectedItem()).getID())
 			{
-				//can only change partners in certain GIftState's
+				//can only change partners in certain GiftState's
 				if(gs == GiftStatus.Selected || gs == GiftStatus.Assigned || gs == GiftStatus.Delivered ||
 					gs == GiftStatus.Shopping || gs == GiftStatus.Returned || gs == GiftStatus.Missing)
 				{
-					partner = ((ONCPartner)changePartnerCB.getSelectedItem());
-					partnerID = partner.getID();
+					partnerID = ((ONCPartner)changePartnerCB.getSelectedItem()).getID();	//new partner ID
 					bNewGiftrqrd = true;
 				}
 			}
@@ -520,36 +513,34 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 			{
 				//user has requested to change the status
 				GiftStatus reqStatus = (GiftStatus) changeStatusCB.getSelectedItem();
-				GiftStatus newStatus = giftDB.checkForStatusChange(cg, cg.getGiftID(), reqStatus, partner);
+				gs = reqStatus;
+				bNewGiftrqrd = true;
 				
-				if(newStatus != cg.getGiftStatus())
-				{
-					gs = reqStatus;
-					bNewGiftrqrd = true;
-				}
+//				bNewGiftrqrd = true;
+//				GiftStatus newStatus = giftDB.checkForStatusChange(priorGift, priorGift.getGiftID(), reqStatus, partner);
+//				
+//				if(newStatus != priorGift.getGiftStatus())
+//				{
+//					gs = reqStatus;
+//					bNewGiftrqrd = true;
+//				}
 			}
 			
-			if(bNewGiftrqrd)	//Restriction, Status or Partner change detected
-			{
-//				//Add the new gift to the gift history, returns -1 if no gift created
-//				ONCChildGift addedGift = giftDB.add(this, c.getID(), cgGiftID, cgd, gn, cgi, gs, partner);
-//				
-//				if(addedGift != null)	//only proceed if gift was accepted by the data base
-//					bRebuildTable = true;	//set flag to rebuild/display the table array/gift table
-				
-				
-				ONCChildGift reqAddGift = new ONCChildGift(-1, cg.getChildID(), cg.getGiftID(), cg.getDetail(),
-						cg.getGiftNumber(), cgi, gs, partnerID, userDB.getUserLNFI(), new Date());
-				reqAddGiftList.add(reqAddGift);
-			}
+			//if restriction, Status or Partner change, create gift request that includes the prior gift
+			//and it's replacement.
+			if(bNewGiftrqrd)	
+				reqAddGiftList.add(new AddGiftRequest(priorGift, new ONCChildGift(-1, priorGift.getChildID(), priorGift.getGiftID(), priorGift.getDetail(),
+						priorGift.getGiftNumber(), cgi, gs, partnerID, userDB.getUserLNFI(), new Date())));	
 		}
 		
-		String response = giftDB.addGiftList(this, reqAddGiftList);
-		if(response.startsWith("ADDED_GIFT_LIST"))
-			buildTableList(false);
-		
-//		if(bRebuildTable)
-//			buildTableList(false);
+		if(!reqAddGiftList.isEmpty())
+		{
+			String response = giftDB.addGiftList(this, reqAddGiftList);
+			if(response.startsWith("ADDED_GIFT_LIST"))
+				buildTableList(false);
+		}
+		else
+			buildTableList(true);
 		
 		//Reset the change combo boxes to "No Change"
 		changeResCB.setSelectedIndex(0);
@@ -557,10 +548,8 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 		changePartnerCB.setSelectedIndex(0);
 		
 		btnApplyChanges.setEnabled(false);
-		
-//		bChangingTable = false;
-		
-		return bRebuildTable;
+
+		return false;
 	}
 	
 	void updateGiftSelectionList()
