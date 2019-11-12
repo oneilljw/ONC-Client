@@ -48,8 +48,8 @@ public class OurNeighborsChild
 	
 	//Server Connection
 	private ServerIF serverIF;	
-//	private static final String defaultServerAddress = "34.224.169.163";// 2017 Amazon cloud development server
-	private static final String defaultServerAddress = "34.234.112.242";// 2017 Amazon cloud production server
+//	private static final String defaultServerAddress = "34.224.169.163";// 2019 Amazon cloud development server
+	private static final String defaultServerAddress = "34.234.112.242";// 2019 Amazon cloud production server
 	private static final int PORT = 8901;
 
     public OurNeighborsChild()
@@ -99,7 +99,7 @@ public class OurNeighborsChild
         serverIF = null;
         int retrycount = 0;
         
-        //see if there is an override server address file. If there is, use that address in
+        //see if there is an built in server IP address override file. If there is, use that IP address in
         //place of the default address. The method will return that address or the default address
         //if the file doesn't exist
         String serverIPAddress = readServerIPAddressFromFile();
