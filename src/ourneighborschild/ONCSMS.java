@@ -43,7 +43,7 @@ public class ONCSMS extends ONCObject
 	
 	public String getMessageSID() { return messageSID; }
 	EntityType getType() { return type; }
-	int getEntityID() { return entityID; }
+	public int getEntityID() { return entityID; }
 	public String getPhoneNum() { return phoneNum; }
 	public SMSDirection getDirection() { return direction; }
 	public String getBody() { return body; }
