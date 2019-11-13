@@ -32,7 +32,7 @@ public class ONCSMS extends ONCObject
 	{
 		super(Integer.parseInt(nextLine[0]));
 		this.messageSID = nextLine[1].isEmpty() ?  "" : nextLine[1];
-		this.type = EntityType.valueOf(nextLine[2]);
+		this.type = EntityType.valueOf(nextLine[2].toUpperCase());
 		this.entityID = Integer.parseInt(nextLine[3]);
 		this.phoneNum = nextLine[4];
 		this.direction = SMSDirection.valueOf(nextLine[5]);
