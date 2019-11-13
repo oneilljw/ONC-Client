@@ -50,15 +50,15 @@ public class ONCSMS extends ONCObject
 	public SMSStatus getStatus() { return status; }
 	long getTimestamp() { return timestamp; }
 	
-	void setMessageSID(String messageSID) { this.messageSID = messageSID; }
+	public void setMessageSID(String messageSID) { this.messageSID = messageSID; }
 	void setType(EntityType type) { this.type = type; }
 	void setEntityID(int entityID) { this.entityID = entityID; }
 	public void setPhoneNumber(String phoneNum) { this.phoneNum = phoneNum; }
 	public void setDirection(SMSDirection direction) {this.direction = direction; }
 	void setBody(String body) { this.body = body; }
 	public void setStatus(SMSStatus status) { this.status = status; }
+	public void setTimestamp(long timestamp) { this.timestamp = timestamp; }
 	
-
 	@Override
 	public String[] getExportRow()
 	{
