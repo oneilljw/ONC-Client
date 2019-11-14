@@ -29,6 +29,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.event.ListSelectionEvent;
@@ -48,26 +49,30 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 	 * This class implements a dialog which allows the user to manage users
 	 */
 	private static final long serialVersionUID = 1L;
-	private static final int MESSAGE_SID_COL = 0;
-	private static final int ENTITY_ID_COL= 1;
-	private static final int ENTITY_TYPE_COL = 2;
-	private static final int PHONE_NUMBER_COL = 3;
-	private static final int DIRECTION_COL = 4;
-	private static final int BODY_COL = 5;
-	private static final int STATUS_COL = 6;
-	private static final int TIMESTAMP_COL = 7;
+	private static final int ENTITY_ID_COL= 0;
+	private static final int ENTITY_TYPE_COL = 1;
+	private static final int PHONE_NUMBER_COL = 2;
+	private static final int DIRECTION_COL = 3;
+	private static final int BODY_COL = 4;
+	private static final int STATUS_COL = 5;
+	private static final int TIMESTAMP_COL = 6;
 	
 	private static final int NUM_TABLE_ROWS = 12;
 	
 	protected JPanel sortCriteriaPanel;
-	private JComboBox<String> phoneNumCB;
 	private boolean bChangingTable;
-	private String sortPhoneNumber;
+	
+	private String sortONCNum;
+	private SMSDirection sortDirection;
+	private SMSStatus sortStatus;
 	
 	private ONCTable smsTable;
 	private AbstractTableModel smsTableModel;
 	private JButton btnReset;
+	private JTextField oncnumTF;
 	private JComboBox<String> printCB, exportCB;
+	private JComboBox<SMSDirection> directionCB;
+	private JComboBox<SMSStatus> statusCB;
 	private String[] printChoices, exportChoices;
 	private JLabel lblCount;
 	
@@ -106,12 +111,23 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 		lblONCicon.setAlignmentX(Component.LEFT_ALIGNMENT );//0.0
 		sortCriteriaPanel.add(lblONCicon);
 		
-		phoneNumCB = new JComboBox<String>();
-		phoneNumCB.setBorder(BorderFactory.createTitledBorder("Phone Number"));
-		phoneNumCB.setPreferredSize(new Dimension(200,56));
-		phoneNumCB.addActionListener(this);
-		sortCriteriaPanel.add(phoneNumCB);
-		sortPhoneNumber = "Any";
+		oncnumTF = new JTextField(3);
+		oncnumTF.setBorder(BorderFactory.createTitledBorder("ONC #"));
+		oncnumTF.addActionListener(this);
+		sortCriteriaPanel.add(oncnumTF);
+		sortONCNum = "";
+		
+		directionCB = new JComboBox<SMSDirection>(SMSDirection.values());
+		directionCB.setBorder(BorderFactory.createTitledBorder("Direction"));
+		directionCB.addActionListener(this);
+		sortCriteriaPanel.add(directionCB);
+		sortDirection = SMSDirection.ANY;
+		
+		statusCB = new JComboBox<SMSStatus>(SMSStatus.values());
+		statusCB.setBorder(BorderFactory.createTitledBorder("Status"));
+		statusCB.addActionListener(this);
+		sortCriteriaPanel.add(statusCB);
+		sortStatus = SMSStatus.ANY;
 		
 		//Create the volunteer table model
 		smsTableModel = new SMSTableModel();
@@ -224,7 +240,7 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 		smsTableList.clear();
 		
 		for(ONCSMS sms : smsDB.getList())
-			if(doesPhoneNumberFilterMatch(sms))
+			if(doesDirectionFilterMatch(sms) && doesStatusFilterMatch(sms) && doesONCNumFilterMatch(sms))
 				smsTableList.add(sms);
 		
 		lblCount.setText(String.format("Messages Meeting Criteria: %d", smsTableList.size()));
@@ -236,18 +252,45 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 	
 	void resetFilters()
 	{	
-		phoneNumCB.removeActionListener(this);
-		phoneNumCB.setSelectedIndex(0);
-		phoneNumCB.addActionListener(this);
-		sortPhoneNumber = "Any";
+		oncnumTF.removeActionListener(this);
+		oncnumTF.setText("");
+		oncnumTF.addActionListener(this);
+		sortONCNum = "";
+		
+		sortDirection = SMSDirection.ANY;
+		directionCB.removeActionListener(this);
+		directionCB.setSelectedIndex(0);
+		directionCB.addActionListener(this);
+		sortDirection = SMSDirection.ANY;
+		
+		statusCB.removeActionListener(this);
+		statusCB.setSelectedIndex(0);
+		statusCB.addActionListener(this);
+		sortStatus = SMSStatus.ANY;
 		
 		createTableList();
 	}
-
-	boolean doesPhoneNumberFilterMatch(ONCSMS sms)
+	
+	boolean doesONCNumFilterMatch(ONCSMS sms)
 	{
-		//test for size match
-		 return sortPhoneNumber.equals("Any") || sms.getPhoneNum().equals(sortPhoneNumber);
+		//find ONC Num
+		ONCFamily fam = familyDB.getFamily(sms.getEntityID());
+		if(fam != null)
+			return sortONCNum.isEmpty() || fam.getONCNum().equals(oncnumTF.getText());
+		else
+			return false;
+	}
+
+	boolean doesDirectionFilterMatch(ONCSMS sms)
+	{
+		//test for direction
+		 return sortDirection == SMSDirection.ANY || sms.getDirection() == (SMSDirection) directionCB.getSelectedItem();
+	}
+	
+	boolean doesStatusFilterMatch(ONCSMS sms)
+	{
+		//test for status
+		 return sortStatus == SMSStatus.ANY || sms.getStatus() == (SMSStatus) statusCB.getSelectedItem();
 	}
 	
 	void print(String name)
@@ -328,9 +371,19 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{
-		if(e.getSource() == phoneNumCB && !sortPhoneNumber.equals((String) phoneNumCB.getSelectedItem()))
+		if(e.getSource() == oncnumTF && !sortONCNum.equals(oncnumTF.getText()))
 		{
-			sortPhoneNumber = (String) phoneNumCB.getSelectedItem();
+			sortONCNum = oncnumTF.getText();
+			createTableList();
+		}
+		else if(e.getSource() == directionCB && sortDirection != (SMSDirection) directionCB.getSelectedItem())
+		{
+			sortDirection = (SMSDirection) directionCB.getSelectedItem();
+			createTableList();
+		}
+		else if(e.getSource() == statusCB && sortStatus != (SMSStatus) statusCB.getSelectedItem())
+		{
+			sortStatus = (SMSStatus) statusCB.getSelectedItem();
 			createTableList();
 		}
 		else if(e.getSource() == btnReset)
@@ -396,9 +449,7 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
         {
         		ONCSMS sms = smsTableList.get(row);
 
-        		if(col == MESSAGE_SID_COL)
-        			return sms.getMessageSID();
-        		else if(col == ENTITY_ID_COL)
+        		if(col == ENTITY_ID_COL)
         		{
         			if(sms.getType() == EntityType.FAMILY)
         			{
