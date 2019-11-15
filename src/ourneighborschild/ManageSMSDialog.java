@@ -133,7 +133,7 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 		smsTableModel = new SMSTableModel();
 		
 		//create the table
-		String[] colToolTips = {"Message SID", "Entity ID", "Entity Type", "Phone Number", "Direction",
+		String[] colToolTips = {"Entity ID", "Entity Type", "Phone Number", "Direction",
 								"Body", "Status","Time Stamp"};
 		
 		smsTable = new ONCTable(smsTableModel, colToolTips, new Color(240,248,255));
@@ -160,7 +160,7 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 		
 		//Set table column widths
 		int tablewidth = 0;
-		int[] colWidths = {144, 72, 64, 104, 80, 360, 80, 144};
+		int[] colWidths = {32, 56, 104, 80, 360, 80, 180};
 		for(int col=0; col < colWidths.length; col++)
 		{
 			smsTable.getColumnModel().getColumn(col).setPreferredWidth(colWidths[col]);
@@ -436,7 +436,7 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 		 */
 		private static final long serialVersionUID = 1L;
 		
-		private String[] columnNames = {"Message SID", "ID", "Entity Type", "Phone Number", "Direction", 
+		private String[] columnNames = {"ID", "Entity Type", "Phone Number", "Direction", 
 										"Body", "Status","Time Stamp"};
  
         public int getColumnCount() { return columnNames.length; }

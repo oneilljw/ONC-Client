@@ -10,7 +10,7 @@ public enum SMSStatus
 	SENDING ("Sending"),
 	SENT ("Sent"),
 	RECEIVING ("Receiving"),
-	RECEIVED ("Recceived"),
+	RECEIVED ("Received"),
 	DELIVERED ("Delivered"),
 	UNDELIVERED ("Undelivered"),
 	FAILED ("Failed"),
