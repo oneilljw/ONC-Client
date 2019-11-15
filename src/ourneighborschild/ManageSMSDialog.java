@@ -111,7 +111,7 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 		lblONCicon.setAlignmentX(Component.LEFT_ALIGNMENT );//0.0
 		sortCriteriaPanel.add(lblONCicon);
 		
-		oncnumTF = new JTextField(3);
+		oncnumTF = new JTextField(4);
 		oncnumTF.setBorder(BorderFactory.createTitledBorder("ONC #"));
 		oncnumTF.addActionListener(this);
 		sortCriteriaPanel.add(oncnumTF);
@@ -160,7 +160,7 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 		
 		//Set table column widths
 		int tablewidth = 0;
-		int[] colWidths = {32, 56, 104, 80, 360, 80, 180};
+		int[] colWidths = {32, 64, 104, 88, 440, 80, 128};
 		for(int col=0; col < colWidths.length; col++)
 		{
 			smsTable.getColumnModel().getColumn(col).setPreferredWidth(colWidths[col]);

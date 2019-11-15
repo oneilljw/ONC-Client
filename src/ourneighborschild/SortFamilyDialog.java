@@ -324,7 +324,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
         printCB.setEnabled(false);
         printCB.addActionListener(this);
         
-        String[] emailChoices = {"Email/SMS", "2019 Family Confirmation Email", "2019 Family Confirmation SMS"};
+        String[] emailChoices = {"Email/SMS", "2019 Confirmation Email", "2019 Confirmation SMS - Primary Phone", "2019 Confirmation SMS - Alt. Phone"};
         contactCB = new JComboBox<String>(emailChoices);
         contactCB.setPreferredSize(new Dimension(136, 28));
         contactCB.setEnabled(false);
@@ -1583,11 +1583,8 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		return recipientAddressList;
 	}
 	
-	void sendFamilyText()
+	void sendFamilyText(int phoneNum)
 	{
-		//specify the phone -- THIS WILL NEED TO BE A DIALOG BOX
-		int phoneNum = 0;
-		
 		//build the family ID list
 		ArrayList<Integer> famIDList = new ArrayList<Integer>();
 		
@@ -2593,8 +2590,14 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			{
 				if(request.contains("Email"))
 					createAndSendFamilyEmail(contactCB.getSelectedIndex());
-				if(request.contains("SMS"))
-					sendFamilyText();
+				else if(request.contains("SMS"))
+				{
+					String phoneChoice = (String) contactCB.getSelectedItem();
+					if(phoneChoice.contains("Primary Phone"))
+						sendFamilyText(0);
+					else if(phoneChoice.contains("Alt. Phone"))
+						sendFamilyText(1);
+				}	
 			}
 			
 			contactCB.setSelectedIndex(0);	//Reset the combo box choice
