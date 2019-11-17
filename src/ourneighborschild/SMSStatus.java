@@ -9,6 +9,7 @@ public enum SMSStatus
 	QUEUED ("Queued"),
 	SENDING ("Sending"),
 	SENT ("Sent"),
+	READ ("Read"),
 	RECEIVING ("Receiving"),
 	RECEIVED ("Received"),
 	DELIVERED ("Delivered"),

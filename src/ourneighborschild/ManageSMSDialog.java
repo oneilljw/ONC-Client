@@ -160,7 +160,7 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 		
 		//Set table column widths
 		int tablewidth = 0;
-		int[] colWidths = {32, 64, 104, 88, 440, 80, 128};
+		int[] colWidths = {40, 64, 104, 88, 440, 104, 128};
 		for(int col=0; col < colWidths.length; col++)
 		{
 			smsTable.getColumnModel().getColumn(col).setPreferredWidth(colWidths[col]);
