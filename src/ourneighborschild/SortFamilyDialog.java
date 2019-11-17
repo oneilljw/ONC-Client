@@ -1603,11 +1603,17 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			}
 		}
 		
-		String testMssg = "Our Neighbors Child (ONC): Reply \"C\" to confirm an adult will be "
-				+ "home between 1 and 4PM on Sunday, December 15 to accept children's gifts";
+		String testMssg = "Our Neighbors Child (ONC): Reply \"YES\" to confirm an adult will be "
+				+ "home to receive your children's gifts on Sunday, December 15. Volunteers will "
+				+ "deliver between 1 and 4PM. Reply \"NO\" if you are unable to confirm an adult will "
+				+ "be home for gift delivery on December 15.";
 		
 		String response = smsDB.sendSMSRequest(this, testMssg, phoneNum, famIDList);
-		System.out.println(String.format("SortFamDlg.sendSMS: response= %s", response));
+		
+		//put up a pop-up with the response
+		ONCPopupMessage smsResponsePU = new ONCPopupMessage(GlobalVariablesDB.getONCLogo());
+		smsResponsePU.setLocationRelativeTo(this);
+		smsResponsePU.show("Server SMS Request Response", response);
 	}
 	
 	//set up the search criteria filters

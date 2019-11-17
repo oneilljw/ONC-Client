@@ -48,8 +48,8 @@ public class OurNeighborsChild
 	
 	//Server Connection
 	private ServerIF serverIF;	
-	private static final String defaultServerAddress = "34.224.169.163";// 2019 Amazon cloud development server
-//	private static final String defaultServerAddress = "34.234.112.242";// 2019 Amazon cloud production server
+//	private static final String defaultServerAddress = "34.224.169.163";// 2019 Amazon cloud development server
+	private static final String defaultServerAddress = "34.234.112.242";// 2019 Amazon cloud production server
 	private static final int PORT = 8901;
 
     public OurNeighborsChild()
