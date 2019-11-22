@@ -70,7 +70,7 @@ public class ONCChildGift extends ONCObject implements Serializable
 	public void setChildWishDetail(String cwd) { giftDetail = cwd; }
 	void setChildWishIndicator(int cwi) { indicator = cwi; }
 	public void setChildWishStatus(GiftStatus cws) { status = cws;}
-	void setChildWishAssigneeID(int id) {assigneeID = id;}
+	public void setChildWishAssigneeID(int id) {assigneeID = id;}
 	void setChildWishChangedBy(String name) {changedBy = name;}
 	void setChildWishDateChanged(Calendar dc) {dateChanged = dc;}
 	

@@ -9,12 +9,14 @@ public class ONCPartner extends ONCEntity
 	 */
 	private static final long serialVersionUID = -7854045836478089523L;
 	
-	public static final int  BUSINESS = 1;
-	public static final int  CHURCH = 2;
-	public static final int  SCHOOL = 3;
-	public static final int  CLOTHING = 4;
-	public static final int  COAT = 5;
-	public static final int  ONC_SHOPPER = 6;
+	public static final int PARTNER_TYPE_BUSINESS = 1;
+	public static final int PARTNER_TYPE_CHURCH = 2;
+	public static final int PARTNER_TYPE_SCHOOL = 3;
+	public static final int PARTNER_TYPE_CLOTHING = 4;
+	public static final int PARTNER_TYPE_COAT = 5;
+	public static final int PARTNER_TYPE_ONC_SHOPPER = 6;
+	
+	public static final int PARTNER_STATUS_CONFIRMED = 5;
 	
 	private int status;
 	private int type;
@@ -243,14 +245,14 @@ public class ONCPartner extends ONCEntity
 	public ONCPartner(SignUpActivity sua, SignUpType signUpType)
 	{	
 		super(-1, new Date(), "Lavin, K", STOPLIGHT_OFF, "Sign-Up Genius Partner", "Lavin, K");
-		this.status = 5;	//confirmed
+		this.status = PARTNER_STATUS_CONFIRMED;
 		
 		if(signUpType == SignUpType.Clothing)
-			this.type = 4;	//clothing
+			this.type = PARTNER_TYPE_CLOTHING;
 		else if(signUpType == SignUpType.Coat)
-			this.type = 5;	//coat
+			this.type = PARTNER_TYPE_COAT;
 		else
-			this.type = 6; //ONC Shopper
+			this.type = PARTNER_TYPE_ONC_SHOPPER;
 		
 		this.collection = GiftCollectionType.Ornament;
 		this.lastName = sua.getLastname() + ", " + sua.getFirstname();
@@ -368,6 +370,7 @@ public class ONCPartner extends ONCEntity
 	public void setPriorYearReceivedBeforeDeadline(int n) { pyReceivedBeforeDeadline = n; }
 	public void setPriorYearReceivedAfterDeadline(int n) { pyReceivedAfterDeadline = n; }
 	
+	public int incrementOrnRequested() { return ++orn_req; }
 	public int incrementOrnAssigned() { return ++orn_assigned; }
 	public int decrementOrnAssigned()
 	{
@@ -445,9 +448,7 @@ public class ONCPartner extends ONCEntity
 	public String[] getExportRow()
 	{
 		String[] row= {Integer.toString(id), Integer.toString(status), Integer.toString(type),
-						collection.toString(), lastName, 
-//						ornamentDelivery, 
-						houseNum,
+						collection.toString(), lastName, houseNum,
 						street, unit, city, zipCode, Integer.toString(region), homePhone,
 						Integer.toString(orn_req),Integer.toString(orn_assigned), Integer.toString(orn_delivered),
 						Integer.toString(orn_rec_before), Integer.toString(orn_rec_after), 
@@ -526,6 +527,32 @@ public class ONCPartner extends ONCEntity
 		}
 		
 		return gmailContactRow;
+	}
+		
+	/***
+    	 * partners are a match if their name and email fields match or their email and home phone fields match
+    	 * @param p1
+    	 * @param p
+    	 * @return
+    	 */
+	@Override
+	public boolean matches(ONCObject o)
+    	{
+		if(o == null)
+			return false;
+		else
+		{
+			ONCPartner p = (ONCPartner) o;
+		
+			boolean idsMatch = this.id == p.id;
+    			boolean partnersNameAndEmailMatches = this.contact.equalsIgnoreCase(p.getContact()) &&
+    				this.contact_email.equalsIgnoreCase(p.getContact_email());
+    		
+    			boolean partnersEmailAndPhoneMatches = this.contact_phone.equals(p.getHomePhone()) &&
+    				this.contact_email.equalsIgnoreCase(p.getContact_email());
+    		
+    			return idsMatch || partnersNameAndEmailMatches || partnersEmailAndPhoneMatches;
+		}
 	}
 	
 	 @Override
