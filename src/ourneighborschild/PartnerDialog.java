@@ -665,6 +665,8 @@ public class PartnerDialog extends EntityDialog
 		zipTF.setText("");
 		phoneTF.setText("");
 		lblRegion.setText("?");
+		lblChangedBy.setText("");
+		lblDateChanged.setText("");
 		deliverToTP.setText("");
 		contact1TF.setText("");
 		email1TF.setText("");
