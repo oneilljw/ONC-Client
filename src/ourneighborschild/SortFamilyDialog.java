@@ -81,7 +81,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	SMSDB smsDB;
 	
 	//Unique gui elements for Sort Family Dialog
-	private JComboBox<String> oncCB, batchCB, regionCB, streetCB, lastnameCB, zipCB;
+	private JComboBox<String> oncCB, batchCB, regionCB, streetCB, lastnameCB, zipCB, emailCB;
 	private JComboBox<FamilyStatus> fstatusCB, changeFStatusCB;
 	private JComboBox<FamilyGiftStatus> giftStatusCB, changeGiftStatusCB;
 	private JComboBox<String> changedByCB, giftCardCB; 
@@ -101,7 +101,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 
 	private int sortBatchNum = 0, sortZip = 0, sortRegion = 0, sortChangedBy = 0;
 	private int sortGCO = 0, sortStoplight = 0;
-	private String sortLN = "Any", sortStreet= "Any";
+	private String sortLN = "Any", sortStreet= "Any", sortEmail= "Any";
 	private MealStatus sortMealStatus;
 	private FamilyGiftStatus sortGiftStatus;
 	private FamilyStatus sortFamilyStatus;
@@ -210,6 +210,11 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		lastnameCB.setPreferredSize(new Dimension(144, 56));
 		lastnameCB.setBorder(BorderFactory.createTitledBorder("Last Name"));
 		lastnameCB.addActionListener(this);
+		
+		String[] emailFilterChoices= {"Any", "Yes", "No"};
+		emailCB = new JComboBox<String>(emailFilterChoices);
+		emailCB.setBorder(BorderFactory.createTitledBorder("Email?"));
+		emailCB.addActionListener(this);
 				
 		streetCB = new JComboBox<String>(any);
 		streetCB.setEditable(true);
@@ -262,6 +267,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		sortCriteriaPanelTop.add(fstatusCB);
 		sortCriteriaPanelTop.add(giftStatusCB);
 		sortCriteriaPanelTop.add(mealstatusCB);
+		sortCriteriaPanelTop.add(emailCB);
 		sortCriteriaPanelBottom.add(lastnameCB);
 		sortCriteriaPanelBottom.add(streetCB);
 		sortCriteriaPanelBottom.add(zipCB);
@@ -436,12 +442,13 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 				    doesLastNameMatch(f.getLastName()) &&
 				     doesStreetMatch(f.getStreet()) &&
 				      doesZipMatch(f.getZipCode()) &&
-				       doesRegionMatch(f.getRegion()) &&
-				        doesSchoolMatch(f.getSchoolCode()) &&
-				         doesChangedByMatch(f.getChangedBy()) &&
-				          doesGiftCardOnlyMatch(f.isGiftCardOnly()) &&
-				           doesStoplightMatch(f.getStoplightPos()) &&
-				            doesNoteStatusMatch(f))	//Family criteria pass
+				       doesEmailMatch(f.getEmail()) &&
+				        doesRegionMatch(f.getRegion()) &&
+				         doesSchoolMatch(f.getSchoolCode()) &&
+				          doesChangedByMatch(f.getChangedBy()) &&
+				           doesGiftCardOnlyMatch(f.isGiftCardOnly()) &&
+				            doesStoplightMatch(f.getStoplightPos()) &&
+				             doesNoteStatusMatch(f))	//Family criteria pass
 			{
 				stAL.add(new ONCFamilyAndNote(id++, f, noteDB.getLastNoteForFamily(f.getID())));
 			}
@@ -1324,6 +1331,11 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		sortZip = 0;
 		zipCB.addActionListener(this);
 		
+		emailCB.removeActionListener(this);
+		emailCB.setSelectedIndex(0);
+		sortEmail = "any";
+		emailCB.addActionListener(this);
+		
 		regionCB.removeActionListener(this);
 		regionCB.setSelectedIndex(0);
 		sortRegion = 0;
@@ -1642,6 +1654,18 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	boolean doesLastNameMatch(String ln) {return sortLN.equals("Any") || ln.toLowerCase().contains(lastnameCB.getSelectedItem().toString().toLowerCase());}
 	
 	boolean doesStreetMatch(String street) {return sortStreet.equals("Any") || street.toLowerCase().contains(streetCB.getSelectedItem().toString().toLowerCase());}
+	
+	boolean doesEmailMatch(String email) 
+	{ 
+		if(sortEmail.equals("Any"))
+			return true;
+		else if(sortEmail.equals("Yes") && !email.isEmpty())
+			return true;
+		else if(sortEmail.equals("No") && email.isEmpty())
+			return true;
+		else
+			return false;
+	}
 	
 	//If search zip selected is NISA - Not in service area, all zip codes outside the ONC assigned zip codes
 	//are a match
@@ -2490,6 +2514,11 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		else if(e.getSource() == zipCB && zipCB.getSelectedIndex() != sortZip )
 		{						
 			sortZip = zipCB.getSelectedIndex();
+			buildTableList(false);
+		}
+		else if(e.getSource() == emailCB && !emailCB.getSelectedItem().equals(sortEmail) )
+		{						
+			sortEmail = (String) emailCB.getSelectedItem();
 			buildTableList(false);
 		}
 		else if(e.getSource() == regionCB && regionCB.getSelectedIndex() != sortRegion)
