@@ -1334,7 +1334,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		
 		emailCB.removeActionListener(this);
 		emailCB.setSelectedIndex(0);
-		sortEmail = "any";
+		sortEmail = "Any";
 		emailCB.addActionListener(this);
 		
 		regionCB.removeActionListener(this);
@@ -1615,16 +1615,6 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 				famIDList.add(fam.getID());
 			}
 		}
-		
-		String englishConfirmMssg = "Our Neighbors Child (ONC): Reply \"YES\" to confirm an adult will be "
-				+ "home to receive your children's gifts on Sunday, December 15. Volunteers will "
-				+ "deliver between 1 and 4PM. Reply \"NO\" if you are unable to confirm an adult will "
-				+ "be home for gift delivery on December 15.";
-		
-		String spanishConfirmMssg = "Our Neighbors Child (ONC): responda \"YES\" para confirmar que un adulto "
-				+ "estará en casa para recibir los regalos de sus hijos el domingo 15 de diciembre. "
-				+ "Los voluntarios entregarán entre la 1 y las 4 p.m. Responda \"NO\" si no puede "
-				+ "confirmar que un adulto estará en casa para la entrega de regalos el 15 de diciembre.";
 		
 		String response = smsDB.sendSMSRequest(this, FAMILY_COMFIRMATION_SMS_MESSAGE, phoneNum, famIDList);
 		
@@ -2624,6 +2614,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 								gvs.getImageIcon(0), options, "Cancel");
 			JDialog confirmDlg = confirmOP.createDialog(parentFrame, String.format("*** Confirm Send Family(s) %s ***", type));
 			confirmDlg.setLocationRelativeTo(this);
+			confirmDlg.setAlwaysOnTop(true);
 			confirmDlg.setVisible(true);
 		
 			Object selectedValue = confirmOP.getValue();
