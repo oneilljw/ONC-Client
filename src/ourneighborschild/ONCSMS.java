@@ -35,9 +35,9 @@ public class ONCSMS extends ONCObject
 		this.type = EntityType.valueOf(nextLine[2].toUpperCase());
 		this.entityID = Integer.parseInt(nextLine[3]);
 		this.phoneNum = nextLine[4];
-		this.direction = SMSDirection.valueOf(nextLine[5]);
+		this.direction = SMSDirection.valueOf(nextLine[5].toUpperCase());
 		this.body = nextLine[6];
-		this.status = SMSStatus.valueOf(nextLine[7]);
+		this.status = SMSStatus.valueOf(nextLine[7].toUpperCase());
 		this.timestamp = Long.parseLong(nextLine[8]);
 	}
 	

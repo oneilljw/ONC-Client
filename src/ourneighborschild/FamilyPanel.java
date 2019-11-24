@@ -270,6 +270,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         languageCB.setPreferredSize(new Dimension(140, 48));
         languageCB.setBorder(BorderFactory.createTitledBorder("Language"));
         languageCB.setEnabled(false);
+        languageCB.addActionListener(this);
         
         giftStatusCB = new JComboBox<FamilyGiftStatus>(FamilyGiftStatus.getSearchList());
         giftStatusCB.setBorder(BorderFactory.createTitledBorder("Gift Status"));
@@ -1350,6 +1351,11 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 				!ZipCode.getText().equals(currFam.getZipCode()) &&
 				userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0) 
 		{
+			checkAndUpdateFamilyData(currFam);
+		}
+		else if(e.getSource() == languageCB && !bFamilyDataChanging &&
+				!((String) languageCB.getSelectedItem()).equals(currFam.getLanguage()))
+		{	
 			checkAndUpdateFamilyData(currFam);
 		}
 		else if(e.getSource() == dnsCodeCB && !bFamilyDataChanging &&

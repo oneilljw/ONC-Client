@@ -4,9 +4,9 @@ public enum SMSDirection
 {
 	ANY ("Any"),
 	INBOUND ("Inbound"), 
-	OUTBOUND_API ("Outbound API"),
-	OUTBOUND_CALL ("Outbound Call"), 
-	OUTBOUND_REPLY ("Outbound Reply"), 
+	OUTBOUND_API ("Outbound_API"),
+	OUTBOUND_CALL ("Outbound_Call"), 
+	OUTBOUND_REPLY ("Outbound_Reply"), 
 	UNKNOWN ("Unknown");
 	
 	private final String englishName;
