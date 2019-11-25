@@ -331,9 +331,9 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
         printCB.setEnabled(false);
         printCB.addActionListener(this);
         
-        String[] emailChoices = {"Email/SMS", "2019 Confirmation Email", "2019 Confirmation SMS - Primary Phone", "2019 Confirmation SMS - Alt. Phone"};
+        String[] emailChoices = {"Email/SMS", "2019 Confirm. Email", "Confirm. SMS-Home", "Confirm. SMS-Alt"};
         contactCB = new JComboBox<String>(emailChoices);
-        contactCB.setPreferredSize(new Dimension(136, 28));
+        contactCB.setPreferredSize(new Dimension(180, 28));
         contactCB.setEnabled(false);
         contactCB.addActionListener(this);
         
@@ -2625,9 +2625,9 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 				else if(request.contains("SMS"))
 				{
 					String phoneChoice = (String) contactCB.getSelectedItem();
-					if(phoneChoice.contains("Primary Phone"))
+					if(phoneChoice.contains("SMS-Home"))
 						sendFamilyText(0);
-					else if(phoneChoice.contains("Alt. Phone"))
+					else if(phoneChoice.contains("SMS-Alt"))
 						sendFamilyText(1);
 				}	
 			}

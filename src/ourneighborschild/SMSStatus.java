@@ -15,8 +15,8 @@ public enum SMSStatus
 	DELIVERED ("Delivered"),
 	UNDELIVERED ("Undelivered"),
 	FAILED ("Failed"),
-	ERR_NO_PHONE("ERR: No Phone"),
-	ERR_NOT_MOBILE ("ERR: Not Mobile"),
+	ERR_NO_PHONE("ERR_No_Phone"),
+	ERR_NOT_MOBILE ("ERR_Not_Mobile"),
 	ERROR ("Error");
 	
 	private final String englishName;
