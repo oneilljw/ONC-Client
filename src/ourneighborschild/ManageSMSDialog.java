@@ -57,6 +57,8 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 	private static final int STATUS_COL = 5;
 	private static final int TIMESTAMP_COL = 6;
 	
+	private static final int FAMILY_EXPORT_ONCNUM_COL = 3;
+	
 	private static final int NUM_TABLE_ROWS = 12;
 	
 	protected JPanel sortCriteriaPanel;
@@ -78,6 +80,7 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 	
 	private SMSDB smsDB;
 	private FamilyDB familyDB;
+	private PartnerDB partnerDB;
 	
 	private List<ONCSMS> smsTableList;
 	
@@ -94,6 +97,10 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 		familyDB = FamilyDB.getInstance();
 		if(familyDB != null)
 			familyDB.addDatabaseListener(this);
+		
+		partnerDB = PartnerDB.getInstance();
+		if(partnerDB != null)
+			partnerDB.addDatabaseListener(this);
 
 		//set up the table list
 		smsTableList = new ArrayList<ONCSMS>();
@@ -160,7 +167,7 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 		
 		//Set table column widths
 		int tablewidth = 0;
-		int[] colWidths = {40, 64, 104, 88, 440, 104, 128};
+		int[] colWidths = {48, 72, 104, 88, 440, 104, 128};
 		for(int col=0; col < colWidths.length; col++)
 		{
 			smsTable.getColumnModel().getColumn(col).setPreferredWidth(colWidths[col]);
@@ -174,11 +181,16 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
         anHeader.setForeground( Color.black);
         anHeader.setBackground( new Color(161,202,241));
         
-        //Center justify wish count column
+        //Left justify entity id column
+        DefaultTableCellRenderer dtcr_left = new DefaultTableCellRenderer();
+        dtcr_left.setHorizontalAlignment(SwingConstants.LEFT);
+        smsTable.getColumnModel().getColumn(ENTITY_ID_COL).setCellRenderer(dtcr_left);
+        
+        //Center justify
         DefaultTableCellRenderer dtcr = new DefaultTableCellRenderer();
         dtcr.setHorizontalAlignment(SwingConstants.CENTER);
-//      smsTable.getColumnModel().getColumn(SIZE_COL).setCellRenderer(dtcr);
-//      smsTable.getColumnModel().getColumn(QTY_COL).setCellRenderer(dtcr);
+        smsTable.getColumnModel().getColumn(ENTITY_TYPE_COL).setCellRenderer(dtcr);
+        smsTable.getColumnModel().getColumn(STATUS_COL).setCellRenderer(dtcr);
         
         //Create the scroll pane and add the table to it.
         JScrollPane dsScrollPane = new JScrollPane(smsTable, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
@@ -313,7 +325,7 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 	void onExportRequested()
 	{
 		//Write the selected row data to a .csv file
-		String[] header = {"ID", "Entity Type", "Phone #", "Direction", "Body", "Timestamp"};
+		
     
 		ONCFileChooser oncfc = new ONCFileChooser(this);
        	File oncwritefile = oncfc.getFile("Select file for export of selected rows" ,
@@ -328,10 +340,26 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
        		try 
        		{
        			CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
-       			writer.writeNext(header);
+       			writer.writeNext(ONCSMS.getExportRowHeader());
 	    	    
+       			//if the entity type is FAMILY, then convert the family id to ONC #
        			for(ONCSMS sms : smsTableList)
-       				writer.writeNext(sms.getExportRow());
+       			{
+       				if(sms.getType() == EntityType.FAMILY)
+       				{
+       					String[] row = sms.getExportRow();
+       					ONCFamily f = familyDB.getFamily(sms.getEntityID());
+       					if(f != null)
+       						row[FAMILY_EXPORT_ONCNUM_COL] = f.getONCNum();
+       					else
+       						row[FAMILY_EXPORT_ONCNUM_COL] = "UNK";
+       					
+       					writer.writeNext(row);
+       				}
+       				else
+       					writer.writeNext(sms.getExportRow());
+       			}
+       			
 
        			writer.close();
 	    	    
@@ -417,8 +445,19 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 			
 			if(modelRow > -1)
 			{
-//				ONCSMS sms = smsTableList.get(modelRow);
-//				this.fireEntitySelected(this, EntityType.GIFT, sms.getFamily(), sms.getChild());
+				ONCSMS sms = smsTableList.get(modelRow);
+				if(sms.getType() == EntityType.FAMILY)
+				{
+					ONCFamily f = familyDB.getFamily(sms.getEntityID());
+   					if(f != null)
+   						this.fireEntitySelected(this, EntityType.FAMILY, f, null);
+				}
+				else if(sms.getType() == EntityType.PARTNER)
+				{
+					ONCPartner p = partnerDB.getPartnerByID(sms.getEntityID());
+					if(p != null)
+						this.fireEntitySelected(this, EntityType.PARTNER, p, null);
+				}
 			}
 		}
 	}
@@ -454,13 +493,13 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
         			if(sms.getType() == EntityType.FAMILY)
         			{
         				ONCFamily f = familyDB.getFamily(sms.getEntityID());
-        				if(f != null)
-        					return f.getONCNum();
+        				if(f != null && isNumeric(f.getONCNum()))
+        					return Integer.parseInt(f.getONCNum());
         				else
-        					return "UNK";
+        					return -1;
         			}
         			else
-        				return Integer.toString(sms.getEntityID());
+        				return sms.getEntityID();
         		}
        		else if(col == ENTITY_TYPE_COL)
        			return sms.getType().toString();
@@ -488,6 +527,8 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
         {
         		if(column == TIMESTAMP_COL)
         			return Date.class;
+        		else if(column == ENTITY_ID_COL)
+        			return Integer.class;
         		else
         			return String.class;
         }

@@ -82,4 +82,9 @@ public class ONCSMS extends ONCObject
 		return String.format("ONCSMS: id=%d, messageSID= %s, entityType=%s, entityID=%d, phoneNum=%s, direction=%s, body=%s, status=%s, timestamp=%s",
 				id, messageSID, type.toString(), entityID, phoneNum, direction.toString(), body, status.toString(), timestamp);
 	}
+	
+	public static String[] getExportRowHeader()
+	{
+		return new String[] {"ID", "Message SID", "Entity Type", "Entity ID", "Phone #", "Direction", "Body", "Status", "Timestamp"};
+	}
 }
