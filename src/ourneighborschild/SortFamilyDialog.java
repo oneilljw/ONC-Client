@@ -1345,7 +1345,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		
 		altDelCB.removeActionListener(this);
 		altDelCB.setSelectedIndex(0);
-		sortEmail = "Any";
+		sortAltDel = "Any";
 		altDelCB.addActionListener(this);
 		
 		regionCB.removeActionListener(this);
