@@ -82,7 +82,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	SMSDB smsDB;
 	
 	//Unique gui elements for Sort Family Dialog
-	private JComboBox<String> oncCB, batchCB, regionCB, streetCB, lastnameCB, zipCB, emailCB;
+	private JComboBox<String> oncCB, batchCB, regionCB, streetCB, lastnameCB, zipCB, emailCB, altDelCB;
 	private JComboBox<FamilyStatus> fstatusCB, changeFStatusCB;
 	private JComboBox<FamilyGiftStatus> giftStatusCB, changeGiftStatusCB;
 	private JComboBox<String> changedByCB, giftCardCB; 
@@ -102,7 +102,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 
 	private int sortBatchNum = 0, sortZip = 0, sortRegion = 0, sortChangedBy = 0;
 	private int sortGCO = 0, sortStoplight = 0;
-	private String sortLN = "Any", sortStreet= "Any", sortEmail= "Any";
+	private String sortLN = "Any", sortStreet= "Any", sortEmail= "Any", sortAltDel = "Any";
 	private MealStatus sortMealStatus;
 	private FamilyGiftStatus sortGiftStatus;
 	private FamilyStatus sortFamilyStatus;
@@ -216,6 +216,10 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		emailCB = new JComboBox<String>(emailFilterChoices);
 		emailCB.setBorder(BorderFactory.createTitledBorder("Email?"));
 		emailCB.addActionListener(this);
+		
+		altDelCB = new JComboBox<String>(emailFilterChoices);
+		altDelCB.setBorder(BorderFactory.createTitledBorder("Alt. Del?"));
+		altDelCB.addActionListener(this);
 				
 		streetCB = new JComboBox<String>(any);
 		streetCB.setEditable(true);
@@ -269,6 +273,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		sortCriteriaPanelTop.add(giftStatusCB);
 		sortCriteriaPanelTop.add(mealstatusCB);
 		sortCriteriaPanelTop.add(emailCB);
+		sortCriteriaPanelTop.add(altDelCB);
 		sortCriteriaPanelBottom.add(lastnameCB);
 		sortCriteriaPanelBottom.add(streetCB);
 		sortCriteriaPanelBottom.add(zipCB);
@@ -444,12 +449,13 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 				     doesStreetMatch(f.getStreet()) &&
 				      doesZipMatch(f.getZipCode()) &&
 				       doesEmailMatch(f.getEmail()) &&
-				        doesRegionMatch(f.getRegion()) &&
-				         doesSchoolMatch(f.getSchoolCode()) &&
-				          doesChangedByMatch(f.getChangedBy()) &&
-				           doesGiftCardOnlyMatch(f.isGiftCardOnly()) &&
-				            doesStoplightMatch(f.getStoplightPos()) &&
-				             doesNoteStatusMatch(f))	//Family criteria pass
+				        doesAltDelMatch(f.getSubstituteDeliveryAddress()) &&
+				         doesRegionMatch(f.getRegion()) &&
+				          doesSchoolMatch(f.getSchoolCode()) &&
+				           doesChangedByMatch(f.getChangedBy()) &&
+				            doesGiftCardOnlyMatch(f.isGiftCardOnly()) &&
+				             doesStoplightMatch(f.getStoplightPos()) &&
+				              doesNoteStatusMatch(f))	//Family criteria pass
 			{
 				stAL.add(new ONCFamilyAndNote(id++, f, noteDB.getLastNoteForFamily(f.getID())));
 			}
@@ -1337,6 +1343,11 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		sortEmail = "Any";
 		emailCB.addActionListener(this);
 		
+		altDelCB.removeActionListener(this);
+		altDelCB.setSelectedIndex(0);
+		sortEmail = "Any";
+		altDelCB.addActionListener(this);
+		
 		regionCB.removeActionListener(this);
 		regionCB.setSelectedIndex(0);
 		sortRegion = 0;
@@ -1658,6 +1669,18 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		else if(sortEmail.equals("Yes") && !email.isEmpty())
 			return true;
 		else if(sortEmail.equals("No") && email.isEmpty())
+			return true;
+		else
+			return false;
+	}
+	
+	boolean doesAltDelMatch(String subDelAddr) 
+	{ 
+		if(sortAltDel.equals("Any"))
+			return true;
+		else if(sortAltDel.equals("Yes") && !subDelAddr.isEmpty())
+			return true;
+		else if(sortAltDel.equals("No") && subDelAddr.isEmpty())
 			return true;
 		else
 			return false;
@@ -2515,6 +2538,11 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		else if(e.getSource() == emailCB && !emailCB.getSelectedItem().equals(sortEmail) )
 		{						
 			sortEmail = (String) emailCB.getSelectedItem();
+			buildTableList(false);
+		}
+		else if(e.getSource() == altDelCB && !altDelCB.getSelectedItem().equals(sortAltDel) )
+		{						
+			sortAltDel = (String) altDelCB.getSelectedItem();
 			buildTableList(false);
 		}
 		else if(e.getSource() == regionCB && regionCB.getSelectedIndex() != sortRegion)

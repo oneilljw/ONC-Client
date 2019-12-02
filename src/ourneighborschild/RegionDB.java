@@ -16,7 +16,7 @@ public class RegionDB extends ONCDatabase
 	 */
 	private static RegionDB  instance = null;
 	private transient String[] regions = {"?"};	//Must initialize for dialog constructors
-	private List<School >schoolList;
+	private List<School> schoolList;
 	
 	private RegionDB()
 	{
@@ -295,14 +295,16 @@ public class RegionDB extends ONCDatabase
 	 * @param zipcode
 	 * @return ServedSchool
 	 */
-	School findServedShool(String streetNum, String streetName, String city, String zipcode)
+	School findServedSchool(String streetNum, String streetName, String city, String zipcode)
 	{
 		School servedSchool = null;
 		for(School school : schoolList)
 		{
 			Address schoolAdd = school.getAddress();
-			if(schoolAdd.getStreetNum().equals(streetNum) && schoolAdd.getFullStreetName().equals(streetName) &&
-				schoolAdd.getCity().equals(city) && schoolAdd.getZipCode().equals(zipcode))
+			
+			if(schoolAdd.getStreetNum().equals(streetNum) && 
+				streetName.toLowerCase().contains(schoolAdd.getStreetName().toLowerCase()) &&
+				 schoolAdd.getCity().equals(city) && schoolAdd.getZipCode().equals(zipcode))
 					servedSchool = school;
 		}
 			return servedSchool;

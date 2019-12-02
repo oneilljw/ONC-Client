@@ -215,7 +215,7 @@ public class SchoolDeliveryDialog extends ONCEntityTableDialog implements Action
 	
 				if(delAddrParts.length == 5)	//format uses"_" as separator. Five components
 				{	
-					School searchSchoolResult = regionDB.findServedShool(delAddrParts[0], delAddrParts[1],
+					School searchSchoolResult = regionDB.findServedSchool(delAddrParts[0], delAddrParts[1],
 																		delAddrParts[3], delAddrParts[4]);
 					if(searchSchoolResult != null)
 						delList.add(new SchoolDelivery(f, searchSchoolResult));
