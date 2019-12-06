@@ -793,7 +793,7 @@ public class FamilyDB extends ONCSearchableDatabase
 	//getter for Yellow Card data
 	String[] getYellowCardData(ONCFamily f) 
 	{
-		String[] ycData = new String[15];
+		String[] ycData = new String[16];
 		ycData[0] = f.getONCNum();
 		ycData[1] = f.getFirstName() + " " + f.getLastName();
 		
@@ -813,14 +813,17 @@ public class FamilyDB extends ONCSearchableDatabase
 			}
 			ycData[2] = addPart[0] + " " + addPart[1] + " " + unit;
 			ycData[3] = addPart[3] + ", VA " + addPart[4];
-			ycData[4] = "No Region - Alternate Address Family";
+			ycData[4] = "No Region - Alt. Address";
+			ycData[15] = "No School - Alt. Address";
 		}
 		else	//no alternate delivery address
 		{
+			RegionDB regionDB = RegionDB.getInstance();
 			String unit = isNumeric(f.getUnit()) ? "#" + f.getUnit() : f.getUnit();
 			ycData[2] =	f.getHouseNum() + " " + f.getStreet() + " " + unit ;
 			ycData[3] = f.getCity() + ", VA " + f.getZipCode();
-			ycData[4] = RegionDB.getInstance().getRegionID(f.getRegion());
+			ycData[4] = regionDB.getRegionID(f.getRegion());
+			ycData[15] = regionDB.getSchoolName(f.getSchoolCode());
 		}
 		
 //		ycData[4] = "?";

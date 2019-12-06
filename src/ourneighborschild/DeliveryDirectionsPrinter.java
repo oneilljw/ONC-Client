@@ -41,7 +41,7 @@ public class DeliveryDirectionsPrinter implements Printable
 
 		//Draw the ONC Season
 		g2d.setFont(ddFont[1]);
-		g2d.drawString(season, x+466, y+20);
+		g2d.drawString(season, x+462, y+20);
 
 		//Draw header ONC Number
 		g2d.setFont(ddFont[2]);

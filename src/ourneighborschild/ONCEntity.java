@@ -87,6 +87,7 @@ public abstract class ONCEntity extends ONCObject implements Serializable
 	public String getStoplightChangedBy() { return slChangedBy; }
 		
 	//setters
+	public void setDateChanged(long timeInMillis) { dateChanged.setTimeInMillis(timeInMillis); }
 	public void setDateChanged(Date  dc)	{ dateChanged.setTime(dc); }
 	public void setChangedBy(String cb) { changedBy = cb; }
 	public void setStoplightPos(int slp) { slPos = slp; }

@@ -9,6 +9,7 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.print.PageFormat;
 import java.awt.print.Printable;
 import java.awt.print.PrinterException;
@@ -21,17 +22,22 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.EnumSet;
 import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.JTextField;
 import javax.swing.SwingWorker;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
@@ -88,7 +94,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	private JComboBox<String> changedByCB, giftCardCB; 
 	private JComboBox<ImageIcon> stoplightCB, noteStatusCB;
 	private JComboBox<MealStatus> mealstatusCB;
-	private JComboBox<String> exportCB, printCB, contactCB, callCB;
+	private JComboBox<String> exportCB, printCB, sendEmailCB, sendSMSCB, callCB;
 	private JComboBox<School> schoolCB;
 	private JComboBox<DNSCode> dnsCodeCB, changeDNSCB;
 	private List<DNSCode> filterCodeList;
@@ -336,11 +342,17 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
         printCB.setEnabled(false);
         printCB.addActionListener(this);
         
-        String[] emailChoices = {"Email/SMS", "2019 Confirm. Email", "Confirm. SMS-Home", "Confirm. SMS-Alt"};
-        contactCB = new JComboBox<String>(emailChoices);
-        contactCB.setPreferredSize(new Dimension(180, 28));
-        contactCB.setEnabled(false);
-        contactCB.addActionListener(this);
+        String[] emailChoices = {"Email", "2019 Confirm. Email"};
+        sendEmailCB = new JComboBox<String>(emailChoices);
+        sendEmailCB.setPreferredSize(new Dimension(180, 28));
+        sendEmailCB.setEnabled(false);
+        sendEmailCB.addActionListener(this);
+        
+        String[] smsChoices = {"SMS", "Send SMS"};
+        sendSMSCB = new JComboBox<String>(smsChoices);
+        sendSMSCB.setPreferredSize(new Dimension(100, 28));
+        sendSMSCB.setEnabled(false);
+        sendSMSCB.addActionListener(this);
         
         //Set up the email progress bar
       	progressBar = new JProgressBar(0, 100);
@@ -358,7 +370,8 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
         cntlPanel.add(progressBar);
         cntlPanel.add(exportCB);
         cntlPanel.add(callCB);
-        cntlPanel.add(contactCB);
+        cntlPanel.add(sendEmailCB);
+        cntlPanel.add(sendSMSCB);
         cntlPanel.add(printCB);
         
         bottomPanel.add(cntlPanel, BorderLayout.CENTER);
@@ -373,7 +386,8 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	void setEnabledControls(boolean tf)
 	{
 		printCB.setEnabled(tf);
-		contactCB.setEnabled(tf);
+		sendEmailCB.setEnabled(tf);
+		sendSMSCB.setEnabled(tf);
 		callCB.setEnabled(tf);
 	}
 	
@@ -1273,7 +1287,8 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			{
 				exportCB.setEnabled(true);
 				printCB.setEnabled(true);
-				contactCB.setEnabled(true);
+				sendEmailCB.setEnabled(true);
+				sendSMSCB.setEnabled(true);
 				callCB.setEnabled(true);
 			}
 		}
@@ -1281,7 +1296,8 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		{
 			printCB.setEnabled(false);
 			exportCB.setEnabled(false);
-			contactCB.setEnabled(false);
+			sendEmailCB.setEnabled(false);
+			sendSMSCB.setEnabled(false);
 			callCB.setEnabled(false);
 		}
 			
@@ -1443,7 +1459,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	    oncEmailer = new ONCEmailer(this, progressBar, fromAddress, bccList, emailAL, attachmentAL, creds);
 	    oncEmailer.addPropertyChangeListener(this);
 	    oncEmailer.execute();
-	    contactCB.setEnabled(false);		
+	    sendEmailCB.setEnabled(false);		
 	}
 	
 	/**************************************************************************************************
@@ -2629,18 +2645,38 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 				onExportAngelInputFile();
 			}
 		}
-		else if(e.getSource() == contactCB && contactCB.getSelectedIndex() > 0)	//only one email currently
+		else if(e.getSource() == sendEmailCB && sendEmailCB.getSelectedIndex() > 0)	//only one email currently
 		{
-			//Confirm with the user that the deletion is really intended
-			String request = (String) contactCB.getSelectedItem();
-			String type = request.contains("Email") ? "an Email" : "a SMS message";
-			
-			String confirmMssg = String.format("Are you sure you want to send family(s) %s?", type); 
+			//Confirm with the user that sending email really intended
+			String confirmMssg = "Are you sure you want to send family(s) an Email?"; 
 											
 			Object[] options= {"Cancel", "Send"};
 			JOptionPane confirmOP = new JOptionPane(confirmMssg, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION,
 								gvs.getImageIcon(0), options, "Cancel");
-			JDialog confirmDlg = confirmOP.createDialog(parentFrame, String.format("*** Confirm Send Family(s) %s ***", type));
+			JDialog confirmDlg = confirmOP.createDialog(parentFrame, "*** Confirm Send Family(s) Email ***");
+			confirmDlg.setLocationRelativeTo(this);
+			confirmDlg.setAlwaysOnTop(true);
+			confirmDlg.setVisible(true);
+		
+			Object selectedValue = confirmOP.getValue();
+			if(selectedValue != null && selectedValue.toString().equals("Send"))
+				createAndSendFamilyEmail(sendEmailCB.getSelectedIndex());
+			
+			sendEmailCB.setSelectedIndex(0);	//Reset the combo box choice
+		}
+		else if(e.getSource() == sendSMSCB && sendSMSCB.getSelectedIndex() > 0)	//only one SMS choice
+		{
+			//create the additional SMS info dialog box and display it
+			SendSMSDialog smsDlg = new SendSMSDialog(this, true);
+			smsDlg.setVisible(true);
+			
+			//Confirm with the user that sending SMS is really intended
+			String confirmMssg = "Are you sure you want to send family(s) SMS?"; 
+											
+			Object[] options= {"Cancel", "Send"};
+			JOptionPane confirmOP = new JOptionPane(confirmMssg, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION,
+								gvs.getImageIcon(0), options, "Cancel");
+			JDialog confirmDlg = confirmOP.createDialog(parentFrame, "*** Confirm Send Family(s) SMS ***");
 			confirmDlg.setLocationRelativeTo(this);
 			confirmDlg.setAlwaysOnTop(true);
 			confirmDlg.setVisible(true);
@@ -2648,19 +2684,14 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			Object selectedValue = confirmOP.getValue();
 			if(selectedValue != null && selectedValue.toString().equals("Send"))
 			{
-				if(request.contains("Email"))
-					createAndSendFamilyEmail(contactCB.getSelectedIndex());
-				else if(request.contains("SMS"))
-				{
-					String phoneChoice = (String) contactCB.getSelectedItem();
-					if(phoneChoice.contains("SMS-Home"))
-						sendFamilyText(0);
-					else if(phoneChoice.contains("SMS-Alt"))
-						sendFamilyText(1);
-				}	
+				String phoneChoice = (String) sendSMSCB.getSelectedItem();
+				if(phoneChoice.contains("SMS-Home"))
+					sendFamilyText(0);
+				else if(phoneChoice.contains("SMS-Alt"))
+					sendFamilyText(1);	
 			}
 			
-			contactCB.setSelectedIndex(0);	//Reset the combo box choice
+			sendEmailCB.setSelectedIndex(0);	//Reset the combo box choice
 		}
 
 		checkApplyChangesEnabled();	//Check to see if user postured to change status or assignee. 
@@ -2755,8 +2786,9 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		    
 		    g2d.setFont(ycFont[1]);
 		    g2d.drawString(season, x+430, y+106);
-		    g2d.drawString("Region:", x+0, y+124);
-		    g2d.drawString("Phone Info:",  x+0, y+150);
+		    g2d.drawString("Elem School:", x+0, y+124);
+		    g2d.drawString("Region:", x+238, y+124);
+		    g2d.drawString("Primary Phone:", x+0, y+150);
 		    g2d.drawString("Alternate:",  x+238, y+150);
 		    g2d.drawString("Language:", x+0, y+186);
 		    g2d.drawString("Special Delivery Comments:", x+0, y+220);
@@ -2773,8 +2805,9 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			g2d.drawString(line[1], x, y+68);		//First and Last Name
 			g2d.drawString(line[2], x, y+80);		//Street Address
 			g2d.drawString(line[3], x, y+92);		//City, State, Zip
-			g2d.drawString(line[4], x+52, y+124); 	//Region	    
-			g2d.drawString(line[5], x+66, y+150);	//Home Phone 1
+			g2d.drawString(line[15], x+72, y+124); 	//Elementary School    
+			g2d.drawString(line[4], x+290, y+124); 	//Region	    
+			g2d.drawString(line[5], x+88, y+150);	//Home Phone 1
 			if(!line[6].isEmpty())
 				g2d.drawString("or " + line[6], x+144, y+150);	//Home Phone 2
 		    g2d.drawString(line[7], x+300, y+150);	//Other Phone 1
@@ -3379,8 +3412,8 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		{
 			if(evt.getNewValue() == SwingWorker.StateValue.DONE)
 			{
-				contactCB.setSelectedIndex(0);
-				contactCB.setEnabled(true);
+				sendEmailCB.setSelectedIndex(0);
+				sendEmailCB.setEnabled(true);
 			}
 		}			
 	}
@@ -3389,5 +3422,89 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	void initializeFilters() {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	public class SendSMSDialog extends JDialog implements ActionListener
+	{
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		private JLabel lblONCIcon, lblMessageSel, lblPhoneNumberSel;
+		private JComboBox<String> messageCB,  phoneNumberCB;
+		private JButton btnSend, btnCancel;
+
+		SendSMSDialog(JDialog owner, boolean bModal) 
+		{
+			super(owner, bModal);
+			this.setTitle("Send SMS");
+			
+			JPanel toppanel = new JPanel();
+			toppanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+			lblONCIcon = new JLabel(gvs.getImageIcon(0), JLabel.LEFT);
+			lblONCIcon.setText("<html><font color=blue>Send SMS<br>Information Below</font></html>");
+			lblONCIcon.setToolTipText("ONC Client v" + GlobalVariablesDB.getVersion());
+			toppanel.add(lblONCIcon);
+
+			//set up the message select panel
+			JPanel messageSelPanel = new JPanel();
+			
+			lblMessageSel = new JLabel("Message:");
+			messageCB = new JComboBox<String>(new String[] {"None", "Delivery Confirmation", "Delivery Reminder"});
+			messageCB.setPreferredSize(new Dimension(208,36));
+			messageCB.addActionListener(this);
+			messageSelPanel.add(lblMessageSel);
+			messageSelPanel.add(messageCB);
+			
+			//set up the phone number select panel
+			JPanel phoneNumberSelPanel = new JPanel();
+			
+			lblPhoneNumberSel = new JLabel("Phone:");
+			phoneNumberCB = new JComboBox<String>(new String[] {"None", "Primary", "Alternate"});
+			phoneNumberCB.setPreferredSize(new Dimension(208,36));
+			phoneNumberCB.addActionListener(this);
+			phoneNumberSelPanel.add(lblPhoneNumberSel);
+			phoneNumberSelPanel.add(phoneNumberCB);
+			
+			//Add control panel
+			JPanel cntlpanel = new JPanel();
+			cntlpanel.setLayout((new FlowLayout(FlowLayout.RIGHT)));
+			
+			btnCancel = new JButton();
+			btnCancel.setText("Cancel");
+			btnCancel.setVisible(true);
+			btnCancel.addActionListener(this);
+			cntlpanel.add(btnCancel);
+			
+			btnSend = new JButton();
+			btnSend.setText("Send SMS");
+			btnSend.setEnabled(false);
+			btnSend.addActionListener(this);
+			cntlpanel.add(btnSend);
+				
+			pack();
+		}
+		
+		
+		@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			if(e.getSource() == messageCB)
+			{
+				btnSend.setEnabled(messageCB.getSelectedIndex() > 0 && phoneNumberCB.getSelectedIndex() > 0);
+			}
+			else if(e.getSource() == phoneNumberCB)
+			{
+				btnSend.setEnabled(messageCB.getSelectedIndex() > 0 && phoneNumberCB.getSelectedIndex() > 0);
+			}
+			else if(e.getSource() == btnCancel)
+			{
+				
+			}
+			else if(e.getSource() == btnSend)
+			{
+				
+			}
+		}	
 	}
 }

@@ -41,6 +41,19 @@ public class ONCVolunteer extends ONCGmailContactEntity implements Comparable<ON
 		this.warehouseSignIns = 0;
 	}
 	
+	public ONCVolunteer(int driverid, String drvNum, String fName, String lName, String email, 
+			String hNum, String street, String unit, String city, String zipcode, 
+			String homePhone, String cellPhone, String group, String comment, 
+			long timeInMillis, String changedBy)
+	{
+		super(driverid, fName, lName, email, homePhone, cellPhone, hNum, street, unit, city, 
+				zipcode, comment, group,  timeInMillis, changedBy, STOPLIGHT_OFF,
+				"Volunteer added", changedBy);
+		this.drvNum = drvNum;
+		this.delAssigned = 0;
+		this.warehouseSignIns = 0;
+}
+	
 //	public ONCVolunteer(int driverid, String drvNum, String fName, String lName, String email, 
 //			String hNum, String street, String unit, String city, String zipcode, 
 //			String homePhone, String cellPhone, String group,

@@ -14,6 +14,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.TimeZone;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -558,7 +559,19 @@ public class ManageVolDialog extends ONCEntityTableDialog implements ActionListe
         			return count;
         		}
         		else if (col == TIME_COL)
-        			return v.getDateChanged();
+        		{
+//          		return v.getDateChanged();
+        			
+        			TimeZone tz = TimeZone.getDefault();	//Local time zone
+        			int offsetFromUTC = tz.getOffset(v.getTimeInMillis());
+        			 
+        			//create a new calendar in local time zone, set to gmtDOB and add the offset
+        			Calendar localCal = Calendar.getInstance();
+        			localCal.setTimeInMillis(v.getTimeInMillis());
+        			localCal.add(Calendar.MILLISECOND, offsetFromUTC);
+
+        			return localCal.getTime();       			
+        		}
         		else
         			return "Error";
         }
