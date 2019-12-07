@@ -27,6 +27,7 @@ import java.util.EnumSet;
 import java.util.List;
 
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -81,7 +82,6 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	private static final int MAX_CHILD_AGE_FOR_BOOKS = 12;
 	private static final int AVERY_LABEL_X_BARCODE_OFFSET = 0;
 	private static final int AVERY_LABEL_Y_BARCODE_OFFSET = 4;
-	private static final int FAMILY_COMFIRMATION_SMS_MESSAGE = 0;
 	
 	//Database references
 	NoteDB noteDB;
@@ -1623,7 +1623,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		return recipientAddressList;
 	}
 	
-	void sendFamilyText(int phoneNum)
+	void sendFamilyText(int messageID, int phoneNum)
 	{
 		//build the family ID list
 		ArrayList<Integer> famIDList = new ArrayList<Integer>();
@@ -1636,14 +1636,18 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			ONCFamily fam = stAL.get(row_sel[row]).getFamily();
 			
 			//only families with valid phone numbers will be included.
-			if(phoneNum == 0 && !fam.getHomePhone().isEmpty() || 
-				phoneNum == 1 && !fam.getCellPhone().isEmpty())
+			if(phoneNum == 1 && !fam.getHomePhone().isEmpty() || 
+				phoneNum == 2 && !fam.getCellPhone().isEmpty())
 			{
-				famIDList.add(fam.getID());
+				//only send reminder email to Confirmed families
+				if(phoneNum == 2 && fam.getFamilyStatus() == FamilyStatus.Confirmed)
+					famIDList.add(fam.getID());
+				else if(phoneNum == 1)
+					famIDList.add(fam.getID());
 			}
 		}
 		
-		String response = smsDB.sendSMSRequest(this, FAMILY_COMFIRMATION_SMS_MESSAGE, phoneNum, famIDList);
+		String response = smsDB.sendSMSRequest(this, messageID, phoneNum, famIDList);
 		
 		//put up a pop-up with the response
 		ONCPopupMessage smsResponsePU = new ONCPopupMessage(GlobalVariablesDB.getONCLogo());
@@ -2668,30 +2672,29 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		{
 			//create the additional SMS info dialog box and display it
 			SendSMSDialog smsDlg = new SendSMSDialog(this, true);
+			smsDlg.setLocationRelativeTo(this);
+			smsDlg.setAlwaysOnTop(true);
 			smsDlg.setVisible(true);
 			
-			//Confirm with the user that sending SMS is really intended
-			String confirmMssg = "Are you sure you want to send family(s) SMS?"; 
+			if(smsDlg.getMessageSelected() > 0 && smsDlg.getPhoneSelected() > 0)
+			{	
+				//Confirm with the user that sending SMS is really intended
+				String confirmMssg = "Are you sure you want to send family(s) SMS?"; 
 											
-			Object[] options= {"Cancel", "Send"};
-			JOptionPane confirmOP = new JOptionPane(confirmMssg, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION,
+				Object[] options= {"Cancel", "Send"};
+				JOptionPane confirmOP = new JOptionPane(confirmMssg, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION,
 								gvs.getImageIcon(0), options, "Cancel");
-			JDialog confirmDlg = confirmOP.createDialog(parentFrame, "*** Confirm Send Family(s) SMS ***");
-			confirmDlg.setLocationRelativeTo(this);
-			confirmDlg.setAlwaysOnTop(true);
-			confirmDlg.setVisible(true);
+				JDialog confirmDlg = confirmOP.createDialog(parentFrame, "*** Confirm Send Family(s) SMS ***");
+				confirmDlg.setLocationRelativeTo(this);
+				confirmDlg.setAlwaysOnTop(true);
+				confirmDlg.setVisible(true);
 		
-			Object selectedValue = confirmOP.getValue();
-			if(selectedValue != null && selectedValue.toString().equals("Send"))
-			{
-				String phoneChoice = (String) sendSMSCB.getSelectedItem();
-				if(phoneChoice.contains("SMS-Home"))
-					sendFamilyText(0);
-				else if(phoneChoice.contains("SMS-Alt"))
-					sendFamilyText(1);	
+				Object selectedValue = confirmOP.getValue();
+				if(selectedValue != null && selectedValue.toString().equals("Send"))
+					sendFamilyText(smsDlg.getMessageSelected(), smsDlg.getPhoneSelected());
 			}
 			
-			sendEmailCB.setSelectedIndex(0);	//Reset the combo box choice
+			sendSMSCB.setSelectedIndex(0);	//Reset the combo box choice
 		}
 
 		checkApplyChangesEnabled();	//Check to see if user postured to change status or assignee. 
@@ -3433,24 +3436,41 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		private JLabel lblONCIcon, lblMessageSel, lblPhoneNumberSel;
 		private JComboBox<String> messageCB,  phoneNumberCB;
 		private JButton btnSend, btnCancel;
+		
+		private int messageSelected, phoneSelected;
 
 		SendSMSDialog(JDialog owner, boolean bModal) 
 		{
 			super(owner, bModal);
 			this.setTitle("Send SMS");
 			
+			messageSelected = -1;
+			phoneSelected = -1;
+			
+			//Set up the content panel
+			JPanel contentPanel = new JPanel();
+			contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
+			
 			JPanel toppanel = new JPanel();
 			toppanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 			lblONCIcon = new JLabel(gvs.getImageIcon(0), JLabel.LEFT);
-			lblONCIcon.setText("<html><font color=blue>Send SMS<br>Information Below</font></html>");
+			lblONCIcon.setText("<html><font color=blue>Send Family(s) SMS per the<br>information below</font></html>");
 			lblONCIcon.setToolTipText("ONC Client v" + GlobalVariablesDB.getVersion());
 			toppanel.add(lblONCIcon);
 
 			//set up the message select panel
 			JPanel messageSelPanel = new JPanel();
 			
+			
 			lblMessageSel = new JLabel("Message:");
-			messageCB = new JComboBox<String>(new String[] {"None", "Delivery Confirmation", "Delivery Reminder"});
+			
+			GlobalVariablesDB gvDB = GlobalVariablesDB.getInstance();
+			
+			if(gvDB.isDayBeforeOrDeliveryDay())
+				messageCB = new JComboBox<String>(new String[] {"None", "Delivery Confirmation", "Delivery Reminder"});
+			else
+				messageCB = new JComboBox<String>(new String[] {"None", "Delivery Confirmation"});
+			
 			messageCB.setPreferredSize(new Dimension(208,36));
 			messageCB.addActionListener(this);
 			messageSelPanel.add(lblMessageSel);
@@ -3459,7 +3479,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			//set up the phone number select panel
 			JPanel phoneNumberSelPanel = new JPanel();
 			
-			lblPhoneNumberSel = new JLabel("Phone:");
+			lblPhoneNumberSel = new JLabel("Phone #:");
 			phoneNumberCB = new JComboBox<String>(new String[] {"None", "Primary", "Alternate"});
 			phoneNumberCB.setPreferredSize(new Dimension(208,36));
 			phoneNumberCB.addActionListener(this);
@@ -3477,14 +3497,22 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			cntlpanel.add(btnCancel);
 			
 			btnSend = new JButton();
-			btnSend.setText("Send SMS");
+			btnSend.setText("Send Family(s) SMS");
 			btnSend.setEnabled(false);
 			btnSend.addActionListener(this);
 			cntlpanel.add(btnSend);
+			
+			contentPanel.add(toppanel);
+			contentPanel.add(messageSelPanel);
+			contentPanel.add(phoneNumberSelPanel);
+			contentPanel.add(cntlpanel);
 				
+			this.setContentPane(contentPanel);
 			pack();
 		}
 		
+		int getMessageSelected() { return messageSelected; }
+		int getPhoneSelected() { return phoneSelected; }
 		
 		@Override
 		public void actionPerformed(ActionEvent e)
@@ -3499,11 +3527,15 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			}
 			else if(e.getSource() == btnCancel)
 			{
-				
+				messageSelected = -1;
+				phoneSelected = -1;
+				this.dispose();
 			}
 			else if(e.getSource() == btnSend)
 			{
-				
+				messageSelected = messageCB.getSelectedIndex();
+				phoneSelected = phoneNumberCB.getSelectedIndex();
+				this.dispose();
 			}
 		}	
 	}

@@ -309,6 +309,19 @@ public class GlobalVariablesDB extends ONCDatabase implements Serializable
 	void setStartONCNum(int startoncnum) { startONCNum = startoncnum; }
 	void setVersion(String version) { GlobalVariablesDB.version = version; }
 	
+	boolean isDayBeforeOrDeliveryDay()
+	{
+		//check if today is the day before or the day of delivery
+		Calendar today = Calendar.getInstance();
+
+		return oncDeliveryDate.get(Calendar.YEAR) == today.get(Calendar.YEAR) &&
+				(oncDeliveryDate.get(Calendar.DAY_OF_YEAR) == today.get(Calendar.DAY_OF_YEAR) ||
+				  oncDeliveryDate.get(Calendar.DAY_OF_YEAR-1) == today.get(Calendar.DAY_OF_YEAR-1));
+		
+		//TEST PURPOSES ONLY
+//		return true;
+	}
+	
 	 /** Returns an ImageIcon, or null if the path was invalid. */
 	ImageIcon createImageIcon(String path, String description)
 	{
