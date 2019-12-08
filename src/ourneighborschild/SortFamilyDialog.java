@@ -3147,11 +3147,15 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			g2d.drawString("GIFT 3:", x+24, y+VERIFICATION_SHEET_CHILD_RECORD_LINE_HEIGHT*3+12);
 			g2d.drawString(giftdata[2], x+76, y+VERIFICATION_SHEET_CHILD_RECORD_LINE_HEIGHT*3+12);
 
-			//Draw Duplicate + Battery Info
+			//Draw Duplicate Item Info
 			drawThickRect(g2d, x, y+VERIFICATION_SHEET_CHILD_RECORD_LINE_HEIGHT*4, 12, 12, false);
 			g2d.drawString("Duplicate Items?", x+24, y+VERIFICATION_SHEET_CHILD_RECORD_LINE_HEIGHT*4+12);
-			drawThickRect(g2d, x+276, y+VERIFICATION_SHEET_CHILD_RECORD_LINE_HEIGHT*4-0, 12, 12, false);
-			g2d.drawString("BATTERIES: TYPE_______ QUANTITY_______", x+296, y+VERIFICATION_SHEET_CHILD_RECORD_LINE_HEIGHT*4+12);		
+			
+			//Beginning in the 2019 Season, battery information was removed from the gift inventory process
+			//per request from the ONC Executive Director
+//			//Draw Battery Info
+//			drawThickRect(g2d, x+276, y+VERIFICATION_SHEET_CHILD_RECORD_LINE_HEIGHT*4-0, 12, 12, false);
+//			g2d.drawString("BATTERIES: TYPE_______ QUANTITY_______", x+296, y+VERIFICATION_SHEET_CHILD_RECORD_LINE_HEIGHT*4+12);		
 
 		}
 			
