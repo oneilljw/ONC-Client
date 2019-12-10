@@ -279,6 +279,12 @@ public class PartnerDB extends ONCSearchableDatabase
 			Collections.sort(oal, new PartnerOrnReqComparator()); }
 		else if(dbField.equals("Assigned")) {
 			Collections.sort(oal, new PartnerOrnAssignedComparator()); }
+		else if(dbField.equals("Del")) {
+			Collections.sort(oal, new PartnerOrnDeliveredComparator()); }
+		else if(dbField.equals("Rec")) {
+			Collections.sort(oal, new PartnerOrnOnTimeComparator()); }
+		else if(dbField.equals("Late")) {
+			Collections.sort(oal, new PartnerOrnLateComparator()); }
 		else if(dbField.equals("Delivery Information")) {
 			Collections.sort(oal, new PartnerDeliveryInfoComparator()); }
 		else if(dbField.equals("Date Changed")) {
@@ -761,6 +767,36 @@ public class PartnerDB extends ONCSearchableDatabase
 		{
 			Integer oa1 = o1.getNumberOfOrnamentsAssigned();
 			Integer oa2 = o2.getNumberOfOrnamentsAssigned();
+			return oa1.compareTo(oa2);
+		}
+	}
+	private class PartnerOrnDeliveredComparator implements Comparator<ONCPartner>
+	{
+		@Override
+		public int compare(ONCPartner o1, ONCPartner o2)
+		{
+			Integer oa1 = o1.getNumberOfOrnamentsDelivered();
+			Integer oa2 = o2.getNumberOfOrnamentsDelivered();
+			return oa1.compareTo(oa2);
+		}
+	}
+	private class PartnerOrnOnTimeComparator implements Comparator<ONCPartner>
+	{
+		@Override
+		public int compare(ONCPartner o1, ONCPartner o2)
+		{
+			Integer oa1 = o1.getNumberOfOrnamentsReceivedBeforeDeadline();
+			Integer oa2 = o2.getNumberOfOrnamentsReceivedBeforeDeadline();
+			return oa1.compareTo(oa2);
+		}
+	}
+	private class PartnerOrnLateComparator implements Comparator<ONCPartner>
+	{
+		@Override
+		public int compare(ONCPartner o1, ONCPartner o2)
+		{
+			Integer oa1 = o1.getNumberOfOrnamentsReceivedAfterDeadline();
+			Integer oa2 = o2.getNumberOfOrnamentsReceivedAfterDeadline();
 			return oa1.compareTo(oa2);
 		}
 	}

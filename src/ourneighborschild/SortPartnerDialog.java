@@ -278,6 +278,9 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 				o.getGiftCollectionType().toString(),
 				Integer.toString(o.getNumberOfOrnamentsRequested()),
 				Integer.toString(o.getNumberOfOrnamentsAssigned()),
+				Integer.toString(o.getNumberOfOrnamentsDelivered()),
+				Integer.toString(o.getNumberOfOrnamentsReceivedBeforeDeadline()),
+				Integer.toString(o.getNumberOfOrnamentsReceivedAfterDeadline()),
 				o.getDeliverTo(),
 				sdf.format(o.getDateChanged().getTime()),
 				o.getChangedBy(),
@@ -1858,7 +1861,10 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 	String[] getColumnToolTips()
 	{
 		String[] toolTips = {"ONC Partner", "Partner Status","Type of Organization",
-				"Number of Ornaments Requested","Number of Ornaments Assigned",
+				"Number of Ornaments Requested","Number of Ornaments Assigned", 
+				"Number of ornaments given to partenr to fulfill", 
+				"Number of gifts received from the partner before the deadline",
+				"Number of gifts received from the partner after the deadline",
 				"Gift Delivery Info for Partner","Date Partner Info Last Changed", 
 				"ONC User that last changed partner info", "ONC Region that partner is located",
 				"Partner Stop Light Color"};
@@ -1867,20 +1873,20 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 	@Override
 	String[] getColumnNames()
 	{
-		String[] columns = {"Partner","Status", "Type", "Collection", "Req", "Assigned", "Delivery Information",
+		String[] columns = {"Partner","Status", "Type", "Collection", "Req", "Assigned", "Del", "Rec", "Late", "Delivery Information",
 				"Date Changed","Changed By","Reg", "SL"};
 		return columns;
 	}
 	@Override
 	int[] getColumnWidths()
 	{
-		int[] colWidths = {180, 96, 68, 68, 48, 56, 180, 72, 80, 28, 24};
+		int[] colWidths = {180, 96, 68, 68, 48, 56, 48, 48, 48, 180, 72, 80, 28, 24};
 		return colWidths;
 	}
 	@Override
 	int[] getCenteredColumns()
 	{
-		 int[] center_cols = {4, 5, 9};
+		 int[] center_cols = {4, 5, 6, 7, 8, 12};
 		return center_cols;
 	}
 	
