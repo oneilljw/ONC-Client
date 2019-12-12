@@ -313,10 +313,17 @@ public class GlobalVariablesDB extends ONCDatabase implements Serializable
 	{
 		//check if today is the day before or the day of delivery
 		Calendar today = Calendar.getInstance();
-
-		return oncDeliveryDate.get(Calendar.YEAR) == today.get(Calendar.YEAR) &&
+		
+		boolean isDayBeforeOrDeliveryDay = oncDeliveryDate.get(Calendar.YEAR) == today.get(Calendar.YEAR) &&
 				(oncDeliveryDate.get(Calendar.DAY_OF_YEAR) == today.get(Calendar.DAY_OF_YEAR) ||
-				  oncDeliveryDate.get(Calendar.DAY_OF_YEAR-1) == today.get(Calendar.DAY_OF_YEAR-1));
+				  oncDeliveryDate.get(Calendar.DAY_OF_YEAR)-1 == today.get(Calendar.DAY_OF_YEAR));
+		
+		System.out.println(String.format("GlobVarDB.isDayBeforeOrDelDay - today.DAY_OF_YEAR: %d", today.get(Calendar.DAY_OF_YEAR)));
+		System.out.println(String.format("GlobVarDB.isDayBeforeOrDelDay - oncDeliveryDate.DAY_OF_YEAR: %d", oncDeliveryDate.get(Calendar.DAY_OF_YEAR)));
+		System.out.println(String.format("GlobVarDB.isDayBeforeOrDelDay - oncDeliveryDate.DAY_OF_YEAR-1: %d", oncDeliveryDate.get(Calendar.DAY_OF_YEAR)-1));
+		System.out.println(String.format("GlobVarDB.isDayBeforeOrDelDay: %b", isDayBeforeOrDeliveryDay));
+
+		return isDayBeforeOrDeliveryDay;
 		
 		//TEST PURPOSES ONLY
 //		return true;

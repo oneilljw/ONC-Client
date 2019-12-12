@@ -42,20 +42,26 @@ public class SchoolDeliveryDialog extends ONCEntityTableDialog implements Action
 	private static final long serialVersionUID = 1L;
 	private static final int ONC_NUM_COL= 0;
 	private static final int REF_NUM_COL= 1;
-	private static final int GIFT_STATUS_COL = 2;
-	private static final int FIRST_NAME_COL= 3;
-	private static final int LAST_NAME_COL = 4;
-	private static final int SCHOOL_COL = 5;
-	private static final int VOLUNTEER_COL = 6;
-	private static final int SL_COL = 7;
+	private static final int FAMILY_STATUS_COL = 2;
+	private static final int GIFT_STATUS_COL = 3;
+	private static final int FIRST_NAME_COL= 4;
+	private static final int LAST_NAME_COL = 5;
+	private static final int SCHOOL_COL = 6;
+	private static final int SCHOOL_TYPE_COL = 7;
+	private static final int VOLUNTEER_COL = 8;
+	private static final int SL_COL = 9;
 	
 	private static final int NUM_TABLE_ROWS = 12;
 	
 	protected JPanel sortCriteriaPanel;
 	private JComboBox<School> schoolCB;
+	private JComboBox<FamilyStatus> famStatusCB;
+	private JComboBox<FamilyGiftStatus> famGiftStatusCB;
 	private DefaultComboBoxModel<School> schoolCBM;
 	private boolean bIgnoreCBEvents;
-	private School sortSchool;
+//	private FamilyStatus sortFamStatus;
+//	private FamilyGiftStatus sortFamGiftStatus;
+//	private School sortSchool;
 	
 	private ONCTable delTable;
 	private AbstractTableModel delTableModel;
@@ -107,23 +113,37 @@ public class SchoolDeliveryDialog extends ONCEntityTableDialog implements Action
 		lblONCicon.setAlignmentX(Component.LEFT_ALIGNMENT );//0.0
 		sortCriteriaPanel.add(lblONCicon);
 		
+		famStatusCB = new JComboBox<FamilyStatus>(FamilyStatus.getSearchFilterList());
+//		sortFamStatus = FamilyStatus.Any;
+		famStatusCB.setPreferredSize(new Dimension(180, 56));
+		famStatusCB.setBorder(BorderFactory.createTitledBorder("Family Status"));
+		famStatusCB.addActionListener(this);
+		
+		famGiftStatusCB = new JComboBox<FamilyGiftStatus>(FamilyGiftStatus.getSearchFilterList());
+//		sortFamGiftStatus = FamilyGiftStatus.Any;
+		famGiftStatusCB.setPreferredSize(new Dimension(180, 56));
+		famGiftStatusCB.setBorder(BorderFactory.createTitledBorder("Family Gift Status"));
+		famGiftStatusCB.addActionListener(this);
+		
 		schoolCB = new JComboBox<School>();
 		schoolCBM = new DefaultComboBoxModel<School>();
-		sortSchool = new School();	//creates a dummy school with code "Any"
-		schoolCBM.addElement(sortSchool);
+//		sortSchool = new School();	
+		schoolCBM.addElement(new School());//creates a dummy school with code "Any"
 		schoolCB.setModel(schoolCBM);
 		schoolCB.setPreferredSize(new Dimension(180, 56));
 		schoolCB.setBorder(BorderFactory.createTitledBorder("School"));
 		schoolCB.addActionListener(this);
 		
+		sortCriteriaPanel.add(famStatusCB);
+		sortCriteriaPanel.add(famGiftStatusCB);
 		sortCriteriaPanel.add(schoolCB);
 		
 		//Create the volunteer table model
 		delTableModel = new DeliveryTableModel();
 		
 		//create the table
-		String[] colToolTips = {"ONC#", "Ref#", "Gift Status", "First Name", "Last Name", 
-								"School", "Volunteer", "Stop Light"};
+		String[] colToolTips = {"ONC#", "Ref#", "Family Status", "Gift Status", "First Name", "Last Name", 
+								"School", "Type", "Volunteer", "Stop Light"};
 		
 		delTable = new ONCTable(delTableModel, colToolTips, new Color(240,248,255));
 
@@ -132,7 +152,7 @@ public class SchoolDeliveryDialog extends ONCEntityTableDialog implements Action
 		
 		//Set table column widths
 		int tablewidth = 0;
-		int[] colWidths = {56, 64, 96, 104, 116, 80, 104, 48};
+		int[] colWidths = {56, 64, 96, 96, 104, 116, 120, 32, 120, 48};
 		for(int col=0; col < colWidths.length; col++)
 		{
 			delTable.getColumnModel().getColumn(col).setPreferredWidth(colWidths[col]);
@@ -217,7 +237,9 @@ public class SchoolDeliveryDialog extends ONCEntityTableDialog implements Action
 				{	
 					School searchSchoolResult = regionDB.findServedSchool(delAddrParts[0], delAddrParts[1],
 																		delAddrParts[3], delAddrParts[4]);
-					if(searchSchoolResult != null)
+					
+					if(searchSchoolResult != null && doesFamilyStatusMatch(f.getFamilyStatus()) &&
+						doesFamilyGiftStatusMatch(f.getGiftStatus()) && doesSchoolMatch(searchSchoolResult))
 						delList.add(new SchoolDelivery(f, searchSchoolResult));
 				}
 			}	
@@ -231,21 +253,50 @@ public class SchoolDeliveryDialog extends ONCEntityTableDialog implements Action
 	}
 	
 	void resetFilters()
-	{	
+	{
+		famStatusCB.removeActionListener(this);
+		famStatusCB.setSelectedIndex(0);
+		famStatusCB.addActionListener(this);
+//		sortFamStatus = FamilyStatus.Any;
+		
+		famGiftStatusCB.removeActionListener(this);
+		famGiftStatusCB.setSelectedIndex(0);
+		famGiftStatusCB.addActionListener(this);
+//		sortFamGiftStatus = FamilyGiftStatus.Any;
+		
 		schoolCB.removeActionListener(this);
 		schoolCB.setSelectedIndex(0);
 		schoolCB.addActionListener(this);
-		sortSchool = new School();	//creates a dummy school with code "Any"
+//		sortSchool = new School();	//creates a dummy school with code "Any"
 		
 		selectedFam = null;
 
 		createTableList();
 	}
 	
-	boolean doesSchoolMatch(String schoolCode) 
+	boolean doesFamilyStatusMatch(FamilyStatus fs) 
 	{
+		FamilyStatus selectedStatus = (FamilyStatus) famStatusCB.getSelectedItem();
+		return selectedStatus == FamilyStatus.Any || selectedStatus == fs;
+	}
+	
+	boolean doesFamilyGiftStatusMatch(FamilyGiftStatus fgs) 
+	{
+		FamilyGiftStatus selectedStatus = (FamilyGiftStatus) famGiftStatusCB.getSelectedItem();
+		
+		System.out.println(String.format("SchoolDelDlg.doesFamGiftStatusMatch: sel index= %d,fgs=%s, selStatus= %s", 
+				famGiftStatusCB.getSelectedIndex(), fgs.toString(), selectedStatus));
+		
+		return selectedStatus == FamilyGiftStatus.Any || selectedStatus == fgs;
+	}
+	
+	boolean doesSchoolMatch(School famDelSchool) 
+	{
+		//a school matches if the school name and type matches the selected school name and type match
 		School selectedSchool = (School) schoolCB.getSelectedItem();
-		return schoolCB.getSelectedIndex() == 0 || schoolCode.equals(selectedSchool.getCode());
+		boolean doesNameMatch = selectedSchool.getName().equals(famDelSchool.getName());
+		boolean doesTypeMatch = selectedSchool.getType() == famDelSchool.getType();
+		return schoolCB.getSelectedIndex() == 0 || (doesNameMatch && doesTypeMatch);
 	}
 	
 	void updateSchoolList()
@@ -257,11 +308,11 @@ public class SchoolDeliveryDialog extends ONCEntityTableDialog implements Action
 		
 		schoolCBM.removeAllElements();
 		
-		sortSchool = new School();	//creates a dummy school with code "Any"
-		schoolCBM.addElement(sortSchool);
+//		sortSchool = new School();	//creates a dummy school with code "Any"
+		schoolCBM.addElement(new School());
 		
 		int index = 0;
-		for(School sch : regionDB.getServedSchoolList(SchoolType.ES))
+		for(School sch : regionDB.getServedSchoolList(SchoolType.ALL))
 		{
 			schoolCBM.addElement(sch);
 			index++;
@@ -270,7 +321,7 @@ public class SchoolDeliveryDialog extends ONCEntityTableDialog implements Action
 		}
 		
 		schoolCB.setSelectedIndex(selIndex); //Keep current selection in sort criteria
-		sortSchool = (School) schoolCB.getSelectedItem();
+//		sortSchool = (School) schoolCB.getSelectedItem();
 		
 		schoolCB.addActionListener(this);
 	}
@@ -424,7 +475,17 @@ public class SchoolDeliveryDialog extends ONCEntityTableDialog implements Action
 	{		
 		if(e.getSource() == schoolCB && !bIgnoreCBEvents)
 		{
-			sortSchool = (School) schoolCB.getSelectedItem();
+//			sortSchool = (School) schoolCB.getSelectedItem();
+			createTableList();
+		}
+		else if(e.getSource() == famStatusCB)
+		{
+//			sortFamStatus = (FamilyStatus) famStatusCB.getSelectedItem();
+			createTableList();
+		}
+		else if(e.getSource() == famGiftStatusCB)
+		{
+//			sortFamGiftStatus = (FamilyGiftStatus) famGiftStatusCB.getSelectedItem();
 			createTableList();
 		}
 		else if(e.getSource() == btnPrint)
@@ -454,8 +515,8 @@ public class SchoolDeliveryDialog extends ONCEntityTableDialog implements Action
 		 */
 		private static final long serialVersionUID = 1L;
 		
-		private String[] columnNames = {"ONC#", "Ref#", "Gift Status","First Name", "Last Name",
-										"School", "Volunteer", "SL"};
+		private String[] columnNames = {"ONC#", "Ref#", "FamilyStatus", "Gift Status","First Name", "Last Name",
+										"School", "Type", "Volunteer", "SL"};
  
         public int getColumnCount() { return columnNames.length; }
  
@@ -471,7 +532,9 @@ public class SchoolDeliveryDialog extends ONCEntityTableDialog implements Action
         		if(col == ONC_NUM_COL)  
         			return f.getONCNum();
         		else if(col == REF_NUM_COL)  
-        			return f.getBatchNum();
+        			return f.getReferenceNum();
+        		else if(col == FAMILY_STATUS_COL)  
+        			return f.getFamilyStatus();
         		else if(col == GIFT_STATUS_COL)  
         			return f.getGiftStatus();
         		else if(col == FIRST_NAME_COL)  
@@ -480,6 +543,8 @@ public class SchoolDeliveryDialog extends ONCEntityTableDialog implements Action
         			return f.getLastName();
         		else if (col == SCHOOL_COL)
         			return  deliverySchool.getName();
+        		else if (col == SCHOOL_TYPE_COL)
+        			return  deliverySchool.getType();
         		else if (col == VOLUNTEER_COL)
         			return famHistoryDB.getDeliveredBy(f.getDeliveryID());
         		else if (col == SL_COL)
