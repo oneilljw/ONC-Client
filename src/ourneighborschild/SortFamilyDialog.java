@@ -2186,6 +2186,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		headerList.add("Delivery City");
 		headerList.add("Delivery Zip Code");
 		headerList.add("Delivery State/Province");
+		headerList.add("Delivery Elem. School");
 		headerList.add("Donor Type");
 		headerList.add("Adopted for:");
 		headerList.add("Number of Adults in Household");
@@ -2385,7 +2386,9 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 							   famSchools,
 							   soFamily.getDetails(),
 							   soFamily.getReferenceNum(),
-							   delStreetNum, delStreet, unit, "", city, zip, "Virginia", "CBO",
+							   delStreetNum, delStreet, unit, "", city, zip, "Virginia",
+							   regions.getSchoolName(soFamily.getSchoolCode()),
+							   "CBO",
 							   adoptedFor,
 							   Integer.toString(adultDB.getNumberOfOtherAdultsInFamily(soFamily.getID())+1),
 							   Integer.toString(childDB.getNumberOfChildrenInFamily(soFamily.getID())),
