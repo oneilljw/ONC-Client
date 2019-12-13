@@ -116,7 +116,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 //	private static String[] dnsCodes = {"None", "Any", "All", "DUP", "FO", "NC", "NISA", "OPT-OUT", "SA", "SBO", "WA", "WL"};
 	private static String[] exportChoices = {"Export", "Britepath Crosscheck", "Family Floor List", 
 											 "Delivery Instructions", "Toys for Tots Application",
-											 "Family Referral", "Agent/Children/School Report"};
+											 "Family Referral/Deliveries", "Agent/Children/School Report"};
 	private static String[] printChoices = {"Print", "Print Listing", "Print 12U Book Labels", 
 											"Print Family Receiving Sheets",
 											"Print Gift Inventory Sheets", "Print Packaging Sheets",
@@ -2179,6 +2179,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		headerList.add("School(s) Attended");
 		headerList.add("Details");
 		headerList.add("Assignee Contact ID");
+		headerList.add("Delivery Street Number");
 		headerList.add("Delivery Street Address");
 		headerList.add("Delivery Address Line 2");
 		headerList.add("Delivery Address Line 3");
@@ -2202,8 +2203,8 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
        	if(oncwritefile!= null)
        	{
        		//If user types a new filename without extension.csv, add it
-	    	String filePath = oncwritefile.getPath();
-	    	if(!filePath.toLowerCase().endsWith(".csv")) 
+       		String filePath = oncwritefile.getPath();
+       		if(!filePath.toLowerCase().endsWith(".csv")) 
 	    		oncwritefile = new File(filePath + ".csv");
 	    	
 	    	try 
@@ -2301,10 +2302,11 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	{
 		ONCUser user = userDB.getUser(soFamily.getAgentID());
 		
-		String delAddress, unit, city, zip;
+		String delStreetNum, delStreet, unit, city, zip;
 		if(soFamily.getSubstituteDeliveryAddress().isEmpty())
 		{
-			delAddress = soFamily.getHouseNum() + " " + soFamily.getStreet();
+			delStreetNum = soFamily.getHouseNum();
+			delStreet = soFamily.getStreet();
 			unit = soFamily.getUnit();
 			city = soFamily.getCity();
 			zip = soFamily.getZipCode();
@@ -2312,7 +2314,8 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		else
 		{
 			String[] parts = soFamily.getSubstituteDeliveryAddress().split("_");
-			delAddress = parts[0] + " " + parts[1];
+			delStreetNum = parts[0];
+			delStreet = parts[1];
 			unit = parts[2].equals("None")  ? "" : parts[2];
 			city = parts[3];
 			zip = parts[4];
@@ -2382,7 +2385,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 							   famSchools,
 							   soFamily.getDetails(),
 							   soFamily.getReferenceNum(),
-							   delAddress, unit, "", city, zip, "Virginia", "CBO",
+							   delStreetNum, delStreet, unit, "", city, zip, "Virginia", "CBO",
 							   adoptedFor,
 							   Integer.toString(adultDB.getNumberOfOtherAdultsInFamily(soFamily.getID())+1),
 							   Integer.toString(childDB.getNumberOfChildrenInFamily(soFamily.getID())),
