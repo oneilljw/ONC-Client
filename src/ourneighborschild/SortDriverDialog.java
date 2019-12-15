@@ -36,7 +36,7 @@ public class SortDriverDialog extends DependantTableDialog
 	private DefaultComboBoxModel<String> lNameCBM, changedByCBM;
 	private String sortLName;
 	private int sortChangedBy, sortStoplight;
-	private JComboBox<String> drvCB, printCB;
+	private JComboBox<String> drvCB, exportCB, printCB;
 	
 	private FamilyHistoryDB familyHistoryDB;
 	private VolunteerDB volunteerDB;
@@ -133,13 +133,21 @@ public class SortDriverDialog extends DependantTableDialog
 		JPanel cntlPanel = new JPanel();
       	cntlPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
       	
-      	//Create a print button for agent information
+      	//Create a print button for delivery volunteer information
+      	String[] exportChoices = {"Export", "Export Delivery Report"};
+        exportCB = new JComboBox<String>(exportChoices);
+        exportCB.setPreferredSize(new Dimension(136, 28));
+        exportCB.setEnabled(false);
+        exportCB.addActionListener(this);
+      	
+      	//Create a print button for delivery volunteer information
       	String[] agentPrintChoices = {"Print", "Print Driver Listing"};
         printCB = new JComboBox<String>(agentPrintChoices);
         printCB.setPreferredSize(new Dimension(136, 28));
         printCB.setEnabled(false);
         printCB.addActionListener(this);
         
+        cntlPanel.add(exportCB);
         cntlPanel.add(printCB);
         
         //set the border title for the family table 
@@ -281,6 +289,54 @@ public class SortDriverDialog extends DependantTableDialog
 		changedByCB.addActionListener(this);
 	}
 	
+	void onExportDeliveryReport()
+	{
+		String[] header = new String[] {"Drv #", "First Name", "Last Name", "# Del", "Cell #", "Home #", 
+										"E-Mail Address"};
+			
+		ONCFileChooser oncfc = new ONCFileChooser(this);
+       	File oncwritefile = oncfc.getFile("Select file for export of selected delivery volunteers" ,
+       								new FileNameExtensionFilter("CSV Files", "csv"),ONCFileChooser.SAVE_FILE);
+       	if(oncwritefile!= null)
+       	{
+       		//If user types a new filename without extension.csv, add it
+       		String filePath = oncwritefile.getPath();
+       		if(!filePath.toLowerCase().endsWith(".csv")) 
+       			oncwritefile = new File(filePath + ".csv");
+       		try 
+       		{
+       			CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
+       			writer.writeNext(header);
+	    	    
+       			int[] row_sel = sortTable.getSelectedRows();
+       			for(int i=0; i<sortTable.getSelectedRowCount(); i++)
+       			{
+	    	    			int index = row_sel[i];
+	    	    			ONCVolunteer d = atAL.get(index);
+	    	    			String[] di = new String[] {d.getDrvNum(), d.getFirstName(), d.getLastName(),
+	    	    							Integer.toString(d.getDelAssigned()),
+	    	    							d.getCellPhone(), d.getHomePhone(), d.getEmail()};
+	   
+	    	    			writer.writeNext(di);
+       			}
+	    	   
+       			writer.close();
+	    	    
+       			JOptionPane.showMessageDialog(this, 
+						sortTable.getSelectedRowCount() + " deliveries sucessfully exported to " + oncwritefile.getName(), 
+						"Export Successful", JOptionPane.INFORMATION_MESSAGE, gvs.getImageIcon(0));
+       		} 
+       		catch (IOException x)
+       		{
+       			JOptionPane.showMessageDialog(this, "Export Failed, I/O Error: "  + x.getMessage(),  
+						"Export Failed", JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
+       			System.err.format("IOException: %s%n", x);
+       		}
+	    }
+       	
+       	exportCB.setSelectedIndex(0);
+	}
+	
 	void onExportDependantTableRequested()
 	{
 		//Write the selected row data to a .csv file
@@ -348,7 +404,7 @@ public class SortDriverDialog extends DependantTableDialog
 		return row;
 	}
 	
-	void checkPrintandEmailEnabled()
+	void checkExportandPrintandEmailEnabled()
 	{
 		if(familyTable.getSelectedRowCount() > 0)
 		{
@@ -356,10 +412,8 @@ public class SortDriverDialog extends DependantTableDialog
 			famPrintCB.setEnabled(true);
 		}
 		
-		if(sortTable.getSelectedRowCount() > 0)
-			printCB.setEnabled(true);
-		else
-			printCB.setEnabled(false);			
+		exportCB.setEnabled(sortTable.getSelectedRowCount() > 0);
+		printCB.setEnabled(sortTable.getSelectedRowCount() > 0);		
 	}
 	
 	
@@ -430,6 +484,11 @@ public class SortDriverDialog extends DependantTableDialog
 		{
 			sortStoplight = stoplightCB.getSelectedIndex();
 			buildTableList(false);
+		}
+		else if(e.getSource() == exportCB)
+		{
+			onExportDeliveryReport();
+			exportCB.setSelectedIndex(0);
 		}
 		else if(e.getSource() == printCB)
 		{
@@ -522,7 +581,7 @@ public class SortDriverDialog extends DependantTableDialog
 			requestFocus();
 		}
 	
-		checkPrintandEmailEnabled();
+		checkExportandPrintandEmailEnabled();
 	}
 
 	@Override
