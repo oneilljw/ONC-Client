@@ -279,15 +279,15 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 			{
 				//Add a new delivery to the delivery history with the assigned driver
 				//and the status set to assigned. Adding new delivery updates family changed by field
-				DNSCode famDNSCode = dnsCodeDB.getDNSCode(f.getDNSCode());
+				String dnsCode = f.getDNSCode() > -1 ? dnsCodeDB.getDNSCode(f.getDNSCode()).getAcronym() : "";
 				ONCFamilyHistory reqDelivery = new ONCFamilyHistory(-1, f.getID(),
-															f.getFamilyStatus(),
-															FamilyGiftStatus.Assigned,
-															assignDriverTF.getText(),
-															"Delivery Driver Assigned",
-															userDB.getUserLNFI(),
-															System.currentTimeMillis(),
-															famDNSCode.getAcronym());
+														f.getFamilyStatus(),
+														f.getGiftStatus(),
+														assignDriverTF.getText(),
+														"Delivery Driver Assigned",
+														userDB.getUserLNFI(),
+														System.currentTimeMillis(),
+														dnsCode);
 				
 				ONCFamilyHistory response = familyHistoryDB.add(this, reqDelivery);
 				if(response != null && response instanceof ONCFamilyHistory)

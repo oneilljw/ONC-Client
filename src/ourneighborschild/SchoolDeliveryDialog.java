@@ -283,10 +283,6 @@ public class SchoolDeliveryDialog extends ONCEntityTableDialog implements Action
 	boolean doesFamilyGiftStatusMatch(FamilyGiftStatus fgs) 
 	{
 		FamilyGiftStatus selectedStatus = (FamilyGiftStatus) famGiftStatusCB.getSelectedItem();
-		
-		System.out.println(String.format("SchoolDelDlg.doesFamGiftStatusMatch: sel index= %d,fgs=%s, selStatus= %s", 
-				famGiftStatusCB.getSelectedIndex(), fgs.toString(), selectedStatus));
-		
 		return selectedStatus == FamilyGiftStatus.Any || selectedStatus == fgs;
 	}
 	
