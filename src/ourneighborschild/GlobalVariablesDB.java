@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -205,7 +206,7 @@ public class GlobalVariablesDB extends ONCDatabase implements Serializable
 	
 	//Getters
 	static JFrame getFrame() { return oncFrame; }
-	Date getTodaysDate() { return Calendar.getInstance().getTime(); }
+	Date getTodaysDate() { return Calendar.getInstance(TimeZone.getTimeZone("UTC")).getTime(); }
 	
 	static int getCurrentSeason() { return oncSeasonStartDate.get(Calendar.YEAR); }
 	int getCurrentYear() { return oncDateToday.get(Calendar.YEAR); }
@@ -218,6 +219,7 @@ public class GlobalVariablesDB extends ONCDatabase implements Serializable
 	public Date getWaitlistGiftDeadline() { return waitlistGiftDeadline.getTime(); }
 	public Date getFamilyEditDeadline() { return familyEditDeadline.getTime(); }
 	public Date getSeasonStartDate() { return oncSeasonStartDate.getTime(); }
+	Calendar getSeasonStartCal() { return oncSeasonStartDate; }
 	public String getWarehouseAddress() { return warehouseAddress; }
 	int getStartONCNum() { return startONCNum; };
 	int getYTYGrwthIndex() { return ytyGrwthIndex; }

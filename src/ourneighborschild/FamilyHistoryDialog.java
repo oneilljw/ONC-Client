@@ -30,6 +30,7 @@ public class FamilyHistoryDialog extends HistoryDialog
 	
 	private FamilyHistoryDB familyHistoryDB;
 	private VolunteerDB volunteerDB;
+	private DNSCodeDB dnsCodeDB;
 	
 	private List<ONCFamilyHistory> histList;
 	
@@ -40,12 +41,16 @@ public class FamilyHistoryDialog extends HistoryDialog
 		
 		volunteerDB = VolunteerDB.getInstance();
 		familyHistoryDB = FamilyHistoryDB.getInstance();
+		dnsCodeDB = DNSCodeDB.getInstance();
 		
 		if(volunteerDB != null)
 			volunteerDB.addDatabaseListener(this);
 		
 		if(familyHistoryDB != null)
 			familyHistoryDB.addDatabaseListener(this);
+		
+		if(dnsCodeDB != null)
+			dnsCodeDB.addDatabaseListener(this);
 		
 		histList = new ArrayList<ONCFamilyHistory>();
 	}
@@ -134,7 +139,13 @@ public class FamilyHistoryDialog extends HistoryDialog
 		}
 		else if(dbe.getSource() != this && this.isVisible() && dbe.getType().equals("DELETED_FAMILY"))
 		{
-			
+			//check to see if the family displayed has been deleted. If so, close the dialog?
+		}
+		else if(dbe.getType().equals("UPDATED_DNSCODE"))
+		{
+			//DNS Code acronym may have changed
+			if(currFam != null)
+				display(currFam);
 		}
 	}
 
@@ -184,7 +195,18 @@ public class FamilyHistoryDialog extends HistoryDialog
         		else if(col == GIFT_STATUS_COL)
         			value = histObj.getGiftStatus().toString();
         		else if(col == DNS_COL)
-        			value = histObj.getDNSCode();
+        		{
+        			if(histObj.getDNSCode() == -1)
+        				return "";
+        			else
+        			{
+        				DNSCode dnsCode = dnsCodeDB.getDNSCode(histObj.getDNSCode());
+        				if(dnsCode == null)
+        					return "DNS Error";
+        				else
+        					return dnsCode.getAcronym();
+        			}
+        		}
         		else if(col == DELIVERED_BY_COL)  
         			value = volunteerDB.getDriverLNFN(histObj.getdDelBy());
         		else if(col == NOTES_COL)

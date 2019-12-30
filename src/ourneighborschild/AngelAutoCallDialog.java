@@ -515,7 +515,7 @@ public class AngelAutoCallDialog extends ONCEntityTableDialog implements ActionL
 							 					"Automated Call Result: Confirmed",
 							 					userDB.getUserLNFI(),
 							 					System.currentTimeMillis(),
-							 					famDNSCode.getAcronym());
+							 					famDNSCode.getID());
 					 
 					 reqFamilyUpdateList.add(reqHistory);
 				 }			 
@@ -529,7 +529,7 @@ public class AngelAutoCallDialog extends ONCEntityTableDialog implements ActionL
 							 					"Automated Call Result: Contacted",
 							 					userDB.getUserLNFI(),
 							 					System.currentTimeMillis(),
-							 					famDNSCode.getAcronym());
+							 					famDNSCode.getID());
 					 
 					 reqFamilyUpdateList.add(reqHistory);
 				 }

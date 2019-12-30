@@ -681,7 +681,7 @@ public class AddFamilyDialog extends JDialog implements ActionListener, ListSele
 															"", "Family Referred", 
 															addedFamily.getChangedBy(), 
 															System.currentTimeMillis(),
-															dnsCode.getAcronym());
+															dnsCode.getID());
 		
 			ONCFamilyHistory addedFamHistory = famHistDB.add(this, famHistory);
 			

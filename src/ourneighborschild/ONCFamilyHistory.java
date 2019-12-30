@@ -3,6 +3,7 @@ package ourneighborschild;
 import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 public class ONCFamilyHistory extends ONCObject implements Serializable
 {
@@ -19,11 +20,11 @@ public class ONCFamilyHistory extends ONCObject implements Serializable
 	String dNotes;
 	String dChangedBy;
 	long dDateChanged;
-	String dnsCode;
+	int dnsCode;
 
 	//Constructor used after separating ONC Deliveries from ONC Families
 	public ONCFamilyHistory(int id, int famid, FamilyStatus fStat, FamilyGiftStatus dStat, String dBy, 
-							String notes, String cb, long dateChanged, String dnsCode)
+							String notes, String cb, long dateChanged, int dnsCode)
 	{
 		super(id);
 		this.famID = famid;
@@ -61,7 +62,7 @@ public class ONCFamilyHistory extends ONCObject implements Serializable
 		this.dNotes = del[5].isEmpty() ? "" : del[5];	
 		this.dChangedBy = del[6].isEmpty() ? "" : del[6];
 		this.dDateChanged = Long.parseLong(del[7]);
-		this.dnsCode = del[8].isEmpty() ? "" : del[8];
+		this.dnsCode = del[8].isEmpty() ? -1 : Integer.parseInt(del[8]);
 	}
 
 	//Getters
@@ -73,19 +74,19 @@ public class ONCFamilyHistory extends ONCObject implements Serializable
 	String getdChangedBy() { return dChangedBy; }
 	public Date getDateChanged() 
 	{
-		Calendar cal = Calendar.getInstance();
+		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 		cal.setTimeInMillis(dDateChanged);
 		return cal.getTime(); 
 	}
 	
 	Calendar getDateChangedCal() 
 	{ 
-		Calendar cal = Calendar.getInstance();
+		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 		cal.setTimeInMillis(dDateChanged);
 		return cal; 
 	}
 	
-	String getDNSCode() { return dnsCode; }
+	int getDNSCode() { return dnsCode; }
 	
 	//Setters
 	public void setdDelBy(String db) { dDelBy = db; }
@@ -99,7 +100,8 @@ public class ONCFamilyHistory extends ONCObject implements Serializable
 		String[] exportRow = {Integer.toString(id), Integer.toString(famID),
 							  Integer.toString(familyStatus.statusIndex()),
 							  Integer.toString(giftStatus.statusIndex()),
-							  dDelBy, dNotes, dChangedBy, Long.toString(dDateChanged), dnsCode};
+							  dDelBy, dNotes, dChangedBy, Long.toString(dDateChanged),
+							  Integer.toString(dnsCode)};
 		
 		return exportRow;
 		

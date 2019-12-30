@@ -7,6 +7,8 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.print.PrinterException;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -15,6 +17,8 @@ import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.TimeZone;
@@ -40,10 +44,12 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 
+import com.toedter.calendar.JDateChooser;
+
 import au.com.bytecode.opencsv.CSVWriter;
 
 public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListener, DatabaseListener,
-																		ListSelectionListener
+																		ListSelectionListener, PropertyChangeListener
 {
 	/**
 	 * This class implements a dialog which allows the user to manage users
@@ -75,21 +81,28 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 	private JComboBox<String> printCB, exportCB;
 	private JComboBox<SMSDirection> directionCB;
 	private JComboBox<SMSStatus> statusCB;
+	private JDateChooser ds, de;
 	private String[] printChoices, exportChoices;
 	private JLabel lblCount;
+	
+	private Calendar startFilterTimestamp, endFilterTimestamp;
 	
 	private SMSDB smsDB;
 	private FamilyDB familyDB;
 	private PartnerDB partnerDB;
 	
 	private List<ONCSMS> smsTableList;
+	private SMSTimestampComparator smsTimestampComparator;
 	
 	public ManageSMSDialog(JFrame parentFrame)
 	{
 		super(parentFrame);
 		this.setTitle("SMS Managment");
 		
-		//Save the reference to data bases 
+		//Save the reference to data bases
+		if(gvs != null)
+			gvs.addDatabaseListener(this);
+		
 		smsDB = SMSDB.getInstance();
 		if(smsDB != null)
 			smsDB.addDatabaseListener(this);
@@ -104,6 +117,9 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 
 		//set up the table list
 		smsTableList = new ArrayList<ONCSMS>();
+		
+		//set up the time stamp comparator
+		smsTimestampComparator = new SMSTimestampComparator();
 		
 		bChangingTable = false;
 		
@@ -135,6 +151,20 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 		statusCB.addActionListener(this);
 		sortCriteriaPanel.add(statusCB);
 		sortStatus = SMSStatus.ANY;
+		
+		startFilterTimestamp = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+		ds = new JDateChooser(startFilterTimestamp.getTime());
+		ds.setPreferredSize(new Dimension(156, 56));
+		ds.setBorder(BorderFactory.createTitledBorder("Messages On/After"));
+		ds.getDateEditor().addPropertyChangeListener(this);
+		sortCriteriaPanel.add(ds);
+		
+		endFilterTimestamp = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+		de = new JDateChooser(endFilterTimestamp.getTime());
+		de.setPreferredSize(new Dimension(156, 56));
+		de.setBorder(BorderFactory.createTitledBorder("Messages On/Before"));
+		de.getDateEditor().addPropertyChangeListener(this);
+		sortCriteriaPanel.add(de);
 		
 		//Create the volunteer table model
 		smsTableModel = new SMSTableModel();
@@ -252,8 +282,11 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 		smsTableList.clear();
 		
 		for(ONCSMS sms : smsDB.getList())
-			if(doesDirectionFilterMatch(sms) && doesStatusFilterMatch(sms) && doesONCNumFilterMatch(sms))
+			if(doesDirectionFilterMatch(sms) && doesStatusFilterMatch(sms) && doesONCNumFilterMatch(sms) &&
+				isSMSTimestampBetween(sms.getTimestamp()))
 				smsTableList.add(sms);
+		
+		Collections.sort(smsTableList, smsTimestampComparator);
 		
 		lblCount.setText(String.format("Messages Meeting Criteria: %d", smsTableList.size()));
 		
@@ -280,6 +313,14 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 		statusCB.addActionListener(this);
 		sortStatus = SMSStatus.ANY;
 		
+		de.getDateEditor().removePropertyChangeListener(this);
+		ds.getDateEditor().removePropertyChangeListener(this);
+		setDateFilters(gvs.getSeasonStartCal(), Calendar.getInstance(TimeZone.getTimeZone("UTC")), 0, 1);
+		ds.setCalendar(startFilterTimestamp);
+		de.setCalendar(endFilterTimestamp);
+		ds.getDateEditor().addPropertyChangeListener(this);
+		de.getDateEditor().addPropertyChangeListener(this);
+
 		createTableList();
 	}
 	
@@ -305,6 +346,12 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 		 return sortStatus == SMSStatus.ANY || sms.getStatus() == (SMSStatus) statusCB.getSelectedItem();
 	}
 	
+	private boolean isSMSTimestampBetween(long timestamp)
+	{
+		return timestamp >= startFilterTimestamp.getTimeInMillis() && timestamp <= endFilterTimestamp.getTimeInMillis();
+	}
+	
+
 	void print(String name)
 	{
 		try
@@ -394,6 +441,20 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 			this.setTitle(String.format("Our Neighbor's Child - %d Message Management", GlobalVariablesDB.getCurrentSeason()));
 			createTableList();
 		}
+		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_GLOBALS"))
+		{
+			de.getDateEditor().removePropertyChangeListener(this);
+			ds.getDateEditor().removePropertyChangeListener(this);
+			
+			setDateFilters(gvs.getSeasonStartCal(), Calendar.getInstance(TimeZone.getTimeZone("UTC")), 0, 1);
+			ds.setCalendar(startFilterTimestamp);
+			de.setCalendar(endFilterTimestamp);
+			
+			ds.getDateEditor().addPropertyChangeListener(this);
+			de.getDateEditor().addPropertyChangeListener(this);
+			
+			createTableList();
+		}
 	}
 
 	@Override
@@ -434,6 +495,24 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 		}
 	}
 	
+	private void setDateFilters(Calendar start, Calendar end, int startOffset, int endOffset)
+	{
+		startFilterTimestamp.set(start.get(Calendar.YEAR), start.get(Calendar.MONTH), start.get(Calendar.DAY_OF_MONTH));
+		startFilterTimestamp.set(Calendar.HOUR_OF_DAY, 0);
+		startFilterTimestamp.set(Calendar.MINUTE, 0);
+		startFilterTimestamp.set(Calendar.SECOND, 0);
+		startFilterTimestamp.set(Calendar.MILLISECOND, 0);
+		
+		endFilterTimestamp.set(end.get(Calendar.YEAR), end.get(Calendar.MONTH), end.get(Calendar.DAY_OF_MONTH));
+		endFilterTimestamp.set(Calendar.HOUR_OF_DAY, 0);
+		endFilterTimestamp.set(Calendar.MINUTE, 0);
+		endFilterTimestamp.set(Calendar.SECOND, 0);
+		endFilterTimestamp.set(Calendar.MILLISECOND, 0);
+		
+		startFilterTimestamp.add(Calendar.DAY_OF_YEAR, startOffset);
+		endFilterTimestamp.add(Calendar.DAY_OF_YEAR, endOffset);
+	}
+	
 	@Override
 	public void valueChanged(ListSelectionEvent lse)
 	{
@@ -467,6 +546,20 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 	{	
 		return EnumSet.of(EntityType.FAMILY, EntityType.PARTNER);
 	}
+	
+	@Override
+	public void propertyChange(PropertyChangeEvent pce)
+	{
+		//If the date has changed in either date chooser, then rebuild the sort table. Note, setting
+		//the date using setDate() does not trigger a property change, only triggered by user action. 
+		//So must rebuild the table each time a change is detected. 
+		if("date".equals(pce.getPropertyName()) &&
+			(!startFilterTimestamp.getTime().equals(ds.getDate()) || !endFilterTimestamp.getTime().equals(de.getDate())))
+		{
+			setDateFilters(ds.getCalendar(), de.getCalendar(), 0, 1);
+			createTableList();
+		}
+	}	
 	
 	class SMSTableModel extends AbstractTableModel
 	{
@@ -538,5 +631,20 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
         		//Name, Status, Access and Permission are editable
         		return false;
         }
+	}
+	
+	//order the text messages latest to earliest
+	private class SMSTimestampComparator implements Comparator<ONCSMS>
+	{
+		@Override
+		public int compare(ONCSMS o1, ONCSMS o2)
+		{
+			if(o1.getTimestamp() == o2.getTimestamp())
+				return 0;
+			else if(o1.getTimestamp() > o2.getTimestamp())
+				return -1;
+			else
+				return 1;
+		}
 	}
 }

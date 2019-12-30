@@ -15,6 +15,7 @@ import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -38,9 +39,10 @@ public abstract class ONCTableDialog extends JDialog implements ActionListener, 
 	private static final long serialVersionUID = 1L;
 	protected JFrame parentFrame;
 	protected GlobalVariablesDB gvs;
-	protected JPanel searchCriteriaPanelTop, searchCriteriaPanelBottom, cntlPanel;
+	protected JPanel searchCriteriaPanelTop, searchCriteriaPanelBottom;
 	protected ONCTable dlgTable;
 	protected AbstractTableModel dlgTableModel;
+	protected JComboBox<String> exportCB;
 	private JButton btnResetFilters;
 	private JLabel lblCount;
 	
@@ -125,13 +127,21 @@ public abstract class ONCTableDialog extends JDialog implements ActionListener, 
         lblCount = new JLabel("# of History Items: 0");
         countPanel.add(lblCount);
         
-        cntlPanel = new JPanel();
+        JPanel cntlPanel = new JPanel();
         cntlPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
         
-        btnResetFilters = new JButton("Reset Filters");
-        btnResetFilters.addActionListener(new ResetFilterListener());
-        cntlPanel.add(btnResetFilters);
+        //set up the custom control gui for this dialog
+        exportCB = new JComboBox<String>(exportChoices());
+        exportCB.setPreferredSize(new Dimension(136, 28));
+        exportCB.setEnabled(false);
+        exportCB.addActionListener(new ActionListener() { public void actionPerformed(ActionEvent ae) { onExport(); }});
+       
+        cntlPanel.add(exportCB);
         
+        btnResetFilters = new JButton("Reset Filters");
+        btnResetFilters.addActionListener(new ActionListener() { public void actionPerformed(ActionEvent ae) { resetFilters(); }});
+        cntlPanel.add(btnResetFilters);
+       
         bottomPanel.add(countPanel);
         bottomPanel.add(cntlPanel);
             
@@ -152,6 +162,8 @@ public abstract class ONCTableDialog extends JDialog implements ActionListener, 
     abstract int listSelectionModel();
     abstract AbstractTableModel createTableModel();
     abstract void buildTableList();
+    abstract String[] exportChoices();
+    abstract void onExport();
     
     void setCount(int count)
     {
@@ -221,14 +233,5 @@ public abstract class ONCTableDialog extends JDialog implements ActionListener, 
     			for(EntitySelectionListener l:targets)
     				l.entitySelected(event);
     		}
-    }
-    
-    private class ResetFilterListener implements ActionListener
-    {
-		@Override
-		public void actionPerformed(ActionEvent e)
-		{
-			resetFilters();
-		}
     }
 }

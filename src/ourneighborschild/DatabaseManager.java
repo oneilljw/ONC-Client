@@ -386,10 +386,6 @@ public class DatabaseManager extends ONCDatabase
 			regionDB.getRegionsFromServer();
 			this.setProgress(progress += increment);
 			
-			pb.updateHeaderText("Loading DNS Codes");
-			dnsCodeDB.importDB();
-			this.setProgress(progress += increment);
-			
 			pb.updateHeaderText("Loading Season Data");
 			oncGVs.importGlobalVariableDatabase();
 			this.setProgress(progress += increment);
@@ -468,6 +464,10 @@ public class DatabaseManager extends ONCDatabase
 			
 			pb.updateHeaderText("Loading Batteries");
 			batteryDB.importDB();
+			this.setProgress(progress += increment);
+			
+			pb.updateHeaderText("Loading DNS Codes");
+			dnsCodeDB.importDB();
 			this.setProgress(progress += increment);
 			
 			bServerDataLoaded = true;
