@@ -23,11 +23,8 @@ public abstract class SortFamilyTableDialog extends ChangeDialog
 	protected DNSCodeDB dnsCodeDB;
 	
 	protected ArrayList<ONCFamilyAndNote> stAL;
-	protected ArrayList<ONCFamilyAndNote> tableRowSelectedObjectList;
 	protected DefaultComboBoxModel<String> regionCBM;
-	
-//	protected SortTableModel fdTableModel;
-	
+
 	protected String[] columns;
 
 	public SortFamilyTableDialog(JFrame pf)
@@ -41,11 +38,7 @@ public abstract class SortFamilyTableDialog extends ChangeDialog
 		dnsCodeDB = DNSCodeDB.getInstance();
 		
 		stAL = new ArrayList<ONCFamilyAndNote>();
-		tableRowSelectedObjectList = new ArrayList<ONCFamilyAndNote>();
 		regionCBM = new DefaultComboBoxModel<String>();
-		
-//		fdTableModel = new SortTableModel(stAL, cols);
-//		sortTable.setModel(fdTableModel);
 	}
 	
 	@Override
@@ -62,20 +55,6 @@ public abstract class SortFamilyTableDialog extends ChangeDialog
 			return -1;
 	}
 	
-	
-/*	
-	void archiveTableSelections(ArrayList<? extends ONCObject> stAL)
-	{
-		tableRowSelectedObjectList.clear();
-		
-		int[] row_sel = sortTable.getSelectedRows();
-		for(int i=0; i<row_sel.length; i++)
-		{
-			ONCFamily f = (ONCFamily) stAL.get(row_sel[i]);
-			tableRowSelectedObjectList.add(f);
-		}
-	}
-*/
 	@Override
 	public void valueChanged(ListSelectionEvent e) 
 	{
