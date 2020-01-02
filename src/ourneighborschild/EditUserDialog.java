@@ -555,7 +555,7 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
 			titleTF.setText(currUser.getTitle());
 			titleTF.setCaretPosition(0);
 			
-			lblDateChanged.setText(sdf.format(currUser.getDateChanged()));
+			lblDateChanged.setText(sdf.format(currUser.getTimestampDate()));
 			lblLastChangedBy.setText(currUser.getChangedBy());
 			
 			statusCB.setSelectedItem(currUser.getStatus());
@@ -577,7 +577,7 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
 			usernameTF.setText("");
 			
 			lblLastChangedBy.setText(currUser.getChangedBy());
-			lblDateChanged.setText(sdf.format(currUser.getDateChanged()));
+			lblDateChanged.setText(sdf.format(currUser.getTimestampDate()));
 			
 			nav.setCount1("Total Users: " + Integer.toString(userDB.size()));
 			nav.setCount2("Active Users: " + Integer.toString(userDB.getActiveUserCount()));
@@ -694,7 +694,7 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
 		if(err_mssg.isEmpty())
 		{	
 			Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-			ONCServerUser reqAddUser = new ONCServerUser(0, calendar.getTime(), userDB.getUserLNFI(), 3, 
+			ONCServerUser reqAddUser = new ONCServerUser(0, System.currentTimeMillis(), userDB.getUserLNFI(), 3, 
 					"New user added", userDB.getUserLNFI(), firstnameTF.getText(), lastnameTF.getText(),
 					UserStatus.Change_PW, (UserAccess) accessCB.getSelectedItem(), 
 					(UserPermission) permissionCB.getSelectedItem(), usernameTF.getText(), "********", 0,

@@ -2,7 +2,7 @@ package ourneighborschild;
 
 import java.io.Serializable;
 import java.util.Calendar;
-import java.util.Date;
+import java.util.TimeZone;
 
 public class ONCChildGift extends ONCObject implements Serializable
 {
@@ -23,11 +23,11 @@ public class ONCChildGift extends ONCObject implements Serializable
 	private int indicator = 0;	//0 - Blank, 1-*, 2-#
 	private GiftStatus status = GiftStatus.Not_Selected;
 	private String changedBy = "";	
-	private Calendar dateChanged = Calendar.getInstance();
+	private long timestamp = System.currentTimeMillis();
 	private int assigneeID = 0;
 
 	//Constructor for wish created or changed internally		
-	public ONCChildGift(int id, int childid, int wishid, String wd, int wishnum, int wi, GiftStatus ws, int waID, String cb, Date dc)
+	public ONCChildGift(int id, int childid, int wishid, String wd, int wishnum, int wi, GiftStatus ws, int waID, String cb, long dc)
 	{
 		super(id);
 		childID = childid;
@@ -38,7 +38,7 @@ public class ONCChildGift extends ONCObject implements Serializable
 		status = ws;
 		assigneeID = waID;
 		changedBy = cb;
-		dateChanged.setTime(dc);	    
+		timestamp = dc;	    
 	}
 	
 	//Constructor for wish created or changed internally		
@@ -52,7 +52,7 @@ public class ONCChildGift extends ONCObject implements Serializable
 		indicator = Integer.parseInt(nextLine[5]);
 		status = GiftStatus.valueOf(nextLine[6]);
 		changedBy = nextLine[7].isEmpty() ? "" : nextLine[7];
-		dateChanged.setTimeInMillis(Long.parseLong(nextLine[8]));
+		timestamp = Long.parseLong(nextLine[8]);
 		assigneeID = Integer.parseInt(nextLine[9]);
 	}
 	
@@ -64,7 +64,16 @@ public class ONCChildGift extends ONCObject implements Serializable
 	public GiftStatus getGiftStatus() {return status;}
 	public int getPartnerID() {return assigneeID;}
 	public String getChangedBy() {return changedBy;}
-	public Calendar getDateChanged() {return dateChanged;}
+	public Calendar getDateChanged() 
+	{
+		Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
+		calendar.setTimeInMillis(timestamp);
+		
+//		if(childID == 184 && status == GiftStatus.Received && giftDetail.equals("Large dinosaur"))
+//			System.out.println("ONCChildGift.getDateChanged: calendar:" + calendar);
+		
+		return calendar;
+	}
 
 	public void setWishID(int id) { giftID = id; }
 	public void setChildWishDetail(String cwd) { giftDetail = cwd; }
@@ -72,7 +81,7 @@ public class ONCChildGift extends ONCObject implements Serializable
 	public void setChildWishStatus(GiftStatus cws) { status = cws;}
 	public void setChildWishAssigneeID(int id) {assigneeID = id;}
 	void setChildWishChangedBy(String name) {changedBy = name;}
-	void setChildWishDateChanged(Calendar dc) {dateChanged = dc;}
+	void setChildWishDateChanged(long dc) {timestamp = dc;}
 	
 	boolean isComparisonWishIdentical(ONCChildGift compWish)
 	{		
@@ -85,7 +94,7 @@ public class ONCChildGift extends ONCObject implements Serializable
 	
 	boolean isComparisonWishAfter(ONCChildGift compWish)
 	{
-		return compWish.getDateChanged().after(dateChanged);
+		return compWish.getDateChanged().after(timestamp);
 	}
 	
 	@Override
@@ -94,7 +103,7 @@ public class ONCChildGift extends ONCObject implements Serializable
 		String[] row= {Integer.toString(id), Integer.toString(childID),Integer.toString(giftID), 
 						giftDetail, Integer.toString(giftnumber),
 						Integer.toString(indicator), status.toString(), 
-						changedBy, Long.toString(dateChanged.getTimeInMillis()),
+						changedBy, Long.toString(timestamp),
 						Integer.toString(assigneeID)};
 		return row;
 	}

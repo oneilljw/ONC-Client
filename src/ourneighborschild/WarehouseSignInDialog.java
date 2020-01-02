@@ -336,7 +336,7 @@ public class WarehouseSignInDialog extends ONCEntityTableDialog implements Actio
 		WarehouseSignIn(ONCVolunteer v)
 		{
 			this.vol = v;
-			this.time = v.getDateChanged().getTime(); //last warehouse sign-in
+			this.time = v.getTimestampDate().getTime(); //last warehouse sign-in
 		}
 		
 		//getters

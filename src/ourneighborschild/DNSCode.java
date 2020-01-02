@@ -28,7 +28,7 @@ public class DNSCode extends ONCEntity
 	
 	public DNSCode(int id, String acronym, String name, String definition)
 	{
-		super(id, new Date(), "", 3, "DNS Code Created", "");
+		super(id, System.currentTimeMillis(), "", 3, "DNS Code Created", "");
 		this.acronym = acronym;
 		this.name = name;
 		this.definition = definition;
@@ -36,7 +36,7 @@ public class DNSCode extends ONCEntity
 	
 	public DNSCode()
 	{
-		super(-1, new Date(), "", 3, "", "");
+		super(-1, System.currentTimeMillis(), "", 3, "", "");
 		this.acronym = "";
 		this.name = "";
 		this.definition = "";
@@ -44,7 +44,7 @@ public class DNSCode extends ONCEntity
 	
 	DNSCode(DNSCode dc)
 	{
-		super(dc.id, new Date(), dc.changedBy, dc.slPos, dc.slMssg, dc.slChangedBy);
+		super(dc.id, System.currentTimeMillis(), dc.changedBy, dc.slPos, dc.slMssg, dc.slChangedBy);
 		this.acronym = dc.acronym;
 		this.name = dc.name;
 		this.definition = dc.definition;
@@ -77,7 +77,7 @@ public class DNSCode extends ONCEntity
 		row[1] = acronym;
 		row[2] = name;
 		row[3] = definition;
-		row[4] = Long.toString(dateChanged.getTimeInMillis());
+		row[4] = Long.toString(timestamp);
 		row[5] = changedBy;
 		row[6] = Integer.toString(slPos);
 		row[7] = slMssg;

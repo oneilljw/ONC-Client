@@ -425,7 +425,7 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
 
 			//set the note border
 			String noteBorderText = String.format("Sent by %s on %s", currNote.getChangedBy(),
-									timeFormat.format(currNote.getDateChanged()));
+									timeFormat.format(currNote.getTimestampDate()));
 			noteBorder.setTitle(noteBorderText);
 			notePane.setText(currNote.getNote());
 				
@@ -724,7 +724,7 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
         		else if(col == CREATED_BY_COL)
         			value = n.getChangedBy();
         		else if(col == TIME_CREATED_COL)
-        			value = n.getDateChanged();
+        			value = n.getTimestampDate();
         		else if(col == STATUS_COL)
         		{
         			if(n.getStatus() >= ONCNote.SENT && n.getStatus() <= ONCNote.RESPONDED)

@@ -282,7 +282,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 				Integer.toString(o.getNumberOfOrnamentsReceivedBeforeDeadline()),
 				Integer.toString(o.getNumberOfOrnamentsReceivedAfterDeadline()),
 				o.getDeliverTo(),
-				sdf.format(o.getDateChanged().getTime()),
+				sdf.format(o.getTimestampDate().getTime()),
 				o.getChangedBy(),
 				regions.getRegionID(o.getRegion()),
 		 		gvs.getImageIcon(23 + o.getStoplightPos())};
@@ -393,7 +393,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 			//if status or # of ornaments requested changed, need to send an update request to the server
 			if(bOrgChanged)
 			{
-				updatedOrg.setDateChanged(gvs.getTodaysDate());
+				updatedOrg.setDateChanged(System.currentTimeMillis());
 				updatedOrg.setStoplightChangedBy(userDB.getUserLNFI());
 				
 				String response = orgs.update(this, updatedOrg);	//notify the database of the change
@@ -1822,7 +1822,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 						o.getContact2(),
 						o.getContact2_email(),
 						o.getContact2_phone(),
-						date.format(o.getDateChanged())};
+						date.format(o.getTimestampDate())};
 		return row;
 	}
 	

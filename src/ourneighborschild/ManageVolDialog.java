@@ -563,11 +563,11 @@ public class ManageVolDialog extends ONCEntityTableDialog implements ActionListe
 //          		return v.getDateChanged();
         			
         			TimeZone tz = TimeZone.getDefault();	//Local time zone
-        			int offsetFromUTC = tz.getOffset(v.getTimeInMillis());
+        			int offsetFromUTC = tz.getOffset(v.getTimestamp());
         			 
         			//create a new calendar in local time zone, set to gmtDOB and add the offset
         			Calendar localCal = Calendar.getInstance();
-        			localCal.setTimeInMillis(v.getTimeInMillis());
+        			localCal.setTimeInMillis(v.getTimestamp());
         			localCal.add(Calendar.MILLISECOND, offsetFromUTC);
 
         			return localCal.getTime();       			

@@ -27,7 +27,7 @@ public class ONCNote extends ONCEntity
 	
 	public ONCNote(int id, int ownerID, String title, String note, boolean bSendEmail, boolean bShowNextSeason)
 	{
-		super(id, Calendar.getInstance(), "", 0, "Note Created", "");
+		super(id, System.currentTimeMillis(), "", 0, "Note Created", "");
 		this.ownerID = ownerID;
 		this.status = ONCNote.SENT;
 		this.title = title;
@@ -44,7 +44,7 @@ public class ONCNote extends ONCEntity
 	
 	public ONCNote(ONCNote n)
 	{
-		super(n.id, n.dateChanged, n.changedBy, n.slPos, n.slMssg, n.slChangedBy);
+		super(n.id, n.timestamp, n.changedBy, n.slPos, n.slMssg, n.slChangedBy);
 		this.ownerID = n.ownerID;
 		this.status = n.status;
 		this.title = n.title;
@@ -95,7 +95,7 @@ public class ONCNote extends ONCEntity
 	
 	public ONCNote()
 	{
-		super(-1, Calendar.getInstance(), "", 0, "", "");
+		super(-1, System.currentTimeMillis(), "", 0, "", "");
 		this.ownerID = -1;
 		this.status = ONCNote.SENT;
 		this.title = "";
@@ -156,7 +156,7 @@ public class ONCNote extends ONCEntity
 		row[5] = changedBy;
 		row[6] = response;
 		row[7] = respondedBy;
-		row[8] = Long.toString(dateChanged.getTimeInMillis());
+		row[8] = Long.toString(timestamp);
 		row[9] = Long.toString(timeViewed.getTimeInMillis());
 		row[10] = Long.toString(timeResponse.getTimeInMillis());
 		row[11] = bSendEmail ? "T" : "F";

@@ -23,7 +23,7 @@ public class ONCServerUser extends ONCUser
 	private String recoveryID;
 	private long recoveryIDTime;
 	
-	public ONCServerUser(int id, Date today, String chgby, int slpos, String slmssg,
+	public ONCServerUser(int id, long today, String chgby, int slpos, String slmssg,
 							String slchgby, String fn, String ln, 
 							UserStatus stat, UserAccess acc, UserPermission perm,
 							String uid, String pw, long nSessions, long last_login,
@@ -43,7 +43,7 @@ public class ONCServerUser extends ONCUser
 	public ONCServerUser(ONCServerUser currUser)	//make a new object copy
 	{
 		
-		super(currUser.id, currUser.dateChanged.getTime(), currUser.changedBy, currUser.slPos, currUser.slMssg,
+		super(currUser.id, currUser.timestamp, currUser.changedBy, currUser.slPos, currUser.slMssg,
 				currUser.slChangedBy, currUser.firstName, currUser.lastName, currUser.status, 
 				currUser.access, currUser.permission, currUser.nSessions, currUser.lastLogin, 
 				currUser.organization, currUser.title, currUser.email, currUser.cellPhone, currUser.groupList);
@@ -54,9 +54,9 @@ public class ONCServerUser extends ONCUser
 		recoveryIDTime = currUser.recoveryIDTime;
 	}
 	
-	public ONCServerUser(String[] nextLine, Date date_changed)
+	public ONCServerUser(String[] nextLine)
 	{
-		super(Integer.parseInt(nextLine[0]), date_changed, nextLine[9], Integer.parseInt(nextLine[10]),
+		super(Integer.parseInt(nextLine[0]), Long.parseLong(nextLine[8]), nextLine[9], Integer.parseInt(nextLine[10]),
 				nextLine[11], nextLine[12], nextLine[6], nextLine[7], UserStatus.valueOf(nextLine[3]),
 				UserAccess.valueOf(nextLine[4]), UserPermission.valueOf(nextLine[5]),
 				Long.parseLong(nextLine[13]), Long.parseLong(nextLine[14]), 
@@ -145,7 +145,7 @@ public class ONCServerUser extends ONCUser
 	//creates and returns a new ONCUser object from this ONCServerUserObject
 	public ONCUser getUserFromServerUser()
 	{
-		return new ONCUser(id, dateChanged.getTime(), changedBy, slPos, slMssg, slChangedBy, 
+		return new ONCUser(id, timestamp, changedBy, slPos, slMssg, slChangedBy, 
 				firstName, lastName, status, access, permission, clientID, clientYear, nSessions, 
 				lastLogin, organization, title, email, cellPhone, groupList, preferences);	
 	}
@@ -165,7 +165,7 @@ public class ONCServerUser extends ONCUser
 						EncryptionManager.encrypt(userid), EncryptionManager.encrypt(password),
 						status.toString(), access.toString(), 
 						permission.toString(), firstName, lastName,
-						Long.toString(dateChanged.getTimeInMillis()), changedBy, Integer.toString(slPos), 
+						Long.toString(timestamp), changedBy, Integer.toString(slPos), 
 						slMssg,slChangedBy, Long.toString(nSessions), 
 						Long.toString(lastLogin),
 						organization, title, email, cellPhone, getGroupListAsDelimitedString(),

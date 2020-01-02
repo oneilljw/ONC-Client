@@ -20,7 +20,7 @@ public class ONCGroup extends ONCEntity
 	private boolean bMembersRefer;
 	private boolean bAllowInProfile;
 	
-	public ONCGroup(int id, Date today, String changedBy, int slpos, String slmssg, String slchgby, 
+	public ONCGroup(int id, long today, String changedBy, int slpos, String slmssg, String slchgby, 
 						String name, GroupType type, boolean bShareInfo, boolean bWebpage,
 						boolean bContactInfoRqrd, boolean bMembersRefer, boolean bAllowInProfile) 
 	{
@@ -48,7 +48,7 @@ public class ONCGroup extends ONCEntity
 	
 	public ONCGroup(ONCGroup g)
 	{
-		super(g.id, g.dateChanged.getTime(), g.changedBy, g.slPos, g.slMssg, g.slChangedBy);
+		super(g.id, g.timestamp, g.changedBy, g.slPos, g.slMssg, g.slChangedBy);
 		this.name = g.name;
 		this.type = g.type;
 		this.bShareInfo = g.bShareInfo;
@@ -79,7 +79,7 @@ public class ONCGroup extends ONCEntity
 	@Override
 	public String[] getExportRow()
 	{
-		String[] row= {Integer.toString(id), Long.toString(dateChanged.getTimeInMillis()), 
+		String[] row= {Integer.toString(id), Long.toString(timestamp), 
 					   changedBy, Integer.toString(slPos), slMssg, slChangedBy,
 					   name, type.toString(), bShareInfo ? "T" : "F",
 					   bWebpage ? "T" : "F", bContactInfoRqrd ? "T" : "F",

@@ -88,7 +88,7 @@ public class MealDialog extends HistoryDialog
 	{
 		ONCMeal addMealReq = new ONCMeal(-1, currFam.getID(), mealList.get(0).getStatus(), 
 									holiday,restrictions, mealList.get(0).getPartnerID(),
-									userDB.getUserLNFI(), new Date(),
+									userDB.getUserLNFI(), System.currentTimeMillis(),
 									mealList.get(0).getStoplightPos(),
 									mealList.get(0).getStoplightMssg(),
 									mealList.get(0).getStoplightChangedBy());
@@ -247,7 +247,7 @@ public class MealDialog extends HistoryDialog
         	else if (col == CHANGED_BY_COL)
         		value = meal.getChangedBy();
         	else if (col == DATE_CHANGED_COL)
-        		value = sdf.format(meal.getDateChanged());
+        		value = sdf.format(meal.getTimestampDate());
         	else
         		value = "Error";
         	
@@ -299,7 +299,7 @@ public class MealDialog extends HistoryDialog
 		@Override
 		public int compare(ONCMeal o1, ONCMeal o2)
 		{
-			return o2.getDateChanged().compareTo(o1.getDateChanged());
+			return o2.getTimestampDate().compareTo(o1.getTimestampDate());
 		}
 	}
 }

@@ -536,7 +536,7 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 			//and it's replacement.
 			if(bNewGiftrqrd)	
 				reqAddGiftList.add(new AddGiftRequest(priorGift, new ONCChildGift(-1, priorGift.getChildID(), priorGift.getGiftID(), priorGift.getDetail(),
-						priorGift.getGiftNumber(), cgi, gs, partnerID, userDB.getUserLNFI(), new Date())));	
+						priorGift.getGiftNumber(), cgi, gs, partnerID, userDB.getUserLNFI(), System.currentTimeMillis())));	
 		}
 		
 		if(!reqAddGiftList.isEmpty())

@@ -491,7 +491,7 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
 			ckBoxContactInfo.setSelected(currGroup.contactInfoRqrd());
 			
 			lblLastChangedBy.setText(currGroup.getChangedBy());
-			lblDateChanged.setText(sdf.format(currGroup.getDateChanged()));
+			lblDateChanged.setText(sdf.format(currGroup.getTimestampDate()));
 			
 			nav.setCount1("Total Groups: " + Integer.toString(groupDB.size()));
 			
@@ -566,7 +566,7 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
 	void onSaveNew() 
 	{
 		//construct a new group from user input	
-		ONCGroup newGroup = new ONCGroup(-1, new Date(), userDB.getUserLNFI(),
+		ONCGroup newGroup = new ONCGroup(-1, System.currentTimeMillis(), userDB.getUserLNFI(),
 										  3, "Group Created", userDB.getUserLNFI(),
 										  nameTF.getText(), (GroupType) groupTypeCB.getSelectedItem(),
 										  ckBoxShared.isSelected(), ckBoxWebpage.isSelected(),

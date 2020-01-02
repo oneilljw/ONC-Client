@@ -24,7 +24,7 @@ public class ONCUser extends ONCGmailContactEntity
 	protected List<Integer> groupList;
 	protected UserPreferences preferences;
 	
-	public ONCUser(int id, Date today, String changedBy, int slpos, String slmssg, String slchgby, 
+	public ONCUser(int id, long today, String changedBy, int slpos, String slmssg, String slchgby, 
 			String fn, String ln, UserStatus stat, UserAccess acc, UserPermission perm, long nSessions,
 			long last, String org, String title, String email, String phone, List<Integer> groupList)
 	{
@@ -44,7 +44,7 @@ public class ONCUser extends ONCGmailContactEntity
 	}
 	
 	//overloaded -- used when including UserPreferences in the construction
-	public ONCUser(int id, Date today, String changedBy, int slpos, String slmssg, String slchgby, 
+	public ONCUser(int id, long today, String changedBy, int slpos, String slmssg, String slchgby, 
 			String fn, String ln, UserStatus stat, UserAccess acc, UserPermission perm, long nSessions,
 			long last, String org, String title,String email, String phone, List<Integer> groupList,
 			int fontSize, int wafPos, DNSCode fdfDNSCode)
@@ -65,7 +65,7 @@ public class ONCUser extends ONCGmailContactEntity
 	}
 	
 	//overloaded to allow conversion from ONCServerUser to ONCUser by creating a deep copy
-	public ONCUser(int id, Date today, String changedBy, int slpos, String slmssg, String slchgby, 
+	public ONCUser(int id, long today, String changedBy, int slpos, String slmssg, String slchgby, 
 			String fn, String ln,  UserStatus stat, UserAccess acc, UserPermission perm,
 			long clientID, int clientYear, long nSessions, long lastLogin, 
 			String org, String title, String email, String phone, List<Integer> oldGroupList, UserPreferences prefs)
@@ -91,7 +91,7 @@ public class ONCUser extends ONCGmailContactEntity
 	
 	public ONCUser(ONCUser u)
 	{
-		super(u.id, u.firstName, u.lastName, u.email, u.homePhone, u.cellPhone, u.houseNum,u.street,u.unit,u.city,u.zipCode, u.comment, u.organization, u.dateChanged, u.changedBy, 
+		super(u.id, u.firstName, u.lastName, u.email, u.homePhone, u.cellPhone, u.houseNum,u.street,u.unit,u.city,u.zipCode, u.comment, u.organization, u.timestamp, u.changedBy, 
 				u.slPos, u.slMssg, u.slChangedBy);
 
 		status = u.status;
@@ -114,7 +114,7 @@ public class ONCUser extends ONCGmailContactEntity
 	
 	public ONCUser()
 	{
-		super(-1, "Dummy", "User/Agent", "None", "None", "None", "","","","","","Dummy User Agent", "None",  new Date(), "", 3, "Dummy User Agent", "");
+		super(-1, "Dummy", "User/Agent", "None", "None", "None", "","","","","","Dummy User Agent", "None",  System.currentTimeMillis(), "", 3, "Dummy User Agent", "");
 
 		status = UserStatus.Inactive;
 		access = UserAccess.App;
@@ -130,7 +130,7 @@ public class ONCUser extends ONCGmailContactEntity
 	
 	public ONCUser(String fn, String ln)
 	{
-		super(-1, fn, ln, "None", "None", "None", "","","","","","Dummy Chat User", "None",  new Date(), "", 3, "Dummy Chat User", "");
+		super(-1, fn, ln, "None", "None", "None", "","","","","","Dummy Chat User", "None",  System.currentTimeMillis(), "", 3, "Dummy Chat User", "");
 
 		status = UserStatus.Inactive;
 		access = UserAccess.App;
@@ -190,7 +190,7 @@ public class ONCUser extends ONCGmailContactEntity
 		String[] row = {
 						Integer.toString(id), firstName, lastName,
 						status.toString(), access.toString(), permission.toString(), 
-						Long.toString(dateChanged.getTimeInMillis()), changedBy, Integer.toString(slPos), 
+						Long.toString(timestamp), changedBy, Integer.toString(slPos), 
 						slMssg,slChangedBy, Long.toString(nSessions), 
 						Long.toString(lastLogin),
 						organization, title, email, cellPhone, getGroupListAsDelimitedString(),

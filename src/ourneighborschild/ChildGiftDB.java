@@ -59,9 +59,9 @@ public class ChildGiftDB extends ONCDatabase
 	ONCChildGift add(Object source, int childid, int giftID, String gd, int gn, int gi,
 			GiftStatus gs, ONCPartner currPartner)
 	{		
-		GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
+//		GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
 		String cb = UserDB.getInstance().getUserLNFI();
-		Date dc = gvs.getTodaysDate();
+		long dc = System.currentTimeMillis();
 
 		//Get the old gift being replaced. getGift method returns null if gift not found
 		ONCChildGift replacedGift = getGift(childid, gn);
@@ -169,9 +169,9 @@ public class ChildGiftDB extends ONCDatabase
 	//adds a list of gifts to the child gift data base.
 	String addGiftList(Object source, List<AddGiftRequest> addGiftRequestList)
 	{		
-		GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
+//		GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
 		String cb = UserDB.getInstance().getUserLNFI();
-		Date dc = gvs.getTodaysDate();
+		long dc = System.currentTimeMillis();
 		
 		List<ONCChildGift> reqAddGiftList = new ArrayList<ONCChildGift>();
 		

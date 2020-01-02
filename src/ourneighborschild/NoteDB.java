@@ -358,9 +358,9 @@ public class NoteDB extends ONCSearchableDatabase
 		@Override
 		public int compare(ONCNote o1, ONCNote o2)
 		{
-			if(o1.getDateChanged().compareTo(o2.getDateChanged()) == 0) 
+			if(o1.getTimestampDate().compareTo(o2.getTimestampDate()) == 0) 
 	            return 0;
-	        else if(o1.getDateChanged().after(o2.getDateChanged()))
+	        else if(o1.getTimestampDate().after(o2.getTimestampDate()))
 	        		return -1;
 	        else
 	        		return 1;

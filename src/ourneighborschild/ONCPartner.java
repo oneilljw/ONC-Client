@@ -52,7 +52,7 @@ public class ONCPartner extends ONCEntity
 	ONCPartner(int orgid, String createdBy)
 	{
 		//constructor used when adding a new organization
-		super(orgid, new Date(), createdBy, STOPLIGHT_OFF, "Partner created", createdBy);
+		super(orgid, System.currentTimeMillis(), createdBy, STOPLIGHT_OFF, "Partner created", createdBy);
 		status = 0;
 		type = 0;
 		collection = GiftCollectionType.Unknown;
@@ -89,7 +89,7 @@ public class ONCPartner extends ONCEntity
 	{
 		//constructor used when adding creating a non-assigned organization for wish filter and 
 		//selection lists
-		super(orgid, new Date(), createdBy, STOPLIGHT_RED, "Non-Assigned Partner created", createdBy);
+		super(orgid, System.currentTimeMillis(), createdBy, STOPLIGHT_RED, "Non-Assigned Partner created", createdBy);
 		status = 0;
 		type = 0;
 		collection = GiftCollectionType.Unknown;
@@ -122,7 +122,7 @@ public class ONCPartner extends ONCEntity
 		pyReceivedAfterDeadline = 0;
 	}
 	
-	public ONCPartner(int orgid, Date date, String changedBy, int slPos, String slMssg, String slChangedBy,
+	public ONCPartner(int orgid, long date, String changedBy, int slPos, String slMssg, String slChangedBy,
 			int status, int type, GiftCollectionType collection, String name, String streetnum, String streetname,
 			String unit, String city, String zipcode, String phone, int orn_req, String other, 
 			String deliverTo, String specialNotes, String contact, String contact_email,
@@ -165,7 +165,7 @@ public class ONCPartner extends ONCEntity
 	//copy constructor - makes a copy of the partner
 	public ONCPartner(ONCPartner o)
 	{
-		super(o.getID(), o.getDateChanged(), o.getChangedBy(), o.getStoplightPos(),
+		super(o.getID(), o.getTimestamp(), o.getChangedBy(), o.getStoplightPos(),
 				o.getStoplightMssg(), o.getStoplightChangedBy());
 		this.status = o.status;
 		this.type = o.type;
@@ -244,7 +244,7 @@ public class ONCPartner extends ONCEntity
 	 */
 	public ONCPartner(SignUpActivity sua, SignUpType signUpType)
 	{	
-		super(-1, new Date(), "Lavin, K", STOPLIGHT_OFF, "Sign-Up Genius Partner", "Lavin, K");
+		super(-1, System.currentTimeMillis(), "Lavin, K", STOPLIGHT_OFF, "Sign-Up Genius Partner", "Lavin, K");
 		this.status = PARTNER_STATUS_CONFIRMED;
 		
 		if(signUpType == SignUpType.Clothing)
@@ -454,7 +454,7 @@ public class ONCPartner extends ONCEntity
 						Integer.toString(orn_rec_before), Integer.toString(orn_rec_after), 
 						generalPartnerInfo, deliverTo, cyNotes, contact,
 						contact_email, contact_phone, contact2, contact2_email, contact2_phone, 
-						Long.toString(dateChanged.getTimeInMillis()), changedBy, Integer.toString(slPos),
+						Long.toString(timestamp), changedBy, Integer.toString(slPos),
 						slMssg, slChangedBy, Integer.toString(pyRequested), Integer.toString(pyAssigned),
 						Integer.toString(pyDelivered), Integer.toString(pyReceivedBeforeDeadline), 
 						Integer.toString(pyReceivedAfterDeadline)};

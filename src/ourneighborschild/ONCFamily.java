@@ -55,7 +55,7 @@ public class ONCFamily extends ONCEntity
 	//constructor used to make a copy for server update requests
 	public ONCFamily(ONCFamily f)
 	{
-		super(f.getID(), f.getDateChanged(), f.getChangedBy(), f.getStoplightPos(), f.getStoplightMssg(), f.getStoplightChangedBy());
+		super(f.getID(), f.getTimestamp(), f.getChangedBy(), f.getStoplightPos(), f.getStoplightMssg(), f.getStoplightChangedBy());
 		this.oncNum = f.oncNum;
 		this.region = f.region;
 		this.schoolCode = f.schoolCode;
@@ -105,7 +105,7 @@ public class ONCFamily extends ONCEntity
 				String Lang, String transportation, String bn, Date today, int region, String sONC, int id,
 				String cb, int agentid, int groupid)
 	{
-		super(id, new Date(), cb, STOPLIGHT_OFF, "Family imported", cb);
+		super(id, System.currentTimeMillis(), cb, STOPLIGHT_OFF, "Family imported", cb);
 		oncNum = sONC;
 		this.region = region;
 		this.schoolCode = "Z";
@@ -154,7 +154,7 @@ public class ONCFamily extends ONCEntity
 	//Overloaded Constructor - import Family DB from .csv file
 	public ONCFamily(String[] nextLine)
 	{
-		super(Integer.parseInt(nextLine[0]), new Date(), nextLine[11], 
+		super(Integer.parseInt(nextLine[0]), System.currentTimeMillis(), nextLine[11], 
 				Integer.parseInt(nextLine[39]), nextLine[40], nextLine[41]);
 		oncNum = getDBString(nextLine[1]);
 		region = Integer.parseInt(nextLine[2]);
@@ -207,7 +207,7 @@ public class ONCFamily extends ONCEntity
 				String schools, boolean bGiftsRequested, String odbWishList, int agentID, int groupID,
 				int mealID, MealStatus mStatus, Transportation transportation)
 	{
-		super(id, new Date(), cb, STOPLIGHT_OFF, "Family referred", cb);
+		super(id, System.currentTimeMillis(), cb, STOPLIGHT_OFF, "Family referred", cb);
 		this.oncNum = oncNum;
 		this.region = -1;
 		this.schoolCode  = "Z";

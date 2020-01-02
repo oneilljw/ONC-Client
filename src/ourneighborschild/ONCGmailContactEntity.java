@@ -26,7 +26,7 @@ public abstract class ONCGmailContactEntity extends ONCEntity
 	
 	public ONCGmailContactEntity(int id, String fn, String ln, String email, String homePhone, 
 			String cellPhone, String houseNum, String street, String unit, String city, String zipCode,
-			String comment, String organization, Date today, String changedBy, int slpos,
+			String comment, String organization, long today, String changedBy, int slpos,
 			String slmssg, String slchgby) 
 	{
 		super(id, today, changedBy, slpos, slmssg, slchgby);
@@ -45,7 +45,7 @@ public abstract class ONCGmailContactEntity extends ONCEntity
 	}
 	
 	public ONCGmailContactEntity(int id, String fn, String ln, String email, String homePhone, 
-			String cellPhone, Address address, String comment, String organization, Date today, 
+			String cellPhone, Address address, String comment, String organization, long today, 
 			String changedBy, int slpos, String slmssg, String slchgby) 
 	{
 		super(id, today, changedBy, slpos, slmssg, slchgby);
@@ -63,30 +63,10 @@ public abstract class ONCGmailContactEntity extends ONCEntity
 		this.organization = organization;
 	}
 	
-	public ONCGmailContactEntity(int id, String fn, String ln, String email, String homePhone, 
-			String cellPhone, String houseNum, String street, String unit, String city, String zipCode,
-			String comment, String organization, long dateInMillis, String changedBy, int slpos,
-			String slmssg, String slchgby) 
-	{
-		super(id, dateInMillis, changedBy, slpos, slmssg, slchgby);
-		this.firstName = fn;
-		this.lastName = ln;
-		this.email = email;
-		this.homePhone = homePhone;
-		this.cellPhone = cellPhone;
-		this.houseNum = houseNum;
-		this.street = street;
-		this.unit = unit;
-		this.city = city;
-		this.zipCode = zipCode;
-		this.comment = comment;
-		this.organization = organization;
-	}
-	
 	//copy constructor
 	public ONCGmailContactEntity(ONCGmailContactEntity ce)
 	{
-		super(ce.id, ce.dateChanged, ce.changedBy, ce.slPos, ce.slMssg, ce.slChangedBy);
+		super(ce.id, ce.timestamp, ce.changedBy, ce.slPos, ce.slMssg, ce.slChangedBy);
 		this.firstName = ce.firstName;
 		this.lastName = ce.lastName;
 		this.email = ce.email;
@@ -101,30 +81,10 @@ public abstract class ONCGmailContactEntity extends ONCEntity
 		this.organization = ce.organization;
 	}
 	
-	public ONCGmailContactEntity(int id, String fn, String ln, String email, String homePhone, 
-			String cellPhone, String houseNum, String street, String unit, String city, String zipCode,
-			String comment, String organization, Calendar dateChanged, String changedBy, int slpos,
-			String slmssg, String slchgby) 
-	{
-		super(id, dateChanged, changedBy, slpos, slmssg, slchgby);
-		this.firstName = fn;
-		this.lastName = ln;
-		this.email = email;
-		this.homePhone = homePhone;
-		this.cellPhone = cellPhone;
-		this.houseNum = houseNum;
-		this.street = street;
-		this.unit = unit;
-		this.city = city;
-		this.zipCode = zipCode;
-		this.comment = comment;
-		this.organization = organization;
-	}
-	
 	public ONCGmailContactEntity(String[] nextLine, Date today, String slMssg, String changedBy)
 	{
 		
-		super(-1, new Date(), changedBy, STOPLIGHT_OFF, slMssg, changedBy);
+		super(-1, System.currentTimeMillis(), changedBy, STOPLIGHT_OFF, slMssg, changedBy);
 		
 //		public ONCGmailContactEntity(int id, String fn, String ln, String email, String homePhone, 
 //		String cellPhone, String houseNum, String street, String unit, String city, String zipCode,

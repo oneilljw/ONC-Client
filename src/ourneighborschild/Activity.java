@@ -27,7 +27,7 @@ public class Activity extends ONCEntity
 								String location, String description, String volComment,
 								boolean bOpen, boolean bEmailReminder, String username) 
 	{
-		super(id, new Date(), username, 3, "New Activity", username);
+		super(id, System.currentTimeMillis(), username, 3, "New Activity", username);
 		this.geniusID = geniusID;
 		this.category = category;
 		this.name = name;
@@ -41,7 +41,7 @@ public class Activity extends ONCEntity
 	
 	public Activity(Activity activity)
 	{
-		super(activity.id, activity.dateChanged.getTimeInMillis(), activity.changedBy, activity.slPos,
+		super(activity.id, activity.timestamp, activity.changedBy, activity.slPos,
 				activity.slMssg, activity.slChangedBy);
 		this.geniusID = activity.geniusID;
 		this.category = activity.category;
@@ -61,7 +61,7 @@ public class Activity extends ONCEntity
 	 */
 	public Activity(SignUpActivity sua)
 	{
-		super(-1, new Date(), "Lavin, K", 3,
+		super(-1, System.currentTimeMillis(), "Lavin, K", 3,
 				"New activity from SignUpGenius", "Lavin, K");
 		this.geniusID = (int) sua.getSlotitemid();
 		this.category = sua.getItem();
@@ -93,7 +93,7 @@ public class Activity extends ONCEntity
 	//dummy Activity
 	public Activity(int id, String name) 
 	{
-		super(id, new Date(), "Lavin, K", 3, "Default Delivery Activity", "Lavin, K");
+		super(id, System.currentTimeMillis(), "Lavin, K", 3, "Default Delivery Activity", "Lavin, K");
 		this.geniusID = -1;
 		this.category = "";
 		this.name = name;
@@ -144,7 +144,7 @@ public class Activity extends ONCEntity
 		row[7] = description;
 		row[8] = bOpen ? "T" : "F";
 		row[9] = bEmailReminder ? "T" : "F";
-		row[10] = Long.toString(dateChanged.getTimeInMillis());
+		row[10] = Long.toString(timestamp);
 		row[11] = changedBy;
 		row[12] = Integer.toString(slPos);
 		row[13] = slMssg;

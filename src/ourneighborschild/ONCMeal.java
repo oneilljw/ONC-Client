@@ -18,7 +18,7 @@ public class ONCMeal extends ONCEntity
 	protected int partnerID;
 	
 	public ONCMeal(int id, int famID, MealStatus status, MealType type, String restrictions, 
-			int partnerID, String changedBy, Date today, int slpos, String slmssg, String slchgby)
+			int partnerID, String changedBy, long today, int slpos, String slmssg, String slchgby)
 	{
 		super(id, today, changedBy, slpos, slmssg, slchgby);
 		this.famID = famID;
@@ -68,7 +68,7 @@ public class ONCMeal extends ONCEntity
 		row.add(Integer.toString(partnerID));
 		row.add(dietaryRestrictions);
 		row.add(changedBy);
-		row.add(Long.toString(dateChanged.getTimeInMillis()));
+		row.add(Long.toString(timestamp));
 		row.add(Integer.toString(slPos));
 		row.add(slMssg);
 		row.add(slChangedBy);

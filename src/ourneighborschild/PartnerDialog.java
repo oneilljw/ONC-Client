@@ -512,7 +512,7 @@ public class PartnerDialog extends EntityDialog
 			deliverToTP.setText(currPartner.getDeliverTo());
 			deliverToTP.setCaretPosition(0);
 			SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy");
-			lblDateChanged.setText(sdf.format(currPartner.getDateChanged()));
+			lblDateChanged.setText(sdf.format(currPartner.getTimestampDate()));
 			lblChangedBy.setText(currPartner.getChangedBy());
 			contact1TF.setText(currPartner.getContact());
 			contact1TF.setCaretPosition(0);
@@ -618,7 +618,7 @@ public class PartnerDialog extends EntityDialog
 		
 		if(bCD)	//If an update to partner data (not stop light data) was detected
 		{
-			reqPartner.setDateChanged(gvs.getTodaysDate());
+			reqPartner.setDateChanged(System.currentTimeMillis());
 			reqPartner.setChangedBy(userDB.getUserLNFI());
 			
 			String response = partnerDB.update(this, reqPartner);	//notify the database of the change
@@ -758,7 +758,7 @@ public class PartnerDialog extends EntityDialog
 	void onSaveNew()
 	{
 		//construct a new partner from user input	
-		ONCPartner newPartner = new ONCPartner(-1, new Date(), userDB.getUserLNFI(),
+		ONCPartner newPartner = new ONCPartner(-1, System.currentTimeMillis(), userDB.getUserLNFI(),
 				3, "Partner Created", userDB.getUserLNFI(),
 				statusCB.getSelectedIndex(), typeCB.getSelectedIndex(),
 				(GiftCollectionType) collectionCB.getSelectedItem(), nameTF.getText(), 

@@ -70,7 +70,7 @@ public class PartnerDB extends ONCSearchableDatabase
 		{
 			//A change from a previous status to confirmed has occurred, add to the confirmed array
 			o.setStatus(STATUS_CONFIRMED);
-			o.setDateChanged(orgGVs.getTodaysDate());
+			o.setDateChanged(System.currentTimeMillis());
 			o.setStoplightChangedBy(userDB.getUserLNFI());
 		}
 		else if(o.getStatus() == STATUS_CONFIRMED && newstatus != STATUS_CONFIRMED)
@@ -81,14 +81,14 @@ public class PartnerDB extends ONCSearchableDatabase
 			if(o.getNumberOfOrnamentsAssigned() == 0)
 			{
 				o.setStatus(newstatus);
-				o.setDateChanged(orgGVs.getTodaysDate());
+				o.setDateChanged(System.currentTimeMillis());
 				o.setStoplightChangedBy(userDB.getUserLNFI());
 			}		
 		}
 		else	//Status change does not involve to/from confirmed status
 		{
 			o.setStatus(newstatus);
-			o.setDateChanged(orgGVs.getTodaysDate());
+			o.setDateChanged(System.currentTimeMillis());
 			o.setStoplightChangedBy(userDB.getUserLNFI());
 		}
 			
@@ -818,7 +818,7 @@ public class PartnerDB extends ONCSearchableDatabase
 		@Override
 		public int compare(ONCPartner o1, ONCPartner o2)
 		{			
-			return o1.getDateChanged().compareTo(o2.getDateChanged());
+			return o1.getTimestampDate().compareTo(o2.getTimestampDate());
 		}
 	}
 	private class PartnerChangedByComparator implements Comparator<ONCPartner>

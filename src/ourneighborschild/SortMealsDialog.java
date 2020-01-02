@@ -267,7 +267,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 								  doesStatusMatch(m.getStatus()) &&
 								   doesRegionMatch(f.getRegion()) &&
 								    doesAssigneeMatch(m.getPartnerID()) &&
-								     isMealChangeDateBetween(m.getDateChanged()) &&
+								     isMealChangeDateBetween(m.getTimestampDate()) &&
 								      doesChangedByMatch(m.getChangedBy())) //meal criteria pass
 				{			
 					stAL.add(new SortMealObject(itemID++, f, m));
@@ -814,7 +814,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		
 		ONCPartner partner = orgs.getPartnerByID(smo.getMeal().getPartnerID());
 		String partnerName = partner != null ? partner.getLastName() : "None";
-		String ds = new SimpleDateFormat("MM/dd H:mm").format(smo.getMeal().getDateChanged().getTime());
+		String ds = new SimpleDateFormat("MM/dd H:mm").format(smo.getMeal().getTimestampDate().getTime());
 		String[] tablerow = {smo.getFamily().getONCNum(),
 							smo.getFamily().getBatchNum(),
 							smo.getFamily().getLastName(),
@@ -869,7 +869,8 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 										stAL.get(row_sel[i]).getMeal().getType(),
 										stAL.get(row_sel[i]).getMeal().getRestricitons(), 
 										cbPartner.getID(),userDB.getUserLNFI(),
-										new Date(), stAL.get(row_sel[i]).getMeal().getStoplightPos(),
+										System.currentTimeMillis(),
+										stAL.get(row_sel[i]).getMeal().getStoplightPos(),
 										"Changed Partner", userDB.getUserLNFI());
 				
 				ONCMeal addedMeal = mealDB.add(this, addMealReq);
@@ -889,7 +890,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 													stAL.get(row_sel[i]).getMeal().getType(),
 													stAL.get(row_sel[i]).getMeal().getRestricitons(), 
 													stAL.get(row_sel[i]).getMeal().getPartnerID(),
-													userDB.getUserLNFI(), new Date(),
+													userDB.getUserLNFI(), System.currentTimeMillis(),
 													stAL.get(row_sel[i]).getMeal().getStoplightPos(),
 													"Changed Status", userDB.getUserLNFI());
 
@@ -1260,7 +1261,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		@Override
 		public int compare(SortMealObject o1, SortMealObject o2)
 		{
-			return o1.getMeal().getDateChanged().compareTo(o2.getMeal().getDateChanged());
+			return o1.getMeal().getTimestampDate().compareTo(o2.getMeal().getTimestampDate());
 		}
 	}
 

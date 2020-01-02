@@ -339,7 +339,7 @@ public class VolunteerDialog extends EntityDialog
 		if(bCD > 0)	//If an update to organization data (not stop light data) was detected
 		{
 //			System.out.println(String.format("VolDlg.update: bCD= %d, volLN= %s", bCD, updateVol.getlName()));
-			updateVol.setDateChanged(gvs.getTodaysDate());
+			updateVol.setDateChanged(System.currentTimeMillis());
 			
 			//request an update from the server
 			String response = volDB.update(this, updateVol);
@@ -417,7 +417,7 @@ public class VolunteerDialog extends EntityDialog
 			
 			SimpleDateFormat sdf = new SimpleDateFormat("M/dd h:mm");
 			lblLastSignIn.setText(currVolunteer.getSignIns() == 0 ? "Never" : 
-									sdf.format(currVolunteer.getDateChanged()));
+									sdf.format(currVolunteer.getTimestampDate()));
 			
 			btnSignInHistory.setEnabled(currVolunteer.getSignIns() > 0);
 			

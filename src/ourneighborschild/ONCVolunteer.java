@@ -33,7 +33,7 @@ public class ONCVolunteer extends ONCGmailContactEntity implements Comparable<ON
 						Date today, String changedBy)
 	{
 		super(driverid, fName, lName, email, homePhone, cellPhone, hNum, street, unit, city, zipcode,
-				comment, group,  new Date(), changedBy, STOPLIGHT_OFF, "Volunteer added", changedBy);
+				comment, group,  System.currentTimeMillis(), changedBy, STOPLIGHT_OFF, "Volunteer added", changedBy);
 		this.drvNum = drvNum;
 //		this.activityList = actList;
 //		this.qty = qty.isEmpty() ? 0 : Integer.parseInt(qty);
@@ -80,7 +80,7 @@ public class ONCVolunteer extends ONCGmailContactEntity implements Comparable<ON
 		super(-1, line[6], line[7], line[8], getPhone("Home", line[17], line[18]), 
 				getPhone("Mobile", line[17], line[18]), parseAddress(line[11])[0], 
 				parseAddress(line[11])[1], line[12], line[13], line[15],
-				"", "Self",  new Date(), changedBy, STOPLIGHT_OFF, "Sign-Up Genius Volunteer", changedBy); 
+				"", "Self",  System.currentTimeMillis(), changedBy, STOPLIGHT_OFF, "Sign-Up Genius Volunteer", changedBy); 
 		
 		drvNum = "N/A";
 		this.delAssigned = 0;
@@ -96,7 +96,7 @@ public class ONCVolunteer extends ONCGmailContactEntity implements Comparable<ON
 	public ONCVolunteer(SignUpActivity sua)
 	{
 		super(-1, sua.getFirstname(), sua.getLastname(), sua.getEmail(), getPhone("Home", sua), 
-				getPhone("Mobile", sua), getAddress(sua), "", "Self",  new Date(), 
+				getPhone("Mobile", sua), getAddress(sua), "", "Self",  System.currentTimeMillis(), 
 				"Lavin, K", STOPLIGHT_OFF, "Sign-Up Genius Volunteer", "Lavin, K");
 		
 		this.drvNum = "";
@@ -150,7 +150,7 @@ public class ONCVolunteer extends ONCGmailContactEntity implements Comparable<ON
 	{
 		//constructor used when adding a new entity
 		super(id, "", "", "", "", "", "", "", "", "", "", "", "", 
-				new Date(), changedBy, STOPLIGHT_OFF, "Volunteer Added", changedBy);
+				System.currentTimeMillis(), changedBy, STOPLIGHT_OFF, "Volunteer Added", changedBy);
 		
 		delAssigned = 0;
 		warehouseSignIns = 0;
@@ -171,7 +171,7 @@ public class ONCVolunteer extends ONCGmailContactEntity implements Comparable<ON
 	public ONCVolunteer(ONCVolunteer v)	//copy constructor
 	{
 		super(v.id, v.firstName, v.lastName, v.email, v.homePhone, v.cellPhone, v.houseNum, v.street,
-				v.unit, v.city, v.zipCode, v.comment, v.organization, v.dateChanged, v.changedBy,
+				v.unit, v.city, v.zipCode, v.comment, v.organization, v.timestamp, v.changedBy,
 				v.slPos, v.slMssg, v.slChangedBy);
 		
 		drvNum = v.drvNum;
@@ -384,7 +384,7 @@ public class ONCVolunteer extends ONCGmailContactEntity implements Comparable<ON
 		String[] row = {Integer.toString(id), drvNum, firstName, lastName, 
 						houseNum, street, unit, city, zipCode, email, homePhone, cellPhone, comment,
 						organization, Integer.toString(delAssigned), Integer.toString(warehouseSignIns),
-						Long.toString(dateChanged.getTimeInMillis()), changedBy,  Integer.toString(slPos),
+						Long.toString(timestamp), changedBy,  Integer.toString(slPos),
 						slMssg, slChangedBy};
 		
 		return row;

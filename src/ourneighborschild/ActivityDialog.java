@@ -242,7 +242,7 @@ public class ActivityDialog extends EntityDialog
 		if(bCD > 0)	//If an update to organization data (not stop light data) was detected
 		{
 //			System.out.println(String.format("ActDlg.update: bCD= %d", bCD));
-			reqUpdateAct.setDateChanged(gvs.getTodaysDate());
+			reqUpdateAct.setDateChanged(System.currentTimeMillis());
 			
 			//request an update from the server
 			String response = activityDB.update(this, reqUpdateAct);
@@ -306,7 +306,7 @@ public class ActivityDialog extends EntityDialog
 			reminderCkBox.setSelected(currActivity.sendReminder());
 			
 			SimpleDateFormat sdf = new SimpleDateFormat("MMM d h:mm a", Locale.US);
-			Calendar localTimeStamp = createLocalCalendarFromGMT(currActivity.getTimeInMillis());
+			Calendar localTimeStamp = createLocalCalendarFromGMT(currActivity.getTimestamp());
 			lblTimestamp.setText(sdf.format(localTimeStamp.getTime()));
 			
 			lblChangedBy.setText(currActivity.getChangedBy());
