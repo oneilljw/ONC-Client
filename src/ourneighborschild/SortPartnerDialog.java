@@ -2195,7 +2195,6 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		private static final int AVERY_LABEL_WIDTH = 300;
 		private static final int AVERY_LABEL_IMAGE_X_OFFSET = 180;	//210
 		private static final int AVERY_LABEL_IMAGE_Y_OFFSET = 8;	//-18
-		private static final int AVERY_LABEL_CHILD_ROW_HEIGHT = 20;
 		
 		private static final int NUM_OF_XMAS_ICONS = 5;
 		private static final int XMAS_ICON_OFFSET = 9;

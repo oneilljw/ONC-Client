@@ -414,6 +414,7 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 				
 				wishHistoryTable.add(whTR);
 			}
+			
 			//need to determine what name to use for child due to user privileges
 			String firstname;
 			if(userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0)
@@ -428,7 +429,7 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 		else
 		{
 			JOptionPane.showMessageDialog(GlobalVariablesDB.getFrame(), 
-					"Child Wish History Not Available", 
+					"Child Gift History Not Available", 
 					"No History Available", JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
 		}
 	}
@@ -479,12 +480,12 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 			//Add a new gift with new detail. If the current gift id = -1 (None) and the indicator
 			//selected index is 0, then set the giftID combo box to the default gift as well, prior to adding
 			//the gift
-			ONCGift cbWish = (ONCGift) giftCB.getSelectedItem();
-			if(cbWish.getID() == -1 && giftindCB.getSelectedIndex() == 0 && gvs.getDefaultGiftID() > -1 )
+			ONCGift cbGift = (ONCGift) giftCB.getSelectedItem();
+			if(cbGift.getID() == -1 && giftindCB.getSelectedIndex() == 0 && gvs.getDefaultGiftID() > -1 )
 			{
 				giftCB.removeActionListener(this);
-				ONCGift defaultWish = (ONCGift) cat.getGiftByID(gvs.getDefaultGiftID());
-				giftCB.setSelectedItem(defaultWish);
+				ONCGift defaultGift = (ONCGift) cat.getGiftByID(gvs.getDefaultGiftID());
+				giftCB.setSelectedItem(defaultGift);
 				giftCB.addActionListener(this);
 			}
 			addGift();

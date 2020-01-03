@@ -27,9 +27,6 @@ public class CompareFamilyData
 	 * dialogs, the user is queried to provide the name of the ODB or WFCM file to
 	 * be compared and the name of the output file for the results.
 	 */
-	private static final int ONC_OPEN_FILE = 0;
-	private static final int ONC_SAVE_FILE = 1;
-	
 	ArrayList<String[]> sourceAL;
 	ArrayList<String[]> outputAL;
 	ArrayList<ONCFamily> fAL;

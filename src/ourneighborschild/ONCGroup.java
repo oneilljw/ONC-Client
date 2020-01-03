@@ -1,7 +1,5 @@
 package ourneighborschild;
 
-import java.util.Date;
-
 public class ONCGroup extends ONCEntity 
 {
 	/**

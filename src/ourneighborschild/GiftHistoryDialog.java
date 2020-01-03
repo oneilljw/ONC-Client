@@ -39,7 +39,7 @@ public class GiftHistoryDialog extends JDialog
 			//Implement table header tool tips.
 			protected String[] columnToolTips = {"Gift Category", "Detailed Gift Description",
 												"# - ONC Determined Gift or * - Don't Assign Gift", 
-												"GIft Life Cycle State", "Who's fulfilling?", 
+												"Gift Life Cycle State", "Who's fulfilling?", 
 												"Who Changed the Gift?", "When did gift change?"};
 		
 			protected JTableHeader createDefaultTableHeader()
@@ -94,32 +94,32 @@ public class GiftHistoryDialog extends JDialog
 			tablewidth += colWidths[i];
 		}
     
-    	JTableHeader anHeader = historyTable.getTableHeader();
-    	anHeader.setForeground( Color.black);
-    	anHeader.setBackground( new Color(161,202,241));
+		JTableHeader anHeader = historyTable.getTableHeader();
+    		anHeader.setForeground( Color.black);
+    		anHeader.setBackground( new Color(161,202,241));
  
-    	//Center cell entries in column 2 -- Indicator
-    	DefaultTableCellRenderer dtcr = new DefaultTableCellRenderer();    
-    	dtcr.setHorizontalAlignment(SwingConstants.CENTER);
-    	historyTable.getColumnModel().getColumn(2).setCellRenderer(dtcr);
+    		//Center cell entries in column 2 -- Indicator
+    		DefaultTableCellRenderer dtcr = new DefaultTableCellRenderer();    
+    		dtcr.setHorizontalAlignment(SwingConstants.CENTER);
+    		historyTable.getColumnModel().getColumn(2).setCellRenderer(dtcr);
     	
-    	//Add gifts in history from current gift revision to creation
-    	int index = whTable.size() - 1; //iterator for gift history array
-    	while(index >= 0)
-    		historyTM.addRow(whTable.get(index--));
+    		//Add gifts in history from current gift revision to creation
+    		int index = whTable.size() - 1; //iterator for gift history array
+    		while(index >= 0)
+    			historyTM.addRow(whTable.get(index--));
     	   
-    	historyTable.setBorder(UIManager.getBorder("Table.scrollPaneBorder"));
-    	historyTable.setFillsViewportHeight(true);
+    		historyTable.setBorder(UIManager.getBorder("Table.scrollPaneBorder"));
+    		historyTable.setFillsViewportHeight(true);
     
-    	//Create the scroll pane and add the table to it.
-    	JScrollPane wHTScrollPane = new JScrollPane(historyTable, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
+    		//Create the scroll pane and add the table to it.
+    		JScrollPane wHTScrollPane = new JScrollPane(historyTable, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
     												JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);           
-    	//Add the components to the frame pane
-    	this.getContentPane().setLayout(new BoxLayout(this.getContentPane(), BoxLayout.Y_AXIS));
-    	this.getContentPane().add(wHTScrollPane);
+    		//Add the components to the frame pane
+    		this.getContentPane().setLayout(new BoxLayout(this.getContentPane(), BoxLayout.Y_AXIS));
+    		this.getContentPane().add(wHTScrollPane);
     	  
-    	pack();
-    	setSize(tablewidth, 120);
-    	setResizable(true);
+    		pack();
+    		setSize(tablewidth, 120);
+    		setResizable(true);
 	}
 }

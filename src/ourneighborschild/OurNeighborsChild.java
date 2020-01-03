@@ -10,7 +10,10 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import com.apple.eawt.Application;
+
 import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -342,6 +345,33 @@ public class OurNeighborsChild
     private void createMainFrame()
     {
     		oncFrame = new JFrame(APPNAME);
+    		
+    		ImageIcon appIcon = createImageIcon("onclogosmall.gif", "ONC Logo");
+    		if(System.getProperty("os.name").toLowerCase().startsWith("mac os x"))
+    			Application.getApplication().setDockIconImage(appIcon.getImage());
+    		else
+    			 oncFrame.setIconImage(appIcon.getImage());			
+/*    		
+    		//the following code sets the icon loading an image from a file for JDK 9
+        final Toolkit defaultToolkit = Toolkit.getDefaultToolkit();
+        ImageIcon appIcon = createImageIcon("onclogosmall.gif", "ONC Logo");
+
+        //this is new since JDK 9
+        final Taskbar taskbar = Taskbar.getTaskbar();
+
+        try {
+                //set icon for mac os (and other systems which do support this method)
+                taskbar.setIconImage(appIcon.getImage());
+            } catch (final UnsupportedOperationException e) {
+                System.out.println("The os does not support: 'taskbar.setIconImage'");
+            } catch (final SecurityException e) {
+                System.out.println("There was a security exception for: 'taskbar.setIconImage'");
+            }
+
+        //set icon for windows os (and other systems which do support this method)
+        oncFrame.setIconImage(appIcon.getImage());
+*/    		
+    		
 		oncFrame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent we)
 			 {
@@ -360,7 +390,6 @@ public class OurNeighborsChild
       	JLabel lblONCicon = new JLabel(createImageIcon("oncsplash.gif", "ONC Full Screen Logo"));
       	oncSplashPanel.add(lblONCicon);	 
         oncContentPane.add(oncSplashPanel);
-        
         
         oncFrame.setContentPane(oncContentPane); 
         oncFrame.setVisible(true);

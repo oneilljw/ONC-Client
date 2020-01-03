@@ -6,7 +6,6 @@ import java.awt.FlowLayout;
 import java.awt.Point;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.EnumSet;
 
 import javax.swing.BorderFactory;

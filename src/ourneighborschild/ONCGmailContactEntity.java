@@ -1,6 +1,5 @@
 package ourneighborschild;
 
-import java.util.Calendar;
 import java.util.Date;
 
 public abstract class ONCGmailContactEntity extends ONCEntity 
