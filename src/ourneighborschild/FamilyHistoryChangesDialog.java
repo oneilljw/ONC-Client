@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.TimeZone;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
@@ -74,7 +75,7 @@ public class FamilyHistoryChangesDialog extends ONCTableDialog implements Proper
 	private DNSCode sortDNSCode;
 	private int sortChangedBy;
 	private String sortNotes;
-	private Calendar sortStartCal = null, sortEndCal = null;
+	private Calendar startFilterTimestamp, endFilterTimestamp;
 	
 	private String[] notes = {"Any", "Status Changed", "Family Referred", "Gift Status Change",
 			"Automated Call Result: Contacted", "Automated Call Result: Confirmed",
@@ -156,21 +157,16 @@ public class FamilyHistoryChangesDialog extends ONCTableDialog implements Proper
 	    notesCB.setBorder(BorderFactory.createTitledBorder("Notes"));
 	    notesCB.addActionListener(this);
 		
-		sortStartCal = Calendar.getInstance();
-		sortStartCal.setTime(gvs.getSeasonStartDate());
-		
-		ds = new JDateChooser(sortStartCal.getTime());
+	    startFilterTimestamp = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+		ds = new JDateChooser(startFilterTimestamp.getTime());
 		ds.setPreferredSize(new Dimension(156, 56));
-		ds.setBorder(BorderFactory.createTitledBorder("Created On/After"));
+		ds.setBorder(BorderFactory.createTitledBorder("Changed On/After"));
 		ds.getDateEditor().addPropertyChangeListener(this);
 		
-		sortEndCal = Calendar.getInstance();
-		sortEndCal.setTime(gvs.getTodaysDate());
-		sortEndCal.add(Calendar.DATE, 1);
-		
-		de = new JDateChooser(sortEndCal.getTime());
+		endFilterTimestamp = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+		de = new JDateChooser(endFilterTimestamp.getTime());
 		de.setPreferredSize(new Dimension(156, 56));
-		de.setBorder(BorderFactory.createTitledBorder("Created Before"));
+		de.setBorder(BorderFactory.createTitledBorder("Changed On/Before"));
 		de.getDateEditor().addPropertyChangeListener(this);
 		
 		searchCriteriaPanelTop.add(oncnumTF);
@@ -215,7 +211,7 @@ public class FamilyHistoryChangesDialog extends ONCTableDialog implements Proper
 				  doesDNSCodeMatch(fh.getDNSCode()) &&
 				  doesChangedByMatch(fh.getdChangedBy()) &&
 				   doesNotesMatch(fh.getdNotes()) &&
-				    isChangeDateBetween(fh.getDateChangedCal()))
+				    isChangeDateBetween(fh.getTimestamp()))
 			{
 				histList.add(fh);
 			}
@@ -231,9 +227,9 @@ public class FamilyHistoryChangesDialog extends ONCTableDialog implements Proper
 	boolean doesChangedByMatch(String cb) { return sortChangedBy == 0 || cb.equals(changedByCB.getSelectedItem()); }
 	boolean doesNotesMatch(String notes) { return sortNotes.equals("Any") || notes.equals(notesCB.getSelectedItem()); }
 	boolean doesDNSCodeMatch(int dnsCodeID) { return sortDNSCode.getID() == -2 || sortDNSCode.getID() == dnsCodeID; }
-	boolean isChangeDateBetween(Calendar wcd)
-	{
-		return !wcd.getTime().after(sortEndCal.getTime()) && !wcd.getTime().before(sortStartCal.getTime());
+	boolean isChangeDateBetween(Long timestamp)
+	{ 
+		return timestamp >= startFilterTimestamp.getTimeInMillis() && timestamp <= endFilterTimestamp.getTimeInMillis();
 	}
 	
 	void updateUserList()
@@ -263,7 +259,23 @@ public class FamilyHistoryChangesDialog extends ONCTableDialog implements Proper
 		
 		changedByCB.addActionListener(this);
 	}
-	
+	private void setDateFilters(Calendar start, Calendar end, int startOffset, int endOffset)
+	{
+		startFilterTimestamp.set(start.get(Calendar.YEAR), start.get(Calendar.MONTH), start.get(Calendar.DAY_OF_MONTH));
+		startFilterTimestamp.set(Calendar.HOUR_OF_DAY, 0);
+		startFilterTimestamp.set(Calendar.MINUTE, 0);
+		startFilterTimestamp.set(Calendar.SECOND, 0);
+		startFilterTimestamp.set(Calendar.MILLISECOND, 0);
+		
+		endFilterTimestamp.set(end.get(Calendar.YEAR), end.get(Calendar.MONTH), end.get(Calendar.DAY_OF_MONTH));
+		endFilterTimestamp.set(Calendar.HOUR_OF_DAY, 0);
+		endFilterTimestamp.set(Calendar.MINUTE, 0);
+		endFilterTimestamp.set(Calendar.SECOND, 0);
+		endFilterTimestamp.set(Calendar.MILLISECOND, 0);
+		
+		startFilterTimestamp.add(Calendar.DAY_OF_YEAR, startOffset);
+		endFilterTimestamp.add(Calendar.DAY_OF_YEAR, endOffset);
+	}	
 	@Override
 	void onExport()
 	{
@@ -408,20 +420,13 @@ public class FamilyHistoryChangesDialog extends ONCTableDialog implements Proper
 		sortNotes = "Any";
 		notesCB.addActionListener(this);
 		
-		//Check to see if date sort criteria has changed. Since the setDate() method
-		//will not trigger an event, must check for a sort criteria date change here
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
-		if(!sdf.format(sortStartCal.getTime()).equals(sdf.format(gvs.getSeasonStartDate())))
-		{
-			sortStartCal.setTime(gvs.getSeasonStartDate());
-			ds.setDate(sortStartCal.getTime());	//Will not trigger the event handler
-		}
-				
-		if(!sdf.format(sortEndCal.getTime()).equals(sdf.format(getTomorrowsDate())))
-		{
-			sortEndCal.setTime(getTomorrowsDate());
-			de.setDate(sortEndCal.getTime());	//Will not trigger the event handler
-		}
+		de.getDateEditor().removePropertyChangeListener(this);
+		ds.getDateEditor().removePropertyChangeListener(this);
+		setDateFilters(gvs.getSeasonStartCal(), Calendar.getInstance(TimeZone.getTimeZone("UTC")), 0, 1);
+		ds.setCalendar(startFilterTimestamp);
+		de.setCalendar(endFilterTimestamp);
+		ds.getDateEditor().addPropertyChangeListener(this);
+		de.getDateEditor().addPropertyChangeListener(this);
 		
 		buildTableList();
 	}
@@ -469,8 +474,16 @@ public class FamilyHistoryChangesDialog extends ONCTableDialog implements Proper
 		{
 			this.setTitle(String.format("Our Neighbor's Child - %d Family Histories", GlobalVariablesDB.getCurrentSeason()));
 			
-			sortStartCal.setTime(gvs.getSeasonStartDate());
-			ds.setDate(sortStartCal.getTime());	//Will not trigger the event handler
+			de.getDateEditor().removePropertyChangeListener(this);
+			ds.getDateEditor().removePropertyChangeListener(this);
+			
+			setDateFilters(gvs.getSeasonStartCal(), Calendar.getInstance(TimeZone.getTimeZone("UTC")), 0, 1);
+			ds.setCalendar(startFilterTimestamp);
+			de.setCalendar(endFilterTimestamp);
+			
+			ds.getDateEditor().addPropertyChangeListener(this);
+			de.getDateEditor().addPropertyChangeListener(this);
+			
 			buildTableList();
 		}
 		else if(dbe.getType().equals("LOADED_DNSCODES"))
@@ -527,10 +540,9 @@ public class FamilyHistoryChangesDialog extends ONCTableDialog implements Proper
 		//the date using setDate() does not trigger a property change, only triggered by user action. 
 		//So must rebuild the table each time a change is detected. 
 		if("date".equals(pce.getPropertyName()) &&
-				(!sortStartCal.getTime().equals(ds.getDate()) || !sortEndCal.getTime().equals(de.getDate())))
+			(!startFilterTimestamp.getTime().equals(ds.getDate()) || !endFilterTimestamp.getTime().equals(de.getDate())))
 		{
-			sortStartCal.setTime(ds.getDate());
-			sortEndCal.setTime(de.getDate());
+			setDateFilters(ds.getCalendar(), de.getCalendar(), 0, 1);
 			buildTableList();
 		}
 	}

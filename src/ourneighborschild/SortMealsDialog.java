@@ -12,9 +12,9 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.TimeZone;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileWriter;
@@ -70,7 +70,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 	
 	private JTextField oncnumTF;
 	private JDateChooser ds, de;
-	private Calendar sortStartCal = null, sortEndCal = null;
+	private Calendar startFilterTimestamp, endFilterTimestamp;
 	
 	private int sortBatchNum = 0, sortChangedBy = 0, sortAssigneeID = 0, sortRegion = 0;
 	private MealStatus sortStatus = MealStatus.Any;
@@ -100,6 +100,8 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 			orgs.addDatabaseListener(this);
 		if(regions != null)
 			regions.addDatabaseListener(this);
+		if(gvs != null)
+			gvs.addDatabaseListener(this);
 		
 		//initialize member variables
 		stAL = new ArrayList<SortMealObject>();
@@ -153,22 +155,19 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		changedByCB.setPreferredSize(new Dimension(144,56));
 		changedByCB.addActionListener(this);
 		
-		sortStartCal = Calendar.getInstance();
-		sortStartCal.setTime(gvs.getSeasonStartDate());
-		
-		ds = new JDateChooser(sortStartCal.getTime());
+		startFilterTimestamp = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+		ds = new JDateChooser(startFilterTimestamp.getTime());
 		ds.setPreferredSize(new Dimension(156, 56));
 		ds.setBorder(BorderFactory.createTitledBorder("Changed On/After"));
 		ds.getDateEditor().addPropertyChangeListener(this);
+		sortCriteriaPanel.add(ds);
 		
-		sortEndCal = Calendar.getInstance();
-		sortEndCal.setTime(gvs.getTodaysDate());
-		sortEndCal.add(Calendar.DATE, 1);
-		
-		de = new JDateChooser(sortEndCal.getTime());
+		endFilterTimestamp = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+		de = new JDateChooser(endFilterTimestamp.getTime());
 		de.setPreferredSize(new Dimension(156, 56));
-		de.setBorder(BorderFactory.createTitledBorder("Changed Before"));
+		de.setBorder(BorderFactory.createTitledBorder("Changed On/Before"));
 		de.getDateEditor().addPropertyChangeListener(this);
+		sortCriteriaPanel.add(de);
 
 		sortCriteriaPanelTop.add(oncnumTF);
 		sortCriteriaPanelTop.add(batchCB);
@@ -267,7 +266,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 								  doesStatusMatch(m.getStatus()) &&
 								   doesRegionMatch(f.getRegion()) &&
 								    doesAssigneeMatch(m.getPartnerID()) &&
-								     isMealChangeDateBetween(m.getTimestampDate()) &&
+								     isMealChangeDateBetween(m.getTimestamp()) &&
 								      doesChangedByMatch(m.getChangedBy())) //meal criteria pass
 				{			
 					stAL.add(new SortMealObject(itemID++, f, m));
@@ -290,9 +289,9 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		return sortAssigneeID == 0 || sortAssigneeID == assigneeID;
 	}
 	
-	private boolean isMealChangeDateBetween(Date wcd)
+	private boolean isMealChangeDateBetween(Long timestamp)
 	{
-		return !wcd.after(sortEndCal.getTime()) && !wcd.before(sortStartCal.getTime());
+		return timestamp >= startFilterTimestamp.getTimeInMillis() && timestamp <= endFilterTimestamp.getTimeInMillis();
 	}
 	
 	private boolean doesChangedByMatch(String s) { return sortChangedBy == 0 || changedByCB.getSelectedItem().toString().equals(s); }
@@ -414,9 +413,23 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		bIgnoreCBEvents = false;
 	}
 	
-	void setSortStartDate(Date sd) {sortStartCal.setTime(sd); ds.setDate(sortStartCal.getTime());}
-	
-	void setSortEndDate(Date ed) {sortEndCal.setTime(ed); sortEndCal.add(Calendar.DATE, 1); de.setDate(sortEndCal.getTime());}
+	private void setDateFilters(Calendar start, Calendar end, int startOffset, int endOffset)
+	{
+		startFilterTimestamp.set(start.get(Calendar.YEAR), start.get(Calendar.MONTH), start.get(Calendar.DAY_OF_MONTH));
+		startFilterTimestamp.set(Calendar.HOUR_OF_DAY, 0);
+		startFilterTimestamp.set(Calendar.MINUTE, 0);
+		startFilterTimestamp.set(Calendar.SECOND, 0);
+		startFilterTimestamp.set(Calendar.MILLISECOND, 0);
+		
+		endFilterTimestamp.set(end.get(Calendar.YEAR), end.get(Calendar.MONTH), end.get(Calendar.DAY_OF_MONTH));
+		endFilterTimestamp.set(Calendar.HOUR_OF_DAY, 0);
+		endFilterTimestamp.set(Calendar.MINUTE, 0);
+		endFilterTimestamp.set(Calendar.SECOND, 0);
+		endFilterTimestamp.set(Calendar.MILLISECOND, 0);
+		
+		startFilterTimestamp.add(Calendar.DAY_OF_YEAR, startOffset);
+		endFilterTimestamp.add(Calendar.DAY_OF_YEAR, endOffset);
+	}
 	
 	void onPrintListing(String tablename)
 	{
@@ -724,22 +737,34 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		{
 			this.setTitle(String.format("Our Neighbor's Child - %d Meal Management", GlobalVariablesDB.getCurrentSeason()));
 		}
+		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_GLOBALS"))
+		{
+			de.getDateEditor().removePropertyChangeListener(this);
+			ds.getDateEditor().removePropertyChangeListener(this);
+			
+			setDateFilters(gvs.getSeasonStartCal(), Calendar.getInstance(TimeZone.getTimeZone("UTC")), 0, 1);
+			ds.setCalendar(startFilterTimestamp);
+			de.setCalendar(endFilterTimestamp);
+			
+			ds.getDateEditor().addPropertyChangeListener(this);
+			de.getDateEditor().addPropertyChangeListener(this);
+			
+			buildTableList(true);
+		}
 	}
 	
 	@Override
 	public void propertyChange(PropertyChangeEvent pce)
 	{
-		//If the date has changed in either date chooser, then rebuild the sort table. Note, setting
+		///If the date has changed in either date chooser, then rebuild the sort table. Note, setting
 		//the date using setDate() does not trigger a property change, only triggered by user action. 
 		//So must rebuild the table each time a change is detected. 
 		if("date".equals(pce.getPropertyName()) &&
-				(!sortStartCal.getTime().equals(ds.getDate()) || !sortEndCal.getTime().equals(de.getDate())))
+			(!startFilterTimestamp.getTime().equals(ds.getDate()) || !endFilterTimestamp.getTime().equals(de.getDate())))
 		{
-			sortStartCal.setTime(ds.getDate());
-			sortEndCal.setTime(de.getDate());
+			setDateFilters(ds.getCalendar(), de.getCalendar(), 0, 1);
 			buildTableList(false);
 		}
-		
 		checkApplyChangesEnabled();	//Check to see if user postured to change status or assignee.
 	}
 
@@ -878,6 +903,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 				if(addedMeal != null)
 					bChangesMade = true;
 			}
+			
 			//check if a change to meal status. Can only change meal status if current meal status has
 			//attained at least 'Assigned' status and not yet referred plus, it's an actual change to 
 			//the family's meal status
@@ -959,20 +985,13 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		changeStatusCB.setEnabled(true);
 		changeStatusCB.addActionListener(this);
 		
-		//Check to see if date sort criteria has changed. Since the setDate() method
-		//will not trigger an event, must check for a sort criteria date change here
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
-		if(!sdf.format(sortStartCal.getTime()).equals(sdf.format(gvs.getSeasonStartDate())))
-		{
-			sortStartCal.setTime(gvs.getSeasonStartDate());
-			ds.setDate(sortStartCal.getTime());	//Will not trigger the event handler
-		}
-		
-		if(!sdf.format(sortEndCal.getTime()).equals(sdf.format(getTomorrowsDate())))
-		{
-			sortEndCal.setTime(getTomorrowsDate());
-			de.setDate(sortEndCal.getTime());	//Will not trigger the event handler
-		}
+		de.getDateEditor().removePropertyChangeListener(this);
+		ds.getDateEditor().removePropertyChangeListener(this);
+		setDateFilters(gvs.getSeasonStartCal(), Calendar.getInstance(TimeZone.getTimeZone("UTC")), 0, 1);
+		ds.setCalendar(startFilterTimestamp);
+		de.setCalendar(endFilterTimestamp);
+		ds.getDateEditor().addPropertyChangeListener(this);
+		de.getDateEditor().addPropertyChangeListener(this);
 			
 		buildTableList(false);
 	}
@@ -1268,8 +1287,6 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 	@Override
 	void initializeFilters() 
 	{
-		setSortStartDate(gvs.getSeasonStartDate());
-		setSortEndDate(gvs.getTodaysDate());
+	
 	}
-
 }

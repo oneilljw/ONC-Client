@@ -7,6 +7,7 @@ import java.awt.Point;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.EnumSet;
+import java.util.TimeZone;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -430,8 +431,8 @@ public class PartnerDialog extends EntityDialog
 	{
         //determine year
         GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
-        Calendar seasonStartCal = Calendar.getInstance();
-        seasonStartCal.setTime(gvs.getSeasonStartDate());
+        Calendar seasonStartCal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        seasonStartCal.setTimeInMillis(gvs.getSeasonStartDate());
         
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy");
         String currentYear = sdf.format(seasonStartCal.getTime());

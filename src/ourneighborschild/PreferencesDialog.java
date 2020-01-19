@@ -13,7 +13,9 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.List;
+import java.util.TimeZone;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -71,7 +73,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 	
 	GeniusSignUps geniusSignUps;
 	
-	private JDateChooser dc_today, dc_delivery, dc_seasonstart, dc_giftsreceived;
+	private JDateChooser dc_delivery, dc_seasonstart, dc_giftsreceived;
 	private JDateChooser dc_DecemberGiftCutoff, dc_InfoEditCutoff, dc_ThanksgivingMealCutoff;
 	private JDateChooser dc_DecemberMealCutoff, dc_WaitlistGiftCutoff;
 	private JTextField whStreetNumTF, whStreetTF, whCityTF, whStateTF;
@@ -176,21 +178,24 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		DateChangeListener dcl = new DateChangeListener();	//listener for all date changes
 		
 		Dimension dateSize = new Dimension(200, 56);
-		dc_today = new JDateChooser(gvDB.getTodaysDate());
-		dc_today.setPreferredSize(dateSize);
-		dc_today.setBorder(BorderFactory.createTitledBorder("Today's Date"));
-		dc_today.setEnabled(false);
-		dc_today.getDateEditor().addPropertyChangeListener(dcl); 
+//		dc_today = new JDateChooser(gvDB.getTodaysDate());
+//		dc_today.setPreferredSize(dateSize);
+//		dc_today.setBorder(BorderFactory.createTitledBorder("Today's Date"));
+//		dc_today.setEnabled(false);
+//		dc_today.getDateEditor().addPropertyChangeListener(dcl); 
 //		datePanelTop.add(dc_today);
 		
-		dc_seasonstart = new JDateChooser(gvDB.getSeasonStartDate());
+//		dc_seasonstart = new JDateChooser(gvDB.getSeasonStartDate());
+		dc_seasonstart = new JDateChooser();
+		dc_seasonstart.setCalendar(getCalendar(gvDB.getSeasonStartDate()));
 		dc_seasonstart.setPreferredSize(dateSize);
 		dc_seasonstart.setBorder(BorderFactory.createTitledBorder("Season Start Date"));
 		dc_seasonstart.setEnabled(false);
 		dc_seasonstart.getDateEditor().addPropertyChangeListener(dcl);	
 		datePanelTop.add(dc_seasonstart);
 		
-		dc_delivery = new JDateChooser(gvDB.getDeliveryDate());
+		dc_delivery = new JDateChooser();
+		dc_delivery.setCalendar(getCalendar(gvDB.getDeliveryDate()));
 		dc_delivery.setPreferredSize(dateSize);
 		dc_delivery.setBorder(BorderFactory.createTitledBorder("Delivery Date"));
 		dc_delivery.setEnabled(false);
@@ -236,7 +241,8 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		dc_WaitlistGiftCutoff.getDateEditor().addPropertyChangeListener(dcl);
 		datePanelBottom.add(dc_WaitlistGiftCutoff);
 		
-		dc_giftsreceived = new JDateChooser(gvDB.getGiftsReceivedDate());
+		dc_giftsreceived = new JDateChooser();
+		dc_giftsreceived.setCalendar(getCalendar(gvDB.getGiftsReceivedDate()));
 		dc_giftsreceived.setPreferredSize(dateSize);
 		dc_giftsreceived.setToolTipText("<html>All gifts must be received from partners <b><i>BEFORE</i></b> this date</html>");
 		dc_giftsreceived.setBorder(BorderFactory.createTitledBorder("Gifts Received Deadline"));
@@ -485,6 +491,14 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
         btnApplyDateChanges.requestFocusInWindow();
 	}
 	
+	//helpers
+	Calendar getCalendar(Long day)
+	{
+		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+		cal.setTimeInMillis(day);
+		return cal;
+	}
+	
 	void display(UserPreferences uPrefs)	//Update gui with preference data changes (called when an saved ONC object loaded)
 	{
 		if(uPrefs != null)
@@ -492,15 +506,14 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		
 		bIgnoreDialogEvents = true;
 		
-		dc_today.setDate(gvDB.getTodaysDate());
-		dc_delivery.setDate(gvDB.getDeliveryDate());
-		dc_seasonstart.setDate(gvDB.getSeasonStartDate());
-		dc_giftsreceived.setDate(gvDB.getGiftsReceivedDate());
-		dc_ThanksgivingMealCutoff.setDate(gvDB.getThanksgivingMealDeadline());
-		dc_DecemberMealCutoff.setDate(gvDB.getDecemberMealDeadline());
-		dc_DecemberGiftCutoff.setDate(gvDB.getDecemberGiftDeadline());
-		dc_WaitlistGiftCutoff.setDate(gvDB.getWaitlistGiftDeadline());
-		dc_InfoEditCutoff.setDate(gvDB.getFamilyEditDeadline());
+		dc_delivery.setCalendar(getCalendar(gvDB.getDeliveryDate()));
+		dc_seasonstart.setCalendar(getCalendar(gvDB.getSeasonStartDate()));
+		dc_giftsreceived.setCalendar(getCalendar(gvDB.getGiftsReceivedDate()));
+		dc_ThanksgivingMealCutoff.setCalendar(getCalendar(gvDB.getThanksgivingMealDeadline()));
+		dc_DecemberMealCutoff.setCalendar(getCalendar(gvDB.getDecemberMealDeadline()));
+		dc_DecemberGiftCutoff.setCalendar(getCalendar(gvDB.getDecemberGiftDeadline()));
+		dc_WaitlistGiftCutoff.setCalendar(getCalendar(gvDB.getWaitlistGiftDeadline()));
+		dc_InfoEditCutoff.setCalendar(getCalendar(gvDB.getFamilyEditDeadline()));
 		
 		if(gvDB.getDefaultGiftID() > -1 && catDB.size() > 0)
 		{
@@ -641,16 +654,16 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		
 		if(cf > 0)
 		{
-			ServerGVs updateGVreq = new ServerGVs(dc_delivery.getDate(), 
-													dc_seasonstart.getDate(), 
+			ServerGVs updateGVreq = new ServerGVs(dc_delivery.getCalendar().getTimeInMillis(), 
+													dc_seasonstart.getCalendar().getTimeInMillis(), 
 													 getWarehouseAddressInGoogleMapsFormat(),
-													  dc_giftsreceived.getDate(),
-													   dc_ThanksgivingMealCutoff.getDate(),
-													    dc_DecemberGiftCutoff.getDate(),
-													     dc_InfoEditCutoff.getDate(),
+													  dc_giftsreceived.getCalendar().getTimeInMillis(),
+													   dc_ThanksgivingMealCutoff.getCalendar().getTimeInMillis(),
+													    dc_DecemberGiftCutoff.getCalendar().getTimeInMillis(),
+													     dc_InfoEditCutoff.getCalendar().getTimeInMillis(),
 													      cbWish.getID(), cbGiftCardWish.getID(),
-													       dc_DecemberMealCutoff.getDate(),
-													        dc_WaitlistGiftCutoff.getDate(),
+													       dc_DecemberMealCutoff.getCalendar().getTimeInMillis(),
+													        dc_WaitlistGiftCutoff.getCalendar().getTimeInMillis(),
 													         cbDefaultDeliveryActivity.getID());
 			
 			String response = gvDB.update(this, updateGVreq);
@@ -668,7 +681,6 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		}
 	}
 	
-	void setEnabledDateToday(boolean tf) { dc_today.setEnabled(tf); }
 	void setEnabledRestrictedPrefrences(boolean tf)
 	{
 		dc_delivery.setEnabled(tf);

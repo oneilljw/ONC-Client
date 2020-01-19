@@ -64,6 +64,7 @@ public class ONCChildGift extends ONCObject implements Serializable
 	public GiftStatus getGiftStatus() {return status;}
 	public int getPartnerID() {return assigneeID;}
 	public String getChangedBy() {return changedBy;}
+	public Long getTimestamp() { return timestamp; }
 	public Calendar getDateChanged() 
 	{
 		Calendar calendar = Calendar.getInstance(TimeZone.getDefault());

@@ -72,6 +72,7 @@ public class ONCFamilyHistory extends ONCObject implements Serializable
 	public String getdDelBy() {return dDelBy;}
 	String getdNotes() {return dNotes;}
 	String getdChangedBy() { return dChangedBy; }
+	Long getTimestamp() { return dDateChanged; }
 	public Date getDateChanged() 
 	{
 		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));

@@ -3,8 +3,6 @@ package ourneighborschild;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.util.Calendar;
-import java.util.Date;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
@@ -14,9 +12,11 @@ import javax.swing.JPanel;
 public abstract class ChangeDialog extends SortTableDialog
 {
 	/**
-	 * 
+	 * Hierarchy class for dialogs that implement a panel that allows changes of pojo 
+	 * fields on a multiple object basis from a table
 	 */
 	private static final long serialVersionUID = 1L;
+	private static final int DEFAULT_TABLE_ROW_COUNT = 15;
 	protected JPanel changePanel;
 	protected JPanel itemCountPanel, changeDataPanel;
 	protected JLabel lblNumOfTableItems;
@@ -24,13 +24,14 @@ public abstract class ChangeDialog extends SortTableDialog
 	
 	public ChangeDialog(JFrame pf)
 	{
-		super(pf, 15);
-		 //Set up the third panel holding count panel and change panel using a GridBag layout
+		super(pf, DEFAULT_TABLE_ROW_COUNT);
+		
+		//Set up the third panel holding count panel and change panel using a GridBag layout
         changePanel = new JPanel();
         changePanel.setLayout( new GridBagLayout() );
         
         itemCountPanel = new JPanel();       
-        lblNumOfTableItems = new JLabel();	//subclasses set text
+        lblNumOfTableItems = new JLabel();	//subclasses set text for lable
         itemCountPanel.add(lblNumOfTableItems);
         itemCountPanel.setBorder(BorderFactory.createTitledBorder("Families Meeting Criteria"));
         
@@ -45,20 +46,5 @@ public abstract class ChangeDialog extends SortTableDialog
         changePanel.add(itemCountPanel, gbc);
         
         changeDataPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        
-//      this.add(changePanel);
-//      this.add(bottomPanel);
-	}
-	
-	Date getTomorrowsDate()
-	{
-		Calendar tomorrow = Calendar.getInstance();
-		
-		tomorrow.add(Calendar.DATE, 1);
-		tomorrow.set(Calendar.HOUR_OF_DAY, 0);
-	    tomorrow.set(Calendar.MINUTE, 0);
-	    tomorrow.set(Calendar.SECOND, 0);
-	   	tomorrow.set(Calendar.MILLISECOND, 0);
-		return tomorrow.getTime();
 	}
 }

@@ -34,13 +34,12 @@ public class GlobalVariablesDB extends ONCDatabase implements Serializable
 	private static GlobalVariablesDB instance = null;
 	
 	private static JFrame oncFrame;
-	private transient Calendar oncDateToday;
-	private Calendar oncDeliveryDate;
-	private static Calendar oncSeasonStartDate;
-	private Calendar oncGiftsReceivedDate;
-	private Calendar thanksgivingMealDeadline, decemberGiftDeadline;
-	private Calendar decemberMealDeadline, waitlistGiftDeadline;
-	private Calendar familyEditDeadline;
+	private Long oncDeliveryDate;
+	private static Long oncSeasonStartDate;
+	private Long oncGiftsReceivedDate;
+	private Long thanksgivingMealDeadline, decemberGiftDeadline;
+	private Long decemberMealDeadline, waitlistGiftDeadline;
+	private Long familyEditDeadline;
 	private String warehouseAddress;
 	private int defaultGiftID, defaultGiftCardID, deliveryActivityID;
 	
@@ -69,55 +68,15 @@ public class GlobalVariablesDB extends ONCDatabase implements Serializable
 		super();
 		
 		//Initialize class variables
-		oncDateToday = Calendar.getInstance();
-	    
-	    oncDeliveryDate = Calendar.getInstance();
-	    oncDeliveryDate.set(Calendar.HOUR_OF_DAY, 0);
-	    oncDeliveryDate.set(Calendar.MINUTE, 0);
-	    oncDeliveryDate.set(Calendar.SECOND, 0);
-	    oncDeliveryDate.set(Calendar.MILLISECOND, 0);
-	    
-	    oncGiftsReceivedDate = Calendar.getInstance();
-	    oncGiftsReceivedDate.set(Calendar.HOUR_OF_DAY, 0);
-	    oncGiftsReceivedDate.set(Calendar.MINUTE, 0);
-	    oncGiftsReceivedDate.set(Calendar.SECOND, 0);
-	    oncGiftsReceivedDate.set(Calendar.MILLISECOND, 0);
-	    
-	    thanksgivingMealDeadline = Calendar.getInstance();
-	    thanksgivingMealDeadline.set(Calendar.HOUR_OF_DAY, 0);
-	    thanksgivingMealDeadline.set(Calendar.MINUTE, 0);
-	    thanksgivingMealDeadline.set(Calendar.SECOND, 0);
-	    thanksgivingMealDeadline.set(Calendar.MILLISECOND, 0);
-	    
-	    decemberGiftDeadline = Calendar.getInstance();
-	    decemberGiftDeadline.set(Calendar.HOUR_OF_DAY, 0);
-	    decemberGiftDeadline.set(Calendar.MINUTE, 0);
-	    decemberGiftDeadline.set(Calendar.SECOND, 0);
-	    decemberGiftDeadline.set(Calendar.MILLISECOND, 0);
-	    
-	    decemberMealDeadline = Calendar.getInstance();
-	    decemberMealDeadline.set(Calendar.HOUR_OF_DAY, 0);
-	    decemberMealDeadline.set(Calendar.MINUTE, 0);
-	    decemberMealDeadline.set(Calendar.SECOND, 0);
-	    decemberMealDeadline.set(Calendar.MILLISECOND, 0);
-	    
-	    waitlistGiftDeadline = Calendar.getInstance();
-	    waitlistGiftDeadline.set(Calendar.HOUR_OF_DAY, 0);
-	    waitlistGiftDeadline.set(Calendar.MINUTE, 0);
-	    waitlistGiftDeadline.set(Calendar.SECOND, 0);
-	    waitlistGiftDeadline.set(Calendar.MILLISECOND, 0);
-	    
-	    familyEditDeadline = Calendar.getInstance();
-	    familyEditDeadline.set(Calendar.HOUR_OF_DAY, 0);
-	    familyEditDeadline.set(Calendar.MINUTE, 0);
-	    familyEditDeadline.set(Calendar.SECOND, 0);
-	    familyEditDeadline.set(Calendar.MILLISECOND, 0);
-	    
-	    oncSeasonStartDate = Calendar.getInstance();
-	    oncSeasonStartDate.set(Calendar.HOUR_OF_DAY, 0);
-	    oncSeasonStartDate.set(Calendar.MINUTE, 0);
-	    oncSeasonStartDate.set(Calendar.SECOND, 0);
-	    oncSeasonStartDate.set(Calendar.MILLISECOND, 0);
+		Long timeNow = System.currentTimeMillis();
+	    oncDeliveryDate = timeNow;
+	    oncGiftsReceivedDate = timeNow;
+	    thanksgivingMealDeadline = timeNow;
+	    decemberGiftDeadline = timeNow;
+	    decemberMealDeadline = timeNow;
+	    waitlistGiftDeadline = timeNow;
+	    familyEditDeadline = timeNow;
+	    oncSeasonStartDate = timeNow;
 	   
 	    imageIcons = new ImageIcon[57];
 		imageIcons[0] = createImageIcon("onclogosmall.gif", "ONC Logo");
@@ -208,18 +167,17 @@ public class GlobalVariablesDB extends ONCDatabase implements Serializable
 	static JFrame getFrame() { return oncFrame; }
 	Date getTodaysDate() { return Calendar.getInstance(TimeZone.getTimeZone("UTC")).getTime(); }
 	
-	static int getCurrentSeason() { return oncSeasonStartDate.get(Calendar.YEAR); }
-	int getCurrentYear() { return oncDateToday.get(Calendar.YEAR); }
-	public Date getDeliveryDate() { return oncDeliveryDate.getTime(); }
-	public Date getGiftsReceivedDate() { return oncGiftsReceivedDate.getTime(); }
-	public Calendar getGiftsReceivedCalendar() { return oncGiftsReceivedDate; }
-	public Date getThanksgivingMealDeadline() { return thanksgivingMealDeadline.getTime(); }
-	public Date getDecemberGiftDeadline() { return decemberGiftDeadline.getTime(); }
-	public Date getDecemberMealDeadline() { return decemberMealDeadline.getTime(); }
-	public Date getWaitlistGiftDeadline() { return waitlistGiftDeadline.getTime(); }
-	public Date getFamilyEditDeadline() { return familyEditDeadline.getTime(); }
-	public Date getSeasonStartDate() { return oncSeasonStartDate.getTime(); }
-	Calendar getSeasonStartCal() { return oncSeasonStartDate; }
+	static int getCurrentSeason() { return getCalendar(oncSeasonStartDate).get(Calendar.YEAR); }
+	public Long getDeliveryDate() { return oncDeliveryDate; }
+	public Long getGiftsReceivedDate() { return oncGiftsReceivedDate; }
+//	public Calendar getGiftsReceivedCalendar() { return oncGiftsReceivedDate; }
+	public Long getThanksgivingMealDeadline() { return thanksgivingMealDeadline; }
+	public Long getDecemberGiftDeadline() { return decemberGiftDeadline; }
+	public Long getDecemberMealDeadline() { return decemberMealDeadline; }
+	public Long getWaitlistGiftDeadline() { return waitlistGiftDeadline; }
+	public Long getFamilyEditDeadline() { return familyEditDeadline; }
+	public Long getSeasonStartDate() { return oncSeasonStartDate; }
+	Calendar getSeasonStartCal() { return getCalendar(oncSeasonStartDate); }
 	public String getWarehouseAddress() { return warehouseAddress; }
 	int getStartONCNum() { return startONCNum; };
 	int getYTYGrwthIndex() { return ytyGrwthIndex; }
@@ -280,7 +238,8 @@ public class GlobalVariablesDB extends ONCDatabase implements Serializable
 	static String getVersion() { return version; }
 	public static ImageIcon getSeasonIcon()
 	{
-		return imageIcons[oncSeasonStartDate.get(Calendar.YEAR) % NUM_OF_XMAS_ICONS + XMAS_ICON_OFFSET];
+		Calendar oncSeasonStartCal = getCalendar(oncSeasonStartDate);
+		return imageIcons[oncSeasonStartCal.get(Calendar.YEAR) % NUM_OF_XMAS_ICONS + XMAS_ICON_OFFSET];
 	}
 	WebsiteStatus getWebsiteStatus() {return websiteStatus; }
 	boolean includeBarcodeOnLabels() { return bBarcodeOnOrnmament; }
@@ -288,14 +247,14 @@ public class GlobalVariablesDB extends ONCDatabase implements Serializable
 	Point getAveryLabelOffset() { return averyLabelOffsetPoint; }
 
 	//setters globally used - need to update at the server and broadcast
-	public void setDeliveryDate(Date dd) { oncDeliveryDate.setTime(dd); }
-	public void setGiftsReceivedDate(Date grd) { oncGiftsReceivedDate.setTime(grd); }
-	public void setThanksgivingMealDeadline(Date td) { thanksgivingMealDeadline.setTime(td); }
-	public void setDecemberGiftDeadline(Date dd) { decemberGiftDeadline.setTime(dd); }
-	public void setDecemberMealDeadline(Date td) { decemberMealDeadline.setTime(td); }
-	public void setWaitlistGiftDeadline(Date dd) { waitlistGiftDeadline.setTime(dd); }
-	public void setFamilyEditDeadline(Date fed) { familyEditDeadline.setTime(fed); }
-	public void setSeasonStartDate(Date ssd) { oncSeasonStartDate.setTime(ssd); }
+	public void setDeliveryDate(Long dd) { oncDeliveryDate = dd; }
+	public void setGiftsReceivedDate(Long grd) { oncGiftsReceivedDate = grd; }
+	public void setThanksgivingMealDeadline(Long td) { thanksgivingMealDeadline = td; }
+	public void setDecemberGiftDeadline(Long dd) { decemberGiftDeadline = dd; }
+	public void setDecemberMealDeadline(Long td) { decemberMealDeadline = td; }
+	public void setWaitlistGiftDeadline(Long dd) { waitlistGiftDeadline = dd; }
+	public void setFamilyEditDeadline(Long fed) { familyEditDeadline= fed; }
+	public void setSeasonStartDate(Long ssd) { oncSeasonStartDate = ssd; }
 	public void setWarehouseAddress(String address) {warehouseAddress = address; }
 	public void setIncludeBarcodeOnLabels(boolean tf) { bBarcodeOnOrnmament = tf; }
 	public void setBarcode(Barcode barcode) { this.barcode = barcode; }
@@ -311,19 +270,34 @@ public class GlobalVariablesDB extends ONCDatabase implements Serializable
 	void setStartONCNum(int startoncnum) { startONCNum = startoncnum; }
 	void setVersion(String version) { GlobalVariablesDB.version = version; }
 	
+	//helpers
+	static Calendar getCalendar(Long day)
+	{
+		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+		cal.setTimeInMillis(day);
+		return cal;
+	}
+	
 	boolean isDayBeforeOrDeliveryDay()
 	{
 		//check if today is the day before or the day of delivery
 		Calendar today = Calendar.getInstance();
 		
-		boolean isDayBeforeOrDeliveryDay = oncDeliveryDate.get(Calendar.YEAR) == today.get(Calendar.YEAR) &&
-				(oncDeliveryDate.get(Calendar.DAY_OF_YEAR) == today.get(Calendar.DAY_OF_YEAR) ||
-				  oncDeliveryDate.get(Calendar.DAY_OF_YEAR)-1 == today.get(Calendar.DAY_OF_YEAR));
+		Calendar delDay = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+		delDay.setTimeInMillis(oncDeliveryDate);
+		delDay.set(Calendar.HOUR_OF_DAY, 0);
+		delDay.set(Calendar.MINUTE, 0);
+		delDay.set(Calendar.SECOND, 0);
+		delDay.set(Calendar.MILLISECOND, 0);
 		
-		System.out.println(String.format("GlobVarDB.isDayBeforeOrDelDay - today.DAY_OF_YEAR: %d", today.get(Calendar.DAY_OF_YEAR)));
-		System.out.println(String.format("GlobVarDB.isDayBeforeOrDelDay - oncDeliveryDate.DAY_OF_YEAR: %d", oncDeliveryDate.get(Calendar.DAY_OF_YEAR)));
-		System.out.println(String.format("GlobVarDB.isDayBeforeOrDelDay - oncDeliveryDate.DAY_OF_YEAR-1: %d", oncDeliveryDate.get(Calendar.DAY_OF_YEAR)-1));
-		System.out.println(String.format("GlobVarDB.isDayBeforeOrDelDay: %b", isDayBeforeOrDeliveryDay));
+		boolean isDayBeforeOrDeliveryDay = delDay.get(Calendar.YEAR) == today.get(Calendar.YEAR) &&
+				(delDay.get(Calendar.DAY_OF_YEAR) == today.get(Calendar.DAY_OF_YEAR) ||
+						delDay.get(Calendar.DAY_OF_YEAR)-1 == today.get(Calendar.DAY_OF_YEAR));
+		
+//		System.out.println(String.format("GlobVarDB.isDayBeforeOrDelDay - today.DAY_OF_YEAR: %d", today.get(Calendar.DAY_OF_YEAR)));
+//		System.out.println(String.format("GlobVarDB.isDayBeforeOrDelDay - oncDeliveryDate.DAY_OF_YEAR: %d", delDay.get(Calendar.DAY_OF_YEAR)));
+//		System.out.println(String.format("GlobVarDB.isDayBeforeOrDelDay - oncDeliveryDate.DAY_OF_YEAR-1: %d", delDay.get(Calendar.DAY_OF_YEAR)-1));
+//		System.out.println(String.format("GlobVarDB.isDayBeforeOrDelDay: %b", isDayBeforeOrDeliveryDay));
 
 		return isDayBeforeOrDeliveryDay;
 		
@@ -353,14 +327,14 @@ public class GlobalVariablesDB extends ONCDatabase implements Serializable
 
 			if(serverGVs != null && !response.startsWith("NO_GLOBALS"))
 			{
-				oncDeliveryDate.setTime(serverGVs.getDeliveryDate());
-				oncGiftsReceivedDate.setTime(serverGVs.getGiftsReceivedDate());
-				thanksgivingMealDeadline.setTime(serverGVs.getThanksgivingMealDeadline());
-				decemberGiftDeadline.setTime(serverGVs.getDecemberGiftDeadline());
-				decemberMealDeadline.setTime(serverGVs.getDecemberMealDeadline());
-				waitlistGiftDeadline.setTime(serverGVs.getWaitListGiftDeadline());
-				familyEditDeadline.setTime(serverGVs.getFamilyEditDeadline());
-				oncSeasonStartDate.setTime(serverGVs.getSeasonStartDate());
+				oncDeliveryDate = serverGVs.getDeliveryDate();
+				oncGiftsReceivedDate = serverGVs.getGiftsReceivedDate();
+				thanksgivingMealDeadline = serverGVs.getThanksgivingMealDeadline();
+				decemberGiftDeadline = serverGVs.getDecemberGiftDeadline();
+				decemberMealDeadline = serverGVs.getDecemberMealDeadline();
+				waitlistGiftDeadline = serverGVs.getWaitListGiftDeadline();
+				familyEditDeadline = serverGVs.getFamilyEditDeadline();
+				oncSeasonStartDate = serverGVs.getSeasonStartDate();
 				warehouseAddress = serverGVs.getWarehouseAddress();
 				defaultGiftID = serverGVs.getDefaultGiftID();
 
@@ -427,17 +401,17 @@ public class GlobalVariablesDB extends ONCDatabase implements Serializable
 	    	    writer.writeNext(header);
 	    	    
 	    	    //Crate the gv row
-	    	    String[] row = {Long.toString(oncDeliveryDate.getTimeInMillis()),
-	    	    				Long.toString(oncSeasonStartDate.getTimeInMillis()),
+	    	    String[] row = {Long.toString(oncDeliveryDate),
+	    	    				Long.toString(oncSeasonStartDate),
 	    	    				warehouseAddress,
-	    	    				Long.toString(oncGiftsReceivedDate.getTimeInMillis()),
-	    	    				Long.toString(thanksgivingMealDeadline.getTimeInMillis()),
-	    	    				Long.toString(decemberGiftDeadline.getTimeInMillis()),
-	    	    				Long.toString(familyEditDeadline.getTimeInMillis()),
+	    	    				Long.toString(oncGiftsReceivedDate),
+	    	    				Long.toString(thanksgivingMealDeadline),
+	    	    				Long.toString(decemberGiftDeadline),
+	    	    				Long.toString(familyEditDeadline),
 	    	    				Integer.toString(defaultGiftID),
 	    	    				Integer.toString(defaultGiftCardID),
-	    	    				Long.toString(decemberMealDeadline.getTimeInMillis()),
-	    	    				Long.toString(waitlistGiftDeadline.getTimeInMillis()),
+	    	    				Long.toString(decemberMealDeadline),
+	    	    				Long.toString(waitlistGiftDeadline),
 	    	    				Integer.toString(deliveryActivityID)};
 	    	    
 	    	    writer.writeNext(row);	//Write gv row
@@ -492,15 +466,15 @@ public class GlobalVariablesDB extends ONCDatabase implements Serializable
 		ServerGVs updatedObj = gson.fromJson(json, ServerGVs.class);
 		
 		//store updated object in local data base
-		oncDeliveryDate.setTime(updatedObj.getDeliveryDate());
-		oncSeasonStartDate.setTime(updatedObj.getSeasonStartDate());
+		oncDeliveryDate = updatedObj.getDeliveryDate();
+		oncSeasonStartDate = updatedObj.getSeasonStartDate();
 		warehouseAddress = updatedObj.getWarehouseAddress();
-		oncGiftsReceivedDate.setTime(updatedObj.getGiftsReceivedDate());
-		thanksgivingMealDeadline.setTime(updatedObj.getThanksgivingMealDeadline());
-		decemberGiftDeadline.setTime(updatedObj.getDecemberGiftDeadline());
-		decemberMealDeadline.setTime(updatedObj.getDecemberMealDeadline());
-		waitlistGiftDeadline.setTime(updatedObj.getWaitListGiftDeadline());
-		familyEditDeadline.setTime(updatedObj.getFamilyEditDeadline());
+		oncGiftsReceivedDate = updatedObj.getGiftsReceivedDate();
+		thanksgivingMealDeadline = updatedObj.getThanksgivingMealDeadline();
+		decemberGiftDeadline = updatedObj.getDecemberGiftDeadline();
+		decemberMealDeadline = updatedObj.getDecemberMealDeadline();
+		waitlistGiftDeadline = updatedObj.getWaitListGiftDeadline();
+		familyEditDeadline = updatedObj.getFamilyEditDeadline();
 		defaultGiftID = updatedObj.getDefaultGiftID();
 		defaultGiftCardID = updatedObj.getDefaultGiftCardID();
 		deliveryActivityID = updatedObj.getDeliveryActivityID();

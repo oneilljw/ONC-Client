@@ -7,8 +7,6 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -169,18 +167,6 @@ public abstract class ONCTableDialog extends JDialog implements ActionListener, 
     {
     		lblCount.setText(String.format("# of History Items: %d", count));
     }
-    
-    Date getTomorrowsDate()
-	{
-		Calendar tomorrow = Calendar.getInstance();
-		
-		tomorrow.add(Calendar.DATE, 1);
-		tomorrow.set(Calendar.HOUR_OF_DAY, 0);
-	    tomorrow.set(Calendar.MINUTE, 0);
-	    tomorrow.set(Calendar.SECOND, 0);
-	   	tomorrow.set(Calendar.MILLISECOND, 0);
-		return tomorrow.getTime();
-	}
     
     /** Register a listener for Entity Selection events */
     synchronized public void addEntitySelectionListener(EntityType type, EntitySelectionListener l)

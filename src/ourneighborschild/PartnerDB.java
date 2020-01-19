@@ -466,7 +466,7 @@ public class PartnerDB extends ONCSearchableDatabase
 		{
 			//gift status changed from Delivered to Received w/ same partner, increment received count
 			addedGiftPartner = (ONCPartner) find(partnerList, addedGift.getPartnerID());
-			boolean bBeforeDeadline = addedGift.getDateChanged().before(orgGVs.getGiftsReceivedCalendar());
+			boolean bBeforeDeadline = addedGift.getTimestamp() < orgGVs.getDecemberGiftDeadline();
 			addedGiftPartner.incrementOrnReceived(bBeforeDeadline);
 			fireDataChanged(this, "PARTNER_WISH_RECEIVED", addedGiftPartner);
 		}
@@ -489,7 +489,7 @@ public class PartnerDB extends ONCSearchableDatabase
 			//gift was un-received from partner it was assigned to. This occurs when an undo
 			//action is performed by the user
 			ONCPartner replGiftPartner = (ONCPartner) find(partnerList, replGift.getPartnerID());
-			boolean bBeforeDeadline = addedGift.getDateChanged().before(orgGVs.getGiftsReceivedCalendar());
+			boolean bBeforeDeadline = addedGift.getTimestamp() < orgGVs.getDecemberGiftDeadline();
 			replGiftPartner.decrementOrnReceived(bBeforeDeadline);
 			fireDataChanged(this, "PARTNER_WISH_RECEIVE_UNDONE", replGiftPartner);
 		}

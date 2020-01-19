@@ -56,8 +56,6 @@ public class WarehouseSignInDialog extends ONCEntityTableDialog implements Actio
 	private static final int TIME_COL = 3;
 	private static final int DRIVER_NUM_COL = 4;
 	
-	protected JPanel sortCriteriaPanel;
-	
 	private ONCTable dlgTable;
 	private AbstractTableModel dlgTableModel;
 	private JButton btnPrint, btnClear, btnRefresh, btnExport;

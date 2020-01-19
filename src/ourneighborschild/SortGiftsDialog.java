@@ -27,9 +27,9 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.TimeZone;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
@@ -86,7 +86,7 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 	private JTextField oncnumTF;
 //	private JButton btnExport;
 	private JDateChooser ds, de;
-	private Calendar sortStartCal = null, sortEndCal = null;
+	private Calendar startFilterTimestamp, endFilterTimestamp;
 	private JCheckBox labelFitCxBox;
 	
 	private int sortStartAge = 0, sortEndAge = ONC_AGE_LIMIT, sortGender = 0, sortChangedBy = 0;
@@ -132,6 +132,8 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 			regions.addDatabaseListener(this);
 		if(dnsCodeDB != null)
 			dnsCodeDB.addDatabaseListener(this);
+		if(gvs != null)
+			gvs.addDatabaseListener(this);
 		
 		//initialize member variables
 		stAL = new ArrayList<SortGiftObject>();
@@ -144,13 +146,7 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 		oncnumTF.setToolTipText("Type ONC Family # and press <enter>");
 		oncnumTF.addActionListener(this);
 		oncnumTF.addKeyListener(new ONCNumberKeyListener());
-		
-//		dnsCB = new JComboBox<String>(dnsCodes);
-//		dnsCB.setEditable(true);
-//		dnsCB.setPreferredSize(new Dimension(120, 56));
-//		dnsCB.setBorder(BorderFactory.createTitledBorder("DNS Code"));
-//		dnsCB.addActionListener(this);
-		
+
 		//Get a catalog for type=selection
 		sortDNSCode = new DNSCode(-4, "No Codes", "No Codes", "Families being served");
 		filterCodeList = new ArrayList<DNSCode>();
@@ -229,22 +225,19 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 		changedByCB.setPreferredSize(new Dimension(144,56));
 		changedByCB.addActionListener(this);
 		
-		sortStartCal = Calendar.getInstance();
-		sortStartCal.setTime(gvs.getSeasonStartDate());
-		
-		ds = new JDateChooser(sortStartCal.getTime());
+		startFilterTimestamp = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+		ds = new JDateChooser(startFilterTimestamp.getTime());
 		ds.setPreferredSize(new Dimension(156, 56));
 		ds.setBorder(BorderFactory.createTitledBorder("Changed On/After"));
 		ds.getDateEditor().addPropertyChangeListener(this);
+		sortCriteriaPanel.add(ds);
 		
-		sortEndCal = Calendar.getInstance();
-		sortEndCal.setTime(gvs.getTodaysDate());
-		sortEndCal.add(Calendar.DATE, 1);
-		
-		de = new JDateChooser(sortEndCal.getTime());
+		endFilterTimestamp = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+		de = new JDateChooser(endFilterTimestamp.getTime());
 		de.setPreferredSize(new Dimension(156, 56));
-		de.setBorder(BorderFactory.createTitledBorder("Changed Before"));
+		de.setBorder(BorderFactory.createTitledBorder("Changed On/Before"));
 		de.getDateEditor().addPropertyChangeListener(this);
+		sortCriteriaPanel.add(de);
 		
 		resCB = new JComboBox<String>(res);
 		resCB.setPreferredSize(new Dimension(104, 56));
@@ -333,10 +326,7 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 	    
 	    JPanel cntlPanel = new JPanel();
 	    cntlPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
-//        btnExport = new JButton("Export Data");
-//        btnExport.setEnabled(false);
-//        btnExport.addActionListener(this);
-        
+   
         String[] exportChoices = {"Export", "Export Listing", "Export SignUp Genius"};
         exportCB = new JComboBox<String>(exportChoices);
         exportCB.setPreferredSize(new Dimension(136, 28));
@@ -349,7 +339,6 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
         printCB.setEnabled(true);
         printCB.addActionListener(this);
    
-//      cntlPanel.add(btnExport);
         cntlPanel.add(exportCB);
       	cntlPanel.add(printCB);
       	
@@ -445,7 +434,7 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 							if(cw != null && doesResMatch(cw.getIndicator()) &&
 								doesPartnerMatch(cw.getPartnerID()) &&
 								 doesStatusMatch(cw.getGiftStatus()) &&
-								  isGiftChangeDateBetween(cw.getDateChanged()) &&
+								  isGiftChangeDateBetween(cw.getTimestamp()) &&
 								   doesChangedByMatch(cw.getChangedBy()) &&
 									doesGiftBaseMatch(cw.getGiftID()) &&
 									 doesGiftNumMatch(i)  &&
@@ -521,15 +510,6 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 				GiftStatus reqStatus = (GiftStatus) changeStatusCB.getSelectedItem();
 				gs = reqStatus;
 				bNewGiftrqrd = true;
-				
-//				bNewGiftrqrd = true;
-//				GiftStatus newStatus = giftDB.checkForStatusChange(priorGift, priorGift.getGiftID(), reqStatus, partner);
-//				
-//				if(newStatus != priorGift.getGiftStatus())
-//				{
-//					gs = reqStatus;
-//					bNewGiftrqrd = true;
-//				}
 			}
 			
 			//if restriction, Status or Partner change, create gift request that includes the prior gift
@@ -993,9 +973,9 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 		return sortPartnerID == 0 || sortPartnerID == assigneeID;
 	}
 	
-	private boolean isGiftChangeDateBetween(Calendar wcd)
+	private boolean isGiftChangeDateBetween(long timestamp)
 	{
-		return !wcd.getTime().after(sortEndCal.getTime()) && !wcd.getTime().before(sortStartCal.getTime());
+		return timestamp >= startFilterTimestamp.getTimeInMillis() && timestamp <= endFilterTimestamp.getTimeInMillis();
 	}
 			
 	private boolean doesGiftBaseMatch(int giftID)	{return sortGiftID == -2 ||  sortGiftID == giftID; }
@@ -1035,11 +1015,25 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 		
 		return bOversize;
 	}
+/*	
+	void setSortStartDate(Long sd) 
+	{
+		sortStartCal = sd; 
+		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+		cal.setTimeInMillis(sortStartCal);
+		ds.setCalendar(cal);
+	}
 	
-	void setSortStartDate(Date sd) {sortStartCal.setTime(sd); ds.setDate(sortStartCal.getTime());}
-	
-	void setSortEndDate(Date ed) {sortEndCal.setTime(ed); sortEndCal.add(Calendar.DATE, 1); de.setDate(sortEndCal.getTime());}
-	
+	void setSortEndDate(Long ed)
+	{
+		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+		cal.setTimeInMillis(ed);
+		cal.add(Calendar.DATE, 1);
+		
+		de.setCalendar(cal);
+		sortEndCal = cal.getTimeInMillis();
+	}
+*/	
 	void updateSchoolFilterList()
 	{
 		bIgnoreCBEvents = true;
@@ -1225,10 +1219,11 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 	@Override
 	String[] getColumnToolTips()
 	{
-		String[] colToolTips = {"ONC Family Number", "Family DNS Code", "Child's Age", 
-				"Child's Gender", "School Child Attends", "Gift Number - 1, 2 or 3", "Gift Assigned", "Gift Detail",
-				"# - Selected by ONC or * - Don't asssign", "Gift Status", "Who is fulfilling?",
-				"User who last changed gift", "Date & Time Last Changed"};
+		String[] colToolTips = {"ONC Family Number", "Family DNS Code", "Family Del. Address Region", "Child's Age", 
+				"Child's Gender", "School Child Attends", "Gift Number: 1, 2 or 3", "Type of Gift Assigned",
+				"Detailed Description for Gift Assigned",
+				"# - Selected by ONC or * - Don't asssign", "Gift Status", "Partner gift is assigned to fulfill",
+				"User who last changed gift", "Date & Time Gift Last Changed"};
 		
 		return colToolTips;
 	}
@@ -1244,7 +1239,7 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 	@Override
 	int[] getColumnWidths()
 	{
-		int[] colWidths = {40, 40, 32, 48, 36, 96, 36, 84, 180, 32, 80, 160, 88, 92};
+		int[] colWidths = {40, 40, 32, 48, 36, 120, 36, 84, 180, 32, 80, 184, 96, 96};
 		return colWidths;
 	}
 	
@@ -1345,23 +1340,37 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 		bOversizeGifts = false;
 		labelFitCxBox.addActionListener(this);
 		
-		//Check to see if date sort criteria has changed. Since the setDate() method
-		//will not trigger an event, must check for a sort criteria date change here
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
-		if(!sdf.format(sortStartCal.getTime()).equals(sdf.format(gvs.getSeasonStartDate())))
-		{
-			sortStartCal.setTime(gvs.getSeasonStartDate());
-			ds.setDate(sortStartCal.getTime());	//Will not trigger the event handler
-		}
-		
-		if(!sdf.format(sortEndCal.getTime()).equals(sdf.format(getTomorrowsDate())))
-		{
-			sortEndCal.setTime(getTomorrowsDate());
-			de.setDate(sortEndCal.getTime());	//Will not trigger the event handler
-		}
+		de.getDateEditor().removePropertyChangeListener(this);
+		ds.getDateEditor().removePropertyChangeListener(this);
+		setDateFilters(gvs.getSeasonStartCal(), Calendar.getInstance(TimeZone.getTimeZone("UTC")), 0, 1);
+		ds.setCalendar(startFilterTimestamp);
+		de.setCalendar(endFilterTimestamp);
+		ds.getDateEditor().addPropertyChangeListener(this);
+		de.getDateEditor().addPropertyChangeListener(this);
 			
 		buildTableList(false);
 	}
+	
+	private void setDateFilters(Calendar start, Calendar end, int startOffset, int endOffset)
+	{
+		startFilterTimestamp.set(start.get(Calendar.YEAR), start.get(Calendar.MONTH), start.get(Calendar.DAY_OF_MONTH));
+		startFilterTimestamp.set(Calendar.HOUR_OF_DAY, 0);
+		startFilterTimestamp.set(Calendar.MINUTE, 0);
+		startFilterTimestamp.set(Calendar.SECOND, 0);
+		startFilterTimestamp.set(Calendar.MILLISECOND, 0);
+		
+		endFilterTimestamp.set(end.get(Calendar.YEAR), end.get(Calendar.MONTH), end.get(Calendar.DAY_OF_MONTH));
+		endFilterTimestamp.set(Calendar.HOUR_OF_DAY, 0);
+		endFilterTimestamp.set(Calendar.MINUTE, 0);
+		endFilterTimestamp.set(Calendar.SECOND, 0);
+		endFilterTimestamp.set(Calendar.MILLISECOND, 0);
+		
+//		System.out.println(String.format("SortGiftDlg.setDateFilters: startFilterTimestampMillis= %d",
+//				startFilterTimestamp.getTimeInMillis()));
+		
+		startFilterTimestamp.add(Calendar.DAY_OF_YEAR, startOffset);
+		endFilterTimestamp.add(Calendar.DAY_OF_YEAR, endOffset);
+	}	
 	
 	void onPrintLabels()
 	{
@@ -1432,10 +1441,9 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 		//the date using setDate() does not trigger a property change, only triggered by user action. 
 		//So must rebuild the table each time a change is detected. 
 		if("date".equals(pce.getPropertyName()) &&
-				(!sortStartCal.getTime().equals(ds.getDate()) || !sortEndCal.getTime().equals(de.getDate())))
+			(!startFilterTimestamp.getTime().equals(ds.getDate()) || !endFilterTimestamp.getTime().equals(de.getDate())))
 		{
-			sortStartCal.setTime(ds.getDate());
-			sortEndCal.setTime(de.getDate());
+			setDateFilters(ds.getCalendar(), de.getCalendar(), 0, 1);
 			buildTableList(false);
 		}
 		
@@ -1538,6 +1546,20 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 		else if(dbe.getType().contains("UPDATED_DNSCODE"))
 		{
 			updateDNSCodeCB();
+			buildTableList(true);
+		}
+		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_GLOBALS"))
+		{
+			de.getDateEditor().removePropertyChangeListener(this);
+			ds.getDateEditor().removePropertyChangeListener(this);
+			
+			setDateFilters(gvs.getSeasonStartCal(), Calendar.getInstance(TimeZone.getTimeZone("UTC")), 0, 1);
+			ds.setCalendar(startFilterTimestamp);
+			de.setCalendar(endFilterTimestamp);
+			
+			ds.getDateEditor().addPropertyChangeListener(this);
+			de.getDateEditor().addPropertyChangeListener(this);
+			
 			buildTableList(true);
 		}
 	}
@@ -1941,7 +1963,7 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 	@Override
 	void initializeFilters() 
 	{
-		setSortStartDate(gvs.getSeasonStartDate());
-		setSortEndDate(gvs.getTodaysDate());
+//		setSortStartDate(gvs.getSeasonStartDate());
+//		setSortEndDate(System.currentTimeMillis());
 	}
 }

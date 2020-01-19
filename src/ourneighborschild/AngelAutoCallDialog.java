@@ -1,6 +1,7 @@
 package ourneighborschild;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -15,6 +16,7 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -86,6 +88,17 @@ public class AngelAutoCallDialog extends ONCEntityTableDialog implements ActionL
 		dnsCodeDB = DNSCodeDB.getInstance();
 		stAL = new ArrayList<AngelCallItem>();
 		bCallsProcessed = false;
+		
+		//Set up the search criteria panel      
+		sortCriteriaPanel = new JPanel();
+		sortCriteriaPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+		sortCriteriaPanel.setBorder(BorderFactory.createTitledBorder("Search Filters"));
+	
+		//Create the ONC Icon label and add it to the search criteria panel
+		JLabel lblONCicon = new JLabel(GlobalVariablesDB.getONCLogo());
+		lblONCicon.setToolTipText("ONC Client v" + GlobalVariablesDB.getVersion());
+		lblONCicon.setAlignmentX(Component.LEFT_ALIGNMENT );//0.0
+		sortCriteriaPanel.add(lblONCicon);
 		
 		//Create the table model
 		dlgTableModel = new DialogTableModel();
@@ -166,6 +179,7 @@ public class AngelAutoCallDialog extends ONCEntityTableDialog implements ActionL
 		bottomPanel.add(cntlPanel);
 		        
 		getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
+		getContentPane().add(sortCriteriaPanel);
 		getContentPane().add(dsScrollPane);
 		getContentPane().add(bottomPanel);
 		        

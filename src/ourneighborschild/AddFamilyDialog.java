@@ -706,7 +706,8 @@ public class AddFamilyDialog extends JDialog implements ActionListener, ListSele
 				{
 					System.out.println(String.format("AddFamiliyDialog.processFamily: childDOB= %d",c.getGMTDoB()));
 					ONCChild addChildReq = new ONCChild(-1, addedFamily.getID(), c.getFirstName(), c.getLastName(),
-										c.getGender(), c.getGMTDoB(), c.getSchool(), gvs.getCurrentYear());
+										c.getGender(), c.getGMTDoB(), c.getSchool(), 
+										GlobalVariablesDB.getCurrentSeason());
 					
 					cDB.add(this, addChildReq);
 				}

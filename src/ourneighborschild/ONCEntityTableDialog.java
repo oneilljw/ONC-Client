@@ -1,11 +1,16 @@
 package ourneighborschild;
 
+import java.awt.Component;
+import java.awt.FlowLayout;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.swing.BorderFactory;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 public abstract class ONCEntityTableDialog extends JDialog implements EntitySelector
 {
@@ -17,6 +22,8 @@ public abstract class ONCEntityTableDialog extends JDialog implements EntitySele
 	private static final long serialVersionUID = 1L;
 	protected JFrame parentFrame;
 	protected GlobalVariablesDB gvs;
+	
+	protected JPanel sortCriteriaPanel;
 	
 	//Map of registered listeners for table selection events
 	private Map<EntityType, ArrayList<EntitySelectionListener>> listenerMap;
