@@ -1983,7 +1983,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		collectionCB.removeActionListener(this);
 		collectionCB.setSelectedItem(GiftCollectionType.Any);
 		sortCollection = GiftCollectionType.Any; 
-		typeCB.addActionListener(this);
+		collectionCB.addActionListener(this);
 		
 		regionCB.removeActionListener(this);
 		regionCB.setSelectedIndex(0);

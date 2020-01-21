@@ -113,7 +113,6 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	private School sortSchool;
 
 	private static String[] giftCardFilter = {"Any", "True", "False"};
-//	private static String[] dnsCodes = {"None", "Any", "All", "DUP", "FO", "NC", "NISA", "OPT-OUT", "SA", "SBO", "WA", "WL"};
 	private static String[] exportChoices = {"Export", "Britepath Crosscheck", "Family Floor List", 
 											 "Delivery Instructions", "Toys for Tots Application",
 											 "Family Referral/Deliveries", "Agent/Children/School Report"};
@@ -155,7 +154,6 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		filterCodeList.add(new DNSCode(-3, "Any", "Any", "Any"));
 		filterCodeList.add(new DNSCode(-2, "All Codes", "All Codes", "All Codes"));
 
-		
 		//Set up unique search criteria GUI
 		String[] oncStrings = {"Any", "NNA", "OOR", "RNV", "DEL"};
     		oncCB = new JComboBox<String>(oncStrings);
@@ -191,13 +189,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		regionCB.setModel(regionCBM);
 		regionCB.setBorder(BorderFactory.createTitledBorder("Region"));
 		regionCB.addActionListener(this);
-		
-//		dnsCB = new JComboBox<String>(dnsCodes);
-//		dnsCB.setEditable(true);
-//		dnsCB.setPreferredSize(new Dimension(120, 56));
-//		dnsCB.setBorder(BorderFactory.createTitledBorder("DNS Code"));
-//		dnsCB.addActionListener(this);
-		
+
 		//Get a catalog for type=selection
         dnsCodeCBM = new DefaultComboBoxModel<DNSCode>();
         for(DNSCode filterCode : filterCodeList)
@@ -293,7 +285,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		
         //Set up change data panel gui
 		changeDNSCBM = new DefaultComboBoxModel<DNSCode>();
-		changeDNSCBM.addElement(new DNSCode(-1, "No Change", "No Change", "No Change"));
+		changeDNSCBM.addElement(new DNSCode(-2, "No Change", "No Change", "No Change"));
         changeDNSCB = new JComboBox<DNSCode>();
 	    changeDNSCB.setModel(changeDNSCBM);
 		changeDNSCB.setPreferredSize(new Dimension(172, 56));
@@ -309,7 +301,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
         
 
         changeGiftStatusCB = new JComboBox<FamilyGiftStatus>(FamilyGiftStatus.getChangeList());
-//        changeGiftStatusCB.setRenderer(new ComboRenderer());
+//      changeGiftStatusCB.setRenderer(new ComboRenderer());
         changeGiftStatusCB.setPreferredSize(new Dimension(172, 56));
 		changeGiftStatusCB.setBorder(BorderFactory.createTitledBorder("Change Gift Status"));
 //		changeGiftStatusCB.addActionListener(new ComboListener(changeGiftStatusCB));	//Prevents selection of disabled combo box items
@@ -477,7 +469,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		lblNumOfTableItems.setText(Integer.toString(stAL.size()));
 		displaySortTable(stAL, true, tableRowSelectedObjectList);		//Display the table after table array list is built					
 	}
-
+/*
 	//Returns a boolean that a change to DNS, Family or Delivery Status occurred
 	boolean onApplyChanges()
 	{		
@@ -524,34 +516,9 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 				f.setGiftStatus( (FamilyGiftStatus) changeGiftStatusCB.getSelectedItem());
 				f.setChangedBy(userDB.getUserLNFI());	//Set the changed by field to current user
 
-				bFamilyChangeDetected = true;
-				
-/*	THE SERVER WILL CHECK FOR DNS, FAM OR FAM GIFT STATUS CHANGES AND AUTOMATICALLY ADD A HISTORY ITEM			
-				//Add a new family history with the assigned driver
-				//and the status set to assigned.
-				ONCFamilyHistory reqFH = new ONCFamilyHistory(-1, f.getID(), f.getFamilyStatus(),
-						(FamilyGiftStatus) changeGiftStatusCB.getSelectedItem(),
-						familyHistoryDB.getDeliveredBy(f.getDeliveryID()),
-						"Gift Status Changed",
-						userDB.getUserLNFI(),
-						Calendar.getInstance(),
-						f.getDNSCode());
-
-//				String response = familyHistoryDB.add(this, reqDelivery);
-				ONCFamilyHistory response = familyHistoryDB.add(this, reqFH);
-				if(response != null && response instanceof ONCFamilyHistory)
-//				if(response.startsWith("ADDED_DELIVERY"))
-					bDataChanged = true;
-				else
-				{
-					//display an error message that update request failed
-					GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
-					JOptionPane.showMessageDialog(this, "ONC Server denied Family History Update," +
-							"try again later","Family History Update Failed",  
-							JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
-				}
-*/				
-			}			
+				bFamilyChangeDetected = true;			
+			}
+			
 			if(bFamilyChangeDetected)	//submit change to local db. If successful, set table to rebuild
 			{
 				String response = fDB.update(this, f);
@@ -582,6 +549,90 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		
 		return bDataChanged;
 	}
+*/	
+	//Returns a boolean that a change to DNS, Family or Delivery Status occurred
+	boolean onApplyChanges()
+	{		
+		int[] row_sel = sortTable.getSelectedRows();
+		boolean bDataChanged = false;
+
+		List<ONCFamily> updateFamReqList = new ArrayList<ONCFamily>();
+		for(int i=0; i<row_sel.length; i++)
+		{
+			ONCFamily updateFamReq = new ONCFamily(stAL.get(row_sel[i]).getFamily());
+			boolean bFamilyChangeDetected = false;	
+				
+			//If a change to the DNS Code, process it
+			if(changeDNSCB.getSelectedIndex() > 0 && 
+				updateFamReq.getDNSCode() != ((DNSCode) changeDNSCB.getSelectedItem()).getID())
+			{
+				DNSCode newDNSCode = (DNSCode) changeDNSCB.getSelectedItem();
+				String chngdBy = userDB.getUserLNFI();
+					
+				updateFamReq.setDNSCode(newDNSCode.getID());
+				updateFamReq.setChangedBy(chngdBy);	//Set the changed by field to current user
+					
+				bFamilyChangeDetected = true;
+			}
+				
+			//If a change to the Family Status, process it
+			if(changeFStatusCB.getSelectedIndex() > 0 && 
+				updateFamReq.getFamilyStatus() != changeFStatusCB.getSelectedItem())
+			{
+					
+				updateFamReq.setFamilyStatus( (FamilyStatus) changeFStatusCB.getSelectedItem());
+				updateFamReq.setChangedBy(userDB.getUserLNFI());	//Set the changed by field to current user
+
+				bFamilyChangeDetected = true;
+			}
+			
+			//If a change to Family Gift Status, process it
+			if(changeGiftStatusCB.getSelectedIndex() > 0 && 
+				updateFamReq.getGiftStatus() != changeGiftStatusCB.getSelectedItem())
+			{
+				//If gift status is changing from PACKAGED, number of family bags must be set to 0
+				if(updateFamReq.getGiftStatus() == FamilyGiftStatus.Packaged)	//If changing away from PACKAGED, reset bags
+					updateFamReq.setNumOfBags(0);
+					
+				updateFamReq.setGiftStatus( (FamilyGiftStatus) changeGiftStatusCB.getSelectedItem());
+				updateFamReq.setChangedBy(userDB.getUserLNFI());	//Set the changed by field to current user
+
+				bFamilyChangeDetected = true;			
+			}
+			
+			if(bFamilyChangeDetected)
+				updateFamReqList.add(updateFamReq);
+			
+		}
+		
+		if(!updateFamReqList.isEmpty())
+		{
+			String response = fDB.updateFamList(this, updateFamReqList);
+			if(response.startsWith("UPDATED_LIST_FAMILIES"))
+			{	
+				buildTableList(false);
+				bDataChanged = true;
+			}
+			else
+			{
+				buildTableList(true);
+				//display an error message that update request failed
+				GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
+				JOptionPane.showMessageDialog(this, "ONC Server denied Family Update," +
+						"try again later","Family Update Failed",  JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
+			}
+		}
+		
+		//Reset the change combo boxes to DEFAULT_NO_CHANGE_LIST_ITEM
+		changeFStatusCB.setSelectedIndex(0);
+		changeDNSCB.setSelectedIndex(0);
+		changeGiftStatusCB.setSelectedIndex(0);
+					
+		//Changes were applied, disable until user selects new table row(s) and values
+		btnApplyChanges.setEnabled(false);
+			
+		return bDataChanged;
+	}	
 	
 	void updateUserPreferences(ONCUser u)
 	{
@@ -696,7 +747,8 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
     			dnsCodeCBM.addElement(filterCode);
         
         changeDNSCBM.removeAllElements();	//Clear the combo box selection list
-        changeDNSCBM.addElement(new DNSCode(-1, "No Change", "No Change", "No Change"));
+        changeDNSCBM.addElement(new DNSCode(-2, "No Change", "No Change", "No Change"));
+        changeDNSCBM.addElement(new DNSCode(-1, "Clear DNS Code", "Clear DNS Code", "Clear DNS Code"));
 		
 		for(DNSCode code: (List<DNSCode>) dnsCodeDB.getList())	//Add new list elements
 		{	

@@ -77,6 +77,33 @@ public class MealDB extends ONCDatabase
 			
 		return addedMeal;
 	}
+	
+	//updates a list of meals with changes
+	String addMealList(Object source, List<ONCMeal> addMealReqList)
+		{		
+			//wrap the requested add meal list in a json array and send the add request to the server
+			Gson gson = new Gson();
+			Type listOfMeals = new TypeToken<ArrayList<ONCMeal>>(){}.getType();
+			String response = null, returnResp = "ADD_FAILED";
+			response = serverIF.sendRequest("POST<add_list_of_meals>" + gson.toJson(addMealReqList, listOfMeals));
+
+			//get the response from the server, validate it. Once validated, decompose the response json
+			//to a list of added meal strings, convert them to ONC Meal objects and process the adds.
+			//set the return string to indicate the server add list request was successful
+			if(response != null && response.startsWith("ADDED_LIST_MEALS"))
+			{
+				Type responseListType = new TypeToken<ArrayList<String>>(){}.getType();
+				List<String> responseList = gson.fromJson(response.substring(16), responseListType);
+					
+				for(String updatedFamJson : responseList)
+				if(updatedFamJson.startsWith("ADDED_MEAL"))
+						processAddedMeal(source, updatedFamJson.substring(10));
+					
+				returnResp = "ADDED_LIST_MEALS";
+			}
+
+			return returnResp;
+		}
 		
 	ONCMeal processAddedMeal(Object source, String json)
 	{
@@ -264,6 +291,14 @@ public class MealDB extends ONCDatabase
 		else if(ue.getType().equals("ADDED_MEAL"))
 		{
 			processAddedMeal(this, ue.getJson());
+		}
+		else if(ue.getType().equals("ADDED_LIST_MEALS"))
+		{
+			Gson gson = new Gson();
+			Type responseListType = new TypeToken<ArrayList<String>>(){}.getType();
+			List<String> addedMealList = gson.fromJson(ue.getJson(), responseListType);
+			for(String addedMealString : addedMealList)
+				processAddedMeal(this, addedMealString.substring(10));
 		}
 		else if(ue.getType().equals("DELETED_MEAL"))
 		{

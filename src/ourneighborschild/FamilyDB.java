@@ -140,6 +140,33 @@ public class FamilyDB extends ONCSearchableDatabase
 		return response;
 	}
 	
+	//updates a list of families with changes
+	String updateFamList(Object source, List<ONCFamily> updateFamReqList)
+	{		
+		//wrap the requested family update list in a json array and send the add request to the server
+		Gson gson = new Gson();
+		Type listOfFamilyUpdates = new TypeToken<ArrayList<ONCFamily>>(){}.getType();
+		String response = null, returnResp = "UPDATE_FAILED";
+		response = serverIF.sendRequest("POST<update_list_of_families>" + gson.toJson(updateFamReqList, listOfFamilyUpdates));
+
+		//get the response from the server, validate it. Once validated, decompose the response json
+		//to a list of added gift json strings, convert them to ChildGift objects and process the adds.
+		//set the return string to indicate the server add list request was successful
+		if(response != null && response.startsWith("UPDATED_LIST_FAMILIES"))
+		{
+			Type responseListType = new TypeToken<ArrayList<String>>(){}.getType();
+			List<String> responseList = gson.fromJson(response.substring(21), responseListType);
+				
+			for(String updatedFamJson : responseList)
+			if(updatedFamJson.startsWith("UPDATED_FAMILY"))
+					processUpdatedObject(source, updatedFamJson.substring(14));
+				
+			returnResp = "UPDATED_LIST_FAMILIES";
+		}
+
+		return returnResp;
+	}	
+	
 	String update_AutoONCNum(Object source, ONCObject oncfamily)
 	{
 		Gson gson = null;
@@ -162,7 +189,6 @@ public class FamilyDB extends ONCSearchableDatabase
 	
 	ONCObject processUpdatedObject(Object source, String json)
 	{
-//		System.out.println(String.format("Families- processUpdateFamily: json: %s", json));
 		//Create a family object for the updated family
 		Gson gson = new Gson();
 		ONCFamily updatedFamily = gson.fromJson(json, ONCFamily.class);
@@ -1127,45 +1153,43 @@ public class FamilyDB extends ONCSearchableDatabase
 	
 	String exportDBToCSV(JFrame pf, String filename)
     {
-//    	ONCFileChooser fc = new ONCFileChooser(pf);
-//    	File oncwritefile= fc.getFile("Select .csv file to save Family DB to",
-//										new FileNameExtensionFilter("CSV Files", "csv"), 1);
+
 		File oncwritefile = null;
 		
-    	if(filename == null)
-    	{
-    		ONCFileChooser fc = new ONCFileChooser(pf);
-    		oncwritefile= fc.getFile("Select .csv file to save Family DB to",
+		if(filename == null)
+		{
+    			ONCFileChooser fc = new ONCFileChooser(pf);
+    			oncwritefile= fc.getFile("Select .csv file to save Family DB to",
 										new FileNameExtensionFilter("CSV Files", "csv"), ONCFileChooser.SAVE_FILE);
-    	}
-    	else
-    		oncwritefile = new File(filename);
+		}
+		else
+    			oncwritefile = new File(filename);
     	
-    	if(oncwritefile!= null)
-    	{
-    		//If user types a new filename and doesn't include the .csv, add it
-	    	String filePath = oncwritefile.getPath();		
-	    	if(!filePath.toLowerCase().endsWith(".csv")) 
-	    		oncwritefile = new File(filePath + ".csv");
+		if(oncwritefile!= null)
+		{
+    			//If user types a new filename and doesn't include the .csv, add it
+			String filePath = oncwritefile.getPath();		
+			if(!filePath.toLowerCase().endsWith(".csv")) 
+	    			oncwritefile = new File(filePath + ".csv");
 	    	
-	    	try 
-	    	{
-	    		CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
-	    		ONCFamilyReportRowBuilder rb = new ONCFamilyReportRowBuilder();
-	    	    writer.writeNext(rb.getFamilyObjectExportHeader());
+			try 
+			{
+	    			CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
+	    			ONCFamilyReportRowBuilder rb = new ONCFamilyReportRowBuilder();
+	    			writer.writeNext(rb.getFamilyObjectExportHeader());
 	    	    
-	    	    for(ONCFamily f:oncFamAL)
-	    	    	writer.writeNext(rb.getFamilyExportOjectCSVRowData(f));	//Get family object row
+	    			for(ONCFamily f:oncFamAL)
+	    				writer.writeNext(rb.getFamilyExportOjectCSVRowData(f));	//Get family object row
 	    	 
-	    	    writer.close();
+	    			writer.close();
 	    	       	    
-	    	} 
-	    	catch (IOException x)
-	    	{
-	    		System.err.format("IO Exception: %s%n", x);
-	    		JOptionPane.showMessageDialog(pf, oncwritefile.getName() + " could not be saved", 
+			} 
+			catch (IOException x)
+	    		{
+	    			System.err.format("IO Exception: %s%n", x);
+	    			JOptionPane.showMessageDialog(pf, oncwritefile.getName() + " could not be saved", 
 						"ONC File Save Error", JOptionPane.ERROR_MESSAGE);
-	    	}
+	    		}
 	    }
     	
 	    return oncwritefile != null ? oncwritefile.getParent() : null;
@@ -1178,10 +1202,18 @@ public class FamilyDB extends ONCSearchableDatabase
 		{
 			processUpdatedObject(this, ue.getJson());
 		}
+		else if(ue.getType().equals("UPDATED_LIST_FAMILIES"))
+		{
+			Gson gson = new Gson();
+			Type responseListType = new TypeToken<ArrayList<String>>(){}.getType();
+			List<String> updatedFamilyList = gson.fromJson(ue.getJson(), responseListType);
+			for(String updatedFamilyString : updatedFamilyList)
+				processUpdatedObject(this, updatedFamilyString.substring(14));
+		}
 		else if(ue.getType().equals("ADDED_FAMILY"))
 		{
 			processAddedObject(this, ue.getJson());
-		}			
+		}
 	}
 		 
 	private class ONCFamilyONCNumComparator implements Comparator<ONCFamily>

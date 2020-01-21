@@ -9,16 +9,16 @@ public class DNSCode extends ONCEntity
 
 	private static final long serialVersionUID = 1L;
 	
-	public static final int DNS_CODE_DUP = 0;
-	public static final int DNS_CODE_WAITLIST = 1;
-	public static final int DNS_CODE_FOOD_ONLY = 2;
-	public static final int DNS_CODE_NOT_IN_SERVING_AREA = 3;
-	public static final int DNS_CODE_OPT_OUT = 4;
-	public static final int DNS_CODE_SALVATION_ARMY = 5;
-	public static final int DNS_CODE_SERVED_BY_OTHERS = 6;
-	public static final int DNS_CODE_WISH_ANTICIPATION = 7;
-	public static final int DNS_CODE_NO_CHILDREN = 8;
-	public static final int DNS_CODE_SA_FO= 9;
+	public static final int DUP = 0;
+	public static final int WAITLIST = 1;
+	public static final int FOOD_ONLY = 2;
+	public static final int NOT_IN_SERVING_AREA = 3;
+	public static final int OPT_OUT = 4;
+	public static final int SALVATION_ARMY = 5;
+	public static final int SERVED_BY_OTHERS = 6;
+	public static final int WISH_ANTICIPATION = 7;
+	public static final int NO_CHILDREN = 8;
+	public static final int SA_FO = 9;
 	
 	String acronym;
 	String name;
