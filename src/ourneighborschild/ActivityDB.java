@@ -78,6 +78,16 @@ public class ActivityDB extends ONCSearchableDatabase
 			return null;
 	}
 	
+	List<Activity> getDeliveryActivities()
+	{
+		List<Activity> delActList = new ArrayList<Activity>();
+		for(Activity a : activityList)
+			if(a.isDeliveryActivity())
+				delActList.add(a);
+		
+		return delActList;	
+	}
+	
 	/***
 	 * Searches activity list for a match. 
 	 * @param activity
@@ -411,8 +421,9 @@ public class ActivityDB extends ONCSearchableDatabase
 	    	
 	    		try 
 	    		{
-	    			String[] header = {"ID", "Category" ,"Name", "Start Time", "End Time", 
-		 				  			"Location", "Description"};
+	    			String[] header = {"ID", "Genius ID", "Category" ,"Name","StartTimeMillis",
+				 			"EndTimeMillis", "Location", "Description", "Open", "Notify", "Del Act?", 
+				 			"Timestamp", "Changed By", "SL Pos","SL Message", "SL Changed By"};
 	    		
 	    			CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
 	    			writer.writeNext(header);

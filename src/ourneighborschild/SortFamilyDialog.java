@@ -826,7 +826,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			SimpleDateFormat twodigitYear = new SimpleDateFormat("yy");
 			int idx = Integer.parseInt(twodigitYear.format(gvs.getSeasonStartDate())) % NUM_OF_XMAS_ICONS;
 			final Image img = gvs.getImageIcon(idx + XMAS_ICON_OFFSET).getImage();				
-			String oncSeason = "ONC " + Integer.toString(GlobalVariablesDB.getCurrentSeason());			
+			String oncSeason = "ONC " + Integer.toString(gvs.getCurrentSeason());			
 			
 			
 			//Create the print job
@@ -986,7 +986,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		SimpleDateFormat twodigitYear = new SimpleDateFormat("yy");
 		int idx = Integer.parseInt(twodigitYear.format(gvs.getSeasonStartDate())) % NUM_OF_XMAS_ICONS;
 		final Image img = gvs.getImageIcon(idx + XMAS_ICON_OFFSET).getImage();				
-		String oncSeason = "ONC " + Integer.toString(GlobalVariablesDB.getCurrentSeason());
+		String oncSeason = "ONC " + Integer.toString(gvs.getCurrentSeason());
 			
 		DeliveryDirectionsPrinter ddp = new DeliveryDirectionsPrinter(ddpAL, img, oncSeason);
 			
@@ -2801,7 +2801,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		}
 		else if(dbe.getType().equals("LOADED_FAMILIES"))
 		{
-			this.setTitle(String.format("Our Neighbor's Child - %d Family Management", GlobalVariablesDB.getCurrentSeason()));
+			this.setTitle(String.format("Our Neighbor's Child - %d Family Management", gvs.getCurrentSeason()));
 		}
 		else if(dbe.getType().contains("CHANGED_USER"))
 		{
@@ -2947,7 +2947,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			int idx = Integer.parseInt(twodigitYear.format(gvs.getSeasonStartDate())) % NUM_OF_XMAS_ICONS;
 			final Image img = gvs.getImageIcon(idx + XMAS_ICON_OFFSET).getImage();
 			
-			String oncSeason = "ONC " + Integer.toString(GlobalVariablesDB.getCurrentSeason());
+			String oncSeason = "ONC " + Integer.toString(gvs.getCurrentSeason());
 			
 			String carddata[];	//Holds all string data for a card
 		     

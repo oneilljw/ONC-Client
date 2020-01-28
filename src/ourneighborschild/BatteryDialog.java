@@ -505,7 +505,7 @@ public class BatteryDialog extends GiftLabelDialog
 		{
 			//get the initial data and set title
 			this.setTitle(String.format("Record Batteries for Gifts - %d Season",
-							GlobalVariablesDB.getCurrentSeason()));
+							gvs.getCurrentSeason()));
 		}
 	}
 

@@ -489,7 +489,7 @@ public class ManageGroupsDialog extends ONCEntityTableDialog implements ActionLi
 		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_GROUPS"))
 		{
 			//get the initial data and display
-			this.setTitle(String.format("Our Neighbor's Child - %d Group Management", GlobalVariablesDB.getCurrentSeason()));
+			this.setTitle(String.format("Our Neighbor's Child - %d Group Management", gvs.getCurrentSeason()));
 			createTableList();
 		}
 	}

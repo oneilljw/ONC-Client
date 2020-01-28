@@ -70,7 +70,7 @@ public abstract class GiftLabelDialog extends ONCEntityTableDialog implements Ac
 		if(childGiftDB != null)
 			childGiftDB.addDatabaseListener(this);
 
-		img = GlobalVariablesDB.getSeasonIcon().getImage();
+		img = gvs.getSeasonIcon().getImage();
 		errMessage = "Ready to Scan a Gift Label";
 		swo = null;
 		

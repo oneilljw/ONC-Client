@@ -18,6 +18,7 @@ public class OrnamentLabelViewer extends JDialog implements DatabaseListener
 	private static final long serialVersionUID = 1L;
 	
 	//database references
+	GlobalVariablesDB gvDB;
 	private FamilyDB familyDB;
 	private ChildDB childDB;
 	private ChildGiftDB childGiftDB;
@@ -37,6 +38,7 @@ public class OrnamentLabelViewer extends JDialog implements DatabaseListener
 		this.setTitle(String.format("Gift %d Ornament Label", wn+1));
 		
 		familyDB = FamilyDB.getInstance();
+		GlobalVariablesDB gvDB = GlobalVariablesDB.getInstance();
 		
 		childDB = ChildDB.getInstance();
 		if(childDB != null)
@@ -47,7 +49,7 @@ public class OrnamentLabelViewer extends JDialog implements DatabaseListener
 			childGiftDB.addDatabaseListener(this);
 
 		labelPanel = new GiftLabelPanel();
-		img = GlobalVariablesDB.getSeasonIcon().getImage();
+		img = gvDB.getSeasonIcon().getImage();
 		
 		this.setContentPane(labelPanel);
 		

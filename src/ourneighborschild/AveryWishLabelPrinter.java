@@ -153,7 +153,7 @@ public class AveryWishLabelPrinter implements Printable
 			return NO_SUCH_PAGE;
 	    }
 		
-		final Image img = GlobalVariablesDB.getSeasonIcon().getImage();
+		final Image img = gvs.getSeasonIcon().getImage();
 
 		Font[] lFont = new Font[3];
 	    lFont[0] = new Font("Calibri", Font.ITALIC, 11);

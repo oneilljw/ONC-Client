@@ -472,7 +472,7 @@ public class FamilyHistoryChangesDialog extends ONCTableDialog implements Proper
 		}
 		else if(dbe.getType().equals("UPDATED_GLOBALS"))
 		{
-			this.setTitle(String.format("Our Neighbor's Child - %d Family Histories", GlobalVariablesDB.getCurrentSeason()));
+			this.setTitle(String.format("Our Neighbor's Child - %d Family Histories", gvs.getCurrentSeason()));
 			
 			de.getDateEditor().removePropertyChangeListener(this);
 			ds.getDateEditor().removePropertyChangeListener(this);

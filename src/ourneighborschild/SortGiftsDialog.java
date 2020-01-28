@@ -765,7 +765,7 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 			SimpleDateFormat twodigitYear = new SimpleDateFormat("yy");
 			int idx = Integer.parseInt(twodigitYear.format(gvs.getSeasonStartDate())) % NUM_OF_XMAS_ICONS;
 			final Image img = gvs.getImageIcon(idx + XMAS_ICON_OFFSET).getImage();				
-			String oncSeason = "ONC " + Integer.toString(GlobalVariablesDB.getCurrentSeason());			
+			String oncSeason = "ONC " + Integer.toString(gvs.getCurrentSeason());			
 			
 			//Create the print job
 			PrinterJob pj = PrinterJob.getPrinterJob();
@@ -1527,7 +1527,7 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 		else if(dbe.getType().contains("LOADED_CHILDREN"))
 		{
 			updateSchoolFilterList();
-			this.setTitle(String.format("Our Neighbor's Child - %d Gift Management", GlobalVariablesDB.getCurrentSeason()));
+			this.setTitle(String.format("Our Neighbor's Child - %d Gift Management", gvs.getCurrentSeason()));
 		}
 		else if(dbe.getType().contains("CHANGED_USER"))
 		{

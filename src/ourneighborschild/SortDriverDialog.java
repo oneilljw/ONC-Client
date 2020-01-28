@@ -44,7 +44,7 @@ public class SortDriverDialog extends DependantTableDialog
 	private VolunteerActivityDB volActDB;
 	private DNSCodeDB dnsCodeDB;
 	private ArrayList<ONCVolunteer> atAL;	//Holds references to driver objects for driver table
-	private Activity deliveryActivity;
+//	private Activity deliveryActivity;
 	
 	SortDriverDialog(JFrame pf)
 	{
@@ -69,12 +69,8 @@ public class SortDriverDialog extends DependantTableDialog
 		if(dnsCodeDB != null)
 			dnsCodeDB.addDatabaseListener(this);
 		
-		UserDB userDB = UserDB.getInstance();
 		if(userDB != null)
 			userDB.addDatabaseListener(this);
-		
-		if(gvs != null)
-			gvs.addDatabaseListener(this); 	//listen for delivery activity update
 		
 		//Set up the agent table content array list
 		atAL = new ArrayList<ONCVolunteer>();
@@ -197,11 +193,20 @@ public class SortDriverDialog extends DependantTableDialog
 	@Override
 	void buildTableList(boolean bPreserveSelections) 
 	{
-		if(deliveryActivity == null)
+		atAL.clear();	//Clear the delivery volunteer table
+		
+		if(activityDB.getDeliveryActivities().isEmpty())
 		{
-			JOptionPane.showMessageDialog(this, "Couldn't find delivery day activity named \"Delivery Day\", "
-					+ "please ensure one has been assigned in Preferences.","Couldn't find Delivery Day Activity",  
-					JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
+			lblNumOfObjects.setText(Integer.toString(atAL.size()));
+			displaySortTable(atAL, false, tableRowSelectedObjectList);
+			
+			JOptionPane.showMessageDialog(this, "<html><b>ERROR:</b> Couldn't find a "
+					+ "volunteer delivery activity in the data base.<br> "
+					+ "Please ensure at least one Activity is checked as gift delivery, <br>"
+					+ "using the Edit Activites dialog to do so. The volunteer table will <br>"
+					+ "be empty until there is a delivery activity.</html>",
+					"ERROR: Couldn't find Volunteer Delivery Activity",  
+					JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));	
 		}
 		else
 		{
@@ -212,24 +217,40 @@ public class SortDriverDialog extends DependantTableDialog
 				archiveTableSelections(atAL);
 			else
 				tableSortCol = -1;
-		
-			atAL.clear();	//Clear the prior table data array list
+			
 			stAL.clear();
 		
 			clearFamilyTable();
 			familyTable.clearSelection();
 		
-			for(ONCVolunteer v : volunteerDB.getDriverDB())
-			{
-				VolAct volAct = volActDB.getVolunteerActivity(v.getID(), deliveryActivity.getID());
-				if(volAct != null && doesDrvNumMatch(v.getDrvNum()) && doesLNameMatch(v.getLastName()) && 
-				  doesChangedByMatch(v.getChangedBy()) && doesStoplightMatch(v.getStoplightPos()))
+			for(ONCVolunteer v : volunteerDB.getVolunteerList())
+				if(doesVolunteerDeliver(v) && doesDrvNumMatch(v.getDrvNum()) && doesLNameMatch(v.getLastName()) && 
+				    doesChangedByMatch(v.getChangedBy()) && doesStoplightMatch(v.getStoplightPos()))
 					atAL.add(v);
-			}
 			
 			lblNumOfObjects.setText(Integer.toString(atAL.size()));
 			displaySortTable(atAL, true, tableRowSelectedObjectList);
 		}
+	}
+	
+	//determine if the volunteer has agreed to deliver gifts. Get a list of 
+	//the volunteers activities and determine if at least one is marked as
+	//a gift delivery activity
+	boolean doesVolunteerDeliver(ONCVolunteer v)
+	{
+		boolean bVolunteerDelivers = false;
+		List<VolAct>  volActList = volActDB.getVolunteerActivityList(v.getID());
+		for(VolAct va : volActList)
+		{
+			Activity a = activityDB.getActivity(va.getActID());
+			if(a.isDeliveryActivity())
+			{
+				bVolunteerDelivers = true;
+				break;
+			}	
+		}
+		
+		return bVolunteerDelivers;
 	}
 	
 	void updateLNameCBList()
@@ -241,7 +262,7 @@ public class SortDriverDialog extends DependantTableDialog
 		lNameCBM.removeAllElements();
 		
 		
-		for(ONCVolunteer d:volunteerDB.getDriverDB())
+		for(ONCVolunteer d:volunteerDB.getVolunteerList())
 		{
 			int index = 0;
 			while(index < lNameAL.size() && !d.getLastName().equals(lNameAL.get(index)))
@@ -522,28 +543,26 @@ public class SortDriverDialog extends DependantTableDialog
 		}
 		else if(dbe.getType().equals("LOADED_DRIVERS"))
 		{
-			this.setTitle(String.format("Our Neighbor's Child - %d Delivery Volunteer Management", GlobalVariablesDB.getCurrentSeason()));
+			this.setTitle(String.format("Our Neighbor's Child - %d Delivery Volunteer Management", gvs.getCurrentSeason()));
 		}
-		else if(dbe.getType().equals("LOADED_ACTIVITIES"))
+		else if(dbe.getType().equals("ADDED_ACTIVITY") || dbe.getType().equals("UPDATED_ACTIVITY") ||
+				dbe.getType().equals("DELETED_ACTIVITY"))
 		{
-			int deliveryActivityID = gvs.getDeliveryActivityID();
-			deliveryActivity = activityDB.getActivity(deliveryActivityID);
-		}
-		else if(dbe.getType().equals("UPDATED_GLOBALS"))
-		{
-			int updatedDelActID = gvs.getDeliveryActivityID();
-			if(deliveryActivity != null && updatedDelActID != deliveryActivity.getID())
-			{
-				deliveryActivity = activityDB.getActivity(updatedDelActID);
+			if(this.isVisible())
 				buildTableList(true);
-			}
 		}
+//		else if(dbe.getType().equals("UPDATED_GLOBALS"))
+//		{
+//			int updatedDelActID = gvs.getDeliveryActivityID();
+//			if(deliveryActivity != null && updatedDelActID != deliveryActivity.getID())
+//			{
+//				deliveryActivity = activityDB.getActivity(updatedDelActID);
+//				buildTableList(true);
+//			}
+//		}
 		else if(dbe.getType().contains("_DRIVER") || dbe.getType().contains("_VOLUNTEER_ACTIVITY"))
 		{
-			//update the driver table and update the changedBy combo box
-			if(deliveryActivity != null)
-				buildTableList(true);
-			
+			buildTableList(true);
 			updateLNameCBList();
 		}
 		else if(dbe.getType().contains("_USER"))

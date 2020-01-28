@@ -11,14 +11,12 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.List;
+import java.util.Date;
 import java.util.TimeZone;
 
 import javax.swing.BorderFactory;
-import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultCellEditor;
 import javax.swing.DefaultComboBoxModel;
@@ -69,20 +67,21 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 	private ActivityDB activityDB;
 	private GiftCatalogDB catDB;
 	
-	private UserPreferences uPrefs;
+	private UserPreferences currUserPrefs;
+	private ServerGVs currServerGVs;
 	
 	GeniusSignUps geniusSignUps;
 	
-	private JDateChooser dc_delivery, dc_seasonstart, dc_giftsreceived;
-	private JDateChooser dc_DecemberGiftCutoff, dc_InfoEditCutoff, dc_ThanksgivingMealCutoff;
-	private JDateChooser dc_DecemberMealCutoff, dc_WaitlistGiftCutoff;
+	private ONCDateChooser dc_delivery, dc_seasonstart, dc_giftsreceived;
+	private ONCDateChooser dc_DecemberGiftCutoff, dc_InfoEditCutoff, dc_ThanksgivingMealCutoff;
+	private ONCDateChooser dc_DecemberMealCutoff, dc_WaitlistGiftCutoff;
 	private JTextField whStreetNumTF, whStreetTF, whCityTF, whStateTF;
 	private String whStreetNum, whStreet,whCity, whState;
 	public JComboBox<Integer> oncFontSizeCB;
 	private JComboBox<ONCGift> defaultGiftCB, defaultGiftCardCB;
-	private JComboBox<Activity> deliveryActivityCB;
+//	private JComboBox<Activity> deliveryActivityCB;
 	private DefaultComboBoxModel<ONCGift> defaultGiftCBM, defaultGiftCardCBM;
-	private DefaultComboBoxModel<Activity> deliveryActivityCBM;
+//	private DefaultComboBoxModel<Activity> deliveryActivityCBM;
 	private JButton btnApplyDateChanges, btnApplyAddressChanges;
 	private boolean bIgnoreDialogEvents;
 	private JCheckBox barcodeCkBox, signUpImportCkBox;
@@ -186,7 +185,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 //		datePanelTop.add(dc_today);
 		
 //		dc_seasonstart = new JDateChooser(gvDB.getSeasonStartDate());
-		dc_seasonstart = new JDateChooser();
+		dc_seasonstart = new ONCDateChooser();
 		dc_seasonstart.setCalendar(getCalendar(gvDB.getSeasonStartDate()));
 		dc_seasonstart.setPreferredSize(dateSize);
 		dc_seasonstart.setBorder(BorderFactory.createTitledBorder("Season Start Date"));
@@ -194,15 +193,16 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		dc_seasonstart.getDateEditor().addPropertyChangeListener(dcl);	
 		datePanelTop.add(dc_seasonstart);
 		
-		dc_delivery = new JDateChooser();
-		dc_delivery.setCalendar(getCalendar(gvDB.getDeliveryDate()));
+		dc_delivery = new ONCDateChooser();
+		dc_delivery.setCalendar(getCalendar(gvDB.getDeliveryDateMillis()));
+		dc_delivery.setCalendar(getCalendar(gvDB.getDeliveryDateMillis()));
 		dc_delivery.setPreferredSize(dateSize);
 		dc_delivery.setBorder(BorderFactory.createTitledBorder("Delivery Date"));
 		dc_delivery.setEnabled(false);
 		dc_delivery.getDateEditor().addPropertyChangeListener(dcl);
 		datePanelTop.add(dc_delivery);
 
-		dc_InfoEditCutoff = new JDateChooser();
+		dc_InfoEditCutoff = new ONCDateChooser();
 		dc_InfoEditCutoff.setPreferredSize(dateSize);
 		dc_InfoEditCutoff.setBorder(BorderFactory.createTitledBorder("Family Update Deadline"));
 		dc_InfoEditCutoff.setEnabled(false);
@@ -211,14 +211,14 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		
 		JPanel datePanelMid = new JPanel();
 		datePanelMid.setLayout(new FlowLayout(FlowLayout.LEFT));
-		dc_ThanksgivingMealCutoff = new JDateChooser();
+		dc_ThanksgivingMealCutoff = new ONCDateChooser();
 		dc_ThanksgivingMealCutoff.setPreferredSize(dateSize);
 		dc_ThanksgivingMealCutoff.setBorder(BorderFactory.createTitledBorder("Thanksgiving Meal Deadline"));
 		dc_ThanksgivingMealCutoff.setEnabled(false);
 		dc_ThanksgivingMealCutoff.getDateEditor().addPropertyChangeListener(dcl);		
 		datePanelMid.add(dc_ThanksgivingMealCutoff);
 		
-		dc_DecemberMealCutoff = new JDateChooser();
+		dc_DecemberMealCutoff = new ONCDateChooser();
 		dc_DecemberMealCutoff.setPreferredSize(dateSize);
 		dc_DecemberMealCutoff.setBorder(BorderFactory.createTitledBorder("December Meal Deadline"));
 		dc_DecemberMealCutoff.setEnabled(false);
@@ -227,21 +227,21 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		
 		JPanel datePanelBottom = new JPanel();
 		datePanelBottom.setLayout(new FlowLayout(FlowLayout.LEFT));
-		dc_DecemberGiftCutoff = new JDateChooser();
+		dc_DecemberGiftCutoff = new ONCDateChooser();
 		dc_DecemberGiftCutoff.setPreferredSize(dateSize);
 		dc_DecemberGiftCutoff.setBorder(BorderFactory.createTitledBorder("December Gift Deadline"));
 		dc_DecemberGiftCutoff.setEnabled(false);
 		dc_DecemberGiftCutoff.getDateEditor().addPropertyChangeListener(dcl);
 		datePanelBottom.add(dc_DecemberGiftCutoff);
 				
-		dc_WaitlistGiftCutoff = new JDateChooser();
+		dc_WaitlistGiftCutoff = new ONCDateChooser();
 		dc_WaitlistGiftCutoff.setPreferredSize(dateSize);
 		dc_WaitlistGiftCutoff.setBorder(BorderFactory.createTitledBorder("Waitlist Gift Deadline"));
 		dc_WaitlistGiftCutoff.setEnabled(false);
 		dc_WaitlistGiftCutoff.getDateEditor().addPropertyChangeListener(dcl);
 		datePanelBottom.add(dc_WaitlistGiftCutoff);
 		
-		dc_giftsreceived = new JDateChooser();
+		dc_giftsreceived = new ONCDateChooser();
 		dc_giftsreceived.setCalendar(getCalendar(gvDB.getGiftsReceivedDate()));
 		dc_giftsreceived.setPreferredSize(dateSize);
 		dc_giftsreceived.setToolTipText("<html>All gifts must be received from partners <b><i>BEFORE</i></b> this date</html>");
@@ -456,30 +456,30 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		geniusControlPanel.add(geniusImportPanel);
 		geniusControlPanel.add(geniusBtnPanel);
 		
-		JPanel deliveryActivityPanel = new JPanel();
-		deliveryActivityPanel.setLayout(new BoxLayout(deliveryActivityPanel, BoxLayout.X_AXIS));
-		deliveryActivityPanel.setBorder(BorderFactory.createTitledBorder("Delivery Activity"));
+//		JPanel deliveryActivityPanel = new JPanel();
+//		deliveryActivityPanel.setLayout(new BoxLayout(deliveryActivityPanel, BoxLayout.X_AXIS));
+//		deliveryActivityPanel.setBorder(BorderFactory.createTitledBorder("Delivery Activity"));
+//		
+//		JLabel lblDeliveryActivity = new JLabel("Set the Delivery Activity:");
+//		deliveryActivityPanel.add(lblDeliveryActivity);
 		
-		JLabel lblDeliveryActivity = new JLabel("Set the Delivery Activity:");
-		deliveryActivityPanel.add(lblDeliveryActivity);
+//		deliveryActivityCB = new JComboBox<Activity>();
+//		deliveryActivityCBM = new DefaultComboBoxModel<Activity>();
 		
-		deliveryActivityCB = new JComboBox<Activity>();
-		deliveryActivityCBM = new DefaultComboBoxModel<Activity>();
+//		deliveryActivityCBM.addElement(new Activity(-1, "None"));//creates a dummy Activity with name "None", id = -1;
+//		deliveryActivityCB.setModel(deliveryActivityCBM);
+//		deliveryActivityCB.setPreferredSize(new Dimension(180, 56));
+//		deliveryActivityCB.setToolTipText("Used to determine what volunteers are making deliveries");
+//		deliveryActivityCB.addActionListener(this);
+//		deliveryActivityPanel.add(deliveryActivityCB);
 		
-		deliveryActivityCBM.addElement(new Activity(-1, "None"));//creates a dummy Activity with name "None", id = -1;
-		deliveryActivityCB.setModel(deliveryActivityCBM);
-		deliveryActivityCB.setPreferredSize(new Dimension(180, 56));
-		deliveryActivityCB.setToolTipText("Used to determine what volunteers are making deliveries");
-		deliveryActivityCB.addActionListener(this);
-		deliveryActivityPanel.add(deliveryActivityCB);
-		
-		deliveryActivityPanel.add(Box.createRigidArea(new Dimension(240,0)));
+//		deliveryActivityPanel.add(Box.createRigidArea(new Dimension(240,0)));
 		
 		//add the table scroll pane to the symbol panel
 		geniusPanel.add(importPanel);
 		geniusPanel.add(signUpScrollPane);
 		geniusPanel.add(geniusControlPanel);
-		geniusPanel.add(deliveryActivityPanel);
+//		geniusPanel.add(deliveryActivityPanel);
 				
 		tabbedPane.addTab("SignUpGenius", geniusPanel);
 		
@@ -499,21 +499,27 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		return cal;
 	}
 	
-	void display(UserPreferences uPrefs)	//Update gui with preference data changes (called when an saved ONC object loaded)
+	void display(ServerGVs serverGVs, UserPreferences uPrefs)	//Update gui with preference data changes (called when an saved ONC object loaded)
 	{
+		if(serverGVs != null)
+			this.currServerGVs = serverGVs;
+		else
+			this.currServerGVs = gvDB.getServerGVs();
+		
 		if(uPrefs != null)
-			this.uPrefs = uPrefs;
+			this.currUserPrefs = uPrefs;
 		
 		bIgnoreDialogEvents = true;
 		
-		dc_delivery.setCalendar(getCalendar(gvDB.getDeliveryDate()));
-		dc_seasonstart.setCalendar(getCalendar(gvDB.getSeasonStartDate()));
-		dc_giftsreceived.setCalendar(getCalendar(gvDB.getGiftsReceivedDate()));
-		dc_ThanksgivingMealCutoff.setCalendar(getCalendar(gvDB.getThanksgivingMealDeadline()));
-		dc_DecemberMealCutoff.setCalendar(getCalendar(gvDB.getDecemberMealDeadline()));
-		dc_DecemberGiftCutoff.setCalendar(getCalendar(gvDB.getDecemberGiftDeadline()));
-		dc_WaitlistGiftCutoff.setCalendar(getCalendar(gvDB.getWaitlistGiftDeadline()));
-		dc_InfoEditCutoff.setCalendar(getCalendar(gvDB.getFamilyEditDeadline()));
+		dc_delivery.setTime(currServerGVs.getDeliveryDayMillis());
+//		dc_delivery.setCalendar(getCalendar(currServerGVs.getDeliveryDayMillis()));
+		dc_seasonstart.setTime(currServerGVs.getSeasonStartDateMillis());
+		dc_giftsreceived.setTime(currServerGVs.getGiftsReceivedDateMillis());
+		dc_ThanksgivingMealCutoff.setTime(currServerGVs.getThanksgivingMealDeadlineMillis());
+		dc_DecemberMealCutoff.setTime(currServerGVs.getDecemberMealDeadlineMillis());
+		dc_DecemberGiftCutoff.setTime(currServerGVs.getDecemberGiftDeadlineMillis());
+		dc_WaitlistGiftCutoff.setTime(currServerGVs.getWaitListGiftDeadlineMillis());
+		dc_InfoEditCutoff.setTime(currServerGVs.getFamilyEditDeadlineMillis());
 		
 		if(gvDB.getDefaultGiftID() > -1 && catDB.size() > 0)
 		{
@@ -537,16 +543,16 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		else
 			defaultGiftCardCB.setSelectedIndex(0);
 		
-		if(gvDB.getDeliveryActivityID() > -1 && activityDB.size() > 0)
-		{
-			Activity defaultDeliveryActivity = activityDB.getActivity(gvDB.getDeliveryActivityID());
-			if(defaultDeliveryActivity != null)
-				deliveryActivityCB.setSelectedItem(defaultDeliveryActivity);
-			else
-				deliveryActivityCB.setSelectedIndex(0);	
-		}
-		else
-			deliveryActivityCB.setSelectedIndex(0);
+//		if(gvDB.getDeliveryActivityID() > -1 && activityDB.size() > 0)
+//		{
+//			Activity defaultDeliveryActivity = activityDB.getActivity(gvDB.getDeliveryActivityID());
+//			if(defaultDeliveryActivity != null)
+//				deliveryActivityCB.setSelectedItem(defaultDeliveryActivity);
+//			else
+//				deliveryActivityCB.setSelectedIndex(0);	
+//		}
+//		else
+//			deliveryActivityCB.setSelectedIndex(0);
 		
 		displayWarehouseAddress();
 		
@@ -632,39 +638,35 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 	void update()
 	{
 		int cf = 0;
-		if(!gvDB.getSeasonStartDate().equals(dc_seasonstart.getDate())) { cf |= 1;}
-		if(!gvDB.getDeliveryDate().equals(dc_delivery.getDate())) { cf |= 2; }
+		
+		if(gvDB.getSeasonStartDate() != dc_seasonstart.getTime()) { cf |= 1;}
+		if(gvDB.getDeliveryDateMillis() != dc_delivery.getTime()) { cf |= 2; }
 		if(!gvDB.getWarehouseAddress().equals(getWarehouseAddressInGoogleMapsFormat())) {cf |= 4;}
-		if(!gvDB.getGiftsReceivedDate().equals(dc_giftsreceived.getDate())) {cf |= 8;}
-		if(!gvDB.getThanksgivingMealDeadline().equals(dc_ThanksgivingMealCutoff.getDate())) {cf |= 16;}
-		if(!gvDB.getDecemberGiftDeadline().equals(dc_DecemberGiftCutoff.getDate())) {cf |= 32;}
-		if(!gvDB.getFamilyEditDeadline().equals(dc_InfoEditCutoff.getDate())) {cf |= 64;}
-		if(!gvDB.getDecemberMealDeadline().equals(dc_DecemberMealCutoff.getDate())) {cf |= 128;}
-		if(!gvDB.getWaitlistGiftDeadline().equals(dc_WaitlistGiftCutoff.getDate())) {cf |= 256;}
+		if(gvDB.getGiftsReceivedDate() != dc_giftsreceived.getTime()) {cf |= 8;}
+		if(gvDB.getThanksgivingMealDeadline() != dc_ThanksgivingMealCutoff.getTime()) {cf |= 16;}
+		if(gvDB.getDecemberGiftDeadline() !=dc_DecemberGiftCutoff.getTime()) {cf |= 32;}
+		if(gvDB.getFamilyEditDeadline() != dc_InfoEditCutoff.getTime()) {cf |= 64;}
+		if(gvDB.getDecemberMealDeadline() != dc_DecemberMealCutoff.getTime()) {cf |= 128;}
+		if(gvDB.getWaitlistGiftDeadline() != dc_WaitlistGiftCutoff.getTime()) {cf |= 256;}
 		
 		ONCGift cbWish = (ONCGift) defaultGiftCB.getSelectedItem();
-		if(gvDB.getDefaultGiftID() != cbWish.getID()) {cf |= 512;}
+		if(gvDB.getDefaultGiftID() != cbWish.getID()) { cf |= 512; }
 		
 		ONCGift cbGiftCardWish = (ONCGift) defaultGiftCardCB.getSelectedItem();
-		if(gvDB.getDefaultGiftCardID() != cbGiftCardWish.getID()) {cf |= 1024;}
-		
-		Activity cbDefaultDeliveryActivity = (Activity) deliveryActivityCB.getSelectedItem();
-		if(gvDB.getDeliveryActivityID() != cbDefaultDeliveryActivity.getID()) {cf |= 2048;}
-		
+		if(gvDB.getDefaultGiftCardID() != cbGiftCardWish.getID()) {cf |= 1024;}	
 		
 		if(cf > 0)
 		{
-			ServerGVs updateGVreq = new ServerGVs(dc_delivery.getCalendar().getTimeInMillis(), 
-													dc_seasonstart.getCalendar().getTimeInMillis(), 
+			ServerGVs updateGVreq = new ServerGVs(dc_delivery.getTime(), //getCalendar().getTimeInMillis(), 
+													dc_seasonstart.getTime(), 
 													 getWarehouseAddressInGoogleMapsFormat(),
-													  dc_giftsreceived.getCalendar().getTimeInMillis(),
-													   dc_ThanksgivingMealCutoff.getCalendar().getTimeInMillis(),
-													    dc_DecemberGiftCutoff.getCalendar().getTimeInMillis(),
-													     dc_InfoEditCutoff.getCalendar().getTimeInMillis(),
+													  dc_giftsreceived.getTime(),
+													   dc_ThanksgivingMealCutoff.getTime(),
+													    dc_DecemberGiftCutoff.getTime(),
+													     dc_InfoEditCutoff.getTime(),
 													      cbWish.getID(), cbGiftCardWish.getID(),
-													       dc_DecemberMealCutoff.getCalendar().getTimeInMillis(),
-													        dc_WaitlistGiftCutoff.getCalendar().getTimeInMillis(),
-													         cbDefaultDeliveryActivity.getID());
+													       dc_DecemberMealCutoff.getTime(),
+													        dc_WaitlistGiftCutoff.getTime());
 			
 			String response = gvDB.update(this, updateGVreq);
 			if(!response.startsWith("UPDATED_GLOBALS"))
@@ -676,7 +678,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 			}
 			else
 			{
-				display(uPrefs);
+				display(gvDB.getServerGVs(), currUserPrefs);
 			}
 		}
 	}
@@ -699,16 +701,15 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 	
 	void checkApplyChangesEnabled()
 	{
-		if(!gvDB.getSeasonStartDate().equals(dc_seasonstart.getDate()) || 
-			!gvDB.getDeliveryDate().equals(dc_delivery.getDate()) ||
-			!gvDB.getGiftsReceivedDate().equals(dc_giftsreceived.getDate()) ||
-			!gvDB.getThanksgivingMealDeadline().equals(dc_ThanksgivingMealCutoff.getDate()) ||
-			!gvDB.getDecemberGiftDeadline().equals(dc_DecemberGiftCutoff.getDate()) ||
-			!gvDB.getDecemberMealDeadline().equals(dc_DecemberMealCutoff.getDate()) ||
-			!gvDB.getWaitlistGiftDeadline().equals(dc_WaitlistGiftCutoff.getDate()) ||
-			!gvDB.getFamilyEditDeadline().equals(dc_InfoEditCutoff.getDate()))
-		{
-			btnApplyDateChanges.setEnabled(true);
+		if(gvDB.getSeasonStartDate() != dc_seasonstart.getTime() || 
+			gvDB.getDeliveryDateMillis() != dc_delivery.getTime() || //.getDate().getTime() ||
+			gvDB.getGiftsReceivedDate() != dc_giftsreceived.getTime() ||
+			gvDB.getThanksgivingMealDeadline() != dc_ThanksgivingMealCutoff.getTime() ||
+			gvDB.getDecemberGiftDeadline() != dc_DecemberGiftCutoff.getTime() ||
+			gvDB.getDecemberMealDeadline() != dc_DecemberMealCutoff.getTime() ||
+			gvDB.getWaitlistGiftDeadline() != dc_WaitlistGiftCutoff.getTime() ||
+			gvDB.getFamilyEditDeadline() != dc_InfoEditCutoff.getTime())
+		{			btnApplyDateChanges.setEnabled(true);
 		}
 		else
 			btnApplyDateChanges.setEnabled(false);
@@ -760,11 +761,11 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		{
 			update();
 		}
-		else if(!bIgnoreDialogEvents && e.getSource().equals(deliveryActivityCB) &&
-				((Activity) deliveryActivityCB.getSelectedItem()).getID() != gvDB.getDeliveryActivityID())
-		{
-			update();
-		}
+//		else if(!bIgnoreDialogEvents && e.getSource().equals(deliveryActivityCB) &&
+//				((Activity) deliveryActivityCB.getSelectedItem()).getID() != gvDB.getDeliveryActivityID())
+//		{
+//			update();
+//		}
 		else if(e.getSource().equals(btnImportSignUpList))
 		{
 			activityDB.requestGeniusSignUps();
@@ -798,7 +799,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		if(!response.startsWith("UPDATED_USER"))
 		{
 			//we have a failure, display the original preferences
-			display(uPrefs);
+			display(currServerGVs, currUserPrefs);
 		}
 	}
 	
@@ -861,7 +862,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		defaultGiftCB.addActionListener(this);
 		defaultGiftCardCB.addActionListener(this);
 	}
-	
+/*	
 	void updateDefaultDeliveryActivityCBList(boolean bInitialize)
 	{	
 		//remove the action listener
@@ -898,13 +899,13 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		//restore the action listeners
 		deliveryActivityCB.addActionListener(this);
 	}
-
+*/
 	@Override
 	public void dataChanged(DatabaseEvent dbe)
 	{
 		if(dbe.getSource() != this && dbe.getType().equals("UPDATED_GLOBALS"))
 		{
-			display(uPrefs);
+			display(gvDB.getServerGVs(), currUserPrefs);
 		}
 		else if(dbe.getSource() != this && (dbe.getType().equals("UPDATED_USER") || 
 				dbe.getType().equals("CHANGED_USER")))	
@@ -916,7 +917,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 				 updatedUser.getPreferences().getFamilyDNSFilterCode().getID() != ((DNSCode) fdnsFilterDefaultCB.getSelectedItem()).getID()) ||
 				 updatedUser.getPreferences().getFontSize() != (Integer)oncFontSizeCB.getSelectedItem())
 			{
-				display(updatedUser.getPreferences());
+				display(null, updatedUser.getPreferences());
 			}
 			
 			//we have a user, so enable changing preferences
@@ -949,14 +950,14 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		{
 			updateDefalutGiftCBLists(false);
 		}
-		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_ACTIVITIES"))
-		{
-			updateDefaultDeliveryActivityCBList(true);
-		}
-		else if(dbe.getSource() != this && dbe.getType().contains("_ACTIVITY"))
-		{
-			updateDefaultDeliveryActivityCBList(false);
-		}
+//		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_ACTIVITIES"))
+//		{
+//			updateDefaultDeliveryActivityCBList(true);
+//		}
+//		else if(dbe.getSource() != this && dbe.getType().contains("_ACTIVITY"))
+//		{
+//			updateDefaultDeliveryActivityCBList(false);
+//		}
 	}
 	
 	private class DateChangeListener implements PropertyChangeListener
@@ -965,7 +966,14 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		public void propertyChange(PropertyChangeEvent pce)
 		{
 			if(!bIgnoreDialogEvents && "date".equals(pce.getPropertyName()))
+			{
 				checkApplyChangesEnabled();
+				if(pce.getSource() == dc_delivery.getDateEditor())
+				{
+					System.out.println(String.format("PrefDlg.DateChangeList: delivery time= %d, delivery time UTC = %d",
+						 dc_delivery.getDate().getTime(), dc_delivery.getTime()));
+				}
+			}
 		}
 	}
 	
@@ -1124,5 +1132,40 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
         			}
         		}
         }		
+	}
+	
+	private class ONCDateChooser extends JDateChooser
+	{	
+		/**
+		 *  Wraps a JDateChooser such that the time is reduced to a year, month and day at midnight UTC.
+		 * @author johnoneil
+		 */
+		private static final long serialVersionUID = 1L;
+
+		ONCDateChooser()
+		{
+			super();
+		}
+		
+		void setTime(long time)
+		{
+			//gives you the current offset in ms from GMT at the current date
+			TimeZone tz = TimeZone.getDefault();	//Local time zone
+			int offsetFromUTC = tz.getOffset(time);
+
+			//create a new calendar in local time zone, set to gmtDOB and add the offset
+			Calendar localCal = Calendar.getInstance();
+			localCal.setTimeInMillis(time);
+			localCal.add(Calendar.MILLISECOND, (offsetFromUTC * -1));
+
+			this.setCalendar(localCal);
+		}
+		
+		long getTime() 
+		{
+			Calendar delCal = this.getCalendar();
+			TimeZone tz = delCal.getTimeZone();		
+			return delCal.getTimeInMillis() + tz.getOffset(delCal.getTimeInMillis());
+		}
 	}
 }

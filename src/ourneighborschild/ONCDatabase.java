@@ -9,7 +9,7 @@ public abstract class ONCDatabase implements ServerListener
 	protected ServerIF serverIF;
 	
 	public ONCDatabase()
-	{
+	{	
 		serverIF = ServerIF.getInstance();
 		serverIF.addServerListener(this);
 		

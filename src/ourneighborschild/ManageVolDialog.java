@@ -429,7 +429,7 @@ public class ManageVolDialog extends ONCEntityTableDialog implements ActionListe
 		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_DRIVERS"))
 		{
 			//get the initial data and display
-			this.setTitle(String.format("Our Neighbor's Child - %d Volunteer Management", GlobalVariablesDB.getCurrentSeason()));
+			this.setTitle(String.format("Our Neighbor's Child - %d Volunteer Management", gvs.getCurrentSeason()));
 			updateGroupList();
 			createTableList();
 		}

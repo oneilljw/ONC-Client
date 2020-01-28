@@ -53,6 +53,7 @@ public abstract class SortTableDialog extends ONCEntityTableDialog implements Ac
 	protected FamilyDB fDB;
 	protected UserDB userDB;
 	protected RegionDB regionDB;
+	protected GlobalVariablesDB gvDB;
 	
 	//sort column
 	protected int tableSortCol;
@@ -87,6 +88,7 @@ public abstract class SortTableDialog extends ONCEntityTableDialog implements Ac
 			fDB.addDatabaseListener(this);
 		
 		userDB = UserDB.getInstance();
+		gvDB = GlobalVariablesDB.getInstance();
 		regionDB = RegionDB.getInstance();
 		
 		//initialize member variables

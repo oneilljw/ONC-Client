@@ -270,7 +270,7 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
 	{
 		if(dbe.getType().equals("LOADED_NOTES"))
 			this.setTitle(String.format("Our Neighbor's Child - Agent Family Notes For %d Season",
-					GlobalVariablesDB.getCurrentSeason()));
+					gvs.getCurrentSeason()));
 		else if(dbe.getType().equals("UPDATED_NOTE"))
 		{
 			ONCNote updatedNote = (ONCNote) dbe.getObject1();
@@ -413,9 +413,9 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
 			
 			//enable the ckBox if there are notes. Then, if it's the current season, enable only if
 			//it's the most recent note. For prior seasons, any note can be modified
-			if(!famNoteList.isEmpty() && GlobalVariablesDB.getCurrentSeason() != Calendar.YEAR)
+			if(!famNoteList.isEmpty() && gvs.getCurrentSeason() != Calendar.YEAR)
 				ckBoxShowNextSeason.setEnabled(true);
-			else if(!famNoteList.isEmpty() && GlobalVariablesDB.getCurrentSeason() != Calendar.YEAR &&
+			else if(!famNoteList.isEmpty() && gvs.getCurrentSeason() != Calendar.YEAR &&
 					nav.getIndex() == 0)
 				ckBoxShowNextSeason.setEnabled(true);
 			else

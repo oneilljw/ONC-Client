@@ -45,11 +45,12 @@ public class ActivityDialog extends EntityDialog
 
 	//ui components
 	private JLabel lblActID, lblTimestamp, lblChangedBy, lblVolCount;
-	private JCheckBox openCkBox, reminderCkBox;
+	private JCheckBox openCkBox, reminderCkBox, deliveryCkBox, defaultDeliveryCkBox;
     private JTextField categoryTF,nameTF, locationTF, descriptionTF;
     private JSpinner startTimeSpinner, endTimeSpinner;
     private SpinnerDateModel startModel, endModel;
     private JButton btnSaveTimeChanges;
+    ActivityActionListener actActionListener;
     private TimeChangeListener timeChangeListener;
     
     private Activity currActivity;	 //reference to the current object displayed
@@ -90,6 +91,10 @@ public class ActivityDialog extends EntityDialog
         op3.setLayout(new BoxLayout(op3, BoxLayout.X_AXIS));
         JPanel op4 = new JPanel();
         op4.setLayout(new BoxLayout(op4, BoxLayout.X_AXIS));
+        JPanel op5 = new JPanel();
+        op5.setLayout(new BoxLayout(op5, BoxLayout.X_AXIS));
+        JPanel op6 = new JPanel();
+        op6.setLayout(new BoxLayout(op6, BoxLayout.X_AXIS));
 
         lblActID = new JLabel("None", SwingConstants.CENTER);
         lblActID.setBorder(BorderFactory.createTitledBorder("ID"));
@@ -124,7 +129,7 @@ public class ActivityDialog extends EntityDialog
         op2.add(descriptionTF); 
         
         timeChangeListener = new TimeChangeListener();
-        ActivityActionListener actActionListener = new ActivityActionListener();
+        actActionListener = new ActivityActionListener();
        
         JPanel startTimePanel = new JPanel();
         startTimePanel.setLayout(new BoxLayout(startTimePanel, BoxLayout.X_AXIS));
@@ -160,23 +165,32 @@ public class ActivityDialog extends EntityDialog
         op3.add(endTimePanel);
         op3.add(btnSaveTimeChanges);
        
-        locationTF = new JTextField(14);
-        locationTF.setToolTipText("Location activity is performed");
-        locationTF.setBorder(BorderFactory.createTitledBorder("Location"));
-        locationTF.addActionListener(dcListener);
+        deliveryCkBox = new JCheckBox("Do Volunteers for Activity Deliver Gifts?");
+        deliveryCkBox.setToolTipText("Check if Volunteers for this activity will make deliveries");
+        deliveryCkBox.addActionListener(actActionListener);
         
-        JPanel ckBoxPanel = new JPanel();
-        ckBoxPanel.setLayout(new BoxLayout(ckBoxPanel, BoxLayout.Y_AXIS));
-        
+        defaultDeliveryCkBox = new JCheckBox("is Default Delivery Activity?");
+        defaultDeliveryCkBox.setToolTipText("Check if Volunteers for this activity will make deliveries");
+        defaultDeliveryCkBox.addActionListener(actActionListener);
+       
+        op4.add(deliveryCkBox);
+        op4.add(defaultDeliveryCkBox);
+       
         openCkBox = new JCheckBox("Open to volunteers?");
         openCkBox.setToolTipText("Check to enable volunteers to sign-up via website");
         openCkBox.addActionListener(actActionListener);
-        ckBoxPanel.add(openCkBox);
 
         reminderCkBox = new JCheckBox("Send volunteers a reminder?");
         reminderCkBox.setToolTipText("Check to automatically generate reminder email 24 hours before start");
         reminderCkBox.addActionListener(actActionListener);
-        ckBoxPanel.add(reminderCkBox);
+        
+        op5.add(openCkBox);
+        op5.add(reminderCkBox);
+        
+        locationTF = new JTextField(14);
+        locationTF.setToolTipText("Location activity is performed");
+        locationTF.setBorder(BorderFactory.createTitledBorder("Location"));
+        locationTF.addActionListener(dcListener);
         
         lblTimestamp = new JLabel("0", JLabel.RIGHT);
         lblTimestamp.setPreferredSize(new Dimension (128, 48));
@@ -188,15 +202,16 @@ public class ActivityDialog extends EntityDialog
         lblChangedBy.setToolTipText("ONC Elf who last changed the activity");
         lblChangedBy.setBorder(BorderFactory.createTitledBorder("Last Changed By"));
        
-        op4.add(locationTF);
-        op4.add(ckBoxPanel);
-        op4.add(lblTimestamp);
-        op4.add(lblChangedBy);
+        op6.add(locationTF);
+        op6.add(lblTimestamp);
+        op6.add(lblChangedBy);
         
         entityPanel.add(op1);
         entityPanel.add(op2);
         entityPanel.add(op3);
         entityPanel.add(op4);
+        entityPanel.add(op5);
+        entityPanel.add(op6);
         
         //Set up control panel
         btnNew.setText("Add New Activity");
@@ -238,6 +253,8 @@ public class ActivityDialog extends EntityDialog
 		if(getSpinnerTimeInMillis(endModel) != currActivity.getEndDate()) { reqUpdateAct.setEndDate(getSpinnerTimeInMillis(endModel)); bCD = bCD | 32; }
 		if(openCkBox.isSelected() != currActivity.isOpen()) { reqUpdateAct.setOpen(openCkBox.isSelected()); bCD = bCD | 64; }
 		if(reminderCkBox.isSelected() != currActivity.sendReminder()) { reqUpdateAct.setReminder(reminderCkBox.isSelected()); bCD = bCD | 128; }
+		if(deliveryCkBox.isSelected() != currActivity.isDeliveryActivity()) { reqUpdateAct.setDeliveryActivity(deliveryCkBox.isSelected(), defaultDeliveryCkBox.isSelected()); bCD = bCD | 256; }
+		if(defaultDeliveryCkBox.isSelected() != currActivity.isDefaultDeliveryActivity()) { reqUpdateAct.setDeliveryActivity(deliveryCkBox.isSelected(), defaultDeliveryCkBox.isSelected()); bCD = bCD | 512; }
 		
 		if(bCD > 0)	//If an update to organization data (not stop light data) was detected
 		{
@@ -304,6 +321,8 @@ public class ActivityDialog extends EntityDialog
 			endTimeSpinner.setValue(endCal.getTime());
 
 			reminderCkBox.setSelected(currActivity.sendReminder());
+			deliveryCkBox.setSelected(currActivity.isDeliveryActivity());
+			defaultDeliveryCkBox.setSelected(currActivity.isDefaultDeliveryActivity());
 			
 			SimpleDateFormat sdf = new SimpleDateFormat("MMM d h:mm a", Locale.US);
 			Calendar localTimeStamp = createLocalCalendarFromGMT(currActivity.getTimestamp());
@@ -354,6 +373,8 @@ public class ActivityDialog extends EntityDialog
 		
 		locationTF.setText("");
 		reminderCkBox.setSelected(false);
+		deliveryCkBox.setSelected(false);
+		defaultDeliveryCkBox.setSelected(false);
 		lblTimestamp.setText("");
 		lblChangedBy.setText("");
 		nav.clearStoplight();
@@ -411,11 +432,11 @@ public class ActivityDialog extends EntityDialog
 	void onSaveNew()
 	{
 		//construct a new volunteer activity from user input. Comment field is empty
-		
 		Activity newAct = new Activity(-1, -1, categoryTF.getText(), nameTF.getText(),
 					getSpinnerTimeInMillis(startModel),getSpinnerTimeInMillis(endModel),
 					locationTF.getText(), descriptionTF.getText(), "", 
-					openCkBox.isSelected(), reminderCkBox.isSelected(),
+					openCkBox.isSelected(), reminderCkBox.isSelected(), 
+					defaultDeliveryCkBox.isSelected() ? 2 : deliveryCkBox.isSelected() ? 1 : 0, 
 					userDB.getUserLNFI()); 
 						
 		//send add request to the local data base
@@ -613,6 +634,20 @@ public class ActivityDialog extends EntityDialog
 		@Override
 		public void actionPerformed(ActionEvent ae)
 		{	
+			//Rules engine around delivery check boxes: if default is checked, then delivery must
+			//also be checked and locked. If default is unchecked, unlock delivery check box.
+			if(ae.getSource() == defaultDeliveryCkBox)
+			{
+				if(defaultDeliveryCkBox.isSelected())
+				{
+					deliveryCkBox.removeActionListener(actActionListener);
+					deliveryCkBox.setSelected(true);
+					deliveryCkBox.addActionListener(actActionListener);
+				}
+				
+				deliveryCkBox.setEnabled(!defaultDeliveryCkBox.isSelected());
+			}
+			
 			if(currActivity != null && !bIgnoreEvents && !bAddingNewEntity)
 				update();
 		}	

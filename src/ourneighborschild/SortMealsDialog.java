@@ -465,7 +465,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 	void on2015ExportRequested()
 	{
 		//Write the selected row data to a .csv file
-    	String[] header = {"Referring Agent Name", "Referring Organization", "Referring Agent Title",
+		String[] header = {"Referring Agent Name", "Referring Organization", "Referring Agent Title",
     						"Sponsor Contact Name", "Client Family", "Head of Household", "Family Members",
     						"Referring Agent Email", "Client Family Email",	"Client Family Phone",
     						"Referring Agent Phone", "Dietary Restrictions", "School(s) Attended",
@@ -476,40 +476,40 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
     						"Does the family speak English?",	"If No. Language spoken",
     						"Client has transportation to pick up holiday assistance if necessary"};
     
-    	ONCFileChooser oncfc = new ONCFileChooser(this);
+    		ONCFileChooser oncfc = new ONCFileChooser(this);
        	File oncwritefile = oncfc.getFile("Select file for export of selected meals" ,
        								new FileNameExtensionFilter("CSV Files", "csv"), ONCFileChooser.SAVE_FILE);
        	if(oncwritefile!= null)
        	{
        		//If user types a new filename without extension.csv, add it
-	    	String filePath = oncwritefile.getPath();
-	    	if(!filePath.toLowerCase().endsWith(".csv")) 
-	    		oncwritefile = new File(filePath + ".csv");
+       		String filePath = oncwritefile.getPath();
+       		if(!filePath.toLowerCase().endsWith(".csv")) 
+       			oncwritefile = new File(filePath + ".csv");
 	    	
-	    	try 
-	    	{
-	    		CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
-	    	    writer.writeNext(header);
+       		try 
+       		{
+       			CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
+       			writer.writeNext(header);
 	    	    
-	    	    int[] row_sel = sortTable.getSelectedRows();
-	    	    for(int i=0; i<sortTable.getSelectedRowCount(); i++)
-	    	    {
-	    	    	int index = row_sel[i];
-	    	    	writer.writeNext(stAL.get(index).getExportRow());
-	    	    }
+       			int[] row_sel = sortTable.getSelectedRows();
+       			for(int i=0; i<sortTable.getSelectedRowCount(); i++)
+       			{
+	    	    			int index = row_sel[i];
+	    	    			writer.writeNext(stAL.get(index).getExportRow());
+       			}
 	    	   
-	    	    writer.close();
+       			writer.close();
 	    	    
-	    	    JOptionPane.showMessageDialog(this, 
+       			JOptionPane.showMessageDialog(this, 
 						sortTable.getSelectedRowCount() + " meals sucessfully exported to " + oncwritefile.getName(), 
 						"Export Successful", JOptionPane.INFORMATION_MESSAGE, gvs.getImageIcon(0));
-	    	} 
-	    	catch (IOException x)
-	    	{
-	    		JOptionPane.showMessageDialog(this, "Export Failed, I/O Error: "  + x.getMessage(),  
+       		} 
+       		catch (IOException x)
+       		{
+       			JOptionPane.showMessageDialog(this, "Export Failed, I/O Error: "  + x.getMessage(),  
 						"Export Failed", JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
-	    		System.err.format("IOException: %s%n", x);
-	    	}
+       			System.err.format("IOException: %s%n", x);
+       		}
 	    }
        	
        	exportCB.setSelectedIndex(0);
@@ -744,7 +744,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		}
 		else if(dbe.getType().equals("LOADED_MEALS"))
 		{
-			this.setTitle(String.format("Our Neighbor's Child - %d Meal Management", GlobalVariablesDB.getCurrentSeason()));
+			this.setTitle(String.format("Our Neighbor's Child - %d Meal Management", gvs.getCurrentSeason()));
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_GLOBALS"))
 		{

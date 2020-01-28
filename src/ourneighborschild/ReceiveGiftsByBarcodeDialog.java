@@ -82,7 +82,7 @@ public class ReceiveGiftsByBarcodeDialog extends GiftLabelDialog
 		if(dbe.getSource() != this && dbe.getType().equals("LOADED_WISHES"))
 		{
 			//get the initial data and set title
-			this.setTitle(String.format("Receive Gifts - %d Season", GlobalVariablesDB.getCurrentSeason()));
+			this.setTitle(String.format("Receive Gifts - %d Season", gvs.getCurrentSeason()));
 		}
 	}
 

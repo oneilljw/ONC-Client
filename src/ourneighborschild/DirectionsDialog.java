@@ -47,7 +47,7 @@ public class DirectionsDialog extends JDialog implements ActionListener, Databas
 	private static final int MAX_DIRECTION_STEPS_ON_FIRST_PAGE = 16;
 	private static final int MAX_DIRECTION_STEPS_ON_NEXT_PAGES = 30;
 	
-	private GlobalVariablesDB ddGVs;
+	private GlobalVariablesDB gvDB;
 	private JLabel lblMap, lblHeader;
 	private JPanel mapPanel;
 	private JTable dirTable;
@@ -63,9 +63,9 @@ public class DirectionsDialog extends JDialog implements ActionListener, Databas
 	{
 		super(parent);
 		fDB = FamilyDB.getInstance();
-		ddGVs = GlobalVariablesDB.getInstance();
-		if(ddGVs != null)
-			ddGVs.addDatabaseListener(this);
+		gvDB = GlobalVariablesDB.getInstance();
+		if(gvDB != null)
+			gvDB.addDatabaseListener(this);
 		
 		//Set up the header panel
 		JPanel headerPanel = new JPanel();
@@ -199,7 +199,7 @@ public class DirectionsDialog extends JDialog implements ActionListener, Databas
 		JSONObject dirJSONObject;
 		try 
 		{
-			dirJSONObject = ddir.getGoogleDirections(ddGVs.getWarehouseAddress(), destAddress);
+			dirJSONObject = ddir.getGoogleDirections(gvDB.getWarehouseAddress(), destAddress);
 			leg = ddir.getTripRoute(dirJSONObject);	//Get the trip duration and steps
 			steps = ddir.getDrivingSteps(leg);	//String duration = ddir.getTripDuration(leg);
 			
@@ -228,7 +228,7 @@ public class DirectionsDialog extends JDialog implements ActionListener, Databas
 		    if(biMap != null)
 		    	lblMap.setIcon(new ImageIcon(biMap));
 		    else
-		    	lblMap.setIcon(ddGVs.getImageIcon(0));
+		    	lblMap.setIcon(gvDB.getImageIcon(0));
 		    
 		    mapPanel.add(lblMap);
 		    	    
@@ -315,9 +315,9 @@ public class DirectionsDialog extends JDialog implements ActionListener, Databas
 		//Create the print job. First, create the ONC season image and string. Then instantiate
 		//a DeliveryDirectionsPrinter object. Then show the print dialog and execute printing
 		SimpleDateFormat twodigitYear = new SimpleDateFormat("yy");
-		int idx = Integer.parseInt(twodigitYear.format(ddGVs.getSeasonStartDate())) % NUM_OF_XMAS_ICONS;
-		final Image img = ddGVs.getImageIcon(idx + XMAS_ICON_OFFSET).getImage();				
-		String oncSeason = "ONC " + Integer.toString(GlobalVariablesDB.getCurrentSeason());
+		int idx = Integer.parseInt(twodigitYear.format(gvDB.getSeasonStartDate())) % NUM_OF_XMAS_ICONS;
+		final Image img = gvDB.getImageIcon(idx + XMAS_ICON_OFFSET).getImage();				
+		String oncSeason = "ONC " + Integer.toString(gvDB.getCurrentSeason());
 			
 		DeliveryDirectionsPrinter ddp = new DeliveryDirectionsPrinter(ddpAL, img, oncSeason);
 			

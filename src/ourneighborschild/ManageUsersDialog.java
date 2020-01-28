@@ -12,10 +12,8 @@ import java.sql.Date;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.TimeZone;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -391,11 +389,7 @@ public class ManageUsersDialog extends ONCEntityTableDialog implements ActionLis
         		else if (col == LOGINS_COL)
         			return user.getNSessions();
         		else if (col == LAST_LOGIN_COL)
-        		{
-        			Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-        			calendar.setTimeInMillis(user.getLastLogin());
-        			return calendar.getTime();
-        		}
+        			return new Date(user.getLastLogin());
         		else if (col == RESET_PW_COL)
         		{
         			GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();

@@ -47,6 +47,7 @@ public class PYChildConnectionDialog extends JDialog implements ActionListener,
 	private DefaultTableModel resultDefaultTableModel;
 	private JButton btnSearch, btnConnect;
 	
+	GlobalVariablesDB gvDB;
 	ONCFamily currFamily;
 	ONCChild currChild;
 	ONCPriorYearChild pyChild;
@@ -57,6 +58,7 @@ public class PYChildConnectionDialog extends JDialog implements ActionListener,
 		super(parentFrame, false);
 		this.setTitle("Connect Current Child & Prior Year Child");
 		
+		gvDB = GlobalVariablesDB.getInstance();
 		//connect to the child database
 		childDB = ChildDB.getInstance();
 		if(childDB != null)
@@ -219,7 +221,7 @@ public class PYChildConnectionDialog extends JDialog implements ActionListener,
 		if(pyChild != null)
 		{
 			String[] pyWishes = pyChild.getPriorYearWishes();
-			int year = GlobalVariablesDB.getCurrentSeason() - 1;
+			int year = gvDB.getCurrentSeason() - 1;
 			int wishnum = 0;
 			
 			int index = 0;
@@ -254,7 +256,7 @@ public class PYChildConnectionDialog extends JDialog implements ActionListener,
 		{
 			long pyChildDOB = convertCalendarDOBToGMT(searchDobDC.getCalendar());
 			ONCChild searchPYChild = new ONCChild(-1, currFamily.getID(), "", searchLastnameTF.getText().trim(),
-				(String)searchGenderCB.getSelectedItem(),  pyChildDOB, "", GlobalVariablesDB.getCurrentSeason());
+				(String)searchGenderCB.getSelectedItem(),  pyChildDOB, "", gvDB.getCurrentSeason());
 			ONCPriorYearChild pyChildReq = new ONCPriorYearChild(-1, searchPYChild);
 		
 			ONCPriorYearChild resultPYChild = null;

@@ -556,7 +556,7 @@ public class DialogManager implements EntitySelectionListener
 		if(!prefsDlg.isShowing())
 		{
 			prefsDlg.setLocationRelativeTo(GlobalVariablesDB.getFrame());
-			prefsDlg.display(null);	//keep current user preferences, no change
+			prefsDlg.display(null, null);	//keep current serverGVs & user preferences, no change
 			prefsDlg.setVisible(true);
 		}
 	}

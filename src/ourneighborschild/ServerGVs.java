@@ -5,134 +5,138 @@ import java.util.TimeZone;
 
 public class ServerGVs extends ONCObject
 {
-	private Long giftDeliveryDate;
-	private Long oncSeasonStartDate;
+	public static long TWENTY_FOUR_HOURS_MILLIS = 1000*60*60*24;
+	public static final String DEFAULT_ADDRESS = "6476+Trillium+House+Lane+Centreville,VA";
+	
+	private Long giftDeliveryDayMillis;
+	private Long seasonStartDayMillis;
 	private String warehouseAddress;
-	private Long oncGiftsReceivedDate;
-	private Long thanksgivingMealDeadline, decemberMealDeadline;
-	private Long familyEditDeadline;
-	private int defaultGiftID, defaultGiftCardID, deliveryActivityID;
-	private Long decemberGiftDeadline, waitlistGiftDeadline;
+	private Long oncGiftsReceivedDayMillis;
+	private Long thanksgivingMealDeadlineMillis, decemberMealDeadlineMillis;
+	private Long familyEditDeadlineMillis;
+	private int defaultGiftID, defaultGiftCardID;
+	private Long decemberGiftDeadlineMillis, waitlistGiftDeadlineMillis;
 	
 	public ServerGVs(Long dd, Long ssd, String wa, Long grd, Long td, Long decd, Long fed, int defaultGiftID,
-			 int defaultGiftCardID, Long decMealDeadlone, Long wlDeadline, int defaultDeliveryActivityID)
+			 int defaultGiftCardID, Long decMealDeadlone, Long wlDeadline)
 	{
 		super(0); //id is 0 since there is only one instance of server global variables
-//		giftDeliveryDate = Calendar.getInstance();
-//		giftDeliveryDate.setTimeInMillis(dd);
-		giftDeliveryDate = dd;
-		
-//		oncSeasonStartDate = Calendar.getInstance();
-//		oncSeasonStartDate.setTimeInMillis(ssd);
-		oncSeasonStartDate = ssd;
-		
+		giftDeliveryDayMillis = dd;
+		seasonStartDayMillis = ssd;
 		warehouseAddress = wa;
-		
-//		oncGiftsReceivedDate = Calendar.getInstance();
-//		oncGiftsReceivedDate.setTimeInMillis(grd);
-		oncGiftsReceivedDate = grd;
-		
-//		thanksgivingMealDeadline = Calendar.getInstance();
-//		thanksgivingMealDeadline.setTimeInMillis(td);
-		thanksgivingMealDeadline = td;
-		
-		
-//		decemberGiftDeadline = Calendar.getInstance();
-//		decemberGiftDeadline.setTimeInMillis(decd);
-		decemberGiftDeadline = decd;
-		
-//		familyEditDeadline = Calendar.getInstance();
-//		familyEditDeadline.setTimeInMillis(fed);
-		familyEditDeadline = fed;
+		oncGiftsReceivedDayMillis = grd;
+		thanksgivingMealDeadlineMillis = td;
+		decemberGiftDeadlineMillis = decd;
+		familyEditDeadlineMillis = fed;
 		
 		this.defaultGiftID = defaultGiftID;
 		
 		this.defaultGiftCardID = defaultGiftCardID;
 		
-//		decemberMealDeadline = Calendar.getInstance();
-//		decemberMealDeadline.setTimeInMillis(decMealDeadlone);
-		decemberMealDeadline = decMealDeadlone;
-		
-//		waitlistGiftDeadline = Calendar.getInstance();
-//		waitlistGiftDeadline.setTimeInMillis(wlDeadline);
-		waitlistGiftDeadline = wlDeadline;
-		
-		this.deliveryActivityID = defaultDeliveryActivityID;
+		decemberMealDeadlineMillis = decMealDeadlone;
+		waitlistGiftDeadlineMillis = wlDeadline;
 	}
-/*	
-	public ServerGVs(Date delDate, Date seasonStartDate, String wa, Date giftsreceivedDate,
-			Date thanksgivingDeadline, Date decemberDeadline, Date familyEditDeadline, int defaultGiftID,
-			int defaultGiftCardID, Date decMealDeadline, Date waitlistGiftDeadline,
-			int defaultDeliveryActivityID)
+	
+	public ServerGVs(ServerGVs sgvs)
 	{
-		super(0); //id is 0 since there is only one instance of server global variables
-		giftDeliveryDate = Calendar.getInstance();
-		giftDeliveryDate.setTime(delDate);
-		
-		oncSeasonStartDate = Calendar.getInstance();
-		oncSeasonStartDate.setTime(seasonStartDate);
-		
-		warehouseAddress = wa;
-		
-		oncGiftsReceivedDate = Calendar.getInstance();
-		oncGiftsReceivedDate.setTime(giftsreceivedDate);
-		
-		this.thanksgivingMealDeadline = Calendar.getInstance();
-		this.thanksgivingMealDeadline.setTime(thanksgivingDeadline);
-		
-		this.decemberGiftDeadline = Calendar.getInstance();
-		this.decemberGiftDeadline.setTime(decemberDeadline);
-		
-		this.familyEditDeadline = Calendar.getInstance();
-		this.familyEditDeadline.setTime(familyEditDeadline);
-		
-		this.defaultGiftID = defaultGiftID;
-		
-		this.defaultGiftCardID = defaultGiftCardID;
-		
-		this.decemberMealDeadline = Calendar.getInstance();
-		this.decemberMealDeadline.setTime(decMealDeadline);
-		
-		this.waitlistGiftDeadline = Calendar.getInstance();
-		this.waitlistGiftDeadline.setTime(waitlistGiftDeadline);
-		
-		this.deliveryActivityID = defaultDeliveryActivityID;
+		super(0);
+		this.giftDeliveryDayMillis = sgvs.giftDeliveryDayMillis;
+		this.seasonStartDayMillis = sgvs.seasonStartDayMillis;
+		this.warehouseAddress = sgvs.warehouseAddress;
+		this.oncGiftsReceivedDayMillis = sgvs.oncGiftsReceivedDayMillis;
+		this.thanksgivingMealDeadlineMillis = sgvs.thanksgivingMealDeadlineMillis;
+		this.decemberGiftDeadlineMillis = sgvs.decemberGiftDeadlineMillis;
+		this.familyEditDeadlineMillis = sgvs.familyEditDeadlineMillis;
+		this.defaultGiftID = sgvs.defaultGiftID;
+		this.defaultGiftCardID = sgvs.defaultGiftCardID;
+		this.decemberMealDeadlineMillis = sgvs.decemberMealDeadlineMillis;
+		this.waitlistGiftDeadlineMillis = sgvs.waitlistGiftDeadlineMillis;
 	}
-*/	
+
 	//getters
-	Long getDeliveryDate() { return giftDeliveryDate; }
-	public Calendar getDeliveryDateCal() { return getCalendar(giftDeliveryDate); }
-	public Long getSeasonStartDate() { return oncSeasonStartDate; }
-	public Calendar getSeasonStartCal() { return getCalendar(oncSeasonStartDate); }
+	public Long getDeliveryDayMillis() { return giftDeliveryDayMillis; }
+	public Long getSeasonStartDateMillis() { return seasonStartDayMillis; }
 	String getWarehouseAddress() { return warehouseAddress; }
-	public Long getGiftsReceivedDate() { return oncGiftsReceivedDate; }
-	public Calendar getGiftsReceivedDeadline() { return getCalendar(oncGiftsReceivedDate); }
-	public Long getThanksgivingMealDeadline() { return thanksgivingMealDeadline; }
-	public Long getDecemberGiftDeadline() { return decemberGiftDeadline; }
-	public Long getFamilyEditDeadline() { return familyEditDeadline; }
+	public Long getGiftsReceivedDateMillis() { return oncGiftsReceivedDayMillis; }
+	public Long getThanksgivingMealDeadlineMillis() { return thanksgivingMealDeadlineMillis; }
+	public Long getDecemberGiftDeadlineMillis() { return decemberGiftDeadlineMillis; }
+	public Long getFamilyEditDeadlineMillis() { return familyEditDeadlineMillis; }
 	public int getDefaultGiftID() { return defaultGiftID; }
 	public int getDefaultGiftCardID() { return defaultGiftCardID; }
-	public Long getDecemberMealDeadline() { return decemberMealDeadline; }
-	public Long getWaitListGiftDeadline() { return waitlistGiftDeadline; }
-	public int getDeliveryActivityID() { return deliveryActivityID; }
+	public Long getDecemberMealDeadlineMillis() { return decemberMealDeadlineMillis; }
+	public Long getWaitListGiftDeadlineMillis() { return waitlistGiftDeadlineMillis; }
+	public int getCurrentSeason()
+	{
+		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+		cal.setTimeInMillis(seasonStartDayMillis);
+		return cal.get(Calendar.YEAR);
+	}
 	
 	//setters
+	void setDeliveryDayMillis(Long dd) { this.giftDeliveryDayMillis = dd; }
+	void setSeasonStartDateMillis(Long ssd) { this.seasonStartDayMillis = ssd; }
+	String setWarehouseAddress(String wa) { return warehouseAddress; }
+	void setGiftsReceivedDateMillis(Long grd) { this.oncGiftsReceivedDayMillis = grd; }
+	void setThanksgivingMealDeadlineMillis(Long tmd) { this.thanksgivingMealDeadlineMillis = tmd; }
+	void setDecemberGiftDeadlineMillis(Long dgd) { this.decemberGiftDeadlineMillis = dgd; }
+	void setFamilyEditDeadlineMillis(Long fed) { this.familyEditDeadlineMillis = fed; }
+	void setDefaultGiftID(int defGID) { this.defaultGiftID = defGID; }
+	void setDefaultGiftCardID(int defGCID) {this.defaultGiftCardID = defGCID; }
+	void setDecemberMealDeadlineMillis(Long dmd) { this.decemberMealDeadlineMillis = dmd; }
+	void setWaitListGiftDeadlineMillis(Long wlgd) { this.waitlistGiftDeadlineMillis = wlgd; }
+	
+	public boolean isDeliveryDay()
+	{
+		System.out.println(String.format("ServGlobVarDB.isDelDay: delDay %d, now %d, delDay+24 %d",
+				giftDeliveryDayMillis,System.currentTimeMillis(),giftDeliveryDayMillis + TWENTY_FOUR_HOURS_MILLIS));
+		
+		return System.currentTimeMillis() > giftDeliveryDayMillis && 
+				System.currentTimeMillis() < giftDeliveryDayMillis + TWENTY_FOUR_HOURS_MILLIS;
+	}
+	
+	public boolean isDeliveryDayOrDayBefore()
+	{
+		return System.currentTimeMillis() > giftDeliveryDayMillis && 
+				System.currentTimeMillis() < giftDeliveryDayMillis + (TWENTY_FOUR_HOURS_MILLIS *2);
+	}
+	
+	public boolean isAfterSeasonStartDate() { return System.currentTimeMillis() >= seasonStartDayMillis; }
+	
+	public boolean isInSeason(int year) 
+	{ 
+		Calendar yearEndCal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+		yearEndCal.set(Calendar.YEAR, year);
+		yearEndCal.set(Calendar.MONTH, Calendar.DECEMBER);
+		yearEndCal.set(Calendar.DAY_OF_MONTH, 31);
+		yearEndCal.set(Calendar.HOUR, 11);
+		yearEndCal.set(Calendar.MINUTE, 59);
+		yearEndCal.set(Calendar.SECOND, 59);
+		yearEndCal.set(Calendar.MILLISECOND, 999);
+		
+		return System.currentTimeMillis() >= seasonStartDayMillis && 
+				System.currentTimeMillis() <= yearEndCal.getTimeInMillis();
+	}
+	
+	boolean isBeforeGiftReceivedDeadline()
+	{
+		return System.currentTimeMillis() < decemberGiftDeadlineMillis;
+	}
+	
 	@Override
 	public String[] getExportRow()
 	{	
 		 String[] row = {
-				 		Long.toString(giftDeliveryDate),
- 						Long.toString(oncSeasonStartDate),
+				 		Long.toString(giftDeliveryDayMillis),
+ 						Long.toString(seasonStartDayMillis),
  						warehouseAddress,
- 						Long.toString(oncGiftsReceivedDate),
- 						Long.toString(thanksgivingMealDeadline),
- 						Long.toString(decemberGiftDeadline),
- 						Long.toString(familyEditDeadline),
+ 						Long.toString(oncGiftsReceivedDayMillis),
+ 						Long.toString(thanksgivingMealDeadlineMillis),
+ 						Long.toString(decemberGiftDeadlineMillis),
+ 						Long.toString(familyEditDeadlineMillis),
  						Integer.toString(defaultGiftID),
  						Integer.toString(defaultGiftCardID),
- 						Long.toString(decemberMealDeadline),
- 						Long.toString(waitlistGiftDeadline),
- 						Integer.toString(deliveryActivityID)
+ 						Long.toString(decemberMealDeadlineMillis),
+ 						Long.toString(waitlistGiftDeadlineMillis),
  						};		
 		return row;
 	}

@@ -569,7 +569,7 @@ public class DNSCodeDialog extends EntityDialog implements DatabaseListener, Lis
         		else if(col == CHANGED_BY_COL)
         			value = dc.getChangedBy();
         		else if(col == TIME_CHANGED_COL)
-        			value = dc.getTimestampDate();
+        			value = new Date(dc.getTimestamp());
         		else if(col == STOPLIGHT_COL)
         			value = gvs.getImageIcon(23 + dc.getStoplightPos());
         		else

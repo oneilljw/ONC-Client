@@ -64,6 +64,7 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 	private static final int TIMESTAMP_COL = 6;
 	
 	private static final int FAMILY_EXPORT_ONCNUM_COL = 3;
+	private static final int SMS_EXPORT_TIMESTAMP_COL = 8;
 	
 	private static final int NUM_TABLE_ROWS = 12;
 	
@@ -175,7 +176,7 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 		
 		smsTable = new ONCTable(smsTableModel, colToolTips, new Color(240,248,255));
 
-		smsTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		smsTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		smsTable.getSelectionModel().addListSelectionListener(this);
 		
 		//set up a cell renderer for the LAST_LOGINS column to display the date 
@@ -368,7 +369,6 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 		}
 	}
 	
-	
 	void onExportRequested()
 	{
 		//Write the selected row data to a .csv file
@@ -386,33 +386,47 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 	    	
        		try 
        		{
+       			SimpleDateFormat sdf = new SimpleDateFormat("MM/dd hh:mm:ss a");
+//       		sdf.setTimeZone(TimeZone.getTimeZone("America/New_York"));
+       			
        			CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
        			writer.writeNext(ONCSMS.getExportRowHeader());
 	    	    
-       			//if the entity type is FAMILY, then convert the family id to ONC #
-       			for(ONCSMS sms : smsTableList)
+       			int[] row_sel = smsTable.getSelectedRows();
+       			for(int i=0; i<smsTable.getSelectedRowCount(); i++)
        			{
-       				if(sms.getType() == EntityType.FAMILY)
-       				{
-       					String[] row = sms.getExportRow();
-       					ONCFamily f = familyDB.getFamily(sms.getEntityID());
-       					if(f != null)
-       						row[FAMILY_EXPORT_ONCNUM_COL] = f.getONCNum();
-       					else
-       						row[FAMILY_EXPORT_ONCNUM_COL] = "UNK";
+			    	    	int tableRow = row_sel[i];
+			    	    	int modelRow = tableRow == -1 ? -1 : smsTable.convertRowIndexToModel(tableRow);
+			    			
+			    		if(modelRow > -1)
+			    		{
+			    			ONCSMS sms = smsTableList.get(modelRow);
+			    			String[] row = sms.getExportRow();
+			    			
+			    	        row[SMS_EXPORT_TIMESTAMP_COL] = sdf.format(new Date(sms.getTimestamp()));
+			    			
+			    			if(sms.getType() == EntityType.FAMILY)
+			    			{
+			    				ONCFamily f = familyDB.getFamily(sms.getEntityID());
+			    				if(f != null)
+			    					row[FAMILY_EXPORT_ONCNUM_COL] = f.getONCNum();
+			    				else
+			    					row[FAMILY_EXPORT_ONCNUM_COL] = "UNK";
        					
-       					writer.writeNext(row);
-       				}
-       				else
-       					writer.writeNext(sms.getExportRow());
+			    				writer.writeNext(row);
+			    			}
+			    			else
+			    			{
+			    				writer.writeNext(row);
+			    			}
+			    		}
        			}
        			
-
        			writer.close();
 	    	    
        			JOptionPane.showMessageDialog(this, 
-						smsTable.getRowCount() + " messages sucessfully exported to " + oncwritefile.getName(), 
-						"Export Successful", JOptionPane.INFORMATION_MESSAGE, gvs.getImageIcon(0));
+       				smsTable.getSelectedRowCount() + " messages sucessfully exported to " + oncwritefile.getName(), 
+					"Export Successful", JOptionPane.INFORMATION_MESSAGE, gvs.getImageIcon(0));
        		} 
        		catch (IOException x)
        		{
@@ -438,7 +452,7 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_SMS"))
 		{
 			//get the initial data and display
-			this.setTitle(String.format("Our Neighbor's Child - %d Message Management", GlobalVariablesDB.getCurrentSeason()));
+			this.setTitle(String.format("Our Neighbor's Child - %d Message Management", gvs.getCurrentSeason()));
 			createTableList();
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_GLOBALS"))
@@ -605,11 +619,7 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
         		else if(col == STATUS_COL)
         			return sms.getStatus().toString();
         		else if (col == TIMESTAMP_COL)
-        		{
-        			Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-        			calendar.setTimeInMillis(sms.getTimestamp());
-        			return calendar.getTime();
-        		}
+        			return new Date(sms.getTimestamp());
         		else
         			return "Error";
         }

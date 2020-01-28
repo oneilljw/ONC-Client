@@ -507,7 +507,7 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 		}
 		else if(dbe.getType().equals("LOADED_DRIVERS"))
 		{
-			this.setTitle(String.format("Our Neighbor's Child - %d Delivery Assignment", GlobalVariablesDB.getCurrentSeason()));
+			this.setTitle(String.format("Our Neighbor's Child - %d Delivery Assignment", gvDB.getCurrentSeason()));
 		}
 	}
 

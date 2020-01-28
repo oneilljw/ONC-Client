@@ -49,7 +49,7 @@ public class FamilyDB extends ONCSearchableDatabase
 	private UserDB userDB;
 	private VolunteerDB volunteerDB;
 	private FamilyHistoryDB familyHistoryDB;
-	private GlobalVariablesDB fGVs;
+	private GlobalVariablesDB gvDB;
 	private RegionDB regionDB;
 	private DNSCodeDB dnsCodeDB;
 	
@@ -65,7 +65,7 @@ public class FamilyDB extends ONCSearchableDatabase
 		userDB = UserDB.getInstance();;
 		
 		oncFamAL = new ArrayList<ONCFamily>();
-		fGVs = GlobalVariablesDB.getInstance();
+		gvDB = GlobalVariablesDB.getInstance();
 		regionDB = RegionDB.getInstance();
 		dnsCodeDB = DNSCodeDB.getInstance();
 //		serverIF.addServerListener(this);
@@ -426,20 +426,20 @@ public class FamilyDB extends ONCSearchableDatabase
 	    						familiesImportedCount, bpFile.getName());
 	    				
 	    				JOptionPane.showMessageDialog(parentFrame, mssg, "Britepath Family Import Successful",
-		    	    		 JOptionPane.ERROR_MESSAGE, fGVs.getImageIcon(0));
+		    	    		 JOptionPane.ERROR_MESSAGE, gvDB.getImageIcon(0));
 	    			}
 	    			else
 	    			{
 	    				JOptionPane.showMessageDialog(parentFrame, "An error occured, " +
 	    	    			bpFile.getName() + " cannot be imported by the server", 
-	    	    			"ONC Server Britepath Import Error", JOptionPane.ERROR_MESSAGE, fGVs.getImageIcon(0));
+	    	    			"ONC Server Britepath Import Error", JOptionPane.ERROR_MESSAGE, gvDB.getImageIcon(0));
 	    			}
 	    		}
 
 	    		else
 	    			JOptionPane.showMessageDialog(parentFrame, 
 	    				bpFile.getName() + " is not in agreed upon Britepath format, cannot be imported", 
-	    				"Invalid Britepath Format", JOptionPane.ERROR_MESSAGE, fGVs.getImageIcon(0)); 			    			
+	    				"Invalid Britepath Format", JOptionPane.ERROR_MESSAGE, gvDB.getImageIcon(0)); 			    			
 	    		
 	    		reader.close();
 	    		
@@ -447,7 +447,7 @@ public class FamilyDB extends ONCSearchableDatabase
 	    	catch (IOException x)
 	    	{
 	    		JOptionPane.showMessageDialog(parentFrame, "Britepath import failed. Error: " + x.getMessage(), 
-	    			"Britepath Import I/O Error", JOptionPane.ERROR_MESSAGE, fGVs.getImageIcon(0));
+	    			"Britepath Import I/O Error", JOptionPane.ERROR_MESSAGE, gvDB.getImageIcon(0));
 	    	}
 	    }
 	   
@@ -551,8 +551,7 @@ public class FamilyDB extends ONCSearchableDatabase
 			else if(!members[i].isEmpty())
 			{
 				//crate the add child request object
-				ONCChild reqAddChild = new ONCChild(-1, famid, members[i],
-													GlobalVariablesDB.getCurrentSeason());
+				ONCChild reqAddChild = new ONCChild(-1, famid, members[i], gvDB.getCurrentSeason());
 				
 				//interact with the server to add the child
 				childDB.add(this, reqAddChild);
@@ -676,7 +675,7 @@ public class FamilyDB extends ONCSearchableDatabase
 	{
 		//if using UPC-E, eliminate check digits before converting to childwishID integer
 		int childID;
-		if(fGVs.getBarcodeCode() == Barcode.UPCE)
+		if(gvDB.getBarcodeCode() == Barcode.UPCE)
 			childID = Integer.parseInt(s.substring(0, s.length()-2));
 		else
 			childID = Integer.parseInt(s.substring(0, s.length()-1));

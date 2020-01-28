@@ -54,9 +54,11 @@ public class ManageActivitiesDialog extends ONCEntityTableDialog implements Acti
 	private static final int COMMENT_COL = 4;
 
 	private static final int ACT_NAME_COL= 0;
-	private static final int ACT_START_DATE_COL = 1;
-	private static final int ACT_END_DATE_COL = 2;
-	private static final int VOL_COUNT_COL = 3;
+	private static final int ACT_VOL_COUNT_COL = 1;
+	private static final int ACT_DELIVERY_COL = 2;
+	private static final int ACT_DEFAULT_COL = 3;
+	private static final int ACT_START_DATE_COL = 4;
+	private static final int ACT_END_DATE_COL = 5;
 	
 	private static final int NUM_VOL_TABLE_ROWS = 12;
 	private static final int NUM_ACT_TABLE_ROWS = 15;
@@ -130,7 +132,8 @@ public class ManageActivitiesDialog extends ONCEntityTableDialog implements Acti
 
         //create the activity table
       	actTableModel = new ActivityTableModel();
-       	String[] actToolTips = {"Name", "Start Date", "End Date", "# of Volunteers Signed Up"};
+       	String[] actToolTips = {"Name", "# of Volunteers Signed Up", "Do Volunteers for Activity Deliver Gifts?",
+       			"Is Activity the Default Delivery Activity?", "Start Date", "End Date", };
       	actTable = new ONCTable(actTableModel, actToolTips, new Color(240,248,255));
 
      	actTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -157,7 +160,7 @@ public class ManageActivitiesDialog extends ONCEntityTableDialog implements Acti
 		
       	//Set table column widths
       	int tablewidth = 0;
-      	int[] act_colWidths = {360, 176,176, 56};
+      	int[] act_colWidths = {360, 56, 56, 68, 160, 160};
       	for(int col=0; col < act_colWidths.length; col++)
       	{
       		actTable.getColumnModel().getColumn(col).setPreferredWidth(act_colWidths[col]);
@@ -427,7 +430,7 @@ public class ManageActivitiesDialog extends ONCEntityTableDialog implements Acti
 		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_ACTIVITIES"))
 		{
 			//get the initial data and display
-			this.setTitle(String.format("Our Neighbor's Child - %d Activity Management", GlobalVariablesDB.getCurrentSeason()));
+			this.setTitle(String.format("Our Neighbor's Child - %d Activity Management", gvs.getCurrentSeason()));
 			createTableList();
 		}
 		else if(dbe.getSource() != this && dbe.getType().contains("_VOLUNTEER_ACTIVITY"))
@@ -578,7 +581,8 @@ public class ManageActivitiesDialog extends ONCEntityTableDialog implements Acti
 		 */
 		private static final long serialVersionUID = 1L;
 		
-		private String[] columnNames = {"Activity Name", "Start Date", "End Date", "# Vols"};
+		private String[] columnNames = {"Activity Name", "# Vols", "Del Act? ", "Default Del?",
+										"Start Date", "End Date"};
  
         public int getColumnCount() { return columnNames.length; }
  
@@ -592,13 +596,16 @@ public class ManageActivitiesDialog extends ONCEntityTableDialog implements Acti
         	
         		if(col == ACT_NAME_COL)  
         			return act.getName();
+        		else if (col == ACT_VOL_COUNT_COL)
+        			return volActDB.getVolunteerCountForActivity(act.getID());
+        		else if (col == ACT_DELIVERY_COL)
+        			return act.isDeliveryActivity();
+        		else if (col == ACT_DEFAULT_COL)
+        			return act.isDefaultDeliveryActivity();
         		else if(col == ACT_START_DATE_COL)
         			return convertLongToDate(act.getStartDate());
         		else if (col == ACT_END_DATE_COL)
         			return  convertLongToDate(act.getEndDate());
-        		else if (col == VOL_COUNT_COL)
- //       			return  act.getGeniusID();
-        			return volActDB.getVolunteerCountForActivity(act.getID());
         		else
         			return "Error";
         }
@@ -616,8 +623,10 @@ public class ManageActivitiesDialog extends ONCEntityTableDialog implements Acti
         {
         		if(column == ACT_START_DATE_COL || column == ACT_END_DATE_COL)
         			return Date.class;
-        		else if(column == VOL_COUNT_COL)
+        		else if(column == ACT_VOL_COUNT_COL)
         			return Integer.class;
+        		else if(column == ACT_DELIVERY_COL || column == ACT_DEFAULT_COL)
+        			return Boolean.class;
         		else
         			return String.class;
         }

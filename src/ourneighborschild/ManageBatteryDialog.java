@@ -342,7 +342,7 @@ public class ManageBatteryDialog extends ONCEntityTableDialog implements ActionL
 		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_BATTERIES"))
 		{
 			//get the initial data and display
-			this.setTitle(String.format("Our Neighbor's Child - %d Battery Management", GlobalVariablesDB.getCurrentSeason()));
+			this.setTitle(String.format("Our Neighbor's Child - %d Battery Management", gvs.getCurrentSeason()));
 			createTableList();
 		}
 	}

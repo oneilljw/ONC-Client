@@ -21,6 +21,8 @@ public class SMSDB extends ONCDatabase
 	private static SMSDB instance = null;
 	private List<ONCSMS> smsList;
 	
+	GlobalVariablesDB gvDB = GlobalVariablesDB.getInstance();
+	
 	private SMSDB()
 	{
 		super();
@@ -73,7 +75,7 @@ public class SMSDB extends ONCDatabase
 	String sendSMSRequest(Object source, int messageID, int phoneNum, List<Integer> famIDList)
 	{
 		//form a SMS Request
-		SMSRequest request = new SMSRequest(GlobalVariablesDB.getCurrentSeason(), messageID, phoneNum, 
+		SMSRequest request = new SMSRequest(gvDB.getCurrentSeason(), messageID, phoneNum, 
 											EntityType.FAMILY, famIDList);
 		
 		Gson gson = new Gson();

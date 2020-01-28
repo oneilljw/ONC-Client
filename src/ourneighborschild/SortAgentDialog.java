@@ -58,8 +58,6 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 	private JProgressBar progressBar;
 	private ONCEmailer oncEmailer;
 
-	private UserDB userDB;
-	private GlobalVariablesDB gvDB;
 	private DNSCodeDB dnsCodeDB;
 	private List<ONCUser> atAL;	//Holds references to agent objects for agent table
 	
@@ -70,11 +68,9 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		super(pf, 10);
 		this.setTitle("Our Neighbor's Child - Agent Management");
 
-		userDB = UserDB.getInstance();
 		if(userDB != null)
 			userDB.addDatabaseListener(this);
 		
-		gvDB = GlobalVariablesDB.getInstance();
 		if(gvDB != null)
 			gvDB.addDatabaseListener(this);
 		
@@ -240,7 +236,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		if(allAgentsCxBox.isSelected())
 			lblObjectMssg.setText("Referring Agents in DB:");
 		else
-			lblObjectMssg.setText(String.format("%d Referring Agents: ", GlobalVariablesDB.getCurrentSeason()));
+			lblObjectMssg.setText(String.format("%d Referring Agents: ", gvs.getCurrentSeason()));
 		
 		lblNumOfObjects.setText(Integer.toString(atAL.size()));
 		displaySortTable(atAL, true, tableRowSelectedObjectList);
@@ -1183,7 +1179,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		}
 		else if(dbe.getType().equals("UPDATED_GLOBALS"))
 		{
-			this.setTitle(String.format("Our Neighbor's Child - %d Agent Management", GlobalVariablesDB.getCurrentSeason()));
+			this.setTitle(String.format("Our Neighbor's Child - %d Agent Management", gvs.getCurrentSeason()));
 		}
 		else if(dbe.getType().equals("ADDED_USER") ||
 				dbe.getType().equals("UPDATED_USER") ||

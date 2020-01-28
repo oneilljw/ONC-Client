@@ -47,6 +47,7 @@ public class GiftCatalogDialog extends JDialog implements ActionListener, ListSe
 	private AbstractTableModel gcTableModel;
 	private JButton btnAdd, btnEdit, btnDelete, btnPrint;
 	private GiftCatalogDB cat;
+	private GlobalVariablesDB gvDB;
 		
 	public GiftCatalogDialog(JFrame pf)
 	{
@@ -59,6 +60,8 @@ public class GiftCatalogDialog extends JDialog implements ActionListener, ListSe
 		cat = GiftCatalogDB.getInstance();
 		if(cat != null)
 			cat.addDatabaseListener(this);
+		
+		gvDB = GlobalVariablesDB.getInstance();
 	
 		ChildDB childDB = ChildDB.getInstance();
 		if(childDB != null)
@@ -286,7 +289,7 @@ public class GiftCatalogDialog extends JDialog implements ActionListener, ListSe
 		}
 		else if(e.getSource() == btnPrint)
 		{
-			print(Integer.toString(GlobalVariablesDB.getCurrentSeason()) + " ONC Gift Catalog");
+			print(Integer.toString(gvDB.getCurrentSeason()) + " ONC Gift Catalog");
 		}		
 	}
 	

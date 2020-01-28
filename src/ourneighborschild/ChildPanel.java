@@ -256,7 +256,7 @@ public class ChildPanel extends JPanel implements DatabaseListener, EntitySelect
 			reqUpdateChild.updateChildData(firstnameTF.getText(), lastnameTF.getText(),
 											schoolTF.getText(), genderTF.getText(),
 											 convertCalendarDOBToGMT(dobDC.getCalendar()),
-											 GlobalVariablesDB.getCurrentSeason());
+											 gvs.getCurrentSeason());
 			
 			String response = cDB.update(this, reqUpdateChild);	//notify child has changed
 			if(response.startsWith("UPDATED_CHILD"))

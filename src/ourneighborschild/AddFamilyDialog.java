@@ -707,7 +707,7 @@ public class AddFamilyDialog extends JDialog implements ActionListener, ListSele
 					System.out.println(String.format("AddFamiliyDialog.processFamily: childDOB= %d",c.getGMTDoB()));
 					ONCChild addChildReq = new ONCChild(-1, addedFamily.getID(), c.getFirstName(), c.getLastName(),
 										c.getGender(), c.getGMTDoB(), c.getSchool(), 
-										GlobalVariablesDB.getCurrentSeason());
+										gvs.getCurrentSeason());
 					
 					cDB.add(this, addChildReq);
 				}
@@ -1052,7 +1052,7 @@ public class AddFamilyDialog extends JDialog implements ActionListener, ListSele
 		String getGender() { return gender; }
 		long getGMTDoB() { return gmtDoB; }
 		Date getLocalDoB() { return convertDOBFromGMTToLocalTime(gmtDoB).getTime(); }
-		String getAge_Gender() { return getAgeAndGender(GlobalVariablesDB.getCurrentSeason()); }
+		String getAge_Gender() { return getAgeAndGender(gvs.getCurrentSeason()); }
 		String getWish(int wn) { return wn >= 0 && wn < wishList.size() ? wishList.get(wn) : "Error"; }
 		
 		void setFirstName(String firstName) { this.firstName = firstName; }

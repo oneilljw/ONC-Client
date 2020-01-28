@@ -8,6 +8,7 @@ public class ONCWebsiteFamily
 	private String	fstatus;
 	private String	giftStatus;	
 	private int		dnsCodeID;
+	@SuppressWarnings("unused")
 	private String	dnsCodeAcronym;
 	private String	HOHFirstName;
 	private String	HOHLastName;

@@ -577,7 +577,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 		else if(dbe.getType().equals("LOADED_WISHES"))
 		{
 			this.setTitle(String.format("Our Neighbor's Child - %s %d Gifts", 
-				getGiftStatusAction().presentTense(), GlobalVariablesDB.getCurrentSeason()));
+				getGiftStatusAction().presentTense(), gvDB.getCurrentSeason()));
 		}
 	}
 	

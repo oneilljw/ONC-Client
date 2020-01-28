@@ -35,7 +35,10 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 	private static final int REGION_MAP_HEIGHT = 640;
 	private static final String REGION_MAP_CENTER = "38.845114,-77.374760";
 	
+	private GlobalVariablesDB gvDB;
 	private RegionDB regionDB;
+	private FamilyDB famDB;
+	
 	private JPanel schoolMapPanel, schoolDistPanel, regionMapPanel, regionDistPanel;
 	private JLabel lblSchoolClientMap = null, lblRegionClientMap = null;
 	private boolean bClientMapsInMemory;
@@ -44,7 +47,7 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 	private JLabel lblRegionTotalServed, lblSchoolTotalServed;
 	private int totalSchoolsServed, totalRegionsServed;
 	
-	private FamilyDB famDB;
+	
 	
 	public ClientMapDialog(JFrame parent)
 	{
@@ -62,6 +65,8 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 		regionDB = RegionDB.getInstance();
 		if(regionDB != null)
 			regionDB.addDatabaseListener(this);
+		
+		gvDB = GlobalVariablesDB.getInstance();
 		
 		//Initialize instance variables
 		bClientMapsInMemory = false;
@@ -419,7 +424,7 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 		}
 		else if(dbe.getType().equals("LOADED_FAMILIES"))
 		{
-			this.setTitle(String.format("Distribution of %d ONC Families Served Gifts", GlobalVariablesDB.getCurrentSeason()));
+			this.setTitle(String.format("Distribution of %d ONC Families Served Gifts", gvDB.getCurrentSeason()));
 		}
 		else if(dbe.getType().equals("LOADED_SCHOOLS"))
 		{

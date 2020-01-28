@@ -2003,7 +2003,6 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		buildTableList(false);
 	}
 	
-
 	@Override
 	public void valueChanged(ListSelectionEvent lse)
 	{
@@ -2062,7 +2061,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		}
 		else if(dbe.getType().equals("LOADED_PARTNERS"))
 		{
-			this.setTitle(String.format("Our Neighbor's Child - %d Partner Management", GlobalVariablesDB.getCurrentSeason()));
+			this.setTitle(String.format("Our Neighbor's Child - %d Partner Management", gvs.getCurrentSeason()));
 		}
 	}
 	
@@ -2269,10 +2268,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 				return NO_SUCH_PAGE;
 		    }
 			
-			SimpleDateFormat sYear = new SimpleDateFormat("yy");
-			SimpleDateFormat sSeason = new SimpleDateFormat("yyyy");
-			
-			int idx = Integer.parseInt(sYear.format(gvs.getSeasonStartDate())) % NUM_OF_XMAS_ICONS;
+			int idx = gvs.getCurrentSeason() % NUM_OF_XMAS_ICONS;
 			final Image img = gvs.getImageIcon(idx + XMAS_ICON_OFFSET).getImage();
 		     
 			Font[] lFont = new Font[4];
@@ -2318,7 +2314,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 				{	
 					printLabel(col * AVERY_LABEL_WIDTH + AVERY_SHEET_X_OFFSET,
 		    				row * AVERY_LABEL_HEIGHT + AVERY_SHEET_Y_OFFSET,
-		    				line, lFont, sSeason.format(gvs.getSeasonStartDate()), img, g2d);	
+		    				line, lFont, String.format("%d", gvs.getCurrentSeason()), img, g2d);	
 		    	
 					if(++col == AVERY_COLUMNS_PER_PAGE) { row++; col = 0; }
 				}
@@ -2329,6 +2325,5 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		     /* tell the caller that this page is part of the printed document */
 		     return PAGE_EXISTS;
 		}
-	}	
-		
+	}		
 }

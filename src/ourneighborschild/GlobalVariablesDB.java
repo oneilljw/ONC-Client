@@ -34,14 +34,18 @@ public class GlobalVariablesDB extends ONCDatabase implements Serializable
 	private static GlobalVariablesDB instance = null;
 	
 	private static JFrame oncFrame;
-	private Long oncDeliveryDate;
-	private static Long oncSeasonStartDate;
-	private Long oncGiftsReceivedDate;
-	private Long thanksgivingMealDeadline, decemberGiftDeadline;
-	private Long decemberMealDeadline, waitlistGiftDeadline;
-	private Long familyEditDeadline;
-	private String warehouseAddress;
-	private int defaultGiftID, defaultGiftCardID, deliveryActivityID;
+	
+	private ServerGVs serverGVs;
+	
+//	private Long oncDeliveryDate;
+//	private static Long oncSeasonStartDate;
+//	private Long oncGiftsReceivedDate;
+//	private Long thanksgivingMealDeadline, decemberGiftDeadline;
+//	private Long decemberMealDeadline, waitlistGiftDeadline;
+//	private Long familyEditDeadline;
+//	private String warehouseAddress;
+//	private int defaultGiftID, defaultGiftCardID;
+//	private int deliveryActivityID;
 	
 	private transient String[] sGrwth_pcts = {"5%", "10%", "15%", "20%", "25%"};
 	private transient int[] nGrwth_pcts = {5,10,15,20,25};
@@ -69,14 +73,20 @@ public class GlobalVariablesDB extends ONCDatabase implements Serializable
 		
 		//Initialize class variables
 		Long timeNow = System.currentTimeMillis();
-	    oncDeliveryDate = timeNow;
-	    oncGiftsReceivedDate = timeNow;
-	    thanksgivingMealDeadline = timeNow;
-	    decemberGiftDeadline = timeNow;
-	    decemberMealDeadline = timeNow;
-	    waitlistGiftDeadline = timeNow;
-	    familyEditDeadline = timeNow;
-	    oncSeasonStartDate = timeNow;
+		serverGVs = new ServerGVs(timeNow, timeNow, ServerGVs.DEFAULT_ADDRESS, timeNow,
+									timeNow, timeNow, timeNow, -1, -1, timeNow, timeNow);
+		
+//	    oncDeliveryDate = timeNow;
+//	    oncGiftsReceivedDate = timeNow;
+//	    thanksgivingMealDeadline = timeNow;
+//	    decemberGiftDeadline = timeNow;
+//	    decemberMealDeadline = timeNow;
+//	    waitlistGiftDeadline = timeNow;
+//	    familyEditDeadline = timeNow;
+//	    oncSeasonStartDate = timeNow;
+//	    warehouseAddress = "6476+Trillium+House+Lane+Centreville,VA";
+//		defaultGiftID = -1;
+//		defaultGiftCardID = -1;
 	   
 	    imageIcons = new ImageIcon[57];
 		imageIcons[0] = createImageIcon("onclogosmall.gif", "ONC Logo");
@@ -150,10 +160,6 @@ public class GlobalVariablesDB extends ONCDatabase implements Serializable
 		imageIcons[55] = createImageIcon("clipboard-green-16.png", "Family Note Responded_small");
 		imageIcons[56] = createImageIcon("clipboard-red-16.png", "Family Note Past Deadline_small");
 		
-		warehouseAddress = "6476+Trillium+House+Lane+Centreville,VA";
-		defaultGiftID = -1;
-		defaultGiftCardID = -1;
-		deliveryActivityID = -1;
 		startONCNum = 100;
 		ytyGrwthIndex = 2;
 		version = "N/A";
@@ -167,25 +173,35 @@ public class GlobalVariablesDB extends ONCDatabase implements Serializable
 	static JFrame getFrame() { return oncFrame; }
 	Date getTodaysDate() { return Calendar.getInstance(TimeZone.getTimeZone("UTC")).getTime(); }
 	
-	static int getCurrentSeason() { return getCalendar(oncSeasonStartDate).get(Calendar.YEAR); }
-	public Long getDeliveryDate() { return oncDeliveryDate; }
-	public Long getGiftsReceivedDate() { return oncGiftsReceivedDate; }
-//	public Calendar getGiftsReceivedCalendar() { return oncGiftsReceivedDate; }
-	public Long getThanksgivingMealDeadline() { return thanksgivingMealDeadline; }
-	public Long getDecemberGiftDeadline() { return decemberGiftDeadline; }
-	public Long getDecemberMealDeadline() { return decemberMealDeadline; }
-	public Long getWaitlistGiftDeadline() { return waitlistGiftDeadline; }
-	public Long getFamilyEditDeadline() { return familyEditDeadline; }
-	public Long getSeasonStartDate() { return oncSeasonStartDate; }
-	Calendar getSeasonStartCal() { return getCalendar(oncSeasonStartDate); }
-	public String getWarehouseAddress() { return warehouseAddress; }
+	
+	ServerGVs getServerGVs() { return serverGVs; }
+	int getCurrentSeason()
+	{ 
+		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+		cal.setTimeInMillis(serverGVs.getSeasonStartDateMillis());
+		return cal.get(Calendar.YEAR);
+	}
+	public Long getDeliveryDateMillis() { return serverGVs.getDeliveryDayMillis(); }
+	public Long getGiftsReceivedDate() { return serverGVs.getGiftsReceivedDateMillis(); }
+	public Long getThanksgivingMealDeadline() { return serverGVs.getThanksgivingMealDeadlineMillis(); }
+	public Long getDecemberGiftDeadline() { return serverGVs.getDecemberGiftDeadlineMillis(); }
+	public Long getDecemberMealDeadline() { return serverGVs.getDecemberMealDeadlineMillis(); }
+	public Long getWaitlistGiftDeadline() { return serverGVs.getWaitListGiftDeadlineMillis(); }
+	public Long getFamilyEditDeadline() { return serverGVs.getFamilyEditDeadlineMillis(); }
+	public Long getSeasonStartDate() { return serverGVs.getSeasonStartDateMillis(); }
+	Calendar getSeasonStartCal()
+	{ 
+		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+		cal.setTimeInMillis(serverGVs.getSeasonStartDateMillis());
+		return cal;
+	}
+	public String getWarehouseAddress() { return serverGVs.getWarehouseAddress(); }
 	int getStartONCNum() { return startONCNum; };
 	int getYTYGrwthIndex() { return ytyGrwthIndex; }
 	int getYTYGrwthPct() { return nGrwth_pcts[ytyGrwthIndex]; } 
 	String[] getGrwthPcts() { return sGrwth_pcts; }
-	int getDefaultGiftID() { return defaultGiftID; }
-	int getDefaultGiftCardID() { return defaultGiftCardID; }
-	int getDeliveryActivityID() { return deliveryActivityID; }
+	int getDefaultGiftID() { return serverGVs.getDefaultGiftID(); }
+	int getDefaultGiftCardID() { return serverGVs.getDefaultGiftCardID(); }
 
 	public ImageIcon getImageIcon(int icon){ return imageIcons[icon]; }
 	public ImageIcon getImageIcon(String description)
@@ -236,10 +252,12 @@ public class GlobalVariablesDB extends ONCDatabase implements Serializable
 	Image getImage(int icon) { return imageIcons[icon].getImage(); }
 	int getNumberOfWishesPerChild() { return NUMBER_OF_WISHES_PER_CHILD; }
 	static String getVersion() { return version; }
-	public static ImageIcon getSeasonIcon()
+	public ImageIcon getSeasonIcon()
 	{
-		Calendar oncSeasonStartCal = getCalendar(oncSeasonStartDate);
-		return imageIcons[oncSeasonStartCal.get(Calendar.YEAR) % NUM_OF_XMAS_ICONS + XMAS_ICON_OFFSET];
+		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+		cal.setTimeInMillis(serverGVs.getSeasonStartDateMillis());
+		
+		return imageIcons[cal.get(Calendar.YEAR) % NUM_OF_XMAS_ICONS + XMAS_ICON_OFFSET];
 	}
 	WebsiteStatus getWebsiteStatus() {return websiteStatus; }
 	boolean includeBarcodeOnLabels() { return bBarcodeOnOrnmament; }
@@ -247,21 +265,20 @@ public class GlobalVariablesDB extends ONCDatabase implements Serializable
 	Point getAveryLabelOffset() { return averyLabelOffsetPoint; }
 
 	//setters globally used - need to update at the server and broadcast
-	public void setDeliveryDate(Long dd) { oncDeliveryDate = dd; }
-	public void setGiftsReceivedDate(Long grd) { oncGiftsReceivedDate = grd; }
-	public void setThanksgivingMealDeadline(Long td) { thanksgivingMealDeadline = td; }
-	public void setDecemberGiftDeadline(Long dd) { decemberGiftDeadline = dd; }
-	public void setDecemberMealDeadline(Long td) { decemberMealDeadline = td; }
-	public void setWaitlistGiftDeadline(Long dd) { waitlistGiftDeadline = dd; }
-	public void setFamilyEditDeadline(Long fed) { familyEditDeadline= fed; }
-	public void setSeasonStartDate(Long ssd) { oncSeasonStartDate = ssd; }
-	public void setWarehouseAddress(String address) {warehouseAddress = address; }
+	public void setDeliveryDate(Long dd) { serverGVs.setDeliveryDayMillis(dd); }
+	public void setGiftsReceivedDate(Long grd) { serverGVs.setGiftsReceivedDateMillis(grd); }
+	public void setThanksgivingMealDeadline(Long td) { serverGVs.setThanksgivingMealDeadlineMillis(td); }
+	public void setDecemberGiftDeadline(Long dd) { serverGVs.setDecemberGiftDeadlineMillis(dd); }
+	public void setDecemberMealDeadline(Long dmd) { serverGVs.setDecemberMealDeadlineMillis(dmd); }
+	public void setWaitlistGiftDeadline(Long wlgd) { serverGVs.setWaitListGiftDeadlineMillis(wlgd); }
+	public void setFamilyEditDeadline(Long fed) { serverGVs.setFamilyEditDeadlineMillis(fed); }
+	public void setSeasonStartDate(Long ssd) { serverGVs.setSeasonStartDateMillis(ssd); }
+	public void setWarehouseAddress(String address) {serverGVs.setWarehouseAddress(address); }
 	public void setIncludeBarcodeOnLabels(boolean tf) { bBarcodeOnOrnmament = tf; }
 	public void setBarcode(Barcode barcode) { this.barcode = barcode; }
 	public void setAveryLabelOffset(Point offset) { this.averyLabelOffsetPoint = offset; }
-	public void setDefaultGift(ONCGift w) { this.defaultGiftID = w.getID(); }
-	public void setDefaultGiftCard(ONCGift w) { this.defaultGiftCardID = w.getID(); }
-	public void setDeliveryActivityID(Activity act) { this.deliveryActivityID = act.getID(); }
+	public void setDefaultGift(ONCGift w) { serverGVs.setDefaultGiftID(w.getID()); }
+	public void setDefaultGiftCard(ONCGift w) { serverGVs.setDefaultGiftCardID(w.getID()); }
 	
 	//Setters locally used
 	void setFrame(JFrame frame) { oncFrame = frame; }
@@ -280,6 +297,8 @@ public class GlobalVariablesDB extends ONCDatabase implements Serializable
 	
 	boolean isDayBeforeOrDeliveryDay()
 	{
+		return serverGVs.isDeliveryDayOrDayBefore();
+/*		
 		//check if today is the day before or the day of delivery
 		Calendar today = Calendar.getInstance();
 		
@@ -302,7 +321,8 @@ public class GlobalVariablesDB extends ONCDatabase implements Serializable
 		return isDayBeforeOrDeliveryDay;
 		
 		//TEST PURPOSES ONLY
-//		return true;
+//		return true; 
+ */
 	}
 	
 	 /** Returns an ImageIcon, or null if the path was invalid. */
@@ -327,20 +347,18 @@ public class GlobalVariablesDB extends ONCDatabase implements Serializable
 
 			if(serverGVs != null && !response.startsWith("NO_GLOBALS"))
 			{
-				oncDeliveryDate = serverGVs.getDeliveryDate();
-				oncGiftsReceivedDate = serverGVs.getGiftsReceivedDate();
-				thanksgivingMealDeadline = serverGVs.getThanksgivingMealDeadline();
-				decemberGiftDeadline = serverGVs.getDecemberGiftDeadline();
-				decemberMealDeadline = serverGVs.getDecemberMealDeadline();
-				waitlistGiftDeadline = serverGVs.getWaitListGiftDeadline();
-				familyEditDeadline = serverGVs.getFamilyEditDeadline();
-				oncSeasonStartDate = serverGVs.getSeasonStartDate();
-				warehouseAddress = serverGVs.getWarehouseAddress();
-				defaultGiftID = serverGVs.getDefaultGiftID();
-
-				defaultGiftCardID = serverGVs.getDefaultGiftCardID();
-				
-				deliveryActivityID = serverGVs.getDeliveryActivityID();
+				this.serverGVs = serverGVs;
+//				oncDeliveryDate = serverGVs.getDeliveryDayMillis();
+//				oncGiftsReceivedDate = serverGVs.getGiftsReceivedDateMillis();
+//				thanksgivingMealDeadline = serverGVs.getThanksgivingMealDeadlineMillis();
+//				decemberGiftDeadline = serverGVs.getDecemberGiftDeadlineMillis();
+//				decemberMealDeadline = serverGVs.getDecemberMealDeadlineMillis();
+//				waitlistGiftDeadline = serverGVs.getWaitListGiftDeadlineMillis();
+//				familyEditDeadline = serverGVs.getFamilyEditDeadlineMillis();
+//				oncSeasonStartDate = serverGVs.getSeasonStartDateMillis();
+//				warehouseAddress = serverGVs.getWarehouseAddress();
+//				defaultGiftID = serverGVs.getDefaultGiftID();
+//				defaultGiftCardID = serverGVs.getDefaultGiftCardID();
 				
 				response = "GLOBALS_LOADED";
 				
@@ -395,26 +413,25 @@ public class GlobalVariablesDB extends ONCDatabase implements Serializable
 	    		 String[] header = {"Delivery Date", "Season Start Date", "Warehouse Address",
 	    				 "Gifts Received Deadline", "Thanksgiving Meal Deadline", "December Gift Deadline", 
 	    				 "Edit Deadline", "Default Gift ID", "Defalut Gift Card ID", "December Meal Deadline",
-	    				 "Waitlist Deadline", "Del Act ID"};
+	    				 "Waitlist Deadline"};
 	    		
 	    		CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
 	    	    writer.writeNext(header);
 	    	    
-	    	    //Crate the gv row
-	    	    String[] row = {Long.toString(oncDeliveryDate),
-	    	    				Long.toString(oncSeasonStartDate),
-	    	    				warehouseAddress,
-	    	    				Long.toString(oncGiftsReceivedDate),
-	    	    				Long.toString(thanksgivingMealDeadline),
-	    	    				Long.toString(decemberGiftDeadline),
-	    	    				Long.toString(familyEditDeadline),
-	    	    				Integer.toString(defaultGiftID),
-	    	    				Integer.toString(defaultGiftCardID),
-	    	    				Long.toString(decemberMealDeadline),
-	    	    				Long.toString(waitlistGiftDeadline),
-	    	    				Integer.toString(deliveryActivityID)};
+	    	    //Create the gv row
+//	    	    String[] row = {Long.toString(oncDeliveryDate),
+//	    	    				Long.toString(oncSeasonStartDate),
+//	    	    				warehouseAddress,
+//	    	    				Long.toString(oncGiftsReceivedDate),
+//	    	    				Long.toString(thanksgivingMealDeadline),
+//	    	    				Long.toString(decemberGiftDeadline),
+//	    	    				Long.toString(familyEditDeadline),
+//	    	    				Integer.toString(defaultGiftID),
+//	    	    				Integer.toString(defaultGiftCardID),
+//	    	    				Long.toString(decemberMealDeadline),
+//	    	    				Long.toString(waitlistGiftDeadline)};
 	    	    
-	    	    writer.writeNext(row);	//Write gv row
+	    	    writer.writeNext(serverGVs.getExportRow());	//Write gv row
 	    	 
 	    	    writer.close();
 	    	    filename = oncwritefile.getName();
@@ -463,24 +480,25 @@ public class GlobalVariablesDB extends ONCDatabase implements Serializable
 	void processUpdatedObject(Object source, String json)
 	{
 		Gson gson = new Gson();
-		ServerGVs updatedObj = gson.fromJson(json, ServerGVs.class);
+		serverGVs = gson.fromJson(json, ServerGVs.class);
+//		ServerGVs updatedObj = gson.fromJson(json, ServerGVs.class);
 		
 		//store updated object in local data base
-		oncDeliveryDate = updatedObj.getDeliveryDate();
-		oncSeasonStartDate = updatedObj.getSeasonStartDate();
-		warehouseAddress = updatedObj.getWarehouseAddress();
-		oncGiftsReceivedDate = updatedObj.getGiftsReceivedDate();
-		thanksgivingMealDeadline = updatedObj.getThanksgivingMealDeadline();
-		decemberGiftDeadline = updatedObj.getDecemberGiftDeadline();
-		decemberMealDeadline = updatedObj.getDecemberMealDeadline();
-		waitlistGiftDeadline = updatedObj.getWaitListGiftDeadline();
-		familyEditDeadline = updatedObj.getFamilyEditDeadline();
-		defaultGiftID = updatedObj.getDefaultGiftID();
-		defaultGiftCardID = updatedObj.getDefaultGiftCardID();
-		deliveryActivityID = updatedObj.getDeliveryActivityID();
+//		serverGV
+//		oncDeliveryDate = updatedObj.getDeliveryDayMillis();
+//		oncSeasonStartDate = updatedObj.getSeasonStartDateMillis();
+//		warehouseAddress = updatedObj.getWarehouseAddress();
+//		oncGiftsReceivedDate = updatedObj.getGiftsReceivedDateMillis();
+//		thanksgivingMealDeadline = updatedObj.getThanksgivingMealDeadlineMillis();
+//		decemberGiftDeadline = updatedObj.getDecemberGiftDeadlineMillis();
+//		decemberMealDeadline = updatedObj.getDecemberMealDeadlineMillis();
+//		waitlistGiftDeadline = updatedObj.getWaitListGiftDeadlineMillis();
+//		familyEditDeadline = updatedObj.getFamilyEditDeadlineMillis();
+//		defaultGiftID = updatedObj.getDefaultGiftID();
+//		defaultGiftCardID = updatedObj.getDefaultGiftCardID();
 		
 		//Notify local user IFs that a change occurred
-		fireDataChanged(source, "UPDATED_GLOBALS", updatedObj);
+		fireDataChanged(source, "UPDATED_GLOBALS", serverGVs);
 	}
 	
 	String updateWebsiteStatus(Object source, WebsiteStatus updateWSReq)

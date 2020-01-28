@@ -1159,8 +1159,8 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	 **************/
 	boolean onShowPriorHistory()
 	{
-		String ly = Integer.toString(GlobalVariablesDB.getCurrentSeason()-1);
-		String py = Integer.toString(GlobalVariablesDB.getCurrentSeason()-2);
+		String ly = Integer.toString(gvs.getCurrentSeason()-1);
+		String py = Integer.toString(gvs.getCurrentSeason()-2);
 		
 		//Get prior year child
 		ONCPriorYearChild pyc = cDB.getPriorYearChild(currChild.getPriorYearChildID());

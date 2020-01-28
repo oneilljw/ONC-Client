@@ -649,7 +649,7 @@ public class VolunteerDialog extends EntityDialog
 			}
 			else if(dbe.getType().equals("LOADED_DRIVERS"))
 			{
-				this.setTitle(String.format("Our Neighbor's Child - %d Volunteer Information", GlobalVariablesDB.getCurrentSeason()));
+				this.setTitle(String.format("Our Neighbor's Child - %d Volunteer Information", gvs.getCurrentSeason()));
 			}
 			else if(dbe.getSource() != this && dbe.getType().contains("_VOLUNTEER_ACTIVITY"))
 			{

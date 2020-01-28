@@ -51,7 +51,7 @@ public class VolunteerDB extends ONCSearchableDatabase
 	//implementation of abstract classes
 	ONCVolunteer getObjectAtIndex(int index) { return volunteerList.get(index); }
 	
-	public List<ONCVolunteer> getDriverDB() { return volunteerList; }
+	public List<ONCVolunteer> getVolunteerList() { return volunteerList; }
 /*	
 	String importSignUpGeniusVolunteers(JFrame pFrame, String user )	
 	{	

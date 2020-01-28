@@ -20,10 +20,11 @@ public class Activity extends ONCEntity
 	private String description;
 	private boolean bOpen;
 	private boolean bEmailReminder;
+	private int deliveryActivity;	//0 = not delivery act, 1 = delivery act, 2 = default delivery act
 	
 	public Activity(int id, int geniusID, String category, String name, long start, long end, 
 								String location, String description, String volComment,
-								boolean bOpen, boolean bEmailReminder, String username) 
+								boolean bOpen, boolean bEmailReminder, int deliveryActivity, String username) 
 	{
 		super(id, System.currentTimeMillis(), username, 3, "New Activity", username);
 		this.geniusID = geniusID;
@@ -35,6 +36,7 @@ public class Activity extends ONCEntity
 		this.description = description;
 		this.bOpen = bOpen;
 		this.bEmailReminder = bEmailReminder;
+		this.deliveryActivity = deliveryActivity;
 	}
 	
 	public Activity(Activity activity)
@@ -50,6 +52,7 @@ public class Activity extends ONCEntity
 		this.description = activity.description;
 		this.bOpen = activity.bOpen;
 		this.bEmailReminder = activity.bEmailReminder;
+		this.deliveryActivity = activity.deliveryActivity;
 	}
 	
 	/***
@@ -70,12 +73,13 @@ public class Activity extends ONCEntity
 		this.description = "";
 		this.bOpen = false;
 		this.bEmailReminder = false;
+		this.deliveryActivity = 0;
 	}
 	
 	public Activity(String[] line)
 	{
-		super(Integer.parseInt(line[0]), Long.parseLong(line[10]), line[11],
-				Integer.parseInt(line[12]), line[13], line[14]);
+		super(Integer.parseInt(line[0]), Long.parseLong(line[11]), line[12],
+				Integer.parseInt(line[13]), line[14], line[15]);
 		
 		this.geniusID = line[1].isEmpty() ? -1 : Integer.parseInt(line[1]);
 		this.category = line[2];
@@ -86,6 +90,7 @@ public class Activity extends ONCEntity
 		this.description = line[7];
 		this.bOpen = !line[8].isEmpty() && line[8].charAt(0) == 'T' ? true : false;
 		this.bEmailReminder = !line[9].isEmpty() && line[9].charAt(0) == 'T' ? true : false;
+		this.deliveryActivity = line[10].isEmpty() ? 0 : Integer.parseInt(line[10]);
 	}
 	
 	//dummy Activity
@@ -101,6 +106,7 @@ public class Activity extends ONCEntity
 		this.description = "";
 		this.bOpen = false;
 		this.bEmailReminder = false;
+		this.deliveryActivity = 0;
 }
 	
 	//getters
@@ -111,9 +117,10 @@ public class Activity extends ONCEntity
 	public long getEndDate() { return endTimeInMillis; }
 	public String getLocation() { return location; }
 	String getDescription() { return description; }
-//	public String getComment() { return volComment; }
 	public boolean isOpen() { return bOpen; }
 	public boolean sendReminder() { return bEmailReminder; }
+	public boolean isDeliveryActivity() { return deliveryActivity > 0; }
+	public boolean isDefaultDeliveryActivity() { return deliveryActivity == 2; }
 	
 	//setters
 	public void setGeniusID(int gID) { this.geniusID = gID; }
@@ -122,10 +129,14 @@ public class Activity extends ONCEntity
 	public void setStartDate(long startDate) { this.startTimeInMillis = startDate; }
 	public void setEndDate(long endDate) { this.endTimeInMillis = endDate; }
 	void setLocation(String location) { this.location = location; }
-//	public void setComment(String volComment) { this.volComment = volComment; }
 	void setDescription(String description) { this.description = description; }
 	void setOpen (boolean bOpen) { this.bOpen = bOpen; }
 	void setReminder (boolean bRemind) { this.bEmailReminder = bRemind; }
+//	void setDeliveryActivity(boolean bDeliveryActivity) { this.deliveryActivity = bDeliveryActivity ? 1 : 0; }
+	void setDeliveryActivity(boolean bDeliveryActivity, boolean bDefaultDeliveryActivity)
+	{ 
+		deliveryActivity = bDefaultDeliveryActivity ? 2 : bDeliveryActivity ? 1 : 0; 
+	}
 
 	@Override
 	public String[] getExportRow() 
@@ -142,11 +153,12 @@ public class Activity extends ONCEntity
 		row[7] = description;
 		row[8] = bOpen ? "T" : "F";
 		row[9] = bEmailReminder ? "T" : "F";
-		row[10] = Long.toString(timestamp);
-		row[11] = changedBy;
-		row[12] = Integer.toString(slPos);
-		row[13] = slMssg;
-		row[14] = slChangedBy;
+		row[10] = Integer.toString(deliveryActivity);
+		row[11] = Long.toString(timestamp);
+		row[12] = changedBy;
+		row[13] = Integer.toString(slPos);
+		row[14] = slMssg;
+		row[15] = slChangedBy;
 		
 		return row;
 	}
