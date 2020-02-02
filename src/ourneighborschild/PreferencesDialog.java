@@ -1149,6 +1149,13 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		
 		void setTime(long time)
 		{
+			ServerGVs serverGVs = gvDB.getServerGVs();
+			String beforeAfterSeasonStart = "Before";
+			if(serverGVs.isAfterSeasonStartDate())
+				beforeAfterSeasonStart = "After";
+			
+			this.setToolTipText(String.format("%s season start= %d", beforeAfterSeasonStart, time));
+			
 			//gives you the current offset in ms from GMT at the current date
 			TimeZone tz = TimeZone.getDefault();	//Local time zone
 			int offsetFromUTC = tz.getOffset(time);

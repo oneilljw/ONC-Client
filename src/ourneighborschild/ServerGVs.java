@@ -100,7 +100,21 @@ public class ServerGVs extends ONCObject
 				System.currentTimeMillis() < giftDeliveryDayMillis + (TWENTY_FOUR_HOURS_MILLIS *2);
 	}
 	
-	public boolean isAfterSeasonStartDate() { return System.currentTimeMillis() >= seasonStartDayMillis; }
+	
+	//If season start date is midnight Sept 1, 2019 UTC (1567296000000), it is 8pm Aug 31, 2019 EDT
+	//that means if this test is performed exactly at or after 8pm Aug 31, 2019, true will be returned.
+	//If you want it to ask if it's past midnight on Sept 1, 2019 EDT, then we'd need to add the four
+	//hour offset to the test by adding it to the seasonStartDayMillis. So, one way to do that is to 
+	//determine what time zone we are in, calculate the offset to UTC, then perform the test and
+	//return the result.
+	public boolean isAfterSeasonStartDate() 
+	{
+		//gives you the current offset in ms from GMT at the current date
+		long currentTime = System.currentTimeMillis();
+		int offsetFromUTC = TimeZone.getDefault().getOffset(currentTime);
+		
+		return currentTime + offsetFromUTC >= seasonStartDayMillis; 
+	}
 	
 	public boolean isInSeason(int year) 
 	{ 
