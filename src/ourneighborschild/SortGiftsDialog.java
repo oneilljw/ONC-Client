@@ -1596,9 +1596,9 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 		 ********************************************************************************************/
 		void drawThickRect(Graphics2D g2d, int x, int y, int width, int height)
 		{
-//			float thickness = new Float(1.5);
+			float thickness = 1.5f;
 			Stroke oldStroke = g2d.getStroke();
-			g2d.setStroke(new BasicStroke(new Float(1.5)));
+			g2d.setStroke(new BasicStroke(thickness));
 			g2d.drawRect(x, y, width, height);
 			g2d.setStroke(oldStroke);
 		}

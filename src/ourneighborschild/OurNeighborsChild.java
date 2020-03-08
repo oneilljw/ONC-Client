@@ -10,9 +10,16 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
-import com.apple.eawt.Application;
-
+import java.awt.Desktop;
 import java.awt.Dimension;
+import java.awt.Taskbar;
+import java.awt.desktop.AboutEvent;
+import java.awt.desktop.AboutHandler;
+import java.awt.desktop.PreferencesEvent;
+import java.awt.desktop.PreferencesHandler;
+import java.awt.desktop.QuitEvent;
+import java.awt.desktop.QuitHandler;
+import java.awt.desktop.QuitResponse;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -23,6 +30,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.util.Calendar;
 import java.util.List;
 
 public class OurNeighborsChild
@@ -32,8 +40,9 @@ public class OurNeighborsChild
 	 */
 	//Static Final Variables
 	private static final int SERVER_CONNECT_RETRY_LIMIT = 3;
-	private static final String VERSION = "7.22";
+	private static final String VERSION = "7.23";
 	private static final String APPNAME = "Our Neighbor's Child";
+	private static final int JAVA_VERSION_NINE = 9;
 	private static final String ONC_SERVER_IP_ADDRESS_FILE = "serveraddress.txt";
 	private static final int MAIN_FRAME_WIDTH = 837;
 	private static final int MAIN_FRAME_HEIGHT = 668;
@@ -53,12 +62,23 @@ public class OurNeighborsChild
 //	private static final String defaultServerAddress = "34.224.169.163";// 2019 Amazon cloud development server
 	private static final String defaultServerAddress = "34.234.112.242";// 2019 Amazon cloud production server
 	private static final int PORT = 8901;
+	
+	private final boolean bMacOSX;
+	private final boolean bJava9orLater;
 
     public OurNeighborsChild()
     {	
-    		//If running under MAC OSX, use the system menu bar and set the application title appropriately and
-    		//set up our application to respond to the Mac OS X application menu
-        if(System.getProperty("os.name").toLowerCase().startsWith("mac os x"))
+    	//If running under MAC OSX, use the system menu bar and set the application title appropriately and
+    	//set up our application to respond to the Mac OS X application menu
+    	bMacOSX = System.getProperty("os.name").toLowerCase().startsWith("mac os x");
+    	
+    	//determine if java version is Java 9 or after. If so, use Desktop to set About, Preferences and Quit
+        //with lambds's. Otherwise use OSX Adapter
+        String javaVersion = System.getProperty("java.version");
+        String majorVersion = javaVersion.substring(0, javaVersion.indexOf('.'));
+        bJava9orLater = majorVersion.matches("-?\\d+(\\.\\d+)?") && Integer.parseInt(majorVersion) >= JAVA_VERSION_NINE;
+    	
+        if(bMacOSX)
         {          	
             System.setProperty("apple.laf.useScreenMenuBar", "true");
             System.setProperty("com.apple.mrj.application.apple.menu.about.name", APPNAME);
@@ -75,23 +95,34 @@ public class OurNeighborsChild
 			catch (UnsupportedLookAndFeelException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace(); }
-			
-            // Generic registration with the Mac OS X application, attempts to register with the Apple EAWT
-            // See OSXAdapter.java to see how this is done without directly referencing any Apple APIs
-            try
-            {
-                // Generate and register the OSXAdapter, passing it a hash of all the methods we wish to
-                // use as delegates for various com.apple.eawt.ApplicationListener methods
-                OSXAdapter.setQuitHandler(this, getClass().getDeclaredMethod("quit", (Class[])null));
-                OSXAdapter.setAboutHandler(this,getClass().getDeclaredMethod("about", (Class[])null));
-                OSXAdapter.setPreferencesHandler(this, getClass().getDeclaredMethod("preferences", (Class[])null));
- //             OSXAdapter.setFileHandler(this, getClass().getDeclaredMethod("loadImageFile", new Class[] { String.class }));
-            } 
-            catch (Exception e)
-            {
-                System.err.println("Error while loading the OSXAdapter:");
-                e.printStackTrace();
-            }
+            
+    		if(bJava9orLater)
+    		{
+    			Desktop desktop = Desktop.getDesktop();
+                
+    			desktop.setAboutHandler(new ClientAbout());
+                desktop.setQuitHandler(new ClientQuit());
+                desktop.setPreferencesHandler(new ClientPreferences());
+    		}
+    		else
+    		{	
+    			// Generic registration with the Mac OS X application, attempts to register with the Apple EAWT
+    			// See OSXAdapter.java to see how this is done without directly referencing any Apple APIs
+    			try
+    			{
+    				// Generate and register the OSXAdapter, passing it a hash of all the methods we wish to
+    				// use as delegates for various com.apple.eawt.ApplicationListener methods
+    				OSXAdapter.setQuitHandler(this, getClass().getDeclaredMethod("quit", (Class[])null));
+    				OSXAdapter.setAboutHandler(this,getClass().getDeclaredMethod("about", (Class[])null));
+    				OSXAdapter.setPreferencesHandler(this, getClass().getDeclaredMethod("preferences", (Class[])null));
+ //             	OSXAdapter.setFileHandler(this, getClass().getDeclaredMethod("loadImageFile", new Class[] { String.class }));
+    			} 
+    			catch (Exception e)
+    			{
+    				System.err.println("Error while loading the OSXAdapter:");
+    				e.printStackTrace();
+    			}
+    		}    
         }
        
         //Create and show mainframe with splash panel
@@ -318,7 +349,7 @@ public class OurNeighborsChild
     // A quit event is triggered by Cmd-Q, selecting Quit from the application or Dock menu, or logging out
     public boolean quit()
     {
-    		String response = "";
+    	String response = "";
 		response = serverIF.sendRequest("QUIT");
 		
 		if(response.equals("GOODBYE"))
@@ -331,34 +362,35 @@ public class OurNeighborsChild
     // "About OSXAdapter" is selected from the application menu   
     public void about()
     {
-    		dlgManager.showAboutONCDialog();
+    	dlgManager.showAboutONCDialog();
     }
 
     // General preferences dialog; fed to the OSXAdapter as the method to call when
     // "Preferences..." is selected from the application menu
     public void preferences()
     {
-    		dlgManager.showPreferencesDialog(); 	
+    	dlgManager.showPreferencesDialog(); 	
     }
     
     private void createMainFrame()
     {
-    		oncFrame = new JFrame(APPNAME);
+    	oncFrame = new JFrame(APPNAME);
     		
-    		ImageIcon appIcon = createImageIcon("onclogosmall.gif", "ONC Logo");
-    		if(System.getProperty("os.name").toLowerCase().startsWith("mac os x"))
-    			Application.getApplication().setDockIconImage(appIcon.getImage());
-    		else
-    			 oncFrame.setIconImage(appIcon.getImage());			
-/*    		
-    		//the following code sets the icon loading an image from a file for JDK 9
-        final Toolkit defaultToolkit = Toolkit.getDefaultToolkit();
-        ImageIcon appIcon = createImageIcon("onclogosmall.gif", "ONC Logo");
+    	ImageIcon appIcon = createImageIcon("onclogosmall.gif", "ONC Logo");
+//    	if(System.getProperty("os.name").toLowerCase().startsWith("mac os x"))
+//    		Application.getApplication().setDockIconImage(appIcon.getImage());
+//    	else
+    		oncFrame.setIconImage(appIcon.getImage());			
+   	
+  		if(bJava9orLater)
+  		{
+  			//the following code sets the icon loading an image from a file for JDK 9
+ // 		final Toolkit defaultToolkit = Toolkit.getDefaultToolkit();
 
-        //this is new since JDK 9
-        final Taskbar taskbar = Taskbar.getTaskbar();
+  			//this is new since JDK 9
+  			final Taskbar taskbar = Taskbar.getTaskbar();
 
-        try {
+  			try {
                 //set icon for mac os (and other systems which do support this method)
                 taskbar.setIconImage(appIcon.getImage());
             } catch (final UnsupportedOperationException e) {
@@ -366,10 +398,10 @@ public class OurNeighborsChild
             } catch (final SecurityException e) {
                 System.out.println("There was a security exception for: 'taskbar.setIconImage'");
             }
-
-        //set icon for windows os (and other systems which do support this method)
-        oncFrame.setIconImage(appIcon.getImage());
-*/    		
+  		}
+  		else
+  			oncFrame.setIconImage(appIcon.getImage());
+    		
     		
 		oncFrame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent we)
@@ -427,13 +459,13 @@ public class OurNeighborsChild
       
     void exit()
     {
-    		if(serverIF != null && serverIF.isConnected())
-    		{
+    	if(serverIF != null && serverIF.isConnected())
+    	{
 			serverIF.sendRequest("LOGOUT");
-    			serverIF.close();
-    		}
+    		serverIF.close();
+    	}
     	
-    		System.exit(0);
+    	System.exit(0);
     }
     
     public static void main(String args[])
@@ -442,5 +474,48 @@ public class OurNeighborsChild
 		{
 			public void run() { new OurNeighborsChild(); }
 	    });
-	}	    
+	}
+    
+    private class ClientAbout implements AboutHandler
+    {
+
+		@Override
+		public void handleAbout(AboutEvent arg0)
+		{
+			//User has chosen to view the About ONC dialog
+			Calendar now = Calendar.getInstance();
+			String msg = String.format("<html><b>Our Neighbor's Child Client</b>\nVersion %s\n%s2012 - %s John W. O'Neill", 
+					GlobalVariablesDB.getVersion(), "\u00a9", now.get(Calendar.YEAR));
+			
+			JOptionPane.showMessageDialog(GlobalVariablesDB.getFrame(), msg, "About the ONC Application", 
+											JOptionPane.INFORMATION_MESSAGE, GlobalVariablesDB.getONCLogo());
+		}
+
+    }
+    
+    private class ClientQuit implements QuitHandler
+    {
+
+		@Override
+		public void handleQuitRequestWith(QuitEvent arg0, QuitResponse arg1)
+		{
+			String response = "";
+			response = serverIF.sendRequest("QUIT");
+			
+			if(response.equals("GOODBYE"))
+	    			serverIF.close();
+	    			
+			System.exit(0);
+		}
+    }
+    
+    private class ClientPreferences implements PreferencesHandler
+    {
+
+		@Override
+		public void handlePreferences(PreferencesEvent arg0)
+		{
+			dlgManager.showPreferencesDialog();
+		}
+    }
 }
