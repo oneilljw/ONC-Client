@@ -968,11 +968,11 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 			if(!bIgnoreDialogEvents && "date".equals(pce.getPropertyName()))
 			{
 				checkApplyChangesEnabled();
-				if(pce.getSource() == dc_delivery.getDateEditor())
-				{
-					System.out.println(String.format("PrefDlg.DateChangeList: delivery time= %d, delivery time UTC = %d",
-						 dc_delivery.getDate().getTime(), dc_delivery.getTime()));
-				}
+//				if(pce.getSource() == dc_delivery.getDateEditor())
+//				{
+//					System.out.println(String.format("PrefDlg.DateChangeList: delivery time= %d, delivery time UTC = %d",
+//						 dc_delivery.getDate().getTime(), dc_delivery.getTime()));
+//				}
 			}
 		}
 	}
