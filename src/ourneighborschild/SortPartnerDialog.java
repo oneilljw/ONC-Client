@@ -88,7 +88,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
     private String[] status = {"Any","No Action Yet", "1st Email Sent", "Responded", "2nd Email Sent", "Called, Left Mssg",
 							   "Confirmed", "Not Participating"};
 	
-    private String[] types = {"Any","Business","Church","School", "Clothing", "Coat", "ONC Shopper"};
+    private String[] types = {"Any","Business","Church","School", "Individual", "Internal"};
 	
     private String[] columns;
 

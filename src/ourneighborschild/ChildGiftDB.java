@@ -18,7 +18,7 @@ import au.com.bytecode.opencsv.CSVWriter;
 
 public class ChildGiftDB extends ONCDatabase
 {
-	private static final int PARTNER_TYPE_ONC_SHOPPER = 6;
+//	private static final int PARTNER_TYPE_ONC_SHOPPER = 6;
 	private static final int GIFT_INDICATOR_ALLOW_SUBSTITUE = 2;
 	private static final String CHILD_GIFT_DEFAULT_DETAIL = "Age appropriate";
 	
@@ -285,7 +285,7 @@ public class ChildGiftDB extends ONCDatabase
 				if(reqStatus == GiftStatus.Returned)
 					newStatus = GiftStatus.Returned;
 				else if(reqStatus == GiftStatus.Delivered && reqPartner != null && 
-							reqPartner.getID() > -1 && reqPartner.getType() == PARTNER_TYPE_ONC_SHOPPER)
+							reqPartner.getID() > -1 && reqPartner.getGiftCollectionType() == GiftCollectionType.ONCShopper)
 					newStatus = GiftStatus.Shopping;
 				else if(reqStatus == GiftStatus.Delivered && reqPartner != null && reqPartner.getID() > -1)
 					newStatus = GiftStatus.Assigned;
@@ -300,9 +300,9 @@ public class ChildGiftDB extends ONCDatabase
 					newStatus = GiftStatus.Not_Selected;
 				else if(reqPartner != null && reqPartner.getID() == -1)
 					newStatus = GiftStatus.Selected;
-				else if(reqPartner != null && reqPartner.getType() != PARTNER_TYPE_ONC_SHOPPER)
+				else if(reqPartner != null && reqPartner.getGiftCollectionType() != GiftCollectionType.ONCShopper)
 					newStatus = GiftStatus.Assigned;
-				else if(reqPartner != null && reqPartner.getType() == PARTNER_TYPE_ONC_SHOPPER)
+				else if(reqPartner != null && reqPartner.getGiftCollectionType() == GiftCollectionType.ONCShopper)
 					newStatus = GiftStatus.Shopping;
 				break;
 				
@@ -332,7 +332,7 @@ public class ChildGiftDB extends ONCDatabase
 			case Missing:
 				if(reqStatus == GiftStatus.Received)
 					newStatus = GiftStatus.Received;
-				else if(reqPartner != null && reqPartner.getType() == PARTNER_TYPE_ONC_SHOPPER)
+				else if(reqPartner != null && reqPartner.getGiftCollectionType() == GiftCollectionType.ONCShopper)
 					newStatus = GiftStatus.Shopping;
 				else if(reqStatus == GiftStatus.Assigned && reqPartner != null && reqPartner.getID() > -1)
 					newStatus = GiftStatus.Assigned;
@@ -360,7 +360,7 @@ public class ChildGiftDB extends ONCDatabase
 	{
 		if(replGift != null && reqPartner != null && 
 			replGift.getGiftStatus() == GiftStatus.Delivered && 
-			 reqPartner.getType() == PARTNER_TYPE_ONC_SHOPPER && 
+			 reqPartner.getGiftCollectionType() == GiftCollectionType.ONCShopper && 
 			  reqGiftRes == GIFT_INDICATOR_ALLOW_SUBSTITUE)
 		{
 			return CHILD_GIFT_DEFAULT_DETAIL;

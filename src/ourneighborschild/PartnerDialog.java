@@ -40,7 +40,7 @@ public class PartnerDialog extends EntityDialog
 	 * of ONCPartner objects. 
 	 *********************************************************************************************/
 	private static final long serialVersionUID = 1L;
-	private static final int	CONFIRMED_STATUS_INDEX = 5;
+//	private static final int	CONFIRMED_STATUS_INDEX = 5;
 	
 	private RegionDB regions;
 	
@@ -116,7 +116,7 @@ public class PartnerDialog extends EntityDialog
         nameTF.setBorder(BorderFactory.createTitledBorder("Name (Last, First if individual)"));
         nameTF.addActionListener(dcListener);
                 
-        String[] types = {"?","Business","Church","School", "Clothing", "Coat", "ONC Shopper"};
+        String[] types = {"?","Business","Church","School", "Individual", "Internal"};
         typeCB = new JComboBox<String>(types);
         typeCB.setToolTipText("Type of organization e.g. Business");
         typeCB.setPreferredSize(new Dimension (136, 48));
@@ -487,7 +487,7 @@ public class PartnerDialog extends EntityDialog
 			}
 			
 			//CANNOT DELETE A ORGANIZATION THAT IS CONFIRMED
-			if(currPartner.getStatus() != CONFIRMED_STATUS_INDEX)
+			if(currPartner.getStatus() != ONCPartner.PARTNER_STATUS_CONFIRMED)
 				btnDelete.setEnabled(true);	
 			else
 				btnDelete.setEnabled(false);
@@ -556,10 +556,10 @@ public class PartnerDialog extends EntityDialog
 		else
 		{
 			//display an error message that update request failed
-			JOptionPane.showMessageDialog(this, "ONC Organizaiton Dialog Error:," +
-					"No current partner","ONC Org Dialog Error",  
+			JOptionPane.showMessageDialog(this, "Edit Partner Dialog Error:," +
+					"No current partner","Edit Partner Dialog Error",  
 					JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
-			return;	//If no current org, should never have gotten an update request
+			return;	//If no current partner, should never have gotten an update request
 		}
 		
 		int n;
@@ -569,7 +569,7 @@ public class PartnerDialog extends EntityDialog
 		if(statusCB.getSelectedIndex() !=reqPartner.getStatus())
 		{
 			//Can only change status if not confirmed or if confirmed and no ornaments assigned
-			if(reqPartner.getStatus() != CONFIRMED_STATUS_INDEX || reqPartner.getNumberOfOrnamentsAssigned() == 0)
+			if(reqPartner.getStatus() != ONCPartner.PARTNER_STATUS_CONFIRMED || reqPartner.getNumberOfOrnamentsAssigned() == 0)
 			{
 				reqPartner.setStatus(statusCB.getSelectedIndex());
 				bCD = true;

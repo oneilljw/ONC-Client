@@ -10,9 +10,9 @@ public class ONCPartner extends ONCEntity
 	public static final int PARTNER_TYPE_BUSINESS = 1;
 	public static final int PARTNER_TYPE_CHURCH = 2;
 	public static final int PARTNER_TYPE_SCHOOL = 3;
-	public static final int PARTNER_TYPE_CLOTHING = 4;
-	public static final int PARTNER_TYPE_COAT = 5;
-	public static final int PARTNER_TYPE_ONC_SHOPPER = 6;
+//	public static final int PARTNER_TYPE_CLOTHING = 4;
+//	public static final int PARTNER_TYPE_COAT = 5;
+//	public static final int PARTNER_TYPE_ONC_SHOPPER = 6;
 	
 	public static final int PARTNER_STATUS_CONFIRMED = 5;
 	
@@ -246,13 +246,22 @@ public class ONCPartner extends ONCEntity
 		this.status = PARTNER_STATUS_CONFIRMED;
 		
 		if(signUpType == SignUpType.Clothing)
-			this.type = PARTNER_TYPE_CLOTHING;
+		{	
+			this.type = 4;	//individual
+			this.collection = GiftCollectionType.Clothing;
+		}
 		else if(signUpType == SignUpType.Coat)
-			this.type = PARTNER_TYPE_COAT;
+		{	
+			this.type = 4;	//individual
+			this.collection = GiftCollectionType.Coats;
+		}
 		else
-			this.type = PARTNER_TYPE_ONC_SHOPPER;
+		{
+			this.type = 5;	//internal
+			this.collection = GiftCollectionType.Ornament;
+		}
 		
-		this.collection = GiftCollectionType.Ornament;
+		
 		this.lastName = sua.getLastname() + ", " + sua.getFirstname();
 		
 		Address address = getAddress(sua);

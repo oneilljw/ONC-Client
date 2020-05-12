@@ -6,12 +6,17 @@ public enum GiftCollectionType
 	Unknown,
 	General,
 	Ornament,
-	Meals;
+	Meals,
+	Clothing,
+	Coats,
+	ONCShopper;
 	
 	static GiftCollectionType[] selectionValues()
 	{
 		GiftCollectionType[] gcSelectionValues = {GiftCollectionType.Unknown, GiftCollectionType.General,
-											  GiftCollectionType.Ornament, GiftCollectionType.Meals};
+											  GiftCollectionType.Ornament, GiftCollectionType.Meals,
+											  GiftCollectionType.Clothing, GiftCollectionType.Coats,
+											  GiftCollectionType.ONCShopper};
 		
 		return gcSelectionValues;
 	}
