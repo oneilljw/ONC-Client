@@ -835,7 +835,7 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 	void onExportRequested()
 	{
 		//Write the selected row data to a .csv file
-		String[] header = {"ONC #", "Gender", "Age on 12/25", "DoB", "Res", "Gift", "Detail", "Status", 
+		String[] header = {"ONC #", "DNS", "ES Boundary","Gender", "Age on 12/25", "DoB", "Res", "Gift", "Detail", "Status", 
     						"Partner", "Changed By", "Date Changed"};
     
 		ONCFileChooser oncfc = new ONCFileChooser(this);

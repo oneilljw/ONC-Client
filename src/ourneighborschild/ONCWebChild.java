@@ -30,7 +30,8 @@ public class ONCWebChild
 		this.sDOB = c.getChildDOBString("M/dd/yyyy");
 		this.wish0 = "";
 		this.wish1 = "";
-		this.wish2 = "Age Appropriate Gift";
+//		this.wish2 = "Age Appropriate Gift";	//Changed in 2020: Only 2 Gifts allowed. 
+		this.wish2 = "No Wish 3 - Covid 19";
 		this.wish3 = "";
 	}
 	

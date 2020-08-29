@@ -11,6 +11,8 @@ public class SortGiftObject extends ONCObject
 	
 	PartnerDB partnerDB;
 	GiftCatalogDB cat;
+	RegionDB regionDB;
+	DNSCodeDB dnsCodeDB;
 	
 	String[] indicator = {"", "*", "#"};
 	
@@ -23,6 +25,8 @@ public class SortGiftObject extends ONCObject
 		
 		partnerDB = PartnerDB.getInstance();
 		cat = GiftCatalogDB.getInstance();
+		regionDB = RegionDB.getInstance();
+		dnsCodeDB = DNSCodeDB.getInstance();
 	}
 	
 	//getters
@@ -42,7 +46,10 @@ public class SortGiftObject extends ONCObject
 		ONCPartner partner = partnerDB.getPartnerByID(soChildGift.getPartnerID());
 		String partnerName = partner == null ? "" : partner.getLastName();
 		
-		String[] exportRow = {soFamily.getONCNum(), soChild.getChildGender(),
+		String[] exportRow = {soFamily.getONCNum(),
+								dnsCodeDB.getDNSCode(soFamily.getDNSCode()).toString(),
+								regionDB.getSchoolName(soFamily.getSchoolCode()),
+								soChild.getChildGender(),
 								soChild.getChildAge(),
 								soChild.getChildDOBString("MM-dd-yyyy"), 
 								indicator[soChildGift.getIndicator()],
