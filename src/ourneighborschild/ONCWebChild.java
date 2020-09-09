@@ -39,9 +39,9 @@ public class ONCWebChild
 	//getters
 	int getID() { return id; }
 	int getFamID() { return famid; }
-	String getFirstName() { return firstname; }
-	String getLirstName() { return lastname; }
+	public String getFirstName() { return firstname; }
+	public String getLirstName() { return lastname; }
 	String getSchool() { return school; }
 	String getGender() { return gender; }
-	String getDOB() { return sDOB; }
+	public String getDOB() { return sDOB; }
 }

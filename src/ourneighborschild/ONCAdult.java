@@ -31,6 +31,21 @@ public class ONCAdult extends ONCObject
 		this.gender = gender;
 	}
 	
+	public ONCAdult(ONCWebChild wc)	//move a web child to an adult
+	{
+		super(-1);
+		this.famid = wc.getFamID();
+		this.name = wc.getFirstName() + " " + wc.getLirstName();
+		
+		//if a child is a boy or girl, covert
+		if(wc.getGender().toLowerCase().contentEquals("boy") || wc.getGender().toLowerCase().contentEquals("male"))
+				this.gender = AdultGender.Male;
+		else if(wc.getGender().toLowerCase().contentEquals("girl") || wc.getGender().toLowerCase().contentEquals("female"))
+			this.gender = AdultGender.Female;
+		else
+			this.gender = AdultGender.Unknown;
+	}
+	
 	//Constructor used when importing data base from CSV by the server
 	public ONCAdult(String[] nextLine)
 	{
