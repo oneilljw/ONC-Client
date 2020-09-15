@@ -281,7 +281,7 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 		partnerCBM.removeAllElements();
 		partnerCBM.addElement(new ONCPartner(-1, "None", "None"));
 		
-		for(ONCPartner confirmedPartner: partnerDB.getConfirmedPartnerList(GiftCollectionType.Ornament))
+		for(ONCPartner confirmedPartner: partnerDB.getConfirmedPartnerList(EnumSet.of(GiftCollectionType.Ornament, GiftCollectionType.Clothing, GiftCollectionType.Coats, GiftCollectionType.ONCShopper)))
 			partnerCBM.addElement(confirmedPartner);
 		
 		//Restore selection to prior selection, if they are still confirmed
@@ -296,6 +296,24 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 //		debugAssigneeCBContents();
 	}	
 
+	//Changing for 2020 COVID 19 season. If gift panel is hard coded 2 (Third Gift) and the season is 2020,
+	//never enable the panel.
+	//We only are providing two gifts this season. See the commented out method below for prior season logic.
+	void setEnabledGift(ONCFamily fam)
+	{
+		//only enable gift panels if family has been verified and gifts have been requested
+		if(gvs.getCurrentSeason() == 2020 && giftNumber == 2 || fam.getFamilyStatus() == FamilyStatus.Unverified || fam.getGiftStatus() == FamilyGiftStatus.NotRequested)	
+			gpStatus = GiftPanelStatus.Disabled;
+		else 
+			gpStatus = GiftPanelStatus.Enabled;
+		
+		//now that we've updated the panel status, update the component status
+		if(childGift != null)
+			setEnabledGiftPanelComponents(childGift.getGiftStatus());
+		else
+			setEnabledGiftPanelComponents(GiftStatus.Not_Selected);
+	}
+/*	
 	void setEnabledGift(ONCFamily fam)
 	{
 		//only enable gift panels if family has been verified and gifts have been requested
@@ -310,7 +328,7 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 		else
 			setEnabledGiftPanelComponents(GiftStatus.Not_Selected);
 	}
-
+*/
 	void setEnabledGiftPanelComponents(GiftStatus ws)
 	{
 		if(gpStatus == GiftPanelStatus.Enabled)

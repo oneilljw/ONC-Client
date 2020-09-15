@@ -608,7 +608,9 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 		changePartnerCBM.addElement(new ONCPartner(-1, "No Change", "No Change"));
 		changePartnerCBM.addElement(new ONCPartner(-1, "None", "None"));
 		
-		for(ONCPartner confirmedPartner :partnerDB.getConfirmedPartnerList(GiftCollectionType.Ornament))
+		//get enumset of Ornament, Clothing, Coats, ONCShopper, the allowable types that are assigned gifts to fulfill
+		EnumSet<GiftCollectionType> assigneeCollectionTypeSet = EnumSet.of(GiftCollectionType.Ornament, GiftCollectionType.Clothing, GiftCollectionType.Coats, GiftCollectionType.ONCShopper);
+		for(ONCPartner confirmedPartner:partnerDB.getConfirmedPartnerList(assigneeCollectionTypeSet))
 		{
 			assignCBM.addElement(confirmedPartner);
 			changePartnerCBM.addElement(confirmedPartner);

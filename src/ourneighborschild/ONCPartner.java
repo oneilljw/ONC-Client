@@ -10,9 +10,9 @@ public class ONCPartner extends ONCEntity
 	public static final int PARTNER_TYPE_BUSINESS = 1;
 	public static final int PARTNER_TYPE_CHURCH = 2;
 	public static final int PARTNER_TYPE_SCHOOL = 3;
-//	public static final int PARTNER_TYPE_CLOTHING = 4;
-//	public static final int PARTNER_TYPE_COAT = 5;
-//	public static final int PARTNER_TYPE_ONC_SHOPPER = 6;
+	public static final int PARTNER_TYPE_CLOTHING = 4;
+	public static final int PARTNER_TYPE_COAT = 5;
+	public static final int PARTNER_TYPE_ONC_SHOPPER = 6;
 	
 	public static final int PARTNER_STATUS_CONFIRMED = 5;
 	

@@ -7,6 +7,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.List;
 
 import javax.swing.JOptionPane;
@@ -193,21 +194,23 @@ public class PartnerDB extends ONCSearchableDatabase
 	 * The top half of the list are confirmed businesses, churches and schools, sorted alphabetically.
 	 * The bottom half of the list are all other confirmed partners sorted alphabetically
 	 *****************************************************************************************/
-	List<ONCPartner> getConfirmedPartnerList(GiftCollectionType collectionType)
+	List<ONCPartner> getConfirmedPartnerList(EnumSet<GiftCollectionType> collectionTypeSet)
 	{
 		//Create two lists, the list to be returned and a temporary list
 		ArrayList<ONCPartner> confirmedPartnerList = new ArrayList<ONCPartner>();
 		ArrayList<ONCPartner> confirmedPartnerOtherList = new ArrayList<ONCPartner>();
 		
-		//Add the confirmed business, church and schools to the returned list and add all other 
-		//confirmed partners to the temporary list
+		//Add the confirmed business, church and schools, individuals and internal partners to the returned 
+		//list. Business, churches and schools are at the top of the list.
 		for(ONCPartner o: partnerList)
 		{
-			if(o.getStatus() == STATUS_CONFIRMED && o.getGiftCollectionType() == collectionType && 
-				o.getType() < ORG_TYPE_CLOTHING)
-				confirmedPartnerList.add(o);
-			else if(o.getStatus() == STATUS_CONFIRMED && o.getGiftCollectionType() == collectionType)
-				confirmedPartnerOtherList.add(o);		
+			if(o.getStatus() == STATUS_CONFIRMED && collectionTypeSet.contains(o.getGiftCollectionType()))
+			{
+				if(o.getType() <= ONCPartner.PARTNER_TYPE_SCHOOL)
+					confirmedPartnerList.add(o);
+				else
+					confirmedPartnerOtherList.add(o);					
+			}
 		}
 		
 		//Sort the two lists alphabetically by partner name

@@ -3157,7 +3157,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			//Draw the fulfillment check instruction
 		    g2d.setFont(psFont[0]);
 		    g2d.drawString("CHECK BOX(     ) IF ITEM IS IN FAMILY BAG, CIRCLE ITEM IF MISSING", x+10, y+56);
-		    drawThickRect(g2d, x+70, y+46, 12, 12, false);
+		    drawThickRect(g2d, x+86, y+46, 12, 12, false);
 /*		    
 		    //Draw the Packaged By:
 		    g2d.setFont(psFont[6]);
