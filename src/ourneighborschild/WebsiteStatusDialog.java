@@ -196,7 +196,7 @@ public class WebsiteStatusDialog extends InfoDialog implements DatabaseListener
 	@Override
 	boolean fieldUnchanged()
 	{
-		if(rbOnline.isSelected() && !websiteStatus.isWebsiteOnline() && tf[0].equals("Online") || 
+		if(rbOnline.isSelected() && !websiteStatus.isWebsiteOnline() && tf[0].getText().equals("Online") || 
 		    rbOffline.isSelected() && websiteStatus.isWebsiteOnline() && !tf[0].getText().isEmpty() && !tf[0].getText().equals("Online"))
 		{
 			return false;

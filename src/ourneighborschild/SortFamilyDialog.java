@@ -2574,7 +2574,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		else if(e.getSource() == dnsCodeCB)
 		{
 			DNSCode filterCode = (DNSCode) dnsCodeCB.getSelectedItem();
-			if(!filterCode.equals(sortDNSCode.getID()))
+			if(filterCode.getID() != sortDNSCode.getID())
 			{	
 				sortDNSCode = filterCode;
 				buildTableList(false);
@@ -2635,7 +2635,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			sortGCO = giftCardCB.getSelectedIndex();
 			buildTableList(false);
 		}
-		else if(e.getSource() == schoolCB && !((School) schoolCB.getSelectedItem()).equals(sortSchool.getCode()))
+		else if(e.getSource() == schoolCB && !(((School) schoolCB.getSelectedItem()).getCode()).equals(sortSchool.getCode()))
 		{
 			sortSchool = (School) schoolCB.getSelectedItem();
 			buildTableList(false);

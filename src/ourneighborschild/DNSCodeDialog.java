@@ -235,7 +235,7 @@ public class DNSCodeDialog extends EntityDialog implements DatabaseListener, Lis
 					List<DNSCode> codeList = (List<DNSCode>) dnsCodeDB.getList();
 					int index = 0;
 					while(index < codeList.size() &&
-							!codeList.get(index).getAcronym().equals(selectedFam.getDNSCode()))
+							codeList.get(index).getID() != selectedFam.getDNSCode())
 						index++;
 					
 					if(index < codeList.size())

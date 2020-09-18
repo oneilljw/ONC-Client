@@ -46,9 +46,11 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 	private static final int MIN_EMAIL_ADDRESS_LENGTH = 2;
 	private static final int MIN_EMAIL_NAME_LENGTH = 1;
 	
-	private JComboBox<String> orgCB, titleCB, batchCB, printCB, emailCB;
+	private JComboBox<String> orgCB, titleCB, printCB, emailCB;
+	private JComboBox<UserStatus> userStatusCB;
 	private DefaultComboBoxModel<String> orgCBM, titleCBM, emailCBM;
-	private String sortOrg, sortTitle, sortBatch;
+	private String sortOrg, sortTitle;
+	private UserStatus sortStatus;
 	private JCheckBox allAgentsCxBox;
 
 	private JButton btnEditAgentInfo;
@@ -84,16 +86,14 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		//Initialize the sort criteria variables
 		sortOrg = "Any";
 		sortTitle = "Any";
-		sortBatch = "Any";
+		sortStatus = UserStatus.Any;
 		
 		//Set up the search criteria panel 
-		String[] batchNums = {"Any","B-01","B-02","B-03","B-04","B-05","B-06","B-07","B-08",
-				"B-09","B-10", "B-CR", "B-DI", "B-01 to B-10"};
-		batchCB = new JComboBox<String>(batchNums);
-		batchCB.setPreferredSize(new Dimension(56, 56));
-		batchCB.setBorder(BorderFactory.createTitledBorder("Batch #"));
-		batchCB.setToolTipText("Filters table to contain agents who referrred in selected Batch");
-		batchCB.addActionListener(this);
+		userStatusCB = new JComboBox<UserStatus>(UserStatus.values());
+		userStatusCB.setPreferredSize(new Dimension(56, 56));
+		userStatusCB.setBorder(BorderFactory.createTitledBorder("Status"));
+		userStatusCB.setToolTipText("Filters table by Agent Status");
+		userStatusCB.addActionListener(this);
 		
 		orgCB = new JComboBox<String>();
 		orgCBM = new DefaultComboBoxModel<String>();
@@ -112,9 +112,9 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		titleCB.addActionListener(this);
 		
 		//Add all sort criteria components to dialog pane
-		sortCriteriaPanelTop.add(batchCB);
         sortCriteriaPanelTop.add(orgCB);
 		sortCriteriaPanelTop.add(titleCB);
+		sortCriteriaPanelTop.add(userStatusCB);
 		sortCriteriaPanelTop.add(Box.createHorizontalGlue());
 		
 		//Set the text for the agent count label
@@ -230,7 +230,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 			    doesOrgMatch(u.getOrganization()) &&
 				 doesTitleMatch(u.getTitle()) &&
 				  didAgentRefer(u) &&
-				   didAgentReferInBatch(u))
+				   doesStatusMatch(u))
 				atAL.add(u);
 		
 		if(allAgentsCxBox.isSelected())
@@ -930,44 +930,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 	boolean doesOrgMatch(String org) {return sortOrg.equals("Any") || sortOrg.equals(org);}
 	boolean doesTitleMatch(String title) {return sortTitle.equals("Any") || sortTitle.equals(title); }
 	boolean didAgentRefer(ONCUser u){ return allAgentsCxBox.isSelected() || fDB.didAgentRefer(u.getID()); }
-	boolean didAgentReferInBatch(ONCUser u)
-	{
-		if(sortBatch.equals("Any"))
-			return true;
-		else if(sortBatch.equals("B-01 to B-10"))
-		{
-			//build a list of families referred by the agent
-			List<ONCFamily> searchList = new ArrayList<ONCFamily>();
-			for(ONCFamily f : fDB.getList())
-				if(f.getAgentID() == u.getID())
-					searchList.add(f);
-			
-			//see if the any of the families referred by the agent are in B-00 thru B-10. When the first one
-			//stop the search and return true;
-			int index = 0;
-			while(index < searchList.size() && 
-					!isNumeric(searchList.get(index).getBatchNum().substring(2)))
-				index++;
-			
-			return index < searchList.size();
-		}
-		else
-		{
-			//build a list of families referred by the agent
-			List<ONCFamily> searchList = new ArrayList<ONCFamily>();
-			for(ONCFamily f : fDB.getList())
-				if(f.getAgentID() == u.getID())
-					searchList.add(f);
-			
-			//see if the any of the families referred by the agent are in the batch. When the first one
-			//stop the search and return true;
-			int index = 0;
-			while(index < searchList.size() && !searchList.get(index).getBatchNum().equals(sortBatch))
-				index++;
-		
-			return index < searchList.size();
-		}
-	}
+	boolean doesStatusMatch(ONCUser u) { return sortStatus == UserStatus.Any || sortStatus == u.getStatus(); }
 	
 	void onExportContactGroup()
 	{
@@ -1018,21 +981,21 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 	@Override
 	String[] getColumnToolTips() 
 	{
-		String[] colToolTips = {"Agent First Name", "Agent Last Name", "Organization", "Title", "EMail Address", "Phone"};
+		String[] colToolTips = {"Agent First Name", "Agent Last Name", "Organization", "Title", "EMail Address", "Phone", "User Status"};
 		return colToolTips;
 	}
 
 	@Override
 	String[] getColumnNames() 
 	{
-		String[] columns = {"First Name", "Last Name", "Org", "Title", "EMail", "Phone"};
+		String[] columns = {"First Name", "Last Name", "Org", "Title", "EMail", "Phone", "Status"};
 		return columns;
 	}
 
 	@Override
 	int[] getColumnWidths() 
 	{
-		int[] colWidths = {72, 80, 160, 120, 168, 120};
+		int[] colWidths = {72, 80, 160, 120, 168, 120, 88};
 		return colWidths;
 	}
 
@@ -1061,12 +1024,12 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 			sortTitle = titleCB.getSelectedItem().toString();
 			buildTableList(false);			
 		}
-		else if(e.getSource() == batchCB && !bIgnoreCBEvents && !batchCB.getSelectedItem().toString().equals(sortBatch))
+		else if(e.getSource() == userStatusCB && !bIgnoreCBEvents && userStatusCB.getSelectedItem() != sortStatus)
 		{
 			sortTable.clearSelection();
 			familyTable.clearSelection();
 			
-			sortBatch = batchCB.getSelectedItem().toString();
+			sortStatus = (UserStatus) userStatusCB.getSelectedItem();
 			buildTableList(false);			
 		}
 		else if(e.getSource() == allAgentsCxBox )
@@ -1251,6 +1214,8 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
     			Collections.sort(aAL, new ONCUserOrgComparator());
 		else if (dbField.equals("Title"))	//Sort on Agent Title
     			Collections.sort(aAL, new ONCUserTitleComparator());
+		else if (dbField.equals("Status"))	//Sort on Agent Status
+			Collections.sort(aAL, new ONCUserStatusComparator());
 		else
 			bSortOccurred = false;
 		
@@ -1268,7 +1233,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 	{
 		ONCUser u = (ONCUser) o;
 		Object[] ai = {u.getFirstName(), u.getLastName(), u.getOrganization(), u.getTitle(), 
-						u.getEmail(), u.getCellPhone()};
+						u.getEmail(), u.getCellPhone(), u.getStatus().toString()};
 		return ai;
 	}
 	
@@ -1290,10 +1255,10 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		sortTitle = "Any";
 		titleCB.addActionListener(this);
 		
-		batchCB.removeActionListener(this);
-		batchCB.setSelectedIndex(0);	//Will trigger the CB event handler which
-		sortBatch = "Any";
-		batchCB.addActionListener(this);
+		userStatusCB.removeActionListener(this);
+		userStatusCB.setSelectedIndex(0);	//Will trigger the CB event handler which
+		sortStatus = UserStatus.Any;
+		userStatusCB.addActionListener(this);
 		
 		allAgentsCxBox.removeActionListener(this);
 		allAgentsCxBox.setSelected(false);
@@ -1347,6 +1312,15 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		public int compare(ONCUser o1, ONCUser o2)
 		{			
 			return o1.getTitle().compareTo(o2.getTitle());
+		}
+	}
+	
+	private class ONCUserStatusComparator implements Comparator<ONCUser>
+	{
+		@Override
+		public int compare(ONCUser o1, ONCUser o2)
+		{			
+			return o1.getStatus().compareTo(o2.getStatus());
 		}
 	}
 }

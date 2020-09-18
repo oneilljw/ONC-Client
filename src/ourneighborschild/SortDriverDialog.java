@@ -34,8 +34,8 @@ public class SortDriverDialog extends DependantTableDialog
 	private JComboBox<String> lNameCB, changedByCB;
 	private JComboBox<ImageIcon> stoplightCB;
 	private DefaultComboBoxModel<String> lNameCBM, changedByCBM;
-	private String sortLName;
-	private int sortChangedBy, sortStoplight;
+	private String sortLName, sortChangedBy;
+	private int sortStoplight;
 	private JComboBox<String> drvCB, exportCB, printCB;
 	
 	private FamilyHistoryDB familyHistoryDB;
@@ -78,7 +78,7 @@ public class SortDriverDialog extends DependantTableDialog
 		//Initialize the sort criteria variables. Reusing superclass sortONCNum for driver number
 		sortONCNum = "Any";
 		sortLName = "Any";
-		sortChangedBy = 0;
+		sortChangedBy = "Any";
 		sortStoplight = 0;
 		
 		//Set up the search criteria panel
@@ -305,7 +305,7 @@ public class SortDriverDialog extends DependantTableDialog
 		}
 		
 		changedByCB.setSelectedIndex(selIndex); //Keep current selection in sort criteria
-		sortChangedBy = selIndex;
+		sortChangedBy = (String) changedByCB.getSelectedItem();
 		
 		changedByCB.addActionListener(this);
 	}
@@ -440,7 +440,7 @@ public class SortDriverDialog extends DependantTableDialog
 	
 	boolean doesDrvNumMatch(String drvNum) { return sortONCNum.equals("Any") || sortONCNum.equals(drvNum); }
 	boolean doesLNameMatch(String drvLName) {return sortLName.equals("Any") || sortLName.equals(drvLName);}
-	boolean doesChangedByMatch(String cb) { return sortChangedBy == 0 || cb.equals(changedByCB.getSelectedItem()); }
+	boolean doesChangedByMatch(String cb) { return sortChangedBy.equals("Any") || cb.equals(changedByCB.getSelectedItem()); }
 	boolean doesStoplightMatch(int sl) { return sortStoplight == 0 || sl == stoplightCB.getSelectedIndex()-1; }
 	
 	@Override
@@ -498,7 +498,7 @@ public class SortDriverDialog extends DependantTableDialog
 			sortTable.clearSelection();
 			familyTable.clearSelection();
 			
-			sortChangedBy = changedByCB.getSelectedIndex();
+			sortChangedBy = (String) changedByCB.getSelectedItem();
 			buildTableList(false);			
 		}
 		else if(e.getSource() == stoplightCB && stoplightCB.getSelectedIndex() != sortStoplight)
@@ -655,7 +655,7 @@ public class SortDriverDialog extends DependantTableDialog
 		
 		changedByCB.removeActionListener(this);
 		changedByCB.setSelectedIndex(0);		//Will trigger the CB event handler which
-		sortChangedBy = 0;
+		sortChangedBy = "Any";
 		changedByCB.addActionListener(this);
 		
 		stoplightCB.removeActionListener(this);
