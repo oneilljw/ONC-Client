@@ -7,11 +7,14 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Properties;
 import javax.mail.AuthenticationFailedException;
+import javax.mail.Authenticator;
 import javax.mail.Message;
 import javax.mail.MessagingException;
+import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.event.TransportEvent;
 import javax.mail.event.TransportListener;
+import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
@@ -70,16 +73,29 @@ public class ONCEmailer extends SwingWorker<Void, Void> implements TransportList
 		//Set system properties to create session
 		Properties props = System.getProperties();
         props.put("mail.smtps.host", credentials.getServerName());
+        props.put("mail.smtp.port", "465");
+        props.put("mail.smtp.ssl.enable", "true");
         props.put("mail.smtps.auth","true");
         
+        // Get the Session object.// and pass username and password
+        Session session = Session.getInstance(props, new javax.mail.Authenticator()
+        {
+            protected PasswordAuthentication getPasswordAuthentication() 
+            {
+                return new PasswordAuthentication(credentials.getUserID(), credentials.getPassword());
+            }
+        });
+     
+        
         //Create the session and transport
-        Session session = Session.getInstance(props, null);
+//      Session session = Session.getInstance(props, null);
         SMTPTransport t = (SMTPTransport)session.getTransport("smtps");
         t.addTransportListener(this);
 
         try 
         {
         	t.connect(credentials.getServerName(), credentials.getUserID(), credentials.getPassword());
+        	System.out.println(String.format("ONCEmailer upon connect: %s", t.getLastServerResponse()));
         }
         catch (AuthenticationFailedException aex) 
         {
@@ -93,10 +109,20 @@ public class ONCEmailer extends SwingWorker<Void, Void> implements TransportList
         //for each email in the email list, create a MimeMessage and send the email
         MimeMessage msg = null;
         this.setProgress(0);	//Initialize progress bound, incremented by transport listeners
+        
+        System.out.println(String.format("ONCEmailer: emailAL size= %d", emailAL.size()));
+        
 		for(ONCEmail email:emailAL)
 		{
-			try {	//Create the message and send it
-				msg = createMimeMessage(session, email);
+			System.out.println("ONC Emailer.createAndSendEmail: Got to createing the mime message");
+			
+			msg = createSimpleMimeMessage(session, credentials);
+			
+/*			
+			try 
+			{	//Create the message and send it
+				msg = createMimeMessage(session, email);				
+				System.out.println(String.format("ONCEmailer: msg: %s", msg.toString()));
 			} catch (MessagingException mex) {
 				System.out.println("send failed, message exception: " + mex);
 				mex.printStackTrace();
@@ -107,7 +133,7 @@ public class ONCEmailer extends SwingWorker<Void, Void> implements TransportList
 				ioex.printStackTrace();
 				msg = null;
 			}
-			
+*/			
 			if(msg != null)
 			{
 				t.sendMessage(msg, msg.getAllRecipients());
@@ -126,16 +152,18 @@ public class ONCEmailer extends SwingWorker<Void, Void> implements TransportList
 	 ***************************************************************************************************/
 	MimeMessage createMimeMessage(Session session, ONCEmail email) throws MessagingException, IOException
 	{
+		System.out.println(String.format("ONC Emailer.createMimeMessage: session: %s", session.toString()));
+		
 		MimeMessage msg = new MimeMessage(session);
+		
+		System.out.println("ONC Emailer.createMimeMessage: created new MimeMessage msg");
         
         MimeMultipart content = new MimeMultipart("related");
         
         //If there are attachments, create the attachments, 
         //attachments must be in the application launch folder
         ArrayList<MimeBodyPart> imagePart = new ArrayList<MimeBodyPart>();
-        
-        
-    
+                
         for(int i=0; i<attachmentAL.size(); i++)
         {
         	imagePart.add(new MimeBodyPart()); 
@@ -151,6 +179,9 @@ public class ONCEmailer extends SwingWorker<Void, Void> implements TransportList
         //Create the email body
         MimeBodyPart textPart = new MimeBodyPart();
         textPart.setText(email.getEmailBody(), "US-ASCII", "html");
+        
+        System.out.println(String.format("ONCEmiler.createMimeMessge: textPart: %s",
+    			textPart.toString()));
        
         //add the parts
         content.addBodyPart(textPart);
@@ -186,10 +217,45 @@ public class ONCEmailer extends SwingWorker<Void, Void> implements TransportList
         msg.setSentDate(new Date());
         
       //Ensure first email address is a valid address, else return null
-        if(email.getToAddressees().get(0).getEmailAddress().length() > MIN_EMAIL_ADDRESS_LENGTH)	
+        if(email.getToAddressees().get(0).getEmailAddress().length() > MIN_EMAIL_ADDRESS_LENGTH)
+        {	
+        	System.out.println(String.format("ONCEmiler.createMimeMessge: valid email address: %s",
+        			email.getToAddressees().get(0).getEmailAddress()));
         	return msg;
-        else 
+        }
+        else
+        {	
+        	System.out.println("ONCEmailer.cerateMimeMessage: Invalid email address");
         	return null;
+        }
+	}
+	
+	MimeMessage createSimpleMimeMessage(Session session, ServerCredentials creds)
+	{
+		System.out.println("Creating Simple Mime Message");
+		
+		MimeMessage message = new MimeMessage(session);
+		 
+		System.out.println("Constructed Mime Message");
+
+        // Set From: header field of the header.
+        try
+		{
+        	message.setFrom(new InternetAddress(creds.getUserID()));
+			message.addRecipient(Message.RecipientType.TO, new InternetAddress("johnwoneill1@gmail.com"));
+			message.setSubject("This is the Subject Line!");
+			message.setText("This is actual message");
+		}
+		catch (AddressException e)
+		{
+			System.out.println("send failed, address exception: " + e.getMessage());
+		}
+		catch (MessagingException e)
+		{
+			System.out.println("send failed, message exception: " + e.getMessage());
+		}
+         
+        return message;
 	}
 	
     @Override

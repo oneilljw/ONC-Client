@@ -26,8 +26,14 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Properties;
 
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
+
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
@@ -225,6 +231,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
       				"Gmail Contact List",
       				"Partner Info",
       				"Partner Performance",
+      				"Partner Letter Data"
 				};
       	exportCB = new JComboBox<String>(exportChoices);
       	exportCB.setPreferredSize(new Dimension(136, 28));
@@ -239,8 +246,8 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 				
         String[] emailChoices = {
 								"Email",
-								"2019 Church/School Email - Diane Church",
-								"2019 Business Email - Kathleen McDonald",
+								"2020 Church/School Email - Diane Church",
+								"2020 Business Email - Kathleen McDonald",
 //								"2018 Season: Church Gift Drop Off Email",
 //								"2018 Season: McDonald Gift Drop Off Email",
 								};
@@ -472,7 +479,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		{
 			subject = "Greetings From Our Neighbor's Child";
 			bIncludesAttachments = true;
-			
+						
 			//construct a file chooser
 			ONCFileChooser fc = new ONCFileChooser(this);
 			FileNameExtensionFilter fnef = new FileNameExtensionFilter("JPEG file", "jpg", "jpeg");
@@ -496,7 +503,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 					attachmentAL.add(new ONCEmailAttachment(attachmentfile1, cid1, MimeBodyPart.INLINE));
 					bAttachmentsSelected = true;
 				}
-			}	
+			}				
 		}
 		if(emailType == 3)	//church & school gift drop off email
 		{
@@ -518,7 +525,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 	        if(emailType == 1)	//Church and School Email
 	        	emailBody = create2019SeasonChurchSchoolEmailBody(o, cid0, cid1);
 	        if(emailType == 2)	//Business Email
-	        	emailBody = create2019SeasonBusinessEmailBody(o, cid0, cid1);
+	        	emailBody = create2020SeasonBusinessEmailBody(o, cid0, cid1);
 	        if(emailType == 3)	//Church and School Email
 	        	emailBody = create2018SeasonChurchSchoolEmailBody(o, cid0, cid1);
 	        if(emailType == 4)	//Business Email
@@ -591,11 +598,30 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 	    			oncEmailer = new ONCEmailer(this, progressBar, fromAddress, bccList, emailAL, attachmentAL, creds);
 	    			oncEmailer.addPropertyChangeListener(this);
 	    			oncEmailer.execute();
-	    		}
+	    	}
 	    }
 	    
 	    emailCB.setEnabled(false);		
 	}
+	
+	void sendTestGmail()
+	{
+		
+	}
+	
+	 public static MimeMessage createEmail(String to, String from, String subject, String bodyText) throws MessagingException
+	 {
+		 Properties props = new Properties();
+		 Session session = Session.getDefaultInstance(props, null);
+
+		 MimeMessage email = new MimeMessage(session);
+
+		 email.setFrom(new InternetAddress(from));
+		 email.addRecipient(javax.mail.Message.RecipientType.TO, new InternetAddress(to));
+		 email.setSubject(subject);
+		 email.setText(bodyText);
+		 return email;
+	 }
 /*	
 	String create2015ClothingDonorEmailBody(String cid0)
 	{	
@@ -1534,6 +1560,134 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
         return msgtop + msgmid + msgbot;
 	}
 	
+	String create2020SeasonBusinessEmailBody(ONCPartner o, String cid0, String cid1)
+	{
+		//Create the variables for the body of the email     
+        String name = o.getLastName();
+        
+        //The next section of code is a temporary fix until the ONCPartner object is updated
+        //to split the contact and contact2 name fields into contact fn, contact ln
+        //contact2 fn and contact2 ln fields.
+        String fn = "";
+        if(o.getContact().length() > 1)
+        {
+        	 String[] names1 = o.getContact().split(" ");
+        	if(names1.length == 1 || names1.length == 2)
+        		fn = names1[0];
+        	else
+        		fn = names1[0] + " " + names1[1];
+		}
+        
+        String fn2 = "";
+        if(o.getContact2().length() > 1)
+        {
+        	String[] names2 = o.getContact2().split(" ");
+        	if(names2.length == 1 || names2.length == 2)
+        		fn2 = names2[0];
+        	else
+        		fn2 = names2[0] + " " + names2[1];
+        }
+        
+        if(fn.length() <= 1 && fn2.length() > 1)	//contact 1 empty, contact2 exists
+        	fn = fn2;
+        else if(fn.length() > 1 && fn2.length() > 1)	//both contacts exist
+        	fn = fn.concat(" & " + fn2);        
+        //End of temporary code to handle contact name splitting
+   
+        String address = o.getHouseNum() + " " + o.getStreet() + " " + o.getUnit() + " " +
+        				 o.getCity() + ", VA " + o.getZipCode();
+        String contact = o.getContact();
+        String busphone = o.getHomePhone();
+       
+        //Pick the 1st contact phone if it is valid, else try the organization phone number
+        String contactphone = "";
+        if(o.getContact_phone().length() >= MIN_PHONE_NUMBER_LENGTH)
+        	contactphone = o.getContact_phone();
+        else if(o.getHomePhone().length() >= MIN_PHONE_NUMBER_LENGTH)
+        	contactphone = o.getHomePhone();	
+        String contactemail = o.getContact_email();
+        
+        //Pick the 2nd contact phone if it is valid, else try the organization phone number
+        String contact2 = o.getContact2().trim();
+        String contact2phone = "";
+        if(o.getContact2_phone().length() >= MIN_PHONE_NUMBER_LENGTH)
+        	contact2phone = o.getContact2_phone();
+        else if(o.getHomePhone().length() >= MIN_PHONE_NUMBER_LENGTH)
+        	contact2phone = o.getHomePhone();	
+        String contact2email = o.getContact2_email();
+        
+        String giftCollectionType = o.getGiftCollectionType().toString();
+        int orn_requested = o.getPriorYearRequested();
+//      String specNotes = o.getSpecialNotes();
+//      int orn_receivedByDeadline = o.getPriorYearReceived();
+        
+//        String notes = "None";
+//        if(o.getSpecialNotes().length() > 1)
+//        	notes = o.getSpecialNotes();
+        
+        String msgtop = String.format("<html><body><div>"
+        		+ "<p>Dear %s,</p>"
+        		+ "<p>Welcome to ONC's 29th season of providing holiday gifts to local children in need. The Covid 19 pandemic may make this our most challenging year yet.</p>"
+        		+ "<p>We greatly appreciate your past support of Our Neighbor's Child. We hope your businesses, employees, and familiesare faring well during these difficult times.</p>"
+        		+ "<p>As you can imagine, current social distancing restrictions will have a significant impact on ONC's \"normal\" operations.  Providing holiday assistance to children from hundreds of local families in need always takes an ARMY of helping hands.</p>"
+        		+ "<p>We have deeply valued our role in connecting young people in our community with volunteerism. We've purposefully engaged hundreds of high school students in our gift collection and sorting operations. For nearly three decades, ONC has counted on:</p>"
+        		+ "<ul>"
+        		+ "<li>Local high school football teams who move and set up our supplies</li>"
+        		+ "<li>Lacrosse teams who load cars for delivery and help clean up and move us from our donated warehouse space. </li>"
+        		+ "<li>Service clubs and cheerleaders who make the space festive</li>"
+        		+ "<li>Middle school students who make thousands of wish ornaments</li>"
+        		+ "<li>Honor society students who collect gifts and check the accuracy of each family's gift bags</li>"
+        		+ "<li>Hundreds of Student Government students who unload,sort, receive and distribute gifts, collect gift wrap and bake thousands of cookies that have accompanied home deliveries</li>"
+        		+ "</ul>"
+        		+ "<p>Add to that the valuable on-site participation of local business partners and it’s clear our normal program wouldn’t be possible without every helping hand.</p>"
+        		+ "<p><b>This season, Covid 19 changes everything.</b></p>"
+        		+ "<p>Still, we believe that being there for these families and providing a measure of holiday cheer for their children will offer a semblance of \"normalcy\" that could be <b>more important this year than ever.</b></p>" 
+        		+ "<p>So we're moving forward, making changes and doing the best we can.</p>"
+        		+ "<p>We're asking our loyal partners to consider \"virtual giving\" this season. This would allow us more time to begin ordering and organizing gifts in smaller socially distant volunteer groups. We've come up with several virtual options you might consider. We are open to working with you on other options as well.</p>"
+        		+ "<p>Donors would still be able to make the holidays brighter for a local child by virtually \"adopting\" their wishes. Instead of shopping for and delivering a physical gift, they'd send a donation to cover the gift (via Venmo, Paypal or check) and ONC would handle the rest.</p>"
+        		+ "<p>We realize this might be a little less \"festive\" than going to the stores, gathering the gifts and delivering to our student \"elves\" in the warehouse. We'll miss that too. </p>"
+        		+ "<p>We believe this temporary change is the safest way to ensure that EVERY child in our local community has a brighter holiday season.</p>"
+        		+ "<p>Your earliest possible response would be a great help to our efforts.</p>"
+        		+ "<p>Please review and update the information we've included below. We've attached some examples of Donor Sign Ups that could be used in lieu of distributing \"wish ornaments\". Let us know if virtual giving will work for you or let us know what will. We value your partnership in this effort.</p>"
+//        		+ "<p><b>Would you mind taking a moment to review our notes from last year? "
+//      		+ "Accurate information is KEY to our successful partnership:</b></p>"
+        		+ "&emsp;<font color=\"red\">ONC Gift Partner:</font>  <b>%s</b><br>"
+        		+ "&emsp;<font color=\"red\">Address:</font>   <b>%s</b><br>" 
+        		+ "&emsp;<font color=\"red\">Phone #:</font>   <b>%s</b><br>" 
+        		+ "&emsp;<font color=\"red\">Contact:</font>   <b>%s</b><br>" 
+        		+ "&emsp;<font color=\"red\">Phone #:</font>   <b>%s</b><br>" 
+        		+ "&emsp;<font color=\"red\">Email:</font>   <b>%s</b><br>", fn, name, name, address, busphone, contact, contactphone, contactemail);
+        
+        //Create the middle part of the message if 2nd contact exists
+        String msgmid = "";
+        if(contact2.length() > MIN_NAME_LENGTH)
+        {
+        	msgmid = String.format(
+        		"&emsp;<font color=\"red\">Contact:</font>   <b>%s</b><br>" +
+        		"&emsp;<font color=\"red\">Phone #:</font>   <b>%s</b><br>" +
+        		"&emsp;<font color=\"red\">Email:</font>   <b>%s</b><br>", contact2, contact2phone, contact2email);
+        }
+        
+        //Create the bottom part of the text part of the email using html
+        String msgbot = String.format(
+        		" &emsp;<font color=\"red\">Gift Collection Type:</font>  <b>%s</b><br>"
+        		+ "&emsp;<font color=\"red\">Ornaments Requested in 2018:</font>   <b>%d</b><br>"
+        		+ "<p><b>Please reply at your earliest convenience with any corrections, updates or questions - "
+        		+ "<mark>especially if our point of contact has changed.</mark></b></p>"
+        		+ "<p>Thanks so much for your time and continued support. Please feel free to email me with any questions or call 703-785-8048.</p>"
+        		+ "<p>Sincerely,<br><br>"
+        		+ "Kathleen McDonald<br>"
+        		+ "Gift Partner Coordinator<br>"
+        		+ "Our Neighbor's Child<br>"
+        		+ "703-785-8048<br>" 
+        		+ "<a href=\"http://www.ourneighborschild.org\">www.ourneighborschild.org</a><br><br></div></p>"
+        		+ "<p><div><img src=\"cid:" + cid0 + "\" /></div></p>"
+        		+ "<p><div><img src=\"cid:" + cid1 + "\" /></div></p>"
+        		+ "</body></html>", giftCollectionType, orn_requested);
+        
+        return msgtop + msgmid + msgbot;
+	}
+	
 	void updateUserList()
 	{
 		UserDB userDB = UserDB.getInstance();
@@ -1794,6 +1948,50 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 	    }
 	}
 	
+	void onPartnerLetterExportRequested()
+	{
+		String[] header = {"First Name", "Name", "Address", "Business Phone", "Contact", 
+					"Conatact Phone", "Contact Email", "Contact 2", "Contact 2 Phone",
+					"Conatact 2 Email", "Gift Collectiion Type", "# of Prior Seasons Ornaments RequestedI"};
+	
+    	
+    	ONCFileChooser oncfc = new ONCFileChooser(parentFrame);
+    	String fileDlgMssg = "Select File For Export of Partner Letter Data"; 
+    											
+       	File oncwritefile = oncfc.getFile(fileDlgMssg, 
+       			new FileNameExtensionFilter("CSV Files", "csv"), ONCFileChooser.SAVE_FILE);
+       	if(oncwritefile!= null)
+       	{
+       		//If user types a new filename without extension.csv, add it
+	    	String filePath = oncwritefile.getPath();
+	    	if(!filePath.toLowerCase().endsWith(".csv")) 
+	    		oncwritefile = new File(filePath + ".csv");
+	    	
+	    	try 
+	    	{
+	    		CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
+	    			writer.writeNext(header);
+	    	    
+	    	    int[] row_sel = sortTable.getSelectedRows();
+	    	    for(int i=0; i<sortTable.getSelectedRowCount(); i++)
+	    	    	writer.writeNext(getPartnerLetterExportRow(row_sel[i]));
+	    	    	   
+	    	    writer.close();
+	    	    
+	    	    JOptionPane.showMessageDialog(parentFrame, 
+						sortTable.getSelectedRowCount() + " partners letter info sucessfully exported to " + oncwritefile.getName(), 
+						"Export Successful", JOptionPane.INFORMATION_MESSAGE, gvs.getImageIcon(0));
+	    	} 
+	    	catch (IOException x)
+	    	{
+	    		JOptionPane.showMessageDialog(parentFrame, 
+						"Export Failed, I/O Error: "  + x.getMessage(),  
+						"Export Failed", JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
+	    		System.err.format("IOException: %s%n", x);
+	    	}
+	    }
+	}
+	
 	String[] getExportRow(int index)
 	{
 		ONCPartner o = stAL.get(index);
@@ -1823,6 +2021,75 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 						o.getContact2_email(),
 						o.getContact2_phone(),
 						date.format(o.getTimestampDate())};
+		return row;
+	}
+	
+	String[] getPartnerLetterExportRow(int index)
+	{
+		ONCPartner o = stAL.get(index);
+		
+		//Create the variables for the body of the email     
+        String name = o.getLastName();
+        
+        //The next section of code is a temporary fix until the ONCPartner object is updated
+        //to split the contact and contact2 name fields into contact fn, contact ln
+        //contact2 fn and contact2 ln fields.
+        String fn = "";
+        if(o.getContact().length() > 1)
+        {
+        	 String[] names1 = o.getContact().split(" ");
+        	if(names1.length == 1 || names1.length == 2)
+        		fn = names1[0];
+        	else
+        		fn = names1[0] + " " + names1[1];
+		}
+        
+        String fn2 = "";
+        if(o.getContact2().length() > 1)
+        {
+        	String[] names2 = o.getContact2().split(" ");
+        	if(names2.length == 1 || names2.length == 2)
+        		fn2 = names2[0];
+        	else
+        		fn2 = names2[0] + " " + names2[1];
+        }
+        
+        if(fn.length() <= 1 && fn2.length() > 1)	//contact 1 empty, contact2 exists
+        	fn = fn2;
+        else if(fn.length() > 1 && fn2.length() > 1)	//both contacts exist
+        	fn = fn.concat(" & " + fn2);        
+        //End of temporary code to handle contact name splitting
+   
+        String address = o.getHouseNum() + " " + o.getStreet() + " " + o.getUnit() + " " +
+        				 o.getCity() + ", VA " + o.getZipCode();
+        String contact = o.getContact();
+        String busphone = o.getHomePhone();
+       
+        //Pick the 1st contact phone if it is valid, else try the organization phone number
+        String contactphone = "";
+        if(o.getContact_phone().length() >= MIN_PHONE_NUMBER_LENGTH)
+        	contactphone = o.getContact_phone();
+        else if(o.getHomePhone().length() >= MIN_PHONE_NUMBER_LENGTH)
+        	contactphone = o.getHomePhone();	
+        String contactemail = o.getContact_email();
+        
+        //Pick the 2nd contact phone if it is valid, else try the organization phone number
+        String contact2 = o.getContact2().trim();
+        String contact2phone = "";
+        if(o.getContact2_phone().length() >= MIN_PHONE_NUMBER_LENGTH)
+        	contact2phone = o.getContact2_phone();
+        else if(o.getHomePhone().length() >= MIN_PHONE_NUMBER_LENGTH)
+        	contact2phone = o.getHomePhone();	
+        String contact2email = o.getContact2_email();
+        
+        String giftCollectionType = o.getGiftCollectionType().toString();
+        String orn_requested = Integer.toString(o.getPriorYearRequested());
+		
+		String[] row = {
+						fn, name, address, busphone, contact, contactphone, contactemail,
+						contact2, contact2phone, contact2email,
+						giftCollectionType, orn_requested
+						};
 		return row;
 	}
 	
@@ -1954,6 +2221,10 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 			else if(exportCB.getSelectedIndex() == 3)
 			{
 				onExportPerformanceRequested();
+			}
+			else if(exportCB.getSelectedIndex() == 4)
+			{
+				onPartnerLetterExportRequested();
 			}
 			
 			exportCB.setSelectedIndex(0);

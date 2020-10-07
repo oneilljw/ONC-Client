@@ -13,27 +13,13 @@ public class ServerCredentials
 		this.password = password;	
 	}
 
-	public String getServerName() {
-		return serverName;
-	}
+	//getters
+	public String getServerName() { return serverName; }
+	public String getUserID() { return userID; }
+	public String getPassword() { return password; }
 
-	public String getUserID() {
-		return userID;
-	}
-
-	public String getPassword() {
-		return password;
-	}
-
-	void setServerName(String serverName) {
-		this.serverName = serverName;
-	}
-
-	void setUserID(String userID) {
-		this.userID = userID;
-	}
-
-	void setPassword(String password) {
-		this.password = password;
-	}
+	//setters
+	void setServerName(String serverName) { this.serverName = serverName; }
+	void setUserID(String userID) { this.userID = userID; }
+	void setPassword(String password) { this.password = password; }
 }
