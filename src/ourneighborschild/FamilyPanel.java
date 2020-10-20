@@ -772,7 +772,15 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		languageCB.setSelectedItem((String)currFam.getLanguage());
 		lblChangedBy.setText(currFam.getChangedBy());
 		lblSchool.setText(regions.getSchoolName(currFam.getSchoolCode()));
-		lblSchool.setToolTipText("Referring Group: " + groupDB.getGroupByID(currFam.getGroupID()).getName());
+		
+		String groupName = "Error: No Group Found";
+		if(currFam.getGroupID() > -1)
+		{
+			ONCGroup group = groupDB.getGroupByID(currFam.getGroupID());
+			if(group != null)
+				groupName = group.getName();	
+		}
+		lblSchool.setToolTipText("Referring Group: " + groupName);
 		
 		oncNotesPane.setText(currFam.getNotes());
 		oncNotesPane.setCaretPosition(0);

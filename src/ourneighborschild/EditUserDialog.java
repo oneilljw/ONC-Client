@@ -799,7 +799,7 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
 			if(memberTbl.getSelectedRow() > -1)
 			{
 				btnAddMember.setEnabled(false);
-				btnRemoveMember.setEnabled(true);
+				btnRemoveMember.setEnabled(memberTbl.getRowCount() > 1);
 				candidateTbl.clearSelection();
 			}
 		}

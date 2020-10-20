@@ -24,10 +24,14 @@ public class ONCChildGift extends ONCObject implements Serializable
 	private GiftStatus status = GiftStatus.Not_Selected;
 	private String changedBy = "";	
 	private long timestamp = System.currentTimeMillis();
-	private int assigneeID = 0;
-
+	private int assignee0ID = 0;
+//	private PartnerGiftStatus part0GiftStatus;
+//	private int assignee1ID = 0;
+//	private PartnerGiftStatus part1GiftStatus;
+	
 	//Constructor for wish created or changed internally		
-	public ONCChildGift(int id, int childid, int wishid, String wd, int wishnum, int wi, GiftStatus ws, int waID, String cb, long dc)
+	public ONCChildGift(int id, int childid, int wishid, String wd, int wishnum, int wi, GiftStatus ws,
+							int wa0ID, String cb, long dc)
 	{
 		super(id);
 		childID = childid;
@@ -36,11 +40,33 @@ public class ONCChildGift extends ONCObject implements Serializable
 		giftDetail = wd;
 		giftnumber = wishnum;
 		status = ws;
-		assigneeID = waID;
+		assignee0ID = wa0ID;
+//		part0GiftStatus = PartnerGiftStatus.Unassigned;
+//		assignee1ID = -1;
+//		part1GiftStatus = PartnerGiftStatus.Unassigned;
 		changedBy = cb;
 		timestamp = dc;	    
 	}
-	
+/*
+	//Constructor for wish created or changed internally		
+	public ONCChildGift(int id, int childid, int wishid, String wd, int wishnum, int wi, GiftStatus ws,
+						int wa0ID, PartnerGiftStatus p0gs, int wa1ID, PartnerGiftStatus p1gs, String cb, long dc)
+	{
+		super(id);
+		childID = childid;
+		giftID = wishid;
+		indicator = wi;
+		giftDetail = wd;
+		giftnumber = wishnum;
+		status = ws;
+		assignee0ID = wa0ID;
+		part0GiftStatus = p0gs;
+		assignee1ID = wa1ID;
+		part1GiftStatus = p1gs;
+		changedBy = cb;
+		timestamp = dc;	    
+	}
+*/	
 	//Constructor for wish created or changed internally		
 	public ONCChildGift(String[] nextLine)
 	{
@@ -53,7 +79,45 @@ public class ONCChildGift extends ONCObject implements Serializable
 		status = GiftStatus.valueOf(nextLine[6]);
 		changedBy = nextLine[7].isEmpty() ? "" : nextLine[7];
 		timestamp = Long.parseLong(nextLine[8]);
-		assigneeID = Integer.parseInt(nextLine[9]);
+		
+		try
+		{
+			assignee0ID = Integer.parseInt(nextLine[9]);
+		}
+		catch (NumberFormatException nfe)
+		{
+			assignee0ID = -1;
+		}
+/*		
+		try
+		{
+			int statusIndex = Integer.parseInt(nextLine[10]);
+			part0GiftStatus = PartnerGiftStatus.getPartnerGiftStatus(statusIndex);
+		}
+		catch (NumberFormatException nfe)
+		{
+			part0GiftStatus = PartnerGiftStatus.Unassigned;
+		}
+		
+		try
+		{
+			assignee0ID = Integer.parseInt(nextLine[11]);
+		}
+		catch (NumberFormatException nfe)
+		{
+			assignee0ID = -1;
+		}
+		
+		try
+		{
+			int statusIndex = Integer.parseInt(nextLine[12]);
+			part1GiftStatus = PartnerGiftStatus.getPartnerGiftStatus(statusIndex);
+		}
+		catch (NumberFormatException nfe)
+		{
+			part1GiftStatus = PartnerGiftStatus.Unassigned;
+		}
+*/		
 	}
 	
 	public int getChildID() { return childID; }
@@ -62,17 +126,16 @@ public class ONCChildGift extends ONCObject implements Serializable
 	public int getGiftNumber() { return giftnumber; }
 	public int getIndicator() { return indicator; }
 	public GiftStatus getGiftStatus() {return status;}
-	public int getPartnerID() {return assigneeID;}
+	public int getPartnerID() {return assignee0ID;}
+//	public PartnerGiftStatus getPartner0GiftStatus() { return part0GiftStatus; }
+//	public int getPartner1ID() {return assignee1ID;}
+//	public PartnerGiftStatus getPartner1GiftStatus() { return part1GiftStatus; }
 	public String getChangedBy() {return changedBy;}
 	public Long getTimestamp() { return timestamp; }
 	public Calendar getDateChanged() 
 	{
 		Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
 		calendar.setTimeInMillis(timestamp);
-		
-//		if(childID == 184 && status == GiftStatus.Received && giftDetail.equals("Large dinosaur"))
-//			System.out.println("ONCChildGift.getDateChanged: calendar:" + calendar);
-		
 		return calendar;
 	}
 
@@ -80,18 +143,21 @@ public class ONCChildGift extends ONCObject implements Serializable
 	public void setChildWishDetail(String cwd) { giftDetail = cwd; }
 	void setChildWishIndicator(int cwi) { indicator = cwi; }
 	public void setChildWishStatus(GiftStatus cws) { status = cws;}
-	public void setChildWishAssigneeID(int id) {assigneeID = id;}
+	public void setChildWishAssignee0ID(int id) { this.assignee0ID = id;}
+//	public void setChildWishPartner0GiftStatus(PartnerGiftStatus pgs) { this.part0GiftStatus = pgs; }
+//	public void setChildWishAssignee1ID(int id) { this.assignee1ID = id;}
+//	public void setChildWishPartner1GiftStatus(PartnerGiftStatus pgs) { this.part1GiftStatus = pgs; }
 	void setChildWishChangedBy(String name) {changedBy = name;}
 	void setChildWishDateChanged(long dc) {timestamp = dc;}
 	
-	boolean isComparisonWishIdentical(ONCChildGift compWish)
-	{		
-		return compWish.getGiftID() == giftID &&
-				compWish.getDetail().equals(giftDetail) &&
-					compWish.getIndicator() == indicator &&
-						compWish.getGiftStatus() == status &&
-							compWish.getPartnerID() == assigneeID;
-	}
+//	boolean isComparisonWishIdentical(ONCChildGift compWish)
+//	{		
+//		return compWish.getGiftID() == giftID &&
+//				compWish.getDetail().equals(giftDetail) &&
+//					compWish.getIndicator() == indicator &&
+//						compWish.getGiftStatus() == status &&
+//							compWish.getPartner0ID() == assignee0ID;
+//	}
 	
 	boolean isComparisonWishAfter(ONCChildGift compWish)
 	{
@@ -105,7 +171,11 @@ public class ONCChildGift extends ONCObject implements Serializable
 						giftDetail, Integer.toString(giftnumber),
 						Integer.toString(indicator), status.toString(), 
 						changedBy, Long.toString(timestamp),
-						Integer.toString(assigneeID)};
+						Integer.toString(assignee0ID),
+//						Integer.toString(part0GiftStatus.statusIndex()),
+//						Integer.toString(assignee1ID),
+//						Integer.toString(part1GiftStatus.statusIndex())
+						};
 		return row;
 	}
 }

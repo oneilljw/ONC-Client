@@ -44,7 +44,6 @@ public enum GiftStatus
 								GiftStatus.Missing, GiftStatus.Verified};
 		
 		return wsChange;
-	}
-	
+	}	
 }
 

@@ -372,12 +372,9 @@ public class ONCChild extends ONCObject implements Serializable
 						
 		return row;
 	}
-
+/*
 	class ChildWishHistory implements Serializable
 	{
-		/**
-		 * 
-		 */
 		private static final long serialVersionUID = 1487985298719174837L;
 		private ArrayList<ONCChildGift> wishHistoryAL = new ArrayList<ONCChildGift>();
 			
@@ -394,13 +391,11 @@ public class ONCChild extends ONCObject implements Serializable
 		ONCChildGift getCurrentWish(){return wishHistoryAL.get(wishHistoryAL.size()-1);}
 		ArrayList<ONCChildGift> getWishHistory() {return wishHistoryAL;}
 		
-		/**************************************************************************************************
-		* Method takes a child wish history array list of child wishes and merges it with the current
-		* wish history list. Any identical wishes are ignored. Non identical wishes are added immediately
-		* after the last current wish that was generated (time stamped) before a merge wish. 
-		* @param mwhAL
-		* @return
-		******************************************************************************************************/
+	
+//		Method takes a child wish history array list of child wishes and merges it with the current
+//		wish history list. Any identical wishes are ignored. Non identical wishes are added immediately
+//		after the last current wish that was generated (time stamped) before a merge wish. 
+		
 		boolean mergeWishHistories(ArrayList<ONCChildGift> mwhAL)
 		
 		{
@@ -432,4 +427,5 @@ public class ONCChild extends ONCObject implements Serializable
 			return bWishChangeDetected;
 		}
 	}
+*/
 }
