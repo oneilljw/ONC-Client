@@ -288,9 +288,9 @@ public class BatteryDialog extends GiftLabelDialog
 			submittalList.clear();
 			List<Battery> batteryReqList = new ArrayList<Battery>();
 		
-			batteryReqList.add(new Battery(-1, swo.getChild().getID(), swo.getChildGift().getGiftNumber(), size1, qty1));
+			batteryReqList.add(new Battery(-1, sgo.getChild().getID(), sgo.getChildGift().getGiftNumber(), size1, qty1));
 			if(scanState == ScanState.READY_TO_SUBMIT)	//there are two batteries for this gift
-				batteryReqList.add(new Battery(-1, swo.getChild().getID(), swo.getChildGift().getGiftNumber(), size2, qty2));
+				batteryReqList.add(new Battery(-1, sgo.getChild().getID(), sgo.getChildGift().getGiftNumber(), size2, qty2));
 		
 			Battery addedBattery;
 			for(Battery addBatteryReq : batteryReqList)
@@ -301,11 +301,11 @@ public class BatteryDialog extends GiftLabelDialog
 			}
 		
 			if(submittalList.isEmpty())
-				alert(Result.FAILURE, String.format("Battery Add Failed, Family # %s", swo.getFamily().getONCNum()));
+				alert(Result.FAILURE, String.format("Battery Add Failed, Family # %s", sgo.getFamily().getONCNum()));
 			else if(submittalList.size() == 1)
-				alert(Result.SUCCESS, String.format(" 1 Battery Size Added Successfully, Family # %s", swo.getFamily().getONCNum()));
+				alert(Result.SUCCESS, String.format(" 1 Battery Size Added Successfully, Family # %s", sgo.getFamily().getONCNum()));
 			else
-				alert(Result.SUCCESS, String.format("2 Batteries Size Added Successfully, Family # %s", swo.getFamily().getONCNum()));
+				alert(Result.SUCCESS, String.format("2 Batteries Size Added Successfully, Family # %s", sgo.getFamily().getONCNum()));
 			
 			btnUndo.setEnabled(!submittalList.isEmpty());
 			onClearOtherPanels();
@@ -529,5 +529,19 @@ public class BatteryDialog extends GiftLabelDialog
 		SIZE2,
 		QTY2,
 		READY_TO_SUBMIT;
+	}
+
+	@Override
+	boolean isGiftEligible(ClonedGift cg)
+	{
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	void onClonedGiftLabelFound(SortClonedGiftObject scgo)
+	{
+		// TODO Auto-generated method stub
+		
 	}	
 }

@@ -514,7 +514,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		dc_delivery.setTime(currServerGVs.getDeliveryDayMillis());
 //		dc_delivery.setCalendar(getCalendar(currServerGVs.getDeliveryDayMillis()));
 		dc_seasonstart.setTime(currServerGVs.getSeasonStartDateMillis());
-		dc_giftsreceived.setTime(currServerGVs.getGiftsReceivedDateMillis());
+		dc_giftsreceived.setTime(currServerGVs.getGiftsReceivedDeadlineMillis());
 		dc_ThanksgivingMealCutoff.setTime(currServerGVs.getThanksgivingMealDeadlineMillis());
 		dc_DecemberMealCutoff.setTime(currServerGVs.getDecemberMealDeadlineMillis());
 		dc_DecemberGiftCutoff.setTime(currServerGVs.getDecemberGiftDeadlineMillis());

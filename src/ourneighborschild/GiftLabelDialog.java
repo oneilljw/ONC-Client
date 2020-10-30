@@ -34,14 +34,22 @@ public abstract class GiftLabelDialog extends ONCEntityTableDialog implements Ac
 	private static final int SOUND_DURATION = 100;
 	private static final int SUCCESS_SOUND_FREQ = 500;
 	private static final int FAILED_SOUND_FREQ = 150;
+	private static final int CLONED_GIFT_FIRST_GIFT_NUMBER = 3;
 	
 	//database references
 	protected FamilyDB familyDB;
 	protected ChildDB childDB;
 	protected ChildGiftDB childGiftDB;
+	protected ClonedGiftDB clonedGiftDB;
+	protected UserDB userDB;
 	
-	protected SortGiftObject swo; //holds current family, child and gift info for gift getting batteries assigned
+	protected SortGiftObject sgo; //holds current family, child and gift info for gift getting batteries assigned
 	protected SortGiftObject lastWishChanged;	//Holds the info for last gift label displayed
+	
+	protected SortClonedGiftObject scgo; //holds current family, child and clone gift info for gift getting batteries assigned
+	protected SortClonedGiftObject lastCloneChanged;	//Holds the info for last clone gift label displayed
+	
+	protected boolean bClonedGift;
 	
 	private final Image img;
 	protected String errMessage;
@@ -69,10 +77,18 @@ public abstract class GiftLabelDialog extends ONCEntityTableDialog implements Ac
 		childGiftDB = ChildGiftDB.getInstance();
 		if(childGiftDB != null)
 			childGiftDB.addDatabaseListener(this);
+		
+		clonedGiftDB = ClonedGiftDB.getInstance();
+		if(clonedGiftDB != null)
+			clonedGiftDB.addDatabaseListener(this);
+		
+		userDB = UserDB.getInstance();
+		
+		bClonedGift = false;
 
 		img = gvs.getSeasonIcon().getImage();
 		errMessage = "Ready to Scan a Gift Label";
-		swo = null;
+		sgo = null;
 		
 		//initialize the colors
 		successColor = new Color[2];
@@ -137,7 +153,9 @@ public abstract class GiftLabelDialog extends ONCEntityTableDialog implements Ac
 	abstract void onSubmit();
 	abstract void onUndoSubmittal();
 	abstract boolean isGiftEligible(ONCChildGift cw);
+	abstract boolean isGiftEligible(ClonedGift cg);
 	abstract void onGiftLabelFound(SortGiftObject swo);
+	abstract void onClonedGiftLabelFound(SortClonedGiftObject scgo);
 	abstract void onGiftLabelNotFound();
 	abstract void onActionPerformed(ActionEvent e);
 	
@@ -188,7 +206,7 @@ public abstract class GiftLabelDialog extends ONCEntityTableDialog implements Ac
 		setBackgroundColor(pBkColor);
 		
 		errMessage ="Ready to Scan a Gift Label";
-		swo = null;
+		sgo = null;
 		topPanel.revalidate();
 		topPanel.repaint();
 		
@@ -225,15 +243,26 @@ public abstract class GiftLabelDialog extends ONCEntityTableDialog implements Ac
 				cID = Integer.parseInt(s.substring(0, s.length()-1));
 				wn = Integer.parseInt(s.substring(s.length()-1, s.length()-0));
 			}
+			
+			bClonedGift = wn >= CLONED_GIFT_FIRST_GIFT_NUMBER;
+//			System.out.println(String.format("BarcodeGiftHist.onBarcodeTFEvent: cID= %d, gn= %d", cID, gn));
+			
+			ONCChildGift cw = null;
+			ClonedGift clonedGift = null;
+			
+			if(bClonedGift)
+				clonedGift = clonedGiftDB.getClonedGift(cID, wn);
+			else
+				cw = childGiftDB.getGift(cID, wn);
 				
 			//find the gift by child ID and wish number. Only gifts that have already been 
-			//received can have batteries recorded.
-			ONCChildGift cw = childGiftDB.getGift(cID, wn);
+			//received can have batteries recorded. 
 			ONCChild child = null;
 			ONCFamily family = null;
 			
 			//clear the previous label and error message
-			swo = null; 
+			sgo = null;
+			scgo = null;
 			errMessage = "";
 			
 			if(cID == -1 || wn == -1)
@@ -241,12 +270,12 @@ public abstract class GiftLabelDialog extends ONCEntityTableDialog implements Ac
 				errMessage="Unable To Scan Barcode";
 				onGiftLabelNotFound();
 			}	
-			else if(cw == null)
+			else if(bClonedGift && clonedGift == null || !bClonedGift && cw == null)
 			{
 				errMessage="Unable To Find Gift";
 				onGiftLabelNotFound();
 			}
-			else if(!isGiftEligible(cw))
+			else if(!bClonedGift && !isGiftEligible(cw) || bClonedGift && !isGiftEligible(clonedGift))
 			{
 				errMessage="Gift Status Ineligible";
 				onGiftLabelNotFound();
@@ -263,9 +292,18 @@ public abstract class GiftLabelDialog extends ONCEntityTableDialog implements Ac
 			}
 			else
 			{
-				//child wish was found, is in an eligible state
-				swo = new SortGiftObject(0, family, child, cw);
-				onGiftLabelFound(swo);	
+				if(bClonedGift)
+				{
+					//cloned gift was found, is in an eligible state
+					scgo = new SortClonedGiftObject(0, family, child, clonedGift);
+					onClonedGiftLabelFound(scgo);
+				}
+				else
+				{	
+					//child gift was found, is in an eligible state
+					sgo = new SortGiftObject(0, family, child, cw);
+					onGiftLabelFound(sgo);
+				}
 			}
 			
 			topPanel.revalidate();
@@ -281,7 +319,10 @@ public abstract class GiftLabelDialog extends ONCEntityTableDialog implements Ac
 		}
 		else if(e.getSource() == btnUndo)
 		{
-			swo = lastWishChanged;
+			if(bClonedGift)	
+				scgo = lastCloneChanged;
+			else
+				sgo = lastWishChanged;
 			topPanel.revalidate();
 			topPanel.repaint();
 			onUndoSubmittal();
@@ -310,11 +351,11 @@ public abstract class GiftLabelDialog extends ONCEntityTableDialog implements Ac
 		private static final int LABEL_ERR_MESSAGE_FONT_SIZE = 13;
 		
 		private Font[] lFont;
-		private AveryWishLabelPrinter awlp;
+		private AveryGiftLabelPrinter awlp;
 		
 		public GiftLabelPanel()
 		{
-			awlp = new AveryWishLabelPrinter();
+			awlp = new AveryGiftLabelPrinter();
 			
 			this.setBackground(Color.white);
 			
@@ -339,8 +380,10 @@ public abstract class GiftLabelDialog extends ONCEntityTableDialog implements Ac
 		    
 		    //If the SortWishObject is valid, use it to draw the label in the panel.
 			//Otherwise draw an error message
-			if(swo != null)
-				awlp.drawLabel(10, 10, swo.getGiftLabel(), lFont, img, g2d);
+			if(bClonedGift && scgo != null)
+				awlp.drawLabel(10, 10, scgo.getGiftLabel(), lFont, img, g2d);
+			else if(!bClonedGift && sgo != null)
+				awlp.drawLabel(10, 10, sgo.getGiftLabel(), lFont, img, g2d);
 			else
 			{
 				g2d.setFont(new Font("Calibri", Font.ITALIC, LABEL_ERR_MESSAGE_FONT_SIZE));

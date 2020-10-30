@@ -71,6 +71,7 @@ public class DialogManager implements EntitySelectionListener
 	private SortDriverDialog sortDriverDlg;
 	private SortPartnerDialog sortPartnerDlg;
 	private SortGiftsDialog sortGiftsDlg;
+	private SortClonedGiftsDialog sortClonedGiftsDlg;
 	private SortMealsDialog sortMealsDlg;
 	private ReceiveGiftsDialog recGiftsDlg;
 		
@@ -85,7 +86,7 @@ public class DialogManager implements EntitySelectionListener
 	private DNSCodeDialog dnsCodeDlg;
 		
 	private PreferencesDialog prefsDlg;
-	private BarcodeWishHistoryDialog barcodeWHDlg;
+	private BarcodeGiftHistoryDialog barcodeWHDlg;
 	private InventoryDialog inventoryDlg;
 	private CrosscheckDialog ccDlg;
 	
@@ -143,101 +144,106 @@ public class DialogManager implements EntitySelectionListener
         sortGiftsDlg = new SortGiftsDialog(GlobalVariablesDB.getFrame());
         eeManager.registerEntitySelector(sortGiftsDlg);
         stDlgMap.put("Gifts", sortGiftsDlg);
+        
+        //Set up the sort cloned gifts dialog
+        sortClonedGiftsDlg = new SortClonedGiftsDialog(GlobalVariablesDB.getFrame());
+        eeManager.registerEntitySelector(sortClonedGiftsDlg);
+        stDlgMap.put("Cloned Gifts", sortClonedGiftsDlg);
 
-        	//Set up the manage catalog dialog
-    		catDlg = new GiftCatalogDialog(GlobalVariablesDB.getFrame());
-    	
-    		//Set up the manage user dialog
-    		userDlg = new ManageUsersDialog(GlobalVariablesDB.getFrame());
-    		eeManager.registerEntitySelector(userDlg);
-    	
-    		//Set up the sign-in dialog
-    		signInDlg = new WarehouseSignInDialog(GlobalVariablesDB.getFrame());
-    		eeManager.registerEntitySelector(signInDlg);
-    		
-    		//Set up the battery dialog
-    		batteryDlg = new BatteryDialog(GlobalVariablesDB.getFrame());
-    		eeManager.registerEntitySelector(batteryDlg);
-    		
-    		recGiftDialog = new ReceiveGiftsByBarcodeDialog(GlobalVariablesDB.getFrame());
-    		eeManager.registerEntitySelector(recGiftDialog);
-    		
-    		//Set up the manage batteries dialog
-    		manageBatteryDlg = new ManageBatteryDialog(GlobalVariablesDB.getFrame());
-    		eeManager.registerEntitySelector(manageBatteryDlg);
-    		
-    		//Set up the manage SMS dialog
-    		manageSMSDlg = new ManageSMSDialog(GlobalVariablesDB.getFrame());
-    		eeManager.registerEntitySelector(manageSMSDlg);
-    	
-    		//Set up the manage volunteer dialog
-    		manageVolDlg = new ManageVolDialog(GlobalVariablesDB.getFrame());
-    		eeManager.registerEntitySelector(manageVolDlg);
-    		
-    		//Set up the school delivery dialog
-    		schoolDelDlg = new SchoolDeliveryDialog(GlobalVariablesDB.getFrame());
-    		eeManager.registerEntitySelector(schoolDelDlg);
-    	
-    		//Set up the manage activities dialog
-    		manageActDlg = new ManageActivitiesDialog(GlobalVariablesDB.getFrame());
-    		eeManager.registerEntitySelector(manageActDlg);
-    	
-    		//set up the manage groups dialog
-    		manageGroupsDlg = new ManageGroupsDialog(GlobalVariablesDB.getFrame());
-    		eeManager.registerEntitySelector(manageGroupsDlg);
-    		
-    		//set up the manage groups dialog
-    		famHistChgDlg = new FamilyHistoryChangesDialog(GlobalVariablesDB.getFrame());
-    		eeManager.registerEntitySelector(famHistChgDlg);
-    	
-    		//Set up the sort family dialog
-    		sortFamiliesDlg = new SortFamilyDialog(GlobalVariablesDB.getFrame());
-    		stDlgMap.put("Families", sortFamiliesDlg);
-    		eeManager.registerEntitySelector(sortFamiliesDlg);
+        //Set up the manage catalog dialog
+		catDlg = new GiftCatalogDialog(GlobalVariablesDB.getFrame());
+	
+		//Set up the manage user dialog
+		userDlg = new ManageUsersDialog(GlobalVariablesDB.getFrame());
+		eeManager.registerEntitySelector(userDlg);
+	
+		//Set up the sign-in dialog
+		signInDlg = new WarehouseSignInDialog(GlobalVariablesDB.getFrame());
+		eeManager.registerEntitySelector(signInDlg);
+		
+		//Set up the battery dialog
+		batteryDlg = new BatteryDialog(GlobalVariablesDB.getFrame());
+		eeManager.registerEntitySelector(batteryDlg);
+		
+		recGiftDialog = new ReceiveGiftsByBarcodeDialog(GlobalVariablesDB.getFrame());
+		eeManager.registerEntitySelector(recGiftDialog);
+		
+		//Set up the manage batteries dialog
+		manageBatteryDlg = new ManageBatteryDialog(GlobalVariablesDB.getFrame());
+		eeManager.registerEntitySelector(manageBatteryDlg);
+		
+		//Set up the manage SMS dialog
+		manageSMSDlg = new ManageSMSDialog(GlobalVariablesDB.getFrame());
+		eeManager.registerEntitySelector(manageSMSDlg);
+	
+		//Set up the manage volunteer dialog
+		manageVolDlg = new ManageVolDialog(GlobalVariablesDB.getFrame());
+		eeManager.registerEntitySelector(manageVolDlg);
+		
+		//Set up the school delivery dialog
+		schoolDelDlg = new SchoolDeliveryDialog(GlobalVariablesDB.getFrame());
+		eeManager.registerEntitySelector(schoolDelDlg);
+	
+		//Set up the manage activities dialog
+		manageActDlg = new ManageActivitiesDialog(GlobalVariablesDB.getFrame());
+		eeManager.registerEntitySelector(manageActDlg);
+	
+		//set up the manage groups dialog
+		manageGroupsDlg = new ManageGroupsDialog(GlobalVariablesDB.getFrame());
+		eeManager.registerEntitySelector(manageGroupsDlg);
+		
+		//set up the manage groups dialog
+		famHistChgDlg = new FamilyHistoryChangesDialog(GlobalVariablesDB.getFrame());
+		eeManager.registerEntitySelector(famHistChgDlg);
+	
+		//Set up the sort family dialog
+		sortFamiliesDlg = new SortFamilyDialog(GlobalVariablesDB.getFrame());
+		stDlgMap.put("Families", sortFamiliesDlg);
+		eeManager.registerEntitySelector(sortFamiliesDlg);
         
         //Set up the sort meals dialog
         sortMealsDlg = new SortMealsDialog(GlobalVariablesDB.getFrame());
         stDlgMap.put("Meals", sortMealsDlg);
         eeManager.registerEntitySelector(sortMealsDlg);
 
-    		//Set up the dialog to edit family transportation info
-    		transportationDlg = new TransportationDialog(GlobalVariablesDB.getFrame(), false);
-    		familyInfoDlgMap.put("Transportation", transportationDlg);
-    		eeManager.registerEntitySelectionListener(transportationDlg);
-    	
-    		//Set up the dialog to add a meal to family
-    		addMealDlg = new AddMealDialog(GlobalVariablesDB.getFrame(), true);
-    		familyInfoDlgMap.put("Add Meal", addMealDlg);
-    	
-    		//Set up the dialog to change family ONC Number
-    		changeONCNumberDlg = new ChangeONCNumberDialog(GlobalVariablesDB.getFrame());
-    		familyInfoDlgMap.put("Change ONC #", changeONCNumberDlg);
-    	
-    		//Set up the dialog to change family ODB Number
-    		changeReferenceNumberDlg = new ChangeReferenceNumberDialog(GlobalVariablesDB.getFrame());
-    		familyInfoDlgMap.put("Change Ref #", changeReferenceNumberDlg);
-    	
-    		//Set up the dialog to change family batch number
-    		changeBatchNumberDlg = new ChangeBatchNumberDialog(GlobalVariablesDB.getFrame());
-    		familyInfoDlgMap.put("Change Batch #", changeBatchNumberDlg);
+		//Set up the dialog to edit family transportation info
+		transportationDlg = new TransportationDialog(GlobalVariablesDB.getFrame(), false);
+		familyInfoDlgMap.put("Transportation", transportationDlg);
+		eeManager.registerEntitySelectionListener(transportationDlg);
+	
+		//Set up the dialog to add a meal to family
+		addMealDlg = new AddMealDialog(GlobalVariablesDB.getFrame(), true);
+		familyInfoDlgMap.put("Add Meal", addMealDlg);
+	
+		//Set up the dialog to change family ONC Number
+		changeONCNumberDlg = new ChangeONCNumberDialog(GlobalVariablesDB.getFrame());
+		familyInfoDlgMap.put("Change ONC #", changeONCNumberDlg);
+	
+		//Set up the dialog to change family ODB Number
+		changeReferenceNumberDlg = new ChangeReferenceNumberDialog(GlobalVariablesDB.getFrame());
+		familyInfoDlgMap.put("Change Ref #", changeReferenceNumberDlg);
+	
+		//Set up the dialog to change family batch number
+		changeBatchNumberDlg = new ChangeBatchNumberDialog(GlobalVariablesDB.getFrame());
+		familyInfoDlgMap.put("Change Batch #", changeBatchNumberDlg);
 
-    		//Set up the sort agent dialog
-    		sortAgentDlg = new SortAgentDialog(GlobalVariablesDB.getFrame());
-    		stDlgMap.put("Agents", sortAgentDlg);
-    		eeManager.registerEntitySelector(sortAgentDlg);
+		//Set up the sort agent dialog
+		sortAgentDlg = new SortAgentDialog(GlobalVariablesDB.getFrame());
+		stDlgMap.put("Agents", sortAgentDlg);
+		eeManager.registerEntitySelector(sortAgentDlg);
+	
+		//set up the assign delivery dialog
+		assignDeliveryDlg = new AssignDeliveryDialog(GlobalVariablesDB.getFrame());
+		stDlgMap.put("Deliveries", assignDeliveryDlg);
+		eeManager.registerEntitySelector(sortAgentDlg);
     	
-    		//set up the assign delivery dialog
-    		assignDeliveryDlg = new AssignDeliveryDialog(GlobalVariablesDB.getFrame());
-    		stDlgMap.put("Deliveries", assignDeliveryDlg);
-    		eeManager.registerEntitySelector(sortAgentDlg);
-    	
-    		//set up the sort driver dialog
-    		sortDriverDlg = new SortDriverDialog(GlobalVariablesDB.getFrame());
-    		stDlgMap.put("Drivers", sortDriverDlg);
-    		eeManager.registerEntitySelector(sortDriverDlg);
-    	
-    		//Set up the edit volunteer dialog and register it to listen for Family 
-    		//Selection events from particular ui's that have driver's associated
+		//set up the sort driver dialog
+		sortDriverDlg = new SortDriverDialog(GlobalVariablesDB.getFrame());
+		stDlgMap.put("Drivers", sortDriverDlg);
+		eeManager.registerEntitySelector(sortDriverDlg);
+	
+		//Set up the edit volunteer dialog and register it to listen for Family 
+		//Selection events from particular ui's that have driver's associated
         volunteerDlg = new VolunteerDialog(GlobalVariablesDB.getFrame());
         entityDlgMap.put("Edit Volunteers", volunteerDlg);
         eeManager.registerEntitySelectionListener(volunteerDlg);
@@ -299,7 +305,7 @@ public class DialogManager implements EntitySelectionListener
         eeManager.registerEntitySelector(dfDlg);
     	
         //set up a dialog to search for wish history from bar code scan
-        barcodeWHDlg = new BarcodeWishHistoryDialog(GlobalVariablesDB.getFrame());
+        barcodeWHDlg = new BarcodeGiftHistoryDialog(GlobalVariablesDB.getFrame());
         eeManager.registerEntitySelector(barcodeWHDlg);
     	
         //set up a dialog to search for wish history from bar code scan

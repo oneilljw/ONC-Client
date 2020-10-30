@@ -40,7 +40,8 @@ public class DatabaseManager extends ONCDatabase
 	private UserDB oncUserDB;				//Holds the ONC User, many of which are Agents
 	private FamilyDB oncFamDB;				//Holds ONC Family Database
 	private ChildDB oncChildDB;				//Holds ONC Child database
-	private ChildGiftDB oncChildWishDB; 		//Holds ONC Child Wish database
+	private ChildGiftDB oncChildWishDB; 	//Holds ONC Child Wish database
+	private ClonedGiftDB clonedGiftDB; 		//Holds cloned gift database
 	private GroupDB oncGroupDB;				//Holds ONC Groups
 	private PartnerDB oncOrgDB;				//Holds ONC Partner Organizations
 	private GiftCatalogDB oncWishCat;		//Holds ONC Wish Catalog
@@ -76,6 +77,7 @@ public class DatabaseManager extends ONCDatabase
 		oncDelDB = FamilyHistoryDB.getInstance();
 		oncChildDB = ChildDB.getInstance();
 		oncChildWishDB = ChildGiftDB.getInstance();
+		clonedGiftDB = ClonedGiftDB.getInstance();
 		oncAdultDB = AdultDB.getInstance();
 		noteDB = NoteDB.getInstance();
 		dnsCodeDB = DNSCodeDB.getInstance();
@@ -359,7 +361,7 @@ public class DatabaseManager extends ONCDatabase
      **************************************************************************************************/
     public class ONCServerDBImporter extends SwingWorker<Void, Void>
     {
-    		private static final int NUM_OF_DBs = 20;
+    		private static final int NUM_OF_DBs = 21;
     		String year;
     		ONCProgressBar pb;
     		boolean bServerDataLoaded;
@@ -412,6 +414,10 @@ public class DatabaseManager extends ONCDatabase
 			
 			pb.updateHeaderText("Loading Gifts");
 			oncChildWishDB.importChildGiftDatabase();
+			this.setProgress(progress += increment);
+			
+			pb.updateHeaderText("Loading Clones");
+			clonedGiftDB.importClonedGiftDatabase();
 			this.setProgress(progress += increment);
 			
 			pb.updateHeaderText("Loading Inventory");

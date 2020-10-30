@@ -16,12 +16,14 @@ public class OrnamentLabelViewer extends JDialog implements DatabaseListener
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	private static final int CLONED_GIFT_FIRST_GIFT_NUMBER = 3;
 	
 	//database references
 	GlobalVariablesDB gvDB;
 	private FamilyDB familyDB;
 	private ChildDB childDB;
 	private ChildGiftDB childGiftDB;
+	private ClonedGiftDB clonedGiftDB;
 	
 	private GiftLabelPanel labelPanel;
 	
@@ -47,6 +49,10 @@ public class OrnamentLabelViewer extends JDialog implements DatabaseListener
 		childGiftDB = ChildGiftDB.getInstance();
 		if(childGiftDB != null)
 			childGiftDB.addDatabaseListener(this);
+		
+		clonedGiftDB = ClonedGiftDB.getInstance();
+		if(clonedGiftDB != null)
+			clonedGiftDB.addDatabaseListener(this);
 
 		labelPanel = new GiftLabelPanel();
 		img = gvDB.getSeasonIcon().getImage();
@@ -70,7 +76,8 @@ public class OrnamentLabelViewer extends JDialog implements DatabaseListener
 		
 			//If the current child is being displayed has a wish added update the 
 			//wish label to show the added wish
-			if(child != null && addedWish.getChildID() == child.getID())
+			if(child != null && addedWish.getChildID() == child.getID() &&
+					addedWish.getGiftNumber() < CLONED_GIFT_FIRST_GIFT_NUMBER)
 				labelPanel.repaint();
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_CHILD_WISH"))
@@ -80,7 +87,33 @@ public class OrnamentLabelViewer extends JDialog implements DatabaseListener
 			ONCChildGift updatedWish = (ONCChildGift) dbe.getObject1();
 			
 			//If the current child is being displayed has a gift added, update the label
-			if(child != null && updatedWish.getChildID() == child.getID())
+			if(child != null && updatedWish.getChildID() == child.getID() &&
+					updatedWish.getGiftNumber() < CLONED_GIFT_FIRST_GIFT_NUMBER)
+				labelPanel.repaint();
+		}
+		else if(dbe.getType().equals("ADDED_CLONED_GIFT"))
+		{
+//			System.out.println(String.format("Child Panel DB Event: Source %s, Type %s, Object %s",
+//					dbe.getSource().toString(), dbe.getType(), dbe.getObject().toString()));
+			
+			//Get the added wish to extract the child
+			ClonedGift clonedGift = (ClonedGift) dbe.getObject1();
+		
+			//If the current child is being displayed has a wish added update the 
+			//wish label to show the added wish
+			if(child != null && clonedGift.getChildID() == child.getID() && 
+					clonedGift.getGiftNumber() >= CLONED_GIFT_FIRST_GIFT_NUMBER)
+				labelPanel.repaint();
+		}
+		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_CLONED_GIFT"))
+		{
+			//Get the updated wish to extract the ONCChildWish. For updates, the ONCChildWish
+			//id will remain the same
+			ClonedGift updatedClonedGift = (ClonedGift) dbe.getObject1();
+			
+			//If the current child is being displayed has a gift added, update the label
+			if(child != null && updatedClonedGift.getChildID() == child.getID() && 
+					updatedClonedGift.getGiftNumber() >= CLONED_GIFT_FIRST_GIFT_NUMBER)
 				labelPanel.repaint();
 		}
 		else if(dbe.getType().equals("UPDATED_CHILD"))
@@ -104,11 +137,11 @@ public class OrnamentLabelViewer extends JDialog implements DatabaseListener
 		private static final double Y_DISPLAY_SCALE_FACTOR = 1.4;
 		
 		private Font[] lFont;
-		private AveryWishLabelPrinter awlp;
+		private AveryGiftLabelPrinter awlp;
 		
 		public GiftLabelPanel()
 		{
-			awlp = new AveryWishLabelPrinter();
+			awlp = new AveryGiftLabelPrinter();
 			
 			this.setBackground(Color.white);
 			
@@ -131,10 +164,22 @@ public class OrnamentLabelViewer extends JDialog implements DatabaseListener
 		    
 		    //create the sort wish object list.
 		    ONCFamily fam = familyDB.getFamily(child.getFamID());
-			ONCChildGift cw = childGiftDB.getGift(child.getID(), wn);
-		    SortGiftObject swo = new SortGiftObject(0, fam, child, cw);
 		    
-		    awlp.drawLabel(10, 20, swo.getGiftLabel(), lFont, img, g2d);
+		    if(wn < CLONED_GIFT_FIRST_GIFT_NUMBER)
+		    {
+		    	ONCChildGift cw = childGiftDB.getGift(child.getID(), wn);
+			    SortGiftObject swo = new SortGiftObject(0, fam, child, cw);
+			    
+			    awlp.drawLabel(10, 20, swo.getGiftLabel(), lFont, img, g2d);
+		    }
+		    else
+		    {
+		    	ClonedGift cw = clonedGiftDB.getClonedGift(child.getID(), wn);
+			    SortClonedGiftObject scgo = new SortClonedGiftObject(0, fam, child, cw);
+			    
+			    awlp.drawLabel(10, 20, scgo.getGiftLabel(), lFont, img, g2d);
+		    }
+			
 		}
 	}	
 }

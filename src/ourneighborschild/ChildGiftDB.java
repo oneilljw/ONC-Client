@@ -7,6 +7,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -88,7 +89,7 @@ public class ChildGiftDB extends ONCDatabase
 		//send add new gift request to the server
 		response = serverIF.sendRequest("POST<childwish>" + gson.toJson(reqCG, ONCChildGift.class));
 
-		//get the gift in the sever response and add it to the local cache data base
+		//get the gift in the server response and add it to the local cache data base
 		//it contains the gift id assigned by the server child gift data base
 		//Notify all other ui's that a gift has been added
 		if(response != null && response.startsWith("WISH_ADDED"))
@@ -206,7 +207,7 @@ public class ChildGiftDB extends ONCDatabase
 			
 			reqAddGiftList.add(reqCW);
 		}
-		
+				
 		//wrap the child gift list in a json array and send the add request to the server
 		Gson gson = new Gson();
 		Type listOfChildGifts = new TypeToken<ArrayList<ONCChildGift>>(){}.getType();
@@ -228,9 +229,9 @@ public class ChildGiftDB extends ONCDatabase
 			}
 			
 			returnResp = "ADDED_GIFT_LIST";
-		}
-
-		return returnResp;
+    	}
+    
+    	return returnResp;
 	}
 	
 	/*******************************************************************************************
@@ -763,8 +764,8 @@ public class ChildGiftDB extends ONCDatabase
 		}
 		else if(ue.getType().equals("ADDED_GIFT_LIST"))
 		{
-			Gson gson = new Gson()
-;			Type responseListType = new TypeToken<ArrayList<String>>(){}.getType();
+			Gson gson = new Gson();
+			Type responseListType = new TypeToken<ArrayList<String>>(){}.getType();
 			List<String> addedGiftList = gson.fromJson(ue.getJson(), responseListType);
 			for(String responseGiftString : addedGiftList)
 			{

@@ -11,7 +11,7 @@ public class ServerGVs extends ONCObject
 	private Long giftDeliveryDayMillis;
 	private Long seasonStartDayMillis;
 	private String warehouseAddress;
-	private Long oncGiftsReceivedDayMillis;
+	private Long giftsReceivedDeadlineMillis;
 	private Long thanksgivingMealDeadlineMillis, decemberMealDeadlineMillis;
 	private Long familyEditDeadlineMillis;
 	private int defaultGiftID, defaultGiftCardID;
@@ -24,7 +24,7 @@ public class ServerGVs extends ONCObject
 		giftDeliveryDayMillis = dd;
 		seasonStartDayMillis = ssd;
 		warehouseAddress = wa;
-		oncGiftsReceivedDayMillis = grd;
+		giftsReceivedDeadlineMillis = grd;
 		thanksgivingMealDeadlineMillis = td;
 		decemberGiftDeadlineMillis = decd;
 		familyEditDeadlineMillis = fed;
@@ -43,7 +43,7 @@ public class ServerGVs extends ONCObject
 		this.giftDeliveryDayMillis = sgvs.giftDeliveryDayMillis;
 		this.seasonStartDayMillis = sgvs.seasonStartDayMillis;
 		this.warehouseAddress = sgvs.warehouseAddress;
-		this.oncGiftsReceivedDayMillis = sgvs.oncGiftsReceivedDayMillis;
+		this.giftsReceivedDeadlineMillis = sgvs.giftsReceivedDeadlineMillis;
 		this.thanksgivingMealDeadlineMillis = sgvs.thanksgivingMealDeadlineMillis;
 		this.decemberGiftDeadlineMillis = sgvs.decemberGiftDeadlineMillis;
 		this.familyEditDeadlineMillis = sgvs.familyEditDeadlineMillis;
@@ -57,7 +57,7 @@ public class ServerGVs extends ONCObject
 	public Long getDeliveryDayMillis() { return giftDeliveryDayMillis; }
 	public Long getSeasonStartDateMillis() { return seasonStartDayMillis; }
 	String getWarehouseAddress() { return warehouseAddress; }
-	public Long getGiftsReceivedDateMillis() { return oncGiftsReceivedDayMillis; }
+	public Long getGiftsReceivedDeadlineMillis() { return giftsReceivedDeadlineMillis; }
 	public Long getThanksgivingMealDeadlineMillis() { return thanksgivingMealDeadlineMillis; }
 	public Long getDecemberGiftDeadlineMillis() { return decemberGiftDeadlineMillis; }
 	public Long getFamilyEditDeadlineMillis() { return familyEditDeadlineMillis; }
@@ -76,7 +76,7 @@ public class ServerGVs extends ONCObject
 	void setDeliveryDayMillis(Long dd) { this.giftDeliveryDayMillis = dd; }
 	void setSeasonStartDateMillis(Long ssd) { this.seasonStartDayMillis = ssd; }
 	String setWarehouseAddress(String wa) { return warehouseAddress; }
-	void setGiftsReceivedDateMillis(Long grd) { this.oncGiftsReceivedDayMillis = grd; }
+	void setGiftsReceivedDateMillis(Long grd) { this.giftsReceivedDeadlineMillis = grd; }
 	void setThanksgivingMealDeadlineMillis(Long tmd) { this.thanksgivingMealDeadlineMillis = tmd; }
 	void setDecemberGiftDeadlineMillis(Long dgd) { this.decemberGiftDeadlineMillis = dgd; }
 	void setFamilyEditDeadlineMillis(Long fed) { this.familyEditDeadlineMillis = fed; }
@@ -143,7 +143,7 @@ public class ServerGVs extends ONCObject
 				 		Long.toString(giftDeliveryDayMillis),
  						Long.toString(seasonStartDayMillis),
  						warehouseAddress,
- 						Long.toString(oncGiftsReceivedDayMillis),
+ 						Long.toString(giftsReceivedDeadlineMillis),
  						Long.toString(thanksgivingMealDeadlineMillis),
  						Long.toString(decemberGiftDeadlineMillis),
  						Long.toString(familyEditDeadlineMillis),

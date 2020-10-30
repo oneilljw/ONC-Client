@@ -182,7 +182,7 @@ public class GlobalVariablesDB extends ONCDatabase implements Serializable
 		return cal.get(Calendar.YEAR);
 	}
 	public Long getDeliveryDateMillis() { return serverGVs.getDeliveryDayMillis(); }
-	public Long getGiftsReceivedDate() { return serverGVs.getGiftsReceivedDateMillis(); }
+	public Long getGiftsReceivedDate() { return serverGVs.getGiftsReceivedDeadlineMillis(); }
 	public Long getThanksgivingMealDeadline() { return serverGVs.getThanksgivingMealDeadlineMillis(); }
 	public Long getDecemberGiftDeadline() { return serverGVs.getDecemberGiftDeadlineMillis(); }
 	public Long getDecemberMealDeadline() { return serverGVs.getDecemberMealDeadlineMillis(); }

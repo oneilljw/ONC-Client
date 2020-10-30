@@ -38,7 +38,7 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 	private JMenuItem delChildMI, markAdultMI, connectChildMI, famHistMI;
 	private JMenu submenuImport, submenuFamilyDataChecks, submenuExport, submenuChangeFamilyNumbers;
 	private JMenu submenuDBYearList, submenuUsers, submenuReceiveGifts;
-	private JMenuItem viewDBMI, sortGiftsMI, sortFamiliesMI, sortOrgsMI, recGiftsMI, recGiftsBarcodeMI, sortMealsMI, batteryMI, manageBatteryMI;
+	private JMenuItem viewDBMI, sortGiftsMI, sortClonedGiftsMI, sortFamiliesMI, sortOrgsMI, recGiftsMI, recGiftsBarcodeMI, sortMealsMI, batteryMI, manageBatteryMI;
 	private JMenuItem agentMI, groupMI, manageGroupsMI, orgMI, catMI, barcodeGiftHistoryMI, inventoryMI;
 	private JMenuItem aboutONCMI, oncPrefrencesMI, profileMI, editUsersMI, manageUsersMI, onlineMI, chatMI, changePWMI, stopPollingMI;
 	private JMenuItem showServerLogMI, showServerClientIDMI, showCurrDirMI, showWebsiteStatusMI;
@@ -280,6 +280,12 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 	    sortGiftsMI.setEnabled(false);
 	    sortGiftsMI.addActionListener(this);
 	    menuGifts.add(sortGiftsMI);
+	    
+	    sortClonedGiftsMI = new JMenuItem("Manage Cloned Gifts");
+	    sortClonedGiftsMI.setActionCommand("Cloned Gifts");
+	    sortClonedGiftsMI.setEnabled(false);
+	    sortClonedGiftsMI.addActionListener(this);
+	    menuGifts.add(sortClonedGiftsMI);
 	    
 	    menuGifts.addSeparator();
 	    
@@ -577,6 +583,7 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 		delChildMI.setEnabled(tf);
 		newChildMI.setEnabled(tf);
 		connectChildMI.setEnabled(tf);
+		sortClonedGiftsMI.setEnabled(true);
 		manageCallResultMI.setEnabled(tf);
 	}
 	
@@ -748,6 +755,8 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 		else if(e.getSource() == viewDBMI) {dlgManager.showEntireDatabase();}
 		else if(e.getSource() == sortGiftsMI)
 			dlgManager.showSortDialog(sortGiftsMI.getActionCommand(), SORT_DIALOG_OFFSET);
+		else if(e.getSource() == sortClonedGiftsMI)
+			dlgManager.showSortDialog(sortClonedGiftsMI.getActionCommand(), SORT_DIALOG_OFFSET);
 		else if(e.getSource() == sortMealsMI)
 			dlgManager.showSortDialog(sortMealsMI.getActionCommand(), SORT_DIALOG_OFFSET);
 		else if(e.getSource() == recGiftsMI)

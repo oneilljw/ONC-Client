@@ -17,7 +17,7 @@ import org.krysalis.barcode4j.impl.code128.Code128Bean;
 import org.krysalis.barcode4j.impl.upcean.UPCEBean;
 import org.krysalis.barcode4j.output.java2d.Java2DCanvasProvider;
 
-public class AveryWishLabelPrinter implements Printable 
+public class AveryGiftLabelPrinter implements Printable 
 {
 	private static final int AVERY_LABELS_PER_PAGE = 30;	//5160 label sheet
 	private static final int AVERY_COLUMNS_PER_PAGE = 3;
@@ -28,25 +28,42 @@ public class AveryWishLabelPrinter implements Printable
 	
 	private GlobalVariablesDB gvs;
 	private ONCTable sortTable;
-	private List<SortGiftObject> stAL; 
+	private List<SortGiftObject> stAL;
+	private List<SortClonedGiftObject> clonedGiftList;
+	private boolean bClonedGift;
 	private int totalNumOfLabelsToPrint;
 	private Point position;
 	
 	//constructor used when drawing labels on a Swing component
-	public AveryWishLabelPrinter()
+	public AveryGiftLabelPrinter()
 	{
 		gvs = GlobalVariablesDB.getInstance();
 		this.stAL = null;
+		this.clonedGiftList = null;
+		this.bClonedGift = false;
 		this.sortTable = null;
 		this.totalNumOfLabelsToPrint = 0;
 		this.position = new Point(0,0);
 	}
 	
 	//constructor used when drawing labels on a sheet via the printable interface
-	public AveryWishLabelPrinter(List<SortGiftObject> stAL, ONCTable sortTable, int numOfLabels, Point position)
+	public AveryGiftLabelPrinter(List<SortGiftObject> stAL, ONCTable sortTable, int numOfLabels, Point position)
 	{
 		gvs = GlobalVariablesDB.getInstance();
 		this.stAL = stAL;
+		this.clonedGiftList = null;
+		this.bClonedGift = false;
+		this.sortTable = sortTable;
+		this.totalNumOfLabelsToPrint = numOfLabels;
+		this.position = position;
+	}
+	
+	public AveryGiftLabelPrinter(List<SortClonedGiftObject> stAL, boolean bClonedGift, ONCTable sortTable, int numOfLabels, Point position)
+	{
+		gvs = GlobalVariablesDB.getInstance();
+		this.stAL = null;
+		this.clonedGiftList = stAL;
+		this.bClonedGift = true;
 		this.sortTable = sortTable;
 		this.totalNumOfLabelsToPrint = numOfLabels;
 		this.position = position;
@@ -183,13 +200,17 @@ public class AveryWishLabelPrinter implements Printable
 	    
 	    while(row < AVERY_LABELS_PER_PAGE/AVERY_COLUMNS_PER_PAGE && index < endOfSelection)
 	    {
+	    	if(bClonedGift)
+	    		line = clonedGiftList.get(row_sel[index++]).getGiftLabel();
+	    	else
 	    		line = stAL.get(row_sel[index++]).getGiftLabel();
-	    		drawLabel(col * AVERY_LABEL_WIDTH, row * AVERY_LABEL_HEIGHT, line, lFont, img, g2d);	
-	    		if(++col == AVERY_COLUMNS_PER_PAGE)
-	    		{ 
-	    			row++; 
-	    			col = 0;
-	    		} 	
+	    	
+    		drawLabel(col * AVERY_LABEL_WIDTH, row * AVERY_LABEL_HEIGHT, line, lFont, img, g2d);	
+    		if(++col == AVERY_COLUMNS_PER_PAGE)
+    		{ 
+    			row++; 
+    			col = 0;
+    		} 	
 	    }
 	    	    
 	     /* tell the caller that this page is part of the printed document */

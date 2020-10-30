@@ -35,6 +35,7 @@ import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -66,11 +67,12 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 	private GiftCatalogDB giftCat;
 	private RegionDB regions;
 	private DNSCodeDB dnsCodeDB;
+	private ClonedGiftDB clonedGiftDB;
 
 	private ArrayList<SortGiftObject> stAL;
 	
 	private JComboBox<String> startAgeCB, endAgeCB, giftnumCB, genderCB, resCB, changedByCB;
-	private JComboBox<String> changeResCB, printCB, regionCB, schoolCB, exportCB;
+	private JComboBox<String> changeResCB, printCB, regionCB, schoolCB, exportCB, cloneCB;
 	private JComboBox<ONCGift> giftCB;
 	private JComboBox<GiftStatus>  statusCB, changeStatusCB;
 	private JComboBox<ONCPartner> assignCB, changePartnerCB;
@@ -116,6 +118,7 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 		giftCat = GiftCatalogDB.getInstance();
 		regions = RegionDB.getInstance();
 		dnsCodeDB = DNSCodeDB.getInstance();
+		clonedGiftDB = ClonedGiftDB.getInstance();
 		
 		//set up data base listeners
 		if(userDB != null)
@@ -326,6 +329,12 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 	    
 	    JPanel cntlPanel = new JPanel();
 	    cntlPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
+	    
+	    String[] cloneChoices = {"Clone Gifts", "Create Cloned Gifts"};
+        cloneCB = new JComboBox<String>(cloneChoices);
+        cloneCB.setPreferredSize(new Dimension(136, 28));
+        cloneCB.setEnabled(false);
+        cloneCB.addActionListener(this);
    
         String[] exportChoices = {"Export", "Export Listing", "Export SignUp Genius"};
         exportCB = new JComboBox<String>(exportChoices);
@@ -339,6 +348,7 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
         printCB.setEnabled(true);
         printCB.addActionListener(this);
    
+        cntlPanel.add(cloneCB);
         cntlPanel.add(exportCB);
       	cntlPanel.add(printCB);
       	
@@ -402,6 +412,7 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 	@Override
 	void setEnabledControls(boolean tf)
 	{
+		cloneCB.setEnabled(tf);
 		exportCB.setEnabled(tf);
 	}
 	
@@ -828,10 +839,28 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 	
 	void checkExportEnabled()
 	{
-		if(sortTable.getSelectedRowCount() > 0)
-			exportCB.setEnabled(true);
-		else
-			exportCB.setEnabled(false);
+		cloneCB.setEnabled(sortTable.getSelectedRowCount() > 0);
+		exportCB.setEnabled(sortTable.getSelectedRowCount() > 0);
+	}
+	
+	void onCloneRequested()
+	{
+		List<ONCChildGift> reqAddClonedGiftList = new ArrayList<ONCChildGift>();
+
+		int[] row_sel = sortTable.getSelectedRows();
+		for(int i=0; i<row_sel.length; i++)
+			reqAddClonedGiftList.add(stAL.get(row_sel[i]).getChildGift());
+		
+		if(!reqAddClonedGiftList.isEmpty())
+		{
+			String response = "ADD_CLONE_LIST_FAILED";
+			response = clonedGiftDB.addClonesFromChildGiftList(this, reqAddClonedGiftList);
+			
+			JOptionPane.showMessageDialog(this, response, "Cloned Gift Result", 
+										JOptionPane.INFORMATION_MESSAGE, gvs.getImageIcon(0));
+		}
+		
+		cloneCB.setSelectedIndex(0);	//Reset the user clone request
 	}
 	
 	void onExportRequested()
@@ -1193,6 +1222,41 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 //		{
 //			onExportRequested();	
 //		}
+		else if(e.getSource() == cloneCB)
+		{
+			if(sortTable.getSelectedRowCount() > 0 && cloneCB.getSelectedIndex() == 1)
+			{
+				//Confirm with the user that creating clones is really intended
+				String confirmMssg = String.format("Are you sure you want to clone %d gifts?",
+													sortTable.getSelectedRowCount()); 
+												
+				Object[] options= {"Cancel", "Clone"};
+				JOptionPane confirmOP = new JOptionPane(confirmMssg, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION,
+									gvs.getImageIcon(0), options, "Cancel");
+				JDialog confirmDlg = confirmOP.createDialog(parentFrame, "*** Confirm Create Clone Gifts ***");
+				confirmDlg.setLocationRelativeTo(this);
+				confirmDlg.setAlwaysOnTop(true);
+				confirmDlg.setVisible(true);
+			
+				Object selectedValue = confirmOP.getValue();
+				if(selectedValue != null && selectedValue.toString().equals("Clone"))
+					onCloneRequested();
+				else
+				{
+					JOptionPane.showMessageDialog(this, "Clone gifts process canceled by user", 
+						"Clone Process Canceled", JOptionPane.INFORMATION_MESSAGE, gvs.getImageIcon(0));
+				}
+				
+			}
+			else
+			{
+				JOptionPane.showMessageDialog(this, 
+						"No gifts selected, please selected gifts in order to " + 
+						cloneCB.getSelectedItem().toString(), 
+						"No Gifts Selected", JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
+			}
+			cloneCB.setSelectedIndex(0);	//Reset the combo box choice
+		}
 		else if(e.getSource() == exportCB)
 		{
 			if(sortTable.getSelectedRowCount() > 0)
@@ -1378,7 +1442,7 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 	{
 		if(sortTable.getSelectedRowCount() > 0)	 //Print selected rows. If no rows selected, do nothing
 		{
-			AveryWishLabelPrinter awlp;
+			AveryGiftLabelPrinter awlp;
 			PrinterJob pj = PrinterJob.getPrinterJob();
 			
 			if(sortTable.getSelectedRowCount() == 1)	//print 1 label, ask position
@@ -1393,7 +1457,7 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 					labelPos.y--;
 					
 					//create the label printer and print
-					awlp = new AveryWishLabelPrinter(stAL, sortTable, sortTable.getSelectedRowCount(), labelPos);
+					awlp = new AveryGiftLabelPrinter(stAL, sortTable, sortTable.getSelectedRowCount(), labelPos);
 					pj.setPrintable(awlp);
 		         
 					boolean ok = pj.printDialog();
@@ -1412,7 +1476,7 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 			}
 			else
 			{
-				awlp = new AveryWishLabelPrinter(stAL, sortTable, sortTable.getSelectedRowCount(), new Point(0,0));
+				awlp = new AveryGiftLabelPrinter(stAL, sortTable, sortTable.getSelectedRowCount(), new Point(0,0));
 				pj.setPrintable(awlp);
 	         
 				boolean ok = pj.printDialog();
