@@ -403,13 +403,13 @@ public class SortDriverDialog extends DependantTableDialog
 	String[] getDependantTableExportRow(int index)
 	{
 		ONCFamily f = stAL.get(index);
-		DNSCode code = dnsCodeDB.getDNSCode(f.getDNSCode());
+		DNSCode code = f.getDNSCode() > -1 ?dnsCodeDB.getDNSCode(f.getDNSCode()) : null;
 		
 		String[] row = {
 						volunteerDB.getDriverLNFN(familyHistoryDB.getFamilyHistory(f.getDeliveryID()).getdDelBy()),
 						f.getONCNum(),
 						f.getBatchNum(),
-						code.getAcronym(),
+						code == null ? "" : code.getAcronym(),
 						f.getFamilyStatus().toString(),
 						f.getGiftStatus().toString(),
 						f.getMealStatus().toString(),

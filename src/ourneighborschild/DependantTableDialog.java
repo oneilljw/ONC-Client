@@ -224,7 +224,10 @@ public abstract class DependantTableDialog extends SortTableDialog
 		if(f.getDNSCode() == -1)
 			familytablerow[2] = "";
 		else
-			familytablerow[2] = dnsCodeDB.getDNSCode(f.getDNSCode()).getAcronym();
+		{
+			DNSCode code = dnsCodeDB.getDNSCode(f.getDNSCode());
+			familytablerow[2] = code == null ? "" : code.getAcronym();
+		}
 		
 		familytablerow[3] = f.getFamilyStatus().toString();
 		familytablerow[4] = f.getGiftStatus().toString();

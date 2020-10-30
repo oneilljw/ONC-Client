@@ -348,7 +348,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 	    	    writer.close();
 	    	    
 	    	    JOptionPane.showMessageDialog(parentFrame, 
-						sortTable.getSelectedRowCount() + " families sucessfully exported to " + oncwritefile.getName(), 
+						sortTable.getSelectedRowCount() + " referral families sucessfully exported to " + oncwritefile.getName(), 
 						"Export Successful", JOptionPane.INFORMATION_MESSAGE, gvs.getImageIcon(0));
 	    	} 
 	    	catch (IOException x)
@@ -365,13 +365,14 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 	{
 		ONCFamily f = stAL.get(index);
 		ONCUser u = userDB.getUser(f.getAgentID());
-		DNSCode code = dnsCodeDB.getDNSCode(f.getDNSCode());
+		
+		DNSCode code = f.getDNSCode() > -1 ? dnsCodeDB.getDNSCode(f.getDNSCode()) : null;
 		
 		String[] row = {
 						u.getFirstName() + " " + u.getLastName(),
 						f.getONCNum(),
 						f.getBatchNum(),
-						code.getAcronym(),
+						code != null ? code.getAcronym() : "",
 						f.getFamilyStatus().toString(),
 						f.getGiftStatus().toString(),
 						f.getMealStatus().toString(),

@@ -50,11 +50,16 @@ public class DNSCodeDB extends ONCSearchableDatabase
 	
 	DNSCode getDNSCode(int id)
 	{
-		int index = 0;
-		while(index < dnsCodeList.size() && dnsCodeList.get(index).getID() != id)
-			index++;
-		
-		return index < dnsCodeList.size() ? dnsCodeList.get(index) : null;
+		if(id < 0)
+			return null;
+		else
+		{	
+    		int index = 0;
+    		while(index < dnsCodeList.size() && dnsCodeList.get(index).getID() != id)
+    			index++;
+    		
+    		return index < dnsCodeList.size() ? dnsCodeList.get(index) : null;
+		}
 	}
 	
 	//Used to create a dnsCode internal to the application via the ONC Server

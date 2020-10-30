@@ -140,48 +140,47 @@ public class ServerIF
     
     synchronized String sendRequest(String request)
     {
-    		timeCommandSent = System.currentTimeMillis();
+		timeCommandSent = System.currentTimeMillis();
 
-    		try 
-    		{
-			out.write(request);
-			out.newLine();
-			out.flush();
-	    	
-			if(request.length() > SERVER_LOG_LINE_LENGTH)
-	    			addServerLogItem("Request: " + request.substring(0, SERVER_LOG_LINE_LENGTH-1));
-			else
-	    			addServerLogItem("Request: " + request);
+		try 
+		{
+    		out.write(request);
+    		out.newLine();
+    		out.flush();
+        	
+    		if(request.length() > SERVER_LOG_LINE_LENGTH)
+        		addServerLogItem("Request: " + request.substring(0, SERVER_LOG_LINE_LENGTH-1));
+    		else
+        		addServerLogItem("Request: " + request);
 	    		
 		} 
-    		catch (IOException e1) 
-    		{
-    			GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
-    		
-    			String mssg = String.format("Error sending command<br>%s<br> to ONC Server,<br>netwok connection may be lost." +
-	    			"<br>Server errors detected: %d", request, nServerErrorsDetected); 			   		
-	    	
-    			ONCPopupMessage clientIDPU = new ONCPopupMessage(gvs.getImageIcon(0));
+		catch (IOException e1) 
+		{
+			GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
+		
+			String mssg = String.format("Error sending command<br>%s<br> to ONC Server,<br>netwok connection may be lost." +
+    			"<br>Server errors detected: %d", request, nServerErrorsDetected); 			   		
+    	
+			ONCPopupMessage clientIDPU = new ONCPopupMessage(gvs.getImageIcon(0));
 			clientIDPU.setLocationRelativeTo(GlobalVariablesDB.getFrame());
 			clientIDPU.show("ONC Server I/F Exception", mssg);
-	    	
+    	
 			e1.printStackTrace();
 		}
     		
-    	
-    		String response = null;
-    		
-    		try 
-    		{ 
-    			response = in.readLine(); 
-    		}	//Blocks until response received or timeout occurs
+		String response = null;
+		
+		try 
+		{ 
+			response = in.readLine(); 
+		}	//Blocks until response received or timeout occurs
 		catch (IOException e) 
-    		{ 
+    	{ 
 			serverConnectionIssue();
 		}
     	
-    		//if the network response time is very slow, notify the user
-    		long elapsedTime = System.currentTimeMillis() - timeCommandSent;
+    	//if the network response time is very slow, notify the user
+    	long elapsedTime = System.currentTimeMillis() - timeCommandSent;
 //    	System.out.println("Elapsed Time: " + elapsedTime);
     	
 		if(elapsedTime > NETWORK_TIME_LIMIT && bDatabaseLoaded)	//Don't show pop-up until local data loaded
