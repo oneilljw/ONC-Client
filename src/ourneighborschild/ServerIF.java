@@ -76,10 +76,7 @@ public class ServerIF
     		socket = new Socket();
     	
     		timeCommandSent = System.currentTimeMillis();
-//    	time = new Date(timeCommandSent);
-    	
-//    	System.out.println("ServerIF Connecting to Server at: " + timeCommandSent);
-    	
+
     		socket.connect(new InetSocketAddress(serverAddress, port), SOCKET_CREATION_TIMEOUT);
     		socket.setSoTimeout ( SOCKET_TRANSMISSION_TIMEOUT );
 
@@ -102,9 +99,6 @@ public class ServerIF
         			in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         			loginMssg = EncryptionManager.decrypt(in.readLine());
         		
-//        		long timeElapsed = System.currentTimeMillis() - timeCommandSent;
-//        		System.out.println(String.format("ServerIF: Took %d milliseconds to connect to Server", timeElapsed));
-			
         			if (loginMssg.startsWith("LOGIN"))
         				bConnected = true;
         		} 
@@ -172,7 +166,8 @@ public class ServerIF
 		
 		try 
 		{ 
-			response = in.readLine(); 
+			response = in.readLine();
+			
 		}	//Blocks until response received or timeout occurs
 		catch (IOException e) 
     	{ 
@@ -181,7 +176,6 @@ public class ServerIF
     	
     	//if the network response time is very slow, notify the user
     	long elapsedTime = System.currentTimeMillis() - timeCommandSent;
-//    	System.out.println("Elapsed Time: " + elapsedTime);
     	
 		if(elapsedTime > NETWORK_TIME_LIMIT && bDatabaseLoaded)	//Don't show pop-up until local data loaded
 		{

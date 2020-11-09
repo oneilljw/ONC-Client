@@ -1237,10 +1237,7 @@ public class SortClonedGiftsDialog extends ChangeDialog implements PropertyChang
 		endFilterTimestamp.set(Calendar.MINUTE, 0);
 		endFilterTimestamp.set(Calendar.SECOND, 0);
 		endFilterTimestamp.set(Calendar.MILLISECOND, 0);
-		
-//		System.out.println(String.format("SortGiftDlg.setDateFilters: startFilterTimestampMillis= %d",
-//				startFilterTimestamp.getTimeInMillis()));
-		
+	
 		startFilterTimestamp.add(Calendar.DAY_OF_YEAR, startOffset);
 		endFilterTimestamp.add(Calendar.DAY_OF_YEAR, endOffset);
 	}	

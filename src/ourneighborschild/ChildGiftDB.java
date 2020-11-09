@@ -7,7 +7,6 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -57,7 +56,7 @@ public class ChildGiftDB extends ONCDatabase
 	 * current partner unchanged
 	 */
 	ONCChildGift add(Object source, int childid, int giftID, String gd, int gn, int gi,
-			GiftStatus gs, ONCPartner currPartner)
+			GiftStatus gs, ONCPartner reqPartner)
 	{		
 //		GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
 		String cb = UserDB.getInstance().getUserLNFI();
@@ -65,7 +64,7 @@ public class ChildGiftDB extends ONCDatabase
 
 		//Get the old gift being replaced. getGift method returns null if gift not found
 		ONCChildGift replacedGift = getGift(childid, gn);
-
+/*
 		//determine if we need to change the partner id
 		int newPartnerID = -1;
 		if(replacedGift != null && replacedGift.getGiftID() != giftID)
@@ -74,15 +73,25 @@ public class ChildGiftDB extends ONCDatabase
 			newPartnerID = replacedGift.getPartnerID(); 	//Staying the same
 		else if(currPartner != null)
 			newPartnerID = currPartner.getID();
-
+*/
+		//get the new partner ID and new GiftStatus
+		GiftPartnerAndStatus newGiftPartnerAndStatus = checkForPartnerAndStatusChange(replacedGift, giftID, gs, reqPartner);
+		int newPartnerID = newGiftPartnerAndStatus.getPartnerID();
+		GiftStatus newGiftStatus = newGiftPartnerAndStatus.getGiftStatus();
+		
 		//create the new gift, with childgiftID = -1, meaning no gift selected
 		//the server will add the childgiftID and return it
 		ONCChildGift retCG = null;
+//		ONCChildGift reqCG = new ONCChildGift(-1, childid, giftID,
+//								   checkForDetailChange(gi, gd, currPartner, replacedGift), 
+//								   gn, gi,
+//								   checkForStatusChange(replacedGift, giftID, gs, currPartner), 
+//								   newPartnerID, cb, dc);
+		
 		ONCChildGift reqCG = new ONCChildGift(-1, childid, giftID,
-								   checkForDetailChange(gi, gd, currPartner, replacedGift), 
-								   gn, gi,
-								   checkForStatusChange(replacedGift, giftID, gs, currPartner), 
-								   newPartnerID, cb, dc);		
+				   checkForDetailChange(gi, gd, reqPartner, replacedGift), 
+				   gn, gi,newGiftStatus, newPartnerID, cb, dc);
+		
 		Gson gson = new Gson();
 		String response = null, helmetResponse = null;
 
@@ -165,11 +174,10 @@ public class ChildGiftDB extends ONCDatabase
 
 		return addedGift;
 	}
-	
+
 	//adds a list of gifts to the child gift data base.
 	String addGiftList(Object source, List<AddGiftRequest> addGiftRequestList)
 	{		
-//		GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
 		String cb = UserDB.getInstance().getUserLNFI();
 		long dc = System.currentTimeMillis();
 		
@@ -184,26 +192,29 @@ public class ChildGiftDB extends ONCDatabase
 
 			//determine if we need to change the partner. If the gift is changing, then the partner ID 
 			//in the requested gift must be set to -1 (no partner)
-			int newPartnerID;
-			ONCPartner newPartner = null;
-			if(replacedGift != null && replacedGift.getGiftID() != requestedGift.getGiftID())
-				newPartnerID = -1;	//selected gift has changed, partner must be reset
-			else if(requestedGift.getPartnerID() == -1)
-				newPartnerID = -1;	//request gift has removed partner	
-			else
-			{
-				newPartnerID = requestedGift.getPartnerID();
-				newPartner = partnerDB.getPartnerByID(requestedGift.getPartnerID());
-			}
+//			int newPartnerID;
+//			ONCPartner newPartner = null;
+//			if(replacedGift != null && replacedGift.getGiftID() != requestedGift.getGiftID())
+//				newPartnerID = -1;	//selected gift has changed, partner must be reset
+//			else if(requestedGift.getPartnerID() == -1)
+//				newPartnerID = -1;	//request gift has removed partner	
+//			else
+//			{
+//				newPartnerID = requestedGift.getPartnerID();
+//				newPartner = partnerDB.getPartnerByID(requestedGift.getPartnerID());
+//			}
 			
+			ONCPartner reqPartner = partnerDB.getPartnerByID(requestedGift.getPartnerID());
+			GiftPartnerAndStatus gpas = checkForPartnerAndStatusChange(replacedGift, requestedGift.getGiftID(), requestedGift.getGiftStatus(), reqPartner);
+			int newPartnerID = gpas.getPartnerID();
+			GiftStatus newGiftStatus = gpas.getGiftStatus();
 			
 			//create the added gift, with childwishID = -1, meaning no wish selected
 			//the server will add the childwishID and return it
 			ONCChildGift reqCW = new ONCChildGift(-1, requestedGift.getChildID(),requestedGift.getGiftID(),
-								   checkForDetailChange(requestedGift.getIndicator(), requestedGift.getDetail(), newPartner, replacedGift), 
+								   checkForDetailChange(requestedGift.getIndicator(), requestedGift.getDetail(), reqPartner, replacedGift), 
 								   requestedGift.getGiftNumber(),requestedGift.getIndicator(),
-								   checkForStatusChange(replacedGift, requestedGift.getGiftID(), requestedGift.getGiftStatus(), newPartner), 
-								   newPartnerID, cb, dc);
+								   newGiftStatus, newPartnerID, cb, dc);
 			
 			reqAddGiftList.add(reqCW);
 		}
@@ -350,50 +361,7 @@ public class ChildGiftDB extends ONCDatabase
 		
 		return newStatus;			
 	}
-/*
-	PartnerGiftStatus checkForPartnerGiftStatusChange(int oldGiftPartnerID, PartnerGiftStatus oldGiftPartnerGS, int reqGiftPartnerID, PartnerGiftStatus reqPartnerGS)
-	{
-		PartnerGiftStatus newPartnerGS = oldGiftPartnerGS;	//set default no change in status
-		
-		switch(oldGiftPartnerGS)
-		{
-			case Unassigned:
-				if(oldGiftPartnerID == -1 && reqGiftPartnerID > -1)
-					newPartnerGS = PartnerGiftStatus.Assigned;		
-				break;
-				
-			case Assigned:
-				if(oldGiftPartnerID > -1 && reqGiftPartnerID == -1)
-					newPartnerGS = PartnerGiftStatus.Unassigned;
-				else if(reqPartnerGS == PartnerGiftStatus.Delivered)
-					newPartnerGS = PartnerGiftStatus.Delivered;
-				break;
-				
-			case Delivered:
-				if(reqPartnerGS == PartnerGiftStatus.Assigned)
-					newPartnerGS = PartnerGiftStatus.Assigned;
-				else if(reqPartnerGS == PartnerGiftStatus.Returned)
-					newPartnerGS = PartnerGiftStatus.Returned;
-				else if(reqPartnerGS == PartnerGiftStatus.Received)
-					newPartnerGS = PartnerGiftStatus.Received;
-				break;
-				
-			case Returned:
-				if(reqPartnerGS == PartnerGiftStatus.Delivered)
-					newPartnerGS = PartnerGiftStatus.Delivered;
-				break;
-				
-			case Received:
-				if(reqPartnerGS == PartnerGiftStatus.Delivered)
-					newPartnerGS = PartnerGiftStatus.Delivered;
-				break;
-				
-			default:
-				
-				break;
-		}
-		return newPartnerGS;
-	}
+	
 	/*******************************************************************************************
 	 * This method implements a rules engine governing the relationship between a gift type and
 	 * gift status and gift assignment and gift status. It is called when a child's gift or
@@ -402,140 +370,120 @@ public class ChildGiftDB extends ONCDatabase
 	 * For example, if a child's base gift is empty and it is changing to a gift selected from
 	 * the catalog, this method will set the gift status to SELECTED. Conversely, if
 	 * a gift was selected from the catalog and is reset to empty, the status is set to Not_Selected.
-	 ************************************************************************************************************	
-	GiftStatus checkForStatusChange(ONCChildGift oldGift, int giftBase, GiftStatus reqStatus, 
-			ONCPartner reqPartner0, PartnerGiftStatus reqPartner0GiftStatus, ONCPartner reqPartner1, PartnerGiftStatus reqPartner1GiftStatus)
+	 ************************************************************************************************************/	
+	GiftPartnerAndStatus checkForPartnerAndStatusChange(ONCChildGift oldGift, int giftBase, GiftStatus reqStatus, ONCPartner reqPartner)
 	{
-		GiftStatus currStatus, newStatus;
-		PartnerGiftStatus currPartner0GiftStatus, currPartner1GiftStatus;
+		GiftStatus currStatus;
+		GiftPartnerAndStatus newPartnerAndStatus;
 		
+		//set up for default return
 		if(oldGift == null)	//selecting first gift
 		{	
 			currStatus = GiftStatus.Not_Selected;
-			currPartner0GiftStatus = PartnerGiftStatus.Unassigned;
-			currPartner0GiftStatus = PartnerGiftStatus.Unassigned;
+			newPartnerAndStatus = new GiftPartnerAndStatus(-1, GiftStatus.Selected);
 		}
 		else
-		{	
+		{
 			currStatus = oldGift.getGiftStatus();
-			currPartner0GiftStatus = oldGift.getPartner0GiftStatus();
-			currPartner1GiftStatus = oldGift.getPartner1GiftStatus();
+			newPartnerAndStatus = new GiftPartnerAndStatus(oldGift.getPartnerID(), oldGift.getGiftStatus());
 		}
-		
-		//set new status = current status for default return
-		newStatus = currStatus;
 		
 		switch(currStatus)
 		{
 			case Not_Selected:
-				if(giftBase > -1 && reqPartner0 != null && reqPartner0.getID() != -1)
-					newStatus = GiftStatus.Assigned;	//assigned from inventory
+				if(giftBase > -1 && reqPartner != null && reqPartner.getID() != -1)
+					newPartnerAndStatus = new GiftPartnerAndStatus(reqPartner.getID(), GiftStatus.Assigned);	//assigned from inventory
 				else if(giftBase > -1)
-					newStatus = GiftStatus.Selected;
+					newPartnerAndStatus = new GiftPartnerAndStatus(-1, GiftStatus.Selected);
 				break;
 				
 			case Selected:
 				if(giftBase == -1)
-					newStatus = GiftStatus.Not_Selected;
-				else if(reqPartner0 != null && reqPartner0.getID() != -1 ||
-						 reqPartner1 != null && reqPartner1.getID() != -1)
-					newStatus = GiftStatus.Assigned;
+					newPartnerAndStatus = new GiftPartnerAndStatus(-1, GiftStatus.Not_Selected);
+				else if(reqPartner != null && reqPartner.getID() != -1)
+					newPartnerAndStatus = new GiftPartnerAndStatus(reqPartner.getID(), GiftStatus.Assigned);
 				break;
 				
 			case Assigned:
 				if(giftBase == -1)
-					newStatus = GiftStatus.Not_Selected;
+					newPartnerAndStatus = new GiftPartnerAndStatus(-1, GiftStatus.Not_Selected);
 				else if(oldGift.getGiftID() != giftBase)
-					newStatus = GiftStatus.Selected;
-				else if((reqPartner0 == null || reqPartner0 != null && reqPartner0.getID() == -1) &&
-						(reqPartner1 == null || reqPartner1 != null && reqPartner1.getID() == -1))
-					newStatus = GiftStatus.Selected;
-				else if(reqPartner0GiftStatus == PartnerGiftStatus.Delivered ||
-						reqPartner1GiftStatus == PartnerGiftStatus.Delivered)
-					newStatus = GiftStatus.Delivered;
+					newPartnerAndStatus = new GiftPartnerAndStatus( -1, GiftStatus.Selected);
+				else if(reqPartner == null || reqPartner != null && reqPartner.getID() == -1)
+					newPartnerAndStatus = new GiftPartnerAndStatus(-1, GiftStatus.Selected);
+				else if(reqStatus == GiftStatus.Delivered)
+					newPartnerAndStatus = new GiftPartnerAndStatus(oldGift.getPartnerID(), GiftStatus.Delivered);
 				break;
 				
 			case Delivered:
-				if(reqStatus == GiftStatus.Returned)
-					newStatus = GiftStatus.Returned;
-				else if(reqStatus == GiftStatus.Delivered && 
-						(reqPartner0 != null && reqPartner0.getID() > -1 && reqPartner0.getGiftCollectionType() == GiftCollectionType.ONCShopper ||
-						  reqPartner1 != null && reqPartner1.getID() > -1 && reqPartner1.getGiftCollectionType() == GiftCollectionType.ONCShopper))
-					newStatus = GiftStatus.Shopping;
-				else if(reqStatus == GiftStatus.Delivered && 
-						(reqPartner0 != null && reqPartner0.getID() > -1 &&
-						 reqPartner1 != null && reqPartner1.getID() > -1))
-					newStatus = GiftStatus.Assigned;
-				else if(reqStatus == GiftStatus.Shopping)
-					newStatus = GiftStatus.Shopping;
+				if(reqPartner != null && reqPartner.getID() > -1 && oldGift.getPartnerID() != reqPartner.getID() && 
+					reqPartner.getGiftCollectionType() == GiftCollectionType.ONCShopper)
+					newPartnerAndStatus = new GiftPartnerAndStatus(reqPartner.getID(), GiftStatus.Shopping);
+				else if(reqPartner != null && reqPartner.getID() > -1 && oldGift.getPartnerID() != reqPartner.getID() &&
+						 reqPartner.getGiftCollectionType() != GiftCollectionType.ONCShopper)
+					newPartnerAndStatus = new GiftPartnerAndStatus(reqPartner.getID(), GiftStatus.Assigned);
+				else if(reqStatus == GiftStatus.Assigned)
+					newPartnerAndStatus = new GiftPartnerAndStatus(oldGift.getPartnerID(), GiftStatus.Assigned);
+				else if(reqStatus == GiftStatus.Returned)
+					newPartnerAndStatus = new GiftPartnerAndStatus(oldGift.getPartnerID(), GiftStatus.Returned);
 				else if(reqStatus == GiftStatus.Received)
-					newStatus = GiftStatus.Received;
+					newPartnerAndStatus = new GiftPartnerAndStatus(oldGift.getPartnerID(), GiftStatus.Received);
 				break;
 				
 			case Returned:
 				if(giftBase == -1)
-					newStatus = GiftStatus.Not_Selected;
-				else if(reqPartner0 != null && reqPartner0.getID() == -1 &&
-						reqPartner1 != null && reqPartner1.getID() == -1)
-					newStatus = GiftStatus.Selected;
-				else if(reqPartner0 != null && 
-						(reqPartner0.getGiftCollectionType() != GiftCollectionType.ONCShopper &&
-						  reqPartner1.getGiftCollectionType() != GiftCollectionType.ONCShopper))
-					newStatus = GiftStatus.Assigned;
-				else if(reqPartner0 != null && 
-						(reqPartner0.getGiftCollectionType() == GiftCollectionType.ONCShopper ||
-						  reqPartner0.getGiftCollectionType() == GiftCollectionType.ONCShopper))
-					newStatus = GiftStatus.Shopping;
+					newPartnerAndStatus = new GiftPartnerAndStatus(-1, GiftStatus.Not_Selected);
+				else if(reqPartner != null && reqPartner.getID() == -1)
+					newPartnerAndStatus = new GiftPartnerAndStatus(-1, GiftStatus.Selected);
+				else if(reqPartner != null && oldGift.getPartnerID() != reqPartner.getID() && reqPartner.getGiftCollectionType() != GiftCollectionType.ONCShopper)
+					newPartnerAndStatus = new GiftPartnerAndStatus(reqPartner.getID(), GiftStatus.Assigned);
+				else if(reqPartner != null && oldGift.getPartnerID() != reqPartner.getID() && reqPartner.getGiftCollectionType() == GiftCollectionType.ONCShopper)
+					newPartnerAndStatus = new GiftPartnerAndStatus(reqPartner.getID(), GiftStatus.Shopping);
 				break;
 				
 			case Shopping:
 				if(reqStatus == GiftStatus.Returned)
-					newStatus = GiftStatus.Returned;
+					newPartnerAndStatus = new GiftPartnerAndStatus(oldGift.getPartnerID(), GiftStatus.Returned);
 				else if(reqStatus == GiftStatus.Received)
-					newStatus = GiftStatus.Received;
+					newPartnerAndStatus = new GiftPartnerAndStatus(oldGift.getPartnerID(), GiftStatus.Received);
 				break;
 				
 			case Received:
 				if(reqStatus == GiftStatus.Missing)
-					newStatus = GiftStatus.Missing;
+					newPartnerAndStatus = new GiftPartnerAndStatus(oldGift.getPartnerID(), GiftStatus.Missing);
 				else if(reqStatus == GiftStatus.Distributed)
-					newStatus = GiftStatus.Distributed;
+					newPartnerAndStatus = new GiftPartnerAndStatus(oldGift.getPartnerID(), GiftStatus.Distributed);
 				else if(reqStatus == GiftStatus.Delivered)
-					newStatus = GiftStatus.Delivered;
+					newPartnerAndStatus = new GiftPartnerAndStatus(oldGift.getPartnerID(), GiftStatus.Delivered);
 				break;
 				
 			case Distributed:
 				if(reqStatus == GiftStatus.Missing)
-					newStatus = GiftStatus.Missing;
+					newPartnerAndStatus = new GiftPartnerAndStatus(oldGift.getPartnerID(), GiftStatus.Missing);
 				else if(reqStatus == GiftStatus.Verified)
-					newStatus = GiftStatus.Verified;
+					newPartnerAndStatus = new GiftPartnerAndStatus(oldGift.getPartnerID(), GiftStatus.Verified);
 				break;
 			
 			case Missing:
 				if(reqStatus == GiftStatus.Received)
-					newStatus = GiftStatus.Received;
-				else if(reqPartner0 != null && (
-						reqPartner0.getGiftCollectionType() == GiftCollectionType.ONCShopper ||
-						reqPartner1.getGiftCollectionType() == GiftCollectionType.ONCShopper))
-					newStatus = GiftStatus.Shopping;
-				else if(reqStatus == GiftStatus.Assigned &&
-						(reqPartner0 != null && reqPartner0.getID() > -1 ||
-						  reqPartner1 != null && reqPartner1.getID() > -1))
-					newStatus = GiftStatus.Assigned;
+					newPartnerAndStatus = new GiftPartnerAndStatus(oldGift.getPartnerID(), GiftStatus.Received);
+				else if(reqPartner != null && reqPartner.getID() > -1 && oldGift.getPartnerID() != reqPartner.getID() && reqPartner.getGiftCollectionType() == GiftCollectionType.ONCShopper)
+					newPartnerAndStatus = new GiftPartnerAndStatus(reqPartner.getID(), GiftStatus.Shopping);
+				else if(reqPartner != null && reqPartner.getID() > -1 && oldGift.getPartnerID() != reqPartner.getID() && reqPartner.getGiftCollectionType() != GiftCollectionType.ONCShopper)
+					newPartnerAndStatus = new GiftPartnerAndStatus(reqPartner.getID(), GiftStatus.Assigned);
 				break;
 				
 			case Verified:
 				if(reqStatus == GiftStatus.Missing)
-					newStatus = GiftStatus.Missing;
+					newPartnerAndStatus = new GiftPartnerAndStatus(oldGift.getPartnerID(), GiftStatus.Missing);
 				break;
 				
 			default:
 				break;
 		}
 		
-		return newStatus;			
+		return newPartnerAndStatus;			
 	}
-*/	
 	/*** checks for automatic change of gift detail. An automatic change is triggered if
 	 * the replaced gift is of status Delivered and requested parter is of type ONC Shopper
 	 * and the requested gift indicator is #. 
@@ -774,5 +722,21 @@ public class ChildGiftDB extends ONCDatabase
 			}
 //			processUpdatedObject(this, ue.getJson(), childwishAL);
 		}
+	}
+	
+	private class GiftPartnerAndStatus
+	{
+		private int partnerID;
+		private GiftStatus giftStatus;
+		
+		GiftPartnerAndStatus(int partnerID, GiftStatus giftStatus)
+		{
+			this.partnerID = partnerID;
+			this.giftStatus = giftStatus;
+		}
+		
+		//getters
+		int getPartnerID() { return partnerID; }
+		GiftStatus getGiftStatus() { return giftStatus; }
 	}
 }

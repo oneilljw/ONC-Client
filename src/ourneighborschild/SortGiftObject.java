@@ -204,4 +204,13 @@ public class SortGiftObject extends ONCObject
 		else
 			return false;
 	}
+	
+	String getDiagnosticString()
+	{
+		return String.format("soFamily id= %d, soChild id= %d,"
+								+ "soChildGiftNumber= %d, "
+									+ "soChildGiftStatus = %s",
+									soFamily.getID(), soChild.getID(), soChildGift.getGiftNumber(),
+									soChildGift.getGiftStatus().toString());
+	}
 }

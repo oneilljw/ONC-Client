@@ -86,14 +86,14 @@ public class AveryGiftLabelPrinter implements Printable
 	    
 	    if(line[3] == null)	//Only a 3 line label
 	    {
-	    		g2d.setFont(lFont[2]);
-	    		drawCenteredString(line[2], 120, x+50, y+35, g2d, Color.BLACK);	//Draw line 3
+    		g2d.setFont(lFont[2]);
+    		drawCenteredString(line[2], 120, x+50, y+35, g2d, Color.BLACK);	//Draw line 3
 	    }
 	    else	//A 4 line label
 	    {	    	
-	    		drawCenteredString(line[2], 120, x+50, y+35, g2d, Color.BLACK);	//Draw line 3	    	
-	    		g2d.setFont(lFont[2]);
-	    		drawCenteredString(line[3], 120, x+50, y+50, g2d, Color.BLACK);	//Draw line 4
+    		drawCenteredString(line[2], 120, x+50, y+35, g2d, Color.BLACK);	//Draw line 3	    	
+    		g2d.setFont(lFont[2]);
+    		drawCenteredString(line[3], 120, x+50, y+50, g2d, Color.BLACK);	//Draw line 4
 	    }
 	}
 	
@@ -173,10 +173,17 @@ public class AveryGiftLabelPrinter implements Printable
 		final Image img = gvs.getSeasonIcon().getImage();
 
 		Font[] lFont = new Font[3];
+		
+		/*Times New Roman		
+	    lFont[0] = new Font("Times New Roman", Font.ITALIC, 11);
+	    lFont[1] = new Font("Times New Roman", Font.BOLD, 11);
+	    lFont[2] = new Font("Times New Roman", Font.PLAIN, 10);
+*/
+		/*Calibri */
 	    lFont[0] = new Font("Calibri", Font.ITALIC, 11);
 	    lFont[1] = new Font("Calibri", Font.BOLD, 11);
-	    lFont[2] = new Font("Calibri", Font.PLAIN, 10);	     
-	    
+	    lFont[2] = new Font("Calibri", Font.PLAIN, 10);
+
 	    int endOfSelection = 0, index = 0;
 	    int[] row_sel = sortTable.getSelectedRows();
  		if(sortTable.getSelectedRowCount() > 0)

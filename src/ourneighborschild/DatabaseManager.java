@@ -416,10 +416,6 @@ public class DatabaseManager extends ONCDatabase
 			oncChildWishDB.importChildGiftDatabase();
 			this.setProgress(progress += increment);
 			
-			pb.updateHeaderText("Loading Clones");
-			clonedGiftDB.importClonedGiftDatabase();
-			this.setProgress(progress += increment);
-			
 			pb.updateHeaderText("Loading Inventory");
 			oncInvDB.importInventoryDatabase();
 			this.setProgress(progress += increment);
@@ -474,6 +470,10 @@ public class DatabaseManager extends ONCDatabase
 			
 			pb.updateHeaderText("Loading DNS Codes");
 			dnsCodeDB.importDB();
+			this.setProgress(progress += increment);
+			
+			pb.updateHeaderText("Loading Clones");
+			clonedGiftDB.importClonedGiftDatabase();
 			this.setProgress(progress += increment);
 			
 			bServerDataLoaded = true;

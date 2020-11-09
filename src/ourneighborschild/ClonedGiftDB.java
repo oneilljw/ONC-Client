@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
 public class ClonedGiftDB extends ONCDatabase
@@ -205,11 +206,11 @@ public class ClonedGiftDB extends ONCDatabase
 			Gson gson = new Gson();
 			Type listtype = new TypeToken<ArrayList<ClonedGift>>(){}.getType();
 			
-			response = serverIF.sendRequest("GET<clonedgifts>");
-			clonedGiftList = gson.fromJson(response, listtype);			
-
-			if(!response.startsWith("NO_CLONED_GIFTS"))
+			String jsonResponse = serverIF.sendRequest("GET<clonedgifts>");
+			
+			if(!jsonResponse.startsWith("NO_CLONED_GIFTS"))
 			{
+				clonedGiftList = gson.fromJson(jsonResponse, listtype);
 				response =  "CLONED_GIFTS_LOADED";
 				fireDataChanged(this, "LOADED_CLONED_GIFTS", null);
 			}
@@ -259,5 +260,4 @@ public class ClonedGiftDB extends ONCDatabase
 		//the linked list chain
 		return null;
 	}
-
 }

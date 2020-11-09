@@ -25,7 +25,9 @@ public abstract class GiftActionDialog extends SortTableDialog
 	 * Provides a base class for dialogs that allow users to act on gifts in the warehouse
 	 * operation. Gifts can be received or audited in the warehouse, using either
 	 * manual data entry from a keyboard or by scanning a bar code on the ornament label
-	 * if the bar code option is employed when labels are generated
+	 * if the bar code option is employed when labels are generated. Cloned gifts cannot be
+	 * processed by this dialog. If a clone gift is entered by barcode, an error message will 
+	 * result.
 	 */
 	private static final long serialVersionUID = 1L;
 	private static final int SOUND_DURATION = 250;
@@ -39,8 +41,11 @@ public abstract class GiftActionDialog extends SortTableDialog
 	private static final int GIFT_ACTION_REQUEST_SERVER_FAILURE = -4;
 	private static final int CHILD_NOT_IN_LOCAL_DB = -5;
 	private static final int GIFT_ACTION_FAMILY_NOT_SERVED = -6;
+	private static final int GIFT_ACTION_CLONED_GIFT_ERROR = -7;
 	private static final int WISH_ANTICIPATION_DNS_CODE = 7;
 	private static final int SERVED_BY_OTHERS_DNS_CODE = 6;
+	
+	private static final int CLONED_GIFT_FIRST_GIFT_NUMBER = 3;
 
 	private JTextField oncnumTF, barcodeTF;
 	private JComboBox<String> startAgeCB, genderCB;
@@ -227,7 +232,9 @@ public abstract class GiftActionDialog extends SortTableDialog
 		GiftActionReturnCode rc = null;
 		
 		ONCChildGift cw = cwDB.getGift(cID, wn);	//get latest wish for child
-		if(cw == null)
+		if(cw == null && wn >= CLONED_GIFT_FIRST_GIFT_NUMBER)
+			rc = new GiftActionReturnCode(GIFT_ACTION_CLONED_GIFT_ERROR, null);
+		else if(cw == null)
 			rc = new GiftActionReturnCode(CHILD_NOT_IN_LOCAL_DB, null);
 		else if(cw.getGiftStatus() == getGiftStatusAction())
 			rc = new GiftActionReturnCode(GIFT_ACTION_ALREADY_OCCURRED, new SortGiftObject(-1, null, null, cw));
@@ -451,6 +458,11 @@ public abstract class GiftActionDialog extends SortTableDialog
 						
 						lblResult.setText(String.format("Gift: %s- %s already received", wishName, cw.getDetail()));
 						SoundUtils.tone(SUCCESS_SOUND_FREQ, SOUND_DURATION);
+					}
+					else if(rc.getReturnCode() == GIFT_ACTION_CLONED_GIFT_ERROR)
+					{
+						lblResult.setText("Cloned Gifts cannot be processed in this dialog");
+						SoundUtils.tone(FAILED_SOUND_FREQ, SOUND_DURATION);
 					}
 					else if(rc.getReturnCode() == CHILD_NOT_IN_LOCAL_DB)
 					{

@@ -40,14 +40,19 @@ public class ReceiveGiftsByBarcodeDialog extends GiftLabelDialog
 		//process change to wish status. Store the new wish to be added in case of an undo operation 
 		//and add the new wish to the child wish history. We reuse an ONCSortObject to store the
 		//new wish. Organization parameter is null, indicating we're not changing the gift partner
-		if(lastWishChanged != null &&
-			swo.getFamily().getID() == lastWishChanged.getFamily().getID() &&
+		if(lastWishChanged != null && swo.getFamily().getID() == lastWishChanged.getFamily().getID() &&
 			swo.getChild().getID() == lastWishChanged.getChild().getID() && 
 			swo.getChildGift().getGiftNumber() == lastWishChanged.getChildGift().getGiftNumber() &&
 			swo.getChildGift().getGiftStatus() == GiftStatus.Received)
 		{
 			//double scan of the last received gift at this workstation
-			alert(Result.SUCCESS, String.format("Gift Already Received: Family # %s, %s",
+			alert(Result.SUCCESS, String.format("Gift Just Received: Family # %s, %s",
+				swo.getFamily().getONCNum(),swo.getGiftPlusDetail()));
+		}
+		else if(swo.getChildGift().getGiftStatus() == GiftStatus.Received)
+		{
+			//double scan of the last received gift at this workstation
+			alert(Result.SUCCESS, String.format("Gift Previously Received: Family # %s, %s",
 				swo.getFamily().getONCNum(),swo.getGiftPlusDetail()));
 		}
 		else
@@ -86,12 +91,18 @@ public class ReceiveGiftsByBarcodeDialog extends GiftLabelDialog
 		//gift wish. Organization parameter is null, indicating we're not changing the gift partner
 		if(lastCloneChanged != null &&
 			scgo.getFamily().getID() == lastCloneChanged.getFamily().getID() &&
-			scgo.getChild().getID() == lastCloneChanged.getChild().getID() && 
+			scgo.getChild().getID() == lastWishChanged.getChild().getID() && 
 			scgo.getClonedGift().getGiftNumber() == lastCloneChanged.getClonedGift().getGiftNumber() &&
 			scgo.getClonedGift().getGiftStatus() == ClonedGiftStatus.Received)
 		{
 			//double scan of the last received gift at this workstation
-			alert(Result.SUCCESS, String.format("Gift Already Received: Family # %s, %s",
+			alert(Result.SUCCESS, String.format("Gift Just Received: Family # %s, %s",
+				scgo.getFamily().getONCNum(),scgo.getGiftPlusDetail()));
+		}
+		else if(scgo.getClonedGift().getGiftStatus() == ClonedGiftStatus.Received)
+		{
+			//gift already received
+			alert(Result.SUCCESS, String.format("Gift Previously Received: Family # %s, %s",
 				scgo.getFamily().getONCNum(),scgo.getGiftPlusDetail()));
 		}
 		else

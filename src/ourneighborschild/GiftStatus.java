@@ -39,9 +39,9 @@ public enum GiftStatus
 	
 	static GiftStatus[] getChangeList()
 	{
-		GiftStatus[] wsChange = {GiftStatus.No_Change, GiftStatus.Delivered, GiftStatus.Returned,
-								GiftStatus.Shopping, GiftStatus.Received, GiftStatus.Distributed,
-								GiftStatus.Missing, GiftStatus.Verified};
+		GiftStatus[] wsChange = {GiftStatus.No_Change, GiftStatus.Assigned, GiftStatus.Delivered,
+								GiftStatus.Returned, GiftStatus.Shopping, GiftStatus.Received,
+								GiftStatus.Distributed, GiftStatus.Missing, GiftStatus.Verified};
 		
 		return wsChange;
 	}	
