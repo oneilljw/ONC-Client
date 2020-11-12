@@ -1559,7 +1559,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		{
 			//set the family panel nav message
 			String mssg;
-			String year = (String) dbe.getObject1();
+			String year = Integer.toString((Integer) dbe.getObject1());
 			
 			if(userDB.getLoggedInUser().getFirstName().equals(""))
 				mssg = year + " season data has been loaded";

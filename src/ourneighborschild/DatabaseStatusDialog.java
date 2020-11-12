@@ -24,7 +24,7 @@ public class DatabaseStatusDialog extends JDialog implements ActionListener, Dat
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	private DatabaseManager statusDB;
+	private DatabaseManager databaseMgr;
 	private List<DBYearAndButton> dbYearButtonList;
 
 	DatabaseStatusDialog(JFrame pFrame)
@@ -33,15 +33,15 @@ public class DatabaseStatusDialog extends JDialog implements ActionListener, Dat
 		this.setTitle("Database Status");
 		
 		//get a reference to the DBStatus data base and the User data base
-		statusDB = DatabaseManager.getInstance();
-		if(statusDB != null)
-			statusDB.addDatabaseListener(this);
+		databaseMgr = DatabaseManager.getInstance();
+		if(databaseMgr != null)
+			databaseMgr.addDatabaseListener(this);
 		
 		//initialize the year/button list
 		dbYearButtonList = new ArrayList<DBYearAndButton>();
 		
 		//get the list of DBYears
-		List<DBYear> dbYearList = statusDB.getDBStatus();
+		List<DBYear> dbYearList = databaseMgr.getDBStatus();
 		
 		//create a reference to the content pane
 		JPanel contentPane = (JPanel) this.getContentPane();
@@ -124,7 +124,7 @@ public class DatabaseStatusDialog extends JDialog implements ActionListener, Dat
 		
 		//send update request to the server
 		String response;
-		response = statusDB.update(this, reqUpdateDBYear);
+		response = databaseMgr.update(this, reqUpdateDBYear);
 		
 		if(response.startsWith("UPDATED_DBYEAR"))
 		{

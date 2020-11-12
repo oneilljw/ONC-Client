@@ -53,6 +53,9 @@ public class SortDriverDialog extends DependantTableDialog
 		
 		familyHistoryDB = FamilyHistoryDB.getInstance();
 		
+		if(dbMgr != null)
+			dbMgr.addDatabaseListener(this);
+		
 		volunteerDB = VolunteerDB.getInstance();
 		if(volunteerDB != null)
 			volunteerDB.addDatabaseListener(this);
@@ -78,7 +81,7 @@ public class SortDriverDialog extends DependantTableDialog
 		//Initialize the sort criteria variables. Reusing superclass sortONCNum for driver number
 		sortONCNum = "Any";
 		sortLName = "Any";
-		sortChangedBy = "Any";
+		sortChangedBy = "Anyone";
 		sortStoplight = 0;
 		
 		//Set up the search criteria panel
@@ -200,7 +203,7 @@ public class SortDriverDialog extends DependantTableDialog
 			lblNumOfObjects.setText(Integer.toString(atAL.size()));
 			displaySortTable(atAL, false, tableRowSelectedObjectList);
 			
-			JOptionPane.showMessageDialog(this, "<html><b>ERROR:</b> Couldn't find a "
+			JOptionPane.showMessageDialog(parentFrame, "<html><b>ERROR:</b> Couldn't find a "
 					+ "volunteer delivery activity in the data base.<br> "
 					+ "Please ensure at least one Activity is checked as gift delivery, <br>"
 					+ "using the Edit Activites dialog to do so. The volunteer table will <br>"
@@ -222,7 +225,7 @@ public class SortDriverDialog extends DependantTableDialog
 		
 			clearFamilyTable();
 			familyTable.clearSelection();
-		
+
 			for(ONCVolunteer v : volunteerDB.getVolunteerList())
 				if(doesVolunteerDeliver(v) && doesDrvNumMatch(v.getDrvNum()) && doesLNameMatch(v.getLastName()) && 
 				    doesChangedByMatch(v.getChangedBy()) && doesStoplightMatch(v.getStoplightPos()))
@@ -251,6 +254,7 @@ public class SortDriverDialog extends DependantTableDialog
 		}
 		
 		return bVolunteerDelivers;
+//		return true;
 	}
 	
 	void updateLNameCBList()
@@ -436,11 +440,10 @@ public class SortDriverDialog extends DependantTableDialog
 		exportCB.setEnabled(sortTable.getSelectedRowCount() > 0);
 		printCB.setEnabled(sortTable.getSelectedRowCount() > 0);		
 	}
-	
-	
+
 	boolean doesDrvNumMatch(String drvNum) { return sortONCNum.equals("Any") || sortONCNum.equals(drvNum); }
 	boolean doesLNameMatch(String drvLName) {return sortLName.equals("Any") || sortLName.equals(drvLName);}
-	boolean doesChangedByMatch(String cb) { return sortChangedBy.equals("Any") || cb.equals(changedByCB.getSelectedItem()); }
+	boolean doesChangedByMatch(String cb) { return sortChangedBy.equals("Anyone") || cb.equals(changedByCB.getSelectedItem()); }
 	boolean doesStoplightMatch(int sl) { return sortStoplight == 0 || sl == stoplightCB.getSelectedIndex()-1; }
 	
 	@Override
@@ -541,9 +544,10 @@ public class SortDriverDialog extends DependantTableDialog
 //					dbe.getSource().toString(), dbe.getType(), dbe.getObject().toString()));
 			buildFamilyTableListAndDisplay();		
 		}
-		else if(dbe.getType().equals("LOADED_DRIVERS"))
+		else if(dbe.getType().equals("LOADED_DATABASE"))
 		{
 			this.setTitle(String.format("Our Neighbor's Child - %d Delivery Volunteer Management", gvs.getCurrentSeason()));
+			updateUserList();
 		}
 		else if(dbe.getType().equals("ADDED_ACTIVITY") || dbe.getType().equals("UPDATED_ACTIVITY") ||
 				dbe.getType().equals("DELETED_ACTIVITY"))
@@ -655,7 +659,7 @@ public class SortDriverDialog extends DependantTableDialog
 		
 		changedByCB.removeActionListener(this);
 		changedByCB.setSelectedIndex(0);		//Will trigger the CB event handler which
-		sortChangedBy = "Any";
+		sortChangedBy = "Anyone";
 		changedByCB.addActionListener(this);
 		
 		stoplightCB.removeActionListener(this);

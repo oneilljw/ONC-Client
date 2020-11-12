@@ -70,6 +70,9 @@ public class PartnerDialog extends EntityDialog
 		
 		//register to listen for partner, global variable, child and  and childwish
 		//data changed events
+		if(dbMgr != null)
+			dbMgr.addDatabaseListener(this);
+		
 		if(partnerDB != null)
 			partnerDB.addDatabaseListener(this);
 		
@@ -846,7 +849,7 @@ public class PartnerDialog extends EntityDialog
 				}
 			}
 		}
-		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_PARTNERS"))
+		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_DATABASE"))
 		{
 			updatePartnerPerformanceBorders();
 		}

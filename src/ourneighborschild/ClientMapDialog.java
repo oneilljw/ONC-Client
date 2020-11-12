@@ -36,6 +36,7 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 	private static final String REGION_MAP_CENTER = "38.845114,-77.374760";
 	
 	private GlobalVariablesDB gvDB;
+	private DatabaseManager dbMgr;
 	private RegionDB regionDB;
 	private FamilyDB famDB;
 	
@@ -57,7 +58,11 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 		GlobalVariablesDB globalDB = GlobalVariablesDB.getInstance();
 		if(globalDB != null)
 			globalDB.addDatabaseListener(this);	//listen for warehouse address change
-			
+		
+		dbMgr = DatabaseManager.getInstance();
+		if(dbMgr != null)
+			dbMgr.addDatabaseListener(this);
+		
 		famDB = FamilyDB.getInstance();
 		if(famDB != null)
 			famDB.addDatabaseListener(this);	//listen for family changes
@@ -422,13 +427,9 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 			buildClientMaps();
 			this.getContentPane().repaint();
 		}
-		else if(dbe.getType().equals("LOADED_FAMILIES"))
+		else if(dbe.getType().equals("LOADED_DATABASE"))
 		{
 			this.setTitle(String.format("Distribution of %d ONC Families Served Gifts", gvDB.getCurrentSeason()));
-		}
-		else if(dbe.getType().equals("LOADED_SCHOOLS"))
-		{
-			//now that we have schools in the database, rebuild the region list
 			updateSchoolList();
 		}
 	}

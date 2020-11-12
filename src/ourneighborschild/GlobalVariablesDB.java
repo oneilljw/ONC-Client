@@ -2,29 +2,20 @@ package ourneighborschild;
 
 import java.awt.Image;
 import java.awt.Point;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.filechooser.FileNameExtensionFilter;
 
 import com.google.gson.Gson;
 
-import au.com.bytecode.opencsv.CSVWriter;
-
-public class GlobalVariablesDB extends ONCDatabase implements Serializable
+public class GlobalVariablesDB extends ServerListenerComponent implements ServerListener
 {
 	/**
 	 * This class holds global variables common to all classes in the ONC program
 	 */
-	private static final long serialVersionUID = -7710761545913066682L;
 	private static final int NUMBER_OF_WISHES_PER_CHILD = 3;
 	private static final int NUM_OF_XMAS_ICONS = 5;
 	private static final int XMAS_ICON_OFFSET = 9;
@@ -36,16 +27,6 @@ public class GlobalVariablesDB extends ONCDatabase implements Serializable
 	private static JFrame oncFrame;
 	
 	private ServerGVs serverGVs;
-	
-//	private Long oncDeliveryDate;
-//	private static Long oncSeasonStartDate;
-//	private Long oncGiftsReceivedDate;
-//	private Long thanksgivingMealDeadline, decemberGiftDeadline;
-//	private Long decemberMealDeadline, waitlistGiftDeadline;
-//	private Long familyEditDeadline;
-//	private String warehouseAddress;
-//	private int defaultGiftID, defaultGiftCardID;
-//	private int deliveryActivityID;
 	
 	private transient String[] sGrwth_pcts = {"5%", "10%", "15%", "20%", "25%"};
 	private transient int[] nGrwth_pcts = {5,10,15,20,25};
@@ -68,25 +49,15 @@ public class GlobalVariablesDB extends ONCDatabase implements Serializable
 	
 	private GlobalVariablesDB()
 	{	
-		//call superclass constructor
 		super();
+		
+		if(serverIF != null)
+			serverIF.addServerListener(this);
 		
 		//Initialize class variables
 		Long timeNow = System.currentTimeMillis();
 		serverGVs = new ServerGVs(timeNow, timeNow, ServerGVs.DEFAULT_ADDRESS, timeNow,
 									timeNow, timeNow, timeNow, -1, -1, timeNow, timeNow);
-		
-//	    oncDeliveryDate = timeNow;
-//	    oncGiftsReceivedDate = timeNow;
-//	    thanksgivingMealDeadline = timeNow;
-//	    decemberGiftDeadline = timeNow;
-//	    decemberMealDeadline = timeNow;
-//	    waitlistGiftDeadline = timeNow;
-//	    familyEditDeadline = timeNow;
-//	    oncSeasonStartDate = timeNow;
-//	    warehouseAddress = "6476+Trillium+House+Lane+Centreville,VA";
-//		defaultGiftID = -1;
-//		defaultGiftCardID = -1;
 	   
 	    imageIcons = new ImageIcon[57];
 		imageIcons[0] = createImageIcon("onclogosmall.gif", "ONC Logo");
@@ -298,31 +269,6 @@ public class GlobalVariablesDB extends ONCDatabase implements Serializable
 	boolean isDayBeforeOrDeliveryDay()
 	{
 		return serverGVs.isDeliveryDayOrDayBefore();
-/*		
-		//check if today is the day before or the day of delivery
-		Calendar today = Calendar.getInstance();
-		
-		Calendar delDay = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-		delDay.setTimeInMillis(oncDeliveryDate);
-		delDay.set(Calendar.HOUR_OF_DAY, 0);
-		delDay.set(Calendar.MINUTE, 0);
-		delDay.set(Calendar.SECOND, 0);
-		delDay.set(Calendar.MILLISECOND, 0);
-		
-		boolean isDayBeforeOrDeliveryDay = delDay.get(Calendar.YEAR) == today.get(Calendar.YEAR) &&
-				(delDay.get(Calendar.DAY_OF_YEAR) == today.get(Calendar.DAY_OF_YEAR) ||
-						delDay.get(Calendar.DAY_OF_YEAR)-1 == today.get(Calendar.DAY_OF_YEAR));
-		
-//		System.out.println(String.format("GlobVarDB.isDayBeforeOrDelDay - today.DAY_OF_YEAR: %d", today.get(Calendar.DAY_OF_YEAR)));
-//		System.out.println(String.format("GlobVarDB.isDayBeforeOrDelDay - oncDeliveryDate.DAY_OF_YEAR: %d", delDay.get(Calendar.DAY_OF_YEAR)));
-//		System.out.println(String.format("GlobVarDB.isDayBeforeOrDelDay - oncDeliveryDate.DAY_OF_YEAR-1: %d", delDay.get(Calendar.DAY_OF_YEAR)-1));
-//		System.out.println(String.format("GlobVarDB.isDayBeforeOrDelDay: %b", isDayBeforeOrDeliveryDay));
-
-		return isDayBeforeOrDeliveryDay;
-		
-		//TEST PURPOSES ONLY
-//		return true; 
- */
 	}
 	
 	 /** Returns an ImageIcon, or null if the path was invalid. */
@@ -333,10 +279,11 @@ public class GlobalVariablesDB extends ONCDatabase implements Serializable
 		else { System.err.println("Couldn't find file: " + path); return null; }
 	}
 	
-	String importGlobalVariableDatabase()
+	boolean importDB()
 	{
 		ServerGVs serverGVs = null;
 		String response = "NO_GLOBALS";
+		boolean bImportComplete = false;
 		
 		if(serverIF != null && serverIF.isConnected())
 		{
@@ -348,28 +295,17 @@ public class GlobalVariablesDB extends ONCDatabase implements Serializable
 			if(serverGVs != null && !response.startsWith("NO_GLOBALS"))
 			{
 				this.serverGVs = serverGVs;
-//				oncDeliveryDate = serverGVs.getDeliveryDayMillis();
-//				oncGiftsReceivedDate = serverGVs.getGiftsReceivedDateMillis();
-//				thanksgivingMealDeadline = serverGVs.getThanksgivingMealDeadlineMillis();
-//				decemberGiftDeadline = serverGVs.getDecemberGiftDeadlineMillis();
-//				decemberMealDeadline = serverGVs.getDecemberMealDeadlineMillis();
-//				waitlistGiftDeadline = serverGVs.getWaitListGiftDeadlineMillis();
-//				familyEditDeadline = serverGVs.getFamilyEditDeadlineMillis();
-//				oncSeasonStartDate = serverGVs.getSeasonStartDateMillis();
-//				warehouseAddress = serverGVs.getWarehouseAddress();
-//				defaultGiftID = serverGVs.getDefaultGiftID();
-//				defaultGiftCardID = serverGVs.getDefaultGiftCardID();
 				
 				response = "GLOBALS_LOADED";
-				
-//				System.out.println(String.format("GlobVarDB.import: gvs.getDefaultGiftID= %d", gvs.getDefaultGiftID() ));
-				
+
 				//Notify local user IFs that a change occurred
 				fireDataChanged(this, "UPDATED_GLOBALS", serverGVs);
+				
+				bImportComplete = true;
 			}
 		}
 		
-		return response;
+		return bImportComplete;
 	}
 	
 	String initializeWebsiteStatusFromServer()
@@ -387,66 +323,6 @@ public class GlobalVariablesDB extends ONCDatabase implements Serializable
 		
 		return "WEBISTE_STATUS_FAILED";
 	}
-	
-	String exportDBToCSV(JFrame pf, String filename)
-    {
-		File oncwritefile = null;
-		
-    	if(filename == null)
-    	{
-    		ONCFileChooser fc = new ONCFileChooser(pf);
-    		oncwritefile = fc.getFile("Select .csv file to save Global Variables to",
-								new FileNameExtensionFilter("CSV Files", "csv"), ONCFileChooser.SAVE_FILE);
-    	}
-    	else
-    		oncwritefile = new File(filename);
-    	
-    	if(oncwritefile!= null)
-    	{
-    		//If user types a new filename and doesn't include the .csv, add it
-	    	String filePath = oncwritefile.getPath();		
-	    	if(!filePath.toLowerCase().endsWith(".csv")) 
-	    		oncwritefile = new File(filePath + ".csv");
-	    	
-	    	try 
-	    	{
-	    		 String[] header = {"Delivery Date", "Season Start Date", "Warehouse Address",
-	    				 "Gifts Received Deadline", "Thanksgiving Meal Deadline", "December Gift Deadline", 
-	    				 "Edit Deadline", "Default Gift ID", "Defalut Gift Card ID", "December Meal Deadline",
-	    				 "Waitlist Deadline"};
-	    		
-	    		CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
-	    	    writer.writeNext(header);
-	    	    
-	    	    //Create the gv row
-//	    	    String[] row = {Long.toString(oncDeliveryDate),
-//	    	    				Long.toString(oncSeasonStartDate),
-//	    	    				warehouseAddress,
-//	    	    				Long.toString(oncGiftsReceivedDate),
-//	    	    				Long.toString(thanksgivingMealDeadline),
-//	    	    				Long.toString(decemberGiftDeadline),
-//	    	    				Long.toString(familyEditDeadline),
-//	    	    				Integer.toString(defaultGiftID),
-//	    	    				Integer.toString(defaultGiftCardID),
-//	    	    				Long.toString(decemberMealDeadline),
-//	    	    				Long.toString(waitlistGiftDeadline)};
-	    	    
-	    	    writer.writeNext(serverGVs.getExportRow());	//Write gv row
-	    	 
-	    	    writer.close();
-	    	    filename = oncwritefile.getName();
-	    	       	    
-	    	} 
-	    	catch (IOException x)
-	    	{
-	    		System.err.format("IO Exception: %s%n", x);
-	    		JOptionPane.showMessageDialog(pf, oncwritefile.getName() + " could not be saved", 
-						"ONC File Save Error", JOptionPane.ERROR_MESSAGE);
-	    	}
-	    }
-    	
-	    return filename;
-    }
 
 	@Override
 	public void dataChanged(ServerEvent ue)
@@ -461,7 +337,6 @@ public class GlobalVariablesDB extends ONCDatabase implements Serializable
 		}
 	}
 
-	@Override
 	String update(Object source, ONCObject entity)
 	{
 		Gson gson = new Gson();
@@ -481,22 +356,7 @@ public class GlobalVariablesDB extends ONCDatabase implements Serializable
 	{
 		Gson gson = new Gson();
 		serverGVs = gson.fromJson(json, ServerGVs.class);
-//		ServerGVs updatedObj = gson.fromJson(json, ServerGVs.class);
-		
-		//store updated object in local data base
-//		serverGV
-//		oncDeliveryDate = updatedObj.getDeliveryDayMillis();
-//		oncSeasonStartDate = updatedObj.getSeasonStartDateMillis();
-//		warehouseAddress = updatedObj.getWarehouseAddress();
-//		oncGiftsReceivedDate = updatedObj.getGiftsReceivedDateMillis();
-//		thanksgivingMealDeadline = updatedObj.getThanksgivingMealDeadlineMillis();
-//		decemberGiftDeadline = updatedObj.getDecemberGiftDeadlineMillis();
-//		decemberMealDeadline = updatedObj.getDecemberMealDeadlineMillis();
-//		waitlistGiftDeadline = updatedObj.getWaitListGiftDeadlineMillis();
-//		familyEditDeadline = updatedObj.getFamilyEditDeadlineMillis();
-//		defaultGiftID = updatedObj.getDefaultGiftID();
-//		defaultGiftCardID = updatedObj.getDefaultGiftCardID();
-		
+
 		//Notify local user IFs that a change occurred
 		fireDataChanged(source, "UPDATED_GLOBALS", serverGVs);
 	}

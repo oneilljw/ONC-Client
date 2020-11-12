@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
 public class ClonedGiftDB extends ONCDatabase
@@ -16,6 +15,7 @@ public class ClonedGiftDB extends ONCDatabase
 	private ClonedGiftDB()
 	{	
 		super();
+		this.title = "Clones";
 		clonedGiftList = new ArrayList<ClonedGift>();
 	}
 	
@@ -26,6 +26,9 @@ public class ClonedGiftDB extends ONCDatabase
 		
 		return instance;
 	}
+	
+	@Override
+	List<ClonedGift> getList() { return getCurrentCloneGiftList(); }
 	
 	List<ClonedGift> getCurrentCloneGiftList()
 	{
@@ -197,10 +200,10 @@ public class ClonedGiftDB extends ONCDatabase
 		return index < clonedGiftList.size() ? clonedGiftList.get(index) : null;
 	}
 	
-	String importClonedGiftDatabase()
+	@Override
+	boolean importDB()
 	{
-		String response = "NO_CLONED_GIFTS";
-		
+		boolean bImportComplete = false;
 		if(serverIF != null && serverIF.isConnected())
 		{		
 			Gson gson = new Gson();
@@ -208,15 +211,14 @@ public class ClonedGiftDB extends ONCDatabase
 			
 			String jsonResponse = serverIF.sendRequest("GET<clonedgifts>");
 			
-			if(!jsonResponse.startsWith("NO_CLONED_GIFTS"))
+			if(jsonResponse != null)
 			{
 				clonedGiftList = gson.fromJson(jsonResponse, listtype);
-				response =  "CLONED_GIFTS_LOADED";
-				fireDataChanged(this, "LOADED_CLONED_GIFTS", null);
+				bImportComplete = true;
 			}
 		}
 		
-		return response;
+		return bImportComplete;
 	}
 	
 	@Override
@@ -259,5 +261,12 @@ public class ClonedGiftDB extends ONCDatabase
 		//Cloned gifts are never updated by a user, an update only occurs to modify the
 		//the linked list chain
 		return null;
+	}
+
+	@Override
+	String[] getExportHeader()
+	{
+		return new String[] {"Cloned Gift ID", "Child ID", "Gift ID", "Detail", "Gift #", "Restrictions",
+				"Status","Changed By", "Time Stamp","PartnerID", "Prior ID", "Next ID"};
 	}
 }

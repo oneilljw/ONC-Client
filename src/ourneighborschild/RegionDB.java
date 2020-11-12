@@ -21,6 +21,7 @@ public class RegionDB extends ONCDatabase
 	private RegionDB()
 	{
 		super();
+		this.title = "Schools";
 	
 		//Create the list of elementary schools in ONC's serving area, ordered by school name
 	
@@ -56,9 +57,12 @@ public class RegionDB extends ONCDatabase
 		return instance;
 	}
 	
+	@Override
+	List<School> getList() { return schoolList; }
+/*	
 	void getRegionsFromServer()
 	{
-		String response = "";
+		String response = "NO_REGIONS";
 		response = serverIF.sendRequest("GET<regions>");
 		
 		if(response != null && response.startsWith("REGIONS"))
@@ -68,29 +72,44 @@ public class RegionDB extends ONCDatabase
 			fireDataChanged(this, "UPDATED_REGION_LIST", regions);
 		}
 	}
-	
-	String importSchoolDB()
+*/	
+	@Override
+	boolean importDB()
 	{
-		String response = "NO_SCHOOLS";
+		boolean bImportComplete = false;
 		if(serverIF != null && serverIF.isConnected())
-		{		
-			Gson gson = new Gson();
-			Type listtype = new TypeToken<ArrayList<School>>(){}.getType();
+		{
+			String response = serverIF.sendRequest("GET<regions>");
 			
-			response = serverIF.sendRequest("GET<served_schools>");
-			
-			schoolList = gson.fromJson(response, listtype);
-			Collections.sort(schoolList, new SchoolNameComparator());	//sort list by school code
-			
-			if(!response.startsWith("NO_SCHOOLS"))
+			if(response != null && response.startsWith("REGIONS"))
 			{
-				response =  "SCHOOLS_LOADED";
-				fireDataChanged(this, "LOADED_SCHOOLS", null);
+				regions = response.substring(7).split(",");
+				
+				fireDataChanged(this, "UPDATED_REGION_LIST", regions);
+			
+    			response = null;
+    			Gson gson = new Gson();
+    			Type listtype = new TypeToken<ArrayList<School>>(){}.getType();
+    			
+    			response = serverIF.sendRequest("GET<served_schools>");
+    			if(response != null)
+    			{
+    				schoolList = gson.fromJson(response, listtype);
+        			Collections.sort(schoolList, new SchoolNameComparator());	//sort list by school code
+        			bImportComplete = true;
+    			}
 			}
 		}
 		
-		return response;
+		return bImportComplete;
 	}
+	
+	@Override 
+	String[] getExportHeader() 
+	{
+		return new String[] {"ID", "Code", "Street #", "Suffix", "Dir", "Street Name", "Type", "Post Dir",
+							"Unit", "City", "Zipcode", "School Name", "Lat/Long", "Pyramid", "Type"};
+	} 	
 	
 	/********************************************************************************************
 	 * An address for region match requires four parts: Street Number, Street Direction, Street Name 
@@ -315,7 +334,7 @@ public class RegionDB extends ONCDatabase
 		// TODO Auto-generated method stub
 		
 	}
-
+	
 	@Override
 	String update(Object source, ONCObject entity) {
 		// TODO Auto-generated method stub

@@ -78,6 +78,9 @@ public class VolunteerDialog extends EntityDialog
 		this.setTitle("Our Neighbor's Child - Volunteer Information");
 		
 		//Initialize database object reference variables and register listeners
+		if(dbMgr != null)
+			dbMgr.addDatabaseListener(this);
+		
 		volDB = VolunteerDB.getInstance();
 		if(volDB != null)
 			volDB.addDatabaseListener(this);
@@ -581,8 +584,19 @@ public class VolunteerDialog extends EntityDialog
 	{
 		if(!bAddingNewEntity)
 		{
-			if(dbe.getSource() != this && (dbe.getType().equals("LOADED_ACTIVITIES") ||
-										  dbe.getType().equals("ADDED_ACTIVITY") ||
+			if(dbe.getSource() != this && (dbe.getType().equals("LOADED_DATABASE")))
+			{
+				this.setTitle(String.format("Our Neighbor's Child - %d Volunteer Information", gvs.getCurrentSeason()));
+				activityList = (List<Activity>) activityDB.getList();
+				
+				if(currVolunteer != null)
+					currVolActList = volActDB.getVolunteerActivityList(currVolunteer.getID());
+				else
+					currVolActList.clear();
+				
+				actTableModel.fireTableDataChanged();
+			}
+			else if(dbe.getSource() != this && (dbe.getType().equals("ADDED_ACTIVITY") ||
 										  dbe.getType().equals("UPDATED_ACTIVITY") ||
 										  dbe.getType().equals("DELETED_ACTIVITY")))
 			{
@@ -646,10 +660,6 @@ public class VolunteerDialog extends EntityDialog
 					del.getdDelBy().equals(currVolunteer.getDrvNum()))
 				
 					display(currVolunteer);
-			}
-			else if(dbe.getType().equals("LOADED_DRIVERS"))
-			{
-				this.setTitle(String.format("Our Neighbor's Child - %d Volunteer Information", gvs.getCurrentSeason()));
 			}
 			else if(dbe.getSource() != this && dbe.getType().contains("_VOLUNTEER_ACTIVITY"))
 			{

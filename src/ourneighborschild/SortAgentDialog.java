@@ -73,8 +73,8 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		if(userDB != null)
 			userDB.addDatabaseListener(this);
 		
-		if(gvDB != null)
-			gvDB.addDatabaseListener(this);
+		if(dbMgr != null)
+			dbMgr.addDatabaseListener(this);
 		
 		dnsCodeDB = DNSCodeDB.getInstance();
 		if(dnsCodeDB != null)
@@ -1134,16 +1134,12 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 			ONCUser newUser = (ONCUser) dbe.getObject1();
 			btnEditAgentInfo.setVisible(newUser.getPermission().compareTo(UserPermission.Admin) >= 0);
 		}
-		else if(dbe.getType().equals("LOADED_USERS"))
+		else if(dbe.getType().equals("LOADED_DATABASE"))
 		{
-//			this.setTitle(String.format("Our Neighbor's Child - %d Agent Management", GlobalVariablesDB.getCurrentSeason()));
+			this.setTitle(String.format("Our Neighbor's Child - %d Agent Management", gvs.getCurrentSeason()));
 			updateOrgCBList();
 			updateTitleCBList();
 			updateEmailCBList();
-		}
-		else if(dbe.getType().equals("UPDATED_GLOBALS"))
-		{
-			this.setTitle(String.format("Our Neighbor's Child - %d Agent Management", gvs.getCurrentSeason()));
 		}
 		else if(dbe.getType().equals("ADDED_USER") ||
 				dbe.getType().equals("UPDATED_USER") ||

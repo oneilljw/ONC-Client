@@ -1,20 +1,10 @@
 package ourneighborschild;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.filechooser.FileNameExtensionFilter;
-
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-
-import au.com.bytecode.opencsv.CSVWriter;
 
 public class BatteryDB extends ONCDatabase
 {
@@ -24,6 +14,7 @@ public class BatteryDB extends ONCDatabase
 	private BatteryDB()
 	{
 		super();
+		this.title = "Batteries";
 		batteryList = new ArrayList<Battery>();
 	}
 	
@@ -35,6 +26,7 @@ public class BatteryDB extends ONCDatabase
 		return instance;
 	}
 	
+	@Override
 	List<Battery> getList() { return batteryList; }
 	
 	Battery getBattery(int id)
@@ -188,74 +180,29 @@ public class BatteryDB extends ONCDatabase
 		return giftBatteryList;
 	}
 	
-	String importDB()
+	@Override
+	boolean importDB()
 	{
-		String response = "NO_BATTERIES";
+		boolean bImportComplete = false;
 		
 		if(serverIF != null && serverIF.isConnected())
 		{		
 			Gson gson = new Gson();
 			Type listtype = new TypeToken<ArrayList<Battery>>(){}.getType();
 			
-			response = serverIF.sendRequest("GET<batteries>");
-			batteryList = gson.fromJson(response, listtype);
+			String response = serverIF.sendRequest("GET<batteries>");
 			
-			if(!response.startsWith("NO_BATTERIES"))
+			
+			if(response != null && !response.startsWith("NO_BATTERIES"))
 			{
-				response =  "BATTERIES_LOADED";
-			}	fireDataChanged(this, "LOADED_BATTERIES", null);
+				batteryList = gson.fromJson(response, listtype);
+				bImportComplete = true;
+			}
 		}
 		
-		return response;
+		return bImportComplete;
 	}
 	
-	String exportDBToCSV(JFrame pf, String filename)
-    {
-		File oncwritefile = null;
-		
-    		if(filename == null)
-    		{
-    			ONCFileChooser fc = new ONCFileChooser(pf);
-    			oncwritefile= fc.getFile("Select .csv file to save Battery DB to",
-								new FileNameExtensionFilter("CSV Files", "csv"), ONCFileChooser.SAVE_FILE);
-    		}
-    		else
-    			oncwritefile = new File(filename);
-    	
-    		if(oncwritefile!= null)
-    		{
-    			//If user types a new filename and doesn't include the .csv, add it
-    			String filePath = oncwritefile.getPath();		
-    			if(!filePath.toLowerCase().endsWith(".csv")) 
-    				oncwritefile = new File(filePath + ".csv");
-	    	
-    			try 
-    			{
-    				String[] header = {"ID", "Child ID", "Wish #", "Size", "Quantity"};
-	    		
-    				CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
-    				writer.writeNext(header);
-	    	    
-    				for(Battery b : batteryList)
-    					writer.writeNext(b.getExportRow());	//Get battery data
-	    	 
-    				writer.close();
-    				filename = oncwritefile.getName();
-	    	       	    
-    			} 
-    			catch (IOException x)
-    			{
-    				System.err.format("IO Exception: %s%n", x);
-    				JOptionPane.showMessageDialog(pf, oncwritefile.getName() + " could not be saved", 
-						"ONC File Save Error", JOptionPane.ERROR_MESSAGE);
-    			}
-	    }
-    	
-	    return filename;
-    }
-
-
-	@Override
 	public void dataChanged(ServerEvent ue)
 	{
 		if(ue.getType().equals("UPDATED_BATTERY"))
@@ -270,5 +217,11 @@ public class BatteryDB extends ONCDatabase
 		{
 			processDeletedBattery(this, ue.getJson());
 		}			
+	}
+
+	@Override
+	String[] getExportHeader()
+	{
+		return new String[] {"ID", "Child ID", "Wish #", "Size", "Quantity"};
 	}
 }

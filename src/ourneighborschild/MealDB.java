@@ -1,17 +1,8 @@
 package ourneighborschild;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.filechooser.FileNameExtensionFilter;
-
-import au.com.bytecode.opencsv.CSVWriter;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -24,6 +15,7 @@ public class MealDB extends ONCDatabase
 	private MealDB()
 	{
 		super();
+		this.title = "Meals";
 		mealList = new ArrayList<ONCMeal>();
 	}
 	
@@ -46,6 +38,9 @@ public class MealDB extends ONCDatabase
 		else
 			return mealList.get(index);
 	}
+	
+	@Override
+	List<ONCMeal> getList() { return mealList; }
 
 	List<ONCMeal> getFamilyMealHistory(int famID)
 	{
@@ -80,30 +75,30 @@ public class MealDB extends ONCDatabase
 	
 	//updates a list of meals with changes
 	String addMealList(Object source, List<ONCMeal> addMealReqList)
-		{		
-			//wrap the requested add meal list in a json array and send the add request to the server
-			Gson gson = new Gson();
-			Type listOfMeals = new TypeToken<ArrayList<ONCMeal>>(){}.getType();
-			String response = null, returnResp = "ADD_FAILED";
-			response = serverIF.sendRequest("POST<add_list_of_meals>" + gson.toJson(addMealReqList, listOfMeals));
+	{		
+		//wrap the requested add meal list in a json array and send the add request to the server
+		Gson gson = new Gson();
+		Type listOfMeals = new TypeToken<ArrayList<ONCMeal>>(){}.getType();
+		String response = null, returnResp = "ADD_FAILED";
+		response = serverIF.sendRequest("POST<add_list_of_meals>" + gson.toJson(addMealReqList, listOfMeals));
 
-			//get the response from the server, validate it. Once validated, decompose the response json
-			//to a list of added meal strings, convert them to ONC Meal objects and process the adds.
-			//set the return string to indicate the server add list request was successful
-			if(response != null && response.startsWith("ADDED_LIST_MEALS"))
-			{
-				Type responseListType = new TypeToken<ArrayList<String>>(){}.getType();
-				List<String> responseList = gson.fromJson(response.substring(16), responseListType);
-					
-				for(String updatedFamJson : responseList)
-				if(updatedFamJson.startsWith("ADDED_MEAL"))
-						processAddedMeal(source, updatedFamJson.substring(10));
-					
-				returnResp = "ADDED_LIST_MEALS";
-			}
-
-			return returnResp;
+		//get the response from the server, validate it. Once validated, decompose the response json
+		//to a list of added meal strings, convert them to ONC Meal objects and process the adds.
+		//set the return string to indicate the server add list request was successful
+		if(response != null && response.startsWith("ADDED_LIST_MEALS"))
+		{
+			Type responseListType = new TypeToken<ArrayList<String>>(){}.getType();
+			List<String> responseList = gson.fromJson(response.substring(16), responseListType);
+				
+			for(String updatedFamJson : responseList)
+			if(updatedFamJson.startsWith("ADDED_MEAL"))
+					processAddedMeal(source, updatedFamJson.substring(10));
+				
+			returnResp = "ADDED_LIST_MEALS";
 		}
+
+		return returnResp;
+	}
 		
 	ONCMeal processAddedMeal(Object source, String json)
 	{
@@ -214,72 +209,34 @@ public class MealDB extends ONCDatabase
 		return deletedMeal;
 	}
 	
-	String importDB()
+	@Override
+	boolean importDB()
 	{
-		String response = "NO_MEALS";
+		boolean bImportComplete = false;
 		
 		if(serverIF != null && serverIF.isConnected())
 		{		
 			Gson gson = new Gson();
 			Type listtype = new TypeToken<ArrayList<ONCMeal>>(){}.getType();
 			
-			response = serverIF.sendRequest("GET<meals>");
-			mealList = gson.fromJson(response, listtype);
+			String response = serverIF.sendRequest("GET<meals>");
 			
-			if(!response.startsWith("NO_MEALS"))
+			
+			if(response != null)
 			{
-				response =  "MEALS_LOADED";
-			}	fireDataChanged(this, "LOADED_MEALS", null);
+				mealList = gson.fromJson(response, listtype);
+			}	bImportComplete = true;
 		}
 		
-		return response;
+		return bImportComplete;
 	}
 	
-	String exportDBToCSV(JFrame pf, String filename)
-    {
-		File oncwritefile = null;
-		
-    	if(filename == null)
-    	{
-    		ONCFileChooser fc = new ONCFileChooser(pf);
-    		oncwritefile= fc.getFile("Select .csv file to save Meal DB to",
-								new FileNameExtensionFilter("CSV Files", "csv"), ONCFileChooser.SAVE_FILE);
-    	}
-    	else
-    		oncwritefile = new File(filename);
-    	
-    	if(oncwritefile!= null)
-    	{
-    		//If user types a new filename and doesn't include the .csv, add it
-	    	String filePath = oncwritefile.getPath();		
-	    	if(!filePath.toLowerCase().endsWith(".csv")) 
-	    		oncwritefile = new File(filePath + ".csv");
-	    	
-	    	try 
-	    	{
-	    		 String[] header = {"Meal ID", "Family ID", "Status", "Type", "Partner ID", "Restrictions", 
-	    				 			"Changed By", "Time Stamp", "SL Pos", "SL Mssg", "SL Changed By"};
-	    		
-	    		CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
-	    	    writer.writeNext(header);
-	    	    
-	    	    for(ONCMeal m : mealList)
-	    	    	writer.writeNext(m.getExportRow());	//Get family data
-	    	 
-	    	    writer.close();
-	    	    filename = oncwritefile.getName();
-	    	       	    
-	    	} 
-	    	catch (IOException x)
-	    	{
-	    		System.err.format("IO Exception: %s%n", x);
-	    		JOptionPane.showMessageDialog(pf, oncwritefile.getName() + " could not be saved", 
-						"ONC File Save Error", JOptionPane.ERROR_MESSAGE);
-	    	}
-	    }
-    	
-	    return filename;
-    }
+	@Override 
+	String[] getExportHeader() 
+	{
+		return new String[] {"Meal ID", "Family ID", "Status", "Type", "Partner ID", "Restrictions", 
+	 							"Changed By", "Time Stamp", "SL Pos", "SL Mssg", "SL Changed By"};
+	}
 
 	@Override
 	public void dataChanged(ServerEvent ue)
@@ -304,7 +261,5 @@ public class MealDB extends ONCDatabase
 		{
 			processDeletedMeal(this, ue.getJson());
 		}			
-
 	}
-
 }

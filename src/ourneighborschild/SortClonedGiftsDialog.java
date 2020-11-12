@@ -115,6 +115,8 @@ public class SortClonedGiftsDialog extends ChangeDialog implements PropertyChang
     	clonedGiftDB = ClonedGiftDB.getInstance();
     	
     	//set up data base listeners
+    	if(dbMgr != null)
+    		dbMgr.addDatabaseListener(this);
     	if(userDB != null)
     		userDB.addDatabaseListener(this);
     	if(cDB != null)
@@ -320,7 +322,7 @@ public class SortClonedGiftsDialog extends ChangeDialog implements PropertyChang
         JPanel cntlPanel = new JPanel();
         cntlPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
        
-        String[] exportChoices = {"Export", "Export Listing"};
+        String[] exportChoices = {"Export", "Export Listing", "Export SignUp Genius"};
         exportCB = new JComboBox<String>(exportChoices);
         exportCB.setPreferredSize(new Dimension(136, 28));
         exportCB.setEnabled(true);
@@ -455,7 +457,6 @@ public class SortClonedGiftsDialog extends ChangeDialog implements PropertyChang
 			ClonedGift priorClonedGift = stAL.get(row_sel[i]).getClonedGift();
 
 			//baseline request with prior gift information
-			int cgi = priorClonedGift.getIndicator();
 			ClonedGiftStatus gs = priorClonedGift.getGiftStatus();
 			int partnerID = priorClonedGift.getPartnerID();
 			
@@ -801,6 +802,49 @@ public class SortClonedGiftsDialog extends ChangeDialog implements PropertyChang
         exportCB.setSelectedIndex(0);	//Reset the user export request
 	}
 	
+	void onExportSignUpGeniusRequested()
+	{
+		//Write the selected row data to a .csv file
+		String[] header = {"Start Date/Time", "Qty", "Item"};
+    
+		ONCFileChooser oncfc = new ONCFileChooser(this);
+       	File oncwritefile = oncfc.getFile("Select file for export of selected cloned gift rows" ,
+       							new FileNameExtensionFilter("CSV Files", "csv"), ONCFileChooser.SAVE_FILE);
+       	if(oncwritefile!= null)
+       	{
+       		//If user types a new filename without extension.csv, add it
+       		String filePath = oncwritefile.getPath();
+       		if(!filePath.toLowerCase().endsWith(".csv")) 
+       			oncwritefile = new File(filePath + ".csv");
+	    	
+       		try 
+       		{
+       			CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
+       			writer.writeNext(header);
+	    	    
+       			int[] row_sel = sortTable.getSelectedRows();
+       			for(int i=0; i<sortTable.getSelectedRowCount(); i++)
+       			{
+       				int index = row_sel[i];
+       				writer.writeNext(stAL.get(index).getSignUpGeniusExportRow());
+       			}
+	    	   
+       			writer.close();
+	    	    
+       			JOptionPane.showMessageDialog(this, 
+						sortTable.getSelectedRowCount() + " gifts sucessfully exported to " + oncwritefile.getName(), 
+						"Export Successful", JOptionPane.INFORMATION_MESSAGE, gvs.getImageIcon(0));
+       		} 
+       		catch (IOException x)
+       		{
+       			JOptionPane.showMessageDialog(this, "Export Failed, I/O Error: "  + x.getMessage(),  
+       						"Export Failed", JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
+       			System.err.format("IOException: %s%n", x);
+       		}
+	    }
+       	
+        exportCB.setSelectedIndex(0);	//Reset the user export request
+	}	
 
 
 	private boolean doesONCNumMatch(String s) { return sortONCNum.isEmpty() || sortONCNum.equals(s); }
@@ -1067,16 +1111,14 @@ public class SortClonedGiftsDialog extends ChangeDialog implements PropertyChang
 				}
 			}
 		}
-//		else if(e.getSource() == btnExport)
-//		{
-//			onExportRequested();	
-//		}
 		else if(e.getSource() == exportCB)
 		{
 			if(sortTable.getSelectedRowCount() > 0)
 			{
 				if(exportCB.getSelectedIndex() == 1)
 					onExportRequested();
+				else if(exportCB.getSelectedIndex() == 2)
+					onExportSignUpGeniusRequested();
 			}
 			else	//Warn user
 			{
@@ -1349,14 +1391,20 @@ public class SortClonedGiftsDialog extends ChangeDialog implements PropertyChang
 	@Override
 	public void dataChanged(DatabaseEvent dbe) 
 	{
+		if(dbe.getType().equals("LOADED_DATABASE"))
+		{
+			this.setTitle(String.format("Our Neighbor's Child - %d Cloned Gift Management", gvs.getCurrentSeason()));
+			updateSchoolFilterList();
+			updateUserList();
+			updateWishAssigneeSelectionList();
+			updateDNSCodeCB();
+			updateGiftSelectionList();
+			buildTableList(false);
+		}
 		if(dbe.getType().equals("ADDED_CLONED_GIFT") || dbe.getType().equals("UPDATED_CLONED_GIFT") ||
 			dbe.getType().equals("UPDATED_FAMILY"))	//ONC# or region?	
 		{
 			buildTableList(true);
-		}
-		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_CLONED_GIFTS"))	
-		{
-			buildTableList(false);
 		}
 		else if(dbe.getSource() != this && (dbe.getType().equals("UPDATED_CHILD") || 
 				  dbe.getType().equals("DELETED_CHILD")))	//ONC# or region?
@@ -1370,8 +1418,7 @@ public class SortClonedGiftsDialog extends ChangeDialog implements PropertyChang
 		}
 		else if(dbe.getSource() != this && (dbe.getType().equals("ADDED_CONFIRMED_PARTNER") ||
 											dbe.getType().equals("DELETED_CONFIRMED_PARTNER") ||
-											dbe.getType().equals("UPDATED_CONFIRMED_PARTNER") ||
-											dbe.getType().equals("LOADED_PARTNERS")))
+											dbe.getType().equals("UPDATED_CONFIRMED_PARTNER")))
 		{
 			updateWishAssigneeSelectionList();
 		}
@@ -1380,7 +1427,9 @@ public class SortClonedGiftsDialog extends ChangeDialog implements PropertyChang
 			updateWishAssigneeSelectionList();
 			buildTableList(true);
 		}
-		else if(dbe.getSource() != this && dbe.getType().contains("_CATALOG"))
+		else if(dbe.getSource() != this && (dbe.getType().equals("ADDED_CATALOG_WISH") ||
+				dbe.getType().equals("UPDATED_CATALOG_WISH") ||
+				dbe.getType().equals("DELETED_CATALOG_WISH")))
 		{			
 			updateGiftSelectionList();
 		}
@@ -1393,15 +1442,6 @@ public class SortClonedGiftsDialog extends ChangeDialog implements PropertyChang
  			if(userDB.getLoggedInUser().getID() == updatedUser.getID())
 				updateUserPreferences(updatedUser);
 		}
-		else if(dbe.getType().contains("LOADED_USERS"))
-		{
-			updateUserList();
-		}
-		else if(dbe.getType().contains("LOADED_CHILDREN"))
-		{
-			updateSchoolFilterList();
-			this.setTitle(String.format("Our Neighbor's Child - %d Cloned Gift Management", gvs.getCurrentSeason()));
-		}
 		else if(dbe.getType().contains("CHANGED_USER"))
 		{
 			//new user logged in, update preferences used by this dialog
@@ -1412,7 +1452,7 @@ public class SortClonedGiftsDialog extends ChangeDialog implements PropertyChang
 			String[] regList = (String[]) dbe.getObject1();
 			updateRegionList(regList);
 		}
-		else if(dbe.getType().equals("LOADED_DNSCODES") || dbe.getType().contains("ADDED_DNSCODE"))
+		else if(dbe.getType().contains("ADDED_DNSCODE"))
 		{
 			updateDNSCodeCB();
 		}
@@ -1683,16 +1723,6 @@ public class SortClonedGiftsDialog extends ChangeDialog implements PropertyChang
 		private List<SortClonedGiftObject> stAL; 
 		private int totalNumOfLabelsToPrint;
 		private Point position;
-		
-		//constructor used when drawing labels on a Swing component
-		public AveryClonedGiftLabelPrinter()
-		{
-			gvs = GlobalVariablesDB.getInstance();
-			this.stAL = null;
-			this.sortTable = null;
-			this.totalNumOfLabelsToPrint = 0;
-			this.position = new Point(0,0);
-		}
 		
 		//constructor used when drawing labels on a sheet via the printable interface
 		public AveryClonedGiftLabelPrinter(List<SortClonedGiftObject> stAL, ONCTable sortTable, int numOfLabels, Point position)

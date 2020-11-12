@@ -1,8 +1,5 @@
 package ourneighborschild;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -10,13 +7,8 @@ import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 
-import javax.swing.JOptionPane;
-import javax.swing.filechooser.FileNameExtensionFilter;
-
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-
-import au.com.bytecode.opencsv.CSVWriter;
 
 public class PartnerDB extends ONCSearchableDatabase
 {
@@ -30,7 +22,6 @@ public class PartnerDB extends ONCSearchableDatabase
 	private static final EntityType DB_TYPE = EntityType.PARTNER;
 	private static final int STATUS_NO_ACTION_YET = 0;
 	private static final int STATUS_CONFIRMED = 5;
-	private static final int ORG_TYPE_CLOTHING = 4;
 	private static final int MAX_ORGANIZATION_ID_LENGTH = 10;
 	
 	private static PartnerDB instance = null;
@@ -41,6 +32,7 @@ public class PartnerDB extends ONCSearchableDatabase
 	private PartnerDB()
 	{
 		super(DB_TYPE);
+		this.title = "Partners";
 		
 		//Instantiate the partner list
 		partnerList = new ArrayList<ONCPartner>();
@@ -97,6 +89,7 @@ public class PartnerDB extends ONCSearchableDatabase
 	}
 
 	//implementation of abstract classes
+	@Override
 	List<ONCPartner> getList() {return partnerList; }
 	
 	ONCPartner getObjectAtIndex(int on) { return partnerList.get(on); }
@@ -305,78 +298,28 @@ public class PartnerDB extends ONCSearchableDatabase
 		
 	}
 	
-	String importDB()
+	@Override
+	boolean importDB()
 	{
-		String response = "NO_PARTNERS";
+		boolean bImportComplete = false;
 		
 		if(serverIF != null && serverIF.isConnected())
 		{
 			Gson gson = new Gson();
 			Type listtype = new TypeToken<ArrayList<ONCPartner>>(){}.getType();
 			
-			response = serverIF.sendRequest("GET<partners>");
-			partnerList = gson.fromJson(response, listtype);	
+			String response = serverIF.sendRequest("GET<partners>");
+			
 					
-			if(!response.startsWith("NO_PARTNERS"))
+			if(response != null)
 			{
-				response = "PARTNERS_LOADED";
-				fireDataChanged(this, "LOADED_PARTNERS", null);
+				partnerList = gson.fromJson(response, listtype);
+				bImportComplete = true;
 			}
 		}
 		
-		return response;
+		return bImportComplete;
 	}
-	
-	String exportDBToCSV(String filename)
-    {
-		File oncwritefile = null;
-		
-    	if(filename == null)
-    	{
-    		ONCFileChooser fc = new ONCFileChooser(GlobalVariablesDB.getFrame());
-    		oncwritefile= fc.getFile("Select .csv file to save Partner DB to",
-							new FileNameExtensionFilter("CSV Files", "csv"), ONCFileChooser.SAVE_FILE);
-    	}
-    	else
-    		oncwritefile = new File(filename);
-    	
-    	if(oncwritefile!= null)
-    	{
-    		//If user types a new filename and doesn't include the .csv, add it
-	    	String filePath = oncwritefile.getPath();		
-	    	if(!filePath.toLowerCase().endsWith(".csv")) 
-	    		oncwritefile = new File(filePath + ".csv");
-	    	
-	    	try 
-	    	{
-	    		 String[] header = {"Org ID", "Status", "Type", "Name", "Orn Delivered", "Street #",
-	    				 			"Street", "Unit", "City", "Zip", "Region", "Phone",
-	    				 			"Orn Requested", "Orn Assigned", "Other",
-	    				 			"Deliver To", "Special Notes",
-	    				 			"Contact", "Contact Email", "Contact Phone",
-	    				 			"Contact2", "Contact2 Email", "Contact2 Phone",
-	    				 			"Time Stamp", "Stoplight Pos", "Stoplight Mssg", "Stoplight C/B"};
-	    		
-	    		CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
-	    	    writer.writeNext(header);
-	    	    
-	    	    for(ONCPartner o: partnerList)
-	    	    	writer.writeNext(o.getExportRow());	//Get family data
-	    	 
-	    	    writer.close();
-	    	    filename = oncwritefile.getName();
-	    	       	    
-	    	} 
-	    	catch (IOException x)
-	    	{
-	    		System.err.format("IO Exception: %s%n", x);
-	    		JOptionPane.showMessageDialog(GlobalVariablesDB.getFrame(), oncwritefile.getName() + " could not be saved", 
-						"ONC File Save Error", JOptionPane.ERROR_MESSAGE);
-	    	}
-	    }
-    	
-	    return filename;
-    }
 	
 	/****************************************************************************************************
 	 * This method is called when a gift is added. It determines if the partner's gifts assigned,
@@ -717,6 +660,18 @@ public class PartnerDB extends ONCSearchableDatabase
 		}
 	}
 	
+	@Override
+	String[] getExportHeader()
+	{
+		return new String[] {"Org ID", "Status", "Type", "Name", "Orn Delivered", "Street #",
+	 			"Street", "Unit", "City", "Zip", "Region", "Phone",
+	 			"Orn Requested", "Orn Assigned", "Other",
+	 			"Deliver To", "Special Notes",
+	 			"Contact", "Contact Email", "Contact Phone",
+	 			"Contact2", "Contact2 Email", "Contact2 Phone",
+	 			"Time Stamp", "Stoplight Pos", "Stoplight Mssg", "Stoplight C/B"};
+	}
+	
 	private class PartnerNameComparator implements Comparator<ONCPartner>
 	{
 		@Override
@@ -852,6 +807,4 @@ public class PartnerDB extends ONCSearchableDatabase
 			return slp1.compareTo(slp2);
 		}
 	}
-	
-	
  }

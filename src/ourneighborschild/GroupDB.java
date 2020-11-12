@@ -1,19 +1,10 @@
 package ourneighborschild;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
-
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.filechooser.FileNameExtensionFilter;
-
-import au.com.bytecode.opencsv.CSVWriter;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -36,6 +27,7 @@ public class GroupDB extends ONCSearchableDatabase
 	private GroupDB()
 	{
 		super(DB_TYPE);
+		this.title = "Groups";
 		groupList= new ArrayList<ONCGroup>();
 	}
 	
@@ -50,6 +42,7 @@ public class GroupDB extends ONCSearchableDatabase
 	//getters from groupDB
 	ONCGroup getGroup(int index) { return groupList.get(index); }
 
+	@Override
 	List<ONCGroup> getList() { return groupList; }
 	
 	List<ONCGroup> getAgentGroupList()
@@ -181,74 +174,28 @@ public class GroupDB extends ONCSearchableDatabase
 		}
 	}
 	
-	
-	String importGroupDBFromServer()
+	@Override
+	boolean importDB()
 	{
-		String response = "NO_GROUPS";
+		boolean bImportComplete = false;
 		
 		if(serverIF != null && serverIF.isConnected())
 		{		
 			Gson gson = new Gson();
 			Type listtype = new TypeToken<ArrayList<ONCGroup>>(){}.getType();
 			
-			response = serverIF.sendRequest("GET<groups>");
-			groupList = gson.fromJson(response, listtype);
+			String response = serverIF.sendRequest("GET<groups>");
 			
-			if(!response.startsWith("NO_GROUPS"))
+			
+			if(response != null)
 			{		
-				response =  "GROUPS_LOADED";
-				fireDataChanged(this, "LOADED_GROUPS", null);
+				groupList = gson.fromJson(response, listtype);
+				bImportComplete = true;
 			}
 		}
 		
-		return response;
+		return bImportComplete;
 	}
-	
-	String exportDBToCSV(JFrame pf, String filename)
-    {
-		File oncwritefile = null;
-		
-    	if(filename == null)
-    	{
-    		ONCFileChooser fc = new ONCFileChooser(pf);
-    		oncwritefile= fc.getFile("Select .csv file to save Group DB to",
-								new FileNameExtensionFilter("CSV Files", "csv"), ONCFileChooser.SAVE_FILE);
-    	}
-    	else
-    		oncwritefile = new File(filename);
-    	
-    	if(oncwritefile!= null)
-    	{
-    		//If user types a new filename and doesn't include the .csv, add it
-	    	String filePath = oncwritefile.getPath();		
-	    	if(!filePath.toLowerCase().endsWith(".csv")) 
-	    		oncwritefile = new File(filePath + ".csv");
-	    	
-	    	try 
-	    	{
-	    		String[] header = {"ID", "Date Changed", "Changed By", "SL Position", "SL Message", 
-						 "SL Changed By","Name", "Type", "Permission"};
-	    		
-	    		CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
-	    	    writer.writeNext(header);
-	    	    
-	    	    for(ONCGroup group:groupList)
-	    	    	writer.writeNext(group.getExportRow());	//Get family data
-	    	 
-	    	    writer.close();
-	    	    filename = oncwritefile.getName();
-	    	       	    
-	    	} 
-	    	catch (IOException x)
-	    	{
-	    		System.err.format("IO Exception: %s%n", x);
-	    		JOptionPane.showMessageDialog(pf, oncwritefile.getName() + " could not be saved", 
-						"ONC File Save Error", JOptionPane.ERROR_MESSAGE);
-	    	}
-	    }
-    	
-	    return filename;
-    }
 	
 	@Override
 	public void dataChanged(ServerEvent ue)
@@ -316,4 +263,12 @@ public class GroupDB extends ONCSearchableDatabase
 		
 	@Override
 	ONCEntity getObjectAtIndex(int index) { return groupList.isEmpty() ? null : groupList.get(index); }
+
+	@Override
+	String[] getExportHeader()
+	{
+		// TODO Auto-generated method stub
+		return new String[] {"ID", "Date Changed", "Changed By", "SL Position", "SL Message", 
+				 "SL Changed By","Name", "Type", "Permission"};
+	}
 }

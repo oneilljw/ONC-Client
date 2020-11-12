@@ -92,6 +92,8 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		UserDB userDB = UserDB.getInstance();
 		if(userDB != null)
 			userDB.addDatabaseListener(this);
+		if(dbMgr != null)
+			dbMgr.addDatabaseListener(this);
 		if(mealDB != null)
 			mealDB.addDatabaseListener(this);
 		if(orgs != null)
@@ -723,8 +725,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		}
 		else if(dbe.getSource() != this && (dbe.getType().equals("ADDED_CONFIRMED_PARTNER") ||
 					dbe.getType().equals("DELETED_CONFIRMED_PARTNER") ||
-					dbe.getType().equals("UPDATED_CONFIRMED_PARTNER") ||
-					dbe.getType().equals("LOADED_PARTNERS")))
+					dbe.getType().equals("UPDATED_CONFIRMED_PARTNER")))
 		{
 			updateMealAssigneeSelectionList();
 		}
@@ -733,7 +734,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 			updateMealAssigneeSelectionList();
 			buildTableList(true);
 		}
-		else if(dbe.getType().contains("_USER"))
+		else if(dbe.getType().equals("ADDED_USER") || dbe.getType().equals("UPDATED_USER"))
 		{
 			updateUserList();
 		}
@@ -742,9 +743,11 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 			String[] regList = (String[]) dbe.getObject1();
 			updateRegionList(regList);
 		}
-		else if(dbe.getType().equals("LOADED_MEALS"))
+		else if(dbe.getType().equals("LOADED_DATABASE"))
 		{
 			this.setTitle(String.format("Our Neighbor's Child - %d Meal Management", gvs.getCurrentSeason()));
+			updateUserList();
+			updateMealAssigneeSelectionList();
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_GLOBALS"))
 		{

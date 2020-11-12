@@ -1,20 +1,12 @@
 package ourneighborschild;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.filechooser.FileNameExtensionFilter;
-
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-import au.com.bytecode.opencsv.CSVWriter;
 
 public class SMSDB extends ONCDatabase
 {
@@ -37,6 +29,7 @@ public class SMSDB extends ONCDatabase
 		return instance;
 	}
 	
+	@Override
 	List<ONCSMS> getList() { return smsList; }
 
 	ONCSMS getSMS(int id)
@@ -207,73 +200,29 @@ public class SMSDB extends ONCDatabase
 		return famAdultList;
 	}
 */	
-	String importDB()
+	@Override
+	boolean importDB()
 	{
-		String response = "NO_SMS";
+		boolean bImportComplete = false;
 		
 		if(serverIF != null && serverIF.isConnected())
 		{		
 			Gson gson = new Gson();
 			Type listtype = new TypeToken<ArrayList<ONCSMS>>(){}.getType();
 			
-			response = serverIF.sendRequest("GET<sms_messages>");
-			smsList = gson.fromJson(response, listtype);
+			String response = serverIF.sendRequest("GET<sms_messages>");
 			
-			if(!response.startsWith("NO_SMS"))
+			
+			if(response != null)
 			{
-				response =  "SMS_LOADED";
-			}	fireDataChanged(this, "LOADED_SMS", null);
+				smsList = gson.fromJson(response, listtype);
+				bImportComplete = true;
+			}
 		}
 		
-		return response;
+		return bImportComplete;
 	}
 	
-	String exportDBToCSV(JFrame pf, String filename)
-    {
-		File oncwritefile = null;
-		
-		if(filename == null)
-    		{
-    			ONCFileChooser fc = new ONCFileChooser(pf);
-    			oncwritefile= fc.getFile("Select .csv file to save SMS DB to",
-								new FileNameExtensionFilter("CSV Files", "csv"), ONCFileChooser.SAVE_FILE);
-    		}
-    		else
-    			oncwritefile = new File(filename);
-    	
-		if(oncwritefile!= null)
-    		{
-    			//If user types a new filename and doesn't include the .csv, add it
-	    		String filePath = oncwritefile.getPath();		
-	    		if(!filePath.toLowerCase().endsWith(".csv")) 
-	    			oncwritefile = new File(filePath + ".csv");
-	    	
-	    		try 
-	    		{
-	    			String[] header = {"ID", "Message SID", "Type", "Entity ID", "Phone Num", "Direction", "Body",
-	    								"Status", "Timestamp"};
-	    		
-	    			CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
-	    			writer.writeNext(header);
-	    	    
-	    			for(ONCSMS sms : smsList)
-	    				writer.writeNext(sms.getExportRow());	//Get sms data
-	    	 
-	    			writer.close();
-	    			filename = oncwritefile.getName();
-	    	       	    
-	    		} 
-	    		catch (IOException x)
-	    		{
-	    			System.err.format("IO Exception: %s%n", x);
-	    			JOptionPane.showMessageDialog(pf, oncwritefile.getName() + " could not be saved", 
-						"ONC File Save Error", JOptionPane.ERROR_MESSAGE);
-	    		}
-	    }
-    	
-	    return filename;
-    }
-
 	@Override
 	public void dataChanged(ServerEvent ue)
 	{
@@ -289,5 +238,12 @@ public class SMSDB extends ONCDatabase
 		{
 			processDeletedSMS(this, ue.getJson());
 		}			
+	}
+
+	@Override
+	String[] getExportHeader()
+	{
+		return new String[] {"ID", "Message SID", "Type", "Entity ID", "Phone Num", "Direction", "Body",
+				"Status", "Timestamp"};
 	}
 }

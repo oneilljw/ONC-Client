@@ -63,11 +63,11 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
 		this.setTitle("Our Neighbor's Child - Group Information");
 		
 		groupDB = GroupDB.getInstance();
-		
-		//register to listen for partner, global variable, child and  and childwish
-		//data changed events
 		if(groupDB != null)
 			groupDB.addDatabaseListener(this);
+		
+		if(dbMgr != null)
+			dbMgr.addDatabaseListener(this);
 		
 		if(userDB != null)
 			userDB.addDatabaseListener(this);
@@ -360,7 +360,7 @@ public class GroupDialog extends EntityDialog implements ListSelectionListener
 				setEnabledEditGroupMembers(true);
 			}
 		}
-		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_GROUPS"))
+		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_DATABASE"))
 		{
 			display(null);	//will display the first group in the data base, if there is one
 			

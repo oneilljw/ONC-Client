@@ -68,10 +68,11 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
 		this.setTitle("Our Neighbor's Child - Edit App & Website Users");
 		
 		groupDB = GroupDB.getInstance();
-		
-		//register to listen for user and group data change events
 		if(groupDB != null)
 			groupDB.addDatabaseListener(this);
+		
+		if(dbMgr != null)
+			dbMgr.addDatabaseListener(this);
 		
 		if(userDB != null)
 			userDB.addDatabaseListener(this);
@@ -407,7 +408,7 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
 				memberTM.fireTableDataChanged();
 			}	
 		}
-		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_GROUPS"))
+		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_DATABASE"))
 		{
 			candidateList = groupDB.getAgentGroupList();
 			candidateTM.fireTableDataChanged();

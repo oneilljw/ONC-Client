@@ -1,22 +1,13 @@
 package ourneighborschild;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.filechooser.FileNameExtensionFilter;
-
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-
-import au.com.bytecode.opencsv.CSVWriter;
 
 public class GiftCatalogDB extends ONCDatabase
 {
@@ -56,6 +47,7 @@ public class GiftCatalogDB extends ONCDatabase
 	private GiftCatalogDB()
 	{
 		super();
+		this.title = "Gift Catalog";
 		giftDetailDB = GiftDetailDB.getInstance();
 		giftCatalog = new ArrayList<GiftCatalogItem>();
 	}
@@ -70,7 +62,9 @@ public class GiftCatalogDB extends ONCDatabase
 	
 	//getters from catalog
 	ONCGift getGift(int index) { return giftCatalog.get(index).getGift(); }
-	ArrayList<ONCGift> getCatalogGiftList()
+	
+	@Override
+	List<ONCGift> getList()
 	{
 		ArrayList<ONCGift> giftList = new ArrayList<ONCGift>();
 		for(GiftCatalogItem gci: giftCatalog)
@@ -302,7 +296,7 @@ public class GiftCatalogDB extends ONCDatabase
 		if(giftNumber < GIFT_CATALOG_LIST_ALL)
 			bitmask = 1 << giftNumber; 	//raise 2 to the listtype power
 		
-		for(ONCGift g:getCatalogGiftList())
+		for(ONCGift g:getList())
 			if((g.getListindex() & bitmask) > 0)
 				giftlist.add(g);
 		
@@ -327,7 +321,7 @@ public class GiftCatalogDB extends ONCDatabase
 	{
 		List<ONCGift> giftlist = new ArrayList<ONCGift>();
 	
-		for(ONCGift g : getCatalogGiftList())
+		for(ONCGift g : getList())
 			if(g.getListindex() == GIFT_CATALOG_LIST_ALL)
 				giftlist.add(g);
 		
@@ -340,7 +334,7 @@ public class GiftCatalogDB extends ONCDatabase
 	void initializeCounts()
 	{	
 		FamilyDB fDB = FamilyDB.getInstance();
-		ArrayList<int[]> giftCounts = fDB.getWishBaseSelectedCounts(getCatalogGiftList());
+		ArrayList<int[]> giftCounts = fDB.getGiftBaseSelectedCounts(getList());
 		for(int index=0; index < giftCounts.size(); index++)
 			giftCatalog.get(index).setGiftCounts(giftCounts.get(index));		
 	}
@@ -399,78 +393,33 @@ public class GiftCatalogDB extends ONCDatabase
 			return -1;
 	}
 	
-	String importCatalogFromServer()
+	@Override
+	boolean importDB()
 	{
 		ArrayList<ONCGift> giftList = new ArrayList<ONCGift>();
-		String response = "NO_CATALOG";
+		boolean bImportComplete = false;
 		
 		if(serverIF != null && serverIF.isConnected())
 		{		
 			Gson gson = new Gson();
 			Type listtype = new TypeToken<ArrayList<ONCGift>>(){}.getType();
 			
-			response = serverIF.sendRequest("GET<catalog>");
-			giftList = gson.fromJson(response, listtype);
-			Collections.sort(giftList, new GiftListComparator());
+			String response = serverIF.sendRequest("GET<catalog>");
 			
-			if(!response.startsWith("NO_CATALOG"))
-			{		
+			if(response != null)
+			{
+				giftList = gson.fromJson(response, listtype);
+				Collections.sort(giftList, new GiftListComparator());
+					
 				for(ONCGift g: giftList)
 					giftCatalog.add(new GiftCatalogItem(g));
 				
-				response =  "CATALOG_LOADED";
-				fireDataChanged(this, "LOADED_CATALOG", null);
+				bImportComplete = true;
 			}
 		}
 		
-		return response;
+		return bImportComplete;
 	}
-	
-	String exportToCSV(JFrame pf, String filename)
-    {
-		File oncwritefile = null;
-		
-		if(filename == null)
-		{
-    			ONCFileChooser fc = new ONCFileChooser(pf);
-    			oncwritefile= fc.getFile("Select .csv file to save Wish Catalog to",
-								new FileNameExtensionFilter("CSV Files", "csv"), ONCFileChooser.SAVE_FILE);
-		}
-		else
-    			oncwritefile = new File(filename);
-    	
-    		if(oncwritefile!= null)
-    		{
-    			//If user types a new filename and doesn't include the .csv, add it
-    			String filePath = oncwritefile.getPath();		
-    			if(!filePath.toLowerCase().endsWith(".csv")) 
-    				oncwritefile = new File(filePath + ".csv");
-	    	
-    			try 
-    			{
-    				String[] header = {"Wish ID", "Name", "List Index", "Wish Detail 1 ID", 
-	    				 			"Wish Detail 2 ID", "Wish Detail 3 ID", "Wish Detail 4 ID"};
-	    		
-    				CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
-    				writer.writeNext(header);
-	    	    
-    				for(GiftCatalogItem wci:giftCatalog)
-    					writer.writeNext(wci.getGift().getExportRow());	//Get family data
-	    	 
-    				writer.close();
-    				filename = oncwritefile.getName();
-	    	       	    
-    			} 
-    			catch (IOException x)
-    			{
-    				System.err.format("IO Exception: %s%n", x);
-    				JOptionPane.showMessageDialog(pf, oncwritefile.getName() + " could not be saved", 
-						"ONC File Save Error", JOptionPane.ERROR_MESSAGE);
-    			}
-	    }
-    	
-	    return filename;
-    }
 
 	void clearCatalogData() { giftCatalog.clear(); }
 
@@ -559,5 +508,12 @@ public class GiftCatalogDB extends ONCDatabase
 				for(int wn=0; wn < giftCount.length; wn++)
 					giftCount[wn] = giftCounts[wn];
 		}
+	}
+
+	@Override
+	String[] getExportHeader()
+	{
+		return new String[] {"Gift Detail ID", "Name", "List Index", "Gift Detail 1 ID",
+				"Gift Detail 2 ID", "Gift Detail 3 ID", "Gift Detail 4 ID"};
 	}
 }

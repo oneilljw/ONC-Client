@@ -80,6 +80,8 @@ public abstract class GiftActionDialog extends SortTableDialog
 		cwDB = ChildGiftDB.getInstance();
 		cat = GiftCatalogDB.getInstance();
 		
+		if(dbMgr != null)
+			dbMgr.addDatabaseListener(this);
 		if(cDB != null)
 			cDB.addDatabaseListener(this);	//Child updates
 		if(cwDB != null)
@@ -586,10 +588,10 @@ public abstract class GiftActionDialog extends SortTableDialog
 			buildTableList(true);
 			barcodeTF.requestFocus();
 		}
-		else if(dbe.getType().equals("LOADED_WISHES"))
+		else if(dbe.getType().equals("LOADED_DATABASE"))
 		{
 			this.setTitle(String.format("Our Neighbor's Child - %s %d Gifts", 
-				getGiftStatusAction().presentTense(), gvDB.getCurrentSeason()));
+				getGiftStatusAction().presentTense(), gvs.getCurrentSeason()));
 		}
 	}
 	

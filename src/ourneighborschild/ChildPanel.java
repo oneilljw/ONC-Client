@@ -33,6 +33,7 @@ public class ChildPanel extends JPanel implements DatabaseListener, EntitySelect
 	
 	//databases
 	private GlobalVariablesDB gvs;
+	private DatabaseManager dbMgr;
     private FamilyDB fDB;
 	private ChildDB cDB;
 	private UserDB userDB;
@@ -51,6 +52,11 @@ public class ChildPanel extends JPanel implements DatabaseListener, EntitySelect
 	{	
 		//register database listeners for updates
 		gvs = GlobalVariablesDB.getInstance();
+		
+		dbMgr = DatabaseManager.getInstance();
+		if(dbMgr != null)
+			dbMgr.addDatabaseListener(this);
+		
     	fDB = FamilyDB.getInstance();
 		if(fDB != null)
 			fDB.addDatabaseListener(this);
@@ -307,7 +313,7 @@ public class ChildPanel extends JPanel implements DatabaseListener, EntitySelect
 				clearChildData();
 			}
 		}
-		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_CHILDREN"))
+		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_DATABASE"))
 		{
 			String logEntry = String.format("ChildPanel Event: %s", dbe.getType());
 			LogDialog.add(logEntry, "M");

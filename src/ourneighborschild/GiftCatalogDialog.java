@@ -48,6 +48,7 @@ public class GiftCatalogDialog extends JDialog implements ActionListener, ListSe
 	private JButton btnAdd, btnEdit, btnDelete, btnPrint;
 	private GiftCatalogDB cat;
 	private GlobalVariablesDB gvDB;
+	private DatabaseManager dbMgr;
 		
 	public GiftCatalogDialog(JFrame pf)
 	{
@@ -62,6 +63,10 @@ public class GiftCatalogDialog extends JDialog implements ActionListener, ListSe
 			cat.addDatabaseListener(this);
 		
 		gvDB = GlobalVariablesDB.getInstance();
+		
+		dbMgr = DatabaseManager.getInstance();
+		if(dbMgr != null)
+			dbMgr.addDatabaseListener(this);
 	
 		ChildDB childDB = ChildDB.getInstance();
 		if(childDB != null)
@@ -350,7 +355,7 @@ public class GiftCatalogDialog extends JDialog implements ActionListener, ListSe
 		{
 			gcTableModel.fireTableDataChanged();
 		}
-		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_CATALOG"))
+		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_DATABASE"))
 		{
 			gcTableModel.fireTableDataChanged();
 		}

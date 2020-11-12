@@ -87,6 +87,9 @@ public class ManageVolDialog extends ONCEntityTableDialog implements ActionListe
 		//Save the reference to the one volunteer data base object in the app. It is created in the 
 		//top level object and passed to all objects that require the data base, including
 		//this dialog
+		if(dbMgr != null)
+			dbMgr.addDatabaseListener(this);
+		
 		volDB = VolunteerDB.getInstance();
 		if(volDB != null)
 			volDB.addDatabaseListener(this);
@@ -426,7 +429,7 @@ public class ManageVolDialog extends ONCEntityTableDialog implements ActionListe
 			//update the table
 			createTableList();
 		}
-		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_DRIVERS"))
+		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_DATABASE"))
 		{
 			//get the initial data and display
 			this.setTitle(String.format("Our Neighbor's Child - %d Volunteer Management", gvs.getCurrentSeason()));

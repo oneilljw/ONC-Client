@@ -40,6 +40,9 @@ public class BatteryDialog extends GiftLabelDialog
 		this.parentFrame = parentFrame;
 		this.setTitle("Record Batteries for Gifts");
 		
+		if(dbMgr != null)
+			dbMgr.addDatabaseListener(this);
+		
 		batteryDB = BatteryDB.getInstance();
 		if(batteryDB != null)
 			batteryDB.addDatabaseListener(this);
@@ -501,7 +504,7 @@ public class BatteryDialog extends GiftLabelDialog
 	@Override
 	public void dataChanged(DatabaseEvent dbe)
 	{
-		if(dbe.getSource() != this && dbe.getType().equals("LOADED_BATTERIES"))
+		if(dbe.getSource() != this && dbe.getType().equals("LOADED_DATABASE"))
 		{
 			//get the initial data and set title
 			this.setTitle(String.format("Record Batteries for Gifts - %d Season",

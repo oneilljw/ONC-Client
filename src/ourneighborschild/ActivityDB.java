@@ -1,18 +1,9 @@
 package ourneighborschild;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.filechooser.FileNameExtensionFilter;
-
-import au.com.bytecode.opencsv.CSVWriter;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -28,6 +19,7 @@ public class ActivityDB extends ONCSearchableDatabase
 	private ActivityDB()
 	{
 		super(DB_TYPE);
+		this.title = "Activities";
 		activityList = new ArrayList<Activity>();
 		categoryList = new ArrayList<String>();
 		geniusSignUps = new GeniusSignUps();
@@ -279,9 +271,11 @@ public class ActivityDB extends ONCSearchableDatabase
 			fireDataChanged(this, "UPDATED_SIGNUP", updatedSignUp);
 	}
 	
-	String importDatabase()
+	@Override
+	boolean importDB()
 	{
 		String response = "NO_ACTIVITIES";
+		boolean bImportComplete = false;
 		
 		if(serverIF != null && serverIF.isConnected())
 		{		
@@ -293,13 +287,15 @@ public class ActivityDB extends ONCSearchableDatabase
 			if(!response.startsWith("NO_ACTIVITIES"))
 			{
 				response =  "ACTIVITIES_LOADED";
-				fireDataChanged(this, "LOADED_ACTIVITIES", null);
+//				fireDataChanged(this, "LOADED_ACTIVITIES", null);
+				
+				bImportComplete = true;
 				
 				for(Activity va : activityList)
 					if(!isCategoryInList(va.getCategory()))
 						categoryList.add(va.getCategory());
 				
-				fireDataChanged(this, "LOADED_CATEGORIES", null);
+//				fireDataChanged(this, "LOADED_CATEGORIES", null);
 			}
 			
 			//import the sign ups
@@ -311,7 +307,7 @@ public class ActivityDB extends ONCSearchableDatabase
 			}
 		}
 		
-		return response;
+		return bImportComplete;
 	}
 	
 	String add(Object source, ONCObject entity)
@@ -399,50 +395,11 @@ public class ActivityDB extends ONCSearchableDatabase
 		return serverIF.sendRequest("GET<request_signups>");
 	}
 	
-	String exportDBToCSV(JFrame pf, String filename)
-    {
-		File oncwritefile = null;
-		
-		if(filename == null)
-		{
-    			ONCFileChooser fc = new ONCFileChooser(pf);
-    			oncwritefile= fc.getFile("Select .csv file to save Activity DB to",
-								new FileNameExtensionFilter("CSV Files", "csv"), ONCFileChooser.SAVE_FILE);
-    		}
-    		else
-    			oncwritefile = new File(filename);
-    	
-		if(oncwritefile!= null)
-		{
-    			//If user types a new filename and doesn't include the .csv, add it
-			String filePath = oncwritefile.getPath();		
-			if(!filePath.toLowerCase().endsWith(".csv")) 
-	    			oncwritefile = new File(filePath + ".csv");
-	    	
-	    		try 
-	    		{
-	    			String[] header = {"ID", "Genius ID", "Category" ,"Name","StartTimeMillis",
-				 			"EndTimeMillis", "Location", "Description", "Open", "Notify", "Del Act?", 
-				 			"Timestamp", "Changed By", "SL Pos","SL Message", "SL Changed By"};
-	    		
-	    			CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
-	    			writer.writeNext(header);
-	    	    
-	    			for(Activity va:activityList)
-	    				writer.writeNext(va.getExportRow());	//Get activity data
-	    	 
-	    			writer.close();
-	    			filename = oncwritefile.getName();
-	    	       	    
-	    		} 
-	    		catch (IOException x)
-	    		{
-	    			System.err.format("IO Exception: %s%n", x);
-	    			JOptionPane.showMessageDialog(pf, oncwritefile.getName() + " could not be saved", 
-						"ONC File Save Error", JOptionPane.ERROR_MESSAGE);
-	    		}
-	    }
-    	
-	    return filename;
-    }
+	@Override
+	String[] getExportHeader()
+	{
+		return new String[] {"ID", "Genius ID", "Category" ,"Name","StartTimeMillis",
+	 			"EndTimeMillis", "Location", "Description", "Open", "Notify", "Del Act?", 
+	 			"Timestamp", "Changed By", "SL Pos","SL Message", "SL Changed By"};
+	}
 }

@@ -1,20 +1,11 @@
 package ourneighborschild;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.filechooser.FileNameExtensionFilter;
-
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-
-import au.com.bytecode.opencsv.CSVWriter;
 
 public class FamilyHistoryDB extends ONCDatabase
 {
@@ -24,6 +15,7 @@ public class FamilyHistoryDB extends ONCDatabase
 	private FamilyHistoryDB()
 	{
 		super();
+		this.title = "History";
 		fhList = new ArrayList<ONCFamilyHistory>();
 	}
 	
@@ -143,74 +135,29 @@ public class FamilyHistoryDB extends ONCDatabase
 			return fhList.get(index).getdDelBy();
 	}
 	
-	String importFamilyHistoryDatabase()
+	@Override
+	boolean importDB()
 	{
-		String response = "NO_FAMILY_HISTORY";
+		boolean bImportComplete = false;
 		
 		if(serverIF != null && serverIF.isConnected())
 		{		
 			Gson gson = new Gson();
 			Type listtype = new TypeToken<ArrayList<ONCFamilyHistory>>(){}.getType();
 			
-			response = serverIF.sendRequest("GET<deliveries>");
-				fhList = gson.fromJson(response, listtype);
+			String response = serverIF.sendRequest("GET<deliveries>");
 				
-			if(!response.startsWith("NO_FAMILY_HISTORY"))
+				
+			if(response != null)
 			{
-				response =  "FAMILY_HISTORY_LOADED";
-				this.fireDataChanged(this, "LOADED_FAMILY_HISTORY",  null);
+				fhList = gson.fromJson(response, listtype);
+				bImportComplete = true;
 			}
 		}
 		
-		return response;
+		return bImportComplete;
 	}
 	
-	String exportDBToCSV(JFrame pf, String filename)
-    {
-		File oncwritefile = null;
-		
-    	if(filename == null)
-    	{
-    		ONCFileChooser fc = new ONCFileChooser(pf);
-    		oncwritefile= fc.getFile("Select .csv file to save Delivery DB to",
-										new FileNameExtensionFilter("CSV Files", "csv"), ONCFileChooser.SAVE_FILE);
-    	}
-    	else
-    		oncwritefile = new File(filename);
-    	
-    	if(oncwritefile!= null)
-    	{
-    		//If user types a new filename and doesn't include the .csv, add it
-	    	String filePath = oncwritefile.getPath();		
-	    	if(!filePath.toLowerCase().endsWith(".csv")) 
-	    		oncwritefile = new File(filePath + ".csv");
-	    	
-	    	try 
-	    	{
-	    		 String[] header = {"Delivery ID", "Family ID", "Status", "Del By", 
-	    				 			"Notes", "Changed By", "Time Stamp"};
-	    		
-	    		CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
-	    	    writer.writeNext(header);
-	    	    
-	    	    for(ONCFamilyHistory d:fhList)
-	    	    	writer.writeNext(d.getExportRow());	//Get family data
-	    	 
-	    	    writer.close();
-	    	    filename = oncwritefile.getName();
-	    	       	    
-	    	} 
-	    	catch (IOException x)
-	    	{
-	    		System.err.format("IO Exception: %s%n", x);
-	    		JOptionPane.showMessageDialog(pf, oncwritefile.getName() + " could not be saved", 
-						"ONC File Save Error", JOptionPane.ERROR_MESSAGE);
-	    	}
-	    }
-    	
-	    return filename;
-    }
-
 	@Override
 	public void dataChanged(ServerEvent ue) 
 	{
@@ -225,7 +172,6 @@ public class FamilyHistoryDB extends ONCDatabase
 	}
 
 	@Override
-
 	/***************************************************************
 	 * This method is called when a family history object has been updated by 
 	 * the user. The request update object is passed. 
@@ -283,5 +229,11 @@ public class FamilyHistoryDB extends ONCDatabase
 				nDeliveries++;
 		
 		return nDeliveries;
+	}
+
+	@Override
+	String[] getExportHeader()
+	{
+		return new String[]  {"Delivery ID", "Family ID", "Status", "Del By",  "Notes", "Changed By", "Time Stamp"};
 	}
 }

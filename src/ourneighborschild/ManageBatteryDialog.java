@@ -82,6 +82,9 @@ public class ManageBatteryDialog extends ONCEntityTableDialog implements ActionL
 		this.setTitle("Battery Managment");
 		
 		//Save the reference to data bases 
+		if(dbMgr != null)
+			dbMgr.addDatabaseListener(this);
+		
 		batteryDB = BatteryDB.getInstance();
 		if(batteryDB != null)
 			batteryDB.addDatabaseListener(this);
@@ -339,7 +342,7 @@ public class ManageBatteryDialog extends ONCEntityTableDialog implements ActionL
 		{
 			createTableList(); //update the table
 		}
-		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_BATTERIES"))
+		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_DATABASE"))
 		{
 			//get the initial data and display
 			this.setTitle(String.format("Our Neighbor's Child - %d Battery Management", gvs.getCurrentSeason()));

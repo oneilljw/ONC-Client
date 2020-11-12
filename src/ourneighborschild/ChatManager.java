@@ -1,10 +1,8 @@
 package ourneighborschild;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import com.google.gson.Gson;
 
-public class ChatManager extends ONCDatabase implements ActionListener
+public class ChatManager extends ServerListenerComponent implements ServerListener
 {
 	private static ChatManager instance = null;
 	private UserDB userDB;
@@ -13,6 +11,9 @@ public class ChatManager extends ONCDatabase implements ActionListener
 	{
 		super();
 		userDB = UserDB.getInstance();
+		
+		if(serverIF != null)
+			serverIF.addServerListener(this);
 	}
 	
 	public static ChatManager getInstance()
@@ -33,7 +34,6 @@ public class ChatManager extends ONCDatabase implements ActionListener
 			Gson gson = new Gson();
 					
 			response = serverIF.sendRequest("POST<chat_request>" + gson.toJson(chatMsg, ChatMessage.class));		
-			
 		}
 				
 		return response;	
@@ -131,17 +131,5 @@ public class ChatManager extends ONCDatabase implements ActionListener
 					fireDataChanged(this, ue.getType(), chatMssg);
 			}	
 		}
-	}
-
-	@Override
-	String update(Object source, ONCObject entity) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void actionPerformed(ActionEvent arg0) {
-		// TODO Auto-generated method stub
-		
 	}
 }

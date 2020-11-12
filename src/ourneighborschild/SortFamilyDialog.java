@@ -126,6 +126,9 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		super(pf);
 		this.setTitle("Our Neighbor's Child - Family Management");
 		
+		if(dbMgr != null)
+			dbMgr.addDatabaseListener(this);
+		
 		smsDB = SMSDB.getInstance();
 		
 		noteDB = NoteDB.getInstance();
@@ -2763,7 +2766,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		{
 			buildTableList(true);		
 		}
-		if(dbe.getSource() != this && (dbe.getType().equals("ADDED_NOTE") ||
+		else if(dbe.getSource() != this && (dbe.getType().equals("ADDED_NOTE") ||
 				dbe.getType().equals("UPDATED_NOTE") || dbe.getType().equals("DELETED_NOTE")))
 		{
 			buildTableList(true);		
@@ -2782,15 +2785,14 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			if(userDB.getLoggedInUser().getID() == updatedUser.getID())
 				updateUserPreferences(updatedUser);
 		}
-		else if(dbe.getType().contains("LOADED_USERS"))
+		else if(dbe.getType().contains("LOADED_DATABASE"))
 		{
+			this.setTitle(String.format("Our Neighbor's Child - %d Family Management", gvs.getCurrentSeason()));
 			updateUserList();
-		}
-		else if(dbe.getType().contains("LOADED_SCHOOLS"))
-		{
 			updateSchoolList();
+			updateDNSCodeCB();
 		}
-		else if(dbe.getType().equals("LOADED_DNSCODES") || dbe.getType().contains("ADDED_DNSCODE"))
+		else if(dbe.getType().contains("ADDED_DNSCODE"))
 		{
 			updateDNSCodeCB();
 		}
@@ -2798,10 +2800,6 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		{
 			updateDNSCodeCB();
 			buildTableList(true);
-		}
-		else if(dbe.getType().equals("LOADED_FAMILIES"))
-		{
-			this.setTitle(String.format("Our Neighbor's Child - %d Family Management", gvs.getCurrentSeason()));
 		}
 		else if(dbe.getType().contains("CHANGED_USER"))
 		{

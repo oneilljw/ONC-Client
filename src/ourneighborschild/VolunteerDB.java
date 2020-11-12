@@ -1,7 +1,6 @@
 package ourneighborschild;
 
-import java.io.File;
-import java.io.FileWriter;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.lang.reflect.Type;
@@ -10,14 +9,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.filechooser.FileNameExtensionFilter;
-
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-
-import au.com.bytecode.opencsv.CSVWriter;
 
 public class VolunteerDB extends ONCSearchableDatabase
 {
@@ -30,6 +23,7 @@ public class VolunteerDB extends ONCSearchableDatabase
 	private VolunteerDB()
 	{
 		super(DB_TYPE);
+		this.title = "Volunteers";
 		volunteerList = new ArrayList<ONCVolunteer>();
 
 		volActDB = VolunteerActivityDB.getInstance();
@@ -422,75 +416,28 @@ public class VolunteerDB extends ONCSearchableDatabase
 		return result;	
 	}
 	
-	String importDriverDatabase()
+	@Override
+	boolean importDB()
 	{
-		String response = "NO_DRIVERS";
+		boolean bImportComplete = false;
 		
 		if(serverIF != null && serverIF.isConnected())
 		{		
 			Gson gson = new Gson();
 			Type listtype = new TypeToken<ArrayList<ONCVolunteer>>(){}.getType();
 			
-			response = serverIF.sendRequest("GET<drivers>");
-				volunteerList = gson.fromJson(response, listtype);
+			String response = serverIF.sendRequest("GET<drivers>");
 				
-			if(!response.startsWith("NO_DRIVERS"))
+				
+			if(response != null && !response.isEmpty())
 			{
-				response =  "DRIVERS_LOADED";
-				fireDataChanged(this, "LOADED_DRIVERS", null);
+				volunteerList = gson.fromJson(response, listtype);
+				bImportComplete = true;
 			}
 		}
 		
-		return response;
+		return bImportComplete;
 	}
-	
-	String exportDBToCSV(JFrame pf, String filename)
-    {
-		File oncwritefile = null;
-		
-    	if(filename == null)
-    	{
-    		ONCFileChooser fc = new ONCFileChooser(pf);
-    		oncwritefile= fc.getFile("Select .csv file to save Volunteer DB to",
-								new FileNameExtensionFilter("CSV Files", "csv"), ONCFileChooser.SAVE_FILE);
-    	}
-    	else
-    		oncwritefile = new File(filename);
-    	
-    	if(oncwritefile!= null)
-    	{
-    		//If user types a new filename and doesn't include the .csv, add it
-	    	String filePath = oncwritefile.getPath();		
-	    	if(!filePath.toLowerCase().endsWith(".csv")) 
-	    		oncwritefile = new File(filePath + ".csv");
-	    	
-	    	try 
-	    	{
-	    		 String[] header = {"Vol ID", "First Name", "Last Name", "House Number", "Street",
-	    				 			"Unit", "City", "Zip", "Email", "Home Phone", "Cell Phone", 
-	    				 			"Driver License", "Car", "# Del. Assigned", "Time Stamp",
-	    				 			"Stoplight Pos", "Stoplight Mssg", "Changed By"};
-	    		
-	    		CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
-	    	    writer.writeNext(header);
-	    	    
-	    	    for(ONCVolunteer d:volunteerList)
-	    	    	writer.writeNext(d.getExportRow());	//Get family data
-	    	 
-	    	    writer.close();
-	    	    filename = oncwritefile.getName();
-	    	       	    
-	    	} 
-	    	catch (IOException x)
-	    	{
-	    		System.err.format("IO Exception: %s%n", x);
-	    		JOptionPane.showMessageDialog(pf, oncwritefile.getName() + " could not be saved", 
-						"ONC File Save Error", JOptionPane.ERROR_MESSAGE);
-	    	}
-	    }
-    	
-	    return filename;
-    }
 	
 	List<String> getGroupList()
 	{
@@ -779,5 +726,15 @@ public class VolunteerDB extends ONCSearchableDatabase
 			Integer o2SL = (Integer) o2.getStoplightPos();
 			return o1SL.compareTo(o2SL);
 		}
+	}
+
+	@Override
+	String[] getExportHeader()
+	{
+		// TODO Auto-generated method stub
+		return new  String[] {"Vol ID", "First Name", "Last Name", "House Number", "Street",
+	 			"Unit", "City", "Zip", "Email", "Home Phone", "Cell Phone", 
+	 			"Driver License", "Car", "# Del. Assigned", "Time Stamp",
+	 			"Stoplight Pos", "Stoplight Mssg", "Changed By"};
 	}
 }

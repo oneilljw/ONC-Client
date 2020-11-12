@@ -1,21 +1,12 @@
 package ourneighborschild;
 
 import java.awt.Point;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
-
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.filechooser.FileNameExtensionFilter;
-
-import au.com.bytecode.opencsv.CSVWriter;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -231,26 +222,29 @@ public class UserDB extends ONCSearchableDatabase
 			return null;
 	}
 	
-	String importUserDatabase()
+	@Override
+	boolean importDB()
 	{
-		String response = "NO_USERS";
+		boolean bImportComplete = false;
 		
 		if(serverIF != null && serverIF.isConnected())
 		{		
 			Gson gson = new Gson();
 			Type listtype = new TypeToken<ArrayList<ONCUser>>(){}.getType();
 			
-			response = serverIF.sendRequest("GET<users>");
-			uAL = gson.fromJson(response, listtype);				
+			String response = serverIF.sendRequest("GET<users>");
 			
-			if(uAL.size() > 1)
-				Collections.sort(uAL, new UserLNFIComparator());
+			if(response != null)
+			{
+				uAL = gson.fromJson(response, listtype);				
+			
+				if(uAL.size() > 1)
+					Collections.sort(uAL, new UserLNFIComparator());
+				bImportComplete = true;
+			}
 		}
 		
-		if(response != null & !response.startsWith("NO_USERS"))
-			fireDataChanged(this, "LOADED_USERS", loggedInUser);
-		
-		return response;
+		return bImportComplete;
 	}
 	
 	String sendSeasonWelcomeEmail(List<ONCUser> emailList)
@@ -472,70 +466,14 @@ public class UserDB extends ONCSearchableDatabase
 
 	@Override
 	ONCEntity getObjectAtIndex(int index) {  return uAL.get(index); }
-	
-	String exportDBToCSV(JFrame pf, String filename)
-    {
-		File oncwritefile = null;
-		
-    	if(filename == null)
-    	{
-    		ONCFileChooser fc = new ONCFileChooser(pf);
-    		oncwritefile= fc.getFile("Select .csv file to save Agent DB to",
-							new FileNameExtensionFilter("CSV Files", "csv"), ONCFileChooser.SAVE_FILE);
-    	}
-    	else
-    		oncwritefile = new File(filename);
-    	
-    	if(oncwritefile!= null)
-    	{
-    		//If user types a new filename and doesn't include the .csv, add it
-	    	String filePath = oncwritefile.getPath();		
-	    	if(!filePath.toLowerCase().endsWith(".csv")) 
-	    		oncwritefile = new File(filePath + ".csv");
-	    	
-	    	try 
-	    	{
-	    		String[] header =  {"ID", "First Name", "Last Name", "Status", "Access", "Permission",
-	    				"Date Changed", "Changed By", "SL Position", "SL Message", 
-	    				"SL Changed By", "Sessions", "Last Login", "Orginization", "Title",
-	    				"Email", "Phone", "Agent ID", "Font Size", "Wish Assignee Filter",
-	    				"Family DNS Filter"};
-	    		
-	    		CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
-	    	    writer.writeNext(header);
-	    	    
-	    	    for(ONCUser u:uAL)
-	    	    	writer.writeNext(u.getExportRow());	//Get family data
-	    	 
-	    	    writer.close();
-	    	    filename = oncwritefile.getName();
-	    	       	    
-	    	} 
-	    	catch (IOException x)
-	    	{
-	    		System.err.format("IO Exception: %s%n", x);
-	    		JOptionPane.showMessageDialog(pf, oncwritefile.getName() + " could not be saved", 
-						"ONC File Save Error", JOptionPane.ERROR_MESSAGE);
-	    	}
-	    }
-    	
-	    return filename;
-    }
-/*	
-	private class UserIDList
+
+	@Override
+	String[] getExportHeader()
 	{
-		private List<Integer> userIDList;
-		
-		UserIDList()
-		{
-			userIDList = new ArrayList<Integer>();
-		}
-	
-		void addUserID(ONCUser u) { userIDList.add(u.getID()); }
-		boolean isEmpty() { return userIDList.isEmpty(); }
-		
-		//getters
-		List<Integer> getUserIDList() { return userIDList; }
-	}
-*/	
+		return new String[] {"ID", "First Name", "Last Name", "Status", "Access", "Permission",
+				"Date Changed", "Changed By", "SL Position", "SL Message", 
+				"SL Changed By", "Sessions", "Last Login", "Orginization", "Title",
+				"Email", "Phone", "Agent ID", "Font Size", "Wish Assignee Filter",
+				"Family DNS Filter"};
+	}	
 }

@@ -1,22 +1,13 @@
 package ourneighborschild;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.filechooser.FileNameExtensionFilter;
-
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-
-import au.com.bytecode.opencsv.CSVWriter;
 
 public class NoteDB extends ONCSearchableDatabase
 {
@@ -28,6 +19,7 @@ public class NoteDB extends ONCSearchableDatabase
 	private NoteDB()
 	{
 		super(DB_TYPE);
+		this.title = "Notes";
 		this.noteList = new ArrayList<ONCNote>();
 		this.famNoteList = new ArrayList<ONCNote>();
 	}
@@ -227,53 +219,6 @@ public class NoteDB extends ONCSearchableDatabase
 		
 		return deletedNote;
 	}
-	String exportDBToCSV(JFrame pf, String filename)
-    {
-		File oncwritefile = null;
-		
-		if(filename == null)
-    		{
-    			ONCFileChooser fc = new ONCFileChooser(pf);
-    			oncwritefile= fc.getFile("Select .csv file to save Notet DB to",
-								new FileNameExtensionFilter("CSV Files", "csv"), ONCFileChooser.SAVE_FILE);
-    		}
-    		else
-    			oncwritefile = new File(filename);
-    	
-		if(oncwritefile!= null)
-    		{
-    			//If user types a new filename and doesn't include the .csv, add it
-	    		String filePath = oncwritefile.getPath();		
-	    		if(!filePath.toLowerCase().endsWith(".csv")) 
-	    			oncwritefile = new File(filePath + ".csv");
-	    	
-	    		try 
-	    		{
-	    			String[] header = {"Note ID", "Owner ID", "Status", "Title", "Note", "Changed By",
-	    					"Response", "Response By", "Time Created", "Time Viewed",
-	    					"Time Responded", "Stoplight Pos", "Stoplight Mssg", "Stoplight C/B"};
-	    			
-	    		
-	    			CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
-	    			writer.writeNext(header);
-	    	    
-	    			for(ONCNote n : noteList)
-	    				writer.writeNext(n.getExportRow());	//Get family data
-	    	 
-	    			writer.close();
-	    			filename = oncwritefile.getName();
-	    	       	    
-	    		} 
-	    		catch (IOException x)
-	    		{
-	    			System.err.format("IO Exception: %s%n", x);
-	    			JOptionPane.showMessageDialog(pf, oncwritefile.getName() + " could not be saved", 
-						"ONC File Save Error", JOptionPane.ERROR_MESSAGE);
-	    		}
-	    }
-    	
-	    return filename;
-    }
 	
 	List<ONCNote> getNotesForFamily(int ownerID)
 	{
@@ -298,25 +243,27 @@ public class NoteDB extends ONCSearchableDatabase
 		return index >= 0 ? noteList.get(index) : null;
 	}
 	
-	String importDB()
+	@Override
+	boolean importDB()
 	{
-		String response = "NO_NOTES";
+		boolean bImportComplete = false;
 		
 		if(serverIF != null && serverIF.isConnected())
 		{		
 			Gson gson = new Gson();
 			Type listtype = new TypeToken<ArrayList<ONCNote>>(){}.getType();
 			
-			response = serverIF.sendRequest("GET<notes>");
-			noteList = gson.fromJson(response, listtype);
+			String response = serverIF.sendRequest("GET<notes>");
 			
-			if(!response.startsWith("NO_NOTES"))
+			
+			if(response != null)
 			{
-				response =  "NOTES_LOADED";
-			}	fireDataChanged(this, "LOADED_NOTES", null);
+				noteList = gson.fromJson(response, listtype);
+				bImportComplete = true;
+			}
 		}
 		
-		return response;
+		return bImportComplete;
 	}
 	
 	@Override
@@ -365,5 +312,13 @@ public class NoteDB extends ONCSearchableDatabase
 	        else
 	        		return 1;
 		}
+	}
+
+	@Override
+	String[] getExportHeader()
+	{
+		return new String[] {"Note ID", "Owner ID", "Status", "Title", "Note", "Changed By",
+				"Response", "Response By", "Time Created", "Time Viewed",
+				"Time Responded", "Stoplight Pos", "Stoplight Mssg", "Stoplight C/B"};
 	}
 }

@@ -63,6 +63,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 	private static final int FREQ_COL = 4;
 	
 	private GlobalVariablesDB gvDB;
+	private DatabaseManager dbMgr;
 	private UserDB userDB;
 	private ActivityDB activityDB;
 	private GiftCatalogDB catDB;
@@ -106,6 +107,10 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		gvDB = GlobalVariablesDB.getInstance();
 		if(gvDB != null)
 			gvDB.addDatabaseListener(this);
+		
+		dbMgr = DatabaseManager.getInstance();
+		if(dbMgr != null)
+			dbMgr.addDatabaseListener(this);
 		
 		userDB = UserDB.getInstance();
 		if(userDB != null)
@@ -942,7 +947,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 			geniusSignUps = (GeniusSignUps) dbe.getObject1();
 			displaySignUpData();
 		}
-		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_CATALOG"))
+		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_DATABASE"))
 		{
 			updateDefalutGiftCBLists(true);
 		}
@@ -950,14 +955,6 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		{
 			updateDefalutGiftCBLists(false);
 		}
-//		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_ACTIVITIES"))
-//		{
-//			updateDefaultDeliveryActivityCBList(true);
-//		}
-//		else if(dbe.getSource() != this && dbe.getType().contains("_ACTIVITY"))
-//		{
-//			updateDefaultDeliveryActivityCBList(false);
-//		}
 	}
 	
 	private class DateChangeListener implements PropertyChangeListener

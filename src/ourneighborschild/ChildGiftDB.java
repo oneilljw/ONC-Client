@@ -1,20 +1,11 @@
 package ourneighborschild;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.filechooser.FileNameExtensionFilter;
-
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-
-import au.com.bytecode.opencsv.CSVWriter;
 
 public class ChildGiftDB extends ONCDatabase
 {
@@ -31,6 +22,7 @@ public class ChildGiftDB extends ONCDatabase
 	private ChildGiftDB()
 	{	
 		super();
+		this.title = "Gifts";
 		cat = GiftCatalogDB.getInstance();
 		childDB = ChildDB.getInstance();
 		partnerDB = PartnerDB.getInstance();
@@ -623,76 +615,28 @@ public class ChildGiftDB extends ONCDatabase
 	
 	int getNumberOfGiftsPerChild() { return NUMBER_OF_WISHES_PER_CHILD; }
 	
-	ArrayList<ONCChildGift> getList() { return childGiftList; }
+	@Override
+	List<ONCChildGift> getList() { return childGiftList; }
 	
-	String importChildGiftDatabase()
+	@Override
+	boolean importDB()
 	{
-		String response = "NO_WISHES";
+		boolean bImportComplete = false;
 		
 		if(serverIF != null && serverIF.isConnected())
 		{		
 			Gson gson = new Gson();
 			Type listtype = new TypeToken<ArrayList<ONCChildGift>>(){}.getType();
 			
-			response = serverIF.sendRequest("GET<childwishes>");
+			String response = serverIF.sendRequest("GET<childwishes>");
 			childGiftList = gson.fromJson(response, listtype);				
 
-			if(!response.startsWith("NO_WISHES"))
-			{
-				response =  "WISHES_LOADED";
-				fireDataChanged(this, "LOADED_WISHES", null);
-			}
+			if(response != null)
+				bImportComplete = true;
 		}
 		
-		return response;
+		return bImportComplete;
 	}
-
-	String exportDBToCSV(JFrame pf, String filename)
-    {
-		File oncwritefile = null;
-		
-    	if(filename == null)
-    	{
-    		ONCFileChooser fc = new ONCFileChooser(pf);
-    		oncwritefile= fc.getFile("Select .csv file to save Child Gift DB to",
-							new FileNameExtensionFilter("CSV Files", "csv"), ONCFileChooser.SAVE_FILE);
-    	}
-    	else
-    		oncwritefile = new File(filename);
-    	
-    	if(oncwritefile!= null)
-    	{
-    		//If user types a new filename and doesn't include the .csv, add it
-	    	String filePath = oncwritefile.getPath();		
-	    	if(!filePath.toLowerCase().endsWith(".csv")) 
-	    		oncwritefile = new File(filePath + ".csv");
-	    	
-	    	try 
-	    	{
-	    		String[] header = {"Child Gift ID", "Child ID", "Gift ID", "Detail",
-	    	 			"Gift #", "Restrictions", "Status","Changed By", "Time Stamp",
-	    	 			"Partner 1 ID"};
-	    		
-	    		CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
-	    	    writer.writeNext(header);
-	    	    
-	    	    for(ONCChildGift cg:childGiftList)
-	    	    	writer.writeNext(cg.getExportRow());	
-	    	 
-	    	    writer.close();
-	    	    filename = oncwritefile.getName();
-	    	       	    
-	    	} 
-	    	catch (IOException x)
-	    	{
-	    		System.err.format("IO Exception: %s%n", x);
-	    		JOptionPane.showMessageDialog(pf, oncwritefile.getName() + " could not be saved", 
-						"ONC File Save Error", JOptionPane.ERROR_MESSAGE);
-	    	}
-	    }
-    	
-	    return filename;
-    }
 
 	@Override
 	public void dataChanged(ServerEvent ue)
@@ -724,6 +668,13 @@ public class ChildGiftDB extends ONCDatabase
 		}
 	}
 	
+	@Override
+	String[] getExportHeader()
+	{
+		return new String[] {"Child Gift ID", "Child ID", "Gift ID", "Detail", "Gift #",
+							"Restrictions", "Status","Changed By", "Time Stamp","Partner ID"};
+	}
+	
 	private class GiftPartnerAndStatus
 	{
 		private int partnerID;
@@ -739,4 +690,6 @@ public class ChildGiftDB extends ONCDatabase
 		int getPartnerID() { return partnerID; }
 		GiftStatus getGiftStatus() { return giftStatus; }
 	}
+
+	
 }

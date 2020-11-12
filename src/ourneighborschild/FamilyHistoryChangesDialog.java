@@ -109,6 +109,9 @@ public class FamilyHistoryChangesDialog extends ONCTableDialog implements Proper
 		if(gvs != null)
 			gvs.addDatabaseListener(this);
 		
+		if(dbMgr != null)
+			dbMgr.addDatabaseListener(this);
+		
 		histList = new ArrayList<ONCFamilyHistory>();
 		
 		//Set up the search criteria panel      
@@ -420,13 +423,7 @@ public class FamilyHistoryChangesDialog extends ONCTableDialog implements Proper
 		sortNotes = "Any";
 		notesCB.addActionListener(this);
 		
-		de.getDateEditor().removePropertyChangeListener(this);
-		ds.getDateEditor().removePropertyChangeListener(this);
-		setDateFilters(gvs.getSeasonStartCal(), Calendar.getInstance(TimeZone.getTimeZone("UTC")), 0, 1);
-		ds.setCalendar(startFilterTimestamp);
-		de.setCalendar(endFilterTimestamp);
-		ds.getDateEditor().addPropertyChangeListener(this);
-		de.getDateEditor().addPropertyChangeListener(this);
+		updateDateFilters();
 		
 		buildTableList();
 	}
@@ -451,11 +448,29 @@ public class FamilyHistoryChangesDialog extends ONCTableDialog implements Proper
 		dnsCodeCB.addActionListener(this);
 	}
 	
+	void updateDateFilters()
+	{
+		de.getDateEditor().removePropertyChangeListener(this);
+		ds.getDateEditor().removePropertyChangeListener(this);
+		
+		setDateFilters(gvs.getSeasonStartCal(), Calendar.getInstance(TimeZone.getTimeZone("UTC")), 0, 1);
+		ds.setCalendar(startFilterTimestamp);
+		de.setCalendar(endFilterTimestamp);
+		
+		ds.getDateEditor().addPropertyChangeListener(this);
+		de.getDateEditor().addPropertyChangeListener(this);
+	}
+	
 	@Override
 	public void dataChanged(DatabaseEvent dbe)
 	{
-		if(dbe.getType().equals("LOADED_FAMILY_HISTORY"))
+		if(dbe.getType().equals("LOADED_DATABASE"))
+		{
+			this.setTitle(String.format("Our Neighbor's Child - %d Family Histories", gvs.getCurrentSeason()));
+			updateUserList();
+			updateDNSCodeCB();
 			buildTableList();
+		}
 		else if(dbe.getType().equals("UPDATED_DELIVERY") || dbe.getType().equals("ADDED_DELIVERY"))
 		{
 			buildTableList();
@@ -465,30 +480,14 @@ public class FamilyHistoryChangesDialog extends ONCTableDialog implements Proper
 			updateDNSCodeCB();
 			buildTableList();
 		}
-		else if(dbe.getType().contains("ADDED_USER") || dbe.getType().contains("UPDATED_USER") || 
-				dbe.getType().contains("LOADED_USERS"))
+		else if(dbe.getType().contains("ADDED_USER") || dbe.getType().contains("UPDATED_USER"))
 		{
 			updateUserList();
 		}
 		else if(dbe.getType().equals("UPDATED_GLOBALS"))
 		{
-			this.setTitle(String.format("Our Neighbor's Child - %d Family Histories", gvs.getCurrentSeason()));
-			
-			de.getDateEditor().removePropertyChangeListener(this);
-			ds.getDateEditor().removePropertyChangeListener(this);
-			
-			setDateFilters(gvs.getSeasonStartCal(), Calendar.getInstance(TimeZone.getTimeZone("UTC")), 0, 1);
-			ds.setCalendar(startFilterTimestamp);
-			de.setCalendar(endFilterTimestamp);
-			
-			ds.getDateEditor().addPropertyChangeListener(this);
-			de.getDateEditor().addPropertyChangeListener(this);
-			
+			updateDateFilters();
 			buildTableList();
-		}
-		else if(dbe.getType().equals("LOADED_DNSCODES"))
-		{
-			updateDNSCodeCB();
 		}
 	}
 	

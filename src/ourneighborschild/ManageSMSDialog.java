@@ -104,6 +104,9 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 		if(gvs != null)
 			gvs.addDatabaseListener(this);
 		
+		if(dbMgr != null)
+			dbMgr.addDatabaseListener(this);
+		
 		smsDB = SMSDB.getInstance();
 		if(smsDB != null)
 			smsDB.addDatabaseListener(this);
@@ -449,7 +452,7 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 		{
 			createTableList(); //update the table
 		}
-		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_SMS"))
+		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_DATABASE"))
 		{
 			//get the initial data and display
 			this.setTitle(String.format("Our Neighbor's Child - %d Message Management", gvs.getCurrentSeason()));

@@ -26,13 +26,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Properties;
-
-import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
@@ -115,6 +108,9 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
     		UserDB userDB = UserDB.getInstance();
     		if(userDB != null)
     			userDB.addDatabaseListener(this);
+    		
+    		if(dbMgr != null)
+    			dbMgr.addDatabaseListener(this);
 				
     		if(orgs != null)
     			orgs.addDatabaseListener(this);
@@ -2544,9 +2540,10 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 		{
 			updateUserList();
 		}
-		else if(dbe.getType().equals("LOADED_PARTNERS"))
+		else if(dbe.getType().equals("LOADED_DATABASE"))
 		{
 			this.setTitle(String.format("Our Neighbor's Child - %d Partner Management", gvs.getCurrentSeason()));
+			updateUserList();
 		}
 	}
 	

@@ -105,6 +105,9 @@ public class ManageGroupsDialog extends ONCEntityTableDialog implements ActionLi
 		if(groupDB != null)
 			groupDB.addDatabaseListener(this);
 		
+		if(dbMgr != null)
+			dbMgr.addDatabaseListener(this);
+		
 		userDB = UserDB.getInstance();
 		if(userDB != null)
 			userDB.addDatabaseListener(this);
@@ -482,14 +485,11 @@ public class ManageGroupsDialog extends ONCEntityTableDialog implements ActionLi
 			//update the table
 			createTableList();
 		}
-		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_USERS"))
-		{
-			updateUserList();
-		}
-		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_GROUPS"))
+		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_DATABASE"))
 		{
 			//get the initial data and display
 			this.setTitle(String.format("Our Neighbor's Child - %d Group Management", gvs.getCurrentSeason()));
+			updateUserList();
 			createTableList();
 		}
 	}

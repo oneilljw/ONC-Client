@@ -72,6 +72,9 @@ public class WarehouseSignInDialog extends ONCEntityTableDialog implements Actio
 		//Save the reference to the one volunteer data base object in the app. It is created in the 
 		//top level object and passed to all objects that require the data base, including
 		//this dialog
+		if(dbMgr != null)
+			dbMgr.addDatabaseListener(this);
+		
 		volDB = VolunteerDB.getInstance();
 		if(volDB != null)
 			volDB.addDatabaseListener(this);
@@ -288,7 +291,7 @@ public class WarehouseSignInDialog extends ONCEntityTableDialog implements Actio
 				dlgTableModel.fireTableRowsUpdated(tableRow, tableRow);
 			}	
 		}
-		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_DRIVERS"))
+		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_DATABASE"))
 		{
 			//get the initial data and display
 	        createWarehouseSignInList();

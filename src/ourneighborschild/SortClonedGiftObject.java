@@ -1,6 +1,8 @@
 package ourneighborschild;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.TimeZone;
 
 public class SortClonedGiftObject extends ONCObject
 {
@@ -36,9 +38,9 @@ public class SortClonedGiftObject extends ONCObject
 	
 	public String[] getExportRow()
 	{
-		SimpleDateFormat dob = new SimpleDateFormat("MM-dd-yyyy");
-//		String dateChanged = dob.format(soClonedGift.getDateChanged().getTime());
-		String dateChanged = "FIX DATE CHANGE";
+		SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy");
+		Calendar dateChangedCal = Calendar.getInstance(TimeZone.getDefault());
+		dateChangedCal.setTimeInMillis(soClonedGift.getTimestamp());
 		
 		ONCGift wish = cat.getGiftByID(soClonedGift.getGiftID());
 		String wishName = wish == null ? "None" : wish.getName();
@@ -60,8 +62,19 @@ public class SortClonedGiftObject extends ONCObject
 								soClonedGift.getGiftStatus().toString(),
 								partnerName,
 								soClonedGift.getChangedBy(),
-								dateChanged};
+								sdf.format(dateChangedCal.getTime())};
 		return exportRow;
+	}
+	
+	public String[] getSignUpGeniusExportRow()
+	{
+		
+		String[] row = new String[1];
+		
+		row[0] = String.format("ONC#: %s ** %s %s ** %s" , soFamily.getONCNum(), soChild.getChildAge(),
+				 soChild.getChildGender(), soClonedGift.getDetail());
+		
+		return row;
 	}
 	
 	String[] getGiftLabel()

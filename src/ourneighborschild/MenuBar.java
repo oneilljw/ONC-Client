@@ -709,7 +709,7 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 		else if(e.getSource() == importBritepathsMI) {familyDB.importBPFile(GlobalVariablesDB.getFrame()); }
 		else if(e.getSource() == manageCallResultMI) {dlgManager.showAngelCallDialog();}
 		else if(e.getSource() == manageSMSMI) {dlgManager.showManageSMSDialog();}
-		else if(e.getSource() == exportMI){ dbManager.exportObjectDBToCSV(); }
+		else if(e.getSource() == exportMI){ dbManager.exportComponentDBToCSV(); }
 		else if(e.getSource() == dbStatusMI) {dlgManager.onDBStatusClicked();}
 		else if(e.getSource() == clearMI) {dlgManager.onClearMenuItemClicked();} 			       	
 //		else if(e.getSource() == exitMI)	{exit("LOGOUT");}

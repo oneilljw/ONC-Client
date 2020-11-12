@@ -88,6 +88,9 @@ public class SchoolDeliveryDialog extends ONCEntityTableDialog implements Action
 		if(famDB != null)
 			famDB.addDatabaseListener(this);
 		
+		if(dbMgr != null)
+			dbMgr.addDatabaseListener(this);
+		
 		regionDB = RegionDB.getInstance();
 		if(regionDB != null)
 			regionDB.addDatabaseListener(this);
@@ -438,7 +441,7 @@ public class SchoolDeliveryDialog extends ONCEntityTableDialog implements Action
 			//update the table
 			createTableList();
 		}
-		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_SCHOOLS"))
+		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_DATABASE"))
 		{
 			//update the school search filter combo, then build the table. Families are loaded before
 			//schools ny the data base importer.

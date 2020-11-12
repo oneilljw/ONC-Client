@@ -70,6 +70,9 @@ public abstract class GiftLabelDialog extends ONCEntityTableDialog implements Ac
 		
 		familyDB = FamilyDB.getInstance();
 		
+		if(dbMgr != null)
+			dbMgr.addDatabaseListener(this);
+		
 		childDB = ChildDB.getInstance();
 		if(childDB != null)
 			childDB.addDatabaseListener(this);

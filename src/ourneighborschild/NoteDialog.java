@@ -80,6 +80,9 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
 		if(noteDB != null)
 			noteDB.addDatabaseListener(this);
 		
+		if(dbMgr != null)
+			dbMgr.addDatabaseListener(this);
+		
 		if(userDB != null)
 			userDB.addDatabaseListener(this);
 		
@@ -268,7 +271,7 @@ public class NoteDialog extends EntityDialog implements ListSelectionListener
 	@Override
 	public void dataChanged(DatabaseEvent dbe)
 	{
-		if(dbe.getType().equals("LOADED_NOTES"))
+		if(dbe.getType().equals("LOADED_DATABASE"))
 			this.setTitle(String.format("Our Neighbor's Child - Agent Family Notes For %d Season",
 					gvs.getCurrentSeason()));
 		else if(dbe.getType().equals("UPDATED_NOTE"))

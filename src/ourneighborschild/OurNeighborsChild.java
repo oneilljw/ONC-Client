@@ -40,7 +40,7 @@ public class OurNeighborsChild
 	 */
 	//Static Final Variables
 	private static final int SERVER_CONNECT_RETRY_LIMIT = 3;
-	private static final String VERSION = "8.07";
+	private static final String VERSION = "8.08";
 	private static final String APPNAME = "Our Neighbor's Child";
 	private static final int JAVA_VERSION_NINE = 9;
 	private static final String ONC_SERVER_IP_ADDRESS_FILE = "serveraddress.txt";
@@ -243,35 +243,37 @@ public class OurNeighborsChild
         //a chat can start
         if(serverIF != null)
         {
-        		//get the list of data bases on the server
-        		List<DBYear> dbYears = dbManager.getDBStatus();
-        		if(dbYears != null)
-        			oncMenuBar.processDBYears(dbYears);	
-        	
-        		//get encryption keys
-        		encryptionMgr.importKeyMapFromServer();
-        	
-        		//get user and group data base components. They are necessary if user is required to 
-        		//update their profile
-        		UserDB.getInstance().importUserDatabase();
-        		GroupDB.getInstance().importGroupDBFromServer();
-        		if(user.getStatus() == UserStatus.Update_Profile)
-        		{	
-        			//construct and display a UserProfile Dialog. If the user is an Agent, Admin or Sys_Admin, 
-        		   	//use the dialog that includes groups, otherwise use the simplified profile dialog.
-        		   	if(user.getPermission().compareTo(UserPermission.Agent) >=0)
-        		   	{
-        		   		UpdateProfileWithGroupsDialog upDlg = new UpdateProfileWithGroupsDialog(oncFrame, user, true);
-        		   		upDlg.setLocationRelativeTo(oncFrame);
-        		   		upDlg.showDialog();
-        		   	}
-        		   	else
-        		   	{
-        		   		UserProfileDialog upDlg = new UserProfileDialog(oncFrame, user, null);
-        		   		upDlg.setLocationRelativeTo(oncFrame);
-        		   		upDlg.showDialog();
-        		   	}
-        		}
+    		//get the list of data bases on the server
+    		List<DBYear> dbYears = dbManager.getDBStatus();
+    		if(dbYears != null)
+    			oncMenuBar.processDBYears(dbYears);	
+    	
+    		//get encryption keys
+    		encryptionMgr.importKeyMapFromServer();
+    	
+    		//get user and group data base components. They are necessary if user is required to 
+    		//update their profile
+//        	UserDB.getInstance().importUserDatabase();
+//        	GroupDB.getInstance().importDB();
+    		dbManager.importEarlyComponentDBs();
+    		
+    		if(user.getStatus() == UserStatus.Update_Profile)
+    		{	
+    			//construct and display a UserProfile Dialog. If the user is an Agent, Admin or Sys_Admin, 
+    		   	//use the dialog that includes groups, otherwise use the simplified profile dialog.
+    		   	if(user.getPermission().compareTo(UserPermission.Agent) >=0)
+    		   	{
+    		   		UpdateProfileWithGroupsDialog upDlg = new UpdateProfileWithGroupsDialog(oncFrame, user, true);
+    		   		upDlg.setLocationRelativeTo(oncFrame);
+    		   		upDlg.showDialog();
+    		   	}
+    		   	else
+    		   	{
+    		   		UserProfileDialog upDlg = new UserProfileDialog(oncFrame, user, null);
+    		   		upDlg.setLocationRelativeTo(oncFrame);
+    		   		upDlg.showDialog();
+    		   	}
+    		}
         }
         
         //remove splash panel after authentication

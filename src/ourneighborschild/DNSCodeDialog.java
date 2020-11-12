@@ -67,6 +67,9 @@ public class DNSCodeDialog extends EntityDialog implements DatabaseListener, Lis
 		this.setTitle("Our Neighbor's Child - Edit DNS Codes");
 		
 		//get data base references
+		if(dbMgr != null)
+			dbMgr.addDatabaseListener(this);
+		
 		dnsCodeDB = DNSCodeDB.getInstance();
 		if(dnsCodeDB != null)
 			dnsCodeDB.addDatabaseListener(this);
@@ -275,7 +278,7 @@ public class DNSCodeDialog extends EntityDialog implements DatabaseListener, Lis
 	@Override
 	public void dataChanged(DatabaseEvent dbe)
 	{
-		if(dbe.getType().equals("LOADED_DNSCODES"))
+		if(dbe.getType().equals("LOADED_DATABASE"))
 		{
 			if(dnsCodeDB.size() > 0)
 			{

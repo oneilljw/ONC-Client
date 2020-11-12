@@ -121,6 +121,8 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 		clonedGiftDB = ClonedGiftDB.getInstance();
 		
 		//set up data base listeners
+		if(dbMgr != null)
+    		dbMgr.addDatabaseListener(this);
 		if(userDB != null)
 			userDB.addDatabaseListener(this);
 		if(cDB != null)
@@ -1545,7 +1547,17 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 	@Override
 	public void dataChanged(DatabaseEvent dbe) 
 	{
-		if(dbe.getSource() != this && (dbe.getType().equals("WISH_ADDED") ||
+		if(dbe.getSource() != this && dbe.getType().contentEquals("LOADED_DATABASE"))
+		{
+			this.setTitle(String.format("Our Neighbor's Child - %d Gift Management", gvs.getCurrentSeason()));
+			updateUserList();
+			updateSchoolFilterList();
+			updateDNSCodeCB();
+			updateGiftSelectionList();
+			updateWishAssigneeSelectionList();
+			buildTableList(false);
+		}
+		else if(dbe.getSource() != this && (dbe.getType().equals("WISH_ADDED") ||
 									   dbe.getType().equals("UPDATED_CHILD_WISH") ||
 										dbe.getType().equals("UPDATED_FAMILY")))	//ONC# or region?	
 		{
@@ -1563,8 +1575,7 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 		}
 		else if(dbe.getSource() != this && (dbe.getType().equals("ADDED_CONFIRMED_PARTNER") ||
 											dbe.getType().equals("DELETED_CONFIRMED_PARTNER") ||
-											dbe.getType().equals("UPDATED_CONFIRMED_PARTNER") ||
-											dbe.getType().equals("LOADED_PARTNERS")))
+											dbe.getType().equals("UPDATED_CONFIRMED_PARTNER")))
 		{
 			updateWishAssigneeSelectionList();
 		}
@@ -1573,7 +1584,9 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 			updateWishAssigneeSelectionList();
 			buildTableList(true);
 		}
-		else if(dbe.getSource() != this && dbe.getType().contains("_CATALOG"))
+		else if(dbe.getSource() != this && (dbe.getType().equals("ADDED_CATALOG_WISH") ||
+											dbe.getType().equals("UPDATED_CATALOG_WISH") ||
+											dbe.getType().equals("DELETED_CATALOG_WISH")))
 		{			
 			updateGiftSelectionList();
 		}
@@ -1586,15 +1599,6 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
  			if(userDB.getLoggedInUser().getID() == updatedUser.getID())
 				updateUserPreferences(updatedUser);
 		}
-		else if(dbe.getType().contains("LOADED_USERS"))
-		{
-			updateUserList();
-		}
-		else if(dbe.getType().contains("LOADED_CHILDREN"))
-		{
-			updateSchoolFilterList();
-			this.setTitle(String.format("Our Neighbor's Child - %d Gift Management", gvs.getCurrentSeason()));
-		}
 		else if(dbe.getType().contains("CHANGED_USER"))
 		{
 			//new user logged in, update preferences used by this dialog
@@ -1605,7 +1609,7 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 			String[] regList = (String[]) dbe.getObject1();
 			updateRegionList(regList);
 		}
-		else if(dbe.getType().equals("LOADED_DNSCODES") || dbe.getType().contains("ADDED_DNSCODE"))
+		else if(dbe.getType().contains("ADDED_DNSCODE"))
 		{
 			updateDNSCodeCB();
 		}

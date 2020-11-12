@@ -150,9 +150,9 @@ public class ReceiveGiftsByBarcodeDialog extends GiftLabelDialog
 	@Override
 	public void dataChanged(DatabaseEvent dbe)
 	{
-		if(dbe.getSource() != this && dbe.getType().equals("LOADED_WISHES"))
+		if(dbe.getSource() != this && dbe.getType().equals("LOADED_DATABASE"))
 		{
-			//get the initial data and set title
+			//set title
 			this.setTitle(String.format("Receive Gifts - %d Season", gvs.getCurrentSeason()));
 		}
 	}

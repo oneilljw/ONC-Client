@@ -1,18 +1,23 @@
 package ourneighborschild;
 
-import java.util.ArrayList;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.List;
 
-public abstract class ONCDatabase implements ServerListener
+import javax.swing.JFrame;
+
+import au.com.bytecode.opencsv.CSVWriter;
+
+public abstract class ONCDatabase extends ServerListenerComponent implements ServerListener
 {
 	protected static final int NUMBER_OF_WISHES_PER_CHILD = 3;
-	protected ServerIF serverIF;
+	protected String title;
 	
 	public ONCDatabase()
-	{	
-		serverIF = ServerIF.getInstance();
+	{
 		serverIF.addServerListener(this);
-		
+/*		
 		try 
 		{
             // The newInstance() call is a work around for some broken Java implementations
@@ -22,6 +27,7 @@ public abstract class ONCDatabase implements ServerListener
 		{
             // handle the error
         }
+*/        
 	}
 	
 	ONCObject find(List<? extends ONCObject> list, int id)
@@ -36,8 +42,48 @@ public abstract class ONCDatabase implements ServerListener
 			return list.get(index);		
 	}
 	
+	String title() { return title; }
+	
 	//All databases must implement an update class for notifications of changes
+	abstract boolean importDB();
 	abstract String update(Object source, ONCObject entity);
+	abstract String[] getExportHeader();
+	abstract List<? extends ONCObject> getList();
+	
+	void onDBImportComplete(Integer year)
+	{
+		this.fireDataChanged(this, "LOADED_DATABASE",  year);
+	}
+	
+	boolean exportDBToCSV(JFrame pf, String filename)
+    {
+		try
+		{
+			File oncwritefile = new File(filename);
+	    	CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
+	    	
+	    	String[] header = this.getExportHeader();
+	    	if(header != null)	//a component db will return a null header if can't be exported
+	    	{
+	    		writer.writeNext(this.getExportHeader());
+	    	    
+	    		for(ONCObject o : getList())
+	    	    writer.writeNext(o.getExportRow());
+	    	 
+	    		writer.close();
+	    	}
+	    	
+	    	return true;
+	    }
+		catch (NullPointerException npe)
+	    {
+	    	return false;
+	    }
+	    catch (IOException x)
+	    {
+	    	return false;
+	    }
+    }
 	
 	protected static boolean isNumeric(String str)
 	{
@@ -46,64 +92,4 @@ public abstract class ONCDatabase implements ServerListener
 		else
 			return str.matches("-?\\d+(\\.\\d+)?");  //match a number with optional '-' and decimal.
 	}
-	
-	 //List of registered listeners for Sever data changed events
-    private ArrayList<DatabaseListener> listeners;
-    
-    /** Register a listener for database DataChange events */
-    synchronized public void addDatabaseListener(DatabaseListener l)
-    {
-    	if (listeners == null)
-    		listeners = new ArrayList<DatabaseListener>();
-    	listeners.add(l);
-    }  
-
-    /** Remove a listener for server DataChange */
-    synchronized public void removeDatabaseListener(DatabaseListener l)
-    {
-    	if (listeners == null)
-    		listeners = new ArrayList<DatabaseListener>();
-    	listeners.remove(l);
-    }
-    
-    /** Fire a Data ChangedEvent to all registered listeners */
-    @SuppressWarnings("unchecked")
-	protected void fireDataChanged(Object source, String eventType, Object eventObject)
-    {
-    	// if we have no listeners, do nothing...
-    	if (listeners != null && !listeners.isEmpty())
-    	{
-    		// create the event object to send
-    		DatabaseEvent event = new DatabaseEvent(source, eventType, eventObject);
-
-    		// make a copy of the listener list in case anyone adds/removes listeners
-    		ArrayList<DatabaseListener> targets;
-    		synchronized (this) { targets = (ArrayList<DatabaseListener>) listeners.clone(); }
-
-    		// walk through the cloned listener list and call the dataChanged method in each
-    		for(DatabaseListener l:targets)
-    			l.dataChanged(event);
-    	}
-    }
-    
-    @SuppressWarnings("unchecked")
-	protected void fireDataChanged(Object source, String eventType, Object eventObject1, Object eventObject2)
-    {
-    	// if we have no listeners, do nothing...
-    	if (listeners != null && !listeners.isEmpty())
-    	{
-    		// create the event object to send
-    		DatabaseEvent event = new DatabaseEvent(source, eventType, eventObject1, eventObject2);
-
-    		// make a copy of the listener list in case anyone adds/removes listeners
-    		ArrayList<DatabaseListener> targets;
-    		synchronized (this) { targets = (ArrayList<DatabaseListener>) listeners.clone(); }
-
-    		// walk through the cloned listener list and call the dataChanged method in each
-    		for(DatabaseListener l:targets)
-    			l.dataChanged(event);
-    	}
-    }
-    
-    ArrayList<DatabaseListener> getListenerList() { return listeners; }
 }

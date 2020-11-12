@@ -19,6 +19,7 @@ public abstract class ONCEntityTableDialog extends JDialog implements EntitySele
 	private static final long serialVersionUID = 1L;
 	protected JFrame parentFrame;
 	protected GlobalVariablesDB gvs;
+	protected DatabaseManager dbMgr;
 	
 	protected JPanel sortCriteriaPanel;
 	
@@ -30,6 +31,7 @@ public abstract class ONCEntityTableDialog extends JDialog implements EntitySele
     		super(parentFrame);
     		this.parentFrame = parentFrame;
     		gvs = GlobalVariablesDB.getInstance();
+    		dbMgr = DatabaseManager.getInstance();
     	
     		listenerMap = new HashMap<EntityType, ArrayList<EntitySelectionListener>>();
     		for(EntityType entityType : getEntityEventSelectorEntityTypes())

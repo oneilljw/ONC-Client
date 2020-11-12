@@ -49,6 +49,9 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 		super(pf);
 		this.setTitle("Our Neighbor's Child - Delivery Assignment");
 		
+		if(dbMgr != null)
+			dbMgr.addDatabaseListener(this);
+		
 		VolunteerDB volunteerDB = VolunteerDB.getInstance();
 		if(volunteerDB != null)
 			volunteerDB.addDatabaseListener(this);
@@ -505,9 +508,9 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 			String[] regList = (String[]) dbe.getObject1();
 			updateRegionList(regList);
 		}
-		else if(dbe.getType().equals("LOADED_DRIVERS"))
+		else if(dbe.getType().equals("LOADED_DATABASE"))
 		{
-			this.setTitle(String.format("Our Neighbor's Child - %d Delivery Assignment", gvDB.getCurrentSeason()));
+			this.setTitle(String.format("Our Neighbor's Child - %d Delivery Assignment", gvs.getCurrentSeason()));
 		}
 	}
 

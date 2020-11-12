@@ -16,7 +16,7 @@ public class ONCProgressBar extends ONCPopup implements PropertyChangeListener
 	
 	ONCProgressBar(ImageIcon headingIcon, int delay)	//delay in seconds
 	{
-		super(headingIcon, delay);	//Show the pop-up for 100 seconds
+		super(headingIcon, delay);	//Show the pop-up for delay seconds
 		
 		progressBar = new JProgressBar(0, 100);
 		this.add(progressBar, constraints);
@@ -46,5 +46,4 @@ public class ONCProgressBar extends ONCPopup implements PropertyChangeListener
             progressBar.setValue(progress);
         }	
 	}
-
 }

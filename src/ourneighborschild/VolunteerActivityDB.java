@@ -15,6 +15,7 @@ public class VolunteerActivityDB extends ONCDatabase
 	private VolunteerActivityDB()
 	{
 		super();
+		this.title = "VolActs";
 		volunteerActivityList = new ArrayList<VolAct>();
 	}
 	
@@ -26,6 +27,7 @@ public class VolunteerActivityDB extends ONCDatabase
 		return instance;
 	}
 	
+	@Override
 	List<VolAct> getList() { return volunteerActivityList; }
 	
 	List<VolAct> getVolunteerActivityList(int volID)
@@ -59,25 +61,27 @@ public class VolunteerActivityDB extends ONCDatabase
 		return index < volunteerActivityList.size() ? volunteerActivityList.get(index) : null;
 	}
 	
-	String importDB()
+	@Override
+	boolean importDB()
 	{
-		String response = "NO_VOLUNTEER_ACTIVITIES";
+		boolean bImportComplete = false;
 		
 		if(serverIF != null && serverIF.isConnected())
 		{		
 			Gson gson = new Gson();
 			Type listtype = new TypeToken<ArrayList<VolAct>>(){}.getType();
 			
-			response = serverIF.sendRequest("GET<volunteer_activities>");
-			volunteerActivityList = gson.fromJson(response, listtype);
+			String response = serverIF.sendRequest("GET<volunteer_activities>");
+			
 			
 			if(response != null && !response.isEmpty())
 			{
-				response =  "VOLUNTEER_ACTIVITIES_LOADED";
-			}	fireDataChanged(this, "LOADED_VOLUNTEER_ACTIVITIES", null);
+				volunteerActivityList = gson.fromJson(response, listtype);
+				bImportComplete = true;
+			}
 		}
 		
-		return response;
+		return bImportComplete;
 	}
 	
 	String add(Object source, ONCObject entity) 
@@ -204,5 +208,11 @@ public class VolunteerActivityDB extends ONCDatabase
 			//Notify local user IFs that a change occurred
 			fireDataChanged(source, "UPDATED_VOLUNTEER_ACTIVITY", updatedObj);
 		}
+	}
+
+	@Override
+	String[] getExportHeader()
+	{
+		return new String[] {"ID", "Vol ID" ,"Act ID","Genius ID", "Qty", "Comment"};
 	}
 }

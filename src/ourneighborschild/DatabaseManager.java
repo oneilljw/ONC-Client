@@ -14,6 +14,7 @@ import java.util.List;
 
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
+import javax.swing.JProgressBar;
 import javax.swing.SwingWorker;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
@@ -22,10 +23,10 @@ import au.com.bytecode.opencsv.CSVWriter;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-public class DatabaseManager extends ONCDatabase
+public class DatabaseManager extends ServerListenerComponent implements ServerListener
 {
 	/***
-	 * This singleton class implements a manager for all ONC component databases. The manager
+	 * This singleton class implements a manager for all component databases. The manager
 	 * initializes each component data base and loads them from the server. It uses a Swing
 	 * Worker to load the component data bases in a background thread. In addition, it 
 	 * can export the local component data bases to .csv files. 
@@ -35,57 +36,97 @@ public class DatabaseManager extends ONCDatabase
 	 */
 	private static DatabaseManager instance = null;
 	
+	private List<ONCDatabase> earlyImportDBList;	//db's that need to be imported before season is selected
+	private List<ONCDatabase> importDBList;			//db's that are imported when user selects season
+	
 	//Local Data Base Structures
 	private GlobalVariablesDB oncGVs;		//Holds the Global Variables
-	private UserDB oncUserDB;				//Holds the ONC User, many of which are Agents
-	private FamilyDB oncFamDB;				//Holds ONC Family Database
-	private ChildDB oncChildDB;				//Holds ONC Child database
-	private ChildGiftDB oncChildWishDB; 	//Holds ONC Child Wish database
-	private ClonedGiftDB clonedGiftDB; 		//Holds cloned gift database
-	private GroupDB oncGroupDB;				//Holds ONC Groups
-	private PartnerDB oncOrgDB;				//Holds ONC Partner Organizations
-	private GiftCatalogDB oncWishCat;		//Holds ONC Wish Catalog
-	private GiftDetailDB oncWishDetailDB;	//Holds ONC Wish Detail Data Base
-	private ActivityDB oncActDB;				//Holds the Volunteer Activity Data Base
-	private VolunteerDB oncVolDB;			//Holds the Volunteer Data Base
-	private VolunteerActivityDB volActDB;	//Holds the Volunteer ActivityData Base
-	private FamilyHistoryDB oncDelDB;		//Holds the ONC Delivery Data Base
-	private RegionDB regionDB;				//Holds the region and school databases
-	private AdultDB oncAdultDB;				//Holds ONC Adult database
-	private NoteDB noteDB;					//Holds ONC Note database
-	private DNSCodeDB dnsCodeDB;				//Holds DNS Code database
-	private MealDB oncMealDB;				//Holds ONC Meal database
-	private BatteryDB batteryDB;				//Holds Battery database
-	private InventoryDB oncInvDB;			//Holds current inventory
-	private SMSDB smsDB;						//Holds SMS messages
+	private FamilyDB familyDB;				//Holds family Database
+	private GiftCatalogDB giftCatalog;		//Holds gift Catalog
 	
+	//gui
+//	JDialog pbDlg;
+/*	
+	private UserDB userDB;					//Holds the UserDB
+	private ChildDB childDB;				//Holds child database
+	private ChildGiftDB childGiftDB; 		//Holds child gift database
+	private ClonedGiftDB clonedGiftDB; 		//Holds cloned gift database
+	private GroupDB groupDB;				//Holds group database
+	private PartnerDB partnerDB;			//Holds partner Organization
+	private GiftDetailDB giftDetailDB;		//Holds gift detail database
+	private ActivityDB activityDB;			//Holds activity Data Base
+	private VolunteerDB volunteerDB;		//Holds volunteer Data Base
+	private VolunteerActivityDB volActDB;	//Holds volunteer ActivityData Base
+	private FamilyHistoryDB famHistoryDB;	//Holds family history Data Base
+	private RegionDB regionDB;				//Holds the region and school databases
+	private AdultDB oncAdultDB;				//Holds adult database
+	private NoteDB noteDB;					//Holds note database
+	private DNSCodeDB dnsCodeDB;			//Holds DNS Code database
+	private MealDB mealDB;					//Holds meal database
+	private BatteryDB batteryDB;			//Holds battery database
+	private InventoryDB inventoryDB;		//Holds current inventory database
+	private SMSDB smsDB;					//Holds SMS messages
+*/	
 	private DatabaseManager()
 	{
 		super();
 		
-		//initialize the component data bases
+		if(serverIF != null)
+			serverIF.addServerListener(this);
+		
+		earlyImportDBList = new ArrayList<ONCDatabase>();
+		importDBList = new ArrayList<ONCDatabase>();
+		
+		//initialize the database components that are imported when client initializes
+		earlyImportDBList.add(UserDB.getInstance());
+		earlyImportDBList.add(GroupDB.getInstance());
+		
+		//initialize global variables such as season dates, warehouse address, etc.
 		oncGVs = GlobalVariablesDB.getInstance();
-		regionDB = RegionDB.getInstance();
-		oncUserDB = UserDB.getInstance();
-		oncGroupDB = GroupDB.getInstance();
-		oncOrgDB = PartnerDB.getInstance();
-		oncWishDetailDB = GiftDetailDB.getInstance();
-		oncWishCat = GiftCatalogDB.getInstance();
-		oncActDB = ActivityDB.getInstance();
-		oncVolDB = VolunteerDB.getInstance();
-		volActDB = VolunteerActivityDB.getInstance();
-		oncDelDB = FamilyHistoryDB.getInstance();
-		oncChildDB = ChildDB.getInstance();
-		oncChildWishDB = ChildGiftDB.getInstance();
-		clonedGiftDB = ClonedGiftDB.getInstance();
-		oncAdultDB = AdultDB.getInstance();
-		noteDB = NoteDB.getInstance();
-		dnsCodeDB = DNSCodeDB.getInstance();
-		oncMealDB = MealDB.getInstance();
-		oncInvDB = InventoryDB.getInstance();
-		smsDB = SMSDB.getInstance();
-		batteryDB = BatteryDB.getInstance();
-		oncFamDB = FamilyDB.getInstance();
+		
+		//initialize the component data bases
+		importDBList.add(RegionDB.getInstance());
+		importDBList.add(PartnerDB.getInstance());
+		importDBList.add(GiftDetailDB.getInstance());
+		importDBList.add((giftCatalog = GiftCatalogDB.getInstance()));
+		importDBList.add(ActivityDB.getInstance());
+		importDBList.add(VolunteerDB.getInstance());
+		importDBList.add(VolunteerActivityDB.getInstance());
+		importDBList.add(FamilyHistoryDB.getInstance());
+		importDBList.add(ChildDB.getInstance());
+		importDBList.add(ChildGiftDB.getInstance());
+		importDBList.add(ClonedGiftDB.getInstance());
+		importDBList.add(AdultDB.getInstance());
+		importDBList.add(NoteDB.getInstance());
+		importDBList.add(DNSCodeDB.getInstance());
+		importDBList.add(MealDB.getInstance());
+		importDBList.add(InventoryDB.getInstance());
+		importDBList.add(SMSDB.getInstance());
+		importDBList.add(BatteryDB.getInstance());
+		importDBList.add((familyDB = FamilyDB.getInstance()));
+				
+//		oncGVs = GlobalVariablesDB.getInstance();
+//		regionDB = RegionDB.getInstance();
+//		userDB = UserDB.getInstance();
+//		groupDB = GroupDB.getInstance();
+//		partnerDB = PartnerDB.getInstance();
+//		giftDetailDB = GiftDetailDB.getInstance();
+//		giftCatalog = GiftCatalogDB.getInstance();
+//		activityDB = ActivityDB.getInstance();
+//		volunteerDB = VolunteerDB.getInstance();
+//		volActDB = VolunteerActivityDB.getInstance();
+//		famHistoryDB = FamilyHistoryDB.getInstance();
+//		childDB = ChildDB.getInstance();
+//		childGiftDB = ChildGiftDB.getInstance();
+//		clonedGiftDB = ClonedGiftDB.getInstance();
+//		oncAdultDB = AdultDB.getInstance();
+//		noteDB = NoteDB.getInstance();
+//		dnsCodeDB = DNSCodeDB.getInstance();
+//		mealDB = MealDB.getInstance();
+//		inventoryDB = InventoryDB.getInstance();
+//		smsDB = SMSDB.getInstance();
+//		batteryDB = BatteryDB.getInstance();
+//		familyDB = FamilyDB.getInstance();
 	}
 	
 	public static DatabaseManager getInstance()
@@ -98,20 +139,36 @@ public class DatabaseManager extends ONCDatabase
 	
 	void importObjectsFromDB(int year)
 	{
+		//create the progress bar option pane
+//		JOptionPane pane = new JOptionPane();
+//	    pane.setMessage("long message...");
+//	    JProgressBar pb = new JProgressBar(1, 100);
+//	    pb.setValue(15);
+//	    pane.add(pb,1);
+//	    pbDlg = pane.createDialog(GlobalVariablesDB.getFrame(), "Information message");
+//	    pbDlg.setLocationRelativeTo(GlobalVariablesDB.getFrame());
+//	    pbDlg.setVisible(true);
+	    
 		//create the progress bar frame
-	    ONCProgressBar pb = new ONCProgressBar(oncGVs.getImageIcon(0), 100);
-	    Point loc = GlobalVariablesDB.getFrame().getLocationOnScreen();
-		pb.setLocation(loc.x+450, loc.y+70);
+//	    ONCProgressBar pb = new ONCProgressBar(oncGVs.getImageIcon(0), 100);
+//	    Point loc = GlobalVariablesDB.getFrame().getLocationOnScreen();
+//		pb.setLocation(loc.x+450, loc.y+70);
+//		pb.setLocation(471, 116);
+	    
+		
+//		System.out.println(String.format("DatabaseMgr.importObjFromDB: set location to: pb.x= %d, pb.y= %d", loc.x+450, loc.y+70));
 	    	
 		//create the swing worker background task to get the data from the server
-		ONCServerDBImporter dataImporter = new ONCServerDBImporter(year, pb);
-	    dataImporter.addPropertyChangeListener(pb);
+		ONCServerDBImporter databaseImporter = new ONCServerDBImporter(year);
+//	    databaseImporter.addPropertyChangeListener(pb);
 		    
 	    //show the progress bar.
-		pb.show("Loading " + Integer.toString(year) + " Data", null);
-		    
+//		pb.show("Loading " + Integer.toString(year) + " Data", null);
+//		Point locPoint = pb.getLocationOnScreen();
+//	    System.out.println(String.format("DatabaseMgr.importObjFromDB: actual pb.x= %d, pb.y= %d", locPoint.x, locPoint.y));
+		
 		//execute the background swing worker task
-		dataImporter.execute();
+		databaseImporter.execute();
 	}
 	
 	List<DBYear> getDBStatus()
@@ -172,16 +229,11 @@ public class DatabaseManager extends ONCDatabase
 	    		int mssgType = JOptionPane.ERROR_MESSAGE;
 	    	
 			//send add new year request to the ONC Server via the  DBStatus data base
-	    		//and process response. Inform the user of the result
-//			String response = "Error message missing";
-//			response = add(this);	//request add of new ONC season
+	    	//and process response. Inform the user of the result
 			String response = serverIF.sendRequest("POST<add_newseason>");		
 			if(response != null && response.startsWith("ADDED_DBYEAR"))
 			{
 				processAddedDBYear(response.substring(12));
-//				mssg = String.format("New season ucessfully added to ONC Server");
-//				title = "Add Year Successful";
-//				mssgType = JOptionPane.INFORMATION_MESSAGE;
 			}
 			else if(response != null && response.startsWith("ADD_DBYEAR_FAILED"))
 			{
@@ -217,8 +269,12 @@ public class DatabaseManager extends ONCDatabase
 		popup.show("Message from ONC Server", mssg);
 	}
 	
-
-	@Override
+	void importEarlyComponentDBs()
+	{
+		for(ONCDatabase earlyComponentDB : earlyImportDBList)
+			earlyComponentDB.importDB();
+	}
+	
 	String update(Object source, ONCObject oncObject)
 	{
 		//notify the server
@@ -235,43 +291,55 @@ public class DatabaseManager extends ONCDatabase
 		return response;
 	}
 	
-	void exportObjectDBToCSV()
+	void exportComponentDBToCSV()
     {
+		String mssg;
 		ONCFileChooser fc = new ONCFileChooser(GlobalVariablesDB.getFrame());
 		File folder = fc.getDirectory("Select folder to save DB .csv files to");
     	
-		String mssg;
 		if(folder == null) 
-    			mssg = "Database save failed, no folder selected";	
+    		mssg = "Database save failed, no folder selected";	
 		else if(!folder.exists())
-    			mssg = String.format("Database save failed:<br>%s", folder.toString());	
+    		mssg = String.format("Database save failed:<br>%s", folder.toString());	
 		else
 		{	
-    			String path = folder.toString();
+			mssg = String.format("Database sucessfully saved to:<br>%s", folder.getAbsolutePath());
+			String path = folder.toString();
+			
+			boolean result = false;
+			for(ONCDatabase componentDB : importDBList)
+			{
+				result = componentDB.exportDBToCSV(GlobalVariablesDB.getFrame(), String.format("%s/%sDB.csv",
+																				path, componentDB.title()));
+				if(!result)
+				{
+					mssg = componentDB.title() + " save failed";
+					break;
+				}
+			}
+/*	
+			noteDB.exportDBToCSV(GlobalVariablesDB.getFrame(), path + "/NoteDB.csv");
+			userDB.exportDBToCSV(GlobalVariablesDB.getFrame(), path + "/UserDB.csv");
+			groupDB.exportDBToCSV(GlobalVariablesDB.getFrame(), path + "/GroupDB.csv");
+			childDB.exportDBToCSV(GlobalVariablesDB.getFrame(), path + "/ChildDB.csv");
+			childGiftDB.exportDBToCSV(GlobalVariablesDB.getFrame(), path + "/ChildGiftDB.csv");
+			famHistoryDB.exportDBToCSV(GlobalVariablesDB.getFrame(), path + "/FamilyHistoryDB.csv");
+			activityDB.exportDBToCSV(GlobalVariablesDB.getFrame(), path + "/ActivityDB.csv");
+			volunteerDB.exportDBToCSV(GlobalVariablesDB.getFrame(), path + "/VolunteerDB.csv");
+			familyDB.exportDBToCSV(GlobalVariablesDB.getFrame(), path + "/FamilyDB.csv");
+			oncGVs.exportDBToCSV(GlobalVariablesDB.getFrame(), path + "/GlobalVariables.csv");
+			inventoryDB.exportDBToCSV(GlobalVariablesDB.getFrame(), path + "/Inventory.csv");
+			smsDB.exportDBToCSV(GlobalVariablesDB.getFrame(), path + "/SMSDB.csv");
+			mealDB.exportDBToCSV(GlobalVariablesDB.getFrame(), path + "/MealDB.csv");
+			oncAdultDB.exportDBToCSV(GlobalVariablesDB.getFrame(), path + "/AdultDB.csv");
+			batteryDB.exportDBToCSV(GlobalVariablesDB.getFrame(), path + "/BatteryDB.csv");
+			partnerDB.exportDBToCSV(path + "/OrgDB.csv");
+			giftCatalog.exportToCSV(GlobalVariablesDB.getFrame(), path + "/GiftCatalog.csv");
+			giftDetailDB.exportDBToCSV(GlobalVariablesDB.getFrame(), path + "/GiftDetailDB.csv");
+*/		
+		}
     	
-    			noteDB.exportDBToCSV(GlobalVariablesDB.getFrame(), path + "/NoteDB.csv");
-    			oncUserDB.exportDBToCSV(GlobalVariablesDB.getFrame(), path + "/UserDB.csv");
-    			oncGroupDB.exportDBToCSV(GlobalVariablesDB.getFrame(), path + "/GroupDB.csv");
-    			oncChildDB.exportDBToCSV(GlobalVariablesDB.getFrame(), path + "/ChildDB.csv");
-    			oncChildWishDB.exportDBToCSV(GlobalVariablesDB.getFrame(), path + "/ChildWishDB.csv");
-    			oncDelDB.exportDBToCSV(GlobalVariablesDB.getFrame(), path + "/DeliveryDB.csv");
-    			oncActDB.exportDBToCSV(GlobalVariablesDB.getFrame(), path + "/ActivityDB.csv");
-    			oncVolDB.exportDBToCSV(GlobalVariablesDB.getFrame(), path + "/DriverDB.csv");
-    			oncFamDB.exportDBToCSV(GlobalVariablesDB.getFrame(), path + "/FamilyDB.csv");
-    			oncGVs.exportDBToCSV(GlobalVariablesDB.getFrame(), path + "/GlobalVariables.csv");
-    			oncInvDB.exportDBToCSV(GlobalVariablesDB.getFrame(), path + "/Inventory.csv");
-    			smsDB.exportDBToCSV(GlobalVariablesDB.getFrame(), path + "/SMSDB.csv");
-    			oncMealDB.exportDBToCSV(GlobalVariablesDB.getFrame(), path + "/MealDB.csv");
-    			oncAdultDB.exportDBToCSV(GlobalVariablesDB.getFrame(), path + "/AdultDB.csv");
-    			batteryDB.exportDBToCSV(GlobalVariablesDB.getFrame(), path + "/BatteryDB.csv");
-    			oncOrgDB.exportDBToCSV(path + "/OrgDB.csv");
-    			oncWishCat.exportToCSV(GlobalVariablesDB.getFrame(), path + "/WishCatalog.csv");
-    			oncWishDetailDB.exportDBToCSV(GlobalVariablesDB.getFrame(), path + "/WishDetailDB.csv");
-    		
-    			mssg = String.format("Database sucessfully saved to:<br>%s", path); 			
-    		}
-    	
-    		ONCPopupMessage savedbPU = new ONCPopupMessage(oncGVs.getImageIcon(0));
+    	ONCPopupMessage savedbPU = new ONCPopupMessage(oncGVs.getImageIcon(0));
 		savedbPU.setLocationRelativeTo(GlobalVariablesDB.getFrame());
 		savedbPU.show("Database Export Result", mssg);		
     }
@@ -279,64 +347,66 @@ public class DatabaseManager extends ONCDatabase
 	
 	String exportFamilyReportToCSV()
     {
-    		String filename = null;
+		String filename = null;
+	
+		ONCFileChooser fc = new ONCFileChooser(GlobalVariablesDB.getFrame());
+		File oncwritefile= fc.getFile("Select .csv file to save to",
+									new FileNameExtensionFilter("CSV Files", "csv"), ONCFileChooser.SAVE_FILE);
+		if(oncwritefile!= null)
+		{
+			//If user types a new filename and doesn't include the .csv, add it
+			String filePath = oncwritefile.getPath();		
+			if(!filePath.toLowerCase().endsWith(".csv")) 
+				oncwritefile = new File(filePath + ".csv");
     	
-    		ONCFileChooser fc = new ONCFileChooser(GlobalVariablesDB.getFrame());
-    		File oncwritefile= fc.getFile("Select .csv file to save to",
-										new FileNameExtensionFilter("CSV Files", "csv"), ONCFileChooser.SAVE_FILE);
-    		if(oncwritefile!= null)
-    		{
-    			//If user types a new filename and doesn't include the .csv, add it
-    			String filePath = oncwritefile.getPath();		
-    			if(!filePath.toLowerCase().endsWith(".csv")) 
-    				oncwritefile = new File(filePath + ".csv");
-	    	
-    			try 
-    			{
-    				ONCFamilyReportRowBuilder rb = new ONCFamilyReportRowBuilder();
-	    		
-    				CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
-    				writer.writeNext(rb.getFamilyReportHeader());
-	    	    
-    				for(ONCFamily fam:oncFamDB.getList())
-    					writer.writeNext(rb.getFamilyReportCSVRowData(fam));	//Get family data
-	    	 
-    				writer.close();
-    				filename = oncwritefile.getName();
-	    	       	    
-    			} 
-    			catch (IOException x)
-    			{
-    				System.err.format("IO Exception: %s%n", x);
-    				JOptionPane.showMessageDialog(GlobalVariablesDB.getFrame(), oncwritefile.getName() + " could not be saved", 
-						"ONC File Save Error", JOptionPane.ERROR_MESSAGE);
-    			}
+			try 
+			{
+				ONCFamilyReportRowBuilder rb = new ONCFamilyReportRowBuilder();
+    		
+				CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
+				writer.writeNext(rb.getFamilyReportHeader());
+    	    
+				for(ONCFamily fam:familyDB.getList())
+					writer.writeNext(rb.getFamilyReportCSVRowData(fam));	//Get family data
+    	 
+				writer.close();
+				filename = oncwritefile.getName();
+    	       	    
+			} 
+			catch (IOException x)
+			{
+				System.err.format("IO Exception: %s%n", x);
+				JOptionPane.showMessageDialog(GlobalVariablesDB.getFrame(), oncwritefile.getName() + " could not be saved", 
+					"ONC File Save Error", JOptionPane.ERROR_MESSAGE);
+			}
 	    }
     	
 	    return filename;
     }
 
     /****
-     * Method is called when data is loaded from the server to the local data base
+     * Method is called when data is loaded from the server to the local data base. To prevent race conditions,
+     * each component database is asked to notify they're listeners instead of notifying after each component 
+     * database is loaded
      * @param bServerDataLoaded
      * @param year
      */
-    void serverDataLoadComplete(boolean bServerDataLoaded, String year)
+    void serverDataLoadComplete(boolean bServerDataLoaded, Integer year)
     {
-    		if(bServerDataLoaded)
-    		{
-    			//Now that we have season data loaded let the user know that data has been loaded
-    			GlobalVariablesDB.getFrame().setTitle("Our Neighbor's Child - " + year + " Season Data");
-
-			oncWishCat.initializeCounts();
-			
-			//check to see if family data is present and enable controls
+		if(bServerDataLoaded)
+		{
+			//notify each of the client listeners that the import is complete.
 			this.fireDataChanged(this, "LOADED_DATABASE", year);
-    		}
+			
+			giftCatalog.initializeCounts();
+			
+			//Now that we have season data loaded let the user know that data has been loaded
+			GlobalVariablesDB.getFrame().setTitle(String.format("Our Neighbor's Child - %d Season Data", year));	
+    	}
 
-    		//tell the server interface to pass on server data base changes to local data bases
-    		if(serverIF != null)
-    			serverIF.setDatabaseLoaded(true);	
+    	//tell the server interface to pass on server data base changes to local data bases
+    	if(serverIF != null)
+    		serverIF.setDatabaseLoaded(true);	
     }
     
     @Override
@@ -344,7 +414,6 @@ public class DatabaseManager extends ONCDatabase
 	{
 		if(ue.getType().equals("UPDATED_DBYEAR"))
 		{
-	//		System.out.println("DBStatusDB.dataChanged: UPDATED_DBYEAR Received");
 			Gson gson = new Gson();
 			fireDataChanged(this, "UPDATED_DBYEAR", gson.fromJson(ue.getJson(), DBYear.class));
 		}
@@ -353,7 +422,7 @@ public class DatabaseManager extends ONCDatabase
 			processAddedDBYear(ue.getJson());
 		}
 	}
-    
+  
 	 /***************************************************************************************************
      * This class communicates with the ONC Server to fetch season data from the server data base
      * and store in the local data base. This executes as a background task. A progress bar,
@@ -361,39 +430,52 @@ public class DatabaseManager extends ONCDatabase
      **************************************************************************************************/
     public class ONCServerDBImporter extends SwingWorker<Void, Void>
     {
-    		private static final int NUM_OF_DBs = 21;
-    		String year;
-    		ONCProgressBar pb;
-    		boolean bServerDataLoaded;
-    	
-    		ONCServerDBImporter(int year, ONCProgressBar pb)
-    		{
-    			this.year = Integer.toString(year);;
-    			this.pb = pb;
-    			bServerDataLoaded = false;
-    		}
+//		private static final int NUM_OF_DBs = 21;
+		Integer year;
+//		JProgressBar pb;
+		boolean bServerDataLoaded;
+	
+		ONCServerDBImporter(Integer year)
+		{
+			this.year = year;
+//			this.pb = pb;
+			bServerDataLoaded = false;
+		}
     	
 		@Override
 		protected Void doInBackground() throws Exception
 		{
 			int progress = 0;
-			int increment = 100/NUM_OF_DBs;
+			int increment = 100/importDBList.size();
 			this.setProgress(progress);
 	    	
 			//Set the year this client will be working with
 			serverIF.sendRequest("POST<setyear>" + year);
 			
-			//import from ONC Server
-			pb.updateHeaderText("<html>Loading Regions</html>");
-			regionDB.getRegionsFromServer();
+			//import global variables
+//			pb.updateHeaderText("Loading Season Data");
+			bServerDataLoaded = oncGVs.importDB();
 			this.setProgress(progress += increment);
 			
-			pb.updateHeaderText("Loading Season Data");
-			oncGVs.importGlobalVariableDatabase();
+			if(bServerDataLoaded)
+			{	
+				//import component databases from ONC Server
+				for(ONCDatabase componentDB : importDBList)
+				{
+//					pb.updateHeaderText(String.format("Loading %s data", componentDB.title()));
+					componentDB.importDB();
+					this.setProgress(progress += increment);
+				}
+			}
+			
+			//import from ONC Server
+/*
+			pb.updateHeaderText("<html>Loading Regions</html>");
+			regionDB.importDB();
 			this.setProgress(progress += increment);
-
+			
 			pb.updateHeaderText("Loading Families");
-			oncFamDB.importDB();
+			familyDB.importDB();
 			this.setProgress(progress += increment);
 			
 			pb.updateHeaderText("Loading Adults");
@@ -405,19 +487,19 @@ public class DatabaseManager extends ONCDatabase
 			this.setProgress(progress += increment);
 			
 			pb.updateHeaderText("Loading Meals");
-			oncMealDB.importDB();
+			mealDB.importDB();
 			this.setProgress(progress += increment);
 			
 			pb.updateHeaderText("Loading Children");
-			oncChildDB.importChildDatabase();
+			childDB.importDB();
 			this.setProgress(progress += increment);
 			
 			pb.updateHeaderText("Loading Gifts");
-			oncChildWishDB.importChildGiftDatabase();
+			childGiftDB.importDB();
 			this.setProgress(progress += increment);
 			
 			pb.updateHeaderText("Loading Inventory");
-			oncInvDB.importInventoryDatabase();
+			inventoryDB.importDB();
 			this.setProgress(progress += increment);
 			
 			pb.updateHeaderText("Loading Messages");
@@ -433,15 +515,15 @@ public class DatabaseManager extends ONCDatabase
 //			this.setProgress(progress += increment);
 			
 			pb.updateHeaderText("Loading Partners");
-			oncOrgDB.importDB();
+			partnerDB.importDB();
 			this.setProgress(progress += increment);
 			
 			pb.updateHeaderText("Loading Activities");
-			oncActDB.importDatabase();
+			activityDB.importDB();
 			this.setProgress(progress += increment);
 			
 			pb.updateHeaderText("Loading Volunteers");
-			oncVolDB.importDriverDatabase();
+			volunteerDB.importDB();
 			this.setProgress(progress += increment);
 			
 			pb.updateHeaderText("Loading Volunteer Activities");
@@ -449,20 +531,20 @@ public class DatabaseManager extends ONCDatabase
 			this.setProgress(progress += increment);
 			
 			pb.updateHeaderText("Loading History");
-			oncDelDB.importFamilyHistoryDatabase();
+			famHistoryDB.importFamilyHistoryDatabase();
 			this.setProgress(progress += increment);
 			
 			pb.updateHeaderText("Loading Catalog");
-			oncWishCat.importCatalogFromServer();
+			giftCatalog.importDB();
 			this.setProgress(progress += increment);
 			
 			pb.updateHeaderText("Loading Detail");
-			oncWishDetailDB.importWishDetailDatabase();
+			giftDetailDB.importDB();
 			this.setProgress(progress += increment);
 			
-			pb.updateHeaderText("Loading Schools");
-			regionDB.importSchoolDB();
-			this.setProgress(progress += increment);
+//			pb.updateHeaderText("Loading Schools");
+//			regionDB.importDB();
+//			this.setProgress(progress += increment);
 			
 			pb.updateHeaderText("Loading Batteries");
 			batteryDB.importDB();
@@ -473,10 +555,10 @@ public class DatabaseManager extends ONCDatabase
 			this.setProgress(progress += increment);
 			
 			pb.updateHeaderText("Loading Clones");
-			clonedGiftDB.importClonedGiftDatabase();
+			clonedGiftDB.importDB();
 			this.setProgress(progress += increment);
-			
-			bServerDataLoaded = true;
+*/			
+//			bServerDataLoaded = true;
 			
 			return null;
 		}
@@ -487,9 +569,10 @@ public class DatabaseManager extends ONCDatabase
 	    @Override
 	    public void done()
 	    {
-	    		serverDataLoadComplete(bServerDataLoaded, year);
+	    	serverDataLoadComplete(bServerDataLoaded, year);
 	        Toolkit.getDefaultToolkit().beep();
-	        pb.dispose();
+//	        pb.dispose();
+//	        pbDlg.dispose();
 	    }
     }
 	

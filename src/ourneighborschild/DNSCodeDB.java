@@ -140,26 +140,26 @@ public class DNSCodeDB extends ONCSearchableDatabase
 					updatedCode.getID()));
 	}
 	
-	String importDB()
+	@Override
+	boolean importDB()
 	{
-		String response = "NO_DNSCODES";
-		
+		boolean bImportComplete = false;
 		if(serverIF != null && serverIF.isConnected())
 		{		
 			Gson gson = new Gson();
 			Type listtype = new TypeToken<ArrayList<DNSCode>>(){}.getType();
 			
-			response = serverIF.sendRequest("GET<dnscodes>");
-			dnsCodeList = gson.fromJson(response, listtype);
+			String response = serverIF.sendRequest("GET<dnscodes>");
 			
-			if(!response.startsWith("NO_DNSCODES"))
+			
+			if(response != null)
 			{
-				response =  "DNSCODES_LOADED";
-				fireDataChanged(this, "LOADED_DNSCODES", null);
+				dnsCodeList = gson.fromJson(response, listtype);
+				bImportComplete = true;
 			}
 		}
 		
-		return response;
+		return bImportComplete;
 	}
 	
 	@Override
@@ -190,5 +190,12 @@ public class DNSCodeDB extends ONCSearchableDatabase
 		}
 		
 		return "Text";
+	}
+
+	@Override
+	String[] getExportHeader()
+	{
+		return new String[] {"ID", "Acronym", "Title", "Definition", "Date Changed", "Changed By",
+				"SL Position", "SL Message", "SL Changed By"};
 	}
 }

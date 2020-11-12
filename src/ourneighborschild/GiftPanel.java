@@ -595,11 +595,17 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 				gpStatus = GiftPanelStatus.Disabled;
 			}
 		}
+		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_DATABASE"))
+		{
+			String logEntry = String.format("WishPanel Event: %s", dbe.getType());
+			LogDialog.add(logEntry, "M");
+			updateGiftPartnerSelectionList();
+			updateGiftSelectionList();
+		}
 		else if(dbe.getSource() != this && (dbe.getType().equals("ADDED_CONFIRMED_PARTNER") ||
 				dbe.getType().equals("DELETED_CONFIRMED_PARTNER")) ||
 				dbe.getType().equals("UPDATED_CONFIRMED_PARTNER") ||
-				dbe.getType().equals("UPDATED_CONFIRMED_PARTNER_NAME") ||
-				dbe.getType().equals("LOADED_PARTNERS"))
+				dbe.getType().equals("UPDATED_CONFIRMED_PARTNER_NAME"))
 		{
 			String logEntry = String.format("WishPanel Event: %s", dbe.getType());
 			LogDialog.add(logEntry, "M");

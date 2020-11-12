@@ -1,17 +1,8 @@
 package ourneighborschild;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.filechooser.FileNameExtensionFilter;
-
-import au.com.bytecode.opencsv.CSVWriter;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -24,6 +15,7 @@ public class AdultDB extends ONCDatabase
 	private AdultDB()
 	{
 		super();
+		this.title = "Adults";
 		adultList = new ArrayList<ONCAdult>();
 	}
 	
@@ -200,9 +192,11 @@ public class AdultDB extends ONCDatabase
 		return famAdultList;
 	}
 	
-	String importDB()
+	@Override
+	boolean importDB()
 	{
 		String response = "NO_ADULTS";
+		boolean bImportComplete = false;
 		
 		if(serverIF != null && serverIF.isConnected())
 		{		
@@ -212,60 +206,17 @@ public class AdultDB extends ONCDatabase
 			response = serverIF.sendRequest("GET<adults>");
 			adultList = gson.fromJson(response, listtype);
 			
-			if(!response.startsWith("NO_ADULTS"))
+			if(response != null && !response.startsWith("NO_ADULTS"))
 			{
-				response =  "ADULTS_LOADED";
-			}	fireDataChanged(this, "LOADED_ADULTS", null);
+//				response =  "ADULTS_LOADED";
+//				fireDataChanged(this, "LOADED_ADULTS", null);
+				bImportComplete = true;
+			}
 		}
 		
-		return response;
+		return bImportComplete;
 	}
 	
-	String exportDBToCSV(JFrame pf, String filename)
-    {
-		File oncwritefile = null;
-		
-		if(filename == null)
-    		{
-    			ONCFileChooser fc = new ONCFileChooser(pf);
-    			oncwritefile= fc.getFile("Select .csv file to save Adult DB to",
-								new FileNameExtensionFilter("CSV Files", "csv"), ONCFileChooser.SAVE_FILE);
-    		}
-    		else
-    			oncwritefile = new File(filename);
-    	
-		if(oncwritefile!= null)
-    		{
-    			//If user types a new filename and doesn't include the .csv, add it
-	    		String filePath = oncwritefile.getPath();		
-	    		if(!filePath.toLowerCase().endsWith(".csv")) 
-	    			oncwritefile = new File(filePath + ".csv");
-	    	
-	    		try 
-	    		{
-	    			String[] header = {"ID", "Family ID", "Name", "Gender"};
-	    		
-	    			CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
-	    			writer.writeNext(header);
-	    	    
-	    			for(ONCAdult a : adultList)
-	    				writer.writeNext(a.getExportRow());	//Get family data
-	    	 
-	    			writer.close();
-	    			filename = oncwritefile.getName();
-	    	       	    
-	    		} 
-	    		catch (IOException x)
-	    		{
-	    			System.err.format("IO Exception: %s%n", x);
-	    			JOptionPane.showMessageDialog(pf, oncwritefile.getName() + " could not be saved", 
-						"ONC File Save Error", JOptionPane.ERROR_MESSAGE);
-	    		}
-	    }
-    	
-	    return filename;
-    }
-
 	@Override
 	public void dataChanged(ServerEvent ue)
 	{
@@ -281,5 +232,17 @@ public class AdultDB extends ONCDatabase
 		{
 			processDeletedAdult(this, ue.getJson());
 		}			
+	}
+
+	@Override
+	String[] getExportHeader()
+	{
+		return new String[] {"ID", "Family ID", "Name", "Gender"};
+	}
+
+	@Override
+	List<? extends ONCObject> getList()
+	{
+		return adultList;
 	}
 }

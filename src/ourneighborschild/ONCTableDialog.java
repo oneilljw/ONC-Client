@@ -37,6 +37,7 @@ public abstract class ONCTableDialog extends JDialog implements ActionListener, 
 	private static final long serialVersionUID = 1L;
 	protected JFrame parentFrame;
 	protected GlobalVariablesDB gvs;
+	protected DatabaseManager dbMgr;
 	protected JPanel searchCriteriaPanelTop, searchCriteriaPanelBottom;
 	protected ONCTable dlgTable;
 	protected AbstractTableModel dlgTableModel;
@@ -52,6 +53,7 @@ public abstract class ONCTableDialog extends JDialog implements ActionListener, 
     		super(parentFrame);
     		this.parentFrame = parentFrame;
     		gvs = GlobalVariablesDB.getInstance();
+    		dbMgr = DatabaseManager.getInstance();
     		
     		listenerMap = new HashMap<EntityType, ArrayList<EntitySelectionListener>>();
     		for(EntityType entityType : getEntityEventSelectorEntityTypes())

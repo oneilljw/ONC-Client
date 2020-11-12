@@ -2,12 +2,12 @@ package ourneighborschild;
 
 import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
@@ -19,18 +19,18 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import au.com.bytecode.opencsv.CSVReader;
-import au.com.bytecode.opencsv.CSVWriter;
 
 public class GiftDetailDB extends ONCDatabase
 {
 	private static final int WISH_DETAIL_HEADER_LENGTH = 3;
 	private static GiftDetailDB instance = null;
-	private ArrayList<GiftDetail> wdAL;
+	private ArrayList<GiftDetail> giftDetailList;
 	
 	private GiftDetailDB()
 	{
 		super();
-		wdAL = new ArrayList<GiftDetail>();
+		this.title = "Gift Detail";
+		giftDetailList = new ArrayList<GiftDetail>();
 	}
 	
 	public static GiftDetailDB getInstance()
@@ -39,6 +39,12 @@ public class GiftDetailDB extends ONCDatabase
 			instance = new GiftDetailDB();
 		
 		return instance;
+	}
+
+	@Override
+	List<? extends ONCObject> getList()
+	{
+		return giftDetailList;
 	}
 	
 	@Override
@@ -65,11 +71,11 @@ public class GiftDetailDB extends ONCDatabase
 		
 		//replace the current wish detail with the update
 		int index = 0;
-		while(index < wdAL.size() && wdAL.get(index).getID() != updatedWishDetail.getID())
+		while(index < giftDetailList.size() && giftDetailList.get(index).getID() != updatedWishDetail.getID())
 			index++;
 		
-		if(index < wdAL.size())
-			wdAL.set(index, updatedWishDetail);
+		if(index < giftDetailList.size())
+			giftDetailList.set(index, updatedWishDetail);
 	}
 	
 	String add(Object source, ONCObject entity)
@@ -91,7 +97,7 @@ public class GiftDetailDB extends ONCDatabase
 		Gson gson = new Gson();
 		GiftDetail addedWishDetail = gson.fromJson(json, GiftDetail.class);
 		
-		wdAL.add(addedWishDetail);
+		giftDetailList.add(addedWishDetail);
 		
 //		System.out.println(String.format("WishDetailDB: processAddedWish - WishDetail added - " +
 //				"WishDetail Name: %s, WishDetail Choices %s, now have %d wish details in DB", addedWishDetail.getWishDetailName(),
@@ -124,23 +130,23 @@ public class GiftDetailDB extends ONCDatabase
 	
 		//remove deleted wish detail from the data base
 		int index = 0;
-		while(index < wdAL.size() && wdAL.get(index).getID() != deletedWishDetail.getID())
+		while(index < giftDetailList.size() && giftDetailList.get(index).getID() != deletedWishDetail.getID())
 			index++;
 				
-		if(index < wdAL.size())
-			wdAL.remove(index);
+		if(index < giftDetailList.size())
+			giftDetailList.remove(index);
 	}
 	
 	GiftDetail getWishDetail(int id)
 	{
 		int index = 0;
-		while(index < wdAL.size() && wdAL.get(index).getID() != id)
+		while(index < giftDetailList.size() && giftDetailList.get(index).getID() != id)
 			index++;
 		
-		if(index == wdAL.size())
+		if(index == giftDetailList.size())
 			return null;
 		else
-			return wdAL.get(index);
+			return giftDetailList.get(index);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -154,7 +160,7 @@ public class GiftDetailDB extends ONCDatabase
 			
 			for(GiftDetail wd:wdal)
 			{
-				wdAL.add(wd);
+				giftDetailList.add(wd);
 			}
 		} 
 		catch (IOException e)
@@ -173,7 +179,7 @@ public class GiftDetailDB extends ONCDatabase
 	{
 		try
 		{
-			oos.writeObject(wdAL);
+			oos.writeObject(giftDetailList);
 		}
 		catch (IOException e) 
 		{
@@ -182,23 +188,26 @@ public class GiftDetailDB extends ONCDatabase
 		}
 	}
 	
-	String importWishDetailDatabase()
+	boolean importDB()
 	{
-		String response = "NO_DETAIL";
+		boolean bImportComplete = false;
 		
 		if(serverIF != null && serverIF.isConnected())
 		{		
 			Gson gson = new Gson();
 			Type listtype = new TypeToken<ArrayList<GiftDetail>>(){}.getType();
 			
-			response = serverIF.sendRequest("GET<wishdetail>");
-				wdAL = gson.fromJson(response, listtype);
+			String response = serverIF.sendRequest("GET<wishdetail>");
+				
 			
-			if(!response.startsWith("NO_DETAIL"))		
-				response =  "DETAIL_LOADED";
+			if(response != null)
+			{
+				giftDetailList = gson.fromJson(response, listtype);
+				bImportComplete = true;
+			}
 		}
 		
-		return response;
+		return bImportComplete;
 	}
 	
 	String importWishDetailDB(JFrame pf, ImageIcon oncIcon, String path)	//Only used by superuser to import from .csv file
@@ -235,9 +244,9 @@ public class GiftDetailDB extends ONCDatabase
 	    			//Read the ONC CSV File
 	    			if(header.length == WISH_DETAIL_HEADER_LENGTH)
 	    			{
-	    				wdAL.clear();
+	    				giftDetailList.clear();
 	    				while ((nextLine = reader.readNext()) != null)	// nextLine[] is an array of values from the line
-	    					wdAL.add(new GiftDetail(nextLine));
+	    					giftDetailList.add(new GiftDetail(nextLine));
 	    			}
 	    			else
 	    				JOptionPane.showMessageDialog(pf, "Wish Detail DB file corrupted, header length = " + Integer.toString(header.length), 
@@ -258,51 +267,6 @@ public class GiftDetailDB extends ONCDatabase
 	    return filename;    
 	}
 	
-	String exportDBToCSV(JFrame pf, String filename)
-    {
-		File oncwritefile = null;
-		
-    	if(filename == null)
-    	{
-    		ONCFileChooser fc = new ONCFileChooser(pf);
-    		oncwritefile= fc.getFile("Select .csv file to save Wish Detail DB to",
-								new FileNameExtensionFilter("CSV Files", "csv"), ONCFileChooser.SAVE_FILE);
-    	}
-    	else
-    		oncwritefile = new File(filename);
-    	
-    	if(oncwritefile!= null)
-    	{
-    		//If user types a new filename and doesn't include the .csv, add it
-	    	String filePath = oncwritefile.getPath();		
-	    	if(!filePath.toLowerCase().endsWith(".csv")) 
-	    		oncwritefile = new File(filePath + ".csv");
-	    	
-	    	try 
-	    	{
-	    		 String[] header = {"Wish Detail ID", "Name", "Choices"};
-	    		
-	    		CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
-	    	    writer.writeNext(header);
-	    	    
-	    	    for(GiftDetail wd:wdAL)
-	    	    	writer.writeNext(wd.getExportRow());	//Get family data
-	    	 
-	    	    writer.close();
-	    	    filename = oncwritefile.getName();
-	    	       	    
-	    	} 
-	    	catch (IOException x)
-	    	{
-	    		System.err.format("IO Exception: %s%n", x);
-	    		JOptionPane.showMessageDialog(pf, oncwritefile.getName() + " could not be saved", 
-						"ONC File Save Error", JOptionPane.ERROR_MESSAGE);
-	    	}
-	    }
-    	
-	    return filename;
-    }
-
 	@Override
 	public void dataChanged(ServerEvent ue)
 	{
@@ -314,5 +278,11 @@ public class GiftDetailDB extends ONCDatabase
 		{
 			processUpdatedWishDetail(this, ue.getJson());
 		}
+	}
+
+	@Override
+	String[] getExportHeader()
+	{
+		return new String[] {"Wish Detail ID", "Name", "Choices"};
 	}
 }

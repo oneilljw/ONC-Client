@@ -1,19 +1,10 @@
 package ourneighborschild;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.filechooser.FileNameExtensionFilter;
-
-import au.com.bytecode.opencsv.CSVWriter;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -27,6 +18,7 @@ public class ChildDB extends ONCDatabase
 	private ChildDB()
 	{
 		super();
+		this.title = "Children";
 		childAL = new ArrayList<ONCChild>();
 	}
 	
@@ -312,135 +304,30 @@ public class ChildDB extends ONCDatabase
     		}	
     }
 	
-	ArrayList<ONCChild> getList() { return childAL; }
+	@Override
+	List<ONCChild> getList() { return childAL; }
 	
-	String importChildDatabase()
+	@Override
+	boolean importDB()
 	{
-		String response = "NO_CHILDREN";
-		
+		boolean bImportComplete = false;
 		if(serverIF != null && serverIF.isConnected())
 		{		
 			Gson gson = new Gson();
 			Type listtype = new TypeToken<ArrayList<ONCChild>>(){}.getType();
 			
-			response = serverIF.sendRequest("GET<children>");
+			String response = serverIF.sendRequest("GET<children>");
 			
-			childAL = gson.fromJson(response, listtype);
-			
-			if(!response.startsWith("NO_CHILDREN"))
+			if(response != null)
 			{
-				response =  "CHILDREN_LOADED";
-				fireDataChanged(this, "LOADED_CHILDREN", null);
+				childAL = gson.fromJson(response, listtype);
+				bImportComplete = true;
 			}
 		}
 		
-		return response;
+		return bImportComplete;
 	}
-/*	
-	String importChildDB(JFrame pf, ImageIcon oncIcon, String path)	//Only used by superuser to import from .csv file
-	{
-		File pyfile;
-		JFileChooser chooser;
-		String filename = "";
-		int returnVal = JFileChooser.CANCEL_OPTION;
-		
-		if(path != null)
-		{
-			pyfile = new File(path + "ChildDB.csv");
-			returnVal = JFileChooser.APPROVE_OPTION;
-		}
-		else
-		{
-    		chooser = new JFileChooser();
-    		chooser.setDialogTitle("Select Child DB .csv file to import");	
-    		chooser.setFileFilter(new FileNameExtensionFilter("CSV Files", "csv"));
-    		returnVal = chooser.showOpenDialog(pf);
-    		pyfile = chooser.getSelectedFile();
-		}
-		
-	    if(returnVal == JFileChooser.APPROVE_OPTION)
-	    {	    
-	    	filename = pyfile.getName();
-	    	try 
-	    	{
-	    		CSVReader reader = new CSVReader(new FileReader(pyfile.getAbsoluteFile()));
-	    		String[] nextLine, header;
-    		
-	    		if((header = reader.readNext()) != null)
-	    		{
-	    			//Read the ONC CSV File
-	    			if(header.length == CHILD_DB_HEADER_LENGTH)
-	    			{
-	    				childAL.clear();
-	    				while ((nextLine = reader.readNext()) != null)	// nextLine[] is an array of values from the line
-	    					childAL.add(new ONCChild(nextLine));
-	    				
-	    			}
-	    			else
-	    				JOptionPane.showMessageDialog(pf, "Child DB file corrupted, header length = " + Integer.toString(header.length), 
-    						"Invalid Child DB File", JOptionPane.ERROR_MESSAGE, oncIcon);   			
-	    		}
-	    		else
-	    			JOptionPane.showMessageDialog(pf, "Couldn't read header in Child DB file: " + filename, 
-	    					"Invalid Child DB File", JOptionPane.ERROR_MESSAGE, oncIcon); 
-	    	} 
-	    	catch (IOException x)
-	    	{
-	    		JOptionPane.showMessageDialog(pf, "Unable to open Child DB file: " + filename, 
-    				"Child DB file not found", JOptionPane.ERROR_MESSAGE, oncIcon);
-	    	}
-	    }
-	    
-	    return filename;    
-	}
-*/	
-	String exportDBToCSV(JFrame pf, String filename)
-    {
-		File oncwritefile = null;
-		
-    	if(filename == null)
-    	{
-    		ONCFileChooser fc = new ONCFileChooser(pf);
-    		oncwritefile= fc.getFile("Select .csv file to save Child DB to",
-							new FileNameExtensionFilter("CSV Files", "csv"), ONCFileChooser.SAVE_FILE);
-    	}
-    	else
-    		oncwritefile = new File(filename);
-    	
-    	if(oncwritefile!= null)
-    	{
-    		//If user types a new filename and doesn't include the .csv, add it
-	    	String filePath = oncwritefile.getPath();		
-	    	if(!filePath.toLowerCase().endsWith(".csv")) 
-	    		oncwritefile = new File(filePath + ".csv");
-	    	
-	    	try 
-	    	{
-	    		 String[] header = {"Child ID", "Family ID", "Child #", "First Name", "Last Name",
-	    				 			"Gender", "DOB", "School", "Wish 1 ID", "Wish 2 ID",
-	    				 			"Wish 3 ID", "Prior Year Child ID"};
-	    		
-	    		CSVWriter writer = new CSVWriter(new FileWriter(oncwritefile.getAbsoluteFile()));
-	    	    writer.writeNext(header);
-	    	    
-	    	    for(ONCChild c:childAL)
-	    	    	writer.writeNext(c.getExportRow());	//Get family data
-	    	 
-	    	    writer.close();
-	    	    filename = oncwritefile.getName();
-	    	       	    
-	    	} 
-	    	catch (IOException x)
-	    	{
-	    		System.err.format("IO Exception: %s%n", x);
-	    		JOptionPane.showMessageDialog(pf, oncwritefile.getName() + " could not be saved", 
-						"ONC File Save Error", JOptionPane.ERROR_MESSAGE);
-	    	}
-	    }
-    	
-	    return filename;
-    }
-	
+
 	@Override
 	public void dataChanged(ServerEvent ue) 
 	{
@@ -458,6 +345,14 @@ public class ChildDB extends ONCDatabase
 		}			
 	}
 	
+	@Override
+	String[] getExportHeader()
+	{
+		return new String[] {"Child ID", "Family ID", "Child #", "First Name", "Last Name",
+	 			"Gender", "DOB", "School", "Wish 1 ID", "Wish 2 ID",
+	 			"Wish 3 ID", "Prior Year Child ID"};
+	}
+	
 	private class ONCChildAgeComparator implements Comparator<ONCChild>
 	{
 	    @Override
@@ -466,4 +361,5 @@ public class ChildDB extends ONCDatabase
 	        return o1.getChildDateOfBirth().compareTo(o2.getChildDateOfBirth());
 	    }
 	}
+
 }

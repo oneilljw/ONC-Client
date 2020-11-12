@@ -57,6 +57,8 @@ public class FamilyDB extends ONCSearchableDatabase
 	{
 		//Instantiate the organization and confirmed organization lists
 		super(DB_TYPE);
+		this.title = "Families";
+		
 		childDB = ChildDB.getInstance();
 		adultDB = AdultDB.getInstance();
 		childwishDB = ChildGiftDB.getInstance();
@@ -922,12 +924,12 @@ public class FamilyDB extends ONCSearchableDatabase
 		return nBikes;
 	}
 	
-	ArrayList<int[]> getWishBaseSelectedCounts(ArrayList<ONCGift> wishList)
+	ArrayList<int[]> getGiftBaseSelectedCounts(List<ONCGift> giftList)
 	{
 		ArrayList<int[]> wishcountAL = new ArrayList<int[]>();
 	
 		//Initialize the array list
-		for(int i=0; i<wishList.size(); i++)
+		for(int i=0; i<giftList.size(); i++)
 		{
 			int[] counts = new int[NUMBER_OF_WISHES_PER_CHILD];
 			counts[0] = 0;
@@ -954,7 +956,7 @@ public class FamilyDB extends ONCSearchableDatabase
 						{
 							//Find wish in array list and increment the count
 							int index = 0;
-							while(index < wishcountAL.size() && cw.getGiftID() != wishList.get(index).getID())
+							while(index < wishcountAL.size() && cw.getGiftID() != giftList.get(index).getID())
 								index++;
 						
 							if(index == wishcountAL.size())
@@ -1076,27 +1078,28 @@ public class FamilyDB extends ONCSearchableDatabase
 		
 		return bSortOccurred;
 	}
-	String importDB()
+	
+	@Override
+	boolean importDB()
 	{
-		String response = "NO_FAMILIES";
+		boolean bImportComplete = false;
 		
 		if(serverIF != null && serverIF.isConnected())
 		{
 			Gson gson = new Gson();
 			Type listOfFamilies = new TypeToken<ArrayList<ONCFamily>>(){}.getType();
 			
-			response = serverIF.sendRequest("GET<familys>");
-			oncFamAL = gson.fromJson(response, listOfFamilies);				
+			String response = serverIF.sendRequest("GET<familys>");
 			
-			if(!response.startsWith("NO_FAMILIES"))
+			if(response != null)
 			{
+				oncFamAL = gson.fromJson(response, listOfFamilies);	
 				Collections.sort(oncFamAL, new ONCFamilyONCNumComparator());
-				response = "FAMILIES_LOADED";
-				this.fireDataChanged(this, "LOADED_FAMILIES",  null);
+				bImportComplete = true;
 			}
 		}
 		
-		return response;
+		return bImportComplete;
 	}
 	
 	String importFamilyDB(JFrame pf, ImageIcon oncIcon)	//Only used by superuser to import from .csv file
@@ -1150,7 +1153,8 @@ public class FamilyDB extends ONCSearchableDatabase
 	    return pyfile.getParent();    
 	}
 	
-	String exportDBToCSV(JFrame pf, String filename)
+	@Override
+	boolean exportDBToCSV(JFrame pf, String filename)
     {
 
 		File oncwritefile = null;
@@ -1191,7 +1195,7 @@ public class FamilyDB extends ONCSearchableDatabase
 	    		}
 	    }
     	
-	    return oncwritefile != null ? oncwritefile.getParent() : null;
+	    return oncwritefile != null;
     }
 	
 	@Override
@@ -1779,5 +1783,11 @@ public class FamilyDB extends ONCSearchableDatabase
 			else
 				return 0;
 		}
+	}
+
+	@Override
+	String[] getExportHeader()
+	{
+		return null;
 	}
 }
