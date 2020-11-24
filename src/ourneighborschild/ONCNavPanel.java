@@ -1,5 +1,6 @@
 package ourneighborschild;
 
+import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -40,7 +41,8 @@ public class ONCNavPanel extends ONCPanel implements ActionListener
     private JTextField searchTF;
     private StoplightPanel sl;
     private JLabel lblCount1, lblCount2;
-    private JLabel lblMssg;
+    protected JPanel mssgsubpanel;
+    protected JLabel lblMssg;
     private ArrayList<Integer> searchAL;
     private int srchALindex;
     private int index = 0;	//Index for ONCEntity array list
@@ -64,7 +66,9 @@ public class ONCNavPanel extends ONCPanel implements ActionListener
 		this.setBorder(new BevelBorder(BevelBorder.LOWERED));
 		JPanel tp1 = new JPanel(new FlowLayout(FlowLayout.LEFT));
 	    JPanel tp2 = new JPanel(new GridLayout(2,2));
-	    JPanel tp3 = new JPanel(new GridLayout(2,0));
+//	    JPanel tp3 = new JPanel(new GridLayout(2,0));
+	    JPanel tp3 = new JPanel();
+	    tp3.setLayout(new BoxLayout(tp3, BoxLayout.Y_AXIS));
 	    JPanel tp4 = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 //	    JPanel tp4 = new JPanel();
 //	    tp4.setLayout(new BoxLayout(tp4, BoxLayout.Y_AXIS));
@@ -118,8 +122,8 @@ public class ONCNavPanel extends ONCPanel implements ActionListener
 	      
 	    tp3.add(searchsubpanel);
 	    	
-	    JPanel mssgsubpanel = new JPanel();
-	    mssgsubpanel.setLayout(new GridBagLayout());
+	    mssgsubpanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+//	    mssgsubpanel.setLayout(new GridBagLayout());
 	    lblMssg = new JLabel();
 	    mssgsubpanel.add(lblMssg);
 	    tp3.add(mssgsubpanel);

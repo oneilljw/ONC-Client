@@ -44,21 +44,24 @@ public class ManageBatteryDialog extends ONCEntityTableDialog implements ActionL
 	 * This class implements a dialog which allows the user to manage users
 	 */
 	private static final long serialVersionUID = 1L;
+	private static final int CLONED_GIFT_FIRST_GIFT_NUMBER = 3;
+	
 	private static final int ONC_NUM_COL= 0;
 	private static final int CHILD_FIRST_NAME_COL = 1;
 	private static final int CHILD_LAST_NAME_COL = 2;
 	private static final int CHILD_AGE_COL = 3;
 	private static final int CHILD_GENDER_COL = 4;
 	private static final int GIFT_COL = 5;
-	private static final int SIZE_COL = 6;
-	private static final int QTY_COL = 7;
+	private static final int CLONE_COL = 6;
+	private static final int SIZE_COL = 7;
+	private static final int QTY_COL = 8;
 	
 	private static final int NUM_TABLE_ROWS = 12;
 	
 	protected JPanel sortCriteriaPanel;
-	private JComboBox<String> sizeCB;
+	private JComboBox<String> sizeCB, cloneCB;
 	private boolean bChangingTable;
-	private String sortSize;
+	private String sortSize, sortClone;
 	
 	private ONCTable batteryTable;
 	private AbstractTableModel batteryTableModel;
@@ -71,6 +74,7 @@ public class ManageBatteryDialog extends ONCEntityTableDialog implements ActionL
 	private FamilyDB familyDB;
 	private ChildDB childDB;
 	private ChildGiftDB giftDB;
+	private ClonedGiftDB clonedGiftDB;
 	private GiftCatalogDB catDB;
 	private UserDB userDB;
 	
@@ -92,6 +96,10 @@ public class ManageBatteryDialog extends ONCEntityTableDialog implements ActionL
 		giftDB = ChildGiftDB.getInstance();
 		if(giftDB != null)
 			giftDB.addDatabaseListener(this);
+		
+		clonedGiftDB = ClonedGiftDB.getInstance();
+		if(clonedGiftDB != null)
+			clonedGiftDB.addDatabaseListener(this);
 		
 		childDB = ChildDB.getInstance();
 		if(childDB != null)
@@ -130,12 +138,20 @@ public class ManageBatteryDialog extends ONCEntityTableDialog implements ActionL
 		sortCriteriaPanel.add(sizeCB);
 		sortSize = "Any";
 		
+		String[] choices = new String[] {"Any","Yes","No"};
+		cloneCB = new JComboBox<String>(choices);
+		cloneCB.setBorder(BorderFactory.createTitledBorder("Cloned Gift ?"));
+		cloneCB.setPreferredSize(new Dimension(120,56));
+		cloneCB.addActionListener(this);
+		sortCriteriaPanel.add(cloneCB);
+		sortClone = "Any";
+		
 		//Create the volunteer table model
 		batteryTableModel = new BatteryTableModel();
 		
 		//create the table
 		String[] colToolTips = {"ONC #", "Child First Name", "Child Last Name", "Child's Age", "Childs Gender",
-								"Gift", "Battery", "Qty"};
+								"Gift", "Is a cloned gift?", "Battery Type", "Qty"};
 		
 		batteryTable = new ONCTable(batteryTableModel, colToolTips, new Color(240,248,255));
 
@@ -144,7 +160,7 @@ public class ManageBatteryDialog extends ONCEntityTableDialog implements ActionL
 		
 		//Set table column widths
 		int tablewidth = 0;
-		int[] colWidths = {40, 96, 96,64, 48, 288, 80, 32};
+		int[] colWidths = {40, 96, 96,64, 48, 240, 56, 80, 32};
 		for(int col=0; col < colWidths.length; col++)
 		{
 			batteryTable.getColumnModel().getColumn(col).setPreferredWidth(colWidths[col]);
@@ -224,7 +240,7 @@ public class ManageBatteryDialog extends ONCEntityTableDialog implements ActionL
 		batteryTableList.clear();
 		
 		for(Battery b : batteryDB.getList())
-			if(doesSizeFilterMatch(b))
+			if(doesSizeFilterMatch(b) && doesCloneFilterMatch(b))
 				batteryTableList.add(new BatteryTableObject(b));
 		
 		lblCount.setText(String.format("Batteries Meeting Criteria: %d, Quantity: %d", 
@@ -251,6 +267,11 @@ public class ManageBatteryDialog extends ONCEntityTableDialog implements ActionL
 		sizeCB.addActionListener(this);
 		sortSize = "Any";
 		
+		cloneCB.removeActionListener(this);
+		cloneCB.setSelectedIndex(0);
+		cloneCB.addActionListener(this);
+		sortClone = "Any";
+		
 		createTableList();
 	}
 
@@ -258,6 +279,14 @@ public class ManageBatteryDialog extends ONCEntityTableDialog implements ActionL
 	{
 		//test for size match
 		 return sortSize.equals("Any") || b.getSize().equals(sortSize);
+	}
+	
+	boolean doesCloneFilterMatch(Battery b)
+	{
+		//test for size match
+		 return sortClone.equals("Any") || 
+				 b.getWishNum() < CLONED_GIFT_FIRST_GIFT_NUMBER && sortClone.equals("No") ||
+		 		  b.getWishNum() >= CLONED_GIFT_FIRST_GIFT_NUMBER && sortClone.equals("Yes");
 	}
 	
 	void print(String name)
@@ -292,7 +321,7 @@ public class ManageBatteryDialog extends ONCEntityTableDialog implements ActionL
 	void onExportRequested()
 	{
 		//Write the selected row data to a .csv file
-		String[] header = {"ONC #", "Child FN", "Child LN", "Age", "Gender", "Gift Type", "Detail", "Battery Size", "Qty"};
+		String[] header = {"ONC #", "Child FN", "Child LN", "Age", "Gender", "Gift Type", "Clone?", "Detail", "Battery Size", "Qty"};
     
 		ONCFileChooser oncfc = new ONCFileChooser(this);
        	File oncwritefile = oncfc.getFile("Select file for export of selected rows" ,
@@ -358,6 +387,11 @@ public class ManageBatteryDialog extends ONCEntityTableDialog implements ActionL
 			sortSize = (String) sizeCB.getSelectedItem();
 			createTableList();
 		}
+		else if(e.getSource() == cloneCB)
+		{
+			sortClone = (String) cloneCB.getSelectedItem();
+			createTableList();
+		}
 		else if(e.getSource() == btnReset)
 		{
 			resetFilters();
@@ -417,7 +451,7 @@ public class ManageBatteryDialog extends ONCEntityTableDialog implements ActionL
 		 */
 		private static final long serialVersionUID = 1L;
 		
-		private String[] columnNames = {"ONC #", "Child FN", "Child LN", "Age", "Gender", "Gift", "Batteries", "Qty",};
+		private String[] columnNames = {"ONC #", "Child FN", "Child LN", "Age", "Gender", "Gift", "Clone ?", "Batteries", "Qty",};
  
         public int getColumnCount() { return columnNames.length; }
  
@@ -427,68 +461,82 @@ public class ManageBatteryDialog extends ONCEntityTableDialog implements ActionL
  
         public Object getValueAt(int row, int col)
         {
-        		BatteryTableObject bto = batteryTableList.get(row);
-        		ONCChildGift gift = null;
-        		ONCChild child = null;
-        		ONCFamily family = null;
-        		
-        		gift = giftDB.getGift(bto.getChild().getID(), bto.getBattery().getWishNum());
-        		
-        		String childFN, childLN;
-        		if(gift != null)
+    		BatteryTableObject bto = batteryTableList.get(row);
+    		ONCChildGift gift = null;
+    		ClonedGift clonedGift = null;
+    		ONCChild child = null;
+    		ONCFamily family = null;
+    		
+    		boolean bClonedGift = bto.getBattery().getWishNum() >= CLONED_GIFT_FIRST_GIFT_NUMBER;
+    		
+    		if(bClonedGift)
+    			clonedGift = clonedGiftDB.getClonedGift(bto.getChild().getID(), bto.getBattery().getWishNum());
+    		else
+    			gift = giftDB.getGift(bto.getChild().getID(), bto.getBattery().getWishNum());
+    		
+    		String childFN, childLN;
+    		if(gift != null || clonedGift != null)
+    		{
+    			child = bClonedGift ? childDB.getChild(clonedGift.getChildID()) : childDB.getChild(gift.getChildID());
+    			
+    			if(userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0)
         		{
-        			child = childDB.getChild(gift.getChildID());
-        			if(userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0)
-            		{
-            			//Only display child's actual name if user permission permits
-            			childFN = child.getChildFirstName();
-            			childLN = child.getChildLastName();
-            		}
-            		else
-            		{
-            			//Else, display the restricted name for the child
-            			childFN = "Child " + childDB.getChildNumber(child);
-            			childLN = "";
-            		}
+        			//Only display child's actual name if user permission permits
+        			childFN = child.getChildFirstName();
+        			childLN = child.getChildLastName();
         		}
         		else
         		{
-        			childFN = "Error";
-        			childLN = "Error:";
+        			//Else, display the restricted name for the child
+        			childFN = "Child " + childDB.getChildNumber(child);
+        			childLN = "";
         		}
+    		}
+    		else
+    		{
+    			childFN = "Error";
+    			childLN = "Error:";
+    		}
         		
-        		
-        		if(child != null)
-        			family = familyDB.getFamily(child.getFamID());
-        		
-        		
-        		if(col == ONC_NUM_COL)  
-        			return family == null ? "Error" : family.getONCNum();
+    		if(child != null)
+    			family = familyDB.getFamily(child.getFamID());
+    		
+    		
+    		if(col == ONC_NUM_COL)  
+    			return family == null ? "Error" : family.getONCNum();
        		else if(col == CHILD_FIRST_NAME_COL)
        			return childFN;
-        		else if (col == CHILD_LAST_NAME_COL)
-        			return childLN;
-        		else if(col == CHILD_AGE_COL)
-           			return child == null ? "Error" : child.getChildAge();
-            		else if (col == CHILD_GENDER_COL)
-            			return child == null ? "Error" : child.getChildGender();
-        		else if (col == GIFT_COL)
-        		{
-        			if(gift != null)
-        			{
-        				ONCGift wish = catDB.getGiftByID(gift.getGiftID());
-        				return  wish == null ? "Error" : wish.getName().equals("-") ? 
-        						gift.getDetail() : wish.getName() + "- " + gift.getDetail();
-        			}
-        			else
-        				return "Error";
-        		}
-        		else if (col == SIZE_COL)
-        			return bto.getBattery().getSize();
-        		else if (col == QTY_COL)
-        			return bto.getBattery().getQuantity();
-        		else
-        			return "Error";
+    		else if (col == CHILD_LAST_NAME_COL)
+    			return childLN;
+    		else if(col == CHILD_AGE_COL)
+       			return child == null ? "Error" : child.getChildAge();
+        		else if (col == CHILD_GENDER_COL)
+        			return child == null ? "Error" : child.getChildGender();
+    		else if (col == GIFT_COL)
+    		{
+    			if(gift != null && !bClonedGift)
+    			{
+    				ONCGift wish = catDB.getGiftByID(gift.getGiftID());
+    				return  wish == null ? "Error" : wish.getName().equals("-") ? 
+    						gift.getDetail() : wish.getName() + "- " + gift.getDetail();
+    			}
+    			else if(clonedGift != null && bClonedGift)
+    			{
+    				ONCGift wish = catDB.getGiftByID(clonedGift.getGiftID());
+    				return  wish == null ? "Error" : wish.getName().equals("-") ? 
+    						clonedGift.getDetail() : wish.getName() + "- " + clonedGift.getDetail();
+    			}
+    			else
+    				return "Error";
+    		}
+    		else if(col == CLONE_COL)
+    			return bClonedGift;
+    		else if (col == SIZE_COL)
+    			return bto.getBattery().getSize();
+    		else if (col == QTY_COL)
+    			return bto.getBattery().getQuantity();
+    		else
+    			return "Error";
         }
         
         //JTable uses this method to determine the default renderer/editor for each cell.
@@ -497,6 +545,8 @@ public class ManageBatteryDialog extends ONCEntityTableDialog implements ActionL
         {
         		if(column == QTY_COL)
         			return Integer.class;
+        		else if(column == CLONE_COL)
+        			return Boolean.class;
         		else
         			return String.class;
         }
@@ -530,29 +580,41 @@ public class ManageBatteryDialog extends ONCEntityTableDialog implements ActionL
 		
 		String[] getExportRow()
 		{
-			String[] row = new String[9];
+			String[] row = new String[10];
+			ONCGift wish = null;
+			String giftDetail = "Error";
 			
-			ONCChildGift gift = giftDB.getGift(battery.getChildID(), battery.getWishNum());
-			ONCGift wish = catDB.getGiftByID(gift.getGiftID());
+			if(battery.getWishNum() <  CLONED_GIFT_FIRST_GIFT_NUMBER)
+			{	
+				ONCChildGift gift = giftDB.getGift(battery.getChildID(), battery.getWishNum());
+				wish = catDB.getGiftByID(gift.getGiftID());
+				giftDetail = gift.getDetail();
+			}
+			else
+			{
+				ClonedGift gift = clonedGiftDB.getClonedGift(battery.getChildID(), battery.getWishNum());
+				wish = catDB.getGiftByID(gift.getGiftID());
+				giftDetail = gift.getDetail();
+			}
 			
 			//determine if user has permission to see child first and last name. If not, substitute
 			String childFN = "Error", childLN = "Error";
-    			if(gift != null)
-    			{
-    				child = childDB.getChild(gift.getChildID());
-    				if(userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0)
-    				{
-    					//Only display child's actual name if user permission permits
-    					childFN = child.getChildFirstName();
-    					childLN = child.getChildLastName();
-    				}
-    				else
-    				{
-    					//Else, display the restricted name for the child
-    					childFN = "Child " + childDB.getChildNumber(child);
-    					childLN = "";
-    				}
-    			}
+			child = childDB.getChild(battery.getChildID());
+			if(battery != null && (child = childDB.getChild(battery.getChildID())) != null)
+			{
+				if(userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0)
+				{
+					//Only display child's actual name if user permission permits
+					childFN = child.getChildFirstName();
+					childLN = child.getChildLastName();
+				}
+				else
+				{
+					//Else, display the restricted name for the child
+					childFN = "Child " + childDB.getChildNumber(child);
+					childLN = "";
+				}
+			}
   
 			row[0] = family == null ? "Error" : family.getONCNum();
 			row[1] = childFN;
@@ -560,9 +622,10 @@ public class ManageBatteryDialog extends ONCEntityTableDialog implements ActionL
 			row[3] = child == null ? "Error" : child.getChildAge();
 			row[4] = child == null ? "Error" : child.getChildGender();
 			row[5] = wish == null ? "Error" : wish.getName();
-			row[6] = gift == null ? "Error" : gift.getDetail();
-			row[7] = battery.getSize();
-			row[8] = Integer.toString(battery.getQuantity());
+			row[6] = wish == null ? "Error" : battery.getWishNum() < CLONED_GIFT_FIRST_GIFT_NUMBER ? "No":"Yes";
+			row[7] = giftDetail;
+			row[8] = battery.getSize();
+			row[9] = Integer.toString(battery.getQuantity());
 			
 			return row;	
 		}

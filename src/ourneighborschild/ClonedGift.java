@@ -49,6 +49,23 @@ public class ClonedGift extends ONCObject
 		this.nextIDInChain = -1;
 	}
 	
+	//used when receiving gifts
+	public ClonedGift(ClonedGiftStatus status, ClonedGift priorGift)
+	{
+		super(priorGift.id);
+		this.childID = priorGift.childID;
+		this.giftID = priorGift.giftID;
+		this.indicator = priorGift.indicator;
+		this.giftDetail = priorGift.giftDetail;
+		this.giftnumber = priorGift.giftnumber;
+		this.status = status;
+		this.assignee0ID = priorGift.assignee0ID;
+		this.changedBy = priorGift.changedBy;
+		this.timestamp = System.currentTimeMillis();	
+		this.priorIDInChain = priorGift.priorIDInChain;
+		this.nextIDInChain = -1;
+	}
+	
 	//Constructor for cloned gift read from .csv file		
 	public ClonedGift(String[] nextLine)
 	{

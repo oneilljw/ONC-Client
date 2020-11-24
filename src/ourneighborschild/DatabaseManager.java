@@ -14,7 +14,6 @@ import java.util.List;
 
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
-import javax.swing.JProgressBar;
 import javax.swing.SwingWorker;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
@@ -44,6 +43,9 @@ public class DatabaseManager extends ServerListenerComponent implements ServerLi
 	private FamilyDB familyDB;				//Holds family Database
 	private GiftCatalogDB giftCatalog;		//Holds gift Catalog
 	
+	//progress bar for database loading progress
+	private ONCProgressNavPanel progressNavPanel;
+	
 	//gui
 //	JDialog pbDlg;
 /*	
@@ -70,6 +72,8 @@ public class DatabaseManager extends ServerListenerComponent implements ServerLi
 	private DatabaseManager()
 	{
 		super();
+		
+		progressNavPanel = null;
 		
 		if(serverIF != null)
 			serverIF.addServerListener(this);
@@ -137,36 +141,20 @@ public class DatabaseManager extends ServerListenerComponent implements ServerLi
 		return instance;
 	}
 	
+	void setProgressPanel(ONCProgressNavPanel pp) { this.progressNavPanel = pp; }
+	
 	void importObjectsFromDB(int year)
 	{
-		//create the progress bar option pane
-//		JOptionPane pane = new JOptionPane();
-//	    pane.setMessage("long message...");
-//	    JProgressBar pb = new JProgressBar(1, 100);
-//	    pb.setValue(15);
-//	    pane.add(pb,1);
-//	    pbDlg = pane.createDialog(GlobalVariablesDB.getFrame(), "Information message");
-//	    pbDlg.setLocationRelativeTo(GlobalVariablesDB.getFrame());
-//	    pbDlg.setVisible(true);
-	    
-		//create the progress bar frame
-//	    ONCProgressBar pb = new ONCProgressBar(oncGVs.getImageIcon(0), 100);
-//	    Point loc = GlobalVariablesDB.getFrame().getLocationOnScreen();
-//		pb.setLocation(loc.x+450, loc.y+70);
-//		pb.setLocation(471, 116);
-	    
-		
-//		System.out.println(String.format("DatabaseMgr.importObjFromDB: set location to: pb.x= %d, pb.y= %d", loc.x+450, loc.y+70));
-	    	
 		//create the swing worker background task to get the data from the server
 		ONCServerDBImporter databaseImporter = new ONCServerDBImporter(year);
-//	    databaseImporter.addPropertyChangeListener(pb);
-		    
-	    //show the progress bar.
-//		pb.show("Loading " + Integer.toString(year) + " Data", null);
-//		Point locPoint = pb.getLocationOnScreen();
-//	    System.out.println(String.format("DatabaseMgr.importObjFromDB: actual pb.x= %d, pb.y= %d", locPoint.x, locPoint.y));
 		
+		//Enable the Progress bar
+		if(progressNavPanel != null)
+		{
+			progressNavPanel.setVisibleProgressBar(true);
+			databaseImporter.addPropertyChangeListener(progressNavPanel);
+		}
+
 		//execute the background swing worker task
 		databaseImporter.execute();
 	}
@@ -393,6 +381,9 @@ public class DatabaseManager extends ServerListenerComponent implements ServerLi
      */
     void serverDataLoadComplete(boolean bServerDataLoaded, Integer year)
     {
+    	if(progressNavPanel != null)
+    		progressNavPanel.setVisibleProgressBar(false);
+    	
 		if(bServerDataLoaded)
 		{
 			//notify each of the client listeners that the import is complete.

@@ -1,11 +1,17 @@
 package ourneighborschild;
 
+import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 
 public class ReceiveGiftsByBarcodeDialog extends GiftLabelDialog
 {
@@ -13,6 +19,8 @@ public class ReceiveGiftsByBarcodeDialog extends GiftLabelDialog
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	
+	private JRadioButton rbRegular, rbClone;
 	
 	ReceiveGiftsByBarcodeDialog(JFrame parentFrame)
 	{
@@ -23,14 +31,32 @@ public class ReceiveGiftsByBarcodeDialog extends GiftLabelDialog
 		this.btnUndo.setToolTipText("Click to undo last gift receipt");
 		this.btnSubmit.setVisible(false);
 		
+		//set up the regular vs cloned gift mode panel
+		JPanel modePanel = new JPanel();
+		modePanel.setLayout(new BoxLayout(modePanel, BoxLayout.Y_AXIS));
+		
+		rbRegular = new JRadioButton("Regular");
+		rbRegular.addActionListener(this);
+		rbClone = new JRadioButton("Cloned");
+		rbClone.addActionListener(this);
+		
+		ButtonGroup modeGroup = new ButtonGroup();
+		modeGroup.add(rbRegular);
+		modeGroup.add(rbClone);
+		rbRegular.setSelected(true);
+		
+		modePanel.add(rbRegular);
+		modePanel.add(rbClone);
+		modePanel.setBorder(BorderFactory.createTitledBorder("Gift Type"));
+		
+		topPanel.add(modePanel, BorderLayout.EAST);
+		
 		//set up the dialog pane
 		this.getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 		this.getContentPane().add(topPanel);
 		this.getContentPane().add(bottomPanel);
 		
-		clearBarcodeTF();	//request focus and highlight bar code entry
-		
-		pack();
+		this.setMinimumSize(new Dimension(640, 160));
 	}
 	
 	void onGiftLabelFound(SortGiftObject swo)
@@ -91,7 +117,7 @@ public class ReceiveGiftsByBarcodeDialog extends GiftLabelDialog
 		//gift wish. Organization parameter is null, indicating we're not changing the gift partner
 		if(lastCloneChanged != null &&
 			scgo.getFamily().getID() == lastCloneChanged.getFamily().getID() &&
-			scgo.getChild().getID() == lastWishChanged.getChild().getID() && 
+			scgo.getChild().getID() == lastCloneChanged.getChild().getID() && 
 			scgo.getClonedGift().getGiftNumber() == lastCloneChanged.getClonedGift().getGiftNumber() &&
 			scgo.getClonedGift().getGiftStatus() == ClonedGiftStatus.Received)
 		{
@@ -121,16 +147,16 @@ public class ReceiveGiftsByBarcodeDialog extends GiftLabelDialog
 			response = clonedGiftDB.addClonedGiftList(this, addReqClonedGiftList);
 			
 			//change color and enable undo operation based on success of receiving gift
-			if(response != null)
+			if(response != null && response.equals("ADDED_LIST_CLONED_GIFTS"))
 			{	
 				//must get the last gift in the linked list from the database and
-				//set the lastCloneChanaged
-				ClonedGift lastGiftAdded = clonedGiftDB.getClonedGift(addCloneReq.getChildID(), addCloneReq.getGiftNumber());
+				//set the lastCloneChanaged. Must make a new object for the last gift added so
+				//we don't change the actual last gift in the local database
+				ClonedGift lastGiftAddedInDB = clonedGiftDB.getClonedGift(addCloneReq.getChildID(), addCloneReq.getGiftNumber());
+				ClonedGift lastGiftAdded = new ClonedGift(lastGiftStatus, lastGiftAddedInDB);
+				
 				lastCloneChanged = new SortClonedGiftObject(-1, scgo.getFamily(), scgo.getChild(), lastGiftAdded);
 				lastCloneChanged.getClonedGift().setGiftStatus(lastGiftStatus);
-				
-				System.out.println(String.format("RecGiftsBarcode: lastCloneID = %d, status= %s",
-						lastGiftAdded.getID(), lastGiftAdded.getGiftStatus().toString()));
 						
 				alert(Result.SUCCESS, String.format("Gift Received: Family # %s, %s",
 						scgo.getFamily().getONCNum(),scgo.getGiftPlusDetail()));
@@ -225,6 +251,8 @@ public class ReceiveGiftsByBarcodeDialog extends GiftLabelDialog
     					lastWishChanged.getFamily().getONCNum(), lastWishChanged.getGiftPlusDetail()));
     		}
 		}
+		
+		clearBarcodeTF();
 	}
 	
 	@Override
@@ -235,24 +263,27 @@ public class ReceiveGiftsByBarcodeDialog extends GiftLabelDialog
 	}
 
 	@Override
-	void onActionPerformed(ActionEvent e)
+	boolean isGiftEligible(ONCChildGift cg)
 	{
-		// TODO Auto-generated method stub
-	}
-
-	@Override
-	boolean isGiftEligible(ONCChildGift cw)
-	{
-		return cw.getGiftStatus() == GiftStatus.Delivered || 
-				cw.getGiftStatus() == GiftStatus.Shopping ||
-				 cw.getGiftStatus() == GiftStatus.Missing ||
-				  cw.getGiftStatus() == GiftStatus.Received;
+		return rbRegular.isSelected() && cg.getGiftNumber() < CLONED_GIFT_FIRST_GIFT_NUMBER &&
+				(cg.getGiftStatus() == GiftStatus.Delivered || 
+				cg.getGiftStatus() == GiftStatus.Shopping ||
+				 cg.getGiftStatus() == GiftStatus.Missing ||
+				  cg.getGiftStatus() == GiftStatus.Received);
 	}
 	
 	@Override
 	boolean isGiftEligible(ClonedGift clonedGift)
 	{
-		return clonedGift.getGiftStatus() == ClonedGiftStatus.Delivered || 
-				clonedGift.getGiftStatus() == ClonedGiftStatus.Received;
+		return rbClone.isSelected() && clonedGift.getGiftNumber() >= CLONED_GIFT_FIRST_GIFT_NUMBER &&
+				(clonedGift.getGiftStatus() == ClonedGiftStatus.Delivered || 
+				clonedGift.getGiftStatus() == ClonedGiftStatus.Received);
+	}
+	
+	@Override
+	public void onActionPerformed(ActionEvent e)
+	{
+		if(e.getSource() == rbRegular || e.getSource() == rbClone)
+			clearBarcodeTF();	//request focus and highlight bar code entry
 	}
 }

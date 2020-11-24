@@ -90,7 +90,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private JPanel p1, p2, p3;
 	private Color pBkColor; //Used to restore background for panels 1-3, btnShowPriorHistory when changed
 	
-	private ONCNavPanel nav;	//public to allow adding/removal of Entity Selection Listeners
+	private ONCProgressNavPanel nav;	//public to allow adding/removal of Entity Selection Listeners
 	private JTextPane oncNotesPane, oncDIPane, wishlistPane;
 	private JScrollPane wishlistScrollPane;
 	private JTextPane homePhonePane, otherPhonePane;
@@ -177,7 +177,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	    eeManager.registerEntitySelectionListener(this);
 		
 		//Setup the nav panel
-		nav = new ONCNavPanel(pf, fDB);
+		nav = new ONCProgressNavPanel(pf, fDB);
 		nav.setMssg("Our Neighbor's Child Families");
 	    nav.setCount1("Families Served Gifts: " + Integer.toString(0));
 	    nav.setCount2("Children Served Gifts: " + Integer.toString(0));
@@ -1649,6 +1649,8 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			}
 		}
 	}
+	
+	ONCProgressNavPanel getProgressNavPanel() { return nav; }
 	
 	@Override
 	public EnumSet<EntityType> getEntityEventListenerEntityTypes() 

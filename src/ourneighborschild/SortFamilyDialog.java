@@ -334,7 +334,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
         printCB.setEnabled(false);
         printCB.addActionListener(this);
         
-        String[] emailChoices = {"Email", "2019 Confirm. Email"};
+        String[] emailChoices = {"Email", "2020 Confirmation Email"};
         sendEmailCB = new JComboBox<String>(emailChoices);
         sendEmailCB.setPreferredSize(new Dimension(180, 28));
         sendEmailCB.setEnabled(false);
@@ -1453,19 +1453,23 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		//build the email
 		ArrayList<ONCEmail> emailAL = new ArrayList<ONCEmail>();
 		ArrayList<ONCEmailAttachment> attachmentAL = new ArrayList<ONCEmailAttachment>();
-		String cid0 = null, cid1 = null;
-		String subject = null;
+//		String cid0 = null, cid1 = null;
+		String subject = "Holiday Gift Confirmation from Our Neighbor's Child";
 		
-		//Create the attachment array list
-		if(emailType == 1)
-		{	
-			//Create the email subject
-			subject = "Holiday Gift Confirmation from Our Neighbor's Child (Desplaza hacia abajo para espanol)";
-//			cid0 = ContentIDGenerator.getContentId();
-//			cid1 = ContentIDGenerator.getContentId();
-//			attachmentAL.add(new ONCEmailAttachment("DSC_0154.jpeg", cid0 , MimeBodyPart.INLINE));
-//			attachmentAL.add(new ONCEmailAttachment("Warehouse 3.jpeg", cid1, MimeBodyPart.INLINE));
-		}
+//		//Create the attachment array list
+//		if(emailType == 1)
+//		{	
+//			//Create the pickup location email
+//			subject = "Holiday Gift Confirmation from Our Neighbor's Child (Desplaza hacia abajo para espanol)";
+//		}
+//		else if(emailType == 2)
+//		{	
+//			//Create the email subject
+//			subject = "Holiday Gift Confirmation from Our Neighbor's Child (Desplaza hacia abajo para espanol)";
+//		}
+		
+		//create the pickup locations object
+		PickUpLocations locations = new PickUpLocations();
 		
 		//For each family selected, create the email subject, body and recipient information in an
 		//ONCEmail object and add it to the email array list
@@ -1479,8 +1483,12 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			//and automatically filters out those without valid email addresses
 			if(fam.getEmail().length() > 4 && fam.getEmail().contains("@") && fam.getEmail().contains("."))
 			{
+				//determine subject line in English or Spanish
+				if(fam.getLanguage().equals("Spanish"))
+					subject = "Confirmaci&#243;n de regalo navide&#241;o del Our Neighbor's Child";
+				
 				//Create the email body, method call generates a new email body string
-				String emailBody = createEmailBody(fam, cid0, cid1);
+				String emailBody = createEmailBody(fam, locations.getPickUpLocation(fam));
 			
 				//Create recipient list for email. Method call creates a new List of EmailAddresses
 				ArrayList<EmailAddress> recipientAdressList = createRecipientList(fam);
@@ -1518,14 +1526,14 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	 *Creates a new email body for each family email. If family is valid or doesn't have a valid first 
 	 *name, a null body is returned
 	 **************************************************************************************************/
-	String createEmailBody(ONCFamily fam, String cid0, String cid1)
+	String createEmailBody(ONCFamily fam, PickUpLocation puLocation)
 	{
 		String emailBody = null;
 		
 		//verify the family has a valid name. If not, return a null body
 		if(fam != null && fam.getFirstName() != null && fam.getFirstName().length() >= MIN_EMAIL_NAME_LENGTH) 
 		{
-			emailBody = create2018FamilyEmailText(fam);
+			emailBody = create2020FamilyGiftPickUpEmail(fam, puLocation);
 		}
         	
 		return emailBody;
@@ -1629,6 +1637,35 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
         	"</div></body></html>", hohFirstAndLastName, familyname, streetaddress, citystatezip, homephones, otherphones, 
         	emailaddress, altstreetaddress, altcitystatezip, hohFirstAndLastName, familyname, streetaddress, citystatezip, 
         	homephones, otherphones, emailaddress, altstreetaddress, altcitystatezip);
+        return msg;
+	}
+	
+	String create2020FamilyGiftPickUpEmail(ONCFamily fam, PickUpLocation puLocation)
+	{
+		
+        //Create the text part of the email using html
+        String msg = String.format(
+        	"<html><body><div>" +
+        	"<p>Dear %s %s,</p>"+
+        	"<p>Our Neighbor's Child (ONC) received a holiday assistance request from your child's school and volunteers have collected gifts for your child(ren).</p>" + 
+        	"<p><b>Gifts will be available for PICK UP on Sunday, December 13 from 1PM to 4PM</b>.</p>" +
+        	"<p><b>IMPORTANT: There are many families and several Gift Pick Up locations. <span style=\"background-color: #FFFF00\">Your child(ren)'s gifts will only be available from ONC's truck at <i>THIS</i> location from 1-4PM:</span></b></p>"+
+        	"<p style=\"font-size:24px\" align=\"center\">%s<br><a href=\"%s\">%s</a></p>"+
+        	"<p style=\"font-size:12px\"><b>The churches and businesses are sharing their parking areas for this Our Neighbor's Child event and will not have additional information. Please direct any questions to your child's school.</b>" +
+        	"<p><span style=\"background-color: #FFFF00\">Please reply \"YES\" to confirm you have received this email and understand the pick up instructions.</span></p>"+
+			"<p>You, or someone you trust, may pick up your gifts by presenting your unique ONC Family Identification Number (ONC#) and the name of the Head of Household (listed below). "
+			+ "<b>Please do not share this information with anyone unless you authorize another person to pick up your gifts</b>. Your gifts are bagged in advance and marked for your family. "
+			+ "It is not necessary to be the first in line <b>as long as you arrive before 4PM.</b></p>" +
+			"<ul>"+
+			"<li>You must print the page with your ONC # and Head of Household Name (listed below) and place it in your car's dashboard. Or, you may write the number and name in large, legible print and place that in your car's dashboard.</li>"+
+			"<li>Upon arrival, follow directional signs and remain in the vehicle. All vehicle occupants must wear masks.</li>"+
+			"<li>A volunteer (wearing a mask) will bring the gifts marked with your ONC number to your car. The volunteer will either load them into your open trunk or will step back to allow you to safely load them inside your vehicle.</li>"+
+        	"</ul>"+
+			"<div style=\"break-before: always\">" +
+        	"<p style=\"font-size:144px\" align=\"center\"><b>ONC #<br>%s</b></p>" +
+        	"<p style=\"font-size:32px\" align=\"center\">Head of Household Name: %s %s</p>" +
+        	"</div>"+
+        	"</div></body></html>", fam.getFirstName(), fam.getLastName(), puLocation.getName(), puLocation.getGoogleMapURL(), puLocation.getAddress(), fam.getONCNum(), fam.getFirstName(), fam.getLastName());
         return msg;
 	}
 	
@@ -3595,5 +3632,61 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 				this.dispose();
 			}
 		}	
+	}
+	
+	private class PickUpLocations
+	{
+		private List<PickUpLocation> locations;
+		
+		PickUpLocations()
+		{
+			locations = new ArrayList<PickUpLocation>();
+			
+			locations.add(new PickUpLocation("Centreville Baptist Church","15100 Lee Highway Centreville, VA", "https://goo.gl/maps/Khbgv2i4Tk1ZKjgT8"));	//index 0
+			locations.add(new PickUpLocation("Centreville United Methodist Church","6400 Old Centreville Road Centreville, VA", "https://goo.gl/maps/WMNjKxeHVHCsC4vP6"));	//index 1
+			locations.add(new PickUpLocation("Saint Andrew Lutheran Church","14640 Soucy Place Centreville, VA", "https://goo.gl/maps/TL48uuGFqiuUjxZv7"));	//index 2
+			locations.add(new PickUpLocation("A&A Transfer Building 1","44200 Lavin Lane Chantilly, VA", "https://goo.gl/maps/WquCeZ95FurKcXJp6"));	//index 3
+			locations.add(new PickUpLocation("Saint Andrew Lutheran Church","14640 Soucy Place Centreville, VA", "https://goo.gl/maps/TL48uuGFqiuUjxZv7"));	//index 4
+			locations.add(new PickUpLocation("Centreville Baptist Church","15100 Lee Highway Centreville, VA", "https://goo.gl/maps/Khbgv2i4Tk1ZKjgT8"));	//index 5
+			locations.add(new PickUpLocation("King of Kings Lutheran Church","4025 Kings Way Fairfax, VA", "https://goo.gl/maps/DmcQqiCniUALDnQv8"));	//index 6
+		}
+		
+		PickUpLocation getPickUpLocation(ONCFamily fam)
+		{
+			int oncNum = Integer.parseInt(fam.getONCNum());
+			if(oncNum < 250)
+				return locations.get(0);	//100 to 250: CBC
+			else if(oncNum < 539)
+				return locations.get(1);	//251 to 539: CUMC
+			else if(oncNum < 590)
+				return locations.get(2);	//540 to 590: Saint Andrew
+			else if(oncNum < 741)
+				return locations.get(3);	//591 to 741: A&A 
+			else if(oncNum < 792)
+				return locations.get(4);	//742 to 792: Saint Andrew
+			else if(oncNum < 1018)
+				return locations.get(5);	//793 to 999: CBC
+			else
+				return locations.get(6);	//1000+: King of Kings
+		}
+	}
+	
+	private class PickUpLocation
+	{
+		private String name;
+		private String address;
+		private String googleMapURL;
+		
+		PickUpLocation(String name, String address, String url)
+		{
+			this.name = name;
+			this.address = address;
+			this.googleMapURL = url;
+		}
+		
+		//getters
+		String getName() { return name; }
+		String getAddress() { return address; }
+		String getGoogleMapURL() { return googleMapURL; }
 	}
 }

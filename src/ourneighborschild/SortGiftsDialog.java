@@ -535,7 +535,7 @@ public class SortGiftsDialog extends ChangeDialog implements PropertyChangeListe
 		if(!reqAddGiftList.isEmpty())
 		{
 			String response = giftDB.addGiftList(this, reqAddGiftList);
-			if(response.startsWith("ADDED_GIFT_LIST"))
+			if(response != null && response.startsWith("ADDED_GIFT_LIST"))
 				buildTableList(false);
 		}
 		else

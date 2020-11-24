@@ -40,7 +40,7 @@ public class OurNeighborsChild
 	 */
 	//Static Final Variables
 	private static final int SERVER_CONNECT_RETRY_LIMIT = 3;
-	private static final String VERSION = "8.08";
+	private static final String VERSION = "8.09";
 	private static final String APPNAME = "Our Neighbor's Child";
 	private static final int JAVA_VERSION_NINE = 9;
 	private static final String ONC_SERVER_IP_ADDRESS_FILE = "serveraddress.txt";
@@ -59,8 +59,8 @@ public class OurNeighborsChild
 	
 	//Server Connection
 	private ServerIF serverIF;	
-//	private static final String defaultServerAddress = "54.237.74.69";// 2020 Amazon cloud development server
-	private static final String defaultServerAddress = "34.234.112.242";// 2020 Amazon cloud production server
+	private static final String defaultServerAddress = "54.237.74.69";// 2020 Amazon cloud development server
+//	private static final String defaultServerAddress = "34.234.112.242";// 2020 Amazon cloud production server
 	private static final int PORT = 8901;
 	
 	private final boolean bMacOSX;
@@ -251,10 +251,11 @@ public class OurNeighborsChild
     		//get encryption keys
     		encryptionMgr.importKeyMapFromServer();
     	
-    		//get user and group data base components. They are necessary if user is required to 
-    		//update their profile
-//        	UserDB.getInstance().importUserDatabase();
-//        	GroupDB.getInstance().importDB();
+    		//allows the database manager to use the main screen nav panel progress bar when
+    		//importing the database from the server
+    		dbManager.setProgressPanel(oncFamilyPanel.getProgressNavPanel());
+    		
+    		//import user & group data base components. Required if a profile update is forced
     		dbManager.importEarlyComponentDBs();
     		
     		if(user.getStatus() == UserStatus.Update_Profile)

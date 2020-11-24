@@ -82,7 +82,6 @@ public class SortClonedGiftsDialog extends ChangeDialog implements PropertyChang
 	private DefaultComboBoxModel<ONCPartner> assignCBM, changePartnerCBM;
 	
 	private JTextField oncnumTF;
-//	private JButton btnExport;
 	private JDateChooser ds, de;
 	private Calendar startFilterTimestamp, endFilterTimestamp;
 	private JCheckBox labelFitCxBox;
@@ -412,25 +411,28 @@ public class SortClonedGiftsDialog extends ChangeDialog implements PropertyChang
 		stAL.clear();	//Clear the prior table information in the array list
 		
 		int itemID = 0;
-		
-		for(ClonedGift cg : clonedGiftDB.getCurrentCloneGiftList())
+	
+		for(ClonedGift cg : clonedGiftDB.getList())
 		{
-			ONCChild c = cDB.getChild(cg.getChildID());
-			if(c != null)
+			if(cg.getNextID() == -1)	//must be a the last gift in the linked list
 			{	
-				ONCFamily f = fDB.getFamily(c.getFamID());
-				if(f != null && isNumeric(f.getONCNum()) && doesONCNumMatch(f.getONCNum()) &&
-					doesFamilyStatusMatch(f.getFamilyStatus()) && doesDNSCodeMatch(f.getDNSCode()) && 
-					 doesRegionMatch(f.getRegion()) &&	isAgeInRange(c) && doesGenderMatch(c) &&
-					  doesSchoolMatch(c) && doesResMatch(cg.getIndicator()) &&
-    				   doesPartnerMatch(cg.getPartnerID()) && doesStatusMatch(cg.getGiftStatus()) &&
+				ONCChild c = cDB.getChild(cg.getChildID());
+				if(c != null)
+				{	
+					ONCFamily f = fDB.getFamily(c.getFamID());
+					if(f != null && isNumeric(f.getONCNum()) && doesONCNumMatch(f.getONCNum()) &&
+						doesFamilyStatusMatch(f.getFamilyStatus()) && doesDNSCodeMatch(f.getDNSCode()) && 
+						doesRegionMatch(f.getRegion()) &&	isAgeInRange(c) && doesGenderMatch(c) &&
+						doesSchoolMatch(c) && doesResMatch(cg.getIndicator()) &&
+						doesPartnerMatch(cg.getPartnerID()) && doesStatusMatch(cg.getGiftStatus()) &&
     					isGiftChangeDateBetween(cg.getTimestamp()) && doesChangedByMatch(cg.getChangedBy()) &&
-    					 doesGiftBaseMatch(cg.getGiftID()) && doesGiftNumMatch(cg.getGiftNumber())  &&
-    					  !(bOversizeGifts && !isGiftOversize(cg)))//Wish criteria pass
-    			{
-    				stAL.add(new SortClonedGiftObject(itemID++, f, c, cg));
-    			}
-    		}
+    					doesGiftBaseMatch(cg.getGiftID()) && doesGiftNumMatch(cg.getGiftNumber())  &&
+    					!(bOversizeGifts && !isGiftOversize(cg)))//Wish criteria pass
+					{
+						stAL.add(new SortClonedGiftObject(itemID++, f, c, cg));
+					}
+				}
+			}
 		}
 		
 		updateSchoolFilterList();
@@ -441,8 +443,7 @@ public class SortClonedGiftsDialog extends ChangeDialog implements PropertyChang
 	/****
 	 * Builds a list of changed gift requests from the highlighted ONCChildGifts in the table. Submits the list
 	 * to the local database to be sent to the server. Does some checking based on current gift status to
-	 * determine if gift restrictions or gift parters may be changed. The local database determines
-	 * if current gift status can be changed.
+	 * determine if gift restrictions or gift parters may be changed.
 	 */
 	boolean onApplyChanges()
 	{
@@ -496,7 +497,7 @@ public class SortClonedGiftsDialog extends ChangeDialog implements PropertyChang
 		if(!reqAddGiftList.isEmpty())
 		{
 			String response = clonedGiftDB.addClonedGiftList(this, reqAddGiftList);
-			if(response.startsWith("ADDED_LIST_CLONED_GIFTS"))
+			if(response != null && response.startsWith("ADDED_LIST_CLONED_GIFTS"))
 				buildTableList(false);
 		}
 		else
@@ -1391,6 +1392,7 @@ public class SortClonedGiftsDialog extends ChangeDialog implements PropertyChang
 	@Override
 	public void dataChanged(DatabaseEvent dbe) 
 	{
+//		System.out.println(String.format("SortClonedGiftDlg.dataChanged: dbeType= %s", dbe.getType()));
 		if(dbe.getType().equals("LOADED_DATABASE"))
 		{
 			this.setTitle(String.format("Our Neighbor's Child - %d Cloned Gift Management", gvs.getCurrentSeason()));
@@ -1401,18 +1403,21 @@ public class SortClonedGiftsDialog extends ChangeDialog implements PropertyChang
 			updateGiftSelectionList();
 			buildTableList(false);
 		}
-		if(dbe.getType().equals("ADDED_CLONED_GIFT") || dbe.getType().equals("UPDATED_CLONED_GIFT") ||
-			dbe.getType().equals("UPDATED_FAMILY"))	//ONC# or region?	
+		if(dbe.getType().equals("ADDED_LIST_CLONED_GIFTS"))	
+		{
+			buildTableList(true);
+		}
+		if(dbe.getType().equals("UPDATED_FAMILY"))	//ONC# or region?	
 		{
 			buildTableList(true);
 		}
 		else if(dbe.getSource() != this && (dbe.getType().equals("UPDATED_CHILD") || 
-				  dbe.getType().equals("DELETED_CHILD")))	//ONC# or region?
+				  dbe.getType().equals("DELETED_CHILD")))	
 		{
 			updateSchoolFilterList();
 			buildTableList(true);
 		}
-		else if(dbe.getSource() != this && (dbe.getType().equals("ADDED_CHILD")))	//ONC# or region?
+		else if(dbe.getSource() != this && (dbe.getType().equals("ADDED_CHILD")))
 		{
 			updateSchoolFilterList();
 		}

@@ -48,6 +48,7 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 	private GiftCatalogDB cat;
 	private PartnerDB partnerDB;
 	private UserDB userDB;
+	private DatabaseManager dbMgr;
 	
 	private ONCChild child;			//child being displayed on panel
 	private ONCChildGift childGift; //wish being displayed on panel
@@ -70,7 +71,11 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 		this.setTransferHandler(new InventoryTransferhandler());
 		
 		gvs = GlobalVariablesDB.getInstance();
-    		fDB = FamilyDB.getInstance();
+		
+		dbMgr = DatabaseManager.getInstance();
+		if(dbMgr != null)
+			dbMgr.addDatabaseListener(this);
+    	fDB = FamilyDB.getInstance();
 		if(fDB != null)
 			fDB.addDatabaseListener(this);
 		
@@ -151,9 +156,9 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
         partnerCB.addActionListener(this);
         
         wsp1.add(giftCB);
-    		wsp1.add(giftindCB);
-    		wsp1.add(rbGift);
-    		wsp2.add(giftdetailTF);
+		wsp1.add(giftindCB);
+		wsp1.add(rbGift);
+		wsp2.add(giftdetailTF);
         wsp3.add(partnerCB);
         wsp3.add(rbLabel);
         
@@ -183,7 +188,7 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 		
 		border.setTitle(String.format("Gift %d: %s", giftNumber+1, cg.getGiftStatus()));
 		this.repaint();
-			
+		
 		ONCGift wish = cat.getGiftByID(cg.getGiftID());
 		if(wish != null)
 			giftCB.setSelectedItem(wish);

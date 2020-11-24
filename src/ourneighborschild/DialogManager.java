@@ -414,7 +414,7 @@ public class DialogManager implements EntitySelectionListener
 		if(!recGiftDialog.isVisible())
 		{
 			recGiftDialog.setLocationRelativeTo(GlobalVariablesDB.getFrame());
-			recGiftDialog.setVisible(true);
+			recGiftDialog.showDialog(true);
 		}
 	}
 	

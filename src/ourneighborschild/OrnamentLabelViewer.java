@@ -146,9 +146,9 @@ public class OrnamentLabelViewer extends JDialog implements DatabaseListener
 			this.setBackground(Color.white);
 			
 			lFont = new Font[3];
-		    lFont[0] = new Font("Calibri", Font.ITALIC, 11);
-		    lFont[1] = new Font("Calibri", Font.BOLD, 11);
-		    lFont[2] = new Font("Calibri", Font.PLAIN, 10);
+		    lFont[0] = new Font("Times New Roman", Font.ITALIC, 11);
+		    lFont[1] = new Font("Times New Roman", Font.BOLD, 11);
+		    lFont[2] = new Font("Times New Roman", Font.PLAIN, 10);
 		}
 		
 		/**

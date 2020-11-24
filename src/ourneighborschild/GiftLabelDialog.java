@@ -11,6 +11,8 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.util.EnumSet;
 
 import javax.sound.sampled.LineUnavailableException;
@@ -34,7 +36,7 @@ public abstract class GiftLabelDialog extends ONCEntityTableDialog implements Ac
 	private static final int SOUND_DURATION = 100;
 	private static final int SUCCESS_SOUND_FREQ = 500;
 	private static final int FAILED_SOUND_FREQ = 150;
-	private static final int CLONED_GIFT_FIRST_GIFT_NUMBER = 3;
+	protected static final int CLONED_GIFT_FIRST_GIFT_NUMBER = 3;
 	
 	//database references
 	protected FamilyDB familyDB;
@@ -114,6 +116,7 @@ public abstract class GiftLabelDialog extends ONCEntityTableDialog implements Ac
 		barcodeTF.setBorder(BorderFactory.createTitledBorder("Gift Barcode"));
 		barcodeTF.setToolTipText("Scan barcode or type barcode # and press <enter>");
 		barcodeTF.addActionListener(this);
+//		barcodeTF.addFocusListener(new BarcodeFocusListener());
 		barcodePanel.add(barcodeTF);
 		
 		giftLabelPanel = new GiftLabelPanel();
@@ -150,6 +153,8 @@ public abstract class GiftLabelDialog extends ONCEntityTableDialog implements Ac
 	    
 	    bottomPanel.add(cntlPanel, BorderLayout.LINE_START);
 	    bottomPanel.add(submitPanel, BorderLayout.LINE_END);
+	    
+	    this.addFocusListener(new BarcodeFocusListener());
 	}
 	
 	abstract void onClearOtherPanels();
@@ -200,7 +205,7 @@ public abstract class GiftLabelDialog extends ONCEntityTableDialog implements Ac
 	void clearBarcodeTF()
 	{
 		barcodeTF.setText("");
-		barcodeTF.requestFocus();
+		barcodeTF.requestFocusInWindow();
 		barcodePanel.setBackground(Color.GREEN);
 	}
 	
@@ -280,7 +285,7 @@ public abstract class GiftLabelDialog extends ONCEntityTableDialog implements Ac
 			}
 			else if(!bClonedGift && !isGiftEligible(cw) || bClonedGift && !isGiftEligible(clonedGift))
 			{
-				errMessage="Gift Status Ineligible";
+				errMessage="Gift Ineligible";
 				onGiftLabelNotFound();
 			}
 			else if((child = childDB.getChild(cID)) == null)
@@ -338,7 +343,29 @@ public abstract class GiftLabelDialog extends ONCEntityTableDialog implements Ac
 			onActionPerformed(e);
 	}
 	
+	void showDialog(boolean tf)
+	{
+		this.setVisible(tf);
+		this.requestFocus();
+	}
+	
 	protected enum Result{ SUCCESS, UNDO, FAILURE; }
+	
+	private class BarcodeFocusListener implements FocusListener
+	{
+
+		@Override
+		public void focusGained(FocusEvent e)
+		{
+			barcodeTF.requestFocusInWindow();
+		}
+
+		@Override
+		public void focusLost(FocusEvent e)
+		{
+
+		}
+	}
 	
     private class GiftLabelPanel extends JPanel
     {
@@ -363,9 +390,9 @@ public abstract class GiftLabelDialog extends ONCEntityTableDialog implements Ac
 			this.setBackground(Color.white);
 			
 			lFont = new Font[3];
-		    lFont[0] = new Font("Calibri", Font.ITALIC, 11);
-		    lFont[1] = new Font("Calibri", Font.BOLD, 11);
-		    lFont[2] = new Font("Calibri", Font.PLAIN, 10);
+		    lFont[0] = new Font("Times New Roman", Font.ITALIC, 11);
+		    lFont[1] = new Font("Times New Roman", Font.BOLD, 11);
+		    lFont[2] = new Font("Times New Roman", Font.PLAIN, 10);
 		    
 		    this.setPreferredSize(new Dimension(300, 90));
 		}

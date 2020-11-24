@@ -9,7 +9,6 @@ import com.google.gson.reflect.TypeToken;
 
 public class ChildGiftDB extends ONCDatabase
 {
-//	private static final int PARTNER_TYPE_ONC_SHOPPER = 6;
 	private static final int GIFT_INDICATOR_ALLOW_SUBSTITUE = 2;
 	private static final String CHILD_GIFT_DEFAULT_DETAIL = "Age appropriate";
 	
@@ -245,7 +244,8 @@ public class ChildGiftDB extends ONCDatabase
 	 * For example, if a child's base gift is empty and it is changing to a gift selected from
 	 * the catalog, this method will set the gift status to SELECTED. Conversely, if
 	 * a gift was selected from the catalog and is reset to empty, the status is set to Not_Selected.
-	 ************************************************************************************************************/	
+	 ************************************************************************************************************/
+/*	
 	GiftStatus checkForStatusChange(ONCChildGift oldGift, int giftBase, GiftStatus reqStatus, ONCPartner reqPartner)
 	{
 		GiftStatus currStatus, newStatus;
@@ -353,11 +353,11 @@ public class ChildGiftDB extends ONCDatabase
 		
 		return newStatus;			
 	}
-	
+*/	
 	/*******************************************************************************************
 	 * This method implements a rules engine governing the relationship between a gift type and
-	 * gift status and gift assignment and gift status. It is called when a child's gift or
-	 * assignee changes and implements an automatic change of gift status.
+	 * gift status and partner assignment and gift status. It implements an automatic change of 
+	 * gift status.
 	 * 
 	 * For example, if a child's base gift is empty and it is changing to a gift selected from
 	 * the catalog, this method will set the gift status to SELECTED. Conversely, if
@@ -380,6 +380,7 @@ public class ChildGiftDB extends ONCDatabase
 			newPartnerAndStatus = new GiftPartnerAndStatus(oldGift.getPartnerID(), oldGift.getGiftStatus());
 		}
 		
+		//determine new partner and status based on current status, current partner, requested status & requested partner
 		switch(currStatus)
 		{
 			case Not_Selected:
@@ -398,13 +399,15 @@ public class ChildGiftDB extends ONCDatabase
 				
 			case Assigned:
 				if(giftBase == -1)
-					newPartnerAndStatus = new GiftPartnerAndStatus(-1, GiftStatus.Not_Selected);
+					newPartnerAndStatus = new GiftPartnerAndStatus(-1, GiftStatus.Not_Selected);	//Gift = None
 				else if(oldGift.getGiftID() != giftBase)
-					newPartnerAndStatus = new GiftPartnerAndStatus( -1, GiftStatus.Selected);
+					newPartnerAndStatus = new GiftPartnerAndStatus( -1, GiftStatus.Selected);	//New Gift
 				else if(reqPartner == null || reqPartner != null && reqPartner.getID() == -1)
-					newPartnerAndStatus = new GiftPartnerAndStatus(-1, GiftStatus.Selected);
+					newPartnerAndStatus = new GiftPartnerAndStatus(reqPartner.getID(), GiftStatus.Selected);	//Partner = None
+				else if(reqPartner != null && reqPartner.getID() >= -1 && oldGift.getPartnerID() != reqPartner.getID())
+					newPartnerAndStatus = new GiftPartnerAndStatus(reqPartner.getID(), GiftStatus.Assigned);	//New Partner
 				else if(reqStatus == GiftStatus.Delivered)
-					newPartnerAndStatus = new GiftPartnerAndStatus(oldGift.getPartnerID(), GiftStatus.Delivered);
+					newPartnerAndStatus = new GiftPartnerAndStatus(oldGift.getPartnerID(), GiftStatus.Delivered);	//Status Change
 				break;
 				
 			case Delivered:
@@ -664,7 +667,6 @@ public class ChildGiftDB extends ONCDatabase
 				ONCChildGift addedGift = gson.fromJson(responseGiftString.substring(10), ONCChildGift.class);
 				processAddedGift(this, addedGift);
 			}
-//			processUpdatedObject(this, ue.getJson(), childwishAL);
 		}
 	}
 	
@@ -690,6 +692,4 @@ public class ChildGiftDB extends ONCDatabase
 		int getPartnerID() { return partnerID; }
 		GiftStatus getGiftStatus() { return giftStatus; }
 	}
-
-	
 }

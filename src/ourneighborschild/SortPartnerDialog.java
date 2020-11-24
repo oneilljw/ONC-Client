@@ -2526,8 +2526,11 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 			(dbe.getType().equals("UPDATED_PARTNER") ||
 			  dbe.getType().equals("ADDED_PARTNER") ||
 			   dbe.getType().equals("PARTNER_WISH_ASSIGNEE_CHANGED") ||
-			    dbe.getType().equals("DELETED_PARTNER") ||
-			     dbe.getType().equals("DELETED_CHILD")))
+			    dbe.getType().equals("PARTNER_ORNAMENT_DELIVERED") ||
+			     dbe.getType().equals("PARTNER_WISH_RECEIVED") ||
+			      dbe.getType().equals("PARTNER_WISH_RECEIVE_UNDONE") ||
+			       dbe.getType().equals("DELETED_PARTNER") ||
+			        dbe.getType().equals("DELETED_CHILD")))
 		{
 			buildTableList(true);		
 		}

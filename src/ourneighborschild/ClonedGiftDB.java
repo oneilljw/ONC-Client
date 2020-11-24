@@ -82,17 +82,12 @@ public class ClonedGiftDB extends ONCDatabase
 	}
 	
 	//updates a list of cloned gifts to the cloned gift data base.
-	String addClonedGiftList(Object source, List<ClonedGift> addGiftRequestList)
+	String addClonedGiftList(Object source, List<ClonedGift> reqAddClonedGiftList)
 	{	
-		List<ClonedGift> reqAddClonedGiftList = new ArrayList<ClonedGift>();
-		
-		//create the list of added cloned gifts
-		for(ClonedGift addGiftReq : addGiftRequestList)
-			reqAddClonedGiftList.add(new ClonedGift(UserDB.getInstance().getUserLNFI(), addGiftReq));
-		
 		//wrap the child gift list in a json array and send the add request to the server
 		Gson gson = new Gson();
 		Type listOfClonedGifts = new TypeToken<ArrayList<ClonedGift>>(){}.getType();
+		
 		String response = null, returnResp = "ADD_FAILED";
 		response = serverIF.sendRequest("POST<add_clonedgiftlist>" + gson.toJson(reqAddClonedGiftList, listOfClonedGifts));
 
@@ -118,7 +113,10 @@ public class ClonedGiftDB extends ONCDatabase
 				}
 			}
 			
-			returnResp = "ADDED_GIFT_LIST";
+			returnResp = "ADDED_LIST_CLONED_GIFTS";
+			
+			//data bases have been updated, notify ui's that a list has been added
+			fireDataChanged(source, "ADDED_LIST_CLONED_GIFTS", null);
 		}
 
 		return returnResp;
@@ -126,6 +124,10 @@ public class ClonedGiftDB extends ONCDatabase
 	
 	void processUpdatedClonedGift(Object source, ClonedGift updatedClonedGift)
 	{
+//		System.out.println(String.format("ClonedGiftDB.processUpdatedClonedGift: clonedGiftListBefore:"));
+//		for(ClonedGift cg : clonedGiftList)
+//			System.out.println(String.format("ClonedGiftDB.processUpdatedClonedGift: clonedGiftList id= %d, status= %s, priorID=%d, nextId= %d", cg.getID(), cg.getGiftStatus().toString(), cg.getPriorID(), cg.getNextID()));
+			
 		//store updated object in local data base
 		int index = 0;
 		while(index < clonedGiftList.size() && clonedGiftList.get(index).getID() != updatedClonedGift.getID())
@@ -133,17 +135,21 @@ public class ClonedGiftDB extends ONCDatabase
 		
 		if(index < clonedGiftList.size())
 		{
-			replaceObject(index, updatedClonedGift);
+			replaceClonedGift(index, updatedClonedGift);
 			
 			//Notify local user IFs that a change occurred
 			fireDataChanged(source, "UPDATED_CLONED_GIFT", updatedClonedGift);
 		}
 		
+//		System.out.println(String.format("ClonedGiftDB.processUpdatedClonedGift: clonedGiftListAfter:"));
+//		for(ClonedGift cg : clonedGiftList)
+//			System.out.println(String.format("ClonedGiftDB.processUpdatedClonedGift: clonedGiftList id= %d, status= %s, priorID=%d, nextId= %d", cg.getID(), cg.getGiftStatus().toString(), cg.getPriorID(), cg.getNextID()));
+			
 	}
 	
-	void replaceObject(int index, ONCObject updatedObj)
+	void replaceClonedGift(int index, ClonedGift updatedGift)
 	{
-		ClonedGift updatedGift = (ClonedGift) updatedObj;
+//		System.out.println(String.format("ClonedGiftDB.replaceClonedGift: index= %d, updatedGift id= %d, nextID= %d", index, updatedGift.getID(), updatedGift.getNextID()));
 		clonedGiftList.set(index,  updatedGift);
 	}
 	
