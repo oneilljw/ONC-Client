@@ -1453,25 +1453,12 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		//build the email
 		ArrayList<ONCEmail> emailAL = new ArrayList<ONCEmail>();
 		ArrayList<ONCEmailAttachment> attachmentAL = new ArrayList<ONCEmailAttachment>();
-//		String cid0 = null, cid1 = null;
 		String subject = "Holiday Gift Confirmation from Our Neighbor's Child";
-		
-//		//Create the attachment array list
-//		if(emailType == 1)
-//		{	
-//			//Create the pickup location email
-//			subject = "Holiday Gift Confirmation from Our Neighbor's Child (Desplaza hacia abajo para espanol)";
-//		}
-//		else if(emailType == 2)
-//		{	
-//			//Create the email subject
-//			subject = "Holiday Gift Confirmation from Our Neighbor's Child (Desplaza hacia abajo para espanol)";
-//		}
 		
 		//create the pickup locations object
 		PickUpLocations locations = new PickUpLocations();
 		
-		//For each family selected, create the email subject, body and recipient information in an
+		//For each family selected, create the email, body and recipient information in an
 		//ONCEmail object and add it to the email array list
 		int[] row_sel = sortTable.getSelectedRows();
 		for(int row=0; row< sortTable.getSelectedRowCount(); row++)
@@ -1483,10 +1470,6 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			//and automatically filters out those without valid email addresses
 			if(fam.getEmail().length() > 4 && fam.getEmail().contains("@") && fam.getEmail().contains("."))
 			{
-				//determine subject line in English or Spanish
-				if(fam.getLanguage().equals("Spanish"))
-					subject = "Confirmaci&#243;n de regalo navide&#241;o del Our Neighbor's Child";
-				
 				//Create the email body, method call generates a new email body string
 				String emailBody = createEmailBody(fam, locations.getPickUpLocation(fam));
 			
@@ -3442,10 +3425,10 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			final Image img = gvs.getImageIcon(idx + XMAS_ICON_OFFSET).getImage();
 		     
 			Font[] lFont = new Font[4];
-		    lFont[0] = new Font("Calibri", Font.ITALIC, 16);
-		    lFont[1] = new Font("Calibri", Font.BOLD, 12);
-		    lFont[2] = new Font("Calibri", Font.PLAIN, 10);
-		    lFont[3] = new Font("Calibri", Font.BOLD, 24);	//ONC Number Text Font
+		    lFont[0] = new Font("Times New Roman", Font.ITALIC, 16);
+		    lFont[1] = new Font("Times New Roman", Font.BOLD, 12);
+		    lFont[2] = new Font("Times New Roman", Font.PLAIN, 10);
+		    lFont[3] = new Font("Times New Roman", Font.BOLD, 24);	//ONC Number Text Font
 		    
 		    int endOfSelection = 0, index = 0;
 		    int[] row_sel = sortTable.getSelectedRows();
@@ -3561,9 +3544,9 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			GlobalVariablesDB gvDB = GlobalVariablesDB.getInstance();
 			
 			if(gvDB.isDayBeforeOrDeliveryDay())
-				messageCB = new JComboBox<String>(new String[] {"None", "Delivery Confirmation", "Delivery Reminder"});
+				messageCB = new JComboBox<String>(new String[] {"None", "Pickup Confirmation", "Pickup Reminder"});
 			else
-				messageCB = new JComboBox<String>(new String[] {"None", "Delivery Confirmation"});
+				messageCB = new JComboBox<String>(new String[] {"None", "Pickup Confirmation"});
 			
 			messageCB.setPreferredSize(new Dimension(208,36));
 			messageCB.addActionListener(this);
