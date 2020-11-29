@@ -3546,9 +3546,9 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			if(gvDB.isDayBeforeOrDeliveryDay())
 				messageCB = new JComboBox<String>(new String[] {"None", "Pickup Confirmation", "Pickup Reminder"});
 			else
-				messageCB = new JComboBox<String>(new String[] {"None", "Pickup Confirmation"});
+				messageCB = new JComboBox<String>(new String[] {"None", "Pickup Confirmation - Email Sent", "Pickup Confirmation - No Email Sent"});
 			
-			messageCB.setPreferredSize(new Dimension(208,36));
+			messageCB.setPreferredSize(new Dimension(280,36));
 			messageCB.addActionListener(this);
 			messageSelPanel.add(lblMessageSel);
 			messageSelPanel.add(messageCB);
