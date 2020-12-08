@@ -611,16 +611,28 @@ public class FamilyDB extends ONCSearchableDatabase
 	    		return index;   	
 	}
 	 
-	 public ONCFamily searchForFamilyByID(int id)
-	 {
-	    	int index = 0;
-	    	while(index < oncFamAL.size() && oncFamAL.get(index).getID() != id)
-	    		index++;
+	public ONCFamily searchForFamilyByID(int id)
+	{
+	    int index = 0;
+	    while(index < oncFamAL.size() && oncFamAL.get(index).getID() != id)
+	    	index++;
 	    	
-	    	if(index==oncFamAL.size())
-	    		return null;	// Family not found
-	    	else
-	    		return oncFamAL.get(index);   	
+	    if(index==oncFamAL.size())
+	    	return null;	// Family not found
+	    else
+	    	return oncFamAL.get(index);   	
+	}
+	
+	ONCFamily searchForFamilyByONCNum(String oncNum)
+	{
+	    int index = 0;
+	    while(index < oncFamAL.size() && !oncFamAL.get(index).getONCNum().equals(oncNum))
+	    	index++;
+	    	
+	    if(index==oncFamAL.size())
+	    	return null;	// Family not found
+	    else
+	    	return oncFamAL.get(index);   	
 	}
 	
 	private void searchForONCNumber(String s, List<Integer> rAL)

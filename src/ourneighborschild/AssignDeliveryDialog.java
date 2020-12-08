@@ -66,9 +66,9 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 		sortGiftStatus = FamilyGiftStatus.Any;
 				
 		//Set up unique sort criteria gui
-    		oncnumTF = new JTextField(5);
-    		oncnumTF.setEditable(true);
-    		oncnumTF.setMaximumSize(new Dimension(64,56));
+		oncnumTF = new JTextField(5);
+		oncnumTF.setEditable(true);
+		oncnumTF.setMaximumSize(new Dimension(64,56));
 //    	oncnumTF.setPreferredSize(new Dimension(88,56));
 		oncnumTF.setBorder(BorderFactory.createTitledBorder("ONC #"));
 		oncnumTF.setToolTipText("Type ONC Family # and press <enter>");
@@ -76,9 +76,9 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 		oncnumTF.addKeyListener(new ONCNumberKeyListener());
     	
 		regionCBM.addElement("Any");	//superclass has regionCBM
-    		sRegCB = new JComboBox<String>();
-    		sRegCB.setModel(regionCBM);
-    		sRegCB.setMaximumSize(new Dimension(48,56));
+		sRegCB = new JComboBox<String>();
+		sRegCB.setModel(regionCBM);
+		sRegCB.setMaximumSize(new Dimension(48,56));
 		sRegCB.setBorder(BorderFactory.createTitledBorder("Region Start"));
 		sRegCB.addActionListener(this);
 		
@@ -86,7 +86,7 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 		eRegCBM.addElement("Any");
 		eRegCB = new JComboBox<String>();
 		eRegCB.setModel(eRegCBM);
-    		eRegCB.setMaximumSize(new Dimension(48,56));
+		eRegCB.setMaximumSize(new Dimension(48,56));
 		eRegCB.setBorder(BorderFactory.createTitledBorder("Region End"));
 		eRegCB.addActionListener(this);
 		
@@ -179,7 +179,7 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 		}
 		
 		lblNumOfTableItems.setText(Integer.toString(stAL.size()));	//# items in table
-		displaySortTable(stAL, true, tableRowSelectedObjectList);		//Display the table after table array list is built					
+		displaySortTable(stAL, true, tableRowSelectedObjectList);	//Display the table after table array list is built					
 	}
 	
 	@Override
@@ -284,7 +284,7 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 				//and the status set to assigned. Adding new delivery updates family changed by field
 				ONCFamilyHistory reqDelivery = new ONCFamilyHistory(-1, f.getID(),
 														f.getFamilyStatus(),
-														f.getGiftStatus(),
+														FamilyGiftStatus.Assigned,
 														assignDriverTF.getText(),
 														"Delivery Driver Assigned",
 														userDB.getUserLNFI(),
@@ -381,7 +381,7 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 				"# of bags packaged", "# of bikes assigned to family",
 				"# of large items assigned to family",
 				"House Number","Street", "Zip Code", "Region","Changed By",
-				"Stoplight Color", "Driver"};
+				"Stoplight Color", "Name of delivery volunteeer or pickup location"};
 
 
 
@@ -392,7 +392,7 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 	String[] getColumnNames() 
 	{
 		String[] columns = {"ONC", "Fam Status", "Del Status", "# Bags", "# Bikes", "# Lg It.", "House",
-				"Street", "Zip", "Reg", "Changed By", "SL", "Deliverer"};
+				"Street", "Zip", "Reg", "Changed By", "SL", "Deliverer or Location"};
 		return columns;
 	}
 

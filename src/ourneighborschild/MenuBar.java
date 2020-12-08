@@ -33,11 +33,11 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 	public JMenuItem exitMI;	//public since exit method is external to the menu bar
 	private JMenuItem findDupFamsMI, findDupChldrnMI, crosscheckMI;
 	private JMenuItem editVolMI, editActMI, viewSignInLogMI, manageVolMI, manageActMI;
-	private JMenuItem assignDelMI, manageDelMI, mapsMI, schoolDelMI, distMI;
+	private JMenuItem assignDelMI, manageDelMI, barcodeDeliveryMI, mapsMI, schoolDelMI, distMI;
 	private JMenuItem newFamMI, changeONCMI, changeRefMI, changeBatchMI, newChildMI, editDNSCodesMI;
 	private JMenuItem delChildMI, markAdultMI, connectChildMI, famHistMI;
 	private JMenu submenuImport, submenuFamilyDataChecks, submenuExport, submenuChangeFamilyNumbers;
-	private JMenu submenuDBYearList, submenuUsers, submenuReceiveGifts;
+	private JMenu submenuDBYearList, submenuUsers, submenuReceiveGifts, submenuDeliverGifts;
 	private JMenuItem viewDBMI, sortGiftsMI, sortClonedGiftsMI, sortFamiliesMI, sortOrgsMI, recGiftsMI, recGiftsBarcodeMI, sortMealsMI, batteryMI, manageBatteryMI;
 	private JMenuItem agentMI, groupMI, manageGroupsMI, orgMI, catMI, barcodeGiftHistoryMI, inventoryMI;
 	private JMenuItem aboutONCMI, oncPrefrencesMI, profileMI, editUsersMI, manageUsersMI, onlineMI, chatMI, changePWMI, stopPollingMI;
@@ -290,7 +290,7 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 	    menuGifts.addSeparator();
 	    
 	    submenuReceiveGifts = new JMenu("Receive Gifts");
-	    submenuImport.setEnabled(false);
+	    submenuReceiveGifts.setEnabled(false);
 	    
 	    recGiftsBarcodeMI = new JMenuItem("By Barcode Scan");
 	    recGiftsBarcodeMI.setActionCommand("Receive Gifts - Barcode");
@@ -426,7 +426,19 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 	    assignDelMI.setActionCommand("Deliveries");
 	    assignDelMI.setEnabled(false);
 	    assignDelMI.addActionListener(this);
-	    menuDelivery.add(assignDelMI);   
+	    menuDelivery.add(assignDelMI);
+	    
+	    submenuDeliverGifts = new JMenu("Confirm Deliveries");
+	    submenuDeliverGifts.setEnabled(false);
+	    
+	    barcodeDeliveryMI = new JMenuItem("By Barcode Scan");
+	    barcodeDeliveryMI.setEnabled(false);
+	    barcodeDeliveryMI.addActionListener(this);
+	    submenuDeliverGifts.add(barcodeDeliveryMI);
+	    
+	    menuDelivery.add(submenuDeliverGifts);
+	    
+	    menuDelivery.addSeparator();
 	    
 	    mapsMI = new JMenuItem("Delivery Directions");	
 	    mapsMI.setEnabled(false);
@@ -562,11 +574,15 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 		mapsMI.setEnabled(tf);	
 		distMI.setEnabled(tf);	
 		sortGiftsMI.setEnabled(true);
+		sortClonedGiftsMI.setEnabled(true);
+		submenuReceiveGifts.setEnabled(true);
 		recGiftsMI.setEnabled(true);
 		recGiftsBarcodeMI.setEnabled(true);
 		barcodeGiftHistoryMI.setEnabled(true);
 		batteryMI.setEnabled(true);
 		manageBatteryMI.setEnabled(true);
+		submenuReceiveGifts.setEnabled(true);
+		submenuDeliverGifts.setEnabled(true);
 	}
 	
 	void setEnabledRestrictedMenuItems(boolean tf)	//Only Admins can perform these functions
@@ -585,6 +601,7 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 		connectChildMI.setEnabled(tf);
 		sortClonedGiftsMI.setEnabled(true);
 		manageCallResultMI.setEnabled(tf);
+		barcodeDeliveryMI.setEnabled(tf);
 	}
 	
 	void setEnabledWishCatalogAndOrgMenuItems(boolean tf)
@@ -731,6 +748,8 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 			dlgManager.showEntityDialog(editUsersMI.getActionCommand(), SORT_DIALOG_OFFSET);
 		else if(e.getSource() == manageDelMI)
 			dlgManager.showSortDialog(manageDelMI.getActionCommand(), SORT_DIALOG_OFFSET);
+		else if(e.getSource() == barcodeDeliveryMI)
+			dlgManager.showBarcodeDeliveryDialog();
 //		else if(e.getSource() == importVolMI)
 //		{
 //			VolunteerDB volunteerDB = VolunteerDB.getInstance();

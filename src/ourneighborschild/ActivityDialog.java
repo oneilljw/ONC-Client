@@ -663,8 +663,14 @@ public class ActivityDialog extends EntityDialog
             calendar.setTime(date);
             long changeTimeInMillis = calendar.getTimeInMillis();
             
-            boolean timeChangesEnabled = e.getSource() == startModel && changeTimeInMillis != currActivity.getStartDate() ||
-            									e.getSource() == endModel && changeTimeInMillis != currActivity.getEndDate();
+            boolean timeChangesEnabled = false;
+            if(currActivity == null)
+            	timeChangesEnabled = true;
+            else if(e.getSource() == startModel && changeTimeInMillis != currActivity.getStartDate())
+            	timeChangesEnabled = true;
+            else if(e.getSource() == endModel && changeTimeInMillis != currActivity.getEndDate())
+            	timeChangesEnabled = true;
+          
             btnSaveTimeChanges.setEnabled(timeChangesEnabled);	
 		}	
 	}

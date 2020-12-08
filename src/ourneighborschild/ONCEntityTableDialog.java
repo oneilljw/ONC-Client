@@ -28,14 +28,14 @@ public abstract class ONCEntityTableDialog extends JDialog implements EntitySele
     
     public ONCEntityTableDialog(JFrame parentFrame)
     {
-    		super(parentFrame);
-    		this.parentFrame = parentFrame;
-    		gvs = GlobalVariablesDB.getInstance();
-    		dbMgr = DatabaseManager.getInstance();
-    	
-    		listenerMap = new HashMap<EntityType, ArrayList<EntitySelectionListener>>();
-    		for(EntityType entityType : getEntityEventSelectorEntityTypes())
-			listenerMap.put(entityType, new ArrayList<EntitySelectionListener>());	
+		super(parentFrame);
+		this.parentFrame = parentFrame;
+		gvs = GlobalVariablesDB.getInstance();
+		dbMgr = DatabaseManager.getInstance();
+	
+		listenerMap = new HashMap<EntityType, ArrayList<EntitySelectionListener>>();
+		for(EntityType entityType : getEntityEventSelectorEntityTypes())
+		listenerMap.put(entityType, new ArrayList<EntitySelectionListener>());	
     }
     
     /** Register a listener for Entity Selection events */

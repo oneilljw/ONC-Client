@@ -40,7 +40,7 @@ public class OurNeighborsChild
 	 */
 	//Static Final Variables
 	private static final int SERVER_CONNECT_RETRY_LIMIT = 3;
-	private static final String VERSION = "8.12";
+	private static final String VERSION = "8.13";
 	private static final String APPNAME = "Our Neighbor's Child";
 	private static final int JAVA_VERSION_NINE = 9;
 	private static final String ONC_SERVER_IP_ADDRESS_FILE = "serveraddress.txt";

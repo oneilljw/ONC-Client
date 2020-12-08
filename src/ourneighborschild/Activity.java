@@ -1,5 +1,8 @@
 package ourneighborschild;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Activity extends ONCEntity
 {
 	/***
@@ -141,26 +144,26 @@ public class Activity extends ONCEntity
 	@Override
 	public String[] getExportRow() 
 	{
-		String[] row = new String[15];
+		List<String> row = new ArrayList<String>();
 		
-		row[0] = Integer.toString(id);
-		row[1] = Integer.toString(geniusID);
-		row[2] = category;
-		row[3] = name;
-		row[4] = Long.toString(startTimeInMillis);
-		row[5] = Long.toString(endTimeInMillis);
-		row[6] = location;
-		row[7] = description;
-		row[8] = bOpen ? "T" : "F";
-		row[9] = bEmailReminder ? "T" : "F";
-		row[10] = Integer.toString(deliveryActivity);
-		row[11] = Long.toString(timestamp);
-		row[12] = changedBy;
-		row[13] = Integer.toString(slPos);
-		row[14] = slMssg;
-		row[15] = slChangedBy;
+		row.add(Integer.toString(id));
+		row.add(Integer.toString(geniusID));
+		row.add(category);
+		row.add(name);
+		row.add(Long.toString(startTimeInMillis));
+		row.add(Long.toString(endTimeInMillis));
+		row.add(location);
+		row.add(description);
+		row.add(bOpen ? "T" : "F");
+		row.add(bEmailReminder ? "T" : "F");
+		row.add(Integer.toString(deliveryActivity));
+		row.add(Long.toString(timestamp));
+		row.add(changedBy);
+		row.add(Integer.toString(slPos));
+		row.add(slMssg);
+		row.add(slChangedBy);
 		
-		return row;
+		return row.toArray(new String[row.size()]);
 	}
 	
 	public int compareActivities(Activity va)

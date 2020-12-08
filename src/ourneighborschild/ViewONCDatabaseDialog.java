@@ -14,6 +14,7 @@ import java.io.IOException;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -45,7 +46,8 @@ public class ViewONCDatabaseDialog extends JDialog implements ActionListener, Li
 	JTable dbTable;
 	DefaultTableModel dbTableModel;
 	ONCFamilyReportRowBuilder rb;
-	JButton btnExport, btnClearSelection;
+	JButton btnClearSelection;
+	JComboBox<String> exportCB;
 	boolean bChangingTable = false;
 	
 	ViewONCDatabaseDialog(JFrame parentFrame)
@@ -115,13 +117,13 @@ public class ViewONCDatabaseDialog extends JDialog implements ActionListener, Li
 //    	btnClearSelection.setPreferredSize(new Dimension(96,28));
     	btnClearSelection.addActionListener(this);
     	
-    	btnExport = new JButton("Export");
-    	btnExport.setEnabled(false);
-//    	btnExport.setPreferredSize(new Dimension(96,28));
-    	btnExport.addActionListener(this);
+    	exportCB = new JComboBox<String>(new String[] {"Export", "Export All Rows", "Export Selected Rows"});
+    	exportCB.setEnabled(false);
+    	exportCB.setPreferredSize(new Dimension(160,28));
+    	exportCB.addActionListener(this);
     	
     	cntlPanel.add(btnClearSelection);
-    	cntlPanel.add(btnExport);
+    	cntlPanel.add(exportCB);
     	
     	//Add the components to the frame pane
     	this.getContentPane().setLayout(new BoxLayout(this.getContentPane(), BoxLayout.Y_AXIS));
@@ -148,7 +150,7 @@ public class ViewONCDatabaseDialog extends JDialog implements ActionListener, Li
     		for(ONCFamily f:fDB.getList())
     			dbTableModel.addRow(rb.getFamilyReportCSVRowData(f));
     	
-    		btnExport.setEnabled(dbTable.getRowCount() > 0);
+    		exportCB.setEnabled(dbTable.getRowCount() > 0);
     		bChangingTable = false;
     	
     		ColumnsAutoSizer dbTAS = new ColumnsAutoSizer();   	
@@ -268,7 +270,7 @@ public class ViewONCDatabaseDialog extends JDialog implements ActionListener, Li
 	    }
 	}
 	
-	void onExportTableContents()
+	void onExportTableContents(int selectedIndex)
 	{
 		ONCFileChooser oncfc = new ONCFileChooser(this);
 		File oncwritefile = oncfc.getFile("Select file for export of Family data" ,
@@ -287,7 +289,7 @@ public class ViewONCDatabaseDialog extends JDialog implements ActionListener, Li
 				int exportCount = 0;
 				
 				String[] rowContent = new String[dbTable.getColumnCount()];
-				if(dbTable.getRowCount() > 0 && dbTable.getSelectedRowCount() == 0)
+				if(selectedIndex == 1 && dbTable.getRowCount() > 0)
 				{
 					//export all rows
 					for(int row=0; row < dbTable.getRowCount(); row++)
@@ -300,7 +302,7 @@ public class ViewONCDatabaseDialog extends JDialog implements ActionListener, Li
 						exportCount++;
 					}
 				}
-				else if(dbTable.getSelectedRowCount() > 0)
+				else if(selectedIndex == 2 && dbTable.getSelectedRowCount() > 0)
 				{
 					//export selected rows
 					int[] row_sel = dbTable.getSelectedRows();
@@ -334,9 +336,9 @@ public class ViewONCDatabaseDialog extends JDialog implements ActionListener, Li
 	@Override
 	public void actionPerformed(ActionEvent e) 
 	{
-		if(e.getSource() == btnExport)
+		if(e.getSource() == exportCB)
 		{
-			onExportTableContents();
+			onExportTableContents(exportCB.getSelectedIndex());
 		}
 		else if(e.getSource() == btnClearSelection)
 		{

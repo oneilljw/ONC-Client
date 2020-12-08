@@ -410,7 +410,11 @@ public class VolunteerDB extends ONCSearchableDatabase
 				index++;
 		
 			if(index < volunteerList.size())	//Valid ID found in database
-				result = volunteerList.get(index).getLastName() + ", " + volunteerList.get(index).getFirstName();
+			{	
+				result = volunteerList.get(index).getLastName();
+				if(!volunteerList.get(index).getFirstName().isEmpty())
+					result = result.concat(", " + volunteerList.get(index).getFirstName());
+			}
 		}
 		
 		return result;	

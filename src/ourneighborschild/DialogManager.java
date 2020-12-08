@@ -44,6 +44,7 @@ public class DialogManager implements EntitySelectionListener
 	private FamilyHistoryChangesDialog famHistChgDlg;
 	private BatteryDialog batteryDlg;
 	private ReceiveGiftsByBarcodeDialog recGiftDialog;
+	private BarcodeDeliveryDialog barcodeDeliveryDialog;
 		
 	//dialogs that inherit from HistoryDialog
 	private Map<String, HistoryDialog> historyDlgMap;
@@ -167,6 +168,10 @@ public class DialogManager implements EntitySelectionListener
 		
 		recGiftDialog = new ReceiveGiftsByBarcodeDialog(GlobalVariablesDB.getFrame());
 		eeManager.registerEntitySelector(recGiftDialog);
+		
+		//set up the dialog where delivery card bar codes are scanned when families deliveries are confirmed
+		barcodeDeliveryDialog = new BarcodeDeliveryDialog(GlobalVariablesDB.getFrame());
+		eeManager.registerEntitySelector(barcodeDeliveryDialog);
 		
 		//Set up the manage batteries dialog
 		manageBatteryDlg = new ManageBatteryDialog(GlobalVariablesDB.getFrame());
@@ -415,6 +420,15 @@ public class DialogManager implements EntitySelectionListener
 		{
 			recGiftDialog.setLocationRelativeTo(GlobalVariablesDB.getFrame());
 			recGiftDialog.showDialog(true);
+		}
+	}
+	
+	void showBarcodeDeliveryDialog()
+	{
+		if(!barcodeDeliveryDialog.isVisible())
+		{
+			barcodeDeliveryDialog.setLocationRelativeTo(GlobalVariablesDB.getFrame());
+			barcodeDeliveryDialog.showDialog(true);
 		}
 	}
 	

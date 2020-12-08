@@ -196,10 +196,9 @@ public class SortDriverDialog extends DependantTableDialog
 	@Override
 	void buildTableList(boolean bPreserveSelections) 
 	{
-		atAL.clear();	//Clear the delivery volunteer table
-		
 		if(activityDB.getDeliveryActivities().isEmpty())
 		{
+			atAL.clear();	//Clear the delivery volunteer table
 			lblNumOfObjects.setText(Integer.toString(atAL.size()));
 			displaySortTable(atAL, false, tableRowSelectedObjectList);
 			
@@ -225,6 +224,8 @@ public class SortDriverDialog extends DependantTableDialog
 		
 			clearFamilyTable();
 			familyTable.clearSelection();
+			
+			atAL.clear();	//Clear the delivery volunteer table
 
 			for(ONCVolunteer v : volunteerDB.getVolunteerList())
 				if(doesVolunteerDeliver(v) && doesDrvNumMatch(v.getDrvNum()) && doesLNameMatch(v.getLastName()) && 
