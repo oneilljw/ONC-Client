@@ -3541,12 +3541,13 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			
 			lblMessageSel = new JLabel("Message:");
 			
-			GlobalVariablesDB gvDB = GlobalVariablesDB.getInstance();
-			
-			if(gvDB.isDayBeforeOrDeliveryDay())
-				messageCB = new JComboBox<String>(new String[] {"None", "Pickup Confirmation", "Pickup Reminder"});
-			else
-				messageCB = new JComboBox<String>(new String[] {"None", "Pickup Confirmation - Email Sent", "Pickup Confirmation - No Email Sent"});
+//			GlobalVariablesDB gvDB = GlobalVariablesDB.getInstance();
+//			
+//			if(gvDB.isDayBeforeOrDeliveryDay())
+//				messageCB = new JComboBox<String>(new String[] {"None", "Pickup Confirmation", "Pickup Reminder"});
+//			else
+			messageCB = new JComboBox<String>(new String[] {"None", "Pickup Confirmation - Email Sent", "Pickup Confirmation - No Email Sent",
+															"Prior Day Pickup Reminder", "Pickup Day Reminder"});
 			
 			messageCB.setPreferredSize(new Dimension(280,36));
 			messageCB.addActionListener(this);
