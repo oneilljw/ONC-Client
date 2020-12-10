@@ -56,7 +56,9 @@ public class BarcodeDeliveryDialog extends ONCEntityTableDialog implements Actio
 	private JButton btnClear, btnUndo;
 	private JLabel lblResult;
 	private DeliveryCardPanel dcPanel;
-	private JPanel topPanel,bottomPanel, barcodePanel;
+	private JPanel topPanel, barcodePanel;
+	
+	private Color delCardBackgroundColor;
 	
 	public BarcodeDeliveryDialog(JFrame parentFrame)
 	{
@@ -90,17 +92,19 @@ public class BarcodeDeliveryDialog extends ONCEntityTableDialog implements Actio
 		barcodeTF.setBorder(BorderFactory.createTitledBorder("Delivery Barcode"));
 		barcodeTF.setToolTipText("Scan barcode or type barcode # and press <enter>");
 		barcodeTF.addActionListener(this);
-//		barcodeTF.addFocusListener(new BarcodeFocusListener());
 		barcodePanel.add(barcodeTF);
 		
 		topPanel.add(lblONCIcon);
 		topPanel.add(barcodePanel);
 		
 		//create the delivery card panel
+		JPanel midPanel = new JPanel();
 		dcPanel = new DeliveryCardPanel();
+		delCardBackgroundColor = new Color(252, 236, 3);
+		midPanel.add(dcPanel);
 		
 		//set up a bottom panel
-		bottomPanel = new JPanel(new BorderLayout());
+		JPanel bottomPanel = new JPanel(new BorderLayout());
 		
 		//set up the control panel with an undo button and label to the control panel.
 		JPanel cntlPanel = new JPanel();
@@ -117,23 +121,16 @@ public class BarcodeDeliveryDialog extends ONCEntityTableDialog implements Actio
 	    
 	    lblResult = new JLabel();
         cntlPanel.add(lblResult);
-		
-//	    JPanel submitPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-//		btnSubmit = new JButton("Submit");
-//	    btnSubmit.addActionListener(this);
-//	    btnSubmit.setEnabled(true);
-//	    submitPanel.add(btnSubmit);
-	    
+
 	    bottomPanel.add(cntlPanel, BorderLayout.LINE_START);
-//	    bottomPanel.add(submitPanel, BorderLayout.LINE_END);
 	    
 	    //set up the dialog pane
 	  	this.getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 	  	this.getContentPane().add(topPanel);
-	  	this.getContentPane().add(dcPanel);
+	  	this.getContentPane().add(midPanel);
 	  	this.getContentPane().add(bottomPanel);
 	  		
-	  	this.setMinimumSize(new Dimension(900, 656));
+	  	this.setMinimumSize(new Dimension(910, 656));
 	  	
 	  	this.addFocusListener(new BarcodeFocusListener());
 	}
@@ -200,6 +197,7 @@ public class BarcodeDeliveryDialog extends ONCEntityTableDialog implements Actio
 		
 		errMessage = "Ready to Scan a Delivery Card";
 		fam = null;
+		dcPanel.setBackground(Color.WHITE);
 		dcPanel.revalidate();
 		dcPanel.repaint();
 		
@@ -239,6 +237,7 @@ public class BarcodeDeliveryDialog extends ONCEntityTableDialog implements Actio
 	{
 		if(e.getSource() == barcodeTF)
 		{
+			dcPanel.setBackground(Color.WHITE);
 			if(gvs.getBarcodeCode().length() != barcodeTF.getText().length())
 			{
 				fam = null;
@@ -258,6 +257,7 @@ public class BarcodeDeliveryDialog extends ONCEntityTableDialog implements Actio
 				}
 				else
 				{
+					dcPanel.setBackground(delCardBackgroundColor);
 					btnUndo.setEnabled(false);
 					
 					if(lastFamChanged != null && fam.getID() == lastFamChanged.getID() && lastFamChanged.getGiftStatus()==FamilyGiftStatus.Assigned)	
@@ -335,6 +335,7 @@ public class BarcodeDeliveryDialog extends ONCEntityTableDialog implements Actio
 		
 		public DeliveryCardPanel()
 		{
+			this.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 			this.setBackground(Color.white);
 			
 			delCardFont = new Font[5];
@@ -344,9 +345,9 @@ public class BarcodeDeliveryDialog extends ONCEntityTableDialog implements Actio
 		    delCardFont[3] = new Font("SansSerif", Font.PLAIN, 10);	//Variable Text Font
 		    delCardFont[4] = new Font("SansSerif", Font.BOLD, 10);	//Bottom Line Font
 		    
-		    this.setPreferredSize(new Dimension(900,540));
+		    this.setPreferredSize(new Dimension(890,540));
 		}
-		
+
 		/**
 		 * paintComponent paints the delivery card on the panel using
 		 * 
@@ -354,10 +355,10 @@ public class BarcodeDeliveryDialog extends ONCEntityTableDialog implements Actio
 		protected void paintComponent(Graphics g)
 		{
 			super.paintComponent(g);
+
 			Graphics2D g2d = (Graphics2D) g;
-			
 			g2d.scale(X_DISPLAY_SCALE_FACTOR, Y_DISPLAY_SCALE_FACTOR);
-		    
+			
 		    //If the family object is valid, use it to draw the label in the panel.
 			//Otherwise draw an error message
 			if(fam != null)
@@ -422,8 +423,17 @@ public class BarcodeDeliveryDialog extends ONCEntityTableDialog implements Actio
 	         
 		    //Draw the delivery card fixed text, all bold text
 		    g2d.setFont(delCardFont[0]);
-		    g2d.drawString("Driver #: _____", x+182, y+27);
-		    g2d.drawString("Name: ________________", x+324, y+27);
+		    
+		    if(line[16].isEmpty())
+		    {	
+		    	g2d.drawString("Driver #: _____", x+182, y+27);
+		    	g2d.drawString("Name: ________________", x+324, y+27);
+		    }
+		    else
+		    {
+		    	g2d.drawString("Driver #: " + line[16], x+182, y+27);
+		    	g2d.drawString("Name: " + line[17], x+324, y+27);
+		    }
 		    
 		    g2d.setFont(delCardFont[1]);
 		    g2d.drawString("ONC "+season, x+430, y+106);

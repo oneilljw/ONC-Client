@@ -583,6 +583,7 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 		manageBatteryMI.setEnabled(true);
 		submenuReceiveGifts.setEnabled(true);
 		submenuDeliverGifts.setEnabled(true);
+		barcodeDeliveryMI.setEnabled(tf);
 	}
 	
 	void setEnabledRestrictedMenuItems(boolean tf)	//Only Admins can perform these functions
@@ -600,8 +601,7 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 		newChildMI.setEnabled(tf);
 		connectChildMI.setEnabled(tf);
 		sortClonedGiftsMI.setEnabled(true);
-		manageCallResultMI.setEnabled(tf);
-		barcodeDeliveryMI.setEnabled(tf);
+		manageCallResultMI.setEnabled(tf);	
 	}
 	
 	void setEnabledWishCatalogAndOrgMenuItems(boolean tf)

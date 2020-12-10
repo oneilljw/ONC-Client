@@ -832,7 +832,7 @@ public class FamilyDB extends ONCSearchableDatabase
 	//getter for Yellow Card data
 	String[] getYellowCardData(ONCFamily f) 
 	{
-		String[] ycData = new String[16];
+		String[] ycData = new String[18];
 		ycData[0] = f.getONCNum();
 		ycData[1] = f.getFirstName() + " " + f.getLastName();
 		
@@ -883,7 +883,23 @@ public class FamilyDB extends ONCSearchableDatabase
 		ycData[12] = Integer.toString(getNumberOfBikesSelectedForFamily(f));
 		ycData[13] = f.getNumOfLargeItems() == 0 ? "" : Integer.toString(f.getNumOfLargeItems());
 		ycData[14] = Integer.toString(f.getFamilyStatus().statusIndex());
-			
+		ycData[16] = "";
+		ycData[17] = "";
+		
+		if(f.getDeliveryID() > -1 && f.getGiftStatus().compareTo(FamilyGiftStatus.Assigned) >=0)
+		{
+			ONCFamilyHistory fh = familyHistoryDB.getFamilyHistory(f.getDeliveryID());
+			if(fh != null)
+			{
+				String drvNum = fh.getdDelBy();
+				if(!drvNum.isEmpty())
+				{
+					ycData[16] = drvNum;
+					ycData[17] = volunteerDB.getDriverLNFN(drvNum);
+				}	
+			}
+		}
+		
 		return ycData;
 	}
 	
