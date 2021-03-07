@@ -54,6 +54,7 @@ public class DialogManager implements EntitySelectionListener
 	//dialogs that inherit from InfoDialog
 	private Map<String, InfoDialog> familyInfoDlgMap;
 	private TransportationDialog transportationDlg;
+	private DistributionDialog distributionDlg;
 	private AddMealDialog addMealDlg;
 	private ChangeONCNumberDialog changeONCNumberDlg;
 	private ChangeReferenceNumberDialog changeReferenceNumberDlg;
@@ -215,6 +216,11 @@ public class DialogManager implements EntitySelectionListener
 		transportationDlg = new TransportationDialog(GlobalVariablesDB.getFrame(), false);
 		familyInfoDlgMap.put("Transportation", transportationDlg);
 		eeManager.registerEntitySelectionListener(transportationDlg);
+		
+		//Set up the dialog to edit family transportation info
+		distributionDlg = new DistributionDialog(GlobalVariablesDB.getFrame(), false);
+		familyInfoDlgMap.put("Distribution", distributionDlg);
+		eeManager.registerEntitySelectionListener(distributionDlg);
 	
 		//Set up the dialog to add a meal to family
 		addMealDlg = new AddMealDialog(GlobalVariablesDB.getFrame(), true);

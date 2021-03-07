@@ -14,7 +14,6 @@ public class ChildGiftDB extends ONCDatabase
 	
 	private static ChildGiftDB instance = null;
 	private GiftCatalogDB cat;
-	private ChildDB childDB;
 	private PartnerDB partnerDB;
 	private ArrayList<ONCChildGift> childGiftList;
 	
@@ -23,7 +22,6 @@ public class ChildGiftDB extends ONCDatabase
 		super();
 		this.title = "Gifts";
 		cat = GiftCatalogDB.getInstance();
-		childDB = ChildDB.getInstance();
 		partnerDB = PartnerDB.getInstance();
 		childGiftList = new ArrayList<ONCChildGift>();
 	}
@@ -48,23 +46,13 @@ public class ChildGiftDB extends ONCDatabase
 	 */
 	ONCChildGift add(Object source, int childid, int giftID, String gd, int gn, int gi,
 			GiftStatus gs, ONCPartner reqPartner)
-	{		
-//		GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
+	{	
+		//Get the old gift being replaced. getGift method returns null if gift not found
+		ONCChildGift replacedGift = getCurrentChildGift(childid, gn);
+				
 		String cb = UserDB.getInstance().getUserLNFI();
 		long dc = System.currentTimeMillis();
-
-		//Get the old gift being replaced. getGift method returns null if gift not found
-		ONCChildGift replacedGift = getGift(childid, gn);
-/*
-		//determine if we need to change the partner id
-		int newPartnerID = -1;
-		if(replacedGift != null && replacedGift.getGiftID() != giftID)
-			newPartnerID = -1;
-		else if(currPartner == null && replacedGift != null)
-			newPartnerID = replacedGift.getPartnerID(); 	//Staying the same
-		else if(currPartner != null)
-			newPartnerID = currPartner.getID();
-*/
+		
 		//get the new partner ID and new GiftStatus
 		GiftPartnerAndStatus newGiftPartnerAndStatus = checkForPartnerAndStatusChange(replacedGift, giftID, gs, reqPartner);
 		int newPartnerID = newGiftPartnerAndStatus.getPartnerID();
@@ -73,15 +61,9 @@ public class ChildGiftDB extends ONCDatabase
 		//create the new gift, with childgiftID = -1, meaning no gift selected
 		//the server will add the childgiftID and return it
 		ONCChildGift retCG = null;
-//		ONCChildGift reqCG = new ONCChildGift(-1, childid, giftID,
-//								   checkForDetailChange(gi, gd, currPartner, replacedGift), 
-//								   gn, gi,
-//								   checkForStatusChange(replacedGift, giftID, gs, currPartner), 
-//								   newPartnerID, cb, dc);
-		
 		ONCChildGift reqCG = new ONCChildGift(-1, childid, giftID,
 				   checkForDetailChange(gi, gd, reqPartner, replacedGift), 
-				   gn, gi,newGiftStatus, newPartnerID, cb, dc);
+				   gn, gi, newGiftStatus, newPartnerID, cb, dc);
 		
 		Gson gson = new Gson();
 		String response = null, helmetResponse = null;
@@ -99,12 +81,11 @@ public class ChildGiftDB extends ONCDatabase
 
 			//must check to see if new gift is gift number 1 and has changed to/from a 
 			//Bike. If so, gift number 2 must become a Helmet/Empty
-			ONCChild child = childDB.getChild(retCG.getChildID());
 			int bikeID = cat.getGiftID("Bike");
 			int helmetID = cat.getGiftID("Helmet");
-			if(retCG.getGiftNumber() == 0 && replacedGift != null && replacedGift.getGiftID() != bikeID && 
-					retCG.getGiftID() == bikeID || retCG.getGiftNumber() == 0 && replacedGift == null &&
-					retCG.getGiftID() == bikeID)		
+			if(retCG.getGiftNumber() == 0 && replacedGift != null && replacedGift.getCatalogGiftID() != bikeID && 
+					retCG.getCatalogGiftID() == bikeID || retCG.getGiftNumber() == 0 && replacedGift == null &&
+					retCG.getCatalogGiftID() == bikeID)		
 			{
 				//add Helmet as gift 2
 				ONCChildGift helmetCG = new ONCChildGift(-1, childid, helmetID, "", 1, 1,
@@ -117,12 +98,11 @@ public class ChildGiftDB extends ONCDatabase
 				}
 					
 			}
-			//if replaced gift was a bike and now isn't and gift 2 was a helmet, make
-			//gift 1 empty
-			else if(retCG.getGiftNumber() == 0 && replacedGift != null && child.getChildGiftID(1) > -1 &&
-					replacedGift.getGiftID() == bikeID && retCG.getGiftID() != bikeID)
+			//if replaced gift was a bike and now isn't, if gift 2 was selected, make gift 2 empty
+			else if(retCG.getGiftNumber() == 0 && replacedGift != null && getCurrentChildGift(childid,1) != null &&
+					replacedGift.getCatalogGiftID() == bikeID && retCG.getCatalogGiftID() != bikeID)
 			{
-				//change gift 1 from Helmet to None
+				//change gift 2 from Helmet to None
 				ONCChildGift helmetCG = new ONCChildGift(-1, childid, -1, "", 1, 0,
 						GiftStatus.Not_Selected, -1, cb, dc);
 				helmetResponse = serverIF.sendRequest("POST<childwish>" + gson.toJson(helmetCG, ONCChildGift.class));
@@ -139,14 +119,21 @@ public class ChildGiftDB extends ONCDatabase
 	
 	ONCChildGift processAddedGift(Object source, ONCChildGift addedGift)
 	{
-		ONCChildGift replacedGift = getGift(addedGift.getChildID(), addedGift.getGiftNumber());
+		//if the added gift isn't the first gift in the linked list, find the previous gift and set it's
+		//next id to link to the added gift
+		ONCChildGift replacedGift = null;
+		if(addedGift.getPriorID() != -1)
+		{
+			replacedGift = getCurrentChildGift(addedGift.getChildID(), addedGift.getGiftNumber());
+			replacedGift.setNextID(addedGift.getID());
+		}		
 				
 		//add the new gift to the local data base
 		childGiftList.add(addedGift);
 			
 		//Set the new gift ID in the child object that has been assigned this gift in the child data base
-		ChildDB childDB = ChildDB.getInstance();
-		childDB.setChildWishID(addedGift.getChildID(), addedGift.getID(), addedGift.getGiftNumber());
+//		ChildDB childDB = ChildDB.getInstance();
+//		childDB.setChildWishID(addedGift.getChildID(), addedGift.getID(), addedGift.getGiftNumber());
 		
 		//notify the partner data base to evaluate the new gift to see if partner gifts assigned, delivered
 		//or received counts have to change
@@ -154,11 +141,11 @@ public class ChildGiftDB extends ONCDatabase
 		partnerDB.processAddedGift(replacedGift, addedGift);
 			
 		//data bases have been updated, notify ui's of changes
-		fireDataChanged(source, "WISH_ADDED", addedGift);
+		fireDataChanged(source, "WISH_ADDED", addedGift, replacedGift);
 		
 		//notify the catalog to update counts if the wish has changed
 		if(replacedGift == null && addedGift.getGiftStatus() == GiftStatus.Selected ||
-			replacedGift != null && replacedGift.getGiftID() != addedGift.getGiftID())
+			replacedGift != null && replacedGift.getCatalogGiftID() != addedGift.getCatalogGiftID())
 		{
 			cat.changeGiftCounts(replacedGift, addedGift);				
 		}
@@ -183,26 +170,14 @@ public class ChildGiftDB extends ONCDatabase
 
 			//determine if we need to change the partner. If the gift is changing, then the partner ID 
 			//in the requested gift must be set to -1 (no partner)
-//			int newPartnerID;
-//			ONCPartner newPartner = null;
-//			if(replacedGift != null && replacedGift.getGiftID() != requestedGift.getGiftID())
-//				newPartnerID = -1;	//selected gift has changed, partner must be reset
-//			else if(requestedGift.getPartnerID() == -1)
-//				newPartnerID = -1;	//request gift has removed partner	
-//			else
-//			{
-//				newPartnerID = requestedGift.getPartnerID();
-//				newPartner = partnerDB.getPartnerByID(requestedGift.getPartnerID());
-//			}
-			
 			ONCPartner reqPartner = partnerDB.getPartnerByID(requestedGift.getPartnerID());
-			GiftPartnerAndStatus gpas = checkForPartnerAndStatusChange(replacedGift, requestedGift.getGiftID(), requestedGift.getGiftStatus(), reqPartner);
+			GiftPartnerAndStatus gpas = checkForPartnerAndStatusChange(replacedGift, requestedGift.getCatalogGiftID(), requestedGift.getGiftStatus(), reqPartner);
 			int newPartnerID = gpas.getPartnerID();
 			GiftStatus newGiftStatus = gpas.getGiftStatus();
 			
 			//create the added gift, with childwishID = -1, meaning no wish selected
 			//the server will add the childwishID and return it
-			ONCChildGift reqCW = new ONCChildGift(-1, requestedGift.getChildID(),requestedGift.getGiftID(),
+			ONCChildGift reqCW = new ONCChildGift(-1, requestedGift.getChildID(),requestedGift.getCatalogGiftID(),
 								   checkForDetailChange(requestedGift.getIndicator(), requestedGift.getDetail(), reqPartner, replacedGift), 
 								   requestedGift.getGiftNumber(),requestedGift.getIndicator(),
 								   newGiftStatus, newPartnerID, cb, dc);
@@ -400,7 +375,7 @@ public class ChildGiftDB extends ONCDatabase
 			case Assigned:
 				if(giftBase == -1)
 					newPartnerAndStatus = new GiftPartnerAndStatus(-1, GiftStatus.Not_Selected);	//Gift = None
-				else if(oldGift.getGiftID() != giftBase)
+				else if(oldGift.getCatalogGiftID() != giftBase)
 					newPartnerAndStatus = new GiftPartnerAndStatus( -1, GiftStatus.Selected);	//New Gift
 				else if(reqPartner == null || reqPartner != null && reqPartner.getID() == -1)
 					newPartnerAndStatus = new GiftPartnerAndStatus(reqPartner.getID(), GiftStatus.Selected);	//Partner = None
@@ -520,21 +495,7 @@ public class ChildGiftDB extends ONCDatabase
 	
 	String update(Object source, ONCObject oncchildwish)
 	{		
-		//A gift is not updated in the current design. A new gift is always created 
-		//and added to the data base. This allows a child's gift history to be 
-		//preserved for a season. 
-		Gson gson = new Gson();
-		String response = "";
-		
-		response = serverIF.sendRequest("POST<update_child_wish>" + 
-											gson.toJson(oncchildwish, ONCChildGift.class));
-		
-		if(response.startsWith("UPDATED_CHILD_WISH"))
-		{
-			processUpdatedObject(source, response.substring(18), childGiftList);
-		}
-		
-		return response;
+		return null;
 	}
 	
 	void processUpdatedObject(Object source, String json, List<? extends ONCObject> objList)
@@ -583,13 +544,14 @@ public class ChildGiftDB extends ONCDatabase
 			return childGiftList.get(index);
 	}
 	
-	ONCChildGift getGift(int childid, int gn)
+	ONCChildGift getCurrentChildGift(int childid, int gn)
 	{
 		int index = childGiftList.size() -1;
 		
 		//Search from the bottom of the data base for speed. New gifts are added to the bottom
 		while (index >= 0 && (childGiftList.get(index).getChildID() != childid || 
-								childGiftList.get(index).getGiftNumber() != gn))
+								childGiftList.get(index).getGiftNumber() != gn ||
+								 childGiftList.get(index).getNextID() != -1))
 			index--;
 		
 		if(index == -1)
@@ -619,7 +581,17 @@ public class ChildGiftDB extends ONCDatabase
 	int getNumberOfGiftsPerChild() { return NUMBER_OF_WISHES_PER_CHILD; }
 	
 	@Override
-	List<ONCChildGift> getList() { return childGiftList; }
+	List<ONCChildGift> getList() { return getCurrentGiftList(); }
+	
+	List<ONCChildGift> getCurrentGiftList()
+	{
+		List<ONCChildGift> currGiftList = new ArrayList<ONCChildGift>();
+		for(ONCChildGift cg : childGiftList)
+			if(cg.getNextID() == -1)	//cloned gift is last in linked list, there for is current
+				currGiftList.add(cg);
+		
+		return currGiftList;
+	}
 	
 	@Override
 	boolean importDB()

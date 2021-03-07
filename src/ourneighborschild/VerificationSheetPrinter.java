@@ -90,13 +90,13 @@ public abstract class VerificationSheetPrinter implements Printable
 		
 		//Create fonts
 		Font[] cFonts = new Font[7];
-	    cFonts[0] = new Font("Calibri", Font.PLAIN, 12);//Instructions Font
-	    cFonts[1] = new Font("Calibri", Font.BOLD, 14);	//Season Font
-	    cFonts[2] = new Font("Calibri", Font.BOLD, 20);	//ONC Num Text Font
-	    cFonts[3] = new Font("Calibri", Font.BOLD, 12);	//Child Font
-	    cFonts[4] = new Font("Calibri", Font.BOLD, 13);	//Footer Font
-	    cFonts[5] = new Font("Calibri", Font.BOLD, 44);	//Footer # of Bikes Font
-	    cFonts[6] = new Font("Calibri", Font.BOLD + Font.ITALIC, 14);	//Packaged By: Font
+	    cFonts[0] = new Font("Times New Roman", Font.PLAIN, 12);//Instructions Font
+	    cFonts[1] = new Font("Times New Roman", Font.BOLD, 14);	//Season Font
+	    cFonts[2] = new Font("Times New Roman", Font.BOLD, 20);	//ONC Num Text Font
+	    cFonts[3] = new Font("Times New Roman", Font.BOLD, 12);	//Child Font
+	    cFonts[4] = new Font("Times New Roman", Font.BOLD, 13);	//Footer Font
+	    cFonts[5] = new Font("Times New Roman", Font.BOLD, 44);	//Footer # of Bikes Font
+	    cFonts[6] = new Font("Times New Roman", Font.BOLD + Font.ITALIC, 14);	//Packaged By: Font
 		
 		//Print page header
 	    String oncFamNum = "Family " + vsAL.get(page).getONCNum();
@@ -125,15 +125,15 @@ public abstract class VerificationSheetPrinter implements Printable
 			for(int wn=0; wn < NUM_GIFTS_PER_CHILD; wn++)
 			{
 				ONCChild c = vsAL.get(page).getChildArrayList().get(childnum);
-				ONCChildGift cw = cwDB.getGift(c.getChildGiftID(wn));
+				ONCChildGift cg = cwDB.getCurrentChildGift(c.getID(),wn);
 				
-				if(cw != null)
+				if(cg != null)
 				{
-					ONCGift catWish = cat.getGiftByID(cw.getGiftID());
+					ONCGift catWish = cat.getGiftByID(cg.getCatalogGiftID());
 					String wishName = catWish == null ? "None" : catWish.getName();
 				
-					String restriction = restrictions[cw.getIndicator()];
-					String detail = cw.getDetail();
+					String restriction = restrictions[cg.getIndicator()];
+					String detail = cg.getDetail();
 					giftdata[wn] = restriction + wishName + "- " +  detail;
 				}
 				else

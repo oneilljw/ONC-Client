@@ -10,13 +10,13 @@ import com.google.gson.reflect.TypeToken;
 public class ClonedGiftDB extends ONCDatabase
 {
 	private static ClonedGiftDB instance = null;
-	private ArrayList<ClonedGift> clonedGiftList;
+	private ArrayList<ONCChildGift> clonedGiftList;
 	
 	private ClonedGiftDB()
 	{	
 		super();
 		this.title = "Clones";
-		clonedGiftList = new ArrayList<ClonedGift>();
+		clonedGiftList = new ArrayList<ONCChildGift>();
 	}
 	
 	public static ClonedGiftDB getInstance()
@@ -28,12 +28,12 @@ public class ClonedGiftDB extends ONCDatabase
 	}
 	
 	@Override
-	List<ClonedGift> getList() { return getCurrentCloneGiftList(); }
+	List<ONCChildGift> getList() { return getCurrentGiftList(); }
 	
-	List<ClonedGift> getCurrentCloneGiftList()
+	List<ONCChildGift> getCurrentGiftList()
 	{
-		List<ClonedGift> currClonedGiftList = new ArrayList<ClonedGift>();
-		for(ClonedGift cg : clonedGiftList)
+		List<ONCChildGift> currClonedGiftList = new ArrayList<ONCChildGift>();
+		for(ONCChildGift cg : clonedGiftList)
 			if(cg.getNextID() == -1)	//cloned gift is last in linked list, there for is current
 				currClonedGiftList.add(cg);
 		
@@ -45,17 +45,17 @@ public class ClonedGiftDB extends ONCDatabase
 	{		
 		String cb = UserDB.getInstance().getUserLNFI();
 		
-		List<ClonedGift> reqAddClonedGiftList = new ArrayList<ClonedGift>();
+		List<ONCChildGift> reqAddClonedGiftList = new ArrayList<ONCChildGift>();
 		
 		//create the list of added cloned gifts
 		for(ONCChildGift addGiftReq : cloneChildGiftRequestList)
-			reqAddClonedGiftList.add(new ClonedGift(-1, cb, addGiftReq, 3));
+			reqAddClonedGiftList.add(new ONCChildGift(-1, cb, addGiftReq, 3));
 		
 		//wrap the child gift list in a json array and send the add request to the server
 		Gson gson = new Gson();
-		Type listOfClonedGifts = new TypeToken<ArrayList<ClonedGift>>(){}.getType();
+		Type listOfClonedGifts = new TypeToken<ArrayList<ONCChildGift>>(){}.getType();
 		String response = null;
-		response = serverIF.sendRequest("POST<add_clonedgiftlist>" + gson.toJson(reqAddClonedGiftList, listOfClonedGifts));
+		response = serverIF.sendRequest("POST<add_newclonedgiftlist>" + gson.toJson(reqAddClonedGiftList, listOfClonedGifts));
 
 		//get the response from the server, validate it. Once validated, decompose the response json
 		//to a list of added gift json strings, convert them to ClonedGift objects and process the adds.
@@ -65,16 +65,17 @@ public class ClonedGiftDB extends ONCDatabase
 		{
 			Type responseListType = new TypeToken<ArrayList<String>>(){}.getType();
 			List<String> responseList = gson.fromJson(response.substring(23), responseListType);
+			List<ONCChildGift> processedAddedClonedGiftList = new ArrayList<ONCChildGift>();
 			
 			for(String giftResponse : responseList)
 			{
-				if(giftResponse.startsWith("ADDED_CLONED_GIFT"))
-				{	
-					ClonedGift addedGift = gson.fromJson(giftResponse.substring(17), ClonedGift.class);
-					processAddedClonedGift(source, addedGift);
-					addedCloneGiftCount++;
-				}
+				ONCChildGift addedCloneGift = processAddedClonedGift(source, gson.fromJson(giftResponse.substring(17), ONCChildGift.class));
+				processedAddedClonedGiftList.add(addedCloneGift);
+				addedCloneGiftCount++;
 			}
+			
+			if(!processedAddedClonedGiftList.isEmpty())
+				fireDataChanged(source, "ADDED_LIST_CLONED_GIFTS", processedAddedClonedGiftList);
 		}
 		
 		String pluralOrNot = addedCloneGiftCount == 1 ? "Gift" : "Gifts";
@@ -82,11 +83,11 @@ public class ClonedGiftDB extends ONCDatabase
 	}
 	
 	//updates a list of cloned gifts to the cloned gift data base.
-	String addClonedGiftList(Object source, List<ClonedGift> reqAddClonedGiftList)
+	String addClonedGiftList(Object source, List<ONCChildGift> reqAddClonedGiftList)
 	{	
 		//wrap the child gift list in a json array and send the add request to the server
 		Gson gson = new Gson();
-		Type listOfClonedGifts = new TypeToken<ArrayList<ClonedGift>>(){}.getType();
+		Type listOfClonedGifts = new TypeToken<ArrayList<ONCChildGift>>(){}.getType();
 		
 		String response = null, returnResp = "ADD_FAILED";
 		response = serverIF.sendRequest("POST<add_clonedgiftlist>" + gson.toJson(reqAddClonedGiftList, listOfClonedGifts));
@@ -98,73 +99,45 @@ public class ClonedGiftDB extends ONCDatabase
 		{
 			Type responseListType = new TypeToken<ArrayList<String>>(){}.getType();
 			List<String> responseList = gson.fromJson(response.substring(23), responseListType);
-			
+			List<ONCChildGift> processedAddedCloneGiftList = new ArrayList<ONCChildGift>();
+		
 			for(String giftResponse : responseList)
 			{
-				if(giftResponse.startsWith("UPDATED_CLONED_GIFT"))
-				{	
-					ClonedGift updatedGift = gson.fromJson(giftResponse.substring(19), ClonedGift.class);
-					processUpdatedClonedGift(source, updatedGift);
-				}
-				else if(giftResponse.startsWith("ADDED_CLONED_GIFT"))
-				{	
-					ClonedGift addedGift = gson.fromJson(giftResponse.substring(17), ClonedGift.class);
-					processAddedClonedGift(source, addedGift);
-				}
+				ONCChildGift addedCG = processAddedClonedGift(source, gson.fromJson(giftResponse.substring(17), ONCChildGift.class));
+				processedAddedCloneGiftList.add(addedCG);
 			}
 			
 			returnResp = "ADDED_LIST_CLONED_GIFTS";
 			
 			//data bases have been updated, notify ui's that a list has been added
-			fireDataChanged(source, "ADDED_LIST_CLONED_GIFTS", null);
+			if(!processedAddedCloneGiftList.isEmpty())
+				fireDataChanged(source, "ADDED_LIST_CLONED_GIFTS", processedAddedCloneGiftList);
 		}
 
 		return returnResp;
 	}
-	
-	void processUpdatedClonedGift(Object source, ClonedGift updatedClonedGift)
-	{
-//		System.out.println(String.format("ClonedGiftDB.processUpdatedClonedGift: clonedGiftListBefore:"));
-//		for(ClonedGift cg : clonedGiftList)
-//			System.out.println(String.format("ClonedGiftDB.processUpdatedClonedGift: clonedGiftList id= %d, status= %s, priorID=%d, nextId= %d", cg.getID(), cg.getGiftStatus().toString(), cg.getPriorID(), cg.getNextID()));
-			
-		//store updated object in local data base
-		int index = 0;
-		while(index < clonedGiftList.size() && clonedGiftList.get(index).getID() != updatedClonedGift.getID())
-			index++;
-		
-		if(index < clonedGiftList.size())
+
+	ONCChildGift processAddedClonedGift(Object source, ONCChildGift addedGift)
+	{	
+		//determine if the added clone gift has a prior clone in the linked list. If it does, update the linked list pointers
+		if(addedGift.getPriorID() > -1)
 		{
-			replaceClonedGift(index, updatedClonedGift);
+			//find the gift and change and set the next gift pointer to the added gift
+			int index = clonedGiftList.size()-1;
+			while(index >= 0 && clonedGiftList.get(index).getID() != addedGift.getPriorID())
+				index--;
 			
-			//Notify local user IFs that a change occurred
-			fireDataChanged(source, "UPDATED_CLONED_GIFT", updatedClonedGift);
+			if(index >= 0)
+				clonedGiftList.get(index).setNextID(addedGift.getID());
 		}
 		
-//		System.out.println(String.format("ClonedGiftDB.processUpdatedClonedGift: clonedGiftListAfter:"));
-//		for(ClonedGift cg : clonedGiftList)
-//			System.out.println(String.format("ClonedGiftDB.processUpdatedClonedGift: clonedGiftList id= %d, status= %s, priorID=%d, nextId= %d", cg.getID(), cg.getGiftStatus().toString(), cg.getPriorID(), cg.getNextID()));
-			
-	}
-	
-	void replaceClonedGift(int index, ClonedGift updatedGift)
-	{
-//		System.out.println(String.format("ClonedGiftDB.replaceClonedGift: index= %d, updatedGift id= %d, nextID= %d", index, updatedGift.getID(), updatedGift.getNextID()));
-		clonedGiftList.set(index,  updatedGift);
-	}
-	
-	ClonedGift processAddedClonedGift(Object source, ClonedGift addedGift)
-	{	
 		//add the new gift to the local data base
 		clonedGiftList.add(addedGift);
-		
-		//data bases have been updated, notify ui's of changes
-		fireDataChanged(source, "ADDED_CLONED_GIFT", addedGift);
 		
 		return addedGift;
 	}
 	
-	ClonedGift getClonedGift(int childID, int gn)
+	ONCChildGift getClonedGift(int childID, int gn)
 	{
 		int index = clonedGiftList.size() -1;
 		while(index >= 0 && 
@@ -178,9 +151,9 @@ public class ClonedGiftDB extends ONCDatabase
 		return index >= 0 ? clonedGiftList.get(index) : null;
 	}
 	
-	List<ClonedGift> getGiftHistory(int childID, int gn)
+	List<ONCChildGift> getGiftHistory(int childID, int gn)
 	{
-		List<ClonedGift> cghList = new ArrayList<ClonedGift>();
+		List<ONCChildGift> cghList = new ArrayList<ONCChildGift>();
 		Gson gson = new Gson();
 		
 		HistoryRequest req = new HistoryRequest(childID, gn);
@@ -189,7 +162,7 @@ public class ClonedGiftDB extends ONCDatabase
 		
 		if(response != null)
 		{
-			Type listtype = new TypeToken<ArrayList<ClonedGift>>(){}.getType();	
+			Type listtype = new TypeToken<ArrayList<ONCChildGift>>(){}.getType();	
 			cghList = gson.fromJson(response, listtype);
 		}
 		
@@ -197,7 +170,7 @@ public class ClonedGiftDB extends ONCDatabase
 	}
 	
 
-	ClonedGift getClonedGift(int id)
+	ONCChildGift getClonedGift(int id)
 	{
 		int index = 0;
 		while(index < clonedGiftList.size() && clonedGiftList.get(index).getID() != id)
@@ -213,7 +186,7 @@ public class ClonedGiftDB extends ONCDatabase
 		if(serverIF != null && serverIF.isConnected())
 		{		
 			Gson gson = new Gson();
-			Type listtype = new TypeToken<ArrayList<ClonedGift>>(){}.getType();
+			Type listtype = new TypeToken<ArrayList<ONCChildGift>>(){}.getType();
 			
 			String jsonResponse = serverIF.sendRequest("GET<clonedgifts>");
 			
@@ -230,34 +203,20 @@ public class ClonedGiftDB extends ONCDatabase
 	@Override
 	public void dataChanged(ServerEvent ue)
 	{
-		if(ue.getType().equals("ADDED_CLONED_GIFT"))
-		{
-			Gson gson = new Gson();
-			processAddedClonedGift(this, gson.fromJson(ue.getJson(), ClonedGift.class));
-		}
-		else if(ue.getType().equals("UPDATED_CLONED_GIFT"))
-		{
-			Gson gson = new Gson();
-			processUpdatedClonedGift(this, gson.fromJson(ue.getJson(), ClonedGift.class));
-		}
-		else if(ue.getType().equals("ADDED_LIST_CLONED_GIFTS"))
+		if(ue.getType().equals("ADDED_LIST_CLONED_GIFTS"))
 		{
 			Gson gson = new Gson();
 			Type responseListType = new TypeToken<ArrayList<String>>(){}.getType();
 			List<String> addedGiftListString = gson.fromJson(ue.getJson(), responseListType);
+			List<ONCChildGift> processedAddedCloneGiftList = new ArrayList<ONCChildGift>();
 			for(String giftResponse : addedGiftListString)
 			{
-				if(giftResponse.startsWith("UPDATED_CLONED_GIFT"))
-				{	
-					ClonedGift updatedGift = gson.fromJson(giftResponse.substring(19), ClonedGift.class);
-					processUpdatedClonedGift(this, updatedGift);
-				}
-				else if(giftResponse.startsWith("ADDED_CLONED_GIFT"))
-				{	
-					ClonedGift addedGift = gson.fromJson(giftResponse.substring(17), ClonedGift.class);
-					processAddedClonedGift(this, addedGift);
-				}
+				ONCChildGift addedCG = processAddedClonedGift(this, gson.fromJson(giftResponse.substring(17), ONCChildGift.class));
+				processedAddedCloneGiftList.add(addedCG);
 			}
+			
+			if(!processedAddedCloneGiftList.isEmpty())
+				this.fireDataChanged(this, "ADDED_LIST_CLONED_GIFTS", processedAddedCloneGiftList);
 		}
 	}
 

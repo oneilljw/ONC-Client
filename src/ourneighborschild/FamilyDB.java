@@ -45,7 +45,7 @@ public class FamilyDB extends ONCSearchableDatabase
 	private int[] oncnumRegionRanges;		//Holds starting ONC number for each region
 	private ChildDB childDB;
 	private AdultDB adultDB;
-	private ChildGiftDB childwishDB;
+	private ChildGiftDB childGiftDB;
 	private UserDB userDB;
 	private VolunteerDB volunteerDB;
 	private FamilyHistoryDB familyHistoryDB;
@@ -61,7 +61,7 @@ public class FamilyDB extends ONCSearchableDatabase
 		
 		childDB = ChildDB.getInstance();
 		adultDB = AdultDB.getInstance();
-		childwishDB = ChildGiftDB.getInstance();
+		childGiftDB = ChildGiftDB.getInstance();
 		volunteerDB = VolunteerDB.getInstance();
 		familyHistoryDB = FamilyHistoryDB.getInstance();
 		userDB = UserDB.getInstance();;
@@ -832,7 +832,7 @@ public class FamilyDB extends ONCSearchableDatabase
 	//getter for Yellow Card data
 	String[] getYellowCardData(ONCFamily f) 
 	{
-		String[] ycData = new String[18];
+		String[] ycData = new String[20];
 		ycData[0] = f.getONCNum();
 		ycData[1] = f.getFirstName() + " " + f.getLastName();
 		
@@ -900,6 +900,9 @@ public class FamilyDB extends ONCSearchableDatabase
 			}
 		}
 		
+		ycData[18] = Integer.toString(f.getID());
+		ycData[19] = f.getReferenceNum();
+		
 		return ycData;
 	}
 	
@@ -941,13 +944,9 @@ public class FamilyDB extends ONCSearchableDatabase
 		int nBikes = 0;
 		GiftCatalogDB cat = GiftCatalogDB.getInstance();
 		
-		for(ONCChild c: childDB.getChildren(f.getID()))	
-			for(int wn=0; wn<NUMBER_OF_WISHES_PER_CHILD; wn++)
-			{
-				int childwishID = c.getChildGiftID(wn);
-				if(childwishID > -1 && childwishDB.getGift(childwishID).getGiftID() == cat.getGiftID("Bike"))
-					nBikes++;
-			}
+		for(ONCChildGift cg: childGiftDB.getList())	
+			if(cg.getNextID() == -1 &&  cg.getCatalogGiftID() == cat.getGiftID("Bike"))
+				nBikes++;
 			
 		return nBikes;
 	}
@@ -977,19 +976,19 @@ public class FamilyDB extends ONCSearchableDatabase
 				{
 					for(int wn=0; wn < NUMBER_OF_WISHES_PER_CHILD; wn++)	//get each of their wishes
 					{
-						ONCChildGift cw = childwishDB.getGift(c.getChildGiftID(wn));
+						ONCChildGift cw = childGiftDB.getCurrentChildGift(c.getID(), wn);
 						
 						//cw is null if child doesn't have this wish yet
 						if(cw != null && cw.getGiftStatus().compareTo(GiftStatus.Selected) >= 0)
 						{
 							//Find wish in array list and increment the count
 							int index = 0;
-							while(index < wishcountAL.size() && cw.getGiftID() != giftList.get(index).getID())
+							while(index < wishcountAL.size() && cw.getCatalogGiftID() != giftList.get(index).getID())
 								index++;
 						
 							if(index == wishcountAL.size())
 								System.out.println(String.format("Error: Creating Wish Catalog counts: " +
-									"child wish not found, family %s, wish %d", f.getONCNum(), cw.getGiftID()));
+									"child wish not found, family %s, wish %d", f.getONCNum(), cw.getCatalogGiftID()));
 							else
 								wishcountAL.get(index)[wn]++;
 						}

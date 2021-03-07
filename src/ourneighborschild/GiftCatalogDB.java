@@ -356,10 +356,10 @@ public class GiftCatalogDB extends ONCDatabase
 	{
 		boolean bCountChanged = false;
 		
-		if(replGift != null && replGift.getGiftID() > -1)	//Search for replaced gift if it's not "None"
+		if(replGift != null && replGift.getCatalogGiftID() > -1)	//Search for replaced gift if it's not "None"
 		{
 			//Decrement the count of the first gift and update the table
-			int row = findModelIndexFromID(replGift.getGiftID());
+			int row = findModelIndexFromID(replGift.getCatalogGiftID());
 			if(row > -1)
 			{
 				giftCatalog.get(row).incrementCount(replGift.getGiftNumber(), -1);
@@ -367,10 +367,10 @@ public class GiftCatalogDB extends ONCDatabase
 			}
 		}
 		
-		if(addedGift != null && addedGift.getGiftID() > -1)	//Search for second gift if it's not "None"
+		if(addedGift != null && addedGift.getCatalogGiftID() > -1)	//Search for second gift if it's not "None"
 		{
 			//Increment the count of the second gift and update the table
-			int row = findModelIndexFromID(addedGift.getGiftID());
+			int row = findModelIndexFromID(addedGift.getCatalogGiftID());
 			if(row > -1)
 			{
 				giftCatalog.get(row).incrementCount(addedGift.getGiftNumber(), 1);

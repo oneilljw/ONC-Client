@@ -40,7 +40,7 @@ public class SortGiftObject extends ONCObject
 		SimpleDateFormat dob = new SimpleDateFormat("MM-dd-yyyy");
 		String dateChanged = dob.format(soChildGift.getDateChanged().getTime());
 		
-		ONCGift wish = cat.getGiftByID(soChildGift.getGiftID());
+		ONCGift wish = cat.getGiftByID(soChildGift.getCatalogGiftID());
 		String wishName = wish == null ? "None" : wish.getName();
 		
 		ONCPartner partner = partnerDB.getPartnerByID(soChildGift.getPartnerID());
@@ -79,7 +79,7 @@ public class SortGiftObject extends ONCObject
 	{
 		GiftCatalogDB cat = GiftCatalogDB.getInstance();
 		
-		ONCGift wish = cat.getGiftByID(soChildGift.getGiftID());
+		ONCGift wish = cat.getGiftByID(soChildGift.getCatalogGiftID());
 		String wishName = wish == null ? "None" : wish.getName();
 		
 		String[] rsr = new String[3];
@@ -109,7 +109,7 @@ public class SortGiftObject extends ONCObject
 		
 		if(soChildGift.getDetail().isEmpty())
 		{
-			ONCGift gift = cat.getGiftByID(soChildGift.getGiftID());
+			ONCGift gift = cat.getGiftByID(soChildGift.getCatalogGiftID());
 			String giftName = gift == null ? "None" : gift.getName();
 			
 			line[1] = giftName + "- ";
@@ -119,7 +119,7 @@ public class SortGiftObject extends ONCObject
 		}	
 		else
 		{
-			ONCGift catGift = cat.getGiftByID(soChildGift.getGiftID());
+			ONCGift catGift = cat.getGiftByID(soChildGift.getCatalogGiftID());
 			String giftName = catGift == null ? "None" : catGift.getName();
 			
 			String gift = giftName.equals("-") ? soChildGift.getDetail() : 
@@ -180,7 +180,7 @@ public class SortGiftObject extends ONCObject
 	
 	String getGiftPlusDetail()
 	{
-		ONCGift catGift = cat.getGiftByID(soChildGift.getGiftID());
+		ONCGift catGift = cat.getGiftByID(soChildGift.getCatalogGiftID());
 		String giftName = catGift == null ? "None" : catGift.getName();
 		
 		return giftName.equals("-") ? soChildGift.getDetail() : 

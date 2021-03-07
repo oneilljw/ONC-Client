@@ -80,6 +80,13 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 	private String whStreetNum, whStreet,whCity, whState;
 	public JComboBox<Integer> oncFontSizeCB;
 	private JComboBox<ONCGift> defaultGiftCB, defaultGiftCardCB;
+	private JComboBox<Integer> numGiftsPerChildCB;
+	private JComboBox<WishIntakeType> wishType0BeforeCB, wishType1BeforeCB, wishType2BeforeCB, wishType3BeforeCB;
+	private JComboBox<WishIntakeType> wishType0AfterCB, wishType1AfterCB, wishType2AfterCB, wishType3AfterCB;
+	private JComboBox<GiftDistribution> giftDistributionCB;
+	private DefaultComboBoxModel<GiftDistribution> giftDistributionCBM;
+	private JComboBox<MealIntake> mealIntakeCB;
+	private DefaultComboBoxModel<MealIntake> mealIntakeCBM;
 //	private JComboBox<Activity> deliveryActivityCB;
 	private DefaultComboBoxModel<ONCGift> defaultGiftCBM, defaultGiftCardCBM;
 //	private DefaultComboBoxModel<Activity> deliveryActivityCBM;
@@ -102,7 +109,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 	PreferencesDialog(JFrame parentFrame)
 	{
 		super(parentFrame, false);
-		this.setTitle("Our Neighbor's Child Elf & Season Settings");
+		this.setTitle("Our Neighbor's Child User & Season Settings");
 		
 		gvDB = GlobalVariablesDB.getInstance();
 		if(gvDB != null)
@@ -170,7 +177,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		userSettingsPanel.add(wafdPanel);
 		userSettingsPanel.add(fdfPanel);
 		
-		tabbedPane.addTab("User Filters/Font", userSettingsPanel);
+		tabbedPane.addTab("User Preferences", userSettingsPanel);
 		
 		//set up the season dates tab
 		JPanel dateTab = new JPanel();
@@ -264,7 +271,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		dateTab.add(datePanelBottom);
 		dateTab.add(btnApplyDateChanges);
 		
-		tabbedPane.addTab("Season Dates", dateTab);
+		tabbedPane.addTab("Dates", dateTab);
 		
 		//set up the warehouse address tab
 		JPanel addressTab = new JPanel();
@@ -306,12 +313,126 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		
 		tabbedPane.addTab("Warehouse", addressTab);
 		
+		//set up the gift preference tab.
+		JPanel giftPanel = new JPanel();
+		giftPanel.setLayout(new BoxLayout(giftPanel, BoxLayout.Y_AXIS));
+		JPanel giftPanelTop = new JPanel();
+		
+		//wish intake configuration panels
+		JPanel beforeDeadlineGiftPanel = new JPanel();
+		JPanel afterDeadlineGiftPanel = new JPanel();
+		
+		JPanel giftPanelBottom = new JPanel();
+		
+		giftPanelTop.setBorder(BorderFactory.createTitledBorder("Gift Settings"));
+		beforeDeadlineGiftPanel.setBorder(BorderFactory.createTitledBorder("Before December Gift Deadline Wish Intake Settings"));
+		afterDeadlineGiftPanel.setBorder(BorderFactory.createTitledBorder("After December Gift Deadline Wish Intake Settings"));
+		giftPanelBottom.setBorder(BorderFactory.createTitledBorder("Gift Distribution & Meal Intake Settings"));
+		
+		
+		Integer[] numGiftChoices = {0,1,2,3};
+		numGiftsPerChildCB = new JComboBox<Integer>(numGiftChoices);
+		numGiftsPerChildCB.setPreferredSize(new Dimension(180, 56));
+		numGiftsPerChildCB.setBorder(BorderFactory.createTitledBorder("# Gifts Per Child"));
+		numGiftsPerChildCB.addActionListener(this);
+		giftPanelTop.add(numGiftsPerChildCB);
+		
+		defaultGiftCB = new JComboBox<ONCGift>();
+		defaultGiftCBM = new DefaultComboBoxModel<ONCGift>();
+		defaultGiftCBM.addElement(new ONCGift(-1, "None", 7));//creates a dummy gift with name "None", id = -1;
+		defaultGiftCB.setModel(defaultGiftCBM);
+		defaultGiftCB.setPreferredSize(new Dimension(180, 56));
+		defaultGiftCB.setBorder(BorderFactory.createTitledBorder("Default Gift"));
+		defaultGiftCB.addActionListener(this);
+		giftPanelTop.add(defaultGiftCB);
+		
+		defaultGiftCardCB = new JComboBox<ONCGift>();
+		defaultGiftCardCBM = new DefaultComboBoxModel<ONCGift>();		
+		defaultGiftCardCBM.addElement(new ONCGift(-1, "None", 7));//creates a dummy gift with name "None", id = -1;
+		defaultGiftCardCB.setModel(defaultGiftCardCBM);
+		defaultGiftCardCB.setPreferredSize(new Dimension(180, 56));
+		defaultGiftCardCB.setBorder(BorderFactory.createTitledBorder("Default Gift Card"));
+		defaultGiftCardCB.addActionListener(this);
+		giftPanelTop.add(defaultGiftCardCB);
+		
+		wishType0BeforeCB = new JComboBox<WishIntakeType>(WishIntakeType.values());
+		wishType0BeforeCB.setPreferredSize(new Dimension(180, 56));
+		wishType0BeforeCB.setBorder(BorderFactory.createTitledBorder("Wish 1"));
+		wishType0BeforeCB.addActionListener(this);
+		beforeDeadlineGiftPanel.add(wishType0BeforeCB);
+		
+		wishType1BeforeCB = new JComboBox<WishIntakeType>(WishIntakeType.values());
+		wishType1BeforeCB.setPreferredSize(new Dimension(180, 56));
+		wishType1BeforeCB.setBorder(BorderFactory.createTitledBorder("Wish 2"));
+		wishType1BeforeCB.addActionListener(this);
+		beforeDeadlineGiftPanel.add(wishType1BeforeCB);
+		
+		wishType2BeforeCB = new JComboBox<WishIntakeType>(WishIntakeType.values());
+		wishType2BeforeCB.setPreferredSize(new Dimension(180, 56));
+		wishType2BeforeCB.setBorder(BorderFactory.createTitledBorder("Wish 3"));
+		wishType2BeforeCB.addActionListener(this);
+		beforeDeadlineGiftPanel.add(wishType2BeforeCB);
+		
+		wishType3BeforeCB = new JComboBox<WishIntakeType>(WishIntakeType.values());
+		wishType3BeforeCB.setPreferredSize(new Dimension(180, 56));
+		wishType3BeforeCB.setBorder(BorderFactory.createTitledBorder("Alternate Wish"));
+		wishType3BeforeCB.addActionListener(this);
+		beforeDeadlineGiftPanel.add(wishType3BeforeCB);
+		
+		wishType0AfterCB = new JComboBox<WishIntakeType>(WishIntakeType.values());
+		wishType0AfterCB.setPreferredSize(new Dimension(180, 56));
+		wishType0AfterCB.setBorder(BorderFactory.createTitledBorder("Wish 1"));
+		wishType0AfterCB.addActionListener(this);
+		afterDeadlineGiftPanel.add(wishType0AfterCB);
+		
+		wishType1AfterCB = new JComboBox<WishIntakeType>(WishIntakeType.values());
+		wishType1AfterCB.setPreferredSize(new Dimension(180, 56));
+		wishType1AfterCB.setBorder(BorderFactory.createTitledBorder("Wish 2"));
+		wishType1AfterCB.addActionListener(this);
+		afterDeadlineGiftPanel.add(wishType1AfterCB);
+		
+		wishType2AfterCB = new JComboBox<WishIntakeType>(WishIntakeType.values());
+		wishType2AfterCB.setPreferredSize(new Dimension(180, 56));
+		wishType2AfterCB.setBorder(BorderFactory.createTitledBorder("Wish 3"));
+		wishType2AfterCB.addActionListener(this);
+		afterDeadlineGiftPanel.add(wishType2AfterCB);
+		
+		wishType3AfterCB = new JComboBox<WishIntakeType>(WishIntakeType.values());
+		wishType3AfterCB.setPreferredSize(new Dimension(180, 56));
+		wishType3AfterCB.setBorder(BorderFactory.createTitledBorder("Alternate Wish"));
+		wishType3AfterCB.addActionListener(this);
+		afterDeadlineGiftPanel.add(wishType3AfterCB);
+		
+		giftDistributionCBM = new DefaultComboBoxModel<GiftDistribution>();
+		for(GiftDistribution dist : GiftDistribution.getPreferenceOptions())
+			giftDistributionCBM.addElement(dist);
+		giftDistributionCB = new JComboBox<GiftDistribution>(giftDistributionCBM);
+		giftDistributionCB.setPreferredSize(new Dimension(180, 56));
+		giftDistributionCB.setBorder(BorderFactory.createTitledBorder("Gift Distribution"));
+		giftDistributionCB.addActionListener(this);
+		giftPanelBottom.add(giftDistributionCB);
+		
+		mealIntakeCBM = new DefaultComboBoxModel<MealIntake>();
+		for(MealIntake mi : MealIntake.values())
+			mealIntakeCBM.addElement(mi);
+		mealIntakeCB = new JComboBox<MealIntake>(mealIntakeCBM);
+		mealIntakeCB.setPreferredSize(new Dimension(240, 56));
+		mealIntakeCB.setBorder(BorderFactory.createTitledBorder("Meal Intake"));
+		mealIntakeCB.addActionListener(this);
+		giftPanelBottom.add(mealIntakeCB);
+		
+		giftPanel.add(giftPanelTop);
+		giftPanel.add(beforeDeadlineGiftPanel);
+		giftPanel.add(afterDeadlineGiftPanel);
+		giftPanel.add(giftPanelBottom);
+		
+		tabbedPane.addTab("Gifts/Meals", giftPanel);
+		
 		//set up the ornament label tab
 		JPanel wishlabelPanel = new JPanel();
 		wishlabelPanel.setLayout(new BoxLayout(wishlabelPanel, BoxLayout.Y_AXIS));
 		JPanel wishlabelPanelTop = new JPanel();
 		JPanel wishlabelPanelMiddle = new JPanel();
-		JPanel wishlabelPanelBottom = new JPanel();
 		
 		barcodeCkBox = new JCheckBox("Use barcode instead of icon on label using barcode:");
 		barcodeCkBox.setSelected(gvDB.includeBarcodeOnLabels());
@@ -336,30 +457,10 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		wishlabelPanelMiddle.add(new JLabel("Label Y Offset:"));
 		wishlabelPanelMiddle.add(averyYOffsetSpinner);
 		
-		defaultGiftCB = new JComboBox<ONCGift>();
-		defaultGiftCBM = new DefaultComboBoxModel<ONCGift>();
-		
-		defaultGiftCBM.addElement(new ONCGift(-1, "None", 7));//creates a dummy gift with name "None", id = -1;
-		defaultGiftCB.setModel(defaultGiftCBM);
-		defaultGiftCB.setPreferredSize(new Dimension(180, 56));
-		defaultGiftCB.setBorder(BorderFactory.createTitledBorder("Default Gift"));
-		defaultGiftCB.addActionListener(this);
-		wishlabelPanelBottom.add(defaultGiftCB);
-		
-		defaultGiftCardCB = new JComboBox<ONCGift>();
-		defaultGiftCardCBM = new DefaultComboBoxModel<ONCGift>();		
-		defaultGiftCardCBM.addElement(new ONCGift(-1, "None", 7));//creates a dummy gift with name "None", id = -1;
-		defaultGiftCardCB.setModel(defaultGiftCardCBM);
-		defaultGiftCardCB.setPreferredSize(new Dimension(180, 56));
-		defaultGiftCardCB.setBorder(BorderFactory.createTitledBorder("Default Gift Card"));
-		defaultGiftCardCB.addActionListener(this);
-		wishlabelPanelBottom.add(defaultGiftCardCB);
-		
 		wishlabelPanel.add(wishlabelPanelTop);
 		wishlabelPanel.add(wishlabelPanelMiddle);
-		wishlabelPanel.add(wishlabelPanelBottom);
 		
-		tabbedPane.addTab("Ornament Labels", wishlabelPanel);
+		tabbedPane.addTab("Ornaments", wishlabelPanel);
 		
 		//set up the SignUpGenuis/Activities Tab
 		JPanel geniusPanel = new JPanel();
@@ -497,6 +598,67 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 	}
 	
 	//helpers
+	void checkEnabledMealsAndWishTypes(Integer nGiftsPerChild, Integer priorNGiftsPerChild)
+	{
+		bIgnoreDialogEvents = true;
+		
+		//adjust wish intake types based on number of gifts provided to a child. If number of gifts is 
+		//zero, we must be providing meals. Adjust meal in-take options accordingly
+		if(nGiftsPerChild == 0)
+		{
+			giftDistributionCB.setSelectedItem(GiftDistribution.None);
+			mealIntakeCB.setSelectedItem(MealIntake.Thanksgiving_December);
+			mealIntakeCB.setEnabled(nGiftsPerChild == 0);
+			
+			//add None as only gift distribution option and select it
+			giftDistributionCBM.removeAllElements();
+			giftDistributionCBM.addElement(GiftDistribution.None);
+			giftDistributionCB.setSelectedItem(GiftDistribution.None);
+			
+			//remove None as meal in-take option
+			MealIntake currSelection = (MealIntake) mealIntakeCB.getSelectedItem();
+			mealIntakeCBM.removeElement(MealIntake.None);
+			if(currSelection != MealIntake.None)
+				mealIntakeCB.setSelectedItem(currSelection);
+			else
+				mealIntakeCB.setSelectedItem(MealIntake.Thanksgiving_December);
+		}
+		else if(nGiftsPerChild > 0 && priorNGiftsPerChild == 0)
+		{	
+			//add Pickup, Delivery and Pickup_Delivery as gift distribution options, select Pickup_Delivery
+			giftDistributionCBM.removeAllElements();
+			giftDistributionCBM.addElement(GiftDistribution.Pickup);
+			giftDistributionCBM.addElement(GiftDistribution.Delivery);
+			giftDistributionCBM.addElement(GiftDistribution.Pickup_Delivery);			
+			giftDistributionCB.setSelectedItem(GiftDistribution.Pickup_Delivery);
+
+			//add None as meal in-take option
+			MealIntake currSelection = (MealIntake) mealIntakeCB.getSelectedItem();
+			mealIntakeCBM.removeAllElements();
+			for(MealIntake mi : MealIntake.values())
+				mealIntakeCBM.addElement(mi);
+			if(currSelection != null)
+				mealIntakeCB.setSelectedItem(currSelection);					
+		}
+			
+		//before gift deadline settings
+		wishType0BeforeCB.setEnabled(nGiftsPerChild > 0);
+		wishType1BeforeCB.setEnabled(nGiftsPerChild > 1);
+		wishType2BeforeCB.setEnabled(nGiftsPerChild > 2);
+		wishType3BeforeCB.setEnabled(nGiftsPerChild > 0);  //Alternate Wish for ONC follows wish 0
+		
+		//after gift deadline settings
+		wishType0AfterCB.setEnabled(nGiftsPerChild > 0);
+		wishType1AfterCB.setEnabled(nGiftsPerChild > 1);
+		wishType2AfterCB.setEnabled(nGiftsPerChild > 2);
+		wishType3AfterCB.setEnabled(nGiftsPerChild > 0);  //Alternate Wish for ONC follows wish 0
+		
+		giftDistributionCB.setEnabled(nGiftsPerChild > 0);
+		
+		bIgnoreDialogEvents = false;
+			
+	}
+	
 	Calendar getCalendar(Long day)
 	{
 		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
@@ -547,6 +709,21 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		}
 		else
 			defaultGiftCardCB.setSelectedIndex(0);
+		
+		numGiftsPerChildCB.setSelectedItem(currServerGVs.getNumberOfGiftsPerChild());
+		
+		wishType0BeforeCB.setSelectedItem(getWishIntakeType(0, WishIntakeTiming.BEFORE_DEADLINE, currServerGVs.getChildWishIntakeConfiguraiton()));
+		wishType1BeforeCB.setSelectedItem(getWishIntakeType(1, WishIntakeTiming.BEFORE_DEADLINE, currServerGVs.getChildWishIntakeConfiguraiton()));
+		wishType2BeforeCB.setSelectedItem(getWishIntakeType(2, WishIntakeTiming.BEFORE_DEADLINE, currServerGVs.getChildWishIntakeConfiguraiton()));
+		wishType3BeforeCB.setSelectedItem(getWishIntakeType(3, WishIntakeTiming.BEFORE_DEADLINE, currServerGVs.getChildWishIntakeConfiguraiton()));
+		wishType0AfterCB.setSelectedItem(getWishIntakeType(0, WishIntakeTiming.AFTER_DEADLINE, currServerGVs.getChildWishIntakeConfiguraiton()));
+		wishType1AfterCB.setSelectedItem(getWishIntakeType(1, WishIntakeTiming.AFTER_DEADLINE, currServerGVs.getChildWishIntakeConfiguraiton()));
+		wishType2AfterCB.setSelectedItem(getWishIntakeType(2, WishIntakeTiming.AFTER_DEADLINE, currServerGVs.getChildWishIntakeConfiguraiton()));
+		wishType3AfterCB.setSelectedItem(getWishIntakeType(3, WishIntakeTiming.AFTER_DEADLINE, currServerGVs.getChildWishIntakeConfiguraiton()));
+		
+		giftDistributionCB.setSelectedItem(currServerGVs.getGiftDistribution());
+		mealIntakeCB.setSelectedItem(MealIntake.intake(currServerGVs.getMealIntake()));
+
 		
 //		if(gvDB.getDeliveryActivityID() > -1 && activityDB.size() > 0)
 //		{
@@ -658,7 +835,19 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		if(gvDB.getDefaultGiftID() != cbWish.getID()) { cf |= 512; }
 		
 		ONCGift cbGiftCardWish = (ONCGift) defaultGiftCardCB.getSelectedItem();
-		if(gvDB.getDefaultGiftCardID() != cbGiftCardWish.getID()) {cf |= 1024;}	
+		if(gvDB.getDefaultGiftCardID() != cbGiftCardWish.getID()) {cf |= 1024;}
+		
+		if(gvDB.getNumberOfGiftsPerChild() != (Integer) numGiftsPerChildCB.getSelectedItem()) {cf |= 2048;}
+		if(getWishIntakeType(0, WishIntakeTiming.BEFORE_DEADLINE, gvDB.getChildWishIntakeConfiguration()) != (WishIntakeType) wishType0BeforeCB.getSelectedItem()) {cf |= 4096;}
+		if(getWishIntakeType(1, WishIntakeTiming.BEFORE_DEADLINE, gvDB.getChildWishIntakeConfiguration()) != (WishIntakeType) wishType1BeforeCB.getSelectedItem()) {cf |= 8192;}
+		if(getWishIntakeType(2, WishIntakeTiming.BEFORE_DEADLINE, gvDB.getChildWishIntakeConfiguration()) != (WishIntakeType) wishType2BeforeCB.getSelectedItem()) {cf |= 16384;}
+		if(getWishIntakeType(3, WishIntakeTiming.BEFORE_DEADLINE, gvDB.getChildWishIntakeConfiguration()) != (WishIntakeType) wishType3BeforeCB.getSelectedItem()) {cf |= 32768;}
+		if(getWishIntakeType(0, WishIntakeTiming.AFTER_DEADLINE, gvDB.getChildWishIntakeConfiguration()) != (WishIntakeType) wishType0AfterCB.getSelectedItem()) {cf |= 65536;}
+		if(getWishIntakeType(1, WishIntakeTiming.AFTER_DEADLINE, gvDB.getChildWishIntakeConfiguration()) != (WishIntakeType) wishType1AfterCB.getSelectedItem()) {cf |= 131072;}
+		if(getWishIntakeType(2, WishIntakeTiming.AFTER_DEADLINE, gvDB.getChildWishIntakeConfiguration()) != (WishIntakeType) wishType2AfterCB.getSelectedItem()) {cf |= 262144;}
+		if(getWishIntakeType(3, WishIntakeTiming.AFTER_DEADLINE, gvDB.getChildWishIntakeConfiguration()) != (WishIntakeType) wishType3AfterCB.getSelectedItem()) {cf |= 524288;}
+		if(gvDB.getGiftDistribution() != ((GiftDistribution) giftDistributionCB.getSelectedItem())) { cf |= 1048576; }
+		if(gvDB.getMealIntake() != ((MealIntake) mealIntakeCB.getSelectedItem()).index()) { cf |= 2097152; }
 		
 		if(cf > 0)
 		{
@@ -671,7 +860,11 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 													     dc_InfoEditCutoff.getTime(),
 													      cbWish.getID(), cbGiftCardWish.getID(),
 													       dc_DecemberMealCutoff.getTime(),
-													        dc_WaitlistGiftCutoff.getTime());
+													        dc_WaitlistGiftCutoff.getTime(),
+													        (Integer) numGiftsPerChildCB.getSelectedItem(),
+													         getWishIntakeConfiguration(),
+													         ((GiftDistribution) giftDistributionCB.getSelectedItem()),
+													         ((MealIntake) mealIntakeCB.getSelectedItem()).index());
 			
 			String response = gvDB.update(this, updateGVreq);
 			if(!response.startsWith("UPDATED_GLOBALS"))
@@ -702,6 +895,15 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		whStreetTF.setEnabled(tf);
 		whCityTF.setEnabled(tf);
 		whStateTF.setEnabled(tf);
+		numGiftsPerChildCB.setEnabled(tf);
+		defaultGiftCB.setEnabled(tf);
+		defaultGiftCardCB.setEnabled(tf);
+		wishType0BeforeCB.setEnabled(tf);
+		wishType1BeforeCB.setEnabled(tf);
+		wishType2BeforeCB.setEnabled(tf);
+		giftDistributionCB.setEnabled(tf);
+		mealIntakeCB.setEnabled(tf);
+		
 	}
 	
 	void checkApplyChangesEnabled()
@@ -714,7 +916,8 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 			gvDB.getDecemberMealDeadline() != dc_DecemberMealCutoff.getTime() ||
 			gvDB.getWaitlistGiftDeadline() != dc_WaitlistGiftCutoff.getTime() ||
 			gvDB.getFamilyEditDeadline() != dc_InfoEditCutoff.getTime())
-		{			btnApplyDateChanges.setEnabled(true);
+		{			
+			btnApplyDateChanges.setEnabled(true);
 		}
 		else
 			btnApplyDateChanges.setEnabled(false);
@@ -763,6 +966,71 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		}
 		else if(!bIgnoreDialogEvents && e.getSource().equals(defaultGiftCardCB) &&
 				((ONCGift) defaultGiftCardCB.getSelectedItem()).getID() != gvDB.getDefaultGiftCardID())
+		{
+			update();
+		}
+		else if(!bIgnoreDialogEvents && e.getSource().equals(numGiftsPerChildCB) &&
+				((Integer) numGiftsPerChildCB.getSelectedItem()) != gvDB.getNumberOfGiftsPerChild())
+		{
+			checkEnabledMealsAndWishTypes((Integer) numGiftsPerChildCB.getSelectedItem(), gvDB.getNumberOfGiftsPerChild());
+			update();
+		}
+		else if(!bIgnoreDialogEvents && e.getSource().equals(wishType0BeforeCB) &&
+				((WishIntakeType) wishType0BeforeCB.getSelectedItem()) != 
+					getWishIntakeType(0, WishIntakeTiming.BEFORE_DEADLINE, gvDB.getChildWishIntakeConfiguration()))
+		{
+			update();
+		}
+		else if(!bIgnoreDialogEvents && e.getSource().equals(wishType1BeforeCB) &&
+				((WishIntakeType) wishType1BeforeCB.getSelectedItem()) !=
+					getWishIntakeType(1, WishIntakeTiming.BEFORE_DEADLINE, gvDB.getChildWishIntakeConfiguration()))
+		{
+			update();
+		}
+		else if(!bIgnoreDialogEvents && e.getSource().equals(wishType2BeforeCB) &&
+				((WishIntakeType) wishType2BeforeCB.getSelectedItem()) !=
+					getWishIntakeType(2, WishIntakeTiming.BEFORE_DEADLINE, gvDB.getChildWishIntakeConfiguration()))
+		{		
+			update();
+		}
+		else if(!bIgnoreDialogEvents && e.getSource().equals(wishType3BeforeCB) &&
+				((WishIntakeType) wishType3BeforeCB.getSelectedItem()) !=
+					getWishIntakeType(3, WishIntakeTiming.BEFORE_DEADLINE, gvDB.getChildWishIntakeConfiguration()))
+		{		
+			update();
+		}
+		else if(!bIgnoreDialogEvents && e.getSource().equals(wishType0AfterCB) &&
+				((WishIntakeType) wishType0AfterCB.getSelectedItem()) != 
+					getWishIntakeType(0, WishIntakeTiming.AFTER_DEADLINE, gvDB.getChildWishIntakeConfiguration()))
+		{
+			update();
+		}
+		else if(!bIgnoreDialogEvents && e.getSource().equals(wishType1AfterCB) &&
+				((WishIntakeType) wishType1AfterCB.getSelectedItem()) !=
+					getWishIntakeType(1, WishIntakeTiming.AFTER_DEADLINE, gvDB.getChildWishIntakeConfiguration()))
+		{
+			update();
+		}
+		else if(!bIgnoreDialogEvents && e.getSource().equals(wishType2AfterCB) &&
+				((WishIntakeType) wishType2AfterCB.getSelectedItem()) !=
+					getWishIntakeType(2, WishIntakeTiming.AFTER_DEADLINE, gvDB.getChildWishIntakeConfiguration()))
+		{	
+			update();
+		}
+		else if(!bIgnoreDialogEvents && e.getSource().equals(wishType3AfterCB) &&
+				((WishIntakeType) wishType3AfterCB.getSelectedItem()) !=
+					getWishIntakeType(3, WishIntakeTiming.AFTER_DEADLINE, gvDB.getChildWishIntakeConfiguration()))
+		{
+				
+			update();
+		}
+		else if(!bIgnoreDialogEvents && e.getSource().equals(giftDistributionCB) && 
+				((GiftDistribution)giftDistributionCB.getSelectedItem()) != gvDB.getGiftDistribution())
+		{
+			update();
+		}
+		else if(!bIgnoreDialogEvents && e.getSource().equals(mealIntakeCB) && 
+				((MealIntake)mealIntakeCB.getSelectedItem()).index() != gvDB.getMealIntake())
 		{
 			update();
 		}
@@ -867,6 +1135,87 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		defaultGiftCB.addActionListener(this);
 		defaultGiftCardCB.addActionListener(this);
 	}
+	
+	/***
+	 * Decodes 8 wish in-take settings, each with 4 (2 bits) choices. 16 bits are used to encode 
+	 * the choice for each in-take setting. The setting order, from left to right is:
+	 * Wish 3 After Deadline bits(15,14) 
+	 * Wish 3 Before Deadline(bits 13,12) 
+	 * Wish 2 After Deadline (bits 11,10),
+	 * Wish 2 Before Deadline (bits 9,8),
+	 * Wish 1 After Deadline bits(7,6) 
+	 * Wish 1 Before Deadline(bits 5,4) 
+	 * Wish 0 After Deadline (bits 3,2),
+	 * Wish 0 Before Deadline (bits 1,0),
+	 * @return WishIntakeType
+	 */
+	WishIntakeType getWishIntakeType(int wishnum, WishIntakeTiming timing, int configuration)
+	{
+		if(wishnum >= 0 && wishnum < 4)
+		{	
+			//determine WishIntakeType by calculating how many bits to shift right based on the wish number
+			//and if before or after the deadline. Use same info to create the mask.
+			//apply the mask, shift the result, yielding an integer between 0 and 3
+			int shift = ((wishnum * 2) + timing.offset()) * 2;	//and even integer between 0 and 14
+			int mask = 0x0003 << shift;	
+			int intakeType = (configuration & mask) >> shift;
+			
+			return WishIntakeType.getWishInputType(intakeType);
+		}
+		else
+			return WishIntakeType.Unused;
+	}
+	
+	/***
+	 * Encodes 8 wish in-take settings, each with 4 (2 bits) choices. 16 bits are used to encode 
+	 * the choice for each in-take setting. The setting order, from left to right is:
+	 * Wish 3 After Deadline bits(15,14) 
+	 * Wish 3 Before Deadline(bits 13,12) 
+	 * Wish 2 After Deadline (bits 11,10),
+	 * Wish 2 Before Deadline (bits 9,8),
+	 * Wish 1 After Deadline bits(7,6) 
+	 * Wish 1 Before Deadline(bits 5,4) 
+	 * Wish 0 After Deadline (bits 3,2),
+	 * Wish 0 Before Deadline (bits 1,0),
+	 * @return int where lower 16 bits represented the encoded settings and choices
+	 */
+	int getWishIntakeConfiguration()
+	{
+		int config = 0, statusIndex=0;
+		
+		statusIndex = ((WishIntakeType)wishType3AfterCB.getSelectedItem()).statusIndex;
+		config = config | statusIndex;
+		
+		config = config << 2;
+		statusIndex = ((WishIntakeType)wishType3BeforeCB.getSelectedItem()).statusIndex;
+		config |= statusIndex;
+		
+		config = config << 2;
+		statusIndex = ((WishIntakeType)wishType2AfterCB.getSelectedItem()).statusIndex;
+		config |= statusIndex;
+		
+		config = config << 2;
+		statusIndex = ((WishIntakeType)wishType2BeforeCB.getSelectedItem()).statusIndex;
+		config |= statusIndex;
+		
+		config = config << 2;
+		statusIndex = ((WishIntakeType)wishType1AfterCB.getSelectedItem()).statusIndex;
+		config |= statusIndex;
+		
+		config = config << 2;
+		statusIndex = ((WishIntakeType)wishType1BeforeCB.getSelectedItem()).statusIndex;
+		config |= statusIndex;
+		
+		config = config << 2;
+		statusIndex = ((WishIntakeType)wishType0AfterCB.getSelectedItem()).statusIndex;
+		config |= statusIndex;
+		
+		config = config << 2;
+		statusIndex = ((WishIntakeType)wishType0BeforeCB.getSelectedItem()).statusIndex;
+		config |= statusIndex;
+		
+		return config;
+	}
 /*	
 	void updateDefaultDeliveryActivityCBList(boolean bInitialize)
 	{	
@@ -910,6 +1259,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 	{
 		if(dbe.getSource() != this && dbe.getType().equals("UPDATED_GLOBALS"))
 		{
+			checkEnabledMealsAndWishTypes((Integer) gvDB.getNumberOfGiftsPerChild(), (Integer) numGiftsPerChildCB.getSelectedItem());
 			display(gvDB.getServerGVs(), currUserPrefs);
 		}
 		else if(dbe.getSource() != this && (dbe.getType().equals("UPDATED_USER") || 
@@ -949,6 +1299,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_DATABASE"))
 		{
+			this.setTitle(String.format("Our Neighbor's Child  %d User & Season Settings", gvDB.getCurrentSeason()));
 			updateDefalutGiftCBLists(true);
 		}
 		else if(dbe.getSource() != this && dbe.getType().contains("_CATALOG_WISH"))
@@ -1170,6 +1521,90 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 			Calendar delCal = this.getCalendar();
 			TimeZone tz = delCal.getTimeZone();		
 			return delCal.getTimeInMillis() + tz.getOffset(delCal.getTimeInMillis());
+		}
+	}
+	
+	private enum WishIntakeTiming 
+	{ 
+		BEFORE_DEADLINE (0),
+		AFTER_DEADLINE (1);
+		
+		private final int offset;
+		
+		WishIntakeTiming(int offset)
+		{
+			this.offset = offset;
+		}
+		
+		int offset() { return this.offset; }
+	}
+	
+	private enum WishIntakeType
+	{
+		Unused (0, "Unused"),
+		Age_Appropiate (1, "Age Appropriate"),
+		ONC_Selected(2, "ONC Selected"),
+		Agent_Selected (3,"Agent Selected");
+		
+		private final int statusIndex;
+		private final String english;
+		
+		WishIntakeType(int statusIndex, String english)
+		{
+			this.statusIndex = statusIndex;
+			this.english = english;
+		}
+		
+		public static WishIntakeType getWishInputType(int statusIndex)
+		{
+			WishIntakeType result = WishIntakeType.Unused;
+			for(WishIntakeType cwit : WishIntakeType.values())
+			{
+				if(cwit.statusIndex == statusIndex)
+				{
+					result = cwit;
+					break;
+				}
+			}
+			
+			return result;
+		}
+		
+		public String toString() { return this.english; }
+	}	
+	
+	private enum MealIntake
+	{
+		None (0, "None"),
+		Thanksgiving (1, "Thanksgiving"),
+		December (2,"December"),
+		Thanksgiving_December (3, "Thanksgiving & December");
+		
+		private final int index;
+		private final String english;
+		
+		MealIntake(int index, String english)
+		{
+			this.index = index;
+			this.english = english;
+		}
+		
+		int index() { return this.index; }
+		@Override
+		public String toString() { return english; } 
+		
+		static MealIntake intake(int i)
+		{
+			MealIntake result = MealIntake.None;
+			for(MealIntake mi : MealIntake.values())
+			{
+				if(mi.index == i)
+				{
+					result = mi;
+					break;
+				}
+			}
+			return result; 
 		}
 	}
 }

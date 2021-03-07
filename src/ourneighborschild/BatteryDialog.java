@@ -291,9 +291,9 @@ public class BatteryDialog extends GiftLabelDialog
 			List<Battery> batteryReqList = new ArrayList<Battery>();
 			
 			//get childID, giftNumber and oncNum based on whether gift is regular or a cloned gift
-			int childID = bClonedGift ? scgo.getChild().getID() : sgo.getChild().getID();
-			int giftNumber = bClonedGift ? scgo.getClonedGift().getGiftNumber() : sgo.getChildGift().getGiftNumber();
-			String oncNum = bClonedGift ? scgo.getFamily().getONCNum() : sgo.getFamily().getONCNum();
+			int childID = sgo.getChild().getID();
+			int giftNumber = sgo.getChildGift().getGiftNumber();
+			String oncNum = sgo.getFamily().getONCNum();
 			
 			batteryReqList.add(new Battery(-1, childID, giftNumber, size1, qty1));
 			if(scanState == ScanState.READY_TO_SUBMIT)	//there are two batteries for this gift
@@ -524,9 +524,9 @@ public class BatteryDialog extends GiftLabelDialog
 	}
 	
 	@Override
-	boolean isGiftEligible(ONCChildGift cw)
+	boolean isGiftEligible(ONCChildGift cg)
 	{
-		return cw.getGiftStatus() == GiftStatus.Received;
+		return cg.getGiftStatus() == GiftStatus.Received;
 	}
 	
 	private enum ScanState
@@ -539,16 +539,16 @@ public class BatteryDialog extends GiftLabelDialog
 		READY_TO_SUBMIT;
 	}
 
-	@Override
-	boolean isGiftEligible(ClonedGift cg)
-	{
-		return cg.getGiftStatus() == ClonedGiftStatus.Received;
-	}
-
-	@Override
-	void onClonedGiftLabelFound(SortClonedGiftObject scgo)
-	{
-		setBackgroundColor(pBkColor);
-		setScanState(ScanState.SIZE1);
-	}
+//	@Override
+//	boolean isGiftEligible(ClonedGift cg)
+//	{
+//		return cg.getGiftStatus() == GiftStatus.Received;
+//	}
+//
+//	@Override
+//	void onClonedGiftLabelFound(SortClonedGiftObject scgo)
+//	{
+//		setBackgroundColor(pBkColor);
+//		setScanState(ScanState.SIZE1);
+//	}
 }

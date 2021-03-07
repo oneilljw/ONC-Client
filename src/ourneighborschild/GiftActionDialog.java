@@ -194,12 +194,12 @@ public abstract class GiftActionDialog extends SortTableDialog
 					{
 						for(int i=0; i< cwDB.getNumberOfGiftsPerChild(); i++)
 						{	
-							ONCChildGift cw = cwDB.getGift(c.getChildGiftID(i));
+							ONCChildGift cg = cwDB.getCurrentChildGift(c.getID(), i);
 							
 							//Status matches and wish was assigned (Wish indicator is not *)
-							if(cw != null && doesChildWishStatusMatch(cw))
+							if(cg != null && doesChildWishStatusMatch(cg))
 							{
-								stAL.add(new SortGiftObject(index++, f, c, cw));
+								stAL.add(new SortGiftObject(index++, f, c, cg));
 							}
 						}
 					}
@@ -233,7 +233,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 	{
 		GiftActionReturnCode rc = null;
 		
-		ONCChildGift cw = cwDB.getGift(cID, wn);	//get latest wish for child
+		ONCChildGift cw = cwDB.getCurrentChildGift(cID, wn);	//get latest wish for child
 		if(cw == null && wn >= CLONED_GIFT_FIRST_GIFT_NUMBER)
 			rc = new GiftActionReturnCode(GIFT_ACTION_CLONED_GIFT_ERROR, null);
 		else if(cw == null)
@@ -287,7 +287,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 		//new wish. Organization parameter is null, indicating we're not changing the gift partner
 		lastWishChanged = new SortGiftObject(-1, swo.getFamily(), swo.getChild(), swo.getChildGift());
 					
-		ONCChildGift addedWish = cwDB.add(this, swo.getChild().getID(), swo.getChildGift().getGiftID(),
+		ONCChildGift addedWish = cwDB.add(this, swo.getChild().getID(), swo.getChildGift().getCatalogGiftID(),
 											swo.getChildGift().getDetail(),
 											swo.getChildGift().getGiftNumber(),
 											swo.getChildGift().getIndicator(), 
@@ -315,7 +315,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 		ONCChildGift lastWish = lastWishChanged.getChildGift();
 		
 		cwDB.add(this, lastWishChanged.getChild().getID(),
-					lastWish.getGiftID(), lastWish.getDetail(),
+					lastWish.getCatalogGiftID(), lastWish.getDetail(),
 					lastWish.getGiftNumber(),lastWish.getIndicator(),
 					lastWish.getGiftStatus(), null);	//null to keep same partner
 		
@@ -435,7 +435,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 						
 						ONCFamily fam = rc.getSortWishObject().getFamily();
 						ONCChildGift cw = rc.getSortWishObject().getChildGift();
-						String wishName = cat.getGiftByID(cw.getGiftID()).getName();
+						String wishName = cat.getGiftByID(cw.getCatalogGiftID()).getName();
 						
 						String mssg = String.format("Family# %s: %s- %s received", 
 								fam.getONCNum(), wishName, cw.getDetail());
@@ -456,7 +456,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 					else if(rc.getReturnCode() == GIFT_ACTION_ALREADY_OCCURRED)
 					{
 						ONCChildGift cw = rc.getSortWishObject().getChildGift();
-						String wishName = cat.getGiftByID(cw.getGiftID()).getName();
+						String wishName = cat.getGiftByID(cw.getCatalogGiftID()).getName();
 						
 						lblResult.setText(String.format("Gift: %s- %s already received", wishName, cw.getDetail()));
 						SoundUtils.tone(SUCCESS_SOUND_FREQ, SOUND_DURATION);
@@ -567,7 +567,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 	String[] getTableRow(ONCObject obj)
 	{
 		SortGiftObject so = (SortGiftObject) obj;
-		ONCGift wish = cat.getGiftByID(so.getChildGift().getGiftID());
+		ONCGift wish = cat.getGiftByID(so.getChildGift().getCatalogGiftID());
 		String wishName = wish == null ? "None" : wish.getName();
 		
 		String[] tableRow = {so.getFamily().getONCNum(), so.getChild().getChildGender(),

@@ -8,9 +8,9 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.geom.Rectangle2D;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -71,6 +71,8 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private static final int NO_ADULT_ICON_INDEX = 43;
 	
 	private static final int FAMILY_NOTE_GRAY_ICON_INDEX = 47;
+	private static final int GIFT_PICKUP_ICON_INDEX = 57;
+	private static final int HOME_DELIVERY_ICON_INDEX = 58;
 	
 	//data base references
 	private DatabaseManager dbMgr;
@@ -103,7 +105,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private JRadioButton rbGiftStatusHistory, rbAltAddress, rbPriorHistory, rbAgentInfo;
 	private JRadioButton rbShowAllPhones, rbFamDetails, rbDirections;
 	private JRadioButton rbNotGiftCardOnly, rbGiftCardOnly, rbAdults;
-	private JRadioButton[] rbFamilyNote, rbMeals, rbTransportation;
+	private JRadioButton[] rbFamilyNote, rbMeals, rbTransportation, rbDistribution;
 	private JComboBox<String> languageCB;
 	private JComboBox<FamilyStatus> statusCB;
 	private JComboBox<FamilyGiftStatus> giftStatusCB;
@@ -374,12 +376,23 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         rbTransportation = new JRadioButton[rbTransImageIndex.length];
         for(int i=0; i<rbTransportation.length; i++)
         {
-        		rbTransportation[i] = new JRadioButton(gvs.getImageIcon(rbTransImageIndex[i]));
-        		rbTransportation[i].setToolTipText("Click for family transportation status");
+        	rbTransportation[i] = new JRadioButton(gvs.getImageIcon(rbTransImageIndex[i]));
+        	rbTransportation[i].setToolTipText("Click for family transportation status");
             rbTransportation[i].setVisible(false);
             rbTransportation[i].addActionListener(this);
         }
         
+        int[] rbDistributionIndex = {GIFT_PICKUP_ICON_INDEX, HOME_DELIVERY_ICON_INDEX};
+        rbDistribution = new JRadioButton[rbDistributionIndex.length];
+        for(int i=0; i<rbDistributionIndex.length; i++)
+        {
+        	rbDistribution[i] = new JRadioButton(gvs.getImageIcon(rbDistributionIndex[i]));
+        	rbDistribution[i].setToolTipText("Click for gift pickup or home delivery");
+        	rbDistribution[i].setVisible(false);
+        	rbDistribution[i].setEnabled(false);
+        	rbDistribution[i].addActionListener(this);
+        }
+       
         rbDirections = new JRadioButton(gvs.getImageIcon( GOOGLE_MAP_ICON_INDEX));
         rbDirections.setToolTipText("Click for directions to family address");
         rbDirections.setEnabled(false);
@@ -583,6 +596,9 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         
         for(int i=0; i< rbTransportation.length; i++)
     		iconBar.add(rbTransportation[i]);
+        
+        for(int i=0; i< rbDistribution.length; i++)
+    		iconBar.add(rbDistribution[i]);
         
         iconBar.add(rbAdults);
         iconBar.add(rbNotGiftCardOnly);
@@ -804,6 +820,12 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 									  currFam.getTransportation() == Transportation.TBD);
 		rbTransportation[1].setVisible(currFam.getTransportation() == Transportation.Yes);
 		
+		//set gift distribution button icon. Only enabled if ONC is offering a pickup or delivery choice to family
+		rbDistribution[0].setVisible(currFam.getGiftDistribution() == GiftDistribution.Pickup);
+		rbDistribution[1].setVisible(currFam.getGiftDistribution() == GiftDistribution.Delivery);
+		rbDistribution[0].setEnabled(gvs.getGiftDistribution() == GiftDistribution.Pickup_Delivery);
+		rbDistribution[1].setEnabled(gvs.getGiftDistribution() == GiftDistribution.Pickup_Delivery);
+		
 		addChildrenToTable(cn);	//update child table
 		checkForAdultsInFamily(); //set the adults icon
 		
@@ -1006,11 +1028,22 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			wishlistPane.setCaretPosition(startPos);
 			wishlistPane.getHighlighter().addHighlight(startPos, endPos+1, highlightPainter);
 			int caretPosition = wishlistPane.getCaretPosition();
-			Rectangle caretRectangle = wishlistPane.modelToView(caretPosition);
-			Rectangle viewRectangle = new Rectangle(0, caretRectangle.y -
-			        (wishlistScrollPane.getHeight() - caretRectangle.height) / 2,
-			        wishlistScrollPane.getWidth(), wishlistScrollPane.getHeight());
-			wishlistPane.scrollRectToVisible(viewRectangle);
+//			Rectangle caretRectangle = wishlistPane.modelToView(caretPosition);
+//			Rectangle viewRectangle = new Rectangle(0, caretRectangle.y -
+//			        (wishlistScrollPane.getHeight() - caretRectangle.height) / 2,
+//			        wishlistScrollPane.getWidth(), wishlistScrollPane.getHeight());
+//			wishlistPane.scrollRectToVisible(viewRectangle);
+			
+//			Rectangle2D caretRectangle = wishlistPane.modelToView2D(caretPosition);
+//			Rectangle2D viewRectangle = new Rectangle2D(0, caretRectangle.getY() -
+//			        (wishlistScrollPane.getHeight() - caretRectangle.getHeight()) / 2,
+//			        wishlistScrollPane.getWidth(), wishlistScrollPane.getHeight());
+//			wishlistPane.scrollRectToVisible(viewRectangle);
+			
+			Rectangle2D caretRectangle = wishlistPane.modelToView2D(caretPosition);
+			wishlistPane.scrollRectToVisible(caretRectangle.getBounds()); // Scroll to the rectangle provided by view
+			wishlistPane.setCaretPosition(caretPosition); // Sets carat position to pos
+			
 		}
 		catch (BadLocationException e)
 		{
@@ -1403,6 +1436,11 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		{
 			DialogManager.getInstance().showFamilyInfoDialog("Transportation");
 		}
+		else if(e.getSource() == rbDistribution[0] || e.getSource() == rbDistribution[1])
+		{
+			DialogManager.getInstance().showFamilyInfoDialog("Distribution");
+		}
+
 		else if(e.getSource() == rbDirections)
 		{
 			DialogManager.getInstance().showDrivingDirections();
@@ -1600,6 +1638,10 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		else if(dbe.getType().equals("ADDED_DNSCODE") || dbe.getType().equals("UPDATED_DNSCODE"))
 		{
 			updateDNSCodeCB();
+		}
+		else if(dbe.getType().equals("UPDATED_GLOBALS") && currFam != null)
+		{
+			display(currFam, currChild);
 		}
 	}
 

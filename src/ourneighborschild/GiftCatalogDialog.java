@@ -330,7 +330,7 @@ public class GiftCatalogDialog extends JDialog implements ActionListener, ListSe
 			ONCChildGift addedGift = (ONCChildGift) dbe.getObject2();
 			
 			//update table
-			if(replGift != null &&  replGift.getGiftID() > -1 || addedGift != null && addedGift.getGiftID() > -1)
+			if(replGift != null &&  replGift.getCatalogGiftID() > -1 || addedGift != null && addedGift.getCatalogGiftID() > -1)
 					gcTableModel.fireTableDataChanged();
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("ADDED_CATALOG_WISH"))

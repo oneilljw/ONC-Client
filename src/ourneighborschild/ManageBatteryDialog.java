@@ -463,21 +463,20 @@ public class ManageBatteryDialog extends ONCEntityTableDialog implements ActionL
         {
     		BatteryTableObject bto = batteryTableList.get(row);
     		ONCChildGift gift = null;
-    		ClonedGift clonedGift = null;
     		ONCChild child = null;
     		ONCFamily family = null;
     		
     		boolean bClonedGift = bto.getBattery().getWishNum() >= CLONED_GIFT_FIRST_GIFT_NUMBER;
     		
     		if(bClonedGift)
-    			clonedGift = clonedGiftDB.getClonedGift(bto.getChild().getID(), bto.getBattery().getWishNum());
+    			gift = clonedGiftDB.getClonedGift(bto.getChild().getID(), bto.getBattery().getWishNum());
     		else
-    			gift = giftDB.getGift(bto.getChild().getID(), bto.getBattery().getWishNum());
+    			gift = giftDB.getCurrentChildGift(bto.getChild().getID(), bto.getBattery().getWishNum());
     		
     		String childFN, childLN;
-    		if(gift != null || clonedGift != null)
+    		if(gift != null)
     		{
-    			child = bClonedGift ? childDB.getChild(clonedGift.getChildID()) : childDB.getChild(gift.getChildID());
+    			child = childDB.getChild(gift.getChildID());
     			
     			if(userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0)
         		{
@@ -516,15 +515,9 @@ public class ManageBatteryDialog extends ONCEntityTableDialog implements ActionL
     		{
     			if(gift != null && !bClonedGift)
     			{
-    				ONCGift wish = catDB.getGiftByID(gift.getGiftID());
-    				return  wish == null ? "Error" : wish.getName().equals("-") ? 
-    						gift.getDetail() : wish.getName() + "- " + gift.getDetail();
-    			}
-    			else if(clonedGift != null && bClonedGift)
-    			{
-    				ONCGift wish = catDB.getGiftByID(clonedGift.getGiftID());
-    				return  wish == null ? "Error" : wish.getName().equals("-") ? 
-    						clonedGift.getDetail() : wish.getName() + "- " + clonedGift.getDetail();
+    				ONCGift catalogGift = catDB.getGiftByID(gift.getCatalogGiftID());
+    				return  catalogGift == null ? "Error" : catalogGift.getName().equals("-") ? 
+    						gift.getDetail() : catalogGift.getName() + "- " + gift.getDetail();
     			}
     			else
     				return "Error";
@@ -581,21 +574,18 @@ public class ManageBatteryDialog extends ONCEntityTableDialog implements ActionL
 		String[] getExportRow()
 		{
 			String[] row = new String[10];
-			ONCGift wish = null;
+			
+			ONCChildGift gift = null;
 			String giftDetail = "Error";
 			
 			if(battery.getWishNum() <  CLONED_GIFT_FIRST_GIFT_NUMBER)
-			{	
-				ONCChildGift gift = giftDB.getGift(battery.getChildID(), battery.getWishNum());
-				wish = catDB.getGiftByID(gift.getGiftID());
-				giftDetail = gift.getDetail();
-			}
+				gift = giftDB.getCurrentChildGift(battery.getChildID(), battery.getWishNum());
 			else
-			{
-				ClonedGift gift = clonedGiftDB.getClonedGift(battery.getChildID(), battery.getWishNum());
-				wish = catDB.getGiftByID(gift.getGiftID());
-				giftDetail = gift.getDetail();
-			}
+				gift = clonedGiftDB.getClonedGift(battery.getChildID(), battery.getWishNum());
+				
+			ONCGift catalogGift = catDB.getGiftByID(gift.getCatalogGiftID());
+			giftDetail = gift.getDetail();
+	
 			
 			//determine if user has permission to see child first and last name. If not, substitute
 			String childFN = "Error", childLN = "Error";
@@ -621,8 +611,8 @@ public class ManageBatteryDialog extends ONCEntityTableDialog implements ActionL
 			row[2] = childLN;
 			row[3] = child == null ? "Error" : child.getChildAge();
 			row[4] = child == null ? "Error" : child.getChildGender();
-			row[5] = wish == null ? "Error" : wish.getName();
-			row[6] = wish == null ? "Error" : battery.getWishNum() < CLONED_GIFT_FIRST_GIFT_NUMBER ? "No":"Yes";
+			row[5] = catalogGift == null ? "Error" : catalogGift.getName();
+			row[6] = battery == null ? "Error" : battery.getWishNum() < CLONED_GIFT_FIRST_GIFT_NUMBER ? "No":"Yes";
 			row[7] = giftDetail;
 			row[8] = battery.getSize();
 			row[9] = Integer.toString(battery.getQuantity());

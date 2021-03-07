@@ -19,18 +19,13 @@ public class ONCChild extends ONCObject implements Serializable
 	private static final String ODB_FAMILY_MEMBER_COLUMN_SEPARATOR = " - ";
 	
 	private int			famid;
-	private int 		childNumber;	//Range is 1 to x, there is no child 0
 	private String		childFirstName;
 	private String		childLastName;
 	private String		childSchool;
 	private String		childGender;
-//	private String		sChildDOB;
 	private String		sChildAge;
 	private int 		nChildAge = -1;	//-1: Unknown, else age in years is valid from 0 (DOB) and older
 	private long		childDOB;	//GMT time in milliseconds 
-	private int			childGift1ID;
-	private int			childGift2ID;
-	private int			childGift3ID;
 	private int			pyChildID;
 		
 	//Constructor for a new child created by the user
@@ -38,17 +33,13 @@ public class ONCChild extends ONCObject implements Serializable
 	{
 		super(id);
 		this.famid = famid;
-		childNumber = 0; //Will be set once children are sorted in chronological order
 		childFirstName = fn;
 		childGender = gender;
 		childDOB = dob;
 		sChildAge = calculateAge(currYear);
 		childLastName = ln;
 		childSchool = school;
-    		childGift1ID = -1;	//Set the wish id's to "no wish selected"
-    		childGift2ID = -1;
-    		childGift3ID = -1;
-    		pyChildID = -1;
+    	pyChildID = -1;
 	}
 	
 	//Constructor used to make a copy
@@ -56,7 +47,6 @@ public class ONCChild extends ONCObject implements Serializable
 	{
 		super(c.id);
 		this.famid = c.famid;
-		childNumber = c.childNumber;
 		childFirstName = c.childFirstName;
 		childLastName = c.childLastName;
 		childGender = c.childGender;
@@ -64,13 +54,7 @@ public class ONCChild extends ONCObject implements Serializable
 		sChildAge = c.sChildAge;
 		nChildAge = c.nChildAge;
 		childSchool = c.childSchool;
-		childGift1ID = c.childGift1ID;	//Set the wish id's to "no wish selected"
-		childGift2ID = c.childGift2ID;
-		childGift3ID = c.childGift3ID;
 		pyChildID = c.pyChildID;
-    	
-//    	SimpleDateFormat sdf = new SimpleDateFormat("M/dd/yy");
-//    	sChildDOB = sdf.format(childDOB.getTime());
 	}
 	
 	//Constructor used when importing data base from CSV by the server
@@ -78,12 +62,12 @@ public class ONCChild extends ONCObject implements Serializable
 	{
 		super(Integer.parseInt(nextLine[0]));
 		this.famid = Integer.parseInt(nextLine[1]);
-		childNumber = Integer.parseInt(nextLine[2]);
-		childFirstName = nextLine[3].isEmpty() ? "" : nextLine[3];
-		childLastName = nextLine[4].isEmpty() ? "" : nextLine[4];
-		childGender = nextLine[5];
+//		childNumber = Integer.parseInt(nextLine[2]);
+		childFirstName = nextLine[2].isEmpty() ? "" : nextLine[2];
+		childLastName = nextLine[3].isEmpty() ? "" : nextLine[3];
+		childGender = nextLine[4];
 
-		if(nextLine[6].isEmpty())
+		if(nextLine[5].isEmpty())
 		{
 			Locale locale = new Locale("en", "US");
 			TimeZone timezone = TimeZone.getTimeZone("GMT");
@@ -95,27 +79,18 @@ public class ONCChild extends ONCObject implements Serializable
 			childDOB = today.getTimeInMillis();
 		}
 		else
-			childDOB = Long.parseLong(nextLine[6]);
+			childDOB = Long.parseLong(nextLine[5]);
 
 		sChildAge = calculateAge(currYear);
-		childSchool = nextLine[7].isEmpty() ? "" : nextLine[7];
-		childGift1ID = Integer.parseInt(nextLine[8]);	//Set the wish id's to "no wish selected"
-    		childGift2ID = Integer.parseInt(nextLine[9]);
-    		childGift3ID = Integer.parseInt(nextLine[10]);
-    		pyChildID = Integer.parseInt(nextLine[11]);
-    	
-//    	SimpleDateFormat sdf = new SimpleDateFormat("M/dd/yy");
-//    	sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-//    	sChildDOB = sdf.format(childDOB.getTime());
+		childSchool = nextLine[6].isEmpty() ? "" : nextLine[6];
+    	pyChildID = Integer.parseInt(nextLine[7]);
 	}
 	
 	//Constructor that uses ODB/WFCM child name string which has format First Name Last Name - Gender - DOB
 	public ONCChild(int id, int famid, String c, int currYear)
 	{
 		super(id);
-		this.famid = famid;
-		childNumber = 0; //Will be set once children are sorted in chronological order
-		
+		this.famid = famid;	
 		String[] childdata = c.split(ODB_FAMILY_MEMBER_COLUMN_SEPARATOR, 3);
 		
 		if(c.length() > 0 && childdata.length == 3)
@@ -133,7 +108,6 @@ public class ONCChild extends ONCObject implements Serializable
     			else
     				childGender = "Unknown";
     	   		
-//    		sChildDOB = childdata[2].trim();
        		sChildAge = calculateChildsAgeAndCalendarDOB(childdata[2].trim(), currYear);
 		}
 		else
@@ -141,21 +115,15 @@ public class ONCChild extends ONCObject implements Serializable
     			childFirstName = "MISSING";
     			childLastName = "MISSING";
     			childGender = "Unknown";
-//    		sChildDOB = "Unknown";
     			sChildAge = "Unknown";
 		}
     	
 		childSchool = "";
-    	
-    		childGift1ID = -1;	//Set the wish id's to "no wish selected"
-    		childGift2ID = -1;
-    		childGift3ID = -1;
-    		pyChildID = -1;
+    	pyChildID = -1;
 	}
 	
 	//Getters
 	public int			getFamID() { return famid; }
-//	int		getChildNumber() { return childNumber; }
 	public String		getChildFirstName() {return childFirstName;}
 	public String		getChildLastName() {return childLastName;}
 	String		getChildSchool() {return childSchool;}
@@ -166,9 +134,7 @@ public class ONCChild extends ONCObject implements Serializable
 	public Long getChildDateOfBirth() { return childDOB; }
 	
 	public void setChildDateOfBirth(long dob) { childDOB = dob; }
-	
-	boolean hasGifts() { return childGift1ID > -1 || childGift2ID > -1 || childGift3ID > -1; }
-	
+
 	/**********************************************************************************************
 	 * return a GMT based Calendar for DOB
 	 * @return
@@ -196,31 +162,6 @@ public class ONCChild extends ONCObject implements Serializable
     	return sdf.format(gmtDOB.getTime());
 	}
 
-	public int getChildGiftID(int wn)
-	{
-		int giftID = -1;
-		
-		if(wn==0)
-			giftID = childGift1ID;
-		else if(wn==1)
-			giftID = childGift2ID;
-		else if(wn==2)
-			giftID = childGift3ID;
-		
-		return giftID;
-	}
-	
-	//Setters
-	public void setChildGiftID(int giftID, int wn)
-	{
-		if(wn == 0)
-			childGift1ID = giftID;
-		else if(wn == 1)
-			childGift2ID = giftID;
-		else if(wn == 2)
-			childGift3ID = giftID;
-	}
-	
 	public void setPriorYearChildID(int pyid) { pyChildID = pyid; }
 	
 	void updateChildData(String first, String last, String school, String gender, long dob, int currYear)
@@ -230,19 +171,14 @@ public class ONCChild extends ONCObject implements Serializable
 		childSchool = school;
 		childGender = gender;
 		childDOB = dob;
-//		SimpleDateFormat oncdf = new SimpleDateFormat("M/d/yy");
-//		sChildDOB = oncdf.format(dob);
 		sChildAge = calculateAge(currYear);
 	}
 
-	public void setChildNumber(int cn) {childNumber = cn+1;} //Range is 1 to x
-	
 	//This method takes the sChildDOB string, determines if its in legitimate date format, and if it is
 	//set the childDOB Calendar field and return a string of the childs age. It also sets a member 
 	//integer variable, nChildAge, to the actual age (0 and older) or leaves it -1 for invalid DOB's
 	String calculateChildsAgeAndCalendarDOB(String zDOB, int currYear)
 	{	
-//		Locale locale = new Locale("en", "US");
 		TimeZone timezone = TimeZone.getTimeZone("GMT");
 		Calendar now = Calendar.getInstance(timezone);
 		now.clear(Calendar.HOUR_OF_DAY);
@@ -263,7 +199,6 @@ public class ONCChild extends ONCObject implements Serializable
 				Calendar gmtDOB = Calendar.getInstance(timezone);
 				gmtDOB.setTime(sdf.parse(zDOB));
 				childDOB = gmtDOB.getTimeInMillis();
-//				sChildDOB = oncdf.format(childDOB.getTime());
 			}
 		    catch (ParseException e)
 		    {
@@ -280,7 +215,6 @@ public class ONCChild extends ONCObject implements Serializable
 				Calendar gmtDOB = Calendar.getInstance(timezone);
 				gmtDOB.setTime(oncdf.parse(zDOB));
 				childDOB = gmtDOB.getTimeInMillis();
-//				sChildDOB = oncdf.format(childDOB.getTime());
 			}
 		    catch (ParseException e)
 		    {
@@ -292,14 +226,12 @@ public class ONCChild extends ONCObject implements Serializable
 		else if(zDOB.contains("nknown"))
 		{
 			childDOB = now.getTimeInMillis();
-//			sChildDOB = oncdf.format(childDOB.getTime());
 			return "Unknown";
 		}
 		else
 		{
 			childDOB = now.getTimeInMillis();
 			
-//			sChildDOB = oncdf.format(childDOB.getTime());
 			JOptionPane.showMessageDialog(null, "DOB is not in ONC or ODB format, age cannot be determined", 
 					"Invalid Date of Birth Format", JOptionPane.ERROR_MESSAGE);
 			return "";
@@ -364,67 +296,9 @@ public class ONCChild extends ONCObject implements Serializable
 	@Override
 	public String[] getExportRow()
 	{
-		String[] row= {Long.toString(id), Integer.toString(famid), Integer.toString(childNumber), 
-						childFirstName, childLastName, childGender, Long.toString(childDOB), childSchool, 
-						Long.toString(childGift1ID), Long.toString(childGift2ID),
-						Long.toString(childGift3ID), Long.toString(pyChildID)};
+		String[] row= {Long.toString(id), Integer.toString(famid), childFirstName, childLastName,
+						childGender, Long.toString(childDOB), childSchool, Long.toString(pyChildID)};
 						
 		return row;
 	}
-/*
-	class ChildWishHistory implements Serializable
-	{
-		private static final long serialVersionUID = 1487985298719174837L;
-		private ArrayList<ONCChildGift> wishHistoryAL = new ArrayList<ONCChildGift>();
-			
-		ChildWishHistory()
-		{
-//			wishHistory.add(new ONCChildWish());
-		}
-			
-		void addWish(ONCChildGift wish)
-		{
-			wishHistoryAL.add(wish);
-		}
-			
-		ONCChildGift getCurrentWish(){return wishHistoryAL.get(wishHistoryAL.size()-1);}
-		ArrayList<ONCChildGift> getWishHistory() {return wishHistoryAL;}
-		
-	
-//		Method takes a child wish history array list of child wishes and merges it with the current
-//		wish history list. Any identical wishes are ignored. Non identical wishes are added immediately
-//		after the last current wish that was generated (time stamped) before a merge wish. 
-		
-		boolean mergeWishHistories(ArrayList<ONCChildGift> mwhAL)
-		
-		{
-			boolean bWishChangeDetected = false;
-			for(ONCChildGift mw:mwhAL)
-			{
-				//Check to see if merge wish is identical to a current wish in wish history array list
-				boolean bWishIdentical = false;
-				for(ONCChildGift cw:wishHistoryAL)
-					if(cw.isComparisonWishIdentical(mw))
-						bWishIdentical = true;
-							
-				if(!bWishIdentical) //if no identical wish found, place merge wish in wish history array list
-				{
-					//Place merge wish based on time stamp
-					int index = 0 ;
-					while (index < wishHistoryAL.size() && wishHistoryAL.get(index).isComparisonWishAfter(mw))
-						index++;
-					
-					if(index == wishHistoryAL.size())
-						wishHistoryAL.add(mw);					
-					else
-						wishHistoryAL.add(index, mw);
-					
-					bWishChangeDetected = true;
-				}
-			}
-			
-			return bWishChangeDetected;
-		}
-	}
-*/
 }

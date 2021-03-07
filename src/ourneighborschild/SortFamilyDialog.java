@@ -1,6 +1,7 @@
 package ourneighborschild;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -10,6 +11,7 @@ import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import java.awt.print.PageFormat;
 import java.awt.print.Printable;
 import java.awt.print.PrinterException;
@@ -19,10 +21,13 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -46,6 +51,13 @@ import org.krysalis.barcode4j.impl.AbstractBarcodeBean;
 import org.krysalis.barcode4j.impl.code128.Code128Bean;
 import org.krysalis.barcode4j.impl.upcean.UPCEBean;
 import org.krysalis.barcode4j.output.java2d.Java2DCanvasProvider;
+
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.EncodeHintType;
+import com.google.zxing.WriterException;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
+import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 
 import au.com.bytecode.opencsv.CSVWriter;
 
@@ -1711,11 +1723,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			if(phoneNum == 1 && !fam.getHomePhone().isEmpty() || 
 				phoneNum == 2 && !fam.getCellPhone().isEmpty())
 			{
-				//only send reminder email to Confirmed families
-				if(phoneNum == 2 && fam.getFamilyStatus() == FamilyStatus.Confirmed)
-					famIDList.add(fam.getID());
-				else if(phoneNum == 1)
-					famIDList.add(fam.getID());
+				famIDList.add(fam.getID());
 			}
 		}
 		
@@ -2861,7 +2869,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		    g2d.drawString("Name: ________________", x+324, y+27);
 		    
 		    g2d.setFont(ycFont[1]);
-		    g2d.drawString(season, x+430, y+106);
+		    g2d.drawString("ONC "+season, x+430, y+106);
 		    g2d.drawString("Elem School:", x+0, y+124);
 		    g2d.drawString("Region:", x+238, y+124);
 		    g2d.drawString("Primary Phone:", x+0, y+150);
@@ -2875,7 +2883,24 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			
 			//draw ONC number bar code
 //			drawBarCode( String.format("%07d", Integer.parseInt(line[0])), x+64, y, g2d, false);	//top
-			drawBarCode( String.format("%07d", Integer.parseInt(line[0])), x+484, y+290, g2d, false);	//bottom
+//			drawBarCode( String.format("%07d", Integer.parseInt(line[0])), x+484, y+290, g2d, false);	//bottom
+			try
+			{
+				String url = String.format("https://%s:%d/giftdelivery?year=%s&famid=%s&refnum=%s",
+						"54.237.74.69", 8902,season,line[18],line[19]);
+				
+				drawQRCode(url, x+463, y+265, g2d);
+			}
+			catch (WriterException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			catch (UnsupportedEncodingException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			
 			g2d.setFont(ycFont[3]);
 			g2d.drawString(line[1], x, y+68);		//First and Last Name
@@ -2953,6 +2978,43 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			}
 		}
 		
+		private void drawQRCode(String code, int x, int y, Graphics2D g2d) throws WriterException, UnsupportedEncodingException
+		{
+			String myCodeText = new String(code.getBytes("UTF-8"), "UTF-8");
+			
+			//create the hint map
+			Map<EncodeHintType, Object> hintMap = new EnumMap<EncodeHintType, Object>(EncodeHintType.class);
+			hintMap.put(EncodeHintType.CHARACTER_SET, "UTF-8");
+			
+			//Now with zxing version 3.2.1 you could change border size (white border size to just 1)
+			hintMap.put(EncodeHintType.MARGIN, 1); /* default = 4 */
+			hintMap.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.L);
+			
+			//create the bar code
+			QRCodeWriter qrCodeWriter = new QRCodeWriter();
+			BitMatrix byteMatrix = qrCodeWriter.encode(myCodeText, BarcodeFormat.QR_CODE, 80, 80, hintMap);
+			int width = byteMatrix.getWidth();
+			BufferedImage img = new BufferedImage(width, width, BufferedImage.TYPE_INT_RGB);
+			img.createGraphics();
+ 
+			//create the image.
+			Graphics2D graphics = (Graphics2D) img.getGraphics();
+			graphics.setColor(Color.WHITE);
+			graphics.fillRect(0, 0, width, width);
+			graphics.setColor(Color.BLACK);
+			for(int i = 0; i < width; i++)
+				for(int j = 0; j < width; j++)
+					if(byteMatrix.get(i, j))
+						graphics.fillRect(i, j, 1, 1);
+			
+			//release the graphics context
+			graphics.dispose();
+			
+			//Draw image scaled to fit image clip region on the delivery card
+			g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+			g2d.drawImage(img, x, y, 80, 80, null);
+		}
+		
 		@Override
 		public int print (Graphics g, PageFormat pf, int page) throws PrinterException
 		{		
@@ -2965,7 +3027,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			int idx = Integer.parseInt(twodigitYear.format(gvs.getSeasonStartDate())) % NUM_OF_XMAS_ICONS;
 			final Image img = gvs.getImageIcon(idx + XMAS_ICON_OFFSET).getImage();
 			
-			String oncSeason = "ONC " + Integer.toString(gvs.getCurrentSeason());
+			String oncSeason = Integer.toString(gvs.getCurrentSeason());
 			
 			String carddata[];	//Holds all string data for a card
 		     

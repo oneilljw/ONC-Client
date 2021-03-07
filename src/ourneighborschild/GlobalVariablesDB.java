@@ -16,7 +16,6 @@ public class GlobalVariablesDB extends ServerListenerComponent implements Server
 	/**
 	 * This class holds global variables common to all classes in the ONC program
 	 */
-	private static final int NUMBER_OF_WISHES_PER_CHILD = 3;
 	private static final int NUM_OF_XMAS_ICONS = 5;
 	private static final int XMAS_ICON_OFFSET = 9;
 	private static final int AVERY_LABEL_DEFAULT_X_OFFSET = 24;
@@ -55,11 +54,9 @@ public class GlobalVariablesDB extends ServerListenerComponent implements Server
 			serverIF.addServerListener(this);
 		
 		//Initialize class variables
-		Long timeNow = System.currentTimeMillis();
-		serverGVs = new ServerGVs(timeNow, timeNow, ServerGVs.DEFAULT_ADDRESS, timeNow,
-									timeNow, timeNow, timeNow, -1, -1, timeNow, timeNow);
+		serverGVs = new ServerGVs();
 	   
-	    imageIcons = new ImageIcon[57];
+	    imageIcons = new ImageIcon[59];
 		imageIcons[0] = createImageIcon("onclogosmall.gif", "ONC Logo");
 		imageIcons[1] = createImageIcon("InfoIcon.gif", "Info Icon");
 		imageIcons[2] = createImageIcon("Button-Next-icon.gif", "Next Icon");
@@ -131,6 +128,9 @@ public class GlobalVariablesDB extends ServerListenerComponent implements Server
 		imageIcons[55] = createImageIcon("clipboard-green-16.png", "Family Note Responded_small");
 		imageIcons[56] = createImageIcon("clipboard-red-16.png", "Family Note Past Deadline_small");
 		
+		imageIcons[57] = createImageIcon("giftpickup.png", "Gift Pickup");
+		imageIcons[58] = createImageIcon("homedelivery.png", "Home Delivery");
+		
 		startONCNum = 100;
 		ytyGrwthIndex = 2;
 		version = "N/A";
@@ -173,6 +173,10 @@ public class GlobalVariablesDB extends ServerListenerComponent implements Server
 	String[] getGrwthPcts() { return sGrwth_pcts; }
 	int getDefaultGiftID() { return serverGVs.getDefaultGiftID(); }
 	int getDefaultGiftCardID() { return serverGVs.getDefaultGiftCardID(); }
+	int getNumberOfGiftsPerChild() { return serverGVs.getNumberOfGiftsPerChild(); }
+	int getChildWishIntakeConfiguration() { return serverGVs.getChildWishIntakeConfiguraiton(); }
+	GiftDistribution getGiftDistribution() { return serverGVs.getGiftDistribution(); }
+	int getMealIntake() { return serverGVs.getMealIntake(); } 
 
 	public ImageIcon getImageIcon(int icon){ return imageIcons[icon]; }
 	public ImageIcon getImageIcon(String description)
@@ -221,7 +225,6 @@ public class GlobalVariablesDB extends ServerListenerComponent implements Server
 	ImageIcon[] getImageIcons() {return imageIcons; }
 	ImageIcon getONCFullScreenLogo() {return imageIcons[15]; }
 	Image getImage(int icon) { return imageIcons[icon].getImage(); }
-	int getNumberOfWishesPerChild() { return NUMBER_OF_WISHES_PER_CHILD; }
 	static String getVersion() { return version; }
 	public ImageIcon getSeasonIcon()
 	{
@@ -250,6 +253,10 @@ public class GlobalVariablesDB extends ServerListenerComponent implements Server
 	public void setAveryLabelOffset(Point offset) { this.averyLabelOffsetPoint = offset; }
 	public void setDefaultGift(ONCGift w) { serverGVs.setDefaultGiftID(w.getID()); }
 	public void setDefaultGiftCard(ONCGift w) { serverGVs.setDefaultGiftCardID(w.getID()); }
+	public void setNumberOfGiftsPerChild(int numGifts) { serverGVs.setNumberOfGiftsPerChild(numGifts); }
+	public void setChildWishIntakeConfiguration(int config) { serverGVs.setChildWishIntakeConfiguration(config); }
+	public void setGiftDistribution(GiftDistribution dist) { serverGVs.setGiftDistribution(dist); }
+	public void setMealIntake(int intake) { serverGVs.setMealIntake(intake); }
 	
 	//Setters locally used
 	void setFrame(JFrame frame) { oncFrame = frame; }

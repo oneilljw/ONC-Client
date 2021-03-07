@@ -4,7 +4,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/jcalendar-1.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/java-json.jar"/>
 	<classpathentry kind="lib" path="lib/gson-2.2.4.jar"/>
-	<classpathentry kind="lib" path="lib/barcode4j-light.jar"/>
 	<classpathentry kind="lib" path="lib/opencsv-2.3.jar"/>
 	<classpathentry kind="lib" path="lib/commons-codec-1.7.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER">
@@ -14,5 +13,8 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/javax.mail.jar"/>
 	<classpathentry kind="lib" path="lib/activation.jar"/>
+	<classpathentry kind="lib" path="lib/barcode4j.jar"/>
+	<classpathentry kind="lib" path="lib/core-3.4.1.jar"/>
+	<classpathentry kind="lib" path="lib/javase-3.4.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

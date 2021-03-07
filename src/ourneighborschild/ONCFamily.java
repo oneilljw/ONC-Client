@@ -21,7 +21,7 @@ public class ONCFamily extends ONCEntity
 	private int			nLargeItems;
 	private String		referenceNum;
 	private String		batchNum;	
-	private int	 		dnsCode;			//reference to dns code object id
+	private int	 		dnsCode;		//reference to dns code object id
 	private String		speakEnglish;	//values are "Yes" or "No"	
 	private String		language;		//Spanish, Arabic, Korean, etc	
 	private String		notes;
@@ -51,6 +51,7 @@ public class ONCFamily extends ONCEntity
 	private MealStatus  mealStatus;
 	private Transportation transportation;
 	private boolean		bGiftCardOnly;
+	private GiftDistribution	giftDistribution;
 	
 	//constructor used to make a copy for server update requests
 	public ONCFamily(ONCFamily f)
@@ -95,6 +96,7 @@ public class ONCFamily extends ONCEntity
 		this.mealStatus = f.mealStatus;
 		this.transportation = f.transportation;
 		this.bGiftCardOnly = f.bGiftCardOnly;
+		this.giftDistribution = f.giftDistribution;
 	}
 
 	//Overloaded Constructor - 29 column (A to AC) input from ODB .csv file - 2014, 2015
@@ -143,6 +145,7 @@ public class ONCFamily extends ONCEntity
 		else
 			this.transportation = Transportation.TBD;
 		bGiftCardOnly = false;
+		this.giftDistribution = GiftDistribution.Delivery;
 
 		parseHOH(HOH);
 		parsePhoneData(ClientFamPhone);
@@ -196,6 +199,7 @@ public class ONCFamily extends ONCEntity
 		nLargeItems = Integer.parseInt(nextLine[38]);
 		transportation = Transportation.valueOf(nextLine[42]);
 		bGiftCardOnly = nextLine[43].equals("TRUE") ? true : false;
+		this.giftDistribution = nextLine[44].isEmpty() ? GiftDistribution.Delivery : GiftDistribution.distribution(Integer.parseInt(nextLine[44]));
 	}
 	
 	//Overloaded Constructor - Direct Intake Processing
@@ -205,7 +209,7 @@ public class ONCFamily extends ONCEntity
 				String altHouseNum, String altStreet, String altUnitNum, String altCity, String altZipCode,
 				String homePhone, String otherPhone, String altPhone, String familyEmail, String odbDetails,
 				String schools, boolean bGiftsRequested, String odbWishList, int agentID, int groupID,
-				int mealID, MealStatus mStatus, Transportation transportation)
+				int mealID, MealStatus mStatus, Transportation transportation, GiftDistribution giftDistribution)
 	{
 		super(id, System.currentTimeMillis(), cb, STOPLIGHT_OFF, "Family referred", cb);
 		this.oncNum = oncNum;
@@ -265,6 +269,7 @@ public class ONCFamily extends ONCEntity
 		this.mealStatus = mStatus;
 		this.transportation = transportation;
 		this.bGiftCardOnly = false;
+		this.giftDistribution = giftDistribution;
 	}
 	
 	String getDBString(String s)
@@ -498,6 +503,7 @@ public class ONCFamily extends ONCEntity
 	public MealStatus getMealStatus() { return mealStatus; }
 	public Transportation getTransportation() { return transportation; }
 	public boolean 	isGiftCardOnly() { return bGiftCardOnly; }
+	public GiftDistribution getGiftDistribution() { return giftDistribution; }
 
 	//Setters
 	public void setONCNum(String s) { oncNum = s;}
@@ -539,6 +545,7 @@ public class ONCFamily extends ONCEntity
 	public void setMealStatus(MealStatus ms) { mealStatus = ms; }
 	public void setTransportation(Transportation t) { transportation = t; }
 	public void setGiftCardOnly(boolean gco) { bGiftCardOnly = gco; }
+	public void setGiftDistribution(GiftDistribution dist) { this.giftDistribution = dist; }
 	
 	public String getGoogleMapAddress()
 	{
@@ -632,6 +639,7 @@ public class ONCFamily extends ONCEntity
 		rowList.add(getStoplightChangedBy());
 		rowList.add(getTransportation().toString());
 		rowList.add(isGiftCardOnly() ? "TRUE" : "FALSE");
+		rowList.add(Integer.toString(giftDistribution.index()));
 		
 		return rowList.toArray(new String[rowList.size()]);
 	}

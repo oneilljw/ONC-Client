@@ -66,9 +66,9 @@ public class ReceiveGiftsByBarcodeDialog extends GiftLabelDialog
 		//process change to wish status. Store the new wish to be added in case of an undo operation 
 		//and add the new wish to the child wish history. We reuse an ONCSortObject to store the
 		//new wish. Organization parameter is null, indicating we're not changing the gift partner
-		if(lastWishChanged != null && swo.getFamily().getID() == lastWishChanged.getFamily().getID() &&
-			swo.getChild().getID() == lastWishChanged.getChild().getID() && 
-			swo.getChildGift().getGiftNumber() == lastWishChanged.getChildGift().getGiftNumber() &&
+		if(lastGiftChanged != null && swo.getFamily().getID() == lastGiftChanged.getFamily().getID() &&
+			swo.getChild().getID() == lastGiftChanged.getChild().getID() && 
+			swo.getChildGift().getGiftNumber() == lastGiftChanged.getChildGift().getGiftNumber() &&
 			swo.getChildGift().getGiftStatus() == GiftStatus.Received)
 		{
 			//double scan of the last received gift at this workstation
@@ -83,16 +83,35 @@ public class ReceiveGiftsByBarcodeDialog extends GiftLabelDialog
 		}
 		else
 		{
-			lastWishChanged = new SortGiftObject(-1, swo.getFamily(), swo.getChild(), swo.getChildGift());
+			lastGiftChanged = new SortGiftObject(-1, swo.getFamily(), swo.getChild(), swo.getChildGift());
 			
-			ONCChildGift addedWish = childGiftDB.add(this, swo.getChild().getID(), swo.getChildGift().getGiftID(),
-												swo.getChildGift().getDetail(),
-												swo.getChildGift().getGiftNumber(),
-												swo.getChildGift().getIndicator(), 
-												GiftStatus.Received, null);
+			ONCChildGift addedGift;
+			if(swo.getChildGift().isClonedGift())
+			{
+				List<ONCChildGift> reqAddClonedGiftList = new ArrayList<ONCChildGift>();
+				
+				ONCChildGift addCloneReq = new ONCChildGift(userDB.getUserLNFI(), swo.getChildGift());
+				addCloneReq.setGiftStatus(GiftStatus.Received);
+				reqAddClonedGiftList.add(addCloneReq);
+				
+				String response = clonedGiftDB.addClonedGiftList(this, reqAddClonedGiftList);
+				
+				if(response != null && response.equals("ADDED_LIST_CLONED_GIFTS"))
+				{	
+					addedGift = clonedGiftDB.getClonedGift(addCloneReq.getChildID(), addCloneReq.getGiftNumber());
+				}
+				else
+					addedGift = null;
+			}
+			else
+			{
+				addedGift = childGiftDB.add(this, swo.getChild().getID(), swo.getChildGift().getCatalogGiftID(),
+												swo.getChildGift().getDetail(), swo.getChildGift().getGiftNumber(),
+												swo.getChildGift().getIndicator(), GiftStatus.Received, null);
+			}
 			
 			//change color and enable undo operation based on success of receiving gift
-			if(addedWish != null)
+			if(addedGift != null)
 			{	
 				alert(Result.SUCCESS, String.format("Gift Received: Family # %s, %s",
 						swo.getFamily().getONCNum(),swo.getGiftPlusDetail()));
@@ -108,24 +127,25 @@ public class ReceiveGiftsByBarcodeDialog extends GiftLabelDialog
 		
 		clearBarcodeTF();
 	}
-	void onClonedGiftLabelFound(SortClonedGiftObject scgo)
+/*	
+	void onClonedGiftLabelFound(SortGiftObject scgo)
 	{
 		//Check to see if this is a double scan of the gift by comparing the scanned scgo with the
 		//lastCloneChanged. If they are the same, don't receive the gift again. If they aren't the same,
 		//process change to wish status. Store the new wish to be added in case of an undo operation 
 		//and add the new wish to the child wish history. We reuse an SortCloneGiftObject to store the
 		//gift wish. Organization parameter is null, indicating we're not changing the gift partner
-		if(lastCloneChanged != null &&
-			scgo.getFamily().getID() == lastCloneChanged.getFamily().getID() &&
-			scgo.getChild().getID() == lastCloneChanged.getChild().getID() && 
-			scgo.getClonedGift().getGiftNumber() == lastCloneChanged.getClonedGift().getGiftNumber() &&
-			scgo.getClonedGift().getGiftStatus() == ClonedGiftStatus.Received)
+		if(lastGiftChanged != null &&
+			scgo.getFamily().getID() == lastGiftChanged.getFamily().getID() &&
+			scgo.getChild().getID() == lastGiftChanged.getChild().getID() && 
+			scgo.getChildGift().getGiftNumber() == lastGiftChanged.getChildGift().getGiftNumber() &&
+			scgo.getChildGift().getGiftStatus() == GiftStatus.Received)
 		{
 			//double scan of the last received gift at this workstation
 			alert(Result.SUCCESS, String.format("Gift Just Received: Family # %s, %s",
 				scgo.getFamily().getONCNum(),scgo.getGiftPlusDetail()));
 		}
-		else if(scgo.getClonedGift().getGiftStatus() == ClonedGiftStatus.Received)
+		else if(scgo.getChildGift().getGiftStatus() == GiftStatus.Received)
 		{
 			//gift already received
 			alert(Result.SUCCESS, String.format("Gift Previously Received: Family # %s, %s",
@@ -133,13 +153,12 @@ public class ReceiveGiftsByBarcodeDialog extends GiftLabelDialog
 		}
 		else
 		{
-			List<ClonedGift> addReqClonedGiftList = new ArrayList<ClonedGift>();
+			List<ONCChildGift> addReqClonedGiftList = new ArrayList<ONCChildGift>();
 			
-			ClonedGiftStatus lastGiftStatus = scgo.getClonedGift().getGiftStatus();
+			GiftStatus lastGiftStatus = scgo.getChildGift().getGiftStatus();
 			
-//			lastCloneChanged = new SortClonedGiftObject(-1, scgo.getFamily(), scgo.getChild(), scgo.getClonedGift());
-			ClonedGift addCloneReq = new ClonedGift(userDB.getUserLNFI(), scgo.getClonedGift());
-			addCloneReq.setGiftStatus(ClonedGiftStatus.Received);
+			ONCChildGift addCloneReq = new ONCChildGift(userDB.getUserLNFI(), scgo.getChildGift());
+			addCloneReq.setGiftStatus(GiftStatus.Received);
 			addReqClonedGiftList.add(addCloneReq);
 			
 			//create the new clone gift, add it
@@ -152,11 +171,11 @@ public class ReceiveGiftsByBarcodeDialog extends GiftLabelDialog
 				//must get the last gift in the linked list from the database and
 				//set the lastCloneChanaged. Must make a new object for the last gift added so
 				//we don't change the actual last gift in the local database
-				ClonedGift lastGiftAddedInDB = clonedGiftDB.getClonedGift(addCloneReq.getChildID(), addCloneReq.getGiftNumber());
-				ClonedGift lastGiftAdded = new ClonedGift(lastGiftStatus, lastGiftAddedInDB);
+				ONCChildGift lastGiftAddedInDB = clonedGiftDB.getClonedGift(addCloneReq.getChildID(), addCloneReq.getGiftNumber());
+				ONCChildGift lastGiftAdded = new ONCChildGift(lastGiftStatus, lastGiftAddedInDB, true);
 				
-				lastCloneChanged = new SortClonedGiftObject(-1, scgo.getFamily(), scgo.getChild(), lastGiftAdded);
-				lastCloneChanged.getClonedGift().setGiftStatus(lastGiftStatus);
+				lastGiftChanged = new SortGiftObject(-1, scgo.getFamily(), scgo.getChild(), lastGiftAdded);
+				lastGiftChanged.getChildGift().setGiftStatus(lastGiftStatus);
 						
 				alert(Result.SUCCESS, String.format("Gift Received: Family # %s, %s",
 						scgo.getFamily().getONCNum(),scgo.getGiftPlusDetail()));
@@ -172,7 +191,7 @@ public class ReceiveGiftsByBarcodeDialog extends GiftLabelDialog
 		
 		clearBarcodeTF();
 	}
-
+*/
 	@Override
 	public void dataChanged(DatabaseEvent dbe)
 	{
@@ -198,13 +217,13 @@ public class ReceiveGiftsByBarcodeDialog extends GiftLabelDialog
 	@Override
 	void onUndoSubmittal()
 	{
-		//To undo the wish, add the old wish back with the previous status
-		if(bClonedGift)
+		//To undo the gift action, add the old gift back with the previous status
+		if(lastGiftChanged != null && lastGiftChanged.getChildGift().isClonedGift())
 		{
-			if(lastCloneChanged != null)
+			if(lastGiftChanged != null)
 			{
-				List<ClonedGift> reqUndoClonedGiftList = new ArrayList<ClonedGift>();
-				reqUndoClonedGiftList.add(lastCloneChanged.getClonedGift());
+				List<ONCChildGift> reqUndoClonedGiftList = new ArrayList<ONCChildGift>();
+				reqUndoClonedGiftList.add(lastGiftChanged.getChildGift());
 				
 				String response = null;
 				response = clonedGiftDB.addClonedGiftList(this, reqUndoClonedGiftList);
@@ -212,43 +231,43 @@ public class ReceiveGiftsByBarcodeDialog extends GiftLabelDialog
 				if(response != null)
 				{
 					alert(Result.UNDO, String.format("Cloned Gift Unreceived: Family # %s, %s",
-	    					lastCloneChanged.getFamily().getONCNum(), lastCloneChanged.getGiftPlusDetail()));
+	    					lastGiftChanged.getFamily().getONCNum(), lastGiftChanged.getGiftPlusDetail()));
 	    			
 	    			btnUndo.setEnabled(false);
 				}
 				else
 				{
 					alert(Result.FAILURE, String.format("Cloned Gift Undo Failed: Family # %s, %s",
-	    					lastCloneChanged.getFamily().getONCNum(), lastCloneChanged.getGiftPlusDetail()));
+	    					lastGiftChanged.getFamily().getONCNum(), lastGiftChanged.getGiftPlusDetail()));
 				}	
 			}
 		}
-		else
+		else if(lastGiftChanged != null)
 		{	
-    		ONCChildGift lastWish = lastWishChanged.getChildGift();
+    		ONCChildGift lastGift = lastGiftChanged.getChildGift();
     				
-    		ONCChildGift undoneWish = childGiftDB.add(this, lastWishChanged.getChild().getID(),
-    						lastWish.getGiftID(), lastWish.getDetail(),
-    						lastWish.getGiftNumber(),lastWish.getIndicator(),
-    						lastWish.getGiftStatus(), null);	//null to keep same partner
+    		ONCChildGift undoneGift = childGiftDB.add(this, lastGiftChanged.getChild().getID(),
+    						lastGift.getCatalogGiftID(), lastGift.getDetail(),
+    						lastGift.getGiftNumber(),lastGift.getIndicator(),
+    						lastGift.getGiftStatus(), null);	//null to keep same partner
     		
-    		if(undoneWish != null)
+    		if(undoneGift != null)
     		{
     			//check to see if family status should change as well. If the family status had
     			//changed to gifts received with the receive that is being undone, the family 
     			//status must be reset to the prior status.
     			alert(Result.UNDO, String.format("Gift Unreceived: Family # %s, %s",
-    					lastWishChanged.getFamily().getONCNum(), lastWishChanged.getGiftPlusDetail()));
+    					lastGiftChanged.getFamily().getONCNum(), lastGiftChanged.getGiftPlusDetail()));
     			
     			btnUndo.setEnabled(false);
     			
-    			if(lastWishChanged.getFamily().getGiftStatus() == FamilyGiftStatus.Received)
-    				lastWishChanged.getFamily().setFamilyStatus(lastWishChanged.getFamily().getFamilyStatus());
+    			if(lastGiftChanged.getFamily().getGiftStatus() == FamilyGiftStatus.Received)
+    				lastGiftChanged.getFamily().setFamilyStatus(lastGiftChanged.getFamily().getFamilyStatus());
     		}
     		else
     		{
     			alert(Result.FAILURE, String.format("Gift Undo Failed: Family # %s, %s",
-    					lastWishChanged.getFamily().getONCNum(), lastWishChanged.getGiftPlusDetail()));
+    					lastGiftChanged.getFamily().getONCNum(), lastGiftChanged.getGiftPlusDetail()));
     		}
 		}
 		
@@ -265,21 +284,27 @@ public class ReceiveGiftsByBarcodeDialog extends GiftLabelDialog
 	@Override
 	boolean isGiftEligible(ONCChildGift cg)
 	{
-		return rbRegular.isSelected() && cg.getGiftNumber() < CLONED_GIFT_FIRST_GIFT_NUMBER &&
-				(cg.getGiftStatus() == GiftStatus.Delivered || 
-				cg.getGiftStatus() == GiftStatus.Shopping ||
-				 cg.getGiftStatus() == GiftStatus.Missing ||
-				  cg.getGiftStatus() == GiftStatus.Received);
+		if(cg.isClonedGift())
+		{
+			return rbClone.isSelected() && cg.getGiftNumber() >= CLONED_GIFT_FIRST_GIFT_NUMBER &&
+					(cg.getGiftStatus() == GiftStatus.Delivered || cg.getGiftStatus() == GiftStatus.Received);
+		}
+		else
+		{
+			return rbRegular.isSelected() && cg.getGiftNumber() < CLONED_GIFT_FIRST_GIFT_NUMBER &&
+				(cg.getGiftStatus() == GiftStatus.Delivered || cg.getGiftStatus() == GiftStatus.Shopping ||
+				 cg.getGiftStatus() == GiftStatus.Missing || cg.getGiftStatus() == GiftStatus.Received);
+		}
 	}
-	
+/*	
 	@Override
 	boolean isGiftEligible(ClonedGift clonedGift)
 	{
 		return rbClone.isSelected() && clonedGift.getGiftNumber() >= CLONED_GIFT_FIRST_GIFT_NUMBER &&
-				(clonedGift.getGiftStatus() == ClonedGiftStatus.Delivered || 
-				clonedGift.getGiftStatus() == ClonedGiftStatus.Received);
+				(clonedGift.getGiftStatus() == GiftStatus.Delivered || 
+				clonedGift.getGiftStatus() == GiftStatus.Received);
 	}
-	
+*/	
 	@Override
 	public void onActionPerformed(ActionEvent e)
 	{

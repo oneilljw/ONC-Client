@@ -5,6 +5,7 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.util.List;
 
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -16,7 +17,6 @@ public class OrnamentLabelViewer extends JDialog implements DatabaseListener
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private static final int CLONED_GIFT_FIRST_GIFT_NUMBER = 3;
 	
 	//database references
 	GlobalVariablesDB gvDB;
@@ -30,14 +30,14 @@ public class OrnamentLabelViewer extends JDialog implements DatabaseListener
 	private final Image img;
 	
 	private ONCChild child;	//current child being displayed
-	private int wn;			//current wish number being displayed
+	private ONCChildGift currGift;	//current gift being displayed
 	
-	OrnamentLabelViewer(JFrame pf, ONCChild child, int wn)
+	OrnamentLabelViewer(JFrame pf, ONCChildGift childGift, ONCChild child)
 	{
 		super(pf, true);
 		this.child = child;
-		this.wn = wn;
-		this.setTitle(String.format("Gift %d Ornament Label", wn+1));
+		this.currGift = childGift;
+		this.setTitle("Gift Ornament Label");
 		
 		familyDB = FamilyDB.getInstance();
 		GlobalVariablesDB gvDB = GlobalVariablesDB.getInstance();
@@ -67,59 +67,48 @@ public class OrnamentLabelViewer extends JDialog implements DatabaseListener
 	public void dataChanged(DatabaseEvent dbe)
 	{
 		if(dbe.getType().equals("WISH_ADDED"))
-		{
-//			System.out.println(String.format("Child Panel DB Event: Source %s, Type %s, Object %s",
-//					dbe.getSource().toString(), dbe.getType(), dbe.getObject().toString()));
-			
+		{		
 			//Get the added wish to extract the child
-			ONCChildGift addedWish = (ONCChildGift) dbe.getObject1();
+			ONCChildGift addedGift = (ONCChildGift) dbe.getObject1();
 		
-			//If the current child is being displayed has a wish added update the 
-			//wish label to show the added wish
-			if(child != null && addedWish.getChildID() == child.getID() &&
-					addedWish.getGiftNumber() < CLONED_GIFT_FIRST_GIFT_NUMBER)
+			//If the current child is being displayed has a gift added update the 
+			//gift label to show the added wish
+			if(currGift != null && addedGift.getChildID() == currGift.getChildID() &&
+					addedGift.getGiftNumber() == currGift.getGiftNumber())
 				labelPanel.repaint();
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_CHILD_WISH"))
 		{
 			//Get the updated wish to extract the ONCChildWish. For updates, the ONCChildWish
 			//id will remain the same
-			ONCChildGift updatedWish = (ONCChildGift) dbe.getObject1();
+			ONCChildGift updatedGift = (ONCChildGift) dbe.getObject1();
 			
-			//If the current child is being displayed has a gift added, update the label
-			if(child != null && updatedWish.getChildID() == child.getID() &&
-					updatedWish.getGiftNumber() < CLONED_GIFT_FIRST_GIFT_NUMBER)
+			//If the current gift is being displayed has a gift added, update the label
+			if(currGift != null && updatedGift.getChildID() == currGift.getChildID() &&
+					updatedGift.getGiftNumber() == currGift.getGiftNumber())
 				labelPanel.repaint();
 		}
-		else if(dbe.getType().equals("ADDED_CLONED_GIFT"))
-		{
-//			System.out.println(String.format("Child Panel DB Event: Source %s, Type %s, Object %s",
-//					dbe.getSource().toString(), dbe.getType(), dbe.getObject().toString()));
-			
-			//Get the added wish to extract the child
-			ClonedGift clonedGift = (ClonedGift) dbe.getObject1();
-		
-			//If the current child is being displayed has a wish added update the 
-			//wish label to show the added wish
-			if(child != null && clonedGift.getChildID() == child.getID() && 
-					clonedGift.getGiftNumber() >= CLONED_GIFT_FIRST_GIFT_NUMBER)
-				labelPanel.repaint();
-		}
-		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_CLONED_GIFT"))
-		{
-			//Get the updated wish to extract the ONCChildWish. For updates, the ONCChildWish
-			//id will remain the same
-			ClonedGift updatedClonedGift = (ClonedGift) dbe.getObject1();
-			
-			//If the current child is being displayed has a gift added, update the label
-			if(child != null && updatedClonedGift.getChildID() == child.getID() && 
-					updatedClonedGift.getGiftNumber() >= CLONED_GIFT_FIRST_GIFT_NUMBER)
-				labelPanel.repaint();
+		else if(dbe.getType().equals("ADDED_LIST_CLONED_GIFTS"))
+		{		
+			//extract the list of added clones
+			@SuppressWarnings("unchecked")
+			List<ONCChildGift> addedCGList = (List<ONCChildGift>) dbe.getObject1();
+			for(ONCChildGift clonedGift : addedCGList)
+			{
+				//If the current child is being displayed has a cloned gift added update the 
+				//gift label to show the added gift
+				if(currGift != null && clonedGift.getChildID() == currGift.getChildID() && 
+					clonedGift.getGiftNumber() == currGift.getGiftNumber())
+				{
+					labelPanel.repaint();
+					break;
+				}
+			}
 		}
 		else if(dbe.getType().equals("UPDATED_CHILD"))
 		{
 			ONCChild updatedChild = (ONCChild) dbe.getObject1();
-			if(child != null && child.getID() == updatedChild.getID())
+			if(currGift != null && currGift.getChildID() == updatedChild.getID())
 			{
 				//the age or gender of the child may have changed, update the label
 				labelPanel.repaint();
@@ -162,24 +151,14 @@ public class OrnamentLabelViewer extends JDialog implements DatabaseListener
 			
 			g2d.scale(X_DISPLAY_SCALE_FACTOR, Y_DISPLAY_SCALE_FACTOR);
 		    
-		    //create the sort wish object list.
-		    ONCFamily fam = familyDB.getFamily(child.getFamID());
-		    
-		    if(wn < CLONED_GIFT_FIRST_GIFT_NUMBER)
-		    {
-		    	ONCChildGift cw = childGiftDB.getGift(child.getID(), wn);
-			    SortGiftObject swo = new SortGiftObject(0, fam, child, cw);
+		    //create the sort wish object list
+			if(currGift != null && child != null)
+			{
+				ONCFamily fam = familyDB.getFamily(child.getFamID());
+				SortGiftObject swo = new SortGiftObject(0, fam, child, currGift);
 			    
-			    awlp.drawLabel(10, 20, swo.getGiftLabel(), lFont, img, g2d);
-		    }
-		    else
-		    {
-		    	ClonedGift cw = clonedGiftDB.getClonedGift(child.getID(), wn);
-			    SortClonedGiftObject scgo = new SortClonedGiftObject(0, fam, child, cw);
-			    
-			    awlp.drawLabel(10, 20, scgo.getGiftLabel(), lFont, img, g2d);
-		    }
-			
+				awlp.drawLabel(10, 20, swo.getGiftLabel(), lFont, img, g2d);
+			}
 		}
 	}	
 }

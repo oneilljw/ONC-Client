@@ -29,8 +29,6 @@ public class AveryGiftLabelPrinter implements Printable
 	private GlobalVariablesDB gvs;
 	private ONCTable sortTable;
 	private List<SortGiftObject> stAL;
-	private List<SortClonedGiftObject> clonedGiftList;
-	private boolean bClonedGift;
 	private int totalNumOfLabelsToPrint;
 	private Point position;
 	
@@ -39,8 +37,6 @@ public class AveryGiftLabelPrinter implements Printable
 	{
 		gvs = GlobalVariablesDB.getInstance();
 		this.stAL = null;
-		this.clonedGiftList = null;
-		this.bClonedGift = false;
 		this.sortTable = null;
 		this.totalNumOfLabelsToPrint = 0;
 		this.position = new Point(0,0);
@@ -51,19 +47,6 @@ public class AveryGiftLabelPrinter implements Printable
 	{
 		gvs = GlobalVariablesDB.getInstance();
 		this.stAL = stAL;
-		this.clonedGiftList = null;
-		this.bClonedGift = false;
-		this.sortTable = sortTable;
-		this.totalNumOfLabelsToPrint = numOfLabels;
-		this.position = position;
-	}
-	
-	public AveryGiftLabelPrinter(List<SortClonedGiftObject> stAL, boolean bClonedGift, ONCTable sortTable, int numOfLabels, Point position)
-	{
-		gvs = GlobalVariablesDB.getInstance();
-		this.stAL = null;
-		this.clonedGiftList = stAL;
-		this.bClonedGift = true;
 		this.sortTable = sortTable;
 		this.totalNumOfLabelsToPrint = numOfLabels;
 		this.position = position;
@@ -180,9 +163,9 @@ public class AveryGiftLabelPrinter implements Printable
 	    lFont[2] = new Font("Times New Roman", Font.PLAIN, 10);
 */
 		/*Calibri */
-	    lFont[0] = new Font("Calibri", Font.ITALIC, 11);
-	    lFont[1] = new Font("Calibri", Font.BOLD, 11);
-	    lFont[2] = new Font("Calibri", Font.PLAIN, 10);
+	    lFont[0] = new Font("Times New Roman", Font.ITALIC, 11);
+	    lFont[1] = new Font("Times New Roman", Font.BOLD, 11);
+	    lFont[2] = new Font("Times New Roman", Font.PLAIN, 10);
 
 	    int endOfSelection = 0, index = 0;
 	    int[] row_sel = sortTable.getSelectedRows();
@@ -207,10 +190,7 @@ public class AveryGiftLabelPrinter implements Printable
 	    
 	    while(row < AVERY_LABELS_PER_PAGE/AVERY_COLUMNS_PER_PAGE && index < endOfSelection)
 	    {
-	    	if(bClonedGift)
-	    		line = clonedGiftList.get(row_sel[index++]).getGiftLabel();
-	    	else
-	    		line = stAL.get(row_sel[index++]).getGiftLabel();
+	    	line = stAL.get(row_sel[index++]).getGiftLabel();
 	    	
     		drawLabel(col * AVERY_LABEL_WIDTH, row * AVERY_LABEL_HEIGHT, line, lFont, img, g2d);	
     		if(++col == AVERY_COLUMNS_PER_PAGE)

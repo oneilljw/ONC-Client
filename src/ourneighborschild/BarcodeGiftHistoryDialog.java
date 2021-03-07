@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.List;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -41,11 +42,7 @@ public class BarcodeGiftHistoryDialog extends BarcodeTableDialog
 	private PartnerDB partnerDB;
 	private UserDB userDB;
 	
-	private ArrayList<ClonedGift> clonedGiftList;
-	
-	private boolean bClonedGift;
 	private ONCChildGift cg;
-	private ClonedGift clonedGift;
 		
 	public BarcodeGiftHistoryDialog(JFrame pf)
 	{
@@ -68,7 +65,6 @@ public class BarcodeGiftHistoryDialog extends BarcodeTableDialog
 		userDB = UserDB.getInstance();
 		
 		stAL = new ArrayList<ONCChildGift>();
-		clonedGiftList = new ArrayList<ClonedGift>();
 		
 		btnAction.setVisible(false);
 	}
@@ -149,14 +145,18 @@ public class BarcodeGiftHistoryDialog extends BarcodeTableDialog
 	
 	void getGiftHistory(ONCChildGift cg)
 	{	
-		if(cg != null)
+		if(cg != null && !cg.isClonedGift())
 		{
 			stAL = cgDB.getGiftHistory(cg.getChildID(), cg.getGiftNumber());	
+		}
+		if(cg != null && cg.isClonedGift())
+		{
+			stAL = clonedGiftDB.getGiftHistory(cg.getChildID(), cg.getGiftNumber());	
 		}
 		else
 			stAL.clear();
 	}
-	
+/*	
 	void getGiftHistory(ClonedGift clonedGift)
 	{	
 		if(clonedGift != null)
@@ -164,9 +164,9 @@ public class BarcodeGiftHistoryDialog extends BarcodeTableDialog
 		else
 			clonedGiftList.clear();
 	}
-
+*/
 	@Override
-	String getPrintTitle() { return bClonedGift ? "ONC Cloned Gift History" : "ONC Gift History"; }
+	String getPrintTitle() { return cg.getGiftNumber() > 3 ? "ONC Cloned Gift History" : "ONC Gift History"; }
 	
 	void onBarcodeTFEvent()
 	{
@@ -186,22 +186,14 @@ public class BarcodeGiftHistoryDialog extends BarcodeTableDialog
 		
 		//get gift history for bar code gift id. If found, notify entity listeners of
 		//the gift entity selection.
-		bClonedGift = gn >= CLONED_GIFT_FIRST_GIFT_NUMBER;
-		System.out.println(String.format("BarcodeGiftHist.onBarcodeTFEvent: cID= %d, gn= %d", cID, gn));
+		boolean bClonedGift = gn >= CLONED_GIFT_FIRST_GIFT_NUMBER;
 		
 		if(bClonedGift)
-		{	
-			clonedGift = clonedGiftDB.getClonedGift(cID, gn);
-			if(clonedGift != null)
-				System.out.println(String.format("BarcodeGiftHist.onBarcodeTFEvent: cloneID= %d, detail= %s",
-						clonedGift.getID(), clonedGift.getDetail()));
-			else
-				System.out.println("BarcodeGiftHist.onBarcodeTFEvent: clonedGift is null");
-		}
+			cg = clonedGiftDB.getClonedGift(cID, gn);
 		else
-			cg = cgDB.getGift(cID, gn);
+			cg = cgDB.getCurrentChildGift(cID, gn);
 		
-		if(!bClonedGift && cg != null)
+		if(cg != null)
 		{
 			getGiftHistory(cg);
 			ONCChild child = cDB.getChild(cID);
@@ -222,34 +214,33 @@ public class BarcodeGiftHistoryDialog extends BarcodeTableDialog
 				}
 			}
 		}
-		else if(bClonedGift && clonedGift != null)
-		{
-			getGiftHistory(clonedGift);
-			
-			System.out.println(String.format("BarcodeGiftHist.onBarcodeTFEvent: clonedGiftList.size() = %d", clonedGiftList.size()));
-			
-			ONCChild child = cDB.getChild(cID);
-			if(child != null)
-			{
-				ONCFamily family = fDB.getFamily(child.getFamID());
-				if(family != null)
-				{
-					fireEntitySelected(this, EntityType.GIFT, family, child, cg);
-					if(userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0)
-						lblInfo.setText(String.format("Gift History for %s %s, Gift %d, Family #%s",
-							child.getChildFirstName(), child.getChildLastName(),
-							clonedGift.getGiftNumber()+1, family.getONCNum()));
-					else
-						lblInfo.setText(String.format("Gift History for %s %d,  Gift %d, Family #%s",
-							"Child", cDB.getChildNumber(child),
-							clonedGift.getGiftNumber()+1, family.getONCNum()));
-				}
-			}
-		}
+//		else if(bClonedGift && clonedGift != null)
+//		{
+//			getGiftHistory(clonedGift);
+//			
+//			System.out.println(String.format("BarcodeGiftHist.onBarcodeTFEvent: clonedGiftList.size() = %d", clonedGiftList.size()));
+//			
+//			ONCChild child = cDB.getChild(cID);
+//			if(child != null)
+//			{
+//				ONCFamily family = fDB.getFamily(child.getFamID());
+//				if(family != null)
+//				{
+//					fireEntitySelected(this, EntityType.GIFT, family, child, cg);
+//					if(userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0)
+//						lblInfo.setText(String.format("Gift History for %s %s, Gift %d, Family #%s",
+//							child.getChildFirstName(), child.getChildLastName(),
+//							clonedGift.getGiftNumber()+1, family.getONCNum()));
+//					else
+//						lblInfo.setText(String.format("Gift History for %s %d,  Gift %d, Family #%s",
+//							"Child", cDB.getChildNumber(child),
+//							clonedGift.getGiftNumber()+1, family.getONCNum()));
+//				}
+//			}
+//		}
 		else
 		{
 			stAL.clear();
-			clonedGiftList.clear();
 			lblInfo.setText(String.format("Barcode %s not found", barcodeTF.getText()));
 		}
 		
@@ -270,15 +261,21 @@ public class BarcodeGiftHistoryDialog extends BarcodeTableDialog
 				dlgTableModel.fireTableDataChanged();
 			}
 		}
-		if(dbe.getSource() != this && dbe.getType().equals("ADDED_CLONED_GIFT"))
+		if(dbe.getSource() != this && dbe.getType().equals("ADDED_LIST_CLONED_GIFTS") && cg != null && !cg.isClonedGift())
 		{
-			//update the wish gift displayed if the added gift is from same child and gift #
-			ClonedGift addedGift = (ClonedGift) dbe.getObject1();
-			if(clonedGift != null && addedGift.getChildID() == clonedGift.getChildID() &&
-					addedGift.getGiftNumber() == clonedGift.getGiftNumber())
+			@SuppressWarnings("unchecked")
+			List<ONCChildGift> addedClonedGiftList = (List<ONCChildGift>) dbe.getObject1();
+			
+			for(ONCChildGift addedGift : addedClonedGiftList)
 			{
-				getGiftHistory(clonedGift);
-				dlgTableModel.fireTableDataChanged();
+				//update the wish gift displayed if the added gift is from same child and gift #
+				if(addedGift.getChildID() == cg.getChildID() &&
+					addedGift.getGiftNumber() == cg.getGiftNumber())
+				{
+					getGiftHistory(cg);
+					dlgTableModel.fireTableDataChanged();
+					break;
+				}
 			}
 		}
 	}
@@ -301,54 +298,42 @@ public class BarcodeGiftHistoryDialog extends BarcodeTableDialog
  
         public int getColumnCount() { return columnNames.length; }
  
-        public int getRowCount()
-        {
-        	if(bClonedGift)
-        		return clonedGiftList != null ? clonedGiftList.size() : 0;
-        	else
-        		return stAL != null ? stAL.size() : 0; 
-        }
+        public int getRowCount() { return stAL != null ? stAL.size() : 0; }
  
         public String getColumnName(int col) { return columnNames[col]; }
  
         public Object getValueAt(int row, int col)
         {
-        	ONCChildGift g = null;
-        	ClonedGift clonedGift = null;
-        	
-        	if(bClonedGift)
-        		 clonedGift = clonedGiftList.get(row);
-        	else
-        		 g = (ONCChildGift) stAL.get(row);
+        	ONCChildGift g = (ONCChildGift) stAL.get(row);
         	
         	if(col == GIFT_COL)
         	{
-        		int giftID = bClonedGift ? clonedGift.getGiftID() : g.getGiftID();
+        		int giftID = g.getCatalogGiftID();
         		ONCGift gift = cat.getGiftByID(giftID);
 				return gift == null ? "None" : gift.getName();
         	}
         	else if(col == DETAIL_COL)
-        		return bClonedGift ? clonedGift.getDetail() : g.getDetail();
+        		return g.getDetail();
         	else if (col == STATUS_COL)
-        		return bClonedGift ? clonedGift.getGiftStatus().toString() : g.getGiftStatus().toString();
+        		return g.getGiftStatus().toString();
         	else if (col == IND_COL)
         	{
         		String[] indicators = {"", "*", "#"};
-        		int resIndex = bClonedGift ? clonedGift.getIndicator() : g.getIndicator();
+        		int resIndex = g.getIndicator();
         		return indicators[resIndex];
         	}
         	else if(col == CLONED_GIFT_COL)
-        		return bClonedGift;
+        		return g.isClonedGift();
         	else if (col == CHANGEDBY_COL)
-        		return bClonedGift ? clonedGift.getChangedBy() : g.getChangedBy();
+        		return  g.getChangedBy();
         	else if (col == TIMESTAMP_COL)
         	{
         		SimpleDateFormat sdf = new SimpleDateFormat("M/dd/yy H:mm:ss");
-        		return sdf.format(bClonedGift ? clonedGift.getDateChanged().getTime() : g.getDateChanged().getTime());
+        		return sdf.format(g.getDateChanged().getTime());
         	}
         	else if (col == ASSIGNEE_COL)
         	{
-        		int partnerID = bClonedGift ? clonedGift.getPartnerID() : g.getPartnerID();
+        		int partnerID = g.getPartnerID();
         		ONCPartner partner = partnerDB.getPartnerByID(partnerID);
         		return partner == null ? "None" : partner.getLastName();
         	}

@@ -44,15 +44,16 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 	private GlobalVariablesDB gvs;
     private FamilyDB fDB;
 	private ChildDB cDB;
-	private ChildGiftDB cwDB;
+	private ChildGiftDB childGiftDB;
 	private GiftCatalogDB cat;
 	private PartnerDB partnerDB;
 	private UserDB userDB;
 	private DatabaseManager dbMgr;
 	
+	private ONCFamily family;		//family of child being displayed on panel
 	private ONCChild child;			//child being displayed on panel
-	private ONCChildGift childGift; //wish being displayed on panel
-	private int giftNumber; 		//wish# being displayed on panel
+	private ONCChildGift childGift; //gift being displayed on panel
+	private int giftNumber; 		//gift# being displayed on panel
 	
 	private boolean bGiftChanging; 		//semaphore indicating changing ComboBoxes
 	private TitledBorder border;
@@ -65,12 +66,14 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 	private JRadioButton rbGift, rbLabel;
 	private GiftPanelStatus gpStatus;
 	
-	public GiftPanel(int wishNumber)
+	public GiftPanel(int giftNumber)
 	{
-		this.giftNumber = wishNumber;
+		this.giftNumber = giftNumber;
 		this.setTransferHandler(new InventoryTransferhandler());
 		
 		gvs = GlobalVariablesDB.getInstance();
+		if(gvs != null)
+			gvs.addDatabaseListener(this);
 		
 		dbMgr = DatabaseManager.getInstance();
 		if(dbMgr != null)
@@ -83,9 +86,9 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 		if(cDB != null)
 			cDB.addDatabaseListener(this);
 		
-		cwDB = ChildGiftDB.getInstance();
-		if(cwDB != null)
-			cwDB.addDatabaseListener(this);
+		childGiftDB = ChildGiftDB.getInstance();
+		if(childGiftDB != null)
+			childGiftDB.addDatabaseListener(this);
 		
 		cat = GiftCatalogDB.getInstance();
 		if(cat != null)
@@ -109,7 +112,7 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 		 //Set up the gift combo boxes and detail text fields for child gifts     
         String[] indications = {"", "*", "#"};        
 
-        border = BorderFactory.createTitledBorder(String.format("Gift %d", wishNumber+1));
+        border = BorderFactory.createTitledBorder(String.format("Gift %d", giftNumber+1));
         this.setBorder(border);
         
         Dimension dwa = new Dimension(140, 24);  
@@ -120,28 +123,28 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
         giftCB = new JComboBox<ONCGift>();
         giftCB.setModel(giftCBM);
         giftCB.setPreferredSize(new Dimension(177, 24));
-        giftCB.setToolTipText("Select wish from ONC gift catalog");
+        giftCB.setToolTipText("Select gift from ONC gift catalog");
         giftCB.setEnabled(false);
         giftCB.addActionListener(this);
             
         giftindCB = new JComboBox<String>(indications);
         giftindCB.setPreferredSize(new Dimension(52, 24));           
-        giftindCB.setToolTipText("Set Wish Restrictions: #- Not from Child Wish List, *- Don't assign to partner");
+        giftindCB.setToolTipText("Set Gift Restrictions: #: Not from Child Gift List, *: Don't assign to partner");
         giftindCB.setEnabled(false);
         giftindCB.addActionListener(this);
             
         rbGift = new JRadioButton(gvs.getImageIcon(ONC_GIFT_ICON));
-        rbGift.setToolTipText("Click to see wish history");
+        rbGift.setToolTipText("Click to see gift history");
         rbGift.setEnabled(false);
         rbGift.addActionListener(this);
         
         rbLabel = new JRadioButton(gvs.getImageIcon(ONC_LABEL_ICON));
-        rbLabel.setToolTipText("Click to see wish label");
+        rbLabel.setToolTipText("Click to see gift label");
         rbLabel.setEnabled(false);
         rbLabel.addActionListener(this);
             
         giftdetailTF = new JTextField();
-        giftdetailTF.setToolTipText("Type wish details, then hit <Enter>");
+        giftdetailTF.setToolTipText("Type gift details, then hit <Enter>");
         giftdetailTF.setEnabled(false);
         giftdetailTF.addActionListener(this);
  
@@ -150,7 +153,7 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
         partnerCB = new JComboBox<ONCPartner>();
         partnerCB.setModel(partnerCBM);
         partnerCB.setPreferredSize(dwa);
-        partnerCB.setToolTipText("Select the organization for wish fulfillment");
+        partnerCB.setToolTipText("Select the organization for gift fulfillment");
         partnerCB.setEditable(true);
         partnerCB.setEnabled(false);
         partnerCB.addActionListener(this);
@@ -179,17 +182,17 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 			addGift();
 	}
 	
-	void display(ONCChildGift cg, ONCChild c)
+	void display(ONCChildGift cg)
 	{
 		bGiftChanging = true;
 		
-		this.child = c;
 		this.childGift = cg;
 		
-		border.setTitle(String.format("Gift %d: %s", giftNumber+1, cg.getGiftStatus()));
-		this.repaint();
+//		border.setTitle(String.format("Gift %d: %s", giftNumber+1, cg.getGiftStatus()));
+		setBorder();
+//		this.repaint();
 		
-		ONCGift wish = cat.getGiftByID(cg.getGiftID());
+		ONCGift wish = cat.getGiftByID(cg.getCatalogGiftID());
 		if(wish != null)
 			giftCB.setSelectedItem(wish);
 		else
@@ -213,20 +216,10 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 		else
 		{
 			ONCPartner giftPartner = partnerDB.getPartnerByID(cg.getPartnerID());		
-			if(giftPartner != null)
-			{	
-//				System.out.println("WishPanel %d.Display partner= " + wishPartner);
-//				int orgCBIndex = assigneeCBM.getIndexOf(wishPartner);
-//				debugAssigneeCBContents();
-//				System.out.println("WishPanel " + wishNumber + " Display Model Index for " + wishPartner + " = " + orgCBIndex);
+			if(giftPartner != null)	
 				partnerCB.setSelectedItem(giftPartner);
-//				System.out.println("WishPanel " + wishNumber + " Display Selected Index= " + wishassigneeCB.getSelectedIndex());
-			}
 			else
-			{
-				partnerCB.setSelectedIndex(0);
-				System.out.println(String.format("WishPanel %d.Display partner was null", giftNumber));
-			}
+				partnerCB.setSelectedIndex(0);	
 		}
 			
 		setEnabledGiftPanelComponents(cg.getGiftStatus());
@@ -240,8 +233,10 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 		
 		childGift = null;
 		
-		border.setTitle(String.format("Gift %d", giftNumber+1));
-		this.repaint();
+//		border.setTitle(String.format("Gift %d", giftNumber+1));
+//		this.repaint();
+		
+		setBorder();
 		
 		giftCB.setSelectedIndex(0);
 		giftdetailTF.setText("");
@@ -263,10 +258,10 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 			giftCBM.addElement(w);
 			
 		//Reselect the proper gift for the currently displayed child
-		ONCGift wish = childGift == null ? null : cat.getGiftByID(childGift.getGiftID());
+		ONCGift wish = childGift == null ? null : cat.getGiftByID(childGift.getCatalogGiftID());
 			
 		if(wish != null) 
-			giftCB.setSelectedItem(cat.getGiftByID(childGift.getGiftID()));
+			giftCB.setSelectedItem(cat.getGiftByID(childGift.getCatalogGiftID()));
 		else
 			giftCB.setSelectedIndex(0);
 	
@@ -304,19 +299,28 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 	//Changing for 2020 COVID 19 season. If gift panel is hard coded 2 (Third Gift) and the season is 2020,
 	//never enable the panel.
 	//We only are providing two gifts this season. See the commented out method below for prior season logic.
-	void setEnabledGift(ONCFamily fam)
+	void setEnabledGift()
 	{
-		//only enable gift panels if family has been verified and gifts have been requested
-		if(gvs.getCurrentSeason() == 2020 && giftNumber == 2 || fam.getFamilyStatus() == FamilyStatus.Unverified || fam.getGiftStatus() == FamilyGiftStatus.NotRequested)	
+		if(giftNumber >= gvs.getNumberOfGiftsPerChild() || family == null)
+		{
 			gpStatus = GiftPanelStatus.Disabled;
-		else 
-			gpStatus = GiftPanelStatus.Enabled;
+		}
+		else
+		{	
+			//only enable gift panels if family has been verified and gifts have been requested
+			if(family.getFamilyStatus() == FamilyStatus.Unverified || family.getGiftStatus() == FamilyGiftStatus.NotRequested)	
+				gpStatus = GiftPanelStatus.Disabled;
+			else 
+				gpStatus = GiftPanelStatus.Enabled;
+		}
 		
 		//now that we've updated the panel status, update the component status
 		if(childGift != null)
 			setEnabledGiftPanelComponents(childGift.getGiftStatus());
 		else
 			setEnabledGiftPanelComponents(GiftStatus.Not_Selected);
+		
+		setBorder();
 	}
 /*	
 	void setEnabledGift(ONCFamily fam)
@@ -334,27 +338,27 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 			setEnabledGiftPanelComponents(GiftStatus.Not_Selected);
 	}
 */
-	void setEnabledGiftPanelComponents(GiftStatus ws)
+	void setEnabledGiftPanelComponents(GiftStatus giftStatus)
 	{
 		if(gpStatus == GiftPanelStatus.Enabled)
 		{
-			if(ws == GiftStatus.Not_Selected)
+			if(giftStatus == GiftStatus.Not_Selected)
 			{
 				giftCB.setEnabled(true);
 				giftindCB.setEnabled(false);
 				giftdetailTF.setEnabled(true);
 				partnerCB.setEnabled(false);
 			}
-			else if(ws == GiftStatus.Selected || ws == GiftStatus.Assigned ||
-					ws == GiftStatus.Returned)
+			else if(giftStatus == GiftStatus.Selected || giftStatus == GiftStatus.Assigned ||
+					giftStatus == GiftStatus.Returned)
 			{
 				giftCB.setEnabled(true);
 				giftindCB.setEnabled(true);
 				giftdetailTF.setEnabled(true);
 				partnerCB.setEnabled(true);
 			}
-			else if(ws == GiftStatus.Delivered || ws == GiftStatus.Shopping || 
-					ws == GiftStatus.Missing)
+			else if(giftStatus == GiftStatus.Delivered || giftStatus == GiftStatus.Shopping || 
+					giftStatus == GiftStatus.Missing)
 			{
 				giftCB.setEnabled(false);
 				giftindCB.setEnabled(false);
@@ -378,14 +382,14 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 		}
 		
 		rbGift.setEnabled(true);
-		rbLabel.setEnabled(ws != GiftStatus.Not_Selected);
+		rbLabel.setEnabled(giftStatus != GiftStatus.Not_Selected);
 	}
 	
 	boolean doesGiftFitOnLabel(ONCChildGift cw)
 	{
 		GiftCatalogDB cat = GiftCatalogDB.getInstance();
 		
-		ONCGift catWish = cat.getGiftByID(cw.getGiftID());
+		ONCGift catWish = cat.getGiftByID(cw.getCatalogGiftID());
 		String wishName = catWish == null ? "None" : catWish.getName();
 		
 //		String[] indicator = {"", "*", "#"};
@@ -414,7 +418,7 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 		List<ONCChildGift> cwhList = null;
 		
 		if(childGift != null &&
-			!(cwhList = cwDB.getGiftHistory(childGift.getChildID(), giftNumber)).isEmpty())
+			!(cwhList = childGiftDB.getGiftHistory(childGift.getChildID(), giftNumber)).isEmpty())
 		{
 			//need to add the assignee name based on the assignee ID for the table
 			String[] indicators = {"", "*", "#"};
@@ -423,7 +427,7 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 			ArrayList<String[]> wishHistoryTable = new ArrayList<String[]>();
 			for(ONCChildGift cw:cwhList)
 			{
-				ONCGift wish = cat.getGiftByID(cw.getGiftID());
+				ONCGift wish = cat.getGiftByID(cw.getCatalogGiftID());
 				ONCPartner assignee = orgDB.getPartnerByID(cw.getPartnerID());
 				
 				String[] whTR = new String[7];
@@ -461,8 +465,8 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 	@Override
 	public void actionPerformed(ActionEvent e) 
 	{
-		if(!bGiftChanging && e.getSource() == giftCB && (childGift == null || childGift!= null &&
-			((ONCGift)giftCB.getSelectedItem()).getID() != childGift.getGiftID()))
+		if(!bGiftChanging && e.getSource() == giftCB && (childGift == null || childGift != null &&
+			((ONCGift)giftCB.getSelectedItem()).getID() != childGift.getCatalogGiftID()))
 		{
 			//user selected a new gift. Check to see if we need to show gift detail dialog
 			//Check if a detail dialog is required. It is required if the gift name is found
@@ -511,6 +515,7 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 				giftCB.setSelectedItem(defaultGift);
 				giftCB.addActionListener(this);
 			}
+			
 			addGift();
 		}
 		else if(!bGiftChanging && e.getSource() == partnerCB &&
@@ -526,7 +531,7 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 		else if(e.getSource() == rbLabel)
 		{
 			//construct and show label viewer for selected label
-			OrnamentLabelViewer viewer = new OrnamentLabelViewer(GlobalVariablesDB.getFrame(), child, giftNumber);
+			OrnamentLabelViewer viewer = new OrnamentLabelViewer(GlobalVariablesDB.getFrame(), childGift, child);
 			viewer.setLocationRelativeTo(this);
 			viewer.setVisible(true);
 		}
@@ -535,15 +540,27 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 	void addGift()
 	{
 		GiftStatus gs = childGift != null ? childGift.getGiftStatus() : GiftStatus.Not_Selected;
-		ONCChildGift addedGift =  cwDB.add(this, child.getID(),
+		ONCChildGift addedGift =  childGiftDB.add(this, child.getID(),
 									((ONCGift) giftCB.getSelectedItem()).getID(),
 									giftdetailTF.getText(), giftNumber, giftindCB.getSelectedIndex(),
 									gs, (ONCPartner) partnerCB.getSelectedItem());
 		
 		if(addedGift != null)
-			display(addedGift, child);
+			display(addedGift);
 		else
-			display(childGift, child);
+			display(childGift);
+	}
+	
+	void setBorder()
+	{
+		if(giftNumber >= gvs.getNumberOfGiftsPerChild())
+			border.setTitle(String.format("Gift %d: Unused", giftNumber+1));
+		else if(childGift == null)
+			border.setTitle(String.format("Gift %d: Not Selected", giftNumber+1));
+		else
+			border.setTitle(String.format("Gift %d: %s", giftNumber+1, childGift.getGiftStatus()));
+		
+		this.repaint();
 	}
 	
 	@Override
@@ -562,7 +579,7 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 			if(addedWish.getGiftNumber() == giftNumber && child != null &&
 				child.getID() == addedWish.getChildID())
 			{
-				display(addedWish, child);
+				display(addedWish);
 			}
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_CHILD_WISH"))
@@ -577,16 +594,18 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 						dbe.getType(), child.getChildFirstName(), updatedWish.getGiftNumber());
 				LogDialog.add(logEntry, "M");
 				
-				display(updatedWish, child);
+				display(updatedWish);
 			}
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_FAMILY"))
 		{
 			ONCFamily updatedFam = (ONCFamily) dbe.getObject1();
-			if(child != null && updatedFam.getID() == child.getFamID())
+			
+			if(this.child != null && updatedFam.getID() == this.child.getFamID())
 			{
-				//current child displayed is in family, check for wish panel status change
-				setEnabledGift(updatedFam);
+				//current child displayed is in family, check for gift panel status change
+				this.family = updatedFam;
+				setEnabledGift();
 			}
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("DELETED_CHILD"))
@@ -622,6 +641,11 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 			LogDialog.add(logEntry, "M");
 			updateGiftSelectionList();
 		}
+		else if(dbe.getSource() != this && dbe.getType().contains("UPDATED_GLOBALS"))
+		{
+			//might be that the number of gifts per child has changed. Check if the gift panel should be enabled
+			setEnabledGift();	
+		}
 	}
 	
 	@Override
@@ -634,44 +658,44 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 			
 			checkForUpdateToWishDetail();
 			
-			//check to see if there are children in the family, is so, display first child
-			if(childList != null && !childList.isEmpty() &&
-					childList.get(0).getChildGiftID(giftNumber) > -1)
-			{
-				ONCChildGift cw = cwDB.getGift(childList.get(0).getID(), giftNumber);
-				if(cw != null)
-					display(cw, childList.get(0));
-				else
-					clearGift();
-			}
-			else
-			{
-				if(childList != null && !childList.isEmpty())
-					child = childList.get(0);
-				else
-					child = null;
-				
-				clearGift();
-			}
+			this.family = fam;
+			setEnabledGift();	//lock or unlock the panel and/or panel components
 			
-			setEnabledGift(fam);	//lock or unlock the panel and/or panel components
+			//check to see if there are children in the family, is so, display first child's gift if 
+			//there is one, otherwise, clear the panel
+			if(childList == null || childList != null && childList.isEmpty())
+			{
+				//no children in family
+				child = null;
+				clearGift();	//clearGift method sets child class variable null
+			}
+			else	
+			{
+				//there is at least one child in family. Set the child member variable to the first child
+				//and check to see if the first child has a gift
+				this.child = childList.get(0);
+				
+				ONCChildGift cg = childGiftDB.getCurrentChildGift(childList.get(0).getID(), giftNumber);
+				if(cg != null)
+					display(cg);	//found gift for child. Display method sets child class variable
+				else
+					clearGift();	//no gift. clearGift method sets child class variable null
+			}
 		}
 		else if(tse.getType() == EntityType.CHILD || tse.getType() == EntityType.GIFT)
 		{
-			ONCFamily fam = (ONCFamily) tse.getObject1();
-			ONCChild selChild = (ONCChild) tse.getObject2();
+			this.family = (ONCFamily) tse.getObject1();
+			this.child = (ONCChild) tse.getObject2();
+			
+			setEnabledGift();	//lock or unlock the panel and/or panel components
 			
 			checkForUpdateToWishDetail();
 			
-			if(selChild.getChildGiftID(giftNumber) > -1)
-				display(cwDB.getGift(selChild.getChildGiftID(giftNumber)), selChild);
+			ONCChildGift cg;
+			if((cg = childGiftDB.getCurrentChildGift(child.getID(), giftNumber)) != null)
+				display(cg);
 			else
-			{
-				child = selChild;
-				clearGift();
-			}
-			
-			setEnabledGift(fam);	//lock or unlock the panel and/or panel components
+				clearGift();	
 		}
 	}
 	
@@ -820,7 +844,7 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 				transItem = (InventoryItem) t.getTransferData(df);
 				ONCChildGift transferredWish = createGiftFromInventoryTransfer(transItem);
 				if(transferredWish != null)
-					display(transferredWish, child);
+					display(transferredWish);
 				return true;
 			} 
 			catch (UnsupportedFlavorException e)
@@ -842,7 +866,7 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 			ONCChildGift addWishReq = null;
 			if(partner != null && child != null)
 			{
-				addWishReq = cwDB.add(this, child.getID(), ii.getWishID(), ii.getItemName(),
+				addWishReq = childGiftDB.add(this, child.getID(), ii.getWishID(), ii.getItemName(),
 										giftNumber, 0, GiftStatus.Assigned, partner);
 			}
 			

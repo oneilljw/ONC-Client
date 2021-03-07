@@ -665,7 +665,7 @@ public class AddFamilyDialog extends JDialog implements ActionListener, ListSele
 					true, createWishList(), user.getID(), ((ONCGroup) groupCB.getSelectedItem()).getID(),
 					addedMeal != null ? addedMeal.getID() : -1,
 					addedMeal != null ? MealStatus.Requested : MealStatus.None,
-					ownTransportCxBox.isSelected() ? Transportation.Yes : Transportation.No);
+					ownTransportCxBox.isSelected() ? Transportation.Yes : Transportation.No, GiftDistribution.Delivery);
 			
 		ONCFamily addedFamily = (ONCFamily) fDB.add(this, fam);
 		

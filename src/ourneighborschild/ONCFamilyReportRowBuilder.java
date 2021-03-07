@@ -111,23 +111,19 @@ public class ONCFamilyReportRowBuilder
 	
 	private String getFullWish(ONCChild c, int wn)
 	{
-		ONCChildGift cw = cwDB.getGift(c.getChildGiftID(wn));
-		if(c.getChildGiftID(wn) == -1 || cw == null)
+		ONCChildGift cg = cwDB.getCurrentChildGift(c.getID(), wn);
+		if(cg == null)
 			return "";
 		else
 		{
-			ONCGift wish = cat.getGiftByID(cw.getGiftID());
+			ONCGift wish = cat.getGiftByID(cg.getCatalogGiftID());
 		
 			if(wish == null)
 				return "";
 			else
 			{
 				String[] restrictions = {" ", "*", "#"};
-				String restriction = restrictions[cw.getIndicator()];
-				String wishbase = wish.getName();
-				String detail = cw.getDetail();
-		
-				return restriction + wishbase + "- " +  detail;
+				return restrictions[cg.getIndicator()] + wish.getName() + "- " +  cg.getDetail();
 			}
 		}
 	}

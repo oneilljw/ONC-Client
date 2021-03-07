@@ -11,7 +11,6 @@ import com.google.gson.reflect.TypeToken;
 
 public class ChildDB extends ONCDatabase
 {
-	private static final int NUM_GIFTS_PER_CHILD = 3;
 	private static ChildDB instance = null;
 	private ArrayList<ONCChild> childAL;
 	
@@ -99,25 +98,25 @@ public class ChildDB extends ONCDatabase
 	
 	ONCChild processDeletedChild(Object source, String json)
 	{
-		ChildGiftDB cgDB = ChildGiftDB.getInstance();
-		GiftCatalogDB cat = GiftCatalogDB.getInstance();
+//		ChildGiftDB cgDB = ChildGiftDB.getInstance();
+//		GiftCatalogDB cat = GiftCatalogDB.getInstance();
 		
 		Gson gson = new Gson();
 		
 		ONCChild deletedChild =  removeChild(source, gson.fromJson(json, ONCChild.class).getID());
 		
 		//If the child had gifts, delete them from the child gift database & update the gift catalog counts. 
-		for(int giftNum= 0; giftNum < NUM_GIFTS_PER_CHILD; giftNum++)
-		{
-			if(deletedChild.getChildGiftID(giftNum) > -1)
-			{
-				//ask the child gift data base to delete the gift
-				ONCChildGift deletedGift = cgDB.deleteChildGift(deletedChild.getChildGiftID(giftNum));
-				
-				//inform the gift catalog that the gift has been deleted
-				cat.changeGiftCounts(deletedGift, null);
-			}
-		}
+//		for(int giftNum= 0; giftNum < NUM_GIFTS_PER_CHILD; giftNum++)
+//		{
+//			if(deletedChild.getChildGiftID(giftNum) > -1)
+//			{
+//				//ask the child gift data base to delete the gift
+//				ONCChildGift deletedGift = cgDB.deleteChildGift(deletedChild.getChildGiftID(giftNum));
+//				
+//				//inform the gift catalog that the gift has been deleted
+//				cat.changeGiftCounts(deletedGift, null);
+//			}
+//		}
 		
 		FamilyDB fDB = FamilyDB.getInstance();
 		int[] countsChange = fDB.getServedFamilyAndChildCount();
@@ -272,17 +271,8 @@ public class ChildDB extends ONCDatabase
 		}
 		
 		return count;
-	}
-	
-	
-	
-	void setChildWishID(int childid, int newWishID, int wishnumber)
-	{
-		ONCChild c = getChild(childid);
-		if(c != null)
-			c.setChildGiftID(newWishID, wishnumber);	
-	}
-	
+	}	
+
 	void searchForLastName(String s, List<Integer> rAL)
     {	
 		int lastFamIDAdded = -1;	//prevent searching for same family id twice in a row
@@ -348,9 +338,8 @@ public class ChildDB extends ONCDatabase
 	@Override
 	String[] getExportHeader()
 	{
-		return new String[] {"Child ID", "Family ID", "Child #", "First Name", "Last Name",
-	 			"Gender", "DOB", "School", "Wish 1 ID", "Wish 2 ID",
-	 			"Wish 3 ID", "Prior Year Child ID"};
+		return new String[] {"Child ID", "Family ID", "First Name", "Last Name",
+	 						"Gender", "DOB", "School", "Prior Year Child ID"};
 	}
 	
 	private class ONCChildAgeComparator implements Comparator<ONCChild>
@@ -361,5 +350,4 @@ public class ChildDB extends ONCDatabase
 	        return o1.getChildDateOfBirth().compareTo(o2.getChildDateOfBirth());
 	    }
 	}
-
 }

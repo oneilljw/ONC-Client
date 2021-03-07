@@ -2,22 +2,37 @@ package ourneighborschild;
 
 public enum MealType
 {
-	Any("Any"),
-	No_Assistance_Rqrd("No Assistance Req."),
-	Thanksgiving("Thanksgiving"),
-	December("December"),
-	Thanksgiving_December("Thanksgiving & December"),
-	December_Thanksgiving("December & Thanksgiving"),
-	Both("Both");
+	Any(0, "Any"),
+	No_Assistance_Rqrd(1, "No Assistance Req."),
+	Thanksgiving(2, "Thanksgiving"),
+	December(3, "December"),
+	Thanksgiving_December(4, "Thanksgiving & December"),
+	December_Thanksgiving(5, "December & Thanksgiving"),
+	Both(6,"Both");
 	
-	private final String text;
+	private int index;
+	private final String english;
 	
-	MealType(String text)
+	MealType(int index, String text)
 	{
-		this.text = text;
+		this.index = index;
+		this.english = text;
 	}
 	
-	public String text() {  return text; }
+	MealType type(int type)
+	{
+		MealType result = MealType.No_Assistance_Rqrd;
+		for(MealType mt : MealType.values())
+		{
+			if(mt.index == type)
+			{
+				result = mt;
+				break;
+			}
+		}
+		
+		return result;
+	}
 	
 	static MealType[] getSearchFilterList()
 	{
@@ -49,5 +64,5 @@ public enum MealType
 	
 	
 	@Override
-	public String toString() { return text; }
+	public String toString() { return english; }
 }

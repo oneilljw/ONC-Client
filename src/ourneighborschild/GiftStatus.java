@@ -13,7 +13,8 @@ public enum GiftStatus
 	Received (7,"Receive"),
 	Distributed (8,"Distribute"),
 	Missing (9,"Missed"),
-	Verified (10, "Verify");
+	Verified (10, "Verify"),
+	Unassigned(11,"Unassign");	//For clone gift status use
 	
 	private final int statusIndex;
 	private final String presentTense;
@@ -25,7 +26,28 @@ public enum GiftStatus
 	}
 	
 	public int statusIndex() { return statusIndex; }
+	public static GiftStatus getGiftStatus(int statusIndex)
+	{
+		GiftStatus result = GiftStatus.Not_Selected;
+		for(GiftStatus gs : GiftStatus.getImportList())
+			if(gs.statusIndex == statusIndex)
+			{
+				result = gs;
+				break;
+			}
+		
+			return result;
+	}
+
 	String presentTense() { return presentTense; }
+	
+	static GiftStatus[] getImportList()
+	{
+		return new GiftStatus[] {GiftStatus.No_Change, GiftStatus.Assigned, GiftStatus.Delivered,
+								GiftStatus.Returned, GiftStatus.Shopping, GiftStatus.Received,
+								GiftStatus.Distributed, GiftStatus.Missing, GiftStatus.Verified,
+								GiftStatus.Unassigned};
+	}
 	
 	static GiftStatus[] getSearchFilterList()
 	{
@@ -44,6 +66,19 @@ public enum GiftStatus
 								GiftStatus.Distributed, GiftStatus.Missing, GiftStatus.Verified};
 		
 		return wsChange;
+	}
+	
+	static GiftStatus[] getClonedGiftSearchFilterList()
+	{
+		return new GiftStatus[] {GiftStatus.Any, GiftStatus.Unassigned,
+										GiftStatus.Assigned, GiftStatus.Delivered,
+										GiftStatus.Returned, GiftStatus.Received};
+	}
+	
+	static GiftStatus[] getClonedGiftChangeList()
+	{
+		return new GiftStatus[] {GiftStatus.No_Change, GiftStatus.Delivered, 
+										GiftStatus.Returned, GiftStatus.Received};
 	}	
 }
 
