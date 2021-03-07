@@ -42,12 +42,14 @@ public class GiftCatalogDB extends ONCDatabase
 	
 	private static GiftCatalogDB instance = null;
 	private ArrayList<GiftCatalogItem> giftCatalog;
+	private GlobalVariablesDB gvDB;
 	private GiftDetailDB  giftDetailDB;
 	
 	private GiftCatalogDB()
 	{
 		super();
 		this.title = "Gift Catalog";
+		gvDB = GlobalVariablesDB.getInstance();
 		giftDetailDB = GiftDetailDB.getInstance();
 		giftCatalog = new ArrayList<GiftCatalogItem>();
 	}
@@ -274,7 +276,7 @@ public class GiftCatalogDB extends ONCDatabase
 	 * SELECTION lists put an ONCGift "None" in element 0 of the list.
 	 * 
 	 * The binary representation of the ONCGift list index
-	 * member variable to determines inclusion in a list. All gifts that have odd list indexes 
+	 * member variable determines inclusion in a list. All gifts that have odd list indexes 
 	 * are included in giftNumber 0 lists for example. All gifts with list indexes greater than 4
 	 * are included in giftNumber 2 list requests and all gifts with list indexes of 2, 3, 6,
 	 * or 7 are included in giftNumber 1 gift list requests.
@@ -317,12 +319,17 @@ public class GiftCatalogDB extends ONCDatabase
 
 		return  giftlist;
 	}
+	
+	//returns a list of gifts in the catalog. To be included in the list
+	//a gift must be available in all of the gift selection menus, based on how many
+	//gifts we are serving a child
 	List<ONCGift> getDefaultGiftList()
 	{
 		List<ONCGift> giftlist = new ArrayList<ONCGift>();
-	
+
+		int[] eligibilityChoices = {0,3,5,6};
 		for(ONCGift g : getList())
-			if(g.getListindex() == GIFT_CATALOG_LIST_ALL)
+			if(g.getListindex() > eligibilityChoices[gvDB.getNumberOfGiftsPerChild()])
 				giftlist.add(g);
 		
 		Collections.sort(giftlist, new GiftListComparator());	//Alphabetize the list

@@ -53,7 +53,7 @@ public class GiftCatalogDialog extends JDialog implements ActionListener, ListSe
 	public GiftCatalogDialog(JFrame pf)
 	{
 		super(pf);
-		this.setTitle("Gift Catalog");
+		this.setTitle("Our Neighbor's Child Gift Catalog");
 		
 		//Save the reference to the one catalog object in the app. It is created in the 
 		//top level object and passed to all objects that require the gift catalog, including
@@ -281,21 +281,13 @@ public class GiftCatalogDialog extends JDialog implements ActionListener, ListSe
 	public void actionPerformed(ActionEvent e)
 	{
 		if(e.getSource() == btnAdd)
-		{
 			add();
-		}
 		else if(e.getSource() == btnEdit)
-		{
 			edit();
-		}
 		else if(e.getSource() == btnDelete)
-		{
 			delete();
-		}
 		else if(e.getSource() == btnPrint)
-		{
 			print(Integer.toString(gvDB.getCurrentSeason()) + " ONC Gift Catalog");
-		}		
 	}
 	
 	@Override
@@ -357,6 +349,7 @@ public class GiftCatalogDialog extends JDialog implements ActionListener, ListSe
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("LOADED_DATABASE"))
 		{
+			this.setTitle(String.format("Our Neighbor's Child - %d Season Gift Catalog", gvDB.getCurrentSeason()));
 			gcTableModel.fireTableDataChanged();
 		}
 	}
@@ -367,9 +360,7 @@ public class GiftCatalogDialog extends JDialog implements ActionListener, ListSe
 		 * Implements the table model for the Gift Catalog Dialog
 		 */
 		private static final long serialVersionUID = 1L;
-		private GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
-		private String[] columnNames = {"Gift Name", "Count", "Gift 1", "Gift 2",
-                                        "Gift 3", "Addl. Detail?"};
+		private String[] columnNames = {"Gift Name", "Count", "Gift 1", "Gift 2", "Gift 3", "Addl. Detail?"};
  
         public int getColumnCount() { return columnNames.length; }
  
@@ -379,47 +370,47 @@ public class GiftCatalogDialog extends JDialog implements ActionListener, ListSe
  
         public Object getValueAt(int row, int col)
         {
-        		if(col == NAME_COL)  
-        			return cat.getGiftName(row);
-        		else if(col == COUNT_COL)
-        			return cat.getTotalGiftCount(row);
-        		else if(col == ADDL_DET_COL)
-        			return cat.isDetailRqrd(row) ? gvs.getImageIcon(21) : gvs.getImageIcon(22);
-        		else
-        			return cat.isInGiftList(row, col- GIFT_1_COL);      			
+    		if(col == NAME_COL)  
+    			return cat.getGiftName(row);
+    		else if(col == COUNT_COL)
+    			return cat.getTotalGiftCount(row);
+    		else if(col == ADDL_DET_COL)
+    			return cat.isDetailRqrd(row) ? gvDB.getImageIcon(21) : gvDB.getImageIcon(22);
+    		else
+    			return cat.isInGiftList(row, col- GIFT_1_COL);      			
         }
         
         //JTable uses this method to determine the default renderer/editor for each cell.
         @Override
         public Class<?> getColumnClass(int column)
         {
-        		if(column == NAME_COL)
-                return String.class;
-        		if(column == COUNT_COL)
-        			return Integer.class;
-        		else if(column == ADDL_DET_COL)
-        			return ImageIcon.class;
-        		else
-        			return Boolean.class;
+    		if(column == NAME_COL)
+    			return String.class;
+    		if(column == COUNT_COL)
+    			return Integer.class;
+    		else if(column == ADDL_DET_COL)
+    			return ImageIcon.class;
+    		else
+    			return Boolean.class;
         }
  
         public boolean isCellEditable(int row, int col)
         {
             //Only the check boxes can be edited and then only if there is not
-        		//a gift already selected from the list associated with that column.
-        		//also, if the gift is the default gift, it cannot be edited.
-        		ONCGift gift = cat.getGift(row);
-        		if(gift.getID() != gvs.getDefaultGiftID())
-        		{
-        			if(col == GIFT_1_COL && cat.getGiftCount(row, 0) == 0)
-        	            	return true;
-        	        else if(col == GIFT_2_COL && cat.getGiftCount(row, 1) == 0)
-        	            	return true;
-        	        else if(col == GIFT_3_COL && cat.getGiftCount(row, 2) == 0)
-        	            	return true;
-        	        else 
-                     return false;
-        		}
+    		//a gift already selected from the list associated with that column.
+    		//also, if the gift is the default gift, it cannot be edited.
+    		ONCGift gift = cat.getGift(row);
+    		if(gvDB.getNumberOfGiftsPerChild() > 0 && gift.getID() != gvDB.getDefaultGiftID())
+    		{
+    			if(col == GIFT_1_COL && cat.getGiftCount(row, 0) == 0)
+    	            return true;
+    	        else if(col == GIFT_2_COL && cat.getGiftCount(row, 1) == 0 && gvDB.getNumberOfGiftsPerChild() > 1)
+    	            return true;
+    	        else if(col == GIFT_3_COL && cat.getGiftCount(row, 2) == 0 && gvDB.getNumberOfGiftsPerChild() > 2)
+    	            return true;
+    	        else 
+    	        	return false;
+    		}
             else 
                 return false;
         }
@@ -427,25 +418,25 @@ public class GiftCatalogDialog extends JDialog implements ActionListener, ListSe
         //Don't need to implement this method unless your table's data can change. 
         public void setValueAt(Object value, int row, int col)
         { 	
-        		if(col >= GIFT_1_COL && col <= GIFT_3_COL)	//Gift list columns
-        		{
-        			ONCGift reqUpdateGift = new ONCGift(cat.getGift(row));	//copy current gift
-        			int li = reqUpdateGift.getListindex(); //Get current list index	
-        			int bitmask = 1 << col-GIFT_1_COL;	//which gift is being toggled
-        		
-        			reqUpdateGift.setListindex(li ^ bitmask); //Set updated list index
-        		
-        			String response = cat.update(this, reqUpdateGift);
-        		
-        			if(response == null || (response !=null && !response.startsWith("UPDATED_CATALOG_WISH")))
-        			{
-        				//request failed
-        				GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
-					String err_mssg = "ONC Server denied update catalog gift  request, try again later";
-					JOptionPane.showMessageDialog(GlobalVariablesDB.getFrame(), err_mssg, "Update Catalog Request Failure",
-													JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
-        			}
-        		}                      
+    		if(col >= GIFT_1_COL && col <= GIFT_3_COL)	//Gift list columns
+    		{
+    			ONCGift reqUpdateGift = new ONCGift(cat.getGift(row));	//copy current gift
+    			int li = reqUpdateGift.getListindex(); //Get current list index	
+    			int bitmask = 1 << col-GIFT_1_COL;	//which gift is being toggled
+    		
+    			reqUpdateGift.setListindex(li ^ bitmask); //Set updated list index
+    		
+    			String response = cat.update(this, reqUpdateGift);
+    		
+    			if(response == null || (response !=null && !response.startsWith("UPDATED_CATALOG_WISH")))
+    			{
+    				//request failed
+    				GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
+				String err_mssg = "ONC Server denied update catalog gift  request, try again later";
+				JOptionPane.showMessageDialog(GlobalVariablesDB.getFrame(), err_mssg, "Update Catalog Request Failure",
+												JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
+    			}
+    		}                      
         }  
     }
 }

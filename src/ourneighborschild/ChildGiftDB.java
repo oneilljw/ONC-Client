@@ -378,7 +378,7 @@ public class ChildGiftDB extends ONCDatabase
 				else if(oldGift.getCatalogGiftID() != giftBase)
 					newPartnerAndStatus = new GiftPartnerAndStatus( -1, GiftStatus.Selected);	//New Gift
 				else if(reqPartner == null || reqPartner != null && reqPartner.getID() == -1)
-					newPartnerAndStatus = new GiftPartnerAndStatus(reqPartner.getID(), GiftStatus.Selected);	//Partner = None
+					newPartnerAndStatus = new GiftPartnerAndStatus(-1, GiftStatus.Selected);	//Partner = None
 				else if(reqPartner != null && reqPartner.getID() >= -1 && oldGift.getPartnerID() != reqPartner.getID())
 					newPartnerAndStatus = new GiftPartnerAndStatus(reqPartner.getID(), GiftStatus.Assigned);	//New Partner
 				else if(reqStatus == GiftStatus.Delivered)
