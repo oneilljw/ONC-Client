@@ -74,7 +74,7 @@ public abstract class SortGiftsBaseDialog extends ChangeDialog implements Proper
 	protected JPanel infoPanel, cntlPanel;
 	
 	protected JComboBox<String> startAgeCB, endAgeCB, giftnumCB, genderCB, resCB, changedByCB;
-	protected JComboBox<String> changeResCB, printCB, regionCB, schoolCB, exportCB, cloneCB;
+	protected JComboBox<String> changeResCB, printCB, regionCB, schoolCB, exportCB, cloneCB, giftCardCB;
 	protected JComboBox<ONCGift> giftCB;
 	protected JComboBox<GiftStatus>  statusCB, changeStatusCB;
 	protected JComboBox<ONCPartner> assignCB, changePartnerCB;
@@ -94,7 +94,7 @@ public abstract class SortGiftsBaseDialog extends ChangeDialog implements Proper
 	protected JCheckBox labelFitCxBox;
 	
 	protected int sortStartAge = 0, sortEndAge = ONC_AGE_LIMIT, sortGender = 0, sortChangedBy = 0;
-	protected int sortGiftNum = 0, sortRes = 0, sortPartnerID, sortRegion = 0;
+	protected int sortGiftNum = 0, sortRes = 0, sortPartnerID, sortRegion = 0, sortGCO = 0;
 	protected GiftStatus sortStatus = GiftStatus.Any;
 	protected FamilyStatus sortFamilyStatus;
 	protected DNSCode sortDNSCode;
@@ -104,6 +104,7 @@ public abstract class SortGiftsBaseDialog extends ChangeDialog implements Proper
 	
 	protected static String[] genders = {"Any", "Boy", "Girl"};
 	protected static String[] res = {"Any", "Blank", "*", "#"};
+	protected static String[] giftCardFilter = {"Any", "True", "False"};
 
 	SortGiftsBaseDialog(JFrame pf)
 	{
@@ -163,6 +164,12 @@ public abstract class SortGiftsBaseDialog extends ChangeDialog implements Proper
 		dnsCodeCB.setPreferredSize(new Dimension(120, 56));
 		dnsCodeCB.setBorder(BorderFactory.createTitledBorder("DNS Code"));
 		dnsCodeCB.addActionListener(this);
+		
+		giftCardCB = new JComboBox<String>(giftCardFilter);
+		giftCardCB.setPreferredSize(new Dimension(88, 56));
+		giftCardCB.setToolTipText("GCO - Gift Card Only Family Filter");
+		giftCardCB.setBorder(BorderFactory.createTitledBorder("GCO Family?"));
+		giftCardCB.addActionListener(this);
 		
 		regionCBM = new DefaultComboBoxModel<String>();
 		regionCBM.addElement("Any");
@@ -268,6 +275,7 @@ public abstract class SortGiftsBaseDialog extends ChangeDialog implements Proper
 
 		sortCriteriaPanelTop.add(oncnumTF);
 		sortCriteriaPanelTop.add(dnsCodeCB);
+		sortCriteriaPanelTop.add(giftCardCB);
 		sortCriteriaPanelTop.add(regionCB);
 		sortCriteriaPanelTop.add(startAgeCB);
 		sortCriteriaPanelTop.add(endAgeCB);
@@ -429,7 +437,7 @@ public abstract class SortGiftsBaseDialog extends ChangeDialog implements Proper
 				if(f != null && isNumeric(f.getONCNum()) && doesONCNumMatch(f.getONCNum()) &&
 					doesFamilyStatusMatch(f.getFamilyStatus()) && doesDNSCodeMatch(f.getDNSCode()) && 
 					doesRegionMatch(f.getRegion()) &&	isAgeInRange(c) && doesGenderMatch(c) &&
-					doesSchoolMatch(c) && doesResMatch(cg.getIndicator()) &&
+					doesSchoolMatch(c) && doesResMatch(cg.getIndicator()) && doesGiftCardOnlyMatch(f.isGiftCardOnly()) &&
 					doesPartnerMatch(cg.getPartnerID()) && doesStatusMatch(cg.getGiftStatus()) &&
 					isGiftChangeDateBetween(cg.getTimestamp()) && doesChangedByMatch(cg.getChangedBy()) &&
 					doesGiftBaseMatch(cg.getCatalogGiftID()) && doesGiftNumMatch(cg.getGiftNumber())  &&
@@ -911,6 +919,9 @@ public abstract class SortGiftsBaseDialog extends ChangeDialog implements Proper
 			return sortDNSCode.getID() == dnsCodeID;
 	}
 	
+	protected boolean doesGiftCardOnlyMatch(boolean gco) { return sortGCO == 0 || (gco && giftCardCB.getSelectedIndex()== 1) || 
+																	(!gco && giftCardCB.getSelectedIndex()== 2); } 
+	
 	protected boolean isAgeInRange(ONCChild c)
 	{
 		return c.getChildIntegerAge() >= startAgeCB.getSelectedIndex() && c.getChildIntegerAge() <= endAgeCB.getSelectedIndex();		
@@ -1047,6 +1058,11 @@ public abstract class SortGiftsBaseDialog extends ChangeDialog implements Proper
 		else if(e.getSource() == dnsCodeCB && sortDNSCode.getID() != ((DNSCode) dnsCodeCB.getSelectedItem()).getID())
 		{
 			sortDNSCode = (DNSCode) dnsCodeCB.getSelectedItem();
+			buildTableList(false);
+		}
+		else if(e.getSource() == giftCardCB && giftCardCB.getSelectedIndex() != sortGCO)
+		{
+			sortGCO = giftCardCB.getSelectedIndex();
 			buildTableList(false);
 		}
 		else if(e.getSource() == startAgeCB && startAgeCB.getSelectedIndex() != sortStartAge)
@@ -1197,7 +1213,7 @@ public abstract class SortGiftsBaseDialog extends ChangeDialog implements Proper
 	@Override
 	int[] getColumnWidths()
 	{
-		int[] colWidths = {40, 40, 32, 48, 36, 120, 36, 84, 180, 32, 80, 184, 96, 96};
+		int[] colWidths = {40, 40, 32, 48, 36, 120, 36, 84, 200, 32, 80, 200, 96, 96};
 		return colWidths;
 	}
 	
@@ -1219,6 +1235,11 @@ public abstract class SortGiftsBaseDialog extends ChangeDialog implements Proper
 		dnsCodeCB.setSelectedItem(uPrefs.getFamilyDNSFilterCode());
 		sortDNSCode = uPrefs.getFamilyDNSFilterCode();
 		dnsCodeCB.addActionListener(this);
+		
+		giftCardCB.removeActionListener(this);
+		giftCardCB.setSelectedIndex(0);
+		sortGCO = 0;
+		giftCardCB.addActionListener(this);
 		
 		startAgeCB.removeActionListener(this);
 		startAgeCB.setSelectedIndex(0);	//Will trigger the CB event handler which

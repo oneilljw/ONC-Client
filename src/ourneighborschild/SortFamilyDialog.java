@@ -173,9 +173,9 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 
 		//Set up unique search criteria GUI
 		String[] oncStrings = {"Any", "NNA", "OOR", "RNV", "DEL"};
-    		oncCB = new JComboBox<String>(oncStrings);
-    		oncCB.setEditable(true);
-    		oncCB.setPreferredSize(new Dimension(80,56));
+    	oncCB = new JComboBox<String>(oncStrings);
+    	oncCB.setEditable(true);
+    	oncCB.setPreferredSize(new Dimension(80,56));
 		oncCB.setBorder(BorderFactory.createTitledBorder("ONC #"));
 		oncCB.addActionListener(this);
     	
