@@ -105,6 +105,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	private JComboBox<MealStatus> mealstatusCB;
 	private JComboBox<String> exportCB, printCB, sendEmailCB, sendSMSCB, callCB;
 	private JComboBox<School> schoolCB;
+	private JComboBox<GiftDistribution> distributionCB;
 	private JComboBox<DNSCode> dnsCodeCB, changeDNSCB;
 	private List<DNSCode> filterCodeList;
 	
@@ -123,6 +124,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	private FamilyStatus sortFamilyStatus;
 	private DNSCode sortDNSCode;
 	private School sortSchool;
+	private GiftDistribution sortDistribution;
 
 	private static String[] giftCardFilter = {"Any", "True", "False"};
 	private static String[] exportChoices = {"Export", "Britepath Crosscheck", "Family Floor List", 
@@ -242,6 +244,12 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		zipCB.setBorder(BorderFactory.createTitledBorder("Zip Code"));
 		zipCB.addActionListener(this);
 		
+		distributionCB = new JComboBox<GiftDistribution>(GiftDistribution.getFilterOptions());
+		sortDistribution = GiftDistribution.Any;
+		distributionCB.setPreferredSize(new Dimension(120, 56));
+		distributionCB.setBorder(BorderFactory.createTitledBorder("Distribution"));
+		distributionCB.addActionListener(this);
+		
 		schoolCB = new JComboBox<School>();
 		schoolCBM = new DefaultComboBoxModel<School>();
 		sortSchool = new School();	//creates a dummy school with code "Any"
@@ -287,6 +295,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		sortCriteriaPanelBottom.add(lastnameCB);
 		sortCriteriaPanelBottom.add(streetCB);
 		sortCriteriaPanelBottom.add(zipCB);
+		sortCriteriaPanelBottom.add(distributionCB);
 		sortCriteriaPanelBottom.add(regionCB);
 		sortCriteriaPanelBottom.add(schoolCB);
 		sortCriteriaPanelBottom.add(changedByCB);
@@ -422,6 +431,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			faN.getFamily().getZipCode(),
 			regions.getRegionID(faN.getFamily().getRegion()),
 			regions.getSchoolName(faN.getFamily().getSchoolCode()),
+			faN.getFamily().getGiftDistribution().toString(),
 			faN.getFamily().getChangedBy(),
 			faN.getFamily().isGiftCardOnly() ? "T" : "F",
 			gvs.getImageIcon(23 + faN.getFamily().getStoplightPos()),
@@ -466,14 +476,15 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 				    doesLastNameMatch(f.getLastName()) &&
 				     doesStreetMatch(f.getStreet()) &&
 				      doesZipMatch(f.getZipCode()) &&
-				       doesEmailMatch(f.getEmail()) &&
-				        doesAltDelMatch(f.getSubstituteDeliveryAddress()) &&
-				         doesRegionMatch(f.getRegion()) &&
-				          doesSchoolMatch(f.getSchoolCode()) &&
-				           doesChangedByMatch(f.getChangedBy()) &&
-				            doesGiftCardOnlyMatch(f.isGiftCardOnly()) &&
-				             doesStoplightMatch(f.getStoplightPos()) &&
-				              doesNoteStatusMatch(f))	//Family criteria pass
+				       doesGiftDistributionMatch(f.getGiftDistribution()) &&
+				        doesEmailMatch(f.getEmail()) &&
+				         doesAltDelMatch(f.getSubstituteDeliveryAddress()) &&
+				          doesRegionMatch(f.getRegion()) &&
+				           doesSchoolMatch(f.getSchoolCode()) &&
+				            doesChangedByMatch(f.getChangedBy()) &&
+				             doesGiftCardOnlyMatch(f.isGiftCardOnly()) &&
+				              doesStoplightMatch(f.getStoplightPos()) &&
+				               doesNoteStatusMatch(f))	//Family criteria pass
 			{
 				stAL.add(new ONCFamilyAndNote(id++, f, noteDB.getLastNoteForFamily(f.getID())));
 			}
@@ -1418,6 +1429,11 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		sortZip = 0;
 		zipCB.addActionListener(this);
 		
+		distributionCB.removeActionListener(this);
+		distributionCB.setSelectedIndex(0);
+		sortDistribution = GiftDistribution.Any;
+		distributionCB.addActionListener(this);
+		
 		emailCB.removeActionListener(this);
 		emailCB.setSelectedIndex(0);
 		sortEmail = "Any";
@@ -1761,6 +1777,8 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	boolean doesLastNameMatch(String ln) {return sortLN.equals("Any") || ln.toLowerCase().contains(lastnameCB.getSelectedItem().toString().toLowerCase());}
 	
 	boolean doesStreetMatch(String street) {return sortStreet.equals("Any") || street.toLowerCase().contains(streetCB.getSelectedItem().toString().toLowerCase());}
+	
+	boolean doesGiftDistributionMatch(GiftDistribution dist) { return sortDistribution == GiftDistribution.Any || sortDistribution == dist; }
 	
 	boolean doesEmailMatch(String email) 
 	{ 
@@ -2270,6 +2288,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		headerList.add("Delivery Zip Code");
 		headerList.add("Delivery State/Province");
 		headerList.add("Delivery Elem. School");
+		headerList.add("Distribution");
 		headerList.add("Donor Type");
 		headerList.add("Adopted for:");
 		headerList.add("Number of Adults in Household");
@@ -2471,6 +2490,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 							   soFamily.getReferenceNum(),
 							   delStreetNum, delStreet, unit, "", city, zip, "Virginia",
 							   regions.getSchoolName(soFamily.getSchoolCode()),
+							   soFamily.getGiftDistribution().toString(),
 							   "CBO",
 							   adoptedFor,
 							   Integer.toString(adultDB.getNumberOfOtherAdultsInFamily(soFamily.getID())+1),
@@ -2564,6 +2584,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 				  "Family Status", "Gift Status", "Meal Status", "Head of Household First Name", 
 				  "Head of Household Last Name", "House Number","Street",
 				  "Unit or Apartment Number", "Zip Code", "Region", "Elementary School For Address",
+				  "Is Family picking up gifts or is ONC delivering?",
 				  "Changed By", "Gift Card Only Family?", "Stoplight Color", "Clipboard Color"};	
 		return toolTips;
 	}
@@ -2572,21 +2593,21 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	String[] getColumnNames() 
 	{
 		String[] columns = {"ONC", "Batch #", "Ref #", "DNS", "Fam Status", "Gift Status", "Meal Status",
-				"First", "Last", "House", "Street", "Unit", "Zip", "Reg", "School", "Changed By", "GCO", "SL", "CB"};
+				"First", "Last", "House", "Street", "Unit", "Zip", "Reg", "School", "Distribution", "Changed By", "GCO", "SL", "CB"};
 		return columns;
 	}
 
 	@Override
 	int[] getColumnWidths()
 	{
-		int[] colWidths = {36, 48, 56, 48, 72, 72, 72, 72, 72, 48, 128, 72, 48, 32, 104, 72, 32, 32, 32};
+		int[] colWidths = {36, 48, 56, 48, 72, 72, 72, 72, 72, 48, 128, 72, 48, 32, 104, 72, 72, 32, 32, 32};
 		return colWidths;
 	}
 
 	@Override
 	int[] getCenteredColumns()
 	{
-		int [] center_cols = {1, 13, 16};
+		int [] center_cols = {1, 13, 17};
 		return center_cols;
 	}
 	@Override
@@ -2639,6 +2660,11 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		else if(e.getSource() == zipCB && zipCB.getSelectedIndex() != sortZip )
 		{						
 			sortZip = zipCB.getSelectedIndex();
+			buildTableList(false);
+		}
+		else if(e.getSource() == distributionCB && distributionCB.getSelectedItem() != sortDistribution )
+		{						
+			sortDistribution = (GiftDistribution) distributionCB.getSelectedItem();
 			buildTableList(false);
 		}
 		else if(e.getSource() == emailCB && !emailCB.getSelectedItem().equals(sortEmail) )

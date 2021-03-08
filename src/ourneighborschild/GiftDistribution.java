@@ -35,6 +35,12 @@ public enum GiftDistribution
 		return result; 
 	}
 	
+	static GiftDistribution[] getFilterOptions()
+	{
+		return new GiftDistribution[] { GiftDistribution.Any, GiftDistribution.Pickup,
+										GiftDistribution.Delivery};
+	}
+	
 	static GiftDistribution[] getPreferenceOptions()
 	{
 		return new GiftDistribution[] { GiftDistribution.None, GiftDistribution.Pickup,
