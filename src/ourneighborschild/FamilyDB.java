@@ -51,7 +51,6 @@ public class FamilyDB extends ONCSearchableDatabase
 	private FamilyHistoryDB familyHistoryDB;
 	private GlobalVariablesDB gvDB;
 	private RegionDB regionDB;
-	private DNSCodeDB dnsCodeDB;
 	
 	private FamilyDB()
 	{
@@ -69,8 +68,6 @@ public class FamilyDB extends ONCSearchableDatabase
 		oncFamAL = new ArrayList<ONCFamily>();
 		gvDB = GlobalVariablesDB.getInstance();
 		regionDB = RegionDB.getInstance();
-		dnsCodeDB = DNSCodeDB.getInstance();
-//		serverIF.addServerListener(this);
 		
 //		initializeONCNumberRegionRanges();
 	}
@@ -93,8 +90,11 @@ public class FamilyDB extends ONCSearchableDatabase
 	{
 		List<ONCFamily> famDelList = new ArrayList<ONCFamily>();
 		for(ONCFamily f : oncFamAL)
-			if(f.getGiftStatus().compareTo(FamilyGiftStatus.Assigned) >= 0)
+		{
+			FamilyHistory fh = familyHistoryDB.getLastFamilyHistory(f.getID());
+			if(fh.getGiftStatus().compareTo(FamilyGiftStatus.Assigned) >= 0)
 				famDelList.add(f);
+		}
 		
 		return famDelList; 
 	}
@@ -141,7 +141,7 @@ public class FamilyDB extends ONCSearchableDatabase
 		
 		return response;
 	}
-	
+/*	
 	//updates a list of families with changes
 	String updateFamList(Object source, List<ONCFamily> updateFamReqList)
 	{		
@@ -168,7 +168,7 @@ public class FamilyDB extends ONCSearchableDatabase
 
 		return returnResp;
 	}	
-	
+*/	
 	String update_AutoONCNum(Object source, ONCObject oncfamily)
 	{
 		Gson gson = null;
@@ -217,7 +217,7 @@ public class FamilyDB extends ONCSearchableDatabase
 			//check if the ONC number has changed, if so, Sort the family array list 
 			//so next/previous is in numerical order
 			if(!currONCNum.equals(updatedFamily.getONCNum()))
-				sortDB("ONC");
+				Collections.sort(oncFamAL, new ONCFamilyONCNumComparator());
 			
 			fireDataChanged(source, "UPDATED_FAMILY", updatedFamily);
 			
@@ -310,7 +310,7 @@ public class FamilyDB extends ONCSearchableDatabase
 			oncFamAL.add(addedFamily);
 			
 			if(oncFamAL.size() > 1)	//Sort if we have more than one family
-				sortDB("ONC");
+				Collections.sort(oncFamAL, new ONCFamilyONCNumComparator());
 			
 			fireDataChanged(source, "ADDED_FAMILY", addedFamily);
 			
@@ -331,17 +331,6 @@ public class FamilyDB extends ONCSearchableDatabase
 		return addedFamily;
 	}
 	
-	String addHistoryGroup(Object source, List<ONCFamilyHistory> historyList)
-	{
-		Gson gson = new Gson();
-		Type listtype = new TypeToken<ArrayList<ONCFamilyHistory>>(){}.getType();
-			
-		String response = gson.toJson(historyList, listtype);
-		
-		response = serverIF.sendRequest("POST<delivery_group>" + gson.toJson(historyList, listtype));
-		
-		return response;
-	}
 
 	/**************************************************************************************************
 	 * Import of families from Britepaths. User selects the input .csv file from a FileChooser dialog,
@@ -832,6 +821,7 @@ public class FamilyDB extends ONCSearchableDatabase
 	//getter for Yellow Card data
 	String[] getYellowCardData(ONCFamily f) 
 	{
+		FamilyHistory fh = familyHistoryDB.getLastFamilyHistory(f.getID());
 		String[] ycData = new String[20];
 		ycData[0] = f.getONCNum();
 		ycData[1] = f.getFirstName() + " " + f.getLastName();
@@ -882,21 +872,17 @@ public class FamilyDB extends ONCSearchableDatabase
 		ycData[11] = f.getNumOfBags() == 0 ? "" : Integer.toString(f.getNumOfBags());
 		ycData[12] = Integer.toString(getNumberOfBikesSelectedForFamily(f));
 		ycData[13] = f.getNumOfLargeItems() == 0 ? "" : Integer.toString(f.getNumOfLargeItems());
-		ycData[14] = Integer.toString(f.getFamilyStatus().statusIndex());
+		ycData[14] = Integer.toString(fh.getFamilyStatus().statusIndex());
 		ycData[16] = "";
 		ycData[17] = "";
 		
-		if(f.getDeliveryID() > -1 && f.getGiftStatus().compareTo(FamilyGiftStatus.Assigned) >=0)
+		if(fh != null && fh.getGiftStatus().compareTo(FamilyGiftStatus.Assigned) >=0)
 		{
-			ONCFamilyHistory fh = familyHistoryDB.getFamilyHistory(f.getDeliveryID());
-			if(fh != null)
+			String drvNum = fh.getdDelBy();
+			if(!drvNum.isEmpty())
 			{
-				String drvNum = fh.getdDelBy();
-				if(!drvNum.isEmpty())
-				{
-					ycData[16] = drvNum;
-					ycData[17] = volunteerDB.getDriverLNFN(drvNum);
-				}	
+				ycData[16] = drvNum;
+				ycData[17] = volunteerDB.getDriverLNFN(drvNum);	
 			}
 		}
 		
@@ -1004,11 +990,15 @@ public class FamilyDB extends ONCSearchableDatabase
     {
       return str.matches("-?\\d+(\\.\\d+)?");  //match a number with optional '-' and decimal.
     }
-*/	
+*/
+/*	
 	//Overloaded sortDB methods allow user to specify a data base to be sorted
 	//or use the current data base
 	boolean sortDB(ArrayList<ONCFamily> fal, String dbField) { return sortFamilyDataBase(fal, dbField); }
-	boolean sortDB(String dbField) { return sortFamilyDataBase(oncFamAL, dbField); }
+	void sortDBByONCNumber(String dbField) 
+	{
+		Collections.sort(oncFamAL, new ONCFamilyONCNumComparator());
+	}
 
 	private boolean sortFamilyDataBase(ArrayList<ONCFamily> fal, String dbField)
 	{
@@ -1105,7 +1095,7 @@ public class FamilyDB extends ONCSearchableDatabase
 		
 		return bSortOccurred;
 	}
-	
+*/	
 	@Override
 	boolean importDB()
 	{
@@ -1265,7 +1255,7 @@ public class FamilyDB extends ONCSearchableDatabase
 				return o1.getONCNum().compareTo(o2.getONCNum());
 		}
 	}
-		
+/*		
 	private class ONCFamilyDNSComparator implements Comparator<ONCFamily>
 	{
 		@Override
@@ -1304,19 +1294,19 @@ public class FamilyDB extends ONCSearchableDatabase
 		}
 	}
 	
-	private class ONCFamilyStatusComparator implements Comparator<ONCFamily>
+	private class ONCFamilyStatusComparator implements Comparator<FamilyHistory>
 	{
 		@Override
-		public int compare(ONCFamily o1, ONCFamily o2)
+		public int compare(FamilyHistory o1, FamilyHistory o2)
 		{
 			return o1.getFamilyStatus().compareTo(o2.getFamilyStatus());
 		}
 	}
 	
-	private class ONCFamilyGiftStatusComparator implements Comparator<ONCFamily>
+	private class ONCFamilyGiftStatusComparator implements Comparator<FamilyHistory>
 	{
 		@Override
-		public int compare(ONCFamily o1, ONCFamily o2)
+		public int compare(FamilyHistory o1, FamilyHistory o2)
 		{
 			return o1.getGiftStatus().compareTo(o2.getGiftStatus());
 		}
@@ -1325,10 +1315,19 @@ public class FamilyDB extends ONCSearchableDatabase
 	private class ONCFamilyMealStatusComparator implements Comparator<ONCFamily>
 	{
 		@Override
-		public int compare(ONCFamily o1, ONCFamily o2)
+		public int compare(ONCFamily f1, ONCFamily f2)
 		{
+			ONCMeal m1 = mealDB.getFamiliesCurrentMeal(f1.getID());
+			ONCMeal m2 = mealDB.getFamiliesCurrentMeal(f2.getID());
 			
-			return o1.getMealStatus().compareTo(o2.getMealStatus());
+			if(m1 == null && m2 == null)
+				return 0;
+			else if(m1 == null && m2 != null)
+				return -1;
+			else if(m1 != null && m2 == null)
+				return 1;
+			else
+				return m1.getStatus().compareTo(m2.getStatus());
 		}
 	}
 		
@@ -1485,16 +1484,16 @@ public class FamilyDB extends ONCSearchableDatabase
 		}
 	}
 	
-	private class ONCFamilyDelivererComparator implements Comparator<ONCFamily>
+	private class ONCFamilyDelivererComparator implements Comparator<FamilyHistory>
 	{
 		@Override
-		public int compare(ONCFamily o1, ONCFamily o2)
+		public int compare(FamilyHistory fh1, FamilyHistory fh2)
 		{
-			return volunteerDB.getDriverLNFN(familyHistoryDB.getDeliveredBy(o1.getDeliveryID())).compareTo
-					(volunteerDB.getDriverLNFN(familyHistoryDB.getDeliveredBy(o2.getDeliveryID())));
+			return volunteerDB.getDriverLNFN(fh1.getdDelBy()).compareTo
+					(volunteerDB.getDriverLNFN(fh2.getdDelBy()));
 		}
 	}
-
+*/
 	@Override
 	String searchForListItem(ArrayList<Integer> searchAL, String data)
 	{
@@ -1544,273 +1543,7 @@ public class FamilyDB extends ONCSearchableDatabase
 		return searchtype;
 	}
 	
-	private class ONCFamilyAndNoteONCNumComparator implements Comparator<ONCFamilyAndNote>
-	{
-		@Override
-		public int compare(ONCFamilyAndNote o1, ONCFamilyAndNote o2)
-		{
-			if(isNumeric(o1.getFamily().getONCNum()) && isNumeric(o2.getFamily().getONCNum()))
-			{
-				Integer onc1 = Integer.parseInt(o1.getFamily().getONCNum());
-				Integer onc2 = Integer.parseInt(o2.getFamily().getONCNum());
-				return onc1.compareTo(onc2);
-			}
-			else if(isNumeric(o1.getFamily().getONCNum()) && !isNumeric(o2.getFamily().getONCNum()))
-				return -1;
-			else if(!isNumeric(o1.getFamily().getONCNum()) && isNumeric(o2.getFamily().getONCNum()))
-				return 1;
-			else
-				return o1.getFamily().getONCNum().compareTo(o2.getFamily().getONCNum());
-		}
-	}
-		
-	private class ONCFamilyAndNoteDNSComparator implements Comparator<ONCFamilyAndNote>
-	{
-		@Override
-		public int compare(ONCFamilyAndNote o1, ONCFamilyAndNote o2)
-		{	
-			if(o1.getFamily().getDNSCode() == -1 && o2.getFamily().getDNSCode() == -1)
-				return 0;
-			else if(o1.getFamily().getDNSCode() == -1 && o2.getFamily().getDNSCode() > -1)
-				return 1;
-			else if(o1.getFamily().getDNSCode() > -1 && o2.getFamily().getDNSCode() == -1)
-				return -1;
-			else
-				return dnsCodeDB.getDNSCode(o1.getFamily().getDNSCode()).getAcronym().compareTo(
-						dnsCodeDB.getDNSCode(o2.getFamily().getDNSCode()).getAcronym());
-		}
-	}
-		
-	private class ONCFamilyAndNoteBatchNumComparator implements Comparator<ONCFamilyAndNote>
-	{
-		public int compare(ONCFamilyAndNote o1, ONCFamilyAndNote o2)
-		{
-		
-			return o1.getFamily().getBatchNum().compareTo(o2.getFamily().getBatchNum());
-		}
-	}
 	
-	private class ONCFamilyAndNoteReferenceNumComparator implements Comparator<ONCFamilyAndNote>
-	{
-		public int compare(ONCFamilyAndNote o1, ONCFamilyAndNote o2)
-		{
-		
-			return o1.getFamily().getReferenceNum().compareTo(o2.getFamily().getReferenceNum());
-		}
-	}
-	
-	private class ONCFamilyAndNoteStatusComparator implements Comparator<ONCFamilyAndNote>
-	{
-		@Override
-		public int compare(ONCFamilyAndNote o1, ONCFamilyAndNote o2)
-		{
-			return o1.getFamily().getFamilyStatus().compareTo(o2.getFamily().getFamilyStatus());
-		}
-	}
-	
-	private class ONCFamilyAndNoteGiftStatusComparator implements Comparator<ONCFamilyAndNote>
-	{
-		@Override
-		public int compare(ONCFamilyAndNote o1, ONCFamilyAndNote o2)
-		{
-			return o1.getFamily().getGiftStatus().compareTo(o2.getFamily().getGiftStatus());
-		}
-	}
-	
-	private class ONCFamilyAndNoteMealStatusComparator implements Comparator<ONCFamilyAndNote>
-	{
-		@Override
-		public int compare(ONCFamilyAndNote o1, ONCFamilyAndNote o2)
-		{
-			
-			return o1.getFamily().getMealStatus().compareTo(o2.getFamily().getMealStatus());
-		}
-	}
-		
-	private class ONCFamilyAndNoteFNComparator implements Comparator<ONCFamilyAndNote>
-	{
-		@Override
-		public int compare(ONCFamilyAndNote o1, ONCFamilyAndNote o2)
-		{
-			return o1.getFamily().getFirstName().compareTo(o2.getFamily().getFirstName());
-		}
-	}
-		
-	private class ONCFamilyAndNoteLNComparator implements Comparator<ONCFamilyAndNote>
-	{
-		@Override
-		public int compare(ONCFamilyAndNote o1, ONCFamilyAndNote o2)			{
-			return o1.getFamily().getLastName().compareTo(o2.getFamily().getLastName());
-		}
-	}
-	
-	private class ONCFamilyAndNoteHouseNumComparator implements Comparator<ONCFamilyAndNote>
-	{
-		@Override
-		public int compare(ONCFamilyAndNote o1, ONCFamilyAndNote o2)
-		{
-			String zHN1 = o1.getFamily().getHouseNum().trim();
-			String zHN2 = o2.getFamily().getHouseNum().trim();
-			
-			//four cases. Both numeric, one numeric, one not, both non-numeric
-			//house numbers that are numeric are always ordered before house numbers
-			//than contain other non-numeric characters
-			if(isNumeric(zHN1) && isNumeric(zHN2))
-			{
-				Integer hn1 = Integer.parseInt(zHN1);
-				Integer hn2 = Integer.parseInt(zHN2);
-				
-				return hn1.compareTo(hn2);
-			}
-			else if(isNumeric(zHN1))
-				return -1;	
-			else if(isNumeric(zHN2))
-				return 1;
-			else
-				return zHN1.compareTo(zHN2);
-		}
-	}
-		
-	private class ONCFamilyAndNoteStreetComparator implements Comparator<ONCFamilyAndNote>
-	{
-		@Override
-		public int compare(ONCFamilyAndNote o1, ONCFamilyAndNote o2)
-		{
-			if(o1.getFamily().getStreet().equals(o2.getFamily().getStreet()))
-			{
-				String zHN1 = o1.getFamily().getHouseNum().trim();
-				String zHN2 = o2.getFamily().getHouseNum().trim();
-				
-				//four cases. Both numeric, one numeric, one not, both non-numeric
-				//house numbers that are numeric are always ordered before house numbers
-				//than contain other non-numeric characters
-				if(isNumeric(zHN1) && isNumeric(zHN2))
-				{
-					Integer hn1 = Integer.parseInt(zHN1);
-					Integer hn2 = Integer.parseInt(zHN2);
-					
-					return hn1.compareTo(hn2);
-				}
-				else if(isNumeric(zHN1))
-					return -1;	
-				else if(isNumeric(zHN2))
-					return 1;
-				else
-					return zHN1.compareTo(zHN2);
-			}
-			else
-				return o1.getFamily().getStreet().compareTo(o2.getFamily().getStreet());
-		}
-	}
-		
-	private class ONCFamilyAndNoteZipComparator implements Comparator<ONCFamilyAndNote>
-	{
-		@Override
-		public int compare(ONCFamilyAndNote o1, ONCFamilyAndNote o2)
-		{
-			return o1.getFamily().getZipCode().compareTo(o2.getFamily().getZipCode());
-		}
-	}
-		
-	private class ONCFamilyAndNoteRegionComparator implements Comparator<ONCFamilyAndNote>
-	{
-		@Override
-		public int compare(ONCFamilyAndNote o1, ONCFamilyAndNote o2)
-		{
-			Integer o1Reg = (Integer) o1.getFamily().getRegion();
-			Integer o2Reg = (Integer) o2.getFamily().getRegion();
-			return o1Reg.compareTo(o2Reg);
-		}
-	}
-	
-	private class ONCFamilyAndNoteSchoolComparator implements Comparator<ONCFamilyAndNote>
-	{
-		@Override
-		public int compare(ONCFamilyAndNote o1, ONCFamilyAndNote o2)
-		{
-			String o1School = regionDB.getSchoolName(o1.getFamily().getSchoolCode());
-			String o2School = regionDB.getSchoolName(o2.getFamily().getSchoolCode());
-			
-			return o1School.compareTo(o2School);
-		}
-	}
-		
-	private class ONCFamilyAndNoteCallerComparator implements Comparator<ONCFamilyAndNote>
-	{
-		@Override
-		public int compare(ONCFamilyAndNote o1, ONCFamilyAndNote o2)
-		{
-			return o1.getFamily().getChangedBy().compareTo(o2.getFamily().getChangedBy());
-		}
-	}
-	
-	private class ONCFamilyAndNoteGiftCardOnlyComparator implements Comparator<ONCFamilyAndNote>
-	{
-		@Override
-		public int compare(ONCFamilyAndNote o1, ONCFamilyAndNote o2)
-		{
-			if(!o1.getFamily().isGiftCardOnly() && o2.getFamily().isGiftCardOnly())
-				return 1;
-			else if(o1.getFamily().isGiftCardOnly() && !o2.getFamily().isGiftCardOnly())
-				return -1;
-			else
-				return 0;
-		}
-	}
-		
-	private class ONCFamilyAndNoteStoplightComparator implements Comparator<ONCFamilyAndNote>
-	{
-		@Override
-		public int compare(ONCFamilyAndNote o1, ONCFamilyAndNote o2)
-		{
-			Integer o1SL = (Integer) o1.getFamily().getStoplightPos();
-			Integer o2SL = (Integer) o2.getFamily().getStoplightPos();
-			return o1SL.compareTo(o2SL);
-		}
-	}
-	
-	private class ONCFamilyAndNoteBikesComparator implements Comparator<ONCFamilyAndNote>
-	{
-		@Override
-		public int compare(ONCFamilyAndNote o1, ONCFamilyAndNote o2)
-		{
-			Integer nb1 = getNumberOfBikesSelectedForFamily(o1.getFamily());
-			Integer nb2 = getNumberOfBikesSelectedForFamily(o2.getFamily());
-			return nb1.compareTo(nb2);
-		}
-	}
-	
-	private class ONCFamilyAndNoteDelivererComparator implements Comparator<ONCFamilyAndNote>
-	{
-		@Override
-		public int compare(ONCFamilyAndNote o1, ONCFamilyAndNote o2)
-		{
-			return volunteerDB.getDriverLNFN(familyHistoryDB.getDeliveredBy(o1.getFamily().getDeliveryID())).compareTo
-					(volunteerDB.getDriverLNFN(familyHistoryDB.getDeliveredBy(o2.getFamily().getDeliveryID())));
-		}
-	}
-	
-	private class ONCFamilyAndNoteNoteStatusComparator implements Comparator<ONCFamilyAndNote>
-	{
-		@Override
-		public int compare(ONCFamilyAndNote o1, ONCFamilyAndNote o2)
-		{
-			if(o1.getNote() == null && o2.getNote() != null)
-				return 1;
-			else if(o1.getNote() == null && o2.getNote() == null)
-				return 0;
-			else if(o1.getNote() != null && o2.getNote() == null)
-				return -1;
-			else if(o1.getNote().getStatus() > o2.getNote().getStatus())
-				return -1;
-			else if(o1.getNote().getStatus() == o2.getNote().getStatus())
-				return 0;
-			else if(o1.getNote().getStatus() < o2.getNote().getStatus())
-				return 1;
-			else
-				return 0;
-		}
-	}
 
 	@Override
 	String[] getExportHeader()

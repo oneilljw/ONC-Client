@@ -40,12 +40,13 @@ public abstract class GiftLabelDialog extends ONCEntityTableDialog implements Ac
 	
 	//database references
 	protected FamilyDB familyDB;
+	protected FamilyHistoryDB familyHistoryDB;
 	protected ChildDB childDB;
 	protected ChildGiftDB childGiftDB;
 	protected ClonedGiftDB clonedGiftDB;
 	protected UserDB userDB;
 	
-	protected SortGiftObject sgo; //holds current family, child and gift info for gift getting batteries assigned
+	protected SortGiftObject sgo; //holds current family, family history, child and gift info for gift acted on
 	protected SortGiftObject lastGiftChanged;	//Holds the info for last gift label displayed
 	
 //	protected SortClonedGiftObject scgo; //holds current family, child and clone gift info for gift getting batteries assigned
@@ -71,6 +72,7 @@ public abstract class GiftLabelDialog extends ONCEntityTableDialog implements Ac
 		this.parentFrame = parentFrame;
 		
 		familyDB = FamilyDB.getInstance();
+		familyHistoryDB = FamilyHistoryDB.getInstance();
 		
 		if(dbMgr != null)
 			dbMgr.addDatabaseListener(this);
@@ -266,6 +268,7 @@ public abstract class GiftLabelDialog extends ONCEntityTableDialog implements Ac
 			//received can have batteries recorded. 
 			ONCChild child = null;
 			ONCFamily family = null;
+			FamilyHistory history = null;
 			
 			//clear the previous label and error message
 			sgo = null;
@@ -299,8 +302,9 @@ public abstract class GiftLabelDialog extends ONCEntityTableDialog implements Ac
 			else
 			{
 				//child gift was found, is in an eligible state
-					sgo = new SortGiftObject(0, family, child, cg);
-					onGiftLabelFound(sgo);
+				history = familyHistoryDB.getLastFamilyHistory(family.getID());
+				sgo = new SortGiftObject(0, family, history, child, cg);
+				onGiftLabelFound(sgo);
 			}
 			
 			topPanel.revalidate();

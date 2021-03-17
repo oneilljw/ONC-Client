@@ -39,6 +39,7 @@ public class SortDriverDialog extends DependantTableDialog
 	private JComboBox<String> drvCB, exportCB, printCB;
 	
 	private FamilyHistoryDB familyHistoryDB;
+	private MealDB mealDB;
 	private VolunteerDB volunteerDB;
 	private ActivityDB activityDB;
 	private VolunteerActivityDB volActDB;
@@ -177,15 +178,15 @@ public class SortDriverDialog extends DependantTableDialog
 				//determine if the family has a driver based on the delivery. If the family
 				//has a driver, does the delivery driver's ID match the id of the driver selected
 				//in the selection table. If so, add to the dependent table list
-				ONCFamilyHistory lastFHObj = familyHistoryDB.getFamilyHistory(f.getDeliveryID());
+				FamilyHistory fh = familyHistoryDB.getLastFamilyHistory(f.getID());
 			
-				if(lastFHObj != null && !lastFHObj.getdDelBy().isEmpty())
+				if(fh != null && !fh.getdDelBy().isEmpty())
 				{
 					//There is s driver assigned. Determine who it is from the driver number
 					//and check to see if it matches the selected driver(s) in the selection table
-					int index = volunteerDB.getDriverIndex(lastFHObj.getdDelBy());
+					int index = volunteerDB.getDriverIndex(fh.getdDelBy());
 					if(index > -1 && volunteerDB.getDriver(index).getDrvNum().equals(atAL.get(row_sel[i]).getDrvNum()))
-						stAL.add(f);
+						stAL.add(new ONCFamilyAndNote(i, f, fh, null));
 				}	
 			}
 					
@@ -407,17 +408,19 @@ public class SortDriverDialog extends DependantTableDialog
 	
 	String[] getDependantTableExportRow(int index)
 	{
-		ONCFamily f = stAL.get(index);
+		ONCFamily f = stAL.get(index).getFamily();
+		FamilyHistory fh = stAL.get(index).getFamilyHistory();
+		ONCMeal meal = mealDB.getFamiliesCurrentMeal(f.getID());
 		DNSCode code = f.getDNSCode() > -1 ?dnsCodeDB.getDNSCode(f.getDNSCode()) : null;
 		
 		String[] row = {
-						volunteerDB.getDriverLNFN(familyHistoryDB.getFamilyHistory(f.getDeliveryID()).getdDelBy()),
+						volunteerDB.getDriverLNFN(fh.getdDelBy()),
 						f.getONCNum(),
 						f.getBatchNum(),
 						code == null ? "" : code.getAcronym(),
-						f.getFamilyStatus().toString(),
-						f.getGiftStatus().toString(),
-						f.getMealStatus().toString(),
+						fh.getFamilyStatus().toString(),
+						fh.getGiftStatus().toString(),
+						meal != null ? meal.getStatus().toString() : MealStatus.None.toString(),
 						f.getFirstName(),
 						f.getLastName(),
 						f.getHouseNum(),

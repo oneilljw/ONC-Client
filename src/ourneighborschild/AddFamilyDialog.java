@@ -639,17 +639,6 @@ public class AddFamilyDialog extends JDialog implements ActionListener, ListSele
 		//get the user
 		ONCUser user = UserDB.getInstance().getLoggedInUser();
 		
-		//create a meal request, if meal was requested
-		ONCMeal mealReq = null, addedMeal = null;
-		if(foodAssistanceCkBox.isSelected())
-		{
-			mealReq = new ONCMeal(-1, -1, MealStatus.Requested, (MealType) mealsCB.getSelectedItem(),
-								dietPane.getText(), -1, user.getLNFI(), System.currentTimeMillis(), 3,
-								"Family Referred", user.getLNFI());
-			
-			addedMeal = mealDB.add(this, mealReq);
-		}
-		
 		ONCFamily fam = new ONCFamily(-1, user.getLNFI(), "NNA",
 					"NNA", "B-CR", -1,
 					languageCB.getSelectedIndex()==0 ? "Yes" : "No",
@@ -663,8 +652,7 @@ public class AddFamilyDialog extends JDialog implements ActionListener, ListSele
 					HomePhone.getText(), OtherPhone.getText(), AltPhone.getText(),
 					email.getText(), detailsPane.getText(), createFamilySchoolList(),
 					true, createWishList(), user.getID(), ((ONCGroup) groupCB.getSelectedItem()).getID(),
-					addedMeal != null ? addedMeal.getID() : -1,
-					addedMeal != null ? MealStatus.Requested : MealStatus.None,
+					0, //phone code
 					ownTransportCxBox.isSelected() ? Transportation.Yes : Transportation.No, GiftDistribution.Delivery);
 			
 		ONCFamily addedFamily = (ONCFamily) fDB.add(this, fam);
@@ -675,28 +663,25 @@ public class AddFamilyDialog extends JDialog implements ActionListener, ListSele
 			//add the family history object and update the family history object id
 			
 			DNSCode dnsCode = dnsCodeDB.getDNSCode(addedFamily.getDNSCode());
-			ONCFamilyHistory famHistory = new ONCFamilyHistory(-1, addedFamily.getID(), 
-															addedFamily.getFamilyStatus(),
-															addedFamily.getGiftStatus(),
+			FamilyHistory famHistory = new FamilyHistory(-1, addedFamily.getID(), 
+															FamilyStatus.Unverified,
+															FamilyGiftStatus.Requested,
 															"", "Family Referred", 
 															addedFamily.getChangedBy(), 
 															System.currentTimeMillis(),
 															dnsCode.getID());
 		
-			ONCFamilyHistory addedFamHistory = famHistDB.add(this, famHistory);
+			famHistDB.add(this, famHistory);
 			
-			//update the family with the history object reference
-			if(addedFamHistory != null)
-			{
-				addedFamily.setDeliveryID(addedFamHistory.getID());
-				fDB.update(this, addedFamily);
-			}
 			
-			//update the family id for the meal, if a meal was requested
-			if(addedMeal != null)
+			//create a meal request, if meal was requested
+			if(foodAssistanceCkBox.isSelected())
 			{
-				addedMeal.setFamilyID(addedFamily.getID());
-				mealDB.update(this, addedMeal);
+				ONCMeal mealReq = new ONCMeal(-1, addedFamily.getID(), MealStatus.Requested, (MealType) mealsCB.getSelectedItem(),
+									dietPane.getText(), -1, user.getLNFI(), System.currentTimeMillis(), 3,
+									"Family Referred", user.getLNFI());
+				
+				mealDB.add(this, mealReq);
 			}
 		
 			//add children in the family

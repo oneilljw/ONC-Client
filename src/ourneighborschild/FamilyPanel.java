@@ -78,6 +78,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private DatabaseManager dbMgr;
     private FamilyDB fDB;
 	private ChildDB cDB;
+	private MealDB mealDB;
 	private AdultDB adultDB;
 	private FamilyHistoryDB familyHistoryDB;
 	private RegionDB regions;
@@ -87,6 +88,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private DNSCodeDB dnsCodeDB;
 	
 	private ONCFamily currFam;	//The panel needs to know which family is being displayed
+	private FamilyHistory currFamHistory; //The panel needs to know the family's history being displayed
 	private ONCChild currChild;	//The panel needs to know which child is being displayed
 	
 	private JPanel p1, p2, p3;
@@ -134,6 +136,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		dbMgr = DatabaseManager.getInstance();
 		fDB = FamilyDB.getInstance();
 		cDB = ChildDB.getInstance();
+		mealDB = MealDB.getInstance();
 		adultDB = AdultDB.getInstance();
 		familyHistoryDB = FamilyHistoryDB.getInstance();
 		regions = RegionDB.getInstance();
@@ -729,6 +732,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		else if(child == null)
 		{
 			currFam = fam;
+			currFamHistory = familyHistoryDB.getLastFamilyHistory(fam.getID());
 			ctAL = cDB.getChildren(currFam.getID());
 			if(!ctAL.isEmpty())
 			{
@@ -781,10 +785,10 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		
 		checkForDNSorGiftCardOnly();
 		
-		statusCB.setSelectedItem(currFam.getFamilyStatus());
+		statusCB.setSelectedItem(currFamHistory.getFamilyStatus());
 		lblNumBags.setText(Integer.toString(currFam.getNumOfBags()));
 		
-		giftStatusCB.setSelectedItem(currFam.getGiftStatus());
+		giftStatusCB.setSelectedItem(currFamHistory.getGiftStatus());
 		languageCB.setSelectedItem((String)currFam.getLanguage());
 		lblChangedBy.setText(currFam.getChangedBy());
 		lblSchool.setText(regions.getSchoolName(currFam.getSchoolCode()));
@@ -810,10 +814,11 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			rbFamilyNote[i].setVisible(visibleNoteIndex == i);
 				
 		//set meal button iconBar
-		rbMeals[0].setVisible(currFam.getMealID()  == -1);
-		rbMeals[1].setVisible(currFam.getMealID() > -1 && (currFam.getMealStatus() == MealStatus.Requested ||
-														  currFam.getMealStatus() == MealStatus.Assigned));
-		rbMeals[2].setVisible(currFam.getMealID() > -1 && currFam.getMealStatus().compareTo(MealStatus.Referred) >= 0);
+		ONCMeal meal = mealDB.getFamiliesCurrentMeal(currFam.getID());
+		rbMeals[0].setVisible(meal == null);
+		rbMeals[1].setVisible(meal != null && (meal.getStatus() == MealStatus.Requested ||
+												meal.getStatus() == MealStatus.Assigned));
+		rbMeals[2].setVisible(meal != null && meal.getStatus().compareTo(MealStatus.Referred) >= 0);
 		
 		//set transportation button icon
 		rbTransportation[0].setVisible(currFam.getTransportation() == Transportation.No ||
@@ -1060,7 +1065,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	****************************************************************************************************/
 	void update()
 	{		
-		checkAndUpdateFamilyData(currFam);
+		checkAndUpdateFamilyData(currFam, currFamHistory);
 	}
 	
 	/***************************************************************************************************
@@ -1068,15 +1073,17 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	*family data may have changed by either an external object or by an internal component event 
 	*such as the enter key or combo box list selection change
 	****************************************************************************************************/
-	void checkAndUpdateFamilyData(ONCFamily family)
+	void checkAndUpdateFamilyData(ONCFamily family, FamilyHistory fh)
 	{
 		if(userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) < 0)	//must have administrative privilege to make changes to families
 			return;
 
 		//make a copy of the current family object to create the request
 		ONCFamily fam = new ONCFamily(family);
+		FamilyHistory updateFHreq = new FamilyHistory(fh);
 		
 		int cf = 0;	//used to indicate if a change is detected to a GUI field
+		int cfh = 0;	//used to indicate if a change to a family history GUI field
 		
 		DNSCode selCode = (DNSCode) dnsCodeCB.getSelectedItem();
 		if(selCode.getID() != fam.getDNSCode()) //DNS code changed
@@ -1098,27 +1105,45 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		if(!Unit.getText().equals(fam.getUnit())) {fam.setUnitNum(Unit.getText()); cf = 12;}
 		if(!City.getText().equals(fam.getCity())) {fam.setCity(City.getText()); cf = 13;}
 		if(!ZipCode.getText().equals(fam.getZipCode())) {fam.setZipCode(ZipCode.getText()); cf = 14;}
-		if(statusCB.getSelectedItem() != fam.getFamilyStatus()) {fam.setFamilyStatus( (FamilyStatus) statusCB.getSelectedItem()); cf = 15;}
-		if(giftStatusCB.getSelectedItem() != fam.getGiftStatus()) {fam.setGiftStatus( (FamilyGiftStatus) giftStatusCB.getSelectedItem()); cf = 16;}
+		if(statusCB.getSelectedItem() != updateFHreq.getFamilyStatus()) {updateFHreq.setFamilyStatus( (FamilyStatus) statusCB.getSelectedItem()); cfh = 15;}
+		if(giftStatusCB.getSelectedItem() != updateFHreq.getGiftStatus()) {updateFHreq.setFamilyGiftStatus( (FamilyGiftStatus) giftStatusCB.getSelectedItem()); cfh = 16;}
 		if(!wishlistPane.getText().equals(fam.getWishList())) {fam.setWishList(wishlistPane.getText()); cf = 17;}
 		if(!oncNotesPane.getText().equals(fam.getNotes())) {fam.setNotes(oncNotesPane.getText()); cf = 18;}
 		if(!oncDIPane.getText().equals(fam.getDeliveryInstructions())) {fam.setDeliveryInstructions(oncDIPane.getText()); cf = 19;}
 		
 		if(cf > 0)
-		{
-//			System.out.println(String.format("Family Panel - Family Change Detected, Field: %d", cf));
-			
+		{	
 			fam.setChangedBy(userDB.getUserLNFI());
 			lblChangedBy.setText(fam.getChangedBy());	//Set the changed by field to current user
 			
 			String response = fDB.update(this, fam);
 			if(response.startsWith("UPDATED_FAMILY"))
 			{
-//				System.out.println("FamilyPanel- response: " + response);
 				//family id will not change from update request, get updated family
 				//from the data base and display
 				ONCFamily updatedFamily = fDB.getFamily(fam.getID());
-//				System.out.println(String.format("Family Panel - DNS: %s", updatedFamily.getDNSCode()));
+				display(updatedFamily, currChild);
+			}
+			else
+			{
+				//display an error message that update request failed
+				JOptionPane.showMessageDialog(GlobalVariablesDB.getFrame(), "ONC Server Error: " + response +
+						", try again later","Family Update Failed",  
+						JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
+			}
+		}
+		
+		if(cfh > 0)
+		{	
+			updateFHreq.setChangedBy(userDB.getUserLNFI());
+			lblChangedBy.setText(updateFHreq.getChangedBy());	//Set the changed by field to current user
+			
+			String response = familyHistoryDB.update(this, updateFHreq);
+			if(response.startsWith("UPDATED_DELIVERY"))
+			{
+				//family id will not change from update request, get updated family
+				//from the data base and display
+				ONCFamily updatedFamily = fDB.getFamily(fam.getID());
 				display(updatedFamily, currChild);
 			}
 			else
@@ -1372,45 +1397,49 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 				!housenumTF.getText().equals(currFam.getHouseNum()) && 
 				userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0) 
 		{
-			checkAndUpdateFamilyData(currFam);
+			checkAndUpdateFamilyData(currFam, currFamHistory);
 			
 		}
 		else if(e.getSource() == Street && !bFamilyDataChanging && 
 								!Street.getText().equals(currFam.getStreet()) &&
 								userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0) 
 		{
-			checkAndUpdateFamilyData(currFam);	
+			checkAndUpdateFamilyData(currFam, currFamHistory);
+			
 		}
 		else if(e.getSource() == City && !bFamilyDataChanging &&
 								!City.getText().equals(currFam.getCity()) && 
 								userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0) 
 		{
-			checkAndUpdateFamilyData(currFam);
+			checkAndUpdateFamilyData(currFam, currFamHistory);
+			
 			
 		}
 		else if(e.getSource() == ZipCode && !bFamilyDataChanging &&
 				!ZipCode.getText().equals(currFam.getZipCode()) &&
 				userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0) 
 		{
-			checkAndUpdateFamilyData(currFam);
+			checkAndUpdateFamilyData(currFam, currFamHistory);
+			
 		}
 		else if(e.getSource() == languageCB && !bFamilyDataChanging &&
 				!((String) languageCB.getSelectedItem()).equals(currFam.getLanguage()))
 		{	
-			checkAndUpdateFamilyData(currFam);
+			checkAndUpdateFamilyData(currFam, currFamHistory);
+			
 		}
 		else if(e.getSource() == dnsCodeCB && !bFamilyDataChanging &&
 						((DNSCode) dnsCodeCB.getSelectedItem()).getID() != currFam.getDNSCode())
 		{	
-			checkAndUpdateFamilyData(currFam);
+			checkAndUpdateFamilyData(currFam, currFamHistory);
 		}
 		else if(e.getSource() == statusCB && !bFamilyDataChanging &&
-									statusCB.getSelectedItem() != currFam.getFamilyStatus())
+									statusCB.getSelectedItem() != currFamHistory.getFamilyStatus())
 		{
-			checkAndUpdateFamilyData(currFam);
+			checkAndUpdateFamilyData(currFam, currFamHistory);
 		}
 		else if(e.getSource() == giftStatusCB && !bFamilyDataChanging &&
-				giftStatusCB.getSelectedItem() != currFam.getGiftStatus())
+				giftStatusCB.getSelectedItem() != currFamHistory.getGiftStatus())
 		{
 			//If family gift status is changing to PACKAGED, solicit the number of bags. Else, the 
 			//number of bags must be zero
@@ -1430,7 +1459,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 				currFam.setNumOfLargeItems(0);
 			}
 
-			checkAndUpdateFamilyData(currFam);
+			checkAndUpdateFamilyData(currFam, currFamHistory);
 		}
 		else if(e.getSource() == rbTransportation[0] || e.getSource() == rbTransportation[1])
 		{
@@ -1564,12 +1593,12 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("ADDED_DELIVERY"))
 		{
-			ONCFamilyHistory updatedDelivery = (ONCFamilyHistory) dbe.getObject1();
+			FamilyHistory updatedDelivery = (FamilyHistory) dbe.getObject1();
 				
 			//If updated delivery belongs to family being displayed, re-display it
 			if(currFam != null && currFam.getID() == updatedDelivery.getFamID())
 			{
-				LogDialog.add("FamilyPanel: ADDED_DELIVERY ONC# " + currFam.getONCNum() + ", Delivery Note: " + updatedDelivery.getdNotes(), "M");
+				LogDialog.add("FamilyPanel: ADDED_DELIVERY ONC# " + currFam.getONCNum() + ", Delivery Note: " + updatedDelivery.getNotes(), "M");
 				display(currFam, null);
 			}
 		}
@@ -1775,7 +1804,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
-			checkAndUpdateFamilyData(currFam);
+			checkAndUpdateFamilyData(currFam, currFamHistory);
 		}	
 	}
 	

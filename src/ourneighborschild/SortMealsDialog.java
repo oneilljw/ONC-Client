@@ -262,11 +262,12 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 			//Must be a valid family, meaning has a numeric ONC number, requested a meal, the
 			//family has been verified, and either has no DNSCode or has a Food Only DNS code. 
 			//(Not a DUP, SA, etc family)
-			if(isNumeric(f.getONCNum()) && f.getMealID() > -1 && doesONCNumMatch(f.getONCNum()) &&
-			   (f.getDNSCode()==-1 || f.getDNSCode()==DNSCode.FOOD_ONLY || f.getDNSCode()==DNSCode.WAITLIST) &&
-				doesFamilyStatusMatch(f.getFamilyStatus()))		
+			FamilyHistory fh = fhDB.getLastFamilyHistory(f.getID());
+			ONCMeal m = mealDB.getFamiliesCurrentMeal(f.getID());
+			if(isNumeric(f.getONCNum()) && m != null && doesONCNumMatch(f.getONCNum()) &&
+			   (fh.getDNSCode()==-1 || fh.getDNSCode()==DNSCode.FOOD_ONLY || fh.getDNSCode()==DNSCode.WAITLIST) &&
+				doesFamilyStatusMatch(fh.getFamilyStatus()))		
 			{
-				ONCMeal m = mealDB.getMeal(f.getMealID());
 				if(m != null && doesBatchNumMatch(f.getBatchNum()) && 
 								 doesTypeMatch(m.getType()) &&
 								  doesMealStatusMatch(m.getStatus()) &&
@@ -275,7 +276,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 								     isMealChangeDateBetween(m.getTimestamp()) &&
 								      doesChangedByMatch(m.getChangedBy())) //meal criteria pass
 				{			
-					stAL.add(new SortMealObject(itemID++, f, m));
+					stAL.add(new SortMealObject(itemID++, f, fh, m));
 				}
 			}
 		}
@@ -858,7 +859,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 							smo.getFamily().getBatchNum(),
 							smo.getFamily().getLastName(),
 							regions.getRegionID(smo.getFamily().getRegion()),
-							smo.getFamily().getFamilyStatus().toString(),
+							smo.getFamilyHistory().getFamilyStatus().toString(),
 							smo.getMeal().getStatus().toString(),
 							smo.getMeal().getType().toString(),
 							partnerName, smo.getMeal().getChangedBy(), ds};
@@ -1048,14 +1049,16 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 	private class SortMealObject extends ONCObject
 	{
 		private ONCFamily	soFamily;
+		private FamilyHistory soFamilyHistory;
 		private ONCMeal	 	soMeal;
 		
 		PartnerDB partnerDB;
 		
-		public SortMealObject(int itemID, ONCFamily fam, ONCMeal meal) 
+		public SortMealObject(int itemID, ONCFamily fam, FamilyHistory fh, ONCMeal meal) 
 		{
 			super(itemID);
 			soFamily = fam;
+			soFamilyHistory = fh;
 			soMeal = meal;
 			
 			partnerDB = PartnerDB.getInstance();
@@ -1063,6 +1066,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		
 		//getters
 		ONCFamily getFamily() { return soFamily; }
+		FamilyHistory getFamilyHistory() { return soFamilyHistory; }
 		ONCMeal getMeal() { return soMeal; }
 		
 		public String[] getExportRow()
@@ -1269,7 +1273,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 		@Override
 		public int compare(SortMealObject o1, SortMealObject o2)
 		{
-			return o1.getFamily().getFamilyStatus().compareTo(o2.getFamily().getFamilyStatus());
+			return o1.getFamilyHistory().getFamilyStatus().compareTo(o2.getFamilyHistory().getFamilyStatus());
 		}
 	}
 	

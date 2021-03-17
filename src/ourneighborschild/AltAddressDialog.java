@@ -76,7 +76,7 @@ public class AltAddressDialog extends InfoDialog
 		//save the updated family
 		ONCFamily reqFam = new ONCFamily(fam);	//make a copy for update
 				
-		//create the Substititue Delivery Address String
+		//create the Substitute Delivery Address String
 		StringBuffer altAddressSB = new StringBuffer(tf[0].getText().isEmpty() ? "None" : tf[0].getText().trim());
 		for(int i=1; i<tf.length; i++)
 		{

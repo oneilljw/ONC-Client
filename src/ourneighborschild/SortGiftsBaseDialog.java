@@ -434,8 +434,9 @@ public abstract class SortGiftsBaseDialog extends ChangeDialog implements Proper
 			if(c != null)
 			{	
 				ONCFamily f = fDB.getFamily(c.getFamID());
+				FamilyHistory fh = fhDB.getLastFamilyHistory(c.getFamID());
 				if(f != null && isNumeric(f.getONCNum()) && doesONCNumMatch(f.getONCNum()) &&
-					doesFamilyStatusMatch(f.getFamilyStatus()) && doesDNSCodeMatch(f.getDNSCode()) && 
+					doesFamilyStatusMatch(fh.getFamilyStatus()) && doesDNSCodeMatch(f.getDNSCode()) && 
 					doesRegionMatch(f.getRegion()) &&	isAgeInRange(c) && doesGenderMatch(c) &&
 					doesSchoolMatch(c) && doesResMatch(cg.getIndicator()) && doesGiftCardOnlyMatch(f.isGiftCardOnly()) &&
 					doesPartnerMatch(cg.getPartnerID()) && doesStatusMatch(cg.getGiftStatus()) &&
@@ -443,7 +444,7 @@ public abstract class SortGiftsBaseDialog extends ChangeDialog implements Proper
 					doesGiftBaseMatch(cg.getCatalogGiftID()) && doesGiftNumMatch(cg.getGiftNumber())  &&
 					!(bOversizeGifts && !isGiftOversize(cg)))//Wish criteria pass
 				{
-					stAL.add(new SortGiftObject(itemID++, f, c, cg));
+					stAL.add(new SortGiftObject(itemID++, f, fh, c, cg));
 				}
 			}
 		}

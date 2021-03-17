@@ -2,8 +2,6 @@ package ourneighborschild;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import javax.swing.DefaultCellEditor;
@@ -36,7 +34,6 @@ public class MealDialog extends HistoryDialog
 	private PartnerDB partnerDB;
 	
 	private List<ONCMeal> mealList;	//list of meals for current family
-	private Comparator<ONCMeal> mealDateChangedComparator;
 	
 	public MealDialog(JFrame pf)
 	{
@@ -57,7 +54,6 @@ public class MealDialog extends HistoryDialog
 			partnerDB.addDatabaseListener(this);
 		
 		mealList =  new ArrayList<ONCMeal>();
-		mealDateChangedComparator = new MealDateChangedComparator();
 
 		TableColumn holidayColumn = dlgTable.getColumnModel().getColumn(HOLIDAY_COL);
 		JComboBox<MealType> comboBox = new JComboBox<MealType>(MealType.getSelectionList());
@@ -69,20 +65,12 @@ public class MealDialog extends HistoryDialog
 	{
 		this.currFam = (ONCFamily) family;
 		setDialogTitle();
-		mealList = getSortedMealList();
+		mealList = mealDB.getFamilyMealHistory(currFam.getID());
 		dlgTableModel.fireTableDataChanged();
 		btnDelete.setEnabled(!mealList.isEmpty() && mealList.get(0).getPartnerID() == -1);
 		
 	}
 	
-	List<ONCMeal> getSortedMealList()
-	{
-		List<ONCMeal> familyMealList = mealDB.getFamilyMealHistory(currFam.getID());
-		Collections.sort(familyMealList, mealDateChangedComparator);
-		
-		return familyMealList;
-	}
-
 	void addMeal(MealType holiday, String restrictions)
 	{
 		ONCMeal addMealReq = new ONCMeal(-1, currFam.getID(), mealList.get(0).getStatus(), 
@@ -92,20 +80,14 @@ public class MealDialog extends HistoryDialog
 									mealList.get(0).getStoplightMssg(),
 									mealList.get(0).getStoplightChangedBy());
 		
-		ONCMeal addedMeal = mealDB.add(this, addMealReq);
-		
-		if(addedMeal != null)
-		{
-			mealList = getSortedMealList();
-			dlgTableModel.fireTableDataChanged();
-			btnDelete.setEnabled(!mealList.isEmpty() && mealList.get(0).getPartnerID() == -1);
-		}
+		mealDB.add(this, addMealReq);
 	}
 	
 	@Override
 	void delete()
 	{
-		//Confirm with the user that the deletion is really intended
+		//Confirm with the user that the deletion is really intended.  Mechanically, we'll add a new meal for the family
+		//with meal status None.
 		String confirmMssg = String.format("<html>Are you sure you want to delete<br>the meal for family #%s </html>",
 											currFam.getONCNum()); 
 									
@@ -120,25 +102,29 @@ public class MealDialog extends HistoryDialog
 
 		Object selectedValue = confirmOP.getValue();
 	
-		//if the client user confirmed, delete the meal
-		FamilyDB familyDB = FamilyDB.getInstance();
+		//if the client user confirmed, add a new meal with status None
 		if(selectedValue != null && selectedValue.toString().equals(options[1]))
 		{
-			ONCFamily delFamMealReq = new ONCFamily(currFam);
-			delFamMealReq.setMealID(-1);
-			delFamMealReq.setMealStatus(MealStatus.None);
-		
-			String response = familyDB.update(this,  delFamMealReq);
-		
-			if(!response.startsWith("UPDATED_FAMILY"))
+			ONCMeal deleteMealReq = new ONCMeal(mealDB.getFamiliesCurrentMeal(currFam.getID()));
+			deleteMealReq.setMealStatus(MealStatus.None);
+			
+			ONCMeal deletedMeal = mealDB.add(this, deleteMealReq);
+			
+			if(deletedMeal != null)
+			{
+				mealList = mealDB.getFamilyMealHistory(currFam.getID());;
+				dlgTableModel.fireTableDataChanged();
+				btnDelete.setEnabled(false);
+				this.dispose();
+			}
+			else
+			
 			{
 				//display an error message that update request failed
 				JOptionPane.showMessageDialog(GlobalVariablesDB.getFrame(), 
 					"ONC Server denied add meal request, try again later","Add Meal Failed",  
 					JOptionPane.ERROR_MESSAGE, GlobalVariablesDB.getInstance().getImageIcon(0));
 			}
-			else
-				this.dispose();
 		}
 	}
 
@@ -152,20 +138,9 @@ public class MealDialog extends HistoryDialog
 			ONCMeal addedMeal = (ONCMeal) dbe.getObject1();
 			if(currFam != null && addedMeal.getFamilyID() == currFam.getID())
 			{
-				mealList = getSortedMealList();
+				mealList = mealDB.getFamilyMealHistory(currFam.getID());;
 				dlgTableModel.fireTableDataChanged();
 				btnDelete.setEnabled(!mealList.isEmpty() && mealList.get(0).getPartnerID() == -1);
-			}
-		}
-		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_FAMILY"))
-		{
-			ONCFamily updatedFamily = (ONCFamily) dbe.getObject1();
-			if(currFam != null && currFam.getID() == updatedFamily.getID())
-			{
-				if(updatedFamily.getMealID() == -1)
-					this.dispose();
-				else
-					display(updatedFamily);
 			}
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_CONFIRMED_PARTNER_NAME"))
@@ -249,9 +224,6 @@ public class MealDialog extends HistoryDialog
         		value = sdf.format(meal.getTimestampDate());
         	else
         		value = "Error";
-        	
-//        	System.out.println(String.format("MealDlg.getValueAt: row=%d, col=%d, mealID=%d, value= %s",
-//					row, col, meal.getID(), (String)value));
 
         	return value;
         }
@@ -277,28 +249,19 @@ public class MealDialog extends HistoryDialog
 
         public void setValueAt(Object value, int row, int col)
         { 
-        		//verify user changed the meal type or restrictions and if so,
-        		//add a new meal to the history and redisplay. Table row 0 always
-        		//contains the most recent meal
-        		if(!mealList.isEmpty() && row == 0 && col == HOLIDAY_COL &&
-        							(MealType) value != mealList.get(0).getType())
-        		{
-        			addMeal((MealType)value, mealList.get(0).getRestricitons());
-        		}
-        		else if(!mealList.isEmpty() && row == 0 && col == RESTRICTIONS_COL &&
-        					!mealList.get(0).getRestricitons().equals((String)value))
-        		{
-        			addMeal(mealList.get(0).getType(), (String)value);
-        		}
+    		//verify user changed the meal type or restrictions and if so,
+    		//add a new meal to the history and redisplay. Table row 0 always
+    		//contains the most recent meal
+    		if(!mealList.isEmpty() && row == 0 && col == HOLIDAY_COL &&
+    							(MealType) value != mealList.get(0).getType())
+    		{
+    			addMeal((MealType)value, mealList.get(0).getRestricitons());
+    		}
+    		else if(!mealList.isEmpty() && row == 0 && col == RESTRICTIONS_COL &&
+    					!mealList.get(0).getRestricitons().equals((String)value))
+    		{
+    			addMeal(mealList.get(0).getType(), (String)value);
+    		}
         }
     }
-	
-	private class MealDateChangedComparator implements Comparator<ONCMeal>
-	{
-		@Override
-		public int compare(ONCMeal o1, ONCMeal o2)
-		{
-			return o2.getTimestampDate().compareTo(o1.getTimestampDate());
-		}
-	}
 }

@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.Calendar;
 import java.util.TimeZone;
 
-public class ONCChildGift extends ONCObject implements Serializable
+public class ONCChildGift extends ONCLinkedListObject implements Serializable
 {
 	/***********************************************************************************************************
 	 * This class provides the data structure of a child's gift. A child's gift has a base component that
@@ -25,15 +25,15 @@ public class ONCChildGift extends ONCObject implements Serializable
 	private String changedBy = "";	
 	private long timestamp = System.currentTimeMillis();
 	private int partnerID = 0;
-	private int priorID;
-	private int nextID;
+//	private int priorID;
+//	private int nextID;
 	private boolean bClonedGift;
 	
 	//Constructor for wish created or changed internally		
 	public ONCChildGift(int id, int childid, int catGiftID, String detail, int giftnum, int restriction, GiftStatus giftStatus,
 							int partnerID, String cb, long dc)
 	{
-		super(id);
+		super(id, -1, -1);
 		this.childID = childid;
 		this.catalogGiftID = catGiftID;
 		this.restriction = restriction;
@@ -43,15 +43,15 @@ public class ONCChildGift extends ONCObject implements Serializable
 		this.partnerID = partnerID;
 		this.changedBy = cb;
 		this.timestamp = dc;
-		this.priorID = -1;
-		this.nextID = -1;
+//		this.priorID = -1;
+//		this.nextID = -1;
 		this.bClonedGift = false;
 	}
 
 	//Constructor for wish created or changed internally		
 	public ONCChildGift(String[] nextLine, boolean bClonedGift)
 	{
-		super(Integer.parseInt(nextLine[0]));
+		super(Integer.parseInt(nextLine[0]), Integer.parseInt(nextLine[10]), Integer.parseInt(nextLine[11]));
 		childID = Integer.parseInt(nextLine[1]);
 		catalogGiftID = Integer.parseInt(nextLine[2]);
 		detail = nextLine[3].isEmpty() ? "" : nextLine[3];
@@ -77,28 +77,28 @@ public class ONCChildGift extends ONCObject implements Serializable
 		{
 			this.partnerID = -1;
 		}
-		try
-		{
-			this.priorID = nextLine[10].isEmpty() ? -1 : Integer.parseInt(nextLine[10]);
-		}
-		catch (NumberFormatException nfe)
-		{
-			this.priorID = -1;
-		}
-		try
-		{
-			this.nextID = nextLine[11].isEmpty() ? -1 : Integer.parseInt(nextLine[11]);
-		}
-		catch (NumberFormatException nfe)
-		{
-			this.nextID = -1;
-		}
+//		try
+//		{
+//			this.priorID = nextLine[10].isEmpty() ? -1 : Integer.parseInt(nextLine[10]);
+//		}
+//		catch (NumberFormatException nfe)
+//		{
+//			this.priorID = -1;
+//		}
+//		try
+//		{
+//			this.nextID = nextLine[11].isEmpty() ? -1 : Integer.parseInt(nextLine[11]);
+//		}
+//		catch (NumberFormatException nfe)
+//		{
+//			this.nextID = -1;
+//		}
 		this.bClonedGift = bClonedGift;
 	}
 	
 	public ONCChildGift(int id, String changedBy, ONCChildGift sourceGift, int offset)
 	{
-		super(-1);
+		super(-1, -1, -1);
 		this.childID = sourceGift.getChildID();
 		this.catalogGiftID = sourceGift.getCatalogGiftID();
 		this.restriction = sourceGift.getIndicator();
@@ -109,14 +109,14 @@ public class ONCChildGift extends ONCObject implements Serializable
 		this.partnerID = -1;
 		this.changedBy = changedBy;
 		this.timestamp = System.currentTimeMillis();	
-		this.priorID = -1;
-		this.nextID = -1;
+//		this.priorID = -1;
+//		this.nextID = -1;
 		this.bClonedGift = true;
 	}
 	
 	public ONCChildGift(String changedBy, ONCChildGift priorGift)
 	{
-		super(-1);
+		super(-1, priorGift.priorID, -1);
 		this.childID = priorGift.childID;
 		this.catalogGiftID = priorGift.catalogGiftID;
 		this.restriction = priorGift.restriction;
@@ -126,8 +126,8 @@ public class ONCChildGift extends ONCObject implements Serializable
 		this.partnerID = priorGift.partnerID;
 		this.changedBy = changedBy;
 		this.timestamp = System.currentTimeMillis();	
-		this.priorID = priorGift.priorID;
-		this.nextID = -1;
+//		this.priorID = priorGift.priorID;
+//		this.nextID = -1;
 		this.bClonedGift = true;
 	}
 	
@@ -135,7 +135,7 @@ public class ONCChildGift extends ONCObject implements Serializable
 //	public ClonedGift(ClonedGiftStatus status, ClonedGift priorGift)
 	public ONCChildGift(GiftStatus status, ONCChildGift priorGift, boolean bClonedGift)
 	{
-		super(-1);
+		super(-1, priorGift.priorID, -1);
 		this.childID = priorGift.childID;
 		this.catalogGiftID = priorGift.catalogGiftID;
 		this.restriction = priorGift.restriction;
@@ -145,8 +145,8 @@ public class ONCChildGift extends ONCObject implements Serializable
 		this.partnerID = priorGift.partnerID;
 		this.changedBy = priorGift.changedBy;
 		this.timestamp = System.currentTimeMillis();	
-		this.priorID = priorGift.priorID;
-		this.nextID = -1;
+//		this.priorID = priorGift.priorID;
+//		this.nextID = -1;
 		this.bClonedGift = bClonedGift;
 	}
 	
@@ -160,8 +160,8 @@ public class ONCChildGift extends ONCObject implements Serializable
 	public int getPartnerID() {return partnerID;}
 	public String getChangedBy() {return changedBy;}
 	public Long getTimestamp() { return timestamp; }
-	public int getPriorID() { return priorID; }
-	public int getNextID() { return nextID; }
+//	public int getPriorID() { return priorID; }
+//	public int getNextID() { return nextID; }
 	public Calendar getDateChanged() 
 	{
 		Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
@@ -178,8 +178,8 @@ public class ONCChildGift extends ONCObject implements Serializable
 	public void setPartnerID(int id) { this.partnerID = id;}
 	public void setChangedBy(String name) {changedBy = name;}
 	public void setTimestamp(long dc) {timestamp = dc;}
-	public void setPriorID(int priorID) { this.priorID = priorID; }
-	public void setNextID(int nextID) { this.nextID = nextID; }
+//	public void setPriorID(int priorID) { this.priorID = priorID; }
+//	public void setNextID(int nextID) { this.nextID = nextID; }
 	
 	@Override
 	public String[] getExportRow()

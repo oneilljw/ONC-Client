@@ -34,6 +34,9 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 	private static final int SUCCESS_SOUND_FREQ = 500;
 	private static final int FAILED_SOUND_FREQ = 150;
 	
+	private FamilyHistoryDB familyHistoryDB;
+	private VolunteerDB volunteerDB;
+	
 	private int sortstartRegion, sortendRegion;
 	private FamilyGiftStatus sortGiftStatus;
 	
@@ -52,7 +55,9 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 		if(dbMgr != null)
 			dbMgr.addDatabaseListener(this);
 		
-		VolunteerDB volunteerDB = VolunteerDB.getInstance();
+		familyHistoryDB = FamilyHistoryDB.getInstance();
+		
+		volunteerDB = VolunteerDB.getInstance();
 		if(volunteerDB != null)
 			volunteerDB.addDatabaseListener(this);
 		
@@ -167,14 +172,15 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 			//family's status isn't FamilyGiftStatus.Packaged, Attempted or Returned, they aren't eligible to be
 			//assigned for delivery regardless of search criteria
 			int id = 0;
-			if((f.getGiftStatus() == FamilyGiftStatus.Packaged || 
-				 f.getGiftStatus() == FamilyGiftStatus.Attempted || 
-				  f.getGiftStatus() == FamilyGiftStatus.Returned) &&
-				isRegionInRange(f.getRegion()) &&
-				 doesONCNumMatch(f.getONCNum()) &&
-				  doesDStatusPass(f.getGiftStatus()))	
+			FamilyHistory fh = familyHistoryDB.getLastFamilyHistory(f.getID());
+			if((fh.getGiftStatus() == FamilyGiftStatus.Packaged || 
+				 fh.getGiftStatus() == FamilyGiftStatus.Attempted || 
+				  fh.getGiftStatus() == FamilyGiftStatus.Returned) &&
+				   isRegionInRange(f.getRegion()) &&
+				    doesONCNumMatch(f.getONCNum()) &&
+				     doesDStatusPass(fh.getGiftStatus()))	
 			{													
-				stAL.add(new ONCFamilyAndNote(id++, f, null)); //Family is eligible for delivery and search criteria pass	
+				stAL.add(new ONCFamilyAndNote(id++, f, fh, null)); //Family is eligible for delivery and search criteria pass	
 			}
 		}
 		
@@ -219,24 +225,23 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 	 **********************************************************************************/
 	protected String[] getTableRow(ONCObject o)
 	{
-		VolunteerDB volunteerDB = VolunteerDB.getInstance();
-		
 		ONCFamilyAndNote fan = (ONCFamilyAndNote) o;
-		ONCFamily si = fan.getFamily();
+		ONCFamily f = fan.getFamily();
+		FamilyHistory fh = fan.getFamilyHistory();
 		
-		String[] deliverytablerow = {si.getONCNum(),
-				 si.getFamilyStatus().toString(),
-				 si.getGiftStatus().toString(),
-				 Integer.toString(si.getNumOfBags()),
-				 Integer.toString(fDB.getNumberOfBikesSelectedForFamily(si)),
-				 Integer.toString(si.getNumOfLargeItems()),
-				 si.getHouseNum(),
-				 si.getStreet(),
-				 si.getZipCode(),
-				 regions.getRegionID(si.getRegion()),
-				 si.getChangedBy(),
-				 stoplt[si.getStoplightPos()+1].substring(0, 1), 
-				 volunteerDB.getDriverLNFN(familyHistoryDB.getDeliveredBy(si.getDeliveryID()))};
+		String[] deliverytablerow = {f.getONCNum(),
+				 fh.getFamilyStatus().toString(),
+				 fh.getGiftStatus().toString(),
+				 Integer.toString(f.getNumOfBags()),
+				 Integer.toString(fDB.getNumberOfBikesSelectedForFamily(f)),
+				 Integer.toString(f.getNumOfLargeItems()),
+				 f.getHouseNum(),
+				 f.getStreet(),
+				 f.getZipCode(),
+				 regions.getRegionID(f.getRegion()),
+				 f.getChangedBy(),
+				 stoplt[f.getStoplightPos()+1].substring(0, 1),
+				 fh.getdDelBy()};
 		
 		return deliverytablerow;
 	}
@@ -275,15 +280,15 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 		{
 			//Get reference to family object selected
 			ONCFamily f = stAL.get(row_sel[i]).getFamily();
+			FamilyHistory fh = familyHistoryDB.getLastFamilyHistory(f.getID());
 			
 			//If a change to the assigned delivery driver, process it
-			if(!assignDriverTF.getText().isEmpty() && 
-					!familyHistoryDB.getDeliveredBy(f.getDeliveryID()).equals(assignDriverTF.getText()))
+			if(!assignDriverTF.getText().isEmpty() && !fh.getdDelBy().equals(assignDriverTF.getText()))
 			{
 				//Add a new delivery to the delivery history with the assigned driver
 				//and the status set to assigned. Adding new delivery updates family changed by field
-				ONCFamilyHistory reqDelivery = new ONCFamilyHistory(-1, f.getID(),
-														f.getFamilyStatus(),
+				FamilyHistory reqDelivery = new FamilyHistory(-1, f.getID(),
+														fh.getFamilyStatus(),
 														FamilyGiftStatus.Assigned,
 														assignDriverTF.getText(),
 														"Delivery Driver Assigned",
@@ -291,8 +296,8 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 														System.currentTimeMillis(),
 														f.getDNSCode());
 				
-				ONCFamilyHistory response = familyHistoryDB.add(this, reqDelivery);
-				if(response != null && response instanceof ONCFamilyHistory)
+				FamilyHistory response = familyHistoryDB.add(this, reqDelivery);
+				if(response != null && response instanceof FamilyHistory)
 				{
 					assignmentsMade++;	
 				}

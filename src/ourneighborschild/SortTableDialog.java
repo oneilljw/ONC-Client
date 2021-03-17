@@ -51,6 +51,7 @@ public abstract class SortTableDialog extends ONCEntityTableDialog implements Ac
 	private static final int SORT_TABLE_VERTICAL_SCROLL_WIDTH = 24;
 
 	protected FamilyDB fDB;
+	protected FamilyHistoryDB fhDB;
 	protected UserDB userDB;
 	protected RegionDB regionDB;
 //	protected GlobalVariablesDB gvs;
@@ -83,12 +84,11 @@ public abstract class SortTableDialog extends ONCEntityTableDialog implements Ac
 		super(pf);
 		
 		fDB = FamilyDB.getInstance();
-		
 		if(fDB != null)
 			fDB.addDatabaseListener(this);
 		
+		fhDB = FamilyHistoryDB.getInstance();
 		userDB = UserDB.getInstance();
-//		gvs = GlobalVariablesDB.getInstance();
 		regionDB = RegionDB.getInstance();
 		
 		//initialize member variables

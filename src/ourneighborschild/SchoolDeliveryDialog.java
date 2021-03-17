@@ -69,6 +69,7 @@ public class SchoolDeliveryDialog extends ONCEntityTableDialog implements Action
 	private JLabel lblDelCount;
 	
 	private FamilyDB famDB;
+	private FamilyHistoryDB fhDB;
 	private RegionDB regionDB;
 	private FamilyHistoryDB famHistoryDB;
 	
@@ -87,6 +88,10 @@ public class SchoolDeliveryDialog extends ONCEntityTableDialog implements Action
 		famDB = FamilyDB.getInstance();
 		if(famDB != null)
 			famDB.addDatabaseListener(this);
+		
+		fhDB = FamilyHistoryDB.getInstance();
+		if(fhDB != null)
+			fhDB.addDatabaseListener(this);
 		
 		if(dbMgr != null)
 			dbMgr.addDatabaseListener(this);
@@ -238,11 +243,12 @@ public class SchoolDeliveryDialog extends ONCEntityTableDialog implements Action
 	
 				if(delAddrParts.length == 5)	//format uses"_" as separator. Five components
 				{	
+					FamilyHistory fh = fhDB.getLastFamilyHistory(f.getID());
 					School searchSchoolResult = regionDB.findServedSchool(delAddrParts[0], delAddrParts[1],
 																		delAddrParts[3], delAddrParts[4]);
 					
-					if(searchSchoolResult != null && doesFamilyStatusMatch(f.getFamilyStatus()) &&
-						doesFamilyGiftStatusMatch(f.getGiftStatus()) && doesSchoolMatch(searchSchoolResult))
+					if(searchSchoolResult != null && doesFamilyStatusMatch(fh.getFamilyStatus()) &&
+						doesFamilyGiftStatusMatch(fh.getGiftStatus()) && doesSchoolMatch(searchSchoolResult))
 						delList.add(new SchoolDelivery(f, searchSchoolResult));
 				}
 			}	
@@ -411,7 +417,7 @@ public class SchoolDeliveryDialog extends ONCEntityTableDialog implements Action
 	    	    					row.add("Error");
 	    	    				}
 	    	    					
-	    	    				row.add(famHistoryDB.getDeliveredBy(selectedFam.getDeliveryID()));
+	    	    				row.add(famHistoryDB.getLastFamilyHistory(selectedFam.getID()).getdDelBy());
 					
 	    	    				writer.writeNext(row.toArray(new String[0]));
 	    	    			}
@@ -436,7 +442,7 @@ public class SchoolDeliveryDialog extends ONCEntityTableDialog implements Action
 	public void dataChanged(DatabaseEvent dbe)
 	{
 		if(dbe.getSource() != this && (dbe.getType().equals("ADDED_FAMILY") ||
-				dbe.getType().equals("UPDATED_FAMILY")))
+				dbe.getType().equals("UPDATED_FAMILY")|| dbe.getType().equals("ADDED_DELIVERY")))
 		{
 			//update the table
 			createTableList();
@@ -526,6 +532,7 @@ public class SchoolDeliveryDialog extends ONCEntityTableDialog implements Action
         public Object getValueAt(int row, int col)
         {
         		ONCFamily f = delList.get(row).getFamily();
+        		FamilyHistory fh = famHistoryDB.getLastFamilyHistory(f.getID());
         		School deliverySchool = delList.get(row).getServedSchool();
         	
         		if(col == ONC_NUM_COL)  
@@ -533,9 +540,9 @@ public class SchoolDeliveryDialog extends ONCEntityTableDialog implements Action
         		else if(col == REF_NUM_COL)  
         			return f.getReferenceNum();
         		else if(col == FAMILY_STATUS_COL)  
-        			return f.getFamilyStatus();
+        			return fh.getFamilyStatus();
         		else if(col == GIFT_STATUS_COL)  
-        			return f.getGiftStatus();
+        			return fh.getGiftStatus();
         		else if(col == FIRST_NAME_COL)  
         			return f.getFirstName();
         		else if(col == LAST_NAME_COL)
@@ -545,7 +552,7 @@ public class SchoolDeliveryDialog extends ONCEntityTableDialog implements Action
         		else if (col == SCHOOL_TYPE_COL)
         			return  deliverySchool.getType();
         		else if (col == VOLUNTEER_COL)
-        			return famHistoryDB.getDeliveredBy(f.getDeliveryID());
+        			return fh.getdDelBy();
         		else if (col == SL_COL)
         			return gvs.getImageIcon(23 + f.getStoplightPos());
         		else

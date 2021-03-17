@@ -63,7 +63,6 @@ public class AngelAutoCallDialog extends ONCEntityTableDialog implements ActionL
 	
 	private FamilyDB familyDB;
 	private UserDB userDB;
-	private DNSCodeDB dnsCodeDB;
 	private ArrayList<AngelCallItem> stAL;
 	
 	private boolean bCallsProcessed;	//indicates if delivery status updated as a result of calls in table
@@ -85,7 +84,6 @@ public class AngelAutoCallDialog extends ONCEntityTableDialog implements ActionL
 		
 		familyDB = FamilyDB.getInstance();
 		userDB = UserDB.getInstance();
-		dnsCodeDB = DNSCodeDB.getInstance();
 		stAL = new ArrayList<AngelCallItem>();
 		bCallsProcessed = false;
 		
@@ -507,57 +505,56 @@ public class AngelAutoCallDialog extends ONCEntityTableDialog implements ActionL
 	 
 	 void updateFamilyStatus()
 	 {
-		 List<ONCFamilyHistory> reqFamilyUpdateList = new ArrayList<ONCFamilyHistory>();
+		 List<FamilyHistory> reqFamilyHistoryUpdateList = new ArrayList<FamilyHistory>();
 		 
 		 FamilyHistoryDB familyHistoryDB = FamilyHistoryDB.getInstance();
 				 
 		 for(int i=stAL.size()-1; i >=0; i--)
 		 {
 			 ONCFamily f = stAL.get(i).getFamily();
+			 FamilyHistory fh = familyHistoryDB.getLastFamilyHistory(f.getID());
 			 if(f != null)
 			 {
 				 //If status == confirmed is an upgrade to family status, change the family status and
 				 //create a new FamilyStatusHistory object
-				 if(f.getFamilyStatus().compareTo(FamilyStatus.Confirmed) < 0 && 
+				 if(fh.getFamilyStatus().compareTo(FamilyStatus.Confirmed) < 0 && 
 						 stAL.get(i).getCallResult().equals(ANGEL_DELIVERY_CONFIRMED))
 				 {
 					 //add a family history update to the list of families with status changing to Confirmed
-					 DNSCode famDNSCode = dnsCodeDB.getDNSCode(f.getDNSCode());
-					 ONCFamilyHistory reqHistory = new ONCFamilyHistory(-1, f.getID(), FamilyStatus.Confirmed,
-							 					f.getGiftStatus(),
-							 					familyHistoryDB.getDeliveredBy(f.getDeliveryID()),
+					 FamilyHistory reqHistory = new FamilyHistory(-1, f.getID(), FamilyStatus.Confirmed,
+							 					fh.getGiftStatus(),
+							 					fh.getdDelBy(),
 							 					"Automated Call Result: Confirmed",
 							 					userDB.getUserLNFI(),
 							 					System.currentTimeMillis(),
-							 					famDNSCode.getID());
+							 					fh.getDNSCode());
 					 
-					 reqFamilyUpdateList.add(reqHistory);
+					 reqFamilyHistoryUpdateList.add(reqHistory);
 				 }			 
-				 else if(f.getFamilyStatus().compareTo(FamilyStatus.Contacted) < 0)
+				 else if(fh.getFamilyStatus().compareTo(FamilyStatus.Contacted) < 0)
 				 {
 					//add a new family history to the history list
-					 DNSCode famDNSCode = dnsCodeDB.getDNSCode(f.getDNSCode());
-					 ONCFamilyHistory reqHistory = new ONCFamilyHistory(-1, f.getID(), FamilyStatus.Contacted,
-							 					f.getGiftStatus(),
-							 					familyHistoryDB.getDeliveredBy(f.getDeliveryID()),
+					 FamilyHistory reqHistory = new FamilyHistory(-1, f.getID(), FamilyStatus.Contacted,
+							 					fh.getGiftStatus(),
+							 					fh.getdDelBy(),
 							 					"Automated Call Result: Contacted",
 							 					userDB.getUserLNFI(),
 							 					System.currentTimeMillis(),
-							 					famDNSCode.getID());
+							 					fh.getDNSCode());
 					 
-					 reqFamilyUpdateList.add(reqHistory);
+					 reqFamilyHistoryUpdateList.add(reqHistory);
 				 }
 			 }
 		 }
 		 
 		 //now that we have a list of families contacted or confirmed, if not empty, add them to the data base
-		 if(!reqFamilyUpdateList.isEmpty())
+		 if(!reqFamilyHistoryUpdateList.isEmpty())
 		 {
-			 String response = familyDB.addHistoryGroup(this, reqFamilyUpdateList);
-			 if(response.equals("ADDED_GROUP_DELIVERIES"))
+			 String response = familyHistoryDB.addHistoryGroup(this, reqFamilyHistoryUpdateList);
+			 if(response.equals("ADDED_FAMILY_HISTORY_GROUP"))
 			 {
 				 bCallsProcessed = true;
-				 String mssg = String.format("%d calls processed successfully", reqFamilyUpdateList.size());
+				 String mssg = String.format("%d calls processed successfully", reqFamilyHistoryUpdateList.size());
 				 JOptionPane.showMessageDialog(this, mssg,"Call Results Processed",  
 							JOptionPane.INFORMATION_MESSAGE, gvs.getImageIcon(0));
 			 }

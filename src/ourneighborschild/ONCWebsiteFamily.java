@@ -18,14 +18,14 @@ public class ONCWebsiteFamily
 	private int		groupID;
 	private int		lastNoteStatus;
 	
-	public ONCWebsiteFamily(ONCFamily f, DNSCode dnsCode)
+	public ONCWebsiteFamily(ONCFamily f, FamilyHistory fh, DNSCode dnsCode, ONCMeal meal)
 	{
 		this.id = f.id;
 		this.oncNum = f.getONCNum();
 		this.referenceNum = f.getReferenceNum();
 		this.bAlreadyReferred = false;
-		this.fstatus = f.getFamilyStatus().toString();
-		this.giftStatus = f.getGiftStatus().toString();
+		this.fstatus = fh.getFamilyStatus().toString();
+		this.giftStatus = fh.getGiftStatus().toString();
 		
 //		if(f.getGiftStatus() == FamilyGiftStatus.Requested && f.getFamilyStatus().compareTo(FamilyStatus.InfoVerified) > 1)
 //				this.giftStatus = f.getFamilyStatus().toString();
@@ -36,19 +36,19 @@ public class ONCWebsiteFamily
 		this.dnsCodeAcronym = dnsCode.getAcronym();
 		this.HOHFirstName = f.getFirstName();
 		this.HOHLastName = f.getLastName();
-		this.mealStatus = f.getMealStatus().toString();
+		this.mealStatus = meal != null ? meal.getStatus().toString() : MealStatus.None.toString();
 		this.agentID = Integer.toString(f.getAgentID());
 		this.groupID = f.getGroupID();
 		this.lastNoteStatus = -1;
 	}
-	public ONCWebsiteFamily(ONCFamily f, boolean bAlreadyReferred, DNSCode dnsCode, int lastNoteStatus)
+	public ONCWebsiteFamily(ONCFamily f, FamilyHistory fh,  boolean bAlreadyReferred, DNSCode dnsCode, ONCMeal meal, int lastNoteStatus)
 	{
 		this.id = f.id;
 		this.oncNum = f.getONCNum();
 		this.referenceNum = f.getReferenceNum();
 		this.bAlreadyReferred = bAlreadyReferred;
-		this.fstatus = f.getFamilyStatus().toString();
-		this.giftStatus = f.getGiftStatus().toString();
+		this.fstatus = fh.getFamilyStatus().toString();
+		this.giftStatus = fh.getGiftStatus().toString();
 		
 //		if(f.getGiftStatus() == FamilyGiftStatus.Requested && f.getFamilyStatus().compareTo(FamilyStatus.InfoVerified) > 1)
 //				this.giftStatus = f.getFamilyStatus().toString();
@@ -59,7 +59,7 @@ public class ONCWebsiteFamily
 		this.dnsCodeAcronym = dnsCode.getAcronym();
 		this.HOHFirstName = f.getFirstName();
 		this.HOHLastName = f.getLastName();
-		this.mealStatus = f.getMealStatus().toString();
+		this.mealStatus = meal != null ? meal.getStatus().toString() : MealStatus.None.toString();
 		this.agentID = Integer.toString(f.getAgentID());
 		this.groupID = f.getGroupID();
 		this.lastNoteStatus = lastNoteStatus;

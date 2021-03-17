@@ -18,6 +18,7 @@ public class ONCFamilyReportRowBuilder
 	 * internal methods are used to provide the reports, maximizing the commonality between the two reports. 
 	 ********************/
 	
+	private FamilyHistoryDB familyHistoryDB;
 	private ChildDB cDB;
 	private ChildGiftDB cwDB;
 	private UserDB userDB;
@@ -27,6 +28,7 @@ public class ONCFamilyReportRowBuilder
 	
 	ONCFamilyReportRowBuilder()
 	{
+		familyHistoryDB = FamilyHistoryDB.getInstance();
 		cDB = ChildDB.getInstance();
 		cwDB = ChildGiftDB.getInstance();
 		userDB = UserDB.getInstance();
@@ -71,6 +73,7 @@ public class ONCFamilyReportRowBuilder
 	
 	private String[] getFamilyCommonCSVRowData(ONCFamily f)	//Used when writing the database to a .csv file
 	{
+		FamilyHistory fh = familyHistoryDB.getLastFamilyHistory(f.getID());
 		String[] row = new String[getCommonFamilyHeader().length];
 		int index = 0;
 		
@@ -81,8 +84,8 @@ public class ONCFamilyReportRowBuilder
 		row[index++] = 	f.getReferenceNum();
 		row[index++] = 	f.getBatchNum();	
 		row[index++] = 	f.getDNSCode() >= 0 ? dnsCodeDB.getDNSCode(f.getDNSCode()).getAcronym() : "";
-		row[index++] = 	Integer.toString(f.getFamilyStatus().statusIndex());
-		row[index++] = 	Integer.toString(f.getGiftStatus().statusIndex());
+		row[index++] = 	Integer.toString(fh.getFamilyStatus().statusIndex());
+		row[index++] = 	Integer.toString(fh.getGiftStatus().statusIndex());
 		row[index++] = 	f.getSpeakEnglish();
 		row[index++] = 	f.getLanguage();			
 		row[index++] = 	f.getChangedBy();
@@ -190,12 +193,13 @@ public class ONCFamilyReportRowBuilder
 	
 	private String[] getFamilyObjectEndingCSVRowData(ONCFamily f)	//Used when writing the database to a .csv file
 	{
+		FamilyHistory fh = familyHistoryDB.getLastFamilyHistory(f.getID());
 		String[] row = new String[getFamilyObjectEndingHeader().length];
 		int index = 0;
 		 
 		row[index++] = 	f.getAdoptedFor();
 		row[index++] = 	Integer.toString(f.getAgentID());
-		row[index++] = 	Long.toString(f.getDeliveryID());
+		row[index++] = 	fh.getdDelBy();
 		row[index++] = 	Integer.toString(f.getNumOfBags());
 		row[index++] = 	Integer.toString(f.getNumOfLargeItems());
 		row[index++] = 	Integer.toString(f.getStoplightPos());

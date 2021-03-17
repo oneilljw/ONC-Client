@@ -654,7 +654,7 @@ public class VolunteerDialog extends EntityDialog
 			{
 				//If the added delivery is associated with the current volunteer being displayed,
 				//update the display so the # of deliveries assigned field updates
-				ONCFamilyHistory del = (ONCFamilyHistory) dbe.getObject1();
+				FamilyHistory del = (FamilyHistory) dbe.getObject1();
 			
 				if(!bAddingNewEntity && del != null && currVolunteer != null && 
 					del.getdDelBy().equals(currVolunteer.getDrvNum()))
@@ -691,7 +691,7 @@ public class VolunteerDialog extends EntityDialog
 						tse.getType(), fam.getONCNum());
 				LogDialog.add(logEntry, "M");
 				
-				ONCFamilyHistory del = familyHistoryDB.getFamilyHistory(fam.getDeliveryID());
+				FamilyHistory del = familyHistoryDB.getLastFamilyHistory(fam.getID());
 			
 				if(del != null && !del.getdDelBy().isEmpty())
 				{

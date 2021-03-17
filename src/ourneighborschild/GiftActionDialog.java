@@ -199,7 +199,8 @@ public abstract class GiftActionDialog extends SortTableDialog
 							//Status matches and wish was assigned (Wish indicator is not *)
 							if(cg != null && doesChildWishStatusMatch(cg))
 							{
-								stAL.add(new SortGiftObject(index++, f, c, cg));
+								FamilyHistory fh = fhDB.getLastFamilyHistory(f.getID());
+								stAL.add(new SortGiftObject(index++, f, fh, c, cg));
 							}
 						}
 					}
@@ -326,7 +327,7 @@ public abstract class GiftActionDialog extends SortTableDialog
 		//changed to gifts received with the receive that is being undone, the family 
 		//status must be reset to the prior status.
 		if(changeFamilyStatus())
-			lastWishChanged.getFamily().setFamilyStatus(lastWishChanged.getFamily().getFamilyStatus());
+			lastWishChanged.getFamilyHistory().setFamilyStatus(lastWishChanged.getFamilyHistory().getFamilyStatus());
 		
 		sortTable.clearSelection();
 		

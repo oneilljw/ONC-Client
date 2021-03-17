@@ -18,9 +18,12 @@ public abstract class SortFamilyTableDialog extends ChangeDialog
 	protected static final int FAMILY_STATUS_PACKAGED = 5;
 	
 	protected ChildDB cDB;
+	protected MealDB mealDB;
 	protected FamilyHistoryDB familyHistoryDB;
 	protected RegionDB regions;
 	protected DNSCodeDB dnsCodeDB;
+	
+	protected FamilyAndNoteListSorter tableSorter;
 	
 	protected ArrayList<ONCFamilyAndNote> stAL;
 	protected DefaultComboBoxModel<String> regionCBM;
@@ -33,11 +36,14 @@ public abstract class SortFamilyTableDialog extends ChangeDialog
 		columns = getColumnNames();
 		
 		cDB = ChildDB.getInstance();
+		mealDB = MealDB.getInstance();
 		familyHistoryDB = FamilyHistoryDB.getInstance();
 		regions = RegionDB.getInstance();
 		dnsCodeDB = DNSCodeDB.getInstance();
 		
 		stAL = new ArrayList<ONCFamilyAndNote>();
+		tableSorter = new FamilyAndNoteListSorter();
+		
 		regionCBM = new DefaultComboBoxModel<String>();
 	}
 	
@@ -46,7 +52,7 @@ public abstract class SortFamilyTableDialog extends ChangeDialog
 	{
 		archiveTableSelections(stAL);
 		
-		if(fDB.sortFamilyAndNoteDB(stAL, columns[col]))
+		if(tableSorter.sortFamilyAndNoteDB(stAL, columns[col]))
 		{
 			displaySortTable(stAL, false, tableRowSelectedObjectList);
 			return col;

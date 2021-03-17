@@ -411,8 +411,9 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	protected Object[] getTableRow(ONCObject o)
 	{
 		ONCFamilyAndNote faN = (ONCFamilyAndNote) o;
+		ONCMeal meal = mealDB.getFamiliesCurrentMeal(faN.getFamily().getID());
 		String famDNSCode = "";
-		if(faN.getFamily().getDNSCode() > -1)
+		if(faN.getFamilyHistory().getDNSCode() > -1)
 			famDNSCode = dnsCodeDB.getDNSCode(faN.getFamily().getDNSCode()).getAcronym();
 		
 		Object[] tablerow = {
@@ -420,9 +421,9 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			faN.getFamily().getBatchNum(),
 			faN.getFamily().getReferenceNum(),
 			famDNSCode,
-			faN.getFamily().getFamilyStatus().toString(),
-			faN.getFamily().getGiftStatus().toString(),
-			faN.getFamily().getMealStatus().toString(),
+			faN.getFamilyHistory().getFamilyStatus().toString(),
+			faN.getFamilyHistory().getGiftStatus().toString(),
+			meal != null ? meal.getStatus().toString() : MealStatus.None.toString(),
 			faN.getFamily().getFirstName(),
 			faN.getFamily().getLastName(),
 			faN.getFamily().getHouseNum(),
@@ -470,9 +471,9 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			if(doesONCNumMatch(f.getONCNum()) &&
 				doesBatchNumMatch(f.getBatchNum()) &&
 				 doesDNSCodeMatch(f.getDNSCode()) &&
-				  doesFStatusMatch(f.getFamilyStatus()) &&
-				   doesDStatusMatch(f.getGiftStatus()) &&
-				   doesMealStatusMatch(f.getMealStatus()) && 
+				  doesFStatusMatch(familyHistoryDB.getLastFamilyHistory(f.getID()).getFamilyStatus()) &&
+				   doesDStatusMatch(familyHistoryDB.getLastFamilyHistory(f.getID()).getGiftStatus()) &&
+				   doesMealStatusMatch(f) && 
 				    doesLastNameMatch(f.getLastName()) &&
 				     doesStreetMatch(f.getStreet()) &&
 				      doesZipMatch(f.getZipCode()) &&
@@ -486,7 +487,8 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 				              doesStoplightMatch(f.getStoplightPos()) &&
 				               doesNoteStatusMatch(f))	//Family criteria pass
 			{
-				stAL.add(new ONCFamilyAndNote(id++, f, noteDB.getLastNoteForFamily(f.getID())));
+				stAL.add(new ONCFamilyAndNote(id++, f, familyHistoryDB.getLastFamilyHistory(f.getID()),
+												noteDB.getLastNoteForFamily(f.getID())));
 			}
 		}
 		
@@ -582,59 +584,70 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		int[] row_sel = sortTable.getSelectedRows();
 		boolean bDataChanged = false;
 
-		List<ONCFamily> updateFamReqList = new ArrayList<ONCFamily>();
+//		List<ONCFamily> updateFamReqList = new ArrayList<ONCFamily>();
+		List<FamilyHistory> updateFamHistReqList = new ArrayList<FamilyHistory>();
 		for(int i=0; i<row_sel.length; i++)
 		{
 			ONCFamily updateFamReq = new ONCFamily(stAL.get(row_sel[i]).getFamily());
-			boolean bFamilyChangeDetected = false;	
+			FamilyHistory updateFamHistReq = new FamilyHistory(stAL.get(row_sel[i]).getFamilyHistory());
+//			boolean bFamilyChangeDetected = false;
+			boolean bFamilyHistoryChangeDetected = false;	
 				
 			//If a change to the DNS Code, process it
 			if(changeDNSCB.getSelectedIndex() > 0 && 
-				updateFamReq.getDNSCode() != ((DNSCode) changeDNSCB.getSelectedItem()).getID())
+				updateFamHistReq.getDNSCode() != ((DNSCode) changeDNSCB.getSelectedItem()).getID())
 			{
 				DNSCode newDNSCode = (DNSCode) changeDNSCB.getSelectedItem();
 				String chngdBy = userDB.getUserLNFI();
 					
-				updateFamReq.setDNSCode(newDNSCode.getID());
-				updateFamReq.setChangedBy(chngdBy);	//Set the changed by field to current user
+//				updateFamReq.setDNSCode(newDNSCode.getID());
+//				updateFamReq.setChangedBy(chngdBy);	//Set the changed by field to current user
+				updateFamHistReq.setDNSCode(newDNSCode.getID());
+				updateFamHistReq.setChangedBy(chngdBy);	//Set the changed by field to current user
 					
-				bFamilyChangeDetected = true;
+				bFamilyHistoryChangeDetected = true;
 			}
 				
 			//If a change to the Family Status, process it
 			if(changeFStatusCB.getSelectedIndex() > 0 && 
-				updateFamReq.getFamilyStatus() != changeFStatusCB.getSelectedItem())
+				updateFamHistReq.getFamilyStatus() != changeFStatusCB.getSelectedItem())
 			{
 					
-				updateFamReq.setFamilyStatus( (FamilyStatus) changeFStatusCB.getSelectedItem());
-				updateFamReq.setChangedBy(userDB.getUserLNFI());	//Set the changed by field to current user
+//				updateFamReq.setFamilyStatus( (FamilyStatus) changeFStatusCB.getSelectedItem());
+//				updateFamReq.setChangedBy(userDB.getUserLNFI());	//Set the changed by field to current user
+				
+				updateFamHistReq.setFamilyStatus( (FamilyStatus) changeFStatusCB.getSelectedItem());
+				updateFamHistReq.setChangedBy(userDB.getUserLNFI());	//Set the changed by field to current user
 
-				bFamilyChangeDetected = true;
+				bFamilyHistoryChangeDetected = true;
 			}
 			
 			//If a change to Family Gift Status, process it
 			if(changeGiftStatusCB.getSelectedIndex() > 0 && 
-				updateFamReq.getGiftStatus() != changeGiftStatusCB.getSelectedItem())
+				updateFamHistReq.getGiftStatus() != changeGiftStatusCB.getSelectedItem())
 			{
 				//If gift status is changing from PACKAGED, number of family bags must be set to 0
-				if(updateFamReq.getGiftStatus() == FamilyGiftStatus.Packaged)	//If changing away from PACKAGED, reset bags
+				if(updateFamHistReq.getGiftStatus() == FamilyGiftStatus.Packaged)	//If changing away from PACKAGED, reset bags
 					updateFamReq.setNumOfBags(0);
 					
-				updateFamReq.setGiftStatus( (FamilyGiftStatus) changeGiftStatusCB.getSelectedItem());
-				updateFamReq.setChangedBy(userDB.getUserLNFI());	//Set the changed by field to current user
+//				updateFamReq.setFamilyGiftStatus( (FamilyGiftStatus) changeGiftStatusCB.getSelectedItem());
+//				updateFamReq.setChangedBy(userDB.getUserLNFI());	//Set the changed by field to current user
+				
+				updateFamHistReq.setFamilyGiftStatus( (FamilyGiftStatus) changeGiftStatusCB.getSelectedItem());
+				updateFamHistReq.setChangedBy(userDB.getUserLNFI());	//Set the changed by field to current user
 
-				bFamilyChangeDetected = true;			
+				bFamilyHistoryChangeDetected = true;			
 			}
 			
-			if(bFamilyChangeDetected)
-				updateFamReqList.add(updateFamReq);
+			if(bFamilyHistoryChangeDetected)
+				updateFamHistReqList.add(updateFamHistReq);
 			
 		}
 		
-		if(!updateFamReqList.isEmpty())
+		if(!updateFamHistReqList.isEmpty())
 		{
-			String response = fDB.updateFamList(this, updateFamReqList);
-			if(response.startsWith("UPDATED_LIST_FAMILIES"))
+			String response = familyHistoryDB.addHistoryGroup(this, updateFamHistReqList);
+			if(response.startsWith("ADDED_FAMILY_HISTORY_GROUP"))
 			{	
 				buildTableList(false);
 				bDataChanged = true;
@@ -644,8 +657,8 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 				buildTableList(true);
 				//display an error message that update request failed
 				GlobalVariablesDB gvs = GlobalVariablesDB.getInstance();
-				JOptionPane.showMessageDialog(this, "ONC Server denied Family Update," +
-						"try again later","Family Update Failed",  JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
+				JOptionPane.showMessageDialog(this, "ONC Server denied Family History Update," +
+						"try again later","Family History Update Failed",  JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
 			}
 		}
 		
@@ -1770,7 +1783,22 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	
 	boolean doesFStatusMatch(FamilyStatus fstat) {return sortFamilyStatus == FamilyStatus.Any  || fstat == (FamilyStatus) fstatusCB.getSelectedItem();}
 	
-	boolean doesMealStatusMatch(MealStatus mstat) {return sortMealStatus == MealStatus.Any  || mstat == (MealStatus) mealstatusCB.getSelectedItem();}
+	boolean doesMealStatusMatch(ONCFamily f)
+	{
+		if(sortMealStatus == MealStatus.Any)
+			return true;
+		else
+		{
+			//get meal for family
+			ONCMeal famMeal = mealDB.getFamiliesCurrentMeal(f.getID());
+			if(famMeal == null && sortMealStatus == MealStatus.None)
+				return true;
+			if(famMeal == null && sortMealStatus != MealStatus.None)
+				return false;
+			else
+				return famMeal.getStatus() == sortMealStatus;
+		}
+	}
 	
 	boolean doesDStatusMatch(FamilyGiftStatus fgs) {return sortGiftStatus == FamilyGiftStatus.Any  || fgs == giftStatusCB.getSelectedItem();}
 	
@@ -1925,13 +1953,12 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		int numChildren = childDB.getNumberOfChildrenInFamily(f.getID());
 		
 		String zThanksgivingMeal = "N", zDecemberMeal = "N";
-		if(f.getMealID() > -1)
+		ONCMeal meal = mealDB.getFamiliesCurrentMeal(f.getID());
+		if(meal != null)
 		{
-			MealDB mealDB = MealDB.getInstance();
-			ONCMeal famMeal = mealDB.getMeal(f.getMealID());
-			if(famMeal.getType() == MealType.Thanksgiving || famMeal.getType() == MealType.Both)
+			if(meal.getType() == MealType.Thanksgiving || meal.getType() == MealType.Both)
 				zThanksgivingMeal = "Y";
-			if(famMeal.getType() == MealType.December || famMeal.getType() == MealType.Both)
+			if(meal.getType() == MealType.December || meal.getType() == MealType.Both)
 				zDecemberMeal = "Y";	
 		}
 		
@@ -2319,7 +2346,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	    	    for(int i=0; i<sortTable.getSelectedRowCount(); i++)
 	    	    {
 	    	    	int index = row_sel[i];
-	    	    	writer.writeNext(getReferralExportRow(stAL.get(index).getFamily()));
+	    	    	writer.writeNext(getReferralExportRow(stAL.get(index)));
 	    	    }
 	    	   
 	    	    writer.close();
@@ -2401,22 +2428,24 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
        	exportCB.setSelectedIndex(0);
 	}
 	
-	public String[] getReferralExportRow(ONCFamily soFamily)
+	public String[] getReferralExportRow(ONCFamilyAndNote faN)
 	{
-		ONCUser user = userDB.getUser(soFamily.getAgentID());
+		ONCFamily f = faN.getFamily();
+		FamilyHistory fh = faN.getFamilyHistory();
+		ONCUser user = userDB.getUser(f.getAgentID());
 		
 		String delStreetNum, delStreet, unit, city, zip;
-		if(soFamily.getSubstituteDeliveryAddress().isEmpty())
+		if(f.getSubstituteDeliveryAddress().isEmpty())
 		{
-			delStreetNum = soFamily.getHouseNum();
-			delStreet = soFamily.getStreet();
-			unit = soFamily.getUnit();
-			city = soFamily.getCity();
-			zip = soFamily.getZipCode();
+			delStreetNum = f.getHouseNum();
+			delStreet = f.getStreet();
+			unit = f.getUnit();
+			city = f.getCity();
+			zip = f.getZipCode();
 		}
 		else
 		{
-			String[] parts = soFamily.getSubstituteDeliveryAddress().split("_");
+			String[] parts = f.getSubstituteDeliveryAddress().split("_");
 			delStreetNum = parts[0];
 			delStreet = parts[1];
 			unit = parts[2].equals("None")  ? "" : parts[2];
@@ -2428,11 +2457,11 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		ChildDB childDB = ChildDB.getInstance();
 		MealDB mealDB = MealDB.getInstance();
 		
-		ONCMeal soMeal = mealDB.getMeal(soFamily.getMealID());
+		ONCMeal soMeal = mealDB.getFamiliesCurrentMeal(f.getID());
 		
 		String famMembers = "";
-		List<ONCChild> famChildren = childDB.getChildren(soFamily.getID());
-		List<ONCAdult> famAdults = adultDB.getAdultsInFamily(soFamily.getID());
+		List<ONCChild> famChildren = childDB.getChildren(f.getID());
+		List<ONCAdult> famAdults = adultDB.getAdultsInFamily(f.getID());
 		
 		if(!famChildren.isEmpty())
 		{
@@ -2466,9 +2495,9 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		
 		String adoptedFor = "";
 		String soMealType = soMeal != null ? soMeal.getType().toString() + " Meal" : "";
-		if(soFamily.getGiftStatus() == FamilyGiftStatus.NotRequested && soFamily.getMealStatus() != MealStatus.None)
+		if(fh.getGiftStatus() == FamilyGiftStatus.NotRequested && soMeal != null && soMeal.getStatus() != MealStatus.None)
 			adoptedFor = soMealType;
-		else if(soFamily.getGiftStatus() != FamilyGiftStatus.NotRequested && soFamily.getMealStatus() != MealStatus.None)
+		else if(fh.getGiftStatus() != FamilyGiftStatus.NotRequested && soMeal != null && soMeal.getStatus() != MealStatus.None)
 			adoptedFor = "December Gifts & " + soMealType;
 		else
 			adoptedFor = "December Gifts";
@@ -2477,28 +2506,28 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 							   user.getOrganization(), 
 							   user.getTitle(),
 							   "Our Neighbor's Child",
-							   soFamily.getLastName() + " Household",
-							   soFamily.getFirstName() + " " + soFamily.getLastName(),
+							   f.getLastName() + " Household",
+							   f.getFirstName() + " " + f.getLastName(),
 							   famMembers,
 							   user.getEmail(), 
-							   soFamily.getEmail(),
-							   soFamily.getAllPhoneNumbers().replaceAll("\n","\r"),
+							   f.getEmail(),
+							   f.getAllPhoneNumbers().replaceAll("\n","\r"),
 							   user.getCellPhone(),
 							   soMeal == null ? "" : soMeal.getRestricitons(),
 							   famSchools,
-							   soFamily.getDetails(),
-							   soFamily.getReferenceNum(),
+							   f.getDetails(),
+							   f.getReferenceNum(),
 							   delStreetNum, delStreet, unit, "", city, zip, "Virginia",
-							   regions.getSchoolName(soFamily.getSchoolCode()),
-							   soFamily.getGiftDistribution().toString(),
+							   regions.getSchoolName(f.getSchoolCode()),
+							   f.getGiftDistribution().toString(),
 							   "CBO",
 							   adoptedFor,
-							   Integer.toString(adultDB.getNumberOfOtherAdultsInFamily(soFamily.getID())+1),
-							   Integer.toString(childDB.getNumberOfChildrenInFamily(soFamily.getID())),
-							   soFamily.getWishList().replaceAll("\n","\r"),
-							   soFamily.getLanguage().equalsIgnoreCase("english") ? "Yes" : "No",
-							   soFamily.getLanguage().equalsIgnoreCase("english") ? "" : soFamily.getLanguage(),
-							   soFamily.getTransportation().toString()};
+							   Integer.toString(adultDB.getNumberOfOtherAdultsInFamily(f.getID())+1),
+							   Integer.toString(childDB.getNumberOfChildrenInFamily(f.getID())),
+							   f.getWishList().replaceAll("\n","\r"),
+							   f.getLanguage().equalsIgnoreCase("english") ? "Yes" : "No",
+							   f.getLanguage().equalsIgnoreCase("english") ? "" : f.getLanguage(),
+							   f.getTransportation().toString()};
 
 		return exportRow;
 	}

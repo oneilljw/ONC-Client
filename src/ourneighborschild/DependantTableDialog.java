@@ -37,7 +37,10 @@ public abstract class DependantTableDialog extends SortTableDialog
 	private static final long serialVersionUID = 1L;
 	private static final int NUM_FAMILY_ROWS_TO_DISPLAY = 15;
 	
+	private MealDB mealDB;
 	private DNSCodeDB dnsCodeDB;
+	
+	private FamilyAndNoteListSorter tableSorter;
 	
 	protected ONCTable familyTable;
 	private DefaultTableModel familyTableModel;
@@ -47,23 +50,20 @@ public abstract class DependantTableDialog extends SortTableDialog
 	protected JPanel objectCountPanel, lowercntlpanel;
 	protected JScrollPane familyTableScrollPane;
 	protected String[] columns;
-	protected ArrayList<ONCFamily> stAL;	//Holds references to family objects for family table
+	protected ArrayList<ONCFamilyAndNote> stAL;	//Holds references to family objects for family table
 	
 	protected boolean bChangingFamilyTable = false;	//Semaphore used to indicate the sort table is being changed
-	
-//	private static String[] famstatus = {"Any","Unverified", "Info Verified", "Gifts Selected", "Gifts Received", "Gifts Verified", "Packaged"};
-//	private static String[] delstatus = {"Any", "Empty", "Contacted", "Confirmed", "Assigned", "Attempted", "Returned", "Delivered", "Counselor Pick-Up"};
-//	private static String[] stoplt = {"Any", "Green", "Yellow", "Red", "Off"};
-	
 
 	public DependantTableDialog(JFrame pf, int nTableRows)
 	{
 		super(pf, 10);
 		columns = getColumnNames();
 		
+		mealDB = MealDB.getInstance();
 		dnsCodeDB = DNSCodeDB.getInstance();
 		
-		stAL = new ArrayList<ONCFamily>();
+		stAL = new ArrayList<ONCFamilyAndNote>();
+		tableSorter = new FamilyAndNoteListSorter();
 		
       	//Set up the selection table object count panel
      	objectCountPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -130,7 +130,7 @@ public abstract class DependantTableDialog extends SortTableDialog
         	@Override
             public void mouseClicked(MouseEvent e)
             {
-        		if(fDB.sortDB(stAL, ftcolumns[familyTable.columnAtPoint(e.getPoint())]))
+        		if(tableSorter.sortFamilyAndNoteDB(stAL, ftcolumns[familyTable.columnAtPoint(e.getPoint())]))
         		{
         			clearFamilyTable();
         			displayFamilyTable();
@@ -208,13 +208,13 @@ public abstract class DependantTableDialog extends SortTableDialog
 	{
 		bChangingFamilyTable = true;	//don't process table messages while being changed
 		
-		for(ONCFamily si:stAL)	//Build the new table
-			familyTableModel.addRow(getFamilyTableRow(si));
+		for(ONCFamilyAndNote si:stAL)	//Build the new table
+			familyTableModel.addRow(getFamilyTableRow(si.getFamily(), si.getFamilyHistory()));
 				
 		bChangingFamilyTable = false;	
 	}
 	
-	Object[] getFamilyTableRow(ONCFamily f)
+	Object[] getFamilyTableRow(ONCFamily f, FamilyHistory fh)
 	{
 		Object[] familytablerow = new Object[15];
 		
@@ -229,9 +229,11 @@ public abstract class DependantTableDialog extends SortTableDialog
 			familytablerow[2] = code == null ? "" : code.getAcronym();
 		}
 		
-		familytablerow[3] = f.getFamilyStatus().toString();
-		familytablerow[4] = f.getGiftStatus().toString();
-		familytablerow[5] = f.getMealStatus().toString();
+		familytablerow[3] = fh.getFamilyStatus().toString();
+		familytablerow[4] = fh.getGiftStatus().toString();
+		
+		ONCMeal meal = mealDB.getFamiliesCurrentMeal(f.getID());
+		familytablerow[5] = meal != null ? meal.getStatus().toString() : MealStatus.None.toString();
 		
 		UserDB userDB = UserDB.getInstance();
 		if(userDB.getLoggedInUser().getPermission().compareTo(UserPermission.General) > 0)

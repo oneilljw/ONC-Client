@@ -43,6 +43,7 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 	//database references
 	private GlobalVariablesDB gvs;
     private FamilyDB fDB;
+    private FamilyHistoryDB fhDB;
 	private ChildDB cDB;
 	private ChildGiftDB childGiftDB;
 	private GiftCatalogDB cat;
@@ -51,6 +52,7 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 	private DatabaseManager dbMgr;
 	
 	private ONCFamily family;		//family of child being displayed on panel
+	private FamilyHistory familyHistory; 	//most recent history item for family displayed on panel
 	private ONCChild child;			//child being displayed on panel
 	private ONCChildGift childGift; //gift being displayed on panel
 	private int giftNumber; 		//gift# being displayed on panel
@@ -78,9 +80,14 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 		dbMgr = DatabaseManager.getInstance();
 		if(dbMgr != null)
 			dbMgr.addDatabaseListener(this);
-    	fDB = FamilyDB.getInstance();
+		
+		fDB = FamilyDB.getInstance();
 		if(fDB != null)
 			fDB.addDatabaseListener(this);
+		
+    	fhDB = FamilyHistoryDB.getInstance();
+		if(fhDB != null)
+			fhDB.addDatabaseListener(this);
 		
 		cDB = ChildDB.getInstance();
 		if(cDB != null)
@@ -308,7 +315,8 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 		else
 		{	
 			//only enable gift panels if family has been verified and gifts have been requested
-			if(family.getFamilyStatus() == FamilyStatus.Unverified || family.getGiftStatus() == FamilyGiftStatus.NotRequested)	
+			if(familyHistory == null || familyHistory.getFamilyStatus() == FamilyStatus.Unverified ||
+				familyHistory.getGiftStatus() == FamilyGiftStatus.NotRequested)	
 				gpStatus = GiftPanelStatus.Disabled;
 			else 
 				gpStatus = GiftPanelStatus.Enabled;
@@ -597,14 +605,27 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 				display(updatedWish);
 			}
 		}
-		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_FAMILY"))
+//		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_FAMILY"))
+//		{
+//			ONCFamily updatedFam = (ONCFamily) dbe.getObject1();
+//			
+//			if(this.child != null && updatedFam.getID() == this.child.getFamID())
+//			{
+//				//current child displayed is in family, check for gift panel status change
+//				this.family = updatedFam;
+//				setEnabledGift();
+//			}
+//		}
+		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_DELIVERY"))
 		{
-			ONCFamily updatedFam = (ONCFamily) dbe.getObject1();
+			FamilyHistory addedFamilyHistory = (FamilyHistory) dbe.getObject1();
+			ONCFamily updatedFam = fDB.getFamily(addedFamilyHistory.getFamID());
 			
 			if(this.child != null && updatedFam.getID() == this.child.getFamID())
 			{
 				//current child displayed is in family, check for gift panel status change
 				this.family = updatedFam;
+				this.familyHistory = addedFamilyHistory;
 				setEnabledGift();
 			}
 		}
@@ -659,6 +680,7 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 			checkForUpdateToWishDetail();
 			
 			this.family = fam;
+			this.familyHistory = fhDB.getLastFamilyHistory(fam.getID());
 			setEnabledGift();	//lock or unlock the panel and/or panel components
 			
 			//check to see if there are children in the family, is so, display first child's gift if 
@@ -685,6 +707,7 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 		else if(tse.getType() == EntityType.CHILD || tse.getType() == EntityType.GIFT)
 		{
 			this.family = (ONCFamily) tse.getObject1();
+			this.familyHistory = fhDB.getLastFamilyHistory(family.getID());
 			this.child = (ONCChild) tse.getObject2();
 			
 			setEnabledGift();	//lock or unlock the panel and/or panel components

@@ -42,8 +42,10 @@ public class BarcodeDeliveryDialog extends ONCEntityTableDialog implements Actio
 
 	//database references
 	private FamilyDB familyDB;
+	private FamilyHistoryDB familyHistoryDB;
 	
 	private ONCFamily fam, lastFamChanged;
+	private FamilyHistory familyHistory, lastFamilyHistoryChanged;
 	private String[] deliveryCardData;
 	
 	private Image img;
@@ -68,6 +70,8 @@ public class BarcodeDeliveryDialog extends ONCEntityTableDialog implements Actio
 			dbMgr.addDatabaseListener(this);
 		
 		familyDB = FamilyDB.getInstance();
+		
+		familyHistoryDB = FamilyHistoryDB.getInstance();
 		
 		img = gvs.getSeasonIcon().getImage();
 		errMessage = "Ready to Scan a Delivery Card";
@@ -137,14 +141,16 @@ public class BarcodeDeliveryDialog extends ONCEntityTableDialog implements Actio
 	
 	void onUndoSubmittal()
 	{
-    	String result = familyDB.update(this, lastFamChanged);
+//    	String result = familyDB.update(this, lastFamChanged);
+    	FamilyHistory result = familyHistoryDB.add(this, lastFamilyHistoryChanged);
     		
-		if(result != null && result.startsWith("UPDATED_FAMILY"))
+		if(result != null)
 			alert(Result.UNDO, String.format("Delivery Undone: Family # %s",lastFamChanged.getONCNum()));
 		else
 			alert(Result.FAILURE, String.format("Undo Failed: Family # %s", lastFamChanged.getONCNum()));
 		
 		lastFamChanged = null;
+		lastFamilyHistoryChanged = null;
 		btnUndo.setEnabled(false);
 		clearBarcodeTF();
 	}
@@ -197,6 +203,7 @@ public class BarcodeDeliveryDialog extends ONCEntityTableDialog implements Actio
 		
 		errMessage = "Ready to Scan a Delivery Card";
 		fam = null;
+		familyHistory = null;
 		dcPanel.setBackground(Color.WHITE);
 		dcPanel.revalidate();
 		dcPanel.repaint();
@@ -260,26 +267,29 @@ public class BarcodeDeliveryDialog extends ONCEntityTableDialog implements Actio
 					dcPanel.setBackground(delCardBackgroundColor);
 					btnUndo.setEnabled(false);
 					
-					if(lastFamChanged != null && fam.getID() == lastFamChanged.getID() && lastFamChanged.getGiftStatus()==FamilyGiftStatus.Assigned)	
+					if(lastFamChanged != null && fam.getID() == lastFamChanged.getID() && lastFamilyHistoryChanged.getGiftStatus()==FamilyGiftStatus.Assigned)	
 						alert(Result.SUCCESS, String.format("Delivered: Family# %s Gift Delivery Confirmed On Last Scan!", fam.getONCNum()));
-					else if(fam.getGiftStatus()==FamilyGiftStatus.Delivered)
+					else if(familyHistory.getGiftStatus()==FamilyGiftStatus.Delivered)
 						alert(Result.SUCCESS, String.format("Delivered: Family# %s Gift Delivery Previously Confirmed", fam.getONCNum()));	
-					else if(fam.getGiftStatus() != FamilyGiftStatus.Assigned)
+					else if(familyHistory.getGiftStatus() != FamilyGiftStatus.Assigned)
     					alert(Result.FAILURE, String.format("Unable to Confirm Delivery: Improper Gift Status For Family# %s",
-    							fam.getONCNum(),fam.getGiftStatus().toString()));
-					else if(fam.getGiftStatus() == FamilyGiftStatus.Assigned)
+    							fam.getONCNum(),familyHistory.getGiftStatus().toString()));
+					else if(familyHistory.getGiftStatus() == FamilyGiftStatus.Assigned)
 					{
 						//found the family, status is poised to be changed to delivered, so do so
 						ONCFamily priorLastFamChanged = lastFamChanged;
+						FamilyHistory priorLastFamilyHistoryChanged = lastFamilyHistoryChanged;
+						
 						lastFamChanged = new ONCFamily(fam);	//make a copy in case we have an undo action
+						lastFamilyHistoryChanged = new FamilyHistory(familyHistory);
 						
 						//create a copy to send to the server and set the gift status to Delivered
-						ONCFamily reqUpdateFamily = new ONCFamily(fam);
-						reqUpdateFamily.setGiftStatus(FamilyGiftStatus.Delivered);
+						FamilyHistory addFamilyHistoryReq = new FamilyHistory(familyHistory);
+						addFamilyHistoryReq.setFamilyGiftStatus(FamilyGiftStatus.Delivered);
 
 						//send the request to the server via the local family data base
-						String result = familyDB.update(this,  reqUpdateFamily);
-						if(result != null && result.startsWith("UPDATED_FAMILY"))
+						FamilyHistory result = familyHistoryDB.add(this,  addFamilyHistoryReq);
+						if(result != null)
 						{	
 							alert(Result.SUCCESS, String.format("Confirmed: Family# %s Gifts Delivered!", fam.getONCNum()));
 							btnUndo.setEnabled(true);
@@ -288,6 +298,7 @@ public class BarcodeDeliveryDialog extends ONCEntityTableDialog implements Actio
 						{
 							alert(Result.FAILURE, String.format("Server Error: Family# %s Gift Delivery Confirmation Failed", fam.getONCNum()));
 							lastFamChanged = priorLastFamChanged;
+							lastFamilyHistoryChanged = priorLastFamilyHistoryChanged;
 						}
 					}
 					
@@ -307,6 +318,7 @@ public class BarcodeDeliveryDialog extends ONCEntityTableDialog implements Actio
 		else if(e.getSource() == btnUndo)
 		{
 			fam = lastFamChanged;
+			familyHistory = lastFamilyHistoryChanged;
 			dcPanel.revalidate();
 			dcPanel.repaint();
 			onUndoSubmittal();

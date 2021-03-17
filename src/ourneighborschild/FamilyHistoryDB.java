@@ -2,7 +2,11 @@ package ourneighborschild;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -10,13 +14,17 @@ import com.google.gson.reflect.TypeToken;
 public class FamilyHistoryDB extends ONCDatabase
 {
 	private static FamilyHistoryDB instance = null;
-	private List<ONCFamilyHistory> fhList;
+	private Map<Integer,List<FamilyHistory>> historyMap;
+	private Comparator<FamilyHistory> historyTimestampComparator;
+//	private List<FamilyHistory> fhList;
 	
 	private FamilyHistoryDB()
 	{
 		super();
 		this.title = "History";
-		fhList = new ArrayList<ONCFamilyHistory>();
+		historyMap = new HashMap<Integer, List<FamilyHistory>>();
+		historyTimestampComparator = new HistoryTimestampComparator();
+//		fhList = new ArrayList<FamilyHistory>();
 	}
 	
 	public static FamilyHistoryDB getInstance()
@@ -27,51 +35,69 @@ public class FamilyHistoryDB extends ONCDatabase
 		return instance;
 	}
 	
-	List<ONCFamilyHistory> getList() { return fhList; }
+//	List<FamilyHistory> getList() 
+//	{ 
+//		return fhList; 
+//	}
 	
-	int size() { return fhList.size(); }
+	List<FamilyHistory> getList()
+	{ 
+		List<FamilyHistory> allHistoriesList = new ArrayList<FamilyHistory>();
+		for(Map.Entry<Integer,List<FamilyHistory>> entry : historyMap.entrySet())
+			for(FamilyHistory fh : entry.getValue())
+				allHistoriesList.add(fh);
+		
+		return allHistoriesList;
+	}
+	
+//	int size() { return fhList.size(); }
 
-	ONCFamilyHistory add(Object source, ONCObject entity)
+	FamilyHistory add(Object source, ONCObject entity)
 	{
 		Gson gson = new Gson();
 		String response = "";
-		ONCFamilyHistory addedHistObj = null;
+		FamilyHistory addedHistObj = null;
 		
 		response = serverIF.sendRequest("POST<add_delivery>" + 
-											gson.toJson(entity, ONCFamilyHistory.class));
+											gson.toJson(entity, FamilyHistory.class));
 		if(response.startsWith("ADDED_DELIVERY"))
 			addedHistObj = processAddedObject(source, response.substring(14));
 		
 		return addedHistObj;	
 	}
 	
-	ONCFamilyHistory processAddedObject(Object source, String json)
+	String addHistoryGroup(Object source, List<FamilyHistory> historyList)
+	{
+		Gson gson = new Gson();
+		Type listtype = new TypeToken<ArrayList<FamilyHistory>>(){}.getType();
+			
+		String response = gson.toJson(historyList, listtype);
+		
+		response = serverIF.sendRequest("POST<family_history_group>" + gson.toJson(historyList, listtype));
+		
+		return response;
+	}
+	
+	FamilyHistory processAddedObject(Object source, String json)
 	{
 		//Store added ONCFamilyHistory object in local data base
 		Gson gson = new Gson();
-		ONCFamilyHistory addedObject = gson.fromJson(json, ONCFamilyHistory.class);
+		FamilyHistory addedHistory = gson.fromJson(json, FamilyHistory.class);
 		
-		fhList.add(addedObject);
-/*	
-		//update the family status this is a delivery is associated with
-		FamilyDB familyDB = FamilyDB.getInstance();
-		ONCFamily fam = familyDB.getFamily(addedObject.getFamID());
-		fam.setFamilyStatus(addedObject.getFamilyStatus());
-		fam.setGiftStatus(addedObject.getGiftStatus());
-		fam.setDeliveryID(addedObject.getID());
-*/		
-		//Notify local user IFs that an organization/partner was added. This will
-		//be all UI's that display or manage family delivery information
-		fireDataChanged(source, "ADDED_DELIVERY", addedObject);
+		if(addedHistory != null)
+		{
+			historyMap.get(addedHistory.getFamID()).add(addedHistory);
+			fireDataChanged(source, "ADDED_DELIVERY", addedHistory);
+		}
 		
-		return addedObject;
+		return addedHistory;
 	}
-	
-	ONCFamilyHistory processDeletedFamilyHistory(Object source, String json)
+/*	
+	FamilyHistory processDeletedFamilyHistory(Object source, String json)
 	{
 		//remove the family history item from this local data base
 		Gson gson = new Gson();
-		ONCFamilyHistory deletedFH = removeDeletedHistory(source, gson.fromJson(json, ONCFamilyHistory.class).getID());
+		FamilyHistory deletedFH = removeDeletedHistory(source, gson.fromJson(json, FamilyHistory.class).getID());
 		
 		if(deletedFH != null)
 			fireDataChanged(source, "DELETED_FAMILY_HISTORY", deletedFH);
@@ -79,10 +105,10 @@ public class FamilyHistoryDB extends ONCDatabase
 		return deletedFH;
 	}
 	
-	ONCFamilyHistory removeDeletedHistory(Object source, int famHistID)
+	FamilyHistory removeDeletedHistory(Object source, int famHistID)
 	{
 		//remove the meal from this data base
-		ONCFamilyHistory deletedFH = null;
+		FamilyHistory deletedFH = null;
 		
 		int index = 0;
 		while(index < fhList.size() && fhList.get(index).getID() != famHistID)
@@ -97,7 +123,7 @@ public class FamilyHistoryDB extends ONCDatabase
 		return deletedFH;
 	}
 	
-	ONCFamilyHistory getFamilyHistory(int id)
+	FamilyHistory getFamilyHistory(int id)
 	{
 		int index = 0;
 		while(index < fhList.size() && fhList.get(index).getID() != id)
@@ -108,14 +134,25 @@ public class FamilyHistoryDB extends ONCDatabase
 		else
 			return fhList.get(index);
 	}
-	
-	ArrayList<ONCFamilyHistory> getDeliveryHistoryAL(int famID)
+*/	
+	FamilyHistory getLastFamilyHistory(int famID)
 	{
-		ArrayList<ONCFamilyHistory> famDelAL = new ArrayList<ONCFamilyHistory>();
-		for(ONCFamilyHistory d:fhList)
-			if(d.getFamID() == famID)
-				famDelAL.add(d);
-		return famDelAL;
+		List<FamilyHistory> famHistoryList = historyMap.get(famID);
+		
+		if(famHistoryList != null && !famHistoryList.isEmpty())
+		{
+			//sort the list by time stamp and return the newest history
+			Collections.sort(famHistoryList,historyTimestampComparator);
+			return famHistoryList.get(famHistoryList.size()-1);
+		}
+		else
+			return null;
+	}
+	
+	List<FamilyHistory> getDeliveryHistoryAL(int famID)
+	{
+		List<FamilyHistory> famHistoryList = historyMap.get(famID);
+		return famHistoryList;
 	}
 	
 	/**************************************************************************************************
@@ -123,6 +160,7 @@ public class FamilyHistoryDB extends ONCDatabase
 	 * @param famID
 	 * @return
 	 */
+/*	
 	String getDeliveredBy(int delID)
 	{
 		int index = 0;
@@ -134,7 +172,7 @@ public class FamilyHistoryDB extends ONCDatabase
 		else
 			return fhList.get(index).getdDelBy();
 	}
-	
+*/	
 	@Override
 	boolean importDB()
 	{
@@ -143,16 +181,13 @@ public class FamilyHistoryDB extends ONCDatabase
 		if(serverIF != null && serverIF.isConnected())
 		{		
 			Gson gson = new Gson();
-			Type listtype = new TypeToken<ArrayList<ONCFamilyHistory>>(){}.getType();
+			Type mapOfHistories = new TypeToken<HashMap<Integer,List<FamilyHistory>>>(){}.getType();
 			
-			String response = serverIF.sendRequest("GET<deliveries>");
-				
-				
+			String response = serverIF.sendRequest("GET<family_histories>");
 			if(response != null)
 			{
-				fhList = gson.fromJson(response, listtype);
-				bImportComplete = true;
-			}
+				historyMap = gson.fromJson(response, mapOfHistories);
+			}	bImportComplete = true;
 		}
 		
 		return bImportComplete;
@@ -183,7 +218,7 @@ public class FamilyHistoryDB extends ONCDatabase
 		String response = null;
 		
 		response = serverIF.sendRequest("POST<update_delivery>" + 
-												gson.toJson(updatedHistory, ONCFamilyHistory.class));
+												gson.toJson(updatedHistory, FamilyHistory.class));
 			 
 		
 		//check response. If response from server indicates a successful update,
@@ -199,22 +234,24 @@ public class FamilyHistoryDB extends ONCDatabase
 	{
 		//Create a new object for the update
 		Gson gson = new Gson();
-		ONCFamilyHistory updatedObj = gson.fromJson(json, ONCFamilyHistory.class);
+		FamilyHistory updatedHistoryObj = gson.fromJson(json, FamilyHistory.class);
+		
+		List<FamilyHistory> famHistList = historyMap.get(updatedHistoryObj.getFamID());
 		
 		//Find the position for the history object being updated
 		int index = 0;
-		while(index < fhList.size() && fhList.get(index).getID() != updatedObj.getID())
+		while(index < famHistList.size() && famHistList.get(index).getID() != updatedHistoryObj.getID())
 			index++;
 		
 		//Replace the current history object with the update
-		if(index < fhList.size())
+		if(index < famHistList.size())
 		{
-			fhList.set(index, updatedObj);
-			fireDataChanged(source, "UPDATED_DELIVERY", updatedObj);
+			famHistList.set(index, updatedHistoryObj);
+			fireDataChanged(source, "UPDATED_DELIVERY", updatedHistoryObj);
 		}
 		else
 			System.out.println(String.format("DeliveryDB processUpdatedObject - delivery id %d not found",
-					updatedObj.getID()));
+					updatedHistoryObj.getID()));
 	}
 
 	/**************************************************************************************************
@@ -224,7 +261,7 @@ public class FamilyHistoryDB extends ONCDatabase
 	public int getNumberOfDeliveries(String drvNum) 
 	{
 		int nDeliveries = 0;
-		for(ONCFamilyHistory del: fhList)
+		for(FamilyHistory del: getList())
 			if(del.getdDelBy().equals(drvNum))
 				nDeliveries++;
 		
@@ -235,5 +272,19 @@ public class FamilyHistoryDB extends ONCDatabase
 	String[] getExportHeader()
 	{
 		return new String[]  {"Delivery ID", "Family ID", "Status", "Del By",  "Notes", "Changed By", "Time Stamp"};
+	}
+	
+	private class HistoryTimestampComparator implements Comparator<FamilyHistory>
+	{
+		@Override
+		public int compare(FamilyHistory fh1, FamilyHistory fh2)
+		{
+			if(fh1.getTimestamp() < fh2.getTimestamp())
+				return -1;
+			else if(fh1.getTimestamp() == fh2.getTimestamp())
+				return 0;
+			else
+				return 1;
+		}
 	}
 }

@@ -60,11 +60,10 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 	private JProgressBar progressBar;
 	private ONCEmailer oncEmailer;
 
+	private MealDB	mealDB;
 	private DNSCodeDB dnsCodeDB;
 	private List<ONCUser> atAL;	//Holds references to agent objects for agent table
-	
-//	private AgentInfoDialog aiDlg;
-	
+
 	SortAgentDialog(JFrame pf)
 	{
 		super(pf, 10);
@@ -76,6 +75,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		if(dbMgr != null)
 			dbMgr.addDatabaseListener(this);
 		
+		mealDB = MealDB.getInstance();
 		dnsCodeDB = DNSCodeDB.getInstance();
 		if(dnsCodeDB != null)
 			dnsCodeDB.addDatabaseListener(this);
@@ -200,7 +200,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		for(int i=0; i< row_sel.length; i++)
 			for(ONCFamily f:fDB.getList())
 				if(f.getAgentID() == atAL.get(row_sel[i]).getID())
-					stAL.add(f);
+					stAL.add(new ONCFamilyAndNote(i, f, fhDB.getLastFamilyHistory(f.getID()), null));
 					
 		lblNumOfFamilies.setText(Integer.toString(stAL.size()));
 		displayFamilyTable();		//Display the table after table array list is built					
@@ -363,27 +363,28 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 	
 	String[] getDependantTableExportRow(int index)
 	{
-		ONCFamily f = stAL.get(index);
-		ONCUser u = userDB.getUser(f.getAgentID());
+		ONCFamilyAndNote f = stAL.get(index);
+		ONCUser u = userDB.getUser(f.getFamily().getAgentID());
 		
-		DNSCode code = f.getDNSCode() > -1 ? dnsCodeDB.getDNSCode(f.getDNSCode()) : null;
+		ONCMeal meal = mealDB.getFamiliesCurrentMeal(f.getID());
+		DNSCode code = f.getFamilyHistory().getDNSCode() > -1 ? dnsCodeDB.getDNSCode(f.getFamilyHistory().getDNSCode()) : null;
 		
 		String[] row = {
 						u.getFirstName() + " " + u.getLastName(),
-						f.getONCNum(),
-						f.getBatchNum(),
+						f.getFamily().getONCNum(),
+						f.getFamily().getBatchNum(),
 						code != null ? code.getAcronym() : "",
-						f.getFamilyStatus().toString(),
-						f.getGiftStatus().toString(),
-						f.getMealStatus().toString(),
-						f.getFirstName(),
-						f.getLastName(),
-						f.getHouseNum(),
-						f.getStreet(),
-						f.getUnit(),
-						f.getZipCode(),
-						regionDB.getRegionID(f.getRegion()),
-						f.getChangedBy()
+						f.getFamilyHistory().getFamilyStatus().toString(),
+						f.getFamilyHistory().getGiftStatus().toString(),
+						meal != null ? meal.getStatus().toString() : MealStatus.None.toString(),
+						f.getFamily().getFirstName(),
+						f.getFamily().getLastName(),
+						f.getFamily().getHouseNum(),
+						f.getFamily().getStreet(),
+						f.getFamily().getUnit(),
+						f.getFamily().getZipCode(),
+						regionDB.getRegionID(f.getFamily().getRegion()),
+						f.getFamily().getChangedBy()
 						};
 		return row;
 	}
@@ -876,11 +877,12 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		for(ONCFamily f:fDB.getList())
 			if(user != null && f.getAgentID() == user.getID())	//family is represented by agent and is being served
 			{
+				FamilyHistory fh = fhDB.getLastFamilyHistory(f.getID());
 				familyTableHTML.append("<tr><td>" + f.getLastName() + "</td>");
 				familyTableHTML.append("<td>" + f.getFirstName() + "</td>");
 				familyTableHTML.append("<td>" + f.getHouseNum() + " " + f.getStreet() + " " + f.getUnit() + "</td>");
 //				familyTableHTML.append("<td>" + famstatus[f.getFamilyStatus()] + "</td>");
-				familyTableHTML.append("<td>" + f.getGiftStatus().toString() + "</td>");
+				familyTableHTML.append("<td>" + fh.getGiftStatus().toString() + "</td>");
 //				familyTableHTML.append("<td>" + f.getMealStatus().toString() + "</td></tr>");
 				familyTableHTML.append("<td>" + f.getDNSCode() + "</td></tr>");
 			}

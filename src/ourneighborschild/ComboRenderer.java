@@ -8,7 +8,7 @@ import javax.swing.ListCellRenderer;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 
-public class ComboRenderer extends JLabel implements ListCellRenderer
+public class ComboRenderer extends JLabel implements ListCellRenderer<ComboItem>
 {
 	/**
 	 * 
@@ -20,8 +20,8 @@ public class ComboRenderer extends JLabel implements ListCellRenderer
         setOpaque(true);  
         setBorder(new EmptyBorder(1, 1, 1, 1));  
     }  
-  
-    public Component getListCellRendererComponent(JList list, Object value,  
+/*  
+    public Component getListCellRendererComponent(JList<ComboItem> list, Object value,  
                int index, boolean isSelected, boolean cellHasFocus)
     {  
         if (isSelected)
@@ -43,4 +43,29 @@ public class ComboRenderer extends JLabel implements ListCellRenderer
         setText((value == null) ? "" : value.toString());  
         return this;  
     }
+*/
+	@Override
+	public Component getListCellRendererComponent(
+			JList<? extends ComboItem> list, ComboItem value, int index,
+			boolean isSelected, boolean cellHasFocus)
+	{
+		 if (isSelected)
+	        {  
+	            setBackground(list.getSelectionBackground());  
+	            setForeground(list.getSelectionForeground());  
+	        }
+	        else 
+	        {  
+	            setBackground(list.getBackground());  
+	            setForeground(list.getForeground());  
+	        }  
+	        if (!((CanEnable) value).isEnabled())
+	        {  
+	            setBackground(list.getBackground());  
+	            setForeground(UIManager.getColor("Label.disabledForeground"));  
+	        }  
+	        setFont(list.getFont());  
+	        setText((value == null) ? "" : value.toString());  
+	        return this;
+	}
 }

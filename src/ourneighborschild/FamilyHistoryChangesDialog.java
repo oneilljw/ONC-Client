@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.Date;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -58,7 +59,7 @@ public class FamilyHistoryChangesDialog extends ONCTableDialog implements Proper
 	private UserDB userDB;
 	private DNSCodeDB dnsCodeDB;
 	
-	private List<ONCFamilyHistory> histList;
+	private List<FamilyHistory> histList;
 	
 	private JTextField oncnumTF;
 	private JComboBox<FamilyStatus> fstatusCB;
@@ -112,7 +113,7 @@ public class FamilyHistoryChangesDialog extends ONCTableDialog implements Proper
 		if(dbMgr != null)
 			dbMgr.addDatabaseListener(this);
 		
-		histList = new ArrayList<ONCFamilyHistory>();
+		histList = new ArrayList<FamilyHistory>();
 		
 		//Set up the search criteria panel      
 		oncnumTF = new JTextField(5);
@@ -185,7 +186,7 @@ public class FamilyHistoryChangesDialog extends ONCTableDialog implements Proper
 		TableCellRenderer tableCellRenderer = new DefaultTableCellRenderer()
 		{
 			private static final long serialVersionUID = 1L;
-			SimpleDateFormat f = new SimpleDateFormat("M/dd/yy h:mm a");
+			DateFormat f = new SimpleDateFormat("M/dd/yy h:mm a");
 
 			public Component getTableCellRendererComponent(JTable table, Object value,
 				          		boolean isSelected, boolean hasFocus, int row, int column)
@@ -204,7 +205,7 @@ public class FamilyHistoryChangesDialog extends ONCTableDialog implements Proper
 	void buildTableList()
 	{
 		histList.clear();	//Clear the prior table information in the array list
-		for(ONCFamilyHistory fh : famHistDB.getList())
+		for(FamilyHistory fh : famHistDB.getList())
 		{
 			//ONC number is valid and matches criteria. It must be a served family and the
 			//only allowable DNS code is WISH_ANTICIPATION.
@@ -212,8 +213,8 @@ public class FamilyHistoryChangesDialog extends ONCTableDialog implements Proper
 				doesFStatusMatch(fh.getFamilyStatus()) &&
 				 doesDStatusMatch(fh.getGiftStatus()) &&
 				  doesDNSCodeMatch(fh.getDNSCode()) &&
-				  doesChangedByMatch(fh.getdChangedBy()) &&
-				   doesNotesMatch(fh.getdNotes()) &&
+				  doesChangedByMatch(fh.getChangedBy()) &&
+				   doesNotesMatch(fh.getNotes()) &&
 				    isChangeDateBetween(fh.getTimestamp()))
 			{
 				histList.add(fh);
@@ -303,35 +304,35 @@ public class FamilyHistoryChangesDialog extends ONCTableDialog implements Proper
 	    	    
        			int[] row_sel = dlgTable.getSelectedRows();
        			String[] cell = new String[header.length];
-       			SimpleDateFormat sdf = new SimpleDateFormat("M/dd/yy h:mm a");
+       			DateFormat df = new SimpleDateFormat("M/dd/yy h:mm a");
        			for(int i=0; i< dlgTable.getSelectedRowCount(); i++)
        			{
-	    	    			int index = row_sel[i];
-	    	    			int modelRow = index == -1 ? -1 : dlgTable.convertRowIndexToModel(index);
+	    			int index = row_sel[i];
+	    			int modelRow = index == -1 ? -1 : dlgTable.convertRowIndexToModel(index);
 
-	    	    			if(modelRow > -1 && modelRow < histList.size())
-	    	    			{
-	    	    				ONCFamilyHistory fh = histList.get(modelRow);
-	    	    				ONCFamily f = famDB.getFamily(fh.getFamID());
-	    	    				
-	    	    				cell[0] = f.getONCNum();
-	    	    				cell[1] = f.getFamilyStatus().toString();
-	    	    				cell[2] = f.getGiftStatus().toString();
-	    	    				if(fh.getDNSCode() == -1)
-	    	        				cell[3] = "";
-	    	        			else
-	    	        			{
-	    	        				DNSCode dnsCode = dnsCodeDB.getDNSCode(fh.getDNSCode());
-	    	        				cell[3] = dnsCode == null ? "DNS Error" : dnsCode.getAcronym();
-	    	        			}        
-	    	    				
-	    	    				cell[4] = volunteerDB.getDriverLNFN(fh.getdDelBy());
-	    	    				cell[5] = fh.getdNotes();
-	    	    				cell[6] = fh.getdChangedBy();
-	    	    				cell[7] =  sdf.format(fh.getDateChanged());
+	    			if(modelRow > -1 && modelRow < histList.size())
+	    			{
+	    				FamilyHistory fh = histList.get(modelRow);
+	    				ONCFamily f = famDB.getFamily(fh.getFamID());
+	    				
+	    				cell[0] = f.getONCNum();
+	    				cell[1] = fh.getFamilyStatus().toString();
+	    				cell[2] = fh.getGiftStatus().toString();
+	    				if(fh.getDNSCode() == -1)
+	        				cell[3] = "";
+	        			else
+	        			{
+	        				DNSCode dnsCode = dnsCodeDB.getDNSCode(fh.getDNSCode());
+	        				cell[3] = dnsCode == null ? "DNS Error" : dnsCode.getAcronym();
+	        			}        
+	    				
+	    				cell[4] = volunteerDB.getDriverLNFN(fh.getdDelBy());
+	    				cell[5] = fh.getNotes();
+	    				cell[6] = fh.getChangedBy();
+	    				cell[7] =  df.format(new Date(fh.getTimestamp()));
 
-	    	    				writer.writeNext(cell);
-	    	    			}
+	    				writer.writeNext(cell);
+	    			}
        			}
 	    	   
        			writer.close();
@@ -565,7 +566,7 @@ public class FamilyHistoryChangesDialog extends ONCTableDialog implements Proper
         {
         		Object value;
         	
-        		ONCFamilyHistory histObj = histList.get(row);
+        		FamilyHistory histObj = histList.get(row);
         	
         		if(col == FAMILY_ONC_NUM_COL)
         			value = famDB.getFamily(histObj.getFamID()).getONCNum();
@@ -589,11 +590,11 @@ public class FamilyHistoryChangesDialog extends ONCTableDialog implements Proper
         		else if(col == DELIVERED_BY_COL)  
         			value = volunteerDB.getDriverLNFN(histObj.getdDelBy());
         		else if(col == NOTES_COL)
-        			value = histObj.getdNotes();
+        			value = histObj.getNotes();
         		else if(col == CHANGED_BY_COL)
-        			value = histObj.getdChangedBy();
+        			value = histObj.getChangedBy();
         		else if (col == DATE_CHANGED_COL)
-        			value = histObj.getDateChanged();
+        			value = new Date(histObj.getTimestamp());
         		else
         			value = "Error";
         	
@@ -612,7 +613,7 @@ public class FamilyHistoryChangesDialog extends ONCTableDialog implements Proper
  
         public boolean isCellEditable(int row, int col)
         {
-        		return false;
+        	return false;
         }
     }
 	/***********************************************************************************

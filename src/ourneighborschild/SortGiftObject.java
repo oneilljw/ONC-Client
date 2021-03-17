@@ -6,6 +6,7 @@ public class SortGiftObject extends ONCObject
 {
 	private static final int MAX_LABEL_LINE_LENGTH = 26;
 	private ONCFamily	 soFamily;
+	private FamilyHistory soFamilyHistory;
 	private ONCChild	 soChild;
 	private ONCChildGift soChildGift;
 	
@@ -16,10 +17,25 @@ public class SortGiftObject extends ONCObject
 	
 	String[] indicator = {"", "*", "#"};
 	
+	public SortGiftObject(int itemID, ONCFamily fam, FamilyHistory fh, ONCChild c, ONCChildGift cw) 
+	{
+		super(itemID);
+		soFamily = fam;
+		soFamilyHistory = fh;
+		soChild = c;
+		soChildGift = cw;
+		
+		partnerDB = PartnerDB.getInstance();
+		cat = GiftCatalogDB.getInstance();
+		regionDB = RegionDB.getInstance();
+		dnsCodeDB = DNSCodeDB.getInstance();
+	}
+	
 	public SortGiftObject(int itemID, ONCFamily fam, ONCChild c, ONCChildGift cw) 
 	{
 		super(itemID);
 		soFamily = fam;
+		soFamilyHistory = null;
 		soChild = c;
 		soChildGift = cw;
 		
@@ -31,6 +47,7 @@ public class SortGiftObject extends ONCObject
 	
 	//getters
 	ONCFamily getFamily() { return soFamily; }
+	FamilyHistory getFamilyHistory() { return soFamilyHistory; }
 	ONCChild getChild() { return soChild; }
 	ONCChildGift getChildGift() { return soChildGift; }
 	

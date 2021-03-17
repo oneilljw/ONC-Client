@@ -83,7 +83,7 @@ public class ReceiveGiftsByBarcodeDialog extends GiftLabelDialog
 		}
 		else
 		{
-			lastGiftChanged = new SortGiftObject(-1, swo.getFamily(), swo.getChild(), swo.getChildGift());
+			lastGiftChanged = new SortGiftObject(-1, swo.getFamily(),swo.getFamilyHistory(), swo.getChild(), swo.getChildGift());
 			
 			ONCChildGift addedGift;
 			if(swo.getChildGift().isClonedGift())
@@ -127,71 +127,7 @@ public class ReceiveGiftsByBarcodeDialog extends GiftLabelDialog
 		
 		clearBarcodeTF();
 	}
-/*	
-	void onClonedGiftLabelFound(SortGiftObject scgo)
-	{
-		//Check to see if this is a double scan of the gift by comparing the scanned scgo with the
-		//lastCloneChanged. If they are the same, don't receive the gift again. If they aren't the same,
-		//process change to wish status. Store the new wish to be added in case of an undo operation 
-		//and add the new wish to the child wish history. We reuse an SortCloneGiftObject to store the
-		//gift wish. Organization parameter is null, indicating we're not changing the gift partner
-		if(lastGiftChanged != null &&
-			scgo.getFamily().getID() == lastGiftChanged.getFamily().getID() &&
-			scgo.getChild().getID() == lastGiftChanged.getChild().getID() && 
-			scgo.getChildGift().getGiftNumber() == lastGiftChanged.getChildGift().getGiftNumber() &&
-			scgo.getChildGift().getGiftStatus() == GiftStatus.Received)
-		{
-			//double scan of the last received gift at this workstation
-			alert(Result.SUCCESS, String.format("Gift Just Received: Family # %s, %s",
-				scgo.getFamily().getONCNum(),scgo.getGiftPlusDetail()));
-		}
-		else if(scgo.getChildGift().getGiftStatus() == GiftStatus.Received)
-		{
-			//gift already received
-			alert(Result.SUCCESS, String.format("Gift Previously Received: Family # %s, %s",
-				scgo.getFamily().getONCNum(),scgo.getGiftPlusDetail()));
-		}
-		else
-		{
-			List<ONCChildGift> addReqClonedGiftList = new ArrayList<ONCChildGift>();
-			
-			GiftStatus lastGiftStatus = scgo.getChildGift().getGiftStatus();
-			
-			ONCChildGift addCloneReq = new ONCChildGift(userDB.getUserLNFI(), scgo.getChildGift());
-			addCloneReq.setGiftStatus(GiftStatus.Received);
-			addReqClonedGiftList.add(addCloneReq);
-			
-			//create the new clone gift, add it
-			String response = null;
-			response = clonedGiftDB.addClonedGiftList(this, addReqClonedGiftList);
-			
-			//change color and enable undo operation based on success of receiving gift
-			if(response != null && response.equals("ADDED_LIST_CLONED_GIFTS"))
-			{	
-				//must get the last gift in the linked list from the database and
-				//set the lastCloneChanaged. Must make a new object for the last gift added so
-				//we don't change the actual last gift in the local database
-				ONCChildGift lastGiftAddedInDB = clonedGiftDB.getClonedGift(addCloneReq.getChildID(), addCloneReq.getGiftNumber());
-				ONCChildGift lastGiftAdded = new ONCChildGift(lastGiftStatus, lastGiftAddedInDB, true);
-				
-				lastGiftChanged = new SortGiftObject(-1, scgo.getFamily(), scgo.getChild(), lastGiftAdded);
-				lastGiftChanged.getChildGift().setGiftStatus(lastGiftStatus);
-						
-				alert(Result.SUCCESS, String.format("Gift Received: Family # %s, %s",
-						scgo.getFamily().getONCNum(),scgo.getGiftPlusDetail()));
-				btnUndo.setEnabled(true);
-			}
-			else
-			{
-				alert(Result.FAILURE, String.format("Server Gift Received Failure: Family # %s, Gift: %s",
-						scgo.getFamily().getONCNum(),scgo.getGiftPlusDetail()));
-				btnUndo.setEnabled(false);
-			}
-		}
-		
-		clearBarcodeTF();
-	}
-*/
+
 	@Override
 	public void dataChanged(DatabaseEvent dbe)
 	{
@@ -261,8 +197,8 @@ public class ReceiveGiftsByBarcodeDialog extends GiftLabelDialog
     			
     			btnUndo.setEnabled(false);
     			
-    			if(lastGiftChanged.getFamily().getGiftStatus() == FamilyGiftStatus.Received)
-    				lastGiftChanged.getFamily().setFamilyStatus(lastGiftChanged.getFamily().getFamilyStatus());
+    			if(lastGiftChanged.getFamilyHistory().getGiftStatus() == FamilyGiftStatus.Received)
+    				lastGiftChanged.getFamilyHistory().setFamilyStatus(lastGiftChanged.getFamilyHistory().getFamilyStatus());
     		}
     		else
     		{

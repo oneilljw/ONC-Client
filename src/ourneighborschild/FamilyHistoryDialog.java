@@ -32,7 +32,7 @@ public class FamilyHistoryDialog extends HistoryDialog
 	private VolunteerDB volunteerDB;
 	private DNSCodeDB dnsCodeDB;
 	
-	private List<ONCFamilyHistory> histList;
+	private List<FamilyHistory> histList;
 	
 	public FamilyHistoryDialog(JFrame pf) 
 	{
@@ -52,7 +52,7 @@ public class FamilyHistoryDialog extends HistoryDialog
 		if(dnsCodeDB != null)
 			dnsCodeDB.addDatabaseListener(this);
 		
-		histList = new ArrayList<ONCFamilyHistory>();
+		histList = new ArrayList<FamilyHistory>();
 	}
 	
 	@Override
@@ -65,10 +65,10 @@ public class FamilyHistoryDialog extends HistoryDialog
 		dlgTableModel.fireTableDataChanged();
 	}
 	
-	List<ONCFamilyHistory> getSortedList()
+	List<FamilyHistory> getSortedList()
 	{
-		List<ONCFamilyHistory> hList = familyHistoryDB.getDeliveryHistoryAL(currFam.getID());
-		Collections.sort(hList, new HistoryItemDateChangedComparator());
+		List<FamilyHistory> hList = familyHistoryDB.getDeliveryHistoryAL(currFam.getID());
+		Collections.sort(hList, new FamilyHistoryTimestampComparator());
 		
 		return hList;
 	}
@@ -93,18 +93,18 @@ public class FamilyHistoryDialog extends HistoryDialog
 	{
 		//If it exists, get the ONC Delivery object and compare it to the data in the cell that changed
 		//Store new data back into the sub database as necessary and indicate the data base changed				      
-		ONCFamilyHistory updateDelReq = new ONCFamilyHistory(histList.get(0));	//make a copy 
+		FamilyHistory updateDelReq = new FamilyHistory(histList.get(0));	//make a copy 
 			
 		//Update the notes and changed by fields in the request
 		updateDelReq.setdNotes(notes);
-		updateDelReq.setdChangedBy(userDB.getUserLNFI());
+		updateDelReq.setChangedBy(userDB.getUserLNFI());
 			
 		//send the request to the local data base
 		String response = familyHistoryDB.update(this, updateDelReq);	
 		if(response.startsWith("UPDATED_DELIVERY"))	//did local data base update?
 		{
 			Gson gson = new Gson();
-			ONCFamilyHistory updatedDel = gson.fromJson(response.substring(16), ONCFamilyHistory.class);
+			FamilyHistory updatedDel = gson.fromJson(response.substring(16), FamilyHistory.class);
 			histList.set(0, updatedDel);
 		}
 		else
@@ -124,7 +124,7 @@ public class FamilyHistoryDialog extends HistoryDialog
 		if(dbe.getSource() != this && this.isVisible() && dbe.getType().equals("UPDATED_DELIVERY") ||
 			dbe.getType().equals("ADDED_DELIVERY"))
 		{
-			ONCFamilyHistory updatedHistoryObj = (ONCFamilyHistory) dbe.getObject1();
+			FamilyHistory updatedHistoryObj = (FamilyHistory) dbe.getObject1();
 			
 			//If updated delivery belongs to family delivery history being displayed,
 			//re-display it
@@ -188,7 +188,7 @@ public class FamilyHistoryDialog extends HistoryDialog
         {
         		Object value;
         	
-        		ONCFamilyHistory histObj = histList.get(row);
+        		FamilyHistory histObj = histList.get(row);
         	
         		if(col ==  FAMILY_STATUS_COL)
         			value = histObj.getFamilyStatus().toString();
@@ -210,11 +210,11 @@ public class FamilyHistoryDialog extends HistoryDialog
         		else if(col == DELIVERED_BY_COL)  
         			value = volunteerDB.getDriverLNFN(histObj.getdDelBy());
         		else if(col == NOTES_COL)
-        			value = histObj.getdNotes();
+        			value = histObj.getNotes();
         		else if(col == CHANGED_BY_COL)
-        			value = histObj.getdChangedBy();
+        			value = histObj.getChangedBy();
         		else if (col == DATE_CHANGED_COL)
-        			value = histObj.getDateChanged();
+        			value = new Date(histObj.getTimestamp());
         		else
         			value = "Error";
         	
@@ -243,18 +243,24 @@ public class FamilyHistoryDialog extends HistoryDialog
         		if(!histList.isEmpty() && row == 0 && col == NOTES_COL)
         		{
         			String notes = (String) value;
-        			if(!notes.equals(histList.get(0).getdNotes()))
+        			if(!notes.equals(histList.get(0).getNotes()))
         				updateFamilyDeliveryData(notes);
         		}
         }
     }
 	
-	private class HistoryItemDateChangedComparator implements Comparator<ONCFamilyHistory>
+	private class FamilyHistoryTimestampComparator implements Comparator<FamilyHistory>
 	{
 		@Override
-		public int compare(ONCFamilyHistory o1, ONCFamilyHistory o2)
+		public int compare(FamilyHistory o1, FamilyHistory o2)
 		{
-			return o2.getDateChanged().compareTo(o1.getDateChanged());
+			
+			if(o2.getTimestamp() > o1.getTimestamp())
+				return -1;
+			else if(o2.getTimestamp() == o1.getTimestamp())
+				return 0;
+			else
+				return 1;
 		}
 	}
 }

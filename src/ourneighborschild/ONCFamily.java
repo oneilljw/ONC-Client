@@ -47,8 +47,9 @@ public class ONCFamily extends ONCEntity
 	private int			agentID;
 	private int			groupID;
 	private int			deliveryID;
-	private int 		mealID;
-	private MealStatus  mealStatus;
+	private int			phoneCode;	//indicates if any of three family phone numbers are mobile, value range is 0-7
+//	private int 		mealID;
+//	private MealStatus  mealStatus;
 	private Transportation transportation;
 	private boolean		bGiftCardOnly;
 	private GiftDistribution	giftDistribution;
@@ -92,8 +93,9 @@ public class ONCFamily extends ONCEntity
 		this.agentID = f.agentID;
 		this.groupID = f.groupID;
 		this.deliveryID = f.deliveryID;
-		this.mealID = f.mealID;
-		this.mealStatus = f.mealStatus;
+		this.phoneCode = f.phoneCode;
+//		this.mealID = f.mealID;
+//		this.mealStatus = f.mealStatus;
 		this.transportation = f.transportation;
 		this.bGiftCardOnly = f.bGiftCardOnly;
 		this.giftDistribution = f.giftDistribution;
@@ -138,8 +140,9 @@ public class ONCFamily extends ONCEntity
 		agentID = agentid;
 		groupID = groupid;
 		deliveryID = -1;
-		mealID = -1;
-		mealStatus = MealStatus.None;
+		this.phoneCode = 0;
+//		mealID = -1;
+//		mealStatus = MealStatus.None;
 		if(transportation.equals("Yes") || transportation.equals("No"))
 			this.transportation = Transportation.valueOf(transportation);
 		else
@@ -158,7 +161,7 @@ public class ONCFamily extends ONCEntity
 	public ONCFamily(String[] nextLine)
 	{
 		super(Integer.parseInt(nextLine[0]), System.currentTimeMillis(), nextLine[11], 
-				Integer.parseInt(nextLine[39]), nextLine[40], nextLine[41]);
+				Integer.parseInt(nextLine[38]), nextLine[39], nextLine[40]);
 		oncNum = getDBString(nextLine[1]);
 		region = Integer.parseInt(nextLine[2]);
 		this.schoolCode = nextLine[3];
@@ -193,13 +196,13 @@ public class ONCFamily extends ONCEntity
 		agentID = Integer.parseInt(nextLine[32]);
 		groupID = Integer.parseInt(nextLine[33]);
 		deliveryID = Integer.parseInt(nextLine[34]);
-		mealID = Integer.parseInt(nextLine[35]);
-		mealStatus = MealStatus.valueOf(nextLine[36]);
-		nBags = Integer.parseInt(nextLine[37]);
-		nLargeItems = Integer.parseInt(nextLine[38]);
-		transportation = Transportation.valueOf(nextLine[42]);
-		bGiftCardOnly = nextLine[43].equals("TRUE") ? true : false;
-		this.giftDistribution = nextLine[44].isEmpty() ? GiftDistribution.Delivery : GiftDistribution.distribution(Integer.parseInt(nextLine[44]));
+		phoneCode = Integer.parseInt(nextLine[35]);
+//		mealStatus = MealStatus.valueOf(nextLine[36]);
+		nBags = Integer.parseInt(nextLine[36]);
+		nLargeItems = Integer.parseInt(nextLine[37]);
+		transportation = Transportation.valueOf(nextLine[41]);
+		bGiftCardOnly = nextLine[42].equals("TRUE") ? true : false;
+		this.giftDistribution = nextLine[43].isEmpty() ? GiftDistribution.Delivery : GiftDistribution.distribution(Integer.parseInt(nextLine[43]));
 	}
 	
 	//Overloaded Constructor - Direct Intake Processing
@@ -209,7 +212,7 @@ public class ONCFamily extends ONCEntity
 				String altHouseNum, String altStreet, String altUnitNum, String altCity, String altZipCode,
 				String homePhone, String otherPhone, String altPhone, String familyEmail, String odbDetails,
 				String schools, boolean bGiftsRequested, String odbWishList, int agentID, int groupID,
-				int mealID, MealStatus mStatus, Transportation transportation, GiftDistribution giftDistribution)
+				int phoneCode, Transportation transportation, GiftDistribution giftDistribution)
 	{
 		super(id, System.currentTimeMillis(), cb, STOPLIGHT_OFF, "Family referred", cb);
 		this.oncNum = oncNum;
@@ -265,8 +268,9 @@ public class ONCFamily extends ONCEntity
 		this.agentID = agentID;
 		this.groupID = groupID;
 		this.deliveryID = -1;
-		this.mealID = mealID;
-		this.mealStatus = mStatus;
+		this.phoneCode = phoneCode;
+//		this.mealID = mealID;
+//		this.mealStatus = mStatus;
 		this.transportation = transportation;
 		this.bGiftCardOnly = false;
 		this.giftDistribution = giftDistribution;
@@ -466,8 +470,8 @@ public class ONCFamily extends ONCEntity
 	public String	getONCNum() {return oncNum;}
 	public int		getRegion() {return region;}
 	public String	getSchoolCode() { return schoolCode; }
-	public FamilyStatus		getFamilyStatus() {return famStatus; }
-	public FamilyGiftStatus	getGiftStatus() { return giftStatus; }
+//	public FamilyStatus		getFamilyStatus() {return famStatus; }
+//	public FamilyGiftStatus	getGiftStatus() { return giftStatus; }
 	public int		getNumOfBags() { return nBags; }
 	public int		getNumOfLargeItems() { return nLargeItems; }
 	public String	getReferenceNum()	{return referenceNum;}
@@ -498,9 +502,10 @@ public class ONCFamily extends ONCEntity
 	public String	getAdoptedFor() {return adoptedFor;}	
 	public int		getAgentID() { return agentID; }
 	public int		getGroupID() { return groupID; }
-	public int		getDeliveryID() { return deliveryID; }
-	public int		getMealID() { return mealID; }
-	public MealStatus getMealStatus() { return mealStatus; }
+//	public int		getDeliveryID() { return deliveryID; }
+	public int		getPhoneCode() { return phoneCode; }
+//	public int		getMealID() { return mealID; }
+//	public MealStatus getMealStatus() { return mealStatus; }
 	public Transportation getTransportation() { return transportation; }
 	public boolean 	isGiftCardOnly() { return bGiftCardOnly; }
 	public GiftDistribution getGiftDistribution() { return giftDistribution; }
@@ -509,8 +514,8 @@ public class ONCFamily extends ONCEntity
 	public void setONCNum(String s) { oncNum = s;}
 	public void setRegion(int r) { region = r;}
 	public void setSchoolCode(String sc) { this.schoolCode = sc; }
-	public void setFamilyStatus(FamilyStatus fs){ famStatus = fs; }
-	public void setGiftStatus(FamilyGiftStatus fgs) { giftStatus = fgs; }
+//	public void setFamilyStatus(FamilyStatus fs){ famStatus = fs; }
+//	public void setGiftStatus(FamilyGiftStatus fgs) { giftStatus = fgs; }
 	public void setNumOfBags(int b) { nBags = b; }
 	public void setNumOfLargeItems(int li) { nLargeItems = li; }
 	public void setReferenceNum(String s)	{ referenceNum = s;}
@@ -540,9 +545,10 @@ public class ONCFamily extends ONCEntity
 	public void setAdoptedFor(String s) { adoptedFor = s;}
 	public void setAgentID(int  aid) { agentID = aid; }
 	public void setGroupID(int  gid) { groupID = gid; }
-	public void setDeliveryID(int did) { deliveryID = did; }
-	public void setMealID(int id) { mealID = id; }
-	public void setMealStatus(MealStatus ms) { mealStatus = ms; }
+//	public void setDeliveryID(int did) { deliveryID = did; }
+	public void setPhoneCode(int code) { phoneCode = code; }
+//	public void setMealID(int id) { mealID = id; }
+//	public void setMealStatus(MealStatus ms) { mealStatus = ms; }
 	public void setTransportation(Transportation t) { transportation = t; }
 	public void setGiftCardOnly(boolean gco) { bGiftCardOnly = gco; }
 	public void setGiftDistribution(GiftDistribution dist) { this.giftDistribution = dist; }
@@ -629,9 +635,10 @@ public class ONCFamily extends ONCEntity
 		rowList.add(getAdoptedFor());
 		rowList.add(Integer.toString(getAgentID()));
 		rowList.add(Integer.toString(getGroupID()));
-		rowList.add(Integer.toString(getDeliveryID()));
-		rowList.add(Integer.toString(getMealID()));
-		rowList.add(getMealStatus().toString());
+		rowList.add(Integer.toString(deliveryID));
+		rowList.add(Integer.toString(phoneCode));
+//		rowList.add(Integer.toString(mealID));
+//		rowList.add(MealStatus.None.toString());
 		rowList.add(Integer.toString(getNumOfBags()));
 		rowList.add(Integer.toString(getNumOfLargeItems()));
 		rowList.add(Integer.toString(getStoplightPos()));
