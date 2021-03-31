@@ -1475,6 +1475,13 @@ public class FamilyDB extends ONCSearchableDatabase
 	@Override
 	String[] getExportHeader()
 	{
-		return null;
+		return new String[] {"ONC ID", "ONCNum", "Region", "School Code", "ODB Family #", "Batch #", 
+				"Speak English?","Language if No", "Caller", "Notes", "Delivery Instructions",
+				"Client Family", "First Name", "Last Name", "House #", "Street", "Unit #", "City", "Zip Code",
+				"Substitute Delivery Address", "All Phone #'s", "Home Phone", "Other Phone", "Family Email", 
+				"ODB Details", "Children Names", "Schools", "ODB WishList", "Adopted For",
+				"Agent ID", "GroupID", "Phone Code", "# of Bags", "# of Large Items", 
+				"Stoplight Pos", "Stoplight Mssg", "Stoplight C/B", "Transportation",
+				"Gift Card Only", "Gift Distribution"};
 	}
 }
