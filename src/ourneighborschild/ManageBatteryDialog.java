@@ -72,6 +72,7 @@ public class ManageBatteryDialog extends ONCEntityTableDialog implements ActionL
 	
 	private BatteryDB batteryDB;
 	private FamilyDB familyDB;
+	private FamilyHistoryDB familyHistoryDB;
 	private ChildDB childDB;
 	private ChildGiftDB giftDB;
 	private ClonedGiftDB clonedGiftDB;
@@ -108,6 +109,8 @@ public class ManageBatteryDialog extends ONCEntityTableDialog implements ActionL
 		familyDB = FamilyDB.getInstance();
 		if(familyDB != null)
 			familyDB.addDatabaseListener(this);
+		
+		familyHistoryDB = FamilyHistoryDB.getInstance();
 		
 		catDB = GiftCatalogDB.getInstance();
 		
@@ -433,7 +436,7 @@ public class ManageBatteryDialog extends ONCEntityTableDialog implements ActionL
 			if(modelRow > -1)
 			{
 				BatteryTableObject bto = batteryTableList.get(modelRow);
-				this.fireEntitySelected(this, EntityType.GIFT, bto.getFamily(), bto.getChild());
+				this.fireEntitySelected(this, EntityType.GIFT, bto.getFamily(), bto.getFamilyHistory(),  bto.getChild());
 			}
 		}
 	}
@@ -554,6 +557,7 @@ public class ManageBatteryDialog extends ONCEntityTableDialog implements ActionL
 	private class BatteryTableObject
 	{
 		private ONCFamily family;
+		private FamilyHistory familyHistory;
 		private ONCChild child;
 		private Battery battery;
 		
@@ -562,12 +566,19 @@ public class ManageBatteryDialog extends ONCEntityTableDialog implements ActionL
 			this.battery = battery;
 			this.child = childDB.getChild(battery.getChildID());
 			if(child != null)
+			{
 				family = familyDB.getFamily(child.getFamID());
+				familyHistory = familyHistoryDB.getLastFamilyHistory(child.getFamID());
+			}
 			else
+			{
 				family = null;
+				familyHistory = null;
+			}
 		}
 		
 		ONCFamily getFamily() { return family; }
+		FamilyHistory getFamilyHistory() { return familyHistory; }
 		ONCChild getChild() { return child; }
 		Battery getBattery() { return battery; }
 		

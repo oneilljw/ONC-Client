@@ -67,7 +67,7 @@ public class FamilyHistoryDialog extends HistoryDialog
 	
 	List<FamilyHistory> getSortedList()
 	{
-		List<FamilyHistory> hList = familyHistoryDB.getDeliveryHistoryAL(currFam.getID());
+		List<FamilyHistory> hList = familyHistoryDB.getFamilyHistoryList(currFam.getID());
 		Collections.sort(hList, new FamilyHistoryTimestampComparator());
 		
 		return hList;

@@ -264,7 +264,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 			//(Not a DUP, SA, etc family)
 			FamilyHistory fh = fhDB.getLastFamilyHistory(f.getID());
 			ONCMeal m = mealDB.getFamiliesCurrentMeal(f.getID());
-			if(isNumeric(f.getONCNum()) && m != null && doesONCNumMatch(f.getONCNum()) &&
+			if(fh != null && isNumeric(f.getONCNum()) && m != null && doesONCNumMatch(f.getONCNum()) &&
 			   (fh.getDNSCode()==-1 || fh.getDNSCode()==DNSCode.FOOD_ONLY || fh.getDNSCode()==DNSCode.WAITLIST) &&
 				doesFamilyStatusMatch(fh.getFamilyStatus()))		
 			{
@@ -719,6 +719,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 										dbe.getType().equals("UPDATED_MEAL") ||
 										dbe.getType().equals("DELETED_MEAL") ||
 										dbe.getType().equals("ADDED_FAMILY") ||
+										dbe.getType().equals("ADDED_DELIVERY") ||
 										dbe.getType().equals("UPDATED_FAMILY") ||
 										dbe.getType().equals("DELETED_FAMILY")))
 		{
@@ -788,7 +789,8 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 				sortTable.getSelectedRow() > -1 && !bChangingTable)
 		{
 			ONCFamily fam = stAL.get(sortTable.getSelectedRow()).getFamily();
-			fireEntitySelected(this, EntityType.FAMILY, fam, null);
+			FamilyHistory famHistory = stAL.get(sortTable.getSelectedRow()).getFamilyHistory();
+			fireEntitySelected(this, EntityType.FAMILY, fam, famHistory, null);
 			
 			ONCMeal meal = stAL.get(sortTable.getSelectedRow()).getMeal();
 			//determine if a partner has been assigned for the selected meal

@@ -64,7 +64,7 @@ public class DistributionDialog extends InfoDialog implements DatabaseListener, 
 		
 		tf[0].setText(f.getONCNum());
 		tf[1].setText(userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0 ? f.getLastName() : "");
-		distributionCB.setSelectedItem(f.getTransportation());
+		distributionCB.setSelectedItem(f.getGiftDistribution());
 		
 		btnAction.setEnabled(false);		
 	}

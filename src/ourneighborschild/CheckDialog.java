@@ -40,6 +40,8 @@ public abstract class CheckDialog extends ONCEntityTableDialog implements Action
 	private static final int NUM_ROWS_TO_DISPLAY = 10;
 	private static final Integer MAXIMUM_ONC_NUMBER = 9999;
 	
+	protected DuplicateDataCheck datachecker;
+	
 	protected ONCTable dupTable;
 	protected DefaultTableModel dupTableModel;
 	protected JCheckBox[] cbArray;
@@ -47,6 +49,7 @@ public abstract class CheckDialog extends ONCEntityTableDialog implements Action
 	protected JButton btnPrint;
 	protected ArrayList<DupItem> dupAL;
 	protected FamilyDB fDB;
+	protected FamilyHistoryDB famHistDB;
 	
 	protected boolean bChangingTable;
 	
@@ -63,6 +66,7 @@ public abstract class CheckDialog extends ONCEntityTableDialog implements Action
 		this.setTitle("Our Neighbor's Child -" + type + " Database Checks");
 
 		fDB = FamilyDB.getInstance();
+		famHistDB = FamilyHistoryDB.getInstance();
 		
 		//Initialize Dup Table data structure
 		dupAL = new ArrayList<DupItem>();
@@ -70,6 +74,8 @@ public abstract class CheckDialog extends ONCEntityTableDialog implements Action
 		//Listen for data base changes
 		if(fDB != null)
 			fDB.addDatabaseListener(this);
+		
+		datachecker = new DuplicateDataCheck();
 		
 		JPanel contentPane = (JPanel) this.getContentPane();
 		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
@@ -187,7 +193,7 @@ public abstract class CheckDialog extends ONCEntityTableDialog implements Action
 		for(int i=0; i< criteria.length; i++)
 			criteria[i] = cbArray[i].isSelected();
     	
-    		//If child comparison returns a match, sort by child 1 last name, 
+    	//If child comparison returns a match, sort by child 1 last name, 
 		//allow table row selections and user print
 		if(performDupCheck(criteria))
 		{
@@ -243,9 +249,10 @@ public abstract class CheckDialog extends ONCEntityTableDialog implements Action
 			DupItem di = dupAL.get(dupTable.getSelectedRow());
 			
 			ONCFamily fam = di.getFamily1();
+			FamilyHistory fh = di.getFamilyHistory1();
 			ONCChild child = di.getChild1();
 			
-			fireEntitySelected(this, EntityType.FAMILY, fam, child);
+			fireEntitySelected(this, EntityType.FAMILY, fam, fh, child);
 			requestFocus();
 		}
 	}

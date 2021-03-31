@@ -62,11 +62,6 @@ public class ChildDB extends ONCDatabase
 		{
 			childAL.add(addedChild);
 			fireDataChanged(source, "ADDED_CHILD", addedChild);
-			
-			FamilyDB fDB = FamilyDB.getInstance();
-			int[] countsChange = fDB.getServedFamilyAndChildCount();
-			DataChange servedCountsChange = new DataChange(countsChange[0], countsChange[1]);
-			fireDataChanged(source, "UPDATED_SERVED_COUNTS", servedCountsChange);
 		}
 		
 		return addedChild;
@@ -98,30 +93,10 @@ public class ChildDB extends ONCDatabase
 	
 	ONCChild processDeletedChild(Object source, String json)
 	{
-//		ChildGiftDB cgDB = ChildGiftDB.getInstance();
-//		GiftCatalogDB cat = GiftCatalogDB.getInstance();
-		
 		Gson gson = new Gson();
 		
 		ONCChild deletedChild =  removeChild(source, gson.fromJson(json, ONCChild.class).getID());
-		
-		//If the child had gifts, delete them from the child gift database & update the gift catalog counts. 
-//		for(int giftNum= 0; giftNum < NUM_GIFTS_PER_CHILD; giftNum++)
-//		{
-//			if(deletedChild.getChildGiftID(giftNum) > -1)
-//			{
-//				//ask the child gift data base to delete the gift
-//				ONCChildGift deletedGift = cgDB.deleteChildGift(deletedChild.getChildGiftID(giftNum));
-//				
-//				//inform the gift catalog that the gift has been deleted
-//				cat.changeGiftCounts(deletedGift, null);
-//			}
-//		}
-		
-		FamilyDB fDB = FamilyDB.getInstance();
-		int[] countsChange = fDB.getServedFamilyAndChildCount();
-		DataChange servedCountsChange = new DataChange(countsChange[0], countsChange[1]);
-		fireDataChanged(source, "UPDATED_SERVED_COUNTS", servedCountsChange);
+
 					
 		fireDataChanged(source, "DELETED_CHILD", deletedChild);
 		

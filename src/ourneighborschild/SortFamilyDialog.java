@@ -161,6 +161,9 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		
 		if(dnsCodeDB != null)
 			dnsCodeDB.addDatabaseListener(this);	//listen for dns code load/changes
+		
+		if(mealDB != null)
+			mealDB.addDatabaseListener(this);
 
 		//set up search comparison variables
 		sortONCNum = "Any";
@@ -414,7 +417,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		ONCMeal meal = mealDB.getFamiliesCurrentMeal(faN.getFamily().getID());
 		String famDNSCode = "";
 		if(faN.getFamilyHistory().getDNSCode() > -1)
-			famDNSCode = dnsCodeDB.getDNSCode(faN.getFamily().getDNSCode()).getAcronym();
+			famDNSCode = dnsCodeDB.getDNSCode(faN.getFamilyHistory().getDNSCode()).getAcronym();
 		
 		Object[] tablerow = {
 			faN.getFamily().getONCNum(), 
@@ -468,11 +471,12 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		int id = 0;
 		for(ONCFamily f:fDB.getList())
 		{
-			if(doesONCNumMatch(f.getONCNum()) &&
+			FamilyHistory fh = fhDB.getLastFamilyHistory(f.getID());
+			if(fh != null && doesONCNumMatch(f.getONCNum()) &&
 				doesBatchNumMatch(f.getBatchNum()) &&
-				 doesDNSCodeMatch(f.getDNSCode()) &&
-				  doesFStatusMatch(familyHistoryDB.getLastFamilyHistory(f.getID()).getFamilyStatus()) &&
-				   doesDStatusMatch(familyHistoryDB.getLastFamilyHistory(f.getID()).getGiftStatus()) &&
+				 doesDNSCodeMatch(fh.getDNSCode()) &&
+				  doesFStatusMatch(fh.getFamilyStatus()) &&
+				   doesDStatusMatch(fh.getGiftStatus()) &&
 				   doesMealStatusMatch(f) && 
 				    doesLastNameMatch(f.getLastName()) &&
 				     doesStreetMatch(f.getStreet()) &&
@@ -487,7 +491,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 				              doesStoplightMatch(f.getStoplightPos()) &&
 				               doesNoteStatusMatch(f))	//Family criteria pass
 			{
-				stAL.add(new ONCFamilyAndNote(id++, f, familyHistoryDB.getLastFamilyHistory(f.getID()),
+				stAL.add(new ONCFamilyAndNote(id++, f, fhDB.getLastFamilyHistory(f.getID()),
 												noteDB.getLastNoteForFamily(f.getID())));
 			}
 		}
@@ -646,7 +650,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		
 		if(!updateFamHistReqList.isEmpty())
 		{
-			String response = familyHistoryDB.addHistoryGroup(this, updateFamHistReqList);
+			String response = fhDB.addHistoryGroup(this, updateFamHistReqList);
 			if(response.startsWith("ADDED_FAMILY_HISTORY_GROUP"))
 			{	
 				buildTableList(false);
@@ -2844,7 +2848,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	@Override
 	public void dataChanged(DatabaseEvent dbe)
 	{
-		if(dbe.getSource() != this && (dbe.getType().equals("ADDED_FAMILY") ||
+		if(dbe.getSource() != this && (dbe.getType().equals("ADDED_FAMILY") || dbe.getType().equals("ADDED_DELIVERY") ||
 				dbe.getType().equals("UPDATED_FAMILY")))
 		{
 			buildTableList(true);		
@@ -2882,6 +2886,10 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		else if(dbe.getType().contains("UPDATED_DNSCODE"))
 		{
 			updateDNSCodeCB();
+			buildTableList(true);
+		}
+		else if(dbe.getType().contains("ADDED_MEAL"))
+		{
 			buildTableList(true);
 		}
 		else if(dbe.getType().contains("CHANGED_USER"))

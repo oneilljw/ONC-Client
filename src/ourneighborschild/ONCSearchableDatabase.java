@@ -28,7 +28,7 @@ public abstract class ONCSearchableDatabase extends ONCDatabase
 	
 	abstract List<? extends ONCEntity> getList();
 	
-	abstract ONCEntity getObjectAtIndex(int index);
+	abstract ONCEntity getObjectAtIndex(int index);	//list holds companion objects, such as family/family history
 	
 	EntityType getDBType() { return dbType; }
 }

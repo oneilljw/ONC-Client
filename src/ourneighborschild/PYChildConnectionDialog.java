@@ -354,13 +354,13 @@ public class PYChildConnectionDialog extends JDialog implements ActionListener,
 		else if(tse.getType() == EntityType.CHILD)
 		{
 			ONCFamily fam = (ONCFamily) tse.getObject1();
-			ONCChild child = (ONCChild) tse.getObject2();
+			ONCChild child = (ONCChild) tse.getObject3();
 			display(fam, child);
 		}
 		else if(tse.getType() == EntityType.GIFT)
 		{
 			ONCFamily fam = (ONCFamily) tse.getObject1();
-			ONCChild child = (ONCChild) tse.getObject2();
+			ONCChild child = (ONCChild) tse.getObject3();
 			display(fam, child);
 		}
 	}

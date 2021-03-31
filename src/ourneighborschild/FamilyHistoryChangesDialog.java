@@ -360,7 +360,7 @@ public class FamilyHistoryChangesDialog extends ONCTableDialog implements Proper
 		if(modelRow > -1)
 		{
 			ONCFamily fam = (ONCFamily) famDB.getFamily(histList.get(modelRow).getFamID());
-			fireEntitySelected(this, EntityType.FAMILY, fam, null);
+			fireEntitySelected(this, EntityType.FAMILY, fam, histList.get(modelRow), null);
 		}
 		
 		exportCB.setEnabled(dlgTable.getSelectedRowCount() > 0);

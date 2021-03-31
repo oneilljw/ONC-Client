@@ -63,7 +63,7 @@ public class SortGiftObject extends ONCObject
 		ONCPartner partner = partnerDB.getPartnerByID(soChildGift.getPartnerID());
 		String partnerName = partner == null ? "" : partner.getLastName();
 		
-		DNSCode code = soFamily.getDNSCode() > -1 ? dnsCodeDB.getDNSCode(soFamily.getDNSCode()) : null;
+		DNSCode code = soFamilyHistory.getDNSCode() > -1 ? dnsCodeDB.getDNSCode(soFamilyHistory.getDNSCode()) : null;
 		
 		String[] exportRow = {soFamily.getONCNum(),
 								code == null ? "" : code.getAcronym(),

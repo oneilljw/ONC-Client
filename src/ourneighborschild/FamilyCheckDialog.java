@@ -15,6 +15,7 @@ public class FamilyCheckDialog extends CheckDialog
 	 */
 	private static final long serialVersionUID = 1L;
 	
+	
 	private static String[] columnToolTips = {"Family #1 ONC Number", "Family #1 First Name", 
 									   "Family # 1 Last Name", "Family #1 Street #",
 									   "Family #1 Steet Name", "Result", "Family #2 ONC Number",
@@ -31,7 +32,7 @@ public class FamilyCheckDialog extends CheckDialog
 	FamilyCheckDialog(JFrame pf)
 	{
 		super(pf, "Family", columnToolTips, columns, colWidths, colsCentered);
-
+		
 		//set up the sort criteria
 		cbArray = new JCheckBox[5];
 		cbArray[0] = new JCheckBox("First Name");
@@ -75,7 +76,6 @@ public class FamilyCheckDialog extends CheckDialog
 
 	boolean performDupCheck(boolean[] criteria)
 	{
-		DuplicateDataCheck datachecker = new DuplicateDataCheck();
 		return datachecker.duplicateFamilyCheck(fDB.getList(), criteria, dupAL);
 	}
 

@@ -50,6 +50,7 @@ public class DNSCodeDialog extends EntityDialog implements DatabaseListener, Lis
 	private static final int STOPLIGHT_COL = 4;
 	
 	private DNSCodeDB dnsCodeDB;
+	private FamilyHistoryDB familyHistoryDB;
 	
 	private DNSCode currCode;
 	
@@ -73,6 +74,10 @@ public class DNSCodeDialog extends EntityDialog implements DatabaseListener, Lis
 		dnsCodeDB = DNSCodeDB.getInstance();
 		if(dnsCodeDB != null)
 			dnsCodeDB.addDatabaseListener(this);
+		
+		familyHistoryDB = FamilyHistoryDB.getInstance();
+		if(familyHistoryDB != null)
+			familyHistoryDB.addDatabaseListener(this);
 		
 		if(userDB != null)
 			userDB.addDatabaseListener(this);
@@ -230,15 +235,21 @@ public class DNSCodeDialog extends EntityDialog implements DatabaseListener, Lis
 			{
 				//determine if family has a dns code. If it does, display that
 				//code in this dialog
-				ONCFamily selectedFam = (ONCFamily) tse.getObject1();
-				if(selectedFam.getDNSCode() > -1)
+				FamilyHistory selectedFH = (FamilyHistory) tse.getObject2();
+				if(selectedFH == null)
+				{
+					ONCFamily selectedFam = (ONCFamily) tse.getObject1();
+					selectedFH = familyHistoryDB.getLastFamilyHistory(selectedFam.getID());
+				}
+				
+				if(selectedFH != null && selectedFH.getDNSCode() > -1)
 				{
 					//family has a dns code, find it in the database
 					@SuppressWarnings("unchecked")
 					List<DNSCode> codeList = (List<DNSCode>) dnsCodeDB.getList();
 					int index = 0;
 					while(index < codeList.size() &&
-							codeList.get(index).getID() != selectedFam.getDNSCode())
+							codeList.get(index).getID() != selectedFH.getDNSCode())
 						index++;
 					
 					if(index < codeList.size())

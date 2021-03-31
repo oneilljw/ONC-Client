@@ -88,6 +88,9 @@ public abstract class SortTableDialog extends ONCEntityTableDialog implements Ac
 			fDB.addDatabaseListener(this);
 		
 		fhDB = FamilyHistoryDB.getInstance();
+		if(fhDB != null)
+			fhDB.addDatabaseListener(this);
+		
 		userDB = UserDB.getInstance();
 		regionDB = RegionDB.getInstance();
 		

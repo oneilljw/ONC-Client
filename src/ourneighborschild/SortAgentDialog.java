@@ -34,7 +34,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import au.com.bytecode.opencsv.CSVWriter;
 
 
-public class SortAgentDialog extends DependantTableDialog implements PropertyChangeListener
+public class SortAgentDialog extends DependantFamilyTableDialog implements PropertyChangeListener
 															
 {
 	/**
@@ -60,8 +60,6 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 	private JProgressBar progressBar;
 	private ONCEmailer oncEmailer;
 
-	private MealDB	mealDB;
-	private DNSCodeDB dnsCodeDB;
 	private List<ONCUser> atAL;	//Holds references to agent objects for agent table
 
 	SortAgentDialog(JFrame pf)
@@ -69,17 +67,6 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		super(pf, 10);
 		this.setTitle("Our Neighbor's Child - Agent Management");
 
-		if(userDB != null)
-			userDB.addDatabaseListener(this);
-		
-		if(dbMgr != null)
-			dbMgr.addDatabaseListener(this);
-		
-		mealDB = MealDB.getInstance();
-		dnsCodeDB = DNSCodeDB.getInstance();
-		if(dnsCodeDB != null)
-			dnsCodeDB.addDatabaseListener(this);
-		
 		//Set up the agent table content array list
 		atAL = new ArrayList<ONCUser>();
 		
@@ -850,12 +837,13 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		for(ONCFamily f:fDB.getList())
 			if(user != null && f.getAgentID() == user.getID())	//family is represented by agent and is being served
 			{
+				FamilyHistory fh = fhDB.getLastFamilyHistory(f.getID());
 				familyTableHTML.append("<tr><td>" + f.getLastName() + "</td>");
 				familyTableHTML.append("<td>" + f.getFirstName() + "</td>");
 				familyTableHTML.append("<td>" + f.getEmail() + "</td>");
 				familyTableHTML.append("<td>" + f.getHouseNum() + " " + f.getStreet() + " " + f.getUnit() + "</td>");
 //				familyTableHTML.append("<td>" + f.getCity() + "</td></tr>");
-				familyTableHTML.append("<td>" + f.getDNSCode() + "</td></tr>");
+				familyTableHTML.append("<td>" + fh.getDNSCode() + "</td></tr>");
 			}
 			
 		familyTableHTML.append("</table>");
@@ -884,7 +872,7 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 //				familyTableHTML.append("<td>" + famstatus[f.getFamilyStatus()] + "</td>");
 				familyTableHTML.append("<td>" + fh.getGiftStatus().toString() + "</td>");
 //				familyTableHTML.append("<td>" + f.getMealStatus().toString() + "</td></tr>");
-				familyTableHTML.append("<td>" + f.getDNSCode() + "</td></tr>");
+				familyTableHTML.append("<td>" + fh.getDNSCode() + "</td></tr>");
 			}
 			
 		familyTableHTML.append("</table>");
@@ -1124,10 +1112,10 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 	@Override
 	public void dataChanged(DatabaseEvent dbe)
 	{	
-		if(dbe.getType().equals("UPDATED_FAMILY") || dbe.getType().equals("ADDED_DELIVERY"))
+		if(dbe.getType().equals("UPDATED_FAMILY") || dbe.getType().equals("ADDED_DELIVERY") ||
+			dbe.getType().equals("ADDED_MEAL") || dbe.getType().equals("UPDATED_DNSCODE") ||
+			 dbe.getType().equals("ADDED_DELIVERY"))
 		{
-//			System.out.println(String.format("Sort Agent Dialog DB event, Source: %s, Type %s, Object: %s",
-//					dbe.getSource().toString(), dbe.getType(), dbe.getObject().toString()));
 			buildFamilyTableListAndDisplay();		
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("CHANGED_USER"))
@@ -1180,7 +1168,9 @@ public class SortAgentDialog extends DependantTableDialog implements PropertyCha
 		else if (!lse.getValueIsAdjusting() && lse.getSource() == familyTable.getSelectionModel() &&
 					!bChangingFamilyTable)
 		{
-			fireEntitySelected(this, EntityType.FAMILY, stAL.get(familyTable.getSelectedRow()), null);
+			ONCFamily selectedFam = stAL.get(familyTable.getSelectedRow()).getFamily();
+			FamilyHistory selectedFamHistory = stAL.get(familyTable.getSelectedRow()).getFamilyHistory();
+			fireEntitySelected(this, EntityType.FAMILY, selectedFam, selectedFamHistory, null);
 			requestFocus();
 		}
 	

@@ -358,7 +358,7 @@ public class ChildPanel extends JPanel implements DatabaseListener, EntitySelect
 		}
 		else if(tse.getType() == EntityType.CHILD)
 		{
-			ONCChild child = (ONCChild) tse.getObject2();
+			ONCChild child = (ONCChild) tse.getObject3();
 			
 			if(dispChild != null)
 				updateChild(dispChild);
@@ -370,7 +370,7 @@ public class ChildPanel extends JPanel implements DatabaseListener, EntitySelect
 		}
 		else if(tse.getType() == EntityType.GIFT)
 		{
-			ONCChild child = (ONCChild) tse.getObject2();
+			ONCChild child = (ONCChild) tse.getObject3();
 			
 			if(dispChild != null)
 				updateChild(dispChild);

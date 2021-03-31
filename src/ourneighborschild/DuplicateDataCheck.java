@@ -7,12 +7,19 @@ public class DuplicateDataCheck
 {
 	private static final int MAX_YEARS_OF_BIRTH = 30;
 	
+	private FamilyHistoryDB familyHistoryDB;
+	
+	DuplicateDataCheck()
+	{
+		familyHistoryDB = FamilyHistoryDB.getInstance();
+	}
+	
 	boolean duplicateChildCheck(ArrayList<ONCFamily> fAL, boolean[] criteria, ChildDB cDB, ArrayList<DupItem> dupAL)
 	{
 		//Check for valid criteria. If no valid check criteria abort the comparison
 		if(!criteria[0] && !criteria[1] && !criteria[2] && !criteria[3] && !criteria[4])
 		{
-			dupAL.add(new DupItem(null, null, "No Criteria", null, null));
+			dupAL.add(new DupItem("No Criteria"));
 			return false;
 		}
 		
@@ -22,18 +29,19 @@ public class DuplicateDataCheck
 			{
 				if(isNumeric(f.getONCNum()))
 				{
+					FamilyHistory fh = familyHistoryDB.getLastFamilyHistory(f.getID());
 					for(int i=0; i<cDB.getNumberOfChildrenInFamily(f.getID()); i++)
 					{
 						ONCChild sc = cDB.getChildren(f.getID()).get(i);
-						CompareChild sourceChild = new CompareChild(f, sc);
+						CompareChild sourceChild = new CompareChild(f, fh, sc);
 						
 						for(int j=0; j<cDB.getNumberOfChildrenInFamily(f.getID()); j++)
 						{
 							if(i != j)	//Don't compare a child to himself
 							{
 								ONCChild tc = cDB.getChildren(f.getID()).get(j);
-								CompareChild targetChild = new CompareChild(f, tc);
-								//Compare the children, if they compare, then they are dupes
+								CompareChild targetChild = new CompareChild(f, fh, tc);
+								//Compare the children, if they compare, then they are duplicates
 								dupChildCheck(f, sourceChild, targetChild, criteria, dupAL);
 					
 							}
@@ -50,8 +58,11 @@ public class DuplicateDataCheck
 			for(ONCFamily f:fAL)
 			{
 				if(isNumeric(f.getONCNum()))
+				{	
+					FamilyHistory fh = familyHistoryDB.getLastFamilyHistory(f.getID());
 					for(ONCChild c:cDB.getChildren(f.getID()))
-						ccAL.add(new CompareChild(f, c));	
+						ccAL.add(new CompareChild(f, fh, c));
+				}
 			}
 		
 			//Sort the children into array lists by birth year
@@ -94,7 +105,7 @@ public class DuplicateDataCheck
 			return true;
 		else 
 		{
-			dupAL.add(new DupItem(null, null, "No Matches", null, null));
+			dupAL.add(new DupItem("No Matches"));
 			return false;
 		}
 		
@@ -105,7 +116,7 @@ public class DuplicateDataCheck
 		//Check for valid criteria. If no valid check criteria abort the comparison
 		if(!criteria[0] && !criteria[1] && !criteria[2] && !criteria[3] && !criteria[4])
 		{
-			dupAL.add(new DupItem(null, null,"No Criteria",null, null));
+			dupAL.add(new DupItem("No Criteria"));
 			return false;
 		}
 		else
@@ -115,14 +126,18 @@ public class DuplicateDataCheck
 			for(ONCFamily sourceFamily: fAL)
 				for(ONCFamily targetFamily:fAL)
 					if(sourceFamily.getID() != targetFamily.getID())
-						dupFamilyCheck(sourceFamily, targetFamily, criteria, dupAL);	
+					{
+						FamilyHistory sourceFamilyHistory = familyHistoryDB.getLastFamilyHistory(sourceFamily.getID());
+						FamilyHistory targetFamilyHistory = familyHistoryDB.getLastFamilyHistory(targetFamily.getID());
+						dupFamilyCheck(sourceFamily, sourceFamilyHistory, targetFamily, targetFamilyHistory, criteria, dupAL);
+					}
 		}
 	
 		if (dupAL.size() > 0)
 			return true;
 		else 
 		{
-			dupAL.add(new DupItem(null, null, "No Matches", null, null));
+			dupAL.add(new DupItem("No Matches"));
 			return false;
 		}
 		
@@ -132,17 +147,18 @@ public class DuplicateDataCheck
 	{
 		if(sourceChild.isChildDuplicate(targetChild, criteria))
 		{
-			dupAL.add(new DupItem(sourceChild.getFamily(), sourceChild.getChild(), 
+			dupAL.add(new DupItem(sourceChild.getFamily(), sourceChild.getFamilyHistory(), sourceChild.getChild(), 
 							"matches",
-							targetChild.getFamily(), targetChild.getChild()));	
+							targetChild.getFamily(), targetChild.getFamilyHistory(), targetChild.getChild()));	
 		}	
 	}
 	
-	boolean dupFamilyCheck(ONCFamily sourceFamily, ONCFamily targetFamily, boolean[] criteria, ArrayList<DupItem> dupAL)
+	boolean dupFamilyCheck(ONCFamily sourceFamily, FamilyHistory sourceFamilyHistory, 
+			ONCFamily targetFamily, FamilyHistory targetFamilyHistory, boolean[] criteria, ArrayList<DupItem> dupAL)
 	{
 		if(sourceFamily.isFamilyDuplicate(targetFamily, criteria))
 		{		
-			dupAL.add(new DupItem(sourceFamily, null, "matches", targetFamily, null));
+			dupAL.add(new DupItem(sourceFamily, sourceFamilyHistory, null, "matches", targetFamily, targetFamilyHistory, null));
 			
 			return true;
 		}
@@ -158,17 +174,20 @@ public class DuplicateDataCheck
 	private class CompareChild
 	{
 		private ONCFamily f;
+		private FamilyHistory fh;
 		private ONCChild c;
 		
-		CompareChild(ONCFamily f, ONCChild c)
+		CompareChild(ONCFamily f, FamilyHistory fh, ONCChild c)
 		{
 			this.f = f;
+			this.fh = fh;
 			this.c = c;
 		}
 		
 		//getters
 		int getBYIndex(){ return Calendar.getInstance().get(Calendar.YEAR) - c.getChildDOB().get(Calendar.YEAR); }
 		ONCFamily getFamily() { return f; }
+		FamilyHistory getFamilyHistory() { return fh; }
 		ONCChild getChild() { return c; }
 		
 		boolean isChildDuplicate(CompareChild cc, boolean[] criteria)

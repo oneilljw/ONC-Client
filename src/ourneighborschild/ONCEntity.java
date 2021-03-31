@@ -42,6 +42,16 @@ public abstract class ONCEntity extends ONCObject implements Serializable
 		this.slChangedBy = e.slChangedBy;
 	}
 	
+	public ONCEntity()
+	{
+		super(0);
+		this.timestamp = System.currentTimeMillis();
+		this.changedBy = "";
+		this.slPos = 0;
+		this.slMssg = "";
+		this.slChangedBy ="";
+	}
+	
 	//getters
 	public Date getTimestampDate()  
 	{ 

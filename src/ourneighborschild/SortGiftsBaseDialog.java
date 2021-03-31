@@ -436,7 +436,7 @@ public abstract class SortGiftsBaseDialog extends ChangeDialog implements Proper
 				ONCFamily f = fDB.getFamily(c.getFamID());
 				FamilyHistory fh = fhDB.getLastFamilyHistory(c.getFamID());
 				if(f != null && isNumeric(f.getONCNum()) && doesONCNumMatch(f.getONCNum()) &&
-					doesFamilyStatusMatch(fh.getFamilyStatus()) && doesDNSCodeMatch(f.getDNSCode()) && 
+					doesFamilyStatusMatch(fh.getFamilyStatus()) && doesDNSCodeMatch(fh.getDNSCode()) && 
 					doesRegionMatch(f.getRegion()) &&	isAgeInRange(c) && doesGenderMatch(c) &&
 					doesSchoolMatch(c) && doesResMatch(cg.getIndicator()) && doesGiftCardOnlyMatch(f.isGiftCardOnly()) &&
 					doesPartnerMatch(cg.getPartnerID()) && doesStatusMatch(cg.getGiftStatus()) &&
@@ -1331,6 +1331,20 @@ public abstract class SortGiftsBaseDialog extends ChangeDialog implements Proper
 		buildTableList(false);
 	}
 	
+	void updateDateFilters()
+	{
+		de.getDateEditor().removePropertyChangeListener(this);
+		ds.getDateEditor().removePropertyChangeListener(this);
+		
+		setDateFilters(gvs.getSeasonStartCal(), Calendar.getInstance(TimeZone.getTimeZone("UTC")), 0, 1);
+		
+		ds.setCalendar(startFilterTimestamp);
+		de.setCalendar(endFilterTimestamp);
+		
+		ds.getDateEditor().addPropertyChangeListener(this);
+		de.getDateEditor().addPropertyChangeListener(this);
+	}
+	
 	void setDateFilters(Calendar start, Calendar end, int startOffset, int endOffset)
 	{
 		startFilterTimestamp.set(start.get(Calendar.YEAR), start.get(Calendar.MONTH), start.get(Calendar.DAY_OF_MONTH));
@@ -1434,9 +1448,10 @@ public abstract class SortGiftsBaseDialog extends ChangeDialog implements Proper
 				sortTable.getSelectedRow() > -1 && !bChangingTable)
 		{
 			ONCFamily fam = stAL.get(sortTable.getSelectedRow()).getFamily();
+			FamilyHistory fh = stAL.get(sortTable.getSelectedRow()).getFamilyHistory();
 			ONCChild child = stAL.get(sortTable.getSelectedRow()).getChild();
 			ONCChildGift cg = stAL.get(sortTable.getSelectedRow()).getChildGift();
-			fireEntitySelected(this, EntityType.GIFT, fam, child, cg);
+			fireEntitySelected(this, EntityType.GIFT, fam, fh, child);
 			
 			//determine if a partner has been assigned for the selected gift
 			int childWishAssigneeID = cg.getPartnerID();
@@ -1707,8 +1722,8 @@ public abstract class SortGiftsBaseDialog extends ChangeDialog implements Proper
 		@Override
 		public int compare(SortGiftObject o1, SortGiftObject o2)
 		{	
-			DNSCode fam1Code = dnsCodeDB.getDNSCode(o1.getFamily().getDNSCode());
-			DNSCode fam2Code = dnsCodeDB.getDNSCode(o2.getFamily().getDNSCode());
+			DNSCode fam1Code = dnsCodeDB.getDNSCode(o1.getFamilyHistory().getDNSCode());
+			DNSCode fam2Code = dnsCodeDB.getDNSCode(o2.getFamilyHistory().getDNSCode());
 			
 			if(fam1Code.getID() == -1 && fam2Code.getID() == -1)
 				return 0;
@@ -1872,8 +1887,8 @@ public abstract class SortGiftsBaseDialog extends ChangeDialog implements Proper
 		String partnerName = partner != null ? partner.getLastName() : "";
 		String ds = new SimpleDateFormat("MM/dd H:mm").format(sgo.getChildGift().getDateChanged().getTime());
 		String dnsAcronym = "";
-		if(sgo.getFamily().getDNSCode() > -1)
-			dnsAcronym = dnsCodeDB.getDNSCode(sgo.getFamily().getDNSCode()).getAcronym();
+		if(sgo.getFamilyHistory().getDNSCode() > -1)
+			dnsAcronym = dnsCodeDB.getDNSCode(sgo.getFamilyHistory().getDNSCode()).getAcronym();
 		String[] tablerow = {
 							sgo.getFamily().getONCNum(),
 							dnsAcronym,

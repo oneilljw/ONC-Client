@@ -39,6 +39,7 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 	private DatabaseManager dbMgr;
 	private RegionDB regionDB;
 	private FamilyDB famDB;
+	private FamilyHistoryDB familyHistoryDB;
 	
 	private JPanel schoolMapPanel, schoolDistPanel, regionMapPanel, regionDistPanel;
 	private JLabel lblSchoolClientMap = null, lblRegionClientMap = null;
@@ -47,8 +48,6 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 	private List<ZoneCountLabel> schoolCountLabelList, regionCountLabelList;
 	private JLabel lblRegionTotalServed, lblSchoolTotalServed;
 	private int totalSchoolsServed, totalRegionsServed;
-	
-	
 	
 	public ClientMapDialog(JFrame parent)
 	{
@@ -66,6 +65,10 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 		famDB = FamilyDB.getInstance();
 		if(famDB != null)
 			famDB.addDatabaseListener(this);	//listen for family changes
+		
+		familyHistoryDB = FamilyHistoryDB.getInstance();
+		if(familyHistoryDB != null)
+			familyHistoryDB.addDatabaseListener(this);
 		
 		regionDB = RegionDB.getInstance();
 		if(regionDB != null)
@@ -128,7 +131,7 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 	void display()
 	{		
 		//Build # of families in each region
-		buildRegionCounts(famDB.getList());
+		setSchoolAndRegionCounts(famDB.getList());
 						
 		//Build the map
 		buildClientMaps();
@@ -249,7 +252,7 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 		return map;
 	}
 	
-	void updateSchoolList()
+	void buildSchoolLabelList()
 	{
 		schoolDistPanel.removeAll();
 		schoolCountLabelList.clear();
@@ -273,7 +276,7 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 		schoolDistPanel.add(lblSchoolTotalServed);
 	}
 	
-	void updateRegionList()
+	void buildRegionLabelList()
 	{
 		regionDistPanel.removeAll();
 		regionCountLabelList.clear();
@@ -291,19 +294,24 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 		regionDistPanel.add(lblRegionTotalServed);
 	}
 	
-	void buildRegionCounts(ArrayList<ONCFamily> fAL)
+	void setSchoolAndRegionCounts(ArrayList<ONCFamily> fAL)
 	{
 		//Clear current counts
-		for(ZoneCountLabel rcl: schoolCountLabelList)
-			rcl.setCount(0);
+		for(ZoneCountLabel scl: schoolCountLabelList)
+			scl.setCount(0);
 		totalSchoolsServed = 0;
+		
+		for(ZoneCountLabel rcl: regionCountLabelList)
+			rcl.setCount(0);
+		totalRegionsServed = 0;
 		
 		//Separate families by region, only count served families. Served families
 		//have numeric ONC#'s and don't have a Do Not Serve code (empty)
 		for(ONCFamily f:fAL)
 		{
 			//only count served families
-			if(isNumeric(f.getONCNum()) && f.getDNSCode() == -1)
+			FamilyHistory fh = familyHistoryDB.getLastFamilyHistory(f.getID());
+			if(isNumeric(f.getONCNum()) && fh != null && fh.getDNSCode() == -1)
 			{
 				ZoneCountLabel associatedSchoolLbl = findLabelByZoneCode(schoolCountLabelList, f.getSchoolCode());
 				if(associatedSchoolLbl != null)
@@ -318,8 +326,6 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 					associatedRegionLbl.addToCount(1);
 					totalRegionsServed++;
 				}
-				
-				
 			}
 		}
 		
@@ -331,7 +337,7 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
     {
       return str.matches("-?\\d+(\\.\\d+)?");  //match a number with optional '-' and decimal.
     }
-	
+/*	
 	void updateSchoolZoneCounts(SchoolCodeChange scc)
 	{
 		if(scc.getDecCode() != null)	//null indicates an unchanged count
@@ -385,7 +391,7 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 		
 		lblRegionTotalServed.setText("Total Served: " + Integer.toString(totalRegionsServed));
 	}
-	
+*/	
 	ZoneCountLabel findLabelByZoneCode(List<ZoneCountLabel> labelList, String zoneCode)
 	{
 		int index = 0;
@@ -398,29 +404,27 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 	@Override
 	public void dataChanged(DatabaseEvent dbe) 
 	{
-		if(dbe.getSource() != this && dbe.getType().equals("UPDATED_SCHOOL_CODE"))
+//		if(dbe.getSource() != this && dbe.getType().equals("UPDATED_SCHOOL_CODE"))
+//		{
+//			SchoolCodeChange scc = (SchoolCodeChange) dbe.getObject1();
+//			updateSchoolZoneCounts(scc);	
+//		}
+//		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_REGION_CODE"))
+//		{	
+//			SchoolCodeChange scc = (SchoolCodeChange) dbe.getObject1();
+//			updateRegionCounts(scc);	
+//		}
+		if(dbe.getSource() != this && (dbe.getType().equals("ADDED_DELIVERY") || 
+										dbe.getType().equals("ADDED_FAMILY") ||
+										 dbe.getType().equals("UPDATED_FAMILY")))				
 		{
-//			System.out.println(String.format("Client Map Dlg DB Event: Source: %s, Type: %s, Object: %s",
-//					dbe.getSource().toString(), dbe.getType(), dbe.getObject().toString()));
-			
-			SchoolCodeChange scc = (SchoolCodeChange) dbe.getObject1();
-			updateSchoolZoneCounts(scc);	
-		}
-		if(dbe.getSource() != this && dbe.getType().equals("UPDATED_REGION_CODE"))
-		{
-//			System.out.println(String.format("Client Map Dlg DB Event: Source: %s, Type: %s, Object: %s",
-//					dbe.getSource().toString(), dbe.getType(), dbe.getObject().toString()));
-			
-			SchoolCodeChange scc = (SchoolCodeChange) dbe.getObject1();
-			updateRegionCounts(scc);	
+			display();	//dns code may have changed
 		}
 		else if(dbe.getType().equals("UPDATED_REGION_LIST"))
 		{
-//			System.out.println(String.format("ClientMapDialog dataChanged Updating Region List Event"));
-//			String[] regList = (String[]) dbe.getObject();
-			updateRegionList();
+			buildRegionLabelList();
 		}
-		else if(dbe.getType().equals("UPDATED_GLOBALS") && this.isVisible())
+		else if(dbe.getType().equals("UPDATED_GLOBALS") && this.isVisible())	//warehouse address change?
 		{
 			schoolMapPanel.remove(lblSchoolClientMap);
 			bClientMapsInMemory = false;
@@ -430,7 +434,7 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 		else if(dbe.getType().equals("LOADED_DATABASE"))
 		{
 			this.setTitle(String.format("Distribution of %d ONC Families Served Gifts", gvDB.getCurrentSeason()));
-			updateSchoolList();
+			buildSchoolLabelList();
 		}
 	}
 	

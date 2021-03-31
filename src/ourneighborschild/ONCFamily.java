@@ -61,13 +61,13 @@ public class ONCFamily extends ONCEntity
 		this.oncNum = f.oncNum;
 		this.region = f.region;
 		this.schoolCode = f.schoolCode;
-		this.famStatus = f.famStatus;
-		this.giftStatus = f.giftStatus;
+//		this.famStatus = f.famStatus;
+//		this.giftStatus = f.giftStatus;
 		this.nBags = f.nBags;
 		this.nLargeItems = f.nLargeItems;
 		this.referenceNum = f.referenceNum;
 		this.batchNum = f.batchNum;	
-		this.dnsCode = f.dnsCode;
+//		this.dnsCode = f.dnsCode;
 		this.speakEnglish = f.speakEnglish;
 		this.language = f.language;
 		this.notes = f.notes;
@@ -113,14 +113,14 @@ public class ONCFamily extends ONCEntity
 		oncNum = sONC;
 		this.region = region;
 		this.schoolCode = "Z";
-		famStatus = FamilyStatus.Unverified;
-		giftStatus = FamilyGiftStatus.Requested;
+//		famStatus = FamilyStatus.Unverified;
+//		giftStatus = FamilyGiftStatus.Requested;
 		nBags = 0;
 		nLargeItems = 0;
 		referenceNum = ID;
 		batchNum = bn;
 //		dnsCode = "";
-		dnsCode = -1;
+//		dnsCode = -1;
 		notes = "";
 		deliveryInstructions = "";
 		if(!ClientFam.isEmpty()) {clientFamily = ClientFam.split("Household", 2)[0].trim();}
@@ -206,25 +206,25 @@ public class ONCFamily extends ONCEntity
 	}
 	
 	//Overloaded Constructor - Direct Intake Processing
-	public ONCFamily(int id, String cb, String oncNum, String odbFamilyNum, String batchNum, int dnsCode,
+	public ONCFamily(int id, String cb, String oncNum, String odbFamilyNum, String batchNum,
 				String speakEnglish, String language, String hohFirstName, String hohLastName, 
 				String houseNum, String street, String unitNum, String city, String zipCode, 
 				String altHouseNum, String altStreet, String altUnitNum, String altCity, String altZipCode,
 				String homePhone, String otherPhone, String altPhone, String familyEmail, String odbDetails,
-				String schools, boolean bGiftsRequested, String odbWishList, int agentID, int groupID,
+				String schools, String odbWishList, int agentID, int groupID,
 				int phoneCode, Transportation transportation, GiftDistribution giftDistribution)
 	{
 		super(id, System.currentTimeMillis(), cb, STOPLIGHT_OFF, "Family referred", cb);
 		this.oncNum = oncNum;
 		this.region = -1;
 		this.schoolCode  = "Z";
-		this.famStatus = FamilyStatus.Unverified;
-		this.giftStatus = bGiftsRequested ? FamilyGiftStatus.Requested : FamilyGiftStatus.NotRequested;
+//		this.famStatus = bWaitlistFamily ? FamilyStatus.Waitlist : FamilyStatus.Unverified;
+//		this.giftStatus = bGiftsRequested ? FamilyGiftStatus.Requested : FamilyGiftStatus.NotRequested;
 		this.nBags = 0;
 		this.nLargeItems = 0;
 		this.referenceNum = odbFamilyNum;
 		this.batchNum = batchNum;
-		this.dnsCode = dnsCode;
+//		this.dnsCode = dnsCode;
 		this.speakEnglish = speakEnglish;	//Values are "Yes" or "No"	
 		this.language = language;		//Spanish, Arabic, Korean, etc	
 		this.notes = "";
@@ -470,8 +470,8 @@ public class ONCFamily extends ONCEntity
 	public String	getONCNum() {return oncNum;}
 	public int		getRegion() {return region;}
 	public String	getSchoolCode() { return schoolCode; }
-//	public FamilyStatus		getFamilyStatus() {return famStatus; }
-//	public FamilyGiftStatus	getGiftStatus() { return giftStatus; }
+	public FamilyStatus		getFamilyStatus() {return famStatus; }
+	public FamilyGiftStatus	getGiftStatus() { return giftStatus; }
 	public int		getNumOfBags() { return nBags; }
 	public int		getNumOfLargeItems() { return nLargeItems; }
 	public String	getReferenceNum()	{return referenceNum;}
@@ -521,7 +521,7 @@ public class ONCFamily extends ONCEntity
 	public void setReferenceNum(String s)	{ referenceNum = s;}
 	public void setBatchNum(String s) { batchNum = s;}	
 //	public void setDNSCode(String s) { dnsCode = s;}
-	public void setDNSCode(int code) { dnsCode = code;}
+//	public void setDNSCode(int code) { dnsCode = code;}
 	public void setSpeakEnglish(String s) { speakEnglish = s;}	
 	public void setLanguage(String s) { speakEnglish = ((language=s).equals("English")) ? "Yes":"No"; }
 	public void setNotes(String s) { notes = s;}
@@ -606,10 +606,9 @@ public class ONCFamily extends ONCEntity
 		rowList.add(getSchoolCode());
 		rowList.add(getReferenceNum());
 		rowList.add(getBatchNum());	
-//		rowList.add(getDNSCode());
-		rowList.add(Integer.toString(getDNSCode()));
-		rowList.add(Integer.toString(famStatus.statusIndex()));
-		rowList.add(Integer.toString(giftStatus.statusIndex()));
+		rowList.add(Integer.toString(-1));	//Deprecated
+		rowList.add(Integer.toString(-1));	//Deprecated
+		rowList.add(Integer.toString(-1));	//Deprecated
 		rowList.add(getSpeakEnglish());
 		rowList.add(getLanguage());			
 		rowList.add(getChangedBy());
@@ -635,7 +634,7 @@ public class ONCFamily extends ONCEntity
 		rowList.add(getAdoptedFor());
 		rowList.add(Integer.toString(getAgentID()));
 		rowList.add(Integer.toString(getGroupID()));
-		rowList.add(Integer.toString(deliveryID));
+		rowList.add(Integer.toString(-1));	//Deprecated
 		rowList.add(Integer.toString(phoneCode));
 //		rowList.add(Integer.toString(mealID));
 //		rowList.add(MealStatus.None.toString());

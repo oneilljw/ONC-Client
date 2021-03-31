@@ -549,7 +549,7 @@ public class ActivityDialog extends EntityDialog
 	}
 
 	/*************************************************************************************
-	 * If the FAMILY, WISH or VOLUNTEER entity selection event is fired 
+	 * If the FAMILY or VOLUNTEER entity selection event is fired 
 	 * and the current mode is not adding a new volunteer, save any changes to the 
 	 * currently displayed volunteer and display the volunteer
 	 ************************************************************************************/
@@ -557,18 +557,17 @@ public class ActivityDialog extends EntityDialog
 	public void entitySelected(EntitySelectionEvent tse)
 	{
 		if(this.isVisible() && !bAddingNewEntity)
-		{
+		{	
 /*			
-			if(tse.getType() == EntityType.FAMILY || tse.getType() == EntityType.WISH)
+			if(tse.getType() == EntityType.FAMILY)
 			{
 				ONCFamily fam = (ONCFamily) tse.getObject1();
+				FamilyHistory del = (FamilyHistory) tse.getObject2()l
 				
 				String logEntry = String.format("Volunteer Dialog Event: %s, ONC# %s selected",
 						tse.getType(), fam.getONCNum());
 				LogDialog.add(logEntry, "M");
 				
-				ONCFamilyHistory del = familyHistoryDB.getFamilyHistory(fam.getDeliveryID());
-			
 				if(del != null && !del.getdDelBy().isEmpty())
 				{
 					//There is a delivery volunteer assigned. Determine who it is from the driver

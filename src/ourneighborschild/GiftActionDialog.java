@@ -184,26 +184,28 @@ public abstract class GiftActionDialog extends SortTableDialog
 		{
 			//ONC number is valid and matches criteria. It must be a served family and the
 			//only allowable DNS code are WISH_ANTICIPATION or SERVED_BY_OTHERS.
-			if(isNumeric(f.getONCNum()) && 
-				(f.getDNSCode() == -1 || f.getDNSCode() == WISH_ANTICIPATION_DNS_CODE || f.getDNSCode() == SERVED_BY_OTHERS_DNS_CODE) && 
-				 doesONCNumMatch(f.getONCNum()))	
-			{
-				for(ONCChild c:cDB.getChildren(f.getID()))
+			if(isNumeric(f.getONCNum()))
+			{	
+				FamilyHistory fh = fhDB.getLastFamilyHistory(f.getID());
+				if(fh != null && (fh.getDNSCode() == -1 || fh.getDNSCode() == WISH_ANTICIPATION_DNS_CODE || fh.getDNSCode() == SERVED_BY_OTHERS_DNS_CODE) && 
+				 		doesONCNumMatch(f.getONCNum()))	
 				{
-					if(isAgeInRange(c) && doesGenderMatch(c))	//Children criteria pass
-					{
-						for(int i=0; i< cwDB.getNumberOfGiftsPerChild(); i++)
-						{	
-							ONCChildGift cg = cwDB.getCurrentChildGift(c.getID(), i);
-							
-							//Status matches and wish was assigned (Wish indicator is not *)
-							if(cg != null && doesChildWishStatusMatch(cg))
-							{
-								FamilyHistory fh = fhDB.getLastFamilyHistory(f.getID());
-								stAL.add(new SortGiftObject(index++, f, fh, c, cg));
-							}
-						}
-					}
+    				for(ONCChild c:cDB.getChildren(f.getID()))
+    				{
+    					if(isAgeInRange(c) && doesGenderMatch(c))	//Children criteria pass
+    					{
+    						for(int i=0; i< cwDB.getNumberOfGiftsPerChild(); i++)
+    						{	
+    							ONCChildGift cg = cwDB.getCurrentChildGift(c.getID(), i);
+    							
+    							//Status matches and wish was assigned (Wish indicator is not *)
+    							if(cg != null && doesChildWishStatusMatch(cg))
+    							{
+    								stAL.add(new SortGiftObject(index++, f, fh, c, cg));
+    							}
+    						}
+    					}
+    				}
 				}
 			}
 		}
@@ -248,10 +250,11 @@ public abstract class GiftActionDialog extends SortTableDialog
 			//attempt to act on the wish/gift,if it fails, server didn't accept update
 			ONCChild c = cDB.getChild(cw.getChildID());
 			ONCFamily f = fDB.getFamily(c.getFamID());
-			SortGiftObject swo = new SortGiftObject(-1, f, c, cw);
+			FamilyHistory fh = fhDB.getLastFamilyHistory(f.getID());
+			SortGiftObject swo = new SortGiftObject(-1, f, fh, c, cw);
 			
 			//should only be if family is being served
-			if(f.getDNSCode() > -1 && f.getDNSCode() != WISH_ANTICIPATION_DNS_CODE)
+			if(fh.getDNSCode() > -1 && fh.getDNSCode() != WISH_ANTICIPATION_DNS_CODE)
 				rc = new GiftActionReturnCode(GIFT_ACTION_FAMILY_NOT_SERVED, swo);
 			else if(actOnGift(swo))
 				rc = new GiftActionReturnCode(GIFT_ACTION_SUCCESSFUL, swo);
@@ -554,8 +557,9 @@ public abstract class GiftActionDialog extends SortTableDialog
 				sortTable.getSelectedRowCount() > 0 && !bChangingTable)
 		{
 			ONCFamily fam = stAL.get(sortTable.getSelectedRow()).getFamily();
+			FamilyHistory fh = stAL.get(sortTable.getSelectedRow()).getFamilyHistory();
 			ONCChild child = stAL.get(sortTable.getSelectedRow()).getChild();
-			fireEntitySelected(this,EntityType.GIFT, fam, child);
+			fireEntitySelected(this,EntityType.GIFT, fam, fh, child);
 			
 			checkApplyChangesEnabled();	//Check to see if user postured to change status or assignee.
 			

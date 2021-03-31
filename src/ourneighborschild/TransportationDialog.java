@@ -60,6 +60,7 @@ public class TransportationDialog extends InfoDialog implements DatabaseListener
 	
 	void display(ONCObject obj)
 	{
+		
 		f = (ONCFamily) obj;
 		
 		tf[0].setText(f.getONCNum());

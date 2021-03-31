@@ -86,6 +86,12 @@ public class FamilyHistoryDB extends ONCDatabase
 		
 		if(addedHistory != null)
 		{
+			int familyID = addedHistory.getFamID();
+			if(!historyMap.containsKey(familyID))
+			{
+				//add a new history list to the map
+				historyMap.put(familyID, new ArrayList<FamilyHistory>());
+			}
 			historyMap.get(addedHistory.getFamID()).add(addedHistory);
 			fireDataChanged(source, "ADDED_DELIVERY", addedHistory);
 		}
@@ -149,7 +155,7 @@ public class FamilyHistoryDB extends ONCDatabase
 			return null;
 	}
 	
-	List<FamilyHistory> getDeliveryHistoryAL(int famID)
+	List<FamilyHistory> getFamilyHistoryList(int famID)
 	{
 		List<FamilyHistory> famHistoryList = historyMap.get(famID);
 		return famHistoryList;

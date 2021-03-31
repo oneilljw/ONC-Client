@@ -19,7 +19,6 @@ public abstract class SortFamilyTableDialog extends ChangeDialog
 	
 	protected ChildDB cDB;
 	protected MealDB mealDB;
-	protected FamilyHistoryDB familyHistoryDB;
 	protected RegionDB regions;
 	protected DNSCodeDB dnsCodeDB;
 	
@@ -37,7 +36,6 @@ public abstract class SortFamilyTableDialog extends ChangeDialog
 		
 		cDB = ChildDB.getInstance();
 		mealDB = MealDB.getInstance();
-		familyHistoryDB = FamilyHistoryDB.getInstance();
 		regions = RegionDB.getInstance();
 		dnsCodeDB = DNSCodeDB.getInstance();
 		
@@ -68,8 +66,9 @@ public abstract class SortFamilyTableDialog extends ChangeDialog
 				sortTable.getSelectedRow() > -1 && !bChangingTable)
 		{
 			ONCFamily fam = stAL.get(sortTable.getSelectedRow()).getFamily();
+			FamilyHistory famHistory = stAL.get(sortTable.getSelectedRow()).getFamilyHistory();
 			
-			fireEntitySelected(this, EntityType.FAMILY, fam, null);
+			fireEntitySelected(this, EntityType.FAMILY, fam, famHistory, null);
 			this.requestFocus();
 		}
 		

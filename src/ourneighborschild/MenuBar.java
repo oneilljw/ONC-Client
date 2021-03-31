@@ -868,7 +868,10 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 	    	{
 	    		JMenuItem mi = dbYearsMIList.get(i);
 	    		if(e.getSource() == mi)
-	    			dbManager.importObjectsFromDB(Integer.parseInt(e.getActionCommand())); 
+	    		{	
+	    			dbManager.importObjectsFromDB(Integer.parseInt(e.getActionCommand()));
+	    			break;
+	    		}
 	    	}
 	    }
 	}

@@ -421,15 +421,12 @@ public class DatabaseManager extends ServerListenerComponent implements ServerLi
      **************************************************************************************************/
     public class ONCServerDBImporter extends SwingWorker<Void, Void>
     {
-//		private static final int NUM_OF_DBs = 21;
 		Integer year;
-//		JProgressBar pb;
 		boolean bServerDataLoaded;
 	
 		ONCServerDBImporter(Integer year)
 		{
 			this.year = year;
-//			this.pb = pb;
 			bServerDataLoaded = false;
 		}
     	
@@ -444,7 +441,6 @@ public class DatabaseManager extends ServerListenerComponent implements ServerLi
 			serverIF.sendRequest("POST<setyear>" + year);
 			
 			//import global variables
-//			pb.updateHeaderText("Loading Season Data");
 			bServerDataLoaded = oncGVs.importDB();
 			this.setProgress(progress += increment);
 			
@@ -453,104 +449,11 @@ public class DatabaseManager extends ServerListenerComponent implements ServerLi
 				//import component databases from ONC Server
 				for(ONCDatabase componentDB : importDBList)
 				{
-//					pb.updateHeaderText(String.format("Loading %s data", componentDB.title()));
 					componentDB.importDB();
 					this.setProgress(progress += increment);
 				}
 			}
-			
-			//import from ONC Server
-/*
-			pb.updateHeaderText("<html>Loading Regions</html>");
-			regionDB.importDB();
-			this.setProgress(progress += increment);
-			
-			pb.updateHeaderText("Loading Families");
-			familyDB.importDB();
-			this.setProgress(progress += increment);
-			
-			pb.updateHeaderText("Loading Adults");
-			oncAdultDB.importDB();
-			this.setProgress(progress += increment);
-			
-			pb.updateHeaderText("Loading Notes");
-			noteDB.importDB();
-			this.setProgress(progress += increment);
-			
-			pb.updateHeaderText("Loading Meals");
-			mealDB.importDB();
-			this.setProgress(progress += increment);
-			
-			pb.updateHeaderText("Loading Children");
-			childDB.importDB();
-			this.setProgress(progress += increment);
-			
-			pb.updateHeaderText("Loading Gifts");
-			childGiftDB.importDB();
-			this.setProgress(progress += increment);
-			
-			pb.updateHeaderText("Loading Inventory");
-			inventoryDB.importDB();
-			this.setProgress(progress += increment);
-			
-			pb.updateHeaderText("Loading Messages");
-			smsDB.importDB();
-			this.setProgress(progress += increment);
-						
-//			pb.updateHeaderText("Loading Agents");
-//			oncAgentDB.importAgentDatabase();
-//			this.setProgress(progress += increment);
-			
-//			pb.updateHeaderText("Loading Groups");
-//			oncGroupDB.importGroupDBFromServer();
-//			this.setProgress(progress += increment);
-			
-			pb.updateHeaderText("Loading Partners");
-			partnerDB.importDB();
-			this.setProgress(progress += increment);
-			
-			pb.updateHeaderText("Loading Activities");
-			activityDB.importDB();
-			this.setProgress(progress += increment);
-			
-			pb.updateHeaderText("Loading Volunteers");
-			volunteerDB.importDB();
-			this.setProgress(progress += increment);
-			
-			pb.updateHeaderText("Loading Volunteer Activities");
-			volActDB.importDB();
-			this.setProgress(progress += increment);
-			
-			pb.updateHeaderText("Loading History");
-			famHistoryDB.importFamilyHistoryDatabase();
-			this.setProgress(progress += increment);
-			
-			pb.updateHeaderText("Loading Catalog");
-			giftCatalog.importDB();
-			this.setProgress(progress += increment);
-			
-			pb.updateHeaderText("Loading Detail");
-			giftDetailDB.importDB();
-			this.setProgress(progress += increment);
-			
-//			pb.updateHeaderText("Loading Schools");
-//			regionDB.importDB();
-//			this.setProgress(progress += increment);
-			
-			pb.updateHeaderText("Loading Batteries");
-			batteryDB.importDB();
-			this.setProgress(progress += increment);
-			
-			pb.updateHeaderText("Loading DNS Codes");
-			dnsCodeDB.importDB();
-			this.setProgress(progress += increment);
-			
-			pb.updateHeaderText("Loading Clones");
-			clonedGiftDB.importDB();
-			this.setProgress(progress += increment);
-*/			
-//			bServerDataLoaded = true;
-			
+					
 			return null;
 		}
 		
@@ -562,8 +465,6 @@ public class DatabaseManager extends ServerListenerComponent implements ServerLi
 	    {
 	    	serverDataLoadComplete(bServerDataLoaded, year);
 	        Toolkit.getDefaultToolkit().beep();
-//	        pb.dispose();
-//	        pbDlg.dispose();
 	    }
     }
 	

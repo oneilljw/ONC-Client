@@ -294,7 +294,7 @@ public class AssignDeliveryDialog extends SortFamilyTableDialog
 														"Delivery Driver Assigned",
 														userDB.getUserLNFI(),
 														System.currentTimeMillis(),
-														f.getDNSCode());
+														fh.getDNSCode());
 				
 				FamilyHistory response = familyHistoryDB.add(this, reqDelivery);
 				if(response != null && response instanceof FamilyHistory)

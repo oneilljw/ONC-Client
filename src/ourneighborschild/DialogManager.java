@@ -924,8 +924,8 @@ public class DialogManager implements EntitySelectionListener
 		{
 			currFam = (ONCFamily) tse.getObject1();
 			
-			if(tse.getObject2() != null)
-				currChild = (ONCChild) tse.getObject2();
+			if(tse.getObject3() != null)
+				currChild = (ONCChild) tse.getObject3();
 			else
 			{
 				ChildDB cDB = ChildDB.getInstance();

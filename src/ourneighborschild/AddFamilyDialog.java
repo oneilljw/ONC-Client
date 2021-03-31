@@ -640,7 +640,7 @@ public class AddFamilyDialog extends JDialog implements ActionListener, ListSele
 		ONCUser user = UserDB.getInstance().getLoggedInUser();
 		
 		ONCFamily fam = new ONCFamily(-1, user.getLNFI(), "NNA",
-					"NNA", "B-CR", -1,
+					"NNA", "B-CR",
 					languageCB.getSelectedIndex()==0 ? "Yes" : "No",
 					(String) languageCB.getSelectedItem(),
 					hohFN.getText(), hohLN.getText(), housenumTF.getText(),
@@ -651,7 +651,7 @@ public class AddFamilyDialog extends JDialog implements ActionListener, ListSele
 					altUnit.getText(), altCity.getText(), altZipCode.getText(),
 					HomePhone.getText(), OtherPhone.getText(), AltPhone.getText(),
 					email.getText(), detailsPane.getText(), createFamilySchoolList(),
-					true, createWishList(), user.getID(), ((ONCGroup) groupCB.getSelectedItem()).getID(),
+					createWishList(), user.getID(), ((ONCGroup) groupCB.getSelectedItem()).getID(),
 					0, //phone code
 					ownTransportCxBox.isSelected() ? Transportation.Yes : Transportation.No, GiftDistribution.Delivery);
 			
@@ -661,15 +661,13 @@ public class AddFamilyDialog extends JDialog implements ActionListener, ListSele
 		{
 			//add a family history item
 			//add the family history object and update the family history object id
-			
-			DNSCode dnsCode = dnsCodeDB.getDNSCode(addedFamily.getDNSCode());
 			FamilyHistory famHistory = new FamilyHistory(-1, addedFamily.getID(), 
 															FamilyStatus.Unverified,
 															FamilyGiftStatus.Requested,
 															"", "Family Referred", 
 															addedFamily.getChangedBy(), 
 															System.currentTimeMillis(),
-															dnsCode.getID());
+															-1);
 		
 			famHistDB.add(this, famHistory);
 			

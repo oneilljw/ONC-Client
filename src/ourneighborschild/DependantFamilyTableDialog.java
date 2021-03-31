@@ -23,7 +23,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 
-public abstract class DependantTableDialog extends SortTableDialog
+public abstract class DependantFamilyTableDialog extends SortTableDialog
 {
 	/**
 	 * This abstract class implements a blueprint for dialogs that have two tables, a selection table
@@ -37,8 +37,8 @@ public abstract class DependantTableDialog extends SortTableDialog
 	private static final long serialVersionUID = 1L;
 	private static final int NUM_FAMILY_ROWS_TO_DISPLAY = 15;
 	
-	private MealDB mealDB;
-	private DNSCodeDB dnsCodeDB;
+	protected MealDB mealDB;
+	protected DNSCodeDB dnsCodeDB;
 	
 	private FamilyAndNoteListSorter tableSorter;
 	
@@ -54,13 +54,24 @@ public abstract class DependantTableDialog extends SortTableDialog
 	
 	protected boolean bChangingFamilyTable = false;	//Semaphore used to indicate the sort table is being changed
 
-	public DependantTableDialog(JFrame pf, int nTableRows)
+	public DependantFamilyTableDialog(JFrame pf, int nTableRows)
 	{
 		super(pf, 10);
 		columns = getColumnNames();
 		
+		if(dbMgr != null)
+			dbMgr.addDatabaseListener(this);
+		
 		mealDB = MealDB.getInstance();
+		if(mealDB != null)
+			mealDB.addDatabaseListener(this);
+		
 		dnsCodeDB = DNSCodeDB.getInstance();
+		if(dnsCodeDB != null)
+			dnsCodeDB.addDatabaseListener(this);
+		
+		if(userDB != null)
+			userDB.addDatabaseListener(this);
 		
 		stAL = new ArrayList<ONCFamilyAndNote>();
 		tableSorter = new FamilyAndNoteListSorter();
@@ -221,11 +232,11 @@ public abstract class DependantTableDialog extends SortTableDialog
 		familytablerow[0] = f.getONCNum(); 
 		familytablerow[1] = f.getBatchNum();
 		
-		if(f.getDNSCode() == -1)
+		if(fh.getDNSCode() == -1)
 			familytablerow[2] = "";
 		else
 		{
-			DNSCode code = dnsCodeDB.getDNSCode(f.getDNSCode());
+			DNSCode code = dnsCodeDB.getDNSCode(fh.getDNSCode());
 			familytablerow[2] = code == null ? "" : code.getAcronym();
 		}
 		

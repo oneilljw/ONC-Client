@@ -32,7 +32,7 @@ public class ONCWebsiteFamily
 //		else
 //			this.giftStatus = f.getGiftStatus().toString();
 		
-		this.dnsCodeID = f.getDNSCode();
+		this.dnsCodeID = fh.getDNSCode();
 		this.dnsCodeAcronym = dnsCode.getAcronym();
 		this.HOHFirstName = f.getFirstName();
 		this.HOHLastName = f.getLastName();
@@ -55,7 +55,7 @@ public class ONCWebsiteFamily
 //		else
 //			this.giftStatus = f.getGiftStatus().toString();
 		
-		this.dnsCodeID = f.getDNSCode();
+		this.dnsCodeID = fh.getDNSCode();
 		this.dnsCodeAcronym = dnsCode.getAcronym();
 		this.HOHFirstName = f.getFirstName();
 		this.HOHLastName = f.getLastName();

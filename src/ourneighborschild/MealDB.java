@@ -197,9 +197,12 @@ public class MealDB extends ONCDatabase
 		Gson gson = new Gson();
 		addedMeal = gson.fromJson(json, ONCMeal.class);
 		
-		//add meal to map
 		if(addedMeal != null)
 		{
+			int familyID = addedMeal.getFamilyID();
+			if(!mealMap.containsKey(familyID))
+				mealMap.put(familyID, new ArrayList<ONCMeal>());
+			
 			mealMap.get(addedMeal.getFamilyID()).add(addedMeal);
 			fireDataChanged(source, "ADDED_MEAL", addedMeal);
 		}
@@ -279,28 +282,6 @@ public class MealDB extends ONCDatabase
 	
 	
 	@Override
-/*	
-	boolean importDB()
-	{
-		boolean bImportComplete = false;
-		
-		if(serverIF != null && serverIF.isConnected())
-		{		
-			Gson gson = new Gson();
-			Type listtype = new TypeToken<ArrayList<ONCMeal>>(){}.getType();
-			
-			String response = serverIF.sendRequest("GET<meals>");
-			
-			
-			if(response != null)
-			{
-				mealList = gson.fromJson(response, listtype);
-			}	bImportComplete = true;
-		}
-		
-		return bImportComplete;
-	}
-*/	
 	boolean importDB()
 	{
 		boolean bImportComplete = false;

@@ -4,9 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
-import java.util.TimeZone;
 
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -157,6 +155,8 @@ public class SortGiftsDialog extends SortGiftsBaseDialog
 			updateDNSCodeCB();
 			updateGiftSelectionList();
 			updateWishAssigneeSelectionList();
+			updateDateFilters();
+			
 			buildTableList(false);
 		}
 		else if(dbe.getSource() != this && (dbe.getType().equals("WISH_ADDED") ||
@@ -222,16 +222,7 @@ public class SortGiftsDialog extends SortGiftsBaseDialog
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_GLOBALS"))
 		{
-			de.getDateEditor().removePropertyChangeListener(this);
-			ds.getDateEditor().removePropertyChangeListener(this);
-			
-			setDateFilters(gvs.getSeasonStartCal(), Calendar.getInstance(TimeZone.getTimeZone("UTC")), 0, 1);
-			ds.setCalendar(startFilterTimestamp);
-			de.setCalendar(endFilterTimestamp);
-			
-			ds.getDateEditor().addPropertyChangeListener(this);
-			de.getDateEditor().addPropertyChangeListener(this);
-			
+			updateDateFilters();
 			buildTableList(true);
 		}
 	}	

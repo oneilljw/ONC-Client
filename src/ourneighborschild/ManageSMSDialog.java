@@ -90,6 +90,7 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 	
 	private SMSDB smsDB;
 	private FamilyDB familyDB;
+	private FamilyHistoryDB familyHistoryDB;
 	private PartnerDB partnerDB;
 	
 	private List<ONCSMS> smsTableList;
@@ -114,6 +115,8 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 		familyDB = FamilyDB.getInstance();
 		if(familyDB != null)
 			familyDB.addDatabaseListener(this);
+		
+		familyHistoryDB = FamilyHistoryDB.getInstance();
 		
 		partnerDB = PartnerDB.getInstance();
 		if(partnerDB != null)
@@ -545,8 +548,9 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 				if(sms.getType() == EntityType.FAMILY)
 				{
 					ONCFamily f = familyDB.getFamily(sms.getEntityID());
+					FamilyHistory fh = familyHistoryDB.getLastFamilyHistory(f.getID());
    					if(f != null)
-   						this.fireEntitySelected(this, EntityType.FAMILY, f, null);
+   						this.fireEntitySelected(this, EntityType.FAMILY, f, fh, null);
 				}
 				else if(sms.getType() == EntityType.PARTNER)
 				{

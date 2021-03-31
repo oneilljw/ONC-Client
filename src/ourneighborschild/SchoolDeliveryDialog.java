@@ -247,7 +247,7 @@ public class SchoolDeliveryDialog extends ONCEntityTableDialog implements Action
 					School searchSchoolResult = regionDB.findServedSchool(delAddrParts[0], delAddrParts[1],
 																		delAddrParts[3], delAddrParts[4]);
 					
-					if(searchSchoolResult != null && doesFamilyStatusMatch(fh.getFamilyStatus()) &&
+					if(fh != null && searchSchoolResult != null && doesFamilyStatusMatch(fh.getFamilyStatus()) &&
 						doesFamilyGiftStatusMatch(fh.getGiftStatus()) && doesSchoolMatch(searchSchoolResult))
 						delList.add(new SchoolDelivery(f, searchSchoolResult));
 				}
@@ -467,7 +467,8 @@ public class SchoolDeliveryDialog extends ONCEntityTableDialog implements Action
 			if(modelRow > -1)
 			{
 				selectedFam = delList.get(modelRow).getFamily();
-				fireEntitySelected(this, EntityType.FAMILY, selectedFam, null, null);
+				FamilyHistory fh = fhDB.getLastFamilyHistory(selectedFam.getID());
+				fireEntitySelected(this, EntityType.FAMILY, selectedFam, fh, null);
 			}
 		}
 		

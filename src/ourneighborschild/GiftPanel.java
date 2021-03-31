@@ -303,24 +303,19 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 //		debugAssigneeCBContents();
 	}	
 
-	//Changing for 2020 COVID 19 season. If gift panel is hard coded 2 (Third Gift) and the season is 2020,
-	//never enable the panel.
-	//We only are providing two gifts this season. See the commented out method below for prior season logic.
+	//To enable a gift panel there has to be both family and family history objects, the number of gifts being
+	//provided must allow the panel to be used. The family must already have been verified and the family must be
+	//requesting gift assistance.
 	void setEnabledGift()
 	{
-		if(giftNumber >= gvs.getNumberOfGiftsPerChild() || family == null)
-		{
+		if(giftNumber >= gvs.getNumberOfGiftsPerChild() || family == null || familyHistory == null ||
+			familyHistory.getFamilyStatus().compareTo(FamilyStatus.Verified) < 0 || 
+			 familyHistory.getGiftStatus() == FamilyGiftStatus.NotRequested)
+		{	
 			gpStatus = GiftPanelStatus.Disabled;
 		}
 		else
-		{	
-			//only enable gift panels if family has been verified and gifts have been requested
-			if(familyHistory == null || familyHistory.getFamilyStatus() == FamilyStatus.Unverified ||
-				familyHistory.getGiftStatus() == FamilyGiftStatus.NotRequested)	
-				gpStatus = GiftPanelStatus.Disabled;
-			else 
-				gpStatus = GiftPanelStatus.Enabled;
-		}
+			gpStatus = GiftPanelStatus.Enabled;
 		
 		//now that we've updated the panel status, update the component status
 		if(childGift != null)
@@ -330,22 +325,7 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 		
 		setBorder();
 	}
-/*	
-	void setEnabledGift(ONCFamily fam)
-	{
-		//only enable gift panels if family has been verified and gifts have been requested
-		if(fam.getFamilyStatus() == FamilyStatus.Unverified || fam.getGiftStatus() == FamilyGiftStatus.NotRequested)	
-			gpStatus = GiftPanelStatus.Disabled;
-		else 
-			gpStatus = GiftPanelStatus.Enabled;
-		
-		//now that we've updated the panel status, update the component status
-		if(childGift != null)
-			setEnabledGiftPanelComponents(childGift.getGiftStatus());
-		else
-			setEnabledGiftPanelComponents(GiftStatus.Not_Selected);
-	}
-*/
+
 	void setEnabledGiftPanelComponents(GiftStatus giftStatus)
 	{
 		if(gpStatus == GiftPanelStatus.Enabled)
@@ -616,7 +596,7 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 //				setEnabledGift();
 //			}
 //		}
-		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_DELIVERY"))
+		else if(dbe.getSource() != this && dbe.getType().equals("ADDED_DELIVERY"))
 		{
 			FamilyHistory addedFamilyHistory = (FamilyHistory) dbe.getObject1();
 			ONCFamily updatedFam = fDB.getFamily(addedFamilyHistory.getFamID());
@@ -674,13 +654,11 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 	{
 		if(tse.getType() == EntityType.FAMILY)
 		{
-			ONCFamily fam = (ONCFamily) tse.getObject1();
-			ArrayList<ONCChild> childList = cDB.getChildren(fam.getID());
+			this.family = (ONCFamily) tse.getObject1();
+			this.familyHistory = (FamilyHistory) tse.getObject2();
+			ArrayList<ONCChild> childList = cDB.getChildren(family.getID());
 			
 			checkForUpdateToWishDetail();
-			
-			this.family = fam;
-			this.familyHistory = fhDB.getLastFamilyHistory(fam.getID());
 			setEnabledGift();	//lock or unlock the panel and/or panel components
 			
 			//check to see if there are children in the family, is so, display first child's gift if 
@@ -707,8 +685,8 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 		else if(tse.getType() == EntityType.CHILD || tse.getType() == EntityType.GIFT)
 		{
 			this.family = (ONCFamily) tse.getObject1();
-			this.familyHistory = fhDB.getLastFamilyHistory(family.getID());
-			this.child = (ONCChild) tse.getObject2();
+			this.familyHistory = (FamilyHistory) tse.getObject2();
+			this.child = (ONCChild) tse.getObject3();
 			
 			setEnabledGift();	//lock or unlock the panel and/or panel components
 			

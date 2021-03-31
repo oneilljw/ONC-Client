@@ -227,11 +227,11 @@ public class ONCNavPanel extends ONCPanel implements ActionListener
 			String type = searchableDB.searchForListItem(searchAL, data);	//builds searchAL
 			
 			if(searchAL.size() > 1)	//duplicate ONC Entities were found   	
-	    			setMssg(Integer.toString(searchAL.size()) +" " + type + " " + data + "'s were found");
-	    		else if(searchAL.size() == 1)
-	    			setMssg(type + " " + data + " found");
-	    		else
-	    			setMssg(type + " " + data + " not found");
+	    		setMssg(Integer.toString(searchAL.size()) +" " + type + " " + data + "'s were found");
+	    	else if(searchAL.size() == 1)
+	    		setMssg(type + " " + data + " found");
+	    	else
+	    		setMssg(type + " " + data + " not found");
 			
 			if(searchAL.size() > 0)	//Match found, search list has elements
 			{				

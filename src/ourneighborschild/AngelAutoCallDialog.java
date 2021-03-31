@@ -62,6 +62,7 @@ public class AngelAutoCallDialog extends ONCEntityTableDialog implements ActionL
 	private JLabel lblNumOfCalls;
 	
 	private FamilyDB familyDB;
+	private FamilyHistoryDB familyHistoryDB;
 	private UserDB userDB;
 	private ArrayList<AngelCallItem> stAL;
 	
@@ -83,6 +84,7 @@ public class AngelAutoCallDialog extends ONCEntityTableDialog implements ActionL
 		this.setTitle("ONC Automated Call Results");
 		
 		familyDB = FamilyDB.getInstance();
+		familyHistoryDB = FamilyHistoryDB.getInstance();
 		userDB = UserDB.getInstance();
 		stAL = new ArrayList<AngelCallItem>();
 		bCallsProcessed = false;
@@ -328,6 +330,7 @@ public class AngelAutoCallDialog extends ONCEntityTableDialog implements ActionL
 	    				int oncID;
 	    				String oncNum = "N/A/";
 	    				ONCFamily fam = null;
+	    				FamilyHistory fh = null;
 	    				
 	    				while ((nextLine = reader.readNext()) != null)	// nextLine[] is an array of values from the line
 	    				{
@@ -354,6 +357,7 @@ public class AngelAutoCallDialog extends ONCEntityTableDialog implements ActionL
 	    					{
 	    						oncID = resultAL.get(0);
 	    						fam = familyDB.searchForFamilyByID(oncID);
+	    						fh = familyHistoryDB.getLastFamilyHistory(fam.getID());
 	    						oncNum = fam.getONCNum();
 	    					}
 	    					
@@ -370,7 +374,7 @@ public class AngelAutoCallDialog extends ONCEntityTableDialog implements ActionL
 	    						pageHistory = varParts[part] + ";";
 	    						
 	    					//Add the call item to the array list
-	    					stAL.add(new AngelCallItem(callitem++,	fam, oncID, oncNum,	
+	    					stAL.add(new AngelCallItem(callitem++,	fam, fh, oncID, oncNum,	
 	    									nextLine[4],						//Phone Number
 	    									nextLine[2],						//Date
 	    									nextLine[3],						//Time
@@ -616,6 +620,7 @@ public class AngelAutoCallDialog extends ONCEntityTableDialog implements ActionL
 	{
 //		private int callItemNum;
 		private ONCFamily family; //reference to ONC Family this call is associated with
+		private FamilyHistory familyHistory;
 //		private int oncID;
 		private String oncNum;
 		private String phoneNum;
@@ -627,11 +632,12 @@ public class AngelAutoCallDialog extends ONCEntityTableDialog implements ActionL
 		private String language;
 		private String pageHistory;
 		
-		AngelCallItem(int cin, ONCFamily fam, int oncid, String oncnum, String phone, String d, String t, int dur, 
+		AngelCallItem(int cin, ONCFamily fam, FamilyHistory fh, int oncid, String oncnum, String phone, String d, String t, int dur, 
 						String dir, String pagehist, String lang, String callres)
 		{
 //			callItemNum = cin;
 			family = fam;
+			familyHistory = fh;
 //			oncID = oncid;
 			oncNum = oncnum;
 			phoneNum = phone;
@@ -649,6 +655,7 @@ public class AngelAutoCallDialog extends ONCEntityTableDialog implements ActionL
 		//getters
 //		int getCallItemNum() { return callItemNum; }
 		ONCFamily getFamily() { return family; }
+		FamilyHistory getFamilyHistory() { return familyHistory; }
 		String getONCNum() { return oncNum; }
 		String getPhoneNum() { return phoneNum; }
 		String getDate() { return date; }
@@ -734,7 +741,7 @@ public class AngelAutoCallDialog extends ONCEntityTableDialog implements ActionL
 		
 		if(modelRow > -1 && lse.getSource() == dlgTable.getSelectionModel() && stAL.get(modelRow) != null)
 		{
-			fireEntitySelected(this, EntityType.FAMILY, stAL.get(modelRow).getFamily(), null);
+			fireEntitySelected(this, EntityType.FAMILY, stAL.get(modelRow).getFamily(), stAL.get(modelRow).getFamilyHistory());
 			requestFocus();
 		}
 	}

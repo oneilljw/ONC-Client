@@ -288,31 +288,22 @@ public class GlobalVariablesDB extends ServerListenerComponent implements Server
 	
 	boolean importDB()
 	{
-		ServerGVs serverGVs = null;
-		String response = "NO_GLOBALS";
-		boolean bImportComplete = false;
+		String response;
 		
 		if(serverIF != null && serverIF.isConnected())
 		{
 			Gson gson = new Gson();
 			response = serverIF.sendRequest("GET<globals>");
-			if(response.startsWith("GLOBALS"))
-				serverGVs = gson.fromJson(response.substring(7), ServerGVs.class);				
-
-			if(serverGVs != null && !response.startsWith("NO_GLOBALS"))
+			if(response != null && response.startsWith("GLOBALS"))
 			{
-				this.serverGVs = serverGVs;
-				
-				response = "GLOBALS_LOADED";
-
-				//Notify local user IFs that a change occurred
-				fireDataChanged(this, "UPDATED_GLOBALS", serverGVs);
-				
-				bImportComplete = true;
+				this.serverGVs = gson.fromJson(response.substring(7), ServerGVs.class);
+				return true;
 			}
+			else
+				return false;
 		}
 		
-		return bImportComplete;
+		return false;
 	}
 	
 	String initializeWebsiteStatusFromServer()

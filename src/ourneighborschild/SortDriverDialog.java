@@ -24,7 +24,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import au.com.bytecode.opencsv.CSVWriter;
 
-public class SortDriverDialog extends DependantTableDialog
+public class SortDriverDialog extends DependantFamilyTableDialog
 {
 	/**
 	 * 
@@ -39,11 +39,9 @@ public class SortDriverDialog extends DependantTableDialog
 	private JComboBox<String> drvCB, exportCB, printCB;
 	
 	private FamilyHistoryDB familyHistoryDB;
-	private MealDB mealDB;
 	private VolunteerDB volunteerDB;
 	private ActivityDB activityDB;
 	private VolunteerActivityDB volActDB;
-	private DNSCodeDB dnsCodeDB;
 	private ArrayList<ONCVolunteer> atAL;	//Holds references to driver objects for driver table
 //	private Activity deliveryActivity;
 	
@@ -51,11 +49,6 @@ public class SortDriverDialog extends DependantTableDialog
 	{
 		super(pf, 10);
 		this.setTitle("Our Neighbor's Child - Delivery Volunteer Management");
-		
-		familyHistoryDB = FamilyHistoryDB.getInstance();
-		
-		if(dbMgr != null)
-			dbMgr.addDatabaseListener(this);
 		
 		volunteerDB = VolunteerDB.getInstance();
 		if(volunteerDB != null)
@@ -68,13 +61,6 @@ public class SortDriverDialog extends DependantTableDialog
 		volActDB = VolunteerActivityDB.getInstance();
 		if(volActDB != null)
 			volActDB.addDatabaseListener(this);
-		
-		dnsCodeDB = DNSCodeDB.getInstance();
-		if(dnsCodeDB != null)
-			dnsCodeDB.addDatabaseListener(this);
-		
-		if(userDB != null)
-			userDB.addDatabaseListener(this);
 		
 		//Set up the agent table content array list
 		atAL = new ArrayList<ONCVolunteer>();
@@ -411,7 +397,7 @@ public class SortDriverDialog extends DependantTableDialog
 		ONCFamily f = stAL.get(index).getFamily();
 		FamilyHistory fh = stAL.get(index).getFamilyHistory();
 		ONCMeal meal = mealDB.getFamiliesCurrentMeal(f.getID());
-		DNSCode code = f.getDNSCode() > -1 ?dnsCodeDB.getDNSCode(f.getDNSCode()) : null;
+		DNSCode code = fh.getDNSCode() > -1 ?dnsCodeDB.getDNSCode(fh.getDNSCode()) : null;
 		
 		String[] row = {
 						volunteerDB.getDriverLNFN(fh.getdDelBy()),
@@ -542,10 +528,10 @@ public class SortDriverDialog extends DependantTableDialog
 	@Override
 	public void dataChanged(DatabaseEvent dbe)
 	{	
-		if(dbe.getType().equals("UPDATED_FAMILY") || dbe.getType().equals("ADDED_DELIVERY"))
+		if(dbe.getType().equals("UPDATED_FAMILY") || dbe.getType().equals("ADDED_DELIVERY") ||
+				dbe.getType().equals("ADDED_MEAL") || dbe.getType().equals("UPDATED_DNSCODE") ||
+				 dbe.getType().equals("ADDED_DELIVERY"))
 		{
-//			System.out.println(String.format("Sort Agent Dialog DB event, Source: %s, Type %s, Object: %s",
-//					dbe.getSource().toString(), dbe.getType(), dbe.getObject().toString()));
 			buildFamilyTableListAndDisplay();		
 		}
 		else if(dbe.getType().equals("LOADED_DATABASE"))
@@ -604,7 +590,9 @@ public class SortDriverDialog extends DependantTableDialog
 		else if (!lse.getValueIsAdjusting() && lse.getSource() == familyTable.getSelectionModel() &&
 					!bChangingFamilyTable)
 		{
-			fireEntitySelected(this, EntityType.FAMILY, stAL.get(familyTable.getSelectedRow()), null);
+			ONCFamily selectedFam = stAL.get(familyTable.getSelectedRow()).getFamily();
+			FamilyHistory selectedFamHistory = stAL.get(familyTable.getSelectedRow()).getFamilyHistory();
+			fireEntitySelected(this, EntityType.FAMILY, selectedFam, selectedFamHistory, null);
 			requestFocus();
 		}
 	

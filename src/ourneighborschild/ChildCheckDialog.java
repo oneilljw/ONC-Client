@@ -75,7 +75,6 @@ public class ChildCheckDialog extends CheckDialog
 
 	boolean performDupCheck(boolean[] criteria)
 	{
-		DuplicateDataCheck datachecker = new DuplicateDataCheck();
 		boolean bDupesFound =  datachecker.duplicateChildCheck(fDB.getList(), criteria, cDB, dupAL);
 		if(bDupesFound)
 			Collections.sort(dupAL, new DupItemChild1LastNameComparator());

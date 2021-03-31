@@ -83,7 +83,7 @@ public class ONCFamilyReportRowBuilder
 		row[index++] =  regions.getSchoolName(f.getSchoolCode());
 		row[index++] = 	f.getReferenceNum();
 		row[index++] = 	f.getBatchNum();	
-		row[index++] = 	f.getDNSCode() >= 0 ? dnsCodeDB.getDNSCode(f.getDNSCode()).getAcronym() : "";
+		row[index++] = 	fh.getDNSCode() >= 0 ? dnsCodeDB.getDNSCode(fh.getDNSCode()).getAcronym() : "";
 		row[index++] = 	Integer.toString(fh.getFamilyStatus().statusIndex());
 		row[index++] = 	Integer.toString(fh.getGiftStatus().statusIndex());
 		row[index++] = 	f.getSpeakEnglish();

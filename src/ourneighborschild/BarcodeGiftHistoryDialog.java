@@ -35,6 +35,7 @@ public class BarcodeGiftHistoryDialog extends BarcodeTableDialog
 	private static final int CLONED_GIFT_FIRST_GIFT_NUMBER = 3;
 	
 	private FamilyDB fDB;
+	private FamilyHistoryDB fhDB;
 	private ChildDB cDB;
 	private ChildGiftDB cgDB;
 	private ClonedGiftDB clonedGiftDB;
@@ -53,6 +54,7 @@ public class BarcodeGiftHistoryDialog extends BarcodeTableDialog
 		//top level object and passed to all objects that require the gift catalog, including
 		//this dialog
 		fDB = FamilyDB.getInstance();
+		fhDB = FamilyHistoryDB.getInstance();
 		cDB = ChildDB.getInstance();
 		cgDB = ChildGiftDB.getInstance();
 		if(cgDB != null)
@@ -202,7 +204,8 @@ public class BarcodeGiftHistoryDialog extends BarcodeTableDialog
 				ONCFamily family = fDB.getFamily(child.getFamID());
 				if(family != null)
 				{
-					fireEntitySelected(this, EntityType.GIFT, family, child, cg);
+					FamilyHistory fh = fhDB.getLastFamilyHistory(family.getID());
+					fireEntitySelected(this, EntityType.GIFT, family, fh, child);
 					if(userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0)
 						lblInfo.setText(String.format("Gift History for %s %s, Gift %d, Family #%s",
 							child.getChildFirstName(), child.getChildLastName(),
