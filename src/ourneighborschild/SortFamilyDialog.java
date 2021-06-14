@@ -905,7 +905,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	
 	/*******************************************************************************************
 	 * This method is called in response to a user delivery directions print request. The method 
-	 * builds a page array list used by the Delivery Directions Printer  object to print each 
+	 * builds a page array list used by the Delivery Directions Printer object to print each 
 	 * page of the delivery directions print document. Each item in the array represents a page
 	 * in the document. 
 	 * @throws JSONException
@@ -930,10 +930,6 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			ONCFamily f = stAL.get(row_sel[i]).getFamily();
 				
 			//Get family address and format it for the URL request to Google Maps
-//			String dbdestAddress = f.getHouseNum().trim() + "+" + f.getStreet().trim() + 
-//										"+" + f.getCity().trim() + ",VA";		
-//			String destAddress = dbdestAddress.replaceAll(" ", "+");
-			
 			String destAddress = f.getGoogleMapAddress();
 				
 			//Get direction JSON, then trip route and steps
@@ -1029,7 +1025,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		SimpleDateFormat twodigitYear = new SimpleDateFormat("yy");
 		int idx = Integer.parseInt(twodigitYear.format(gvs.getSeasonStartDate())) % NUM_OF_XMAS_ICONS;
 		final Image img = gvs.getImageIcon(idx + XMAS_ICON_OFFSET).getImage();				
-		String oncSeason = "ONC " + Integer.toString(gvs.getCurrentSeason());
+		String oncSeason = Integer.toString(gvs.getCurrentSeason());
 			
 		DeliveryDirectionsPrinter ddp = new DeliveryDirectionsPrinter(ddpAL, img, oncSeason);
 			
@@ -2949,8 +2945,11 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 //			drawBarCode( String.format("%07d", Integer.parseInt(line[0])), x+484, y+290, g2d, false);	//bottom
 			try
 			{
+//				String url = String.format("https://%s:%d/giftdelivery?year=%s&famid=%s&refnum=%s",
+//						"34.234.112.242", 8902,season,line[18],line[19]);
+				
 				String url = String.format("https://%s:%d/giftdelivery?year=%s&famid=%s&refnum=%s",
-						"54.237.74.69", 8902,season,line[18],line[19]);
+						"oncdms.org", 8902,season,line[18],line[19]);
 				
 				drawQRCode(url, x+463, y+265, g2d);
 			}

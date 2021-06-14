@@ -187,6 +187,16 @@ public class FamilyDB extends ONCSearchableDatabase
 		return response;
 	}
 	
+	String getConfirmationImage(Object source, ONCFamily family)
+	{
+		String response = null;
+		if(serverIF != null && serverIF.isConnected())
+		{
+			response = serverIF.sendRequest("GET<confirmation>"+Integer.toString(family.getID())); 		
+		}
+		return response;
+	}
+	
 	ONCObject processUpdatedObject(Object source, String json)
 	{
 		//Create a family object for the updated family

@@ -73,6 +73,9 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private static final int FAMILY_NOTE_GRAY_ICON_INDEX = 47;
 	private static final int GIFT_PICKUP_ICON_INDEX = 57;
 	private static final int HOME_DELIVERY_ICON_INDEX = 58;
+	private static final int HOME_DELIVERY_SIGNATURE_INDEX = 59;
+	
+	private JFrame parentFrame;
 	
 	//data base references
 	private DatabaseManager dbMgr;
@@ -106,7 +109,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private JLabel lblONCNum, lblRefNum, lblBatchNum, lblSchool, lblNumBags, lblChangedBy;
 	private JRadioButton rbGiftStatusHistory, rbAltAddress, rbPriorHistory, rbAgentInfo;
 	private JRadioButton rbShowAllPhones, rbFamDetails, rbDirections;
-	private JRadioButton rbNotGiftCardOnly, rbGiftCardOnly, rbAdults;
+	private JRadioButton rbNotGiftCardOnly, rbGiftCardOnly, rbAdults, rbConfirmation;
 	private JRadioButton[] rbFamilyNote, rbMeals, rbTransportation, rbDistribution;
 	private JComboBox<String> languageCB;
 	private JComboBox<FamilyStatus> statusCB;
@@ -132,6 +135,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	public FamilyPanel(JFrame pf)
 	{
 		super(pf);
+		parentFrame = pf;
 		//register database listeners for updates
 		dbMgr = DatabaseManager.getInstance();
 		fDB = FamilyDB.getInstance();
@@ -397,6 +401,11 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         	rbDistribution[i].setEnabled(false);
         	rbDistribution[i].addActionListener(this);
         }
+        
+        rbConfirmation = new JRadioButton(gvs.getImageIcon(HOME_DELIVERY_SIGNATURE_INDEX));
+        rbConfirmation.setToolTipText("Click to view delivery confirmation");
+        rbConfirmation.setEnabled(false);
+    	rbConfirmation.addActionListener(this);
        
         rbDirections = new JRadioButton(gvs.getImageIcon( GOOGLE_MAP_ICON_INDEX));
         rbDirections.setToolTipText("Click for directions to family address");
@@ -610,6 +619,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         iconBar.add(rbGiftCardOnly);
         iconBar.add(rbDirections);
         iconBar.add(rbGiftStatusHistory);
+        iconBar.add(rbConfirmation);
               
         this.add(nav);
         this.add(p1);
@@ -777,6 +787,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 //		rbGiftCardOnly.setEnabled(true);
 		rbGiftCardOnly.setVisible(currFam.isGiftCardOnly());
 		rbAdults.setEnabled(true);
+		rbConfirmation.setEnabled(currFam.hasDeliveryImage());
 		
 		lblONCNum.setText(currFam.getONCNum());
 		lblONCNum.setToolTipText("Family Database ID= " + Integer.toString(currFam.getID()));
@@ -1479,6 +1490,11 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		else if(e.getSource() == rbDirections)
 		{
 			DialogManager.getInstance().showDrivingDirections();
+		}
+		else if(e.getSource() == rbConfirmation)
+		{
+			PNGViewer viewer = new PNGViewer(parentFrame, currFam);
+			viewer.setVisible(true);
 		}
 	}
 

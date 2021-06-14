@@ -1,17 +1,28 @@
 package ourneighborschild;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.RenderingHints;
+import java.awt.Stroke;
 import java.awt.image.BufferedImage;
 import java.awt.print.PageFormat;
 import java.awt.print.Printable;
 import java.awt.print.PrinterException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.Map;
 
-import org.json.JSONException;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.EncodeHintType;
+import com.google.zxing.WriterException;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
+import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 
 public class DeliveryDirectionsPrinter implements Printable
 {
@@ -20,12 +31,13 @@ public class DeliveryDirectionsPrinter implements Printable
 	private Image oncSeasonImg;
 	private String oncSeason;
 		
-	public DeliveryDirectionsPrinter(ArrayList<DDPrintPage> ddpal, Image seasonImg, String oncSeason)
+	public DeliveryDirectionsPrinter(ArrayList<DDPrintPage> ddpal, Image seasonImg, String season)
 	{
 		ddpAL = ddpal;
 		oncSeasonImg = seasonImg;
-		this.oncSeason = oncSeason;
+		this.oncSeason = season;
 	}
+	
 	void printDeliveryDirectionsSheetHeader(int x, int y, Image img, String season,
 			String[] familyInfo, Font[] ddFont, Graphics2D g2d)
 	{			     
@@ -41,7 +53,7 @@ public class DeliveryDirectionsPrinter implements Printable
 
 		//Draw the ONC Season
 		g2d.setFont(ddFont[1]);
-		g2d.drawString(season, x+462, y+20);
+		g2d.drawString("ONC " + season, x+452, y+24);
 
 		//Draw header ONC Number
 		g2d.setFont(ddFont[2]);
@@ -113,11 +125,86 @@ public class DeliveryDirectionsPrinter implements Printable
 		}
 	}
 	
+	void printSignatureBlock(int x, int y, int width, int height, Font[] ddFont, Graphics2D g2d)
+	{
+		//draw the rectangle in red
+		drawThickRect(g2d, x, y, width, height);
+		//draw the text
+		g2d.setFont(ddFont[4]);
+		g2d.drawString("RECEIVED BY (sign): ________________________", x+4, y+18);		//first row
+		g2d.drawString("RECEIVED BY (print): _______________________", x+4, y+38);		//first row
+		g2d.drawString("DELIVERED BY (print): _____________________", x+4, y+58);		//second row
+		g2d.setFont(ddFont[0]);
+		g2d.drawString("Please complete the above, then use the Delivery Confirmation QR code", x+4, y+76);		//third row
+		g2d.drawString("to upload a photo of the signature box to ONC's server.", x+4, y+88);	//fourth row
+	}
+	
+	void printLabelRow(int x, int y, Font[] ddFont, String[] familyInfo, Graphics2D g2d)
+	{
+		g2d.setFont(ddFont[3]);
+		g2d.drawString("Google Map", x, y+14);					
+		g2d.drawString(" Family #" + familyInfo[0] + " Delivery Acceptance Signature", x+150, y+16);
+		g2d.drawString("Delivery", x+450, y);
+		g2d.drawString("Confirmation", x+440, y +16);
+	}
+	
+	/*********************************************************************************************
+	 * This method draws a gift check box rectangle at the specified x, y location.
+	 * @param g2d
+	 * @param x
+	 * @param y
+	 ********************************************************************************************/
+	void drawThickRect(Graphics2D g2d, int x, int y, int width, int height)
+	{
+		float thickness = 1.5f;
+		Stroke oldStroke = g2d.getStroke();
+		g2d.setStroke(new BasicStroke(thickness));
+		g2d.drawRect(x, y, width, height);
+		g2d.setStroke(oldStroke);
+	}
+	
 	void printDeliveryDirectionsSheetFooter(int x, int y, int pgNum, int pgTotal, Font[] ddFont, Graphics2D g2d)
 	{
 		//Draw the page number 
 		g2d.setFont(ddFont[0]);
 		g2d.drawString(String.format("%d of %d", pgNum, pgTotal), x+262, y+76);
+	}
+	
+	private void drawQRCode(String code, int x, int y, Graphics2D g2d) throws WriterException, UnsupportedEncodingException
+	{
+		String myCodeText = new String(code.getBytes("UTF-8"), "UTF-8");
+		
+		//create the hint map
+		Map<EncodeHintType, Object> hintMap = new EnumMap<EncodeHintType, Object>(EncodeHintType.class);
+		hintMap.put(EncodeHintType.CHARACTER_SET, "UTF-8");
+		
+		//Now with zxing version 3.2.1 you could change border size (white border size to just 1)
+		hintMap.put(EncodeHintType.MARGIN, 1); /* default = 4 */
+		hintMap.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.L);
+		
+		//create the bar code
+		QRCodeWriter qrCodeWriter = new QRCodeWriter();
+		BitMatrix byteMatrix = qrCodeWriter.encode(myCodeText, BarcodeFormat.QR_CODE, 80, 80, hintMap);
+		int width = byteMatrix.getWidth();
+		BufferedImage img = new BufferedImage(width, width, BufferedImage.TYPE_INT_RGB);
+		img.createGraphics();
+
+		//create the image.
+		Graphics2D graphics = (Graphics2D) img.getGraphics();
+		graphics.setColor(Color.WHITE);
+		graphics.fillRect(0, 0, width, width);
+		graphics.setColor(Color.BLACK);
+		for(int i = 0; i < width; i++)
+			for(int j = 0; j < width; j++)
+				if(byteMatrix.get(i, j))
+					graphics.fillRect(i, j, 1, 1);
+		
+		//release the graphics context
+		graphics.dispose();
+		
+		//Draw image scaled to fit image clip region on the delivery card
+		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		g2d.drawImage(img, x, y, 80, 80, null);
 	}
 	@Override
 	public int print (Graphics g, PageFormat pf, int page) throws PrinterException
@@ -134,16 +221,17 @@ public class DeliveryDirectionsPrinter implements Printable
 	    g2d.translate(pf.getImageableX(), pf.getImageableY());
 		
 		//Create fonts
-		Font[] cFonts = new Font[9];
-	    cFonts[0] = new Font("Calibri", Font.PLAIN, 10);//Instructions Font
-	    cFonts[1] = new Font("Calibri", Font.BOLD, 14);	//Season Font
-	    cFonts[2] = new Font("Calibri", Font.BOLD, 20);	//ONC Num Text Font
-	    cFonts[3] = new Font("Calibri", Font.BOLD, 12);	//Child Font
-	    cFonts[4] = new Font("Calibri", Font.BOLD, 13);	//Footer Font
-	    cFonts[5] = new Font("Calibri", Font.ITALIC, 13);	//Table header Font
-	    cFonts[6] = new Font("Calibri", Font.PLAIN, 12);	//Header Name, Address, Phone# Font
-	    cFonts[7] = new Font("Calibri", Font.BOLD, 16);	//Bag Info Headers - Bikes, #Bags, etc.
-	    cFonts[8] = new Font("Calibri", Font.BOLD, 32);	//Bag Info - Bikes, #Bags, etc.
+		Font[] cFonts = new Font[10];
+	    cFonts[0] = new Font("Times New Roman", Font.PLAIN, 10);//Instructions Font
+	    cFonts[1] = new Font("Times New Roman", Font.BOLD, 14);	//Season Font
+	    cFonts[2] = new Font("Times New Roman", Font.BOLD, 20);	//ONC Num Text Font
+	    cFonts[3] = new Font("Times New Roman", Font.BOLD, 12);	//Child Font
+	    cFonts[4] = new Font("Times New Roman", Font.BOLD, 13);	//Footer Font
+	    cFonts[5] = new Font("Times New Roman", Font.ITALIC, 13);	//Table header Font
+	    cFonts[6] = new Font("Times New Roman", Font.PLAIN, 12);	//Header Name, Address, Phone# Font
+	    cFonts[7] = new Font("Times New Roman", Font.BOLD, 16);	//Bag Info Headers - Bikes, #Bags, etc.
+	    cFonts[8] = new Font("Times New Roman", Font.BOLD, 28);	//Bag Info - Bikes, #Bags, etc.
+	    cFonts[9] = new Font("Times New Roman", Font.PLAIN, 8);	//Bag Info - Bikes, #Bags, etc.
 	    
 //	    Hashtable<TextAttribute, Object> fontmap = new Hashtable<TextAttribute, Object>();
 //	    fontmap.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON);
@@ -152,7 +240,8 @@ public class DeliveryDirectionsPrinter implements Printable
 		//Print page header			
 		printDeliveryDirectionsSheetHeader(DELIVERY_SHEET_X_OFFSET, 0, oncSeasonImg, oncSeason, 
 											ddpAL.get(page).getFamilyInfo(), cFonts, g2d);
-		
+
+/*
 		//If this is first page for family, print the map
 		if(ddpAL.get(page).getPageNumber() == 1)	//family page numbers are '1' based
 		{
@@ -178,6 +267,39 @@ public class DeliveryDirectionsPrinter implements Printable
 		//Print page direction table
 		printDeliveryDirectionsSheetTable(DELIVERY_SHEET_X_OFFSET, 500,
 											ddpAL.get(page).getStepsAL(), cFonts, g2d);
+*/
+		
+		if(ddpAL.get(page).getPageNumber() == 1)
+		{
+			String[] familyInfo = ddpAL.get(page).getFamilyInfo();
+			
+			//print delivery confirmation qr code
+			String mapURL = String.format("https://www.google.com/maps/dir/?api=1&destination=%s", ddpAL.get(page).getAddress());
+			String deliveryURL = String.format("https://%s:%d/giftdelivery?year=%s&famid=%s&refnum=%s",
+					"oncdms.org", 8902, oncSeason,familyInfo[18], familyInfo[19]);
+			
+			try
+			{
+				drawQRCode(mapURL, 20, 120, g2d);	//map qr code
+				drawQRCode(deliveryURL, 460, 116, g2d);	//gift delivery confirmation qr code
+			}
+			catch (UnsupportedEncodingException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			catch (WriterException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		
+			//print signature block
+			printSignatureBlock(120, 123, 320, 96, cFonts, g2d);
+			
+			printLabelRow(28,100, cFonts, ddpAL.get(page).getFamilyInfo(), g2d);
+		}
+		
 		//Print page footer
 		int pagetotal = ddpAL.get(page).getPageTotal();	//1 or 2
 		printDeliveryDirectionsSheetFooter(DELIVERY_SHEET_X_OFFSET, 656,

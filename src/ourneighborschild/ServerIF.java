@@ -85,7 +85,7 @@ public class ServerIF
         		try 
         		{
         			out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()),1); 
-//        		out = new PrintWriter(socket.getOutputStream(), true);
+//        			out = new PrintWriter(socket.getOutputStream(), true);
         		} 
         		catch (IOException e1)
         		{

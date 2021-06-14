@@ -56,7 +56,7 @@ public class GlobalVariablesDB extends ServerListenerComponent implements Server
 		//Initialize class variables
 		serverGVs = new ServerGVs();
 	   
-	    imageIcons = new ImageIcon[59];
+	    imageIcons = new ImageIcon[60];
 		imageIcons[0] = createImageIcon("onclogosmall.gif", "ONC Logo");
 		imageIcons[1] = createImageIcon("InfoIcon.gif", "Info Icon");
 		imageIcons[2] = createImageIcon("Button-Next-icon.gif", "Next Icon");
@@ -130,6 +130,7 @@ public class GlobalVariablesDB extends ServerListenerComponent implements Server
 		
 		imageIcons[57] = createImageIcon("giftpickup.png", "Gift Pickup");
 		imageIcons[58] = createImageIcon("homedelivery.png", "Home Delivery");
+		imageIcons[59] = createImageIcon("contract.png", "Delivery Signature");
 		
 		startONCNum = 100;
 		ytyGrwthIndex = 2;
