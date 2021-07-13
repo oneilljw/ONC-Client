@@ -2,6 +2,8 @@ package ourneighborschild;
 
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -14,7 +16,7 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-public class PNGViewer extends JDialog
+public class PNGViewer extends JDialog implements ActionListener
 {
 	/**
 	 * 
@@ -82,13 +84,13 @@ public class PNGViewer extends JDialog
 		return response;
 	}
 	
-	void sendTextWithPNGAttachment(int messageID, int phoneNum)
+	void sendTextWithPNGAttachment(int phoneNumChoice)
 	{
 		//build text
 		String message = "This message is from Our Neighbor's Child confirming  delivery of your child(ren)'s gifts."
 				+ " Please see the attached signature photo";
 		
-		String response = smsDB.sendSingleSMSRequest(message, 0, EntityType.FAMILY, family.getID());
+		String response = smsDB.sendSingleSMSRequest(message, phoneNumChoice, EntityType.FAMILY, family.getID());
 		
 		//Get selected family object
 		
@@ -151,6 +153,15 @@ public class PNGViewer extends JDialog
 		}
 		
 		return img;
+	}
+	
+	@Override
+	public void actionPerformed(ActionEvent e)
+	{
+		if(e.getSource() == btnSendText)
+		{
+			sendTextWithPNGAttachment();
+		}
 	}
 	
 	private class PNGPanel extends JPanel
