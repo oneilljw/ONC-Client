@@ -53,7 +53,7 @@ public class ONCFamily extends ONCEntity
 	private Transportation transportation;
 	private boolean		bGiftCardOnly;
 	private GiftDistribution	giftDistribution;
-	private boolean		bGiftConfirmation;
+	private boolean		bDeliveryConfirmation;
 	
 	//constructor used to make a copy for server update requests
 	public ONCFamily(ONCFamily f)
@@ -100,7 +100,7 @@ public class ONCFamily extends ONCEntity
 		this.transportation = f.transportation;
 		this.bGiftCardOnly = f.bGiftCardOnly;
 		this.giftDistribution = f.giftDistribution;
-		this.bGiftConfirmation = f.bGiftConfirmation;
+		this.bDeliveryConfirmation = f.bDeliveryConfirmation;
 	}
 
 	//Overloaded Constructor - 29 column (A to AC) input from ODB .csv file - 2014, 2015
@@ -151,7 +151,7 @@ public class ONCFamily extends ONCEntity
 			this.transportation = Transportation.TBD;
 		bGiftCardOnly = false;
 		this.giftDistribution = GiftDistribution.Delivery;
-		this.bGiftConfirmation = false;
+		this.bDeliveryConfirmation = false;
 
 		parseHOH(HOH);
 		parsePhoneData(ClientFamPhone);
@@ -205,7 +205,7 @@ public class ONCFamily extends ONCEntity
 		transportation = Transportation.valueOf(nextLine[37]);
 		bGiftCardOnly = nextLine[38].equals("TRUE") ? true : false;
 		this.giftDistribution = nextLine[39].isEmpty() ? GiftDistribution.Delivery : GiftDistribution.distribution(Integer.parseInt(nextLine[39]));
-		this.bGiftConfirmation = nextLine[40].equals("T") ? true : false;
+		this.bDeliveryConfirmation = nextLine[40].equals("T") ? true : false;
 	}
 	
 	//Overloaded Constructor - Direct Intake Processing
@@ -277,7 +277,7 @@ public class ONCFamily extends ONCEntity
 		this.transportation = transportation;
 		this.bGiftCardOnly = false;
 		this.giftDistribution = giftDistribution;
-		this.bGiftConfirmation = false;
+		this.bDeliveryConfirmation = false;
 	}
 	
 	String getDBString(String s)
@@ -513,7 +513,7 @@ public class ONCFamily extends ONCEntity
 	public Transportation getTransportation() { return transportation; }
 	public boolean 	isGiftCardOnly() { return bGiftCardOnly; }
 	public GiftDistribution getGiftDistribution() { return giftDistribution; }
-	public boolean hasDeliveryImage() { return bGiftConfirmation; }
+	public boolean hasDeliveryImage() { return bDeliveryConfirmation; }
 
 	//Setters
 	public void setONCNum(String s) { oncNum = s;}
@@ -557,7 +557,7 @@ public class ONCFamily extends ONCEntity
 	public void setTransportation(Transportation t) { transportation = t; }
 	public void setGiftCardOnly(boolean gco) { bGiftCardOnly = gco; }
 	public void setGiftDistribution(GiftDistribution dist) { this.giftDistribution = dist; }
-	public void setGiftConfirmation(boolean gc) { bGiftConfirmation = gc; }
+	public void setDeliveryConfirmation(boolean gc) { bDeliveryConfirmation = gc; }
 	
 	public String getGoogleMapAddress()
 	{
@@ -612,9 +612,6 @@ public class ONCFamily extends ONCEntity
 		rowList.add(getSchoolCode());
 		rowList.add(getReferenceNum());
 		rowList.add(getBatchNum());	
-//		rowList.add(Integer.toString(-1));	//Deprecated
-//		rowList.add(Integer.toString(-1));	//Deprecated
-//		rowList.add(Integer.toString(-1));	//Deprecated
 		rowList.add(getSpeakEnglish());
 		rowList.add(getLanguage());			
 		rowList.add(getChangedBy());
@@ -640,10 +637,7 @@ public class ONCFamily extends ONCEntity
 		rowList.add(getAdoptedFor());
 		rowList.add(Integer.toString(getAgentID()));
 		rowList.add(Integer.toString(getGroupID()));
-//		rowList.add(Integer.toString(-1));	//Deprecated
 		rowList.add(Integer.toString(phoneCode));
-//		rowList.add(Integer.toString(mealID));
-//		rowList.add(MealStatus.None.toString());
 		rowList.add(Integer.toString(getNumOfBags()));
 		rowList.add(Integer.toString(getNumOfLargeItems()));
 		rowList.add(Integer.toString(getStoplightPos()));
@@ -652,7 +646,7 @@ public class ONCFamily extends ONCEntity
 		rowList.add(getTransportation().toString());
 		rowList.add(isGiftCardOnly() ? "TRUE" : "FALSE");
 		rowList.add(Integer.toString(giftDistribution.index()));
-		rowList.add(isGiftCardOnly() ? "T" : "F");
+		rowList.add(hasDeliveryImage() ? "T" : "F");
 		
 		return rowList.toArray(new String[rowList.size()]);
 	}
