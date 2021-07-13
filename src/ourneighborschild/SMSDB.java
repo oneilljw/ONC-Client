@@ -65,7 +65,20 @@ public class SMSDB extends ONCDatabase
 		return addedSMS;
 	}
 	
-	String sendSMSRequest(Object source, int messageID, int phoneNum, List<Integer> famIDList)
+	String sendSingleSMSRequest(String message, int phone, EntityType entType, int targetID)
+	{
+		List<Integer> targetIDList = new ArrayList<Integer>();
+		targetIDList.add(targetID);
+		
+		SMSRequest request = new SMSRequest(gvDB.getCurrentSeason(), message, true, phone, entType, targetIDList);
+		
+		Gson gson = new Gson();
+		String response = serverIF.sendRequest("POST<sms_request>" + gson.toJson(request, SMSRequest.class));
+		
+		return response;
+	}
+	
+	String sendMultipleSMSRequest(Object source, int messageID, int phoneNum, List<Integer> famIDList)
 	{
 		//form a SMS Request
 		SMSRequest request = new SMSRequest(gvDB.getCurrentSeason(), messageID, phoneNum, 

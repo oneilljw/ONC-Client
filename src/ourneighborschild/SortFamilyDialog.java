@@ -1756,7 +1756,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			}
 		}
 		
-		String response = smsDB.sendSMSRequest(this, messageID, phoneNum, famIDList);
+		String response = smsDB.sendMultipleSMSRequest(this, messageID, phoneNum, famIDList);
 		
 		//put up a pop-up with the response
 		ONCPopupMessage smsResponsePU = new ONCPopupMessage(GlobalVariablesDB.getONCLogo());

@@ -10,6 +10,7 @@ public class ONCSMS extends ONCObject
 	private String phoneNum;
 	private SMSDirection direction;
 	private String body;
+	private String mediaURL;
 	private SMSStatus status;
 	private long timestamp;
 	
@@ -23,9 +24,25 @@ public class ONCSMS extends ONCObject
 		this.phoneNum = phoneNum;
 		this.direction = direction;
 		this.body = body;
+		this.mediaURL = null;
 		this.status = status;
 		this.timestamp = System.currentTimeMillis();
 	}
+	
+	public ONCSMS(int id, String messageSID, EntityType type, int entityID, String phoneNum, SMSDirection direction,
+			String body, String mediaURL, SMSStatus status)
+    {
+        super(id);
+        this.messageSID = messageSID;
+        this.type = type;
+        this.entityID = entityID;
+        this.phoneNum = phoneNum;
+        this.direction = direction;
+        this.body = body;
+        this.mediaURL = mediaURL;
+        this.status = status;
+        this.timestamp = System.currentTimeMillis();
+    }
 	
 	//Constructor used when importing data base from CSV by the server
 	public ONCSMS(String[] nextLine)
@@ -47,6 +64,7 @@ public class ONCSMS extends ONCObject
 	public String getPhoneNum() { return phoneNum; }
 	public SMSDirection getDirection() { return direction; }
 	public String getBody() { return body; }
+	public String getMediaURL() { return mediaURL; }
 	public SMSStatus getStatus() { return status; }
 	long getTimestamp() { return timestamp; }
 	
@@ -56,6 +74,7 @@ public class ONCSMS extends ONCObject
 	public void setPhoneNumber(String phoneNum) { this.phoneNum = phoneNum; }
 	public void setDirection(SMSDirection direction) {this.direction = direction; }
 	void setBody(String body) { this.body = body; }
+	void setMediaURL(String url) { this.mediaURL = url; }
 	public void setStatus(SMSStatus status) { this.status = status; }
 	public void setTimestamp(long timestamp) { this.timestamp = timestamp; }
 	

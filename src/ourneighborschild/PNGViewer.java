@@ -21,6 +21,7 @@ public class PNGViewer extends JDialog
 	 */
 	private static final long serialVersionUID = 1L;
 	private FamilyDB familyDB;
+	private SMSDB smsDB;
 	private PNGPanel pngPanel;
 	private ONCFamily family;
 	
@@ -36,6 +37,7 @@ public class PNGViewer extends JDialog
 		
 		this.family = family;
 		familyDB = FamilyDB.getInstance();
+		smsDB = SMSDB.getInstance();
 		
 		JPanel controlPanel = new JPanel();
 		btnSendText = new JButton("Send Text");
@@ -78,6 +80,24 @@ public class PNGViewer extends JDialog
 		}
 		
 		return response;
+	}
+	
+	void sendTextWithPNGAttachment(int messageID, int phoneNum)
+	{
+		//build text
+		String message = "This message is from Our Neighbor's Child confirming  delivery of your child(ren)'s gifts."
+				+ " Please see the attached signature photo";
+		
+		String response = smsDB.sendSingleSMSRequest(message, 0, EntityType.FAMILY, family.getID());
+		
+		//Get selected family object
+		
+		
+		
+		//put up a pop-up with the response
+		ONCPopupMessage smsResponsePU = new ONCPopupMessage(GlobalVariablesDB.getONCLogo());
+		smsResponsePU.setLocationRelativeTo(this);
+		smsResponsePU.show("Server SMS Request Response", response);
 	}
 /*	
 	BufferedImage getPNGFromServer()
