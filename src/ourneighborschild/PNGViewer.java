@@ -160,7 +160,7 @@ public class PNGViewer extends JDialog implements ActionListener
 	{
 		if(e.getSource() == btnSendText)
 		{
-			sendTextWithPNGAttachment();
+			sendTextWithPNGAttachment(0);
 		}
 	}
 	
