@@ -44,6 +44,7 @@ public class PNGViewer extends JDialog implements ActionListener
 		JPanel controlPanel = new JPanel();
 		btnSendText = new JButton("Send Text");
 		btnSendText.setEnabled(false);
+		btnSendText.addActionListener(this);
 		controlPanel.add(btnSendText);
 		
 		String encodedImage = getEncodedPNGFromServer();
@@ -160,7 +161,7 @@ public class PNGViewer extends JDialog implements ActionListener
 	{
 		if(e.getSource() == btnSendText)
 		{
-			sendTextWithPNGAttachment(0);
+			sendTextWithPNGAttachment(1);
 		}
 	}
 	
