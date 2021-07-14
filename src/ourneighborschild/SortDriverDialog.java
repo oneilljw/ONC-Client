@@ -62,6 +62,10 @@ public class SortDriverDialog extends DependantFamilyTableDialog
 		if(volActDB != null)
 			volActDB.addDatabaseListener(this);
 		
+		familyHistoryDB = FamilyHistoryDB.getInstance();
+		if(familyHistoryDB != null)
+			familyHistoryDB.addDatabaseListener(this);
+		
 		//Set up the agent table content array list
 		atAL = new ArrayList<ONCVolunteer>();
 		
@@ -158,14 +162,13 @@ public class SortDriverDialog extends DependantFamilyTableDialog
 		clearFamilyTable();
 		
 		for(int i=0; i< row_sel.length; i++)
-//			for(ONCFamily f:fDB.getList())
 			for(ONCFamily f:fDB.getListOfFamiliesWithDeliveries())
 			{
 				//determine if the family has a driver based on the delivery. If the family
 				//has a driver, does the delivery driver's ID match the id of the driver selected
 				//in the selection table. If so, add to the dependent table list
 				FamilyHistory fh = familyHistoryDB.getLastFamilyHistory(f.getID());
-			
+				
 				if(fh != null && !fh.getdDelBy().isEmpty())
 				{
 					//There is s driver assigned. Determine who it is from the driver number
@@ -568,19 +571,17 @@ public class SortDriverDialog extends DependantFamilyTableDialog
 	@Override
 	public void valueChanged(ListSelectionEvent lse)
 	{
-//		System.out.println("SortAgtDlg.valueChanged: valueIsAdjusting: " + lse.getValueIsAdjusting());
 		if(!lse.getValueIsAdjusting() &&lse.getSource() == sortTable.getSelectionModel() 
 				&& !bChangingTable)
 		{
 			if(sortTable.getSelectedRowCount() == 0)	//No selection
 			{
-//				System.out.println("SortAgtDlg.valueChanged: lse event occurred, agent row count = 0");
 				stAL.clear();
 				clearFamilyTable();
 			}
 			else	//delivery volunteer selected, build new family table associated with the volunteer
 			{
-//				System.out.println("SortAgtDlg.valueChanged: lse event occurred, agent selected");
+//				System.out.println("SortDrvDlg.valueChanged: lse event occurred, delivery volunteer selected");
 				buildFamilyTableListAndDisplay();
 				
 				fireEntitySelected(this, EntityType.VOLUNTEER, atAL.get(sortTable.getSelectedRow()), null);

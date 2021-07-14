@@ -541,7 +541,9 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 	
 	void setBorder()
 	{
-		if(giftNumber >= gvs.getNumberOfGiftsPerChild())
+		if(gpStatus == GiftPanelStatus.Disabled)
+			border.setTitle(String.format("Gift %d", giftNumber+1));
+		else if(giftNumber >= gvs.getNumberOfGiftsPerChild())
 			border.setTitle(String.format("Gift %d: Unused", giftNumber+1));
 		else if(childGift == null)
 			border.setTitle(String.format("Gift %d: Not Selected", giftNumber+1));
