@@ -443,6 +443,21 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 	    }
 	}
 	
+	void initializeDateFilters()
+	{
+		de.getDateEditor().removePropertyChangeListener(this);
+		ds.getDateEditor().removePropertyChangeListener(this);
+		
+		setDateFilters(gvs.getSeasonStartCal(), Calendar.getInstance(TimeZone.getTimeZone("UTC")), 0, 1);
+		ds.setCalendar(startFilterTimestamp);
+		de.setCalendar(endFilterTimestamp);
+		
+		ds.getDateEditor().addPropertyChangeListener(this);
+		de.getDateEditor().addPropertyChangeListener(this);
+		
+		createTableList();
+	}
+	
 	@Override
 	public void dataChanged(DatabaseEvent dbe)
 	{
@@ -459,21 +474,11 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 		{
 			//get the initial data and display
 			this.setTitle(String.format("Our Neighbor's Child - %d Message Management", gvs.getCurrentSeason()));
-			createTableList();
+			initializeDateFilters();
 		}
 		else if(dbe.getSource() != this && dbe.getType().equals("UPDATED_GLOBALS"))
 		{
-			de.getDateEditor().removePropertyChangeListener(this);
-			ds.getDateEditor().removePropertyChangeListener(this);
-			
-			setDateFilters(gvs.getSeasonStartCal(), Calendar.getInstance(TimeZone.getTimeZone("UTC")), 0, 1);
-			ds.setCalendar(startFilterTimestamp);
-			de.setCalendar(endFilterTimestamp);
-			
-			ds.getDateEditor().addPropertyChangeListener(this);
-			de.getDateEditor().addPropertyChangeListener(this);
-			
-			createTableList();
+			initializeDateFilters();
 		}
 	}
 
