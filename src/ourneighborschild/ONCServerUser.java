@@ -14,7 +14,6 @@ public class ONCServerUser extends ONCUser
 	private static final long serialVersionUID = 1L;
 	private static final long UNIX_EPOCH = 0L;
 	private static final int RECOVERY_ID_LENGTH = 16;
-	private static final int TEMP_PASSWORD_LENGTH = 8;
 	
 	private String userid;
 	private String password;
@@ -27,11 +26,11 @@ public class ONCServerUser extends ONCUser
 							UserStatus stat, UserAccess acc, UserPermission perm,
 							String uid, String pw, long nSessions, long last_login,
 							boolean bResetPassword, 
-							String org, String title, String email, String phone, 
+							String org, String title, String email, String workphone, String cellphone,
 							List<Integer> groupList)
 	{
 		super(id, today, chgby, slpos, slmssg, slchgby, fn, ln, stat, acc, perm, nSessions, last_login, 
-				 org, title, email, phone, groupList);
+				 org, title, email, workphone, cellphone, groupList);
 		userid = uid;
 		password = pw;
 		failedLoginCount = 0;
@@ -45,7 +44,7 @@ public class ONCServerUser extends ONCUser
 		super(currUser.id, currUser.timestamp, currUser.changedBy, currUser.slPos, currUser.slMssg,
 				currUser.slChangedBy, currUser.firstName, currUser.lastName, currUser.status, 
 				currUser.access, currUser.permission, currUser.nSessions, currUser.lastLogin, 
-				currUser.organization, currUser.title, currUser.email, currUser.cellPhone, currUser.groupList);
+				currUser.organization, currUser.title, currUser.email, currUser.homePhone,currUser.cellPhone, currUser.groupList);
 		userid = currUser.userid;
 		password = currUser.password;
 		failedLoginCount = currUser.failedLoginCount;
@@ -59,15 +58,15 @@ public class ONCServerUser extends ONCUser
 				nextLine[11], nextLine[12], nextLine[6], nextLine[7], UserStatus.valueOf(nextLine[3]),
 				UserAccess.valueOf(nextLine[4]), UserPermission.valueOf(nextLine[5]),
 				Long.parseLong(nextLine[13]), Long.parseLong(nextLine[14]), 
-				nextLine[15], nextLine[16], nextLine[17], nextLine[18], createGroupList(nextLine[19]),
-				Integer.parseInt(nextLine[20]), Integer.parseInt(nextLine[21]),
-				getFilterDNSCode(Integer.parseInt(nextLine[22])));
+				nextLine[15], nextLine[16], nextLine[17], nextLine[18], nextLine[19], createGroupList(nextLine[20]),
+				Integer.parseInt(nextLine[21]), Integer.parseInt(nextLine[22]),
+				getFilterDNSCode(Integer.parseInt(nextLine[23])));
 				
 		userid = nextLine[1];
 		password = nextLine[2];
-		failedLoginCount = nextLine[23].isEmpty() ? 0 : Integer.parseInt(nextLine[23]);
-		recoveryID = nextLine[24];
-	 	recoveryIDTime = nextLine[25].isEmpty() ? UNIX_EPOCH : Long.parseLong(nextLine[25]);
+		failedLoginCount = nextLine[24].isEmpty() ? 0 : Integer.parseInt(nextLine[24]);
+		recoveryID = nextLine[25];
+	 	recoveryIDTime = nextLine[26].isEmpty() ? UNIX_EPOCH : Long.parseLong(nextLine[26]);
 	}
 	
 	private static DNSCode getFilterDNSCode(int dnsCodeID)
@@ -114,19 +113,30 @@ public class ONCServerUser extends ONCUser
 		return new String(result);
 	}
 	
-	public void createTemporaryPassword()
-	{	
-		this.setStatus(UserStatus.Change_PW);
-		this.setUserPW(createRandomString(TEMP_PASSWORD_LENGTH));
+	public String setRecoveryStatusAndPassword()
+	{
+		this.setStatus(UserStatus.Recovery);
+		
+	    //Generate a 6 digit random number recovery code from 0 to 999999
+	    Random rnd = new Random();
+	    int number = rnd.nextInt(999999);
+
+	    //set a temporary user password to the recovery code
+	    String recoveryString = String.format("%06d", number);
+	    this.setUserPW(recoveryString);
+	    
+	    return recoveryString;
 	}
 
-	public void createRecoveryID()
+	public String createRecoveryIDAndTime()
 	{
 		recoveryID = createRandomString(RECOVERY_ID_LENGTH );
 		
 		//set the creation time
 		Calendar now = Calendar.getInstance();
 		recoveryIDTime = now.getTimeInMillis();
+		
+		return recoveryID;
 	}
 	
 	public void disableRecoveryID()
@@ -146,7 +156,7 @@ public class ONCServerUser extends ONCUser
 	{
 		return new ONCUser(id, timestamp, changedBy, slPos, slMssg, slChangedBy, 
 				firstName, lastName, status, access, permission, clientID, clientYear, nSessions, 
-				lastLogin, organization, title, email, cellPhone, groupList, preferences);	
+				lastLogin, organization, title, email, homePhone, cellPhone, groupList, preferences);	
 	}
 	
 	public boolean doesUserMatch(ONCServerUser compUser)
@@ -167,7 +177,7 @@ public class ONCServerUser extends ONCUser
 						Long.toString(timestamp), changedBy, Integer.toString(slPos), 
 						slMssg,slChangedBy, Long.toString(nSessions), 
 						Long.toString(lastLogin),
-						organization, title, email, cellPhone, getGroupListAsDelimitedString(),
+						organization, title, email, homePhone, cellPhone, getGroupListAsDelimitedString(),
 						Integer.toString(preferences.getFontSize()), 
 						Integer.toString(preferences.getWishAssigneeFilter()), 
 						Integer.toString(preferences.getFamilyDNSFilterCode().getID()),

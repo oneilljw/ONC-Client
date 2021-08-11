@@ -25,9 +25,9 @@ public class ONCUser extends ONCGmailContactEntity
 	
 	public ONCUser(int id, long today, String changedBy, int slpos, String slmssg, String slchgby, 
 			String fn, String ln, UserStatus stat, UserAccess acc, UserPermission perm, long nSessions,
-			long last, String org, String title, String email, String phone, List<Integer> groupList)
+			long last, String org, String title, String email, String workphone, String cellphone, List<Integer> groupList)
 	{
-		super(id, fn, ln, email, phone, phone, "","","","","","New User", org, today, changedBy, 
+		super(id, fn, ln, email, workphone, cellphone, "","","","","","New User", org, today, changedBy, 
 				slpos, slmssg, slchgby);
 		
 		status = stat;
@@ -45,10 +45,10 @@ public class ONCUser extends ONCGmailContactEntity
 	//overloaded -- used when including UserPreferences in the construction
 	public ONCUser(int id, long today, String changedBy, int slpos, String slmssg, String slchgby, 
 			String fn, String ln, UserStatus stat, UserAccess acc, UserPermission perm, long nSessions,
-			long last, String org, String title,String email, String phone, List<Integer> groupList,
+			long last, String org, String title,String email, String workphone, String cellphone, List<Integer> groupList,
 			int fontSize, int wafPos, DNSCode fdfDNSCode)
 	{
-		super(id, fn, ln, email, phone, phone, "","","","","","New User", org, today, changedBy, 
+		super(id, fn, ln, email, workphone, cellphone, "","","","","","New User", org, today, changedBy, 
 				slpos, slmssg, slchgby);
 		
 		status = stat;
@@ -67,9 +67,9 @@ public class ONCUser extends ONCGmailContactEntity
 	public ONCUser(int id, long today, String changedBy, int slpos, String slmssg, String slchgby, 
 			String fn, String ln,  UserStatus stat, UserAccess acc, UserPermission perm,
 			long clientID, int clientYear, long nSessions, long lastLogin, 
-			String org, String title, String email, String phone, List<Integer> oldGroupList, UserPreferences prefs)
+			String org, String title, String email, String workphone, String cellphone, List<Integer> oldGroupList, UserPreferences prefs)
 	{
-		super(id, fn, ln, email, phone, phone, "","","","","","New User", org, today, changedBy, 
+		super(id, fn, ln, email, workphone, cellphone, "","","","","","New User", org, today, changedBy, 
 				slpos, slmssg, slchgby);
 
 		status = stat;
@@ -192,7 +192,7 @@ public class ONCUser extends ONCGmailContactEntity
 						Long.toString(timestamp), changedBy, Integer.toString(slPos), 
 						slMssg,slChangedBy, Long.toString(nSessions), 
 						Long.toString(lastLogin),
-						organization, title, email, cellPhone, getGroupListAsDelimitedString(),
+						organization, title, email, homePhone, cellPhone, getGroupListAsDelimitedString(),
 						Integer.toString(preferences.getFontSize()), 
 						Integer.toString(preferences.getWishAssigneeFilter()), 
 						Integer.toString(preferences.getFamilyDNSFilterCode().getID())

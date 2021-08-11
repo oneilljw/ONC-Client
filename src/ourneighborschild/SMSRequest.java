@@ -23,7 +23,7 @@ public class SMSRequest
 		this.entityIDList = entityIDList;
 	}
 	
-	SMSRequest(int year, String message, boolean bAttachment, int phoneChoice, EntityType type, List<Integer> entityIDList)
+	public SMSRequest(int year, String message, boolean bAttachment, int phoneChoice, EntityType type, List<Integer> entityIDList)
 	{
 		this.year = year;
 		this.messageID = -1;

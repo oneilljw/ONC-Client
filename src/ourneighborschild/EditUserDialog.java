@@ -49,7 +49,7 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
 	private ONCTable memberTbl, candidateTbl;
 	private MemberTableModel memberTM;
 	private CandidateTableModel candidateTM;
-	private JTextField firstnameTF, lastnameTF, usernameTF, orgTF, titleTF, emailTF, phoneTF;
+	private JTextField firstnameTF, lastnameTF, usernameTF, orgTF, titleTF, emailTF, workphoneTF, cellphoneTF;
 	private JLabel lblLastChangedBy, lblDateChanged, lblLogins, lblLastLogin;
 	private JComboBox<UserStatus> statusCB;
     private JComboBox<UserAccess> accessCB;
@@ -95,29 +95,34 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
         JPanel p4 = new JPanel(new FlowLayout(FlowLayout.LEFT));
         
         //set up panel 1
-        firstnameTF = new JTextField(12);
+        firstnameTF = new JTextField(7);
         firstnameTF.setBorder(BorderFactory.createTitledBorder("First Name"));
         firstnameTF.addActionListener(dcListener);
         
-        lastnameTF = new JTextField(12);
+        lastnameTF = new JTextField(9);
         lastnameTF.setBorder(BorderFactory.createTitledBorder("Last Name"));
         lastnameTF.addActionListener(dcListener);
         
-        emailTF = new JTextField(20);
+        emailTF = new JTextField(18);
         emailTF.setBorder(BorderFactory.createTitledBorder("Email"));
         emailTF.addActionListener(dcListener);
         
-        phoneTF = new JTextField(10);
-        phoneTF.setBorder(BorderFactory.createTitledBorder("Phone"));
-        phoneTF.addActionListener(dcListener);
+        workphoneTF = new JTextField(9);
+        workphoneTF.setBorder(BorderFactory.createTitledBorder(" Work Phone"));
+        workphoneTF.addActionListener(dcListener);
+        
+        cellphoneTF = new JTextField(9);
+        cellphoneTF.setBorder(BorderFactory.createTitledBorder("Cell Phone"));
+        cellphoneTF.addActionListener(dcListener);
         
         p1.add(firstnameTF);
         p1.add(lastnameTF);
         p1.add(emailTF);
-        p1.add(phoneTF);
+        p1.add(workphoneTF);
+        p1.add(cellphoneTF);
         
         //set up op2
-        orgTF = new JTextField(18);
+        orgTF = new JTextField(19);
         orgTF.setBorder(BorderFactory.createTitledBorder("School/Organization"));
         orgTF.setToolTipText("What organization does this user belong too?");
         orgTF.addActionListener(dcListener);
@@ -470,13 +475,14 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
 			if(!firstnameTF.getText().equals(reqUpdateUser.getFirstName())) { reqUpdateUser.setFirstName(firstnameTF.getText()); bCD = bCD | 1; }
 			if(!lastnameTF.getText().equals(reqUpdateUser.getLastName())) { reqUpdateUser.setLastName(lastnameTF.getText()); bCD = bCD | 2; }
 			if(!emailTF.getText().equals(reqUpdateUser.getEmail())) { reqUpdateUser.setEmail(emailTF.getText()); bCD = bCD | 4; }
-			if(!phoneTF.getText().equals(reqUpdateUser.getHomePhone())) { reqUpdateUser.setHomePhone(phoneTF.getText()); reqUpdateUser.setCellPhone(phoneTF.getText());bCD = bCD | 8; }
-			if(!orgTF.getText().equals(reqUpdateUser.getOrganization())) { reqUpdateUser.setOrganization(orgTF.getText()); bCD = bCD | 16; }
-			if(!titleTF.getText().equals(reqUpdateUser.getTitle())) { reqUpdateUser.setTitle(titleTF.getText()); bCD = bCD | 32; }
-			if(statusCB.getSelectedItem() != reqUpdateUser.getStatus()) { reqUpdateUser.setStatus((UserStatus)statusCB.getSelectedItem()); bCD = bCD | 64; }
-			if(accessCB.getSelectedItem() != reqUpdateUser.getAccess()) { reqUpdateUser.setAccess((UserAccess)accessCB.getSelectedItem()); bCD = bCD | 128; }
-			if(permissionCB.getSelectedItem() != reqUpdateUser.getPermission()) { reqUpdateUser.setPermission((UserPermission)permissionCB.getSelectedItem()); bCD = bCD | 256; }
-			if(memberList.size() != reqUpdateUser.getGroupList().size()){ reqUpdateUser.setGroupList(getUserGroupList()); bCD = bCD | 512; }
+			if(!workphoneTF.getText().equals(reqUpdateUser.getHomePhone())) { reqUpdateUser.setHomePhone(workphoneTF.getText()); bCD = bCD | 8; }
+			if(!cellphoneTF.getText().equals(reqUpdateUser.getCellPhone())) { reqUpdateUser.setCellPhone(cellphoneTF.getText()); bCD = bCD | 16; }
+			if(!orgTF.getText().equals(reqUpdateUser.getOrganization())) { reqUpdateUser.setOrganization(orgTF.getText()); bCD = bCD | 32; }
+			if(!titleTF.getText().equals(reqUpdateUser.getTitle())) { reqUpdateUser.setTitle(titleTF.getText()); bCD = bCD | 64; }
+			if(statusCB.getSelectedItem() != reqUpdateUser.getStatus()) { reqUpdateUser.setStatus((UserStatus)statusCB.getSelectedItem()); bCD = bCD | 128; }
+			if(accessCB.getSelectedItem() != reqUpdateUser.getAccess()) { reqUpdateUser.setAccess((UserAccess)accessCB.getSelectedItem()); bCD = bCD | 256; }
+			if(permissionCB.getSelectedItem() != reqUpdateUser.getPermission()) { reqUpdateUser.setPermission((UserPermission)permissionCB.getSelectedItem()); bCD = bCD | 512; }
+			if(memberList.size() != reqUpdateUser.getGroupList().size()){ reqUpdateUser.setGroupList(getUserGroupList()); bCD = bCD | 1024; }
 			
 			if(bCD > 0)	//If an update to partner data (not stop light data) was detected
 			{
@@ -547,8 +553,11 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
 			emailTF.setText(currUser.getEmail());
 			emailTF.setCaretPosition(0);
 			
-			phoneTF.setText(currUser.getCellPhone());
-			phoneTF.setCaretPosition(0);
+			workphoneTF.setText(currUser.getHomePhone());
+			workphoneTF.setCaretPosition(0);
+			
+			cellphoneTF.setText(currUser.getCellPhone());
+			cellphoneTF.setCaretPosition(0);
 			
 			orgTF.setText(currUser.getOrganization());
 			orgTF.setCaretPosition(0);
@@ -602,7 +611,8 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
 		firstnameTF.setText("");	
 		lastnameTF.setText("");
 		emailTF.setText("");
-		phoneTF.setText("");
+		workphoneTF.setText("");
+		cellphoneTF.setText("");
 		orgTF.setText("");
 		titleTF.setText("");
 		lblDateChanged.setText(sdf.format(new Date()));
@@ -636,9 +646,12 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
 			return "First Name or Last Name missing.";
 		else if(!(emailTF.getText().contains("@") && emailTF.getText().contains(".")))
 			return "Email is missing or invalid.";
-		else if(!(phoneTF.getText().length() == 10 ||  phoneTF.getText().length() == 12 ||
-					phoneTF.getText().length() == 14))
-			return "Phone is missing or not a valid format";
+		else if(!(workphoneTF.getText().length() == 10 ||  workphoneTF.getText().length() == 12 ||
+					workphoneTF.getText().length() == 14))
+			return "Work Phone is missing or not a valid format";
+		else if(!(cellphoneTF.getText().length() == 10 ||  cellphoneTF.getText().length() == 12 ||
+				cellphoneTF.getText().length() == 14))
+		return "Cell Phone is missing or not a valid format";
 		else if(orgTF.getText().isEmpty() || titleTF.getText().isEmpty())
 			return "Organization and/or Title is missing";
 		else if(usernameTF.getText().isEmpty())
@@ -700,7 +713,7 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
 					UserStatus.Change_PW, (UserAccess) accessCB.getSelectedItem(), 
 					(UserPermission) permissionCB.getSelectedItem(), usernameTF.getText(), "********", 0,
 					calendar.getTimeInMillis(), true, orgTF.getText(), titleTF.getText(),
-					emailTF.getText(), phoneTF.getText(), getUserGroupList());
+					emailTF.getText(), workphoneTF.getText(), cellphoneTF.getText(), getUserGroupList());
 		
 			//check for a duplicate user. Search twice, once for duplicate user names and
 			//once for duplicate email addresses

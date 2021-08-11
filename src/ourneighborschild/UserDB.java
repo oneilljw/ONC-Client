@@ -236,8 +236,8 @@ public class UserDB extends ONCSearchableDatabase
 			
 			if(response != null)
 			{
-				uAL = gson.fromJson(response, listtype);				
-			
+				uAL = gson.fromJson(response, listtype);
+				
 				if(uAL.size() > 1)
 					Collections.sort(uAL, new UserLNFIComparator());
 				bImportComplete = true;
