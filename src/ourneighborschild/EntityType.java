@@ -1,7 +1,8 @@
 package ourneighborschild;
 
 public enum EntityType
-{ 
+{
+	ANY ("Any"),
 	AGENT ("Agent"),
 	FAMILY ("Family"), 
 	CHILD ("Child"),

@@ -80,6 +80,7 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 	private JButton btnReset;
 	private JTextField oncnumTF;
 	private JComboBox<String> printCB, exportCB;
+	private JComboBox<EntityType> entityTypeCB;
 	private JComboBox<SMSDirection> directionCB;
 	private JComboBox<SMSStatus> statusCB;
 	private JDateChooser ds, de;
@@ -92,6 +93,7 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 	private FamilyDB familyDB;
 	private FamilyHistoryDB familyHistoryDB;
 	private PartnerDB partnerDB;
+	private UserDB userDB;
 	
 	private List<ONCSMS> smsTableList;
 	private SMSTimestampComparator smsTimestampComparator;
@@ -121,6 +123,10 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 		partnerDB = PartnerDB.getInstance();
 		if(partnerDB != null)
 			partnerDB.addDatabaseListener(this);
+		
+		userDB = UserDB.getInstance();
+		if(userDB != null)
+			userDB.addDatabaseListener(this);
 
 		//set up the table list
 		smsTableList = new ArrayList<ONCSMS>();
@@ -146,6 +152,11 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 		oncnumTF.addActionListener(this);
 		sortCriteriaPanel.add(oncnumTF);
 		sortONCNum = "";
+		
+		entityTypeCB = new JComboBox<EntityType>(EntityType.values());
+		entityTypeCB.setBorder(BorderFactory.createTitledBorder("Type"));
+		entityTypeCB.addActionListener(this);
+		sortCriteriaPanel.add(entityTypeCB);
 		
 		directionCB = new JComboBox<SMSDirection>(SMSDirection.values());
 		directionCB.setBorder(BorderFactory.createTitledBorder("Direction"));
@@ -289,8 +300,8 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 		smsTableList.clear();
 		
 		for(ONCSMS sms : smsDB.getList())
-			if(doesDirectionFilterMatch(sms) && doesStatusFilterMatch(sms) && doesONCNumFilterMatch(sms) &&
-				isSMSTimestampBetween(sms.getTimestamp()))
+			if(doesDirectionFilterMatch(sms) && doesEntityTypeFilterMatch(sms) && doesStatusFilterMatch(sms) && 
+				doesEntityIDFilterMatch(sms) && isSMSTimestampBetween(sms.getTimestamp()))
 				smsTableList.add(sms);
 		
 		Collections.sort(smsTableList, smsTimestampComparator);
@@ -305,11 +316,14 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 	void resetFilters()
 	{	
 		oncnumTF.removeActionListener(this);
-		oncnumTF.setText("");
+		oncnumTF.setText("");      
 		oncnumTF.addActionListener(this);
 		sortONCNum = "";
 		
-		sortDirection = SMSDirection.ANY;
+		entityTypeCB.removeActionListener(this);
+		entityTypeCB.setSelectedIndex(0);
+		entityTypeCB.addActionListener(this);
+		
 		directionCB.removeActionListener(this);
 		directionCB.setSelectedIndex(0);
 		directionCB.addActionListener(this);
@@ -331,12 +345,30 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 		createTableList();
 	}
 	
-	boolean doesONCNumFilterMatch(ONCSMS sms)
+	boolean doesEntityTypeFilterMatch(ONCSMS sms)
 	{
-		//find ONC Num
-		ONCFamily fam = familyDB.getFamily(sms.getEntityID());
-		if(fam != null)
-			return sortONCNum.isEmpty() || fam.getONCNum().equals(oncnumTF.getText());
+		return entityTypeCB.getSelectedItem() == EntityType.ANY || entityTypeCB.getSelectedItem() == sms.getType();
+	}
+	
+	boolean doesEntityIDFilterMatch(ONCSMS sms)
+	{
+		//If type is FAMILY, find ONC Num
+		if(sms.getType() == EntityType.FAMILY)
+		{
+			ONCFamily fam = familyDB.getFamily(sms.getEntityID());
+			if(fam != null)
+				return sortONCNum.isEmpty() || fam.getONCNum().equals(oncnumTF.getText());
+			else
+				return false;
+		}
+		else if(sms.getType() == EntityType.USER)
+		{
+			ONCUser user = userDB.getUser(sms.getEntityID());
+			if(user != null)
+				return sortONCNum.isEmpty() || user.getID() == Integer.parseInt(oncnumTF.getText());
+			else
+				return false;
+		}
 		else
 			return false;
 	}
@@ -490,6 +522,10 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 			sortONCNum = oncnumTF.getText();
 			createTableList();
 		}
+		else if(e.getSource() == entityTypeCB)
+		{
+			createTableList();
+		}
 		else if(e.getSource() == directionCB && sortDirection != (SMSDirection) directionCB.getSelectedItem())
 		{
 			sortDirection = (SMSDirection) directionCB.getSelectedItem();
@@ -563,6 +599,12 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 					if(p != null)
 						this.fireEntitySelected(this, EntityType.PARTNER, p, null);
 				}
+				else if(sms.getType() == EntityType.USER)
+				{
+					ONCUser u = userDB.getUser(sms.getEntityID());
+					if(u != null)
+						this.fireEntitySelected(this, EntityType.USER, u, null);
+				}
 			}
 		}
 	}
@@ -570,7 +612,7 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 	@Override
 	public EnumSet<EntityType> getEntityEventSelectorEntityTypes() 
 	{	
-		return EnumSet.of(EntityType.FAMILY, EntityType.PARTNER);
+		return EnumSet.of(EntityType.FAMILY, EntityType.PARTNER, EntityType.USER);
 	}
 	
 	@Override
