@@ -52,7 +52,7 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 																		ListSelectionListener, PropertyChangeListener
 {
 	/**
-	 * This class implements a dialog which allows the user to manage users
+	 * This class implements a dialog which allows the user review SMS traffic
 	 */
 	private static final long serialVersionUID = 1L;
 	private static final int ENTITY_ID_COL= 0;
@@ -78,7 +78,7 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 	private ONCTable smsTable;
 	private AbstractTableModel smsTableModel;
 	private JButton btnReset;
-	private JTextField oncnumTF;
+	private JTextField entityIDTF;
 	private JComboBox<String> printCB, exportCB;
 	private JComboBox<EntityType> entityTypeCB;
 	private JComboBox<SMSDirection> directionCB;
@@ -147,10 +147,10 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 		lblONCicon.setAlignmentX(Component.LEFT_ALIGNMENT );//0.0
 		sortCriteriaPanel.add(lblONCicon);
 		
-		oncnumTF = new JTextField(4);
-		oncnumTF.setBorder(BorderFactory.createTitledBorder("ONC #"));
-		oncnumTF.addActionListener(this);
-		sortCriteriaPanel.add(oncnumTF);
+		entityIDTF = new JTextField(4);
+		entityIDTF.setBorder(BorderFactory.createTitledBorder("ID #"));
+		entityIDTF.addActionListener(this);
+		sortCriteriaPanel.add(entityIDTF);
 		sortONCNum = "";
 		
 		entityTypeCB = new JComboBox<EntityType>(EntityType.values());
@@ -315,9 +315,9 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 	
 	void resetFilters()
 	{	
-		oncnumTF.removeActionListener(this);
-		oncnumTF.setText("");      
-		oncnumTF.addActionListener(this);
+		entityIDTF.removeActionListener(this);
+		entityIDTF.setText("");      
+		entityIDTF.addActionListener(this);
 		sortONCNum = "";
 		
 		entityTypeCB.removeActionListener(this);
@@ -357,7 +357,7 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 		{
 			ONCFamily fam = familyDB.getFamily(sms.getEntityID());
 			if(fam != null)
-				return sortONCNum.isEmpty() || fam.getONCNum().equals(oncnumTF.getText());
+				return sortONCNum.isEmpty() || fam.getONCNum().equals(entityIDTF.getText());
 			else
 				return false;
 		}
@@ -365,7 +365,7 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 		{
 			ONCUser user = userDB.getUser(sms.getEntityID());
 			if(user != null)
-				return sortONCNum.isEmpty() || user.getID() == Integer.parseInt(oncnumTF.getText());
+				return sortONCNum.isEmpty() || user.getID() == Integer.parseInt(entityIDTF.getText());
 			else
 				return false;
 		}
@@ -517,9 +517,9 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{
-		if(e.getSource() == oncnumTF && !sortONCNum.equals(oncnumTF.getText()))
+		if(e.getSource() == entityIDTF && !sortONCNum.equals(entityIDTF.getText()))
 		{
-			sortONCNum = oncnumTF.getText();
+			sortONCNum = entityIDTF.getText();
 			createTableList();
 		}
 		else if(e.getSource() == entityTypeCB)
@@ -636,7 +636,7 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
 		 */
 		private static final long serialVersionUID = 1L;
 		
-		private String[] columnNames = {"ID", "Entity Type", "Phone Number", "Direction", 
+		private String[] columnNames = {"ID", "Type", "Phone Number", "Direction", 
 										"Body", "Status","Time Stamp"};
  
         public int getColumnCount() { return columnNames.length; }
@@ -647,35 +647,35 @@ public class ManageSMSDialog extends ONCEntityTableDialog implements ActionListe
  
         public Object getValueAt(int row, int col)
         {
-        		ONCSMS sms = smsTableList.get(row);
+    		ONCSMS sms = smsTableList.get(row);
 
-        		if(col == ENTITY_ID_COL)
-        		{
-        			if(sms.getType() == EntityType.FAMILY)
-        			{
-        				ONCFamily f = familyDB.getFamily(sms.getEntityID());
-        				if(f != null && isNumeric(f.getONCNum()))
-        					return Integer.parseInt(f.getONCNum());
-        				else
-        					return -1;
-        			}
-        			else
-        				return sms.getEntityID();
-        		}
+    		if(col == ENTITY_ID_COL)
+    		{
+    			if(sms.getType() == EntityType.FAMILY)
+    			{
+    				ONCFamily f = familyDB.getFamily(sms.getEntityID());
+    				if(f != null && isNumeric(f.getONCNum()))
+    					return Integer.parseInt(f.getONCNum());
+    				else
+    					return -1;
+    			}
+    			else
+    				return sms.getEntityID();
+    		}
        		else if(col == ENTITY_TYPE_COL)
        			return sms.getType().toString();
-        		else if (col == PHONE_NUMBER_COL)
-        			return sms.getPhoneNum();
-        		else if(col == DIRECTION_COL)
-           			return sms.getDirection().toString();
-        		else if(col == BODY_COL)
-        			return sms.getBody();
-        		else if(col == STATUS_COL)
-        			return sms.getStatus().toString();
-        		else if (col == TIMESTAMP_COL)
-        			return new Date(sms.getTimestamp());
-        		else
-        			return "Error";
+    		else if (col == PHONE_NUMBER_COL)
+    			return sms.getPhoneNum();
+    		else if(col == DIRECTION_COL)
+       			return sms.getDirection().toString();
+    		else if(col == BODY_COL)
+    			return sms.getBody();
+    		else if(col == STATUS_COL)
+    			return sms.getStatus().toString();
+    		else if (col == TIMESTAMP_COL)
+    			return new Date(sms.getTimestamp());
+    		else
+    			return "Error";
         }
         
         //JTable uses this method to determine the default renderer/editor for each cell.
