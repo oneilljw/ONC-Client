@@ -2499,7 +2499,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 							   famMembers,
 							   user.getEmail(), 
 							   f.getEmail(),
-							   f.getAllPhoneNumbers().replaceAll("\n","\r"),
+							   f.getAlt2Phone().replaceAll("\n","\r"),
 							   user.getCellPhone(),
 							   soMeal == null ? "" : soMeal.getRestricitons(),
 							   famSchools,

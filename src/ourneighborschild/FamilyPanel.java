@@ -53,6 +53,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	 */
 	private static final long serialVersionUID = 1L;
 	private static final int NUMBER_OF_WISHES_PER_CHILD = 3;
+	private static final int[] PHONECODE_MASK = {3,12,48};
 	
 	//Icon references for the icon bar
 	private static final int REQUESTED_MEAL_ICON_INDEX = 30;
@@ -100,13 +101,14 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private ONCProgressNavPanel nav;	//public to allow adding/removal of Entity Selection Listeners
 	private JTextPane oncNotesPane, oncDIPane, wishlistPane;
 	private JScrollPane wishlistScrollPane;
-	private JTextPane homePhonePane, otherPhonePane;
+	private JTextPane primaryPhonePane, altPhonePane;
 	private JButton btnAssignONCNum;
 	private JComboBox<DNSCode> dnsCodeCB;
 	private DefaultComboBoxModel<DNSCode> dnsCodeCBM;
-	private JTextField HOHFirstName, HOHLastName, EMail;
+	private JTextField HOHFirstName, HOHLastName, emailTF, altPhone2TF;
 	private JTextField housenumTF, Street, Unit, City, ZipCode;
-	private JLabel lblONCNum, lblRefNum, lblBatchNum, lblSchool, lblNumBags, lblChangedBy;
+	private JLabel lblONCNum, lblRefNum,lblSchool, lblChangedBy;
+//	private JLabel lblBatchNum, lblNumBags;
 	private JRadioButton rbGiftStatusHistory, rbAltAddress, rbPriorHistory, rbAgentInfo;
 	private JRadioButton rbShowAllPhones, rbFamDetails, rbDirections;
 	private JRadioButton rbNotGiftCardOnly, rbGiftCardOnly, rbAdults, rbConfirmation;
@@ -215,19 +217,13 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         lblRefNum.setToolTipText("Family Reference # - Consistent across years");
         lblRefNum.setBorder(BorderFactory.createTitledBorder("Ref #"));
         lblONCNum.setHorizontalAlignment(JLabel.CENTER);
-        
+/*        
         lblBatchNum = new JLabel();
         lblBatchNum.setPreferredSize(new Dimension(64, 52));
         lblBatchNum.setToolTipText("Indicates family intake grouping");
         lblBatchNum.setBorder(BorderFactory.createTitledBorder("Batch #"));
         lblBatchNum.setHorizontalAlignment(JLabel.CENTER);
-/*        
-        oncDNScode = new JTextField(6);
-        oncDNScode.setToolTipText("Do not serve family code: e.g, SA= Salvation Army");
-        oncDNScode.setBorder(BorderFactory.createTitledBorder("DNS Code"));
-        oncDNScode.setEditable(false);
-        oncDNScode.addActionListener(this);
-*/        
+*/       
         //Get a catalog for type=selection
         dnsCodeCBM = new DefaultComboBoxModel<DNSCode>();
         dnsCodeCBM.addElement(new DNSCode());
@@ -238,7 +234,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         dnsCodeCB.setEnabled(false);
         dnsCodeCB.addActionListener(this);
 
-        HOHFirstName = new JTextField(9);
+        HOHFirstName = new JTextField(8);
         HOHFirstName.setBorder(BorderFactory.createTitledBorder("First Name"));
         HOHFirstName.setEditable(false);
         HOHFirstName.addActionListener(fdcListener);
@@ -253,27 +249,33 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         statusCB.setBorder(BorderFactory.createTitledBorder("Family Status"));
         statusCB.setEnabled(false);
         statusCB.addActionListener(this);
-        
+/*        
         lblNumBags = new JLabel("0", JLabel.RIGHT);
         lblNumBags.setPreferredSize(new Dimension(48, 52));
         lblNumBags.setBorder(BorderFactory.createTitledBorder("Bags"));
-             
-        homePhonePane = new JTextPane();
-        JScrollPane homePhoneScrollPane = new JScrollPane(homePhonePane);
+*/             
+        primaryPhonePane = new JTextPane();
+        JScrollPane homePhoneScrollPane = new JScrollPane(primaryPhonePane);
         homePhoneScrollPane.setPreferredSize(new Dimension(128, 44));
-        homePhoneScrollPane.setBorder(BorderFactory.createTitledBorder("Home Phone(s)"));
-        homePhonePane.setEditable(false);
+        homePhoneScrollPane.setBorder(BorderFactory.createTitledBorder("Primary Phone"));
+        primaryPhonePane.setEditable(false);
         
-        otherPhonePane = new JTextPane();
-        JScrollPane otherPhoneScrollPane = new JScrollPane(otherPhonePane);
+        altPhonePane = new JTextPane();
+        JScrollPane otherPhoneScrollPane = new JScrollPane(altPhonePane);
         otherPhoneScrollPane.setPreferredSize(new Dimension(128, 44));
-        otherPhoneScrollPane.setBorder(BorderFactory.createTitledBorder("Alternate Phone(s)"));
-        otherPhonePane.setEditable(false);
+        otherPhoneScrollPane.setBorder(BorderFactory.createTitledBorder("Alt Phone"));
+        altPhonePane.setEditable(false);
+        
+        altPhone2TF = new JTextField();
+        altPhone2TF.setPreferredSize(new Dimension(128, 44));
+        altPhone2TF.setBorder(BorderFactory.createTitledBorder("2nd Alt Phone"));
+        altPhonePane.setEditable(false);
+        altPhone2TF.addActionListener(fdcListener);
       
-        EMail = new JTextField(18);
-        EMail.setBorder(BorderFactory.createTitledBorder("Email Address"));
-        EMail.setEditable(false);
-        EMail.addActionListener(fdcListener);
+        emailTF = new JTextField(18);
+        emailTF.setBorder(BorderFactory.createTitledBorder("Email Address"));
+        emailTF.setEditable(false);
+        emailTF.addActionListener(fdcListener);
         
         String[] languages = {"?", "English", "Spanish", "Arabic", "Korean", "Vietnamese", "Other"};
         languageCB = new JComboBox<String>(languages);
@@ -540,19 +542,20 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         //Add components to the panels
         p1.add(lblONCNum);
         p1.add(lblRefNum);
-        p1.add(lblBatchNum);
-//        p1.add(oncDNScode);
+//      p1.add(lblBatchNum);
         p1.add(dnsCodeCB);
         p1.add(HOHFirstName);
         p1.add(HOHLastName);
         p1.add(statusCB);
-        p1.add(lblNumBags);
+//      p1.add(lblNumBags);
+        p1.add(giftStatusCB);
         
         p2.add(homePhoneScrollPane);
         p2.add(otherPhoneScrollPane);
-        p2.add(EMail);
+        p2.add(altPhone2TF);
+        p2.add(emailTF);
 		p2.add(languageCB);
-		p2.add(giftStatusCB);
+		
 		
         p3.add(housenumTF);
         p3.add(Street);
@@ -640,9 +643,10 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			HOHLastName.setEditable(tf);;
 			statusCB.setEnabled(tf);
 			giftStatusCB.setEnabled(tf);
-			homePhonePane.setEditable(tf);
-			otherPhonePane.setEditable(tf);
-			EMail.setEditable(tf);
+			primaryPhonePane.setEditable(tf);
+			altPhonePane.setEditable(tf);
+			altPhone2TF.setEditable(tf);
+			emailTF.setEditable(tf);
 			languageCB.setEnabled(tf);
 			housenumTF.setEditable(tf);
 			Street.setEditable(tf);
@@ -792,7 +796,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		lblONCNum.setText(currFam.getONCNum());
 		lblONCNum.setToolTipText("Family Database ID= " + Integer.toString(currFam.getID()));
 		lblRefNum.setText(currFam.getReferenceNum());
-		lblBatchNum.setText(currFam.getBatchNum());
+//		lblBatchNum.setText(currFam.getBatchNum());
 		
 		//get DNS Code
 		if(currFamHistory.getDNSCode() == -1)
@@ -805,7 +809,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		checkForDNSorGiftCardOnly();
 		
 		statusCB.setSelectedItem(currFamHistory.getFamilyStatus());
-		lblNumBags.setText(Integer.toString(currFam.getNumOfBags()));
+//		lblNumBags.setText(Integer.toString(currFam.getNumOfBags()));
 		
 		giftStatusCB.setSelectedItem(currFamHistory.getGiftStatus());
 		languageCB.setSelectedItem((String)currFam.getLanguage());
@@ -859,12 +863,16 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			HOHFirstName.setText(currFam.getFirstName());
 			HOHLastName.setText(currFam.getLastName());
 			
-			homePhonePane.setText(currFam.getHomePhone());
-			homePhonePane.setCaretPosition(0);
-			otherPhonePane.setText(currFam.getCellPhone());
-			otherPhonePane.setCaretPosition(0);
-			EMail.setText(currFam.getEmail());
-			EMail.setCaretPosition(0);
+			primaryPhonePane.setText(currFam.getHomePhone());
+			primaryPhonePane.setCaretPosition(0);
+			primaryPhonePane.setToolTipText(getPhoneToolTip(0));
+			altPhonePane.setText(currFam.getCellPhone());
+			altPhonePane.setCaretPosition(0);
+			altPhonePane.setToolTipText(getPhoneToolTip(1));
+			altPhone2TF.setText(currFam.getAlt2Phone());
+			altPhone2TF.setToolTipText(getPhoneToolTip(2));
+			emailTF.setText(currFam.getEmail());
+			emailTF.setCaretPosition(0);
 			
 			housenumTF.setText(currFam.getHouseNum());
 			Street.setText(currFam.getStreet());
@@ -880,7 +888,6 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 				rbAltAddress.setIcon(gvs.getImageIcon(19));
 			
 			wishlistPane.setText(currFam.getWishList());
-			
 			rbFamDetails.setEnabled(currFam.getDetails().length() > 1);
 			
 			//Test to see if an ONC number could be assigned. If so, make the auto assign button visible
@@ -931,6 +938,16 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			refreshODBWishListHighlights(currFam, null);
 			rbPriorHistory.setEnabled(false);
 		}
+	}
+	
+	String getPhoneToolTip(int phoneid)
+	{
+		int code = currFam.getPhoneCode() & PHONECODE_MASK[phoneid];
+		int individualcode = code >> phoneid * 2;
+        
+		String[] phone = {"Primary","Alternate","2nd Alternate"};
+		String[]type = {"an empty or invalid","a valid mobile","an invalid","a valid landline/other"};
+		return String.format("%s is %s number, phonecode %d", phone[phoneid], type[individualcode], currFam.getPhoneCode());
 	}
 	
 	void addChildrenToTable(int cn)
@@ -1116,10 +1133,11 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		
 		if(!HOHFirstName.getText().equals(fam.getFirstName())) {fam.setHOHFirstName(HOHFirstName.getText()); cf = 4;}
 		if(!HOHLastName.getText().equals(fam.getLastName())) {fam.setHOHLastName(HOHLastName.getText()); cf = 5;}
-		if(Integer.parseInt(lblNumBags.getText()) != fam.getNumOfBags()) {fam.setNumOfBags(Integer.parseInt(lblNumBags.getText())); cf = 20;}
-		if(!homePhonePane.getText().equals(fam.getHomePhone())) {fam.setHomePhone(homePhonePane.getText()); cf = 6;}
-		if(!otherPhonePane.getText().equals(fam.getCellPhone())) {fam.setOtherPhon(otherPhonePane.getText()); cf = 7;}
-		if(!EMail.getText().equals(fam.getEmail())) {fam.setFamilyEmail(EMail.getText()); cf = 8;}
+//		if(Integer.parseInt(lblNumBags.getText()) != fam.getNumOfBags()) {fam.setNumOfBags(Integer.parseInt(lblNumBags.getText())); cf = 20;}
+		if(!primaryPhonePane.getText().equals(fam.getHomePhone())) {fam.setHomePhone(primaryPhonePane.getText()); cf = 6;}
+		if(!altPhonePane.getText().equals(fam.getCellPhone())) {fam.setOtherPhon(altPhonePane.getText()); cf = 7;}
+		if(!altPhone2TF.getText().equals(fam.getAlt2Phone())) {fam.setAlt2Phone(altPhone2TF.getText()); cf = 20;}
+		if(!emailTF.getText().equals(fam.getEmail())) {fam.setFamilyEmail(emailTF.getText()); cf = 8;}
 		if(!languageCB.getSelectedItem().toString().equals(fam.getLanguage())){fam.setLanguage(languageCB.getSelectedItem().toString());cf = 9;}
 		if(!housenumTF.getText().equals(fam.getHouseNum())) {fam.setHouseNum(housenumTF.getText()); cf = 10;}
 		if(!Street.getText().equals(fam.getStreet())) {fam.setStreet(Street.getText()); cf = 11;}
@@ -1209,7 +1227,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
     	
 		setEnabledButtons(true);
 		setEditableGUIFields(true);
-
+		
 		if(userDB.getLoggedInUser().getPermission().compareTo(UserPermission.Admin) >= 0)
 			setRestrictedEnabledButtons(true);
     }
@@ -1345,7 +1363,19 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 		}
 		else if(e.getSource() == rbShowAllPhones)
 		{
-			JOptionPane.showMessageDialog(parentFrame, currFam.getAllPhoneNumbers(),
+			StringBuilder buff = new StringBuilder("");
+			//create the AllPhoneNumber data
+			if(currFam != null)
+			{	
+				if(currFam.getHomePhone().length() > 9)
+					buff.append("Home Phone: " + currFam.getHomePhone());
+				if(currFam.getCellPhone().length() > 9)	//Ensure it's a valid 10 digit phone number at minimum
+					buff.append("\nAlternate Phone: " + currFam.getCellPhone());
+				if(currFam.getAlt2Phone().length() > 9)
+					buff.append("\n2nd Alternate Phone: " + currFam.getAlt2Phone());
+			}
+			
+			JOptionPane.showMessageDialog(parentFrame, buff.toString(),
 					currFam.getClientFamily() + " family phone #'s", JOptionPane.INFORMATION_MESSAGE, gvs.getImageIcon(0));
 		}
 		else if(e.getSource() == rbAgentInfo)
@@ -1465,13 +1495,13 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 				FamilyBagDialog fbDlg = new FamilyBagDialog(parentFrame);
 				fbDlg.setVisible(true);
 
-				lblNumBags.setText(Integer.toString(fbDlg.getNumOfBags()));
+//				lblNumBags.setText(Integer.toString(fbDlg.getNumOfBags()));
 				currFam.setNumOfBags(fbDlg.getNumOfBags());
 				currFam.setNumOfLargeItems(fbDlg.getNumOfLargeItems());
 			}
 			else
 			{
-				lblNumBags.setText("0");
+//				lblNumBags.setText("0");
 				currFam.setNumOfBags(0);
 				currFam.setNumOfLargeItems(0);
 			}

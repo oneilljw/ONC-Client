@@ -1126,7 +1126,7 @@ public class SortMealsDialog extends ChangeDialog implements PropertyChangeListe
 									soFamily.getFirstName() + " " + soFamily.getLastName(),
 									famMembers,
 									user.getEmail(), soFamily.getEmail(),
-									soFamily.getAllPhoneNumbers().replaceAll("\n","\r"),
+									soFamily.getAlt2Phone().replaceAll("\n","\r"),
 									user.getCellPhone(), soMeal.getRestricitons(), soFamily.getSchools(),
 									soFamily.getDetails(), soFamily.getReferenceNum(),
 									delAddress, unit, "", city, zip, "Virginia", "CBO",

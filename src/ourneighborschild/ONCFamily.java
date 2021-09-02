@@ -35,7 +35,7 @@ public class ONCFamily extends ONCEntity
 	private String		city;
 	private String		zipCode;
 	private String		substituteDeliveryAddress;	//in Google Map Address format
-	private String		allPhoneNumbers;			
+	private String		altPhone2;			
 	private String		homePhone;
 	private String		cellPhone;
 	private String		email;
@@ -47,7 +47,7 @@ public class ONCFamily extends ONCEntity
 	private int			agentID;
 	private int			groupID;
 //	private int			deliveryID;
-	private int			phoneCode;	//indicates if any of three family phone numbers are mobile, value range is 0-7
+	private int			phoneCode;	//indicates if the three phone numbers are valid and either mobile or other
 //	private int 		mealID;
 //	private MealStatus  mealStatus;
 	private Transportation transportation;
@@ -82,7 +82,7 @@ public class ONCFamily extends ONCEntity
 		this.city = f.city;
 		this.zipCode = f.zipCode;
 		this.substituteDeliveryAddress = f.substituteDeliveryAddress;
-		this.allPhoneNumbers = f.allPhoneNumbers;
+		this.altPhone2 = f.altPhone2;
 		this.homePhone = f.homePhone;
 		this.cellPhone = f.cellPhone;
 		this.email = f.email;
@@ -132,7 +132,7 @@ public class ONCFamily extends ONCEntity
 		city = Cty;
 		zipCode = Zip;
 		substituteDeliveryAddress = "";
-		allPhoneNumbers = ClientFamPhone;			
+		altPhone2 = ClientFamPhone;			
 		email = ClientFamEmail;
 		details = Details;
 		this.schools = Schools;
@@ -187,7 +187,7 @@ public class ONCFamily extends ONCEntity
 		city = getDBString(nextLine[17]);
 		zipCode = getDBString(nextLine[18]);
 		substituteDeliveryAddress = getDBString(nextLine[19]);
-		allPhoneNumbers = getDBString(nextLine[20]);
+		altPhone2 = getDBString(nextLine[20]);
 		homePhone = getDBString(nextLine[21]);
 		cellPhone = getDBString(nextLine[22]);
 		email = getDBString(nextLine[23]);
@@ -213,7 +213,7 @@ public class ONCFamily extends ONCEntity
 				String speakEnglish, String language, String hohFirstName, String hohLastName, 
 				String houseNum, String street, String unitNum, String city, String zipCode, 
 				String altHouseNum, String altStreet, String altUnitNum, String altCity, String altZipCode,
-				String homePhone, String otherPhone, String altPhone, String familyEmail, String odbDetails,
+				String primaryPhone, String altPhone, String alt2Phone, String familyEmail, String odbDetails,
 				String schools, String odbWishList, int agentID, int groupID,
 				int phoneCode, Transportation transportation, GiftDistribution giftDistribution)
 	{
@@ -248,19 +248,22 @@ public class ONCFamily extends ONCEntity
 			this.substituteDeliveryAddress = altHouseNum + "_" + altStreet +"_" + 
 										 altUnitNum +"_" + altCity + "_" + altZipCode ;
 		
-		this.homePhone = formatPhoneNumber(homePhone);
-		if(altPhone.length() < 10)
-			this.cellPhone = formatPhoneNumber(otherPhone);
-		else
-			this.cellPhone = formatPhoneNumber(otherPhone) + "\n" + formatPhoneNumber(altPhone);
+		this.homePhone = formatPhoneNumber(primaryPhone);
+		this.cellPhone = formatPhoneNumber(altPhone);
+		this.altPhone2 = formatPhoneNumber(alt2Phone);
 		
-		//create the AllPhoneNumber field
-		StringBuilder buff = new StringBuilder("Home Phone: " + homePhone);
-		if(otherPhone.length() > 9)	//Ensure it's a valid 10 digit phone number at minimum
-			buff.append("\n" + "Other phone: " + formatPhoneNumber(otherPhone));
-		if(altPhone.length() > 9)
-			buff.append("\n" + "Other phone: " + formatPhoneNumber(altPhone));
-		this.allPhoneNumbers = buff.toString();
+//		if(alt2Phone.length() < 10)
+//			this.cellPhone = formatPhoneNumber(altPhone);
+//		else
+//			this.cellPhone = formatPhoneNumber(altPhone) + "\n" + formatPhoneNumber(alt2Phone);
+		
+//		//create the AllPhoneNumber field
+//		StringBuilder buff = new StringBuilder("Home Phone: " + primaryPhone);
+//		if(altPhone.length() > 9)	//Ensure it's a valid 10 digit phone number at minimum
+//			buff.append("\n" + "Other phone: " + formatPhoneNumber(altPhone));
+//		if(alt2Phone.length() > 9)
+//			buff.append("\n" + "Other phone: " + formatPhoneNumber(alt2Phone));
+//		this.altPhone2 = buff.toString();
 
 		this.email = familyEmail;
 		this.details = odbDetails;
@@ -495,7 +498,7 @@ public class ONCFamily extends ONCEntity
 	public String	getCity() {return city;}
 	public String	getZipCode() {return zipCode;}
 	public String	getSubstituteDeliveryAddress() {return substituteDeliveryAddress;}
-	public String	getAllPhoneNumbers() {return allPhoneNumbers;}			
+	public String	getAlt2Phone() {return altPhone2;}			
 	public String	getHomePhone() {return homePhone;}
 	public String	getCellPhone() {return cellPhone;}
 	public String	getEmail() {return email;}
@@ -540,7 +543,7 @@ public class ONCFamily extends ONCEntity
 	public void setCity(String s) { city = s;}
 	public void setZipCode(String s) { zipCode = s;}
 	public void setSubstituteDeliveryAddress(String s) { substituteDeliveryAddress = s;}
-	public void setAllPhoneNumbers(String s) { allPhoneNumbers = s;}			
+	public void setAlt2Phone(String s) { altPhone2 = s;}			
 	public void setHomePhone(String s) { homePhone = s;}
 	public void setOtherPhon(String s) { cellPhone = s;}
 	public void setFamilyEmail(String s) { email = s;}
@@ -626,7 +629,7 @@ public class ONCFamily extends ONCEntity
 		rowList.add(getCity());
 		rowList.add(getZipCode());
 		rowList.add(getSubstituteDeliveryAddress());
-		rowList.add(getAllPhoneNumbers());			
+		rowList.add(getAlt2Phone());			
 		rowList.add(getHomePhone());
 		rowList.add(getCellPhone());
 		rowList.add(getEmail());

@@ -100,7 +100,7 @@ public class ONCFamilyReportRowBuilder
 		row[index++] = 	f.getCity();
 		row[index++] = 	f.getZipCode();
 		row[index++] = 	f.getSubstituteDeliveryAddress();
-		row[index++] = 	f.getAllPhoneNumbers();			
+		row[index++] = 	f.getAlt2Phone();			
 		row[index++] = 	f.getHomePhone();
 		row[index++] = 	f.getCellPhone();
 		row[index++] = 	f.getEmail();
