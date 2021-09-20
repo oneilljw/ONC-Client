@@ -649,9 +649,9 @@ public class EditUserDialog extends EntityDialog implements ListSelectionListene
 		else if(!(workphoneTF.getText().length() == 10 ||  workphoneTF.getText().length() == 12 ||
 					workphoneTF.getText().length() == 14))
 			return "Work Phone is missing or not a valid format";
-		else if(!(cellphoneTF.getText().length() == 10 ||  cellphoneTF.getText().length() == 12 ||
-				cellphoneTF.getText().length() == 14))
-		return "Cell Phone is missing or not a valid format";
+//		else if(!(cellphoneTF.getText().length() == 10 ||  cellphoneTF.getText().length() == 12 ||
+//				cellphoneTF.getText().length() == 14))
+//		return "Cell Phone is missing or not a valid format";
 		else if(orgTF.getText().isEmpty() || titleTF.getText().isEmpty())
 			return "Organization and/or Title is missing";
 		else if(usernameTF.getText().isEmpty())
