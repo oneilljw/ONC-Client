@@ -15,6 +15,7 @@ import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
+import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -45,9 +46,10 @@ public class DNSCodeDialog extends EntityDialog implements DatabaseListener, Lis
 	private static final long serialVersionUID = 1L;
 	private static final int ACRONYM_COL = 0;
 	private static final int NAME_COL = 1;
-	private static final int CHANGED_BY_COL = 2;
-	private static final int TIME_CHANGED_COL = 3;
-	private static final int STOPLIGHT_COL = 4;
+	private static final int SHOW_COL = 2;
+	private static final int CHANGED_BY_COL = 3;
+	private static final int TIME_CHANGED_COL = 4;
+	private static final int STOPLIGHT_COL = 5;
 	
 	private DNSCodeDB dnsCodeDB;
 	private FamilyHistoryDB familyHistoryDB;
@@ -61,6 +63,7 @@ public class DNSCodeDialog extends EntityDialog implements DatabaseListener, Lis
 	private TitledBorder dnsCodeBorder, definitionBorder;
 	private JTextField acronymTF, nameTF;
 	private JTextPane definitionPane;
+	private JCheckBox showOnWebsiteCkBox;
 	
 	DNSCodeDialog(JFrame pf)
 	{
@@ -101,7 +104,7 @@ public class DNSCodeDialog extends EntityDialog implements DatabaseListener, Lis
         //set up the table panel
         dlgTableModel = new DialogTableModel();
         String[] colTT = {"Acronym for the DNS Code", "Name of the Code", "User who last changed the code",
-        					 "Time code was  last changed", "DNS Code Stoplight Color"};
+        					 "Time code was  last changed", "DNS Code Stoplight Color", "Show this code on website?"};
         
       	dlgTable = new ONCTable(dlgTableModel, colTT, new Color(240,248,255));
       	dlgTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -127,7 +130,7 @@ public class DNSCodeDialog extends EntityDialog implements DatabaseListener, Lis
 
       	//Set table column widths
       	int tablewidth = 0;
-      	int[] colWidths = {64,184,144,112, 80};
+      	int[] colWidths = {64,184,32,144,112, 80};
       	for(int col=0; col < colWidths.length; col++)
       	{
       		dlgTable.getColumnModel().getColumn(col).setPreferredWidth(colWidths[col]);
@@ -167,8 +170,13 @@ public class DNSCodeDialog extends EntityDialog implements DatabaseListener, Lis
         nameTF.addActionListener(dcListener);
         nameTF.addKeyListener(changeListener);
         
+        showOnWebsiteCkBox = new JCheckBox("Show on Website?");
+        showOnWebsiteCkBox.addActionListener(dcListener);
+        showOnWebsiteCkBox.addKeyListener(changeListener);
+        
         acronymAndNamePanel.add(acronymTF) ;
         acronymAndNamePanel.add(nameTF);
+        acronymAndNamePanel.add(showOnWebsiteCkBox);
         
         //set up note and response panel
         JPanel definitionPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -331,6 +339,8 @@ public class DNSCodeDialog extends EntityDialog implements DatabaseListener, Lis
 			if(!currCode.getAcronym().equals(acronymTF.getText())) { bCD = bCD | 1; }
 			if(!currCode.getName().equals(nameTF.getText())) { bCD = bCD | 2; }
 			if(!currCode.getDefinition().equals(definitionPane.getText())) { bCD = bCD | 4; }
+			if(!currCode.showOnWebsite() && showOnWebsiteCkBox.isSelected()) { bCD = bCD | 8; }
+			if(currCode.showOnWebsite() && !showOnWebsiteCkBox.isSelected()) { bCD = bCD | 16; }
 			
 			if(bCD > 0)
 			{
@@ -338,6 +348,7 @@ public class DNSCodeDialog extends EntityDialog implements DatabaseListener, Lis
 				updateCodeReq.setAcronym(acronymTF.getText());
 				updateCodeReq.setName(nameTF.getText());
 				updateCodeReq.setDefinition(definitionPane.getText());
+				updateCodeReq.setShowOnWebstite(showOnWebsiteCkBox.isSelected());
 				
 				String response = dnsCodeDB.update(this, updateCodeReq);
 				if(response.startsWith("UPDATED_DNSCODE"))
@@ -380,6 +391,8 @@ public class DNSCodeDialog extends EntityDialog implements DatabaseListener, Lis
 			
 			nameTF.setText(currCode.getName());
 			nameTF.setCaretPosition(0);
+			
+			showOnWebsiteCkBox.setSelected(currCode.showOnWebsite());
 
 			definitionPane.setText(currCode.getDefinition());
 			definitionPane.setCaretPosition(0);
@@ -428,6 +441,8 @@ public class DNSCodeDialog extends EntityDialog implements DatabaseListener, Lis
 		nameTF.setText("");
 		nameTF.setCaretPosition(0);
 		
+		showOnWebsiteCkBox.setSelected(false);
+		
 		definitionBorder.setTitle("");
 		definitionPane.setText("");
 
@@ -457,6 +472,7 @@ public class DNSCodeDialog extends EntityDialog implements DatabaseListener, Lis
 			definitionBorder.setTitle("New DNS Code Definition");
 			acronymTF.setEditable(true);
 			nameTF.setEditable(true);
+			showOnWebsiteCkBox.setSelected(true);
 			entityPanel.setBackground(Color.CYAN);	//Use color to indicate add org mode vs. review mode
 			btnSave.setEnabled(false);
 			setControlState();
@@ -485,7 +501,7 @@ public class DNSCodeDialog extends EntityDialog implements DatabaseListener, Lis
 		{	
 			//zDNSCode(int id, String acronym, String name, String definition)
 			DNSCode reqAddCode = new DNSCode(-1, acronymTF.getText().toUpperCase(), nameTF.getText(),
-												definitionPane.getText());
+												definitionPane.getText(), showOnWebsiteCkBox.isSelected());
 		
 			DNSCode addedCode = (DNSCode) dnsCodeDB.add(this, reqAddCode);
 			if(addedCode != null)
@@ -540,8 +556,8 @@ public class DNSCodeDialog extends EntityDialog implements DatabaseListener, Lis
 		{
 			//if no changes, btn text should allow dns code modification
 			if(currCode != null && (!acronymTF.getText().equals(currCode.getAcronym()) ||
-				!nameTF.getText().equals(currCode.getName()) ||
-					   !definitionPane.getText().equals(currCode.getDefinition())))
+				!nameTF.getText().equals(currCode.getName()) || !definitionPane.getText().equals(currCode.getDefinition())) ||
+					currCode.showOnWebsite() != showOnWebsiteCkBox.isSelected())
 			{
 				mode = Mode.UPDATE;
 				btnNew.setText("Update Note");
@@ -562,7 +578,7 @@ public class DNSCodeDialog extends EntityDialog implements DatabaseListener, Lis
 		 * Implements the table model for the Delivery History Dialog
 		 */
 		private static final long serialVersionUID = 1L;
-		private String[] columnNames = {"Acronym", "Name", "Last Changed By", "Time Changed", "Stoplight"};
+		private String[] columnNames = {"Acronym", "Name", "Show", "Last Changed By", "Time Changed", "Stoplight"};
 		
         public int getColumnCount() { return columnNames.length; }
  
@@ -580,6 +596,8 @@ public class DNSCodeDialog extends EntityDialog implements DatabaseListener, Lis
         			value = dc.getAcronym();
         		else if(col == NAME_COL)
         			value = dc.getName();
+        		else if(col == SHOW_COL)
+        			value = dc.showOnWebsite();
         		else if(col == CHANGED_BY_COL)
         			value = dc.getChangedBy();
         		else if(col == TIME_CHANGED_COL)
@@ -598,7 +616,9 @@ public class DNSCodeDialog extends EntityDialog implements DatabaseListener, Lis
         {
         		if(column == TIME_CHANGED_COL)
         			return Date.class;
-        		else if(column == STOPLIGHT_COL)
+        		if(column == SHOW_COL)
+        			return Date.class;
+        		else if(column == SHOW_COL)
         			return ImageIcon.class;
         		else
         			return String.class;
@@ -606,7 +626,7 @@ public class DNSCodeDialog extends EntityDialog implements DatabaseListener, Lis
  
         public boolean isCellEditable(int row, int col)
         {
-        		return false;
+        	return false;
         }
     }
 	private class DNSCodeChangeListener implements KeyListener

@@ -10,7 +10,7 @@ public class UserPreferences
 	{
 		this.fontSize = 13;
 		this.wishAssigneeFilter = 1;
-		this.familyDNSFilterCode = new DNSCode(-3, "Any", "Any", "Any");
+		this.familyDNSFilterCode = new DNSCode(-3, "Any", "Any", "Any", false);
 	}
 	
 	public UserPreferences(int fs, int wafPos, DNSCode fdfDNSCode)

@@ -23,13 +23,15 @@ public class DNSCode extends ONCEntity
 	String acronym;
 	String name;
 	String definition;
+	boolean bShowOnWebsite;
 	
-	public DNSCode(int id, String acronym, String name, String definition)
+	public DNSCode(int id, String acronym, String name, String definition, boolean bShowOnWebsite)
 	{
 		super(id, System.currentTimeMillis(), "", 3, "DNS Code Created", "");
 		this.acronym = acronym;
 		this.name = name;
 		this.definition = definition;
+		this.bShowOnWebsite = bShowOnWebsite;
 	}
 	
 	public DNSCode()
@@ -38,6 +40,7 @@ public class DNSCode extends ONCEntity
 		this.acronym = "";
 		this.name = "";
 		this.definition = "";
+		this.bShowOnWebsite = false;
 	}
 	
 	DNSCode(DNSCode dc)
@@ -46,6 +49,7 @@ public class DNSCode extends ONCEntity
 		this.acronym = dc.acronym;
 		this.name = dc.name;
 		this.definition = dc.definition;
+		this.bShowOnWebsite = dc.bShowOnWebsite;
 	}
 	
 	public DNSCode(String[] line)
@@ -55,22 +59,25 @@ public class DNSCode extends ONCEntity
 		this.acronym = line[1];
 		this.name = line[2];
 		this.definition = line[3];
+		this.bShowOnWebsite = line[9].equalsIgnoreCase("Y") ? true : false;
 	}
 	
 	//getters
 	public String getAcronym() { return acronym; }
 	public String getName() { return name; }
 	public String getDefinition() { return definition; }
+	public boolean showOnWebsite() { return bShowOnWebsite; }
 	
 	//setters
 	void setAcronym(String acronym) { this.acronym = acronym; }
 	void setName(String name) { this.name = name; }
 	void setDefinition(String definition) { this.definition = definition; }
+	void setShowOnWebstite(boolean tf) { this.bShowOnWebsite = tf; }
 
 	@Override
 	public String[] getExportRow()
 	{
-		String[] row = new String[9];
+		String[] row = new String[10];
 		row[0] = Integer.toString(id);
 		row[1] = acronym;
 		row[2] = name;
@@ -80,6 +87,7 @@ public class DNSCode extends ONCEntity
 		row[6] = Integer.toString(slPos);
 		row[7] = slMssg;
 		row[8] = slChangedBy;
+		row[9] = bShowOnWebsite ? "Y" : "N";
 		
 		return row;
 	}

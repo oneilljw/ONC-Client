@@ -164,8 +164,8 @@ public class PreferencesDialog extends JDialog implements ActionListener, Databa
 		JLabel lblFDF = new JLabel("Family Do Not Serve Filter Default:");
 //		String[] options = {"None", "Any"};
 		fndsFilterDefaultCBM = new DefaultComboBoxModel<DNSCode>();
-		fndsFilterDefaultCBM.addElement(new DNSCode(-4, "No Codes", "No Codes", "No Codes"));
-		fndsFilterDefaultCBM.addElement(new DNSCode(-3, "Any", "Any", "Any"));
+		fndsFilterDefaultCBM.addElement(new DNSCode(-4, "No Codes", "No Codes", "No Codes",false));
+		fndsFilterDefaultCBM.addElement(new DNSCode(-3, "Any", "Any", "Any",false));
 		fdnsFilterDefaultCB = new JComboBox<DNSCode>();
 		fdnsFilterDefaultCB.setModel(fndsFilterDefaultCBM);
 		fdnsFilterDefaultCB.setEnabled(false);

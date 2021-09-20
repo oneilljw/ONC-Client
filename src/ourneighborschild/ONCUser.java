@@ -124,7 +124,7 @@ public class ONCUser extends ONCGmailContactEntity
 		this.lastLogin = System.currentTimeMillis();
 		this.title = "None";
 		groupList = new LinkedList<Integer>();
-		this.preferences = new UserPreferences(13, 1, new DNSCode(-4, "No Code", "No Code", "No Code"));
+		this.preferences = new UserPreferences(13, 1, new DNSCode(-4, "No Code", "No Code", "No Code",false));
 	}
 	
 	public ONCUser(String fn, String ln)
@@ -140,7 +140,7 @@ public class ONCUser extends ONCGmailContactEntity
 		this.lastLogin = System.currentTimeMillis();
 		this.title = "None";
 		groupList = new LinkedList<Integer>();
-		this.preferences = new UserPreferences(13, 1, new DNSCode(-4, "No Code", "No Code", "No Code"));
+		this.preferences = new UserPreferences(13, 1, new DNSCode(-4, "No Code", "No Code", "No Code",false));
 	}
 	
 	//getters

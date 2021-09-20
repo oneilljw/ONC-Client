@@ -196,6 +196,6 @@ public class DNSCodeDB extends ONCSearchableDatabase
 	String[] getExportHeader()
 	{
 		return new String[] {"ID", "Acronym", "Title", "Definition", "Date Changed", "Changed By",
-				"SL Position", "SL Message", "SL Changed By"};
+				"SL Position", "SL Message", "SL Changed By","Show onn Website"};
 	}
 }

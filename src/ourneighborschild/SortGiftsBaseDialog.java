@@ -150,11 +150,11 @@ public abstract class SortGiftsBaseDialog extends ChangeDialog implements Proper
 		oncnumTF.addKeyListener(new ONCNumberKeyListener());
 
 		//Get a catalog for type=selection
-		sortDNSCode = new DNSCode(-4, "No Codes", "No Codes", "Families being served");
+		sortDNSCode = new DNSCode(-4, "No Codes", "No Codes", "Families being served", false);
 		filterCodeList = new ArrayList<DNSCode>();
 		filterCodeList.add(sortDNSCode);
-		filterCodeList.add(new DNSCode(-3, "Any", "Any", "Any"));
-		filterCodeList.add(new DNSCode(-2, "All Codes", "All Codes", "All Codes"));
+		filterCodeList.add(new DNSCode(-3, "Any", "Any", "Any", false));
+		filterCodeList.add(new DNSCode(-2, "All Codes", "All Codes", "All Codes", false));
 		
 		dnsCodeCBM = new DefaultComboBoxModel<DNSCode>();
 		for(DNSCode filterCode : filterCodeList)

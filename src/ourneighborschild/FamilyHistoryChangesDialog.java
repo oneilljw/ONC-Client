@@ -136,7 +136,7 @@ public class FamilyHistoryChangesDialog extends ONCTableDialog implements Proper
 		giftStatusCB.setBorder(BorderFactory.createTitledBorder("Gift Status"));
 		giftStatusCB.addActionListener(this);
 		
-		sortDNSCode = new DNSCode(-2, "Any",  "Any", "Any");
+		sortDNSCode = new DNSCode(-2, "Any",  "Any", "Any",false);
 		dnsCodeCBM = new DefaultComboBoxModel<DNSCode>();
 		dnsCodeCBM.addElement(sortDNSCode);
 		dnsCodeCB = new JComboBox<DNSCode>();
@@ -411,7 +411,7 @@ public class FamilyHistoryChangesDialog extends ONCTableDialog implements Proper
 		
 		dnsCodeCB.removeActionListener(this);
 		dnsCodeCB.setSelectedIndex(0);
-		sortDNSCode = new DNSCode(-2, "Any", "Any", "Any");
+		sortDNSCode = new DNSCode(-2, "Any", "Any", "Any",false);
 		dnsCodeCB.addActionListener(this);
 		
 		changedByCB.removeActionListener(this);
@@ -437,7 +437,7 @@ public class FamilyHistoryChangesDialog extends ONCTableDialog implements Proper
 		DNSCode currCode = (DNSCode) dnsCodeCB.getSelectedItem();
 		
 		dnsCodeCBM.removeAllElements();	//Clear the combo box selection list
-		dnsCodeCBM.addElement(new DNSCode(-2, "Any",  "Any", "Any"));
+		dnsCodeCBM.addElement(new DNSCode(-2, "Any",  "Any", "Any", false));
 		
 		for(DNSCode code: (List<DNSCode>) dnsCodeDB.getList())	//Add new list elements
 			dnsCodeCBM.addElement(code);

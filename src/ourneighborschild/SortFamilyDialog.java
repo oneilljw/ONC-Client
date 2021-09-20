@@ -157,10 +157,10 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		sortONCNum = "Any";
 		
 		filterCodeList = new ArrayList<DNSCode>();
-		sortDNSCode = new DNSCode(-4, "No Codes", "No Codes", "Families being served");
+		sortDNSCode = new DNSCode(-4, "No Codes", "No Codes", "Families being served", false);
 		filterCodeList.add(sortDNSCode);
-		filterCodeList.add(new DNSCode(-3, "Any", "Any", "Any"));
-		filterCodeList.add(new DNSCode(-2, "All Codes", "All Codes", "All Codes"));
+		filterCodeList.add(new DNSCode(-3, "Any", "Any", "Any", false));
+		filterCodeList.add(new DNSCode(-2, "All Codes", "All Codes", "All Codes", false));
 
 		//Set up unique search criteria GUI
 		String[] oncStrings = {"Any", "NNA", "OOR", "RNV", "DEL"};
@@ -300,7 +300,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		
         //Set up change data panel gui
 		changeDNSCBM = new DefaultComboBoxModel<DNSCode>();
-		changeDNSCBM.addElement(new DNSCode(-2, "No Change", "No Change", "No Change"));
+		changeDNSCBM.addElement(new DNSCode(-2, "No Change", "No Change", "No Change", false));
         changeDNSCB = new JComboBox<DNSCode>();
 	    changeDNSCB.setModel(changeDNSCBM);
 		changeDNSCB.setPreferredSize(new Dimension(172, 56));
@@ -778,8 +778,8 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
     			dnsCodeCBM.addElement(filterCode);
         
         changeDNSCBM.removeAllElements();	//Clear the combo box selection list
-        changeDNSCBM.addElement(new DNSCode(-2, "No Change", "No Change", "No Change"));
-        changeDNSCBM.addElement(new DNSCode(-1, "Clear DNS Code", "Clear DNS Code", "Clear DNS Code"));
+        changeDNSCBM.addElement(new DNSCode(-2, "No Change", "No Change", "No Change", false));
+        changeDNSCBM.addElement(new DNSCode(-1, "Clear DNS Code", "Clear DNS Code", "Clear DNS Code", false));
 		
 		for(DNSCode code: (List<DNSCode>) dnsCodeDB.getList())	//Add new list elements
 		{	

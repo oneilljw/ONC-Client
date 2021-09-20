@@ -71,7 +71,7 @@ public class ONCServerUser extends ONCUser
 	
 	private static DNSCode getFilterDNSCode(int dnsCodeID)
 	{
-		return dnsCodeID == -4 ? new DNSCode(-4, "No Codes", "No Codes", "Families being Served") : new DNSCode(-3, "Any", "Any", "Any");
+		return dnsCodeID == -4 ? new DNSCode(-4, "No Codes", "No Codes", "Families being Served", false) : new DNSCode(-3, "Any", "Any", "Any", false);
 	}
 	
 	static List<Integer> createGroupList(String delimitedGroups)
