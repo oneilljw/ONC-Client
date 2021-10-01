@@ -28,7 +28,7 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 	private static final int MAP_ZOOM = 12;
 	
 	private static final String SCHOOL_MAP_CENTER = "38.886055,-77.435431";
-	private static final int SCHOOL_MAP_WIDTH = 480;
+	private static final int SCHOOL_MAP_WIDTH = 560;
 	private static final int SCHOOL_MAP_HEIGHT = 640;
 	
 	private static final int REGION_MAP_WIDTH = 560;
@@ -123,7 +123,7 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
         this.getContentPane().add(tabbedPane);
        
         pack();
-        setSize(740,660);
+        setSize(760,660);
         Point pt = parent.getLocation();
         setLocation(pt.x + 20, pt.y + 20);
 	}
@@ -217,20 +217,20 @@ public class ClientMapDialog extends JDialog implements DatabaseListener
 				"38.8192277,-77.4528976",	//Region I PIN 9
 				"38.820919,-77.433434",		//Region J PIN 10
 				"38.8167603,-77.4226005",	//Region K PIN 11
-				"38.7797701,-77.384582",		//Region L PIN 12
+				"38.7797701,-77.384582",	//Region L PIN 12
 				"38.7817242,-77.3223597",	//Region M PIN 13
 				"38.8969661,-77.4755806",	//Region N PIN 14
 				"38.8978402,-77.4536521",	//Region O PIN 15
 				"38.8958435,-77.4164022",	//Region P PIN 16
 				"38.8830304,-77.4255473",	//Region Q PIN 17
 				"38.8624991,-77.4148267",	//Region R PIN 18
-				"38.881464,-77.3812288",		//Region S PIN 19
+				"38.881464,-77.3812288",	//Region S PIN 19
 				"38.8699022,-77.3515107",	//Region T PIN 20
-				"38.8671858,-77.374384",		//Region U PIN 21
+				"38.8671858,-77.374384",	//Region U PIN 21
 				"38.8734542,-77.3969387",	//Region V PIN 22
-				"38.862498,-77.3935485",		//Region W PIN 23
+				"38.862498,-77.3935485",	//Region W PIN 23
 				"38.832765,-77.459801"		//Region X PIN 24
-//				"38.832765,-77.4619244",	    //Region X PIN 25
+//				"38.832765,-77.4619244",	//Region X PIN 25
 //				"38.839880,-77.405274"
 //				"38.828027,-77.404695"		//Region Y PIN 26
 //				"38.858007,-77.389963"		//Region Z PIN 27

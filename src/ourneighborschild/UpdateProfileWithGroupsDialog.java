@@ -97,46 +97,51 @@ public class UpdateProfileWithGroupsDialog extends JDialog implements ActionList
         JPanel p2 = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JPanel p4 = new JPanel(new FlowLayout(FlowLayout.LEFT));
         
-        profileTF = new JTextField[6];
+        profileTF = new JTextField[7];
         ProfileChangeListener pcl = new ProfileChangeListener();
         
         //set up panel 1
-        profileTF[0] = new JTextField(12);
+        profileTF[0] = new JTextField(9);
         profileTF[0].setBorder(BorderFactory.createTitledBorder("First Name"));
         profileTF[0].addKeyListener(pcl);
         
-        profileTF[1] = new JTextField(16);
+        profileTF[1] = new JTextField(12);
         profileTF[1].setBorder(BorderFactory.createTitledBorder("Last Name"));
         profileTF[1].addKeyListener(pcl);
         
-        profileTF[2] = new JTextField(24);
+        profileTF[2] = new JTextField(18);
         profileTF[2].setBorder(BorderFactory.createTitledBorder("Email"));
         profileTF[2].addKeyListener(pcl);
+        
+        profileTF[3] = new JTextField(10);
+        profileTF[3].setBorder(BorderFactory.createTitledBorder("Work Phone"));
+        profileTF[3].addKeyListener(pcl);
         
         //set up panel 1
         p1.add(profileTF[0]);
         p1.add(profileTF[1]);
         p1.add(profileTF[2]);
+        p1.add(profileTF[3]);
         
         //set up op2
-        profileTF[3] = new JTextField(14);
-        profileTF[3].setBorder(BorderFactory.createTitledBorder("Phone"));
-        profileTF[3].addKeyListener(pcl);
-        
         profileTF[4]  = new JTextField(20);
         profileTF[4].setBorder(BorderFactory.createTitledBorder("Organization"));
         profileTF[4].setToolTipText("What organization does this user belong too?");
         profileTF[4].addKeyListener(pcl);
         
-        profileTF[5] = new JTextField(18);
+        profileTF[5] = new JTextField(20);
         profileTF[5].setBorder(BorderFactory.createTitledBorder("Title"));
         profileTF[5].setToolTipText("What job title does this user hold?");
         profileTF[5].addKeyListener(pcl);
         
+        profileTF[6] = new JTextField(10);
+        profileTF[6].setBorder(BorderFactory.createTitledBorder("Cell Phone"));
+        profileTF[6].addKeyListener(pcl);
+        
         //set up panel 2
-        p2.add(profileTF[3]);
         p2.add(profileTF[4]);
         p2.add(profileTF[5]);
+        p2.add(profileTF[6]);
         
         //set up panel 4
         JPanel memberPanel = new JPanel();	//left panel
@@ -290,7 +295,7 @@ public class UpdateProfileWithGroupsDialog extends JDialog implements ActionList
 			reqUpdateUser.setLastName(profileTF[1].getText());
 			reqUpdateUser.setEmail(profileTF[2].getText());
 			reqUpdateUser.setHomePhone(profileTF[3].getText());
-			reqUpdateUser.setCellPhone(profileTF[3].getText());
+			reqUpdateUser.setCellPhone(profileTF[6].getText());
 			reqUpdateUser.setOrganization(profileTF[4].getText());
 			reqUpdateUser.setTitle(profileTF[5].getText());
 			reqUpdateUser.setGroupList(getUserGroupList());
@@ -350,7 +355,7 @@ public class UpdateProfileWithGroupsDialog extends JDialog implements ActionList
 		profileTF[2].setText(currUser.getEmail());
 		profileTF[2].setCaretPosition(0);
 			
-		profileTF[3].setText(currUser.getCellPhone());
+		profileTF[3].setText(currUser.getHomePhone());
 		profileTF[3].setCaretPosition(0);
 			
 		profileTF[4].setText(currUser.getOrganization());
@@ -358,6 +363,9 @@ public class UpdateProfileWithGroupsDialog extends JDialog implements ActionList
 			
 		profileTF[5].setText(currUser.getTitle());
 		profileTF[5].setCaretPosition(0);
+		
+		profileTF[6].setText(currUser.getCellPhone());
+		profileTF[6].setCaretPosition(0);
 		
 		candidateList = groupDB.getAgentGroupList();
 		candidateTM.fireTableDataChanged();
@@ -513,7 +521,8 @@ public class UpdateProfileWithGroupsDialog extends JDialog implements ActionList
 	{
 		String[] userProfileElement = new String[] { currUser.getFirstName(), currUser.getLastName(),
 													currUser.getEmail(), currUser.getHomePhone(),
-													currUser.getOrganization(), currUser.getTitle() };
+													currUser.getOrganization(), currUser.getTitle(),
+													currUser.getCellPhone()};
 		int index = 0, mask = 1;
 		while(index < profileTF.length && !e.getSource().equals(profileTF[index]))
 			index++;

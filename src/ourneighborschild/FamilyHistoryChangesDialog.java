@@ -469,6 +469,7 @@ public class FamilyHistoryChangesDialog extends ONCTableDialog implements Proper
 		{
 			this.setTitle(String.format("Our Neighbor's Child - %d Family Histories", gvs.getCurrentSeason()));
 			updateUserList();
+			updateDateFilters();
 			updateDNSCodeCB();
 			buildTableList();
 		}
