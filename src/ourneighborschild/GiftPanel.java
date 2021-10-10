@@ -307,7 +307,15 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 	//provided must allow the panel to be used. The family must already have been verified and the family must be
 	//requesting gift assistance.
 	void setEnabledGift()
-	{
+	{		
+//		if(family != null && familyHistory != null)
+//			System.out.println(String.format("GiftPanel.setEnabledGift: ONC#= %s, family status= %s, gn= %d",
+//					family.getONCNum(), familyHistory.getFamilyStatus().toString(), giftNumber));
+//		else if(family == null)
+//			System.out.println(String.format("GiftPanel.setEnabledGift: family is null"));
+//		else if(familyHistory == null)
+//			System.out.println(String.format("GiftPanel.setEnabledGift: familyHistory is null"));
+					
 		if(giftNumber >= gvs.getNumberOfGiftsPerChild() || family == null || familyHistory == null ||
 			familyHistory.getFamilyStatus().compareTo(FamilyStatus.Verified) < 0 || 
 			 familyHistory.getGiftStatus() == FamilyGiftStatus.NotRequested)
@@ -316,7 +324,7 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 		}
 		else
 			gpStatus = GiftPanelStatus.Enabled;
-		
+
 		//now that we've updated the panel status, update the component status
 		if(childGift != null)
 			setEnabledGiftPanelComponents(childGift.getGiftStatus());
@@ -657,7 +665,8 @@ public class GiftPanel extends JPanel implements ActionListener, DatabaseListene
 		if(tse.getType() == EntityType.FAMILY)
 		{
 			this.family = (ONCFamily) tse.getObject1();
-			this.familyHistory = (FamilyHistory) tse.getObject2();
+//			this.familyHistory = (FamilyHistory) tse.getObject2();
+			this.familyHistory = fhDB.getLastFamilyHistory(family.getID());
 			ArrayList<ONCChild> childList = cDB.getChildren(family.getID());
 			
 			checkForUpdateToWishDetail();

@@ -169,6 +169,7 @@ public class ChildPanel extends JPanel implements DatabaseListener, EntitySelect
 		ageTF.setText(child.getChildAge());
 		
 		schoolTF.setText(child.getChildSchool());
+		schoolTF.setCaretPosition(0);
 		genderTF.setText(child.getChildGender());
 	
 		bChildDataChanging = false;
