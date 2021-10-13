@@ -136,7 +136,7 @@ public class SchoolDeliveryDialog extends ONCEntityTableDialog implements Action
 		schoolCB = new JComboBox<School>();
 		schoolCBM = new DefaultComboBoxModel<School>();
 //		sortSchool = new School();	
-		schoolCBM.addElement(new School());//creates a dummy school with code "Any"
+		schoolCBM.addElement(new School("Any", "Any"));//creates a dummy school with code "Any"
 		schoolCB.setModel(schoolCBM);
 		schoolCB.setPreferredSize(new Dimension(180, 56));
 		schoolCB.setBorder(BorderFactory.createTitledBorder("School"));
@@ -237,21 +237,30 @@ public class SchoolDeliveryDialog extends ONCEntityTableDialog implements Action
 		
 		for(ONCFamily f : famDB.getList())
 		{	
+			FamilyHistory fh = fhDB.getLastFamilyHistory(f.getID());
+			School searchSchoolResult;
+			
+			//check the delivery address if it exists
 			if(!f.getSubstituteDeliveryAddress().isEmpty())
 			{
 				String[] delAddrParts = f.getSubstituteDeliveryAddress().split("_");
 	
 				if(delAddrParts.length == 5)	//format uses"_" as separator. Five components
 				{	
-					FamilyHistory fh = fhDB.getLastFamilyHistory(f.getID());
-					School searchSchoolResult = regionDB.findServedSchool(delAddrParts[0], delAddrParts[1],
+					searchSchoolResult = regionDB.findServedSchool(delAddrParts[0], delAddrParts[1],
 																		delAddrParts[3], delAddrParts[4]);
-					
 					if(fh != null && searchSchoolResult != null && doesFamilyStatusMatch(fh.getFamilyStatus()) &&
 						doesFamilyGiftStatusMatch(fh.getGiftStatus()) && doesSchoolMatch(searchSchoolResult))
 						delList.add(new SchoolDelivery(f, searchSchoolResult));
 				}
-			}	
+			}
+			
+			//check the HoH address
+			searchSchoolResult = regionDB.findServedSchool(f.getHouseNum(), f.getStreet(),
+																	f.getCity(), f.getZipCode());	
+			if(fh != null && searchSchoolResult != null && doesFamilyStatusMatch(fh.getFamilyStatus()) &&
+				doesFamilyGiftStatusMatch(fh.getGiftStatus()) && doesSchoolMatch(searchSchoolResult))
+					delList.add(new SchoolDelivery(f, searchSchoolResult));
 		}
 		
 		lblDelCount.setText(String.format("School Deliveries Meeting Criteria: %d", delList.size()));
@@ -314,7 +323,7 @@ public class SchoolDeliveryDialog extends ONCEntityTableDialog implements Action
 		schoolCBM.removeAllElements();
 		
 //		sortSchool = new School();	//creates a dummy school with code "Any"
-		schoolCBM.addElement(new School());
+		schoolCBM.addElement(new School("Any", "Any"));
 		
 		int index = 0;
 		for(School sch : regionDB.getServedSchoolList(SchoolType.ALL))

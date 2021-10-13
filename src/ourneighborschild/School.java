@@ -33,12 +33,13 @@ public class School extends ONCObject
 		this.type = SchoolType.valueOf(nextLine[14]);
 	}
 	
-	public School()
+	//used for dummy schools
+	public School(String code, String name)
 	{
 		super(-1);
-		this.code = "Any";
+		this.code = code;
 		this.address = null;
-		this.name = "Any";
+		this.name = name;
 		this.latlong = "";
 		this.pyramid = "";
 		this.type = SchoolType.ES;

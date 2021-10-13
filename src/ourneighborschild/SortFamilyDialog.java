@@ -243,7 +243,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		
 		schoolCB = new JComboBox<School>();
 		schoolCBM = new DefaultComboBoxModel<School>();
-		sortSchool = new School();	//creates a dummy school with code "Any"
+		sortSchool = new School("Any", "Any");	//creates a dummy school with code "Any"
 		schoolCBM.addElement(sortSchool);
 		schoolCB.setModel(schoolCBM);
 		schoolCB.setPreferredSize(new Dimension(180, 56));
@@ -728,7 +728,13 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		
 		schoolCBM.removeAllElements();
 		
-		sortSchool = new School();	//creates a dummy school with code "Any"
+		sortSchool = new School("Any", "Any");	//creates a dummy school with code "Any"
+		schoolCBM.addElement(sortSchool);
+		
+		sortSchool = new School("Y", "Not In Pyramid");	//creates a dummy school Not in Pyramid
+		schoolCBM.addElement(sortSchool);
+		
+		sortSchool = new School("Z", "Not In Area");	//creates a dummy school Not in Area
 		schoolCBM.addElement(sortSchool);
 		
 		int index = 0;
@@ -1452,7 +1458,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		
 		schoolCB.removeActionListener(this);
 		schoolCB.setSelectedIndex(0);
-		sortSchool = new School();	//creates a dummy school with code "Any"
+		sortSchool = new School("Any", "Any");	//creates a dummy school with code "Any"
 		schoolCB.addActionListener(this);
 		
 		changedByCB.removeActionListener(this);
