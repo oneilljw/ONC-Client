@@ -242,9 +242,9 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 				
         String[] emailChoices = {
 								"Email",
-								"2020 Church Email - Diane Church",
-								"2020 School Email - Diane Church",
-								"2020 Business Email - Kathleen McDonald"
+								"2021 Church Email - Diane Church",
+								"2021 School Email - Diane Church",
+								"2021 Business Email - Kathleen McDonald"
 								};
         emailCB = new JComboBox<String>(emailChoices);
         emailCB.setPreferredSize(new Dimension(136, 28));
@@ -523,11 +523,11 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
 			
 			//Create the email body and potentially subject
 	        if(emailType == 1)	//Church Email
-	        	emailBody = create2020SeasonChurchEmailBody(o);
+	        	emailBody = create2021SeasonChurchEmailBody(o);
 	        if(emailType == 2)	//School Email
-	        	emailBody = create2020SeasonSchoolEmailBody(o);
+	        	emailBody = create2021SeasonSchoolEmailBody(o);
 	        if(emailType == 3)	//Business Email
-	        	emailBody = create2020SeasonBusinessEmailBody(o);
+	        	emailBody = create2021SeasonBusinessEmailBody(o);
 	        
 	        //Create To: recipients. If the partner has a second contact with a valid email address, the
 	        //To: field will contain both email contacts. If there isn't a valid second contact email
@@ -1783,7 +1783,7 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
         return msgtop + msgmid + msgbot;
 	}
 	
-	String create2020SeasonBusinessEmailBody(ONCPartner o)
+	String create2021SeasonBusinessEmailBody(ONCPartner o)
 	{
 		//Create the variables for the body of the email     
         String name = o.getLastName();
@@ -1850,21 +1850,29 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
         
         String msgtop = String.format("<html><body><div>"
         		+ "<p>Dear %s,</p>"
-        		+ "<p>What challenging times we are ALL facing!  We hope this email finds you, your loved ones, friends and co-workers safe and well.</p>"
-        		+ "<p>In nearly 30 years there have been many contingency plans in place at Our Neighbor's Child. Not one of us imagined preparing for a global pandemic.</p>"
-        		+ "<p>Amidst all the uncertainty, one thing was always clear: we'd find a way.  We felt certain our caring community of volunteers would agree that providing a sense of \"normalcy\" and holiday cheer to the children of our financially struggling neighbors would be even more important in this 2020 season.</p>"
-        		+ "<p>So we've made a few changes. </p>"
-        		+ "<p>Our traditional \"many hands\" effort involved hundreds of volunteers working side by side under one roof.  Social distancing standards require us to work in smaller groups with an expanded timeline to ensure the safety of our volunteers, as well as the families we serve.</p>"
-        		+ "<p>Our planning and organizing has always been only part of this effort. Providing the gifts depends on the generous support of our community and dedicated partners like %s.</p>"
-        		+ "<p>ONC volunteers have been working with (and greatly appreciating) our local school counselors and social workers. They're making it possible to have gift wishes available earlier this year:  <b>November 11</b>.</p>" 
-        		+ "<p><b>Gift Drop Off Dates</b> will need to be slightly earlier this year as well: <b>December 1, 2 and 3</b> with an extended time window of <b>9AM - 7PM</b> (by appointment to save waiting time and ensure social distancing).</p>"
-        		+ "<p>Please help us by confirming and/or updating the information below:</p>"
+        		+ "<p>Thanks to the wonderful support of our community (in the midst of a worldwide pandemic!), our all volunteer team at Our Neighbor's Child (ONC) was able to successfully coordinate and distribute gifts to every child referred by local schools in 2020.</p>"
+        		+ "<p>We are deeply grateful to you and all those who pulled together as we redesigned a safe and socially distant way to provide support for these struggling families. </p>"
+        		+ "<p>As Covid uncertainty continues, last year's modifications will remain in place for ONC's 30th season of service.</p>"
+        		+ "<p><b>IMPORTANT DATES:</b></p>"
+        		+ "<ul>"
+        		+ "<li><mark>The deadline for requesting children's wish ornaments is <b>Wednesday, November 10.</b></mark></li>"
+        		+ "<li>Wishes will be distributed on <b>Wednesday, November 17th</b></li>"
+        		+ "<li>Gift Drop Off Dates are <b>Wednesday, December 1 and Thursday, December 2</b> from 9AM to 6PM (Chantilly location TBD).</b></li>"
+        		+ "</ul>"
+        		+ "<p><b>WISH ORNAMENTS</b></p>"
+        		+ "<p>You may choose to receive children's wishes in one of the following formats:</p>"
+        		+ "<ul>"
+        		+ "<li>Physical wish ornaments (construction paper ornaments with label attached)</li>"
+        		+ "<li>PDF of wish labels via email attachment</li>"
+        		+ "</ul>"
+        		+ "<p><b>It is very important that a clearly printed label is attached to each gift so the bar code can be successfully scanned.</b> Ideally, labels are affixed to paper first and scotch taped to each package. This makes it easier if removal is necessary and doesn't damage the gift.</p>"
+        		+ "<p>Accurate, up-to-date information is key to our efforts. Please assist us by confirming and/or updating the information below:</p>"
         		+ "&emsp;<font color=\"red\">ONC Gift Partner:</font>  <b>%s</b><br>"
         		+ "&emsp;<font color=\"red\">Address:</font>   <b>%s</b><br>" 
         		+ "&emsp;<font color=\"red\">Phone #:</font>   <b>%s</b><br>" 
         		+ "&emsp;<font color=\"red\">Contact:</font>   <b>%s</b><br>" 
         		+ "&emsp;<font color=\"red\">Phone #:</font>   <b>%s</b><br>" 
-        		+ "&emsp;<font color=\"red\">Email:</font>   <b>%s</b><br>", fn, name, name, address, busphone, contact, contactphone, contactemail);
+        		+ "&emsp;<font color=\"red\">Email:</font>   <b>%s</b><br>", fn, name, address, busphone, contact, contactphone, contactemail);
         
         //Create the middle part of the message if 2nd contact exists
         String msgmid = "";
@@ -1879,19 +1887,254 @@ public class SortPartnerDialog extends ChangeDialog implements ActionListener, L
         //Create the bottom part of the text part of the email using html
         String msgbot = String.format(
         		"&emsp;<font color=\"red\">Gift Collection Type:</font>  <b>%s</b><br>"
-        		+ "&emsp;<font color=\"red\">Ornaments Requested in 2019:</font>   <b>%d</b>"
-        		+ "<p>We are still able to provide our regular wish ornaments and collect physical gifts. We are also able to provide several virtual, no-contact options as well.  We'd love to find a plan that works best for you and maintain our valued partnership and your much needed support. Please just let me know at your earliest convenience.</p>"
-        		+ "<p>We sincerely hope participating makes a difference and adds cheer to your life, and the lives of others fortunate and generous enough to give.</p>"
-        		+ "<p>Families will receive their gifts at contact-free pickup locations on <b>Sunday, December 13</b>.</p>"
-        		+ "<p><b>Important:</b></p>"
-        		+ "<p>ONC relies on donated warehouse space each year and confirmation often arrives in November. We will forward the (Chantilly area) address as soon as it's confirmed.</p>"
-        		+ "<p>We encourage you to visit our website for more information about Our Neighbor's Child: <a href=\"http://www.ourneighborschild.org\">www.ourneighborschild.org</a>.</p>"
-        		+ "<p>I will keep in contact with you (or the current contact) as our season of giving progresses. Please feel free to contact me with any questions at this email address or by calling or texting 703-785-8048. We are deeply grateful for your support and look forward to working with you again this holiday season!</p>"
+        		+ "&emsp;<font color=\"red\">Ornaments Requested in 2020:</font>   <b>%d</b>"
+        		+ "<p>Families will receive their gifts at contact-free pickup locations on Sunday, December 12.</p>"
+        		+ "<p>We appreciate your continued participation and look forward to your response <b>on or before November 10.</b>  I'll be sending the address and directions for the Gift Drop Off and other updates to all confirmed participants as details become available.</p>"
+        		+ "<p>Please feel free to contact me with any questions.  We are deeply grateful for your support and look forward to working with you again this holiday season!</p>"
         		+ "<p>Sincerely,<br><br>"
         		+ "Kathleen McDonald<br>"
         		+ "Gift Partner Coordinator<br>"
         		+ "Our Neighbor's Child<br>"
         		+ "703-785-8048<br>"
+        		+ "<a href=\"http://www.ourneighborschild.org\">www.ourneighborschild.org</a><br><br></div></p>"
+        		+ "</body></html>", giftCollectionType, orn_requested);
+        
+        return msgtop + msgmid + msgbot;
+	}
+	
+	String create2021SeasonChurchEmailBody(ONCPartner o)
+	{
+		//Create the variables for the body of the email     
+        String name = o.getLastName();
+        
+        //The next section of code is a temporary fix until the ONCPartner object is updated
+        //to split the contact and contact2 name fields into contact fn, contact ln
+        //contact2 fn and contact2 ln fields.
+        String fn = "";
+        if(o.getContact().length() > 1)
+        {
+        	 String[] names1 = o.getContact().split(" ");
+        	if(names1.length == 1 || names1.length == 2)
+        		fn = names1[0];
+        	else
+        		fn = names1[0] + " " + names1[1];
+		}
+        
+        String fn2 = "";
+        if(o.getContact2().length() > 1)
+        {
+        	String[] names2 = o.getContact2().split(" ");
+        	if(names2.length == 1 || names2.length == 2)
+        		fn2 = names2[0];
+        	else
+        		fn2 = names2[0] + " " + names2[1];
+        }
+        
+        if(fn.length() <= 1 && fn2.length() > 1)	//contact 1 empty, contact2 exists
+        	fn = fn2;
+        else if(fn.length() > 1 && fn2.length() > 1)	//both contacts exist
+        	fn = fn.concat(" & " + fn2);        
+        //End of temporary code to handle contact name splitting
+   
+        String address = o.getHouseNum() + " " + o.getStreet() + " " + o.getUnit() + " " +
+        				 o.getCity() + ", VA " + o.getZipCode();
+        String contact = o.getContact();
+        String busphone = o.getHomePhone();
+       
+        //Pick the 1st contact phone if it is valid, else try the organization phone number
+        String contactphone = "";
+        if(o.getContact_phone().length() >= MIN_PHONE_NUMBER_LENGTH)
+        	contactphone = o.getContact_phone();
+        else if(o.getHomePhone().length() >= MIN_PHONE_NUMBER_LENGTH)
+        	contactphone = o.getHomePhone();	
+        String contactemail = o.getContact_email();
+        
+        //Pick the 2nd contact phone if it is valid, else try the organization phone number
+        String contact2 = o.getContact2().trim();
+        String contact2phone = "";
+        if(o.getContact2_phone().length() >= MIN_PHONE_NUMBER_LENGTH)
+        	contact2phone = o.getContact2_phone();
+        else if(o.getHomePhone().length() >= MIN_PHONE_NUMBER_LENGTH)
+        	contact2phone = o.getHomePhone();	
+        String contact2email = o.getContact2_email();
+        
+        String giftCollectionType = o.getGiftCollectionType().toString();
+        int orn_requested = o.getPriorYearRequested();
+//      String specNotes = o.getSpecialNotes();
+//      int orn_receivedByDeadline = o.getPriorYearReceived();
+        
+//        String notes = "None";
+//        if(o.getSpecialNotes().length() > 1)
+//        	notes = o.getSpecialNotes();
+        
+        String msgtop = String.format("<html><body><div>"
+        		+ "<p>Dear %s,</p>"
+        		+ "<p>Thanks to the wonderful support of our community (in the midst of a worldwide pandemic!), our all volunteer team at Our Neighbor's Child (ONC) was able to successfully coordinate and distribute gifts to every child referred by local schools in 2020.</p>"
+        		+ "<p>We are deeply grateful to you and all those who pulled together as we redesigned a safe and socially distant way to provide support for these struggling families. </p>"
+        		+ "<p>As Covid uncertainty continues, last year's modifications will remain in place for ONC's 30th season of service.</p>"
+        		+ "<p><b>IMPORTANT DATES:</b></p>"
+        		+ "<ul>"
+        		+ "<li><mark>The deadline for requesting children's wish ornaments is <b>Wednesday, November 10.</b></mark></li>"
+        		+ "<li>Wishes will be distributed on <b>Wednesday, November 17th</b></li>"
+        		+ "<li>Gift Drop Off is <b>Sunday, December 5</b> from 9AM to 1PM  at Rocky Run Middle School.</b></li>"
+        		+ "</ul>"
+        		+ "<p><b>WISH ORNAMENTS</b></p>"
+        		+ "<p>You may choose to receive children's wishes in one of the following formats:</p>"
+        		+ "<ul>"
+        		+ "<li>Physical wish ornaments (construction paper ornaments with label attached)</li>"
+        		+ "<li>PDF of wish labels via email attachment</li>"
+        		+ "</ul>"
+        		+ "<p><b>It is very important that a clearly printed label is attached to each gift so the bar code can be successfully scanned.</b> Ideally, labels are affixed to paper first and scotch taped to each package. This makes it easier if removal is necessary and doesn't damage the gift.</p>"
+        		+ "<p>Accurate, up-to-date information is key to our efforts. Please assist us by confirming and/or updating the information below:</p>"
+        		+ "&emsp;<font color=\"red\">ONC Gift Partner:</font>  <b>%s</b><br>"
+        		+ "&emsp;<font color=\"red\">Address:</font>   <b>%s</b><br>" 
+        		+ "&emsp;<font color=\"red\">Phone #:</font>   <b>%s</b><br>" 
+        		+ "&emsp;<font color=\"red\">Contact:</font>   <b>%s</b><br>" 
+        		+ "&emsp;<font color=\"red\">Phone #:</font>   <b>%s</b><br>" 
+        		+ "&emsp;<font color=\"red\">Email:</font>   <b>%s</b><br>", fn, name, address, busphone, contact, contactphone, contactemail);
+        
+        //Create the middle part of the message if 2nd contact exists
+        String msgmid = "";
+        if(contact2.length() > MIN_NAME_LENGTH)
+        {
+        	msgmid = String.format(
+        		"&emsp;<font color=\"red\">Contact:</font>   <b>%s</b><br>" +
+        		"&emsp;<font color=\"red\">Phone #:</font>   <b>%s</b><br>" +
+        		"&emsp;<font color=\"red\">Email:</font>   <b>%s</b><br>", contact2, contact2phone, contact2email);
+        }
+        
+        //Create the bottom part of the text part of the email using html
+        String msgbot = String.format(
+        		"&emsp;<font color=\"red\">Gift Collection Type:</font>  <b>%s</b><br>"
+        		+ "&emsp;<font color=\"red\">Ornaments Requested in 2020:</font>   <b>%d</b>"
+        		+ "<p>Families will receive their gifts at contact-free pickup locations on Sunday, December 12.</p>"
+        		+ "<p>We appreciate your continued participation and look forward to your response <b>on or before November 10.</b>  I'll be sending updates and reminders to all confirmed participants as the season progresses.</p>"
+        		+ "<p>Please feel free to contact me with any questions.  We are deeply grateful for your support and look forward to working with you again this holiday season!</p>"
+        		+ "<p>Sincerely,<br><br>"
+        		+ "Diane Church<br>"
+        		+ "Gift Partner Coordinator<br>"
+        		+ "Our Neighbor's Child<br>"
+        		+ "(703) 615-1934 (cell)<br>"
+        		+ "<a href=\"http://www.ourneighborschild.org\">www.ourneighborschild.org</a><br><br></div></p>"
+        		+ "</body></html>", giftCollectionType, orn_requested);
+        
+        return msgtop + msgmid + msgbot;
+	}
+	
+	String create2021SeasonSchoolEmailBody(ONCPartner o)
+	{
+		//Create the variables for the body of the email     
+        String name = o.getLastName();
+        
+        //The next section of code is a temporary fix until the ONCPartner object is updated
+        //to split the contact and contact2 name fields into contact fn, contact ln
+        //contact2 fn and contact2 ln fields.
+        String fn = "";
+        if(o.getContact().length() > 1)
+        {
+        	 String[] names1 = o.getContact().split(" ");
+        	if(names1.length == 1 || names1.length == 2)
+        		fn = names1[0];
+        	else
+        		fn = names1[0] + " " + names1[1];
+		}
+        
+        String fn2 = "";
+        if(o.getContact2().length() > 1)
+        {
+        	String[] names2 = o.getContact2().split(" ");
+        	if(names2.length == 1 || names2.length == 2)
+        		fn2 = names2[0];
+        	else
+        		fn2 = names2[0] + " " + names2[1];
+        }
+        
+        if(fn.length() <= 1 && fn2.length() > 1)	//contact 1 empty, contact2 exists
+        	fn = fn2;
+        else if(fn.length() > 1 && fn2.length() > 1)	//both contacts exist
+        	fn = fn.concat(" & " + fn2);        
+        //End of temporary code to handle contact name splitting
+   
+        String address = o.getHouseNum() + " " + o.getStreet() + " " + o.getUnit() + " " +
+        				 o.getCity() + ", VA " + o.getZipCode();
+        String contact = o.getContact();
+        String busphone = o.getHomePhone();
+       
+        //Pick the 1st contact phone if it is valid, else try the organization phone number
+        String contactphone = "";
+        if(o.getContact_phone().length() >= MIN_PHONE_NUMBER_LENGTH)
+        	contactphone = o.getContact_phone();
+        else if(o.getHomePhone().length() >= MIN_PHONE_NUMBER_LENGTH)
+        	contactphone = o.getHomePhone();	
+        String contactemail = o.getContact_email();
+        
+        //Pick the 2nd contact phone if it is valid, else try the organization phone number
+        String contact2 = o.getContact2().trim();
+        String contact2phone = "";
+        if(o.getContact2_phone().length() >= MIN_PHONE_NUMBER_LENGTH)
+        	contact2phone = o.getContact2_phone();
+        else if(o.getHomePhone().length() >= MIN_PHONE_NUMBER_LENGTH)
+        	contact2phone = o.getHomePhone();	
+        String contact2email = o.getContact2_email();
+        
+        String giftCollectionType = o.getGiftCollectionType().toString();
+        int orn_requested = o.getPriorYearRequested();
+//      String specNotes = o.getSpecialNotes();
+//      int orn_receivedByDeadline = o.getPriorYearReceived();
+        
+//        String notes = "None";
+//        if(o.getSpecialNotes().length() > 1)
+//        	notes = o.getSpecialNotes();
+        
+        String msgtop = String.format("<html><body><div>"
+        		+ "<p>Dear %s,</p>"
+        		+ "<p>Thanks to the wonderful support of our community (in the midst of a worldwide pandemic!), our all volunteer team at Our Neighbor's Child (ONC) was able to successfully coordinate and distribute gifts to every child referred by local schools in 2020.</p>"
+        		+ "<p>We are deeply grateful to you and all those who pulled together as we redesigned a safe and socially distant way to provide support for these struggling families. </p>"
+        		+ "<p>As Covid uncertainty continues, last year's modifications will remain in place for ONC's 30th season of service.</p>"
+        		+ "<p><b>IMPORTANT DATES:</b></p>"
+        		+ "<ul>"
+        		+ "<li><mark>The deadline for requesting children's wish ornaments is <b>Wednesday, November 10.</b></mark></li>"
+        		+ "<li>Wishes will be distributed on <b>Wednesday, November 17th</b></li>"
+        		+ "<li>Gift Drop Off Dates are <b>Wednesday, December 1 and Thursday, December 2</b> from 9AM to 6PM (Chantilly location TBD).</b></li>"
+        		+ "<li>General Gift Collections may be dropped off on <b>Sunday, December 5 from 9AM to 1PM</b> at Rocky Run Middle School.</li>"
+        		+ "</ul>"
+        		+ "<p><b>WISH ORNAMENTS</b></p>"
+        		+ "<p>You may choose to receive children's wishes in one of the following formats:</p>"
+        		+ "<ul>"
+        		+ "<li>Physical wish ornaments (construction paper ornaments with label attached)</li>"
+        		+ "<li>PDF of wish labels via email attachment</li>"
+        		+ "</ul>"
+        		+ "<p><b>It is very important that a clearly printed label is attached to each gift so the bar code can be successfully scanned.</b> Ideally, labels are affixed to paper first and scotch taped to each package. This makes it easier if removal is necessary and doesn't damage the gift.</p>"
+        		+ "<p>Accurate, up-to-date information is key to our efforts. Please assist us by confirming and/or updating the information below:</p>"
+        		+ "&emsp;<font color=\"red\">ONC Gift Partner:</font>  <b>%s</b><br>"
+        		+ "&emsp;<font color=\"red\">Address:</font>   <b>%s</b><br>" 
+        		+ "&emsp;<font color=\"red\">Phone #:</font>   <b>%s</b><br>" 
+        		+ "&emsp;<font color=\"red\">Contact:</font>   <b>%s</b><br>" 
+        		+ "&emsp;<font color=\"red\">Phone #:</font>   <b>%s</b><br>" 
+        		+ "&emsp;<font color=\"red\">Email:</font>   <b>%s</b><br>", fn, name, address, busphone, contact, contactphone, contactemail);
+        
+        //Create the middle part of the message if 2nd contact exists
+        String msgmid = "";
+        if(contact2.length() > MIN_NAME_LENGTH)
+        {
+        	msgmid = String.format(
+        		"&emsp;<font color=\"red\">Contact:</font>   <b>%s</b><br>" +
+        		"&emsp;<font color=\"red\">Phone #:</font>   <b>%s</b><br>" +
+        		"&emsp;<font color=\"red\">Email:</font>   <b>%s</b><br>", contact2, contact2phone, contact2email);
+        }
+        
+        //Create the bottom part of the text part of the email using html
+        String msgbot = String.format(
+        		"&emsp;<font color=\"red\">Gift Collection Type:</font>  <b>%s</b><br>"
+        		+ "&emsp;<font color=\"red\">Ornaments Requested in 2020:</font>   <b>%d</b>"
+        		+ "<p>Families will receive their gifts at contact-free pickup locations on Sunday, December 12.</p>"
+        		+ "<p>We appreciate your continued participation and look forward to your response <b>on or before November 10.</b>  I'll be sending the address and directions for the Gift Drop Off and other updates to all confirmed participants as details become available.</p>"
+        		+ "<p>Please feel free to contact me with any questions.  We are deeply grateful for your support and look forward to working with you again this holiday season!</p>"
+        		+ "<p>Sincerely,<br><br>"
+        		+ "Diane Church<br>"
+        		+ "Gift Partner Coordinator<br>"
+        		+ "Our Neighbor's Child<br>"
+        		+ "(703) 615-1934 (cell)<br>"
         		+ "<a href=\"http://www.ourneighborschild.org\">www.ourneighborschild.org</a><br><br></div></p>"
         		+ "</body></html>", giftCollectionType, orn_requested);
         

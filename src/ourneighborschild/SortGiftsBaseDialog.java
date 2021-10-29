@@ -1903,6 +1903,9 @@ public abstract class SortGiftsBaseDialog extends ChangeDialog implements Proper
 							sgo.getChildGift().getGiftStatus().toString(), 
 							partnerName, 
 							sgo.getChildGift().getChangedBy(), ds};
+		
+//		System.out.println(String.format("SortGiftsBaseDlg.getTableRow: child gift id= %d, status=%d", 
+//				sgo.getChildGift().getID(), sgo.getChildGift().getGiftStatus().statusIndex()));
 		return tablerow;
 	}
 
