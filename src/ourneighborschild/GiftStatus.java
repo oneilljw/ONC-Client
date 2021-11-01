@@ -43,7 +43,7 @@ public enum GiftStatus
 	
 	static GiftStatus[] getImportList()
 	{
-		return new GiftStatus[] {GiftStatus.No_Change, GiftStatus.Assigned, GiftStatus.Delivered,
+		return new GiftStatus[] {GiftStatus.Not_Selected, GiftStatus.Selected, GiftStatus.Assigned, GiftStatus.Delivered,
 								GiftStatus.Returned, GiftStatus.Shopping, GiftStatus.Received,
 								GiftStatus.Distributed, GiftStatus.Missing, GiftStatus.Verified,
 								GiftStatus.Unassigned};
