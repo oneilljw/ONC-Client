@@ -187,6 +187,16 @@ public class FamilyDB extends ONCSearchableDatabase
 		return response;
 	}
 	
+	String getFamilyPhoneInfo(Object source, ONCFamily family)
+	{
+		String response = null;
+		if(serverIF != null && serverIF.isConnected())
+		{
+			response = serverIF.sendRequest("GET<family_phone_info>"+Integer.toString(family.getID())); 		
+		}
+		return response;
+	}
+	
 	String getConfirmationImage(Object source, ONCFamily family)
 	{
 		String response = null;

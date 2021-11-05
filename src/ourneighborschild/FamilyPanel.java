@@ -44,6 +44,8 @@ import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 
+import com.google.gson.Gson;
+
 public class FamilyPanel extends ONCPanel implements ActionListener, ListSelectionListener, DatabaseListener,
 													EntitySelector, EntitySelectionListener
 {
@@ -110,7 +112,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	private JLabel lblONCNum, lblRefNum,lblSchool, lblChangedBy;
 //	private JLabel lblBatchNum, lblNumBags;
 	private JRadioButton rbGiftStatusHistory, rbAltAddress, rbPriorHistory, rbAgentInfo;
-	private JRadioButton rbShowAllPhones, rbFamDetails, rbDirections;
+	private JRadioButton rbCheckAllPhones, rbFamDetails, rbDirections;
 	private JRadioButton rbNotGiftCardOnly, rbGiftCardOnly, rbAdults, rbConfirmation;
 	private JRadioButton[] rbFamilyNote, rbMeals, rbTransportation, rbDistribution;
 	private JComboBox<String> languageCB;
@@ -345,10 +347,10 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         rbPriorHistory.setEnabled(false);
         rbPriorHistory.addActionListener(this);
         
-        rbShowAllPhones = new JRadioButton(gvs.getImageIcon(PHONE_ICON_INDEX));
-        rbShowAllPhones.setToolTipText("Click for all phone numbers for family");
-        rbShowAllPhones.setEnabled(false);
-        rbShowAllPhones.addActionListener(this);
+        rbCheckAllPhones = new JRadioButton(gvs.getImageIcon(PHONE_ICON_INDEX));
+        rbCheckAllPhones.setToolTipText("Check all phone numbers for family");
+        rbCheckAllPhones.setEnabled(false);
+        rbCheckAllPhones.addActionListener(this);
         
         rbAgentInfo = new JRadioButton(gvs.getImageIcon(AGENT_INFO_ICON_INDEX));
         rbAgentInfo.setToolTipText("Click for info on agent who referred family");
@@ -600,7 +602,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         
         iconBar.add(btnAssignONCNum);
         iconBar.add(rbPriorHistory);
-        iconBar.add(rbShowAllPhones);
+        iconBar.add(rbCheckAllPhones);
         iconBar.add(rbAltAddress);
         iconBar.add(rbFamDetails);
         iconBar.add(rbAgentInfo);
@@ -675,7 +677,7 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 	
 	void setRestrictedEnabledButtons(boolean tf)
 	{	 
-		rbShowAllPhones.setEnabled(tf);
+		rbCheckAllPhones.setEnabled(tf);
 		rbAltAddress.setEnabled(tf);
 	}
 	
@@ -865,12 +867,22 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			
 			primaryPhonePane.setText(currFam.getHomePhone());
 			primaryPhonePane.setCaretPosition(0);
-			primaryPhonePane.setToolTipText(getPhoneToolTip(0));
+			PhoneTipAndBackground primaryPhone = new PhoneTipAndBackground(0, currFam.getHomePhone().isEmpty());
+			primaryPhonePane.setToolTipText(primaryPhone.getTip());
+			primaryPhonePane.setBackground(primaryPhone.getPhoneBackground());
+			
 			altPhonePane.setText(currFam.getCellPhone());
 			altPhonePane.setCaretPosition(0);
-			altPhonePane.setToolTipText(getPhoneToolTip(1));
+			PhoneTipAndBackground altPhone = new PhoneTipAndBackground(1, currFam.getCellPhone().isEmpty());
+			altPhonePane.setToolTipText(altPhone.getTip());
+			altPhonePane.setBackground(altPhone.getPhoneBackground());
+			
 			altPhone2TF.setText(currFam.getAlt2Phone());
-			altPhone2TF.setToolTipText(getPhoneToolTip(2));
+			altPhone2TF.setCaretPosition(0);
+			PhoneTipAndBackground alt2Phone = new PhoneTipAndBackground(2, currFam.getAlt2Phone().isEmpty());
+			altPhone2TF.setToolTipText(alt2Phone.getTip());
+			altPhone2TF.setBackground(alt2Phone.getPhoneBackground());
+			
 			emailTF.setText(currFam.getEmail());
 			emailTF.setCaretPosition(0);
 			
@@ -938,16 +950,6 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 			refreshODBWishListHighlights(currFam, null);
 			rbPriorHistory.setEnabled(false);
 		}
-	}
-	
-	String getPhoneToolTip(int phoneid)
-	{
-		int code = currFam.getPhoneCode() & PHONECODE_MASK[phoneid];
-		int individualcode = code >> phoneid * 2;
-        
-		String[] phone = {"Primary","Alternate","2nd Alternate"};
-		String[]type = {"an empty or invalid","a valid mobile","an invalid","a valid landline/other"};
-		return String.format("%s is %s number, phonecode %d", phone[phoneid], type[individualcode], currFam.getPhoneCode());
 	}
 	
 	void addChildrenToTable(int cn)
@@ -1361,22 +1363,35 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 				JOptionPane.showMessageDialog(parentFrame, "Wish History Currently Unavailable",
 						"Wish History Currently Unavailable",  JOptionPane.ERROR_MESSAGE, gvs.getImageIcon(0));
 		}
-		else if(e.getSource() == rbShowAllPhones)
+		else if(e.getSource() == rbCheckAllPhones)
 		{
-			StringBuilder buff = new StringBuilder("");
-			//create the AllPhoneNumber data
-			if(currFam != null)
+			String response = fDB.getFamilyPhoneInfo(this, currFam);
+			if(response != null && response.startsWith("FAMILY_PHONE_INFO"))
 			{	
-				if(currFam.getHomePhone().length() > 9)
-					buff.append("Home Phone: " + currFam.getHomePhone());
-				if(currFam.getCellPhone().length() > 9)	//Ensure it's a valid 10 digit phone number at minimum
-					buff.append("\nAlternate Phone: " + currFam.getCellPhone());
-				if(currFam.getAlt2Phone().length() > 9)
-					buff.append("\n2nd Alternate Phone: " + currFam.getAlt2Phone());
-			}
+				Gson gson = new Gson();
+				FamilyPhoneInfo fpi = gson.fromJson(response.substring(17), FamilyPhoneInfo.class);
 			
-			JOptionPane.showMessageDialog(parentFrame, buff.toString(),
-					currFam.getClientFamily() + " family phone #'s", JOptionPane.INFORMATION_MESSAGE, gvs.getImageIcon(0));
+			
+				PhoneInfoDialog phoneInfoDlg = new PhoneInfoDialog(GlobalVariablesDB.getFrame(), fpi);
+				phoneInfoDlg.setLocationRelativeTo(rbFamDetails);
+				phoneInfoDlg.setVisible(true);
+			}
+			else
+			{
+				StringBuilder buff = new StringBuilder("");
+				//create the AllPhoneNumber data
+    			if(currFam != null)
+    			{	
+    				if(currFam.getHomePhone().length() > 9)
+    					buff.append("Home Phone: " + currFam.getHomePhone());
+    				if(currFam.getCellPhone().length() > 9)	//Ensure it's a valid 10 digit phone number at minimum
+    					buff.append("\nAlternate Phone: " + currFam.getCellPhone());
+    				if(currFam.getAlt2Phone().length() > 9)
+    					buff.append("\n2nd Alternate Phone: " + currFam.getAlt2Phone());
+    			}
+				JOptionPane.showMessageDialog(parentFrame, buff.toString(), currFam.getClientFamily() + " family phone #'s",
+						JOptionPane.INFORMATION_MESSAGE, gvs.getImageIcon(0));
+			}
 		}
 		else if(e.getSource() == rbAgentInfo)
 		{   
@@ -1907,5 +1922,33 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         		return false;
         }
     }
+	
+	private class PhoneTipAndBackground
+	{
+		private Color background;
+		private String tip;
+		
+		PhoneTipAndBackground(int phoneid, boolean bPhoneEmpty)
+		{
+			int code = currFam.getPhoneCode() & PHONECODE_MASK[phoneid];
+			int individualcode = code >> phoneid * 2;
+			
+			if(bPhoneEmpty)
+				background = Color.white;
+			else if(!bPhoneEmpty && individualcode == 1)
+				background = Color.white;
+			else if(!bPhoneEmpty && individualcode == 3)
+				background = Color.yellow;
+			else
+				background = Color.red;
+			
+			String[] phone = {"Primary","Alternate","2nd Alternate"};
+			String[]type = {"an empty or invalid","a valid mobile","an invalid","a valid landline/other"};
+			tip =  String.format("%s is %s number, phonecode %d", phone[phoneid], type[individualcode], currFam.getPhoneCode());
+		}
+		
+		Color getPhoneBackground() { return background; }
+		String getTip() { return tip; }
+	}
 }
 
