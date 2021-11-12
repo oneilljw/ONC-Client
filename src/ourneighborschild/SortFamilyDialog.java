@@ -2859,7 +2859,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	public void dataChanged(DatabaseEvent dbe)
 	{
 		if(dbe.getSource() != this && (dbe.getType().equals("ADDED_FAMILY") || dbe.getType().equals("ADDED_DELIVERY") ||
-				dbe.getType().equals("UPDATED_FAMILY")))
+				dbe.getType().equals("UPDATED_FAMILY") || dbe.getType().equals("UPDATED_DELIVERY")))
 		{
 			buildTableList(true);		
 		}
