@@ -33,7 +33,7 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 	public JMenuItem exitMI;	//public since exit method is external to the menu bar
 	private JMenuItem findDupFamsMI, findDupChldrnMI, crosscheckMI;
 	private JMenuItem editVolMI, editActMI, viewSignInLogMI, manageVolMI, manageActMI;
-	private JMenuItem assignDelMI, manageDelMI, barcodeDeliveryMI, mapsMI, schoolDelMI, distMI;
+	private JMenuItem assignDelMI, assignDistCentersMI, manageDelMI, barcodeDeliveryMI, mapsMI, schoolDelMI, distMI;
 	private JMenuItem newFamMI, changeONCMI, changeRefMI, changeBatchMI, newChildMI, editDNSCodesMI;
 	private JMenuItem delChildMI, markAdultMI, connectChildMI, famHistMI;
 	private JMenu submenuImport, submenuFamilyDataChecks, submenuExport, submenuChangeFamilyNumbers;
@@ -428,6 +428,13 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 	    assignDelMI.addActionListener(this);
 	    menuDelivery.add(assignDelMI);
 	    
+	    //Assign Pickup Location
+	    assignDistCentersMI = new JMenuItem("Assign Distribution Centers");
+	    assignDistCentersMI.setActionCommand("Centers");
+	    assignDistCentersMI.setEnabled(false);
+	    assignDistCentersMI.addActionListener(this);
+	    menuDelivery.add(assignDistCentersMI);
+	    
 	    submenuDeliverGifts = new JMenu("Confirm Deliveries");
 	    submenuDeliverGifts.setEnabled(false);
 	    
@@ -571,6 +578,7 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 //		clearMI.setEnabled(tf);		//Disable clear until fixed after migration to Client Server Architecture
 		schoolDelMI.setEnabled(tf);
 		assignDelMI.setEnabled(tf);
+		assignDistCentersMI.setEnabled(tf);
 		mapsMI.setEnabled(tf);	
 		distMI.setEnabled(tf);	
 		sortGiftsMI.setEnabled(true);
@@ -738,6 +746,8 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 			dlgManager.showCrosscheckDialog();
 		else if(e.getSource() == assignDelMI)
 			dlgManager.showSortDialog(assignDelMI.getActionCommand(), SORT_DIALOG_OFFSET);
+		else if(e.getSource() == assignDistCentersMI)
+			dlgManager.showAssignDistributionCenterDialog();
 		else if(e.getSource() == editVolMI)
 			dlgManager.showEntityDialog(editVolMI.getActionCommand(), SORT_DIALOG_OFFSET);
 		else if(e.getSource() == editDNSCodesMI)

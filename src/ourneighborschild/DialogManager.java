@@ -70,6 +70,7 @@ public class DialogManager implements EntitySelectionListener
 	private SortFamilyDialog sortFamiliesDlg;
 	private SortAgentDialog sortAgentDlg;
 	private AssignDeliveryDialog assignDeliveryDlg;
+	private AssignDistributionCentersDialog assignDistCentersDlg;
 	private SortDriverDialog sortDriverDlg;
 	private SortPartnerDialog sortPartnerDlg;
 	private SortGiftsDialog sortGiftsDlg;
@@ -246,7 +247,11 @@ public class DialogManager implements EntitySelectionListener
 		//set up the assign delivery dialog
 		assignDeliveryDlg = new AssignDeliveryDialog(GlobalVariablesDB.getFrame());
 		stDlgMap.put("Deliveries", assignDeliveryDlg);
-		eeManager.registerEntitySelector(sortAgentDlg);
+		eeManager.registerEntitySelector(assignDeliveryDlg);
+		
+		//set up the assign gift pickup locations dialog
+		assignDistCentersDlg = new AssignDistributionCentersDialog(GlobalVariablesDB.getFrame());
+		eeManager.registerEntitySelector(assignDistCentersDlg);
     	
 		//set up the sort driver dialog
 		sortDriverDlg = new SortDriverDialog(GlobalVariablesDB.getFrame());
@@ -444,6 +449,15 @@ public class DialogManager implements EntitySelectionListener
 		{
 	        manageBatteryDlg.setLocationRelativeTo(GlobalVariablesDB.getFrame());
 			manageBatteryDlg.setVisible(true);
+		}
+	}
+	
+	void showAssignDistributionCenterDialog()
+	{
+		if(!assignDistCentersDlg.isVisible())
+		{
+	        assignDistCentersDlg.setLocationRelativeTo(GlobalVariablesDB.getFrame());
+			assignDistCentersDlg.setVisible(true);
 		}
 	}
 	

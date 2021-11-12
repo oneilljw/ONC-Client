@@ -23,6 +23,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.TimeZone;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -83,6 +84,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	//Database references
 	NoteDB noteDB;
 	SMSDB smsDB;
+	DistributionCenterDB distributionCenterDB;
 	
 	//Unique gui elements for Sort Family Dialog
 	private JComboBox<String> oncCB, batchCB, regionCB, streetCB, lastnameCB, zipCB, emailCB, altDelCB;
@@ -132,6 +134,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			dbMgr.addDatabaseListener(this);
 		
 		smsDB = SMSDB.getInstance();
+		distributionCenterDB = DistributionCenterDB.getInstance();
 		
 		noteDB = NoteDB.getInstance();
 		if(noteDB != null)
@@ -346,7 +349,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
         printCB.setEnabled(false);
         printCB.addActionListener(this);
         
-        String[] emailChoices = {"Email", "2020 Confirmation Email"};
+        String[] emailChoices = {"Email", "2021 Confirmation Email"};
         sendEmailCB = new JComboBox<String>(emailChoices);
         sendEmailCB.setPreferredSize(new Dimension(180, 28));
         sendEmailCB.setEnabled(false);
@@ -1301,7 +1304,6 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	 *********************************************************************************************
 	void onPrintYellowCard()
 	{
-		
 		//create the parameters map
 		Map<java.lang.String, java.lang.Object> parameters = new HashMap<java.lang.String, java.lang.Object>();
 		parameters.put("oncseason", "ONC " + Integer.toString(gvs.getCurrentSeason()));
@@ -1381,8 +1383,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			sendEmailCB.setEnabled(false);
 			sendSMSCB.setEnabled(false);
 			callCB.setEnabled(false);
-		}
-			
+		}	
 	}
 	
 	//Resets each search criteria gui and its corresponding member variable to the initial
@@ -1491,7 +1492,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		String subject = "Holiday Gift Confirmation from Our Neighbor's Child";
 		
 		//create the pickup locations object
-		PickUpLocations locations = new PickUpLocations();
+//		PickUpLocations locations = new PickUpLocations();
 		
 		//For each family selected, create the email, body and recipient information in an
 		//ONCEmail object and add it to the email array list
@@ -1501,13 +1502,17 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			//Get selected family object
 			ONCFamily fam = stAL.get(row_sel[row]).getFamily();
 			
-			//only families with valid email addresses will get an email. This allows selection of all families in the table
-			//and automatically filters out those without valid email addresses
-			if(fam.getEmail().length() > 4 && fam.getEmail().contains("@") && fam.getEmail().contains("."))
+			//only families with valid email addresses will get an email. This allows selection of all
+			//families in the table and automatically filters out those without valid email addresses
+			//or a distribution center assignment
+			if(fam.getEmail().length() > 4 && fam.getEmail().contains("@") && fam.getEmail().contains(".") &&
+				fam.getDistributionCenterID() > -1)
 			{
-				//Create the email body, method call generates a new email body string
-				String emailBody = createEmailBody(fam, locations.getPickUpLocation(fam));
-			
+				//Create the email body, method call generates a new email body string. Before creating the
+				//body, lookup the distribution center where the family will pickup their children's gifts
+				DistributionCenter center = distributionCenterDB.getDistributionCenter(fam.getDistributionCenterID());
+				String emailBody = createEmailBody(fam, center);
+				
 				//Create recipient list for email. Method call creates a new List of EmailAddresses
 				ArrayList<EmailAddress> recipientAdressList = createRecipientList(fam);
 	       
@@ -1537,21 +1542,22 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	    oncEmailer = new ONCEmailer(this, progressBar, fromAddress, bccList, emailAL, attachmentAL, creds);
 	    oncEmailer.addPropertyChangeListener(this);
 	    oncEmailer.execute();
-	    sendEmailCB.setEnabled(false);		
+	    sendEmailCB.setEnabled(false);
+	    		
 	}
 	
 	/**************************************************************************************************
 	 *Creates a new email body for each family email. If family is valid or doesn't have a valid first 
 	 *name, a null body is returned
 	 **************************************************************************************************/
-	String createEmailBody(ONCFamily fam, PickUpLocation puLocation)
+	String createEmailBody(ONCFamily fam, DistributionCenter center)
 	{
 		String emailBody = null;
 		
 		//verify the family has a valid name. If not, return a null body
 		if(fam != null && fam.getFirstName() != null && fam.getFirstName().length() >= MIN_EMAIL_NAME_LENGTH) 
 		{
-			emailBody = create2020FamilyGiftPickUpEmail(fam, puLocation);
+			emailBody = create2021FamilyGiftPickUpEmail(fam, center);
 		}
         	
 		return emailBody;
@@ -1658,7 +1664,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
         return msg;
 	}
 	
-	String create2020FamilyGiftPickUpEmail(ONCFamily fam, PickUpLocation puLocation)
+	String create2021FamilyGiftPickUpEmail(ONCFamily fam, DistributionCenter center)
 	{
 		
         //Create the text part of the email using html
@@ -1666,9 +1672,9 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
         	"<html><body><div>" +
         	"<p>Dear %s %s,</p>"+
         	"<p>Our Neighbor's Child (ONC) received a holiday assistance request from your child's school and volunteers have collected gifts for your child(ren).</p>" + 
-        	"<p><b>Gifts will be available for PICK UP on Sunday, December 13 from 1PM to 4PM</b>.</p>" +
+        	"<p><b>Gifts will be available for PICK UP on %s from 1PM to 4PM</b>.</p>" +
         	"<p><b>IMPORTANT: There are many families and several Gift Pick Up locations. <span style=\"background-color: #FFFF00\">Your child(ren)'s gifts will only be available from ONC's truck at <i>THIS</i> location from 1-4PM:</span></b></p>"+
-        	"<p style=\"font-size:24px\" align=\"center\">%s<br><a href=\"%s\">%s</a></p>"+
+        	"<p style=\"font-size:24px\" align=\"center\">%s<br><a href=\"%s\">%s %s %s %s, VA %s</a></p>"+
         	"<p style=\"font-size:12px\"><b>The churches and businesses are sharing their parking areas for this Our Neighbor's Child event and will not have additional information. Please direct any questions to your child's school.</b>" +
         	"<p><span style=\"background-color: #FFFF00\">Please reply \"YES\" to confirm you have received this email and understand the pick up instructions.</span></p>"+
 			"<p>You, or someone you trust, may pick up your gifts by presenting your unique ONC Family Identification Number (ONC#) and the name of the Head of Household (listed below). "
@@ -1683,8 +1689,21 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
         	"<p style=\"font-size:144px\" align=\"center\"><b>ONC #<br>%s</b></p>" +
         	"<p style=\"font-size:32px\" align=\"center\">Head of Household Name: %s %s</p>" +
         	"</div>"+
-        	"</div></body></html>", fam.getFirstName(), fam.getLastName(), puLocation.getName(), puLocation.getGoogleMapURL(), puLocation.getAddress(), fam.getONCNum(), fam.getFirstName(), fam.getLastName());
+        	"</div></body></html>", fam.getFirstName(), fam.getLastName(), getDeliveryDay(), center.getName(), center.getGoogleMapURL(),
+        	center.getStreetNum(), center.getStreet(), center.getSuffix(), center.getCity(), 
+        	center.getZipcode(), fam.getONCNum(), fam.getFirstName(), fam.getLastName());
         return msg;
+	}
+	
+	String getDeliveryDay()
+	{
+		Calendar delDayCal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+		delDayCal.setTimeInMillis(gvs.getDeliveryDateMillis());
+		
+		SimpleDateFormat sdf = new SimpleDateFormat("EEEE, MMMM d, yyyy");
+		sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+		
+		return sdf.format(delDayCal.getTime());
 	}
 	
 	/**************************************************************************************************
@@ -1730,7 +1749,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		return recipientAddressList;
 	}
 	
-	void sendFamilyText(int messageID, int phoneNum)
+	void sendFamilySMS(int messageID, int phoneNum)
 	{
 		//build the family ID list
 		ArrayList<Integer> famIDList = new ArrayList<Integer>();
@@ -1744,7 +1763,8 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			
 			//only families with valid phone numbers will be included.
 			if(phoneNum == 1 && !fam.getHomePhone().isEmpty() || 
-				phoneNum == 2 && !fam.getCellPhone().isEmpty())
+				phoneNum == 2 && !fam.getCellPhone().isEmpty() ||
+				 phoneNum == 3 && !fam.getAlt2Phone().isEmpty())
 			{
 				famIDList.add(fam.getID());
 			}
@@ -2826,7 +2846,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 		
 				Object selectedValue = confirmOP.getValue();
 				if(selectedValue != null && selectedValue.toString().equals("Send"))
-					sendFamilyText(smsDlg.getMessageSelected(), smsDlg.getPhoneSelected());
+					sendFamilySMS(smsDlg.getMessageSelected(), smsDlg.getPhoneSelected());
 			}
 			
 			sendSMSCB.setSelectedIndex(0);	//Reset the combo box choice
@@ -3677,7 +3697,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			JPanel phoneNumberSelPanel = new JPanel();
 			
 			lblPhoneNumberSel = new JLabel("Phone #:");
-			phoneNumberCB = new JComboBox<String>(new String[] {"None", "Primary", "Alternate"});
+			phoneNumberCB = new JComboBox<String>(new String[] {"None", "Primary", "Alternate", "2nd Alternate"});
 			phoneNumberCB.setPreferredSize(new Dimension(208,36));
 			phoneNumberCB.addActionListener(this);
 			phoneNumberSelPanel.add(lblPhoneNumberSel);
@@ -3736,25 +3756,25 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 			}
 		}	
 	}
-	
+/*	
 	private class PickUpLocations
 	{
-		private List<PickUpLocation> locations;
+		private List<DistributionCenter> locations;
 		
 		PickUpLocations()
 		{
-			locations = new ArrayList<PickUpLocation>();
+			locations = new ArrayList<DistributionCenter>();
 			
-			locations.add(new PickUpLocation("Centreville Baptist Church","15100 Lee Highway Centreville, VA", "https://goo.gl/maps/Khbgv2i4Tk1ZKjgT8"));	//index 0
-			locations.add(new PickUpLocation("Centreville United Methodist Church","6400 Old Centreville Road Centreville, VA", "https://goo.gl/maps/WMNjKxeHVHCsC4vP6"));	//index 1
-			locations.add(new PickUpLocation("Saint Andrew Lutheran Church","14640 Soucy Place Centreville, VA", "https://goo.gl/maps/TL48uuGFqiuUjxZv7"));	//index 2
-			locations.add(new PickUpLocation("A&A Transfer Building 1","44200 Lavin Lane Chantilly, VA", "https://goo.gl/maps/WquCeZ95FurKcXJp6"));	//index 3
-			locations.add(new PickUpLocation("Saint Andrew Lutheran Church","14640 Soucy Place Centreville, VA", "https://goo.gl/maps/TL48uuGFqiuUjxZv7"));	//index 4
-			locations.add(new PickUpLocation("Centreville Baptist Church","15100 Lee Highway Centreville, VA", "https://goo.gl/maps/Khbgv2i4Tk1ZKjgT8"));	//index 5
-			locations.add(new PickUpLocation("King of Kings Lutheran Church","4025 Kings Way Fairfax, VA", "https://goo.gl/maps/DmcQqiCniUALDnQv8"));	//index 6
+			locations.add(new DistributionCenter(0,"Centreville Baptist Church", "CBC", "15100","Lee", "Highway", "Centreville", "20120", "https://goo.gl/maps/Khbgv2i4Tk1ZKjgT8"));	//index 0
+			locations.add(new DistributionCenter(1,"Centreville United Methodist Church", "CUMC","6400", "Old Centreville", "Road", "Centreville", "20121", "https://goo.gl/maps/WMNjKxeHVHCsC4vP6"));	//index 1
+			locations.add(new DistributionCenter(2,"Saint Andrew Lutheran Church","Saint Andrew","14640", "Soucy", "Place", "Centreville", "20120", "https://goo.gl/maps/TL48uuGFqiuUjxZv7"));	//index 2
+			locations.add(new DistributionCenter(3,"A&A Transfer Building 1","A&A","44200", "Lavin", "Lane", "Chantilly", "20152", "https://goo.gl/maps/WquCeZ95FurKcXJp6"));	//index 3
+			locations.add(new DistributionCenter(4,"Saint Andrew Lutheran Church","Saint Andrew","14640", "Soucy", "Place", "Centreville", "20120", "https://goo.gl/maps/TL48uuGFqiuUjxZv7"));	//index 4
+			locations.add(new DistributionCenter(5,"Centreville Baptist Church","CBC","15100", "Lee", "Highway", "Centreville", "20120", "https://goo.gl/maps/Khbgv2i4Tk1ZKjgT8"));	//index 5
+			locations.add(new DistributionCenter(6,"King of Kings Lutheran Church","King of Kings","4025", "Kings", "Way", "Fairfax", "22033", "https://goo.gl/maps/DmcQqiCniUALDnQv8"));	//index 6
 		}
 		
-		PickUpLocation getPickUpLocation(ONCFamily fam)
+		DistributionCenter getPickUpLocation(ONCFamily fam)
 		{
 			int oncNum = Integer.parseInt(fam.getONCNum());
 			if(oncNum < 250)
@@ -3773,23 +3793,41 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 				return locations.get(6);	//1000+: King of Kings
 		}
 	}
-	
+*/	
+/*	
 	private class PickUpLocation
 	{
+		private int id;
 		private String name;
-		private String address;
+		private String streetnum;
+		private String street;
+		private String suffix;
+		private String city;
+		private String zipcode;
 		private String googleMapURL;
 		
-		PickUpLocation(String name, String address, String url)
+		PickUpLocation(int id, String name, String streetnum, String street, String suffix, String city,
+				String zipcode, String url)
 		{
+			this.id = id;
 			this.name = name;
-			this.address = address;
+			this.streetnum = streetnum;
+			this.street = street;
+			this.suffix = suffix;
+			this.city = city;
+			this.zipcode = zipcode;
 			this.googleMapURL = url;
 		}
 		
 		//getters
+		int getID() { return id; }
 		String getName() { return name; }
-		String getAddress() { return address; }
+		String getStreetNum() { return streetnum; }
+		String getStreet() { return street; }
+		String getSuffix() { return suffix; }
+		String getCity() { return city; }
+		String getZipcode() { return zipcode; }
 		String getGoogleMapURL() { return googleMapURL; }
 	}
+*/	
 }

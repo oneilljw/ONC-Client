@@ -106,9 +106,9 @@ public abstract class SortTableDialog extends ONCEntityTableDialog implements Ac
 		sortCriteriaPanelBottom = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		
 		//Create the ONC Icon label and add it to the search criteria panel
-    		JLabel lblONCicon = new JLabel(gvs.getImageIcon(0));
-    		lblONCicon.setToolTipText("ONC Client v" + GlobalVariablesDB.getVersion());
-    		lblONCicon.setAlignmentX(Component.LEFT_ALIGNMENT );//0.0
+		JLabel lblONCicon = new JLabel(gvs.getImageIcon(0));
+		lblONCicon.setToolTipText("ONC Client v" + GlobalVariablesDB.getVersion());
+		lblONCicon.setAlignmentX(Component.LEFT_ALIGNMENT );//0.0
         sortCriteriaPanelTop.add(lblONCicon);
 		
 		sortCriteriaPanel.add(sortCriteriaPanelTop);

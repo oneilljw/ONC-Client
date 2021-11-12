@@ -54,6 +54,7 @@ public class ONCFamily extends ONCEntity
 	private boolean		bGiftCardOnly;
 	private GiftDistribution	giftDistribution;
 	private boolean		bDeliveryConfirmation;
+	private int			distributionCenterID;
 	
 	//constructor used to make a copy for server update requests
 	public ONCFamily(ONCFamily f)
@@ -101,6 +102,7 @@ public class ONCFamily extends ONCEntity
 		this.bGiftCardOnly = f.bGiftCardOnly;
 		this.giftDistribution = f.giftDistribution;
 		this.bDeliveryConfirmation = f.bDeliveryConfirmation;
+		this.distributionCenterID = f.distributionCenterID;
 	}
 
 	//Overloaded Constructor - 29 column (A to AC) input from ODB .csv file - 2014, 2015
@@ -152,6 +154,7 @@ public class ONCFamily extends ONCEntity
 		bGiftCardOnly = false;
 		this.giftDistribution = GiftDistribution.Delivery;
 		this.bDeliveryConfirmation = false;
+		this.distributionCenterID = -1;
 
 		parseHOH(HOH);
 		parsePhoneData(ClientFamPhone);
@@ -206,6 +209,7 @@ public class ONCFamily extends ONCEntity
 		bGiftCardOnly = nextLine[38].equals("TRUE") ? true : false;
 		this.giftDistribution = nextLine[39].isEmpty() ? GiftDistribution.Delivery : GiftDistribution.distribution(Integer.parseInt(nextLine[39]));
 		this.bDeliveryConfirmation = nextLine[40].equals("T") ? true : false;
+		this.distributionCenterID =  Integer.parseInt(nextLine[41]);
 	}
 	
 	//Overloaded Constructor - Direct Intake Processing
@@ -281,6 +285,7 @@ public class ONCFamily extends ONCEntity
 		this.bGiftCardOnly = false;
 		this.giftDistribution = giftDistribution;
 		this.bDeliveryConfirmation = false;
+		this.distributionCenterID = -1;
 	}
 	
 	String getDBString(String s)
@@ -517,6 +522,7 @@ public class ONCFamily extends ONCEntity
 	public boolean 	isGiftCardOnly() { return bGiftCardOnly; }
 	public GiftDistribution getGiftDistribution() { return giftDistribution; }
 	public boolean hasDeliveryImage() { return bDeliveryConfirmation; }
+	public int		getDistributionCenterID() { return distributionCenterID; }
 
 	//Setters
 	public void setONCNum(String s) { oncNum = s;}
@@ -561,6 +567,7 @@ public class ONCFamily extends ONCEntity
 	public void setGiftCardOnly(boolean gco) { bGiftCardOnly = gco; }
 	public void setGiftDistribution(GiftDistribution dist) { this.giftDistribution = dist; }
 	public void setDeliveryConfirmation(boolean gc) { bDeliveryConfirmation = gc; }
+	public void setDistributionCenter(DistributionCenter dc) {this.distributionCenterID = dc.getID(); }
 	
 	public String getGoogleMapAddress()
 	{
@@ -650,6 +657,7 @@ public class ONCFamily extends ONCEntity
 		rowList.add(isGiftCardOnly() ? "TRUE" : "FALSE");
 		rowList.add(Integer.toString(giftDistribution.index()));
 		rowList.add(hasDeliveryImage() ? "T" : "F");
+		rowList.add(Integer.toString(getDistributionCenterID()));
 		
 		return rowList.toArray(new String[rowList.size()]);
 	}

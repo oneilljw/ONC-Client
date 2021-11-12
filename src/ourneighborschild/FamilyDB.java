@@ -139,7 +139,7 @@ public class FamilyDB extends ONCSearchableDatabase
 		
 		return response;
 	}
-/*	
+	
 	//updates a list of families with changes
 	String updateFamList(Object source, List<ONCFamily> updateFamReqList)
 	{		
@@ -166,7 +166,7 @@ public class FamilyDB extends ONCSearchableDatabase
 
 		return returnResp;
 	}	
-*/	
+	
 	String update_AutoONCNum(Object source, ONCObject oncfamily)
 	{
 		Gson gson = null;
@@ -1134,7 +1134,7 @@ public class FamilyDB extends ONCSearchableDatabase
     	
 		if(oncwritefile!= null)
 		{
-    			//If user types a new filename and doesn't include the .csv, add it
+    		//If user types a new filename and doesn't include the .csv, add it
 			String filePath = oncwritefile.getPath();		
 			if(!filePath.toLowerCase().endsWith(".csv")) 
 	    			oncwritefile = new File(filePath + ".csv");
@@ -1490,8 +1490,6 @@ public class FamilyDB extends ONCSearchableDatabase
 		return searchtype;
 	}
 	
-	
-
 	@Override
 	String[] getExportHeader()
 	{
@@ -1502,6 +1500,6 @@ public class FamilyDB extends ONCSearchableDatabase
 				"ODB Details", "Children Names", "Schools", "ODB WishList", "Adopted For",
 				"Agent ID", "GroupID", "Phone Code", "# of Bags", "# of Large Items", 
 				"Stoplight Pos", "Stoplight Mssg", "Stoplight C/B", "Transportation",
-				"Gift Card Only", "Gift Distribution"};
+				"Gift Card Only", "Gift Distribution", "Del Confirmation","Pickup Location"};
 	}
 }

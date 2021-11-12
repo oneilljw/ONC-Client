@@ -50,10 +50,10 @@ public abstract class ONCDatabase extends ServerListenerComponent implements Ser
 	abstract String[] getExportHeader();
 	abstract List<? extends ONCObject> getList();
 	
-	void onDBImportComplete(Integer year)
-	{
-		this.fireDataChanged(this, "LOADED_DATABASE",  year);
-	}
+//	void onDBImportComplete(Integer year)
+//	{
+//		this.fireDataChanged(this, "LOADED_DATABASE",  year);
+//	}
 	
 	boolean exportDBToCSV(JFrame pf, String filename)
     {

@@ -107,7 +107,8 @@ public class DatabaseManager extends ServerListenerComponent implements ServerLi
 		importDBList.add(InventoryDB.getInstance());
 		importDBList.add(SMSDB.getInstance());
 		importDBList.add(BatteryDB.getInstance());
-		importDBList.add((familyDB = FamilyDB.getInstance()));
+		importDBList.add(DistributionCenterDB.getInstance());
+		importDBList.add(familyDB = FamilyDB.getInstance());
 				
 //		oncGVs = GlobalVariablesDB.getInstance();
 //		regionDB = RegionDB.getInstance();
@@ -374,7 +375,7 @@ public class DatabaseManager extends ServerListenerComponent implements ServerLi
 
     /****
      * Method is called when data is loaded from the server to the local data base. To prevent race conditions,
-     * each component database is asked to notify they're listeners instead of notifying after each component 
+     * each component database is asked to notify their listeners instead of notifying after each component 
      * database is loaded
      * @param bServerDataLoaded
      * @param year

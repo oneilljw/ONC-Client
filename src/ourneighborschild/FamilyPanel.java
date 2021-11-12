@@ -402,7 +402,6 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
         	rbDistribution[i] = new JRadioButton(gvs.getImageIcon(rbDistributionIndex[i]));
         	rbDistribution[i].setToolTipText("Click for gift pickup or home delivery");
         	rbDistribution[i].setVisible(false);
-        	rbDistribution[i].setEnabled(false);
         	rbDistribution[i].addActionListener(this);
         }
         
@@ -846,11 +845,21 @@ public class FamilyPanel extends ONCPanel implements ActionListener, ListSelecti
 									  currFam.getTransportation() == Transportation.TBD);
 		rbTransportation[1].setVisible(currFam.getTransportation() == Transportation.Yes);
 		
-		//set gift distribution button icon. Only enabled if ONC is offering a pickup or delivery choice to family
-		rbDistribution[0].setVisible(currFam.getGiftDistribution() == GiftDistribution.Pickup);
-		rbDistribution[1].setVisible(currFam.getGiftDistribution() == GiftDistribution.Delivery);
-		rbDistribution[0].setEnabled(gvs.getGiftDistribution() == GiftDistribution.Pickup_Delivery);
-		rbDistribution[1].setEnabled(gvs.getGiftDistribution() == GiftDistribution.Pickup_Delivery);
+		if(currFam.getGiftDistribution() == GiftDistribution.Pickup)
+		{
+			rbDistribution[0].setVisible(true);
+			rbDistribution[1].setVisible(false);
+		}
+		else if(currFam.getGiftDistribution() == GiftDistribution.Delivery)
+		{
+			rbDistribution[0].setVisible(false);
+			rbDistribution[1].setVisible(true);
+		}
+		else
+		{
+			rbDistribution[0].setVisible(false);
+			rbDistribution[1].setVisible(false);
+		}
 		
 		addChildrenToTable(cn);	//update child table
 		checkForAdultsInFamily(); //set the adults icon
