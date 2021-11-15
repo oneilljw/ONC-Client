@@ -676,7 +676,35 @@ public class FamilyDB extends ONCSearchableDatabase
     	return count_results;
     }
     
-    /*******************************************************************************************************
+    /**************************************************************************************************
+     * This method counts the number of families assigned to a specific distribution center
+     **************************************************************************************************/
+    int getNuberOfFamiliesAssignedToDistributionCenter(int centerID)
+    {
+    	int count = 0;
+    	
+    	for(ONCFamily f:oncFamAL)
+    		if(f.getDistributionCenterID() == centerID)
+    			count++;
+    	
+    	return count;
+    }
+    
+    /**************************************************************************************************
+     * This method counts the number of families assigned to any distribution center
+     **************************************************************************************************/
+    int getNuberOfFamiliesAssignedToAnyDistributionCenter()
+    {
+    	int count = 0;
+    	
+    	for(ONCFamily f:oncFamAL)
+    		if(f.getDistributionCenterID() > -1)
+    			count++;
+    	
+    	return count;
+    }
+    
+    /**************************************************************************************************
      * This method counts the number of families with a particular agent
      **************************************************************************************************/
     int getNuberOfFamiliesWithAgent(int agentID)

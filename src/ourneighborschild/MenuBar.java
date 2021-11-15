@@ -32,7 +32,7 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 	private JMenuItem exportMI, dbStatusMI, clearMI;
 	public JMenuItem exitMI;	//public since exit method is external to the menu bar
 	private JMenuItem findDupFamsMI, findDupChldrnMI, crosscheckMI;
-	private JMenuItem editVolMI, editActMI, viewSignInLogMI, manageVolMI, manageActMI;
+	private JMenuItem editVolMI, editActMI, editDistCentersMI, viewSignInLogMI, manageVolMI, manageActMI;
 	private JMenuItem assignDelMI, assignDistCentersMI, manageDelMI, barcodeDeliveryMI, mapsMI, schoolDelMI, distMI;
 	private JMenuItem newFamMI, changeONCMI, changeRefMI, changeBatchMI, newChildMI, editDNSCodesMI;
 	private JMenuItem delChildMI, markAdultMI, connectChildMI, famHistMI;
@@ -428,12 +428,23 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 	    assignDelMI.addActionListener(this);
 	    menuDelivery.add(assignDelMI);
 	    
+	    menuDelivery.addSeparator();
+	    
+	    //Edit Distribution Centers
+	    editDistCentersMI = new JMenuItem("Edit Distribution Centers");
+	    editDistCentersMI.setActionCommand("Edit Distribution Centers");
+	    editDistCentersMI.setEnabled(false);
+	    editDistCentersMI.addActionListener(this);;
+	    menuDelivery.add(editDistCentersMI);
+	    
 	    //Assign Pickup Location
 	    assignDistCentersMI = new JMenuItem("Assign Distribution Centers");
 	    assignDistCentersMI.setActionCommand("Centers");
 	    assignDistCentersMI.setEnabled(false);
 	    assignDistCentersMI.addActionListener(this);
 	    menuDelivery.add(assignDistCentersMI);
+	    
+	    menuDelivery.addSeparator();
 	    
 	    submenuDeliverGifts = new JMenu("Confirm Deliveries");
 	    submenuDeliverGifts.setEnabled(false);
@@ -616,6 +627,7 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 	{
 		catMI.setEnabled(tf);	//Once new season created can manage wishes and partners
 		orgMI.setEnabled(tf);	//or when a file is opened
+		editDistCentersMI.setEnabled(tf);
 		sortOrgsMI.setEnabled(tf);
 	}	
 	
@@ -746,6 +758,8 @@ public class MenuBar extends JMenuBar implements ActionListener, DatabaseListene
 			dlgManager.showCrosscheckDialog();
 		else if(e.getSource() == assignDelMI)
 			dlgManager.showSortDialog(assignDelMI.getActionCommand(), SORT_DIALOG_OFFSET);
+		else if(e.getSource() == editDistCentersMI)
+			dlgManager.showEntityDialog(editDistCentersMI.getActionCommand(), SORT_DIALOG_OFFSET);
 		else if(e.getSource() == assignDistCentersMI)
 			dlgManager.showAssignDistributionCenterDialog();
 		else if(e.getSource() == editVolMI)

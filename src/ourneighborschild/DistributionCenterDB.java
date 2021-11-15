@@ -7,14 +7,16 @@ import java.util.List;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-public class DistributionCenterDB extends ONCDatabase
+public class DistributionCenterDB extends ONCSearchableDatabase
 {
+	private static final EntityType DB_TYPE = EntityType.CENTER;
+	
 	private static DistributionCenterDB instance = null;
 	private List<DistributionCenter> centerList;
 	
 	private DistributionCenterDB()
 	{
-		super();
+		super(DB_TYPE);
 		this.title = "Distribution Centers";
 		centerList = new ArrayList<DistributionCenter>();
 	}
@@ -213,7 +215,37 @@ public class DistributionCenterDB extends ONCDatabase
 	@Override
 	String[] getExportHeader()
 	{
-		return new String[] {"ID", "Name", "Acronym", "Street #", "Street", "Suffix", "City", "Zipcode","Google Map URL"};
+		return new String[] {"ID", "Name", "Acronym", "Street #", "Street", "Suffix", "City", "Zipcode","Google Map URL",
+				"Changed By", "Timestamp", "SL Pos", "SL Mssg", "SL Changed By"};
 	}
 
+	String searchForListItem(ArrayList<Integer> searchAL, String data)
+	{
+		String searchType = "";
+		searchAL.clear();
+		
+    	searchType = "Center name or zip code";
+		for(DistributionCenter dc : centerList)
+		{
+			if(dc.getName().toLowerCase().contains(data.toLowerCase()) ||
+				dc.getZipcode().toLowerCase().contains(data.toLowerCase()))
+			{
+				searchAL.add(dc.getID());
+			}
+		}
+    	
+    	return searchType;
+	}
+
+	@Override
+	int size()
+	{
+		return centerList.size();
+	}
+
+	@Override
+	ONCEntity getObjectAtIndex(int index)
+	{
+		return centerList.isEmpty() ? null : centerList.get(index);
+	}
 }

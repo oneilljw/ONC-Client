@@ -15,6 +15,7 @@ public enum EntityType
 	ACTIVITY ("Activity"),
 	NOTE ("Note"),
 	DNS_CODE("DNS Code"),
+	CENTER("Center"),
 	UNKNOWN("Unknown");
 	
 	private final String name;

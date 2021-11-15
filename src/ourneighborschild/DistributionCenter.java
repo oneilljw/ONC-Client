@@ -1,7 +1,12 @@
 package ourneighborschild;
 
-public class DistributionCenter extends ONCObject
+public class DistributionCenter extends ONCEntity
 {
+	/**
+	 * Basic object for distribution centers, which are locations or facilities where
+	 * families can pick up their gifts. 
+	 */
+	private static final long serialVersionUID = 1L;
 	private String name;
 	private String acronym;
 	private String streetnum;
@@ -11,9 +16,11 @@ public class DistributionCenter extends ONCObject
 	private String zipcode;
 	private String googleMapURL;
 
-	public DistributionCenter(int id, String name, String acronym, String streetnum, String street, String suffix, String city, String zipcode, String url)
+	public DistributionCenter(int id, String name, String acronym, String streetnum, String street, 
+			String suffix, String city, String zipcode, String url, long today, String changedBy,
+			int slpos, String slmssg, String slchgby)
 	{
-		super(id);
+		super(id, today, changedBy, slpos, slmssg, slchgby);
 		this.name = name;
 		this.acronym = acronym;
 		this.streetnum = streetnum;
@@ -26,7 +33,8 @@ public class DistributionCenter extends ONCObject
 	
 	public DistributionCenter(String[] nextLine)
 	{
-		super(Integer.parseInt(nextLine[0]));
+		super(Integer.parseInt(nextLine[0]), Long.parseLong(nextLine[10]), nextLine[9],
+				Integer.parseInt(nextLine[11]), nextLine[12], nextLine[13]);
 		this.name = nextLine[1];
 		this.acronym = nextLine[2];
 		this.streetnum = nextLine[3];
@@ -39,7 +47,7 @@ public class DistributionCenter extends ONCObject
 	
 	public DistributionCenter(DistributionCenter dc)
 	{
-		super(dc.id);
+		super(dc.id, dc.timestamp, dc.changedBy, dc.slPos, dc.slMssg, dc.slChangedBy);
 		this.name = dc.name;
 		this.acronym = dc.acronym;
 		this.streetnum = dc.streetnum;
@@ -52,7 +60,7 @@ public class DistributionCenter extends ONCObject
 	
 	DistributionCenter(int id, String name, String acronym)
 	{
-		super(id);
+		super(id, System.currentTimeMillis(), "", 3, "","");
 		this.name = name;
 		this.acronym = acronym;
 		this.streetnum = "";
@@ -89,7 +97,8 @@ public class DistributionCenter extends ONCObject
 	@Override
 		public String[] getExportRow()
 	{
-		String[] row= {Long.toString(id), name, acronym, streetnum, street, suffix, city, zipcode, googleMapURL};
+		String[] row= {Integer.toString(id), name, acronym, streetnum, street, suffix, city, zipcode, googleMapURL,
+						changedBy, Long.toString(timestamp), Integer.toString(slPos), slMssg, slChangedBy};
 		return row;
 	}
 }
