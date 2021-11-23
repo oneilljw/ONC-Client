@@ -278,6 +278,9 @@ public class DeliveryDirectionsPrinter implements Printable
 			String deliveryURL = String.format("https://%s:%d/giftdelivery?year=%s&famid=%s&refnum=%s",
 					"oncdms.org", 8902, oncSeason,familyInfo[18], familyInfo[19]);
 			
+//			String deliveryURL = String.format("https://%s:%d/giftdelivery?year=%s&famid=%s&refnum=%s",
+//					"54.237.74.69", 8902, oncSeason,familyInfo[18], familyInfo[19]);
+					
 			try
 			{
 				drawQRCode(mapURL, 20, 120, g2d);	//map qr code

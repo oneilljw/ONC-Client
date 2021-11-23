@@ -73,7 +73,7 @@ public class DistributionCenter extends ONCEntity
 	
 	//getters
 	public String getName() { return name; }
-	String getAcronym() { return acronym; }
+	public String getAcronym() { return acronym; }
 	public String getStreetNum() { return streetnum; }
 	public String getStreet() { return street; }
 	public String getSuffix() { return suffix; }
