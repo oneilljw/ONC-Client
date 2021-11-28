@@ -2,6 +2,7 @@ package ourneighborschild;
 
 public enum UserPermission
 {
+	Warehouse,
 	General,
 	Agent,
 	Admin,

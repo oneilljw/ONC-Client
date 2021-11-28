@@ -349,7 +349,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
         printCB.setEnabled(false);
         printCB.addActionListener(this);
         
-        String[] emailChoices = {"Email", "2021 Confirmation Email"};
+        String[] emailChoices = {"Email", "2021 Confirmation Email", "2021 Waitlist Confirmation Email"};
         sendEmailCB = new JComboBox<String>(emailChoices);
         sendEmailCB.setPreferredSize(new Dimension(180, 28));
         sendEmailCB.setEnabled(false);
@@ -1511,7 +1511,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 				//Create the email body, method call generates a new email body string. Before creating the
 				//body, lookup the distribution center where the family will pickup their children's gifts
 				DistributionCenter center = distributionCenterDB.getDistributionCenter(fam.getDistributionCenterID());
-				String emailBody = createEmailBody(fam, center);
+				String emailBody = createEmailBody(fam, center, emailType);
 				
 				//Create recipient list for email. Method call creates a new List of EmailAddresses
 				ArrayList<EmailAddress> recipientAdressList = createRecipientList(fam);
@@ -1521,7 +1521,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 					emailAL.add(new ONCEmail(subject, emailBody, recipientAdressList));
 			}
 		}
-		
+
 		//Create the from address string array
 		EmailAddress fromAddress = new EmailAddress(FAMILY_EMAIL_SENDER_ADDRESS, "Our Neighbor's Child");
 //		EmailAddress fromAddress = new EmailAddress(TEST_FAMILY_EMAIL_SENDER_ADDRESS, "Our Neighbor's Child");
@@ -1550,15 +1550,15 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 	 *Creates a new email body for each family email. If family is valid or doesn't have a valid first 
 	 *name, a null body is returned
 	 **************************************************************************************************/
-	String createEmailBody(ONCFamily fam, DistributionCenter center)
+	String createEmailBody(ONCFamily fam, DistributionCenter center, int emailType)
 	{
 		String emailBody = null;
 		
 		//verify the family has a valid name. If not, return a null body
-		if(fam != null && fam.getFirstName() != null && fam.getFirstName().length() >= MIN_EMAIL_NAME_LENGTH) 
-		{
+		if(fam != null && fam.getFirstName() != null && fam.getFirstName().length() >= MIN_EMAIL_NAME_LENGTH && emailType == 1) //Regular family email 
 			emailBody = create2021FamilyGiftPickUpEmail(fam, center);
-		}
+		else if(fam != null && fam.getFirstName() != null && fam.getFirstName().length() >= MIN_EMAIL_NAME_LENGTH && emailType == 2) //Waitlist family email
+			emailBody = create2021WaitlistFamilyGiftPickUpEmail(fam, center);
         	
 		return emailBody;
 	}
@@ -1672,6 +1672,36 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
         	"<html><body><div>" +
         	"<p>Dear %s %s,</p>"+
         	"<p>Our Neighbor's Child (ONC) received a holiday assistance request from your child's school and volunteers have collected gifts for your child(ren).</p>" + 
+        	"<p><b>Gifts will be available for PICK UP on %s from 1PM to 4PM</b>.</p>" +
+        	"<p><b>IMPORTANT: There are many families and several Gift Pick Up locations. <span style=\"background-color: #FFFF00\">Your child(ren)'s gifts will only be available from ONC's truck at <i>THIS</i> location from 1-4PM:</span></b></p>"+
+        	"<p style=\"font-size:24px\" align=\"center\">%s<br><a href=\"%s\">%s %s %s %s, VA %s</a></p>"+
+        	"<p style=\"font-size:12px\"><b>The churches and businesses are sharing their parking areas for this Our Neighbor's Child event and will not have additional information. Please direct any questions to your child's school.</b>" +
+        	"<p><span style=\"background-color: #FFFF00\">Please reply \"YES\" to confirm you have received this email and understand the pick up instructions.</span></p>"+
+			"<p>You, or someone you trust, may pick up your gifts by presenting your unique ONC Family Identification Number (ONC#) and the name of the Head of Household (listed below). "
+			+ "<b>Please do not share this information with anyone unless you authorize another person to pick up your gifts</b>. Your gifts are bagged in advance and marked for your family. "
+			+ "It is not necessary to be the first in line <b>as long as you arrive before 4PM.</b></p>" +
+			"<ul>"+
+			"<li>You must print the page with your ONC # and Head of Household Name (listed below) and place it in your car's dashboard. Or, you may write the number and name in large, legible print and place that in your car's dashboard.</li>"+
+			"<li>Upon arrival, follow directional signs and remain in the vehicle. All vehicle occupants must wear masks.</li>"+
+			"<li>A volunteer (wearing a mask) will bring the gifts marked with your ONC number to your car. The volunteer will either load them into your open trunk or will step back to allow you to safely load them inside your vehicle.</li>"+
+        	"</ul>"+
+			"<div style=\"break-before: always\">" +
+        	"<p style=\"font-size:144px\" align=\"center\"><b>ONC #<br>%s</b></p>" +
+        	"<p style=\"font-size:32px\" align=\"center\">Head of Household Name: %s %s</p>" +
+        	"</div>"+
+        	"</div></body></html>", fam.getFirstName(), fam.getLastName(), getDeliveryDay(), center.getName(), center.getGoogleMapURL(),
+        	center.getStreetNum(), center.getStreet(), center.getSuffix(), center.getCity(), 
+        	center.getZipcode(), fam.getONCNum(), fam.getFirstName(), fam.getLastName());
+        return msg;
+	}
+	
+	String create2021WaitlistFamilyGiftPickUpEmail(ONCFamily fam, DistributionCenter center)
+	{
+        //Create the text part of the email using html
+        String msg = String.format(
+        	"<html><body><div>" +
+        	"<p>Dear %s %s,</p>"+
+        	"<p>Our Neighbor's Child (ONC) received a <b>WAITLIST</b> holiday assistance request from your child's school. Our volunteers have been able to collect gifts for your child(ren) <span style=\"background-color: #FFFF00\">enrolled in elementary school and younger</span>.</p>" + 
         	"<p><b>Gifts will be available for PICK UP on %s from 1PM to 4PM</b>.</p>" +
         	"<p><b>IMPORTANT: There are many families and several Gift Pick Up locations. <span style=\"background-color: #FFFF00\">Your child(ren)'s gifts will only be available from ONC's truck at <i>THIS</i> location from 1-4PM:</span></b></p>"+
         	"<p style=\"font-size:24px\" align=\"center\">%s<br><a href=\"%s\">%s %s %s %s, VA %s</a></p>"+
@@ -2804,7 +2834,7 @@ public class SortFamilyDialog extends SortFamilyTableDialog implements PropertyC
 				onExportAngelInputFile();
 			}
 		}
-		else if(e.getSource() == sendEmailCB && sendEmailCB.getSelectedIndex() > 0)	//only one email currently
+		else if(e.getSource() == sendEmailCB && sendEmailCB.getSelectedIndex() > 0)	//two email choices currently
 		{
 			//Confirm with the user that sending email really intended
 			String confirmMssg = "Are you sure you want to send family(s) an Email?"; 

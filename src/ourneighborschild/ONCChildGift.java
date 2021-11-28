@@ -47,6 +47,22 @@ public class ONCChildGift extends ONCLinkedListObject implements Serializable
 //		this.nextID = -1;
 		this.bClonedGift = false;
 	}
+	
+	//Copy constructor	
+	public ONCChildGift(ONCChildGift cg)
+	{
+		super(cg.id, cg.priorID, cg.nextID);
+		this.childID = cg.childID;
+		this.catalogGiftID = cg.catalogGiftID;
+		this.restriction = cg.restriction;
+		this.detail = cg.detail;
+		this.giftnumber = cg.giftnumber;
+		this.status = cg.status;
+		this.partnerID = cg.partnerID;
+		this.changedBy = cg.changedBy;
+		this.timestamp = cg.timestamp;
+		this.bClonedGift = cg.bClonedGift;
+	}
 
 	//Constructor for wish created or changed internally		
 	public ONCChildGift(String[] nextLine, boolean bClonedGift)
