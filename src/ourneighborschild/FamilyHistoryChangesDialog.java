@@ -15,6 +15,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.TimeZone;
@@ -78,9 +80,11 @@ public class FamilyHistoryChangesDialog extends ONCTableDialog implements Proper
 	private String sortNotes;
 	private Calendar startFilterTimestamp, endFilterTimestamp;
 	
+	private FamilyHistoryTimestampComparator fhTimestampComparator;
+	
 	private String[] notes = {"Any", "Status Changed", "Family Referred", "Gift Status Change",
 			"Automated Call Result: Contacted", "Automated Call Result: Confirmed",
-			"Delivery Driver Assigned", "Agent updated family info"};
+			"Delivery Driver Assigned", "Agent updated family info", "Delivery confirmed by barcode scan"};
 	
 	public FamilyHistoryChangesDialog(JFrame parentFrame)
 	{
@@ -114,6 +118,7 @@ public class FamilyHistoryChangesDialog extends ONCTableDialog implements Proper
 			dbMgr.addDatabaseListener(this);
 		
 		histList = new ArrayList<FamilyHistory>();
+		fhTimestampComparator = new FamilyHistoryTimestampComparator(); 
 		
 		//Set up the search criteria panel      
 		oncnumTF = new JTextField(5);
@@ -220,6 +225,8 @@ public class FamilyHistoryChangesDialog extends ONCTableDialog implements Proper
 				histList.add(fh);
 			}
 		}
+		
+		Collections.sort(histList, fhTimestampComparator);
 		
 		setCount(histList.size());
 		dlgTableModel.fireTableDataChanged();	//Display the table after table array list is built	
@@ -391,7 +398,7 @@ public class FamilyHistoryChangesDialog extends ONCTableDialog implements Proper
 	}
 
 	@Override
-	int[] columnWidths() { return new int[] {48, 88, 88, 64, 112, 208, 96, 128}; }
+	int[] columnWidths() { return new int[] {48, 88, 88, 64, 112, 292, 96, 128}; }
 	
 	@Override
 	void resetFilters()
@@ -643,5 +650,18 @@ public class FamilyHistoryChangesDialog extends ONCTableDialog implements Proper
 		{
 			
 		}
-	 }
+	}
+	 
+	private class FamilyHistoryTimestampComparator implements Comparator<FamilyHistory>
+	{
+		public int compare(FamilyHistory o1, FamilyHistory o2)
+		{			
+			if(o1.getTimestamp() > o2.getTimestamp())
+				return -1;
+			else if(o1.getTimestamp() < o2.getTimestamp())
+				return 1;
+			else
+				return 0;
+		}
+	}
 }

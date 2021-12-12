@@ -264,17 +264,30 @@ public class BarcodeDeliveryDialog extends ONCEntityTableDialog implements Actio
 				}
 				else
 				{
+					familyHistory = familyHistoryDB.getLastFamilyHistory(fam.getID());
+					
 					dcPanel.setBackground(delCardBackgroundColor);
 					btnUndo.setEnabled(false);
 					
-					if(lastFamChanged != null && fam.getID() == lastFamChanged.getID() && lastFamilyHistoryChanged.getGiftStatus()==FamilyGiftStatus.Assigned)	
+					if(lastFamChanged != null && fam.getID() == lastFamChanged.getID() && 
+					    lastFamilyHistoryChanged != null && lastFamilyHistoryChanged.getGiftStatus()==FamilyGiftStatus.Assigned)	
 						alert(Result.SUCCESS, String.format("Delivered: Family# %s Gift Delivery Confirmed On Last Scan!", fam.getONCNum()));
 					else if(familyHistory.getGiftStatus()==FamilyGiftStatus.Delivered)
-						alert(Result.SUCCESS, String.format("Delivered: Family# %s Gift Delivery Previously Confirmed", fam.getONCNum()));	
-					else if(familyHistory.getGiftStatus() != FamilyGiftStatus.Assigned)
-    					alert(Result.FAILURE, String.format("Unable to Confirm Delivery: Improper Gift Status For Family# %s",
+						alert(Result.SUCCESS, String.format("Delivered: Family# %s Gift Delivery Previously Confirmed", fam.getONCNum()));
+					else if(!(fam.getGiftDistribution() == GiftDistribution.Delivery || fam.getGiftDistribution() == GiftDistribution.Pickup))
+    					alert(Result.FAILURE, String.format("Unable to Confirm Delivery: Improper Gift Distribution Selection For Family# %s",
     							fam.getONCNum(),familyHistory.getGiftStatus().toString()));
-					else if(familyHistory.getGiftStatus() == FamilyGiftStatus.Assigned)
+					else if(fam.getGiftDistribution() == GiftDistribution.Pickup && fam.getDistributionCenterID() == -1)
+    					alert(Result.FAILURE, String.format("Unable to Confirm Delivery: Distribution Center Not Assigned For Family# %s pickup",
+    							fam.getONCNum(),familyHistory.getGiftStatus().toString()));
+					else if(fam.getGiftDistribution() == GiftDistribution.Pickup && familyHistory.getGiftStatus() != FamilyGiftStatus.Packaged)
+    					alert(Result.FAILURE, String.format("Unable to Confirm Delivery: Improper Gift Status For Family# %s pickup",
+    							fam.getONCNum(),familyHistory.getGiftStatus().toString()));
+					else if(fam.getGiftDistribution() == GiftDistribution.Delivery && familyHistory.getGiftStatus() != FamilyGiftStatus.Assigned)
+    					alert(Result.FAILURE, String.format("Unable to Confirm Delivery: Improper Gift Status For Family# %s delivery",
+    							fam.getONCNum(),familyHistory.getGiftStatus().toString()));
+					else if(fam.getGiftDistribution() == GiftDistribution.Delivery && familyHistory.getGiftStatus() == FamilyGiftStatus.Assigned ||
+							 fam.getGiftDistribution() == GiftDistribution.Pickup && familyHistory.getGiftStatus() == FamilyGiftStatus.Packaged && fam.getDistributionCenterID() > -1)
 					{
 						//found the family, status is poised to be changed to delivered, so do so
 						ONCFamily priorLastFamChanged = lastFamChanged;
@@ -285,6 +298,7 @@ public class BarcodeDeliveryDialog extends ONCEntityTableDialog implements Actio
 						
 						//create a copy to send to the server and set the gift status to Delivered
 						FamilyHistory addFamilyHistoryReq = new FamilyHistory(familyHistory);
+						addFamilyHistoryReq.setdNotes("Delivery confirmed by barcode scan");
 						addFamilyHistoryReq.setFamilyGiftStatus(FamilyGiftStatus.Delivered);
 
 						//send the request to the server via the local family data base
